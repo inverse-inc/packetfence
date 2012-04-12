@@ -64,23 +64,23 @@ sub nodecategory_db_prepare {
     $logger->debug("Preparing pf::nodecategory database queries");
 
     $nodecategory_statements->{'nodecategory_view_all_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id, name, notes FROM node_category ]
+        qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category ]
     );
 
     $nodecategory_statements->{'nodecategory_view_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id, name, notes FROM node_category WHERE category_id = ? ]
+        qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category WHERE category_id = ? ]
     );
 
     $nodecategory_statements->{'nodecategory_view_by_name_sql'} = get_db_handle()->prepare(
-        qq [ SELECT category_id, name, notes FROM node_category WHERE name = ? ]
+        qq [ SELECT category_id, name, max_nodes_per_pid, notes FROM node_category WHERE name = ? ]
     );
 
     $nodecategory_statements->{'nodecategory_add_sql'} = get_db_handle()->prepare(
-        qq [ INSERT INTO node_category (name, notes) VALUES (?, ?) ]
+        qq [ INSERT INTO node_category (name, max_nodes_per_pid, notes) VALUES (?, ?, ?) ]
     );
 
     $nodecategory_statements->{'nodecategory_modify_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE node_category SET name=?, notes=? WHERE category_id = ? ]
+        qq [ UPDATE node_category SET name=?, max_nodes_per_pid=?, notes=? WHERE category_id = ? ]
     );
 
     $nodecategory_statements->{'nodecategory_delete_sql'} = get_db_handle()->prepare(
@@ -137,7 +137,15 @@ sub nodecategory_add {
         die("name missing: Category name is mandatory when adding a category.");
     }
 
-    return(db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_add_sql', $data{'name'}, $data{'notes'}));
+    # default values
+    $data{'max_nodes_per_pid'} = 0 if (!defined($data{'max_nodes_per_pid'}));
+
+    return(
+        db_data(
+            NODECATEGORY, $nodecategory_statements, 'nodecategory_add_sql', 
+            @data{qw/name max_nodes_per_pid notes/} # hash-slice assigning values to a list
+        )
+    );
 }
 
 =item nodecategory_modify - modify a node category
@@ -146,12 +154,19 @@ sub nodecategory_add {
 sub nodecategory_modify {
     my ($cat_id, %data) = @_;
 
-    if (!defined($data{'name'})) {
-        die("name missing: Category name is mandatory when editing a category.");
+    # overriding defaults
+    my $existing = nodecategory_view($cat_id);
+    foreach my $item ( keys(%data) ) {
+        $existing->{$item} = $data{$item};
     }
 
-    return(db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_modify_sql', 
-        $data{'name'}, $data{'notes'}, $cat_id));
+    return(
+        db_data(
+            NODECATEGORY, $nodecategory_statements, 'nodecategory_modify_sql', 
+            @{$existing}{qw/name max_nodes_per_pid notes/},  # hashref-slice assigning values to a list
+            $cat_id
+        )
+    );
 }
 
 =item nodecategory_delete - delete a node category
@@ -205,7 +220,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008,2010 Inverse inc.
+Copyright (C) 2008, 2010, 2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

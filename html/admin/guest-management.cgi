@@ -114,7 +114,15 @@ if (defined($session->param("username"))) {
             }
             else {
                 # Otherwise send email
-                pf::web::guest::send_registration_confirmation_email($info);
+                # translate 3d into 3 days with proper plural form handling
+                my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
+                $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
+
+                pf::web::guest::send_template_email(
+                    $pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION, 
+                    i18n_format("%s: Guest Network Access Information", $Config{'general'}{'domain'}),
+                    $info
+                );
                         
                 # Return user to the guest registration page
                 pf::web::guest::generate_registration_page($cgi, $session,"/guests/manage",
@@ -156,7 +164,7 @@ if (defined($session->param("username"))) {
           my $file = $cgi->upload('users_file');
           if (!$file && $cgi->cgi_error) {
             $logger->error("Import: Received corrupted file: " . $cgi->cgi_error);
-            pf::web::generate_error_page( $cgi, $session, "error: something went wrong creating the guest" );
+            pf::web::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
           }
           else {
             my $filename = $cgi->param('users_file');
@@ -168,7 +176,7 @@ if (defined($session->param("username"))) {
             if ($success) {
               my ($count, $skipped) = split(',',$error);
               $logger->info("CSV file import $count users, skip $skipped users");
-              $error = sprintf(i18n("Import completed: %i guest(s) created, %i line(s) skipped."), $count, $skipped);
+              $error = i18n_format("Import completed: %i guest(s) created, %i line(s) skipped.", $count, $skipped);
               
               # Tear down session information
               $session->clear([ "delimiter", "columns", "arrival_date", "access_duration" ]);

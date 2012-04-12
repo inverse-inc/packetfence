@@ -21,14 +21,21 @@ New Hardware
 
 New Features
  * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
+ * New guest self-registration mode: Sponsored. Guests accesses are approved through a 'sponsor'.
+ * New guest self-registration option: Pre-registered guests. They can register in advance through the portal. Email and sponsor modes supported right now.
 
 Enhancements
  * New database-driven custom VLAN assignment strategy example
  * Slightly more helpful installer.pl
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
  * More logging
+ * New parameter available to control what information is mandatory to be provided by a guest signing-up (guests_self_registration.mandatory_fields)
+ * New parameter available to control default field to use as pid for guests (guests_self_registration.guest_pid)
+ * Node categories were moved from node into configuration on the Web Admin
+ * New per-category configuration to control maximum number of devices allowed per user (max_nodes_per_pid)
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
  * if VoIP is configured to be enabled and the network hardware doesn't support it, PacketFence will log a warning
+ * Firewall and Captive Portal more restrictive by default if you are not using guest access
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)

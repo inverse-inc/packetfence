@@ -19,9 +19,20 @@ use base ('pf::web::auth');
 
 use pf::config qw($TRUE $FALSE $conf_dir);
 
-our $VERSION = 1.10;
+our $VERSION = 1.20;
 
 =head1 CONFIGURATION AND ENVIRONMENT
+
+=over
+
+=item Password file
+
+Defaults to conf/user.conf.
+
+=cut
+our $password_file = "$conf_dir/user.conf";
+
+=back
 
 =head2 Optional
 
@@ -49,16 +60,15 @@ Errors meant for administrators are logged in F<logs/packetfence.log>.
 =cut
 sub authenticate {
   my ($this, $username, $password) = @_;
-  my $logger = Log::Log4perl::get_logger('authentication::local');
-  my $passwdFile = "$conf_dir/user.conf";
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-  if (! -r $passwdFile) {
-      $logger->error("unable to read password file '$passwdFile'");
+  if (! -r $password_file) {
+      $logger->error("unable to read password file '$password_file'");
       $this->_setLastError('Unable to validate credentials at the moment');
       return $FALSE;
   }
 
-  my $htpasswd = new Apache::Htpasswd({ passwdFile => $passwdFile, ReadOnly   => 1});
+  my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
   if ( (!defined($htpasswd->htCheckPassword($username, $password))) 
       or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
 
@@ -67,6 +77,34 @@ sub authenticate {
   } else {
       return $TRUE;
   }
+}
+
+=item isAllowedToSponsorGuests
+
+Is the given email allowed to sponsor guest access?
+
+Here we strip the domain portion and validate if the user exists in conf/user.conf.
+
+=cut
+sub isAllowedToSponsorGuests {
+    my ($this, $sponsor_email) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    if (! -r $password_file) {
+        $logger->error("unable to read password file '$password_file'");
+        return $FALSE;
+    }
+
+    # strip @domain...
+    $sponsor_email =~ s/@.*$//;
+
+    # does the user exists in the password file?
+    my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
+    return $TRUE if ( $htpasswd->fetchPass($sponsor_email) );
+
+    # otherwise
+    $logger->error("unable to find user $sponsor_email in password file '$password_file'");
+    return $FALSE;
 }
 
 =back
@@ -79,7 +117,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2008-2011 Inverse inc.
+Copyright (C) 2008-2012 Inverse inc.
 
 =head1 LICENSE
 

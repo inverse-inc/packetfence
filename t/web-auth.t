@@ -60,12 +60,12 @@ foreach my $auth_module (@auth_modules) {
 }
 
 # authentication::local
-
-# modify global $conf_dir so that t/data/user.conf will be loaded instead of conf/user.conf
-my $conf_dir = $main::pf::config::conf_dir;
-$main::pf::config::conf_dir = "data";
-
 my $local_auth = new authentication::local();
+{
+    # modify $password_file so that t/data/user.conf will be loaded instead of conf/user.conf
+    no warnings 'once';
+    $authentication::local::password_file = 'data/user.conf';
+}
 ok($local_auth->authenticate("user", "testpass"), "working account expecting success");
 
 # ERROR HANDLING

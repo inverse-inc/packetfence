@@ -50,7 +50,7 @@ print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_
 my $mac = ip2mac($ip);
 if (!valid_mac($mac)) {
   $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, "error: not found in the database");
+  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
   exit(0);
 }
 

@@ -376,6 +376,7 @@ sub nodecategory {
         try {
             nodecategory_add(%params);
         } catch {
+            chomp($_);
             $logger->logcarp("$_");
         };
  
@@ -385,6 +386,7 @@ sub nodecategory {
         try {
             nodecategory_modify($id, %params);
         } catch {
+            chomp($_);
             $logger->logcarp("$_");
         };
  
@@ -393,6 +395,7 @@ sub nodecategory {
         try {
             nodecategory_delete($id);
         } catch {
+            chomp($_);
             $logger->logcarp("$_");
         };
     } 

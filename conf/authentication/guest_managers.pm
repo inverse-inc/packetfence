@@ -19,7 +19,7 @@ use base ('pf::web::auth');
 
 use pf::config qw($TRUE $FALSE $conf_dir);
 
-our $VERSION = 1.10;
+our $VERSION = 1.20;
 
 # TODO: regroup authenticate() portion of local and this module in authentication::htaccess 
 #       (or even pf::web::auth::htaccess) to prevent code duplication
@@ -75,6 +75,38 @@ sub authenticate {
   return $FALSE;
 }
 
+=item isAllowedToSponsorGuests
+
+Is the given email allowed to sponsor guest access?
+
+Here we strip the domain portion and validate if the user exists in conf/guest_mamangers.conf and conf/admin.conf.
+
+=cut    
+sub isAllowedToSponsorGuests {
+    my ($this, $sponsor_email) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    foreach my $password_file ("$conf_dir/guest-managers.conf", "$conf_dir/admin.conf") {
+
+        if (! -r $password_file) {
+            $logger->error("unable to read password file '$password_file'");
+            return $FALSE;
+        }   
+    
+        # strip @domain...
+        $sponsor_email =~ s/@.*$//;
+    
+        # does the user exists in the password file?
+        my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
+        return $TRUE if ( $htpasswd->fetchPass($sponsor_email) );
+
+    }
+
+    # otherwise
+    $logger->error("unable to find user $sponsor_email in both password files");
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR
@@ -83,7 +115,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

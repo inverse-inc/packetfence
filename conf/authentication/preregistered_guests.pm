@@ -20,7 +20,7 @@ use base ('pf::web::auth');
 use pf::config qw($TRUE $FALSE normalize_time %Config);
 use pf::temporary_password;
 
-our $VERSION = 1.10;
+our $VERSION = 1.20;
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -88,8 +88,23 @@ sub getNodeAttributes {
 
     return (
         unregdate => POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($this->{_accessDuration}))),
-        category => $Config{'guests_pre_registration'}{'category'},
+        category => $Config{'guests_admin_registration'}{'category'},
     );
+}
+
+=item * isAllowedToSponsorGuests
+
+Is the given email allowed to sponsor guest access?
+
+Guest can't sponsor other guests.
+
+=cut
+sub isAllowedToSponsorGuests {
+    my ($this, $sponsor_email) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->error(q{Guest can't sponsor other guests});
+    return $FALSE;
 }
 
 =back
@@ -100,7 +115,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

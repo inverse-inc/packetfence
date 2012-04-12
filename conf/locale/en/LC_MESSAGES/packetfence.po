@@ -165,6 +165,9 @@ msgstr "This guest network is provided exclusively for the convenience of guests
 msgid "In the fields below please enter your name, phone number and a valid email address."
 msgstr ""
 
+msgid "If you choose to receive your access code <strong>by email</strong>, you will have to click on an activation link sent to your email address. After clicking on the link you will receive guest credentials to use on-site by email"
+msgstr ""
+
 msgid "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
 msgstr ""
 
@@ -309,13 +312,28 @@ msgstr ""
 msgid "Firstname"
 msgstr ""
 
+msgid "firstname"
+msgstr ""
+
 msgid "Lastname"
+msgstr ""
+
+msgid "lastname"
 msgstr ""
 
 msgid "Company"
 msgstr ""
 
+msgid "Company / Organization"
+msgstr ""
+
+msgid "organization"
+msgstr "company / organization"
+
 msgid "Phone number"
+msgstr ""
+
+msgid "phone"
 msgstr ""
 
 msgid "Phone Provider"
@@ -326,6 +344,15 @@ msgstr ""
 
 msgid "Email"
 msgstr ""
+
+msgid "email"
+msgstr ""
+
+msgid "Sponsor's email"
+msgstr ""
+
+msgid "sponsor_email"
+msgstr "sponsor's email"
 
 msgid "Address"
 msgstr ""
@@ -626,6 +653,9 @@ msgstr ""
 msgid "Access to the guest network has been granted until %s."
 msgstr ""
 
+msgid "Access to the guest network has been granted."
+msgstr ""
+
 msgid "Access to the guest network granted"
 msgstr ""
 
@@ -755,4 +785,94 @@ msgid "Are you sure you want to delete this filter?"
 msgstr ""
 
 msgid "Enter new filter name"
+msgstr ""
+
+msgid "Guest Sponsor Login"
+msgstr ""
+
+msgid "Before we proceed with guest activation, we need you to authenticate."
+msgstr ""
+
+msgid "You have reached the maximum number of devices you are able to register with this username."
+msgstr ""
+
+msgid "An email has been sent to your email address. Click on the activation link to confirm your email address. Once confirmed you will receive a username and password by email for you to use once on-site."
+msgstr ""
+
+msgid "An access request was sent to the sponsor's email. You will receive an email with a username and password once your access has been approved."
+msgstr ""
+
+msgid "Registration in advance by SMS is not supported."
+msgstr ""
+
+msgid "%s: Guest Network Access Information"
+msgstr ""
+
+msgid "%s: Guest access confirmed!"
+msgstr ""
+
+msgid "%s: Guest network access enabled"
+msgstr ""
+
+msgid "There was a problem trying to find the computer to register. The problem has been logged."
+msgstr ""
+
+msgid "The device with MAC address %s has already been authorized to your network."
+msgstr ""
+
+msgid "%s: Guest access request"
+msgstr ""
+
+msgid "%s: Guest access request accepted"
+msgstr ""
+
+msgid "Guest pre-registration is not allowed by policy"
+msgstr ""
+
+msgid "If you choose to have your access <strong>sponsored</strong>, we will send an email to the Sponsor email you provided with an activation link. The sponsor will need to click on that link and authenticate in order to approve you in."
+msgstr ""
+
+msgid "You will receive guest credentials by email once approved."
+msgstr ""
+
+msgid "You will be in a waiting area until approved."
+msgstr ""
+
+msgid "Register through a Sponsor"
+msgstr ""
+
+msgid "Network Access Requested"
+msgstr ""
+
+msgid "Access to the guest network confirmed"
+msgstr ""
+
+msgid "Access to the guest network has been successfully confirmed. You should receive credentials for on-site guest access by email shortly."
+msgstr ""
+
+msgid "%s: Email activation required"
+msgstr ""
+
+msgid "Missing mandatory parameter or malformed entry"
+msgstr ""
+
+msgid "Missing mandatory parameter(s): %s"
+msgstr ""
+
+msgid "Illegal email address provided"
+msgstr ""
+
+msgid "Illegal phone number provided"
+msgstr ""
+
+msgid "Acceptable Use Policy (AUP) was not accepted"
+msgstr ""
+
+msgid "Your access can only be sponsored by a %s email address"
+msgstr ""
+
+msgid "Unable to validate your sponsor at the moment"
+msgstr ""
+
+msgid "Email %s is not allowed to sponsor guest access"
 msgstr ""
