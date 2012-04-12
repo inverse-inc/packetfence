@@ -129,6 +129,7 @@
                            'Cisco::Catalyst_6500' => 'Cisco Catalyst 6500 Series',
                            'Cisco::ISR_1800' => 'Cisco ISR 1800 Series',
                            'Cisco::WiSM' => 'Cisco WiSM',
+                           'Cisco::WiSM2' => 'Cisco WiSM2',
                            'Cisco::WLC' => 'Cisco Wireless Controller (WLC)',
                            'Cisco::WLC_2100' => 'Cisco Wireless (WLC) 2100 Series',
                            'Cisco::WLC_2500' => 'Cisco Wireless (WLC) 2500 Series',
