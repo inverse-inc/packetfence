@@ -248,7 +248,8 @@ sub service_list {
             push @finalServiceList, $service;
         } elsif ( $service eq "named" ) {
             push @finalServiceList, $service 
-                if (is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'named'}));
+                if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
+                    && isenabled($Config{'services'}{'named'}) );
         } elsif ( $service eq "pfsetvlan" ) {
             push @finalServiceList, $service;
         } else {
