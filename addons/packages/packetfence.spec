@@ -484,6 +484,12 @@ if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
+# TODO we should simplify this file manifest to the maximum keeping treating 
+# only special attributes explicitly 
+# "To make this situation a bit easier, if the %files list contains a path 
+# to a directory, RPM will automatically package every file in that 
+# directory, as well as every file in each subdirectory."
+# -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
 %files
 
 %defattr(-, pf, pf)
