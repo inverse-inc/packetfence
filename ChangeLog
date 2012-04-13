@@ -1,3 +1,97 @@
+commit ad23e65d26fb79ad19bb1e8a02f65e03e1cfa815
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 11:02:45 2012 -0400
+
+    spec file marked as 3.3.0-2
+
+M	addons/packages/packetfence.spec
+
+commit d1b07df8014db76182967a79e3600c6bbcf37d57
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 10:53:39 2012 -0400
+
+    date bump
+
+M	NEWS
+
+commit 1f3a672eefde0a2ce81df8cbe2992dab004133fa
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 10:47:56 2012 -0400
+
+    dhcpd.leases file no longer managed by RPM spec
+    
+    - no longer destroyed on updates
+    - no longer required in our repo (was pretty useless there anyways)
+    - file created on dhcpd launching if it doesn't exist
+
+M	NEWS
+M	UPGRADE
+M	addons/packages/packetfence.spec
+M	lib/pf/services.pm
+D	var/dhcpd/dhcpd.leases
+
+commit 45374818867b9baae58ce777f70527c3dd4af3e0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 10:45:13 2012 -0400
+
+    new TODO task for package
+
+M	addons/packages/packetfence.spec
+
+commit 113c4fb81d2094bb256cd2ced80a26839075d7b0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 10:42:10 2012 -0400
+
+    fix for badly handled 'changed empty directory handling'
+    
+    now creating required empty dirs in both the RPM install stage and in the installer.pl (for those installing from source)
+
+M	addons/packages/packetfence.spec
+M	installer.pl
+
+commit 59695548b3cd52194ac691615842a65641e5e171
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 09:20:44 2012 -0400
+
+    Revert "changed empty directory handling"
+    
+    This reverts commit 2da9e8e73d7132fa7f6456343687cc79b546291e.
+    
+    Conflicts:
+    
+    	addons/packages/packetfence.spec
+
+M	addons/packages/packetfence.spec
+M	installer.pl
+A	var/dhcpd/dhcpd.leases
+
+commit ba4f709182af9bc77f20f40688166f51b221e88d
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Apr 12 20:00:48 2012 -0300
+
+    Doesn't check for undefined roles
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit 24e8a390d29824f2f2cb3ba356f59cdaf802a20a
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Apr 12 15:52:47 2012 -0400
+
+    Updated the remediation templates to use the new responsive CSS.
+
+M	docs/docbook/pf-devel-guide.xml
+M	html/captive-portal/templates/enabler.html
+M	html/captive-portal/templates/redirect.html
+M	html/captive-portal/templates/remediation.html
+
+commit 14a8a02e4f47894da8d03fd67116d6ef9e1b39e7
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 12 15:12:21 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit 233e3c5aa0c36160e85a92b44815502fb63ae754
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Thu Apr 12 15:09:49 2012 -0400
@@ -676,6 +770,15 @@ Date:   Tue Apr 3 13:27:56 2012 -0400
     security: escaping HTML on username
 
 M	html/captive-portal/templates/guest/sponsor_login.html
+
+commit 3c9f6fd30ea95f2f6b49a5840f12d1ee9adb2bd5
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Mar 30 14:55:44 2012 -0400
+
+    Adding cleanup lines for accounting
+    We will delete the entries of the previous year once a while
+
+M	addons/database-backup-and-maintenance.sh
 
 commit a0b01a8ba318066cf310167e59d60bb4f054dc6c
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
@@ -1520,6 +1623,42 @@ M	NEWS
 M	README.network-devices
 M	lib/pf/SNMP/HP/Procurve_2600.pm
 
+commit 347445af8478303c6d4a490f0bb899301c93e35b
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Mar 15 14:59:00 2012 -0400
+
+    AlliedTelesis Module and Documentation
+
+M	NEWS
+M	README.network-devices
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+A	lib/pf/SNMP/AlliedTelesis.pm
+A	lib/pf/SNMP/AlliedTelesis/AT8000GS.pm
+
+commit eb0ff8a88957f7356a7f828829d51e4c73c10c38
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Mar 12 13:58:22 2012 -0400
+
+    Fix Bug 1391.
+    We need to lower case the User-Name and the Calling-Station-Id for string compare in the perl module.
+
+M	NEWS
+M	addons/802.1X/packetfence.pm
+
+commit 3bf62dc6d344cd057285a2741f3cd9804aeaaadc
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Mar 12 13:51:32 2012 -0400
+
+    Fix bug 1390.  Identity privacy for 802.1X should work.
+    This prevents outer tunnel user spoofing.  We will execute the perl module only in the inner-tunnel
+
+M	NEWS
+M	addons/freeradius-integration/sites-available/packetfence
+M	addons/freeradius-integration/sites-available/packetfence-tunnel
+
 commit 3d9bd00af413a0f0487baffe4916e1008234551d
 Author: Francois Gaudreault <fgaudreault@inverse.ca>
 Date:   Mon Mar 12 13:44:38 2012 -0400
@@ -1606,6 +1745,16 @@ M	NEWS
 M	bin/pfcmd
 M	conf/ui.conf
 M	lib/pf/config.pm
+
+commit d3ca81024326327e4d35d6d7d3c3ebddfadbcc26
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Mar 8 22:16:59 2012 -0500
+
+    marking devel branch as version +2 (3.3.0)
+    
+    the attempt at forcing binary conflict failed, I shall retry once stable diverged again
+
+M	conf/pf-release
 
 commit 8d544c147b5349e4a8e9b5ccfcdcc096688b5159
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
