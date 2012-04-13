@@ -17,6 +17,25 @@ o Upgrading from a version prior to 3.3.0:
     note that the schema upgrade might take a while, we will create a new
     index on the radacct table.  Don't panic if it takes longer than usual!
 
+    - Changes to the FreeRADIUS integration
+    Due to a packaging glitch upgrading does not suffice to get updated files.
+    To do so:
+    # yum install packetfence-freeradius2
+    # yum reinstall packetfence-freeradius2
+    Note: Remember the --enablerepo=packetfence if you disabled the repo as 
+    suggested in the admin guide.
+    Then re-add your virtual IP in radiusd.conf (if any) and your webservice 
+    user password into /etc/raddb/packetfence.pm. Also, make sure to merge 
+    the .rpmnew and .rpmsave files.
+ 
+    - new trigger types (no more scan type)
+    The trigger type "Scan" has been removed to leave place to two new types 
+    (Nessus and Openvas). Due to that change, modification to existing 
+    violations.conf is required to change all existing "Scan" type to "Nessus".
+    You can run the following command that will do the job. Make sure to backup
+    your existing violations.conf file.
+    /usr/bin/perl -p -i -e "s/Scan::/Nessus::/ig" /usr/local/pf/conf/violations.conf
+
     - guests_pre_registration renamed to guests_admin_registration
     Update your conf/pf.conf if you diverged from the default settings.
 
