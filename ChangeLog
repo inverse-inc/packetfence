@@ -1,3 +1,27 @@
+commit 225e4831b3f12fcfa1f1dd34ecf75bd27a198147
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 11:20:41 2012 -0400
+
+    freeradius upgrade instructions
+
+M	UPGRADE
+
+commit a96d946381b209f0cc755396fa97128acf52628c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 11:07:15 2012 -0400
+
+    fix: var/ is no longer in the tarball so it no longer can be copied from it
+
+M	addons/packages/packetfence.spec
+
+commit b32251517d3b3905b1e2ac19a59c6607587a9283
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 11:03:05 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit ad23e65d26fb79ad19bb1e8a02f65e03e1cfa815
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Fri Apr 13 11:02:45 2012 -0400
