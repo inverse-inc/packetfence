@@ -230,9 +230,14 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf
+%{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
+# creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
@@ -745,6 +750,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Apr 13 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- directories missing in tarball since git migration now created in %install
+
 * Thu Apr 12 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-1
 - New release 3.3.0
 
