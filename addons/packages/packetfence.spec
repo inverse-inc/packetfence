@@ -303,7 +303,6 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r var $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
