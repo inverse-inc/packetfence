@@ -233,8 +233,14 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-mkdir -p $RPM_BUILD_ROOT/usr/local/pf/logs
-mkdir -p $RPM_BUILD_ROOT/usr/local/pf/var
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -255,7 +261,6 @@ cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
@@ -293,6 +298,7 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
+cp -r var $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
@@ -373,6 +379,8 @@ do
   fi
 done
 
+#touch /usr/local/pf/conf/dhcpd/dhcpd.leases && chown pf:pf /usr/local/pf/conf/dhcpd/dhcpd.leases
+
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
@@ -437,6 +445,7 @@ if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
 fi
+#rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
 if [ $1 -eq 0 ] ; then
@@ -573,6 +582,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
 %config(noreplace)      /usr/local/pf/conf/snort/local.rules
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
+%dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config                 /usr/local/pf/conf/httpd.conf
@@ -597,6 +607,7 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
+%dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
 %attr(0755, pf, pf)     /usr/local/pf/configurator.pl
 %doc                    /usr/local/pf/COPYING
@@ -686,6 +697,7 @@ fi
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
                         /usr/local/pf/lib/pf/web/release.pm
+%dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
@@ -697,6 +709,14 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE
 %dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/conf
+%dir                    /usr/local/pf/var/dhcpd
+                        /usr/local/pf/var/dhcpd/dhcpd.leases
+%dir                    /usr/local/pf/var/named
+%dir                    /usr/local/pf/var/run
+%dir                    /usr/local/pf/var/rrd
+%dir                    /usr/local/pf/var/session
+%dir                    /usr/local/pf/var/webadmin_cache
 
 # Remote snort sensor file list
 %files remote-snort-sensor
@@ -732,7 +752,6 @@ fi
 - Dependencies in recommended perl(A::B) notation instead of perl-A-B
 
 * Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
-- removed most empty folders from here now into installer.pl (Makefile someday)
 - extracted version out of package (we are getting rid of versions in files 
   to simplify devel/stable branch management)
 - source tarball changed: prefixed packetfence-<version>/ instead of pf/ 
