@@ -52,6 +52,11 @@ o Upgrading from a version prior to 3.3.0:
      - emails-sponsor_activation.txt.tt -> 
        emails-guest_sponsor_activation.txt.tt
 
+    - var/dhcpd/dhcpd.leases no longer provided by package
+    The above file is no longer managed by our RPM package which means that 
+    it's no longer overwritten by an empty file on upgrades. It is created on
+    demand if required when PacketFence starts.
+
     - Web Authentication Modules API bump
     In order to support sponsored guests, we made changes to our Web Auth API.
     Make sure to integrate the isAllowedToSponsorGuests() sub in your 

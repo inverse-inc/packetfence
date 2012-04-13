@@ -384,8 +384,6 @@ do
   fi
 done
 
-#touch /usr/local/pf/conf/dhcpd/dhcpd.leases && chown pf:pf /usr/local/pf/conf/dhcpd/dhcpd.leases
-
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
@@ -450,7 +448,6 @@ if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
 fi
-#rm -f /usr/local/pf/conf/dhcpd/dhcpd.leases
 
 %preun remote-snort-sensor
 if [ $1 -eq 0 ] ; then
@@ -722,7 +719,6 @@ fi
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
-                        /usr/local/pf/var/dhcpd/dhcpd.leases
 %dir                    /usr/local/pf/var/named
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd

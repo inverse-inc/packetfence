@@ -54,6 +54,7 @@ Bug Fixes
  * Fixed port-security + VoIP support for the HP wired product line
  * Minor Administration Guide updates
  * Fixed CSS for mobiles devices
+ * This is the last release to destroy your dhcpd lease file on upgrades
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
