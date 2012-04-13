@@ -752,7 +752,8 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
-* Thu Apr 13 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+* Thu Apr 13 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-2
+- New release 3.3.0 (for real this time!)
 - directories missing in tarball since git migration now created in %install
 
 * Thu Apr 12 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-1
