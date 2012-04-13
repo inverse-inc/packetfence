@@ -65,7 +65,7 @@
         $cmd = "floatingnetworkdeviceconfig delete $new_array[0]";
       } else if (($current_top == 'configuration') && ($current_sub=='violation')) {
         $cmd = "violationconfig delete $new_array[0]";
-      } else if (($current_top == 'node') && ($current_sub=='categories')) {
+      } else if (($current_top == 'configuration') && ($current_sub=='categories')) {
         $cmd = "nodecategory delete $new_array[0]";
       } else {
         $cmd="$current_top $_POST[action] $new_array[0]";

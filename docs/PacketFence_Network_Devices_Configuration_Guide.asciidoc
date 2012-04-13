@@ -575,7 +575,7 @@ For ports _with VoIP_:
   dot1x host-mode multi-host 
   dot1x reauthentication 
 
-Port-­Security 
+Port-Security 
 +++++++++++++
 
 CAUTION: With port-security, if no MAC is connected on ports when activating port-security, we need 
@@ -1800,6 +1800,25 @@ In the HVM, go to *Configuration -> SSIDs*, and create a new SSID with the follo
 * Select your RADIUS server from the RADIUS Server dropdown list
 
 [float]
+Roles (User Profiles)
++++++++++++++++++++++
+
+Since PacketFence 3.3.0, we now support user profiles on the AeroHIVE hardware.  To build a User Profile, go to *Configuration -> User Profiles*, and create what you need.  When you define the switch
+definition in PacketFence, the role will match the User Profile attribute number.  Example
+
+   roles=CategoryStudent=1;CategoryStaff=2
+
+And in the AeroHIVE configuration, you have :
+
+   StudentProfile attribute number 1
+   StaffProfile attribute number 2
+
+Last step is to allow the User Profile to be returned for a particular SSID.  Go to *Configuration -> SSIDs -> Your_SSID -> User Profiles for Traffic Management*, and select the User Profiles you will
+return for the devices.
+
+NOTE: The VLAN ID is *NOT* returned by PacketFence if a role is available for a given category.   The VLAN ID needs to be configured in the User Profile definition on the AeroHIVE side.
+
+[float]
 Caching and Roaming
 ++++++++++++++++++++
 
@@ -1823,6 +1842,8 @@ All Aruba OS
 In this section, we cover the basic configuration of the Aruba wireless controller for PacketFence via the web GUI. It was done on an Aruba Controller 200 software version ArubaOS 5.0.3.3, tested on a Controller 600 with ArubaOS 6.0 but it should apply to all Aruba models.
 
 CAUTION: If you are already using your Aruba controllers and don't want to impact your users you should create new AAA profiles and apply them to new SSIDs instead of modifying the default ones.
+
+NOTE: Starting with PacketFence 3.3, Aruba supports role-based access control. Read the Administration Guide under "Role-based enforcement support" for more information about how to configure it on the PacketFence side.
 
 [float]
 AAA Settings
@@ -1862,6 +1883,14 @@ In the Web interface, go to *Configuration -> AP Configuration* then edit the "d
 
 * AAA Profile: default-dot1x
 * SSID Profile: Select NEW then add an SSID (PacketFence-Secure) and Network authentication set to WPA2
+
+[float]
+Roles
++++++
+
+Since PacketFence 3.3.0, we now support roles for the Aruba hardware.  To add roles, go in *Configuration -> Access Control -> User Roles -> Add*.  You don't need to force a VLAN usage in the Role
+since we send also the VLAN ID along with the Aruba User Role in the RADIUS request.  Refer to the Aruba User Guide for more information about the Role creation.
+
 
 Aruba Controller 200
 ^^^^^^^^^^^^^^^^^^^^
@@ -2225,6 +2254,21 @@ Under *Configuration -> Wireless -> ESS*, select the SSID you want to add to you
 * Select the AP ID from the drop down list
 * Click *OK* to associate the SSID with this AP
 
+[float]
+Roles (Per-User Firewall)
++++++++++++++++++++++++++
+
+Since PacketFence 3.3.0, we now support roles (per-user firwall rules) for the Meru hardware.  To add firewall rules, go in *Configuration -> QoS System Settings -> QoS and Firewall Rules*.  When you add a rule, you have to pay attention to two things:
+
+* The rule is applied to the controller physical interface right away, so make sure you are not too wide on your ACL to lock you out!
+* The rules are grouped using the Firewall Filter ID (We will use this ID for the roles)
+
+So, since the matching is done using the Firewall Filter ID configuration field, your roles line in switches.conf would look like :
+
+   roles=Guests=1;Staff=2
+
+NOTE: You need to have the *Per-User Firewall* license in order to benefit this feature.
+
 Motorola
 ~~~~~~~~
 
@@ -2303,6 +2347,21 @@ VLANs
 ++++++
 
 You need to ensure that the uplink interface of the controller is configured as a trunk, and that all the necessary VLANs are created on the device. This is configured under *Device -> rfsXXXX-MAC* (where XXXX is your controller series, and MAC is the latest 3 octets of its mac address). Edit the device configuration, and go to *Interface -> Ethernet Ports*. Ensure that the up1 interface is set as trunk, with all the allowed VLANs. Next, create the VLAN under *Interface -> Virtual Interfaces*.
+
+[float]
+Roles (Per-User Firewall)
++++++++++++++++++++++++++
+
+Since PacketFence 3.3.0, we now support roles for the Motorola hardware using WiNGS 5.x.  To add roles, go in *Configuration -> Security -> Wireless Client Roles*.  First create a global policy that
+will contain your roles.  Next, create your Roles by clicking on the *Add* button on the bottom right.  It is important to configure the Group Configuration line properly by setting the string
+name that we will use in the RADIUS packet.  For exemple, for a Guests Role, you can put *Group Configuration Exact Guests*, and for a Staff Roles, you can put *Group Configuration Exact Staff*. 
+In the roles configuration in switches.conf, you would have something like :
+
+   roles=CategoryGuests=Guests;CategoryStaff=Staff
+
+Finally, don't forget to configure the appropriate firewall rules for your Roles!  Make sure also to commit the configuration upon your changes.
+
+NOTE: You need to have an *Advanced Security* license to enable the Per-User Firewall feature.
 
 Older Firmwares (< 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^^

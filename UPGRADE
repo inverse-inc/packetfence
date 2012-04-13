@@ -5,6 +5,113 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 3.3.0:
+
+    - Database schema update
+    New sponsored guest feature and max nodes per user per category support 
+    required database changes. Make sure you run the following to update 
+    your schema even if you don't use the feature:
+    mysql -u root -p pf -v < db/upgrade-3.2.0-3.3.0.sql
+
+    Warning: If you are actively using RADIUS accounting features, please
+    note that the schema upgrade might take a while, we will create a new
+    index on the radacct table.  Don't panic if it takes longer than usual!
+
+    - guests_pre_registration renamed to guests_admin_registration
+    Update your conf/pf.conf if you diverged from the default settings.
+
+    - Cisco wireless de-authentication
+    Cisco de-authentication now relies on RADIUS Disconnect-Request (RFC3576)
+    instead of SNMP or Telnet/SSH. Make sure you have set radiusSecret in your
+    conf/switches.conf and that RFC3576 support is properly enabled in your
+    controller's AAA config (the default is enabled since IOS 5.x+). Also
+    tightly firewalled environments will have to open up any port from 
+    PacketFence up to port 3799 UDP to their the controllers.
+
+    - Important changes to the inline mode
+    We made some important changes to the way inline mode DNS is working.
+    We introduced DNS DNAT translation so that users in inline VLAN receive 
+    a valid external DNS server by DHCP but if are in an unregistered or 
+    isolated state, iptables DNATs the DNS traffic to a local DNS server on 
+    the PacketFence server (exactly as in a vlan mode).
+
+    It is now important to change the previously recommended "disabled" 
+    named setting to "enabled" in your conf/networks.conf for inline 
+    interfaces. A warning message will come up on startup in case the setting
+    is still set as disabled in an inline configuration. We also dropped a 
+    configuration parameter, inline.portal_redirect, so make sure to update 
+    your pf.conf accordingly. Lastly, the gateway parameter in your inline 
+    VLAN in conf/networks.conf should represent PacketFence's IP in that VLAN.
+    Don't hesitate to take a look at the revised configuration for the inline
+    mode in the PacketFence Administration Guide page 17.
+
+    - Email templates changed names
+    Related to the above guest API changes were several template files renamed
+     - emails-guest_registration.txt.tt -> emails-guest_preregistration.txt.tt
+     - emails-guest_activation.txt.tt -> emails-guest_email_activation.txt.tt
+     - emails-sponsor_activation.txt.tt -> 
+       emails-guest_sponsor_activation.txt.tt
+
+    - var/dhcpd/dhcpd.leases no longer provided by package
+    The above file is no longer managed by our RPM package which means that 
+    it's no longer overwritten by an empty file on upgrades. It is created on
+    demand if required when PacketFence starts.
+
+    - Web Authentication Modules API bump
+    In order to support sponsored guests, we made changes to our Web Auth API.
+    Make sure to integrate the isAllowedToSponsorGuests() sub in your 
+    authentication modules and bump VERSION to 1.20. If you don't plan on 
+    using the sponsored guests feature you can simply bump the API level.
+
+    - Changes to Guest API
+    Users with custom code will have to hook on these updated APIs
+     - pf::web::guest::generate_selfregistration_page's error reporting
+     - pf::web::guest::validate_selfregistration's error reporting
+     - pf::web::guest::web_sms_validation's error reporting
+     - pf::web::guest::generate_sms_confirmation_page's error reporting
+     - pf::web::guest relies on setting a 'guest_pid' session variable instead
+       of the login / username or token variables
+     - GUEST_TEMPLATE and SPONSOR_TEMPLATE templates changed names to 
+       TEMPLATE_EMAIL_GUEST_ACTIVATION and TEMPLATE_EMAIL_SPONSOR_ACTIVATION 
+       and moved from pf::email_activation into pf::web::guest
+     - pf::web::guest::send_registration_confirmation_email is now
+       pf::web::guest::send_template_email
+     - new API entry point prepare_email_guest_activation_info and 
+       prepare_sponsor_guest_activation_info: these are meant to be overriden
+       by custom code to provide more information for email templates
+     - pf::web::guest::validate_sponsor_group() has been removed (migrated 
+       into authentication modules)
+     - pf::web::guest::generate_activation_confirmation_page was renamed and
+       changed package, now: pf::web::generate_generic_page. It also changed 
+       signature (now more generic).
+
+    - Changes to Web API
+    Users with custom code will have to hook on these updated APIs.
+     - pf::web::web_node_register now enforces max registered nodes per pid 
+       limits. You might want to merge that in your custom code.
+     - pf::web::generate_error_page no longer performs the translation 
+       itself, it is the burden of the caller to do so (to support format 
+       strings)
+
+    - pf::radius API bump to 1.02
+    We bumped the version of our pf::radius API. If you want to take advantage
+    of the Role-based access control feature you should probably migrate your
+    custom authorize() call. Otherwise just bumping the version of your custom
+    extension should be fine.
+
+    - API Changes (pf::SNMP and pf::radius)
+    The final say of a RADIUS Access-Accept is now in a switch object (through
+    returnRadiusAccessAccept()) and no longer in pf::radius' authorize().
+    A new smaller indirection layer was introduced in pf::radius to allow 
+    extensive rewrite of RADIUS Access-Accept in custom code. Check 
+    pf::radius' _shouldRewriteAccessAccept and _rewriteAccessAccept.
+
+    - pf::SNMP API Bump
+    We changed the interface to radiusDisconnect. If you use that interface
+    in custom code (most, if not all, of you don't) then you'll need to update
+    your callers. We are now accepting an attributes hashref instead of the
+    accouting session id and username scalars.
+
 o Upgrading from a version prior to 3.2.0:
 
     - Database schema update

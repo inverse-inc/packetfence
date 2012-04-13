@@ -21,12 +21,15 @@ use Net::SNMP;
 use Log::Log4perl;
 use Try::Tiny;
 
-our $VERSION = 2.00;
+our $VERSION = 2.10;
 
 use pf::config;
 use pf::locationlog;
 use pf::node;
-# SNMP constants
+# RADIUS constants (RADIUS:: namespace)
+use pf::radius::constants;
+use pf::roles::custom $ROLE_API_LEVEL;
+# SNMP constants (several standard-based and vendor-based namespaces)
 use pf::SNMP::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
@@ -124,6 +127,19 @@ sub supportsRadiusVoip {
     return $FALSE;
 }
 
+=item supportsRoleBasedEnforcement 
+
+=cut
+sub supportsRoleBasedEnforcement {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->warn(
+        "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
+    );
+    return $FALSE;
+}
+
 =item supportsSaveConfig
 
 =cut
@@ -192,7 +208,8 @@ sub new {
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_voiceVlan'                => undef,
-        '_VoIPEnabled'              => undef
+        '_VoIPEnabled'              => undef,
+        '_roles'                    => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -294,6 +311,8 @@ sub new {
             $this->{_voiceVlan} = $argv{$_};
         } elsif (/^-?VoIPEnabled$/i) {
             $this->{_VoIPEnabled} = $argv{$_};
+        } elsif (/^-?roles$/i) {
+            $this->{_roles} = $argv{$_};
         }
     }
     return $this;
@@ -658,6 +677,58 @@ sub _setVlanByOnlyModifyingPvid {
             "error setting Pvid: " . $this->{_sessionWrite}->error );
     }
     return ( defined($result) );
+}
+
+=item getRoleByName
+
+Get the switch-specific role of a given global role in switches.conf
+
+Warning: this interface is considered experimental!
+
+For now the format of roles is:
+
+  <category_name1>=<controller_role1>;<category_name2>=<controller_role2>;...
+
+We cache the configuration on first role lookup request.
+ 
+=cut                    
+sub getRoleByName {
+    my ($this, $roleName) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    # skip if not defined or empty
+    return if (!defined($this->{'_roles'}) || $this->{'_roles'} =~ /^\s*$/);
+
+    # is the cache ready?
+    if (defined($this->{'_cached_roles'})) {
+
+        # return if found
+        return $this->{'_cached_roles'}->{$roleName} if (defined($this->{'_cached_roles'}->{$roleName}));
+
+        # otherwise undef
+        $logger->warn("Roles are configured but no role found in cache for $roleName");
+        return;
+    }
+
+    # not cached, let's perform the lookup then prepare cache
+    # split on ; to get 'category = controller_role'
+    my $roles_assignment_ref;
+    my @category_split = split( /\;/, $this->{'_roles'} );
+    foreach my $current_role_assignment (@category_split) {
+        # split on = to get category then controller_role
+        my ($category, $controller_role) = split( /\=/, $current_role_assignment );
+        $roles_assignment_ref->{$category} = $controller_role if (defined($controller_role) && $controller_role !~ /^\s*$/);
+    }
+
+    # cache the result of the role extrapolation
+    $this->{'_cached_roles'} = $roles_assignment_ref;
+
+    # return if found
+    return $roles_assignment_ref->{$roleName} if (defined($roles_assignment_ref->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->warn("Roles are configured but no role found for $roleName");
+    return;
 }
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
@@ -2570,14 +2641,14 @@ sub getDeauthSnmpConnectionKey {
 
 Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
 
-Optionally you can provide the Accounting Session Id. Sometimes it is required.
+Optionally you can provide other attributes as an hashref.
 
-Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
 # TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
-    my ($self, $mac, $acctSessionId, $username) = @_;
+    my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     if (!defined($self->{'_radiusSecret'})) {
@@ -2611,16 +2682,15 @@ sub radiusDisconnect {
         $mac =~ s/:/-/g;
 
         # Standard Attributes
-        my $attributes = {
+        my $attributes_ref = {
             'Calling-Station-Id' => $mac,
             'NAS-IP-Address' => $send_disconnect_to,
         };
 
-        # The Acct-Session-Id attribute is required sometimes
-        $attributes->{'Acct-Session-Id'} = $acctSessionId if (defined($acctSessionId));
-        $attributes->{'User-Name'} = $username if (defined($username));
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, $add_attributes_ref };
 
-        $response = perform_disconnect($connection_info, $attributes);
+        $response = perform_disconnect($connection_info, $attributes_ref);
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS Disconnect-Request: $_");
@@ -2636,6 +2706,53 @@ sub radiusDisconnect {
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
     return;
+}
+
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Default implementation.
+
+=cut
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # VLAN enforcement
+    my $radius_reply_ref = {
+        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+        'Tunnel-Type' => $RADIUS::VLAN,
+        'Tunnel-Private-Group-ID' => $vlan,
+    };
+
+    # TODO this is experimental
+    try {
+        if ($self->supportsRoleBasedEnforcement()) {
+            $logger->debug("network device supports roles. Evaluating role to be returned");
+            my $roleResolver = pf::roles::custom->instance();
+            my $role = $roleResolver->getRoleForNode($mac, $self);
+            if (defined($role)) {
+                $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
+                $logger->info(
+                    "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+                );
+            }
+            else {
+                $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
+            }
+        }
+    }
+    catch {
+        chomp($_);
+        $logger->debug(
+            "Exception when trying to resolve a Role for the node. No Role added to RADIUS Access-Accept. "
+            . "Exception: $_"
+        );
+    };
+
+    $logger->info("Returning ACCEPT with VLAN: $vlan");
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
 =back

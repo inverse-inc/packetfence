@@ -12,6 +12,20 @@ Module to manage Meru controllers
 
 Tested against MeruOS version 3.6.1-67
 
+=over
+
+=item Supports
+
+=over
+
+=item Deauthentication with CLI (Telnet/SSH)
+
+=item Roles-assignment through RADIUS
+
+=back
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 =over
@@ -42,6 +56,11 @@ to get version 4.0-160 in order to disable the PMK caching at the AP level.  For
 5.0 version tree, all versions including 5.0-87 are impacted.  Vendor is saying that
 in the 5.1 version, PMK will be disabled by default.  To be confirmed.
 
+=item Be careful with Roles access control support (Meru's firewall rules)
+
+Once written these are enforced automatically on the controller's primary 
+ethernet interface.
+
 =back
 
 =cut
@@ -50,7 +69,6 @@ use warnings;
 
 use Log::Log4perl;
 use Net::Appliance::Session;
-use POSIX;
 
 use base ('pf::SNMP');
 
@@ -67,6 +85,7 @@ use pf::util;
 
 # CAPABILITIES
 # access technology supported
+sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 
@@ -193,6 +212,17 @@ sub deauthenticateMac {
     }
     $session->close();
     return 1;
+}
+
+=item returnRoleAttribute
+
+Meru uses the standard Filter-Id parameter.
+
+=cut
+sub returnRoleAttribute {
+    my ($this) = @_;
+
+    return 'Filter-Id';
 }
 
 =back

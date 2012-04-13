@@ -242,7 +242,8 @@ nbregpages=0
 # registration.guests_self_registration
 #
 # Is the guest self-registration feature enabled or not. Self-registration 
-# is the signup button where a guest can register by email or SMS.
+# is the signup button where a guest can register by email, SMS or be sponsored 
+# their access.
 guests_self_registration=enabled
 #
 # registation.billing_engine
@@ -255,10 +256,10 @@ billing_engine = disabled
 # guests_self_registration.modes
 # 
 # Self-registration is the signup button where a guest can register by
-# email or SMS. sms or email modes are available and both can be enabled
-# at the same time. To disable guest self-registration entirely don't
-# select any option or empty the line.
-modes=sms,email
+# email, SMS or sponsored by someone. Several modes can be enabled at the same 
+# time. To disable guest self-registration entirely see the 
+# guests_self_registration parameter under [registration].
+modes=sms,email,sponsor
 #
 # guests_self_registration.category
 #
@@ -283,25 +284,64 @@ email_activation_timeout=10m
 #
 # Accept self-registration with email address from the local domain.
 allow_localdomain=enabled
-
-
-[guests_pre_registration]
 #
-# guests_pre_registration.access_duration_choices
+# guests_self_registration.mandatory_fields
+#
+# Fields required to be filled in the self-registration form. Valid values are:
+# firstname, lastname, organization, phone, mobileprovider, email, 
+# sponsor_email. Basic validation of minimally required values per guest mode 
+# is provided by default.
+mandatory_fields=firstname,lastname,phone,email
+#
+# guests_self_registration.guest_pid
+#
+# What field should we assign to the pid of the guest? Defaults to email.
+guest_pid=email
+#
+# guests_self_registration.sponsors_only_from_localdomain
+#
+# Sponsors emails can only be from the general.localdomain domain. Defaults to 
+# yes.
+sponsors_only_from_localdomain=yes
+#
+# guests_self_registration.sponsor_authentication
+#
+# Method by which sponsors will be validated as valid sponsors and then 
+# authenticated. Templates for LDAP, RADIUS, Kerberos and local are available
+# at <conf_dir>/authentication.  If you wish to use a different 
+# authentication mechanism, simply create a file called 
+# <conf_dir>/authentication/<authname>.pm, fill it with the necessary
+# data, and set sponsor_authentication=<authname>. The default value, local,
+# relies on a local access file in <conf_dir>/user.conf.
+sponsor_authentication=local
+#
+# guests_self_registration.preregistration
+# 
+# Enabling this allows guests to requests their access in advance. You
+# must take care of opening your external firewall up to PacketFence and
+# make sure your server can send emails properly (generated
+# username/password are sent by email).
+preregistration=disabled
+
+
+[guests_admin_registration]
+#
+# guests_admin_registration.access_duration_choices
 #
 # These are all the choices offered in the guest management interface as 
 # possible access duration values for a given registration.
 access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 #
-# guests_pre_registration.default_access_duration
+# guests_admin_registration.default_access_duration
 #
 # This is the default access duration value selected in the dropdown on the 
 # guest management interface.
 default_access_duration=12h
 #
-# guests_pre_registration.category
+# guests_admin_registration.category
 #
-# The node category that will be assigned to guests' pre-registered nodes by default.
+# The node category that will be assigned to guests' nodes registered by an
+# admin by default.
 category=guest
 
 
@@ -614,14 +654,6 @@ trap_limit_action =
 # We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
 # Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
 ports_redirect=80/tcp,443/tcp
-#
-# inline.portal_redirect
-#
-# How should we refer to the captive portal in inline mode? Using DNS means that 
-# you need to configure your DNS to point to the PacketFence IP on the inline 
-# interface but allows you to easily use an SSL certificate for https.
-portal_redirect=ip
-
 
 [servicewatch]
 #

@@ -13,22 +13,34 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
-Version <version> released on <releaseDate>
+Version 3.3.0 released on 2012-04-13
 
 New Hardware
  * AlliedTelesis AT8000GS Switches using 802.1x/Mac Authentication without VoIP
  * Added 802.1x/Mac Authentication support for HP 2500/2600 switches (no VoIP)
+ * Cisco WLC/WiSM product line now supports RADIUS Disconnect (RFC3576) to perform de-authentication
 
 New Features
+ * Introduction of Role-based Access Control. Supported on AeroHIVE, Aruba, Meru and Motorola (considered experimental).
  * Wireless deauthentication in Master / Local configuration supported for Aruba controllers (or other Disconnect-Message implementations)
+ * New guest self-registration mode: Sponsored. Guests accesses are approved through a 'sponsor'.
+ * New guest self-registration option: Pre-registered guests. They can register in advance through the portal. Email and sponsor modes supported right now.
 
 Enhancements
  * New database-driven custom VLAN assignment strategy example
  * Slightly more helpful installer.pl
  * Added a virtual IP (vip) parameter for interfaces in configuration which overrides auto-detection (#1396)
  * More logging
+ * Simplified inline mode with DNS rewrite (DNAT). Fixes several issues and annoyances. (#1374, #1387)
+ * New parameter available to control what information is mandatory to be provided by a guest signing-up (guests_self_registration.mandatory_fields)
+ * New parameter available to control default field to use as pid for guests (guests_self_registration.guest_pid)
+ * Node categories were moved from node into configuration on the Web Admin
+ * New per-category configuration to control maximum number of devices allowed per user (max_nodes_per_pid)
  * Daemon startup time logged. Allows for easier troubleshooting of slow-to-restart setups.
  * if VoIP is configured to be enabled and the network hardware doesn't support it, PacketFence will log a warning
+ * Firewall and Captive Portal more restrictive by default if you are not using guest access
+ * Performance improvement for the RADIUS accouting (#1414)
+ * New hook to make it easier to rewrite RADIUS Access-Accept packets
 
 Bug Fixes
  * Proxy Bypass issues in environment with Virtual IP (#1385)
@@ -42,6 +54,9 @@ Bug Fixes
  * Cancel button problems on SMS confirmation page (#1393)
  * Documented the fact that you need to configure credentials in packetfence-soh.pm for Statement of Health (SoH) support
  * Fixed port-security + VoIP support for the HP wired product line
+ * Minor Administration Guide updates
+ * Fixed CSS for mobiles devices
+ * This is the last release to destroy your dhcpd lease file on upgrades
 
 Translations
  * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)

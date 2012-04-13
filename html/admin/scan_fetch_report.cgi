@@ -20,6 +20,8 @@ use lib '/usr/local/pf/lib';
 
 use pf::config;
 use pf::scan;
+use pf::web qw(i18n i18n_format);
+use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('scan_fetch_report.cgi');
@@ -52,7 +54,7 @@ try {
     }
     else {
         $logger->info("Request to fetch a scan report with unrecognized or expired scan id: $params{'scanid'}");
-        pf::web::generate_error_page($cgi, $session, "The scan report code provided is invalid or expired.");
+        pf::web::generate_error_page($cgi, $session, i18n("The scan report code provided is invalid or expired."));
     }
 
 } catch {

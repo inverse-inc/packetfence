@@ -5,9 +5,9 @@
 <revhistory>
    <revision>
     <revnumber>2.1</revnumber>
-    <date>2012-03-15</date>
-    <authorinitials>FG</authorinitials>
-    <revremark>Added documentation for AlliedTelesis.</revremark>
+    <date>2012-04-12</date>
+    <authorinitials>FG, OB</authorinitials>
+    <revremark>Added new configuration documentation for AlliedTelesis. Roles support for AeroHive, Aruba, Meru and Motorola.</revremark>
   </revision>
   <revision>
     <revnumber>2.0</revnumber>

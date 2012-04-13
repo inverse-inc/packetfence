@@ -130,7 +130,12 @@ sub service_ctl {
 
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
+
+                            # create var/dhcpd/dhcpd.leases if it doesn't exist
+                            pf_run("touch $var_dir/dhcpd/dhcpd.leases") if (!-f $var_dir . '/dhcpd/dhcpd.leases');
+
                             manage_Static_Route(1);
+
                         } elsif ( $daemon eq 'radiusd' ) {
                             # TODO: push all these per-daemon initialization into pf::services::...
                             require pf::freeradius;

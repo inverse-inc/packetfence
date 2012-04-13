@@ -97,23 +97,6 @@ sub generate_httpd_conf {
     $tags{'start_servers'} = calculate_start_servers($tags{'max_clients'});
     $tags{'min_spare_servers'} = calculate_min_spare_servers($tags{'max_clients'});
 
-    if (is_inline_enforcement_enabled()) {
-        # TODO we only support one inline interface auto-configured in apache
-        $tags{'inline_internal_ip'} = $inline_enforcement_nets[0]->tag("ip");
-
-        # Captive Portal redirection for inline mode
-        if ($Config{'inline'}{'portal_redirect'} eq 'dns') {
-            $tags{'inline_redirect_prefix'} = 'https://' . $tags{'hostname'} . '.' . $tags{'domain'};
-        } else {
-            # We drop https when doing IP-only redirection
-            $tags{'inline_redirect_prefix'} = 'http://' . $inline_enforcement_nets[0]->tag("ip");
-        }
-    } else {
-        # populate with default values so apache won't crash on startup
-        $tags{'inline_internal_ip'} = '127.0.0.1';
-        $tags{'inline_redirect_prefix'} = 'https://' . $tags{'hostname'} . '.' . $tags{'domain'};
-    }
-
     my @proxies;
     my %proxy_configs = %{ $Config{'proxies'} };
     foreach my $proxy ( keys %proxy_configs ) {
@@ -132,6 +115,24 @@ sub generate_httpd_conf {
         }
     }
     $tags{'proxies'} = join( "\n", @proxies );
+
+    # Guest related URLs allowed through Apache ACL's
+    $tags{'allowed_from_all_urls'} = '';
+    # /signup and /preregister if pre-registration is allowed
+    my $guest_regist_allowed = isenabled($Config{'registration'}{'guests_self_registration'});
+    if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
+        # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
+        $tags{'allowed_from_all_urls'} .= '|/signup|/preregister';
+    }
+    # /activate/email allowed if sponsor or email mode enabled
+    my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
+    my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
+    if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
+        # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
+        $tags{'allowed_from_all_urls'} .= '|/activate/email';
+    }
 
     my ($pt_http, $pt_https, $remediation);
     if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {

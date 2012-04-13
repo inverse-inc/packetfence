@@ -27,6 +27,8 @@ Tested on Controller 600 with RADIUS Disconnect running firmware 6.0.x
 
 =item Deauthentication with Telnet
 
+=item Role-based access control
+
 =back
 
 =back
@@ -74,6 +76,7 @@ TODO: this list is incomplete
 
 # CAPABILITIES
 # access technology supported
+sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 
@@ -369,6 +372,20 @@ sub extractSsid {
     return;
 }
 
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+sub returnRoleAttribute {
+    my ($this) = @_;
+
+    return 'Aruba-User-Role';
+}
+
+=item
+
+=cut
 
 =back
 

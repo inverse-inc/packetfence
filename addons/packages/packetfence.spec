@@ -230,11 +230,22 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf
+%{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
+# creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
-mkdir -p $RPM_BUILD_ROOT/etc/logrotate.d
-mkdir -p $RPM_BUILD_ROOT/usr/local/pf/logs
-mkdir -p $RPM_BUILD_ROOT/usr/local/pf/var
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -255,7 +266,6 @@ cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
 mv addons/pfdetect_remote/conf/pfdetect_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
@@ -293,6 +303,7 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
+cp -r var $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
@@ -303,7 +314,7 @@ curdir=`pwd`
 
 #pf-schema.sql symlink
 cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-3.2.0.sql ./pf-schema.sql
+ln -s pf-schema-3.3.0.sql ./pf-schema.sql
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
@@ -470,6 +481,12 @@ if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
+# TODO we should simplify this file manifest to the maximum keeping treating 
+# only special attributes explicitly 
+# "To make this situation a bit easier, if the %files list contains a path 
+# to a directory, RPM will automatically package every file in that 
+# directory, as well as every file in each subdirectory."
+# -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
 %files
 
 %defattr(-, pf, pf)
@@ -573,6 +590,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
 %config(noreplace)      /usr/local/pf/conf/snort/local.rules
 %config(noreplace)      /usr/local/pf/conf/snort/reference.config
+%dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config                 /usr/local/pf/conf/httpd.conf
@@ -581,8 +599,9 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
-%config(noreplace)      /usr/local/pf/conf/named-registration.ca
+%config(noreplace)      /usr/local/pf/conf/named-inline.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
+%config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config                 /usr/local/pf/conf/named.conf
 %config                 /usr/local/pf/conf/named.conf.pre_bind97
 %config                 /usr/local/pf/conf/named.conf.bind97
@@ -596,6 +615,7 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
 %config                 /usr/local/pf/conf/ui.conf.es_ES
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
+%dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
 %attr(0755, pf, pf)     /usr/local/pf/configurator.pl
 %doc                    /usr/local/pf/COPYING
@@ -618,7 +638,7 @@ fi
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/*.php
-%config(noreplace)      /usr/local/pf/html/captive-portal/content/mobile.css
+%config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
                         /usr/local/pf/html/captive-portal/content/guest-management.js
@@ -661,6 +681,8 @@ fi
 %dir                    /usr/local/pf/lib/pf/radius
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
+%dir                    /usr/local/pf/lib/pf/roles
+%config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
 %dir                    /usr/local/pf/lib/pf/scan
                         /usr/local/pf/lib/pf/scan/*
 %dir                    /usr/local/pf/lib/pf/services
@@ -683,6 +705,7 @@ fi
                         /usr/local/pf/lib/pf/web/util.pm
                         /usr/local/pf/lib/pf/web/wispr.pm
                         /usr/local/pf/lib/pf/web/release.pm
+%dir                    /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
@@ -694,6 +717,13 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE
 %dir                    /usr/local/pf/var
+%dir                    /usr/local/pf/var/conf
+%dir                    /usr/local/pf/var/dhcpd
+%dir                    /usr/local/pf/var/named
+%dir                    /usr/local/pf/var/run
+%dir                    /usr/local/pf/var/rrd
+%dir                    /usr/local/pf/var/session
+%dir                    /usr/local/pf/var/webadmin_cache
 
 # Remote snort sensor file list
 %files remote-snort-sensor
@@ -722,11 +752,16 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Apr 13 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- directories missing in tarball since git migration now created in %install
+
+* Thu Apr 12 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.0-1
+- New release 3.3.0
+
 * Sun Mar 11 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - Dependencies in recommended perl(A::B) notation instead of perl-A-B
 
 * Thu Mar 08 2012 Olivier Bilodeau <obilodeau@inverse.ca>
-- removed most empty folders from here now into installer.pl (Makefile someday)
 - extracted version out of package (we are getting rid of versions in files 
   to simplify devel/stable branch management)
 - source tarball changed: prefixed packetfence-<version>/ instead of pf/ 

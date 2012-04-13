@@ -42,13 +42,13 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # No export to force users to use full package name and allowing pf::web::custom to redefine us
-    @EXPORT = qw(i18n ni18n);
+    @EXPORT = qw(i18n ni18n i18n_format);
 }
 
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
-use pf::node qw(node_attributes node_modify node_register node_view);
+use pf::node qw(node_attributes node_modify node_register node_view is_max_reg_nodes_reached);
 use pf::os qw(dhcp_fingerprint_view);
 use pf::useragent;
 use pf::util;
@@ -77,6 +77,19 @@ sub ni18n {
     my $category = shift;
 
     return ngettext($singular, $plural, $category);
+}
+
+=item i18n_format
+
+Pass message id through gettext then sprintf it.
+
+Meant to be called from the TT templates.
+
+=cut
+sub i18n_format {
+    my ($msgid, @args) = @_;
+
+    return sprintf(gettext($msgid), @args);
 }
 
 sub web_get_locale {
@@ -387,8 +400,8 @@ sub generate_scan_status_page {
     my $vars = {
         logo             => $Config{'general'}{'logo'},
         i18n             => \&i18n,
-        txt_message      => sprintf(i18n('scan in progress contact support if too long'), $scan_start_time),
-        txt_auto_refresh => sprintf(i18n('automatically refresh'), $refresh_timer),
+        txt_message      => i18n_format('scan in progress contact support if too long', $scan_start_time),
+        txt_auto_refresh => i18n_format('automatically refresh', $refresh_timer),
         destination_url  => encode_entities($destination_url),
         refresh_timer    => $refresh_timer,
         list_help_info  => [
@@ -410,26 +423,17 @@ sub generate_error_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n,
+        logo => $Config{'general'}{'logo'},
+        i18n => \&i18n,
+        i18n_format => \&i18n_format,
+        txt_message => $error_msg,
     };
-    # TODO: this is ugly, we shouldn't do something based on error message provided
-    if ( $error_msg eq 'error: only register max nodes' ) {
-        my $maxnodes = 0;
-        $maxnodes = $Config{'registration'}{'maxnodes'}
-            if ( defined $Config{'registration'}{'maxnodes'} );
-        $vars->{txt_message} = sprintf( i18n($error_msg), $maxnodes );
-    } else {
-        $vars->{txt_message} = i18n($error_msg);
-    }
 
     my $ip = get_client_ip($cgi);
-    push @{ $vars->{list_help_info} },
-        { name => i18n('IP'), value => $ip };
     my $mac = ip2mac($ip);
+    push @{ $vars->{list_help_info} }, { name => i18n('IP'), value => $ip };
     if ($mac) {
-        push @{ $vars->{list_help_info} },
-            { name => i18n('MAC'), value => $mac };
+        push @{ $vars->{list_help_info} }, { name => i18n('MAC'), value => $mac };
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -445,8 +449,7 @@ sub generate_status_page {
 
     my $node_info = node_attributes($mac);
     if ( $session->param("username") ne $node_info->{'pid'} ) {
-        generate_error_page( $cgi, $session,
-            "error: access denied not owner" );
+        generate_error_page( $cgi, $session, i18n("error: access denied not owner") );
         exit(0);
     }
 
@@ -534,7 +537,15 @@ See F<pf::web::custom> for examples.
 =cut
 sub web_node_register {
     my ( $cgi, $session, $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
+        pf::web::generate_error_page(
+            $cgi, $session, 
+            i18n("You have reached the maximum number of devices you are able to register with this username.")
+        );
+        exit(0);
+    }
 
     # we are good, push the registration
     return _sanitize_and_register($session, $mac, $pid, %info);
@@ -823,6 +834,40 @@ sub end_portal_session {
     pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
     exit(0);
 }
+
+=item generate_generic_page
+
+Present a generic page. Template and arguments provided to template passed as arguments
+
+=cut
+sub generate_generic_page {
+    my ( $cgi, $session, $template, $template_args ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+
+    my $ip = get_client_ip($cgi);
+    my $mac = ip2mac($ip);
+
+    my $vars = $template_args;
+    $vars->{'logo'} = $Config{'general'}{'logo'};
+    $vars->{'i18n'} = \&i18n;
+    $vars->{'i18n_format'} = \&i18n_format;
+    $vars->{'list_help_info'} = [
+        { name => i18n('IP'),  value => $ip },
+        { name => i18n('MAC'), value => $mac }
+    ];
+
+    my $tt = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
+    $tt->process($template, $vars) || $logger->error($tt->error());
+    exit;
+}
+
 
 =back
 

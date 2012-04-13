@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * Node Categories - List page
  *
  * TODO long desc
  * 
@@ -20,15 +20,15 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2010 Inverse inc.
+ * @copyright   2010, 2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
   require_once('../common.php');
 
-  $current_top="node";
-  $current_sub="categories";
-  $is_printable=true;
+  $current_top = 'configuration';
+  $current_sub = 'categories';
+  $is_printable = true;
 
   $view_item = set_default($_REQUEST['view_item'], 'all');
 

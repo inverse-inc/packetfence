@@ -334,7 +334,11 @@ sub instantiate {
             (          $SwitchConfig{$requestedSwitch}{'VoIPEnabled'}
                     || $SwitchConfig{'default'}{'VoIPEnabled'}
             ) =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0
-        )
+        ),
+        '-roles' => (
+                   $SwitchConfig{$requestedSwitch}{'roles'}
+                || $SwitchConfig{'default'}{'roles'}
+        ),
     );
 }
 
@@ -384,7 +388,7 @@ Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
 
 =head1 LICENSE 
 

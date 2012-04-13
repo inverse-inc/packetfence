@@ -33,6 +33,7 @@ use Log::Log4perl;
 use MIME::Lite::TT;
 use Net::LDAP;
 use POSIX;
+use Readonly;
 use Template;
 
 BEGIN {
@@ -48,19 +49,33 @@ use pf::iplog qw(ip2mac);
 use pf::person qw(person_modify);
 use pf::temporary_password 1.10;
 use pf::util;
-use pf::web qw(i18n ni18n);
+use pf::web qw(i18n ni18n i18n_format);
 use pf::web::auth;
 use pf::web::util;
 use pf::sms_activation;
 
-our $VERSION = 1.20;
+our $VERSION = 1.30;
 
 our $LOGIN_TEMPLATE = "login.html";
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
 our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
+our $PREREGISTRATION_CONFIRMED_TEMPLATE = 'guest/preregistration.html';
+our $EMAIL_CONFIRMED_TEMPLATE = "activated.html";
+our $EMAIL_PREREG_CONFIRMED_TEMPLATE = 'guest/preregistration_confirmation.html';
+our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
+our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
 our $REGISTRATION_CONTINUE = 10;
+
+# Available default email templates
+Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_email_activation';
+Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
+Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION => 'guest_email_preregistration';
+Readonly our $TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED => 'guest_email_preregistration_confirmed';
+Readonly our $TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION => 'guest_sponsor_preregistration';
+Readonly our $TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION => 'guest_admin_pregistration';
+Readonly our $TEMPLATE_EMAIL_GUEST_ON_REGISTRATION => 'guest_registered';
 
 our $EMAIL_FROM = undef;
 our $EMAIL_CC = undef;
@@ -79,11 +94,14 @@ Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
 sub generate_selfregistration_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $mac, $err ) = @_;
+    my ( $cgi, $session, $post_uri, $destination_url, $mac, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    $logger->info('generate_selfregistration_page');
+
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $ip   = $cgi->remote_addr;
@@ -102,32 +120,30 @@ sub generate_selfregistration_page {
     # put seperately because of side effects in anonymous hashref
     $vars->{'firstname'} = $cgi->param("firstname");
     $vars->{'lastname'} = $cgi->param("lastname");
+
+    $vars->{'organization'} = $cgi->param("organization");
     $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'email'} = $cgi->param("email");
     $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
+    $vars->{'email'} = $cgi->param("email");
+
+    $vars->{'sponsor_email'} = $cgi->param("sponsor_email");
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
-    $logger->info('generate_selfregistration_page');
 
-    $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
     $vars->{'email_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_EMAIL});
+    $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
+    $vars->{'sponsored_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SPONSOR});
+    $vars->{'is_preregistration'} = $session->param('preregistration');
 
-    # showing errors
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_error'} = i18n("Missing mandatory parameter or malformed entry.");
-        } elsif ( $err == 2 ) {
-            my $localdomain = $Config{'general'}{'domain'};
-            $vars->{'txt_error'} = sprintf(i18n("You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."), $localdomain);
-        } elsif ( $err == 3 ) {
-            $vars->{'txt_error'} = i18n("An error occured while sending the confirmation email.");
-        } elsif ( $err == 4 ) {
-            $vars->{'txt_error'} = i18n("An error occured while sending the PIN by SMS.");
-        }
+    # Error management
+    if (defined($error_code) && $error_code != 0) {
+        # ideally we'll set the array_ref always and won't need the following
+        $error_args_ref = [] if (!defined($error_args_ref)); 
+        $vars->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars);
+    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
     exit;
 }
 
@@ -164,10 +180,10 @@ sub generate_registration_page {
 
     # access duration
     $vars->{'default_duration'} = $cgi->param("access_duration")
-        || $Config{'guests_pre_registration'}{'default_access_duration'};
+        || $Config{'guests_admin_registration'}{'default_access_duration'};
 
     $vars->{'duration'} = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_pre_registration'}{'access_duration_choices'}) ], 
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
         pf::web::web_get_locale($cgi, $session)
     );
 
@@ -218,7 +234,7 @@ We are doing this because we can't trust what comes from the client.
 =cut
 sub valid_access_duration {
     my ($value) = @_;
-    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_pre_registration'}{'access_duration_choices'})) {
+    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})) {
         return $allowed_duration if ($value == normalize_time($allowed_duration));
     }
     return $FALSE;
@@ -243,41 +259,99 @@ Sub to validate self-registering guests, this is not hooked-up by default
 
 =cut
 sub validate_selfregistration {
-
-    # return (1,0) for successfull validation
-    # return (0,1) for wrong guest info
-    # return (0,2) for invalid domain for guests
-    # return (0,0) for first attempt
-            
     my ($cgi, $session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    if ($cgi->param("firstname") || $cgi->param("lastname") || $cgi->param("phone") || $cgi->param("email")) {
-                
-        my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
-        my $valid_name = ($cgi->param("firstname") =~ /\w/ && $cgi->param("lastname") =~ /\w/);
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-        if ($valid_email && $valid_name && $cgi->param("phone") ne '' && length($cgi->param("aup_signed"))) {
+    # is preregistration allowed?
+    if ($session->param("preregistration") && isdisabled($Config{'guests_self_registration'}{'preregistration'})) {
+        return ($FALSE, $GUEST::ERROR_PREREG_NOT_ALLOWED);
+    }
 
-          unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
-            # You should not register as a guest if you are part of the local network
-            my $localdomain = $Config{'general'}{'domain'};
-            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-                return (0, 2);
-            }
-          }
+    # mandatory parameters are defined in config
+    my @mandatory_fields = split( /\s*,\s*/, $Config{'guests_self_registration'}{'mandatory_fields'} );
 
-          # auth accepted, save login information in session (we will use them to put the guest in the db)
-          $session->param("firstname", $cgi->param("firstname"));
-          $session->param("lastname", $cgi->param("lastname"));
-          $session->param("email", $cgi->param("email")); 
-          $session->param("login", $cgi->param("email"));
-          $session->param("phone", $cgi->param("phone"));
-          return (1, 0);
-        } else {
-            return (0, 1);
+    # no matter what is defined as mandatory, these are the minimum fields required per mode
+    push @mandatory_fields, ('email') if (defined($cgi->param('by_email')));
+    push @mandatory_fields, ('sponsor_email') if (defined($cgi->param('by_sponsor')));
+    push @mandatory_fields, ('phone', 'mobileprovider') if (defined($cgi->param('by_sms')));
+
+    # build hashlookup (collapses redundant checks together)
+    my %mandatory_fields = map { $_ => $TRUE } @mandatory_fields;
+
+    my @missing_fields;
+    foreach my $required_field (keys %mandatory_fields) {
+        # mandatory must be non-empty
+        push @missing_fields, $required_field if ( !$cgi->param($required_field) );
+    }
+
+    # some mandatory fields are missing
+    if (@missing_fields) {
+        return ( $FALSE, $GUEST::ERROR_MISSING_MANDATORY_FIELDS, [ join(", ", map { i18n($_) } @missing_fields) ] );
+    }
+
+    if ( $mandatory_fields{'email'} && !pf::web::util::is_email_valid($cgi->param('email')) ) {
+        return ($FALSE, $GUEST::ERROR_ILLEGAL_EMAIL);
+    }
+
+    if ( $mandatory_fields{'phone'} && !pf::web::util::validate_phone_number($cgi->param('phone')) ) {
+        return ($FALSE, $GUEST::ERROR_ILLEGAL_PHONE);
+    }
+
+    if (!length($cgi->param("aup_signed"))) {
+        return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
+    }
+
+    my $localdomain = $Config{'general'}{'domain'};
+    unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
+        # You should not register as a guest if you are part of the local network
+        if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+            return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
         }
     }
-    return (0, 1);
+
+    # sponsor validation in another sub to ease overrides
+    if (defined($cgi->param('by_sponsor'))) {
+        my ($valid_sponsor, $error_code, $error_args_ref) = pf::web::guest::validate_sponsor($cgi, $session);
+        return ($FALSE, $error_code, $error_args_ref) if (!$valid_sponsor);
+    }
+
+    # auth accepted, save login information in session (we will use them to put the guest in the db)
+    $session->param("firstname", $cgi->param("firstname"));
+    $session->param("lastname", $cgi->param("lastname"));
+    $session->param("company", $cgi->param("organization")); 
+    $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
+    $session->param("email", $cgi->param("email")); 
+    $session->param("sponsor", $cgi->param("sponsor_email")); 
+    # guest pid is configurable (defaults to email)
+    $session->param("guest_pid", $cgi->param($Config{'guests_self_registration'}{'guest_pid'}));
+    return ($TRUE, 0);
+}
+
+=item validate_sponsor
+
+Performs sponsor validation.
+
+=cut
+sub validate_sponsor {
+    my ($cgi, $session) = @_;
+
+    # sponsors should be from the local network
+    if (isenabled($Config{'guests_self_registration'}{'sponsors_only_from_localdomain'})) {
+        my $localdomain = $Config{'general'}{'domain'};
+        if ($cgi->param('sponsor_email') !~ /[@.]$localdomain$/i) {
+            return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN, [ $localdomain ]);
+        }
+    }
+
+    my $authenticator = pf::web::auth::instantiate($Config{'guests_self_registration'}{'sponsor_authentication'});
+    return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
+
+    # validate that this email can sponsor network accesses
+    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( $cgi->param('sponsor_email') );
+    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] ) if (!$can_sponsor);
+
+    # all sponsor checks passed
+    return ($TRUE, 0);
 }
 
 =item validate_registration
@@ -403,30 +477,47 @@ sub validate_registration_import {
     return (1, 0);
 }
 
-=item generate_activation_confirmation_page
+=item prepare_email_guest_activation_info
 
-Sub to present the activation confirmation. 
-This is not hooked-up by default.
+Provides basic information for the self registered guests by email template.
+
+This is meant to be overridden in L<pf::web::custom>.
 
 =cut
-sub generate_activation_confirmation_page {
-    my ( $cgi, $session, $expiration ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
-    my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n,
-        txt_message     => sprintf(i18n('Access to the guest network has been granted until %s.'), $expiration)
-    };
+sub prepare_email_guest_activation_info {
+    my ( $cgi, $session, $mac, %info ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process("activated.html", $vars);
-    exit;
+    $info{'firstname'} = $session->param("firstname");
+    $info{'lastname'} = $session->param("lastname");
+    $info{'telephone'} = $session->param("phone");
+    $info{'company'} = $session->param("company");
+    $info{'subject'} = i18n_format("%s: Email activation required", $Config{'general'}{'domain'});
+
+    return %info;
+}
+
+=item prepare_sponsor_guest_activation_info
+
+Provides basic information for the self registered sponsored guests template.
+
+This is meant to be overridden in L<pf::web::custom>.
+
+=cut
+sub prepare_sponsor_guest_activation_info {
+    my ( $cgi, $session, $mac, %info ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $info{'firstname'} = $session->param("firstname");
+    $info{'lastname'} = $session->param("lastname");
+    $info{'telephone'} = $session->param("phone");
+    $info{'company'} = $session->param("company");
+    $info{'sponsor'} = $session->param('sponsor');
+    $info{'subject'} = i18n_format("%s: Guest access request", $Config{'general'}{'domain'});
+
+    $info{'is_preregistration'} = $session->param('preregistration');
+
+    return %info;
 }
 
 =item generate_custom_login_page
@@ -481,7 +572,7 @@ sub preregister {
         'telephone' => $session->param("phone"),
         'company' => $session->param("company"),
         'address' => $session->param("address"),
-        'notes' => $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date")),
+        'notes' => $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date")),
         'sponsor' => $session->param("username")
     ));
     $logger->info("Adding guest person " . $pid);
@@ -499,7 +590,7 @@ sub preregister {
 
     # failure, redirect to error page
     if (!defined($password)) {
-        pf::web::generate_error_page( $cgi, $session, "error: something went wrong creating the guest" );
+        pf::web::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
     }
 
     # on success
@@ -527,7 +618,7 @@ sub preregister_multiple {
     for (my $i = 1; $i <= $quantity; $i++) {
       my $pid = "$prefix$i";
       # Create/modify person
-      my $notes = $session->param("notes").". ".sprintf(i18n("Expected on %s"), $session->param("arrival_date"));
+      my $notes = $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date"));
       my $result = person_modify($pid, ('firstname' => $session->param("firstname"),
                                         'lastname' => $session->param("lastname"),
                                         'email' => $session->param("email"),
@@ -552,7 +643,7 @@ sub preregister_multiple {
 
     # failure, redirect to error page
     if ($count == 0) {
-        pf::web::generate_error_page( $cgi, $session, "error: something went wrong creating the guest" );
+        pf::web::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest") );
         return;
     }
 
@@ -602,27 +693,23 @@ sub generate_registration_confirmation_page {
     exit;
 }
 
-=item send_registration_confirmation_email
+=item send_template_email
 
 =cut
-sub send_registration_confirmation_email {
-    my ($info) = @_;
+sub send_template_email {
+    my ($template, $subject, $info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
     my $smtpserver = $Config{'alerting'}{'smtpserver'};
     # local override (EMAIL_FROM) or pf.conf's value or root@domain
     my $from = $pf::web::guest::EMAIL_FROM || $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
 
-    # translate 3d into 3 days with proper plural form handling
-    my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
-    $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
-
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
         Cc          =>  $pf::web::guest::EMAIL_CC,
-        Subject     =>  encode("MIME-Q", i18n("Guest Network Access Information")),
-        Template    =>  "emails-guest_registration.txt.tt",
+        Subject     =>  encode("MIME-Q", $subject),
+        Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },
         TmplParams  =>  $info,
         TmplUpgrade =>  1,
@@ -632,64 +719,8 @@ sub send_registration_confirmation_email {
         or $logger->warn("problem sending guest registration email");
 }
 
-=item validate_sponsor_group
-
-Validate that the sponsor email entered is an authorized sponsor in LDAP.
-
-Returns 1 if sponsor is member of proper groups and 0 if not.
-On error will return undef and log an error.
-
-This check is not integrated by default.
-
-=cut
-sub validate_sponsor_group {
-  my ($sponsor_email) = @_;
-  my $logger = Log::Log4perl::get_logger("pf::web::guest");
-
-  # TODO externalize this in conf/pf.conf (along with authentication::ldap)
-  my $LDAPUserBase = "";
-  my $LDAPUserKey = "cn";
-  my $LDAPUserScope = "sub";
-  my $LDAPBindDN = "";
-  my $LDAPBindPassword = "";
-  my $LDAPServer = "";
-  my $LDAPGroupFilter = '|(memberOf=OU=Group1,DC=packetfence,DC=org)(memberOf=OU=Group2,DC=packetfence,DC=org)'; 
-
-  my $connection = Net::LDAP->new($LDAPServer);
-  if (!defined($connection)) {
-      $logger->error("Unable to connect to '$LDAPServer'");
-      return;
-  }
-
-  my $result = $connection->bind($LDAPBindDN, password => $LDAPBindPassword);
-  if ($result->is_error) {
-      $logger->error("Unable to bind with '$LDAPBindDN'");
-      return;
-  }
-
-  $result = $connection->search(
-      base => $LDAPUserBase,
-      filter => "(&($LDAPUserKey=$sponsor_email)($LDAPGroupFilter))",
-      scope => $LDAPUserScope,
-  );
-
-  if ($result->is_error) {
-      $logger->error("Unable to execute search");
-      return;
-  }
-
-  if ($result->count != 1) {
-    return 0;
-  }
-
-  my $user = $result->entry(0);
-
-  $connection->unbind;
-  return 1;
-}
-
 sub generate_sms_confirmation_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $err ) = @_;
+    my ( $cgi, $session, $post_uri, $destination_url, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -707,10 +738,9 @@ sub generate_sms_confirmation_page {
         ]
     };
 
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_auth_error'} = 'Invalid PIN';
-        }
+    # Error management
+    if (defined($error_code) && $error_code != 0) {
+        $vars->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -722,9 +752,7 @@ sub generate_sms_confirmation_page {
 }
 
 sub web_sms_validation {
-    # return (1,0) for successfull authentication
-    # return (0,1) for invalid PIN
-    # return (0,0) for first attempt
+
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -732,12 +760,13 @@ sub web_sms_validation {
     if ($cgi->param("pin")) {
         $logger->info("Mobile phone number validation attempt");
         if (validate_code($cgi->param("pin"))) {
-            return (1, 0);
+            return ( $TRUE, 0 );
         } else {
-            return ( 0, 1 ); #invalid PIN
+            return ( $FALSE, $GUEST::ERROR_INVALID_PIN );
         }
     } else {
-        return ( 0, 0 );
+        # this won't display an error
+        return ( $FALSE, 0 );
     }
 }
 
@@ -815,13 +844,60 @@ sub import_csv {
 
 =back
 
+=head1 ERROR STRINGS
+
+=over
+
+=cut
+package GUEST;
+
+=item error_code 
+
+PacketFence error codes regarding guests.
+
+=cut
+Readonly::Scalar our $ERROR_INVALID_FORM => 1;
+Readonly::Scalar our $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => 2;
+Readonly::Scalar our $ERROR_CONFIRMATION_EMAIL => 3;
+Readonly::Scalar our $ERROR_CONFIRMATION_SMS => 4;
+Readonly::Scalar our $ERROR_MISSING_MANDATORY_FIELDS => 5;
+Readonly::Scalar our $ERROR_ILLEGAL_EMAIL => 6;
+Readonly::Scalar our $ERROR_ILLEGAL_PHONE => 7;
+Readonly::Scalar our $ERROR_AUP_NOT_ACCEPTED => 8;
+Readonly::Scalar our $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 9;
+Readonly::Scalar our $ERROR_SPONSOR_UNABLE_TO_VALIDATE => 10;
+Readonly::Scalar our $ERROR_SPONSOR_NOT_ALLOWED => 11;
+Readonly::Scalar our $ERROR_PREREG_NOT_ALLOWED => 12;
+
+=item errors 
+
+An hash mapping error codes to error messages.
+
+=cut
+Readonly::Hash our %ERRORS => (
+    $ERROR_INVALID_FORM => 'Missing mandatory parameter or malformed entry',
+    $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => q{You can't register as a guest with a %s email address. Please register as a regular user using your email address instead.},
+    $ERROR_CONFIRMATION_EMAIL => 'An error occured while sending the confirmation email.',
+    $ERROR_CONFIRMATION_SMS => 'An error occured while sending the PIN by SMS.',
+    $ERROR_MISSING_MANDATORY_FIELDS => 'Missing mandatory parameter(s): %s',
+    $ERROR_ILLEGAL_EMAIL => 'Illegal email address provided',
+    $ERROR_ILLEGAL_PHONE => 'Illegal phone number provided',
+    $ERROR_AUP_NOT_ACCEPTED => 'Acceptable Use Policy (AUP) was not accepted',
+    $ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN => 'Your access can only be sponsored by a %s email address',
+    $ERROR_SPONSOR_UNABLE_TO_VALIDATE => 'Unable to validate your sponsor at the moment',
+    $ERROR_SPONSOR_NOT_ALLOWED  => 'Email %s is not allowed to sponsor guest access',
+    $ERROR_PREREG_NOT_ALLOWED  => 'Guest pre-registration is not allowed by policy',
+);
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

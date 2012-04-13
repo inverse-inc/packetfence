@@ -415,7 +415,6 @@ if (questioner(
     `/usr/bin/wget -N http://standards.ieee.org/regauth/oui/oui.txt -P $conf_dir`;
 }
 
-# TODO: this should be handled by our various modules
 print "Creating required directories (you can safely ignore 'already exists' notices)\n";
 `mkdir -p $install_dir/conf/ssl $install_dir/conf/users $install_dir/html/admin/mrtg $install_dir/html/admin/traplog $install_dir/html/admin/scan/results $install_dir/logs $install_dir/var/conf $install_dir/var/dhcpd $install_dir/var/named $install_dir/var/run $install_dir/var/rrd $install_dir/var/session $install_dir/var/webadmin_cache`;
 
@@ -432,9 +431,6 @@ print "Creating empty log files\n";
 `touch $install_dir/logs/pfdetect`;
 `touch $install_dir/logs/pfmon`;
 `touch $install_dir/logs/pfredirect`;
-
-print "Creating empty dhcpd.leases files\n";
-`touch $install_dir/var/dhcpd/dhcpd.leases`;
 
 print "Setting permissions\n";
 print "  Chowning $install_dir pf:pf\n";

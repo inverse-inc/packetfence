@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO short desc
+ * Node Categories - Edit page
  *
  * TODO long desc
  * 
@@ -20,20 +20,20 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2010 Inverse inc.
+ * @copyright   2010, 2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
-  $current_top = 'node';
-  $current_pfcmd = 'nodecategory';
+  $current_top = 'configuration';
   $current_sub = 'categories_edit';
+  $current_pfcmd = 'nodecategory';
 
   include('../common.php');
 ?>
 
 <html>
 <head>
-  <title>PF::NodeCategories::Edit</title>
+  <title>PF::Configuration::NodeCategories::Edit</title>
   <link rel="shortcut icon" href="/favicon.ico"> 
   <link rel="stylesheet" href="../style.css" type="text/css">
 </head>

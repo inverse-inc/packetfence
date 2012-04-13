@@ -20,11 +20,13 @@ use Log::Log4perl;
 use pf::config;
 use pf::locationlog;
 use pf::node;
+use pf::roles::custom;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
 
-# Forces a pre-load of the SwitchFactory singleton to avoid penalty performance on first request
+# Forces a pre-load of the singletons to avoid penalty performance on first request
+pf::roles::custom->instance();
 pf::SwitchFactory->getInstance();
 
 =head1 AUTHOR

@@ -30,7 +30,7 @@ use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 =head1 SUBROUTINES
 
@@ -186,16 +186,19 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
+    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid);
+
+    if ($this->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
+        $RAD_REPLY_REF = $this->_rewriteAccessAccept(
+            $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid
+        );
+    }
+
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
 
-    my %RAD_REPLY;
-    $RAD_REPLY{'Tunnel-Medium-Type'} = 6;
-    $RAD_REPLY{'Tunnel-Type'} = 13;
-    $RAD_REPLY{'Tunnel-Private-Group-ID'} = $vlan;
-    $logger->info("Returning ACCEPT with VLAN: $vlan");
-    return [$RADIUS::RLM_MODULE_OK, %RAD_REPLY];
+    return $RAD_REPLY_REF;
 }
 
 =item * _parseRequest
@@ -437,6 +440,38 @@ sub _switchUnsupportedReply {
     return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Network device does not support this mode of operation")];
 }
 
+=item * _shouldRewriteAccessAccept
+
+If this returns true we will call _rewriteAccessAccept() and overwrite the 
+Access-Accept attributes by it's return value.
+
+This is meant to be overridden in L<pf::radius::custom>.
+
+=cut
+sub _shouldRewriteAccessAccept {
+    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return $FALSE;
+}
+
+=item * _rewriteAccessAccept
+
+Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
+
+Return type should match L<pf::radius::authorize()>'s return type. See its 
+documentation for details.
+
+This is meant to be overridden in L<pf::radius::custom>.
+
+=cut
+sub _rewriteAccessAccept {
+    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return $RAD_REPLY_REF;
+}
+
 =back
 
 =head1 BUGS AND LIMITATIONS
@@ -449,7 +484,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 

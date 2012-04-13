@@ -516,7 +516,7 @@ if($sajax){
                  print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the switch " . $this->rows[$i]['ip'] . " ?');\">\n";
                  print "  </form>";
                }
-             } elseif (($current_top == 'node') && ($current_sub=='categories')) {
+             } elseif (($current_top == 'configuration') && ($current_sub=='categories')) {
                // NODE CATEGORIES 
            print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_edit.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Edit this record'><img src='/images/famfamfam_silk_icons/page_edit.png' alt=\"[ Edit ]\"></a>\n";
            print "  <a href=\"javascript:popUp('/$current_top/" . $current_sub . "_add.php?item=" . $this->rows[$i]['category_id'] . "',500,500)\" title='Clone this record'><img src='/images/famfamfam_silk_icons/page_add.png' alt=\"[ Add ]\"></a>\n";
@@ -603,7 +603,7 @@ if($sajax){
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."vid=" . $this->rows[$i]['vid'] . "'>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</a></td>\n";
 
                # HACK to support linking categories with space in their names
-               } else if ($current_top == 'node' && $current_sub == 'categories') {
+               } else if ($current_top == 'configuration' && $current_sub == 'categories') {
                  print "    <td $hide_tag><a href='".$this->linkable[$key].$break."view_item=\"$cell\"'>" . ((strlen($cell) > 30) ? (substr($cell, 0, 30) . ' ...') : $cell) . "</a></td>\n";
 
                }
