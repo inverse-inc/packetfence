@@ -1,3 +1,48 @@
+commit 19608a731f6c5dc3f27d2a8c6696131454538ab4
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 16 10:57:19 2012 -0400
+
+    3.3.1 version bump
+
+M	NEWS
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	docs/docbook/pf-devel-guide.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 94dbccb5228ba999ac2a7db68520b67395992a30
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Mon Apr 16 11:32:16 2012 -0300
+
+    Use of REDIRECT rather than DNAT
+
+M	lib/pf/iptables.pm
+
+commit 8666dbaad3f1d5178dc630bc4a606dd4fdcd4aec
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Fri Apr 13 15:03:14 2012 -0300
+
+    named was not started if no vlan enforcement interfaces present
+
+M	lib/pf/services.pm
+
+commit b8f913b08e8fc4ef4645c4171053133da751d734
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 11:29:02 2012 -0400
+
+    removed reference to %install in the changelog
+
+M	addons/packages/packetfence.spec
+
+commit e467c64a6db2fbb6a23a5193be26b97ef1478ff6
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 13 11:22:16 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit 225e4831b3f12fcfa1f1dd34ecf75bd27a198147
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Fri Apr 13 11:20:41 2012 -0400
