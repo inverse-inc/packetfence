@@ -181,9 +181,9 @@ sub generate_inline_rules {
 
         my $rule = "--protocol udp --destination-port 53";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                . "--jump REDIRECT\n";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-                . "--jump DNAT --to $ConfigNetworks{$network}{'gateway'}\n";
+                . "--jump REDIRECT\n";
     }
     
     $logger->info("Adding NAT Masquarade statement (PAT)");
