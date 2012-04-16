@@ -1,0 +1,134 @@
+Description: Upstream changes introduced in version 3.2.0-1
+ This patch has been created by dpkg-source during the package build.
+ Here's the last changelog entry, hopefully it gives details on why
+ those changes were made:
+ .
+ packetfence (3.2.0-1) unstable; urgency=low
+ .
+   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+ .
+ The person named in the Author field signed this changelog entry.
+Author: Durand fabrice <fdurand@inverse.ca>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>
+
+--- packetfence-3.2.0.orig/installer.pl
++++ packetfence-3.2.0/installer.pl
+@@ -90,6 +90,7 @@ my %snort_rules_version = (
+     "RHEL5" => "snort-2.8.6",
+     "RHEL6" => "snort-2.9.0",
+     "latest" => "snort-2.9.0",
++    "SQUEEZE" => "snort-2.8.4",
+ );
+ 
+ my %oses = (
+@@ -98,6 +99,7 @@ my %oses = (
+     "CentOS Linux release 6" => "RHEL6",
+     "CentOS release 6" => "RHEL6",
+     "Red Hat Enterprise Linux Server release 6" => "RHEL6",
++    "6.0.4" => "SQUEEZE",
+ );
+ 
+ my @suids = ( "$install_dir/bin/pfcmd" );
+@@ -110,6 +112,11 @@ if ( -e "/etc/redhat-release" ) {
+     open( $rhrelease_fh, '<', "/etc/redhat-release" );
+     $version = <$rhrelease_fh>;
+     close($rhrelease_fh);
++} elsif (-e "/etc/debian_version" ) {
++    my $debianversion;
++    open( $debianversion, '<', "/etc/debian_version" );
++    $version = <$debianversion>;
++    close($debianversion);
+ } else {
+     $version = "X";
+ }
+--- packetfence-3.2.0.orig/lib/pf/services.pm
++++ packetfence-3.2.0/lib/pf/services.pm
+@@ -82,7 +82,7 @@ sub service_ctl {
+     my $exe = basename($service);
+     $logger->info("$service $action");
+     if ( $exe
+-        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|radiusd|httpd|apache2|snmptrapd|pfsetvlan)$/
++        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|radiusd|httpd|freeradius|apache2|snmptrapd|pfsetvlan)$/
+         )
+     {
+         $exe = $1;
+@@ -121,7 +121,7 @@ sub service_ctl {
+                     }
+                 }
+                 if ( $service =~ /
+-                    named|dhcpd|radiusd|snort|httpd|apache2|snmptrapd|    # external daemons
++                    named|dhcpd|radiusd|snort|httpd|freeradius|apache2|snmptrapd|    # external daemons
+                     pfdhcplistener|pfmon|pfdetect|pfredirect|pfsetvlan    # packetfence daemons
+                     /x && $daemon =~ 
+                     /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/
+@@ -141,7 +141,7 @@ sub service_ctl {
+                         my $cmd_line = "$service $flags{$daemon}";
+                         if ($cmd_line =~ /(.+)/) {
+                             $cmd_line = $1;
+-                            return ( system($cmd_line) );
++                            return ( system($cmd_line) ); 
+                         }
+                     } else {
+                         if ( isenabled( $Config{'network'}{'dhcpdetector'} ) )
+--- packetfence-3.2.0.orig/lib/pf/iplog.pm
++++ packetfence-3.2.0/lib/pf/iplog.pm
+@@ -322,7 +322,7 @@ sub ip2macinarp {
+     return (0) if ( !valid_ip($ip) );
+     my $mac;
+     $ip = clean_ip($ip);
+-    my @arpList = pf_run("/sbin/arp -n -a $ip");
++    my @arpList = pf_run("/usr/sbin/arp -n -a $ip");
+     my $lineNb  = 0;
+     while ( ( $lineNb < scalar(@arpList) ) && ( !$mac ) ) {
+         if ( $arpList[$lineNb]
+--- packetfence-3.2.0.orig/addons/freeradius-integration/radiusd.conf.pf
++++ packetfence-3.2.0/addons/freeradius-integration/radiusd.conf.pf
+@@ -2,23 +2,23 @@ prefix = /usr
+ exec_prefix = /usr
+ sysconfdir = /etc
+ localstatedir = /var
+-sbindir = /usr/sbin
+-logdir = ${localstatedir}/log/radius
+-raddbdir = ${sysconfdir}/raddb
++sbindir = ${exec_prefix}/sbin
++logdir = /var/log/freeradius
++raddbdir = /etc/freeradius
+ radacctdir = ${logdir}/radacct
+ 
+-name = radiusd
++name = freeradius
+ 
+ confdir = ${raddbdir}
+ run_dir = ${localstatedir}/run/${name}
+ 
+ db_dir = ${raddbdir}
+ 
+-libdir = /usr/lib64/freeradius
++libdir = /usr/lib/freeradius
+ pidfile = ${run_dir}/${name}.pid
+ 
+-user = radiusd
+-group = radiusd
++user = freerad
++group = freerad
+ 
+ max_request_time = 30
+ cleanup_delay = 5
+--- packetfence-3.2.0.orig/addons/freeradius-integration/users.pf
++++ packetfence-3.2.0/addons/freeradius-integration/users.pf
+@@ -1 +1,3 @@
+ DEFAULT EAP-Message !* "", Auth-Type := Accept
++demouser	Cleartext-Password := demouser
++

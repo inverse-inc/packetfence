@@ -1,0 +1,17 @@
+packetfence (3.3.1-1) unstable; urgency=low
+
+  * Version 3.3.1
+
+ -- Durand fabrice <fdurand@inverse.ca>  Wed, 16 Apr 2012 14:41:28 -0400
+
+packetfence (3.2.0-2) unstable; urgency=low
+
+  * Change postinst
+
+ -- Durand fabrice <fdurand@inverse.ca>  Wed, 16 Apr 2012 14:36:28 -0400
+
+packetfence (3.2.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Durand fabrice <fdurand@inverse.ca>  Wed, 04 Apr 2012 14:36:28 -0400
