@@ -23,36 +23,6 @@ Forwarded: <no|not-needed|url proving that it has been forwarded>
 Reviewed-By: <name and email of someone who approved the patch>
 Last-Update: <YYYY-MM-DD>
 
---- packetfence-3.2.0.orig/installer.pl
-+++ packetfence-3.2.0/installer.pl
-@@ -90,6 +90,7 @@ my %snort_rules_version = (
-     "RHEL5" => "snort-2.8.6",
-     "RHEL6" => "snort-2.9.0",
-     "latest" => "snort-2.9.0",
-+    "SQUEEZE" => "snort-2.8.4",
- );
- 
- my %oses = (
-@@ -98,6 +99,7 @@ my %oses = (
-     "CentOS Linux release 6" => "RHEL6",
-     "CentOS release 6" => "RHEL6",
-     "Red Hat Enterprise Linux Server release 6" => "RHEL6",
-+    "6.0.4" => "SQUEEZE",
- );
- 
- my @suids = ( "$install_dir/bin/pfcmd" );
-@@ -110,6 +112,11 @@ if ( -e "/etc/redhat-release" ) {
-     open( $rhrelease_fh, '<', "/etc/redhat-release" );
-     $version = <$rhrelease_fh>;
-     close($rhrelease_fh);
-+} elsif (-e "/etc/debian_version" ) {
-+    my $debianversion;
-+    open( $debianversion, '<', "/etc/debian_version" );
-+    $version = <$debianversion>;
-+    close($debianversion);
- } else {
-     $version = "X";
- }
 --- packetfence-3.2.0.orig/lib/pf/services.pm
 +++ packetfence-3.2.0/lib/pf/services.pm
 @@ -82,7 +82,7 @@ sub service_ctl {

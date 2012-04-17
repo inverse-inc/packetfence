@@ -84,6 +84,7 @@ my %snort_rules_version = (
     "RHEL5" => "snort-2.8.6",
     "RHEL6" => "snort-2.9.0",
     "latest" => "snort-2.9.0",
+    "SQUEEZE" => "snort-2.8.4",
 );
 
 my %oses = (
@@ -92,23 +93,14 @@ my %oses = (
     "CentOS Linux release 6" => "RHEL6",
     "CentOS release 6" => "RHEL6",
     "Red Hat Enterprise Linux Server release 6" => "RHEL6",
+    "6" => "SQUEEZE",
 );
 
 my @suids = ( "$install_dir/bin/pfcmd" );
 
 $ENV{'LANG'} = "C";
 
-# can we install RPMs?
-if ( -e "/etc/redhat-release" ) {
-    my $rhrelease_fh;
-    open( $rhrelease_fh, '<', "/etc/redhat-release" );
-    $version = <$rhrelease_fh>;
-    close($rhrelease_fh);
-} else {
-    $version = "X";
-}
-
-my $os_type = supported_os($version);
+my $os_type = supported_os();
 if ( !$os_type ) {
     if (questioner(
             "PacketFence has not been tested on your system would you like to continue?",
@@ -459,9 +451,28 @@ sub questioner {
 }
 
 sub supported_os {
-    my ($os) = @_;
+
+    # RedHat and derivatives
+    if ( -e "/etc/redhat-release" ) {
+        my $rhrelease_fh;
+        open( $rhrelease_fh, '<', "/etc/redhat-release" );
+        $version = <$rhrelease_fh>;
+        close($rhrelease_fh);
+    } 
+    # Debian and derivatives
+    elsif (-e "/etc/debian_version" ) {
+        my $debianversion;
+        open( $debianversion, '<', "/etc/debian_version" );
+        $version = <$debianversion>;
+        close($debianversion);
+    }
+    # Unknown
+    else {
+        $version = "X";
+    }
+
     foreach my $supported ( keys(%oses) ) {
-        return ( $oses{$supported} ) if ( $os =~ /^$supported/ );
+        return ( $oses{$supported} ) if ( $version =~ /^$supported/ );
     }
     return (0);
 }
@@ -486,7 +497,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 
