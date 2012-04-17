@@ -15,6 +15,13 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
+Enhancements
+ * minor refactoring and cleanup
+
+Bug Fixes
+ * debian support: radiusd is started even if disabled
+
+
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
 

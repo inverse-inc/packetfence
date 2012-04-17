@@ -100,8 +100,7 @@ sub service_ctl {
                     return $FALSE;
                 }
 
-                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
-                    && !$quick )
+                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/ && !$quick )
                 {
                     my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
@@ -119,6 +118,7 @@ sub service_ctl {
                         print "No such sub: $confname\n";
                     }
                 }
+
                 # valid daemon and flags are set
                 if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($flags{$daemon})) {
 
@@ -137,14 +137,14 @@ sub service_ctl {
 
                         }
                         $logger->info(
-                            "Starting $binary with '$service $flags{$daemon}'");
+                            "Starting $daemon with '$service $flags{$daemon}'");
                         my $cmd_line = "$service $flags{$daemon}";
                         if ($cmd_line =~ /(.+)/) {
                             $cmd_line = $1;
                             my $t0 = Time::HiRes::time();
                             my $return_value = system($cmd_line);
                             my $elapsed = Time::HiRes::time() - $t0;
-                            $logger->info(sprintf("Daemon $binary took %.3f seconds to start.", $elapsed));
+                            $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
                             return $return_value;
                         }
                     } else {
@@ -157,11 +157,11 @@ sub service_ctl {
                                 # FIXME lame taint-mode bypass
                                 if ($cmd_line =~ /^(.+)$/) {
                                     $cmd_line = $1;
-                                    $logger->info( "Starting $binary with '$cmd_line'" );
+                                    $logger->info( "Starting $daemon with '$cmd_line'" );
                                     my $t0 = Time::HiRes::time();
                                     system($cmd_line);
                                     my $elapsed = Time::HiRes::time() - $t0;
-                                    $logger->info(sprintf("Daemon $binary took %.3f seconds to start.", $elapsed));
+                                    $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
                                 }
                             }
                             return 1;
@@ -171,11 +171,11 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "stop" && do {
-                #my @debug= system('pkill','-f',$binary);
-                $logger->info("Stopping $binary with 'pkill $binary'");
+                #my @debug= system('pkill','-f',$daemon);
+                $logger->info("Stopping $daemon with 'pkill $binary'");
                 eval { `pkill $binary`; };
                 if ($@) {
-                    $logger->logcroak("Can't stop $binary with 'pkill $binary': $@");
+                    $logger->logcroak("Can't stop $daemon with 'pkill $binary': $@");
                     return;
                 }
 
@@ -187,7 +187,7 @@ sub service_ctl {
                 my $maxWait = 10;
                 my $curWait = 0;
                 while (( $curWait < $maxWait )
-                    && ( service_ctl( $binary, "status" ) ne "0" ) )
+                    && ( service_ctl( $daemon, "status" ) ne "0" ) )
                 {
                     $logger->info("Waiting for $binary to stop");
                     sleep(2);
@@ -217,7 +217,7 @@ sub service_ctl {
         }
     }
     else {
-        $logger->logcroak("unknown service $binary!");
+        $logger->logcroak("unknown service $binary (daemon: $daemon)!");
         return $FALSE;
     }
     return $TRUE;
