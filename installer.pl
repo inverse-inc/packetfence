@@ -80,12 +80,6 @@ my $conf_dir    = "$install_dir/conf";
 #  check if user is root
 die("You must be root to run the installer!\n") if ( $< != 0 );
 
-my $pfrelease_fh;
-open( $pfrelease_fh, '<', "$conf_dir/pf-release" );
-$version = <$pfrelease_fh>;
-close($pfrelease_fh);
-my $pf_release = ( split( /\s+/, $version ) )[1];
-
 my %snort_rules_version = (
     "RHEL5" => "snort-2.8.6",
     "RHEL6" => "snort-2.9.0",
