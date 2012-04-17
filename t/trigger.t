@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 13;
+use Test::More tests => 21;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -83,6 +83,24 @@ throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::0
     'parsing triggers with an invalid trigger id expecting exception'
 ;
 
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005 ") }
+    'parsing single trigger with a trailing space'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ 1100005, 1100005, "detect" ] ],
+    "validating single trigger with a trailing space"
+);
+
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005 ,OS::4") }
+    'parsing triggers with spaces in between'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ] ],
+    'validating triggers with spaces in between'
+);
+
 # Bandwidth accounting
 is_deeply(
     parse_triggers("Accounting::TOT20GB1M"),
@@ -100,6 +118,25 @@ throws_ok { parse_triggers("VENDORMAC::TOT20GB") }
     qr/Invalid trigger id/,
     'parsing a trigger with an invalid trigger id out of the accounting context expecting exception'
 ;
+
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M ") }
+    'parsing bandwidth accounting trigger with a trailing space'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
+    'validating bandwidth accounting trigger with a trailing space'
+);
+
+
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M ,Accounting::IN10GB2W") }
+    'parsing bandwidth accounting trigger with spaces in between'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], [ "IN10GB2W", "IN10GB2W", "accounting" ], ],
+    'validating bandwidth accounting trigger with spaces in between'
+);
 
 =head1 AUTHOR
 
