@@ -63,12 +63,11 @@ case "$1" in
 	if [ ! -e "/etc/freeradius/sites-available/control-socket" ]; then
 		ln -s /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel
 	fi
-	sed -i "11i\ServerRoot /usr/lib/apache2\n" $PACKETFENCE/conf/httpd.conf
 	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
 	chmod 755 /usr/local/pf/sbin/pfdetect /usr/local/pf/sbin/pfdhcplistener /usr/local/pf/sbin/pfmon /usr/local/pf/sbin/pfredirect /usr/local/pf/sbin/pfsetvlan
 	chmod 744 $PACKETFENCE/installer.pl $PACKETFENCE/configurator.pl $PACKETFENCE/html/admin/soh.cgi
-	#perl $PACKETFENCE/installer.pl
-	#perl $PACKETFENCE/configurator.pl
+	perl $PACKETFENCE/installer.pl
+	perl $PACKETFENCE/configurator.pl
 	$PACKETFENCE/bin/pfcmd config set services.httpd_binary=/usr/sbin/apache2
 	$PACKETFENCE/bin/pfcmd config set services.radiusd_binary=/usr/sbin/freeradius
 	$PACKETFENCE/bin/pfcmd config set services.snort_binary=/usr/sbin/snort

@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 NAME		= pf
-VERSION		= 3.2.0
+VERSION		= 3.3.1
 PREFIX		= /usr/local
 INSTALL		= /usr/bin/install -c -D -m0644
 
@@ -50,7 +50,8 @@ install: build
 	for i in `find * ! -path 'debian/*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
-
+	install -m0600 debian/httpd.conf.debian $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/httpd.conf.apache22
+	install -m0600 debian/radiusd.conf.pf.debian $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/freeradius-integration/radiusd.conf.pf
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
