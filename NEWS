@@ -21,7 +21,7 @@ New Hardware
 Bug Fixes
  * violation trigger parser now more tolerant of trailing spaces
  * 'add user' renamed 'add admin' for consistency (#1381, Thanks to Joao Moreira)
- * apache tests under pfcmd checkup fails if modules generates warnings (#1283, Thanks to psnizek)
+ * apache tests under pfcmd checkup fails if modules generates warnings (#1283, Thanks to Philipp Snizek)
 
 --------------------------------------------------------------------------------
 Version 3.3.1 released on 2012-04-16
