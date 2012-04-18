@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 13;
+use Test::More tests => 26;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -44,23 +44,33 @@ can_ok('pf::trigger', qw(
 ));
 
 # trigger parsing tests
+my $parsing_result_ref;
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005") }
+    'parsing single trigger'
+;
 is_deeply(
-    parse_triggers("Detect::1100005"),
+    $parsing_result_ref,
     [ [ 1100005, 1100005, "detect" ] ],
-    "parsing single trigger"
+    "validating single trigger results"
 );
 
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005,OS::4,Openvas::1.3.6.1.4.1.25623.1.0.80001") }
+    'parsing multiple triggers'
+;
 is_deeply(
-    parse_triggers("Detect::1100005,OS::4,Openvas::1.3.6.1.4.1.25623.1.0.80001"),
+    $parsing_result_ref,
     [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ], 
     [ "1.3.6.1.4.1.25623.1.0.80001", "1.3.6.1.4.1.25623.1.0.80001", "openvas"] ],
-    "parsing multiple triggers"
+    'validating multiple triggers'
 );
 
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005-1100007,OS::4") }
+    'parsing triggers with a range'
+;
 is_deeply(
-    parse_triggers("Detect::1100005-1100007,OS::4"),
+    $parsing_result_ref,
     [ [ 1100005, 1100007, "detect" ], [ 4, 4, "os" ] ],
-    "parsing triggers with a range"
+    'validating triggers with a range'
 );
 
 throws_ok { parse_triggers("Detect::1100005,OS::4,INVALID::7") }
@@ -83,23 +93,66 @@ throws_ok { parse_triggers("VENDORMAC::00:22:FA,VENDORMAC::00:22:68,VENDORMAC::0
     'parsing triggers with an invalid trigger id expecting exception'
 ;
 
-# Bandwidth accounting
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005 ") }
+    'parsing single trigger with a trailing space'
+;
 is_deeply(
-    parse_triggers("Accounting::TOT20GB1M"),
-    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
-    "parsing bandwidth accounting trigger"
+    $parsing_result_ref,
+    [ [ 1100005, 1100005, "detect" ] ],
+    "validating single trigger with a trailing space"
 );
 
+lives_ok { $parsing_result_ref = parse_triggers("Detect::1100005 ,OS::4") }
+    'parsing triggers with spaces in between'
+;
 is_deeply(
-    parse_triggers("Accounting::TOT20GB"),
+    $parsing_result_ref,
+    [ [ 1100005, 1100005, "detect" ], [ 4, 4, "os" ] ],
+    'validating triggers with spaces in between'
+);
+
+# Bandwidth accounting
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M") }
+    'parsing bandwidth accounting trigger'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
+    'validating bandwidth accounting trigger'
+);
+
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB") }
+    'parsing bandwidth accounting trigger without a time limit'
+;
+is_deeply(
+    $parsing_result_ref,
     [ [ "TOT20GB", "TOT20GB", "accounting" ], ],
-    "parsing bandwidth accounting trigger without a time limit"
+    'validating bandwidth accounting trigger without a time limit'
 );
 
 throws_ok { parse_triggers("VENDORMAC::TOT20GB") }
     qr/Invalid trigger id/,
     'parsing a trigger with an invalid trigger id out of the accounting context expecting exception'
 ;
+
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M ") }
+    'parsing bandwidth accounting trigger with a trailing space'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
+    'validating bandwidth accounting trigger with a trailing space'
+);
+
+
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M ,Accounting::IN10GB2W") }
+    'parsing bandwidth accounting trigger with spaces in between'
+;
+is_deeply(
+    $parsing_result_ref,
+    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], [ "IN10GB2W", "IN10GB2W", "accounting" ], ],
+    'validating bandwidth accounting trigger with spaces in between'
+);
 
 =head1 AUTHOR
 

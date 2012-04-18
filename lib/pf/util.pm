@@ -1063,19 +1063,19 @@ sub pf_run {
     $caller =~ s/^(pf::\w+|main):://;
 
     if ($CHILD_ERROR == -1) {
-        $logger->warn("Error trying to run command: $command called from $caller. OS Error: $exception");
+        $logger->warn("Problem trying to run command: $command called from $caller. OS Error: $exception");
 
     } elsif ($CHILD_ERROR & 127) {
         my $signal = ($CHILD_ERROR & 127);
         my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
         $logger->warn(
-            "Error trying to run command: $command called from $caller. " 
+            "Problem trying to run command: $command called from $caller. " 
             . "Child died with signal $signal $with_core coredump."
         );
     } else {
         my $exit_status = $CHILD_ERROR >> 8;
         $logger->warn(
-            "Error trying to run command: $command called from $caller. " 
+            "Problem trying to run command: $command called from $caller. " 
             . "Child exited with non-zero value $exit_status"
         );
     }

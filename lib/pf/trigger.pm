@@ -195,6 +195,7 @@ sub parse_triggers {
 
         my ( $type, $tid ) = split( /::/, $trigger );
         $type = lc($type);
+        $tid =~ s/\s+$//; # trim trailing whitespace
 
         # make sure trigger is a valid trigger type
         # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
@@ -206,9 +207,9 @@ sub parse_triggers {
         if ($type eq 'accounting') {
             die("Invalid accounting trigger id: $trigger") if ($tid !~ /^$ACCOUNTING_TRIGGER_RE$/);
         }
-        # usual trigger allowing digits, ranges and dots
+        # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {
-            die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+$/);
+            die("Invalid trigger id: $trigger") if ($trigger !~ /^\w+::[\d\.-]+\s*$/);
         }
 
         # process range
