@@ -1,0 +1,8 @@
+perl packetfence {
+	module = ${confdir}/packetfence.pm
+}
+
+perl packetfence-soh {
+	module = ${confdir}/packetfence-soh.pm
+}
+

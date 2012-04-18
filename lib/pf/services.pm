@@ -41,6 +41,7 @@ use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
 use pf::services::named qw(generate_named_conf);
+use pf::services::radiusd qw(generate_radiusd_conf);
 use pf::services::snmptrapd qw(generate_snmptrapd_conf);
 use pf::SwitchFactory;
 
@@ -63,7 +64,6 @@ $/x;
 =item service_launchers
 
 sprintf-formatted strings that control how the services should be started. 
-
     %1$s: is the binary (w/ full path)
     %2$s: optional parameters
 
@@ -79,7 +79,7 @@ $service_launchers{'pfsetvlan'} = "%1\$s -d &";
 $service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
 $service_launchers{'named'} = "%1\$s -u pf -c $generated_conf_dir/named.conf";
 $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
-$service_launchers{'radiusd'} = "%1\$s";
+$service_launchers{'radiusd'} = "%1\$s -d $install_dir/var/radiusd/";
 
 # TODO $monitor_int will cause problems with dynamic config reloading
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
@@ -125,6 +125,7 @@ sub service_ctl {
                         'dhcpd' => \&generate_dhcpd_conf,
                         'snort' => \&generate_snort_conf,
                         'httpd' => \&generate_httpd_conf,
+                        'radiusd' => \&generate_radiusd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
                     );
                     if ( $serviceHash{$daemon} ) {

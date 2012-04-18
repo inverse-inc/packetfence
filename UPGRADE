@@ -5,6 +5,13 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <stable>:
+
+    - RADIUS configuration is now in the PacketFence directory.  You may need
+    to import custom configuration from /etc/raddb to var/radiusd.  Note that
+    we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
+    conf/radiusd.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update
