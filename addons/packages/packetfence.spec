@@ -64,8 +64,8 @@ Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
 Requires: dhcp, bind
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
-%{?el5:Requires freeradius2 >= 2.1.12}
-%{?el6:Requires freeradius >= 2.1.12}
+%{?el5:Requires: freeradius2 >= 2.1.12}
+%{?el6:Requires: freeradius >= 2.1.12}
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
