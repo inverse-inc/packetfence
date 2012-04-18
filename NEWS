@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable> released on <releaseDate>
 
+New Hardware
+ * HP Procurve 5300 series now identified as supported (thanks to the community!)
+
 Bug Fixes
  * violation trigger parser now more tolerant of trailing spaces
  * 'add user' renamed 'add admin' for consistency (#1381, Thanks to Joao Moreira)

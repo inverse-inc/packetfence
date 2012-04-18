@@ -117,6 +117,7 @@ PacketFence supports the following devices:
 |                 |ProCurve 2600 Series        |HP::Procurve_2600
 |                 |ProCurve 3400cl Series      |HP::Procurve_3400cl
 |                 |ProCurve 4100 Series        |HP::Procurve_4100
+|                 |ProCurve 5300 Series        |HP::Procurve_5300
 |                 |ProCurve 5400 Series        |HP::Procurve_5400
 |Intel            |Express 460                 |Intel::Express_460
 |                 |Express 530                 |Intel::Express_530
@@ -1346,8 +1347,8 @@ On each interface:
 
 where `xx` stands for the interface index
 
-4100, 5400 Series
-^^^^^^^^^^^^^^^^^
+4100, 5300, 5400 Series
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Port-Security
 +++++++++++++

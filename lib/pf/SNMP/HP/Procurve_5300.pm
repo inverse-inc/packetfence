@@ -1,20 +1,24 @@
-package pf::SNMP::HP::Procurve_3400cl;
+package pf::SNMP::HP::Procurve_5300;
 
 =head1 NAME
 
-pf::SNMP::HP::Procurve_3400cl - Object oriented module to parse SNMP traps and manage HP Procurve 3400cl switches
+pf::SNMP::HP::Procurve_5300 - Object oriented module to parse SNMP traps and manage HP Procurve 5300 switches
 
 =head1 STATUS
 
-This switch was reported to work by the community with the Procurve 2600 module.
+This switch was reported to work by the community with the Procurve 5400 module with firmware 11.21.
+
+This module is currently only a placeholder, see L<pf::SNMP::HP::Procurve_5400> for relevant support items.
 
 =cut
 
 use strict;
 use warnings;
+
 use Log::Log4perl;
 use Net::SNMP;
-use base ('pf::SNMP::HP');
+
+use base ('pf::SNMP::HP::Procurve_5400');
 
 =head1 AUTHOR
 
@@ -22,7 +26,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 

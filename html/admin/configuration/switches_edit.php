@@ -152,6 +152,7 @@
                            'HP::Procurve_2600' => 'HP ProCurve 2600 Series',
                            'HP::Procurve_3400cl' => 'HP ProCurve 3400cl Series',
                            'HP::Procurve_4100' => 'HP ProCurve 4100 Series',
+                           'HP::Procurve_5300' => 'HP ProCurve 5300 Series',
                            'HP::Procurve_5400' => 'HP ProCurve 5400 Series',
                            'HP::Controller_MSM710' => 'HP ProCurve MSM710 Mobility Controller',
                            'Intel::Express_460' => 'Intel Express 460',
