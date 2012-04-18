@@ -50,6 +50,20 @@ install: build
 	for i in `find * ! -path 'debian/*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/mrtg
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/scan/results
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/traplog
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/named
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
