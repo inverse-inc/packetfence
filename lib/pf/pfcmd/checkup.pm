@@ -96,9 +96,14 @@ sub sanity_check {
     if ( isenabled($Config{'services'}{'radiusd'} ) ) {
         freeradius();
     }
-
+    
     if ( isenabled($Config{'trapping'}{'detection'}) ) {
-        ids_snort();
+        ids();
+        
+        if ($Config{'trapping'}{'detection_engine'} eq 'snort') {
+             ids_snort();
+        }
+        #TODO Suricata check
     }
 
     scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
@@ -962,6 +967,20 @@ sub unsupported {
     # This was not implemented due to a time constraint. We can fix it.
     if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
         add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
+    }
+}
+
+=item ids
+IDS Checkup
+
+=cut
+sub ids {
+
+    # make sure trapping.detection_engine=snort|suricata
+    if ( !$Config{'trapping'}{'detection_engine'} eq 'snort' && !$Config{'trapping'}{'detection_engine'} eq 'suricata' ) {
+        add_problem( $FATAL,
+            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
+        );
     }
 }
 

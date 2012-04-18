@@ -144,6 +144,13 @@ always_use_redirecturl=disabled
 # you'll most definately want this on.
 detection=disabled
 
+#
+# trapping.detection_engine
+#
+# Let you choose from our supported IDS: snort or suricata
+#
+detection_engine=snort
+
 [registration]
 #
 # registration.range
