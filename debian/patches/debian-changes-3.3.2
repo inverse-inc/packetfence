@@ -1,0 +1,94 @@
+Description: Upstream changes introduced in version 3.3.2
+ This patch has been created by dpkg-source during the package build.
+ Here's the last changelog entry, hopefully it gives details on why
+ those changes were made:
+ .
+ packetfence (3.3.2) unstable; urgency=low
+ .
+   * New version
+ .
+ The person named in the Author field signed this changelog entry.
+Author: root <root@inverse.ca>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>
+
+--- packetfence-3.3.2.orig/addons/freeradius-integration/radiusd.conf.pf
++++ packetfence-3.3.2/addons/freeradius-integration/radiusd.conf.pf
+@@ -2,23 +2,23 @@ prefix = /usr
+ exec_prefix = /usr
+ sysconfdir = /etc
+ localstatedir = /var
+-sbindir = /usr/sbin
+-logdir = ${localstatedir}/log/radius
+-raddbdir = ${sysconfdir}/raddb
++sbindir = ${exec_prefix}/sbin
++logdir = /var/log/freeradius
++raddbdir = /etc/freeradius
+ radacctdir = ${logdir}/radacct
+ 
+-name = radiusd
++name = freeradius
+ 
+ confdir = ${raddbdir}
+ run_dir = ${localstatedir}/run/${name}
+ 
+ db_dir = ${raddbdir}
+ 
+-libdir = /usr/lib64/freeradius
++libdir = /usr/lib/freeradius
+ pidfile = ${run_dir}/${name}.pid
+ 
+-user = radiusd
+-group = radiusd
++user = freeradius
++group = freeradius
+ 
+ max_request_time = 30
+ cleanup_delay = 5
+--- packetfence-3.3.2.orig/conf/pf.conf.defaults
++++ packetfence-3.3.2/conf/pf.conf.defaults
+@@ -573,7 +573,7 @@ snort_binary=/usr/sbin/snort
+ # services.httpd_binary
+ #
+ # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
+-httpd_binary=/usr/sbin/httpd
++httpd_binary=/usr/sbin/apache2
+ #
+ # services.dhcpd_binary
+ #
+@@ -593,12 +593,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
+ # services.radiusd_binary
+ # 
+ # Location of the named binary. Only necessary to change if you are not running the RPMed version.
+-radiusd_binary=/usr/sbin/radiusd
++radiusd_binary=/usr/sbin/freeradius
+ # 
+ # services.arp_binary
+ # 
+ # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
+-arp_binary=/sbin/radiusd
++arp_binary=/usr/sbin/arp
+ 
+ [vlan]
+ #
+--- packetfence-3.3.2.orig/conf/httpd.conf.apache22
++++ packetfence-3.3.2/conf/httpd.conf.apache22
+@@ -8,6 +8,7 @@ ServerSignature Off
+ UseCanonicalName Off
+ Timeout 50
+ KeepAliveTimeout 10
++ServerRoot /usr/lib/apache2
+ 
+ # PERFORMANCE RELATED
+ # These values are automatically adjusted by PacketFence based on total system memory
