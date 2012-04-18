@@ -1,8 +1,0 @@
-server soh-server {
-        authorize {
-                packetfence-soh
-                update config {
-                    Auth-Type = Accept
-                }
-        }
-}
