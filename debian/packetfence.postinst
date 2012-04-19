@@ -52,16 +52,16 @@ case "$1" in
 	mv $PACKETFENCE/addons/pfdetect_remote/initrd/pfdetectd /etc/init.d/
 	mv $PACKETFENCE/addons/pfdetect_remote/sbin/pfdetect_remote /usr/local/pf/sbin
 	mv $PACKETFENCE/addons/pfdetect_remote/conf/pfdetect_remote.conf /usr/local/pf/conf
-	if [ ! -e "/etc/freeradius/sites-available/control-socket" ]; then
+	if [ ! -e "/etc/freeradius/sites-enabled/control-socket" ]; then
 		ln -s /etc/freeradius/sites-available/control-socket /etc/freeradius/sites-enabled/control-socket
 	fi
-	if [ ! -e "/etc/freeradius/sites-available/control-socket" ]; then
+	if [ ! -e "/etc/freeradius/sites-enabled/packetfence" ]; then
 		ln -s /etc/freeradius/sites-available/packetfence /etc/freeradius/sites-enabled/packetfence
 	fi
-	if [ ! -e "/etc/freeradius/sites-available/control-socket" ]; then
+	if [ ! -e "/etc/freeradius/sites-enabled/packetfence-soh" ]; then
 		ln -s /etc/freeradius/sites-available/packetfence-soh /etc/freeradius/sites-enabled/packetfence-soh
 	fi
-	if [ ! -e "/etc/freeradius/sites-available/control-socket" ]; then
+	if [ ! -e "/etc/freeradius/sites-enabled/packetfence-tunnel" ]; then
 		ln -s /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel
 	fi
 	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
