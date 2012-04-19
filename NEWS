@@ -16,7 +16,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <stable-version> released on <releaseDate>
 
 New Features
- * debian packages (#1066)
+ * debian packages (#1066, #1067)
 
 Enhancements
  * minor refactoring and cleanup
