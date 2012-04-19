@@ -2688,7 +2688,7 @@ sub radiusDisconnect {
         };
 
         # merging additional attributes provided by caller to the standard attributes
-        $attributes_ref = { %$attributes_ref, $add_attributes_ref };
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
         $response = perform_disconnect($connection_info, $attributes_ref);
     } catch {

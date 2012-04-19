@@ -46,7 +46,19 @@ foreach my $wireless_object (@wireless_devices) {
         parseTrap getVersion extractSsid deauthenticateMac
     ));
 
+    # bogusly calling methods trying to generate warnings
+    #$wireless_object->deauthenticateMac("aa:bb:cc:dd:ee:ff");
 }
+
+# regression test for #1426: RADIUS CoA Broken on WLC 5500
+# http://www.packetfence.org/bugs/view.php?id=1426
+my $networkdevice_object = pf::SNMP::Cisco::WiSM2->new(
+    '-mode' => 'production', 
+    '-radiusSecret' => 'fake',
+    '-ip' => '127.0.0.1',
+);
+# bogusly calling methods trying to generate warnings
+$networkdevice_object->deauthenticateMac("aa:bb:cc:dd:ee:ff");
 
 =head1 AUTHOR
 
@@ -54,7 +66,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
     
