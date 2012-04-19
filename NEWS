@@ -20,6 +20,7 @@ New Hardware
 
 Bug Fixes
  * critical fix for deauthentication affecting AeroHIVE, Aruba, Cisco Wireless, Motorola and Ruckus. Introduced in 3.3.0 (#1426)
+ * Web Admin no longer showing errors in popup dialogs. Introduced in 3.0.3 (#1420)
  * violation trigger parser now more tolerant of trailing spaces
  * 'add user' renamed 'add admin' for consistency (#1381, Thanks to Joao Moreira)
  * apache tests under pfcmd checkup fails if modules generates warnings (#1283, Thanks to Philipp Snizek)

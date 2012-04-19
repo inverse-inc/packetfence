@@ -35,3 +35,6 @@
       print "<div id='message_box' style='margin-bottom:0px; margin-top:20px;'>$msg</div>";
     }
 
+    function close_popup_tags() {
+      print "</body></html>";
+    }
