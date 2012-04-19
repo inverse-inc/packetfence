@@ -25,11 +25,10 @@ case "$1" in
 	export PERL5LIB=/usr/local/pf/lib
 	perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
 	mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
-	VERSION_FILE=$PACKETFENCE/conf/pf-release
-	VERSION=`cat \$VERSION_FILE | awk '{print $2}'`
 	if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
 		cd $PACKETFENCE/db
-		ln -s pf-schema-$VERSION.sql ./pf-schema.sql
+		VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+		ln -s $VERSIONSQL ./pf-schema.sql
 	fi
 	if [ ! -e "$PACKETFENCE/conf/httpd.conf" ]; then
 		cd $PACKETFENCE/conf
