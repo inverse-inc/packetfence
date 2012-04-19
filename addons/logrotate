@@ -11,6 +11,6 @@
         # uncomment the crm statements if you are running packetfence in a corosync cluster
         #/usr/sbin/crm resource unmanage PacketFence
         /sbin/service packetfence condrestart  >/dev/null 2>&1 || true
-        #/usr/sbin/crm resource unmanage PacketFence
+        #/usr/sbin/crm resource manage PacketFence
     endscript
 }
