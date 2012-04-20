@@ -22,7 +22,7 @@
                 sum = values[j++] * -l;
                 l += k;
             } else {
-                sum += values[j++];
+                sum += values[j++] * 1;
             }
         }
         return res;
@@ -97,10 +97,10 @@
 
         var allx = Array.prototype.concat.apply([], valuesx),
             ally = Array.prototype.concat.apply([], valuesy),
-            xdim = chartinst.snapEnds(Math.min.apply(Math, allx), Math.max.apply(Math, allx), valuesx[0].length - 1),
+            xdim = opts.xdim || chartinst.snapEnds(Math.min.apply(Math, allx), Math.max.apply(Math, allx), valuesx[0].length - 1),
             minx = xdim.from,
             maxx = xdim.to,
-            ydim = chartinst.snapEnds(Math.min.apply(Math, ally), Math.max.apply(Math, ally), valuesy[0].length - 1),
+            ydim = opts.ydim || chartinst.snapEnds(Math.min.apply(Math, ally), Math.max.apply(Math, ally), valuesy[0].length - 1),
             miny = ydim.from,
             maxy = ydim.to,
             kx = (width - gutter * 2) / ((maxx - minx) || 1),
@@ -183,7 +183,6 @@
             }
 
             Xs.sort(function(a,b) { return a - b; });
-
             // remove duplicates
 
             var Xs2 = [],
@@ -191,7 +190,6 @@
 
             for (i = 0, ii = Xs.length; i < ii; i++) {
                 Xs[i] != Xs[i - 1] && Xs2.push(Xs[i]) && xs.push(x + gutter + (Xs[i] - minx) * kx);
-                //console.info(i + ": x = " + x + ", gutter = " + gutter + ", Xs = " + Xs[i] + ", minx = " + minx + ", kx = " + kx);
             }
 
             Xs = Xs2;
@@ -204,7 +202,6 @@
                     w = ((xs[i + 1] || x + width) - xs[i]) / 2 + (xs[i] - (xs[i - 1] || x)) / 2,
                     C;
 
-                //console.info(i + ": current " + xs[i] + ", next " + xs[i + 1] + " (" + width + ")");
                 f ? (C = {}) : cvrs.push(C = paper.rect(X - 1, y, Math.max(w + 1, 1), height).attr({ stroke: "none", fill: "#000", opacity: 0 }));
                 C.values = [];
                 C.symbols = paper.set();

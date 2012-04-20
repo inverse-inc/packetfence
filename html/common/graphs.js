@@ -12,33 +12,63 @@ window.onload = function () {
 
         var maxdots = parseInt(width/20),
         increment = (labels.length > maxdots)? Math.round(labels.length/maxdots) : 1,
-        axisxstep = ((size == 'small' || j < 8)?4:8),
+        xstep = (size == 'small')? 4:8,
+        ystep = 8,
+        axisxstep =  (labels.length > xstep)? xstep : labels.length - 1,
+        axisystep = 0,
+        max = 0,
+        xoverflow = (labels.length > xstep)? (labels.length % axisxstep) - 1 : 0,
         valuesx = [],
         valuesy = [],
         legend = [],
         i = 0,
         j = 0;
+
+        // Drop some values if not dividable by the x-steps
+        if (xoverflow > 0)
+            labels.splice(0, xoverflow);
+
         for (var name in series) {
             legend.push(name);
             valuesx[i] = [];
             valuesy[i] = [];
+            if (xoverflow > 0)
+                series[name].splice(0, xoverflow);
             for (var jj = 0, j = 0; jj < labels.length; j++, jj += increment) {
                 valuesx[i][j] = j;
                 valuesy[i][j] = series[name][jj];
+                if (valuesy[i][j] > max) max = valuesy[i][j];
             }
             i++;
+        }
+
+        // Compute the y-axis step based on the maximum y-value
+        if (max % 2 > 0)
+            max++;
+        if (max < ystep)
+            axisystep = max;
+        else {
+            var k = ystep;
+            while (max % k > 0 && k > 0)
+                k--;
+            axisystep = k;
         }
 
         var r = Raphael(holder),
         txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
 
         // Print legend at top
-        var colors = Raphael.g.colors;
+        var colors = Raphael.g.colors,
+        white = Raphael.color("white");
         var x = 15, h = 5, j = 0, lines = [];
         for(i = 0, lines[j] = r.set(); i < legend.length; ++i) {
             var clr = colors[i];
             var box = r.set();
-            box.push(r.circle(x + 5, h, 5) 
+            box.push(r.rect(x-6, h-1, 22, 2)
+                    .attr({fill: clr, stroke: "none"}));
+            box.push(r.circle(x + 5, h, 5)
+                     .attr({fill: white, stroke: white}));
+            box.push(r.circle(x + 5, h, 4)
                      .attr({fill: clr, stroke: "none"}));
             box.push(r.text(x + 20, h, legend[i])
                      .attr(txtattr)
@@ -72,6 +102,8 @@ window.onload = function () {
                                     nostroke: false,
                                     axis: "0 0 1 1",
                                     axisxstep: axisxstep,
+                                    axisystep: axisystep,
+                                    ydim: { from: 0, to: max, power: 1 },
                                     symbol: "circle",
                                     smooth: false,
                                     //dash: "-",
