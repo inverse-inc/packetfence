@@ -1,9 +1,16 @@
-packetfence for Debian
+PacketFence for Debian
 ----------------------
 
-<this file describes information about the source package, see Debian policy
-manual section 4.14. You WILL either need to modify or delete this file>
+Once inside a PacketFence git repositoryp[1] checkout, get the source tarball with:
 
+  $ git archive <branch or tag> --prefix packetfence_<version>/ -o "packetfence_<version>.tar.gz"
 
+Into debian/:
+
+  $ dpkg-buildpackage -rfakeroot
+
+[1]: https://github.com/inverse-inc/packetfence/
+
+ -- Olivier Bilodeau <obilodeau@inverse.ca>  Thu, 19 Apr 2012 16:36:28 -0400
 
 

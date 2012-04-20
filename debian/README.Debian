@@ -1,6 +1,8 @@
-packetfence for Debian
+PacketFence for Debian
 ----------------------
 
-<possible notes regarding this package - if none, delete this file>
+This is our initial attempt at packaging PacketFence for Debian-based systems.
+Please report any issues on our bug tracker under the packaging category.
+http://www.packetfence.org/bugs/
 
- -- Durand fabrice <fdurand@inverse.ca>  Wed, 04 Apr 2012 14:36:28 -0400
+ -- Durand Fabrice <fdurand@inverse.ca>  Thu, 19 Apr 2012 14:36:28 -0400
