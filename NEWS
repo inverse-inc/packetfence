@@ -25,6 +25,7 @@ Bug Fixes
  * 'add user' renamed 'add admin' for consistency (#1381, Thanks to Joao Moreira)
  * apache tests under pfcmd checkup fails if modules generates warnings (#1283, Thanks to Philipp Snizek)
  * another shot at 'named not started if using inline enforcement only'
+ * trap_limit feature fixes: local traps ignored and continue processing if no action (#1405)
 
 --------------------------------------------------------------------------------
 Version 3.3.1 released on 2012-04-16
