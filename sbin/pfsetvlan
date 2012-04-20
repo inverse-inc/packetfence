@@ -706,13 +706,7 @@ sub parseTrap {
                 $trapHashRef = $switch->parseTrap($3);
 
                 # skip traps coming from switch ifIndex that reached traps limit threshold
-                if ( perform_trap_limiting($switch, $trapHashRef->{'trapIfIndex'}) ) {
-                    $logger->warn(
-                        "We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
-                        . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}"
-                    );
-                    return;
-                }
+                return if ( perform_trap_limiting($switch, $trapHashRef->{'trapIfIndex'}) );
             }
 
             # skip unknown traps
@@ -1916,9 +1910,16 @@ sub perform_trap_limiting {
         }
     }
 
+    $logger->warn(
+        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
+        . "from ifIndex $switchIfIndex of switch $switch->{_ip}"
+    );
+
+    # if there's no action configured then let's continue parsing the trap
+    return $FALSE if ( isempty($trapsLimitAction) );
+
     return $TRUE; 
 }
-
 # }}}1
 
 # sub do_port_security {{{1
