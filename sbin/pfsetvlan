@@ -706,7 +706,7 @@ sub parseTrap {
                 $trapHashRef = $switch->parseTrap($3);
 
                 # skip traps coming from switch ifIndex that reached traps limit threshold
-                if ( check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
+                if ( perform_trap_limiting($switch, $trapHashRef->{'trapIfIndex'}) ) {
                     $logger->warn(
                         "We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
                         . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}"
@@ -1863,10 +1863,10 @@ sub node_determine_and_set_into_VLAN {
 
 # }}}1
 
-# sub check_traps_limit_threshold {{{1
-sub check_traps_limit_threshold {
+# sub perform_trap_limiting {{{1
+sub perform_trap_limiting {
     my ( $switch, $switchIfIndex ) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan::check_traps_limit_threshold');
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
     # skipping if feature is disabled
     return $FALSE if (isenabled($Config{'vlan'}{'trap_limit'}));
