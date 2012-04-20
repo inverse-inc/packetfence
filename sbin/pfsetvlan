@@ -708,9 +708,7 @@ sub parseTrap {
             my $trapType = $trapHashRef->{'trapType'};
 
             # skip traps coming from switch ifIndex that reached traps limit threshold
-            if ( defined($trapHashRef->{'trapIfIndex'}) 
-                    && isenabled($Config{'vlan'}{'trap_limit'})
-                    && check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
+            if ( check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
                 $logger->warn("We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
                         . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}");
             # skip unknown traps
@@ -1864,6 +1862,12 @@ sub node_determine_and_set_into_VLAN {
 sub check_traps_limit_threshold {
     my ( $switch, $switchIfIndex ) = @_;
     my $logger = Log::Log4perl->get_logger('pfsetvlan::check_traps_limit_threshold');
+
+    # skipping if feature is disabled
+    return $FALSE if (isenabled($Config{'vlan'}{'trap_limit'}));
+
+    # skipping if trapIfIndex is undef
+    return $FALSE if (defined($switchIfIndex)); 
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
     my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
