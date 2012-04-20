@@ -1863,10 +1863,10 @@ sub perform_trap_limiting {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
     # skipping if feature is disabled
-    return $FALSE if (isenabled($Config{'vlan'}{'trap_limit'}));
+    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
 
     # skipping if trapIfIndex is undef
-    return $FALSE if (defined($switchIfIndex)); 
+    return $FALSE if (!defined($switchIfIndex)); 
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
     my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
