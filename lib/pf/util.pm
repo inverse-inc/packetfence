@@ -35,8 +35,9 @@ BEGIN {
         valid_date valid_ip reverse_ip clean_ip 
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
         trappable_ip reggable_ip
-        inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer isenabled
-        isdisabled getlocalmac ip2int int2ip 
+        inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer 
+        isenabled isdisabled isempty
+        getlocalmac ip2int int2ip 
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info get_gateways createpid readpid deletepid
@@ -484,6 +485,12 @@ sub pfmailer {
     return 1;
 }
 
+=item * isenabled
+
+Is the given configuration parameter considered enabled? y, yes, true, enable
+and enabled are all positive values for PacketFence.
+
+=cut
 sub isenabled {
     my ($enabled) = @_;
     if ( $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
@@ -493,6 +500,12 @@ sub isenabled {
     }
 }
 
+=item * isdisabled
+
+Is the given configuration parameter considered disabled? n, no, false, 
+disable and disabled are all negative values for PacketFence.
+
+=cut
 sub isdisabled {
     my ($disabled) = @_;
     if ( $disabled =~ /^\s*(n|no|false|disable|disabled)\s*$/i ) {
@@ -500,6 +513,20 @@ sub isdisabled {
     } else {
         return (0);
     }
+}
+
+=item * isempty
+
+Is the given configuration parameter considered empty? Whitespace is 
+considered empty.
+
+=cut
+sub isempty {
+    my ($parameter) = @_;
+
+    return $TRUE if ( $parameter =~ /^\s*$/ );
+    # otherwise
+    return $FALSE;
 }
 
 sub getlocalmac {
