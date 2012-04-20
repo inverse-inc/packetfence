@@ -704,17 +704,14 @@ sub parseTrap {
                 }
             } else {
                 $trapHashRef = $switch->parseTrap($3);
-            }
-            my $trapType = $trapHashRef->{'trapType'};
 
-            # skip traps coming from switch ifIndex that reached traps limit threshold
-            if ( defined($trapHashRef->{'trapIfIndex'}) 
-                    && isenabled($Config{'vlan'}{'trap_limit'})
-                    && check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
-                $logger->warn("We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
-                        . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}");
+                # skip traps coming from switch ifIndex that reached traps limit threshold
+                return if ( perform_trap_limiting($switch, $trapHashRef->{'trapIfIndex'}) );
+            }
+
             # skip unknown traps
-            } elsif ( $trapType ne 'unknown' ) {
+            my $trapType = $trapHashRef->{'trapType'};
+            if ( $trapType ne 'unknown' ) {
                 my $switch_ip     = $switch->{_ip};
                 my $switch_port   = $trapHashRef->{'trapIfIndex'};
                 my $trapVlan      = '';
@@ -1860,10 +1857,16 @@ sub node_determine_and_set_into_VLAN {
 
 # }}}1
 
-# sub check_traps_limit_threshold {{{1
-sub check_traps_limit_threshold {
+# sub perform_trap_limiting {{{1
+sub perform_trap_limiting {
     my ( $switch, $switchIfIndex ) = @_;
-    my $logger = Log::Log4perl->get_logger('pfsetvlan::check_traps_limit_threshold');
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+
+    # skipping if feature is disabled
+    return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
+
+    # skipping if trapIfIndex is undef
+    return $FALSE if (!defined($switchIfIndex)); 
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
     my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
@@ -1907,9 +1910,16 @@ sub check_traps_limit_threshold {
         }
     }
 
+    $logger->warn(
+        "We received many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute "
+        . "from ifIndex $switchIfIndex of switch $switch->{_ip}"
+    );
+
+    # if there's no action configured then let's continue parsing the trap
+    return $FALSE if ( isempty($trapsLimitAction) );
+
     return $TRUE; 
 }
-
 # }}}1
 
 # sub do_port_security {{{1
