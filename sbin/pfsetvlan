@@ -704,15 +704,20 @@ sub parseTrap {
                 }
             } else {
                 $trapHashRef = $switch->parseTrap($3);
-            }
-            my $trapType = $trapHashRef->{'trapType'};
 
-            # skip traps coming from switch ifIndex that reached traps limit threshold
-            if ( check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
-                $logger->warn("We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
-                        . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}");
+                # skip traps coming from switch ifIndex that reached traps limit threshold
+                if ( check_traps_limit_threshold($switch, $trapHashRef->{'trapIfIndex'}) ) {
+                    $logger->warn(
+                        "We received too many traps (over $Config{'vlan'}{'trap_limit_threshold'}) in a minute) "
+                        . "from ifIndex $trapHashRef->{'trapIfIndex'} of switch $switch->{_ip}"
+                    );
+                    return;
+                }
+            }
+
             # skip unknown traps
-            } elsif ( $trapType ne 'unknown' ) {
+            my $trapType = $trapHashRef->{'trapType'};
+            if ( $trapType ne 'unknown' ) {
                 my $switch_ip     = $switch->{_ip};
                 my $switch_port   = $trapHashRef->{'trapIfIndex'};
                 my $trapVlan      = '';
