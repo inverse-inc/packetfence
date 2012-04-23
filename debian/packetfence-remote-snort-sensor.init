@@ -62,7 +62,7 @@ do_stop()
 	#   1 if daemon was already stopped
 	#   2 if daemon could not be stopped
 	#   other if a failure occurred
-	killproc $PROGBASE
+	killproc -p "$PIDFILE" "$DAEMON"
 	# Wait for children to finish too if this is a daemon that forks
 	# and if the daemon is only ever run from this initscript.
 	# If the above conditions are not satisfied then add some other code
