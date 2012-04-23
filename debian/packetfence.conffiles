@@ -1,8 +1,3 @@
-/etc/freeradius/radiusd.conf
-/etc/freeradius/eap.conf
-/etc/freeradius/users
-/etc/freeradius/modules/perl.pf
-/etc/freeradius/sql.conf
 /usr/local/pf/conf/admin.perm
 /usr/local/pf/conf/admin_ldap.conf
 /usr/local/pf/conf/authentication/guest_managers.pm
