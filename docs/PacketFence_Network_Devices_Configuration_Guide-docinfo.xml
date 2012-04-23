@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
    <revision>
+    <revnumber>2.2</revnumber>
+    <date>2012-04-23</date>
+    <authorinitials>OB</authorinitials>
+    <revremark>HP ProCurve 5300 Series identified as supported.</revremark>
+  </revision>
+   <revision>
     <revnumber>2.1</revnumber>
     <date>2012-04-12</date>
     <authorinitials>FG, OB</authorinitials>
