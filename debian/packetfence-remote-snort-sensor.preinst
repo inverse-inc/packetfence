@@ -1,5 +1,5 @@
 #!/bin/sh
-# preinst script for packetfence
+# preinst script for packetfence-remote-snort-sensor
 #
 # see: dh_installdeb(1)
 

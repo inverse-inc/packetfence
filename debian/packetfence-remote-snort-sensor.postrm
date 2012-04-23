@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for packetfence
+# postrm script for packetfence-remote-snort-sensor
 #
 # see: dh_installdeb(1)
 
@@ -27,8 +27,8 @@ case "$1" in
     ;;
     purge)
 	export PACKETFENCE=/usr/local/pf
-	update-rc.d pfdetectd remove >/dev/null || exit 0
-	rm /etc/init.d/pfdetectd 
+	update-rc.d packetfence-remote-snort-sensor remove >/dev/null || exit 0
+	rm /etc/init.d/packetfence-remote-snort-sensor 
 	rm $PACKETFENCE/sbin/pfdetect_remote
 	rm $PACKETFENCE/conf/pfdetect_remote.conf	
     ;;
