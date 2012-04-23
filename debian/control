@@ -4,6 +4,8 @@ Priority: optional
 Maintainer: Durand fabrice <fdurand@inverse.ca>
 Build-Depends: debhelper (>= 7.0.50~)
 Standards-Version: 3.8.4
+Vcs-Git: git://github.com/inverse-inc/packetfence.git
+Vcs-browser: https://github.com/inverse-inc/packetfence/
 Homepage: http://www.packetfence.org/
 
 Package: packetfence
