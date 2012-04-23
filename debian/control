@@ -8,7 +8,42 @@ Homepage: http://www.packetfence.org/
 
 Package: packetfence
 Architecture: all
-Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils, openssl, openssl-blacklist, openssl-blacklist-extra, php-log, snort, mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear, php5-mysql, php5-gd, perl-suid, libapache-htpasswd-perl, libbit-vector-perl, libcgi-session-serialize-yaml-perl, libconfig-inifiles-perl, libtimedate-perl, libapache-dbi-perl, libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl, libiptables-parse-perl, libiptables-chainmgr-perl, liblist-moreutils-perl, liblocale-gettext-perl, liblog-log4perl-perl, liblwp-useragent-determined-perl, libnet-mac-vendor-perl, libnet-mac-perl, libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl, libsnmp-perl, libnet-telnet-cisco-perl, libparse-recdescent-perl, libregexp-common-email-address-perl, libregexp-common-time-perl, libperl-critic-perl, libreadonly-xs-perl, libhtml-template-perl, libterm-readkey-perl, libtest-perl-critic-perl, libtest-pod-perl, libtest-pod-coverage-perl, apache2-mpm-prefork, libthread-pool-simple-perl, libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl, libwww-perl, libapache-htpasswd-perl, libbit-vector-perl, libcgi-session-perl, libconfig-inifiles-perl, libdatetime-format-dateparse-perl, libdbi-perl, libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl, libiptables-parse-perl, libiptables-chainmgr-perl, liblist-moreutils-perl, liblocale-gettext-perl, liblog-log4perl-perl, libnet-mac-perl, libnet-mac-vendor-perl, libnet-netmask-perl, libnet-pcap-perl, libnet-write-perl, libnet-snmp-perl, libnet-telnet-perl, libparse-recdescent-perl, libregexp-common-perl, libreadonly-perl, libtemplate-perl, libterm-readkey-perl, libtest-perl-critic-perl, libtest-pod-perl, libtest-pod-coverage-perl, libuniversal-require-perl, libthread-serialize-perl, libload-perl, libtry-tiny-perl, snmp, snmptrapfmt, freeradius, libmime-lite-perl, libnet-ldap-perl, libcrypt-generatepassword-perl, perl-doc, dhcp3-server, bind9, librrds-perl, libnetpacket-perl, libcache-cache-perl, libcarp-perl, libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl, libnet-appliance-session-perl, libnet-cli-interact-perl, libnet-frame-simple-perl, libnet-interface-perl, libnet-radius-perl, libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl, gettext, freeradius-ldap, freeradius-postgresql, freeradius-mysql, freeradius-krb5, vlan, libsoap-lite-perl
+Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils, 
+ openssl, openssl-blacklist, openssl-blacklist-extra, php-log, snort, 
+ mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear, 
+ php5-mysql, php5-gd, perl-suid, libapache-htpasswd-perl, libbit-vector-perl, 
+ libcgi-session-serialize-yaml-perl, libconfig-inifiles-perl, 
+ libtimedate-perl, libapache-dbi-perl, libdbd-mysql-perl, libfile-tail-perl, 
+ libnetwork-ipv4addr-perl, libiptables-parse-perl, libiptables-chainmgr-perl, 
+ liblist-moreutils-perl, liblocale-gettext-perl, liblog-log4perl-perl, 
+ liblwp-useragent-determined-perl, libnet-mac-vendor-perl, libnet-mac-perl, 
+ libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl, libsnmp-perl, 
+ libnet-telnet-cisco-perl, libparse-recdescent-perl, 
+ libregexp-common-email-address-perl, libregexp-common-time-perl, 
+ libperl-critic-perl, libreadonly-xs-perl, libhtml-template-perl, 
+ libterm-readkey-perl, libtest-perl-critic-perl, libtest-pod-perl, 
+ libtest-pod-coverage-perl, apache2-mpm-prefork, libthread-pool-simple-perl,
+ libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl, 
+ libwww-perl, libapache-htpasswd-perl, libbit-vector-perl, 
+ libcgi-session-perl, libconfig-inifiles-perl, 
+ libdatetime-format-dateparse-perl, libdbi-perl, libdbd-mysql-perl, 
+ libfile-tail-perl, libnetwork-ipv4addr-perl, libiptables-parse-perl, 
+ libiptables-chainmgr-perl, liblist-moreutils-perl, liblocale-gettext-perl, 
+ liblog-log4perl-perl, libnet-mac-perl, libnet-mac-vendor-perl, 
+ libnet-netmask-perl, libnet-pcap-perl, libnet-write-perl, libnet-snmp-perl,
+ libnet-telnet-perl, libparse-recdescent-perl, libregexp-common-perl,
+ libreadonly-perl, libtemplate-perl, libterm-readkey-perl, 
+ libtest-perl-critic-perl, libtest-pod-perl, libtest-pod-coverage-perl, 
+ libuniversal-require-perl, libthread-serialize-perl, libload-perl,
+ libtry-tiny-perl, snmp, snmptrapfmt, freeradius, libmime-lite-perl,
+ libnet-ldap-perl, libcrypt-generatepassword-perl, perl-doc, dhcp3-server,
+ bind9, librrds-perl, libnetpacket-perl, libcache-cache-perl, libcarp-perl,
+ libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl,
+ libnet-appliance-session-perl, libnet-cli-interact-perl,
+ libnet-frame-simple-perl, libnet-interface-perl, libnet-radius-perl,
+ libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
+ gettext, freeradius-ldap, freeradius-postgresql, freeradius-mysql,
+ freeradius-krb5, vlan, libsoap-lite-perl
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
