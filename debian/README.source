@@ -1,7 +1,7 @@
 PacketFence for Debian
 ----------------------
 
-Once inside a PacketFence git repositoryp[1] checkout, get the source tarball with:
+Once inside a PacketFence git repository[1] checkout, get the source tarball with:
 
   $ git archive <branch or tag> --prefix packetfence_<version>/ -o "packetfence_<version>.tar.gz"
 
