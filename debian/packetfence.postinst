@@ -62,8 +62,6 @@ case "$1" in
 		ln -s /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel
 	fi
 	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
-	chmod 755 /usr/local/pf/sbin/pfdetect /usr/local/pf/sbin/pfdhcplistener /usr/local/pf/sbin/pfmon /usr/local/pf/sbin/pfredirect /usr/local/pf/sbin/pfsetvlan
-	chmod 744 $PACKETFENCE/installer.pl $PACKETFENCE/configurator.pl $PACKETFENCE/html/admin/soh.cgi
 	for i in /etc/freeradius/*.pf;do mv $i /etc/freeradius/`basename $i .pf`; done
 	echo "If you want to use freeradius with packetfence, don't forget to change WS_USER and WS_PASS in packetfence.pm and packetfence-soh.pm with the user and password you have enter previously"
 	for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server

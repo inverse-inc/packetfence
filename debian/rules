@@ -9,7 +9,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 NAME		= pf
-VERSION		= 3.3.1
 PREFIX		= /usr/local
 INSTALL		= /usr/bin/install -c -D -m0644
 
@@ -49,6 +48,7 @@ install: build
 	for i in `find * ! -path 'debian/*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
+	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
@@ -63,6 +63,18 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
+	# Executables
+	install -m0755 *.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
+	install -m0755 addons/*.{pl,sh} $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/
+	install -m0755 addons/802.1X/packetfence.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/802.1X/
+	install -m0755 addons/soh/packetfence-soh.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/soh/
+	install -m0755 addons/upgrade/*.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/
+	install -m0755 addons/watchdog/*.sh $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/
+	install -m0755 bin/* $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/
+	install -m0755 html/admin/*.cgi $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/
+	install -m0755 sbin/* $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/
+	# Set setuid on bin/pfcmd
+	install -m6755 bin/pfcmd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
 #PacketFence remote Snort sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
@@ -95,10 +107,9 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress
-	dh_fixperms --exclude $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/ \
-                --exclude $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/ \
-                --exclude $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf \
-                --exclude $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)sbin/
+	dh_fixperms -a -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
+                -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
+                -X$(NAME)sbin/pfdetect_remote
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
