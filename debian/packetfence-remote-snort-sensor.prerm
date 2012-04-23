@@ -22,7 +22,7 @@ case "$1" in
     ;;
 
     remove)
-        if [ -x "/etc/init.d/packetfence" ]; then
+        if [ -x "/etc/init.d/packetfence-remote-snort-sensor" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
                         invoke-rc.d packetfence-remote-snort-sensor stop || exit $?
                 else

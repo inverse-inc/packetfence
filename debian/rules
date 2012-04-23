@@ -34,7 +34,6 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	rm -rf $(CURDIR)/debian/pf
 
 	dh_clean 
 

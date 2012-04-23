@@ -20,7 +20,7 @@ set -e
 
 case "$1" in
     configure)
-	update-rc.d pfdetectd defaults . || exit 0
+	update-rc.d packetfence-remote-snort-sensor defaults . || exit 0
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
