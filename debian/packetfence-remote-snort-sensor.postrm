@@ -27,26 +27,10 @@ case "$1" in
     ;;
     purge)
 	export PACKETFENCE=/usr/local/pf
-	update-rc.d packetfence remove >/dev/null || exit 0
-        rm -fr /usr/local/pf
-	rm /etc/freeradius/sql/mysql/packetfence.conf
-	rm /etc/freeradius/packetfence-soh.pm
-	rm /etc/freeradius/packetfence.pm
-	if [ -e "/etc/freeradius/sites-enabled/control-socket" ]; then
-		rm -/etc/freeradius/sites-enabled/control-socket
-	fi
-	if [ -e "/etc/freeradius/sites-enabled/packetfence" ]; then
-		rm /etc/freeradius/sites-enabled/packetfence
-	fi
-	if [ -e "/etc/freeradius/sites-enabled/packetfence-soh" ]; then
-		rm /etc/freeradius/sites-enabled/packetfence-soh
-	fi
-	if [ -e "/etc/freeradius/sites-enabled/packetfence-tunnel" ]; then
-		rm /etc/freeradius/sites-enabled/packetfence-tunnel
-	fi
-	rm /etc/freeradius/sites-available/packetfence
-	rm /etc/freeradius/sites-available/packetfence-soh
-	rm /etc/freeradius/sites-available/packetfence-tunnel
+	update-rc.d pfdetectd remove >/dev/null || exit 0
+	rm /etc/init.d/pfdetectd 
+	rm $PACKETFENCE/sbin/pfdetect_remote
+	rm $PACKETFENCE/conf/pfdetect_remote.conf	
     ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2

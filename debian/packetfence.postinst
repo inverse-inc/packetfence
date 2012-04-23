@@ -49,9 +49,6 @@ case "$1" in
 	cp -r $PACKETFENCE/addons/freeradius-integration/sites-available/packetfence /etc/freeradius/sites-available
 	cp -r $PACKETFENCE/addons/freeradius-integration/sites-available/packetfence-soh /etc/freeradius/sites-available
 	cp -r $PACKETFENCE/addons/freeradius-integration/sites-available/packetfence-tunnel /etc/freeradius/sites-available
-	mv $PACKETFENCE/addons/pfdetect_remote/initrd/pfdetectd /etc/init.d/
-	mv $PACKETFENCE/addons/pfdetect_remote/sbin/pfdetect_remote /usr/local/pf/sbin
-	mv $PACKETFENCE/addons/pfdetect_remote/conf/pfdetect_remote.conf /usr/local/pf/conf
 	if [ ! -e "/etc/freeradius/sites-enabled/control-socket" ]; then
 		ln -s /etc/freeradius/sites-available/control-socket /etc/freeradius/sites-enabled/control-socket
 	fi

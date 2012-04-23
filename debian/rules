@@ -64,6 +64,10 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
+#PacketFence remote Snort sensor
+	$(INSTALL) addons/pfdetect_remote/initrd/pfdetectd $(CURDIR)/debian/packetfence-remote-snort-sensor/etc/init.d/
+	$(INSTALL) addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
+	$(INSTALL) addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf	
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
