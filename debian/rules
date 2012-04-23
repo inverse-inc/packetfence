@@ -64,10 +64,11 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
 #PacketFence remote Snort sensor
-	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
-	install -d -m0700 $(CURDIR)/debian/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
-	install -c -D -m0744 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
-	$(INSTALL) addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf	
+	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
+	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
+	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0755 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf	
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
@@ -94,7 +95,10 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress
-	dh_fixperms
+	dh_fixperms --exclude $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/ \
+                --exclude $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/ \
+                --exclude $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf \
+                --exclude $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)sbin/
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb

@@ -62,7 +62,9 @@ Description: documentation for packetfence
 
 Package: packetfence-remote-snort-sensor
 Architecture: all
-Depends: ${misc:Depends}, snort, libfile-tail-perl, libconfig-inifiles-perl, libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl, libsoap-lite-perl
+Depends: ${misc:Depends}, snort, libfile-tail-perl, libconfig-inifiles-perl,
+ libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
+ libsoap-lite-perl
 Conflicts: packetfence
 Description: Files needed for sending snort alerts to packetfence 
  The packetfence-remote-snort-sensor package contains the files needed
