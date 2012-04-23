@@ -27,6 +27,7 @@ Bug Fixes
  * another shot at 'named not started if using inline enforcement only'
  * trap_limit feature fixes: local traps ignored and continue processing if no action (#1405)
  * false positive error reporting on the Web Admin on specific User-Agents (#1408)
+ * saner axis in dashboard graphics
 
 --------------------------------------------------------------------------------
 Version 3.3.1 released on 2012-04-16
