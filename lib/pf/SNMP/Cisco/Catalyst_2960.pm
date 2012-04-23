@@ -43,6 +43,15 @@ This module extends pf::SNMP::Cisco::Catalyst_2950.
 
 =over
 
+=item Status with IOS 15.x
+
+At the moment we faced regressions with the Cisco IOS 15.x series. Not a lot
+of investigation was performed but at this point consider this series as 
+broken with a Port-Security based configuration. At this moment, we recommend
+users who cannot use another IOS to configure their switch to do MAC 
+Authentication instead (called MAC Authentication Bypass or MAB in Cisco's
+terms) or get in touch with us so we can investigate further.
+
 =item Problematic firmwares
 
 12.2(50)SE, 12.2(55)SE were reported as malfunctioning for Port-Security operation.

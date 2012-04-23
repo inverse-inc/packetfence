@@ -311,9 +311,12 @@ cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
 #start create symlinks
 curdir=`pwd`
 
-#pf-schema.sql symlink
-cd $RPM_BUILD_ROOT/usr/local/pf/db
-ln -s pf-schema-3.3.0.sql ./pf-schema.sql
+#pf-schema.sql symlinks to current schema
+if [ ! -e "$RPM_BUILD_ROOT/usr/local/pf/db/pf-schema.sql" ]; then
+    cd $RPM_BUILD_ROOT/usr/local/pf/db
+    VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+    ln -s $VERSIONSQL ./pf-schema.sql
+fi
 
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
@@ -751,6 +754,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Thu Apr 23 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.2-1
+- New release 3.3.2
+
 * Thu Apr 16 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.1-1
 - New release 3.3.1
 

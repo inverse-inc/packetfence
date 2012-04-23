@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -57,7 +57,8 @@
 
     # I REALLLLYY mean false (avoids 0, empty strings and empty arrays to pass here)
     if (PFCMD($edit_cmd) === false) {
-      # an error was shown by PFCMD now die to avoid closing the popup
+      print_error($_error);
+      close_popup_tags();
       exit();
     }
     # no errors from pfcmd, go on
@@ -106,4 +107,5 @@
   print "</form>";
 ?>
 
+</body>
 </html>

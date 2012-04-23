@@ -20,7 +20,7 @@
  * USA.
  * 
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -53,7 +53,8 @@
 
     # I REALLLLYY mean false (avoids 0, empty strings and empty arrays to pass here)
     if (PFCMD($edit_cmd) === false) {
-      # an error was shown by PFCMD now die to avoid closing the popup
+      print_error($_error);
+      close_popup_tags();
       exit();
     }
     # no errors from pfcmd, go on
@@ -152,6 +153,7 @@
                            'HP::Procurve_2600' => 'HP ProCurve 2600 Series',
                            'HP::Procurve_3400cl' => 'HP ProCurve 3400cl Series',
                            'HP::Procurve_4100' => 'HP ProCurve 4100 Series',
+                           'HP::Procurve_5300' => 'HP ProCurve 5300 Series',
                            'HP::Procurve_5400' => 'HP ProCurve 5400 Series',
                            'HP::Controller_MSM710' => 'HP ProCurve MSM710 Mobility Controller',
                            'Intel::Express_460' => 'Intel Express 460',
@@ -210,6 +212,7 @@
   print "</form>";
 ?>
 
+</body>
 </html>
 <?php
 # vim: set shiftwidth=4:

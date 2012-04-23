@@ -89,19 +89,13 @@ sub service_ctl {
         $exe = $1;
     CASE: {
             $action eq "start" && do {
-                # We won't start dhcpd unless services.dhcpd is set to enable
-                return (0) if ( $exe =~ /dhcpd/ && !isenabled($Config{'services'}{'dhcpd'}) );
-                return (0)
-                    if ( $exe =~ /radiusd/
-                    && !isenabled( $Config{'services'}{'radiusd'} ) );
-                return (0)
-                    if ( $exe =~ /snort/
-                    && !isenabled( $Config{'trapping'}{'detection'} ) );
-                return (0)
-                    if ( $exe =~ /pfdhcplistener/
-                    && !isenabled( $Config{'network'}{'dhcpdetector'} ) );
-                return (0)
-                    if ($exe =~ /named/ && !(is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'named'})));
+
+                # if we shouldn't be running that daemon based on current configuration, skip it
+                if (!scalar grep({ $daemon eq $_ } service_list(@ALL_SERVICES))) {
+                    $logger->info("$daemon ($service) not started because it's not required based on configuration");
+                    return $FALSE;
+                }
+
                 if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
                     && !$quick )
                 {
@@ -257,15 +251,16 @@ sub service_list {
             push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'dhcpd'}) );
-        } elsif ( $service eq "snmptrapd" ) {
-            push @finalServiceList, $service;
         } elsif ( $service eq "named" ) {
             push @finalServiceList, $service 
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'named'}) );
-        } elsif ( $service eq "pfsetvlan" ) {
-            push @finalServiceList, $service;
-        } else {
+        }
+        elsif ( $service eq 'pfdhcplistener' ) {
+            push @finalServiceList, $service if ( isenabled($Config{'network'}{'dhcpdetector'}) );
+        }
+        # other services are added as-is
+        else {
             push @finalServiceList, $service;
         }
     }

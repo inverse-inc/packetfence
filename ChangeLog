@@ -1,3 +1,283 @@
+commit 2aa0df29d6c0f70b2672503cbaa5b29778895ab5
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 09:51:58 2012 -0400
+
+    version bump to 3.3.2
+
+M	NEWS
+M	addons/packages/packetfence.spec
+M	docs/docbook/pf-devel-guide.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit cc5206e9b9110b76808ebe368abe763b5324dce6
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 09:48:06 2012 -0400
+
+    NEWS entry for g.raphael sync
+
+M	NEWS
+
+commit 1b4d19fe50de0204352021ff7cc56eed37db8232
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 09:41:51 2012 -0400
+
+    updated revision history
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+
+commit 699048fd1db44402d6ada58d5c30e3d821ee6778
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Apr 20 17:22:56 2012 -0400
+
+    Improved admin graphs.
+    Patched g.raphael.js to support xdim/ydim as options (see
+    https://github.com/tjw/g.raphael).
+
+M	html/admin/3rdparty/raphael/g.line.js
+M	html/common/graphs.js
+
+commit 0d54da430a19a22b43d3318a5f07eb4ac5a87fa4
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 15:51:34 2012 -0400
+
+    ugly fix for to prevent false positive error reporting on the Web Admin. #1408;
+    
+    The regex is still not very aggressive but it should handle the "VTT Online 2.0" useragent we've encountered twice.
+    http://www.packetfence.org/bugs/view.php?id=1408
+
+M	NEWS
+M	html/admin/common.php
+
+commit 7029c7d721dfa2a283fa1bde14f6819c48d6e504
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 14:13:41 2012 -0400
+
+    skip conditions were wrong. I reversed them.
+
+M	sbin/pfsetvlan
+
+commit de01230cdfb3b2e9fabb5f994338107c00ea7d19
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 14:02:20 2012 -0400
+
+    news entry
+
+M	NEWS
+
+commit 1c9ff38ff02624f951d65ce20b96e2eefcde98ed
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 13:59:12 2012 -0400
+
+    trap limit: refactoring and fixing the trap skip problem if no action is set
+    
+    - logging inside the trap limiting function now (allows to return false and still log)
+    - returning false if trap limit action is empty so we still process the trap
+    
+    with these, the default values now means: if you reach the limit log but still continue processing the traps
+
+M	sbin/pfsetvlan
+
+commit 8e07167f99e11a3e7a6570d1c88a830d475c9912
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 13:52:42 2012 -0400
+
+    added isempty sub in pf::util
+    
+    added POD to isenabled and isdisabled at the same time
+
+M	lib/pf/util.pm
+
+commit 26efdb333308acc2ed9041846b9210462ac4be1d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 13:28:59 2012 -0400
+
+    refactored sub name
+
+M	sbin/pfsetvlan
+
+commit f08eeeb01629df0baddfe1f5b49fc1c562c4442c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 13:24:01 2012 -0400
+
+    local traps are now ignored
+
+M	sbin/pfsetvlan
+
+commit 33570e4eaf85225141ba48634f4520a5d20b216b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 13:06:55 2012 -0400
+
+    refactoring: brought tests in method instead of ugly if
+
+M	sbin/pfsetvlan
+
+commit 12d06019fb0a9bccad2f20dd87db5728328e5a18
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 12:28:21 2012 -0400
+
+    bugfix: named not starting if vlan mode is not enabled
+    
+    This is the second stab at the issue. This fix gets rid of the cruft of having to modify two locations when you want to alter the services list which will prevent issues like this one from re-occuring.
+    
+    The actual fix could be described as: unifying the 'service that should be run' list in one location: service_list.
+
+M	NEWS
+M	lib/pf/services.pm
+
+commit 42f86652a8cd83aafcda8d36b6ade23f6a4ef503
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 11:37:49 2012 -0400
+
+    RPM spec: automatic symlink to latest SQL schema
+    
+    Inspired by what Fabrice did on the debian package
+
+M	addons/packages/packetfence.spec
+
+commit c3a7f46bc13664854068fda216cb9f8f1e97be5c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 19 15:37:10 2012 -0400
+
+    Web Admin no longer showing errors in popup dialogs. Fixes #1420;
+    
+    A regression introduced in the 3.0.3 release (git rev fdfc1a23f440ef4f7a6acd7607f29933c3b4f4a5).
+    
+    http://www.packetfence.org/bugs/view.php?id=1420
+
+M	NEWS
+M	html/admin/common/display.inc
+M	html/admin/configuration/categories_add.php
+M	html/admin/configuration/categories_edit.php
+M	html/admin/configuration/floatingnetworkdevice_add.php
+M	html/admin/configuration/floatingnetworkdevice_edit.php
+M	html/admin/configuration/interfaces_add.php
+M	html/admin/configuration/interfaces_edit.php
+M	html/admin/configuration/networks_add.php
+M	html/admin/configuration/networks_edit.php
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	html/admin/configuration/violation_add.php
+M	html/admin/configuration/violation_edit.php
+M	html/admin/node/edit.php
+M	html/admin/person/edit.php
+M	html/admin/scan/edit.php
+M	html/admin/violation/edit.php
+
+commit f2e844d0f6849f0ea1916247afe5c794539f08e2
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 19 15:29:58 2012 -0400
+
+    of course by unmanaged we meant manage
+
+M	addons/logrotate
+
+commit 281279277cb8c9e792a016cede8b56c37f2c4454
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 19 11:21:27 2012 -0400
+
+    critical fix to RADIUS Disconnect-Message. Fixes #1426;
+    
+    Affects AeroHIVE, Aruba, Cisco Wireless, Motorola and Ruckus. Introduced in 3.3.0's refactoring.. :( added a regression test so that such a stupid warning doesn't happen again.
+    
+    http://www.packetfence.org/bugs/view.php?id=1422
+
+M	NEWS
+M	lib/pf/SNMP.pm
+M	t/network-devices/wireless.t
+
+commit addf7f1766f0ade10535678b2a782324d2c6091a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Apr 18 10:47:52 2012 -0400
+
+    small contributor update
+
+M	NEWS
+M	README
+
+commit 59b998bd69abe00c20bfa952043278c7aa2f4010
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Apr 18 09:08:46 2012 -0400
+
+    HP Procurve 5300 identified as supported by community
+
+M	NEWS
+M	README.network-devices
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP/HP/Procurve_3400cl.pm
+A	lib/pf/SNMP/HP/Procurve_5300.pm
+
+commit 71f666cdee7cb11b962cdd8ae8e6749d939f8f73
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Apr 18 08:46:01 2012 -0400
+
+    documented Cisco 2960 status with IOS 15.x
+
+M	lib/pf/SNMP/Cisco/Catalyst_2960.pm
+
+commit f13a991d8f9cf40896520749bdb961b2413232eb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 21:50:05 2012 -0400
+
+    pfcmd checkup fails if modules generates warnings. Fixes #1283;
+    
+    Fix contributed by psnizek but expanded upon. Came from a patch attached to the ticket.
+    
+    http://www.packetfence.org/bugs/view.php?id=1283
+
+M	NEWS
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/util.pm
+
+commit f263ad29c71f53c6c75373face9e88937a00ae0b
+Author: Joao Moreira <joao.lvwr@gmail.com>
+Date:   Tue Apr 17 15:52:30 2012 -0400
+
+    'add user' renamed 'add admin' for consistency. Fixes #1381;
+    
+    http://www.packetfence.org/bugs/view.php?id=1381
+
+M	NEWS
+M	conf/ui.conf
+
+commit 0c3003114813d8581b9314e5a79896384ca59269
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 12:04:42 2012 -0400
+
+    added a lives_ok test before each is_deeply test
+    
+    makes sure that proper failures are reported correctly since we do exception-based error reporting here
+
+M	t/trigger.t
+
+commit 5eb53786b27b94b141df26627d8b4f9edfc69d52
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 11:59:43 2012 -0400
+
+    violation trigger parser now more tolerant of trailing spaces
+
+M	NEWS
+M	lib/pf/trigger.pm
+M	t/trigger.t
+
+commit 8ffa81dd79e0c0bf57bcd45ceb2691efc69d9c37
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 16 13:53:14 2012 -0400
+
+    bumped version to next stable
+
+M	conf/pf-release
+
+commit d6a4408e9e4a625ac67bb7a648a05e2a06785fb7
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 16 10:58:48 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit 19608a731f6c5dc3f27d2a8c6696131454538ab4
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Mon Apr 16 10:57:19 2012 -0400
