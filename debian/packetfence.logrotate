@@ -1,0 +1,16 @@
+# logrotate file for packetfence
+
+/usr/local/pf/logs/access_log /usr/local/pf/logs/admin_access_log /usr/local/pf/logs/admin_debug_log /usr/local/pf/logs/admin_error_log /usr/local/pf/logs/error_log /usr/local/pf/logs/packetfence.log /usr/local/pf/logs/pfdetect /usr/local/pf/logs/pfmon /usr/local/pf/logs/pfredirect /usr/local/pf/logs/snmptrapd.log {
+    weekly
+    rotate 52
+    missingok
+    compress
+    delaycompress
+    sharedscripts
+    postrotate
+        # uncomment the crm statements if you are running packetfence in a corosync cluster
+        #/usr/sbin/crm resource unmanage PacketFence
+        /usr/sbin/service packetfence condrestart  >/dev/null 2>&1 || true
+        #/usr/sbin/crm resource unmanage PacketFence
+    endscript
+}
