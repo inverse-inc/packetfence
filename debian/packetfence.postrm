@@ -24,33 +24,19 @@ case "$1" in
     ;;
 
     remove)
+	rm /etc/freeradius/radiusd.conf
+	/etc/freeradius/eap.conf
+	/etc/freeradius/users
+	/etc/freeradius/modules/perl
 	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/radiusd.conf.orig /etc/freeradius/radiusd.conf
 	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/eap.conf.orig /etc/freeradius/eap.conf
 	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/users.orig /etc/freeradius/users
 	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/modules/perl.orig /etc/freeradius/modules/perl
+	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/sql.conf.orig /etc/freeradius/sql.conf
     ;;
     purge)
-	export PACKETFENCE=/usr/local/pf
 	update-rc.d packetfence remove >/dev/null || exit 0
         rm -fr /usr/local/pf
-	rm /etc/freeradius/sql/mysql/packetfence.conf
-	rm /etc/freeradius/packetfence-soh.pm
-	rm /etc/freeradius/packetfence.pm
-	if [ -e "/etc/freeradius/sites-enabled/control-socket" ]; then
-		rm /etc/freeradius/sites-enabled/control-socket
-	fi
-	if [ -e "/etc/freeradius/sites-enabled/packetfence" ]; then
-		rm /etc/freeradius/sites-enabled/packetfence
-	fi
-	if [ -e "/etc/freeradius/sites-enabled/packetfence-soh" ]; then
-		rm /etc/freeradius/sites-enabled/packetfence-soh
-	fi
-	if [ -e "/etc/freeradius/sites-enabled/packetfence-tunnel" ]; then
-		rm /etc/freeradius/sites-enabled/packetfence-tunnel
-	fi
-	rm /etc/freeradius/sites-available/packetfence
-	rm /etc/freeradius/sites-available/packetfence-soh
-	rm /etc/freeradius/sites-available/packetfence-tunnel
     ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2
