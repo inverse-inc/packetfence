@@ -33,7 +33,7 @@ case "$1" in
 	rm /etc/freeradius/packetfence-soh.pm
 	rm /etc/freeradius/packetfence.pm
 	if [ -e "/etc/freeradius/sites-enabled/control-socket" ]; then
-		rm -/etc/freeradius/sites-enabled/control-socket
+		rm /etc/freeradius/sites-enabled/control-socket
 	fi
 	if [ -e "/etc/freeradius/sites-enabled/packetfence" ]; then
 		rm /etc/freeradius/sites-enabled/packetfence
