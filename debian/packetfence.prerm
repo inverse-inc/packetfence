@@ -22,6 +22,11 @@ case "$1" in
     ;;
 
     remove)
+	mv /etc/freeradius/radiusd.conf /etc/freeradius/radiusd.conf.pf
+	mv /etc/freeradius/eap.conf /etc/freeradius/eap.conf.pf
+	mv /etc/freeradius/users /etc/freeradius/users.pf
+	mv /etc/freeradius/modules/perl /etc/freeradius/modules/perl.pf
+	mv /etc/freeradius/sql.conf /etc/freeradius/sql.conf.pf
         if [ -x "/etc/init.d/packetfence" ]; then
                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
                         invoke-rc.d packetfence stop || exit $?
