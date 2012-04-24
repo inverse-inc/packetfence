@@ -41,7 +41,6 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	#radiusd is name like freeradius on debian
 	for i in `find * ! -path 'debian/*'  -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
@@ -65,7 +64,8 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
 	# Executables
 	install -m0755 *.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
-	install -m0755 addons/*.{pl,sh} $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/
+	install -m0755 addons/*.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/
+	install -m0755 addons/*.sh $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/
 	install -m0755 addons/802.1X/packetfence.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/802.1X/
 	install -m0755 addons/soh/packetfence-soh.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/soh/
 	install -m0755 addons/upgrade/*.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/
