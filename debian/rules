@@ -81,18 +81,18 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sql/mysql
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sites-enabled
-	install -m0755 /addons/freeradius-integration/radiusd.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/radius.conf
-	install -m0755 /addons/freeradius-integration/eap.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/eap.conf
-	install -m0755 /addons/freeradius-integration/users.pf $(CURDIR)/debian/packetfence/etc/freeradius/users
-	install -m0755 /addons/freeradius-integration/modules/perl.pf $(CURDIR)/debian/packetfence/etc/freeradius/modules/perl
-	install -m0755 /addons/freeradius-integration/sql.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius
-	install -m0755 /addons/freeradius-integration/sql/mysql/packetfence.conf $(CURDIR)/debian/packetfence/etc/freeradius/sql/mysql
-	install -m0755 /addons/soh/packetfence-soh.pm $(CURDIR)/debian/packetfence/etc/freeradius
-	install -m0755 /addons/802.1X/packetfence.pm /$(CURDIR)/debian/packetfence/etc/freeradius
-	install -m0755 /addons/freeradius-integration/sites-available/packetfence $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
-	install -m0755 /addons/freeradius-integration/sites-available/packetfence-soh $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
-	install -m0755 /addons/freeradius-integration/sites-available/packetfence-tunnel $(CURDIR)/debian/packetfence/etc/freeradius/sites-available	
-#PacketFence remote Snort sensor
+	install -m0755 addons/freeradius-integration/radiusd.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/radius.conf
+	install -m0755 addons/freeradius-integration/eap.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/eap.conf
+	install -m0755 addons/freeradius-integration/users.pf $(CURDIR)/debian/packetfence/etc/freeradius/users
+	install -m0755 addons/freeradius-integration/modules/perl.pf $(CURDIR)/debian/packetfence/etc/freeradius/modules/perl
+	install -m0755 addons/freeradius-integration/sql.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/sql/mysql/packetfence.conf $(CURDIR)/debian/packetfence/etc/freeradius/sql/mysql
+	install -m0755 addons/soh/packetfence-soh.pm $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/802.1X/packetfence.pm /$(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/sites-available/packetfence $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
+	install -m0755 addons/freeradius-integration/sites-available/packetfence-soh $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
+	install -m0755 addons/freeradius-integration/sites-available/packetfence-tunnel $(CURDIR)/debian/packetfence/etc/freeradius/sites-available	
+	#PacketFence remote Snort sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
@@ -124,7 +124,9 @@ binary-arch: build install
 	dh_link /etc/freeradius/sites-available/control-socket /etc/freeradius/sites-enabled/control-socket \
                 /etc/freeradius/sites-available/packetfence /etc/freeradius/sites-enabled/packetfence \
                 /etc/freeradius/sites-available/packetfence-soh /etc/freeradius/sites-enabled/packetfence-soh \
-                /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel
+                /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel \
+		/usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
+		/usr/local/pf/conf/named.conf.bind9 /usr/local/pf/conf/named.conf
 	dh_strip
 	dh_compress
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
