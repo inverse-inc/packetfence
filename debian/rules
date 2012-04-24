@@ -81,7 +81,7 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sql/mysql
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sites-enabled
-	install -m0755 addons/freeradius-integration/radiusd.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/radius.conf
+	install -m0755 addons/freeradius-integration/radiusd.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/radiusd.conf
 	install -m0755 addons/freeradius-integration/eap.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius/eap.conf
 	install -m0755 addons/freeradius-integration/users.pf $(CURDIR)/debian/packetfence/etc/freeradius/users
 	install -m0755 addons/freeradius-integration/modules/perl.pf $(CURDIR)/debian/packetfence/etc/freeradius/modules/perl

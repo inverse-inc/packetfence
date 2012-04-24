@@ -24,6 +24,10 @@ case "$1" in
     ;;
 
     remove)
+	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/radiusd.conf.orig /etc/freeradius/radiusd.conf
+	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/eap.conf.orig /etc/freeradius/eap.conf
+	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/users.orig /etc/freeradius/users
+	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/modules/perl.orig /etc/freeradius/modules/perl
     ;;
     purge)
 	export PACKETFENCE=/usr/local/pf
