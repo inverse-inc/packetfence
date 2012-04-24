@@ -30,40 +30,7 @@ case "$1" in
 		VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
 		ln -s $VERSIONSQL ./pf-schema.sql
 	fi
-	if [ ! -e "$PACKETFENCE/conf/httpd.conf" ]; then
-		cd $PACKETFENCE/conf
-		ln -s httpd.conf.apache22 ./httpd.conf
-	fi
-	if [ ! -e "$PACKETFENCE/conf/named.conf" ]; then
-		cd $PACKETFENCE/conf
-		ln -s named.conf.bind97 ./named.conf
-	fi
-	cp -r $PACKETFENCE/addons/freeradius-integration/radiusd.conf.pf /etc/freeradius
-	cp -r $PACKETFENCE/addons/freeradius-integration/eap.conf.pf /etc/freeradius
-	cp -r $PACKETFENCE/addons/freeradius-integration/users.pf /etc/freeradius
-	cp -r $PACKETFENCE/addons/freeradius-integration/modules/perl.pf /etc/freeradius/modules
-	cp -r $PACKETFENCE/addons/freeradius-integration/sql.conf.pf /etc/freeradius
-	cp -r $PACKETFENCE/addons/freeradius-integration/sql/mysql/packetfence.conf /etc/freeradius/sql/mysql
-	cp -r $PACKETFENCE/addons/soh/packetfence-soh.pm /etc/freeradius
-	cp -r $PACKETFENCE/addons/802.1X/packetfence.pm /etc/freeradius
-	cp -r $PACKETFENCE/addons/freeradius-integration/sites-available/packetfence /etc/freeradius/sites-available
-	cp -r $PACKETFENCE/addons/freeradius-integration/sites-available/packetfence-soh /etc/freeradius/sites-available
-	cp -r $PACKETFENCE/addons/freeradius-integration/sites-available/packetfence-tunnel /etc/freeradius/sites-available
-	if [ ! -e "/etc/freeradius/sites-enabled/control-socket" ]; then
-		ln -s /etc/freeradius/sites-available/control-socket /etc/freeradius/sites-enabled/control-socket
-	fi
-	if [ ! -e "/etc/freeradius/sites-enabled/packetfence" ]; then
-		ln -s /etc/freeradius/sites-available/packetfence /etc/freeradius/sites-enabled/packetfence
-	fi
-	if [ ! -e "/etc/freeradius/sites-enabled/packetfence-soh" ]; then
-		ln -s /etc/freeradius/sites-available/packetfence-soh /etc/freeradius/sites-enabled/packetfence-soh
-	fi
-	if [ ! -e "/etc/freeradius/sites-enabled/packetfence-tunnel" ]; then
-		ln -s /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel
-	fi
 	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
-	for i in /etc/freeradius/*.pf;do mv $i /etc/freeradius/`basename $i .pf`; done
-	echo "If you want to use freeradius with packetfence, don't forget to change WS_USER and WS_PASS in packetfence.pm and packetfence-soh.pm with the user and password you have enter previously"
 	for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server
 		do
 		update-rc.d $service remove > /dev/null 2>&1
