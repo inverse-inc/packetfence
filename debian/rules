@@ -126,7 +126,7 @@ binary-arch: build install
                 /etc/freeradius/sites-available/packetfence-soh /etc/freeradius/sites-enabled/packetfence-soh \
                 /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel \
 		/usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
-		/usr/local/pf/conf/named.conf.bind9 /usr/local/pf/conf/named.conf
+		/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf
 	dh_strip
 	dh_compress
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
