@@ -98,6 +98,8 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0755 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf	
+	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
+	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
