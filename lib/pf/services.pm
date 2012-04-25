@@ -23,6 +23,7 @@ F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
 
 use strict;
 use warnings;
+
 use Config::IniFiles;
 use File::Basename;
 use IPC::Cmd qw[can_run run];
@@ -48,6 +49,12 @@ Readonly our @ALL_SERVICES => (
     'httpd', 'snmptrapd', 
     'pfdetect', 'pfredirect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
+
+my $services = join("|", @ALL_SERVICES);
+Readonly our $ALL_BINARIES_RE => qr/$services
+    |apache2                                   # httpd on debian
+    |freeradius                                # radiusd on debian
+$/x;
 
 my %flags;
 $flags{'httpd'}          = "-f $generated_conf_dir/httpd.conf";
@@ -80,13 +87,10 @@ sub service_ctl {
     my ( $daemon, $action, $quick ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
     my $service = ( $Config{'services'}{"${daemon}_binary"} || "$install_dir/sbin/$daemon" );
-    my $exe = basename($service);
+    my $binary = basename($service);
     $logger->info("$service $action");
-    if ( $exe
-        =~ /^(named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|snort|radiusd|httpd|apache2|snmptrapd|pfsetvlan)$/
-        )
-    {
-        $exe = $1;
+    if ( $binary =~ /^($ALL_BINARIES_RE)$/ ) {
+        $binary = $1;
     CASE: {
             $action eq "start" && do {
 
@@ -96,12 +100,11 @@ sub service_ctl {
                     return $FALSE;
                 }
 
-                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/
-                    && !$quick )
+                if ( $daemon =~ /(named|dhcpd|snort|httpd|snmptrapd)/ && !$quick )
                 {
                     my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
-                        "Generating configuration file for $exe ($confname)");
+                        "Generating configuration file for $binary ($confname)");
                     my %serviceHash = (
                         'named' => \&generate_named_conf,
                         'dhcpd' => \&generate_dhcpd_conf,
@@ -115,12 +118,9 @@ sub service_ctl {
                         print "No such sub: $confname\n";
                     }
                 }
-                if ( $service =~ /
-                    named|dhcpd|radiusd|snort|httpd|apache2|snmptrapd|    # external daemons
-                    pfdhcplistener|pfmon|pfdetect|pfredirect|pfsetvlan    # packetfence daemons
-                    /x && $daemon =~ 
-                    /named|dhcpd|pfdhcplistener|pfmon|pfdetect|pfredirect|radiusd|snort|httpd|snmptrapd|pfsetvlan/
-                    && defined($flags{$daemon}) ) {
+
+                # valid daemon and flags are set
+                if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($flags{$daemon})) {
 
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
@@ -137,14 +137,14 @@ sub service_ctl {
 
                         }
                         $logger->info(
-                            "Starting $exe with '$service $flags{$daemon}'");
+                            "Starting $daemon with '$service $flags{$daemon}'");
                         my $cmd_line = "$service $flags{$daemon}";
                         if ($cmd_line =~ /(.+)/) {
                             $cmd_line = $1;
                             my $t0 = Time::HiRes::time();
                             my $return_value = system($cmd_line);
                             my $elapsed = Time::HiRes::time() - $t0;
-                            $logger->info(sprintf("Daemon $exe took %.3f seconds to start.", $elapsed));
+                            $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
                             return $return_value;
                         }
                     } else {
@@ -157,13 +157,11 @@ sub service_ctl {
                                 # FIXME lame taint-mode bypass
                                 if ($cmd_line =~ /^(.+)$/) {
                                     $cmd_line = $1;
-                                    $logger->info(
-                                        "Starting $exe with '$cmd_line'"
-                                    );
+                                    $logger->info( "Starting $daemon with '$cmd_line'" );
                                     my $t0 = Time::HiRes::time();
                                     system($cmd_line);
                                     my $elapsed = Time::HiRes::time() - $t0;
-                                    $logger->info(sprintf("Daemon $exe took %.3f seconds to start.", $elapsed));
+                                    $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
                                 }
                             }
                             return 1;
@@ -173,11 +171,11 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "stop" && do {
-                #my @debug= system('pkill','-f',$exe);
-                $logger->info("Stopping $exe with 'pkill $exe'");
-                eval { `pkill $exe`; };
+                #my @debug= system('pkill','-f',$daemon);
+                $logger->info("Stopping $daemon with 'pkill $binary'");
+                eval { `pkill $binary`; };
                 if ($@) {
-                    $logger->logcroak("Can't stop $exe with 'pkill $exe': $@");
+                    $logger->logcroak("Can't stop $daemon with 'pkill $binary': $@");
                     return;
                 }
 
@@ -189,15 +187,15 @@ sub service_ctl {
                 my $maxWait = 10;
                 my $curWait = 0;
                 while (( $curWait < $maxWait )
-                    && ( service_ctl( $exe, "status" ) ne "0" ) )
+                    && ( service_ctl( $daemon, "status" ) ne "0" ) )
                 {
-                    $logger->info("Waiting for $exe to stop");
+                    $logger->info("Waiting for $binary to stop");
                     sleep(2);
                     $curWait++;
                 }
-                if ( -e $install_dir . "/var/$exe.pid" ) {
-                    $logger->info("Removing $install_dir/var/$exe.pid");
-                    unlink( $install_dir . "/var/$exe.pid" );
+                if ( -e $install_dir . "/var/$binary.pid" ) {
+                    $logger->info("Removing $install_dir/var/$binary.pid");
+                    unlink( $install_dir . "/var/$binary.pid" );
                 }
                 last CASE;
             };
@@ -211,17 +209,18 @@ sub service_ctl {
             };
             $action eq "status" && do {
                 my $pid;
-                chop( $pid = `pidof -x $exe` );
+                chop( $pid = `pidof -x $binary` );
                 $pid = 0 if ( !$pid );
-                $logger->info("pidof -x $exe returned $pid");
+                $logger->info("pidof -x $binary returned $pid");
                 return ($pid);
             }
         }
-    } else {
-        $logger->logcroak("unknown service $exe!");
-        return 0;
     }
-    return 1;
+    else {
+        $logger->logcroak("unknown service $binary (daemon: $daemon)!");
+        return $FALSE;
+    }
+    return $TRUE;
 }
 
 =item * service_list

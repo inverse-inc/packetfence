@@ -15,6 +15,17 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
+New Features
+ * debian packages (#1066, #1067)
+
+Enhancements
+ * minor refactoring and cleanup
+ * debian support: arp binary location now configurable ([services].arp_binary)
+
+Bug Fixes
+ * debian support: radiusd is started even if disabled
+
+
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
 

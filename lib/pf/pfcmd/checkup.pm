@@ -75,7 +75,8 @@ sub sanity_check {
     @problems = ();
     print "Checking configuration sanity...\n";
 
-    if (`getenforce` =~ /^Enforcing/) {
+    # SELinux test only for RedHat based distros
+    if ( -e "/etc/redhat-release" && `getenforce` =~ /^Enforcing/ ) {
         add_problem( $WARN, 
             'SELinux is in enforcing mode. This is currently not supported in PacketFence'
         );
