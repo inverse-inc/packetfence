@@ -301,6 +301,42 @@ Readonly::Scalar our $TAG_PVID_ONLY => 6; # (not allowed in strict mode)
 
 =back
 
+
+=head1 H3C
+
+H3C constants
+
+=over
+
+=cut
+package H3C;
+
+=item hh3cdot1qTpFdbSetStatus
+
+ other(1),
+ learned(3),
+ static(6),
+ dynamic(7),
+ blackhole(9),
+ security(11)
+
+=cut
+Readonly::Scalar our $OTHER => 1;
+Readonly::Scalar our $LEARNED => 3;
+Readonly::Scalar our $STATIC => 6;
+
+=item hwdot1qTpFdbSetOperate
+
+ add(1),
+ delete(2)
+
+=cut
+Readonly::Scalar our $ADD => 1;
+Readonly::Scalar our $DELETE => 2;
+
+=back
+
+
 =head1 HP
 
 HP ProCurve constants
