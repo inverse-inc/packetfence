@@ -161,8 +161,11 @@ our network infrastructure:
 * Registration VLAN: 2 
 * Isolation VLAN: 3 
 * MAC Detection VLAN: 4 
+* Guest VLAN: 5
 * VoIP, Voice VLAN: 100 
-* use SNMP v2c 
+* use SNMP v2c
+* SNMP Read community: public
+* SNMP Write community: private
 * SNMP Trap community: public 
 * RADIUS Secret: useStrongerSecret 
 
