@@ -43,6 +43,13 @@ Use getVoipVsa to return specific RADIUS attributes for VoIP to work.
 =cut
 sub supportsRadiusVoip { return $TRUE; }
 
+=item supportsWiredDot1x
+
+This switch module supports wired 802.1x authentication.
+
+=cut
+sub supportsWiredDot1x { return $TRUE; }
+
 =item supportsWiredAuth
 
 This switch module supports wired MAC authentication.
