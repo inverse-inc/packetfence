@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
+New hardware
+ * H3C S5120 series supports mac-authentication and dot1x with or without VoIP
+
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
 

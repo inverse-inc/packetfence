@@ -150,6 +150,7 @@
                            'Extreme::Summit' => 'ExtremeNet Summit series',
                            'Extricom::EXSW' => 'Extricom EXSW Controllers',
                            'Foundry::FastIron_4802' => 'Foundry FastIron 4802',
+                           'H3C::S5120' => 'H3C S5120 (HP/3Com)',
                            'HP::E4800G' => 'HP E4800G (3Com)',
                            'HP::E5500G' => 'HP E5500G (3Com)',
                            'HP::Procurve_2500' => 'HP ProCurve 2500 Series',
