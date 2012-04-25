@@ -21,6 +21,7 @@ use TestUtils;
 runtests( 
     @TestUtils::compile_tests,
     @TestUtils::unit_tests, 
+    @TestUtils::unit_failing_tests, 
     @TestUtils::cli_tests,
     @TestUtils::dao_tests,
     @TestUtils::quality_tests, 
@@ -38,7 +39,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
     

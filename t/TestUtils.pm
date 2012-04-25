@@ -64,6 +64,10 @@ our @unit_tests = qw(
     web-auth.t
 );
 
+our @unit_failing_tests = qw(
+    network-devices/wired.t
+);
+
 =item use_test_db
 
 Will override pf::config's globals regarding what database to connect to
