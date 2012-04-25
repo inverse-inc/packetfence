@@ -161,8 +161,6 @@ sub isVoIPEnabled {
     return ( $self->{_VoIPEnabled} == 1 );
 }
 
-=cut
-
 =item NasPortToIfIndex
 
 Same as pf::SNMP::ThreeCom::Switch_4200G
