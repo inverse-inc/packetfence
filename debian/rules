@@ -62,19 +62,6 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
-	# Executables
-	install -m0755 *.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
-	install -m0755 addons/*.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/
-	install -m0755 addons/*.sh $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/
-	install -m0755 addons/802.1X/packetfence.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/802.1X/
-	install -m0755 addons/soh/packetfence-soh.pm $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/soh/
-	install -m0755 addons/upgrade/*.pl $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/
-	install -m0755 addons/watchdog/*.sh $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/
-	install -m0755 bin/* $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/
-	install -m0755 html/admin/*.cgi $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/
-	install -m0755 sbin/* $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/
-	# Set setuid on bin/pfcmd
-	install -m6755 bin/pfcmd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
 	#Freeradius intégration
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/modules
@@ -131,9 +118,26 @@ binary-arch: build install
 		/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf
 	dh_strip
 	dh_compress
+	# PERMISSIONS
+	# Executables
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/802.1X/packetfence.pm
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/soh/packetfence-soh.pm
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/*.cgi
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
                 -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
                 -X$(NAME)sbin/pfdetect_remote
+	# Everything is owned by pf:pf
+	chown pf:pf -R $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
+	# Set setuid root on bin/pfcmd
+	chown root:root $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
+	chmod ug+s $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb

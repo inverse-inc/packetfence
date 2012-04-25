@@ -21,7 +21,6 @@ set -e
 case "$1" in
     configure)
 	export PACKETFENCE=/usr/local/pf
-	chown -R pf.pf /usr/local/pf
 	export PERL5LIB=/usr/local/pf/lib
 	perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
 	mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
@@ -32,7 +31,6 @@ case "$1" in
 	fi
 	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
 	for i in `find /etc/freeradius/ -name *.pf`;do mv $i `dirname $i`/`basename $i .pf`; done
-        chmod 6755 /usr/local/pf/bin/pfcmd
 	for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server
 		do
 		update-rc.d $service remove > /dev/null 2>&1
