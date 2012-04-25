@@ -70,6 +70,7 @@ sub supportsWiredMacAuth { return $TRUE; }
 
 Returns ifIndex for a given "normal" port number (dot1d)
 Same as pf::SNMP::ThreeCom::SS4500
+TODO: consider subclassing ThreeCom to avoid code duplication
 
 =cut
 sub getIfIndexForThisDot1dBasePort {
@@ -101,7 +102,7 @@ sub getVersion {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    my $OID_hh3cLswSysVersion = '1.3.6.1.4.1.25506.8.35.18.1.4';
+    my $OID_hh3cLswSysVersion = '1.3.6.1.4.1.25506.8.35.18.1.4';    # from HH3C-LSW-DEV-ADM-MIB
     my $slotNumber = '0';
 
     if ( !$this->connectRead() ) {
@@ -115,7 +116,21 @@ sub getVersion {
     if ( (exists($result->{"$OID_hh3cLswSysVersion.$slotNumber"}))
              && ($result->{"$OID_hh3cLswSysVersion.$slotNumber"} ne 'noSuchInstance') ) {
         return $result->{"$OID_hh3cLswSysVersion.$slotNumber"};
-    } else {
+    } 
+
+    # Error handling
+    if ( !defined($result) ) {
+        $logger->warn("Asking for software version failed with " . $this->{_sessionRead}->error());
+        return;
+    }
+
+    if ( !defined($result->{"$OID_hh3cLswSysVersion.$slotNumber"}) ) {
+        $logger->error("Returned value doesn't exist!");
+        return;
+    }
+
+    if ( $result->{"$OID_hh3cLswSysVersion.$slotNumber"} eq 'noSuchInstance' ) {
+        $logger->warn("Asking for software version failed with noSuchInstance");
         return;
     }
 }
@@ -151,6 +166,7 @@ sub isVoIPEnabled {
 =item NasPortToIfIndex
 
 Same as pf::SNMP::ThreeCom::Switch_4200G
+TODO: consider subclassing ThreeCom to avoid code duplication
 
 =cut
 sub NasPortToIfIndex {

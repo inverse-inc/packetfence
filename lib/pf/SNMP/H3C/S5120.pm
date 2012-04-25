@@ -6,7 +6,7 @@ pf::SNMP::H3C::S5120 - Object oriented module to access and configure enabled H3
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::SNMP::H3C.
+This module is currently only a placeholder, see L<pf::SNMP::H3C>.
 
 =cut
 
