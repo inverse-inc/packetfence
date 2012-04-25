@@ -227,6 +227,7 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
@@ -236,7 +237,6 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
@@ -258,6 +258,7 @@ cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
+cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
@@ -368,9 +369,9 @@ if [ -e /etc/logrotate.d/snort ]; then
 fi
 
 #Check if RADIUS have a dh
-if [ ! -f /usr/local/pf/var/radiusd/certs/dh ]; then
+if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   echo "Bulding default RADIUS certificates..."
-  cd /usr/local/pf/var/radiusd/certs
+  cd /usr/local/pf/raddb/certs
   make dh
 else
   echo "DH already exists, won't touch it!"
@@ -646,20 +647,20 @@ fi
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/var/named
-%dir			/usr/local/pf/var/radiusd
-%config(noreplace)      /usr/local/pf/var/radiusd/clients.conf
-%config(noreplace)      /usr/local/pf/var/radiusd/packetfence.pm
-%attr(0755, pf, pf)	/usr/local/pf/var/radiusd/packetfence.pm
-%config(noreplace)      /usr/local/pf/var/radiusd/packetfence-soh.pm
-%attr(0755, pf, pf)	/usr/local/pf/var/radiusd/packetfence-soh.pm
-%config(noreplace)      /usr/local/pf/var/radiusd/proxy.conf
-%config(noreplace)      /usr/local/pf/var/radiusd/users.conf
-%config(noreplace)	/usr/local/pf/var/radiusd/sites-available/packetfence
-%attr(0755, pf, pf)	/usr/local/pf/var/radiusd/sites-available/packetfence
-%config(noreplace)      /usr/local/pf/var/radiusd/sites-available/packetfence-soh
-%attr(0755, pf, pf)	/usr/local/pf/var/radiusd/sites-available/packetfence-soh
-%config(noreplace)      /usr/local/pf/var/radiusd/sites-available/packetfence-tunnel
-%attr(0755, pf, pf)	/usr/local/pf/var/radiusd/sites-available/packetfence-tunnel
+%dir			/usr/local/pf/raddb
+%config			/usr/local/pf/raddb/clients.conf
+%config			/usr/local/pf/raddb/packetfence.pm
+%attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence.pm
+%config			/usr/local/pf/raddb/packetfence-soh.pm
+%attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence-soh.pm
+%config			/usr/local/pf/raddb/proxy.conf
+%config			/usr/local/pf/raddb/users.conf
+%config			/usr/local/pf/raddb/sites-available/packetfence
+%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence
+%config		        /usr/local/pf/raddb/sites-available/packetfence-soh
+%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-soh
+%config		        /usr/local/pf/raddb/sites-available/packetfence-tunnel
+%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-tunnel
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
@@ -682,6 +683,9 @@ fi
 
 * Wed Jun 13 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.4.0-1
 - New release 3.4.0
+
+* Wed Apr 25 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Changing directory for raddb configuration
 
 * Thu Apr 23 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.2-1
 - New release 3.3.2

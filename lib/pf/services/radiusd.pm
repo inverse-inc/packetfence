@@ -81,7 +81,7 @@ sub generate_radiusd_mainconf {
     $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
     
-    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/var/radiusd/radiusd.conf" );    
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );    
 }
 
 =item * generate_radiusd_eapconf
@@ -96,7 +96,7 @@ sub generate_radiusd_eapconf {
    $tags{'template'}    = "$conf_dir/radiusd/eap.conf";
    $tags{'install_dir'} = $install_dir;
 
-   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/var/radiusd/eap.conf" );
+   parse_template( \%tags, "$conf_dir/radiusd/eap.conf", "$install_dir/raddb/eap.conf" );
 }
 
 =item * generate_radiusd_sqlconf
@@ -116,7 +116,7 @@ sub generate_radiusd_sqlconf {
    $tags{'db_username'} = $Config{'database'}{'user'};
    $tags{'db_password'} = $Config{'database'}{'pass'};
 
-   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/var/radiusd/sql.conf" );
+   parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/sql.conf" );
 }
 
 =back
