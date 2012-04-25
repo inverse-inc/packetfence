@@ -75,6 +75,8 @@ use pf::config;
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsRoleBasedEnforcement { return $TRUE; }
+
 # special features 
 sub supportsSaveConfig { return $FALSE; }
 
@@ -260,6 +262,17 @@ sub getPhonesDPAtIfIndex {
 sub isVoIPEnabled {
     my ($this) = @_;
     return 0;
+}
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+sub returnRoleAttribute {
+    my ($this) = @_;
+
+    return 'Airespace-ACL-Name';
 }
 
 =back
