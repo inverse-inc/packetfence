@@ -110,6 +110,7 @@ PacketFence supports the following devices:
 |Extreme Networks |Summit Series               |Extreme::Summit
 |Extricom         |EXSW Wireless Switches      |Extricom::EXSW
 |Foundry          |FastIron 4802               |Foundry::FastIron_4802
+|H3C              |S5120 Series                |H3C::S5120
 |HP               |E4800G Switch series        |HP::E4800G
 |                 |E5500G Switch series        |HP::E5500G
 |                 |MSM 710 Mobility Controller |HP::Controller_MSM710
@@ -1282,6 +1283,171 @@ int eth xx
 
 where `xxxxxx` stands for the interface number (filled with zeros), `<voice-vlan>` with your voice-VLAN number and `<mac-detection-vlan>` with your mac-detection VLAN number.
 
+H3C
+~~~
+
+S5120 Switch series
+^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports these switches with the following technologies:
+
+* 802.1X (with or without VoIP)
+* 802.1X with MAC Authentication fallback (with or without VoIP)
+* MAC Authentication (with or without VoIP)
+
+802.1X
+++++++
+
+Radius scheme creation:
+
+  radius scheme packetfence
+  primary authentication 192.168.1.5 1812 key useStrongerSecret
+  primary accounting 192.168.1.5 1813 key useStrongerSecret
+  user-name-format without-domain
+
+ISP-Domain creation:
+
+  domain packetfence
+  authentication default radius-scheme packetfence
+  authentication lan-access radius-scheme packetfence
+  authorization lan-access radius-scheme packetfence
+
+SNMP settings:
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent community write private
+  snmp-agent sys-info version v2c
+
+Global configuration:
+
+  port-security enable
+  port-security trap addresslearned
+  port-security trap intrusion
+  dot1x timer tx-period 10
+  dot1x timer supp-timeout 10
+  dot1x authentication-method eap
+  shutdown-interval 300
+  mac-address timer aging 900
+  arp timer aging 900
+
+Global configuration (with VoIP):
+
+Add the following to the previous global configuration.
+
+  undo voice vlan security enable
+  lldp timer tx-interval 20
+  lldp hold-multiplier 8
+  lldp compliance cdp
+
+Interfaces configuration:
+
+  port link-type hybrid
+  port hybrid vlan 1 2 3 4 5 untagged
+  mac-vlan enable
+  undo enable snmp trap updown
+  stp edged-port enable
+  port-security max-mac-count 1
+  port-security port-mode userlogin-secure
+  port-security intrusion-mode blockmac
+  dot1x re-authenticate
+  dot1x max-user 1
+  dot1x guest-vlan 5
+  undo dot1x handshake
+  dot1x mandatory-domain packetfence
+  undo dot1x multicast-trigger
+
+Interfaces configuration (with VoIP):
+
+Add the following to the previous interfaces configuration.
+
+  port hybrid vlan 100 tagged
+  undo voice vlan mode auto
+  voice vlan 100 enable
+  lldp compliance admin-status cdp txrx
+  port-security max-mac-count 3
+  dot1x max-user 2
+
+802.1X with MAC Authentication fallback
++++++++++++++++++++++++++++++++++++++++
+
+Since using MAC Authentication as a fallback of 802.1X, use the previous 802.1X configuration and add the followings.
+
+This configuration is the same with or without VoIP.
+
+Global configuration:
+
+  mac-authentication domain packetfence
+
+Interfaces configuration:
+
+  mac-authentication guest-vlan 5
+  port-security port-mode userlogin-secure-or-mac
+
+MAC Authentication
+++++++++++++++++++
+
+Radius scheme creation:
+
+  radius scheme packetfence
+  primary authentication 192.168.1.5 1812 key useStrongerSecret
+  primary accounting 192.168.1.5 1813 key useStrongerSecret
+  user-name-format without-domain
+
+ISP-Domain creation:
+
+  domain packetfence
+  authentication default radius-scheme packetfence
+  authentication lan-access radius-scheme packetfence
+  authorization lan-access radius-scheme packetfence
+
+SNMP settings:
+
+  snmp-agent
+  snmp-agent community read public
+  snmp-agent community write private
+  snmp-agent sys-info version v2c
+
+Global configuration:
+
+  port-security enable
+  port-security trap addresslearned
+  port-security trap intrusion
+  shutdown-interval 300
+  mac-address timer aging 900
+  mac-authentication domain packetfence
+  arp timer aging 900
+
+Global configuration (with VoIP):
+
+Add the following to the previous global configuration.
+
+  undo voice vlan security enable
+  lldp timer tx-interval 20
+  lldp hold-multiplier 8
+  lldp compliance cdp
+
+Interfaces configuration:
+
+  port link-type hybrid
+  port hybrid vlan 1 2 3 4 5 untagged
+  mac-vlan enable
+  undo enable snmp trap updown
+  stp edged-port enable
+  mac-authentication guest-vlan 5
+  port-security max-mac-count 1
+  port-security port-mode mac-authentication
+  port-security intrusion-mode blockmac
+
+Interfaces configuration (with VoIP):
+
+Add the following to the previous interfaces configuration.
+
+  port hybrid vlan 100 tagged
+  undo voice vlan mode auto
+  voice vlan 100 enable
+  lldp compliance admin-status cdp txrx
+  port-security max-mac-count 3
 
 HP
 ~~
