@@ -192,6 +192,23 @@ sub NasPortToIfIndex {
     return $nas_port;
 }
 
+=item parseTrap
+
+All traps ignored
+
+=cut
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my $trapHashRef;
+
+    $logger->debug("trap ignored, since we're using 802.1x/mac-auth");
+    $trapHashRef->{'trapType'} = 'unknown';
+
+    return $trapHashRef;
+}
+
 
 =back
 
