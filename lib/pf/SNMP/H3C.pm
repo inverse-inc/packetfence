@@ -19,11 +19,11 @@ pf::SNMP::H3C - Object oriented module to access and configure enabled H3C switc
 use strict;
 use warnings;
 
-use base ('pf::SNMP');
-
 use Log::Log4perl;
 use Net::SNMP;
 use POSIX;
+
+use base ('pf::SNMP');
 
 use pf::config;
 use pf::radius::constants;
