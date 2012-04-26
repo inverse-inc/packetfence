@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.net
+
+[packetfence.packetfencepo]
+source_file = conf/locale/en/LC_MESSAGES/packetfence.po
+source_lang = en
+file_filter = conf/locale/<lang>/LC_MESSAGES/packetfence.po
+type = PO
