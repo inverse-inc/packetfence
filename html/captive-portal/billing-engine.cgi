@@ -72,7 +72,7 @@ if ( defined($cgi->param('submit')) ) {
                 mac             => $mac,
                 firstname       => $cgi->param('firstname'),
                 lastname        => $cgi->param('lastname'),
-                email           => $cgi->param('email'),
+                email           => lc($cgi->param('email')),
                 ccnumber        => $cgi->param('ccnumber'),
                 ccexpiration    => $cgi->param('ccexpiration'),
                 ccverification  => $cgi->param('ccverification'),
@@ -89,7 +89,7 @@ if ( defined($cgi->param('submit')) ) {
             person_modify($session->param('login'), (
                     'firstname' => $cgi->param('firstname'),
                     'lastname'  => $cgi->param('lastname'),
-                    'email'     => $cgi->param('email'),
+                    'email'     => lc($cgi->param('email')),
                     'notes'     => 'billing engine activation - ' . $tier,
             ));
 

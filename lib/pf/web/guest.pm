@@ -124,9 +124,9 @@ sub generate_selfregistration_page {
     $vars->{'organization'} = $cgi->param("organization");
     $vars->{'phone'} = $cgi->param("phone");
     $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
-    $vars->{'email'} = $cgi->param("email");
+    $vars->{'email'} = lc($cgi->param("email"));
 
-    $vars->{'sponsor_email'} = $cgi->param("sponsor_email");
+    $vars->{'sponsor_email'} = lc($cgi->param("sponsor_email"));
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
 
@@ -173,7 +173,7 @@ sub generate_registration_page {
     $vars->{'lastname'} = $cgi->param("lastname");
     $vars->{'company'} = $cgi->param("company");
     $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'email'} = $cgi->param("email");
+    $vars->{'email'} = lc($cgi->param("email"));
     $vars->{'address'} = $cgi->param("address");
     $vars->{'arrival_date'} = $cgi->param("arrival_date") || POSIX::strftime("%Y-%m-%d", localtime(time));
     $vars->{'notes'} = $cgi->param("notes");
@@ -320,10 +320,10 @@ sub validate_selfregistration {
     $session->param("lastname", $cgi->param("lastname"));
     $session->param("company", $cgi->param("organization")); 
     $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
-    $session->param("email", $cgi->param("email")); 
-    $session->param("sponsor", $cgi->param("sponsor_email")); 
+    $session->param("email", lc($cgi->param("email"))); 
+    $session->param("sponsor", lc($cgi->param("sponsor_email"))); 
     # guest pid is configurable (defaults to email)
-    $session->param("guest_pid", $cgi->param($Config{'guests_self_registration'}{'guest_pid'}));
+    $session->param("guest_pid", $session->param($Config{'guests_self_registration'}{'guest_pid'}));
     return ($TRUE, 0);
 }
 
@@ -347,7 +347,7 @@ sub validate_sponsor {
     return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
 
     # validate that this email can sponsor network accesses
-    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( $cgi->param('sponsor_email') );
+    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( lc($cgi->param('sponsor_email')) );
     return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] ) if (!$can_sponsor);
 
     # all sponsor checks passed
@@ -386,7 +386,7 @@ sub validate_registration {
     $session->param("firstname", $cgi->param("firstname"));
     $session->param("lastname", $cgi->param("lastname"));
     $session->param("company", $cgi->param("company"));
-    $session->param("email", $cgi->param("email")); 
+    $session->param("email", lc($cgi->param("email"))); 
     $session->param("phone", $cgi->param("phone"));
     $session->param("address", $cgi->param("address"));
     $session->param("arrival_date", $cgi->param("arrival_date"));
@@ -428,7 +428,7 @@ sub validate_registration_multiple {
     $session->param("fistname", $cgi->param("firstname"));
     $session->param("lastname", $cgi->param("lastname"));
     $session->param("company", $cgi->param("company"));
-    $session->param("email", $cgi->param("email"));
+    $session->param("email", lc($cgi->param("email")));
     $session->param("phone", $cgi->param("phone"));
     $session->param("address", $cgi->param("address"));
     $session->param("arrival_date", $cgi->param("arrival_date"));
