@@ -1,20 +1,23 @@
-# es translation for PacketFence
-# Copyright (C) 2006-2011 Inverse inc.
+# Copyright (C) 2006-2012 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-# Olivier Bilodeau <obilodeau@inverse.ca>, 2011
+#
+# Translators:
+# Juan Camilo Valencia <juan.valencia@seguratec.com.co>, 2011-2012.
 #
 domain "packetfence"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
-"PO-Revision-Date: 2011-10-31 15:35-0500\n"
-"Last-Translator: Juan Camilo Valencia <juan.valencia@seguratec.com.co>\n"
+"Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
+"PO-Revision-Date: 2012-04-26 17:23+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: PacketFence support <support@packetfence.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 
 msgid "en_US"
 msgstr "English"
@@ -162,22 +165,37 @@ msgstr "Registro de Invitados"
 msgid "guest network disclaimer"
 msgstr "Esta red de invitados es provista exclusivamente para la conveniencia de Invitados y Vistantes. El acceso no implica ninguna garantía de confiabilidad, velocidad o privacidad; esta red está provista para el propósito expreso de facilitar la comunicación a Internet. El uso implica estar de acuerdo con los términos y condiciones de la <b>Política de Uso Aceptable.</b>"
 
-msgid "In the fields below please enter your name, phone number and a valid email address."
+msgid ""
+"In the fields below please enter your name, phone number and a valid email "
+"address."
 msgstr "En los campos a continuación por favor ingrese su nombre, número telefónico y la dirección de correo electrónico válida."
 
-msgid "If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:"
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will have to click on an activation link sent to your email address. After "
+"clicking on the link you will receive guest credentials to use on-site by "
+"email"
+msgstr ""
+
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will be given temporary network access for 10 minutes during that time:"
 msgstr "Si usted selecciona recibir su código de acceso <strong>por Correo Electrónico</strong>, usted recibirá un acceso temporal a la red por 10 minutos:"
 
 msgid "Login to the email account you referenced and;"
 msgstr "Ingrese a la cuenta de Correo Electrónico que ha referenciado;"
 
-msgid "Click on the link emailed to you to validate network access for the next 24 hours."
+msgid ""
+"Click on the link emailed to you to validate network access for the next 24 "
+"hours."
 msgstr "Haga clic sobre el enlace que ha sido enviado al Correo Electrónico para validar el acceso a la red por las proximas 24 horas."
 
 msgid "Register by Email"
 msgstr "Registrar por Correo"
 
-msgid "If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page."
+msgid ""
+"If you choose to receive your access code <strong>by SMS</strong>, you will "
+"be able to enter it on the next page."
 msgstr "Si usted selecciona recibir su código de acceso <strong>por SMS</strong>, usted será habilitado para entrar en la próxima página."
 
 msgid "Register by SMS"
@@ -222,7 +240,10 @@ msgstr "Notificación de Registro"
 msgid "Additional Assistance"
 msgstr "Asistencia Adicional"
 
-msgid "If your network connectivity becomes permanently disabled or you are unable to follow the instructions above, please contact your local IT support staff for assistance."
+msgid ""
+"If your network connectivity becomes permanently disabled or you are unable "
+"to follow the instructions above, please contact your local IT support staff"
+" for assistance."
 msgstr "Si su conectividad a la red permanece deshabilitada o usted no se ecuentra en la capacidad de seguir las instrucciones anteriores, por favor contacte su equipo de soporte para asistencia."
 
 msgid "The following information should be provided upon request:"
@@ -237,28 +258,36 @@ msgstr "Dirección MAC"
 msgid "Banned Operating System"
 msgstr "Sistema Operativo Prohibido"
 
-msgid "You have been detected using an operating system not allowed on the network. Please install a more recent operating system"
+msgid ""
+"You have been detected using an operating system not allowed on the network."
+" Please install a more recent operating system"
 msgstr "Usted ha sido detectado utilizando un sistema operativo no permitido en la red. Por favor instale un sistema operativo más reciente."
 
 msgid "Darknet Violation"
 msgstr "Violaciones tipo Darknet"
 
-msgid "Your system has been detected sending traffic to a network known to be unused (darknet). This is often indicative of a worm/virus infection."
+msgid ""
+"Your system has been detected sending traffic to a network known to be "
+"unused (darknet). This is often indicative of a worm/virus infection."
 msgstr "Su sistema ha sido detectado enviando tráfico a una red no utilizada (darknet). Esto frecuentemente indica una infección por un gusano o un virus."
 
-msgid "Your system will likely need to be rebuilt. Please contact your local support staff for more information."
+msgid ""
+"Your system will likely need to be rebuilt. Please contact your local "
+"support staff for more information."
 msgstr ""
 
-msgid "Your system will likely need to be rebuilt. Please contact your support staff for more information."
+msgid ""
+"Your system will likely need to be rebuilt. Please contact your support "
+"staff for more information."
 msgstr "Su sistema probablemente necesita ser reinstalado. Por favor contacte su equipo de soporte para mayor información."
-
-msgid "Your system may need to be rebuilt. Please contact your local support staff for more information."
-msgstr "Su sistema debe ser reinstalado. Por favor contacte el equipo de soporte para mayor información."
 
 msgid "Windows patches are not up to date"
 msgstr "Los parches de Windows no estan actualizados"
 
-msgid "Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgid ""
+"Due to the threat this infection poses for other systems on the network, "
+"network connectivity has been disabled until corrective action is taken. "
+"Instructions for disinfection are below:"
 msgstr "Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas. Instrucciones para la desinfección estan en la parte inferior:"
 
 msgid "Generic"
@@ -273,26 +302,43 @@ msgstr "Por favor contacte su equipo de soporte para mayor información."
 msgid "Hub Detection"
 msgstr "Detección de Hub"
 
-msgid "You have been detected using a hub. Such device is not permitted on the network.  Please remove it."
+msgid ""
+"You have been detected using a hub. Such device is not permitted on the "
+"network.  Please remove it."
 msgstr "Usted ha sido detectado utilizando un hub. Tal dispositivo no es permitido en la red. Por favor desconectelo."
 
 msgid "Peer-to-Peer"
 msgstr "Peer-to-Peer"
 
-msgid "You have been detected using a peer-to-peer file sharing application. Such software is not permitted on the network.  Please uninstall the infringing software."
+msgid ""
+"You have been detected using a peer-to-peer file sharing application. Such "
+"software is not permitted on the network.  Please uninstall the infringing "
+"software."
 msgstr "Usted ha sido detectado utilizando una aplicación peer-to-peer de uso compartido de archivos. Dicho software no es permitido en la red. Por favor desinstale el software infractor."
 
 msgid "System Scanning"
 msgstr "Análisis del sistema"
 
-msgid "Your system has been found to be scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid ""
+"Your system has been found to be scanning other systems. Due to the threat "
+"this infection poses for other systems on the network, network connectivity "
+"has been disabled until corrective action is taken."
 msgstr "Su sistema ha sido encontrado analizando otros sistemas. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
 
 msgid "Spamming"
 msgstr "Spamming"
 
-msgid "Your system has been found to be sending unsolicited commercial email (UCE, or \"spam\") to other systems. Due to the threat this poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid ""
+"Your system has been found to be sending unsolicited commercial email (UCE, "
+"or \"spam\") to other systems. Due to the threat this poses for other "
+"systems on the network, network connectivity has been disabled until "
+"corrective action is taken."
 msgstr "Su sistema ha sido encontrado enviando correo electrónico comercial no solicitado (UCE, o \"spam\") a otros sistemas. Debido a la amenaza que esto representa para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
+
+msgid ""
+"Your system may need to be rebuilt. Please contact your local support staff "
+"for more information."
+msgstr "Su sistema debe ser reinstalado. Por favor contacte el equipo de soporte para mayor información."
 
 msgid "guest management"
 msgstr "Administración de Invitados"
@@ -306,11 +352,29 @@ msgstr "Por favor complete todos los campos a continuación para que la cuenta d
 msgid "Firstname"
 msgstr "Nombre "
 
+msgid "firstname"
+msgstr ""
+
 msgid "Lastname"
 msgstr "Apellido"
 
+msgid "lastname"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Company / Organization"
+msgstr ""
+
+msgid "organization"
+msgstr ""
+
 msgid "Phone number"
 msgstr "Número Celular"
+
+msgid "phone"
+msgstr ""
 
 msgid "Phone Provider"
 msgstr "Proveedor"
@@ -321,14 +385,29 @@ msgstr "Seleccione su Proveedor"
 msgid "Email"
 msgstr "Correo Electrónico"
 
+msgid "email"
+msgstr ""
+
+msgid "Sponsor's email"
+msgstr ""
+
+msgid "sponsor_email"
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
 msgid "Arrival Date"
 msgstr "Fecha de llegada"
 
 msgid "End Date"
 msgstr "Fecha de finalización"
 
-msgid "Access duration"
+msgid "Access Duration"
 msgstr "Duración del acceso"
+
+msgid "Notes"
+msgstr ""
 
 msgid "Send access code by email"
 msgstr "Enviar código de acceso por Correo Electrónico"
@@ -386,13 +465,18 @@ msgstr "Esperado en %s"
 msgid "Missing mandatory parameter or malformed entry."
 msgstr "Falta un parámetro obligatorio o entrada incorrecta."
 
+msgid "Usernames must only contain alphanumeric characters."
+msgstr ""
+
 msgid "Access duration is not of an allowed value."
 msgstr "La Duración de acceso no es un valor permitido."
 
 msgid "Arrival date is not of expected format."
 msgstr "La Fecha de llegada no tiene el formato esperado."
 
-msgid "You can't register as a guest with a %s email address. Please register as a regular user using your email address instead."
+msgid ""
+"You can't register as a guest with a %s email address. Please register as a "
+"regular user using your email address instead."
 msgstr "Usted no puede registrarse como invitado con una %s dirección de Correo Electrónico. Por favor regístrese como un usuario regular usando su dirección de Correo Electrónico en su lugar."
 
 msgid "An error occured while sending the confirmation email."
@@ -401,10 +485,18 @@ msgstr "Un error ocurrió mientras se enviaba el correo de confirmación."
 msgid "An error occured while sending the PIN by SMS."
 msgstr "Un error ocurrió mientras se enviaba el PIN por SMS."
 
+msgid "The uploaded file was corrupted. Please try again."
+msgstr ""
+
+msgid "Can't open uploaded file."
+msgstr ""
+
 msgid "Confirm Mobile Phone Number"
 msgstr "Confirmar número telefónico móvil"
 
-msgid "Please enter the PIN code received on your mobile phone in order to gain access to the network."
+msgid ""
+"Please enter the PIN code received on your mobile phone in order to gain "
+"access to the network."
 msgstr "Por favor ingrese el código PIN recibido en su teléfono móvil con el fin de tener acceso a la red."
 
 msgid "PIN"
@@ -425,25 +517,63 @@ msgstr "Este usuario y contraseña serán validados empezando %s."
 msgid "Once authenticated the access will be valid for %d %s."
 msgstr "Una vez autenticado el acceso será validado por %d %s."
 
-msgid "Guest successfully registered. An email with the username and password has been sent."
+msgid ""
+"Guest successfully registered. An email with the username and password has "
+"been sent."
 msgstr "Invitado registrado exitosamente. Un correo con su nombre de usuario y contraseña ha sido enviado."
+
+msgid "Import completed: %i guest(s) created, %i line(s) skipped."
+msgstr ""
+
+msgid "Single guest creation"
+msgstr ""
+
+msgid "Multiple guest accounts creation"
+msgstr ""
+
+msgid "CSV file"
+msgstr "Archivo CSV"
+
+msgid "CSV file import"
+msgstr "Importar Archivo CSV"
+
+msgid "You are logged in as"
+msgstr "Usted esta registrado como"
+
+msgid "Sponsored by"
+msgstr ""
 
 msgid "Guest Network Access Information"
 msgstr "Informacíon de acceso a la red de Invitados"
 
-msgid "If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled."
+msgid ""
+"If you have scripting turned off, you will not be automatically redirected. "
+"Please enable scripting or open a new browser window from time to time to "
+"see if your access was enabled."
 msgstr "Si usted ha desactivado la ejecución de secuencia de comandos (scripts), usted no será automaticamente redireccionado. Por favor habilite la ejecución de secuencia de comandos (scripts), o abra una nueva ventana del navegador de vez en cuando para ver si su acceso fue habilitado."
 
-msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
+msgid ""
+"Unable to detect network connectivity. Try opening a web page to see if your"
+" access has been succesfully enabled."
 msgstr "Incapaz de detectar actividad en la red. Intente abrir una página web para mirar si su acceso ha sido habilitado exitosamente."
+
+msgid ""
+"Your network access should be available. Close your current browser, and "
+"open a new one to start browsing."
+msgstr ""
 
 msgid "Registration pending"
 msgstr "Registro pendiente"
 
-msgid "There are known issues with the automatic redirection on Opera browsers. Please open a new browser window from time to time to see if your access was enabled."
+msgid ""
+"There are known issues with the automatic redirection on Opera browsers. "
+"Please open a new browser window from time to time to see if your access was"
+" enabled."
 msgstr "Hay algunos problemas conocidos con la redirección automática en los navegadores Opera. Por favor abra una nueva ventana en el navegador de vez en cuando para verificar si su acceso fue habilitado."
 
-msgid "Some versions of Internet Explorer may take a while before redirection occur."
+msgid ""
+"Some versions of Internet Explorer may take a while before redirection "
+"occur."
 msgstr "En algunas versiones de Internet Explorer pueden tomar un tiempo antes que la redirección ocurra."
 
 msgid "I accept the terms"
@@ -455,22 +585,32 @@ msgstr "He leído y acepto <a href='/aup' target='_blank'>los términos</a>"
 msgid "You need to accept the terms before proceeding any further."
 msgstr "Usted necesita aceptar los términos antes de continuar."
 
-msgid "Your registration is pending approval. Once approved you will be automatically redirected."
+msgid ""
+"Your registration is pending approval. Once approved you will be "
+"automatically redirected."
 msgstr "Su registro esta pendiente de aprobación. Una vez sea aprobado usted será automaticamente redireccionado."
 
 msgid "Next page"
 msgstr "Próxima página"
 
-msgid "The activation code provided is invalid. Reasons could be: it never existed, it was already used or has expired."
+msgid ""
+"The activation code provided is invalid. Reasons could be: it never existed,"
+" it was already used or has expired."
 msgstr "El código de activación proporcionado es inválido. Las razones pueden ser: este nunca existió, ya ha sido utilizado o ya expiró."
 
-msgid "You have been detected using a device that has been explicitly disallowed by your network administrator."
+msgid ""
+"You have been detected using a device that has been explicitly disallowed by"
+" your network administrator."
 msgstr "Usted ha sido detectado utilizando un dispositivo que ha sido deshabilitado explicitamente por su administrador de red."
 
 msgid "NAT Device Detected"
 msgstr "Dispositivo NAT Detectado"
 
-msgid "You have been detected using a device that performs network address translation (NAT). These devices, typically wireless access points or 'routers' are not permitted on the network. Please unplug this device and connect your computer directly to the network for access."
+msgid ""
+"You have been detected using a device that performs network address "
+"translation (NAT). These devices, typically wireless access points or "
+"'routers' are not permitted on the network. Please unplug this device and "
+"connect your computer directly to the network for access."
 msgstr "Usted ha sido detectado utilizando un dispositivo que desempeña traducciones de direcciones de red (Network Address Translations NAT). Estos dispositivos, típicamente Access Points inalámbricos y Routers, no son permitidos en la red. Por favor desconecte el dispositivo y conecte su computador directamente a la red para tener acceso."
 
 msgid "Rogue DHCP server"
@@ -482,13 +622,19 @@ msgstr "Usted ha sido detectado corriendo un servidor DHCP no autorizado. Por fa
 msgid "Vulnerability Scanning"
 msgstr "Análisis de Vulnerabilidades"
 
-msgid "Your system will be scanned for vulnerabilities before you are allowed to enter the network. Please click on the button below, this can take anywhere from a few seconds to a couple of minutes."
+msgid ""
+"Your system will be scanned for vulnerabilities before you are allowed to "
+"enter the network. Please click on the button below, this can take anywhere "
+"from a few seconds to a couple of minutes."
 msgstr "Su sistema será analizado en busca de vulnerabilidades antes de que se le permita el ingreso a la red. Por favor haga clic sobre el botón a continuación, esto puede tardar desde unos pocos segundos hasta un par de minutos."
 
 msgid "Malware found!"
 msgstr "Malware encontrado!"
 
-msgid "Your system has been found to be infected with malware. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid ""
+"Your system has been found to be infected with malware. Due to the threat "
+"this infection poses for other systems on the network, network connectivity "
+"has been disabled until corrective action is taken."
 msgstr "Su sistema ha sido encontrado infectado con malware. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
 
 msgid "Malware Removal"
@@ -497,50 +643,71 @@ msgstr "Eliminación de Malware"
 msgid "LSASS Worm"
 msgstr "Gusano LSASS"
 
-msgid "Your system has been found to be infected with An LSASS-based worm. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken. Instructions for disinfection are below:"
+msgid ""
+"Your system has been found to be infected with An LSASS-based worm. Due to "
+"the threat this infection poses for other systems on the network, network "
+"connectivity has been disabled until corrective action is taken. "
+"Instructions for disinfection are below:"
 msgstr "Su sistema ha sido encontrado infectado con cun gusano de tipo LSASS. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
 
 msgid "Worm Removal"
 msgstr "Eliminación de Gusano"
 
+msgid ""
+"Make sure your antivirus is working. You might want to perform a full system"
+" scan. Clicking the 'Enable Network' button below will re-enable your "
+"network access. Make sure that you followed the instructions to correct the "
+"issue. Failure to do so will result in network access being disabled again. "
+"Repeated failures will result in access being disabled permanently."
+msgstr "Asegúrese que el antivirus esta trabajando.  Es posible que deba generar un análisis completo de el sistema. Haga Click en el botón 'Habilitar Red' a continuación y se volverá activar su acceso a la red. Asegúrese que ha seguido las instrucciones para corregir el problema. Si falla en hacerlo tendrá como resultado que el acceso a la red sea deshabilitado nuevamente. Fallas repetidas tendrán como resultado que el acceso a la red sea deshabilitado permanentemente."
+
 msgid "Trojan Infection"
 msgstr "Infección tipo Troyano"
 
-msgid "Your system has been found to be infected with a Trojan IRC bot and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid "Unauthorized device"
+msgstr "Dispositivo no Autorizado"
+
+msgid ""
+"Your system has been found to be infected with a Trojan IRC bot and is "
+"scanning other systems. Due to the threat this infection poses for other "
+"systems on the network, network connectivity has been disabled until "
+"corrective action is taken."
 msgstr "Su sistema ha sido encontrado infectado con un Troyano IRC y está analizando otros sistemas. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
 
 msgid "Zotob Infection"
 msgstr "Infección tipo Zotob"
 
-msgid "Your system has been found to be infected with a Zotob worm and is scanning other systems. Due to the threat this infection poses for other systems on the network, network connectivity has been disabled until corrective action is taken."
+msgid ""
+"Your system has been found to be infected with a Zotob worm and is scanning "
+"other systems. Due to the threat this infection poses for other systems on "
+"the network, network connectivity has been disabled until corrective action "
+"is taken."
 msgstr "Usted ha sido encontrado infectado con un gusano tipo Zotob y está analizando otros sistemas. Debido a la amenaza que esta infección posee para otros sistemas en la red, la conectividad de la red ha sido deshabilitada hasta que se tomen acciones correctivas."
 
-msgid "Your network access is currently being enabled. Once network connectivity is established you will be automatically redirected."
+msgid ""
+"Your network access is currently being enabled. Once network connectivity is"
+" established you will be automatically redirected."
 msgstr "Su acceso a la red actualmente está siendo habilitado. Una vez la conectividad de la red esté establecida usted será automaticamente redireccionado."
 
-msgid "Make sure your antivirus is working. You might want to perform a full system scan. Clicking the 'Enable Network' button below will re-enable your network access. Make sure that you followed the instructions to correct the issue. Failure to do so will result in network access being disabled again. Repeated failures will result in access being disabled permanently."
-msgstr "Asegúrese que el antivirus esta trabajando.  Es posible que deba generar un análisis completo de el sistema. Haga Click en el botón 'Habilitar Red' a continuación y se volverá activar su acceso a la red. Asegúrese que ha seguido las instrucciones para corregir el problema. Si falla en hacerlo tendrá como resultado que el acceso a la red sea deshabilitado nuevamente. Fallas repetidas tendrán como resultado que el acceso a la red sea deshabilitado permanentemente."
-
-msgid "Your network should be enabled within a minute or two. If it is not reboot your computer."
-msgstr "Su acceso a la red debería ser habilitado en uno o dos minutos. Si no reinicie su equipo."
+msgid "Your network access is currently being enabled. Please wait..."
+msgstr ""
 
 msgid "You must be authenticated to manage guests."
 msgstr "Usted debe autenticarse para la administración de invitados."
 
-msgid "You are logged in as"
-msgstr "Usted esta registrado como"
+msgid "This account is expired."
+msgstr ""
 
-msgid "CSV file"
-msgstr "Archivo CSV"
+msgid "This account is not yet activated."
+msgstr ""
 
-msgid "CSV file import"
-msgstr "Importar Archivo CSV"
+msgid ""
+"Your network should be enabled within a minute or two. If it is not reboot "
+"your computer."
+msgstr "Su acceso a la red debería ser habilitado en uno o dos minutos. Si no reinicie su equipo."
 
 msgid "Invalid PIN"
 msgstr "PIN no válido"
-
-msgid "Access Duration"
-msgstr "Duración del acceso"
 
 msgid "Username Prefix"
 msgstr "Prefijo del Nombre de Usuario"
@@ -578,11 +745,252 @@ msgstr "El formato es: yyyy-mm-dd"
 msgid "Import file"
 msgstr "Importar archivo"
 
-msgid "Unauthorized device"
-msgstr "Dispositivo no Autorizado"
-
 msgid "Access to the guest network has been granted until %s."
 msgstr "El acceso a la red de invitados ha sido permitido hasta %s."
 
+msgid "Access to the guest network has been granted."
+msgstr ""
+
 msgid "Access to the guest network granted"
 msgstr "Acceso a la red de Invitados permitido"
+
+msgid ""
+"Your XML configuration have been generated and is now ready to download.  "
+"Follow the link below in order to get access to the secure SSID."
+msgstr ""
+
+msgid "Click to install your generated wireless profile."
+msgstr ""
+
+msgid "Internet Access Package"
+msgstr ""
+
+msgid "Credit Card Number"
+msgstr ""
+
+msgid "Credit Card Expiration Date"
+msgstr ""
+
+msgid "MMYY"
+msgstr ""
+
+msgid "Credit Card Verification Number"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid ""
+"An error occured while processing your payment. Incorrect credit card "
+"informations provided."
+msgstr ""
+
+msgid ""
+"An error occured while processing you payment. Your credit card has not been"
+" charged."
+msgstr ""
+
+msgid "The scan report code provided is invalid or expired."
+msgstr ""
+
+# SoH filters
+msgid "Filters"
+msgstr ""
+
+msgid ""
+"Define the filters which will apply to all NAP-capable clients that produce "
+"a statement of health (SoH)."
+msgstr ""
+
+msgid "Delete this filter"
+msgstr ""
+
+msgid "Do nothing"
+msgstr ""
+
+msgid "Accept"
+msgstr ""
+
+msgid "Reject"
+msgstr ""
+
+msgid "Trigger violation"
+msgstr ""
+
+msgid "Conditions:"
+msgstr ""
+
+msgid "(None yet)"
+msgstr ""
+
+msgid "Add a condition"
+msgstr ""
+
+msgid "Delete this condition"
+msgstr ""
+
+msgid "Firewall"
+msgstr ""
+
+msgid "Anti-virus"
+msgstr ""
+
+msgid "Anti-spyware"
+msgstr ""
+
+msgid "Auto-updates"
+msgstr ""
+
+msgid "Security updates"
+msgstr ""
+
+msgid "is"
+msgstr ""
+
+msgid "is not"
+msgstr ""
+
+msgid "ok"
+msgstr ""
+
+msgid "installed"
+msgstr ""
+
+msgid "enabled"
+msgstr ""
+
+msgid "disabled"
+msgstr ""
+
+msgid "up-to-date"
+msgstr ""
+
+msgid "from Microsoft"
+msgstr ""
+
+msgid "Action:"
+msgstr ""
+
+msgid "Add a filter"
+msgstr ""
+
+msgid "Save filters"
+msgstr ""
+
+msgid "Invalid response"
+msgstr ""
+
+msgid "Request failed"
+msgstr ""
+
+msgid "Are you sure you want to delete this filter?"
+msgstr ""
+
+msgid "Enter new filter name"
+msgstr ""
+
+msgid "Guest Sponsor Login"
+msgstr ""
+
+msgid "Before we proceed with guest activation, we need you to authenticate."
+msgstr ""
+
+msgid ""
+"You have reached the maximum number of devices you are able to register with"
+" this username."
+msgstr ""
+
+msgid ""
+"An email has been sent to your email address. Click on the activation link "
+"to confirm your email address. Once confirmed you will receive a username "
+"and password by email for you to use once on-site."
+msgstr ""
+
+msgid ""
+"An access request was sent to the sponsor's email. You will receive an email"
+" with a username and password once your access has been approved."
+msgstr ""
+
+msgid "Registration in advance by SMS is not supported."
+msgstr ""
+
+msgid "%s: Guest Network Access Information"
+msgstr ""
+
+msgid "%s: Guest access confirmed!"
+msgstr ""
+
+msgid "%s: Guest network access enabled"
+msgstr ""
+
+msgid ""
+"There was a problem trying to find the computer to register. The problem has"
+" been logged."
+msgstr ""
+
+msgid ""
+"The device with MAC address %s has already been authorized to your network."
+msgstr ""
+
+msgid "%s: Guest access request"
+msgstr ""
+
+msgid "%s: Guest access request accepted"
+msgstr ""
+
+msgid "Guest pre-registration is not allowed by policy"
+msgstr ""
+
+msgid ""
+"If you choose to have your access <strong>sponsored</strong>, we will send "
+"an email to the Sponsor email you provided with an activation link. The "
+"sponsor will need to click on that link and authenticate in order to approve"
+" you in."
+msgstr ""
+
+msgid "You will receive guest credentials by email once approved."
+msgstr ""
+
+msgid "You will be in a waiting area until approved."
+msgstr ""
+
+msgid "Register through a Sponsor"
+msgstr ""
+
+msgid "Network Access Requested"
+msgstr ""
+
+msgid "Access to the guest network confirmed"
+msgstr ""
+
+msgid ""
+"Access to the guest network has been successfully confirmed. You should "
+"receive credentials for on-site guest access by email shortly."
+msgstr ""
+
+msgid "%s: Email activation required"
+msgstr ""
+
+msgid "Missing mandatory parameter or malformed entry"
+msgstr ""
+
+msgid "Missing mandatory parameter(s): %s"
+msgstr ""
+
+msgid "Illegal email address provided"
+msgstr ""
+
+msgid "Illegal phone number provided"
+msgstr ""
+
+msgid "Acceptable Use Policy (AUP) was not accepted"
+msgstr ""
+
+msgid "Your access can only be sponsored by a %s email address"
+msgstr ""
+
+msgid "Unable to validate your sponsor at the moment"
+msgstr ""
+
+msgid "Email %s is not allowed to sponsor guest access"
+msgstr ""
