@@ -1,0 +1,72 @@
+Description: Debianize PacketFence
+Author: Fabrice Durand <fdurand@inverse.ca>
+
+--- a/addons/freeradius-integration/radiusd.conf.pf
++++ b/addons/freeradius-integration/radiusd.conf.pf
+@@ -2,23 +2,23 @@ prefix = /usr
+ exec_prefix = /usr
+ sysconfdir = /etc
+ localstatedir = /var
+-sbindir = /usr/sbin
+-logdir = ${localstatedir}/log/radius
+-raddbdir = ${sysconfdir}/raddb
++sbindir = ${exec_prefix}/sbin
++logdir = /var/log/freeradius
++raddbdir = /etc/freeradius
+ radacctdir = ${logdir}/radacct
+ 
+-name = radiusd
++name = freeradius
+ 
+ confdir = ${raddbdir}
+ run_dir = ${localstatedir}/run/${name}
+ 
+ db_dir = ${raddbdir}
+ 
+-libdir = /usr/lib64/freeradius
++libdir = /usr/lib/freeradius
+ pidfile = ${run_dir}/${name}.pid
+ 
+-user = radiusd
+-group = radiusd
++user = freerad
++group = freerad
+ 
+ max_request_time = 30
+ cleanup_delay = 5
+--- a/conf/pf.conf.defaults
++++ b/conf/pf.conf.defaults
+@@ -573,7 +573,7 @@ snort_binary=/usr/sbin/snort
+ # services.httpd_binary
+ #
+ # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
+-httpd_binary=/usr/sbin/httpd
++httpd_binary=/usr/sbin/apache2
+ #
+ # services.dhcpd_binary
+ #
+@@ -593,12 +593,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
+ # services.radiusd_binary
+ # 
+ # Location of the named binary. Only necessary to change if you are not running the RPMed version.
+-radiusd_binary=/usr/sbin/radiusd
++radiusd_binary=/usr/sbin/freeradius
+ # 
+ # services.arp_binary
+ # 
+ # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
+-arp_binary=/sbin/radiusd
++arp_binary=/usr/sbin/arp
+ 
+ [vlan]
+ #
+--- a/conf/httpd.conf.apache22
++++ b/conf/httpd.conf.apache22
+@@ -8,6 +8,7 @@ ServerSignature Off
+ UseCanonicalName Off
+ Timeout 50
+ KeepAliveTimeout 10
++ServerRoot /usr/lib/apache2
+ 
+ # PERFORMANCE RELATED
+ # These values are automatically adjusted by PacketFence based on total system memory

@@ -322,7 +322,7 @@ sub ip2macinarp {
     return (0) if ( !valid_ip($ip) );
     my $mac;
     $ip = clean_ip($ip);
-    my @arpList = pf_run("/sbin/arp -n -a $ip");
+    my @arpList = pf_run("$Config{services}{arp_binary} -n -a $ip");
     my $lineNb  = 0;
     while ( ( $lineNb < scalar(@arpList) ) && ( !$mac ) ) {
         if ( $arpList[$lineNb]
