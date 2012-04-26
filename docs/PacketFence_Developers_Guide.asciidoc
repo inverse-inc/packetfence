@@ -1,0 +1,60 @@
+PacketFence Developer's Guide
+=============================
+:encoding: UTF-8
+:lang: en
+:doctype: book
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide-docinfo.xml for authors, copyright and 
+    license information.
+
+////
+
+include::includes/global-attributes.asciidoc[]
+
+About this Guide
+----------------
+
+This guide will help you modifying PacketFence to your particular needs. It
+also contains information on how to add support for new switches.
+
+The latest version of this guide is available at http://www.packetfence.org/documentation/.
+
+Other sources of information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Network Devices Configuration Guide::
+  Covers switch, controllers and access points configuration.
+Administration Guide::
+  Covers PacketFence installation, configuration and administration. 
+`NEWS`::
+  Covers noteworthy features, improvements and bugfixes by release. 
+`UPGRADE`::
+  Covers compatibility related changes, manual instructions and general notes 
+  about upgrading. 
+`ChangeLog`::
+  Covers all changes to the source code.
+
+These files are included in the package and release tarballs.
+
+Documentation
+-------------
+
+The in-depth or more technical documentation is always as close to the code 
+as possible. Always look at the `POD` doc 
+footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html].
+To do so, the prefered way is using the `perldoc` command as follows:
+
+  perldoc conf/authentication/ldap.pm
+
+
+include::includes/additional-info.asciidoc[]
+
+include::includes/commercial-support.asciidoc[]
+
+include::includes/license.asciidoc[]
+
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
