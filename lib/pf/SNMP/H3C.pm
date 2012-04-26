@@ -10,7 +10,7 @@ pf::SNMP::H3C - Object oriented module to access and configure enabled H3C switc
 
 =item Hardware
 
-- Developped and tested on S5120-28C-PWR-EI using firmware 5.20 (2208P01)
+- Developed and tested on S5120-28C-PWR-EI using firmware 5.20 (2208P01)
 
 =item Port-security problems
 
