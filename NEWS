@@ -15,8 +15,11 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
-Enhancement
+Enhancements
  * Adding Role support for all WLC models
+
+Bug Fixes
+ * interface configuration errors in the Web Admin (or on the CLI when editing the vip field)
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
