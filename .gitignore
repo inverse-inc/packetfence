@@ -1,6 +1,18 @@
 # temporary files
 *.swp
 *.orig
+*.local
+
+# Configuration not in git
+conf/admin.conf
+conf/httpd.conf
+conf/named.conf
+conf/pf.conf
+conf/nessus/
+!conf/nessus/remotescan.nessus
+conf/snort/emerging*.rules
+conf/user.conf
+conf/users/
 
 # translations
 conf/locale/*/*/*.mo
@@ -9,8 +21,9 @@ conf/locale/*/*/*.mo
 conf/ssl/
 
 # documentation build temporary artifacts
+docs/*.pdf
 docs/docbook/xsl/titlepage-fo.xsl
-docs/docbook/.*\.docbook
+docs/docbook/*.docbook
 
 # trap stats graphs
 # TODO we should move them under var/
