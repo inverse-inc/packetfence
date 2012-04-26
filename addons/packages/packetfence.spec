@@ -648,6 +648,7 @@ fi
 %dir                    /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/var/named
 %dir			/usr/local/pf/raddb
+			/usr/local/pf/raddb/*
 %config			/usr/local/pf/raddb/clients.conf
 %config			/usr/local/pf/raddb/packetfence.pm
 %attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence.pm
@@ -655,6 +656,8 @@ fi
 %attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence-soh.pm
 %config			/usr/local/pf/raddb/proxy.conf
 %config			/usr/local/pf/raddb/users.conf
+%config			/usr/local/pf/raddb/modules/mschap
+%config                 /usr/local/pf/raddb/modules/perl
 %config			/usr/local/pf/raddb/sites-available/packetfence
 %attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence
 %config		        /usr/local/pf/raddb/sites-available/packetfence-soh
