@@ -33,11 +33,11 @@ are generated for the phone mac-address on the data vlan due to the CDP/LLDP tra
 use strict;
 use warnings;
 
-use base ('pf::SNMP');
-
 use Log::Log4perl;
 use Net::SNMP;
 use POSIX;
+
+use base ('pf::SNMP');
 
 use pf::config;
 use pf::radius::constants;
