@@ -25,8 +25,8 @@ Here's the example with the Admin guide.
 . Then render the PDF from the docbook
 
   $ fop -c docs/fonts/fop-config.xml \
-    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
+    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
     -pdf docs/PacketFence_Administration_Guide.pdf
 
 
