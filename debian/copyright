@@ -1,0 +1,52 @@
+This work was packaged for Debian by:
+
+    Durand fabrice <fdurand@inverse.ca> on Wed, 04 Apr 2012 14:36:28 -0400
+
+It was downloaded from:
+
+    http://www.packetfence.org/downloads/PacketFence/src/packetfence-3.2.0.tar.gz
+
+Source code is hosted at:
+
+    https://github.com/inverse-inc/packetfence/
+
+Upstream Author(s):
+
+    Olivier Bilodeau <obilodeau@inverse.ca>
+    Fabrice Durand <fdurand@inverse.ca>
+    Francois Gaudreault <fgaudreault@inverse.ca>
+    Francis Lachapelle <flachapelle@inverse.ca>
+    Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Copyright:
+
+    Copyright (C) 2006-2012 Inverse inc.
+    Copyright (C) 2005 David LaPorte
+    Copyright (C) 2005 Kevin Amorin
+
+License:
+    
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+    USA.
+
+and is licensed under the GPL version 2,
+see "/usr/share/common-licenses/GPL-2".
+
+The Debian packaging is:
+
+    Copyright (C) 2012 Inverse inc.
+
+and is licensed under the GPL version 2 or later,
+see "/usr/share/common-licenses/GPL-2".

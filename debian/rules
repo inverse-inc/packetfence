@@ -1,0 +1,150 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+NAME		= pf
+PREFIX		= /usr/local
+INSTALL		= /usr/bin/install -c -D -m0644
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp  
+	dh_testdir
+
+
+	touch $@
+
+clean: 
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+	for i in `find * ! -path 'debian/*'  -type d`; do \
+		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
+	done
+	for i in `find * ! -path 'debian/*' ! -type d`; do \
+		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
+	done
+	# Install empty directories not in our tarball since the git move
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/mrtg
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/scan/results
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/traplog
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/named
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
+	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
+	#Freeradius intégration
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/modules
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sql/mysql
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/sites-enabled
+	install -m0755 addons/freeradius-integration/radiusd.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/eap.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/users.pf $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/modules/perl.pf $(CURDIR)/debian/packetfence/etc/freeradius/modules
+	install -m0755 addons/freeradius-integration/sql.conf.pf $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/sql/mysql/packetfence.conf $(CURDIR)/debian/packetfence/etc/freeradius/sql/mysql
+	install -m0755 addons/soh/packetfence-soh.pm $(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/802.1X/packetfence.pm /$(CURDIR)/debian/packetfence/etc/freeradius
+	install -m0755 addons/freeradius-integration/sites-available/packetfence $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
+	install -m0755 addons/freeradius-integration/sites-available/packetfence-soh $(CURDIR)/debian/packetfence/etc/freeradius/sites-available
+	install -m0755 addons/freeradius-integration/sites-available/packetfence-tunnel $(CURDIR)/debian/packetfence/etc/freeradius/sites-available	
+	#PacketFence remote Snort sensor
+	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
+	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
+	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0755 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf	
+	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
+	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs 
+	dh_installdocs
+	dh_installexamples
+	dh_install
+#	dh_installmenu
+#	dh_installdebconf	
+	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+	dh_installman
+	dh_link /etc/freeradius/sites-available/control-socket /etc/freeradius/sites-enabled/control-socket \
+                /etc/freeradius/sites-available/packetfence /etc/freeradius/sites-enabled/packetfence \
+                /etc/freeradius/sites-available/packetfence-soh /etc/freeradius/sites-enabled/packetfence-soh \
+                /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel \
+		/usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
+		/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf
+	dh_strip
+	dh_compress
+	# PERMISSIONS
+	# Executables
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/802.1X/packetfence.pm
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/soh/packetfence-soh.pm
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/upgrade/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/*.cgi
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
+	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
+                -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
+                -X$(NAME)sbin/pfdetect_remote
+	# Everything is owned by pf:pf
+	chown pf:pf -R $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
+	# Set setuid root on bin/pfcmd
+	chown root:root $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
+	chmod ug+s $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
