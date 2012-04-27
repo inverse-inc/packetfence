@@ -1327,20 +1327,13 @@ Global configuration:
   port-security enable
   port-security trap addresslearned
   port-security trap intrusion
-  dot1x timer tx-period 10
-  dot1x timer supp-timeout 10
   dot1x authentication-method eap
-  shutdown-interval 300
-  mac-address timer aging 900
-  arp timer aging 900
 
 Global configuration (with VoIP):
 
 Add the following to the previous global configuration.
 
   undo voice vlan security enable
-  lldp timer tx-interval 20
-  lldp hold-multiplier 8
   lldp compliance cdp
 
 Interfaces configuration:
@@ -1416,18 +1409,13 @@ Global configuration:
   port-security enable
   port-security trap addresslearned
   port-security trap intrusion
-  shutdown-interval 300
-  mac-address timer aging 900
   mac-authentication domain packetfence
-  arp timer aging 900
 
 Global configuration (with VoIP):
 
 Add the following to the previous global configuration.
 
   undo voice vlan security enable
-  lldp timer tx-interval 20
-  lldp hold-multiplier 8
   lldp compliance cdp
 
 Interfaces configuration:
