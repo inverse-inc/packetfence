@@ -24,14 +24,152 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =over
 
-=head2 index
+=item add
+
+Add the selected network interface to the system
+Usage: /interface/<logical_name>/add
 
 =cut
+sub add :Chained('object') :PathPart('add') :Args(0) {
+    my ( $self, $c ) = @_;
 
+    my $interface = $c->stash->{interface};
+
+    my $result;
+    eval {
+        $result = $c->model('Interface')->add($interface);
+    };
+
+    if ( $@ ) {
+        chomp $@;
+        $c->response->status(500);
+        $c->stash->{status_msg} = $@;
+    } else {
+        $c->response->status(200);
+        $c->stash->{status_msg} = $result;
+    }
+}
+
+=item create
+
+Create a vlan interface on the system
+Usage: /interface/<logical_name>/create
+
+=cut
+sub create :Path('create') :Args(1) {
+    my ( $self, $c, $interface ) = @_;
+
+    my $result = $c->model('Interface')->create($interface);
+
+    if ( $result eq 1 ) {
+        $c->response->status(200);
+        $c->stash->{status_msg} = "Interface $interface successfully created";
+    } else {
+        $c->response->status(500);
+        $c->stash->{status_msg} = $result;
+    }
+}
+
+=item edit
+
+Edit the configuration of the selected network interface
+Usage: /interface/<logical_name>/edit/<JSON_arguments>
+
+=cut
+sub edit :Chained('object') :PathPart('edit') :Args(0) {
+    my ( $self, $c, ) = @_;
+
+    my $interface = $c->stash->{interface};
+    my $arguments = $c->request->params->{arguments};
+
+
+}
+
+=item get
+
+Retrieve the configuration of the selected network interface(s)
+Usage: /interface/<logical_name>/get
+
+=cut
+sub get :Chained('object') :PathPart('get') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $interface = $c->stash->{interface};
+
+    my $result;
+    eval {
+        $result = $c->model('Interface')->get($interface);
+    };
+
+    if ( $@ ) {
+        chomp $@;
+        $c->response->status(500);
+        $c->stash->{status_msg} = $@;
+    } else {
+        $c->response->status(200);
+        $c->stash->{status_msg} = $result;
+    }
+}
+
+=item index
+
+=cut
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->response->body('Matched configurator::Controller::Interface in Interface.');
+    $c->response->redirect($c->uri_for($self->action_for('list')));
+}
+
+=item list
+
+=cut
+sub list :Path('list') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->visit('get', ['all'], ['get']);
+}
+
+=item object
+
+Interface controller dispatcher
+
+=cut
+sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
+    my ( $self, $c, $interface ) = @_;
+
+    unless ( $c->model('Interface')->_interfaceExists($interface) ) {
+        $c->response->status(404);
+        $c->stash->{status_msg} = "Unknown requested interface $interface";
+        $c->detach();
+    }
+
+    $c->stash->{interface} = $interface;
+}
+
+=item remove
+
+Remove the selected network interface
+Usage: /interface/<logical_name>/remove
+
+=cut
+sub remove :Chained('object') :PathPart('remove') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $interface = $c->stash->{interface};
+
+    my $result;
+    eval {
+        $result = $c->model('Interface')->remove($interface);
+    };
+
+    if ( $@ ) {
+        chomp $@;
+        $c->response->status(500);
+        $c->stash->{status_msg} = $@;
+    } else {
+        $c->response->status(200);
+        $c->stash->{status_msg} = $result;
+    }
 }
 
 

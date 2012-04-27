@@ -19,13 +19,198 @@ use namespace::autoclean;
 
 extends 'Catalyst::Model';
 
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib INSTALL_DIR . "/lib";
+
 # Package includes
 use IO::Interface::Simple;
 
+# PacketFence includes
+use pf::util;
 
 =head1 SUBROUTINES
 
 =over
+
+=item add
+
+=cut
+sub add {
+    my ( $self, $interface ) = @_;
+
+    my $status_msg;
+
+    my $interface_object = IO::Interface::Simple->new($interface);
+    my $flag = $interface_object->flags();
+
+    # This method does not handle the 'all' interface
+    if ( $interface eq 'all' ) {
+        $status_msg = "This method does not handle the 'all' interface";
+        return $status_msg;
+    }
+
+    # Check if interface isn't already active on the system
+    if ( $self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface is already active on the system";
+        return $status_msg;
+    }
+
+    # Check if interface flags exists
+    if ( !$flag ) {
+        $status_msg = "Something wen't wrong";
+        return $status_msg;
+    }
+
+    # Flipping the 0x1 flag of the current network interface flags
+    # This way, the interface will switch to UP and RUNNING
+    $interface_object->flags($flag | 0x1);
+
+    return 1;
+}
+
+=item create
+
+=cut
+sub create {
+    my ( $self, $interface ) = @_;
+
+    my $status_msg;
+
+    my ( $physical_device, $vlan_id ) = split( /\./, $interface );
+    my $cmd = "ip link add dev $interface link $physical_device type vlan id $vlan_id";
+
+    # This method does not handle the 'all' interface
+    if ( $interface eq 'all' ) {
+        $status_msg = "This method does not handle the 'all' interface";
+        return $status_msg;
+    }
+
+    # Check if the requested interface doesn't already exists
+    if ( $self->_interfaceExists($interface) ) {
+        $status_msg = "Interface $interface already exists on the system";
+        return $status_msg;
+    }
+
+    # Check if physical device exists
+    if ( !$self->_interfaceExists($physical_device) ) {
+        $status_msg = "Physical interface $physical_device does not exists so can't create VLAN interface on it";
+        return $status_msg;
+    }
+
+    pf_run($cmd);
+
+    return 1;
+}
+
+=item edit
+
+=cut
+sub edit {
+    my ( $self, $interface, $ipaddress, $netmask ) = @_; 
+}
+
+=item get
+
+=cut
+sub get {
+    my ( $self, $interface ) = @_;
+
+    # Put requested interfaces into an array
+    my @interfaces;
+    if ( $interface eq 'all' ) {
+        @interfaces = $self->_listInterfaces();
+    } else {
+        @interfaces = $interface;
+    }
+
+    my %resultset;
+    foreach $interface ( @interfaces ) {
+        my $interface_object = IO::Interface::Simple->new($interface);
+
+        $resultset{$interface}{'ipaddress'} = $interface_object->address;
+        $resultset{$interface}{'netmask'}   = $interface_object->netmask;
+        $resultset{$interface}{'running'}   = $interface_object->is_running;
+    }
+
+    return \%resultset;
+}
+
+=item _interfaceActive
+
+Check if the requested interface is active or not on the system.
+
+=cut
+sub _interfaceActive {
+    my ( $self, $interface ) = @_;
+
+    my $interface_object = IO::Interface::Simple->new($interface);
+
+    return $interface_object->is_running;
+}
+
+=item _interfaceExists
+
+Check if the requested interface exists according to the list of currently installed interfaces.
+
+=cut
+sub _interfaceExists {
+    my ( $self, $interface ) = @_;
+
+    return 1 if ( $interface eq 'all' );
+
+    my $exists = grep( /$interface/, $self->_listInterfaces() );
+
+    return $exists;
+}
+
+=item _listInterfaces
+
+Return a list of all curently installed network interfaces.
+
+=cut
+sub _listInterfaces {
+    my ( $self ) = @_;
+
+    my @interfaces_list = IO::Interface::Simple->interfaces;
+
+    return @interfaces_list;
+}
+
+=item remove
+
+=cut
+sub remove {
+    my ( $self, $interface ) = @_;
+
+    my $status_msg;
+
+    my $interface_object = IO::Interface::Simple->new($interface);
+    my $flag = $interface_object->flags();
+
+    # This method does not handle the 'all' interface
+    if ( $interface eq 'all' ) {
+        $status_msg = "This method does not handle the 'all' interface";
+        return $status_msg;
+    }
+
+    # Check if interface isn't already active on the system
+    if ( !$self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface is not active on the system";
+        return $status_msg;
+    }
+
+    # Check if interface flags exists
+    if ( !$flag ) {
+        $status_msg = "Something wen't wrong";
+        return $status_msg;
+    }
+
+    # Flipping the 0x1 flag of the current network interface flags
+    # This way, the interface will switch will no longer be UP neither RUNNING
+    $interface_object->flags($flag & ~0x1);
+
+    return 1;
+}
 
 
 =back
