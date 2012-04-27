@@ -1,4 +1,19 @@
 package configurator::Controller::Root;
+
+=head1 NAME
+
+configurator::Controller::Root - Catalyst Controller
+
+=head1 DESCRIPTION
+
+Catalyst Controller.
+
+=cut
+
+use strict;
+use warnings;
+
+# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
@@ -10,22 +25,16 @@ BEGIN { extends 'Catalyst::Controller' }
 #
 __PACKAGE__->config(namespace => '');
 
-=head1 NAME
 
-configurator::Controller::Root - Root Controller for configurator
+=head1 SUBROUTINE
 
-=head1 DESCRIPTION
+=over
 
-[enter your description here]
-
-=head1 METHODS
-
-=head2 index
+=item index
 
 The root page (/)
 
 =cut
-
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -33,34 +42,51 @@ sub index :Path :Args(0) {
     $c->response->body( $c->welcome_message );
 }
 
-=head2 default
+=item default
 
 Standard 404 error page
 
 =cut
-
 sub default :Path {
     my ( $self, $c ) = @_;
     $c->response->body( 'Page not found' );
     $c->response->status(404);
 }
 
-=head2 end
+=item end
 
 Attempt to render a view, if needed.
 
 =cut
-
 sub end : ActionClass('RenderView') {}
+
+
+=back
 
 =head1 AUTHOR
 
-root
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 
