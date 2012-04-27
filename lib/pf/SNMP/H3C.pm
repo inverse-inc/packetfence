@@ -69,10 +69,11 @@ sub supportsWiredMacAuth { return $TRUE; }
 =item getIfIndexForThisDot1dBasePort
 
 Returns ifIndex for a given "normal" port number (dot1d)
+
 Same as pf::SNMP::ThreeCom::SS4500
-TODO: consider subclassing ThreeCom to avoid code duplication
 
 =cut
+#TODO consider subclassing ThreeCom to avoid code duplication
 sub getIfIndexForThisDot1dBasePort {
     my ( $this, $dot1dBasePort ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -162,9 +163,9 @@ sub isVoIPEnabled {
 =item NasPortToIfIndex
 
 Same as pf::SNMP::ThreeCom::Switch_4200G
-TODO: consider subclassing ThreeCom to avoid code duplication
 
 =cut
+#TODO consider subclassing ThreeCom to avoid code duplication
 sub NasPortToIfIndex {
     my ($this, $nas_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
