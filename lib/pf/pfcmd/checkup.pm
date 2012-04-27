@@ -274,6 +274,7 @@ Validation related to the vulnerability scanning engine option.
 
 =cut
 sub scan {
+
     # Check if the configuration provided scan engine is instanciable
     my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
 
