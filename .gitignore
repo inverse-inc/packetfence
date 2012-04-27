@@ -13,6 +13,7 @@ conf/nessus/
 conf/snort/emerging*.rules
 conf/user.conf
 conf/users/
+db/pf-schema.sql
 
 # translations
 conf/locale/*/*/*.mo
