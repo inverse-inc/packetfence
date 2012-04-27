@@ -74,7 +74,6 @@ use lib INSTALL_DIR . "/lib";
 
 use pf::config;
 use pf::config::ui;
-use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
 use HTTP::Status qw(is_success);
@@ -284,6 +283,7 @@ sub manage {
         require pf::violation;
         print pf::violation::violation_add( $mac, $id );
     }
+    require pf::enforcement;
     pf::enforcement::reevaluate_access( $mac, $function );
     return 0;
 }
@@ -2010,6 +2010,7 @@ sub command_param {
                 );
             }
 
+            require pf::enforcement;
             if (    ($function eq 'violation_add')
                  || ( $function eq 'violation_delete' )
                  || ( $function eq 'violation_modify' ) ) {
