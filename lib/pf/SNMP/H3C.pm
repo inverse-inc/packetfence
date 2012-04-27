@@ -113,11 +113,6 @@ sub getVersion {
     my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_hh3cLswSysVersion.$slotNumber" ] );
     $result = $result->{"$OID_hh3cLswSysVersion.$slotNumber"};
 
-    if ( (exists($result->{"$OID_hh3cLswSysVersion.$slotNumber"}))
-             && ($result->{"$OID_hh3cLswSysVersion.$slotNumber"} ne 'noSuchInstance') ) {
-        return $result->{"$OID_hh3cLswSysVersion.$slotNumber"};
-    } 
-
     # Error handling
     if ( !defined($result) ) {
         $logger->warn("Asking for software version failed with " . $this->{_sessionRead}->error());
@@ -133,6 +128,9 @@ sub getVersion {
         $logger->warn("Asking for software version failed with noSuchInstance");
         return;
     }
+
+    # Success
+    return $result->{"$OID_hh3cLswSysVersion.$slotNumber"};
 }
 
 =item getVoipVsa {
