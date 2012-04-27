@@ -151,7 +151,7 @@ Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
-Requires: perl(Parse::Nessus::NBE)
+Requires: perl(Net::Write)
 Requires: perl(Parse::RecDescent)
 # for nessus scan, this version add the NBE download (inverse patch)
 Requires: perl(Net::Nessus::XMLRPC) >= 0.40
