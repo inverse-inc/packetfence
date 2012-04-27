@@ -655,7 +655,7 @@ fi
 %config			/usr/local/pf/raddb/packetfence-soh.pm
 %attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence-soh.pm
 %config			/usr/local/pf/raddb/proxy.conf
-%config			/usr/local/pf/raddb/users.conf
+%config			/usr/local/pf/raddb/users
 %config			/usr/local/pf/raddb/modules/mschap
 %config                 /usr/local/pf/raddb/modules/perl
 %config			/usr/local/pf/raddb/sites-available/packetfence
