@@ -2651,6 +2651,9 @@ sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
             "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"

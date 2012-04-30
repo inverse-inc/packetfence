@@ -60,6 +60,26 @@ my $networkdevice_object = pf::SNMP::Cisco::WiSM2->new(
 # bogusly calling methods trying to generate warnings
 $networkdevice_object->deauthenticateMac("aa:bb:cc:dd:ee:ff");
 
+# regression test for #1437: RADIUS-based Disconnects not working for Aruba, AeroHIVE
+# http://www.packetfence.org/bugs/view.php?id=1437
+# installing a custom die handler to issue a warning on a different die than "No answer from 127.0.0.1 on port 3799"
+# the warning will be trapped by the Test::NoWarnings;
+# there's probably a cleaner way to do this but I can't seem to find it right now
+my $die_handler = $SIG{__DIE__};
+local $SIG{__DIE__} = sub {
+    my $str = join("\n", @_); 
+    warn(@_) if ($str !~ /No answer from 127\.0\.0\.1 on port 3799/m);
+};
+$networkdevice_object = pf::SNMP::Aruba->new(
+    '-mode' => 'production', 
+    '-radiusSecret' => 'fake',
+    '-ip' => '127.0.0.1',
+);
+# bogusly calling methods trying to generate warnings
+$networkdevice_object->deauthenticateMac("aa:bb:cc:dd:ee:ff");
+# putting back old die handler
+$SIG{__DIE__} = $die_handler;
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
