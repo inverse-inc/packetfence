@@ -134,7 +134,7 @@ Requires: perl(Log::Log4perl) >= 1.11
 Requires: perl(Net::Appliance::Session) = 1.36
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
+Requires: perl(Net::MAC::Vendor)
 Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
 Requires: perl(Net::Pcap) >= 0.16
