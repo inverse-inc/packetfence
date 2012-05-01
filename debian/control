@@ -66,6 +66,8 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libcatalyst-engine-http-prefork-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl
+# required for perl 5.12+ (made perl setuid optional) and most distros went without it
+ packetfence-pfcmd-suid
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
@@ -104,3 +106,12 @@ Depends: packetfence, libauthen-radius-perl, libauthen-krb5-simple-perl, libtest
 Description: Test suite for packetfence
  The PacketFence package contains a suite of test for validate packetfence
  installation.
+
+Package: packetfence-pfcmd-suid
+Architecture: any
+Build-Depends: debhelper (>= 8),
+               gcc
+Depends: ${misc:Depends}
+Description: C wrapper that replace perl-suid dependence
+ perl 5.12 dropped suidperl support (packaged as suid-perl)
+ 
