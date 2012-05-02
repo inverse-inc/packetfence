@@ -9,10 +9,8 @@
 
 [% status_msg %]
  
-[% # Some basic HTML with a loop to display books -%]
 <table>
 <tr><th>Logical name</th><th>IP address</th><th>Netmask</th><th>Running</th></tr>
-[% # Display each book in a table row %]
 [% FOREACH interface IN interfaces.keys.sort -%]
   <tr>
     <td>[% interfaces.$interface.name %]</td>
@@ -22,6 +20,7 @@
     <td><a href="[%c.uri_for(c.controller.action_for('add'), [interfaces.$interface.name]) %]">Add</a>
     <td><a href="[%c.uri_for(c.controller.action_for('remove'), [interfaces.$interface.name]) %]">Remove</a>
     <td><a href="[%c.uri_for(c.controller.action_for('edit'), [interfaces.$interface.name]) %]">Edit</a>
+    <td><a href="[%c.uri_for(c.controller.action_for('delete'), [interfaces.$interface.name]) %]">Delete</a>
   </tr>
 [% END -%]
 </table>

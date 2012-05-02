@@ -119,9 +119,15 @@ sub delete {
         return $status_msg;
     }
 
-    # Check if the requested interface doesn't already exists
+    # Check if the requested interface exists
     if ( !$self->_interfaceExists($interface) ) {
         $status_msg = "Interface $interface does not exists on the system";
+        return $status_msg;
+    }
+
+    # Check if the requested interface is a virtual interface
+    if ( !$self->_interfaceVirtual($interface) ) {
+        $status_msg = "Interface $interface is not a valid virtual interface";
         return $status_msg;
     }
 
@@ -226,6 +232,20 @@ sub _interfaceExists {
     my $exists = grep( /$interface/, $self->_listInterfaces() );
 
     return $exists;
+}
+
+=item _interfaceVirtual
+
+=cut
+sub _interfaceVirtual {
+    my ( $self, $interface ) = @_;
+
+    my ( $physical_device, $vlan_id ) = split( /\./, $interface );
+    if ( !$vlan_id ) {
+        return;
+    }
+ 
+    return 1;
 }
 
 =item _listInterfaces

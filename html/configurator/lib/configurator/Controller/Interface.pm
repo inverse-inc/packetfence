@@ -74,14 +74,13 @@ sub create :Path('create') :Args(1) {
 
 =item delete
 
-
 =cut
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
 
-    my $result = $c->model('Interface')->create($interface);
+    my $result = $c->model('Interface')->delete($interface);
 
     if ( $result eq 1 ) {
         $c->response->status(200);
