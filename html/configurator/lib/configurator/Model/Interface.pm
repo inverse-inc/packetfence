@@ -28,6 +28,7 @@ use IO::Interface::Simple;
 # PacketFence includes
 use pf::util;
 
+
 =head1 SUBROUTINES
 
 =over
@@ -102,11 +103,74 @@ sub create {
     return 1;
 }
 
+=item delete
+
+=cut
+sub delete {
+    my ( $self, $interface ) = @_;
+
+    my $status_msg;
+
+    my $cmd = "ip link delete $interface";
+
+    # This method does not handle the 'all' interface
+    if ( $interface eq 'all' ) {
+        $status_msg = "This method does not handle the 'all' interface";
+        return $status_msg;
+    }
+
+    # Check if the requested interface doesn't already exists
+    if ( !$self->_interfaceExists($interface) ) {
+        $status_msg = "Interface $interface does not exists on the system";
+        return $status_msg;
+    }
+
+    pf_run($cmd);
+
+    return 1;
+}
+
 =item edit
 
 =cut
 sub edit {
     my ( $self, $interface, $ipaddress, $netmask ) = @_; 
+
+    my $status_msg;
+
+    my $interface_object = IO::Interface::Simple->new($interface);
+
+    # This method does not handle the 'all' interface
+    if ( $interface eq 'all' ) {
+        $status_msg = "This method does not handle the 'all' interface";
+        return $status_msg;
+    }
+
+    # Check if interface is active on the system
+    if ( !$self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface is not active on the system";
+        return $status_msg;
+    }
+
+    # Change IP address
+    eval {
+        $interface_object->address($ipaddress);
+    };
+    if ( $@ ) {
+        $status_msg = "Error in IP address $ipaddress while editing interface $interface";
+        return $status_msg;
+    }
+
+    # Change netmask
+    eval {
+        $interface_object->address($netmask);
+    };    
+    if ( $@ ) {
+        $status_msg = "Error in netmask $netmask while editing interface $interface";
+        return $status_msg;
+    }
+
+    return 1;
 }
 
 =item get
@@ -127,6 +191,7 @@ sub get {
     foreach $interface ( @interfaces ) {
         my $interface_object = IO::Interface::Simple->new($interface);
 
+        $resultset{$interface}{'name'}      = $interface_object->name;
         $resultset{$interface}{'ipaddress'} = $interface_object->address;
         $resultset{$interface}{'netmask'}   = $interface_object->netmask;
         $resultset{$interface}{'running'}   = $interface_object->is_running;

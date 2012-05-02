@@ -35,25 +35,24 @@ sub add :Chained('object') :PathPart('add') :Args(0) {
 
     my $interface = $c->stash->{interface};
 
-    my $result;
-    eval {
-        $result = $c->model('Interface')->add($interface);
-    };
+    my $result = $c->model('Interface')->add($interface);
 
-    if ( $@ ) {
-        chomp $@;
-        $c->response->status(500);
-        $c->stash->{status_msg} = $@;
-    } else {
+    if ( $result eq 1 ) {
         $c->response->status(200);
+        $c->stash->{status_msg} = "Interface $interface successfully added on the system";
+    } else {
+        $c->response->status(500);
         $c->stash->{status_msg} = $result;
     }
+
+    $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item create
 
 Create a vlan interface on the system
-Usage: /interface/<logical_name>/create
+Usage: /interface/create/<logical_name>
 
 =cut
 sub create :Path('create') :Args(1) {
@@ -68,21 +67,57 @@ sub create :Path('create') :Args(1) {
         $c->response->status(500);
         $c->stash->{status_msg} = $result;
     }
+
+    $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
+}
+
+=item delete
+
+
+=cut
+sub delete :Chained('object') :PathPart('delete') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $interface = $c->stash->{interface};
+
+    my $result = $c->model('Interface')->create($interface);
+
+    if ( $result eq 1 ) {
+        $c->response->status(200);
+        $c->stash->{status_msg} = "Interface $interface successfully deleted";
+    } else {
+        $c->response->status(500);
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item edit
 
 Edit the configuration of the selected network interface
-Usage: /interface/<logical_name>/edit/<JSON_arguments>
+Usage: /interface/<logical_name>/edit/<IP_address>/<netmask>
 
 =cut
-sub edit :Chained('object') :PathPart('edit') :Args(0) {
-    my ( $self, $c, ) = @_;
+sub edit :Chained('object') :PathPart('edit') :Args(2) {
+    my ( $self, $c, $ipaddress, $netmask ) = @_;
 
     my $interface = $c->stash->{interface};
-    my $arguments = $c->request->params->{arguments};
 
+    my $result = $c->model('Interface')->edit($interface, $ipaddress, $netmask);
 
+    if ( $result eq 1 ) {
+        $c->response->status(200);
+        $c->stash->{status_msg} = "Interface $interface successfully edited";
+    } else {
+        $c->response->status(500);
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item get
@@ -107,7 +142,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
         $c->stash->{status_msg} = $@;
     } else {
         $c->response->status(200);
-        $c->stash->{status_msg} = $result;
+        $c->stash(interfaces => $result);
     }
 }
 
@@ -123,7 +158,8 @@ sub index :Path :Args(0) {
 =item list
 
 =cut
-sub list :Path('list') :Args(0) {
+sub list :Path('list') Args(0) {
+#sub list :Chained('object') :PathPart('list') :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->visit('get', ['all'], ['get']);
@@ -144,8 +180,9 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     }
 
     $c->stash->{interface} = $interface;
-}
 
+    $c->load_status_msgs;
+}
 =item remove
 
 Remove the selected network interface
@@ -157,19 +194,18 @@ sub remove :Chained('object') :PathPart('remove') :Args(0) {
 
     my $interface = $c->stash->{interface};
 
-    my $result;
-    eval {
-        $result = $c->model('Interface')->remove($interface);
-    };
+    my $result = $c->model('Interface')->remove($interface);
 
-    if ( $@ ) {
-        chomp $@;
-        $c->response->status(500);
-        $c->stash->{status_msg} = $@;
-    } else {
+    if ( $result eq 1 ) {
         $c->response->status(200);
+        $c->stash->{status_msg} = "Interface $interface successfully removed from the system";
+    } else {
+        $c->response->status(500);
         $c->stash->{status_msg} = $result;
     }
+
+    $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 
