@@ -53,7 +53,16 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  gettext, vlan, libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
- liberror-perl
+ liberror-perl,
+# required by configurator
+ libio-interface-perl,
+# required by catalyst
+ libcatalyst-perl, libcatalyst-modules-perl,
+ libcatalyst-plugin-statusmessage-perl, libauthen-htpasswd-perl,
+ libcatalyst-authentication-credential-http-perl, libcatalyst-authentication-store-htpasswd-perl
+ libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
+# packaging workaround (we don't require it but something in catalyst seem to do)
+ libmodule-install-perl
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
