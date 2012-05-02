@@ -1,0 +1,27 @@
+[% # This is a TT comment. -%]
+ 
+[%- # Provide a title -%]
+[% META title = 'Interfaces List' -%]
+ 
+[% # Note That the '-' at the beginning or end of TT code  -%]
+[% # "chomps" the whitespace/newline at that end of the    -%]
+[% # output (use View Source in browser to see the effect) -%]
+
+[% status_msg %]
+ 
+[% # Some basic HTML with a loop to display books -%]
+<table>
+<tr><th>Logical name</th><th>IP address</th><th>Netmask</th><th>Running</th></tr>
+[% # Display each book in a table row %]
+[% FOREACH interface IN interfaces.keys.sort -%]
+  <tr>
+    <td>[% interfaces.$interface.name %]</td>
+    <td>[% interfaces.$interface.ipaddress %]</td>
+    <td>[% interfaces.$interface.netmask %]</td>
+    <td>[% interfaces.$interface.running %]</td>
+    <td><a href="[%c.uri_for(c.controller.action_for('add'), [interfaces.$interface.name]) %]">Add</a>
+    <td><a href="[%c.uri_for(c.controller.action_for('remove'), [interfaces.$interface.name]) %]">Remove</a>
+    <td><a href="[%c.uri_for(c.controller.action_for('edit'), [interfaces.$interface.name]) %]">Edit</a>
+  </tr>
+[% END -%]
+</table>
