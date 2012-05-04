@@ -36,6 +36,7 @@ URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{rev}-root
+%define debug_package %{nil}
 
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
@@ -213,6 +214,17 @@ The packetfence-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
+
+%package perl-suid
+Group: System Environment/Daemons
+BuildRequires: gcc
+AutoReqProv: 0
+Summary: Replace pfcmd by a C wrapper for suid
+
+%description perl-suid
+The packetfence-perl-suid is a C wrapper to replace perl-suid dependencie.
+See https://bugzilla.redhat.com/show_bug.cgi?id=611009
+
 %prep
 %setup -q
 
@@ -244,6 +256,8 @@ fop -c docs/fonts/fop-config.xml \
     -pdf docs/$GUIDE.pdf
 done
 %endif
+# build pfcmd C wrapper
+gcc -g0 src/pfcmd.c -o bin/pfcmd
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -505,7 +519,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd
+%attr(6755, root, root) /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
@@ -718,6 +732,10 @@ fi
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
+
+
+%files perl-suid
+%attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
 * Wed Sep 05 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.5.1-1
