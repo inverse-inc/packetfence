@@ -49,11 +49,11 @@ install: build
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * -path 't*' -type d`; do \
-                install -d -m0700 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
-        done
-        for i in `find * -path 't*' ! -type d`; do \
-                $(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
-        done
+		install -d -m0700 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
+	done
+	for i in `find * -path 't*' ! -type d`; do \
+		$(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
+	done
 	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
