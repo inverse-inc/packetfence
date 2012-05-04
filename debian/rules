@@ -41,12 +41,19 @@ install: build
 	dh_testroot
 	dh_clean -k 
 	dh_installdirs
-	for i in `find * ! -path 'debian/*'  -type d`; do \
+	# Install all except debian and t directory
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
-	for i in `find * ! -path 'debian/*' ! -type d`; do \
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 't/*' ! -path 't' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
+	for i in `find * -path 't*' -type d`; do \
+                install -d -m0700 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
+        done
+        for i in `find * -path 't*' ! -type d`; do \
+                $(INSTALL) $$i $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/$$i; \
+        done
 	# Install empty directories not in our tarball since the git move
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users

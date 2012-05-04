@@ -74,3 +74,8 @@ Description: Files needed for sending snort alerts to packetfence
  for sending snort alerts from a remote snort sensor to a PacketFence
  server.
 
+Package: packetfence-test
+Architecture: all
+Description: Test suite for packetfence
+ The PacketFence package contains a suite of test for validate packetfence
+ installation.
