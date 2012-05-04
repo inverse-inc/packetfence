@@ -24,31 +24,6 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =over
 
-=item add
-
-Add the selected network interface to the system
-Usage: /interface/<logical_name>/add
-
-=cut
-sub add :Chained('object') :PathPart('add') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    my $interface = $c->stash->{interface};
-
-    my $result = $c->model('Interface')->add($interface);
-
-    if ( $result eq 1 ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully added on the system";
-    } else {
-        $c->response->status(500);
-        $c->stash->{status_msg} = $result;
-    }
-
-    $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
-}
-
 =item create
 
 Create a vlan interface on the system
@@ -85,6 +60,32 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     if ( $result eq 1 ) {
         $c->response->status(200);
         $c->stash->{status_msg} = "Interface $interface successfully deleted";
+    } else {
+        $c->response->status(500);
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
+}
+
+=item down
+
+Down the selected network interface
+
+Usage: /interface/<logical_name>/down
+
+=cut
+sub down :Chained('object') :PathPart('down') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $interface = $c->stash->{interface};
+
+    my $result = $c->model('Interface')->down($interface);
+
+    if ( $result eq 1 ) {
+        $c->response->status(200);
+        $c->stash->{status_msg} = "Interface $interface successfully deactivated from the system";
     } else {
         $c->response->status(500);
         $c->stash->{status_msg} = $result;
@@ -182,22 +183,24 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
 
     $c->load_status_msgs;
 }
-=item remove
 
-Remove the selected network interface
-Usage: /interface/<logical_name>/remove
+=item up
+
+Activate the selected network interface
+
+Usage: /interface/<logical_name>/up
 
 =cut
-sub remove :Chained('object') :PathPart('remove') :Args(0) {
+sub up :Chained('object') :PathPart('up') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
 
-    my $result = $c->model('Interface')->remove($interface);
+    my $result = $c->model('Interface')->up($interface);
 
     if ( $result eq 1 ) {
         $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully removed from the system";
+        $c->stash->{status_msg} = "Interface $interface successfully activated on the system";
     } else {
         $c->response->status(500);
         $c->stash->{status_msg} = $result;

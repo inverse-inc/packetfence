@@ -33,42 +33,6 @@ use pf::util;
 
 =over
 
-=item add
-
-=cut
-sub add {
-    my ( $self, $interface ) = @_;
-
-    my $status_msg;
-
-    my $interface_object = IO::Interface::Simple->new($interface);
-    my $flag = $interface_object->flags();
-
-    # This method does not handle the 'all' interface
-    if ( $interface eq 'all' ) {
-        $status_msg = "This method does not handle the 'all' interface";
-        return $status_msg;
-    }
-
-    # Check if interface isn't already active on the system
-    if ( $self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface is already active on the system";
-        return $status_msg;
-    }
-
-    # Check if interface flags exists
-    if ( !$flag ) {
-        $status_msg = "Something wen't wrong";
-        return $status_msg;
-    }
-
-    # Flipping the 0x1 flag of the current network interface flags
-    # This way, the interface will switch to UP and RUNNING
-    $interface_object->flags($flag | 0x1);
-
-    return 1;
-}
-
 =item create
 
 =cut
@@ -78,7 +42,7 @@ sub create {
     my $status_msg;
 
     my ( $physical_device, $vlan_id ) = split( /\./, $interface );
-    my $cmd = "ip link add dev $interface link $physical_device type vlan id $vlan_id";
+    my $cmd = "vconfig add $physical_device $vlan_id";
 
     # This method does not handle the 'all' interface
     if ( $interface eq 'all' ) {
@@ -100,6 +64,8 @@ sub create {
 
     pf_run($cmd);
 
+    $self->up($interface);
+
     return 1;
 }
 
@@ -111,11 +77,11 @@ sub delete {
 
     my $status_msg;
 
-    my $cmd = "ip link delete $interface";
+    my $cmd = "vconfig rem $interface";
 
-    # This method does not handle the 'all' interface
-    if ( $interface eq 'all' ) {
-        $status_msg = "This method does not handle the 'all' interface";
+    # This method does not handle the 'all' interface neither the 'lo' one
+    if ( ($interface eq 'all') || ($interface eq 'lo') ) {
+        $status_msg = "This method does not handle this interface: $interface";
         return $status_msg;
     }
 
@@ -136,6 +102,42 @@ sub delete {
     return 1;
 }
 
+=item down
+
+=cut
+sub down {
+    my ( $self, $interface ) = @_;
+
+    my $status_msg;
+
+    my $interface_object = IO::Interface::Simple->new($interface);
+    my $flag = $interface_object->flags();
+
+    # This method does not handle the 'all' interface neither the 'lo' one
+    if ( ($interface eq 'all') || ($interface eq 'lo') ) {
+        $status_msg = "This method does not handle this interface: $interface";
+        return $status_msg;
+    }
+
+    # Check if interface isn't already active on the system
+    if ( !$self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface is not active on the system";
+        return $status_msg;
+    }
+
+    # Check if interface flags exists
+    if ( !$flag ) {
+        $status_msg = "Something wen't wrong";
+        return $status_msg;
+    }
+
+    # Flipping the 0x1 flag of the current network interface flags
+    # This way, the interface will switch will no longer be UP neither RUNNING
+    $interface_object->flags($flag & ~0x1);
+
+    return 1;
+}
+
 =item edit
 
 =cut
@@ -146,9 +148,9 @@ sub edit {
 
     my $interface_object = IO::Interface::Simple->new($interface);
 
-    # This method does not handle the 'all' interface
-    if ( $interface eq 'all' ) {
-        $status_msg = "This method does not handle the 'all' interface";
+    # This method does not handle the 'all' interface neither the 'lo' one
+    if ( ($interface eq 'all') || ($interface eq 'lo') ) {
+        $status_msg = "This method does not handle this interface: $interface";
         return $status_msg;
     }
 
@@ -195,6 +197,8 @@ sub get {
 
     my %resultset;
     foreach $interface ( @interfaces ) {
+        next if ( "$interface" eq "lo" );
+
         my $interface_object = IO::Interface::Simple->new($interface);
 
         $resultset{$interface}{'name'}      = $interface_object->name;
@@ -261,10 +265,10 @@ sub _listInterfaces {
     return @interfaces_list;
 }
 
-=item remove
+=item up
 
 =cut
-sub remove {
+sub up {
     my ( $self, $interface ) = @_;
 
     my $status_msg;
@@ -272,15 +276,15 @@ sub remove {
     my $interface_object = IO::Interface::Simple->new($interface);
     my $flag = $interface_object->flags();
 
-    # This method does not handle the 'all' interface
-    if ( $interface eq 'all' ) {
-        $status_msg = "This method does not handle the 'all' interface";
+    # This method does not handle the 'all' interface neither the 'lo' one
+    if ( ($interface eq 'all') || ($interface eq 'lo') ) {
+        $status_msg = "This method does not handle this interface: $interface";
         return $status_msg;
     }
 
     # Check if interface isn't already active on the system
-    if ( !$self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface is not active on the system";
+    if ( $self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface is already active on the system";
         return $status_msg;
     }
 
@@ -291,8 +295,8 @@ sub remove {
     }
 
     # Flipping the 0x1 flag of the current network interface flags
-    # This way, the interface will switch will no longer be UP neither RUNNING
-    $interface_object->flags($flag & ~0x1);
+    # This way, the interface will switch to UP and RUNNING
+    $interface_object->flags($flag | 0x1);
 
     return 1;
 }
