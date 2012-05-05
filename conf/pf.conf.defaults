@@ -101,8 +101,9 @@ registration=disabled
 #
 # trapping.redirtimer
 #
-# How long to display the progress bar during trap release.  Setting it to a value of 5 or higher is recommended 
-# when in arp mode.  Doing so allows the client time to receive and process the redirection ARP sent by PacketFence.
+# How long to display the progress bar during trap release. Default value is 
+# based on VLAN enforcement techniques. Inline enforcement only users could
+# lower the value.
 redirtimer=20s
 #
 # trapping.passthrough
@@ -123,8 +124,9 @@ blacklist=
 #
 # trapping.whitelist
 #
-# Comma-delimited list of MAC addresses that are immune to isolation. 
-# Additionally, in ARP mode no registration/trapping is performed so whitelisted hosts are always allowed to pass.
+# Comma-delimited list of MAC addresses that are immune to isolation. In 
+# inline enforcement, the firewall is opened for them as if they were 
+# registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
 # trapping.redirecturl
@@ -512,7 +514,6 @@ port=3306
 host=localhost
 
 [expire]
-# TODO: validate that this only works in ARP mode or not
 #
 # expire.node
 #
