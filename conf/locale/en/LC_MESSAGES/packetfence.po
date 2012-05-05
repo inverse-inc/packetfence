@@ -1,7 +1,9 @@
-# en translation for PacketFence
 # Copyright (C) 2006-2012 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-# Olivier Bilodeau <obilodeau@inverse.ca>, 2011.
+#
+# Translators:
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012.
 #
 domain "packetfence"
 #, fuzzy

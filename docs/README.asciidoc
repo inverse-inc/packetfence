@@ -65,7 +65,7 @@ Debian / Ubuntu::
 ----
   $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
 ----
-CentOS / RHEL::
+CentOS / RHEL / Fedora::
 ----
   $ xsltproc -o docs/docbook/xsl/titlepage-fo.xsl /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl docs/docbook/xsl/titlepage-fo.xml
 ----
@@ -136,7 +136,7 @@ Turns out this is quite tricky and unfortunately doesn't yield the best results.
 . You are good to go!
 
 
-CentOS 6 / RHEL6: Could not compile stylesheet
+CentOS 6 / RHEL6 / Fedora: Could not compile stylesheet
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Getting an error similar to:
@@ -159,7 +159,7 @@ Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
   patch -p0 < docs/docbook/fop-centos6.patch
 
 
-CentOS 6 / RHEL6: Output is not the same
+CentOS 6 / RHEL6 / Fedora: Output is not the same
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:

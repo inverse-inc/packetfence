@@ -1,19 +1,18 @@
-# he_IL translation for PacketFence
-# Copyright (C) 2006-2011 Inverse inc.
+# Copyright (C) 2006-2012 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
-#   <ereli@securegion.com>, 2011.
+# Ereli <ereli@securegion.com>, 2011.
+#
 domain "packetfence"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2011-11-17 18:44+0000\n"
-"Last-Translator: Ereli <ereli@securegion.com>\n"
-"Language-Team: Hebrew (Israel) (http://www.transifex.net/projects/p/packetfence/team/he_IL/)\n"
+"PO-Revision-Date: 2012-04-26 17:23+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
+"Language-Team: Hebrew (Israel) (http://www.transifex.net/projects/p/packetfence/language/he_IL/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,9 +60,7 @@ msgid "error: max re-enables reached"
 msgstr "הגעת למקסימום הפעלות-מחדש!"
 
 msgid "error: not found in the database"
-msgstr ""
-"המחשב שלך לא נמצא במסד הנתונים של PacketFence. נא להפעיל מחדש את המחשב כדי "
-"לפתור בעיה זו."
+msgstr "המחשב שלך לא נמצא במסד הנתונים של PacketFence. נא להפעיל מחדש את המחשב כדי לפתור בעיה זו."
 
 msgid "error: not trappable IP"
 msgstr "גישה נדחתה: כתובת IP לא ניתנת ללכידה!"
@@ -82,22 +79,16 @@ msgid "error: something went wrong creating the guest"
 msgstr "הייתה בעיה ביצירת חשבון אורח"
 
 msgid "help: provide info"
-msgstr ""
-"אם יש לך שאלות בקשר לדף זה, צור קשר עם איש התמיכה לסיוע. בבקשה ספק לו את "
-"הפרטים הבאים:"
+msgstr "אם יש לך שאלות בקשר לדף זה, צור קשר עם איש התמיכה לסיוע. בבקשה ספק לו את הפרטים הבאים:"
 
 msgid "register: all systems must be registered"
-msgstr ""
-"ייתכן שנצטרך ליצור עם משתמשים מסוימים, ולכן כל המערכות ברשת זו דורשות הרשמה."
+msgstr "ייתכן שנצטרך ליצור עם משתמשים מסוימים, ולכן כל המערכות ברשת זו דורשות הרשמה."
 
 msgid "register: aup"
-msgstr ""
-"תהליך ההרשמה דורש שתאשר קבלת מדיניות שימוש מותרת (מש\"מ). אם ברצונך לקרוא "
-"אותה לפני התחלת הליך ההרשמה, בקר בבקשה ב-"
+msgstr "תהליך ההרשמה דורש שתאשר קבלת מדיניות שימוש מותרת (מש\"מ). אם ברצונך לקרוא אותה לפני התחלת הליך ההרשמה, בקר בבקשה ב-"
 
 msgid "register: to complete"
-msgstr ""
-"על מנת לסיים את הליך ההרשמה, נדרש לזהות אותך באמצעות השם המשתמש והסיסמה שלך."
+msgstr "על מנת לסיים את הליך ההרשמה, נדרש לזהות אותך באמצעות השם המשתמש והסיסמה שלך."
 
 msgid "Authentication"
 msgstr "הזדהות"
@@ -115,17 +106,13 @@ msgid "release: enabling network"
 msgstr "הפעלתי גישה לרשת"
 
 msgid "release: reopen browser"
-msgstr ""
-"אתה יכול לפתוח מחדש את הדפדפן שלך על מנת לגשת לאינטרנט. אם אתה אם אתה מחובר "
-"דרך טלפון, עליך להפעיל מחדש את המחשב."
+msgstr "אתה יכול לפתוח מחדש את הדפדפן שלך על מנת לגשת לאינטרנט. אם אתה אם אתה מחובר דרך טלפון, עליך להפעיל מחדש את המחשב."
 
 msgid "scan: scan in progress"
 msgstr "המחשב שלך נסרק"
 
 msgid "scan in progress contact support if too long"
-msgstr ""
-"המחשב של נסרק ברגעים אלה. התהליך התחיל ב%s. זה בדרך כלל לוקח מספר דקות. אם "
-"זה לוקח יותר מזה, צור קשר עם התמיכה שלך."
+msgstr "המחשב של נסרק ברגעים אלה. התהליך התחיל ב%s. זה בדרך כלל לוקח מספר דקות. אם זה לוקח יותר מזה, צור קשר עם התמיכה שלך."
 
 msgid "automatically refresh"
 msgstr "דף זה מתרענן בצורה אוטומטית כל %s שניות כדי לבדוק אם הסריקה הסתיימה"
@@ -161,9 +148,7 @@ msgid "MAC"
 msgstr "MAC"
 
 msgid "network access is being enabled"
-msgstr ""
-"הגישה שלך לרשת מופעלת ברגעים אלה. ברגע שהגישה תתאפשר אתה תופנה בצורה "
-"אוטומטית."
+msgstr "הגישה שלך לרשת מופעלת ברגעים אלה. ברגע שהגישה תתאפשר אתה תופנה בצורה אוטומטית."
 
 msgid "system scan in progress"
 msgstr "המחשב שלך נסרק  - תהליך זה יקח בערך %s שניות."
@@ -178,25 +163,24 @@ msgid "Guest Registration"
 msgstr "רישום אורח"
 
 msgid "guest network disclaimer"
-msgstr ""
-"רשת אורחים זו קיימת לנוחיותם של אורחים ומבקרים. גישה לא כוללת בחובה שום "
-"אחריות או אמינות, מהירות או פרטיות; רשת זו קיימת לצורך אספקת גישה פשוטה "
-"לגלישה ברשת האינטרנט. שימוש בה מהווה הסכמה לכל התנאים והכללים המופיעים במסמך"
-" <b>מדיניות שימוש מותרת</b>."
+msgstr "רשת אורחים זו קיימת לנוחיותם של אורחים ומבקרים. גישה לא כוללת בחובה שום אחריות או אמינות, מהירות או פרטיות; רשת זו קיימת לצורך אספקת גישה פשוטה לגלישה ברשת האינטרנט. שימוש בה מהווה הסכמה לכל התנאים והכללים המופיעים במסמך <b>מדיניות שימוש מותרת</b>."
 
 msgid ""
 "In the fields below please enter your name, phone number and a valid email "
 "address."
+msgstr "בשדות המופיעים מטה אנא הכנס את שמך, מספר הטלפון שלך וכתובת דואר אלקטרוני תקינה."
+
+msgid ""
+"If you choose to receive your access code <strong>by email</strong>, you "
+"will have to click on an activation link sent to your email address. After "
+"clicking on the link you will receive guest credentials to use on-site by "
+"email"
 msgstr ""
-"בשדות המופיעים מטה אנא הכנס את שמך, מספר הטלפון שלך וכתובת דואר אלקטרוני "
-"תקינה."
 
 msgid ""
 "If you choose to receive your access code <strong>by email</strong>, you "
 "will be given temporary network access for 10 minutes during that time:"
-msgstr ""
-"אם תבחר לקבלת את קוד הגישה שלך באמצעות <strong>דואר אלקטרוני</Strong>, תקבל "
-"גישה זמנית לרשת למשך 10 דקות:"
+msgstr "אם תבחר לקבלת את קוד הגישה שלך באמצעות <strong>דואר אלקטרוני</Strong>, תקבל גישה זמנית לרשת למשך 10 דקות:"
 
 msgid "Login to the email account you referenced and;"
 msgstr ""
@@ -368,10 +352,28 @@ msgstr ""
 msgid "Firstname"
 msgstr ""
 
+msgid "firstname"
+msgstr ""
+
 msgid "Lastname"
 msgstr ""
 
+msgid "lastname"
+msgstr ""
+
+msgid "Company"
+msgstr ""
+
+msgid "Company / Organization"
+msgstr ""
+
+msgid "organization"
+msgstr ""
+
 msgid "Phone number"
+msgstr ""
+
+msgid "phone"
 msgstr ""
 
 msgid "Phone Provider"
@@ -383,6 +385,18 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
+msgid "email"
+msgstr ""
+
+msgid "Sponsor's email"
+msgstr ""
+
+msgid "sponsor_email"
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
 msgid "Arrival Date"
 msgstr ""
 
@@ -390,6 +404,9 @@ msgid "End Date"
 msgstr ""
 
 msgid "Access Duration"
+msgstr ""
+
+msgid "Notes"
 msgstr ""
 
 msgid "Send access code by email"
@@ -540,6 +557,11 @@ msgid ""
 " access has been succesfully enabled."
 msgstr ""
 
+msgid ""
+"Your network access should be available. Close your current browser, and "
+"open a new one to start browsing."
+msgstr ""
+
 msgid "Registration pending"
 msgstr ""
 
@@ -574,15 +596,12 @@ msgstr "עמוד הבא"
 msgid ""
 "The activation code provided is invalid. Reasons could be: it never existed,"
 " it was already used or has expired."
-msgstr ""
-"קוד ההפעלה שסופק שגוי. הסיבות לכך יכולות להיות: הוא מעולם לא התקיים, נעשה בו"
-" כבר שימוש או שהוא פג."
+msgstr "קוד ההפעלה שסופק שגוי. הסיבות לכך יכולות להיות: הוא מעולם לא התקיים, נעשה בו כבר שימוש או שהוא פג."
 
 msgid ""
 "You have been detected using a device that has been explicitly disallowed by"
 " your network administrator."
-msgstr ""
-"התגלה כי הינך עושה שימוש במכשיר שנאסר לשימוש במפורש על ידיד מנהל הרשת שלך."
+msgstr "התגלה כי הינך עושה שימוש במכשיר שנאסר לשימוש במפורש על ידיד מנהל הרשת שלך."
 
 msgid "NAT Device Detected"
 msgstr "מכשיר NAT התגלה"
@@ -592,10 +611,7 @@ msgid ""
 "translation (NAT). These devices, typically wireless access points or "
 "'routers' are not permitted on the network. Please unplug this device and "
 "connect your computer directly to the network for access."
-msgstr ""
-"התגלה כי הנך עושה שימוש במכשיר הכולל תרגום כתובות רשת (NAT). מכשירים אלה, "
-"בדרך כלל נקודות גישה אלחוטיות או \"נתבים\" אסורים לשימוש ברשת. בבקשה נתק את "
-"המכשיר וחבר את המחשב שלך ישירות לשקע הרשת."
+msgstr "התגלה כי הנך עושה שימוש במכשיר הכולל תרגום כתובות רשת (NAT). מכשירים אלה, בדרך כלל נקודות גישה אלחוטיות או \"נתבים\" אסורים לשימוש ברשת. בבקשה נתק את המכשיר וחבר את המחשב שלך ישירות לשקע הרשת."
 
 msgid "Rogue DHCP server"
 msgstr "שרת DHCP לא מאושר"
@@ -610,9 +626,7 @@ msgid ""
 "Your system will be scanned for vulnerabilities before you are allowed to "
 "enter the network. Please click on the button below, this can take anywhere "
 "from a few seconds to a couple of minutes."
-msgstr ""
-"המחשב שלך יעבור סריקת פגיעויות לפי שתוכל להכנס לרשת. בבקשה לחץ על הכפתור "
-"מטה, זה עשוי לקחת בין מספר שניות למספר דקות."
+msgstr "המחשב שלך יעבור סריקת פגיעויות לפי שתוכל להכנס לרשת. בבקשה לחץ על הכפתור מטה, זה עשוי לקחת בין מספר שניות למספר דקות."
 
 msgid "Malware found!"
 msgstr "נמצאה תוכנה זדונית!"
@@ -621,9 +635,7 @@ msgid ""
 "Your system has been found to be infected with malware. Due to the threat "
 "this infection poses for other systems on the network, network connectivity "
 "has been disabled until corrective action is taken."
-msgstr ""
-"נמצא תוכנה זדונית על המחשב שלך. לאור האיום שנובע מכך שאתה עלול להדביק מחשבים"
-" אחרים ברשת, הגישה לשלך לרשת נותקה עד שתבוצע פעולה לתיקון הליקוי. "
+msgstr "נמצא תוכנה זדונית על המחשב שלך. לאור האיום שנובע מכך שאתה עלול להדביק מחשבים אחרים ברשת, הגישה לשלך לרשת נותקה עד שתבוצע פעולה לתיקון הליקוי. "
 
 msgid "Malware Removal"
 msgstr "הסרת תוכנה זדונית"
@@ -636,9 +648,7 @@ msgid ""
 "the threat this infection poses for other systems on the network, network "
 "connectivity has been disabled until corrective action is taken. "
 "Instructions for disinfection are below:"
-msgstr ""
-"המחשב שלך נמצא מודבק בתולעת LSASS. לאור האיום שמצב זה יוצר למחשבים אחרים, "
-"הגישה שלך לרשת נותקה עד שהמצב יותקן. הוראות להסרת התולעת מופיעות כאן:"
+msgstr "המחשב שלך נמצא מודבק בתולעת LSASS. לאור האיום שמצב זה יוצר למחשבים אחרים, הגישה שלך לרשת נותקה עד שהמצב יותקן. הוראות להסרת התולעת מופיעות כאן:"
 
 msgid "Worm Removal"
 msgstr "הסרת תולעת"
@@ -649,9 +659,7 @@ msgid ""
 "network access. Make sure that you followed the instructions to correct the "
 "issue. Failure to do so will result in network access being disabled again. "
 "Repeated failures will result in access being disabled permanently."
-msgstr ""
-"אנא ודא כי תוכנת האנטי-ווירוס שלך עובד. ייתכן שעליך לבצע סריקה מערכת מלאה. "
-"לחיצה על "
+msgstr "אנא ודא כי תוכנת האנטי-ווירוס שלך עובד. ייתכן שעליך לבצע סריקה מערכת מלאה. לחיצה על "
 
 msgid "Trojan Infection"
 msgstr ""
@@ -679,6 +687,9 @@ msgstr ""
 msgid ""
 "Your network access is currently being enabled. Once network connectivity is"
 " established you will be automatically redirected."
+msgstr ""
+
+msgid "Your network access is currently being enabled. Please wait..."
 msgstr ""
 
 msgid "You must be authenticated to manage guests."
@@ -737,7 +748,249 @@ msgstr "קובץ יבוא"
 msgid "Access to the guest network has been granted until %s."
 msgstr "גישה לרשת אורחים הוענקה עד %s."
 
+msgid "Access to the guest network has been granted."
+msgstr ""
+
 msgid "Access to the guest network granted"
 msgstr "הוענקה גישה לרשת אורחים"
 
+msgid ""
+"Your XML configuration have been generated and is now ready to download.  "
+"Follow the link below in order to get access to the secure SSID."
+msgstr ""
 
+msgid "Click to install your generated wireless profile."
+msgstr ""
+
+msgid "Internet Access Package"
+msgstr ""
+
+msgid "Credit Card Number"
+msgstr ""
+
+msgid "Credit Card Expiration Date"
+msgstr ""
+
+msgid "MMYY"
+msgstr ""
+
+msgid "Credit Card Verification Number"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid ""
+"An error occured while processing your payment. Incorrect credit card "
+"informations provided."
+msgstr ""
+
+msgid ""
+"An error occured while processing you payment. Your credit card has not been"
+" charged."
+msgstr ""
+
+msgid "The scan report code provided is invalid or expired."
+msgstr ""
+
+# SoH filters
+msgid "Filters"
+msgstr ""
+
+msgid ""
+"Define the filters which will apply to all NAP-capable clients that produce "
+"a statement of health (SoH)."
+msgstr ""
+
+msgid "Delete this filter"
+msgstr ""
+
+msgid "Do nothing"
+msgstr ""
+
+msgid "Accept"
+msgstr ""
+
+msgid "Reject"
+msgstr ""
+
+msgid "Trigger violation"
+msgstr ""
+
+msgid "Conditions:"
+msgstr ""
+
+msgid "(None yet)"
+msgstr ""
+
+msgid "Add a condition"
+msgstr ""
+
+msgid "Delete this condition"
+msgstr ""
+
+msgid "Firewall"
+msgstr ""
+
+msgid "Anti-virus"
+msgstr ""
+
+msgid "Anti-spyware"
+msgstr ""
+
+msgid "Auto-updates"
+msgstr ""
+
+msgid "Security updates"
+msgstr ""
+
+msgid "is"
+msgstr ""
+
+msgid "is not"
+msgstr ""
+
+msgid "ok"
+msgstr ""
+
+msgid "installed"
+msgstr ""
+
+msgid "enabled"
+msgstr ""
+
+msgid "disabled"
+msgstr ""
+
+msgid "up-to-date"
+msgstr ""
+
+msgid "from Microsoft"
+msgstr ""
+
+msgid "Action:"
+msgstr ""
+
+msgid "Add a filter"
+msgstr ""
+
+msgid "Save filters"
+msgstr ""
+
+msgid "Invalid response"
+msgstr ""
+
+msgid "Request failed"
+msgstr ""
+
+msgid "Are you sure you want to delete this filter?"
+msgstr ""
+
+msgid "Enter new filter name"
+msgstr ""
+
+msgid "Guest Sponsor Login"
+msgstr ""
+
+msgid "Before we proceed with guest activation, we need you to authenticate."
+msgstr ""
+
+msgid ""
+"You have reached the maximum number of devices you are able to register with"
+" this username."
+msgstr ""
+
+msgid ""
+"An email has been sent to your email address. Click on the activation link "
+"to confirm your email address. Once confirmed you will receive a username "
+"and password by email for you to use once on-site."
+msgstr ""
+
+msgid ""
+"An access request was sent to the sponsor's email. You will receive an email"
+" with a username and password once your access has been approved."
+msgstr ""
+
+msgid "Registration in advance by SMS is not supported."
+msgstr ""
+
+msgid "%s: Guest Network Access Information"
+msgstr ""
+
+msgid "%s: Guest access confirmed!"
+msgstr ""
+
+msgid "%s: Guest network access enabled"
+msgstr ""
+
+msgid ""
+"There was a problem trying to find the computer to register. The problem has"
+" been logged."
+msgstr ""
+
+msgid ""
+"The device with MAC address %s has already been authorized to your network."
+msgstr ""
+
+msgid "%s: Guest access request"
+msgstr ""
+
+msgid "%s: Guest access request accepted"
+msgstr ""
+
+msgid "Guest pre-registration is not allowed by policy"
+msgstr ""
+
+msgid ""
+"If you choose to have your access <strong>sponsored</strong>, we will send "
+"an email to the Sponsor email you provided with an activation link. The "
+"sponsor will need to click on that link and authenticate in order to approve"
+" you in."
+msgstr ""
+
+msgid "You will receive guest credentials by email once approved."
+msgstr ""
+
+msgid "You will be in a waiting area until approved."
+msgstr ""
+
+msgid "Register through a Sponsor"
+msgstr ""
+
+msgid "Network Access Requested"
+msgstr ""
+
+msgid "Access to the guest network confirmed"
+msgstr ""
+
+msgid ""
+"Access to the guest network has been successfully confirmed. You should "
+"receive credentials for on-site guest access by email shortly."
+msgstr ""
+
+msgid "%s: Email activation required"
+msgstr ""
+
+msgid "Missing mandatory parameter or malformed entry"
+msgstr ""
+
+msgid "Missing mandatory parameter(s): %s"
+msgstr ""
+
+msgid "Illegal email address provided"
+msgstr ""
+
+msgid "Illegal phone number provided"
+msgstr ""
+
+msgid "Acceptable Use Policy (AUP) was not accepted"
+msgstr ""
+
+msgid "Your access can only be sponsored by a %s email address"
+msgstr ""
+
+msgid "Unable to validate your sponsor at the moment"
+msgstr ""
+
+msgid "Email %s is not allowed to sponsor guest access"
+msgstr ""
