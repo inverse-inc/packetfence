@@ -55,7 +55,7 @@ Author: Fabrice Durand <fdurand@inverse.ca>
  # services.arp_binary
  # 
  # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
--arp_binary=/sbin/radiusd
+-arp_binary=/sbin/arp
 +arp_binary=/usr/sbin/arp
  
  [vlan]
