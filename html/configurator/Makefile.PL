@@ -23,6 +23,8 @@ requires 'Catalyst::Plugin::Session';
 requires 'Catalyst::Plugin::Session::Store::File';
 requires 'Catalyst::Plugin::Session::State::Cookie';
 requires 'Catalyst::Plugin::StatusMessage';
+requires 'Catalyst::View::TT';
+requires 'Catalyst::View::JSON';
 requires 'IO::Interface::Simple';
 
 test_requires 'Test::More' => '0.88';

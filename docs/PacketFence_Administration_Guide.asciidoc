@@ -198,46 +198,42 @@ Make sure your system is up to date and your yum or apt-get database is updated:
   apt-get update
   apt-get upgrade
 
-RHEL 5.x / CentOS 5.x
-^^^^^^^^^^^^^^^^^^^^^
 
-Some PacketFence dependencies are available through the Repoforge repository (http://repoforge.org/) so you need to configure YUM to use it.
+RedHat-based systems
+^^^^^^^^^^^^^^^^^^^^
 
-Then install the latest version of the RPMForge package for your architecture (http://pkgs.repoforge.org/rpmforge-release/). For example (i386):
+NOTE: Includes CentOS and Scientific Linux. Both i386 and x86_64 architectures supported.
 
-  wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.i386.rpm
-  rpm -i rpmforge-release-0.5.2-2.el5.rf.i386.rpm
+Several third party repositories are required to pull all the proper PacketFence dependencies:
 
-Disable the repository by default. In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+[options="compact"]
+* http://repoforge.org/[Repoforge], also previously known as rpmforge
+* http://fedoraproject.org/wiki/EPEL/FAQ[EPEL], Extra Packages for Enterprise Linux
+* http://www.openfusion.net/linux/openfusion_rpm_repository[OpenFusion]
 
-  enabled = 0
+Install the proper repositories in `yum` so it can directly lookup for packages:
 
-Then install the EPEL repository (http://fedoraproject.org/wiki/EPEL/FAQ). To do so, simply grab the latest EPEL rpm (version 5.4 at the time of this release), and install it :
+.For RHEL 5.x / CentOS 5.x
 
-  wget http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
-  rpm -i epel-release-5-4.noarch.rpm
+  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.`uname -i`.rpm
+  # rpm -Uvh http://download.fedoraproject.org/pub/epel/5/`uname -i`/epel-release-5-4.noarch.rpm
+  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos5-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el5.noarch.rpm
 
-RHEL 6.x / CentOS 6.x
-^^^^^^^^^^^^^^^^^^^^^
+.For RHEL 6.x / CentOS 6.x
 
-Some PacketFence dependencies are available through the Repoforge repository (http://repoforge.org/) so you need to configure YUM to use it.
+  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
+  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-5.noarch.rpm
+  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos6-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el6.noarch.rpm
 
-Then install the latest version of the RPMForge package for your architecture (http://pkgs.repoforge.org/rpmforge-release/). For example (x86_64):
-
-  wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-  rpm -i rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-
-Disable this repository by default. In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
 
   enabled = 0
 
-Then install the EPEL repository (http://fedoraproject.org/wiki/EPEL/FAQ). To do so, simply grab the latest EPEL rpm (version 6.5 at the time of this release), and install it :
-
-  wget http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm
-  rpm -i epel-release-6-5.noarch.rpm
 
 RHEL 6.x
 ^^^^^^^^
+
+NOTE: These are extra steps are required for RHEL 6 systems only. Derivatives such as CentOS or Scientific Linux don't need to take the extra steps.
 
 RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
 
@@ -262,7 +258,7 @@ For Debian squeeze, starting with 3.4.0, PacketFence is now providing an deb rep
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
 [options="compact"]
-* very easy installation
+* easy installation
 * everything is packaged as RPM (no more CPAN hassle)
 * easy upgrade
 
@@ -283,11 +279,11 @@ Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (DNS server, Database
 server, DHCP server, RADIUS server) using:
 
-  yum groupinstall --enablerepo=PacketFence,rpmforge Packetfence-complete
+  yum groupinstall --enablerepo=PacketFence,rpmforge,of Packetfence-complete
 
 Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
 
-  yum install --enablerepo=PacketFence,rpmforge packetfence
+  yum install --enablerepo=PacketFence,rpmforge,of packetfence
 
 For Debian squeeze:
 
