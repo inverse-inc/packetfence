@@ -38,32 +38,44 @@ use pf::util;
 =cut
 sub create {
     my ( $self, $interface ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
+    my $result;
 
     my ( $physical_device, $vlan_id ) = split( /\./, $interface );
     my $cmd = "vconfig add $physical_device $vlan_id";
 
-    # This method does not handle the 'all' interface
-    if ( $interface eq 'all' ) {
-        $status_msg = "This method does not handle the 'all' interface";
+    # This method does not handle the 'all' interface neither the 'lo' one
+    if ( ($interface eq 'all') || ($interface eq 'lo') ) {
+        $status_msg = "This method does not handle this interface: $interface";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if the requested interface doesn't already exists
     if ( $self->_interfaceExists($interface) ) {
         $status_msg = "Interface $interface already exists on the system";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if physical device exists
     if ( !$self->_interfaceExists($physical_device) ) {
         $status_msg = "Physical interface $physical_device does not exists so can't create VLAN interface on it";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
-    pf_run($cmd);
+    # Create virtual interface
+    eval { $result = pf_run($cmd) };
+    if ( $@ || !$result ) {
+        $status_msg = "Error in creating virtual interface $interface";
+        $logger->error($status_msg);
+        return $status_msg;
+    }
 
+    # Enable the newly created virtual interface
     $self->up($interface);
 
     return 1;
@@ -74,30 +86,41 @@ sub create {
 =cut
 sub delete {
     my ( $self, $interface ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
+    my $result;
 
     my $cmd = "vconfig rem $interface";
 
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if the requested interface exists
     if ( !$self->_interfaceExists($interface) ) {
         $status_msg = "Interface $interface does not exists on the system";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if the requested interface is a virtual interface
     if ( !$self->_interfaceVirtual($interface) ) {
         $status_msg = "Interface $interface is not a valid virtual interface";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
-    pf_run($cmd);
+    # Delete virtual interface
+    eval { $result = pf_run($cmd) };
+    if ( $@ || !$result ) {
+        $status_msg = "Error in deletion of virtual interface $interface";
+        $logger->error($status_msg);
+        return $status_msg;
+    }
 
     return 1;
 }
@@ -107,6 +130,7 @@ sub delete {
 =cut
 sub down {
     my ( $self, $interface ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
 
@@ -116,18 +140,21 @@ sub down {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if interface isn't already active on the system
     if ( !$self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is not active on the system";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if interface flags exists
     if ( !$flag ) {
-        $status_msg = "Something wen't wrong";
+        $status_msg = "Something wen't wrong while fetching the interface current flag";
+        $logger->error($status_msg);
         return $status_msg;
     }
 
@@ -143,38 +170,40 @@ sub down {
 =cut
 sub edit {
     my ( $self, $interface, $ipaddress, $netmask ) = @_; 
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
+    my $result;
 
     my $interface_object = IO::Interface::Simple->new($interface);
 
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if interface is active on the system
     if ( !$self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is not active on the system";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
-    # Change IP address
-    eval {
-        $interface_object->address($ipaddress);
-    };
-    if ( $@ ) {
+    # Edit IP address
+    eval { $result = $interface_object->address($ipaddress) };
+    if ( $@ || !$result ) {
         $status_msg = "Error in IP address $ipaddress while editing interface $interface";
+        $logger->error($status_msg);
         return $status_msg;
     }
 
-    # Change netmask
-    eval {
-        $interface_object->address($netmask);
-    };    
-    if ( $@ ) {
+    # Edit netmask
+    eval { $result = $interface_object->netmask($netmask) };
+    if ( $@ || !$result ) {
         $status_msg = "Error in netmask $netmask while editing interface $interface";
+        $logger->error($status_msg);
         return $status_msg;
     }
 
@@ -270,6 +299,7 @@ sub _listInterfaces {
 =cut
 sub up {
     my ( $self, $interface ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
 
@@ -279,18 +309,21 @@ sub up {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if interface isn't already active on the system
     if ( $self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is already active on the system";
+        $logger->warning($status_msg);
         return $status_msg;
     }
 
     # Check if interface flags exists
     if ( !$flag ) {
-        $status_msg = "Something wen't wrong";
+        $status_msg = "Something wen't wrong while fetching the interface current flag";
+        $logger->error($status_msg);
         return $status_msg;
     }
 
