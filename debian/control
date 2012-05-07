@@ -46,7 +46,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libnet-appliance-session-perl, libnet-cli-interact-perl,
  libnet-frame-simple-perl, libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
- gettext, vlan, libsoap-lite-perl
+ gettext, vlan, libsoap-lite-perl, libnet-frame-perl
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large
@@ -76,6 +76,8 @@ Description: Files needed for sending snort alerts to packetfence
 
 Package: packetfence-test
 Architecture: all
+Depends: libauthen-radius-perl, libauthen-krb5-simple-perl, libtest-mockmodule-perl,
+ libtext-csv-perl, libtest-nowarnings-perl
 Description: Test suite for packetfence
  The PacketFence package contains a suite of test for validate packetfence
  installation.
