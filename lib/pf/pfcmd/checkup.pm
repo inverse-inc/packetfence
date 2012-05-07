@@ -536,6 +536,11 @@ sub registration {
 # TODO Consider moving to a test
 sub is_config_documented {
 
+    if (!-e $conf_dir . '/pf.conf') {
+        add_problem($WARN, 'We have been unable to load your configuration. Are you sure you ran configurator.pl?');
+        return;
+    }
+
     #compare configuration with documentation
     tie my %myconfig, 'Config::IniFiles', (
         -file   => $config_file,
