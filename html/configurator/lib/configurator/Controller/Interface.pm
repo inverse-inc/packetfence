@@ -26,7 +26,8 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =item create
 
-Create a vlan interface on the system
+Create a vlan interface
+
 Usage: /interface/create/<logical_name>
 
 =cut
@@ -48,6 +49,10 @@ sub create :Path('create') :Args(1) {
 }
 
 =item delete
+
+Delete an existing vlan interface
+
+Usage: /interface/<logical_name>/delete
 
 =cut
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
@@ -81,7 +86,7 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
 
     my $interface = $c->stash->{interface};
 
-    my $result = $c->model('Interface')->down($interface);
+    my $result = $c->model('Interface')->down($interface, $c->req->uri->host);
 
     if ( $result eq 1 ) {
         $c->response->status(200);
@@ -98,6 +103,7 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
 =item edit
 
 Edit the configuration of the selected network interface
+
 Usage: /interface/<logical_name>/edit/<IP_address>/<netmask>
 
 =cut
@@ -123,6 +129,7 @@ sub edit :Chained('object') :PathPart('edit') :Args(2) {
 =item get
 
 Retrieve the configuration of the selected network interface(s)
+
 Usage: /interface/<logical_name>/get
 
 =cut

@@ -129,7 +129,7 @@ sub delete {
 
 =cut
 sub down {
-    my ( $self, $interface ) = @_;
+    my ( $self, $interface, $host ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
@@ -148,6 +148,12 @@ sub down {
     if ( !$self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is not active on the system";
         $logger->warning($status_msg);
+        return $status_msg;
+    }
+
+    # Check if it is not the interface we're currently using
+    if ( $self->_interfaceCurrentlyInUse($interface, $host) ) {
+        $status_msg = "Interface $interface is currently in use for the configuration";
         return $status_msg;
     }
 
@@ -224,19 +230,19 @@ sub get {
         @interfaces = $interface;
     }
 
-    my %resultset;
+    my $interfaces;
     foreach $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
 
         my $interface_object = IO::Interface::Simple->new($interface);
 
-        $resultset{$interface}{'name'}      = $interface_object->name;
-        $resultset{$interface}{'ipaddress'} = $interface_object->address;
-        $resultset{$interface}{'netmask'}   = $interface_object->netmask;
-        $resultset{$interface}{'running'}   = $interface_object->is_running;
+        $interfaces->{$interface}->{'name'}      = $interface_object->name;
+        $interfaces->{$interface}->{'ipaddress'} = $interface_object->address;
+        $interfaces->{$interface}->{'netmask'}   = $interface_object->netmask;
+        $interfaces->{$interface}->{'running'}   = $interface_object->is_running;
     }
 
-    return \%resultset;
+    return $interfaces;
 }
 
 =item _interfaceActive
@@ -250,6 +256,21 @@ sub _interfaceActive {
     my $interface_object = IO::Interface::Simple->new($interface);
 
     return $interface_object->is_running;
+}
+
+=item _interfaceCurrentlyInUse
+
+=cut
+sub _interfaceCurrentlyInUse {
+    my ( $self, $interface, $host ) = @_;
+
+    my $interface_ref = $self->get($interface);
+
+    if ( $interface_ref->{$interface}->{'ipaddress'} =~ $host ) {
+        return 1;
+    }
+
+    return 0;
 }
 
 =item _interfaceExists
