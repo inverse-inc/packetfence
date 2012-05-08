@@ -1,6 +1,9 @@
 # fast forwards merges makes undoing topic branches harder than it should be
 # also the commit graphs are uglier
 # http://nvie.com/posts/a-successful-git-branching-model/
+[branch "integration"]
+mergeoptions = --no-ff
+
 [branch "devel"]
 mergeoptions = --no-ff
 
