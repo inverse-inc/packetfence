@@ -302,15 +302,6 @@ Configuration validation of the network portion of the config
 =cut
 sub network {
 
-    # network size warning
-    my $internal_total;
-    foreach my $internal_net (@internal_nets) {
-        if ( $internal_net->bits() < 16 && isenabled( $Config{'general'}{'caching'} ) ) {
-            add_problem( $WARN, "network $internal_net is larger than a /16 - you should disable general.caching!" );
-        }
-        $internal_total += $internal_net->size();
-    }
-
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
         add_problem( $WARN, 

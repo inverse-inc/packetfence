@@ -17,6 +17,11 @@ o Upgrading from a version prior to <nextRelease>:
     required. You will have to get rid of it (or run the above mentionned 
     upgrade helper script).
 
+    - pf.conf's general.caching deprecated
+    The caching=... parameter under [general] is no longer required. You 
+    will have to get rid of it if you diverged from default configuration
+    which was disabled (or run the above mentionned upgrade helper script).
+
     - Captive portal node status page removed
     We deprecated a never used feature: /status inside the captive portal
     who gave node information if the user was authenticated properly. This 

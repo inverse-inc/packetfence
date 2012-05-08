@@ -73,8 +73,6 @@ getopts( 'dhvr', \%args );
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
-pfmon_preload();
-
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $restart   = $args{r};
@@ -158,7 +156,9 @@ However it has been kept around since we might introduce ARP surveillance in the
 =cut
 sub listen_arp {
     my ( $type, $srcmac, $srcip, $destmac, $destip ) = &decode(@_);
-    return if ( !isinternal($srcip) );
+    # below was commented as part of the interface.gateway removal
+    # if re-implementation required, go through conf/networks.conf to determine if it's internal or not
+    #return if ( !isinternal($srcip) );
 
     if ( $type == 1 ) {
         $logger->debug(

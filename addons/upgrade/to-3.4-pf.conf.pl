@@ -36,6 +36,9 @@ while (<>) {
     # removing gateway parameter
     next if (/^\s*gateway\s*=.*$/i);
 
+    # removing the caching parameter
+    next if (/^\s*caching\s*=.*$/i);
+
     # if we didn't skip, we keep
     print;
 }

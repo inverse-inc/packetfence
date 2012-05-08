@@ -25,7 +25,7 @@ use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
 
-our ( %is_internal, %local_mac );
+our ( %local_mac );
 
 BEGIN {
     use Exporter ();
@@ -34,13 +34,13 @@ BEGIN {
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
-        ip2interface ip2device isinternal pfmailer 
+        ip2interface ip2device pfmailer 
         isenabled isdisabled isempty
         getlocalmac ip2int int2ip 
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info createpid readpid deletepid
-        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
+        parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
         get_total_system_memory
         parse_mac_from_trap
@@ -62,18 +62,6 @@ TODO: This list is incomplete.
 =over
 
 =cut
-
-sub pfmon_preload {
-
-    # since inline mode re-integration general.caching is now disabled by default 
-    # otherwise pfmon eats too much memory on large networks (see also #861 for an older change related to this)
-    # TODO: it should be implemented more efficiently (b-tree?) or simplify removed if pfmon doesn't need it that much
-    if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {
-        %is_internal  = preload_is_internal();
-        %local_mac    = preload_getlocalmac();
-    }
-}
-
 sub valid_date {
     my ($date) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -297,18 +285,6 @@ sub ip2device {
     foreach my $interface (@internal_nets) {
         if ( $interface->match($ip) ) {
             return ( $interface->tag("int") );
-        }
-    }
-    return (0);
-}
-
-sub isinternal {
-    my ($ip) = @_;
-    return (0) if ( !valid_ip($ip) );
-    return ( $is_internal{$ip} ) if ( defined( $is_internal{$ip} ) );
-    foreach my $interface (@internal_nets) {
-        if ( $interface->match($ip) ) {
-            return (1);
         }
     }
     return (0);
@@ -628,34 +604,6 @@ sub oui_to_vendor {
     }
     my $oui_info = Net::MAC::Vendor::lookup($mac);
     return $$oui_info[0] || '';
-}
-
-sub preload_getlocalmac {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $logger->info("preloading local mac addresses");
-    my %hash;
-    my @iflist = `LC_ALL=C /sbin/ifconfig -a`;
-    foreach my $dev ( get_internal_devs() ) {
-        my @line = grep(
-            {/^$dev .+HWaddr\s+\w\w:\w\w:\w\w:\w\w:\w\w:\w\w/} @iflist );
-        $line[0] =~ /^$dev .+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/;
-        $hash{$dev} = clean_mac($1);
-    }
-    return (%hash);
-}
-
-sub preload_is_internal {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    my %is_internal;
-    $logger->info("preloading is_internal hash");
-    foreach my $interface (@internal_nets) {
-        foreach my $ip ( $interface->enumerate() ) {
-            $is_internal{$ip} = 1;
-        }
-    }
-    $logger->info(
-        scalar( keys(%is_internal) ) . " is_internal entries cached" );
-    return (%is_internal);
 }
 
 =item connection_type_to_str
