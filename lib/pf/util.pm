@@ -34,7 +34,7 @@ BEGIN {
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
-        inrange_ip ip2interface ip2device isinternal pfmailer 
+        ip2interface ip2device isinternal pfmailer 
         isenabled isdisabled isempty
         getlocalmac ip2int int2ip 
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
@@ -278,80 +278,6 @@ sub trappable_mac {
     } else {
         return (1);
     }
-}
-
-sub inrange_ip {
-    my ( $ip, $network_range ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-
-    if ( grep( { $_ eq $ip } get_gateways() ) ) {
-        $logger->info("$ip is a gateway, skipping");
-        return (0);
-    }
-    if ( grep( { $_ eq $ip } get_internal_ips() ) ) {
-        $logger->info("$ip is a local int, skipping");
-        return (0);
-    }
-
-    foreach my $range ( split( /\s*,\s*/, $network_range ) ) {
-        if ( $range =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/ ) {
-            my $block = new Net::Netmask($range);
-            if ( $block->size() > 2 ) {
-                return (1)
-                    if ( $block->match($ip)
-                    && $block->nth(0)  ne $ip
-                    && $block->nth(-1) ne $ip );
-            } else {
-                return (1) if ( $block->match($ip) );
-            }
-
-#return(1) if ($block->match($ip) && $block->nth(0) ne $ip && $block->nth(-1) ne $ip);
-        } elsif ( $range
-            =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/
-            )
-        {
-
-            my $int_ip = ip2int($ip);
-            my $start  = $1;
-            my $end    = $2;
-
-            if ( !valid_ip($start) || !valid_ip($end) ) {
-                $logger->error("$range not valid range!");
-            } else {
-                my $int_start = ip2int($start);
-                my $int_end   = ip2int($end);
-                return (1)
-                    if ( $int_ip >= $int_start && $int_ip <= $int_end );
-            }
-        } elsif (
-            $range =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3})\.(\d{1,3})-(\d{1,3})$/ )
-        {
-
-            my $int_ip = ip2int($ip);
-            my $net    = $1;
-            my $start  = $2;
-            my $end    = $3;
-
-            if (   !valid_ip( $net . "." . $start )
-                || $end < $start
-                || $end > 255 )
-            {
-                $logger->error("$range not valid range!");
-            } else {
-                my $int_start = ip2int( $net . "." . $start );
-                my $int_end   = ip2int( $net . "." . $end );
-                return (1)
-                    if ( $int_ip >= $int_start && $int_ip <= $int_end );
-            }
-        } elsif ( $range =~ /^(?:\d{1,3}\.){3}\d{1,3}$/ ) {
-            return (1) if ( $range =~ /^$ip$/ );
-        } else {
-            $logger->error("$range not valid!");
-            next;
-        }
-    }
-    $logger->debug("$ip is not in $network_range, skipping");
-    return (0);
 }
 
 sub ip2interface {
