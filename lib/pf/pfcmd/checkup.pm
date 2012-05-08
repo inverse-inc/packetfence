@@ -147,7 +147,7 @@ sub interfaces_defined {
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
 
         if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /$int_with_no_config_required_regexp/) {
-            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'} || !defined $int_conf{'gateway'}) {
+            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
@@ -183,13 +183,11 @@ sub interfaces {
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
-        if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'}
-            && $Config{$device}{'gateway'} && $Config{$device}{'type'})
-            && !$seen{$interface}) {
-                add_problem( $FATAL, 
-                    "Incomplete network information for $device. " .
-                    "IP, network mask, gateway and type required."
-                );
+        if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'} && $Config{$device}{'type'}) && !$seen{$interface}) {
+            add_problem( $FATAL, 
+                "Incomplete network information for $device. " .
+                "IP, network mask and type required."
+            );
         }
         $seen{$interface} = 1;
 

@@ -840,7 +840,7 @@ sub interfaceconfig {
             }
         }
         # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(ip mask type enforcement gateway vip);
+        my @columns = qw(ip mask type enforcement vip);
         print "interface|" . join( "|", @columns ) . "\n";
         foreach my $section ( keys %pf_conf ) {
             if ( $section =~ /^interface (.+)$/ ) {

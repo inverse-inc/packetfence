@@ -7,6 +7,16 @@ Notes on upgrading from an older release
 
 o Upgrading from a version prior to <nextRelease>:
 
+    - Upgrade helper scripts
+    Very basic upgrade scripts for 3.4 were created in addons/upgrade/. See 
+    their POD doc for usage information:
+    perldoc addons/upgrade/to-3.4-pf.conf.pl 
+
+    - pf.conf interface gateway deprecated 
+    The gateway=... parameters under every network interface is no longer 
+    required. You will have to get rid of it (or run the above mentionned 
+    upgrade helper script).
+
     - Captive portal node status page removed
     We deprecated a never used feature: /status inside the captive portal
     who gave node information if the user was authenticated properly. This 

@@ -25,6 +25,7 @@ New Features
 Enhancements
  * major refactoring, cleanup and dependencies removal
  * debian support: arp binary location now configurable ([services].arp_binary)
+ * interface gateways are no longer required in configuration (#1447)
 
 Bug Fixes
  * RADIUS-based Disconnects not working for Aruba, AeroHIVE. Introduced in 3.3.2. (#1437)
