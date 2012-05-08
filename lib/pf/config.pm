@@ -266,15 +266,29 @@ try {
 =cut
 sub readPfConfigFiles {
 
-    if ( -e $default_config_file ) {
+    # load default and override by local config (most common case)
+    if ( -e $default_config_file && -e $config_file ) {
         tie %Config, 'Config::IniFiles',
             (
             -file   => $config_file,
             -import => Config::IniFiles->new( -file => $default_config_file )
             );
-    } else {
+    }
+    # load default values only (local config doesn't exist)
+    elsif ( -e $default_config_file ) {
+        # import from default values then assign filename to save configuration file
+        tie %Config, 'Config::IniFiles', ( -import => Config::IniFiles->new( -file => $default_config_file ) );
+        tied(%Config)->SetFileName($config_file);
+    }
+    # load only local config
+    elsif ( -e $config_file ) {
         tie %Config, 'Config::IniFiles', ( -file => $config_file );
     }
+    # fail
+    else {
+        die ("No configuration files present.");
+    }
+
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );

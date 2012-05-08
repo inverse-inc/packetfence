@@ -1540,11 +1540,18 @@ sub config {
     tie %documentation, 'Config::IniFiles',
         ( -file => $conf_dir . "/documentation.conf" )
         or $logger->logdie("Unable to open documentation.conf: $!");
-    tie %defaults, 'Config::IniFiles',
-        ( -file => $conf_dir . "/pf.conf.defaults" )
-        or $logger->logdie("Unable to open pf.conf.defaults: $!");
-    tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir . "/pf.conf" )
-        or $logger->logdie("Unable to open pf.conf: $!");
+    tie %defaults, 'Config::IniFiles', ( -file => $default_config_file )
+        or $logger->logdie("Unable to open $default_config_file: $!");
+    # load config if it exists
+    if ( -e $config_file ) {
+        tie %myconfig, 'Config::IniFiles', ( -file => $config_file )
+            or $logger->logdie("Unable to open $config_file: $!");
+    }
+    # start with an empty file
+    else {
+        tie %myconfig, 'Config::IniFiles';
+        tied(%myconfig)->SetFileName($config_file);
+    }
 
     if ( lc($option) eq 'set' ) {
         if ($param =~ /^([^=]+)=(.+)?$/) {
