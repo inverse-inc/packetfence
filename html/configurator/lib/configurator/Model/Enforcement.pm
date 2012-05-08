@@ -20,8 +20,8 @@ use namespace::autoclean;
 extends 'Catalyst::Model';
 
 
-# TODO: Should migrate theses into a database table with some flags for the modes
-my @modes           = qw/vlan inline option/;
+# TODO: Should migrate theses into a database table with some flags for the mechanisms
+my @mechanisms           = qw/vlan inline option/;
 my %types   = (
     vlan        => [ 'management', 'registration', 'isolation' ],
     inline      => [ 'management', 'inline' ],
@@ -38,25 +38,25 @@ my %types   = (
 sub _getAvailableModes {
     my ( $self ) = @_;
 
-    return \@modes;
+    return \@mechanisms;
 }
 
 =item _getAvailableTypes
 
 =cut
 sub _getAvailableTypes {
-    my ( $self, $mode ) = @_;
+    my ( $self, $mechanism ) = @_;
 
     my @available_types;
 
-    if ( $mode eq 'all' ) {
+    if ( $mechanism eq 'all' ) {
         foreach my $type ( keys %types ) {
             foreach ( @{$types{$type}} ) {
                 push( @available_types, $_ );
             }
         }
     } else {
-        foreach ( @{$types{$mode}} ) {
+        foreach ( @{$types{$mechanism}} ) {
             push( @available_types, $_ );
         }
     }

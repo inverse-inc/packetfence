@@ -36,8 +36,8 @@ sub assign :Chained('object') :PathPart('assign') :Args(1) {
         $c->detach();
     }
 
-    my $mode    = $c->stash->{mode};
-    my $type    = $c->stash->{type};
+    my $mechanism   = $c->stash->{mechanism};
+    my $type        = $c->stash->{type};
 
     
 }
@@ -51,43 +51,43 @@ sub index :Path :Args(0) {
     $c->response->redirect($c->uri_for($self->action_for('list')));
 }
 
-=item list_modes
+=item list_mechanisms
 
 =cut
-sub list_modes :Path('list_modes') :Args(0) {
+sub list_mechanisms :Path('list_mechanisms') :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->response->status(200);
-    $c->stash->{modes} = $c->model('Enforcement')->_getAvailableModes();
+    $c->stash->{mechanisms} = $c->model('Enforcement')->_getAvailableMechanisms();
 }
 
 =item list_types
 
 =cut
 sub list_types :Path('list_types') :Args(1) {
-    my ( $self, $c, $mode ) = @_;
+    my ( $self, $c, $mechanism ) = @_;
 
-    # Requested mode is invalid
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableModes(), $mode) ) {
+    # Requested mechanism is invalid
+    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableMechanisms(), $mechanism) ) {
         $c->response->status(404);
-        $c->stash->{status_msg} = "Unknown requested mode $mode";
+        $c->stash->{status_msg} = "Unknown requested mechanism $mechanism";
         $c->detach();
     }
 
     $c->response->status(200);
-    $c->stash->{types} = $c->model('Enforcement')->_getAvailableTypes($mode);
+    $c->stash->{types} = $c->model('Enforcement')->_getAvailableTypes($mechanism);
 }
 
 =item object
 
 =cut
-sub object :Chained('/') :PathPart('mode') :CaptureArgs(2) {
-    my ( $self, $c, $mode, $type ) = @_;
+sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(2) {
+    my ( $self, $c, $mechanism, $type ) = @_;
 
-    # Requested mode is invalid
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableModes(), $mode) ) {
+    # Requested mechanism invalid
+    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableModes(), $mechanism) ) {
         $c->response->status(404);
-        $c->stash->{status_msg} = "Unknown requested mode $mode";
+        $c->stash->{status_msg} = "Unknown requested mechanism $mechanism";
         $c->detach();
     }
 
@@ -98,14 +98,14 @@ sub object :Chained('/') :PathPart('mode') :CaptureArgs(2) {
         $c->detach();
     }
 
-    # Requested type is invalid for the requested mode
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableTypes($mode), $type) ) {
+    # Requested type is invalid for the requested mechanism
+    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableTypes($mechanism), $type) ) {
         $c->response->status(500);
-        $c->stash->{status_msg} = "Requested type $type is invalid for the requested mode $mode";
+        $c->stash->{status_msg} = "Requested type $type is invalid for the requested mechanism $mechanism";
         $c->detach();
     }    
 
-    $c->stash->{mode} = $mode;
+    $c->stash->{mechanism} = $mechanism;
     $c->stash->{type} = $type;
 
     $c->load_status_msgs;
