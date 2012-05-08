@@ -85,7 +85,7 @@ sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(2) {
     my ( $self, $c, $mechanism, $type ) = @_;
 
     # Requested mechanism invalid
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableModes(), $mechanism) ) {
+    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableMechanisms(), $mechanism) ) {
         $c->response->status(404);
         $c->stash->{status_msg} = "Unknown requested mechanism $mechanism";
         $c->detach();
