@@ -305,7 +305,6 @@ sub generate_snort_conf {
     $tags{'template'}      = "$conf_dir/snort.conf";
     $tags{'internal-ips'}  = join( ",", get_internal_ips() );
     $tags{'internal-nets'} = join( ",", get_internal_nets() );
-    $tags{'gateways'}      = join( ",", get_gateways() );
     $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
     $tags{'install_dir'}   = $install_dir;

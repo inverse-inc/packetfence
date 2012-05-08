@@ -1,5 +1,4 @@
 pass  ip $INTERNAL_IPS any -> any any (sid:1100101; rev:1;)
-pass  ip $GATEWAYS any -> any any (sid:1100102; rev:1;)
 pass tcp $HOME_NET any -> 64.95.76.64/27 any (sid:1100103; rev:1;)
 pass tcp $HOME_NET any -> 64.125.138.0/24 any (sid:1100104; rev:1;)
 pass tcp 64.95.76.64/27 any -> $HOME_NET any (sid:1100105; rev:1;)
