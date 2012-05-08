@@ -44,7 +44,9 @@ sub trapmac {
         #FIXME deprecated during interface.gateway cleanup
         my $gip  = ip2gateway($ip);
         my $gmac = getlocalmac( ip2device($ip) );
-        if ( whitelisted_mac($mac) || !trappable_mac($mac) || !trappable_ip($ip) ) {
+        # got rid of trappable_ip below during the interface.gateway cleanup
+        #if ( whitelisted_mac($mac) || !trappable_mac($mac) || !trappable_ip($ip) ) {
+        if ( whitelisted_mac($mac) || !trappable_mac($mac) ) {
             $all_ok = 0;
         } else {
             $logger->info(

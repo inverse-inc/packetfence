@@ -25,7 +25,7 @@ use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
 
-our ( %trappable_ip, %is_internal, %local_mac );
+our ( %is_internal, %local_mac );
 
 BEGIN {
     use Exporter ();
@@ -34,7 +34,6 @@ BEGIN {
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
-        trappable_ip
         inrange_ip ip2interface ip2device isinternal pfmailer 
         isenabled isdisabled isempty
         getlocalmac ip2int int2ip 
@@ -70,7 +69,6 @@ sub pfmon_preload {
     # otherwise pfmon eats too much memory on large networks (see also #861 for an older change related to this)
     # TODO: it should be implemented more efficiently (b-tree?) or simplify removed if pfmon doesn't need it that much
     if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {
-        %trappable_ip = preload_trappable_ip();
         %is_internal  = preload_is_internal();
         %local_mac    = preload_getlocalmac();
     }
@@ -280,13 +278,6 @@ sub trappable_mac {
     } else {
         return (1);
     }
-}
-
-sub trappable_ip {
-    my ($ip) = @_;
-    return (0) if ( !$ip || !valid_ip($ip) );
-    return ( $trappable_ip{$ip} ) if ( defined( $trappable_ip{$ip} ) );
-    return inrange_ip( $ip, $Config{'trapping'}{'range'} );
 }
 
 sub inrange_ip {
@@ -733,12 +724,6 @@ sub preload_getlocalmac {
         $hash{$dev} = clean_mac($1);
     }
     return (%hash);
-}
-
-sub preload_trappable_ip {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $logger->info("preloading trappable_ip hash");
-    return ( preload_network_range( $Config{'trapping'}{'range'} ) );
 }
 
 # Generic Preloading Network Range Function
