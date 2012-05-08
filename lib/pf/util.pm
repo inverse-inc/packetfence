@@ -34,9 +34,9 @@ BEGIN {
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
-        ip2interface ip2device pfmailer 
+        ip2interface ip2device ip2int int2ip 
         isenabled isdisabled isempty
-        getlocalmac ip2int int2ip 
+        getlocalmac
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info createpid readpid deletepid
@@ -48,7 +48,7 @@ BEGIN {
         get_translatable_time
         pretty_bandwidth
         unpretty_bandwidth
-        pf_run
+        pf_run pfmailer 
         generate_id
     );
 }
