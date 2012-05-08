@@ -39,7 +39,7 @@ BEGIN {
         getlocalmac ip2int int2ip 
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
-        get_internal_info get_gateways createpid readpid deletepid
+        get_internal_info createpid readpid deletepid
         pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
         get_total_system_memory
@@ -535,14 +535,6 @@ sub get_internal_info {
         return ($interface) if ( $interface->tag("int") eq $device );
     }
     return;
-}
-
-sub get_gateways {
-    my @gateways;
-    foreach my $interface (@internal_nets) {
-        push @gateways, $interface->tag("gw");
-    }
-    return (@gateways);
 }
 
 sub createpid {
