@@ -37,7 +37,7 @@ BEGIN {
         ip2interface ip2device pfmailer 
         isenabled isdisabled isempty
         getlocalmac ip2int int2ip 
-        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
+        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info createpid readpid deletepid
         parse_template mysql_date oui_to_vendor mac2oid oid2mac 
@@ -463,14 +463,6 @@ sub get_inline_nets {
         push @nets, $interface->desc();
     }
     return (@nets);
-}
-
-sub get_internal_ips {
-    my @ips;
-    foreach my $internal (@internal_nets) {
-        push @ips, $internal->tag("ip");
-    }
-    return (@ips);
 }
 
 sub get_internal_devs {
