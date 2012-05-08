@@ -111,6 +111,14 @@ exit(0);
 
 =over
 
+=item arp_detector
+
+Listens to ARP traffic and logs.
+
+In PacketFence 3.0 we dropped support for ARP mode. This method has been 
+severely crippled as part of that work. However it has been kept around since
+we might introduce ARP surveillance in the future.
+
 =cut
 sub arp_detector {
     my ($eth) = @_;
@@ -156,8 +164,10 @@ sub listen_arp {
         $logger->debug(
             "ARP who-has $destip tell $srcip  $srcmac $srcip $destmac $destip"
         );
-        my $gip = ip2gateway($srcip);
-        if ( valid_ip($srcip) && valid_ip($gip) && ( $srcip eq $gip ) ) {
+        # commented as part of the interface.gateway removal
+        # if re-implementation required, go through conf/networks.conf to fetch the gateway for a network
+        #my $gip = ip2gateway($srcip);
+        #if ( valid_ip($srcip) && valid_ip($gip) && ( $srcip eq $gip ) ) {
             if (   $destmac =~ /ff:ff:ff:ff:ff:ff/i
                 || $destmac =~ /00:00:00:00:00:00/i )
             {
@@ -173,7 +183,7 @@ sub listen_arp {
                     "arp request from router for $destmac ($destip)");
                 return;
             }
-        }
+        #}
 
     } elsif ( $type == 2 ) {
         $logger->debug("ARP $srcip is-at $srcmac $srcmac $srcip $destmac $destip");

@@ -41,6 +41,7 @@ sub trapmac {
     my $logger = Log::Log4perl::get_logger('pf::rawip');
     my $all_ok = 1;
     foreach my $ip ( mac2allips($mac) ) {
+        #FIXME deprecated during interface.gateway cleanup
         my $gip  = ip2gateway($ip);
         my $gmac = getlocalmac( ip2device($ip) );
         if ( whitelisted_mac($mac) || !trappable_mac($mac) || !trappable_ip($ip) ) {
