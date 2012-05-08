@@ -391,9 +391,6 @@ sub rogue_dhcp_handling {
         return;
     }
 
-    # ignore if DHCP server is a local pf gateway
-    return if ( grep({ $_ eq $dhcp_srv_ip } get_gateways()) );
-
     # ignore whitelisted DHCP servers
     return if ( grep({$_ eq $dhcp_srv_ip} split(/\s*,\s*/, $Config{'general'}{'dhcpservers'})) );
 
