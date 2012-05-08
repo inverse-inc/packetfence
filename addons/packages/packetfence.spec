@@ -521,7 +521,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd.pl
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
