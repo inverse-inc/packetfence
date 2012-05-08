@@ -400,13 +400,17 @@ sub isempty {
     return $FALSE;
 }
 
+# TODO port to IO::Interface::Simple?
 sub getlocalmac {
     my ($dev) = @_;
     return (-1) if ( !$dev );
     return ( $local_mac{$dev} ) if ( defined $local_mac{$dev} );
     foreach (`LC_ALL=C /sbin/ifconfig -a`) {
-        return ( clean_mac($1) )
-            if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i);
+        if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
+            # cache the value
+            $local_mac{$dev} = clean_mac($1);
+            return $local_mac{$dev};
+        }
     }
     return (0);
 }
