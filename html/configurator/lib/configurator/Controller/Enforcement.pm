@@ -36,10 +36,7 @@ sub assign :Chained('object') :PathPart('assign') :Args(1) {
         $c->detach();
     }
 
-    my $mechanism   = $c->stash->{mechanism};
-    my $type        = $c->stash->{type};
-
-    
+    $c->session->{$c->stash->{type}} = $interface
 }
 
 =item index
@@ -122,6 +119,8 @@ sub revoke :Chained('object') :PathPart('revoke') :Args(1) {
         $c->stash->{status_msg} = "Unknown requested interface $interface";
         $c->detach();
     }
+
+    $c->session->{$c->stash->{type}} = '';
 }
 
 

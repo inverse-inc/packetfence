@@ -41,6 +41,10 @@ __PACKAGE__->config(
     name => 'configurator',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
+
+    'Plugin::Session' => {
+        storage => '/usr/local/pf/var/session'
+    },
 );
 
 # Start the application
