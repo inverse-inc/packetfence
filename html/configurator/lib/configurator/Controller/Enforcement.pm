@@ -78,15 +78,8 @@ sub list_types :Path('list_types') :Args(1) {
 =item object
 
 =cut
-sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(2) {
-    my ( $self, $c, $mechanism, $type ) = @_;
-
-    # Requested mechanism invalid
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableMechanisms(), $mechanism) ) {
-        $c->response->status(404);
-        $c->stash->{status_msg} = "Unknown requested mechanism $mechanism";
-        $c->detach();
-    }
+sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(1) {
+    my ( $self, $c, $type ) = @_;
 
     # Requested type is invalid
     unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableTypes('all'), $type) ) {
@@ -95,14 +88,6 @@ sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(2) {
         $c->detach();
     }
 
-    # Requested type is invalid for the requested mechanism
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableTypes($mechanism), $type) ) {
-        $c->response->status(500);
-        $c->stash->{status_msg} = "Requested type $type is invalid for the requested mechanism $mechanism";
-        $c->detach();
-    }    
-
-    $c->stash->{mechanism} = $mechanism;
     $c->stash->{type} = $type;
 
     $c->load_status_msgs;
