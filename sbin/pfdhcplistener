@@ -83,6 +83,7 @@ my $is_inline_vlan;
 my $accessControl;
 my $interface_ip;
 my $interface_vlan;
+my @local_dhcp_servers;
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
@@ -391,6 +392,9 @@ sub rogue_dhcp_handling {
         return;
     }
 
+    # ignore local DHCP servers
+    return if ( grep({$_ eq $dhcp_srv_ip} get_local_dhcp_servers()) );
+
     # ignore whitelisted DHCP servers
     return if ( grep({$_ eq $dhcp_srv_ip} split(/\s*,\s*/, $Config{'general'}{'dhcpservers'})) );
 
@@ -549,6 +553,27 @@ sub normal_sighandler {
         $logger->logdie(
             "pfdhcplistener: caught SIG" . $_[0] . " - terminating" );
     }
+}
+
+=item get_local_dhcp_servers
+
+Return a list of all dhcp servers IP that could be running locally.
+
+Caches results on first run then returns from cache.
+
+=cut
+sub get_local_dhcp_servers {
+
+    # return from cache
+    return @local_dhcp_servers if (@local_dhcp_servers);
+
+    # look them up, fill cache and return result
+    foreach my $network (keys %ConfigNetworks) {
+
+        push @local_dhcp_servers, $ConfigNetworks{$network}{'gateway'}
+            if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
+    }
+    return @local_dhcp_servers;
 }
 
 =back
