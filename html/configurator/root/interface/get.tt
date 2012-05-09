@@ -17,8 +17,8 @@
     <td>[% interfaces.$interface.ipaddress %]</td>
     <td>[% interfaces.$interface.netmask %]</td>
     <td>[% interfaces.$interface.running %]</td>
-    <td><a href="[%c.uri_for(c.controller.action_for('add'), [interfaces.$interface.name]) %]">Add</a>
-    <td><a href="[%c.uri_for(c.controller.action_for('remove'), [interfaces.$interface.name]) %]">Remove</a>
+    <td><a href="[%c.uri_for(c.controller.action_for('up'), [interfaces.$interface.name]) %]">Up</a>
+    <td><a href="[%c.uri_for(c.controller.action_for('down'), [interfaces.$interface.name]) %]">Down</a>
     <td><a href="[%c.uri_for(c.controller.action_for('edit'), [interfaces.$interface.name]) %]">Edit</a>
     <td><a href="[%c.uri_for(c.controller.action_for('delete'), [interfaces.$interface.name]) %]">Delete</a>
   </tr>
