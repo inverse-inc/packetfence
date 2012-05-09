@@ -700,7 +700,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse, inc.
+Copyright (C) 2009-2012 Inverse, inc.
 
 =head1 LICENSE
 
