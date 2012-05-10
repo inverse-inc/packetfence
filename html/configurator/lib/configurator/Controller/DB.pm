@@ -26,7 +26,8 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =item index
 
-=cut index :Path :Args(0) {
+=cut 
+sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->response->body('Matched configurator::Controller::DB in DB.');
