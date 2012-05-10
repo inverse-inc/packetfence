@@ -51,9 +51,9 @@ FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
 Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
 
-Update: Starting with 7.2 it looks like FlexConnect can do AAA: 
+Even if it looks like FlexConnect can do AAA: 
 http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954. 
-We haven't confirmed if it works properly with PacketFence yet.
+We weren't able to get it working with PacketFence yet.
 
 =back
 
