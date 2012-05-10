@@ -44,12 +44,16 @@ controllers are happy with these. Not a PacketFence issue. I would think it
 relates to the following open caveats CSCtw87226:
 http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
 
-=item flexconnect (H-REAP) limitations
+=item FlexConnect (H-REAP) limitations
 
 Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
-flexconnect, don't support RADIUS dynamic VLAN assignments (AAA override).
+FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
 Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
+
+Update: Starting with 7.2 it looks like FlexConnect can do AAA: 
+http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954. 
+We haven't confirmed if it works properly with PacketFence yet.
 
 =back
 
