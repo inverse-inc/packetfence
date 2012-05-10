@@ -36,7 +36,7 @@ sub assign :Chained('object') :PathPart('assign') :Args(1) {
         $c->detach();
     }
 
-    $c->session->{$c->stash->{type}} = $interface
+    $c->session->{$interface} = $c->stash->{type};
 }
 
 =item index
@@ -105,7 +105,7 @@ sub revoke :Chained('object') :PathPart('revoke') :Args(1) {
         $c->detach();
     }
 
-    $c->session->{$c->stash->{type}} = '';
+    $c->session->{$interface} = "";
 }
 
 
