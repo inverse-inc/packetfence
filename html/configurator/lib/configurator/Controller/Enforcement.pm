@@ -39,15 +39,6 @@ sub assign :Chained('object') :PathPart('assign') :Args(1) {
     $c->session->{$interface} = $c->stash->{type};
 }
 
-=item index
-
-=cut
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->response->redirect($c->uri_for($self->action_for('list')));
-}
-
 =item list_mechanisms
 
 =cut
