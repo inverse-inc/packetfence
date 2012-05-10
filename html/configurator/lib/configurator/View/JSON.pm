@@ -1,11 +1,11 @@
-package configurator::View::DATA;
+package configurator::View::JSON;
 
 use strict;
 use base 'Catalyst::View::JSON';
 
 =head1 NAME
 
-configurator::View::DATA - Catalyst JSON View
+configurator::View::JSON - Catalyst JSON View
 
 =head1 SYNOPSIS
 
