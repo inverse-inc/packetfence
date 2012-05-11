@@ -25,7 +25,7 @@ Catalyst Controller.
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->forward('get', ['all', 'get']);
+    $c->visit('get', ['all'], ['get']);
 }
 
 =head2 object
@@ -34,8 +34,9 @@ Chained dispatch for an interface.
 
 =cut
 
-sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
+sub object :Chained('/') :PathPart('config/interface') :CaptureArgs(1) {
   my ($self, $c, $section) = @_;
+  $c->log->debug("chained dispatch called");
 
   unless ($c->model('Config::Interface')->sectionExists($section)) {
     $c->res->status(404);
@@ -48,12 +49,14 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
 
 =head2 get
 
-/interface/<interface>/get
+/config/interface/<interface>/get
 
 =cut
 
 sub get :Chained('object') :PathPart('get') :Args(0) {
   my ($self, $c) = @_;
+  $c->log->debug("get called");
+
   my $section = $c->stash->{section};
 
   my $result;
@@ -73,7 +76,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
 
 =head2 delete
 
-/interface/<interface>/delete
+/config/interface/<interface>/delete
 
 =cut
 
@@ -98,7 +101,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =head2 edit
 
-/interface/<interface>/edit
+/config/interface/<interface>/edit
 
 =cut
 
@@ -140,8 +143,8 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
 
 =head2 add
 
-/interface/add/<interface>
-/interface/add?section=<interface>
+/config/interface/add/<interface>
+/config/interface/add?section=<interface>
 
 =cut
 
@@ -182,9 +185,17 @@ sub add :Local {
   }
 }
 
+sub end : ActionClass('RenderView') {
+    my ( $self, $c ) = @_;
+
+    $c->forward('View::JSON');
+}
+
 =head1 AUTHOR
 
-Francis Lachapelle,,,
+Francis Lachapelle
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 LICENSE
 

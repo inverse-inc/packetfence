@@ -8,8 +8,6 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use Config::IniFiles;
 
-my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-
 extends 'Catalyst::Model';
 
 =head1 NAME
@@ -47,12 +45,15 @@ my $pf_conf = undef;
 
 sub _pf_conf {
   my ($self) = @_;
+  # FIXME do it once per Model instance instead?
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   unless (defined $pf_conf) {
     my %conf;
     tie %conf, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) || !%conf ) {
+      # FIXME: unsupported by Log::Log4perl::Catalyst
       $logger->logdie("Error reading pf.conf: " . join( "\n", @errors ) . "\n" );
     }
 
@@ -71,7 +72,7 @@ sub _pf_conf {
 sub sectionExists {
   my ($self, $section) = @_;
 
-  return 1 if ($section eq 'all');
+  return $TRUE if ($section eq 'all');
 
   my $section_name = "interface $section";
   my $pf_conf = $self->_pf_conf();
@@ -81,6 +82,10 @@ sub sectionExists {
 
 sub get {
   my ($self, $section) = @_;
+  # FIXME do it once per Model instance instead?
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+  $logger->debug("interface $section requested");
 
   my $pf_conf = $self->_pf_conf();
   # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
@@ -89,8 +94,7 @@ sub get {
   foreach my $s ( keys %$pf_conf ) {
     if ( $s =~ /^interface (.+)$/ ) {
       my $interface_name = $1;
-      if (   ( $section eq 'all' )
-             || ( $section eq $interface_name ) ) {
+      if ( ( $section eq 'all' ) || ( $section eq $interface_name ) ) {
         my @values;
         foreach my $column (@columns) {
           push @values, ( $pf_conf->{$s}->{$column} || '' );
@@ -111,6 +115,8 @@ sub get {
 
 sub remove {
   my ($self, $section) = @_;
+  # FIXME do it once per Model instance instead?
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   if ( $section eq 'all' ) {
     die "This interface can't be deleted\n";
@@ -138,6 +144,8 @@ sub remove {
 
 sub edit {
   my ($self, $section, $assignments) = @_;
+  # FIXME do it once per Model instance instead?
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   if ( $section eq 'all' ) {
     die "This interface can't be deleted\n";
