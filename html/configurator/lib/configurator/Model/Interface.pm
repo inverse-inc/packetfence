@@ -49,21 +49,21 @@ sub create {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if the requested interface doesn't already exists
     if ( $self->_interfaceExists($interface) ) {
         $status_msg = "Interface $interface already exists on the system";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if physical device exists
     if ( !$self->_interfaceExists($physical_device) ) {
         $status_msg = "Physical interface $physical_device does not exists so can't create VLAN interface on it";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
@@ -96,21 +96,21 @@ sub delete {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if the requested interface exists
     if ( !$self->_interfaceExists($interface) ) {
         $status_msg = "Interface $interface does not exists on the system";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if the requested interface is a virtual interface
     if ( !$self->_interfaceVirtual($interface) ) {
         $status_msg = "Interface $interface is not a valid virtual interface";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
@@ -140,14 +140,14 @@ sub down {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if interface isn't already active on the system
     if ( !$self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is not active on the system";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
@@ -186,14 +186,14 @@ sub edit {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if interface is active on the system
     if ( !$self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is not active on the system";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
@@ -330,14 +330,14 @@ sub up {
     # This method does not handle the 'all' interface neither the 'lo' one
     if ( ($interface eq 'all') || ($interface eq 'lo') ) {
         $status_msg = "This method does not handle this interface: $interface";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
     # Check if interface isn't already active on the system
     if ( $self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface is already active on the system";
-        $logger->warning($status_msg);
+        $logger->warn($status_msg);
         return $status_msg;
     }
 
