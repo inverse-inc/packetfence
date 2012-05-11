@@ -32,23 +32,9 @@ sub index :Path :Args(0) {
 Chained dispatch for an interface.
 
 =cut
-
 sub object :Chained('/') :PathPart('config/interface') :CaptureArgs(1) {
-    my ($self, $c, $section) = @_;
-
-    try {
-        unless ($c->model('Config::Interface')->sectionExists($section)) {
-            $c->res->status(404);
-            $c->stash->{result} = "Unknown interface $section";
-            $c->detach();
-        }
-        $c->stash->{section} = $section;
-
-    } catch {
-        chomp($_);
-        $c->error($_);
-        $c->detach();
-    };
+    my ($self, $c, $interface) = @_;
+    $c->stash->{interface} = $interface;
 }
 
 =head2 get
@@ -58,11 +44,9 @@ sub object :Chained('/') :PathPart('config/interface') :CaptureArgs(1) {
 =cut
 sub get :Chained('object') :PathPart('get') :Args(0) {
     my ($self, $c) = @_;
-    $c->log->debug("get called");
+    my $interface = $c->stash->{interface};
 
-    my $section = $c->stash->{section};
-
-    my ($result, $message) = $c->model('Config::Pf')->get($section);
+    my ($result, $message) = $c->model('Config::Pf')->get($interface);
     if (!$result) {
         $c->error($message);
     }
@@ -79,9 +63,9 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
 =cut
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
-    my $section = $c->stash->{section};
+    my $interface = $c->stash->{interface};
 
-    my ($result, $message) = $c->model('Config::Pf')->remove($section);
+    my ($result, $message) = $c->model('Config::Pf')->remove($interface);
     if (!$result) {
         $c->error($message);
     }
@@ -98,7 +82,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 =cut
 sub edit :Chained('object') :PathPart('edit') :Args(0) {
     my ($self, $c) = @_;
-    my $section = $c->stash->{section};
+    my $interface = $c->stash->{interface};
 
     my $assignments = $c->request->params->{assignments};
 
@@ -113,7 +97,7 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
             $c->stash->{result} = $@;
         }
         else {
-            my ($result, $message) = $c->model('Config::Pf')->edit($section, $assignments);
+            my ($result, $message) = $c->model('Config::Pf')->edit($interface, $assignments);
             if (!$result) {
                 $c->error($message);
             }
@@ -132,17 +116,17 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
 =head2 add
 
 /config/interface/add/<interface>
-/config/interface/add?section=<interface>
+/config/interface/add?interface=<interface>
 
 =cut
 
 sub add :Local {
-    my ($self, $c, $section) = @_;
+    my ($self, $c, $interface) = @_;
 
-    $section = $c->request->params->{section} unless ($section);
+    $interface = $c->request->params->{interface} unless ($interface);
     my $assignments = $c->request->params->{assignments};
 
-    if ($section && $assignments) {
+    if ($interface && $assignments) {
         my $result;
         eval {
             $assignments = decode_json($assignments);
@@ -154,7 +138,7 @@ sub add :Local {
             $c->stash->{result} = $@;
         }
         else {
-            my ($result, $message) = $c->model('Config::Pf')->add($section, $assignments);
+            my ($result, $message) = $c->model('Config::Pf')->add($interface, $assignments);
             if (!$result) {
                 $c->error($message);
             }

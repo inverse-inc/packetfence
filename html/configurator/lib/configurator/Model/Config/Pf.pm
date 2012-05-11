@@ -65,22 +65,11 @@ sub _pf_conf {
     return $_pf_conf;
 }
 
-sub sectionExists {
-    my ($self, $section) = @_;
-
-    return $TRUE if ($section eq 'all');
-
-    my $section_name = "interface $section";
-    my $pf_conf = $self->_pf_conf();
-    my $tied_conf = tied(%$pf_conf);
-    return $tied_conf->SectionExists($section_name);
-}
-
 sub get {
-    my ($self, $section) = @_;
+    my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->debug("interface $section requested");
+    $logger->debug("interface $interface requested");
 
     my $pf_conf = $self->_pf_conf();
     # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
@@ -89,7 +78,7 @@ sub get {
     foreach my $s ( keys %$pf_conf ) {
         if ( $s =~ /^interface (.+)$/ ) {
             my $interface_name = $1;
-            if ( ( $section eq 'all' ) || ( $section eq $interface_name ) ) {
+            if ( ( $interface eq 'all' ) || ( $interface eq $interface_name ) ) {
                 my @values;
                 foreach my $column (@columns) {
                     push @values, ( $pf_conf->{$s}->{$column} || '' );
@@ -103,23 +92,23 @@ sub get {
         return ($TRUE, \@resultset);
     }
     else {
-        return ($FALSE, "Interface not found");
+        return ($FALSE, "Unknown interface $interface");
     }
 }
 
 sub remove {
-    my ($self, $section) = @_;
+    my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if ( $section eq 'all' ) {
+    if ( $interface eq 'all' ) {
         die "This interface can't be deleted\n";
     }
 
-    my $section_name = "interface $section";
+    my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
     my $tied_conf = tied(%$pf_conf);
-    if ( $tied_conf->SectionExists($section_name) ) {
-        $tied_conf->DeleteSection($section_name);
+    if ( $tied_conf->SectionExists($interface_name) ) {
+        $tied_conf->DeleteSection($interface_name);
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
             or $logger->logdie("Unable to write config to $conf_dir/pf.conf. " ."You might want to check the file's permissions.");
         # The following snippet updates the database
@@ -130,27 +119,27 @@ sub remove {
         return ($FALSE, "Interface not found");
     }
   
-    return ($TRUE, "Successfully deleted $section");
+    return ($TRUE, "Successfully deleted $interface");
 }
 
 sub edit {
-    my ($self, $section, $assignments) = @_;
+    my ($self, $interface, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if ( $section eq 'all' ) {
+    if ( $interface eq 'all' ) {
         die "This interface can't be deleted\n";
     }
 
-    my $section_name = "interface $section";
+    my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
     my $tied_conf = tied(%$pf_conf);
-    if ( $tied_conf->SectionExists($section_name) ) {
+    if ( $tied_conf->SectionExists($interface_name) ) {
         foreach my $assignment (@$assignments) {
             my ( $param, $value ) = @$assignment;
-            if ( defined( $pf_conf->{$section_name}{$param} ) ) {
-                $tied_conf->setval( $section_name, $param, $value );
+            if ( defined( $pf_conf->{$interface_name}{$param} ) ) {
+                $tied_conf->setval( $interface_name, $param, $value );
             } else {
-                $tied_conf->newval( $section_name, $param, $value );
+                $tied_conf->newval( $interface_name, $param, $value );
             }
         }
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
@@ -163,24 +152,24 @@ sub edit {
         return ($FALSE, "Interface not found");
     }
 
-    return ($TRUE, "Successfully modified $section");
+    return ($TRUE, "Successfully modified $interface");
 }
 
 sub add {
-    my ($self, $section, $assignments) = @_;
+    my ($self, $interface, $assignments) = @_;
 
-    if ( $section eq 'all' ) {
+    if ( $interface eq 'all' ) {
         die "This is a reserved interface name\n";
     }
 
-    my $section_name = "interface $section";
+    my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
     my $tied_conf = tied(%$pf_conf);
-    if ( !($tied_conf->SectionExists($section_name)) ) {
+    if ( !($tied_conf->SectionExists($interface_name)) ) {
         foreach my $assignment (@$assignments) {
-            $tied_conf->AddSection($section_name);
+            $tied_conf->AddSection($interface_name);
             my ( $param, $value ) = @$assignment;
-            $tied_conf->newval( $section_name, $param, $value );
+            $tied_conf->newval( $interface_name, $param, $value );
         }
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
             or die "Unable to write config to $conf_dir/pf.conf. " ."You might want to check the file's permissions.\n";
@@ -188,10 +177,10 @@ sub add {
         import pf::configfile;
         configfile_import( $conf_dir . "/pf.conf" );
     } else {
-        die "Interface $section already exists\n";
+        die "Interface $interface already exists\n";
     }
 
-    return ($TRUE, "Successfully created $section");
+    return ($TRUE, "Successfully created $interface");
 }
 
 __PACKAGE__->meta->make_immutable;
