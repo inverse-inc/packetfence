@@ -1,4 +1,5 @@
 package configurator::Controller::Config::Interface;
+use HTTP::Status qw(:constants);
 use JSON;
 use Moose;
 use namespace::autoclean;
@@ -49,7 +50,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
         $c->error($message);
     }
     else {
-        $c->res->status(200);
+        $c->res->status(HTTP_OK);
         $c->stash->{interfaces} = $message;
     }
 }
@@ -68,7 +69,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
         $c->error($message);
     }
     else {
-        $c->res->status(200);
+        $c->res->status(HTTP_OK);
         $c->stash->{result} = $message;
     }
 }
@@ -91,7 +92,7 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
         if ($@) {
             # Malformed JSON
             chomp $@;
-            $c->res->status(400);
+            $c->res->status(HTTP_BAD_REQUEST);
             $c->stash->{result} = $@;
         }
         else {
@@ -100,13 +101,13 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
                 $c->error($message);
             }
             else {
-                $c->res->status(201);
+                $c->res->status(HTTP_CREATED);
                 $c->stash->{result} = $result;
             }
         }
     }
     else {
-        $c->res->status(400);
+        $c->res->status(HTTP_BAD_REQUEST);
         $c->stash->{result} = 'Missing parameters';
     }
 }
@@ -132,7 +133,7 @@ sub add :Local {
         if ($@) {
             # Malformed JSON
             chomp $@;
-            $c->res->status(400);
+            $c->res->status(HTTP_BAD_REQUEST);
             $c->stash->{result} = $@;
         }
         else {
@@ -141,13 +142,13 @@ sub add :Local {
                 $c->error($message);
             }
             else {
-                $c->res->status(201);
+                $c->res->status(HTTP_CREATED);
                 $c->stash->{result} = $result;
             }
         }
     }
     else {
-        $c->res->status(400);
+        $c->res->status(HTTP_BAD_REQUEST);
         $c->stash->{message} = 'Missing parameters';
         $c->forward('View::HTML');
     }
