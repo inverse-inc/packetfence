@@ -23,7 +23,7 @@ Catalyst Controller.
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->visit('get', ['all'], ['get']);
+    $c->visit('read', ['all'], ['read']);
 }
 
 =head2 object
@@ -36,16 +36,16 @@ sub object :Chained('/') :PathPart('config/interface') :CaptureArgs(1) {
     $c->stash->{interface} = $interface;
 }
 
-=head2 get
+=head2 read
 
-/config/interface/<interface>/get
+/config/interface/<interface>/read
 
 =cut
-sub get :Chained('object') :PathPart('get') :Args(0) {
+sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};
 
-    my ($result, $message) = $c->model('Config::Pf')->get($interface);
+    my ($result, $message) = $c->model('Config::Pf')->read_interface($interface);
     if (!$result) {
         $c->error($message);
     }
@@ -64,7 +64,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};
 
-    my ($result, $message) = $c->model('Config::Pf')->remove($interface);
+    my ($result, $message) = $c->model('Config::Pf')->delete_interface($interface);
     if (!$result) {
         $c->error($message);
     }
@@ -74,12 +74,12 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     }
 }
 
-=head2 edit
+=head2 update
 
-/config/interface/<interface>/edit
+/config/interface/<interface>/update
 
 =cut
-sub edit :Chained('object') :PathPart('edit') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};
 
@@ -96,7 +96,7 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
             $c->stash->{result} = $@;
         }
         else {
-            my ($result, $message) = $c->model('Config::Pf')->edit($interface, $assignments);
+            my ($result, $message) = $c->model('Config::Pf')->update_interface($interface, $assignments);
             if (!$result) {
                 $c->error($message);
             }
@@ -112,14 +112,14 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
     }
 }
 
-=head2 add
+=head2 create
 
-/config/interface/add/<interface>
-/config/interface/add?interface=<interface>
+/config/interface/create/<interface>
+/config/interface/create?interface=<interface>
 
 =cut
 
-sub add :Local {
+sub create :Local {
     my ($self, $c, $interface) = @_;
 
     $interface = $c->request->params->{interface} unless ($interface);
@@ -137,7 +137,7 @@ sub add :Local {
             $c->stash->{result} = $@;
         }
         else {
-            my ($result, $message) = $c->model('Config::Pf')->add($interface, $assignments);
+            my ($result, $message) = $c->model('Config::Pf')->create_interface($interface, $assignments);
             if (!$result) {
                 $c->error($message);
             }

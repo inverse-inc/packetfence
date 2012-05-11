@@ -50,7 +50,7 @@ sub _pf_conf {
     return $_pf_conf;
 }
 
-sub get {
+sub read_interface {
     my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -81,7 +81,7 @@ sub get {
     }
 }
 
-sub remove {
+sub delete_interface {
     my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -107,7 +107,7 @@ sub remove {
     return ($TRUE, "Successfully deleted $interface");
 }
 
-sub edit {
+sub update_interface {
     my ($self, $interface, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -140,7 +140,7 @@ sub edit {
     return ($TRUE, "Successfully modified $interface");
 }
 
-sub add {
+sub create_interface {
     my ($self, $interface, $assignments) = @_;
 
     if ( $interface eq 'all' ) {
