@@ -16,8 +16,6 @@ Catalyst Controller.
 
 =head1 METHODS
 
-=cut
-
 =head2 index
 
 =cut
@@ -162,14 +160,30 @@ sub end : ActionClass('RenderView') {
 
 =head1 AUTHOR
 
-Francis Lachapelle
+Francis Lachapelle <flachapelle@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+=head1 COPYRIGHT
+
+Copyright 2012 Inverse inc.
+
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
 
 =cut
 
