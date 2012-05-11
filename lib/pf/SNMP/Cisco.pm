@@ -994,74 +994,67 @@ sub isNotUpLink {
     return ( grep( { $_ == $ifIndex } $this->getUpLinks() ) == 0 );
 }
 
+# FIXME I just refactored that method but I think we should simply get rid 
+# of the uplinks=... concept. If you've configured access-control on an 
+# uplink then it's your problem. Anyway we don't do anything on RADIUS based
+# requests. I guess this was there at first because of misconfigured up/down 
+# traps causing concerns.
 sub getUpLinks {
-    my $this = shift;
-    my @ifIndex;
-    my @upLinks;
-    my $result;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
+    # not dynamic, return uplink list 
+    return @{ $this->{_uplink} } if ( lc(@{ $this->{_uplink} }[0]) ne 'dynamic' );
 
-        if ( !$this->connectRead() ) {
-            return -1;
-        }
-
-        my $oid_cdpGlobalRun
-            = '1.3.6.1.4.1.9.9.23.1.3.1'; # Is CDP enabled ? MIB: cdpGlobalRun
-        $logger->trace("SNMP get_table for cdpGlobalRun: $oid_cdpGlobalRun");
-        $result = $this->{_sessionRead}
-            ->get_table( -baseoid => $oid_cdpGlobalRun );
-        if ( defined($result) ) {
-
-            my @cdpRun = values %{$result};
-            if ( $cdpRun[0] == 1 ) {
-
-                # CDP is enabled
-                my $oid_cdpCachePlateform = '1.3.6.1.4.1.9.9.23.1.2.1.1.8';
-
-                # fetch the upLinks. MIB: cdpCachePlateform
-                $logger->trace(
-                    "SNMP get_table for cdpCachePlateform: $oid_cdpCachePlateform"
-                );
-                $result = $this->{_sessionRead}->get_table(
-
-         # we could have chosen another oid since many of them return uplinks.
-                    -baseoid => $oid_cdpCachePlateform
-                );
-                if ( defined($result) ) {
-                    foreach my $key ( keys %{$result} ) {
-                        if ( !( $result->{$key} =~ /^Cisco IP Phone/ ) ) {
-                            $key =~ /^$oid_cdpCachePlateform\.(\d+)\.\d+$/;
-                            push @upLinks, $1;
-                            $logger->debug("upLink: $1");
-                        }
-                    }
-                } else {
-                    $logger->debug(
-                        "Problem while determining dynamic uplinks for switch "
-                            . $this->{_ip}
-                            . ": can not read cdpCachePlateform." );
-                    return -1;
-                }
-            } else {
-                $logger->debug(
-                    "Problem while determining dynamic uplinks for switch "
-                        . $this->{_ip}
-                        . ": based on the config file, uplinks are dynamic but CDP is not enabled on this switch."
-                );
-                return -1;
-            }
-        } else {
-            $logger->debug(
-                      "Problem while determining dynamic uplinks for switch "
-                    . $this->{_ip}
-                    . ": can not read cdpGlobalRun." );
-            return -1;
-        }
-    } else {
-        @upLinks = @{ $this->{_uplink} };
+    # dynamic uplink lookup
+    if ( !$this->connectRead() ) {
+        return -1;
     }
+
+    my $oid_cdpGlobalRun = '1.3.6.1.4.1.9.9.23.1.3.1'; # Is CDP enabled ? MIB: cdpGlobalRun
+    $logger->trace("SNMP get_table for cdpGlobalRun: $oid_cdpGlobalRun");
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $oid_cdpGlobalRun );
+    if (!defined($result)) {
+        $logger->warn(
+            "Problem while determining dynamic uplinks for switch $this->{_ip}: "
+            . "can not read cdpGlobalRun."
+        );
+        return -1;
+    }
+
+    my @cdpRun = values %{$result};
+    if ( $cdpRun[0] != 1 ) {
+        $logger->warn(
+            "Problem while determining dynamic uplinks for switch $this->{_ip}: "
+            . "based on the config file, uplinks are dynamic but CDP is not enabled on this switch."
+        );
+        return -1;
+    }
+
+    # CDP is enabled
+    my $oid_cdpCachePlateform = '1.3.6.1.4.1.9.9.23.1.2.1.1.8';
+
+    # fetch the upLinks. MIB: cdpCachePlateform
+    $logger->trace("SNMP get_table for cdpCachePlateform: $oid_cdpCachePlateform");
+    # we could have chosen another oid since many of them return uplinks.
+    $result = $this->{_sessionRead}->get_table(-baseoid => $oid_cdpCachePlateform);
+    if (!defined($result)) {
+        $logger->warn(
+            "Problem while determining dynamic uplinks for switch "
+            . "$this->{_ip}: can not read cdpCachePlateform."
+        );
+        return -1;
+    }
+
+    my @upLinks;
+    foreach my $key ( keys %{$result} ) {
+        if ( !( $result->{$key} =~ /^Cisco IP Phone/ ) ) {
+            $key =~ /^$oid_cdpCachePlateform\.(\d+)\.\d+$/;
+            push @upLinks, $1;
+            $logger->debug("upLink: $1");
+        }
+    }
+
     return @upLinks;
 }
 

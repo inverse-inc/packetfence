@@ -17,6 +17,7 @@ Version <devel> released on <releaseDate>
 
 Enhancements
  * Improved handling of an empty conf/pf.conf configuration file
+ * Improved error reporting for dynamic uplink detection on Cisco
 
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
