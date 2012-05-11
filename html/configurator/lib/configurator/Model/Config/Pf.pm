@@ -85,9 +85,7 @@ sub delete_interface {
     my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if ( $interface eq 'all' ) {
-        die "This interface can't be deleted\n";
-    }
+    return ($FALSE, "This interface can't be deleted") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
@@ -95,7 +93,10 @@ sub delete_interface {
     if ( $tied_conf->SectionExists($interface_name) ) {
         $tied_conf->DeleteSection($interface_name);
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
-            or $logger->logdie("Unable to write config to $conf_dir/pf.conf. " ."You might want to check the file's permissions.");
+            or $logger->logdie(
+                "Unable to write config to $conf_dir/pf.conf. "
+                ."You might want to check the file's permissions."
+            );
         # The following snippet updates the database
         require pf::configfile;
         import pf::configfile;
@@ -111,9 +112,7 @@ sub update_interface {
     my ($self, $interface, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if ( $interface eq 'all' ) {
-        die "This interface can't be deleted\n";
-    }
+    return ($FALSE, "This interface can't be updated") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
@@ -128,7 +127,10 @@ sub update_interface {
             }
         }
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
-            or $logger->logdie("Unable to write config to $conf_dir/pf.conf. " ."You might want to check the file's permissions.\n");
+            or $logger->logdie(
+                "Unable to write config to $conf_dir/pf.conf. "
+                ."You might want to check the file's permissions."
+            );
         # The following snippet updates the database
         require pf::configfile;
         import pf::configfile;
@@ -143,9 +145,7 @@ sub update_interface {
 sub create_interface {
     my ($self, $interface, $assignments) = @_;
 
-    if ( $interface eq 'all' ) {
-        die "This is a reserved interface name\n";
-    }
+    return ($FALSE, "This is a reserved interface name") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
@@ -157,12 +157,15 @@ sub create_interface {
             $tied_conf->newval( $interface_name, $param, $value );
         }
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
-            or die "Unable to write config to $conf_dir/pf.conf. " ."You might want to check the file's permissions.\n";
+            or $logger->logdie(
+                "Unable to write config to $conf_dir/pf.conf. "
+                ."You might want to check the file's permissions."
+            );
         require pf::configfile;
         import pf::configfile;
         configfile_import( $conf_dir . "/pf.conf" );
     } else {
-        die "Interface $interface already exists\n";
+        return ($FALSE, "Interface $interface already exists");
     }
 
     return ($TRUE, "Successfully created $interface");
