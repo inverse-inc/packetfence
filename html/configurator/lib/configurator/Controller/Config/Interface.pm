@@ -18,11 +18,9 @@ Catalyst Controller.
 
 =cut
 
-
 =head2 index
 
 =cut
-
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -58,25 +56,19 @@ sub object :Chained('/') :PathPart('config/interface') :CaptureArgs(1) {
 /config/interface/<interface>/get
 
 =cut
-
 sub get :Chained('object') :PathPart('get') :Args(0) {
     my ($self, $c) = @_;
     $c->log->debug("get called");
 
     my $section = $c->stash->{section};
 
-    my $result;
-    eval {
-        $result = $c->model('Config::Interface')->get($section);
-    };
-    if ($@) {
-        chomp $@;
-        $c->res->status(500);
-        $c->stash->{result} = $@;
+    my ($result, $message) = $c->model('Config::Pf')->get($section);
+    if (!$result) {
+        $c->error($message);
     }
     else {
         $c->res->status(200);
-        $c->stash->{interfaces} = $result;
+        $c->stash->{interfaces} = $message;
     }
 }
 
@@ -85,23 +77,17 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
 /config/interface/<interface>/delete
 
 =cut
-
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
     my $section = $c->stash->{section};
 
-    my $result;
-    eval {
-        $result = $c->model('Config::Interface')->remove($section);
-    };
-    if ($@) {
-        chomp $@;
-        $c->res->status(500);
-        $c->stash->{result} = $@;
+    my ($result, $message) = $c->model('Config::Pf')->remove($section);
+    if (!$result) {
+        $c->error($message);
     }
     else {
         $c->res->status(200);
-        $c->stash->{result} = $result;
+        $c->stash->{result} = $message;
     }
 }
 
@@ -110,7 +96,6 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 /config/interface/<interface>/edit
 
 =cut
-
 sub edit :Chained('object') :PathPart('edit') :Args(0) {
     my ($self, $c) = @_;
     my $section = $c->stash->{section};
@@ -118,7 +103,6 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
     my $assignments = $c->request->params->{assignments};
 
     if ($assignments) {
-        my $result;
         eval {
             $assignments = decode_json($assignments);
         };
@@ -129,11 +113,9 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
             $c->stash->{result} = $@;
         }
         else {
-            eval { $result = $c->model('Config::Interface')->edit($section, $assignments); };
-            if ($@) {
-                chomp $@;
-                $c->res->status(500);
-                $c->stash->{result} = $@;
+            my ($result, $message) = $c->model('Config::Pf')->edit($section, $assignments);
+            if (!$result) {
+                $c->error($message);
             }
             else {
                 $c->res->status(201);
@@ -172,11 +154,9 @@ sub add :Local {
             $c->stash->{result} = $@;
         }
         else {
-            eval { $result = $c->model('Config::Interface')->add($section, $assignments); };
-            if ($@) {
-                 chomp $@;
-                 $c->res->status(500);
-                 $c->stash->{result} = $@;
+            my ($result, $message) = $c->model('Config::Pf')->add($section, $assignments);
+            if (!$result) {
+                $c->error($message);
             }
             else {
                 $c->res->status(201);

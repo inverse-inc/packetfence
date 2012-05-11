@@ -21,6 +21,7 @@ use Catalyst qw/
     Session
     Session::Store::File
     Session::State::Cookie
+    StackTrace
     StatusMessage
 /;
 
@@ -46,12 +47,21 @@ __PACKAGE__->config(
     'Plugin::Session' => {
         storage => '/usr/local/pf/var/session'
     },
+
+    'View::JSON' => {
+       allow_callback  => 1,    # defaults to 0
+       callback_param  => 'cb', # defaults to 'callback'
+       expose_stash    => [ qw(result error interfaces switches) ], # defaults to everything
+    },
 );
 
 # Logging
 # TODO define a logging strategy that would fit both catalyst and our core 
 # application. For now, it's all basic
 __PACKAGE__->log(Log::Log4perl::Catalyst->new());
+#__PACKAGE__->log(Log::Log4perl::Catalyst->new(__PACKAGE__->path_to('Log4perl.conf')->stringify ) );
+# Handle warnings from Perl as fatal log messages
+$SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
 __PACKAGE__->setup();
