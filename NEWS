@@ -25,6 +25,7 @@ New Features
 Enhancements
  * minor refactoring and cleanup
  * debian support: arp binary location now configurable ([services].arp_binary)
+ * log the switch IP when a trap is skipped due to a dynamic uplink fetch not working
 
 Bug Fixes
  * RADIUS-based Disconnects not working for Aruba, AeroHIVE. Introduced in 3.3.2. (#1437)
