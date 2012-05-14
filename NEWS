@@ -17,7 +17,8 @@ Version <stable-version> released on <releaseDate>
 
 New Hardware
  * H3C S5120 series supports MAC-Authentication and 802.1X with or without VoIP
- * Added Role support for all Cisco Wireless (WLC) models
+ * Role support for all Cisco Wireless (WLC) models
+ * Cisco Aironet in Wireless Directory Services (WDS) mode
 
 New Features
  * debian packages (#1066, #1067)
