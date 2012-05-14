@@ -57,6 +57,14 @@ We weren't able to get it working with PacketFence yet.
 
 =back
 
+=head1 SEE ALSO
+
+=over 
+
+=item L<Cisco's RADIUS Packet of Disconnect documentation|http://www.cisco.com/en/US/docs/ios/12_2t/12_2t8/feature/guide/ft_pod1.html>
+
+=back
+
 =cut
 use strict;
 use warnings;
