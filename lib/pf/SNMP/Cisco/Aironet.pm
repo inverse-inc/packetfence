@@ -55,6 +55,7 @@ use Net::SNMP;
 use base ('pf::SNMP::Cisco');
 
 use pf::config;
+use pf::util qw(format_mac_as_cisco);
 
 =head1 SUBROUTINES
 
@@ -83,17 +84,10 @@ sub deauthenticateMac {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    #format MAC
-    if ( length($mac) == 17 ) {
-        $mac =~ s/://g;
-        $mac
-            = substr( $mac, 0, 4 ) . "."
-            . substr( $mac, 4, 4 ) . "."
-            . substr( $mac, 8, 4 );
-    } else {
-        $logger->error(
-            "ERROR: MAC format is incorrect ($mac). Should be xx:xx:xx:xx:xx:xx"
-        );
+    $mac = format_mac_as_cisco($mac);
+    if ( !defined($mac) ) {
+        $logger->error("ERROR: MAC format is incorrect. Aborting deauth...");
+        # TODO return 1, really?
         return 1;
     }
 
