@@ -41,9 +41,12 @@ sub trapmac {
     my $logger = Log::Log4perl::get_logger('pf::rawip');
     my $all_ok = 1;
     foreach my $ip ( mac2allips($mac) ) {
+        #FIXME deprecated during interface.gateway cleanup
         my $gip  = ip2gateway($ip);
         my $gmac = getlocalmac( ip2device($ip) );
-        if ( whitelisted_mac($mac) || !trappable_mac($mac) || !trappable_ip($ip) ) {
+        # got rid of trappable_ip below during the interface.gateway cleanup
+        #if ( whitelisted_mac($mac) || !trappable_mac($mac) || !trappable_ip($ip) ) {
+        if ( whitelisted_mac($mac) || !trappable_mac($mac) ) {
             $all_ok = 0;
         } else {
             $logger->info(
@@ -112,6 +115,8 @@ sub arpmac {
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
@@ -121,6 +126,8 @@ Kevin Amorin <kev@amorin.org>
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
+
+Copyright (C) 2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -99,7 +99,6 @@ Requires: perl(Log::Log4perl) >= 1.11
 Requires: perl(Net::Appliance::Session) = 1.36
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::Frame), perl(Net::Frame::Simple)
 Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
 Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
@@ -113,7 +112,6 @@ Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
-Requires: perl(Net::Write)
 Requires: perl(Parse::Nessus::NBE)
 Requires: perl(Parse::RecDescent)
 # Note: portability for non-x86 is questionnable for Readonly::XS

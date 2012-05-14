@@ -105,9 +105,12 @@ sub get_all_perl_binaries {
     my @list;
 
     # find2perl /usr/local/pf/lib/pf /usr/local/pf/addons -name "*.pl"
+    # Except that I'm explicitly throwing out addons/legacy/...
     File::Find::find({
         wanted => sub {
-            /^.*\.pl\z/s && push(@list, $File::Find::name);
+            /^.*\.pl\z/s 
+            && $File::Find::name !~ /^.*addons\/legacy\/.*\.pl\z/s
+            && push(@list, $File::Find::name);
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
     );
 
@@ -161,10 +164,13 @@ sub get_all_perl_modules {
     my @list;
 
     # find2perl /usr/local/pf/lib/pf /usr/local/pf/addons -name "*.pm"
-    # Except that I'm explictly throwing out pfcmd_pregrammar.pm
+    # Except that I'm explictly throwing out pfcmd_pregrammar.pm and anything in addons/legacy/
     File::Find::find({
         wanted => sub {
-            /^.*\.pm\z/s && ! /^.*pfcmd_pregrammar\.pm\z/s && push(@list, $File::Find::name);
+            /^.*\.pm\z/s 
+            && ! /^.*pfcmd_pregrammar\.pm\z/s 
+            && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
+            && push(@list, $File::Find::name);
         }}, '/usr/local/pf/lib/pf', '/usr/local/pf/conf/authentication', '/usr/local/pf/addons'
     );
 

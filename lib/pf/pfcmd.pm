@@ -197,7 +197,7 @@ sub parseCommandLine {
                                  )$  }xms,
         'manage'          => qr/ ^ 
                                    (?:
-                                     ( freemac | deregister )
+                                     ( deregister )
                                      \s+
                                      ( $RE{net}{MAC} )
                                      |
@@ -490,7 +490,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 

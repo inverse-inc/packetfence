@@ -25,7 +25,7 @@ use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
 
-our ( %trappable_ip, %reggable_ip, %is_internal, %local_mac );
+our ( %local_mac );
 
 BEGIN {
     use Exporter ();
@@ -34,14 +34,13 @@ BEGIN {
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
-        trappable_ip reggable_ip
-        inrange_ip ip2gateway ip2interface ip2device isinternal pfmailer 
+        ip2interface ip2device ip2int int2ip 
         isenabled isdisabled isempty
-        getlocalmac ip2int int2ip 
-        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets get_internal_ips
+        getlocalmac
+        get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
-        get_internal_info get_gateways createpid readpid deletepid
-        pfmon_preload parse_template mysql_date oui_to_vendor mac2oid oid2mac 
+        get_internal_info createpid readpid deletepid
+        parse_template mysql_date oui_to_vendor mac2oid oid2mac 
         str_to_connection_type connection_type_to_str
         get_total_system_memory
         parse_mac_from_trap
@@ -49,7 +48,7 @@ BEGIN {
         get_translatable_time
         pretty_bandwidth
         unpretty_bandwidth
-        pf_run
+        pf_run pfmailer 
         generate_id
     );
 }
@@ -63,20 +62,6 @@ TODO: This list is incomplete.
 =over
 
 =cut
-
-sub pfmon_preload {
-
-    # since inline mode re-integration general.caching is now disabled by default 
-    # otherwise pfmon eats too much memory on large networks (see also #861 for an older change related to this)
-    # TODO: it should be implemented more efficiently (b-tree?) or simplify removed if pfmon doesn't need it that much
-    if (basename($0) eq "pfmon" && isenabled($Config{'general'}{'caching'})) {
-        %trappable_ip = preload_trappable_ip();
-        %reggable_ip  = preload_reggable_ip();
-        %is_internal  = preload_is_internal();
-        %local_mac    = preload_getlocalmac();
-    }
-}
-
 sub valid_date {
     my ($date) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -283,108 +268,6 @@ sub trappable_mac {
     }
 }
 
-sub trappable_ip {
-    my ($ip) = @_;
-    return (0) if ( !$ip || !valid_ip($ip) );
-    return ( $trappable_ip{$ip} ) if ( defined( $trappable_ip{$ip} ) );
-    return inrange_ip( $ip, $Config{'trapping'}{'range'} );
-}
-
-sub reggable_ip {
-    my ($ip) = @_;
-    return (0) if ( !$ip || !valid_ip($ip) );
-    return (1)
-        if ( !defined $Config{'registration'}{'range'}
-        || !$Config{'registration'}{'range'} );
-    return ( $reggable_ip{$ip} ) if ( defined( $reggable_ip{$ip} ) );
-    return inrange_ip( $ip, $Config{'registration'}{'range'} );
-}
-
-sub inrange_ip {
-    my ( $ip, $network_range ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-
-    if ( grep( { $_ eq $ip } get_gateways() ) ) {
-        $logger->info("$ip is a gateway, skipping");
-        return (0);
-    }
-    if ( grep( { $_ eq $ip } get_internal_ips() ) ) {
-        $logger->info("$ip is a local int, skipping");
-        return (0);
-    }
-
-    foreach my $range ( split( /\s*,\s*/, $network_range ) ) {
-        if ( $range =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/ ) {
-            my $block = new Net::Netmask($range);
-            if ( $block->size() > 2 ) {
-                return (1)
-                    if ( $block->match($ip)
-                    && $block->nth(0)  ne $ip
-                    && $block->nth(-1) ne $ip );
-            } else {
-                return (1) if ( $block->match($ip) );
-            }
-
-#return(1) if ($block->match($ip) && $block->nth(0) ne $ip && $block->nth(-1) ne $ip);
-        } elsif ( $range
-            =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/
-            )
-        {
-
-            my $int_ip = ip2int($ip);
-            my $start  = $1;
-            my $end    = $2;
-
-            if ( !valid_ip($start) || !valid_ip($end) ) {
-                $logger->error("$range not valid range!");
-            } else {
-                my $int_start = ip2int($start);
-                my $int_end   = ip2int($end);
-                return (1)
-                    if ( $int_ip >= $int_start && $int_ip <= $int_end );
-            }
-        } elsif (
-            $range =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3})\.(\d{1,3})-(\d{1,3})$/ )
-        {
-
-            my $int_ip = ip2int($ip);
-            my $net    = $1;
-            my $start  = $2;
-            my $end    = $3;
-
-            if (   !valid_ip( $net . "." . $start )
-                || $end < $start
-                || $end > 255 )
-            {
-                $logger->error("$range not valid range!");
-            } else {
-                my $int_start = ip2int( $net . "." . $start );
-                my $int_end   = ip2int( $net . "." . $end );
-                return (1)
-                    if ( $int_ip >= $int_start && $int_ip <= $int_end );
-            }
-        } elsif ( $range =~ /^(?:\d{1,3}\.){3}\d{1,3}$/ ) {
-            return (1) if ( $range =~ /^$ip$/ );
-        } else {
-            $logger->error("$range not valid!");
-            next;
-        }
-    }
-    $logger->debug("$ip is not in $network_range, skipping");
-    return (0);
-}
-
-sub ip2gateway {
-    my ($ip) = @_;
-    return (0) if ( !valid_ip($ip) );
-    foreach my $interface (@internal_nets) {
-        if ( $interface->match($ip) ) {
-            return ( $interface->tag("gw") );
-        }
-    }
-    return (0);
-}
-
 sub ip2interface {
     my ($ip) = @_;
     return (0) if ( !valid_ip($ip) );
@@ -402,18 +285,6 @@ sub ip2device {
     foreach my $interface (@internal_nets) {
         if ( $interface->match($ip) ) {
             return ( $interface->tag("int") );
-        }
-    }
-    return (0);
-}
-
-sub isinternal {
-    my ($ip) = @_;
-    return (0) if ( !valid_ip($ip) );
-    return ( $is_internal{$ip} ) if ( defined( $is_internal{$ip} ) );
-    foreach my $interface (@internal_nets) {
-        if ( $interface->match($ip) ) {
-            return (1);
         }
     }
     return (0);
@@ -529,13 +400,17 @@ sub isempty {
     return $FALSE;
 }
 
+# TODO port to IO::Interface::Simple?
 sub getlocalmac {
     my ($dev) = @_;
     return (-1) if ( !$dev );
     return ( $local_mac{$dev} ) if ( defined $local_mac{$dev} );
     foreach (`LC_ALL=C /sbin/ifconfig -a`) {
-        return ( clean_mac($1) )
-            if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i);
+        if (/^$dev.+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/i) {
+            # cache the value
+            $local_mac{$dev} = clean_mac($1);
+            return $local_mac{$dev};
+        }
     }
     return (0);
 }
@@ -590,14 +465,6 @@ sub get_inline_nets {
     return (@nets);
 }
 
-sub get_internal_ips {
-    my @ips;
-    foreach my $internal (@internal_nets) {
-        push @ips, $internal->tag("ip");
-    }
-    return (@ips);
-}
-
 sub get_internal_devs {
     my @devs;
     foreach my $internal (@internal_nets) {
@@ -640,14 +507,6 @@ sub get_internal_info {
         return ($interface) if ( $interface->tag("int") eq $device );
     }
     return;
-}
-
-sub get_gateways {
-    my @gateways;
-    foreach my $interface (@internal_nets) {
-        push @gateways, $interface->tag("gw");
-    }
-    return (@gateways);
 }
 
 sub createpid {
@@ -741,114 +600,6 @@ sub oui_to_vendor {
     }
     my $oui_info = Net::MAC::Vendor::lookup($mac);
     return $$oui_info[0] || '';
-}
-
-sub preload_getlocalmac {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $logger->info("preloading local mac addresses");
-    my %hash;
-    my @iflist = `LC_ALL=C /sbin/ifconfig -a`;
-    foreach my $dev ( get_internal_devs() ) {
-        my @line = grep(
-            {/^$dev .+HWaddr\s+\w\w:\w\w:\w\w:\w\w:\w\w:\w\w/} @iflist );
-        $line[0] =~ /^$dev .+HWaddr\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/;
-        $hash{$dev} = clean_mac($1);
-    }
-    return (%hash);
-}
-
-sub preload_trappable_ip {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $logger->info("preloading trappable_ip hash");
-    return ( preload_network_range( $Config{'trapping'}{'range'} ) );
-}
-
-sub preload_reggable_ip {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    $logger->info("preloading reggable_ip hash");
-    return ( preload_network_range( $Config{'registration'}{'range'} ) );
-}
-
-# Generic Preloading Network Range Function
-#
-sub preload_network_range {
-    my ($network_range) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-
-    #my $caller = ( caller(1) )[3] || basename($0);
-    #$caller =~ s/^pf::\w+:://;
-    #print "caller: network range = $network_range\n";
-
-    my %cache_ip;
-
-    foreach my $gateway ( get_gateways() ) {
-        $cache_ip{$gateway} = 0;
-    }
-    foreach my $intip ( get_internal_ips() ) {
-        $cache_ip{$intip} = 0;
-    }
-    foreach my $range ( split( /\s*,\s*/, $network_range ) ) {
-        if ( $range =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/ ) {
-            my $block = new Net::Netmask($range);
-            if ( $block->size() > 2 ) {
-                $cache_ip{ $block->nth(0) }  = 0;
-                $cache_ip{ $block->nth(-1) } = 0;
-            }
-            foreach my $ip ( $block->enumerate() ) {
-                $cache_ip{$ip} = 1 if ( !defined( $cache_ip{$ip} ) );
-            }
-        } elsif ( $range
-            =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/
-            )
-        {
-            my $start = $1;
-            my $end   = $2;
-            if ( !valid_ip($start) || !valid_ip($end) ) {
-                $logger->error("$range not valid range!");
-            } else {
-                for ( my $i = ip2int($start); $i <= ip2int($end); $i++ ) {
-                    $cache_ip{ int2ip($i) } = 1;
-                }
-            }
-        } elsif (
-            $range =~ /^(\d{1,3}\.\d{1,3}\.\d{1,3})\.(\d{1,3})-(\d{1,3})$/ )
-        {
-            my $net   = $1;
-            my $start = $2;
-            my $end   = $3;
-            if (   !valid_ip( $net . "." . $start )
-                || $end < $start
-                || $end > 255 )
-            {
-                $logger->error("$range not valid range!");
-            } else {
-                for ( my $i = $start; $i <= $end; $i++ ) {
-                    my $ip = $net . "." . $i;
-                    $cache_ip{$ip} = 1 if ( !defined( $cache_ip{$ip} ) );
-                }
-            }
-        } elsif ( $range =~ /^(?:\d{1,3}\.){3}\d{1,3}$/ ) {
-            $cache_ip{$range} = 1;
-        } else {
-            $logger->error("$range not valid!");
-        }
-    }
-    $logger->info( scalar( keys(%cache_ip) ) . " cache_ip entries cached" );
-    return (%cache_ip);
-}
-
-sub preload_is_internal {
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    my %is_internal;
-    $logger->info("preloading is_internal hash");
-    foreach my $interface (@internal_nets) {
-        foreach my $ip ( $interface->enumerate() ) {
-            $is_internal{$ip} = 1;
-        }
-    }
-    $logger->info(
-        scalar( keys(%is_internal) ) . " is_internal entries cached" );
-    return (%is_internal);
 }
 
 =item connection_type_to_str

@@ -348,14 +348,12 @@ sub readPfConfigFiles {
 
         my $ip             = $Config{$interface}{'ip'};
         my $mask           = $Config{$interface}{'mask'};
-        my $gateway        = $Config{$interface}{'gateway'};
         my $type           = $Config{$interface}{'type'};
 
         if ( defined($ip) && defined($mask) ) {
             $ip   =~ s/ //g;
             $mask =~ s/ //g;
             $int_obj = new Net::Netmask( $ip, $mask );
-            $int_obj->tag( "gw",      $gateway );
             $int_obj->tag( "ip",      $ip );
             $int_obj->tag( "int",     $int );
         }
@@ -716,7 +714,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse, inc.
+Copyright (C) 2009-2012 Inverse, inc.
 
 =head1 LICENSE
 

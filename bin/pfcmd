@@ -265,10 +265,7 @@ sub manage {
     my $id;
     $id = $cmd{manage_options}[2] if ( defined $cmd{manage_options}[2] );
     my $function = "manage_" . $option;
-    if ( $option eq "freemac" ) {
-        require pf::rawip;
-        pf::rawip::freemac($mac);
-    } elsif ( $option eq "register" ) {
+    if ( $option eq "register" ) {
         return 1 if ( !$id );
         my %params = format_assignment( @{ $cmd{assignment} } );
         require pf::node;
@@ -843,7 +840,7 @@ sub interfaceconfig {
             }
         }
         # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(ip mask type enforcement gateway vip);
+        my @columns = qw(ip mask type enforcement vip);
         print "interface|" . join( "|", @columns ) . "\n";
         foreach my $section ( keys %pf_conf ) {
             if ( $section =~ /^interface (.+)$/ ) {

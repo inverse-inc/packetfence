@@ -98,16 +98,6 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   } else {
     pf::web::generate_error_page($cgi, $session, i18n("error: invalid page number"));
   }
-} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
-  if (trappable_ip($ip)) {
-    if (defined($cgi->url_param('json'))) {
-      pf::web::generate_status_json($cgi, $session, $mac);
-    } else {
-      pf::web::generate_status_page($cgi, $session, $mac);
-    }
-  } else {
-    pf::web::generate_error_page($cgi, $session, i18n("error: not trappable IP"));
-  }
 
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "deregister") {
   my ($form_return, $err) = pf::web::validate_form($cgi, $session);

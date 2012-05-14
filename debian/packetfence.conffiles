@@ -82,7 +82,6 @@
 /usr/local/pf/html/captive-portal/templates/error.html
 /usr/local/pf/html/captive-portal/templates/header.html
 /usr/local/pf/html/captive-portal/templates/release_with_xmlconfig.html
-/usr/local/pf/html/captive-portal/templates/status.html
 /usr/local/pf/html/captive-portal/templates/register_2.html
 /usr/local/pf/html/captive-portal/templates/login.html
 /usr/local/pf/html/captive-portal/templates/remediation.html
