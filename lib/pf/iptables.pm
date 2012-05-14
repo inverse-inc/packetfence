@@ -137,8 +137,10 @@ sub generate_filter_if_src_to_chain {
 
         # inline enforcement
         } elsif ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
+            my $mgmt_ip = $management_network->tag("ip");
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_INLINE\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_INLINE\n";
+            $rules .= "-A INPUT --in-interface $dev -d $mgmt_ip --protocol tcp --match tcp --dport 443 --jump ACCEPT\n";
             $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_INLINE\n";
 
         # nothing? something is wrong
