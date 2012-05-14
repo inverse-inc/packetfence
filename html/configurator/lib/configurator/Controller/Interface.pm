@@ -8,6 +8,14 @@ configurator::Controller::Interface - Catalyst Controller
 
 Catalyst Controller.
 
+=head1 STATUS
+
+Currently, DHCP interfaces are not supported, which mean:
+
+- DHCP configured interface will be reconfigured as static interfaces
+
+- It is not possible to use DHCP to configure an existing interface.
+
 =cut
 
 use strict;
@@ -60,7 +68,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
     my $interface = $c->stash->{interface};
 
-    my $result = $c->model('Interface')->delete($interface);
+    my $result = $c->model('Interface')->delete($interface, $c->req->uri->host);
 
     if ( $result eq 1 ) {
         $c->response->status(200);
@@ -183,6 +191,10 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     unless ( $c->model('Interface')->_interfaceExists($interface) ) {
         $c->response->status(404);
         $c->stash->{status_msg} = "Unknown requested interface $interface";
+
+        $c->response->redirect($c->uri_for($self->action_for('list'),
+        {mid => $c->set_status_msg($c->stash->{status_msg})}));
+
         $c->detach();
     }
 

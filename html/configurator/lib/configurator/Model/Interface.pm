@@ -85,7 +85,7 @@ sub create {
 
 =cut
 sub delete {
-    my ( $self, $interface ) = @_;
+    my ( $self, $interface, $host ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
@@ -104,6 +104,12 @@ sub delete {
     if ( !$self->_interfaceExists($interface) ) {
         $status_msg = "Interface $interface does not exists on the system";
         $logger->warn($status_msg);
+        return $status_msg;
+    }
+
+    # Check if it is not the interface we're currently using
+    if ( $self->_interfaceCurrentlyInUse($interface, $host) ) {
+        $status_msg = "Interface $interface is currently in use for the configuration";
         return $status_msg;
     }
 
