@@ -52,6 +52,32 @@ sub deauthenticateMac {
     return $self->radiusDisconnect( $mac, { 'Calling-Station-Id' => $mac, } );
 }
 
+=item extractSsid
+
+Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair VSA.
+
+=cut
+# Same as in pf::SNMP::Cisco::Aironet. Please keep both in sync. Once Moose push in a role.
+sub extractSsid {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (defined($radius_request->{'Cisco-AVPair'})) {
+
+        if ($radius_request->{'Cisco-AVPair'} =~ /^ssid=(.*)$/) { # ex: Cisco-AVPair = "ssid=PacketFence-Secure"
+            return $1;
+        } else {
+            $logger->info("Unable to extract SSID of Cisco-AVPair: ".$radius_request->{'Cisco-AVPair'});
+        }
+    }
+
+    $logger->warn(
+        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
+    );
+    return;
+}
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

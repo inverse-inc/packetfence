@@ -205,6 +205,7 @@ sub isVoIPEnabled {
 Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair VSA.
 
 =cut
+# Same as in pf::SNMP::Cisco::Aironet_WDS. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
