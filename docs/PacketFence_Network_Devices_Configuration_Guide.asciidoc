@@ -1325,8 +1325,6 @@ SNMP settings:
 Global configuration:
 
   port-security enable
-  port-security trap addresslearned
-  port-security trap intrusion
   dot1x authentication-method eap
 
 Global configuration (with VoIP):
@@ -1339,9 +1337,9 @@ Add the following to the previous global configuration.
 Interfaces configuration:
 
   port link-type hybrid
-  port hybrid vlan 1 2 3 4 5 untagged
+  port hybrid vlan 5 untagged
+  port hybrid pvid vlan 5
   mac-vlan enable
-  undo enable snmp trap updown
   stp edged-port enable
   port-security max-mac-count 1
   port-security port-mode userlogin-secure
@@ -1407,8 +1405,6 @@ SNMP settings:
 Global configuration:
 
   port-security enable
-  port-security trap addresslearned
-  port-security trap intrusion
   mac-authentication domain packetfence
 
 Global configuration (with VoIP):
@@ -1421,9 +1417,9 @@ Add the following to the previous global configuration.
 Interfaces configuration:
 
   port link-type hybrid
-  port hybrid vlan 1 2 3 4 5 untagged
+  port hybrid vlan 5 untagged
+  port hybrid pvid vlan 5
   mac-vlan enable
-  undo enable snmp trap updown
   stp edged-port enable
   mac-authentication guest-vlan 5
   port-security max-mac-count 1

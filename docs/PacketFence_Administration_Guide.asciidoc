@@ -238,7 +238,7 @@ RHEL 6.x
 
 RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
 
-  rhn-channel --add –channel=rhel-`uname -m`-server-optional-6
+  rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
 
 RedHat doesn't seem to provide a `perl-Net-Telnet` package. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
 
