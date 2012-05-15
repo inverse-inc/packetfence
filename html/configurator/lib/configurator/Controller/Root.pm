@@ -58,7 +58,18 @@ sub default :Path {
 Attempt to render a view, if needed.
 
 =cut
-sub end : ActionClass('RenderView') {}
+sub end : ActionClass('RenderView') {
+    my ( $self, $c ) = @_;
+
+    if ( scalar @{$c->error}) {
+        for my $error ( @{ $c->error } ) {
+            $c->log->error($error);
+        }
+        $c->stash->{status_msg} = 'An error condition has occured. See server side logs for details.';
+        $c->response->status(500);
+        $c->clear_errors;
+    }
+}
 
 
 =back
