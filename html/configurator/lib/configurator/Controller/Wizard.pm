@@ -30,7 +30,7 @@ BEGIN {extends 'Catalyst::Controller'; }
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->response->redirect($c->uri_for($self->action_for('step0')));
+    $c->response->redirect($c->uri_for($self->action_for('step1')));
 }
 
 =item object
@@ -49,6 +49,8 @@ sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
 =cut
 sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     my ( $self, $c ) = @_;
+
+    $c->stash(interfaces => $c->model('Interface')->get('all'));
 }
 
 =item step2
