@@ -103,7 +103,7 @@ sub getCurrentApFromMac {
         chomp($_);
         $logger->warn("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $_");
         $session = undef;
-    }
+    };
     return if (!defined($session));
 
     # preparing parameters
@@ -118,7 +118,7 @@ sub getCurrentApFromMac {
         chomp($_);
         $logger->warn("Error with command $command on ".$self->{'_ip'}.". Failed with $_");
         $session->close();
-    }
+    };
     return if (!@output);
 
     # interpreting the result
