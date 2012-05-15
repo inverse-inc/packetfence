@@ -8,46 +8,6 @@ $(function () {
     initModals();
     initEnforcement();
     initInterfaces();
-    
-    /* interfaces table */
-    //$('#interfaces .btn-toggle').bind('click:toggled', function(event) {
-
-    /* interface editor */
-    //$('#interfaces [href=#modalEditInterface]').click(function(event) {
-
-    /* delete vlan */
-
-/*
-    $('#vlans button').each(function(index) {
-        $(this).click(function(event) {
-             $(this).fadeOut('fast', function() {
-                 this.parentNode.removeChild(this);
-             });
-        });
-    });
-    $('#addVlan').click(function(event) {
-        var i = $(this).prev('input');
-        var value = i.val().trim();
-        if (value.length > 0 && parseInt(value) == value) {
-            var exists = false;
-            $('#vlans button').each(function(index) {
-                if ($(this).text().trim() == value) {
-                    exists = true;
-                    return false;
-                }
-            });
-            if (!exists) {
-                var btn = $('<button class="btn btn-mini btn-inverse">' + value + ' <i class="icon-remove icon-white"></i></button>');
-                $('#vlans p').before(btn);
-                btn.click(function(event) {
-                    $(this).fadeOut('fast', function() {
-                        this.parentNode.removeChild(this);
-                    });
-                });
-            }
-        }
-    });
-*/
 });
 
 function initModals() {
@@ -227,13 +187,6 @@ function refreshInterfaces() {
         .done(function(data) {
             var table = $('#interfaces tbody');
             table.html(data);
-//            table.children('tr').each(function() { $(this).remove(); });
-//            var names = new Array();
-//            for (var interface in data.interfaces) { names.push(interface); }
-//            names = names.sort();
-//            for (var i = 0; i < names.length; i++) {
-//                
-//            }
         })
         .fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
