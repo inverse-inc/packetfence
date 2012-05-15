@@ -6,8 +6,16 @@ and manage Cisco Aironet configured in Wireless Domain Services (WDS) mode.
 
 =head1 STATUS
 
-This module is implements little changes on top of L<pf::SNMP::Cisco::WLC>. 
-You should also consult its documentation if you experience issues.
+This module implements some changes on top of L<pf::SNMP::Cisco::WLC>. 
+You should also consult the documentation over there if you experience issues.
+
+=over
+
+=item Supports
+
+Deauthentication with RADIUS Disconnect (RFC3576)
+
+=back
 
 Tested on an Aironet WDS on IOS 12.3.8JEC3
 
@@ -17,9 +25,23 @@ Tested on an Aironet WDS on IOS 12.3.8JEC3
 
 =item deauthentication requires SSH access
 
-FIXME
+Even though we perform the deauthentication with RFC3576 through Packet of 
+Disconnect (PoD). SSH access is still required. 
 
-https://supportforums.cisco.com/thread/2148888
+Due to a Cisco issue, deauthentication attempts made directly to the
+WDS node, even though accepted, do not fully deauthenticate the client. It 
+feels like the crypto caches aren't properly invalidated which cause 
+subsequent re-association from the client never to trigger AAA.
+
+As a work-around, we connect to the WDS to obtain the current Access-Point
+where the MAC is located (with SSH) and then issue a PoD directly to the AP.
+
+Several improvements could be made by Cisco regarding this issue so a close
+look at their next IOS releases notes is in order.
+
+For more information see: https://supportforums.cisco.com/thread/2148888
+
+=back
 
 =cut
 use strict;
@@ -33,6 +55,10 @@ use Try::Tiny;
 use base ('pf::SNMP::Cisco::WLC');
 
 use pf::util qw(format_mac_as_cisco);
+
+=head1 METHODS
+
+=over
 
 =item deauthenticateMac
     
@@ -180,6 +206,8 @@ sub extractSsid {
     );
     return;
 }
+
+=back
 
 =head1 AUTHOR
 
