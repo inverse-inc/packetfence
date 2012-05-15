@@ -120,9 +120,6 @@ sub edit :Chained('object') :PathPart('edit') :Args(2) {
         $c->response->status(501);
         $c->stash->{status_msg} = $result;
     }
-
-#    $c->response->redirect($c->uri_for($self->action_for('list'),
-#        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item get
