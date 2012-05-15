@@ -111,7 +111,7 @@ sub getCurrentApFromMac {
 
     # running the command
     my $command = "show wlccp wds mn detail mac-address $mac_for_cmd";
-    $logger->trace("sending CLI command '$command'");
+    $logger->debug("sending CLI command '$command'");
     my @output;
     try { @output = $session->cmd(String => $command, Timeout => '5'); }
     catch {
