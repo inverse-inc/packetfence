@@ -2671,6 +2671,9 @@ sub radiusDisconnect {
         $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'} 
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
 
     my $response;
     try {
