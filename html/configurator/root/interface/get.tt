@@ -1,26 +1,26 @@
-[% # This is a TT comment. -%]
- 
-[%- # Provide a title -%]
-[% META title = 'Interfaces List' -%]
- 
-[% # Note That the '-' at the beginning or end of TT code  -%]
-[% # "chomps" the whitespace/newline at that end of the    -%]
-[% # output (use View Source in browser to see the effect) -%]
-
-[% status_msg %]
- 
-<table>
-<tr><th>Logical name</th><th>IP address</th><th>Netmask</th><th>Running</th></tr>
-[% FOREACH interface IN interfaces.keys.sort -%]
-  <tr>
-    <td>[% interfaces.$interface.name %]</td>
-    <td>[% interfaces.$interface.ipaddress %]</td>
-    <td>[% interfaces.$interface.netmask %]</td>
-    <td>[% interfaces.$interface.running %]</td>
-    <td><a href="[%c.uri_for(c.controller.action_for('up'), [interfaces.$interface.name]) %]">Up</a>
-    <td><a href="[%c.uri_for(c.controller.action_for('down'), [interfaces.$interface.name]) %]">Down</a>
-    <td><a href="[%c.uri_for(c.controller.action_for('edit'), [interfaces.$interface.name]) %]">Edit</a>
-    <td><a href="[%c.uri_for(c.controller.action_for('delete'), [interfaces.$interface.name]) %]">Delete</a>
-  </tr>
-[% END -%]
-</table>
+            [% FOREACH i IN interfaces.keys.sort %]
+            <tr>
+              <td>[% interfaces.$i.name %][% IF interfaces.$i.vlan %] <span class="badge">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
+              <td>[% interfaces.$i.ipaddress %]</td>
+              <td>[% interfaces.$i.netmask %]</td>
+              <td>[% IF interfaces.$i.running %]<a class="btn btn-mini btn-success btn-toggle" toggle-hover="Disable" toggle-hover-else="Enable" toggle-value="Disabled" toggle-value-else="Enabled" name="[% i %]" toggle-href="#down" href="#up">Enabled</a>[% ELSE %]<a class="btn btn-mini btn-toggle" toggle-hover="Enable" toggle-hover-else="Disable" toggle-value="Enabled" toggle-value-else="Disabled" name="[% i %]" toggle-href="#up" href="#down">Disabled</a>[% END %]</td>
+              <td class="control-group">
+                <select class="span2" name="type">
+                  <option value="none">None</option>
+                  <option value="management" selected="">Management</option>
+                  <option value="registration">Registration</option>
+                  <option value="isolation">Isolation</option>
+                  <option value="inline">Inline</option>
+                </select>
+              </td>
+              <td>
+                [% IF interfaces.$i.vlan %]
+                <a class="btn btn-mini[% UNLESS interfaces.$i.running %] disabled[% END %]" data-toggle="modal" name="[% i %]" href="#modalEditInterface">Edit</a>
+                <a class="btn btn-mini btn-danger" data-toggle="modal" name="[% i %]" href="#modalDeleteVlan">Delete</a>
+                [% ELSE %]
+                <a class="btn btn-mini[% UNLESS interfaces.$i.running %] disabled[% END %]" data-toggle="modal" name="[% i %]" href="#modalEditInterface">Edit</a>
+                <a class="btn btn-mini" data-toggle="modal" name="[% i %]" href="#modalCreateVlan">Add VLAN</a>
+                [% END %]
+              </td>
+            </tr>
+            [% END %]

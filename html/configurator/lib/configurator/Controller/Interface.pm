@@ -27,7 +27,6 @@ use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-
 =head1 SUBROUTINES
 
 =over
@@ -48,12 +47,11 @@ sub create :Path('create') :Args(1) {
         $c->response->status(200);
         $c->stash->{status_msg} = "Interface $interface successfully created";
     } else {
-        $c->response->status(500);
+        $c->response->status(501);
         $c->stash->{status_msg} = $result;
     }
 
-    $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
+    $c->stash->{current_view} = 'JSON';
 }
 
 =item delete
@@ -74,12 +72,9 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
         $c->response->status(200);
         $c->stash->{status_msg} = "Interface $interface successfully deleted";
     } else {
-        $c->response->status(500);
+        $c->response->status(501);
         $c->stash->{status_msg} = $result;
     }
-
-    $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item down
@@ -100,12 +95,9 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
         $c->response->status(200);
         $c->stash->{status_msg} = "Interface $interface successfully deactivated from the system";
     } else {
-        $c->response->status(500);
+        $c->response->status(501);
         $c->stash->{status_msg} = $result;
     }
-
-    $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item edit
@@ -119,19 +111,18 @@ sub edit :Chained('object') :PathPart('edit') :Args(2) {
     my ( $self, $c, $ipaddress, $netmask ) = @_;
 
     my $interface = $c->stash->{interface};
-
     my $result = $c->model('Interface')->edit($interface, $ipaddress, $netmask);
 
     if ( $result eq 1 ) {
         $c->response->status(200);
         $c->stash->{status_msg} = "Interface $interface successfully edited";
     } else {
-        $c->response->status(500);
+        $c->response->status(501);
         $c->stash->{status_msg} = $result;
     }
 
-    $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
+#    $c->response->redirect($c->uri_for($self->action_for('list'),
+#        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
 
 =item get
@@ -146,19 +137,10 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
 
     my $interface = $c->stash->{interface};
 
-    my $result;
-    eval {
-        $result = $c->model('Interface')->get($interface);
-    };
+    my $result = $c->model('Interface')->get($interface);
 
-    if ( $@ ) {
-        chomp $@;
-        $c->response->status(500);
-        $c->stash->{status_msg} = $@;
-    } else {
-        $c->response->status(200);
-        $c->stash(interfaces => $result);
-    }
+    $c->stash->{interfaces} = $result;
+    $c->stash->{current_view} = 'HTML';
 }
 
 =item index
@@ -199,6 +181,7 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     }
 
     $c->stash->{interface} = $interface;
+    $c->stash->{current_view} = 'JSON';
 
     $c->load_status_msgs;
 }
@@ -221,14 +204,10 @@ sub up :Chained('object') :PathPart('up') :Args(0) {
         $c->response->status(200);
         $c->stash->{status_msg} = "Interface $interface successfully activated on the system";
     } else {
-        $c->response->status(500);
+        $c->response->status(501);
         $c->stash->{status_msg} = $result;
     }
-
-    $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
 }
-
 
 =back
 
