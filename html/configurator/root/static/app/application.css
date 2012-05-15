@@ -47,31 +47,6 @@ body {
     color: #000;
     font-weight: bold;
 }
-n0#step1, #step2, #step3 {
-}
-n0#step1 i, #step2 i, #step3 i {
-    background-image: url("tracker.png");
-    background-repeat: no-repeat;
-    display: block;
-    float: left;
-    height: 32px;
-    width: 32px;
-}
-n0#step2 i {
-    background-position: -32px -32px;
-}
-n0#step2.active i {
-    background-position: 0px -32px;
-}
-n0#step3 i {
-    background-position: -32px -64px;
-}
-n0.completed i {
-    background-position: -32px 0px;
-}
-n0.completed a {
-    color: #999;
-}
 .page-header.step {
     text-align: right;
 }
