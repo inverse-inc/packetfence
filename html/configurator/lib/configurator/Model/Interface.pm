@@ -196,13 +196,6 @@ sub edit {
         return $status_msg;
     }
 
-    # Check if interface is active on the system
-    if ( !$self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface is not active on the system";
-        $logger->warn($status_msg);
-        return $status_msg;
-    }
-
     # Edit IP address
     eval { $result = $interface_object->address($ipaddress) };
     if ( $@ || !$result ) {
