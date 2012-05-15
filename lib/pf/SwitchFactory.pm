@@ -104,6 +104,7 @@ sub instantiate {
         return 0;
     }
 
+    # transforming uplinks to array
     my @uplink = ();
     if (   $SwitchConfig{$requestedSwitch}{'uplink'}
         || $SwitchConfig{'default'}{'uplink'} )
@@ -120,6 +121,8 @@ sub instantiate {
             push @uplink, $_tmp;
         }
     }
+
+    # transforming vlans to array
     my @vlans      = ();
     my @_vlans_tmp = split(
         /,/,
@@ -131,8 +134,11 @@ sub instantiate {
         $_tmp =~ s/ //g;
         push @vlans, $_tmp;
     }
+
     $logger->debug("creating new $type object");
     return $type->new(
+        '-uplink'    => \@uplink,
+        '-vlans'     => \@vlans,
         '-customVlan1' => (
                    $SwitchConfig{$requestedSwitch}{'customVlan1'}
                 || $SwitchConfig{'default'}{'customVlan1'}
@@ -324,8 +330,6 @@ sub instantiate {
                 || $SwitchConfig{'default'}{'cliTransport'}
                 || 'Telnet'
         ),
-        '-uplink'    => \@uplink,
-        '-vlans'     => \@vlans,
         '-voiceVlan' => (
                    $SwitchConfig{$requestedSwitch}{'voiceVlan'}
                 || $SwitchConfig{'default'}{'voiceVlan'}
