@@ -117,7 +117,7 @@ sub getCurrentApFromMac {
     try {
         $session = Net::Appliance::Session->new(
             Host => $self->{_ip},
-            Timeout => 5,
+            Timeout => 25, # apparently these things are very slow
             Transport => $self->{_cliTransport},
         );
         $session->connect(
@@ -139,7 +139,7 @@ sub getCurrentApFromMac {
     my $command = "show wlccp wds mn detail mac-address $mac_for_cmd";
     $logger->debug("sending CLI command '$command'");
     my @output;
-    try { @output = $session->cmd(String => $command, Timeout => '5'); }
+    try { @output = $session->cmd(String => $command, Timeout => '15'); } # apparently these things are very slow
     catch {
         chomp($_);
         $logger->warn("Error with command $command on ".$self->{'_ip'}.". Failed with $_");
