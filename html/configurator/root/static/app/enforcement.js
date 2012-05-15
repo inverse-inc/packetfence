@@ -28,7 +28,7 @@ function initModals() {
             var ip = modal.find('#interfaceIp').val(),
             netmask = modal.find('#interfaceNetmask').val();
             var url = ['/interface',
-                       modal.attr('name'),
+                       modal.attr('interface'),
                        'edit',
                        ip,
                        netmask];
@@ -115,7 +115,7 @@ function initEnforcement() {
 function initInterfaces() {
     /* Enable/Disable toggle button */
     $('#interfaces tbody').on('click:toggled', '.btn-toggle', function(event) {
-        var name = $(this).attr('name');
+        var name = $(this).attr('interface');
         var action = $(this).attr('href').substr(1);
         var url = ['/interface', name, action];
         var row = $(this).closest('tr');
@@ -137,7 +137,7 @@ function initInterfaces() {
         var modal = $('#modalEditInterface');
         var row = $(this).closest('tr');
         var cells = row.children('td');
-        modal.attr('name', $(this).attr('name'));
+        modal.attr('interface', $(this).attr('interface'));
         modal.find('h3:first span').html($(cells[0]).html());
         modal.find('#interfaceIp').val($(cells[1]).text());
         modal.find('#interfaceNetmask').val($(cells[2]).text());
@@ -155,7 +155,7 @@ function initInterfaces() {
     $('#interfaces tbody').on('click', '[href=#modalDeleteVlan]', function(event) {
         var row = $(this).closest('tr');
         var url = ['/interface',
-                   $(this).attr('name'),
+                   $(this).attr('interface'),
                    'delete'];
         $.ajax(url.join('/'))
             .done(function(data) {
