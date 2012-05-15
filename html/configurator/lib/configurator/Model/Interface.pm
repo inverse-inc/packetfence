@@ -233,22 +233,26 @@ sub get {
     if ( $interface eq 'all' ) {
         @interfaces = $self->_listInterfaces();
     } else {
-        @interfaces = $interface;
+        @interfaces = (IO::Interface::Simple->new($interface));
     }
 
-    my $interfaces;
+    my $result = {};
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     foreach $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
 
-        my $interface_object = IO::Interface::Simple->new($interface);
-
-        $interfaces->{$interface}->{'name'}      = $interface_object->name;
-        $interfaces->{$interface}->{'ipaddress'} = $interface_object->address;
-        $interfaces->{$interface}->{'netmask'}   = $interface_object->netmask;
-        $interfaces->{$interface}->{'running'}   = $interface_object->is_running;
+        $result->{"$interface"}->{'name'}      = "$interface";
+        $result->{"$interface"}->{'ipaddress'} = $interface->address;
+        $result->{"$interface"}->{'netmask'}   = $interface->netmask;
+        $result->{"$interface"}->{'running'}   = $interface->is_running;
+        if ((my ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface))) {
+          $result->{"$interface"}->{'name'}    = $physical_device;
+          $result->{"$interface"}->{'vlan'}    = $vlan_id;
+        }
+        #$result->{$interface}->{'type'} = 
     }
 
-    return $interfaces;
+    return $result;
 }
 
 =item _interfaceActive
@@ -305,7 +309,7 @@ sub _interfaceVirtual {
         return;
     }
  
-    return 1;
+    return ( $physical_device, $vlan_id );
 }
 
 =item _listInterfaces
@@ -358,15 +362,24 @@ sub up {
     # This way, the interface will switch to UP and RUNNING
     $interface_object->flags($flag | 0x1);
 
+    # Server must run as root
+    unless ( $< == 0 ) {
+        $status_msg = "The configurator must run under the root user.";
+        $logger->error($status_msg);
+        return $status_msg;
+    }
+
     return 1;
 }
 
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
