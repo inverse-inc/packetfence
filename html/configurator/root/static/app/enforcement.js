@@ -64,36 +64,43 @@ function initModals() {
         if (valid) {
             var name = modal.find('h3:first span').text() + '.' + modal.find('#vlanId').val();
             var modal_body = modal.find('.modal-body').first();
-            var url = ['/interface',
-                       'create',
-                       name];
-            resetAlert(modal_body);
-            $.ajax(url.join('/'))
-                .done(function(data) {
-                    var create_msg = data.status_msg;
-                    // Creation succeed
-                    // Save attributes
-                    url = ['/interface',
-                           name,
-                           'edit',
-                           modal.find('#vlanIp').val(),
-                           modal.find('#vlanNetmask').val()];
-                    $.ajax(url.join('/'))
-                        .done(function(data) {
-                            modal.modal('toggle');
-                            showSuccess($('#interfaces table'), create_msg);
-                            //refreshInterfaces();
-                        })
-                        .fail(function(jqXHR) {
-                            var obj = $.parseJSON(jqXHR.responseText);
-                            showError(modal_body.children('form').first(), obj.status_msg);
-                        });
-                    refreshInterfaces();
-                })
-                .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError(modal_body.children('form').first(), obj.status_msg);
-                });
+            var form = modal_body.children('form').first();
+            if (form.attr('action') != '#created') {
+                var url = ['/interface',
+                           'create',
+                           name];
+                resetAlert(modal_body);
+                $.ajax(url.join('/'))
+                    .done(function(data) {
+                        // Creation succeed
+                        form.attr('action', '#created');
+                        refreshInterfaces();
+                    })
+                    .fail(function(jqXHR) {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        showError(modal_body.children('form').first(), obj.status_msg);
+                        valid = false;
+                    });
+            }
+            if (valid) {
+                // Save attributes
+                url = ['/interface',
+                       name,
+                       'edit',
+                       modal.find('#vlanIp').val(),
+                       modal.find('#vlanNetmask').val()];
+                $.ajax(url.join('/'))
+                    .done(function(data) {
+                        modal.modal('toggle');
+                        showSuccess($('#interfaces table'), data.status_msg);
+                        form.attr('action', '');
+                        refreshInterfaces();
+                    })
+                    .fail(function(jqXHR) {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        showError(modal_body.children('form').first(), obj.status_msg);
+                    });
+            }
         }
     });
 }
