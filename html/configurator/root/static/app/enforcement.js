@@ -112,29 +112,17 @@ function initModals() {
                 .done(function(data) {
                     var create_msg = data.status_msg;
                     // Creation succeed
-                    // Enable interface
+                    // Save attributes
                     url = ['/interface',
                            name,
-                           'up'];
+                           'edit',
+                           modal.find('#vlanIp').val(),
+                           modal.find('#vlanNetmask').val()];
                     $.ajax(url.join('/'))
                         .done(function(data) {
-                            var up_msg = data.status_msg;
-                            // Save attributes
-                            url = ['/interface',
-                                   name,
-                                   'edit',
-                                   modal.find('#vlanIp').val(),
-                                   modal.find('#vlanNetmask').val()];
-                            $.ajax(url.join('/'))
-                                .done(function(data) {
-                                    modal.modal('toggle');
-                                    showSuccess($('#interfaces table'), create_msg);
-                                    refreshInterfaces();
-                                })
-                                .fail(function(jqXHR) {
-                                    var obj = $.parseJSON(jqXHR.responseText);
-                                    showError(modal_body.children('form').first(), obj.status_msg, 3000);
-                                });
+                            modal.modal('toggle');
+                            showSuccess($('#interfaces table'), create_msg);
+                            refreshInterfaces();
                         })
                         .fail(function(jqXHR) {
                             var obj = $.parseJSON(jqXHR.responseText);
