@@ -11,12 +11,24 @@ You should also consult its documentation if you experience issues.
 
 Tested on an Aironet WDS on IOS 12.3.8JEC3
 
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item deauthentication requires SSH access
+
+FIXME
+
+https://supportforums.cisco.com/thread/2148888
+
 =cut
 use strict;
 use warnings;
 
 use Log::Log4perl;
+use Net::Appliance::Session;
 use Net::SNMP;
+use Try::Tiny;
 
 use base ('pf::SNMP::Cisco::WLC');
 
@@ -47,9 +59,100 @@ sub deauthenticateMac {
         return 1;
     }
 
-    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    $mac = format_mac_as_cisco($mac);
-    return $self->radiusDisconnect( $mac, { 'Calling-Station-Id' => $mac, } );
+    # we must perform the deauth against the AP that the client is currently connected to
+    my $ap_ip = $self->getCurrentApFromMac($mac);
+    if (!defined($ap_ip)) {
+        $logger->error("deauthentication impossible, could not find AP for MAC $mac");
+        return;
+    }
+
+    $logger->debug("deauthenticate $mac on AP $ap_ip using RADIUS Disconnect-Request deauth method");
+    my $mac_for_deauth = format_mac_as_cisco($mac);
+    return $self->radiusDisconnect($mac, { 
+        'NAS-IP-Address' => $ap_ip, 
+        'Calling-Station-Id' => $mac_for_deauth, 
+    });
+}
+
+=item getCurrentApFromMac
+
+Warning: this method should _never_ be called in a thread. 
+Net::Appliance::Session is L<not thread safe|http://www.cpanforum.com/threads/6909/>.
+Experienced when using SSH.
+
+Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
+
+=cut
+sub getCurrentApFromMac {
+    my ( $self, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $session;
+    try {
+        $session = Net::Appliance::Session->new(
+            Host => $this->{_ip},
+            Timeout => 5,
+            Transport => $this->{_cliTransport},
+        );
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );
+    }
+    catch {
+        chomp($_);
+        $logger->warn("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $_");
+        $session = undef;
+    }
+    return if (!defined($session));
+
+    # preparing parameters
+    my $mac_for_cmd = format_mac_as_cisco($mac);
+
+    # running the command
+    my $command = "show wlccp wds mn detail mac-address $mac_for_cmd";
+    $logger->trace("sending CLI command '$command'");
+    my @output;
+    try { @output = $session->cmd(String => $command, Timeout => '5'); }
+    catch {
+        chomp($_);
+        $logger->warn("Error with command $command on ".$this->{'_ip'}.". Failed with $_");
+        $session->close();
+    }
+    return if (!@output);
+
+    # interpreting the result
+    # Here's a sample of the results
+    #    > show wlccp wds mn detail mac-address 0021.9105.FF11  
+    #    MAC: 0021.9105.ff11,  IP-ADDR: 192.168.0.181,  State: REGISTERED
+    #    Cur-AP: 0018.19bd.ba13, 10.11.61.252  
+    #    BSS: 0018.7331.09c0, SSID: WIFIBC1
+    #    Vlan: 192
+    #    Ntwrk-ID Assigned by AAA:   -
+    #    Key Mgmt: None,  Authentication: EAP
+    #    Posture Token:
+    #    Up-time: 00:25:30, Lifetime: 214 
+    my $cur_ap_ip;
+    foreach my $line (@output) {
+        if ($line =~ /^Cur-AP: [0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}, ([0-9.]*)/) {
+            $cur_ap_ip = $1;
+        }
+    }
+
+    if (defined($cur_ap_ip)) {
+        $session->close();
+        return $cur_ap_ip;
+    }
+    elsif ($output[0] =~ /^\s+$/) {
+        $logger->warn("MAC $mac not found on any Access-Point in the WDS. This could be normal if user disconnected.");
+        $session->close();
+        return;
+    }
+
+    # otherwise report an error
+    $logger->warn("Error with command $command on ".$this->{'_ip'}.". Failed with ".join(@output));
+    $session->close();
+    return;
 }
 
 =item extractSsid
