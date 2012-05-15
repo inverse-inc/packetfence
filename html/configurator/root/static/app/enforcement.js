@@ -42,7 +42,7 @@ function initModals() {
                 })
                 .fail(function(jqXHR) {
                     var obj = $.parseJSON(jqXHR.responseText);
-                    showError(modal_body.children('form').first(), obj.status_msg, 3000);
+                    showError(modal_body.children('form').first(), obj.status_msg);
                 });
         }
     });
@@ -82,16 +82,17 @@ function initModals() {
                         .done(function(data) {
                             modal.modal('toggle');
                             showSuccess($('#interfaces table'), create_msg);
-                            refreshInterfaces();
+                            //refreshInterfaces();
                         })
                         .fail(function(jqXHR) {
                             var obj = $.parseJSON(jqXHR.responseText);
-                            showError(modal_body.children('form').first(), obj.status_msg, 3000);
+                            showError(modal_body.children('form').first(), obj.status_msg);
                         });
+                    refreshInterfaces();
                 })
                 .fail(function(jqXHR) {
                     var obj = $.parseJSON(jqXHR.responseText);
-                    showError(modal_body.children('form').first(), obj.status_msg, 3000);
+                    showError(modal_body.children('form').first(), obj.status_msg);
                 });
         }
     });
@@ -127,7 +128,7 @@ function initInterfaces() {
             })
             .fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
-                showError(sibling, obj.status_msg, 10000);
+                showError(sibling, obj.status_msg);
             });
     });
 
@@ -164,7 +165,7 @@ function initInterfaces() {
             })
             .fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#interfaces table'), obj.status_msg, 10000);
+                showError($('#interfaces table'), obj.status_msg);
             });        
     });
 
@@ -190,6 +191,6 @@ function refreshInterfaces() {
         })
         .fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
-            showError($('#interfaces table'), obj.status_msg, 10000);
+            showError($('#interfaces table'), obj.status_msg);
         });
 }

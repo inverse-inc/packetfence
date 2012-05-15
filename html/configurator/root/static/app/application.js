@@ -49,12 +49,9 @@ function showSuccess(sibling, msg) {
     alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
 }
 
-function showError(sibling, msg, hidedelay) {
+function showError(sibling, msg) {
     var alert = $('.alert-error').first().clone();
     alert.find('span').first().text(msg);
     sibling.before(alert);
-    if (hidedelay > 0)
-        alert.fadeIn('fast').delay(hidedelay).slideUp('fast', function() { $(this).remove(); });
-    else
-        alert.fadeIn('fast');
+    alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
 }
