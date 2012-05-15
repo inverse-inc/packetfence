@@ -1,0 +1,83 @@
+body {
+    padding-top: 60px;
+}
+[class^="icon-step"],
+[class*=" icon-step"] {
+    background-image: url("steps.png");
+    background-position: 0px 0px;
+}
+#tracker .active i {
+    background-image: url("steps-white.png");
+}
+.icon-step2 {
+    background-position: 0px -14px;
+}
+.icon-step3 {
+    background-position: 0px -28px;
+}
+.icon-step4 {
+    background-position: 0px -42px;
+}
+.icon-step5 {
+    background-position: 0px -56px;
+}
+#tracker a:hover {
+  color: #08c;
+}
+#tracker .active a:hover {
+  color: #fff;
+}
+#tracker {
+    margin-top: 20px;
+    /*margin: 20px;*/
+    /*text-align: center;*/
+}
+#tracker > div {
+    n0border-bottom: 1px solid #ccc;
+}
+#tracker b {
+    color: #999;
+    line-height: 16px;
+    display: block;
+    margin-left: 40px;
+    font-size: 14px;
+    font-weight: normal;
+}
+#tracker .active b {
+    color: #000;
+    font-weight: bold;
+}
+n0#step1, #step2, #step3 {
+}
+n0#step1 i, #step2 i, #step3 i {
+    background-image: url("tracker.png");
+    background-repeat: no-repeat;
+    display: block;
+    float: left;
+    height: 32px;
+    width: 32px;
+}
+n0#step2 i {
+    background-position: -32px -32px;
+}
+n0#step2.active i {
+    background-position: 0px -32px;
+}
+n0#step3 i {
+    background-position: -32px -64px;
+}
+n0.completed i {
+    background-position: -32px 0px;
+}
+n0.completed a {
+    color: #999;
+}
+.page-header.step {
+    text-align: right;
+}
+#interfaces table {
+    margin-top: 20px;
+}
+#interfaces td span.badge {
+    float: right;
+}
