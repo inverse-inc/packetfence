@@ -90,18 +90,18 @@ sub getCurrentApFromMac {
     my $session;
     try {
         $session = Net::Appliance::Session->new(
-            Host => $this->{_ip},
+            Host => $self->{_ip},
             Timeout => 5,
-            Transport => $this->{_cliTransport},
+            Transport => $self->{_cliTransport},
         );
         $session->connect(
-            Name     => $this->{_cliUser},
-            Password => $this->{_cliPwd}
+            Name     => $self->{_cliUser},
+            Password => $self->{_cliPwd}
         );
     }
     catch {
         chomp($_);
-        $logger->warn("Unable to connect to ".$this->{'_ip'}." using ".$this->{_cliTransport}.". Failed with $_");
+        $logger->warn("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $_");
         $session = undef;
     }
     return if (!defined($session));
@@ -116,7 +116,7 @@ sub getCurrentApFromMac {
     try { @output = $session->cmd(String => $command, Timeout => '5'); }
     catch {
         chomp($_);
-        $logger->warn("Error with command $command on ".$this->{'_ip'}.". Failed with $_");
+        $logger->warn("Error with command $command on ".$self->{'_ip'}.". Failed with $_");
         $session->close();
     }
     return if (!@output);
@@ -150,7 +150,7 @@ sub getCurrentApFromMac {
     }
 
     # otherwise report an error
-    $logger->warn("Error with command $command on ".$this->{'_ip'}.". Failed with ".join(@output));
+    $logger->warn("Error with command $command on ".$self->{'_ip'}.". Failed with ".join(@output));
     $session->close();
     return;
 }
@@ -162,8 +162,8 @@ Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair
 =cut
 # Same as in pf::SNMP::Cisco::Aironet. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
-    my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
+    my ($self, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     if (defined($radius_request->{'Cisco-AVPair'})) {
 
@@ -175,7 +175,7 @@ sub extractSsid {
     }
 
     $logger->warn(
-        "Unable to extract SSID for module " . ref($this) . ". SSID-based VLAN assignments won't work. "
+        "Unable to extract SSID for module " . ref($self) . ". SSID-based VLAN assignments won't work. "
         . "Make sure you enable Vendor Specific Attributes (VSA) on the AP if you want them to work."
     );
     return;
