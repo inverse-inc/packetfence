@@ -174,6 +174,14 @@ sub down {
     # This way, the interface will switch will no longer be UP neither RUNNING
     $interface_object->flags($flag & ~0x1);
 
+    # Check if interface is deactivated
+    # This check is necessary since the previous call (modification of the flag) does not return error or ok
+    if ( $self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface has not been deactivated. Should check server side logs for details";
+        $logger->warn($status_msg);
+        return $status_msg;
+    }
+
     return 1;
 }
 
@@ -355,6 +363,15 @@ sub up {
     # This way, the interface will switch to UP and RUNNING
     $interface_object->flags($flag | 0x1);
 
+    # Check if interface is activated
+    # This check is necessary since the previous call (modification of the flag) does not return error or ok
+    if ( !$self->_interfaceActive($interface) ) {
+        $status_msg = "Interface $interface has not been activated. Should check server side logs for details";
+        $logger->warn($status_msg);
+        return $status_msg;
+    }
+
+    # TODO: Move this to the configurator startup stuff
     # Server must run as root
     unless ( $< == 0 ) {
         $status_msg = "The configurator must run under the root user.";
