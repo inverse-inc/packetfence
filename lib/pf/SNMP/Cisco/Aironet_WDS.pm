@@ -162,6 +162,7 @@ sub getCurrentApFromMac {
     foreach my $line (@output) {
         if ($line =~ /^Cur-AP: [0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}, ([0-9.]*)/) {
             $cur_ap_ip = $1;
+            last;
         }
     }
 
