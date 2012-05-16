@@ -26,6 +26,8 @@ requires 'Catalyst::Plugin::StatusMessage';
 requires 'Catalyst::View::TT';
 requires 'Catalyst::View::JSON';
 requires 'IO::Interface::Simple';
+requires 'DBI';
+requires 'Net::Route';
 
 test_requires 'Test::More' => '0.88';
 catalyst;
