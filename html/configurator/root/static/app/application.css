@@ -56,3 +56,6 @@ body {
 #interfaces td span.badge {
     float: right;
 }
+#interfaces .btn-toggle {
+    min-width: 50px;
+}
