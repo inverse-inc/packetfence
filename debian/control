@@ -55,7 +55,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl,
 # required by configurator
- libio-interface-perl,
+ libio-interface-perl, libnet-route-perl,
 # required by catalyst
  libcatalyst-perl, libcatalyst-modules-perl,
  libcatalyst-plugin-statusmessage-perl, libauthen-htpasswd-perl,
