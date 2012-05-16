@@ -44,6 +44,10 @@ __PACKAGE__->config(
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
 
+    'View::JSON' => {
+       expose_stash    => [ qw(status_msg interfaces) ], # defaults to everything
+    },
+
     'Plugin::Session' => {
         storage => '/usr/local/pf/var/session'
     },
