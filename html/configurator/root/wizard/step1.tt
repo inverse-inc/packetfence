@@ -11,13 +11,13 @@
           <div class="control-group">
             <label class="control-label" for="interfaceIp">IP Address</label>
             <div class="controls">
-              <input type="text"class="input" id="interfaceIp">
+              <input type="text" class="input" id="interfaceIp">
             </div>
           </div>
           <div class="control-group">
             <label class="control-label" for="interfaceNetmask">Netmask</label>
             <div class="controls">
-              <input type="text"class="input" id="interfaceNetmask">
+              <input type="text" class="input" id="interfaceNetmask">
             </div>
           </div>
         </form>
@@ -39,20 +39,20 @@
           <div class="control-group">
             <label class="control-label" for="vlanId">Virtual LAN ID</label>
             <div class="controls">
-              <input type="text"class="input" id="vlanId">
+              <input type="text" class="input" id="vlanId">
                 <p class="help-block">VLAN ID associated to the network interface</p>
             </div>
           </div>
           <div class="control-group">
             <label class="control-label" for="vlanIp">IP Address</label>
             <div class="controls">
-              <input type="text"class="input" id="vlanIp">
+              <input type="text" class="input" id="vlanIp">
             </div>
           </div>
           <div class="control-group">
             <label class="control-label" for="vlanNetmask">Netmask</label>
             <div class="controls">
-              <input type="text"class="input" id="vlanNetmask">
+              <input type="text" class="input" id="vlanNetmask">
             </div>
           </div>
         </form>
@@ -98,45 +98,43 @@
         </div>
         <div class="span9">
           <div id="interfaces" class="form-horizontal">
-          <h3>Enforcement</h3>
-          <div class="control-group">
-            <label class="control-label" for="enforcement">Mechanisms</label>
-            <div class="controls">
-              <label class="checkbox">
-                <input type="checkbox" value="inlineEnforcement" checked=""> <strong>Inline enforcement</strong>
-                <p class="help-block">Activate this mechanism if you have unmanageable devices such as entry-level consumer switches or access-point. PacketFence becomes the gateway of that inline network, and NAT the traffic using IPTables to the Internet.</p>
-              </label>
-              <label class="checkbox">
-                <input type="checkbox" value="vlanEnforcement" checked=""> <strong>VLAN enforcement</strong>
-                <p class="help-block">PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.</p>
-              </label>
-            </div>
+            <form>
+              <h3>Enforcement Mechanisms</h3>
+              <div class="control-group">
+                <div class="controls">
+                  <label class="checkbox">
+                    <input type="checkbox" name="enforcement" value="inline"[% IF enforcements.inline %] checked=""[% END %]> <strong>Inline enforcement</strong>
+                    <p class="help-block">Activate this mechanism if you have unmanageable devices such as entry-level consumer switches or access-point. PacketFence becomes the gateway of that inline network, and NAT the traffic using IPTables to the Internet.</p>
+                  </label>
+                  <label class="checkbox">
+                    <input type="checkbox" name="enforcement" value="vlan"[% IF enforcements.vlan %] checked=""[% END %]> <strong>VLAN enforcement</strong>
+                    <p class="help-block">PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.</p>
+                  </label>
+                </div>
+              </div>
+              <h3>Network Interfaces</h3>
+              <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
+              <table class="table">
+                <thead>
+                  <tr><th>Logical name</th><th>IP address</th><th>Netmask</th><th style="min-width: 60px">State</th><th>Type</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  [% INCLUDE interface/get.tt %]
+                </tbody>
+              </table>
+              <h3>Default Gateway</h3>
+              <div class="control-group">
+                <div class="controls">
+                  <input id="gateway" type="text" class="input" placeholder="IP address" value="[% gateway %]">
+                </div>
+              </div>
           </div>
-          <h3>Network Interfaces</h3>
-          <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
-          <table class="table">
-            <thead>
-              <tr><th>Logical name</th><th>IP address</th><th>Netmask</th><th style="min-width: 60px">State</th><th>Type</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              [% INCLUDE interface/get.tt %]
-            </tbody>
-          </table>
-          <h3>Default Gateway</h3>
-          <div class="control-group">
-            <label class="control-label">Gateway</label>
-            <div class="controls">
-              <input type="text" class="input" placeholder="IP address">
-            </div>
-          </div>
-          </div>
-          <form>
           <fieldset>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right">Continue <i class="icon-circle-arrow-right icon-white"></i></button>
+              <a class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">Continue <i class="icon-circle-arrow-right icon-white"></i></a>
             </div>
           </fieldset>
-        </form>
+          </form>
         </div>
       </div>
       <footer>

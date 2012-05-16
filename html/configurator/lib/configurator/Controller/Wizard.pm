@@ -16,6 +16,7 @@ use warnings;
 # Catalyst includes
 use Moose;
 use namespace::autoclean;
+use JSON;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -50,7 +51,22 @@ sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
 sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash(interfaces => $c->model('Interface')->get('all'));
+    if ($c->request->method eq 'POST') {
+        # Save parameters in user session
+        my $data = decode_json($c->request->params->{json});
+        $c->session(gateway => $data->{gateway},
+                    types => $data->{types},
+                    enforcements => {});
+        map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
+        $c->stash->{current_view} = 'JSON';
+    }
+    else {
+        # Restore session data, if any
+        $c->stash(interfaces => $c->model('Interface')->get('all'));
+        $c->stash(gateway => $c->session->{gateway},
+                  enforcements => $c->session->{enforcements},
+                  types => $c->session->{types});
+    }
 }
 
 =item step2
@@ -73,6 +89,8 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 

@@ -1,0 +1,97 @@
+[% INCLUDE wizard/header.inc %]
+
+    <div id="navbar" class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
+          <p class="pull-right">Configuration Wizard</p>
+          </div>
+      </div>
+    </div>
+
+    <div class="container">
+      [% step = 2 %]
+      [% INCLUDE wizard/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>Step 2</h1>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>Database Configuration
+            <small>Create a user in your MySQL server</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>Instructions</h3>
+            <p>PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes.</p>
+          </div>
+        </div>
+        <div class="span9">
+          <form class="form-horizontal">
+            <h3>Enter the root account credentials</h3>
+            <div class="control-group">
+              <label class="control-label" for="root">Username</label>
+              <div class="controls">
+                <input id="root" class="text" type="text" value="root" placeholder="root">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="rootpw">Password</label>
+              <div class="controls">
+                <input id="rootpw" class="text" type="password">
+                <a class="btn" href="#testDatabase">Test</a>
+              </div>
+            </div>
+            <h3>Create a PacketFence account</h3>
+            <div class="control-group">
+              <label class="control-label" for="root">Username</label>
+              <div class="controls">
+                <input id="root" class="text" type="text">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="rootpassword">Password</label>
+              <div class="controls">
+                <input id="rootpassword" class="text" type="password">
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input class="text" type="password" placeholder="Retype your password">
+                <a class="btn btn-primary" href="#createUser">Create user</a>
+              </div>
+            </div>
+            <h3>Database</h3>
+            <div class="control-group">
+              <label class="control-label" for="root">Database name</label>
+              <div class="controls">
+                <input id="root" class="text" type="text" value="pf">
+              </div>
+            </div>
+            <div class="control-group success">
+              <div class="controls">
+                <button class="btn btn-primary disabled">Create tables and indexes</button>
+                <span class="help-inline"><strong>Success!</strong> The database tables already exist.</span>
+              </div>
+            </div>
+            <fieldset>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary pull-right">Continue <i class="icon-circle-arrow-right icon-white"></i></button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2012</p>
+      </footer>
+    </div><!--/container-->
+
+[% INCLUDE wizard/footer.inc
+    jsFiles = ['enforcement'] %]

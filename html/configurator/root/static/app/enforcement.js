@@ -8,6 +8,12 @@ $(function () {
     initModals();
     initEnforcement();
     initInterfaces();
+
+    $('#tracker a, .form-actions a').click(function(event) {
+        var href = $(this).attr('href');
+        saveStep(true, function(data) { window.location.href = href; } );
+        return false; // don't follow link
+    });
 });
 
 function initModals() {
@@ -107,9 +113,9 @@ function initModals() {
 
 function initEnforcement() {
     /* Enforcement mechanisms checkboxes */
-    $('input[type="checkbox"][value$="Enforcement"]').change(function(event) {
+    $('input:checkbox[name$="enforcement"]').change(function(event) {
         var disable = !this.checked;
-        var type = $(this).attr("value").split("Enforcement")[0];
+        var type = $(this).val();
         $('select[name="type"] option').each(function(index) {
             for (var i = 0; i < enforcementTypes[type].length; i++) {
                 var t = enforcementTypes[type][i];
@@ -191,6 +197,7 @@ function initInterfaces() {
 }
 
 function refreshInterfaces() {
+    saveStep(false);
     $.ajax('/interface/all/get')
         .done(function(data) {
             var table = $('#interfaces tbody');
@@ -200,4 +207,44 @@ function refreshInterfaces() {
             var obj = $.parseJSON(jqXHR.responseText);
             showError($('#interfaces table'), obj.status_msg);
         });
+}
+
+function saveStep(validate, successCallback) {
+    var valid = true;
+    if (validate) {
+        $('#interfaces .control-group').each(function(index) {
+            var e = $(this);
+            var i = e.find('input:text').first();
+            if (i.length && i.val().trim().length == 0) {
+                e.addClass('error');
+                valid = false;
+            }
+            else
+                e.removeClass('error');
+        });
+    }
+    if (valid) {
+        var form = {
+            enforcements: [],
+            types: {},
+            gateway: $('#gateway').val()
+        };
+        $('input:checkbox:checked[name="enforcement"]').each(function(index) {
+            form.enforcements.push($(this).val());
+        });
+        $('#interfaces select[name="type"]').each(function(index) {
+            form.types[$(this).attr('interface')] = $(this).val();
+        });
+        $.ajax({
+            type: 'POST',
+            url: window.location.pathname,
+            data: {json: $.toJSON(form)}
+        }).done(function(data) {
+            if (successCallback) successCallback(data);
+        }).fail(function(jqXHR) {
+            var obj = $.parseJSON(jqXHR.responseText);
+            showError($('#interfaces form'), obj.status_msg);
+            $("body").animate({scrollTop:0}, 'fast');
+        });
+    }
 }
