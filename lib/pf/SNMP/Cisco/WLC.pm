@@ -44,22 +44,35 @@ controllers are happy with these. Not a PacketFence issue. I would think it
 relates to the following open caveats CSCtw87226:
 http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
 
-=item FlexConnect (H-REAP) limitations
+=item FlexConnect (H-REAP) limitations before IOS 7.2
 
 Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
 FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
-Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
+Customer specific work-arounds are possible. For example: per-SSID 
+registration, auto-registration, etc. The goal being that only one VLAN
+is ever 'assigned' and that is the local VLAN set on the AP for the SSID.
 
-Even if it looks like FlexConnect can do AAA: 
-http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954. 
-We weren't able to get it working with PacketFence yet.
+Update: L<FlexConnect AAA Override support was introduced in IOS 7.2 series|https://supportforums.cisco.com/message/3605608#3605608>
+
+=item FlexConnect issues with IOS 7.2.103.0
+
+There an issue with these IOS with AAA Override functionnality required by 
+PacketFence. The issue is fixed in 7.2.104.16 which is not released as the 
+time of this writing.
+
+The workaround mentionned by Cisco is to downgrade to 7.0.230.0 but it 
+doesn't support the FlexConnect AAA Override feature...
+
+Caveat CSCty44701
 
 =back
 
 =head1 SEE ALSO
 
 =over 
+
+=item L<IOS 7.2 - Configuring AAA Overrides for FlexConnect|http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954>
 
 =item L<Cisco's RADIUS Packet of Disconnect documentation|http://www.cisco.com/en/US/docs/ios/12_2t/12_2t8/feature/guide/ft_pod1.html>
 
