@@ -23,6 +23,19 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =over
 
+=item get
+
+Retrieve a configuration parameter in session
+
+Usage: /config/<section>/<parameter>/get
+
+=cut
+sub get :Chained('object') :PathPart('get') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{value} = $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}};
+}
+
 =item object
 
 =cut
@@ -35,6 +48,10 @@ sub object :Chained('/') :PathPart('config') :CaptureArgs(2) {
 
 =item set
 
+Set a configuration parameter in session for future write
+
+Usage: /config/<section>/<parameter>/set/<value>
+
 =cut
 sub set :Chained('object') :PathPart('set') :Args(1) {
     my ( $self, $c, $value ) = @_;
@@ -43,6 +60,10 @@ sub set :Chained('object') :PathPart('set') :Args(1) {
 }
 
 =item unset
+
+Unset a configuration parameter from session for future write
+
+Usage: /config/<section>/<parameter>/unset
 
 =cut
 sub unset :Chained('object') :PathPart('unset') :Args(0) {
