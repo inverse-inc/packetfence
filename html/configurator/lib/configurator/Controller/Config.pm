@@ -19,24 +19,41 @@ use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-
 =head1 SUBROUTINES
 
 =over
 
-=item index
+=item object
 
 =cut
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+sub object :Chained('/') :PathPart('config') :CaptureArgs(2) {
+    my ( $self, $c, $section, $parameter ) = @_;
 
-    $c->response->body('Matched configurator::Controller::Config in Config.');
+    $c->stash->{section}    = $section;
+    $c->stash->{parameter}  = $parameter;
 }
 
+=item set
+
+=cut
+sub set :Chained('object') :PathPart('set') :Args(1) {
+    my ( $self, $c, $value ) = @_;
+
+    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = $value;
+}
+
+=item unset
+
+=cut
+sub unset :Chained('object') :PathPart('unset') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = "";
+}
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

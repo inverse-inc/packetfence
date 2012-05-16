@@ -27,7 +27,7 @@ extends 'Catalyst::Model';
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
