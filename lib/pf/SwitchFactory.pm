@@ -135,30 +135,13 @@ sub instantiate {
         push @vlans, $_tmp;
     }
 
+    my $custom_vlan_assignments_ref = $this->_customVlanExpansion($requestedSwitch, %SwitchConfig);
+
     $logger->debug("creating new $type object");
     return $type->new(
+        %$custom_vlan_assignments_ref,
         '-uplink'    => \@uplink,
         '-vlans'     => \@vlans,
-        '-customVlan1' => (
-                   $SwitchConfig{$requestedSwitch}{'customVlan1'}
-                || $SwitchConfig{'default'}{'customVlan1'}
-        ),
-        '-customVlan2' => (
-                   $SwitchConfig{$requestedSwitch}{'customVlan2'}
-                || $SwitchConfig{'default'}{'customVlan2'}
-        ),
-        '-customVlan3' => (
-                   $SwitchConfig{$requestedSwitch}{'customVlan3'}
-                || $SwitchConfig{'default'}{'customVlan3'}
-        ),
-        '-customVlan4' => (
-                   $SwitchConfig{$requestedSwitch}{'customVlan4'}
-                || $SwitchConfig{'default'}{'customVlan4'}
-        ),
-        '-customVlan5' => (
-                   $SwitchConfig{$requestedSwitch}{'customVlan5'}
-                || $SwitchConfig{'default'}{'customVlan5'}
-        ),
         '-guestVlan' => (
                    $SwitchConfig{$requestedSwitch}{'guestVlan'}
                 || $SwitchConfig{'default'}{'guestVlan'}
@@ -378,6 +361,27 @@ sub readConfig {
     %{ $this->{_config} } = %SwitchConfig;
 
     return 1;
+}
+
+sub _customVlanExpansion {
+    my ($this, $requestedSwitch, %SwitchConfig) = @_;
+
+    my %custom_vlan_assignments;
+    for my $custom_nb (0 .. 99) {
+        my $vlan;
+        # switch specific VLAN first
+        if (defined($SwitchConfig{$requestedSwitch}{'customVlan'.$custom_nb})) {
+            $vlan = $SwitchConfig{$requestedSwitch}{'customVlan'.$custom_nb};
+        }
+        # then default section
+        elsif (defined($SwitchConfig{'default'}{'customVlan'.$custom_nb})) {
+            $vlan = $SwitchConfig{'default'}{'customVlan'.$custom_nb};
+        }
+
+        # we'll assign the customVlanXX value only if it exists
+        $custom_vlan_assignments{'-customVlan' . $custom_nb} = $vlan if (defined($vlan));
+    }
+    return \%custom_vlan_assignments;
 }
 
 =back

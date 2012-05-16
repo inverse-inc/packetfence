@@ -952,24 +952,6 @@ sub switchconfig {
                 $switches_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(
-            ip type mode VoIPEnabled uplink 
-            vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan 
-            customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 
-            cliTransport cliUser cliPwd cliEnablePwd 
-            wsTransport wsUser wsPwd 
-            radiusSecret roles
-            controllerIp
-            SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap 
-            SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap 
-            SNMPVersion SNMPCommunityRead SNMPCommunityWrite 
-            SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead 
-            SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite 
-            SNMPPrivPasswordWrite
-            macSearchesMaxNb macSearchesSleepInterval
-        );
-        print join( "|", @columns ) . "\n";
 
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
         my %switches_conf_tmp = %switches_conf;
@@ -981,12 +963,15 @@ sub switchconfig {
             . $_ => @sections_tmp;
         unshift( @sections, 'default' );
 
+        my @fields = field_order();
+        print join( $delimiter, @fields ) . "\n";
+
         foreach my $section (@sections) {
             if (   ( $cmd{'command'}[2] eq 'all' )
                 || ( $cmd{'command'}[2] eq $section ) )
             {
                 my @values;
-                foreach my $column (@columns) {
+                foreach my $column (@fields) {
                     if ( $column eq 'ip' ) {
                         push @values, $section;
                     } else {
@@ -996,7 +981,7 @@ sub switchconfig {
                                 || '' );
                     }
                 }
-                print join( "|", @values ) . "\n";
+                print join( $delimiter, @values ) . "\n";
             }
         }
     } elsif ( $mode eq 'delete' ) {
