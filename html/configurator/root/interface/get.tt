@@ -15,10 +15,10 @@
               </td>
               <td>
                 [% IF interfaces.$i.vlan %]
-                <a class="btn btn-mini[% UNLESS interfaces.$i.running %] disabled[% END %]" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">Edit</a>
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">Edit</a>
                 <a class="btn btn-mini btn-danger" data-toggle="modal" interface="[% i %]" href="#modalDeleteVlan">Delete</a>
                 [% ELSE %]
-                <a class="btn btn-mini[% UNLESS interfaces.$i.running %] disabled[% END %]" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">Edit</a>
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">Edit</a>
                 <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalCreateVlan">Add VLAN</a>
                 [% END %]
               </td>

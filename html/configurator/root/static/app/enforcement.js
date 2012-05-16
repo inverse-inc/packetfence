@@ -137,7 +137,6 @@ function initInterfaces() {
         $.ajax(url.join('/'))
             .done(function(data) {
                 showSuccess(sibling, data.status_msg);
-                row.find('[href="#modalEditInterface"]').toggleClass('disabled');
             })
             .fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
@@ -147,7 +146,6 @@ function initInterfaces() {
 
     /* Edit button */
     $('#interfaces tbody').on('click', '[href=#modalEditInterface]', function(event) {
-        if ($(this).hasClass('disabled')) return false;
         var modal = $('#modalEditInterface');
         var row = $(this).closest('tr');
         var cells = row.children('td');
