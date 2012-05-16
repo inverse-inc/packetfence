@@ -1,5 +1,5 @@
 package configurator::Controller::Config::Interface;
-use HTTP::Status qw(:constants);
+use HTTP::Status qw(:constants is_error);
 use JSON;
 use Moose;
 use namespace::autoclean;
@@ -46,11 +46,11 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my $interface = $c->stash->{interface};
 
     my ($result, $message) = $c->model('Config::Pf')->read_interface($interface);
-    if (!$result) {
+    if (is_error($result)) {
+        $c->res->status($result);
         $c->error($message);
     }
     else {
-        $c->res->status(HTTP_OK);
         $c->stash->{interfaces} = $message;
     }
 }
@@ -65,11 +65,11 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my $interface = $c->stash->{interface};
 
     my ($result, $message) = $c->model('Config::Pf')->delete_interface($interface);
-    if (!$result) {
+    if (is_error($result)) {
+        $c->res->status($result);
         $c->error($message);
     }
     else {
-        $c->res->status(HTTP_OK);
         $c->stash->{result} = $message;
     }
 }
@@ -97,7 +97,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         else {
             my ($result, $message) = $c->model('Config::Pf')->update_interface($interface, $assignments);
-            if (!$result) {
+            if (is_error($result)) {
+                $c->res->status($result);
                 $c->error($message);
             }
             else {
@@ -126,7 +127,6 @@ sub create :Local {
     my $assignments = $c->request->params->{assignments};
 
     if ($interface && $assignments) {
-        my $result;
         eval {
             $assignments = decode_json($assignments);
         };
@@ -138,7 +138,8 @@ sub create :Local {
         }
         else {
             my ($result, $message) = $c->model('Config::Pf')->create_interface($interface, $assignments);
-            if (!$result) {
+            if (is_error($result)) {
+                $c->res->status($result);
                 $c->error($message);
             }
             else {
@@ -147,6 +148,7 @@ sub create :Local {
             }
         }
     }
+    # FIXME is this still relevant? shouldn't it be no HTML forward and ->{result} instead of message?
     else {
         $c->res->status(HTTP_BAD_REQUEST);
         $c->stash->{message} = 'Missing parameters';

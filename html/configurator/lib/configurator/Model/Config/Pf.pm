@@ -5,6 +5,7 @@ use namespace::autoclean;
 use Config::IniFiles;
 
 use pf::config;
+use pf::errors;
 
 extends 'Catalyst::Model';
 
@@ -74,10 +75,10 @@ sub read_interface {
     }
 
     if ($#resultset > 0) {
-        return ($TRUE, \@resultset);
+        return ($STATUS::OK, \@resultset);
     }
     else {
-        return ($FALSE, "Unknown interface $interface");
+        return ($STATUS::NOT_FOUND, "Unknown interface $interface");
     }
 }
 
@@ -85,7 +86,7 @@ sub delete_interface {
     my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    return ($FALSE, "This interface can't be deleted") if ( $interface eq 'all' );
+    return ($STATUS::FORBIDDEN, "This interface can't be deleted") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
@@ -102,17 +103,17 @@ sub delete_interface {
         import pf::configfile;
         configfile_import( $conf_dir . "/pf.conf" );
     } else {
-        return ($FALSE, "Interface not found");
+        return ($STATUS::NOT_FOUND, "Interface not found");
     }
   
-    return ($TRUE, "Successfully deleted $interface");
+    return ($STATUS::OK, "Successfully deleted $interface");
 }
 
 sub update_interface {
     my ($self, $interface, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    return ($FALSE, "This interface can't be updated") if ( $interface eq 'all' );
+    return ($STATUS::FORBIDDEN, "This interface can't be updated") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
@@ -136,16 +137,17 @@ sub update_interface {
         import pf::configfile;
         configfile_import( $conf_dir . "/pf.conf" );
     } else {
-        return ($FALSE, "Interface not found");
+        return ($STATUS::NOT_FOUND, "Interface not found");
     }
 
-    return ($TRUE, "Successfully modified $interface");
+    return ($STATUS::OK, "Successfully modified $interface");
 }
 
 sub create_interface {
     my ($self, $interface, $assignments) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    return ($FALSE, "This is a reserved interface name") if ( $interface eq 'all' );
+    return ($STATUS::FORBIDDEN, "This is a reserved interface name") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_pf_conf();
@@ -165,10 +167,10 @@ sub create_interface {
         import pf::configfile;
         configfile_import( $conf_dir . "/pf.conf" );
     } else {
-        return ($FALSE, "Interface $interface already exists");
+        return ($STATUS::PRECONDITION_FAILED, "Interface $interface already exists");
     }
 
-    return ($TRUE, "Successfully created $interface");
+    return ($STATUS::OK, "Successfully created $interface");
 }
 
 =head1 AUTHOR
