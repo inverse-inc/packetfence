@@ -56,11 +56,11 @@ Update: L<FlexConnect AAA Override support was introduced in firmware 7.2 series
 
 =item FlexConnect issues with firmware 7.2.103.0
 
-There an issue with these firmware with AAA Override functionnality required by 
-PacketFence. The issue is fixed in 7.2.104.16 which is not released as the 
-time of this writing.
+There's an issue with this firmware regarding the AAA Override functionality
+required by PacketFence. The issue is fixed in 7.2.104.16 which is not 
+released as the time of this writing.
 
-The workaround mentionned by Cisco is to downgrade to 7.0.230.0 but it 
+The workaround mentioned by Cisco is to downgrade to 7.0.230.0 but it 
 doesn't support the FlexConnect AAA Override feature...
 
 So you can use 7.2.103.0 with PacketFence but not in FlexConnect mode.
