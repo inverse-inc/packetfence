@@ -63,6 +63,8 @@ time of this writing.
 The workaround mentionned by Cisco is to downgrade to 7.0.230.0 but it 
 doesn't support the FlexConnect AAA Override feature...
 
+So you can use 7.2.103.0 with PacketFence but not in FlexConnect mode.
+
 Caveat CSCty44701
 
 =back
