@@ -95,7 +95,7 @@ sub fetchMarkForNode {
     }
 
     # looking at the node's registration status
-    # at this point we don't care wether trapping.registration is enabled or not
+    # at this point we don't care whether trapping.registration is enabled or not
     # we can do this because actual enforcement is done on startup by adding proper DNAT and forward ACCEPT
     my $node_info = node_attributes($mac);
     if (!defined($node_info)) {
