@@ -371,14 +371,6 @@ sub up {
         return $status_msg;
     }
 
-    # TODO: Move this to the configurator startup stuff
-    # Server must run as root
-    unless ( $< == 0 ) {
-        $status_msg = "The configurator must run under the root user.";
-        $logger->error($status_msg);
-        return $status_msg;
-    }
-
     return 1;
 }
 

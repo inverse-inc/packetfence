@@ -19,22 +19,57 @@ use namespace::autoclean;
 
 extends 'Catalyst::Model';
 
-
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
+
+=item checkForRootUser
+
+=cut
+sub checkForRootUser {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $status_msg;
+
+    unless ( $< == 0 ) {
+        $status_msg = "The configurator must run under the root user";
+        $logger->error($status_msg);
+        return ( 0, $status_msg );
+    }
+
+    return 1;
+}
 
 =item checkForUpgrade
 
 =cut
 sub checkForUpgrade {
     my ( $self ) = @_;
-}
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+    my $filehandler;
+
+    open( $filehandler, '<', "/usr/local/pf/conf/currently-at" );
+    my $currently_at = <$filehandler>;
+    close( $filehandler );
+
+    open( $filehandler, '<', "/usr/local/pf/conf/pf-release" );
+    my $pf_release = <$filehandler>;
+    close( $filehandler );
+
+    if ( (!$currently_at) || ($currently_at eq $pf_release) ) {
+        $logger->info("Installation process");
+        return "installation";
+    } else {
+        $logger->info("Upgrade process");
+        return "upgrade";
+    }
+}
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
