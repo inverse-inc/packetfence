@@ -45,9 +45,9 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};
 
-    my ($result, $message) = $c->model('Config::Pf')->read_interface($interface);
-    if (is_error($result)) {
-        $c->res->status($result);
+    my ($status, $message) = $c->model('Config::Pf')->read_interface($interface);
+    if (is_error($status)) {
+        $c->res->status($status);
         $c->error($message);
     }
     else {
@@ -64,9 +64,9 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};
 
-    my ($result, $message) = $c->model('Config::Pf')->delete_interface($interface);
-    if (is_error($result)) {
-        $c->res->status($result);
+    my ($status, $message) = $c->model('Config::Pf')->delete_interface($interface);
+    if (is_error($status)) {
+        $c->res->status($status);
         $c->error($message);
     }
     else {
@@ -96,14 +96,14 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
             $c->stash->{result} = $@;
         }
         else {
-            my ($result, $message) = $c->model('Config::Pf')->update_interface($interface, $assignments);
-            if (is_error($result)) {
-                $c->res->status($result);
+            my ($status, $message) = $c->model('Config::Pf')->update_interface($interface, $assignments);
+            if (is_error($status)) {
+                $c->res->status($status);
                 $c->error($message);
             }
             else {
                 $c->res->status(HTTP_CREATED);
-                $c->stash->{result} = $result;
+                $c->stash->{result} = $status;
             }
         }
     }
@@ -137,14 +137,14 @@ sub create :Local {
             $c->stash->{result} = $@;
         }
         else {
-            my ($result, $message) = $c->model('Config::Pf')->create_interface($interface, $assignments);
-            if (is_error($result)) {
-                $c->res->status($result);
+            my ($status, $message) = $c->model('Config::Pf')->create_interface($interface, $assignments);
+            if (is_error($status)) {
+                $c->res->status($status);
                 $c->error($message);
             }
             else {
                 $c->res->status(HTTP_CREATED);
-                $c->stash->{result} = $result;
+                $c->stash->{result} = $status;
             }
         }
     }
