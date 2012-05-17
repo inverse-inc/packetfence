@@ -70,7 +70,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
         $c->error($message);
     }
     else {
-        $c->stash->{result} = $message;
+        $c->stash->{status_msg} = $message;
     }
 }
 
@@ -83,81 +83,71 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};
 
-    my $assignments = $c->request->params->{assignments};
+    my $assignments_ref = $c->request->body_params->{assignments};
 
-    if ($assignments) {
-        eval {
-            $assignments = decode_json($assignments);
-        };
-        if ($@) {
+    if ($assignments_ref) {
+        my $decoded_assignments_ref = try { return decode_json($assignments_ref); }
+        catch {
             # Malformed JSON
-            chomp $@;
+            chomp $_;
             $c->res->status(HTTP_BAD_REQUEST);
-            $c->stash->{result} = $@;
-        }
-        else {
-            my ($status, $message) = $c->model('Config::Pf')->update_interface($interface, $assignments);
+            $c->stash->{status_msg} = $_;
+            return;
+        };
+        if (defined($decoded_assignments_ref)) {
+            my ($status, $message) = $c->model('Config::Pf')->update_interface($interface, $assignments_ref);
             if (is_error($status)) {
                 $c->res->status($status);
                 $c->error($message);
             }
             else {
                 $c->res->status(HTTP_CREATED);
-                $c->stash->{result} = $status;
+                $c->stash->{status_msg} = $message;
             }
         }
     }
     else {
         $c->res->status(HTTP_BAD_REQUEST);
-        $c->stash->{result} = 'Missing parameters';
+        $c->stash->{status_msg} = 'Missing parameters';
     }
 }
 
 =head2 create
 
 /config/interface/create/<interface>
-/config/interface/create?interface=<interface>
 
 =cut
 
-sub create :Local {
-    my ($self, $c, $interface) = @_;
+sub create :Chained('object') :PathPart('create') :Args(0) {
+    my ($self, $c) = @_;
+    my $interface = $c->stash->{interface};
 
-    $interface = $c->request->params->{interface} unless ($interface);
-    my $assignments = $c->request->params->{assignments};
-
-    if ($interface && $assignments) {
-        eval {
-            $assignments = decode_json($assignments);
-        };
-        if ($@) {
-            # Malformed JSON
-            chomp $@;
-            $c->res->status(HTTP_BAD_REQUEST);
-            $c->stash->{result} = $@;
+    my $assignments_ref = $c->request->body_params;
+    if (defined($assignments_ref)) {
+        my ($status, $message) = $c->model('Config::Pf')->create_interface($interface, $assignments_ref);
+        if (is_error($status)) {
+            $c->res->status($status);
+            $c->error($message);
         }
         else {
-            my ($status, $message) = $c->model('Config::Pf')->create_interface($interface, $assignments);
-            if (is_error($status)) {
-                $c->res->status($status);
-                $c->error($message);
-            }
-            else {
-                $c->res->status(HTTP_CREATED);
-                $c->stash->{result} = $status;
-            }
+            $c->res->status(HTTP_CREATED);
+            $c->stash->{status_msg} = $message;
         }
     }
-    # FIXME is this still relevant? shouldn't it be no HTML forward and ->{result} instead of message?
     else {
         $c->res->status(HTTP_BAD_REQUEST);
-        $c->stash->{message} = 'Missing parameters';
-        $c->forward('View::HTML');
+        $c->stash->{status_msg} = 'Missing parameters';
     }
 }
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
+    # TODO In DEVEL that's cool, but in production we want only a 500 generic message and logging on 'unhandled' errors
+    if ( scalar @{ $c->error } ) {
+        $c->stash->{status_msg} = $c->error;
+        $c->forward('View::JSON');
+        $c->error(0);
+    }
     $c->forward('View::JSON');
 }
 

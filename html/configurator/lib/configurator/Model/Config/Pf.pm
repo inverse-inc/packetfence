@@ -119,8 +119,7 @@ sub update_interface {
     my $pf_conf = $self->_pf_conf();
     my $tied_conf = tied(%$pf_conf);
     if ( $tied_conf->SectionExists($interface_name) ) {
-        foreach my $assignment (@$assignments) {
-            my ( $param, $value ) = @$assignment;
+        while (my ($param, $value) = each %$assignments) {
             if ( defined( $pf_conf->{$interface_name}{$param} ) ) {
                 $tied_conf->setval( $interface_name, $param, $value );
             } else {
@@ -153,9 +152,8 @@ sub create_interface {
     my $pf_conf = $self->_pf_conf();
     my $tied_conf = tied(%$pf_conf);
     if ( !($tied_conf->SectionExists($interface_name)) ) {
-        foreach my $assignment (@$assignments) {
+        while (my ($param, $value) = each %$assignments) {
             $tied_conf->AddSection($interface_name);
-            my ( $param, $value ) = @$assignment;
             $tied_conf->newval( $interface_name, $param, $value );
         }
         $tied_conf->WriteConfig($conf_dir . "/pf.conf")
