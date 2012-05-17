@@ -13,17 +13,17 @@ Catalyst Model.
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
-extends 'Catalyst::Model';
-
-# Package includes
 use Config::IniFiles;
 use IO::Interface::Simple;
 
-=head1 SUBROUTINES
+use pf::config;
+
+extends 'Catalyst::Model';
+
+=head1 METHODS
 
 =over
 
@@ -89,16 +89,16 @@ sub _readNetworksConf {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my %networks_cfg;
+    my %networks_conf;
 
-    tie (%networks_cfg, 'Config::IniFiles', (-file => "/usr/local/pf/conf/networks.conf"));
+    tie (%networks_conf, 'Config::IniFiles', (-file => "/usr/local/pf/conf/networks.conf"));
 
-    if ( !%networks_cfg ) {
+    if ( !%networks_conf ) {
         $logger->warn("Unable to read conf/networks.conf file");
         return;
     }
 
-    return %networks_cfg;
+    return %networks_conf;
 }
 
 =back
