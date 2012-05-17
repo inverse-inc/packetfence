@@ -5,6 +5,7 @@ use namespace::autoclean;
 use Config::IniFiles;
 
 use pf::config;
+use pf::config::ui;
 use pf::errors;
 
 extends 'Catalyst::Model';
@@ -58,9 +59,8 @@ sub read_interface {
     $logger->debug("interface $interface requested");
 
     my $pf_conf = $self->_pf_conf();
-    # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-    my @columns = qw(ip mask type enforcement gateway vip);
-    my @resultset = (["interface", @columns]);
+    my @columns = pf::config::ui->instance->field_order('interfaceconfig get'); 
+    my @resultset = @columns;
     foreach my $s ( keys %$pf_conf ) {
         if ( $s =~ /^interface (.+)$/ ) {
             my $interface_name = $1;
