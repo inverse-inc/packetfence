@@ -13,27 +13,26 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
 
-=item get
+=item delete
 
-Retrieve a configuration parameter in session
+Delete a configuration parameter from session
 
-Usage: /config/<section>/<parameter>/get
+Usage: /config/<section>/<parameter>/delete
 
 =cut
-sub get :Chained('object') :PathPart('get') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{value} = $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}};
+    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = "";
 }
 
 =item object
@@ -46,30 +45,30 @@ sub object :Chained('/') :PathPart('config') :CaptureArgs(2) {
     $c->stash->{parameter}  = $parameter;
 }
 
-=item set
+=item read
 
-Set a configuration parameter in session for future write
+Read a configuration parameter in session
 
-Usage: /config/<section>/<parameter>/set/<value>
+Usage: /config/<section>/<parameter>/read
 
 =cut
-sub set :Chained('object') :PathPart('set') :Args(1) {
+sub read :Chained('object') :PathPart('read') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{value} = $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}};
+}
+
+=item update
+
+Create/update a configuration parameter in session
+
+Usage: /config/<section>/<parameter>/update/<value>
+
+=cut
+sub update :Chained('object') :PathPart('update') :Args(1) {
     my ( $self, $c, $value ) = @_;
 
     $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = $value;
-}
-
-=item unset
-
-Unset a configuration parameter from session for future write
-
-Usage: /config/<section>/<parameter>/unset
-
-=cut
-sub unset :Chained('object') :PathPart('unset') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = "";
 }
 
 =back
