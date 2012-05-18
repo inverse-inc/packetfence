@@ -48,6 +48,19 @@
                 <a class="btn" href="#testDatabase">Test</a>
               </div>
             </div>
+            <h3>Database</h3>
+            <div class="control-group">
+              <label class="control-label" for="root">Database name</label>
+              <div class="controls">
+                <input id="root" class="text" type="text" value="pf">
+              </div>
+            </div>
+            <div class="control-group success">
+              <div class="controls">
+                <button class="btn btn-primary disabled">Create tables and indexes</button>
+                <span class="help-inline"><strong>Success!</strong> The database tables already exist.</span>
+              </div>
+            </div>
             <h3>Create a PacketFence account</h3>
             <div class="control-group">
               <label class="control-label" for="root">Username</label>
@@ -65,19 +78,6 @@
               <div class="controls">
                 <input class="text" type="password" placeholder="Retype your password">
                 <a class="btn btn-primary" href="#createUser">Create user</a>
-              </div>
-            </div>
-            <h3>Database</h3>
-            <div class="control-group">
-              <label class="control-label" for="root">Database name</label>
-              <div class="controls">
-                <input id="root" class="text" type="text" value="pf">
-              </div>
-            </div>
-            <div class="control-group success">
-              <div class="controls">
-                <button class="btn btn-primary disabled">Create tables and indexes</button>
-                <span class="help-inline"><strong>Success!</strong> The database tables already exist.</span>
               </div>
             </div>
             <fieldset>
