@@ -13,14 +13,12 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
 
@@ -99,10 +97,9 @@ sub revoke :Chained('object') :PathPart('revoke') :Args(1) {
     $c->session->{$interface} = "";
 }
 
-
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

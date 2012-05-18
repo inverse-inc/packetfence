@@ -21,13 +21,12 @@ Currently, DHCP interfaces are not supported, which mean:
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
 
@@ -208,7 +207,7 @@ sub up :Chained('object') :PathPart('up') :Args(0) {
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

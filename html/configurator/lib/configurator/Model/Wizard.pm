@@ -13,7 +13,6 @@ Catalyst Model.
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 

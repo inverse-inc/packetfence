@@ -13,13 +13,11 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-# Catalyst includes
+use JSON;
 use Moose;
 use namespace::autoclean;
-use JSON;
 
 BEGIN {extends 'Catalyst::Controller'; }
-
 
 =head1 SUBROUTINES
 
@@ -83,10 +81,9 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
     my ( $self, $c ) = @_;
 }
 
-
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

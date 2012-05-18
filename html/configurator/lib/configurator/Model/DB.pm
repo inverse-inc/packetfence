@@ -13,19 +13,16 @@ Catalyst Model.
 use strict;
 use warnings;
 
-# Catalyst includes
+use DBI;
 use Moose;
 use namespace::autoclean;
 
-extends 'Catalyst::Model';
-
-# Package includes
-use DBI;
-
-# PacketFence includes
+use pf::error;
 use pf::util;
 
-=head1 SUBROUTINES
+extends 'Catalyst::Model';
+
+=head1 METHODS
 
 =over
 

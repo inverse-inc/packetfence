@@ -13,11 +13,10 @@ Catalyst Model.
 use strict;
 use warnings;
 
-use Moose;
-use namespace::autoclean;
-
 use Config::IniFiles;
 use IO::Interface::Simple;
+use Moose;
+use namespace::autoclean;
 
 use pf::config;
 

@@ -13,7 +13,6 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
@@ -26,7 +25,7 @@ BEGIN { extends 'Catalyst::Controller' }
 __PACKAGE__->config(namespace => '');
 
 
-=head1 SUBROUTINE
+=head1 METHODS
 
 =over
 
@@ -71,10 +70,9 @@ sub end : ActionClass('RenderView') {
     }
 }
 
-
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

@@ -13,20 +13,16 @@ Catalyst Model.
 use strict;
 use warnings;
 
-# Catalyst includes
+use HTTP::Status qw(:constants is_error);
+use IO::Interface::Simple;
 use Moose;
 use namespace::autoclean;
 
-extends 'Catalyst::Model';
-
-# Package includes
-use IO::Interface::Simple;
-
-# PacketFence includes
 use pf::util;
 
+extends 'Catalyst::Model';
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
 
@@ -370,7 +366,6 @@ sub up {
 
     return 1;
 }
-
 
 =back
 

@@ -13,12 +13,10 @@ Catalyst Model.
 use strict;
 use warnings;
 
-# Catalyst includes
 use Moose;
 use namespace::autoclean;
 
 extends 'Catalyst::Model';
-
 
 # TODO: Should migrate theses into a database table with some flags for the mechanisms
 my @mechanisms           = qw/vlan inline option/;
@@ -28,7 +26,7 @@ my %types   = (
     option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
 );
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
 
@@ -77,10 +75,9 @@ sub _isInArray {
     return 1;
 }
 
-
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 

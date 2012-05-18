@@ -13,17 +13,17 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-# Catalyst includes
+use HTTP::Status qw(:constants is_error);
 use Moose;
 use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =over
 
-=assign
+=item assign
 
 Assign a new user to a database.
 
