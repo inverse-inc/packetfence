@@ -82,8 +82,6 @@ Readonly::Scalar our $PRECONDITION_FAILED               => 412;
 #Readonly::Scalar our $NOT_EXTENDED                     => 510;
 #Readonly::Scalar our $NETWORK_AUTHENTICATION_REQUIRED  => 511;
 
-=back
-
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
