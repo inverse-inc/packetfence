@@ -37,35 +37,33 @@ sub assign {
 
     my $sql_query = "GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE, LOCK TABLES";
 
-    $dbHandler->do(
-        "$sql_query ON $db.* TO $user\@'%' IDENTIFIED BY '$password'");
-
+    # Create global PF user
+    $dbHandler->do("$sql_query ON $db.* TO $user\@'%' IDENTIFIED BY '$password'");
     if ( $DBI::errstr ) {
         $status_msg = "Error creating the user $user on database $db";
         $logger->warn("$status_msg | $DBI::errstr");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
-    $dbHandler->do(
-        "$sql_query ON $db.* TO $user\@localhost IDENTIFIED BY '$password'");
-
+    # Create localhost PF user
+    $dbHandler->do("$sql_query ON $db.* TO $user\@localhost IDENTIFIED BY '$password'");
     if ( $DBI::errstr ) {
         $status_msg = "Error creating the user $user on database $db";
         $logger->warn("$status_msg | $DBI::errstr");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
+    # Apply the new privileges
     $dbHandler->do("FLUSH PRIVILEGES");
-
     if ( $DBI::errstr ) {
         $status_msg = "Error creating the user $user on database $db";
         $logger->warn("$status_msg | $DBI::errstr");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     $status_msg = "Successfully created the user $user on database $db";
     $logger->info("$status_msg");
-    return ( 1, $status_msg );
+    return ( $STATUS::OK, $status_msg );
 }
 
 =item connect
@@ -78,16 +76,15 @@ sub connect {
     my $status_msg;
 
     my $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306", $user, $password );
-
     if ( !$dbHandler ) {
         $status_msg = "Error in connection to the database $db with user $user";
         $logger->warn("$status_msg | $DBI::errstr");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     $status_msg = "Successfully connected to the database $db with user $user";
     $logger->info("$status_msg");
-    return ( 1, $status_msg, $dbHandler );
+    return ( $STATUS::OK, $status_msg, $dbHandler );
 }
 
 =item create
@@ -97,52 +94,51 @@ sub create {
     my ( $self, $db, $root_user, $root_password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $status_msg;
-    my $result;
+    my ( $status_msg, $result );
 
+    # Instantiate a DBI driver
     my $dbDriver = DBI->install_driver("mysql");
-
     if ( !$dbDriver ) {
         $status_msg = "Error in creating the database $db";
         $logger->warn("$status_msg | USER: $root_user | $DBI::errstr");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
+    # Create the requested database
     $result = $dbDriver->func('createdb', $db, 'localhost', $root_user, $root_password, 'admin');
-
     if ( !$result ) {
         $status_msg = "Error in creating the database $db";
         $logger->warn("$status_msg | USER: $root_user | $DBI::errstr");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     $status_msg = "Successfully created the database $db";
     $logger->info("$status_msg | USER: $root_user");
-    return ( 1, $status_msg );
+    return ( $STATUS::OK, $status_msg );
 }
 
 =item schema
+
+TODO: Check error handling for pf_run... (undef or whatever)
 
 =cut
 sub schema {
     my ( $self, $db, $root_user, $root_password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $status_msg;
-    my $result;
+    my ( $status_msg, $result );
 
     my $cmd = "`/usr/bin/mysql -u $root_user -p'$root_password' $db < /usr/local/pf/db/pf-schema.sql`";
-
     eval { $result = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = "Error applying the schema to the database $db";
         $logger->warn("$status_msg | USER: $root_user");
-        return ( 0, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     $status_msg = "Successfully applied the schema to the database $db";
     $logger->info("$status_msg | USER: $root_user");
-    return ( 1, $status_msg );
+    return ( $STATUS::OK, $status_msg );
 }
 
 =back

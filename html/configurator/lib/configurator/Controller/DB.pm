@@ -38,18 +38,15 @@ sub assign :Path('assign') :Args(1) {
     my $pf_user         = $c->request->params->{pf_user};
     my $pf_password     = $c->request->params->{pf_password};
 
-    my ( $result, $status_msg, $dbHandler ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
-
-    if ( $result && $dbHandler ) {
-        ( $result, $status_msg ) = $c->model('DB')->assign($dbHandler, $db, $pf_user, $pf_password);
+    my ( $status, $message, $dbHandler ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
+    if ( !is_error($status) ) {
+        ( $status, $message ) = $c->model('DB')->assign($dbHandler, $db, $pf_user, $pf_password);
     }
-
-    if ( $result ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = $status_msg;
+    if ( is_error($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $status_msg;
+        $c->stash->{status_msg} = $message;
     }
 }
 
@@ -66,14 +63,12 @@ sub create :Path('create') :Args(1) {
     my $root_user       = $c->request->params->{root_user};
     my $root_password   = $c->request->params->{root_password};
 
-    my ( $result, $status_msg ) = $c->model('DB')->create($db, $root_user, $root_password);
-
-    if ( $result ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = $status_msg;
+    my ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
+    if ( is_error($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $status_msg;
+        $c->stash->{status_msg} = $message;
     }
 }
 
@@ -90,14 +85,13 @@ sub schema :Path('schema') :Args(1) {
     my $root_user       = $c->request->params->{root_user};
     my $root_password   = $c->request->params->{root_password};
 
-    my ( $result, $status_msg ) = $c->model('DB')->schema($db, $root_user, $root_password );
+    my ( $status, $message ) = $c->model('DB')->schema($db, $root_user, $root_password );
 
-    if ( $result ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = $status_msg;
+    if ( is_error($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $status_msg;
+        $c->stash->{status_msg} = $message;
     }
 }
 
@@ -116,14 +110,12 @@ sub test :Path('test') :Args(0) {
     my $root_user       = $c->request->params->{root_user};
     my $root_password   = $c->request->params->{root_password};
 
-    my ( $result, $status_msg ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
-
-    if ( $result ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = $status_msg;
+    my ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
+    if ( is_error($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $status_msg;
+        $c->stash->{status_msg} = $message;
     }
 }
 
