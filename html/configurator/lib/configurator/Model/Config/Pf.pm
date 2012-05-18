@@ -22,23 +22,34 @@ Catalyst Model.
 
 =cut
 
-my $_pf_conf = undef;
+my $_pf_conf;
+my $_defaults_conf;
+my $_doc_conf;
 
-=item _pf_conf
+=item _load_conf
 
-Load pf.conf into a Config::IniFiles tied hashref
+Load pf.conf into a Config::IniFiles tied hashref.
+
+Performs caching.
 
 =cut
-sub _pf_conf {
+sub _load_conf {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     unless (defined $_pf_conf) {
         my %conf;
-        tie %conf, 'Config::IniFiles', ( -file => "$conf_dir/pf.conf" );
-        my @errors = @Config::IniFiles::errors;
-        if ( scalar(@errors) || !%conf ) {
-            $logger->logdie("Error reading pf.conf: " . join( "\n", @errors ) . "\n" );
+
+        # load config if it exists
+        if ( -e $config_file ) {
+            tie %conf, 'Config::IniFiles', ( -file => $config_file )
+                or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
+        }
+        # start with an empty file
+        else {
+            tie %conf, 'Config::IniFiles';
+            tied(%conf)->SetFileName($config_file)
+                or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
         }
 
         foreach my $section ( tied(%conf)->Sections ) {
@@ -52,13 +63,87 @@ sub _pf_conf {
     return $_pf_conf;
 }
 
+=item _load_defaults
+
+Load default configuration values provided by conf/pf.conf.defaults
+
+Performs caching.
+
+=cut
+sub _load_defaults {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    unless (defined $_defaults_conf) {
+        my %default_conf;
+
+        tie %default_conf, 'Config::IniFiles', ( -file => $default_config_file )
+            or $logger->logdie(
+                "Unable to open default config file $default_config_file: ", join("\n", @Config::IniFiles::errors)
+            );
+        $_defaults_conf = \%default_conf;
+    }
+
+    return $_defaults_conf;
+}
+
+=item _load_documentation
+
+Load documentation of configuration values provided by conf/documentation.conf.
+
+Performs caching.
+
+=cut
+sub _load_documentation {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    unless (defined $_doc_conf) {
+        my %documentation;
+
+        tie %documentation, 'Config::IniFiles', ( -file => $conf_dir . "/documentation.conf" )
+            or $logger->logdie(
+                "Unable to open documentation config file $conf_dir/documentation.conf: ",
+                join("\n", @Config::IniFiles::errors)
+            );
+        $_doc_conf = \%documentation;
+    }
+
+    return $_doc_conf;
+}
+
+=back
+
+=head2 general configuration related methods
+
+=over
+
+=item read
+
+Read a configuration value.
+
+=cut
+sub read {
+    my ($self, $param) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    
+}
+
+=back
+
+=head2 Interface-related methods
+
+=over
+
+=cut
 sub read_interface {
     my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("interface $interface requested");
 
-    my $pf_conf = $self->_pf_conf();
+    my $pf_conf = $self->_load_conf();
     my @columns = pf::config::ui->instance->field_order('interfaceconfig get'); 
     my @resultset = @columns;
     foreach my $s ( keys %$pf_conf ) {
@@ -89,7 +174,7 @@ sub delete_interface {
     return ($STATUS::FORBIDDEN, "This interface can't be deleted") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
-    my $pf_conf = $self->_pf_conf();
+    my $pf_conf = $self->_load_conf();
     my $tied_conf = tied(%$pf_conf);
     if ( $tied_conf->SectionExists($interface_name) ) {
         $tied_conf->DeleteSection($interface_name);
@@ -116,7 +201,7 @@ sub update_interface {
     return ($STATUS::FORBIDDEN, "This interface can't be updated") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
-    my $pf_conf = $self->_pf_conf();
+    my $pf_conf = $self->_load_conf();
     my $tied_conf = tied(%$pf_conf);
     if ( $tied_conf->SectionExists($interface_name) ) {
         while (my ($param, $value) = each %$assignments) {
@@ -149,7 +234,7 @@ sub create_interface {
     return ($STATUS::FORBIDDEN, "This is a reserved interface name") if ( $interface eq 'all' );
 
     my $interface_name = "interface $interface";
-    my $pf_conf = $self->_pf_conf();
+    my $pf_conf = $self->_load_conf();
     my $tied_conf = tied(%$pf_conf);
     if ( !($tied_conf->SectionExists($interface_name)) ) {
         while (my ($param, $value) = each %$assignments) {
