@@ -19,9 +19,6 @@ use namespace::autoclean;
 
 extends 'Catalyst::Model';
 
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-
 # Package includes
 use IO::Interface::Simple;
 
