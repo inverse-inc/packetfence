@@ -121,6 +121,8 @@ sub create {
 
 TODO: Check error handling for pf_run... (undef or whatever)
 
+TODO: sanitize parameters going into pf_run with strict regex
+
 =cut
 sub schema {
     my ( $self, $db, $root_user, $root_password ) = @_;
@@ -128,7 +130,7 @@ sub schema {
 
     my ( $status_msg, $result );
 
-    my $cmd = "`/usr/bin/mysql -u $root_user -p'$root_password' $db < /usr/local/pf/db/pf-schema.sql`";
+    my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < /usr/local/pf/db/pf-schema.sql";
     eval { $result = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = "Error applying the schema to the database $db";
