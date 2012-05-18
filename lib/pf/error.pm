@@ -1,8 +1,8 @@
-package pf::errors;
+package pf::error;
 
 =head1 NAME
 
-pf::errors - Error codes and related functions
+pf::error - Error codes and related functions
 
 =head1 DESCRIPTION
 

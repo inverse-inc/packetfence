@@ -6,7 +6,7 @@ use Config::IniFiles;
 
 use pf::config;
 use pf::config::ui;
-use pf::errors;
+use pf::error;
 
 extends 'Catalyst::Model';
 
