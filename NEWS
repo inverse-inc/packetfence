@@ -45,6 +45,15 @@ Enchancements
  * Accounting Time Modifier is now mandatory (#1538)
  * Changing the location of ssl-certificates.conf file (#1550)
  * Modifying the way pfdhcplistener handles tagged trafic
+ * Code cleanups (#1380, #1484)
+ * Important simplification of the Captive Portal code to make it harder to introduce problems
+ * Adding default OCSP/CRL Proxies (#1329)
+ * Better WISPR support
+ * New parameter to control captive portal interception: secure_redirect
+ * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
+ * Minimal performance improvements to bin/pfcmd startup
+ * Less dependencies on hard to find packages
+ * simplify configuration: some default values provided for networks.conf
 
 Bug Fixes
  * SMS confirmation page is now giving error on invalid PIN (#1579)
