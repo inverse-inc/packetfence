@@ -57,6 +57,8 @@ sub generate_dhcpd_conf {
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
 
+            %net = _assign_defaults(%net);
+
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
@@ -76,6 +78,22 @@ EOT
     return 1;
 }
 
+=item assign_defaults
+
+Will replace all undef with default values.
+
+=cut
+# TODO should handle also dhcp_start and dhcp_end but it's more complex
+#      requires network / netmask extrapolation
+sub _assign_defaults {
+    my (%net) = @_;
+
+    $net{'dhcp_default_lease_time'} = 300 if (!defined($net{'dhcp_default_lease_time'}));
+    $net{'dhcp_max_lease_time'} = 600 if (!defined($net{'dhcp_max_lease_time'}));
+
+    return %net;
+}
+
 =back
 
 =head1 AUTHOR
@@ -84,7 +102,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

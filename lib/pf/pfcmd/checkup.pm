@@ -379,9 +379,9 @@ sub network {
                 defined($net{'dhcp_end'}) && $net{'dhcp_end'} !~ /^\s*$/
             );
             my $default_lease_valid = (
-                defined($net{'dhcp_default_lease_time'}) && $net{'dhcp_default_lease_time'} =~ /^\d+$/
+                !defined($net{'dhcp_default_lease_time'}) || $net{'dhcp_default_lease_time'} =~ /^\d+$/
             );
-            my $max_lease_valid = ( defined($net{'dhcp_max_lease_time'}) && $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
+            my $max_lease_valid = ( !defined($net{'dhcp_max_lease_time'}) || $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
             if (!($netmask_valid && $gw_valid && $domainname_valid && $range_valid && $default_lease_valid && $max_lease_valid)) {
                 add_problem( $FATAL, "networks.conf: Incomplete DHCP information for network $network" );
             }
