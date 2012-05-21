@@ -120,6 +120,7 @@ sub sanity_check {
     violations();
     switches();
     portal_profiles();
+    guests();
     unsupported();
 
     return @problems;
@@ -963,6 +964,27 @@ sub billing {
         chomp($_);
         add_problem( $FATAL, "Billing: Incorrect payment gateway declared in pf.conf: $_" );
     };
+}
+
+=item guests
+
+Guest-related Checks
+
+=cut
+sub guests {
+
+    # if we are going to send emails we must warn that MIME::Lite::TT must be installed
+    my $guests_enabled = isenabled($Config{'registration'}{'guests_self_registration'});
+    my $guest_require_email = ($guest_self_registration{$SELFREG_MODE_SMS} || $guest_self_registration{$SELFREG_MODE_SPONSOR});
+    if ($guests_enabled && $guest_require_email) {
+        my $import_succesfull = try { require MIME::Lite::TT; };
+        if (!$import_succesfull) {
+            add_problem( $WARN, 
+                "Can't load MIME::Lite::TT. Emails to guests won't work. " . 
+                "Make sure to install it or disable the self-registered guest feature."
+            );
+        }
+    }
 }
 
 =item unsupported
