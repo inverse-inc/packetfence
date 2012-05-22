@@ -36,15 +36,15 @@
           <form class="form-horizontal">
             <h3>Enter the root account credentials</h3>
             <div class="control-group">
-              <label class="control-label" for="root">Username</label>
+              <label class="control-label" for="root_username">Username</label>
               <div class="controls">
-                <input id="root" class="text" type="text" value="root" placeholder="root">
+                <input id="root_username" class="text" type="text" value="root" placeholder="root">
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="rootpw">Password</label>
+              <label class="control-label" for="root_password">Password</label>
               <div class="controls">
-                <input id="rootpw" class="text" type="password">
+                <input id="root_password" class="text" type="password">
                 <a class="btn" href="#testDatabase">Test</a>
               </div>
             </div>
@@ -94,4 +94,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['enforcement'] %]
+    jsFiles = ['db'] %]

@@ -117,6 +117,8 @@ sub test :Path('test') :Args(0) {
     } else {
         $c->stash->{status_msg} = $message;
     }
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 =back
