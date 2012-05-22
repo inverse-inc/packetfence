@@ -3,18 +3,13 @@ var enforcementTypes = {
     'vlan': ['registration', 'isolation']
 };
 
-$(function () {
-
-    initModals();
-    initEnforcement();
-    initInterfaces();
-
+function registerExists() {
     $('#tracker a, .form-actions a').click(function(event) {
         var href = $(this).attr('href');
         saveStep(true, function(data) { window.location.href = href; } );
         return false; // don't follow link
     });
-});
+}
 
 function initModals() {
     /* Interface modal editor */
@@ -111,7 +106,7 @@ function initModals() {
     });
 }
 
-function initEnforcement() {
+function initStep() {
     /* Enforcement mechanisms checkboxes */
     $('input:checkbox[name$="enforcement"]').change(function(event) {
         var disable = !this.checked;
@@ -124,9 +119,7 @@ function initEnforcement() {
             }
         });
     }).trigger('change');
-}
 
-function initInterfaces() {
     /* Enable/Disable toggle button */
     $('#interfaces tbody').on('click:toggled', '.btn-toggle', function(event) {
         var name = $(this).attr('interface');
@@ -180,6 +173,7 @@ function initInterfaces() {
             });        
     });
 
+    /* Management interface must be unique */
     $('select[name="type"]').change(function(event) {
         var disable = false;
         $('select[name="type"] option[value="management"]').each(function(index) {
@@ -213,12 +207,24 @@ function saveStep(validate, successCallback) {
         $('#interfaces .control-group').each(function(index) {
             var e = $(this);
             var i = e.find('input:text').first();
-            if (i.length && i.val().trim().length == 0) {
-                e.addClass('error');
-                valid = false;
+            if (i.length) {
+                if (i.val().trim().length == 0) {
+                    e.addClass('error');
+                    valid = false;
+                }
+                else
+                    e.removeClass('error');
             }
-            else
-                e.removeClass('error');
+
+            var i = e.find('input:checkbox');
+            if (i.length) {
+                if (i.filter(':checked').length == 0) {
+                    e.addClass('warning');
+                    valid = false;
+                }
+                else
+                    e.removeClass('warning');
+            }
         });
     }
     if (valid) {
@@ -238,7 +244,7 @@ function saveStep(validate, successCallback) {
             url: window.location.pathname,
             data: {json: $.toJSON(form)}
         }).done(function(data) {
-            if (successCallback) successCallback(data);
+            if (typeof successCallback == 'function') successCallback(data);
         }).fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
             showError($('#interfaces form'), obj.status_msg);

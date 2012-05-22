@@ -1,8 +1,8 @@
 $(function () {
-    // Register tracker tooltips
+    /* Register tracker tooltips */
     $('#tracker [rel=tooltip]').tooltip({placement: 'bottom'});
 
-    // Activate toggle buttons
+    /* Activate toggle buttons */
     $('tbody').on(
         {'mouseenter': function(event) {
             var e = $(this);
@@ -36,10 +36,14 @@ $(function () {
             e.trigger('click:toggled');
          }},
         '.btn-toggle');
+
+    if (typeof initModals == 'function') initModals();
+    if (typeof initStep == 'function') initStep();
+    if (typeof registerExists == 'function') registerExists();
 });
 
 function resetAlert(parent) {
-    parent.children('.alert').slideUp('fast', function() { $(this).remove(); });
+    parent.children('.alert').hide(); //slideUp('fast', function() { $(this).remove(); });
 }
 
 function showSuccess(sibling, msg) {
