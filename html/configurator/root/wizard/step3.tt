@@ -1,0 +1,82 @@
+[% INCLUDE wizard/header.inc %]
+
+    <div id="navbar" class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
+          <p class="pull-right">Configuration Wizard</p>
+          </div>
+      </div>
+    </div>
+
+    <div class="container">
+      [% step = 3 %]
+      [% INCLUDE wizard/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>Step 3</h1>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>PacketFence Configuration
+            <small>Setup your NAC</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>Instructions</h3>
+            <p>This step covers some basic configuration parameters required to have a functional PacketFence installation.</p>
+          </div>
+        </div>
+        <div class="span9">
+          <form class="form-horizontal">
+            <h3>General</h3>
+            <div class="control-group">
+              <label class="control-label" for="general.domain">Domain</label>
+              <div class="controls">
+                <input type="text"class="input" id="general.domain" value="[% c.session.general.domain %]">
+                <p class="help-block">Domain name of PacketFence system.</p>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="general.hostname">Hostname</label>
+              <div class="controls">
+                <input type="text"class="input" id="general.hostname" value="[% c.session.general.hostname %]">
+                <p class="help-block">Hostname of PacketFence system. This is concatenated with the domain
+                in Apache rewriting rules and therefore must be resolvable by clients.</p>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="general.dhcpservers">DHCP Servers</label>
+              <div class="controls">
+                <textarea class="input-xlarge" id="general.dhcpservers" rows="3">[% c.session.general.dhcpservers %]</textarea>
+                <p class="help-block">Comma-delimited list of DHCP servers.</p>
+              </div>
+            </div>
+            <h3>Alerting</h3>
+            <div class="control-group">
+              <label class="control-label" for="alerting.emailaddr"></label>
+              <div class="controls">
+                <input type="text"class="input" id="alerting.emailaddr" value="[% c.session.alerting.emailaddr %]">
+                <p class="help-block">Email address to which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message goes to.</p>
+              </div>
+            </div>
+            <fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary pull-right">Continue <i class="icon-circle-arrow-right icon-white"></i></button>
+            </div>
+            </fieldset>
+            </form>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2012</p>
+      </footer>
+    </div><!--/container-->
+
+[% INCLUDE wizard/footer.inc
+    jsFiles = ['config'] %]
