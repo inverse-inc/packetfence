@@ -29,11 +29,6 @@ body {
 }
 #tracker {
     margin-top: 20px;
-    /*margin: 20px;*/
-    /*text-align: center;*/
-}
-#tracker > div {
-    n0border-bottom: 1px solid #ccc;
 }
 #tracker b {
     color: #999;

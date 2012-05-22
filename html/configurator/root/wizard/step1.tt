@@ -68,7 +68,7 @@
         <div class="container">
           <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
           <p class="pull-right">Configuration Wizard</p>
-          </div>
+        </div>
       </div>
     </div>
 
@@ -103,11 +103,11 @@
               <div class="control-group">
                 <div class="controls">
                   <label class="checkbox">
-                    <input type="checkbox" name="enforcement" value="inline"[% IF enforcements.inline %] checked=""[% END %]> <strong>Inline enforcement</strong>
+                    <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %]> <strong>Inline enforcement</strong>
                     <p class="help-block">Activate this mechanism if you have unmanageable devices such as entry-level consumer switches or access-point. PacketFence becomes the gateway of that inline network, and NAT the traffic using IPTables to the Internet.</p>
                   </label>
                   <label class="checkbox">
-                    <input type="checkbox" name="enforcement" value="vlan"[% IF enforcements.vlan %] checked=""[% END %]> <strong>VLAN enforcement</strong>
+                    <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> <strong>VLAN enforcement</strong>
                     <p class="help-block">PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.</p>
                   </label>
                 </div>
@@ -125,7 +125,7 @@
               <h3>Default Gateway</h3>
               <div class="control-group">
                 <div class="controls">
-                  <input id="gateway" type="text" class="input" placeholder="IP address" value="[% gateway %]">
+                  <input id="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway %]">
                 </div>
               </div>
           </div>

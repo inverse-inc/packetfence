@@ -7,10 +7,10 @@
               <td class="control-group">
                 <select class="span2" name="type" interface="[% i %]">
                   <option value="none">None</option>
-                  <option value="management"[% IF types.$i == 'management' %] selected=""[% END %]>Management</option>
-                  <option value="registration"[% IF types.$i == 'registration' %] selected=""[% END %]>Registration</option>
-                  <option value="isolation"[% IF types.$i == 'isolation' %] selected=""[% END %]>Isolation</option>
-                  <option value="inline"[% IF types.$i == 'inline' %] selected=""[% END %]>Inline</option>
+                  <option value="management"[% IF c.session.types.$i == 'management' %] selected=""[% END %]>Management</option>
+                  <option value="registration"[% IF c.session.types.$i == 'registration' %] selected=""[% END %]>Registration</option>
+                  <option value="isolation"[% IF c.session.types.$i == 'isolation' %] selected=""[% END %]>Isolation</option>
+                  <option value="inline"[% IF c.session.types.$i == 'inline' %] selected=""[% END %]>Inline</option>
                 </select>
               </td>
               <td>

@@ -59,11 +59,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        # Restore session data, if any
         $c->stash(interfaces => $c->model('Interface')->get('all'));
-        $c->stash(gateway => $c->session->{gateway},
-                  enforcements => $c->session->{enforcements},
-                  types => $c->session->{types});
     }
 }
 
