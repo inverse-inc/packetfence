@@ -114,7 +114,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =head2 create
 
-/config/interface/create/<interface>
+/config/interface/<interface>/create
 
 =cut
 
