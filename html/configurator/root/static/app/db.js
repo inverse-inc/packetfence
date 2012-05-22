@@ -1,7 +1,7 @@
 function registerExists() {
     $('#tracker a, .form-actions a').click(function(event) {
         var href = $(this).attr('href');
-        saveStep();
+        saveStep(href);
         return false; // don't follow link
     });
 }
@@ -136,7 +136,7 @@ function initStep() {
     });
 }
 
-function saveStep(successCallback) {
+function saveStep(href) {
     var createDatabase = $('#createDatabase'),
     assignUser = $('#assignUser'),
     valid = true;
@@ -150,8 +150,21 @@ function saveStep(successCallback) {
         valid = false;
     }
 
-    if (valid)
-        window.location.href = href;
+    if (valid) {
+        $.ajax({
+            type: 'POST',
+            url: window.location.pathname,
+            data: {root_user: $('#root_user').val(),
+                   pf_user: $('#pf_user').val(), 
+                   database: $('#database').val()}
+        }).done(function(data) {
+            window.location.href = href;
+        }).fail(function(jqXHR) {
+            var obj = $.parseJSON(jqXHR.responseText);
+            showError($('form'), obj.status_msg);
+            $("body").animate({scrollTop:0}, 'fast');
+        });
+    }
 
     return false;
 }

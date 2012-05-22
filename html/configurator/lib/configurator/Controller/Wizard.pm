@@ -68,6 +68,14 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
 =cut
 sub step2 :Chained('object') :PathPart('step2') :Args(0) {
     my ( $self, $c ) = @_;
+
+    if ($c->request->method eq 'POST') {
+        # Save parameters in user session
+        $c->session(root_user => $c->request->params->{root_user},
+                    pf_user => $c->request->params->{pf_user},
+                    database => $c->request->params->{database});
+        $c->stash->{current_view} = 'JSON';
+    }
 }
 
 =item step3

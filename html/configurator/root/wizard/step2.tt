@@ -38,7 +38,7 @@
             <div class="control-group">
               <label class="control-label" for="root_user">Username</label>
               <div class="controls">
-                <input id="root_user" class="text" type="text" placeholder="root">
+                <input id="root_user" class="text" type="text" value="[% c.session.root_user %]">
               </div>
             </div>
             <div class="control-group">
@@ -52,7 +52,7 @@
             <div class="control-group">
               <label class="control-label" for="database">Database name</label>
               <div class="controls">
-                <input id="database" class="text" type="text" value="pf">
+                <input id="database" class="text" type="text" value="[% c.session.database %]">
               </div>
             </div>
             <div class="control-group success">
@@ -64,7 +64,7 @@
             <div class="control-group">
               <label class="control-label" for="pf_user">Username</label>
               <div class="controls">
-                <input id="pf_user" class="text" type="text">
+                <input id="pf_user" class="text" type="text" value="[% c.session.pf_user %]">
               </div>
             </div>
             <div class="control-group">
