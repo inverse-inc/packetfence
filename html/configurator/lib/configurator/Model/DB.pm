@@ -23,6 +23,8 @@ use pf::util;
 
 extends 'Catalyst::Model';
 
+my $dbHandler;
+
 =head1 METHODS
 
 =over
@@ -31,7 +33,7 @@ extends 'Catalyst::Model';
 
 =cut
 sub assign {
-    my ( $self, $dbHandler, $db, $user, $password ) = @_;
+    my ( $self, $db, $user, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
@@ -76,7 +78,7 @@ sub connect {
 
     my $status_msg;
 
-    my $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306", $user, $password );
+    $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306", $user, $password );
     if ( !$dbHandler ) {
         $status_msg = "Error in connection to the database $db with user $user";
         $logger->warn("$status_msg | $DBI::errstr");
@@ -85,7 +87,7 @@ sub connect {
 
     $status_msg = "Successfully connected to the database $db with user $user";
     $logger->info("$status_msg");
-    return ( $STATUS::OK, $status_msg, $dbHandler );
+    return ( $STATUS::OK, $status_msg );
 }
 
 =item create

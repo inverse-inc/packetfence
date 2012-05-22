@@ -38,9 +38,9 @@ sub assign :Path('assign') :Args(1) {
     my $pf_user         = $c->request->params->{pf_user};
     my $pf_password     = $c->request->params->{pf_password};
 
-    my ( $status, $message, $dbHandler ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
+    my ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
     if ( !is_error($status) ) {
-        ( $status, $message ) = $c->model('DB')->assign($dbHandler, $db, $pf_user, $pf_password);
+        ( $status, $message ) = $c->model('DB')->assign($db, $pf_user, $pf_password);
     }
     if ( is_error($status) ) {
         $c->response->status($status);
