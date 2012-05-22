@@ -17,6 +17,7 @@ use DBI;
 use Moose;
 use namespace::autoclean;
 
+use pf::config;
 use pf::error;
 use pf::util;
 
@@ -130,7 +131,7 @@ sub schema {
 
     my ( $status_msg, $result );
 
-    my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < /usr/local/pf/db/pf-schema.sql";
+    my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < $install_dir/db/pf-schema.sql";
     eval { $result = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = "Error applying the schema to the database $db";

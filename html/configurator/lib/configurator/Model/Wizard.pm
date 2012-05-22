@@ -16,6 +16,8 @@ use warnings;
 use Moose;
 use namespace::autoclean;
 
+use pf::config;
+
 extends 'Catalyst::Model';
 
 =head1 METHODS
@@ -49,11 +51,11 @@ sub checkForUpgrade {
 
     my $filehandler;
 
-    open( $filehandler, '<', "/usr/local/pf/conf/currently-at" );
+    open( $filehandler, '<', "$install_dir/conf/currently-at" );
     my $currently_at = <$filehandler>;
     close( $filehandler );
 
-    open( $filehandler, '<', "/usr/local/pf/conf/pf-release" );
+    open( $filehandler, '<', "$install_dir/conf/pf-release" );
     my $pf_release = <$filehandler>;
     close( $filehandler );
 
