@@ -58,7 +58,8 @@ __PACKAGE__->config(
     'View::JSON' => {
        allow_callback  => 1,    # defaults to 0
        callback_param  => 'cb', # defaults to 'callback'
-       expose_stash    => [ qw(status_msg error interfaces switches) ], # defaults to everything
+       # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
+       expose_stash    => [ qw(status_msg error interfaces switches config) ], # defaults to everything
     },
 );
 

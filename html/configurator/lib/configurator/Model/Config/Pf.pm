@@ -87,14 +87,14 @@ sub _load_defaults {
     return $_defaults_conf;
 }
 
-=item _load_documentation
+=item _load_doc
 
 Load documentation of configuration values provided by conf/documentation.conf.
 
 Performs caching.
 
 =cut
-sub _load_documentation {
+sub _load_doc {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -120,15 +120,68 @@ sub _load_documentation {
 
 =item read
 
-Read a configuration value.
+Read a configuration value with all it's metadata.
+
+$param is something like general.hostname where general is the section and 
+hostname the parameter.
 
 =cut
 sub read {
-    my ($self, $param) = @_;
+    my ($self, $config_entry) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    
+    my $pf_conf = $self->_load_conf();
+
+    my @config_parameters;
+    if ( $config_entry eq 'all' ) {
+        foreach my $section ( sort keys(%$pf_conf) ) {
+            foreach my $param ( keys( %{ $pf_conf->{$section} } ) ) {
+                push @config_parameters, $self->_read_config_entry( $section, $param );
+            }
+        }
+    }
+    else {
+        my ($section, $param) = split( /\s*\.\s*/, $config_entry );
+        if ( defined( $pf_conf->{$section}->{$param} ) ) {
+            push @config_parameters, $self->_read_config_entry( $section, $param );
+        } else {
+            return ($STATUS::NOT_FOUND, "Unknown configuration parameter $section.$param!");
+        }
+    }
+
+    if (!@config_parameters) {
+        return ($STATUS::NOT_FOUND, "Nothing found when searching for $config_entry");
+    }
+
+    return ($STATUS::OK, \@config_parameters);
 }
+
+=item 
+
+=cut
+sub _read_config_entry {
+    my ( $self, $section, $param ) = @_;
+
+    my $pf_conf = $self->_load_conf();
+    my $defaults_conf = $self->_load_defaults();
+    my $doc_conf = $self->_load_doc();
+
+    # fetch list of options if they are defined
+    my $options_ref;
+    if (defined($doc_conf->{$section.'.'.$param}->{'options'})) {
+        $options_ref = [ split(/\|/, $doc_conf->{$section.'.'.$param}->{'options'}) ];
+    }
+
+    # the rest of the values we can assign directly
+    return {
+        'parameter' => $section.'.'.$param,
+        'value' => $pf_conf->{$section}->{$param},
+        'default_value' => $defaults_conf->{$section}->{$param},
+        'type' => $doc_conf->{$section.'.'.$param}->{'type'} || "text",
+        'options' => $options_ref,
+    };
+}
+
 
 =back
 
