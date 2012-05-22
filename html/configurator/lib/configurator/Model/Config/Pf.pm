@@ -12,7 +12,7 @@ extends 'Catalyst::Model';
 
 =head1 NAME
 
-pfws::Model::Config::Pf - Catalyst Model
+configurator::Model::Config::Pf - Catalyst Model
 
 =head1 DESCRIPTION
 

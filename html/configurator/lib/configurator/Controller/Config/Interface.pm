@@ -9,7 +9,7 @@ BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
 
-pfws::Controller::Config::Interface - Catalyst Controller
+configurator::Controller::Config::Interface - Catalyst Controller
 
 =head1 DESCRIPTION
 
