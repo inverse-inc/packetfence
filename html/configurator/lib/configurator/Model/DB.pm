@@ -38,10 +38,11 @@ sub assign {
 
     my $status_msg;
 
-    my $sql_query = "GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE, LOCK TABLES";
-
+    $db = $dbHandler->quote_identifier($db);
+    
     # Create global PF user
-    $dbHandler->do("$sql_query ON $db.* TO $user\@'%' IDENTIFIED BY '$password'");
+    my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@'%' IDENTIFIED BY ?";
+    $dbHandler->do($sql_query, undef, $user, $password);
     if ( $DBI::errstr ) {
         $status_msg = "Error creating the user $user on database $db";
         $logger->warn("$status_msg | $DBI::errstr");
@@ -49,7 +50,8 @@ sub assign {
     }
 
     # Create localhost PF user
-    $dbHandler->do("$sql_query ON $db.* TO $user\@localhost IDENTIFIED BY '$password'");
+    $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@localhost IDENTIFIED BY ?";
+    $dbHandler->do($sql_query, undef, $user, $password);
     if ( $DBI::errstr ) {
         $status_msg = "Error creating the user $user on database $db";
         $logger->warn("$status_msg | $DBI::errstr");
