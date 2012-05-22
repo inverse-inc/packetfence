@@ -168,13 +168,7 @@ sub _read_config_entry {
     my $defaults_conf = $self->_load_defaults();
     my $doc_conf = $self->_load_doc();
 
-    # fetch list of options if they are defined
-    my $options_ref;
-    if (defined($doc_conf->{$section.'.'.$param}->{'options'})) {
-        $options_ref = [ split(/\|/, $doc_conf->{$section.'.'.$param}->{'options'}) ];
-    }
-
-    # the rest of the values we can assign directly
+    my $options_ref = $self->_extract_config_options($section.'.'.$param);
     return {
         'parameter' => $section.'.'.$param,
         'value' => $pf_conf->{$section}->{$param},
@@ -182,6 +176,32 @@ sub _read_config_entry {
         'type' => $doc_conf->{$section.'.'.$param}->{'type'} || "text",
         'options' => $options_ref,
     };
+}
+
+=item help
+
+Obtain the help of a given configuration parameter
+
+=cut
+sub help {
+    my ( $self, $config_entry ) = @_;
+
+    my $defaults_conf = $self->_load_defaults();
+    my $doc_conf = $self->_load_doc();
+
+    return ($STATUS::NOT_FOUND, "No help available for $config_entry")
+        if ( !defined($doc_conf->{$config_entry}->{'description'}) );
+
+    my $options_ref = $self->_extract_config_options($config_entry);
+    my $description_ref = $self->_extract_config_desc($config_entry);
+
+    my ($section, $param) = split( /\s*\.\s*/, $config_entry );
+    return ($STATUS::OK, {
+        'parameter' => $config_entry,
+        'default_value' => $defaults_conf->{$section}->{$param},
+        'options' => $options_ref,
+        'description' => $description_ref,
+    });
 }
 
 
@@ -310,6 +330,60 @@ sub create_interface {
 
     return ($STATUS::OK, "Successfully created $interface");
 }
+
+=head2 Class helpers
+
+=item _extract_config_options
+
+Simple util wrapper to return an array of options based on a given option 
+string. Meant to avoid copy/pasted code and encapsulate format of options.
+
+Returns undef if there's no options.
+
+=cut
+sub _extract_config_options {
+    my ($self, $config_entry) = @_;
+
+    my $doc_conf = $self->_load_doc();
+    if (defined($doc_conf->{$config_entry}->{'options'})) {
+        return [ split(/\|/, $doc_conf->{$config_entry}->{'options'}) ];
+    }
+    # otherwise undef
+    return;
+}
+
+=item _extract_config_desc
+
+Simple util wrapper to return the description based on a given description 
+entry reference. Meant to avoid copy/pasted code and encapsulate format of 
+descriptions.
+
+Returns undef if there's no description.
+
+=cut
+sub _extract_config_desc {
+    my ($self, $config_entry) = @_;
+
+    my $doc_conf = $self->_load_doc();
+    return if (!defined($doc_conf->{$config_entry}->{'description'})); 
+
+    if ( ref($doc_conf->{$config_entry}->{'description'}) eq 'ARRAY' ) {
+        return join( "\n", @{ $doc_conf->{$config_entry}->{'description'} } );
+    }
+    else {
+        return $doc_conf->{$config_entry}->{'description'};
+    }
+}
+
+=back
+
+=head2 SUBROUTINES
+
+Stateless small helper functions.
+
+=over
+
+=back
 
 =head1 AUTHOR
 

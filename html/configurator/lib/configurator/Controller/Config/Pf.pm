@@ -55,6 +55,27 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     }
 }
 
+=head2 help 
+
+/config/pf/<section.param>/help
+
+Get help on a configuration parameter.
+
+=cut
+sub help :Chained('object') :PathPart('help') :Args(0) {
+    my ($self, $c) = @_;
+    my $config_item = $c->stash->{config_item};
+
+    my ($status, $message) = $c->model('Config::Pf')->help($config_item);
+    if (is_error($status)) {
+        $c->res->status($status);
+        $c->error($message);
+    }
+    else {
+        $c->stash->{config} = $message;
+    }
+}
+
 =head2 delete
 
 /config/pf/<section.param>/delete
