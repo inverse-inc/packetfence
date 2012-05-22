@@ -59,3 +59,12 @@ function showError(sibling, msg) {
     sibling.before(alert);
     alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
 }
+
+function btnError(btn) {
+    btn.fadeOut('fast', function(event) {
+        $(this).addClass('btn-danger');
+    }).fadeIn('fast').delay(5000).queue(function(event) {
+        $(this).removeClass('btn-danger');
+        $(this).dequeue();
+    });
+}

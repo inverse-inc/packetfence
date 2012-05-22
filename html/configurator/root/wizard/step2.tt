@@ -36,53 +36,56 @@
           <form class="form-horizontal">
             <h3>Enter the root account credentials</h3>
             <div class="control-group">
-              <label class="control-label" for="root_username">Username</label>
+              <label class="control-label" for="root_user">Username</label>
               <div class="controls">
-                <input id="root_username" class="text" type="text" value="root" placeholder="root">
+                <input id="root_user" class="text" type="text" placeholder="root">
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="root_password">Password</label>
               <div class="controls">
                 <input id="root_password" class="text" type="password">
-                <a class="btn" href="#testDatabase">Test</a>
+                <a class="btn" id="testDatabase" href="[% c.uri_for('/db/test') %]">Test</a>
               </div>
             </div>
             <h3>Database</h3>
             <div class="control-group">
-              <label class="control-label" for="root">Database name</label>
+              <label class="control-label" for="database">Database name</label>
               <div class="controls">
-                <input id="root" class="text" type="text" value="pf">
+                <input id="database" class="text" type="text" value="pf">
               </div>
             </div>
             <div class="control-group success">
               <div class="controls">
-                <button class="btn btn-primary disabled">Create tables and indexes</button>
-                <span class="help-inline"><strong>Success!</strong> The database tables already exist.</span>
+                <a class="btn btn-primary" id="createDatabase" href="[% c.uri_for('/db/create') %]">Create tables and indexes</a>
               </div>
             </div>
             <h3>Create a PacketFence account</h3>
             <div class="control-group">
-              <label class="control-label" for="root">Username</label>
+              <label class="control-label" for="pf_user">Username</label>
               <div class="controls">
-                <input id="root" class="text" type="text">
+                <input id="pf_user" class="text" type="text">
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="rootpassword">Password</label>
+              <label class="control-label" for="pf_password">Password</label>
               <div class="controls">
-                <input id="rootpassword" class="text" type="password">
+                <input id="pf_password" class="text" type="password">
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input class="text" type="password" placeholder="Retype your password">
-                <a class="btn btn-primary" href="#createUser">Create user</a>
+                <input id="pf_password2" class="text" type="password" placeholder="Retype your password">
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <a class="btn btn-primary" id="assignUser" href="[% c.uri_for('/db/assign') %]">Create user</a>
               </div>
             </div>
             <fieldset>
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary pull-right">Continue <i class="icon-circle-arrow-right icon-white"></i></button>
+                <a class="btn btn-primary pull-right" href="[% c.uri_for('step3') %]">Continue <i class="icon-circle-arrow-right icon-white"></i></a>
               </div>
             </fieldset>
           </form>
