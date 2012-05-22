@@ -48,6 +48,8 @@ sub assign :Path('assign') :Args(1) {
     } else {
         $c->stash->{status_msg} = $message;
     }
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 =item create
@@ -70,6 +72,8 @@ sub create :Path('create') :Args(1) {
     } else {
         $c->stash->{status_msg} = $message;
     }
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 =item schema
@@ -93,6 +97,8 @@ sub schema :Path('schema') :Args(1) {
     } else {
         $c->stash->{status_msg} = $message;
     }
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 =item test
