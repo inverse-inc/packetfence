@@ -156,7 +156,9 @@ sub read {
     return ($STATUS::OK, \@config_parameters);
 }
 
-=item 
+=item _read_config_entry
+
+Read a config entry and return the proper hashref meant to be turned into JSON.
 
 =cut
 sub _read_config_entry {
