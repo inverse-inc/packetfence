@@ -250,6 +250,10 @@ sub update {
 
 =over
 
+=item read_interface
+
+Read the pf.conf configuration of an interface.
+
 =cut
 sub read_interface {
     my ($self, $interface) = @_;
@@ -281,6 +285,11 @@ sub read_interface {
     }
 }
 
+=item delete_interface
+
+Delete an interface section in the pf.conf configuration.
+
+=cut
 sub delete_interface {
     my ($self, $interface) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -301,6 +310,11 @@ sub delete_interface {
     return ($STATUS::OK, "Successfully deleted $interface");
 }
 
+=item update_interface
+
+Update an interface in pf.conf configuration.
+
+=cut
 sub update_interface {
     my ($self, $interface, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -326,6 +340,11 @@ sub update_interface {
     return ($STATUS::OK, "Successfully modified $interface");
 }
 
+=item create_interface
+
+Create an interface section in pf.conf configuration.
+
+=cut
 sub create_interface {
     my ($self, $interface, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -349,6 +368,8 @@ sub create_interface {
 }
 
 =item _write_pf_conf
+
+Performs the write of the pf.conf.
 
 =cut
 sub _write_pf_conf {
