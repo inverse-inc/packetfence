@@ -68,29 +68,11 @@ sub create :Path('create') :Args(1) {
     my ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
     if ( is_error($status) ) {
         $c->response->status($status);
-        $c->stash->{status_msg} = $message;
-    } else {
-        $c->stash->{status_msg} = $message;
+        $c->error($message);
+        $c->detach();
     }
 
-    $c->stash->{current_view} = 'JSON';
-}
-
-=item schema
-
-Apply the PF MySQL schema to the requested database
-
-Usage: /db/schema/<database_name>
-
-=cut
-sub schema :Path('schema') :Args(1) {
-    my ( $self, $c, $db ) = @_;
-
-    my $root_user       = $c->request->params->{root_user};
-    my $root_password   = $c->request->params->{root_password};
-
-    my ( $status, $message ) = $c->model('DB')->schema($db, $root_user, $root_password );
-
+    ($status, $message) = $c->model('DB')->schema($db, $root_user, $root_password );
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $message;
