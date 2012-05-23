@@ -131,6 +131,7 @@ sub read {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $pf_conf = $self->_load_conf();
+    my $defaults_conf = $self->_load_defaults();
 
     my @config_parameters;
     if ( $config_entry eq 'all' ) {
@@ -142,7 +143,7 @@ sub read {
     }
     else {
         my ($section, $param) = split( /\s*\.\s*/, $config_entry );
-        if ( defined( $pf_conf->{$section}->{$param} ) ) {
+        if ( defined($pf_conf->{$section}->{$param}) || defined($defaults_conf->{$section}->{$param}) ) {
             push @config_parameters, $self->_read_config_entry( $section, $param );
         } else {
             return ($STATUS::NOT_FOUND, "Unknown configuration parameter $section.$param!");
