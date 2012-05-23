@@ -1,6 +1,20 @@
 [% INCLUDE wizard/header.inc %]
 
-    <div id="navbar" class="navbar navbar-fixed-top">
+ <!-- redirection to admin interface -->
+  <div class="modal fade hide" id="modalRedirection">
+    <div class="modal-header">
+      <h3>Congratulations!</h3>
+    </div>
+    <div class="modal-body">
+      <p>You have successfully configured and launched PacketFence.</p>
+      <p>You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.</p>
+      <div class="modal-footer">
+        <a class="btn btn-primary" href="https://localhost:1443/">Visit Administration Interface Now!</a>
+      </div>
+    </div>
+  </div>
+
+   <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>

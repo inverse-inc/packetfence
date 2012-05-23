@@ -12,6 +12,11 @@ function saveStep(href) {
             $(this).text('Starting').addClass('badge-warning');
         }).fadeIn('fast').delay(2000).fadeOut('fast', function(event) {
             $(this).text('Started').removeClass('badge-warning').addClass('badge-success');
-        }).fadeIn('fast');
+        }).fadeIn('fast', function(event) {
+            if (index == 7) {
+                $('#modalRedirection').modal({ show: true });
+                window.setTimeout(function(event) { window.location.href = 'https://localhost:1443/'; }, 10000);
+            }
+        });
     });
 }
