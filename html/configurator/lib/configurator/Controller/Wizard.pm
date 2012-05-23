@@ -13,7 +13,7 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-use HTTP::Status qw(:constants is_error is_success);
+use HTTP::Status qw(is_success);
 use JSON;
 use Moose;
 use namespace::autoclean;
@@ -82,26 +82,26 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
 
-    # Check if the database user exists
-    my ($pf_user, $pf_pass);
-
-    my ($status, $result) = $c->model('Config::Pf')->read('database.user');
-    if ( !is_error($status) ) {
+    # Check if the database and user exist
+    my ($status, $result, $pf_user, $pf_pass, $pf_db);
+    ($status, $result) = $c->model('Config::Pf')->read('database.user');
+    if (is_success($status)) {
         $pf_user = $result->[0]->{value};
-        ($status, $result) = $c->model('Config::Pf')->read('database.pass');
-        if ( !is_error($status) ) {
-            $pf_pass = $result->[0]->{value};
-        }
-        if ($pf_user && $pf_pass) {
-            ($status, $result) = $c->model('DB')->connect('mysql', $pf_user, $pf_pass);
-            $c->stash->{userExists} = !is_error($status);
-        }
     }
-    else {
-        $c->log->error($result);
+    ($status, $result) = $c->model('Config::Pf')->read('database.pass');
+    if (is_success($status)) {
+        $pf_pass = $result->[0]->{value};
+        $c->session->{pf_pass} = $pf_pass;
     }
-
-    # Check if the database exists
+    ($status, $result) = $c->model('Config::Pf')->read('database.db');
+    if (is_success($status)) {
+        $pf_db = $result->[0]->{value};
+        $c->session->{database} = $pf_db;
+    }
+    if ($pf_user && $pf_pass && $pf_db) {
+        ($status, $result) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
+        $c->stash->{completed} = is_success($status);
+    }
 }
 
 =item step3
@@ -123,8 +123,6 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
                 $config_ref->{$param->{'parameter'}} = $value;
             }
             $c->stash->{'config'} = $config_ref;
-            use Data::Dumper;
-            $c->log->error("bleh: ".Dumper($c->stash));
         }
     }
     elsif ($c->request->method eq 'POST') {
