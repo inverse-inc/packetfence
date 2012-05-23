@@ -13,10 +13,13 @@ Catalyst Model.
 use strict;
 use warnings;
 
+use Apache::Htpasswd;
 use Moose;
 use namespace::autoclean;
 
 use pf::config;
+use pf::error;
+use pf::util;
 
 extends 'Catalyst::Model';
 
@@ -66,6 +69,36 @@ sub checkForUpgrade {
         $logger->info("Upgrade process");
         return "upgrade";
     }
+}
+
+=item createAdminUser
+
+=cut
+sub createAdminUser {
+    my ( $self, $user, $password ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+    my $admins_file = "$install_dir/conf/admin.conf";
+
+    unless ( -e $admins_file ) {
+        $logger->warn("File $admins_file does not exists, creating it");
+        pf_run("touch $admins_file");  
+    }
+
+    my $htpasswd = new Apache::Htpasswd($admins_file);
+
+    $htpasswd->htpasswd($user, $password);
+
+    if ( $htpasswd->error ) {
+        $status_msg = "Error creating administrative user $user";
+        $logger->error($status_msg . " | " . $htpasswd->error);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    $status_msg = "Successfully created the administrative user $user";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
 }
 
 =back

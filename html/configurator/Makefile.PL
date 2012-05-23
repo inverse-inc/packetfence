@@ -29,6 +29,7 @@ requires 'IO::Interface::Simple';
 requires 'DBI';
 requires 'JSON';
 requires 'Net::Route';
+requires 'Apache::Htpasswd';
 
 test_requires 'Test::More' => '0.88';
 catalyst;

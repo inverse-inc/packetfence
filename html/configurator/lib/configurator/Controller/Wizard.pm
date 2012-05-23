@@ -144,6 +144,31 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
     my ( $self, $c ) = @_;
 }
 
+=item create_admin
+
+Create the administrative user
+
+=cut
+sub create_admin :Path('create_admin') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $admin_user      = $c->request->params->{admin_user};
+    my $admin_password  = $c->request->params->{admin_password};
+
+    my $admin_user      = "bob";
+    my $admin_password = "dole";
+
+    my ($status, $message) = $c->model('Wizard')->createAdminUser($admin_user, $admin_password);
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $message;
+    } else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message;
+    }
+
+    $c->stash->{current_view} = 'JSON';
+}
+
 =back
 
 =head1 AUTHORS
