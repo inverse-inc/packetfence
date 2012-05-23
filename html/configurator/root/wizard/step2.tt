@@ -64,23 +64,24 @@
             <div class="control-group">
               <label class="control-label" for="pf_user">Username</label>
               <div class="controls">
-                <input id="pf_user" class="text" type="text" value="[% c.session.pf_user %]">
+                <input id="pf_user" class="text" type="text" value="[% c.session.pf_user %]"[% IF userExists %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="pf_password">Password</label>
               <div class="controls">
-                <input id="pf_password" class="text" type="password">
+                <input id="pf_password" class="text" type="password"[% IF userExists %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input id="pf_password2" class="text" type="password" placeholder="Retype your password">
+                <input id="pf_password2" class="text" type="password" placeholder="Retype your password"[% IF userExists %] disabled=""[% END %]>
               </div>
             </div>
-            <div class="control-group">
+            <div class="control-group[% IF userExists %] success[% END %]">
               <div class="controls">
-                <a class="btn btn-primary" id="assignUser" href="[% c.uri_for('/db/assign') %]">Create user</a>
+                <a class="btn btn-primary[% IF userExists %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">Create user</a>
+                [% IF userExists %]<span class="help-inline">Success!</span>[% END %]
               </div>
             </div>
             <fieldset>

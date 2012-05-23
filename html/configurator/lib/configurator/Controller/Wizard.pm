@@ -13,6 +13,7 @@ Catalyst Controller.
 use strict;
 use warnings;
 
+use HTTP::Status qw(:constants is_error);
 use JSON;
 use Moose;
 use namespace::autoclean;
@@ -45,6 +46,8 @@ sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
 
 =item step1
 
+Enforcement mechanisms and network interfaces
+
 =cut
 sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     my ( $self, $c ) = @_;
@@ -65,6 +68,8 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
 
 =item step2
 
+Database setup
+
 =cut
 sub step2 :Chained('object') :PathPart('step2') :Args(0) {
     my ( $self, $c ) = @_;
@@ -76,12 +81,64 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
                     database => $c->request->params->{database});
         $c->stash->{current_view} = 'JSON';
     }
+
+    # Check if the database user exists
+    my ($pf_user, $pf_pass);
+
+    my ($status, $result) = $c->model('Config::Pf')->read('database.user');
+    if ( !is_error($status) ) {
+        $pf_user = $result->[0]->{value};
+        ($status, $result) = $c->model('Config::Pf')->read('database.pass');
+        if ( !is_error($status) ) {
+            $pf_pass = $result->[0]->{value};
+        }
+        if ($pf_user && $pf_pass) {
+            ($status, $result) = $c->model('DB')->connect('mysql', $pf_user, $pf_pass);
+            $c->stash->{userExists} = !is_error($status);
+        }
+    }
+    else {
+        $c->log->error($result);
+    }
+
+    # Check if the database exists
 }
 
 =item step3
 
+PacketFence minimal configuration
+
 =cut
 sub step3 :Chained('object') :PathPart('step3') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    if ($c->request->method eq 'POST') {
+        # Save parameters in user session
+        $c->session(general => {domain => $c->request->params->{'general.domain'},
+                                hostname => $c->request->params->{'general.hostname'},
+                                dhcpservers => $c->request->params->{'general.dhcpservers'}},
+                    alerting => {emailaddr => $c->request->params->{'alerting.emailaddr'}});
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
+=item step4
+
+Administrator account
+
+=cut
+sub step4 :Chained('object') :PathPart('step4') :Args(0) {
+    my ( $self, $c ) = @_;
+
+
+}
+
+=item step5
+
+Confirmation and services launch
+
+=cut
+sub step5 :Chained('object') :PathPart('step5') :Args(0) {
     my ( $self, $c ) = @_;
 }
 
