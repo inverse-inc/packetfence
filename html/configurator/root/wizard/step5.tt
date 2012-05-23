@@ -1,0 +1,93 @@
+[% INCLUDE wizard/header.inc %]
+
+    <div id="navbar" class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
+          <p class="pull-right">Configuration Wizard</p>
+          </div>
+      </div>
+    </div>
+
+    <div class="container">
+      [% step = 5 %]
+      [% INCLUDE wizard/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>Step 5</h1>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>Start the services
+            <small>Secure your network</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>Instructions</h3>
+            <p>The last step of this configuration wizard is to start the PacketFence daemons.</p>
+          </div>
+        </div>
+        <div id="services" class="span9">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Daemon</th>
+                <th>Status</th>
+              </tr>
+              </thead>
+            <tbody>
+              <tr>
+                <td>named</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>dhcpd</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>httpd</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>radiusd</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>snmptrapd</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>pfsetvlan</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>pfmon</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+              <tr>
+                <td>pfmon</td>
+                <td><span class="badge">Stopped</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <form class="form-horizontal">
+            <fieldset>
+            <div class="form-actions">
+              <a class="btn btn-primary pull-right" href="[% c.uri_for('step5') %]">Start PacketFence</a>
+            </div>
+            </fieldset>
+            </form>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2012</p>
+      </footer>
+    </div><!--/container-->
+
+[% INCLUDE wizard/footer.inc
+    jsFiles = ['services'] %]

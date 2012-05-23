@@ -54,3 +54,6 @@ body {
 #interfaces .btn-toggle {
     min-width: 50px;
 }
+#services td {
+    min-width: 100px;
+}
