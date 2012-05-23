@@ -122,8 +122,11 @@ sub _load_doc {
 
 Read a configuration value with all it's metadata.
 
-$param is something like general.hostname where general is the section and 
+$config_entry is something like general.hostname where general is the section and 
 hostname the parameter.
+
+You can ask for both a single entry (pass a scalar) or a list of entries 
+(pass an arrayref).
 
 =cut
 sub read {
@@ -134,7 +137,8 @@ sub read {
     my $defaults_conf = $self->_load_defaults();
 
     my @config_parameters;
-    if ( $config_entry eq 'all' ) {
+    # config_entry is a scalar and all parameters were requested
+    if ( !ref($config_entry) && $config_entry eq 'all' ) {
         foreach my $section ( sort keys(%$pf_conf) ) {
             foreach my $param ( keys( %{ $pf_conf->{$section} } ) ) {
                 push @config_parameters, $self->_read_config_entry( $section, $param );
@@ -142,16 +146,25 @@ sub read {
         }
     }
     else {
-        my ($section, $param) = split( /\s*\.\s*/, $config_entry );
-        if ( defined($pf_conf->{$section}->{$param}) || defined($defaults_conf->{$section}->{$param}) ) {
-            push @config_parameters, $self->_read_config_entry( $section, $param );
-        } else {
-            return ($STATUS::NOT_FOUND, "Unknown configuration parameter $section.$param!");
+        # lets build a list of the parameters to retrieve and send to the client
+        my @to_retrieve;
+        push @to_retrieve, $config_entry if (!ref($config_entry)); 
+        push @to_retrieve, @$config_entry if (ref($config_entry) eq 'ARRAY'); 
+
+        foreach my $config (@to_retrieve) {
+
+            my ($section, $param) = split( /\s*\.\s*/, $config );
+            if ( defined($pf_conf->{$section}->{$param}) || defined($defaults_conf->{$section}->{$param}) ) {
+                push @config_parameters, $self->_read_config_entry( $section, $param );
+            } else {
+                return ($STATUS::NOT_FOUND, "Unknown configuration parameter $section.$param!");
+            }
         }
     }
 
     if (!@config_parameters) {
-        return ($STATUS::NOT_FOUND, "Nothing found when searching for $config_entry");
+        $logger->warn("Nothing found when searching for $config_entry");
+        return ($STATUS::NOT_FOUND, "No results");
     }
 
     return ($STATUS::OK, \@config_parameters);
