@@ -215,15 +215,14 @@ function saveStep(validate, successCallback) {
                 else
                     e.removeClass('error');
             }
-
             var i = e.find('input:checkbox');
             if (i.length) {
                 if (i.filter(':checked').length == 0) {
-                    e.addClass('warning');
+                    e.addClass('error');
                     valid = false;
                 }
                 else
-                    e.removeClass('warning');
+                    e.removeClass('error');
             }
         });
     }
@@ -250,5 +249,9 @@ function saveStep(validate, successCallback) {
             showError($('#interfaces form'), obj.status_msg);
             $("body").animate({scrollTop:0}, 'fast');
         });
+    }
+    else {
+        showError($('form'), 'Please verify your configuration.');
+        $("body").animate({scrollTop:0}, 'fast');
     }
 }
