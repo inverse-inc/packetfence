@@ -33,10 +33,10 @@ Usage: /db/assign/<database_name>
 sub assign :Path('assign') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
-    my $root_user       = $c->request->params->{root_user};
-    my $root_password   = $c->request->params->{root_password};
-    my $pf_user         = $c->request->params->{pf_user};
-    my $pf_password     = $c->request->params->{pf_password};
+    my $root_user = $c->request->params->{'root_user'};
+    my $root_password = $c->request->params->{'root_password'};
+    my $pf_user = $c->request->params->{'database.user'};
+    my $pf_password = $c->request->params->{'database.pass'};
 
     my ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
     if ( !is_error($status) ) {
