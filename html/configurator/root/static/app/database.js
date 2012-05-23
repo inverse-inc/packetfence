@@ -120,7 +120,7 @@ function initStep() {
                 type: 'POST',
                 url: url.join('/'),
                 data: { root_user: root_user.val(), root_password: root_password.val(),
-                        'database.user': pf_user.val(), 'database.password': pf_password.val() }
+                        'database.user': pf_user.val(), 'database.pass': pf_password.val() }
             }).done(function(data) {
                 btn.addClass('disabled');
                 pf_user.add(pf_password).add(pf_password2).attr('disabled', '');
