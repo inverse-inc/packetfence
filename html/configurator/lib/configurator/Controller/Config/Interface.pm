@@ -117,7 +117,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 /config/interface/<interface>/create
 
 =cut
-
 sub create :Chained('object') :PathPart('create') :Args(0) {
     my ($self, $c) = @_;
     my $interface = $c->stash->{interface};

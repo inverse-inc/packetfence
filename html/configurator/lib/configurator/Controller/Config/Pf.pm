@@ -83,16 +83,9 @@ sub help :Chained('object') :PathPart('help') :Args(0) {
 =cut
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
-    my $config_item = $c->stash->{config_item};
 
-    my ($status, $message) = $c->model('Config::Pf')->delete($config_item);
-    if (is_error($status)) {
-        $c->res->status($status);
-        $c->error($message);
-    }
-    else {
-        $c->stash->{status_msg} = $message;
-    }
+    # TODO reset to default value or simply don't implement?
+    $c->res->status(HTTP_NOT_IMPLEMENTED);
 }
 
 =head2 update
@@ -143,22 +136,8 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
     my ($self, $c) = @_;
     my $config_item = $c->stash->{config_item};
 
-    my $assignments_ref = $c->request->body_params;
-    if (defined($assignments_ref)) {
-        my ($status, $message) = $c->model('Config::Pf')->create($config_item, $assignments_ref);
-        if (is_error($status)) {
-            $c->res->status($status);
-            $c->error($message);
-        }
-        else {
-            $c->res->status(HTTP_CREATED);
-            $c->stash->{status_msg} = $message;
-        }
-    }
-    else {
-        $c->res->status(HTTP_BAD_REQUEST);
-        $c->stash->{status_msg} = 'Missing parameters';
-    }
+    # TODO redirect to /update (or the other way around) or simply don't implement?
+    $c->res->status(HTTP_NOT_IMPLEMENTED);
 }
 
 sub end : ActionClass('RenderView') {

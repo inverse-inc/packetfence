@@ -253,16 +253,9 @@ sub delete_interface {
     my $tied_conf = tied(%$pf_conf);
     if ( $tied_conf->SectionExists($interface_name) ) {
         $tied_conf->DeleteSection($interface_name);
-        $tied_conf->WriteConfig($conf_dir . "/pf.conf")
-            or $logger->logdie(
-                "Unable to write config to $conf_dir/pf.conf. "
-                ."You might want to check the file's permissions."
-            );
-        # The following snippet updates the database
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import( $conf_dir . "/pf.conf" );
-    } else {
+        $self->_write_pf_conf();
+    } 
+    else {
         return ($STATUS::NOT_FOUND, "Interface not found");
     }
   
@@ -286,15 +279,7 @@ sub update_interface {
                 $tied_conf->newval( $interface_name, $param, $value );
             }
         }
-        $tied_conf->WriteConfig($conf_dir . "/pf.conf")
-            or $logger->logdie(
-                "Unable to write config to $conf_dir/pf.conf. "
-                ."You might want to check the file's permissions."
-            );
-        # The following snippet updates the database
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import( $conf_dir . "/pf.conf" );
+        $self->_write_pf_conf();
     } else {
         return ($STATUS::NOT_FOUND, "Interface not found");
     }
@@ -316,19 +301,32 @@ sub create_interface {
             $tied_conf->AddSection($interface_name);
             $tied_conf->newval( $interface_name, $param, $value );
         }
-        $tied_conf->WriteConfig($conf_dir . "/pf.conf")
-            or $logger->logdie(
-                "Unable to write config to $conf_dir/pf.conf. "
-                ."You might want to check the file's permissions."
-            );
-        require pf::configfile;
-        import pf::configfile;
-        configfile_import( $conf_dir . "/pf.conf" );
+        $self->_write_pf_conf();
     } else {
         return ($STATUS::PRECONDITION_FAILED, "Interface $interface already exists");
     }
 
     return ($STATUS::OK, "Successfully created $interface");
+}
+
+=item _write_pf_conf
+
+=cut
+sub _write_pf_conf {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $pf_conf = $self->_load_conf();
+    tied(%$pf_conf)->WriteConfig($conf_dir . "/pf.conf")
+        or $logger->logdie(
+            "Unable to write config to $conf_dir/pf.conf. "
+            ."You might want to check the file's permissions."
+        );
+
+    # The following snippet updates the database
+    require pf::configfile;
+    import pf::configfile;
+    configfile_import( $conf_dir . "/pf.conf" );
 }
 
 =head2 Class helpers
