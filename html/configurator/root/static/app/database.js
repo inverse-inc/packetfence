@@ -50,7 +50,7 @@ function initStep() {
         var btn = $(this),
         root_user = $('#root_user'),
         root_password = $('#root_password'),
-        database = $('#database'),
+        database = $('input[name="database.db"]'),
         database_control = database.closest('.control-group'),
         url = [btn.attr('href'), database.val()],
         valid = true;
@@ -89,11 +89,11 @@ function initStep() {
         root_user = $('#root_user'),
         root_user_control = root_user.closest('.control-group'),
         root_password = $('#root_password'),
-        database = $('#database'),
-        pf_user = $('#pf_user'),
+        database = $('input[name="database.db"]'),
+        pf_user = $('input[name="database.user"]'),
         pf_user_control = pf_user.closest('.control-group'),
-        pf_password = $('#pf_password'),
-        pf_password2 = $('#pf_password2'),
+        pf_password = $('input[name="database.pass"]'),
+        pf_password2 = $('input[name="database.pass2"]'),
         url = [btn.attr('href'), database.val()],
         valid = true;
 
@@ -154,9 +154,9 @@ function saveStep(href) {
         $.ajax({
             type: 'POST',
             url: window.location.pathname,
-            data: {root_user: $('#root_user').val(),
-                   pf_user: $('#pf_user').val(), 
-                   database: $('#database').val()}
+            data: {'datbase.user': $('input[name="database.user"]').val(),
+                   'datbase.pass': $('input[name="database.pass"]').val(),
+                   'database.db': $('input[name="database.db"]').val()}
         }).done(function(data) {
             window.location.href = href;
         }).fail(function(jqXHR) {
