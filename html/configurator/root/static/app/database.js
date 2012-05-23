@@ -150,7 +150,10 @@ function saveStep(href) {
         valid = false;
     }
 
-    if (!valid) {
+    if (valid) {
+        window.location.href = href;
+    }
+    else {
         showError($('form'), 'Please verify your configuration.');
         $("body").animate({scrollTop:0}, 'fast');
     }
