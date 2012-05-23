@@ -39,23 +39,24 @@
             <div class="control-group">
               <label class="control-label" for="admin_user">Username</label>
               <div class="controls">
-                <input id="admin_user" class="text" type="text">
+                <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="admin_password">Password</label>
               <div class="controls">
-                <input id="admin_password" class="text" type="password">
+                <input id="admin_password" class="text" type="password"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input id="admin_password2" class="text" type="password" placeholder="Retype your password">
+                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
-            <div class="control-group">
+            <div class="control-group[% IF completed %] success[% END %]">
               <div class="controls">
-                <a class="btn btn-primary" href="#createUser">Create user</a>
+                <a id="createUser" class="btn btn-primary[% IF completed %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</a>
+                [% IF completed %]<span class="help-inline">Success!</span>[% END %]
               </div>
             </div>
 

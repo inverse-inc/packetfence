@@ -132,7 +132,7 @@ Administrator account
 sub step4 :Chained('object') :PathPart('step4') :Args(0) {
     my ( $self, $c ) = @_;
 
-
+    $c->stash->{completed} = defined($c->session->{admin_user});
 }
 
 =item step5
@@ -155,12 +155,10 @@ sub create_admin :Path('create_admin') :Args(0) {
     my $admin_user      = $c->request->params->{admin_user};
     my $admin_password  = $c->request->params->{admin_password};
 
-    my $admin_user      = "bob";
-    my $admin_password = "dole";
-
     my ($status, $message) = $c->model('Wizard')->createAdminUser($admin_user, $admin_password);
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $message;
+        $c->session('admin_user' => $admin_user);
     } else {
         $c->response->status($status);
         $c->stash->{status_msg} = $message;
