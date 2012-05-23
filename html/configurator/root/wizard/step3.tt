@@ -38,14 +38,14 @@
             <div class="control-group">
               <label class="control-label" for="general_domain">Domain</label>
               <div class="controls">
-                <input type="text"class="input" id="general_domain" value="[% c.session.general.domain %]">
+                <input type="text"class="input" id="general_domain" value="[% config.${"general.domain"} %]">
                 <p class="help-block">Domain name of PacketFence system.</p>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="general_hostname">Hostname</label>
               <div class="controls">
-                <input type="text"class="input" id="general_hostname" value="[% c.session.general.hostname %]">
+                <input type="text"class="input" id="general_hostname" value="[% config.${"general.hostname"} %]">
                 <p class="help-block">Hostname of PacketFence system. This is concatenated with the domain
                 in Apache rewriting rules and therefore must be resolvable by clients.</p>
               </div>
@@ -53,7 +53,7 @@
             <div class="control-group">
               <label class="control-label" for="general_dhcpservers">DHCP Servers</label>
               <div class="controls">
-                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% c.session.general.dhcpservers %]</textarea>
+                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% config.${"general.dhcpservers"} %]</textarea>
                 <p class="help-block">Comma-delimited list of DHCP servers.</p>
               </div>
             </div>
@@ -61,7 +61,7 @@
             <div class="control-group">
               <label class="control-label" for="alerting_emailaddr"></label>
               <div class="controls">
-                <input type="text"class="input" id="alerting_emailaddr" value="[% c.session.alerting.emailaddr %]">
+                <input type="text"class="input" id="alerting_emailaddr" value="[% config.${"alerting.emailaddr"} %]">
                 <p class="help-block">Email address to which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message goes to.</p>
               </div>
             </div>

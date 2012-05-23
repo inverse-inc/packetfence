@@ -13,7 +13,7 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-use HTTP::Status qw(:constants is_error);
+use HTTP::Status qw(:constants is_error is_success);
 use JSON;
 use Moose;
 use namespace::autoclean;
@@ -112,7 +112,22 @@ PacketFence minimal configuration
 sub step3 :Chained('object') :PathPart('step3') :Args(0) {
     my ( $self, $c ) = @_;
 
-    if ($c->request->method eq 'POST') {
+    if ($c->request->method eq 'GET') {
+        my ($status, $result_ref) = $c->model('Config::Pf')->read(
+            ['general.domain', 'general.hostname', 'general.dhcpservers', 'alerting.emailaddr']
+        );
+        if (is_success($status)) {
+            my $config_ref = {};
+            foreach my $param (@$result_ref) {
+                my $value = (defined($param->{'value'})) ? $param->{'value'} : $param->{'default_value'};
+                $config_ref->{$param->{'parameter'}} = $value;
+            }
+            $c->stash->{'config'} = $config_ref;
+            use Data::Dumper;
+            $c->log->error("bleh: ".Dumper($c->stash));
+        }
+    }
+    elsif ($c->request->method eq 'POST') {
         # Save parameters in user session
         $c->session(general => {domain => $c->request->params->{'general.domain'},
                                 hostname => $c->request->params->{'general.hostname'},
