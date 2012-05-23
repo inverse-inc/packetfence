@@ -204,6 +204,45 @@ sub help {
     });
 }
 
+=item update
+
+Simplest mean to update configuration.
+
+$config_entry in the form section.param and $value is the value, directly.
+
+=cut
+# TODO batch update
+sub update {
+    my ($self, $config_entry, $value) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($section, $param) = split( /\s*\.\s*/, $config_entry );
+    my $pf_conf = $self->_load_conf();
+    my $defaults_conf = $self->_load_defaults();
+
+    # if not in pf_conf OR defaults_conf consider unknown
+    return ($STATUS::NOT_FOUND, "Unknown configuration parameter $config_entry!")
+        if ( !defined($pf_conf->{$section}->{$param}) && !defined($defaults_conf->{$section}->{$param}) );
+
+    if ( defined($pf_conf->{$section}->{$param}) ) {
+        # a pf.conf parameter is replaced to another value and is not the default: replace with new value
+        if ( $defaults_conf->{$section}->{$param} ne $value ) {   
+            tied(%$pf_conf)->setval( $section, $param, $value );
+        }
+        # a pf.conf parameter replaced to it's default value
+        # so we just delete the pf.conf version
+        else {
+            tied(%$pf_conf)->delval( $section, $param );
+        }
+    }
+    # pf.conf parameter isn't set and new value is not the default: add to pf.conf
+    elsif ( $defaults_conf->{$section}->{$param} ne $value ) {
+        tied(%$pf_conf)->newval( $section, $param, $value );
+    }
+    $self->_write_pf_conf();
+
+    return ($STATUS::OK, "Successfully updated configuration");
+}
 
 =back
 

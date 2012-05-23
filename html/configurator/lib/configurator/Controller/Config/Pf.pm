@@ -97,32 +97,21 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
     my $config_item = $c->stash->{config_item};
 
-    my $assignments_ref = $c->request->body_params->{assignments};
-
-    if ($assignments_ref) {
-        my $decoded_assignments_ref = try { return decode_json($assignments_ref); }
-        catch {
-            # Malformed JSON
-            chomp $_;
-            $c->res->status(HTTP_BAD_REQUEST);
-            $c->stash->{status_msg} = $_;
-            return;
-        };
-        if (defined($decoded_assignments_ref)) {
-            my ($status, $message) = $c->model('Config::Pf')->update($config_item, $assignments_ref);
-            if (is_error($status)) {
-                $c->res->status($status);
-                $c->error($message);
-            }
-            else {
-                $c->res->status(HTTP_CREATED);
-                $c->stash->{status_msg} = $message;
-            }
+    my $value = $c->request->body_params->{value};
+    if (defined($value) && !ref($value)) {
+        my ($status, $message) = $c->model('Config::Pf')->update($config_item, $value);
+        if (is_error($status)) {
+            $c->res->status($status);
+            $c->error($message);
+        }
+        else {
+            $c->res->status(HTTP_CREATED);
+            $c->stash->{status_msg} = $message;
         }
     }
     else {
         $c->res->status(HTTP_BAD_REQUEST);
-        $c->stash->{status_msg} = 'Missing parameters';
+        $c->stash->{status_msg} = 'Missing parameters or malformed request';
     }
 }
 
