@@ -120,7 +120,7 @@ function initStep() {
                 type: 'POST',
                 url: url.join('/'),
                 data: { root_user: root_user.val(), root_password: root_password.val(),
-                        pf_user: pf_user.val(), pf_password: pf_password.val() }
+                        'database.user': pf_user.val(), 'database.password': pf_password.val() }
             }).done(function(data) {
                 btn.addClass('disabled');
                 pf_user.add(pf_password).add(pf_password2).attr('disabled', '');
@@ -150,22 +150,7 @@ function saveStep(href) {
         valid = false;
     }
 
-    if (valid) {
-        $.ajax({
-            type: 'POST',
-            url: window.location.pathname,
-            data: {'database.user': $('input[name="database.user"]').val(),
-                   'database.pass': $('input[name="database.pass"]').val(),
-                   'database.db': $('input[name="database.db"]').val()}
-        }).done(function(data) {
-            window.location.href = href;
-        }).fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showError($('form'), obj.status_msg);
-            $("body").animate({scrollTop:0}, 'fast');
-        });
-    }
-    else {
+    if (!valid) {
         showError($('form'), 'Please verify your configuration.');
         $("body").animate({scrollTop:0}, 'fast');
     }
