@@ -13,6 +13,7 @@ Catalyst Controller.
 use strict;
 use warnings;
 
+use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 
@@ -28,9 +29,10 @@ BEGIN {extends 'Catalyst::Controller'; }
 sub assign :Chained('object') :PathPart('assign') :Args(1) {
     my ( $self, $c, $interface ) = @_;
 
-    unless ( $c->model('Interface')->_interfaceExists($interface) ) {
-        $c->response->status(404);
-        $c->stash->{status_msg} = "Unknown requested interface $interface";
+    my ($status, $status_msg) = $c->model('Interface')->exists($interface);
+    unless ( is_success($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
         $c->detach();
     }
 
@@ -88,9 +90,10 @@ sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(1) {
 sub revoke :Chained('object') :PathPart('revoke') :Args(1) {
     my ( $self, $c, $interface ) = @_;
 
-    unless ( $c->model('Interface')->_interfaceExists($interface) ) {
-        $c->response->status(404);
-        $c->stash->{status_msg} = "Unknown requested interface $interface";
+    my ($status, $status_msg) = $c->model('Interface')->exists($interface);
+    unless ( is_success($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
         $c->detach();
     }
 

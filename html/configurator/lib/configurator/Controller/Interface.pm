@@ -21,6 +21,7 @@ Currently, DHCP interfaces are not supported, which mean:
 use strict;
 use warnings;
 
+use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 
@@ -40,14 +41,13 @@ Usage: /interface/create/<logical_name>
 sub create :Path('create') :Args(1) {
     my ( $self, $c, $interface ) = @_;
 
-    my $result = $c->model('Interface')->create($interface);
+    my ($status, $status_msg) = $c->model('Interface')->create($interface);
 
-    if ( $result eq 1 ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully created";
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $status_msg;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $result;
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
     }
 
     $c->stash->{current_view} = 'JSON';
@@ -64,15 +64,13 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
+    my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host);
 
-    my $result = $c->model('Interface')->delete($interface, $c->req->uri->host);
-
-    if ( $result eq 1 ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully deleted";
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $status_msg;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $result;
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
     }
 }
 
@@ -87,15 +85,13 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
+    my ($status, $status_msg) = $c->model('Interface')->down($interface, $c->req->uri->host);
 
-    my $result = $c->model('Interface')->down($interface, $c->req->uri->host);
-
-    if ( $result eq 1 ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully deactivated from the system";
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $status_msg;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $result;
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
     }
 }
 
@@ -110,14 +106,13 @@ sub edit :Chained('object') :PathPart('edit') :Args(2) {
     my ( $self, $c, $ipaddress, $netmask ) = @_;
 
     my $interface = $c->stash->{interface};
-    my $result = $c->model('Interface')->edit($interface, $ipaddress, $netmask);
+    my ($status, $status_msg) = $c->model('Interface')->edit($interface, $ipaddress, $netmask);
 
-    if ( $result eq 1 ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully edited";
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $status_msg;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $result;
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
     }
 }
 
@@ -166,9 +161,10 @@ Interface controller dispatcher
 sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     my ( $self, $c, $interface ) = @_;
 
-    unless ( $c->model('Interface')->_interfaceExists($interface) ) {
-        $c->response->status(404);
-        $c->stash->{status_msg} = "Unknown requested interface $interface";
+    my ($status, $status_msg) = $c->model('Interface')->exists($interface);
+    unless ( is_success($status) ) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
 
         $c->response->redirect($c->uri_for($self->action_for('list'),
         {mid => $c->set_status_msg($c->stash->{status_msg})}));
@@ -193,15 +189,13 @@ sub up :Chained('object') :PathPart('up') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
+    my ($status, $status_msg) = $c->model('Interface')->up($interface);
 
-    my $result = $c->model('Interface')->up($interface);
-
-    if ( $result eq 1 ) {
-        $c->response->status(200);
-        $c->stash->{status_msg} = "Interface $interface successfully activated on the system";
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $status_msg;
     } else {
-        $c->response->status(501);
-        $c->stash->{status_msg} = $result;
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
     }
 }
 
