@@ -36,38 +36,38 @@
           <form class="form-horizontal">
             <h3>General</h3>
             <div class="control-group">
-              <label class="control-label" for="general.domain">Domain</label>
+              <label class="control-label" for="general_domain">Domain</label>
               <div class="controls">
-                <input type="text"class="input" id="general.domain" value="[% c.session.general.domain %]">
+                <input type="text"class="input" id="general_domain" value="[% c.session.general.domain %]">
                 <p class="help-block">Domain name of PacketFence system.</p>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="general.hostname">Hostname</label>
+              <label class="control-label" for="general_hostname">Hostname</label>
               <div class="controls">
-                <input type="text"class="input" id="general.hostname" value="[% c.session.general.hostname %]">
+                <input type="text"class="input" id="general_hostname" value="[% c.session.general.hostname %]">
                 <p class="help-block">Hostname of PacketFence system. This is concatenated with the domain
                 in Apache rewriting rules and therefore must be resolvable by clients.</p>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="general.dhcpservers">DHCP Servers</label>
+              <label class="control-label" for="general_dhcpservers">DHCP Servers</label>
               <div class="controls">
-                <textarea class="input-xlarge" id="general.dhcpservers" rows="3">[% c.session.general.dhcpservers %]</textarea>
+                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% c.session.general.dhcpservers %]</textarea>
                 <p class="help-block">Comma-delimited list of DHCP servers.</p>
               </div>
             </div>
             <h3>Alerting</h3>
             <div class="control-group">
-              <label class="control-label" for="alerting.emailaddr"></label>
+              <label class="control-label" for="alerting_emailaddr"></label>
               <div class="controls">
-                <input type="text"class="input" id="alerting.emailaddr" value="[% c.session.alerting.emailaddr %]">
+                <input type="text"class="input" id="alerting_emailaddr" value="[% c.session.alerting.emailaddr %]">
                 <p class="help-block">Email address to which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message goes to.</p>
               </div>
             </div>
             <fieldset>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right">Continue <i class="icon-circle-arrow-right icon-white"></i></button>
+              <a class="btn btn-primary pull-right" href="[% c.uri_for('step4') %]">Continue <i class="icon-circle-arrow-right icon-white"></i></a>
             </div>
             </fieldset>
             </form>
