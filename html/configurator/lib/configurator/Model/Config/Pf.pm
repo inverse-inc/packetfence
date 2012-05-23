@@ -6,7 +6,7 @@ use Config::IniFiles;
 
 use pf::config;
 use pf::config::ui;
-use pf::error;
+use pf::error qw(is_error);
 
 extends 'Catalyst::Model';
 
@@ -120,7 +120,7 @@ sub _load_doc {
 
 =item read
 
-Read a configuration value with all it's metadata.
+Read configuration value(s) with all it's metadata.
 
 $config_entry is something like general.hostname where general is the section and 
 hostname the parameter.
@@ -168,6 +168,34 @@ sub read {
     }
 
     return ($STATUS::OK, \@config_parameters);
+}
+
+=item read_value
+
+Read a configuration value with automatic fallback to default. A convenient
+accessor to confiugration when you don't need all the configuration metadata.
+
+$config_entry is something like general.hostname where general is the section and 
+hostname the parameter.
+
+You can ask for both a single entry (pass a scalar) or a list of entries 
+(pass an arrayref).
+
+=cut
+sub read_value {
+    my ($self, $config_entry) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $result_ref) = $self->read($config_entry);
+    # return errors to caller
+    return ($status, $result_ref) if (is_error($status));
+
+    my $config_ref = {};
+    foreach my $param (@$result_ref) {
+        my $value = (defined($param->{'value'})) ? $param->{'value'} : $param->{'default_value'};
+        $config_ref->{$param->{'parameter'}} = $value;
+    }
+    return ($status, $config_ref);
 }
 
 =item _read_config_entry
@@ -220,13 +248,39 @@ sub help {
 
 =item update
 
-Simplest mean to update configuration.
+Update configuration. Supports batch updates.
 
-$config_entry in the form section.param and $value is the value, directly.
+$config_update_ref is an hashref with key section.param and the value as a 
+value, directly.
+
+One value will update one parameter and multiple key => value pairs will 
+perform a batch update.
 
 =cut
-# TODO batch update
 sub update {
+    my ($self, $config_update_ref) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    while (my ($config_entry, $value) = each %$config_update_ref) {
+
+        my ($status, $result_ref) = $self->_update($config_entry, $value);
+        # return errors to caller
+        return ($status, $result_ref) if (is_error($status));
+    }
+
+    # if it worked, let's write the config
+    $self->_write_pf_conf();
+
+    return ($STATUS::OK, "Successfully updated configuration");
+}
+
+=item _update
+
+Updates a single value of the configuration tied hash. Meant to be called 
+internally. Does not write the configuration to disk!
+
+=cut
+sub _update {
     my ($self, $config_entry, $value) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -253,7 +307,6 @@ sub update {
     elsif ( $defaults_conf->{$section}->{$param} ne $value ) {
         tied(%$pf_conf)->newval( $section, $param, $value );
     }
-    $self->_write_pf_conf();
 
     return ($STATUS::OK, "Successfully updated configuration");
 }

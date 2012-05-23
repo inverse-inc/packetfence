@@ -99,7 +99,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
     my $value = $c->request->body_params->{value};
     if (defined($value) && !ref($value)) {
-        my ($status, $message) = $c->model('Config::Pf')->update($config_item, $value);
+        my ($status, $message) = $c->model('Config::Pf')->update({ $config_item => $value });
         if (is_error($status)) {
             $c->res->status($status);
             $c->error($message);

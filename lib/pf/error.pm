@@ -14,7 +14,44 @@ use warnings;
 
 use Readonly;
 
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT_OK );
+    @ISA = qw(Exporter);
+    @EXPORT_OK = qw(is_success is_error);
+}
+
+=head1 SUBROUTINES
+
+=over
+
+=item is_success
+
+Returns a true or false value based on if given error code is considered
+a success or not.
+
+=cut
+sub is_success {
+    my ($code) = @_;
+    return 1 if ($code >= 200 && $code < 300);
+    return 0;
+}
+
+=item is_error
+
+Returns a true or false value based on if given error code is considered
+an error or not.
+
+=cut
+sub is_error {
+    my ($code) = @_;
+    return 1 if ($code >= 400 && $code < 600);
+    return 0;
+}
+
 package STATUS;
+=back
+
 =head1 Status codes
 
 We rely on HTTP status codes for our Web Services and decided to use them 
