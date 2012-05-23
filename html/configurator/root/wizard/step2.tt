@@ -52,7 +52,7 @@
             <div class="control-group">
               <label class="control-label" for="database">Database name</label>
               <div class="controls">
-                <input id="database" class="text" type="text" value="[% db.${"database.db"} %]"[% IF completed %] disabled=""[% END %]>
+                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF completed %] success[% END %]">
@@ -65,18 +65,18 @@
             <div class="control-group">
               <label class="control-label" for="pf_user">Username</label>
               <div class="controls">
-                <input id="pf_user" class="text" type="text" value="[% db.${"database.user"} %]"[% IF completed %] disabled=""[% END %]>
+                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="pf_password">Password</label>
               <div class="controls">
-                <input id="pf_password" class="text" type="password"[% IF completed %] disabled=""[% END %]>
+                <input name="database.pass" class="text" type="password"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input id="pf_password2" class="text" type="password" placeholder="Retype your password"[% IF completed %] disabled=""[% END %]>
+                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF completed %] success[% END %]">

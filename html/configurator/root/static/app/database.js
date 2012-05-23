@@ -154,8 +154,8 @@ function saveStep(href) {
         $.ajax({
             type: 'POST',
             url: window.location.pathname,
-            data: {'datbase.user': $('input[name="database.user"]').val(),
-                   'datbase.pass': $('input[name="database.pass"]').val(),
+            data: {'database.user': $('input[name="database.user"]').val(),
+                   'database.pass': $('input[name="database.pass"]').val(),
                    'database.db': $('input[name="database.db"]').val()}
         }).done(function(data) {
             window.location.href = href;
