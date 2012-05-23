@@ -165,6 +165,10 @@ function saveStep(href) {
             $("body").animate({scrollTop:0}, 'fast');
         });
     }
+    else {
+        showError($('form'), 'Please verify your configuration.');
+        $("body").animate({scrollTop:0}, 'fast');
+    }
 
     return false;
 }
