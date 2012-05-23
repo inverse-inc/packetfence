@@ -74,33 +74,27 @@ Database setup
 sub step2 :Chained('object') :PathPart('step2') :Args(0) {
     my ( $self, $c ) = @_;
 
-    if ($c->request->method eq 'POST') {
-        # Save parameters in user session
-        $c->session(root_user => $c->request->params->{root_user},
-                    pf_user => $c->request->params->{pf_user},
-                    database => $c->request->params->{database});
-        $c->stash->{current_view} = 'JSON';
-    }
 
-    # Check if the database and user exist
-    my ($status, $result, $pf_user, $pf_pass, $pf_db);
-    ($status, $result) = $c->model('Config::Pf')->read('database.user');
-    if (is_success($status)) {
-        $pf_user = $result->[0]->{value};
+    if ($c->request->method eq 'GET') {
+        # Check if the database and user exist
+        my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
+            ['database.user', 'database.pass', 'database.db']
+        );
+        if (is_success($status)) {
+            $c->stash->{'db'} = $result_ref;
+            # hash-slice assigning values to the list
+            my ($pf_user, $pf_pass, $pf_db) = @{$result_ref}{qw/database.user database.pass database.db/};
+            if ($pf_user && $pf_pass && $pf_db) {
+                # throwing away result since we don't use it
+                ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
+                $c->stash->{completed} = is_success($status);
+            }
+
+        }
     }
-    ($status, $result) = $c->model('Config::Pf')->read('database.pass');
-    if (is_success($status)) {
-        $pf_pass = $result->[0]->{value};
-        $c->session->{pf_pass} = $pf_pass;
-    }
-    ($status, $result) = $c->model('Config::Pf')->read('database.db');
-    if (is_success($status)) {
-        $pf_db = $result->[0]->{value};
-        $c->session->{database} = $pf_db;
-    }
-    if ($pf_user && $pf_pass && $pf_db) {
-        ($status, $result) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
-        $c->stash->{completed} = is_success($status);
+    elsif ($c->request->method eq 'POST') {
+        
+        $c->stash->{current_view} = 'JSON';
     }
 }
 
@@ -113,16 +107,11 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
     my ( $self, $c ) = @_;
 
     if ($c->request->method eq 'GET') {
-        my ($status, $result_ref) = $c->model('Config::Pf')->read(
+        my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
             ['general.domain', 'general.hostname', 'general.dhcpservers', 'alerting.emailaddr']
         );
         if (is_success($status)) {
-            my $config_ref = {};
-            foreach my $param (@$result_ref) {
-                my $value = (defined($param->{'value'})) ? $param->{'value'} : $param->{'default_value'};
-                $config_ref->{$param->{'parameter'}} = $value;
-            }
-            $c->stash->{'config'} = $config_ref;
+            $c->stash->{'config'} = $result_ref;
         }
     }
     elsif ($c->request->method eq 'POST') {

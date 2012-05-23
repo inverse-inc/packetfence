@@ -52,7 +52,7 @@
             <div class="control-group">
               <label class="control-label" for="database">Database name</label>
               <div class="controls">
-                <input id="database" class="text" type="text" value="[% c.session.database %]"[% IF completed %] disabled=""[% END %]>
+                <input id="database" class="text" type="text" value="[% db.${"database.db"} %]"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF completed %] success[% END %]">
@@ -65,7 +65,7 @@
             <div class="control-group">
               <label class="control-label" for="pf_user">Username</label>
               <div class="controls">
-                <input id="pf_user" class="text" type="text" value="[% c.session.pf_user %]"[% IF completed %] disabled=""[% END %]>
+                <input id="pf_user" class="text" type="text" value="[% db.${"database.user"} %]"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
