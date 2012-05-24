@@ -63,7 +63,7 @@ sub list_types :Path('list_types') :Args(1) {
     }
 
     $c->response->status(200);
-    $c->stash->{types} = $c->model('Enforcement')->_getAvailableTypes($mechanism);
+    $c->stash->{types} = $c->model('Enforcement')->getAvailableTypes($mechanism);
 }
 
 =item object
@@ -73,7 +73,7 @@ sub object :Chained('/') :PathPart('enforcement') :CaptureArgs(1) {
     my ( $self, $c, $type ) = @_;
 
     # Requested type is invalid
-    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->_getAvailableTypes('all'), $type) ) {
+    unless ( $c->model('Enforcement')->_isInArray($c->model('Enforcement')->getAvailableTypes('all'), $type) ) {
         $c->response->status(404);
         $c->stash->{status_msg} = "Unknown requested type $type";
         $c->detach();

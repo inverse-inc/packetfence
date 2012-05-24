@@ -39,23 +39,30 @@ sub _getAvailableMechanisms {
     return \@mechanisms;
 }
 
-=item _getAvailableTypes
+=item getAvailableTypes
 
 =cut
-sub _getAvailableTypes {
+sub getAvailableTypes {
     my ( $self, $mechanism ) = @_;
 
+    my @mechanisms;
     my @available_types;
 
-    if ( $mechanism eq 'all' ) {
-        foreach my $type ( keys %types ) {
-            foreach ( @{$types{$type}} ) {
+    if (ref($mechanism)) {
+        @mechanisms = @$mechanism;
+    }
+    elsif ($mechanism eq 'all') {
+        @mechanisms = keys %types;
+    }
+    else {
+        @mechanisms = ($mechanism);
+    }
+
+    foreach my $type ( @mechanisms ) {
+        foreach ( @{$types{$type}} ) {
+            unless ( $self->_isInArray(\@available_types, $_) ) {
                 push( @available_types, $_ );
             }
-        }
-    } else {
-        foreach ( @{$types{$mechanism}} ) {
-            push( @available_types, $_ );
         }
     }
 
