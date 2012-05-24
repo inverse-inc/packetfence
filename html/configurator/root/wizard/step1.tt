@@ -116,7 +116,7 @@
               <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
               <table class="table">
                 <thead>
-                  <tr><th>Logical name</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th style="min-width: 60px">[% l('State') %]</th><th>[% l('Type') %]</th><th>[% l('Actions') %]</th></tr>
+                  <tr><th>Logical name</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th style="min-width: 60px">[% l('Status') %]</th><th>[% l('Type') %]</th><th>[% l('Actions') %]</th></tr>
                 </thead>
                 <tbody>
                   [% INCLUDE interface/get.tt %]

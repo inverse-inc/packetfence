@@ -1,4 +1,4 @@
-[% INCLUDE wizard/header.inc %]
+[% PROCESS wizard/header.inc %]
 
     <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
@@ -15,7 +15,7 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>Step 3</h1>
+            <h1>[% l('Step') %] 3</h1>
           </div>
         </div>
         <div class="span9">
@@ -34,7 +34,7 @@
         </div>
         <div class="span9">
           <form class="form-horizontal">
-            <h3>General</h3>
+            <h3>[% l('General') %]</h3>
             <div class="control-group">
               <label class="control-label" for="general_domain">Domain</label>
               <div class="controls">
@@ -57,7 +57,7 @@
                 <p class="help-block">Comma-delimited list of DHCP servers.</p>
               </div>
             </div>
-            <h3>Alerting</h3>
+            <h3>[% l('Alerting') %]</h3>
             <div class="control-group">
               <label class="control-label" for="alerting_emailaddr"></label>
               <div class="controls">
@@ -67,7 +67,7 @@
             </div>
             <fieldset>
             <div class="form-actions">
-              <a class="btn btn-primary pull-right" href="[% c.uri_for('step4') %]">Continue <i class="icon-circle-arrow-right icon-white"></i></a>
+              <a class="btn btn-primary pull-right" href="[% c.uri_for('step4') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></a>
             </div>
             </fieldset>
             </form>

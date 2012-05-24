@@ -1,4 +1,4 @@
-[% INCLUDE wizard/header.inc %]
+[% PROCESS wizard/header.inc %]
 
     <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
@@ -15,7 +15,7 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>Step 4</h1>
+            <h1>[% l('Step') %] 4</h1>
           </div>
         </div>
         <div class="span9">
@@ -37,13 +37,13 @@
           <form class="form-horizontal">
             <h3>Administrator</h3>
             <div class="control-group">
-              <label class="control-label" for="admin_user">Username</label>
+              <label class="control-label" for="admin_user">[% l('Username') %]</label>
               <div class="controls">
                 <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF completed %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="admin_password">Password</label>
+              <label class="control-label" for="admin_password">[% l('Password') %]</label>
               <div class="controls">
                 <input id="admin_password" class="text" type="password"[% IF completed %] disabled=""[% END %]>
               </div>
@@ -56,13 +56,13 @@
             <div class="control-group[% IF completed %] success[% END %]">
               <div class="controls">
                 <a id="createUser" class="btn btn-primary[% IF completed %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</a>
-                [% IF completed %]<span class="help-inline">Success!</span>[% END %]
+                [% IF completed %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
 
             <fieldset>
             <div class="form-actions">
-              <a class="btn btn-primary pull-right" href="[% c.uri_for('step5') %]">Continue <i class="icon-circle-arrow-right icon-white"></i></a>
+              <a class="btn btn-primary pull-right" href="[% c.uri_for('step5') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></a>
             </div>
             </fieldset>
             </form>
