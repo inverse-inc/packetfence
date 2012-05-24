@@ -83,6 +83,7 @@ my $is_inline_vlan;
 my $accessControl;
 my $interface_ip;
 my $interface_vlan;
+my $pcap;
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
@@ -135,19 +136,19 @@ sub dhcp_detector {
     my $mask;
     my $opt = 1;
     my $err;
-    my $pcap_t = Net::Pcap::pcap_open_live( $interface, 576, 1, 0, \$err );
+    $pcap = Net::Pcap::pcap_open_live( $interface, 576, 1, 0, \$err );
 
-    if (!defined($pcap_t)) {
+    if (!defined($pcap)) {
         $logger->logdie("Unable to initiate packet capture. Is $interface an actual network interface?");
     }
 
-    if ((Net::Pcap::compile( $pcap_t, \$filter_t, $filter, $opt, 0 )) == -1) {
+    if ((Net::Pcap::compile( $pcap, \$filter_t, $filter, $opt, 0 )) == -1) {
         $logger->logdie("Unable to compile filter string '$filter'");
     }
 
-    Net::Pcap::setfilter( $pcap_t, $filter_t );
-    my $result = Net::Pcap::loop( $pcap_t, -1, \&process_pkt, $interface );
-    $logger->logdie(Net::Pcap::pcap_geterr($pcap_t)) if ($result == -1);
+    Net::Pcap::setfilter( $pcap, $filter_t );
+    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, $interface );
+    $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
 }
 
 sub process_pkt {
@@ -546,6 +547,7 @@ sub daemonize {
 }
 
 sub normal_sighandler {
+    Net::Pcap::pcap_breakloop($pcap);
     deletepid("pfdhcplistener_$interface");
     if ( threads->self->tid() == 0 ) {
         $logger->logdie(

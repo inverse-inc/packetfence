@@ -33,6 +33,7 @@ Bug Fixes
  * debian support: radiusd is started even if disabled
  * 'uninitialized value' warnings in checkup phase (pfcmd checkup)
  * got rid of the unused (unuseful) logs/pfdhcplistener_<int> log files. See logs/packetfence.log instead.
+ * pfdhcplistener doesn't hang anymore
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
