@@ -1,4 +1,5 @@
-            [% FOREACH i IN interfaces.keys.sort %]
+[% PROCESS macros.inc -%]
+           [% FOREACH i IN interfaces.keys.sort %]
             <tr>
               <td>[% interfaces.$i.name %][% IF interfaces.$i.vlan %] <span class="badge">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
               <td>[% interfaces.$i.ipaddress %]</td>
@@ -7,19 +8,18 @@
               <td class="control-group">
                 <select class="span2" name="type" interface="[% i %]">
                   <option value="none">None</option>
-                  <option value="management"[% IF c.session.types.$i == 'management' %] selected=""[% END %]>Management</option>
-                  <option value="registration"[% IF c.session.types.$i == 'registration' %] selected=""[% END %]>Registration</option>
-                  <option value="isolation"[% IF c.session.types.$i == 'isolation' %] selected=""[% END %]>Isolation</option>
-                  <option value="inline"[% IF c.session.types.$i == 'inline' %] selected=""[% END %]>Inline</option>
+                  [% FOREACH type IN types %]
+                  <option value="[% type %]"[% IF c.session.types.$i == type %] selected=""[% END %]>[% l(type) %]</option>
+                  [% END %]
                 </select>
               </td>
               <td>
                 [% IF interfaces.$i.vlan %]
-                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">Edit</a>
-                <a class="btn btn-mini btn-danger" data-toggle="modal" interface="[% i %]" href="#modalDeleteVlan">Delete</a>
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">[% l('Edit') %]</a>
+                <a class="btn btn-mini btn-danger" data-toggle="modal" interface="[% i %]" href="#modalDeleteVlan">[% l('Delete') %]</a>
                 [% ELSE %]
-                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">Edit</a>
-                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalCreateVlan">Add VLAN</a>
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">[% l('Edit') %]</a>
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalCreateVlan">[% l('Add VLAN') %]</a>
                 [% END %]
               </td>
             </tr>

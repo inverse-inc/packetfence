@@ -17,6 +17,7 @@ use Catalyst qw/
     -Debug
     ConfigLoader
     Static::Simple
+    I18N
 
     Session
     Session::Store::File
@@ -73,7 +74,6 @@ $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
 __PACKAGE__->setup();
-
 
 =head1 NAME
 

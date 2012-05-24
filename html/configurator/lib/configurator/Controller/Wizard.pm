@@ -63,6 +63,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     }
     else {
         $c->stash(interfaces => $c->model('Interface')->get('all'));
+        $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
     }
 }
 

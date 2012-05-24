@@ -1,0 +1,97 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Francis Lachapelle <flachapelle@inverse.ca>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2012-05-24 10:47-0400\n"
+"Last-Translator: Francis Lachapelle <flachapelle@inverse.ca>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: root/interface/get.tt:12
+msgid "inline"
+msgstr "Inline"
+
+#: root/interface/get.tt:12
+msgid "management"
+msgstr "Management"
+
+#: root/interface/get.tt:12
+msgid "isolation"
+msgstr "Isolation"
+
+#: root/interface/get.tt:12
+msgid "registration"
+msgstr "Registration"
+
+#: root/wizard/step1.tt:119
+msgid "Actions"
+msgstr ""
+
+#: root/interface/get.tt:22
+msgid "Add VLAN"
+msgstr ""
+
+#: root/wizard/step1.tt:26 root/wizard/step1.tt:61
+msgid "Cancel"
+msgstr ""
+
+#: root/wizard/step1.tt:134
+msgid "Continue"
+msgstr ""
+
+#: root/wizard/step1.tt:62
+msgid "Create"
+msgstr ""
+
+#: root/wizard/step1.tt:125
+msgid "Default Gateway"
+msgstr ""
+
+#: root/interface/get.tt:19
+msgid "Delete"
+msgstr ""
+
+#: root/interface/get.tt:18 root/interface/get.tt:21
+msgid "Edit"
+msgstr ""
+
+#: root/wizard/step1.tt:119 root/wizard/step1.tt:12 root/wizard/step1.tt:47
+msgid "IP Address"
+msgstr ""
+
+#: root/wizard/step1.tt:119 root/wizard/step1.tt:18 root/wizard/step1.tt:53
+msgid "Netmask"
+msgstr ""
+
+#: root/wizard/step1.tt:115
+msgid "Network Interfaces"
+msgstr ""
+
+#: root/wizard/step1.tt:27
+msgid "Save changes"
+msgstr ""
+
+#: root/wizard/step1.tt:119
+msgid "State"
+msgstr ""
+
+#: root/wizard/step1.tt:81
+msgid "Step"
+msgstr ""
+
+#: root/wizard/step1.tt:119
+msgid "Type"
+msgstr ""
+
+#: root/wizard/step1.tt:40
+msgid "Virtual LAN ID"
+msgstr ""

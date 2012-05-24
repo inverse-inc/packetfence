@@ -1,4 +1,4 @@
-[% INCLUDE wizard/header.inc %]
+[% PROCESS wizard/header.inc -%]
 
 <!-- interface editor -->
     <div class="modal fade hide" id="modalEditInterface">
@@ -9,13 +9,13 @@
       <div class="modal-body">
         <form class="form-horizontal">
           <div class="control-group">
-            <label class="control-label" for="interfaceIp">IP Address</label>
+            <label class="control-label" for="interfaceIp">[% l('IP Address') %]</label>
             <div class="controls">
               <input type="text" class="input" id="interfaceIp">
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="interfaceNetmask">Netmask</label>
+            <label class="control-label" for="interfaceNetmask">[% l('Netmask') %]</label>
             <div class="controls">
               <input type="text" class="input" id="interfaceNetmask">
             </div>
@@ -23,8 +23,8 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save changes</button>
+        <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+        <button type="submit" class="btn btn-primary">[% l('Save changes') %]</button>
       </div>
     </div>
 
@@ -37,20 +37,20 @@
       <div class="modal-body">
         <form class="form-horizontal">
           <div class="control-group">
-            <label class="control-label" for="vlanId">Virtual LAN ID</label>
+            <label class="control-label" for="vlanId">[% l('Virtual LAN ID') %]</label>
             <div class="controls">
               <input type="text" class="input" id="vlanId">
                 <p class="help-block">VLAN ID associated to the network interface</p>
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="vlanIp">IP Address</label>
+            <label class="control-label" for="vlanIp">[% l('IP Address') %]</label>
             <div class="controls">
               <input type="text" class="input" id="vlanIp">
             </div>
           </div>
           <div class="control-group">
-            <label class="control-label" for="vlanNetmask">Netmask</label>
+            <label class="control-label" for="vlanNetmask">[% l('Netmask') %]</label>
             <div class="controls">
               <input type="text" class="input" id="vlanNetmask">
             </div>
@@ -58,8 +58,8 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button class="btn" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Create</button>
+        <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+        <button type="submit" class="btn btn-primary">[% l('Create') %]</button>
       </div>
     </div>
 
@@ -78,12 +78,12 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>Step 1</h1>
+            <h1>[% l('Step') %] 1</h1>
             </div>
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>Enforcement Mechanism
+            <h1>Enforcement
             <small>Activate your network interfaces and create VLANs</small></h1>
           </div>
         </div>
@@ -112,17 +112,17 @@
                   </label>
                 </div>
               </div>
-              <h3>Network Interfaces</h3>
+              <h3>[% l('Network Interfaces') %]</h3>
               <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
               <table class="table">
                 <thead>
-                  <tr><th>Logical name</th><th>IP address</th><th>Netmask</th><th style="min-width: 60px">State</th><th>Type</th><th>Actions</th></tr>
+                  <tr><th>Logical name</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th style="min-width: 60px">[% l('State') %]</th><th>[% l('Type') %]</th><th>[% l('Actions') %]</th></tr>
                 </thead>
                 <tbody>
                   [% INCLUDE interface/get.tt %]
                 </tbody>
               </table>
-              <h3>Default Gateway</h3>
+              <h3>[% l('Default Gateway') %]</h3>
               <div class="control-group">
                 <div class="controls">
                   <input id="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway %]">
@@ -131,7 +131,7 @@
           </div>
           <fieldset>
             <div class="form-actions">
-              <a class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">Continue <i class="icon-circle-arrow-right icon-white"></i></a>
+              <a class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></a>
             </div>
           </fieldset>
           </form>
@@ -143,4 +143,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['enforcement'] %]
+    jsFiles = ['enforcement'] -%]

@@ -1,3 +1,4 @@
+[% PROCESS macros.inc -%]
 <!DOCTYPE html>
 <html lang="en">
   <head>
