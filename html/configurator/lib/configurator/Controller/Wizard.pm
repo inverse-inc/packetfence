@@ -59,6 +59,26 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                     types => $data->{types},
                     enforcements => {});
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
+
+        # Make sure all types for each enforcement is assigned to an interface
+        # TODO: Shall we ignore disabled interfaces
+        my @selected_types = values %{$data->{types}};
+        my %seen;
+        my @missing = ();
+        @seen{@selected_types} = ( ); # build lookup table
+
+        foreach my $enforcement (@{$data->{enforcements}}) {
+            my $types = $c->model('Enforcement')->getAvailableTypes($enforcement);
+            foreach my $type (@{$types}) {
+                push(@missing, $type) unless exists $seen{$type};
+            }
+        }
+
+        if (scalar @missing > 0) {
+            $c->response->status($STATUS::PRECONDITION_FAILED);
+            $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
+        }
+
         $c->stash->{current_view} = 'JSON';
     }
     else {
