@@ -68,8 +68,8 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         @seen{@selected_types} = ( ); # build lookup table
 
         foreach my $enforcement (@{$data->{enforcements}}) {
-            my $types = $c->model('Enforcement')->getAvailableTypes($enforcement);
-            foreach my $type (@{$types}) {
+            my $types_ref = $c->model('Enforcement')->getAvailableTypes($enforcement);
+            foreach my $type (@{$types_ref}) {
                 push(@missing, $type) unless exists $seen{$type};
             }
         }
@@ -95,7 +95,6 @@ Database setup
 sub step2 :Chained('object') :PathPart('step2') :Args(0) {
     my ( $self, $c ) = @_;
 
-
     if ($c->request->method eq 'GET') {
         # Check if the database and user exist
         my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
@@ -110,12 +109,7 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
                 ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
                 $c->stash->{completed} = is_success($status);
             }
-
         }
-    }
-    elsif ($c->request->method eq 'POST') {
-        
-        $c->stash->{current_view} = 'JSON';
     }
 }
 
@@ -165,6 +159,32 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
     my ( $self, $c ) = @_;
 }
 
+=item reset_password
+
+Reset the root password
+
+=cut
+sub reset_password :Path('reset_password') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = ( $STATUS::OK );
+    my $root_user      = $c->request->params->{root_user};
+    my $root_password  = $c->request->params->{root_password_new};
+
+    unless ( $root_user && $root_password ) {
+        ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+    }
+    if ( is_success($status) ) {
+        # ($status, $message) = $c->model('DB')->resetRootPassword($root_user, $root_password);
+    }
+    if ( is_error($status) ) {
+        $c->response->status($status);
+    }
+
+    $c->stash->{status_msg} = $message;
+    $c->stash->{current_view} = 'JSON';
+}
+
 =item create_admin
 
 Create the administrative user
@@ -173,18 +193,23 @@ Create the administrative user
 sub create_admin :Path('create_admin') :Args(0) {
     my ( $self, $c ) = @_;
 
+    my ($status, $message) = ( $STATUS::OK );
     my $admin_user      = $c->request->params->{admin_user};
     my $admin_password  = $c->request->params->{admin_password};
 
-    my ($status, $message) = $c->model('Wizard')->createAdminUser($admin_user, $admin_password);
+    unless ( $admin_user && $admin_password ) {
+        ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+    }
     if ( is_success($status) ) {
-        $c->stash->{status_msg} = $message;
+        ($status, $message) = $c->model('Wizard')->createAdminUser($admin_user, $admin_password);
+    }
+    if ( is_success($status) ) {
         $c->session('admin_user' => $admin_user);
     } else {
         $c->response->status($status);
-        $c->stash->{status_msg} = $message;
     }
 
+    $c->stash->{status_msg} = $message;
     $c->stash->{current_view} = 'JSON';
 }
 

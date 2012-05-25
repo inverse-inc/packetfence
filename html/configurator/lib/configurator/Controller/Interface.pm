@@ -31,6 +31,17 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =over
 
+=item begin
+
+This controller defaults view is JSON.
+
+=cut
+sub begin :Private {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+}
+
 =item create
 
 Create a vlan interface
@@ -49,8 +60,6 @@ sub create :Path('create') :Args(1) {
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
     }
-
-    $c->stash->{current_view} = 'JSON';
 }
 
 =item delete
@@ -173,7 +182,6 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     }
 
     $c->stash->{interface} = $interface;
-    $c->stash->{current_view} = 'JSON';
 
     $c->load_status_msgs;
 }
