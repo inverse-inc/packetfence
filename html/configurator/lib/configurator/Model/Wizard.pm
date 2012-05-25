@@ -88,12 +88,15 @@ sub createAdminUser {
 
     my $htpasswd = new Apache::Htpasswd($admins_file);
 
-    $htpasswd->htpasswd($user, $password);
+    # First check if user/password already exists
+    unless ($htpasswd->htCheckPassword($user, $password)) {
+        $htpasswd->htpasswd($user, $password);
 
-    if ( $htpasswd->error ) {
-        $status_msg = "Error creating administrative user $user";
-        $logger->error($status_msg . " | " . $htpasswd->error);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        if ( $htpasswd->error ) {
+            $status_msg = "Error creating administrative user $user";
+            $logger->error($status_msg . " | " . $htpasswd->error);
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
     }
 
     $status_msg = "Successfully created the administrative user $user";
