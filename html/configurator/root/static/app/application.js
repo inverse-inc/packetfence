@@ -68,3 +68,18 @@ function btnError(btn) {
         $(this).dequeue();
     });
 }
+
+function isFormInputEmpty(input) {
+    var control = input.closest('.control-group');
+    var empty = false;
+
+    if (input.val().trim().length == 0) {
+        control.addClass('error');
+        empty = true;
+    }
+    else {
+        control.removeClass('error');
+    }
+
+    return empty;
+}
