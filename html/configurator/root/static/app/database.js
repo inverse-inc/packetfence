@@ -6,28 +6,60 @@ function registerExists() {
     });
 }
 
+function initModals() {
+    /* Root password reset */
+    $('#modalRootPassword .modal-footer a').click(function(event) {
+        var modal = $('#modalRootPassword'),
+        root_user = modal.find('input[name="root_user"]'),
+        root_pass_new = modal.find('input[name="root_pass_new"]'),
+        root_pass_new_control = root_pass_new.closest('.control-group'),
+        root_pass2_new = modal.find('input[name="root_pass2_new"]'),
+        root_pass2_new_control = root_pass2_new.closest('.control-group'),
+        valid = true;
+        if (isFormInputEmpty(root_user) ||
+            isFormInputEmpty(root_pass_new))
+            valid = false;
+        else {
+            if (root_pass_new.val() != root_pass2_new.val()) {
+                root_pass_new_control.addClass('error');
+                root_pass2_new_control.addClass('error');
+                valid = false;
+            }
+            else {
+                root_pass_new_control.removeClass('error');
+                root_pass2_new_control.removeClass('error');
+            }
+        }
+        if (valid) {
+            var modal_body = modal.find('.modal-body').first();
+            resetAlert(modal_body);
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('href'),
+                data: { root_user: root_user.val(), root_password_new: root_pass_new.val() }
+            }).done(function(data) {
+                modal.modal('toggle');
+                showSuccess($('#root_user').closest('.control-group'), data.status_msg);
+            }).fail(function(jqXHR) {
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError(modal_body.children('form').first(), obj.status_msg);
+            });
+        }
+
+        return false;
+    });
+}
+
 function initStep() {
     $('#testDatabase').click(function(event) {
         var root_user = $('#root_user'),
-        root_user_control = root_user.closest('.control-group'),
         password = $('#root_password'),
-        password_control = password.closest('.control-group'),
         valid = true;
 
-        if (root_user.val().trim().length == 0) {
-            root_user_control.addClass('error');
+        if (isFormInputEmpty(root_user))
             valid = false;
-        }
-        else {
-            root_user_control.removeClass('error');
-        }
-//        if (password.val().trim().length == 0) {
-//            password_control.addClass('error');
+//        if (isFormInputEmpty(password))
 //            valid = false;
-//        }
-//        else {
-//            password_control.removeClass('error');
-//        }
 
         if (valid) {
             $.ajax({
@@ -38,8 +70,15 @@ function initStep() {
                 resetAlert(root_user.closest('form'));
                 showSuccess(root_user.closest('.control-group'), data.status_msg);
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError(root_user.closest('.control-group'), obj.status_msg);
+                if (jqXHR.status == 412) {
+                    var modal = $('#modalRootPassword');
+                    modal.find('input[name="root_user"]').val($('#root_user').val());
+                    modal.modal('show');
+                }
+                else {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError(root_user.closest('.control-group'), obj.status_msg);
+                }
             });
         }
 
@@ -51,25 +90,23 @@ function initStep() {
         root_user = $('#root_user'),
         root_password = $('#root_password'),
         database = $('input[name="database.db"]'),
-        database_control = database.closest('.control-group'),
         url = [btn.attr('href'), database.val()],
         valid = true;
 
         if (btn.hasClass('disabled')) return false;
 
-        if (database.val().trim().length == 0) {
-            database_control.addClass('error');
+        if (isFormInputEmpty(root_user) ||
+            isFormInputEmpty(database))
             valid = false;
-        }
-        else {
-            database_control.removeClass('error');
-        }
 
         if (valid) {
             $.ajax({
                 type: 'POST',
                 url: url.join('/'),
-                data: { root_user: root_user.val(), root_password: root_password.val() }
+                data: { root_user: root_user.val(), root_password: root_password.val() },
+                statusCode: {
+                    412: function(jqXHR) { alert("code 412!"); }
+                }
             }).done(function(data) {
                 btn.addClass('disabled');
                 database.attr('disabled', '');
@@ -87,32 +124,31 @@ function initStep() {
     $('#assignUser').click(function(event) {
         var btn = $(this),
         root_user = $('#root_user'),
-        root_user_control = root_user.closest('.control-group'),
         root_password = $('#root_password'),
         database = $('input[name="database.db"]'),
         pf_user = $('input[name="database.user"]'),
-        pf_user_control = pf_user.closest('.control-group'),
         pf_password = $('input[name="database.pass"]'),
+        pf_password_control = pf_password.closest('.control-group'),
         pf_password2 = $('input[name="database.pass2"]'),
+        pf_password2_control = pf_password2.closest('.control-group'),
         url = [btn.attr('href'), database.val()],
         valid = true;
 
         if (btn.hasClass('disabled')) return false;
 
-        if (root_user.val().trim().length == 0) {
-            root_user_control.addClass('error');
+        if (isFormInputEmpty(root_user) ||
+            isFormInputEmpty(pf_user) ||
+            isFormInputEmpty(pf_password))
             valid = false;
-        }
-        else {
-            root_user_control.removeClass('error');
-        }
 
-        if (pf_user.val().trim().length == 0 || pf_password.val() != pf_password2.val()) {
-            pf_user_control.addClass('error');
+        if (pf_password.val() != pf_password2.val()) {
+            pf_password_control.addClass('error');
+            pf_password2_control.addClass('error');
             valid = false;
         }
         else {
-            pf_user_control.removeClass('error');
+            pf_password_control.removeClass('error');
+            pf_password2_control.removeClass('error');
         }
 
         if (valid) {

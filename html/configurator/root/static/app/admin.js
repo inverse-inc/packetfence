@@ -19,23 +19,20 @@ function initStep() {
 
         if (btn.hasClass('disabled')) return false;
 
-        if (admin_user.val().trim().length == 0) {
-            admin_user_control.addClass('error');
+        if (isFormInputEmpty(admin_user) ||
+            isFormInputEmpty(admin_password))
             valid = false;
-        }
         else {
-            admin_user_control.removeClass('error');
+            if (admin_password.val() != admin_password2.val()) {
+                admin_password_control.addClass('error');
+                admin_password2_control.addClass('error');
+                valid = false;
+            }
+            else {
+                admin_password_control.removeClass('error');
+                admin_password2_control.removeClass('error');
+            }
         }
-        if (admin_password.val().trim().length == 0 || admin_password.val() != admin_password2.val()) {
-            admin_password_control.addClass('error');
-            admin_password2_control.addClass('error');
-            valid = false;
-        }
-        else {
-            admin_password_control.removeClass('error');
-            admin_password2_control.removeClass('error');
-        }
-
         if (valid) {
             $.ajax({
                 type: 'POST',

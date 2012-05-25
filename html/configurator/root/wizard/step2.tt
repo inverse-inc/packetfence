@@ -1,5 +1,36 @@
 [% PROCESS wizard/header.inc %]
 
+ <!-- root password reset -->
+  <div class="modal fade hide" id="modalRootPassword">
+    <div class="modal-header">
+      <h3>Set a MySQL root password</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="control-group">
+              <label class="control-label">[% l('Username') %]</label>
+              <div class="controls">
+                <input name="root_user" class="text" type="text" value="[% c.session.root_user | html %]">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">[% l('New Password') %]</label>
+              <div class="controls">
+                <input name="root_pass_new" class="text" type="password">
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input name="root_pass2_new" class="text" type="password" placeholder="Retype your password">
+              </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
+      </div>
+  </div>
+
     <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
