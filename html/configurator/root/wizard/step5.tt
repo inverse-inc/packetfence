@@ -47,6 +47,11 @@
           </div>
         </div>
         <div id="services" class="span9">
+          [% UNLESS completed -%]
+        <div class="alert alert-warning">
+          <strong>Warning!</strong> <span>You must complete all steps before starting the services.</span>
+        </div>
+        [% END -%]
           <table class="table">
             <thead>
               <tr>
@@ -92,7 +97,7 @@
           <form class="form-horizontal">
             <fieldset>
             <div class="form-actions">
-              <a class="btn btn-primary pull-right" href="[% c.uri_for('step5') %]">Start PacketFence</a>
+              <a class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step5') %]">Start PacketFence</a>
             </div>
             </fieldset>
             </form>

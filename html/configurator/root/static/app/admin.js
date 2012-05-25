@@ -54,18 +54,16 @@ function initStep() {
 }
 
 function saveStep(href) {
-    $.ajax({
-        type: 'POST',
-        url: window.location.pathname,
-        data: {admin_user: $('#admin_user').val(),
-               admin_password: $('#admin_password').val()}
-    }).done (function(data) {
-        window.location.href = href;
-    }).fail(function(jqXHR) {
-        var obj = $.parseJSON(jqXHR.responseText);
-        showError($('form'), obj.status_msg);
-        $("body").animate({scrollTop:0}, 'fast');
-    });
+    var createUser = $('#createUser');
 
-   return false;
+    if (createUser.hasClass('disabled')) {
+        window.location.href = href;
+    }
+    else {
+        btnError(createUser);
+        showError($('form'), 'Please verify your configuration.');
+        $("body").animate({scrollTop:0}, 'fast');
+    }
+
+    return false;
 }

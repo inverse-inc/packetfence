@@ -61,7 +61,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
 
         # Make sure all types for each enforcement is assigned to an interface
-        # TODO: Shall we ignore disabled interfaces
+        # TODO: Shall we ignore disabled interfaces?
         my @selected_types = values %{$data->{types}};
         my %seen;
         my @missing = ();
@@ -77,6 +77,17 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         if (scalar @missing > 0) {
             $c->response->status($STATUS::PRECONDITION_FAILED);
             $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
+            delete $c->session->{completed}->{step1};
+        }
+        elsif (scalar @{$data->{enforcements}} == 0) {
+            # Make sure at least one enforcement method is selected
+            $c->response->status($STATUS::PRECONDITION_FAILED);
+            $c->stash->{status_msg} = $c->loc("You must choose at least one enforcement mechanism.");
+            delete $c->session->{completed}->{step1};
+        }
+        else {
+            # Step passed validation
+            $c->session->{completed}->{step1} = 1;
         }
 
         $c->stash->{current_view} = 'JSON';
@@ -107,8 +118,13 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
             if ($pf_user && $pf_pass && $pf_db) {
                 # throwing away result since we don't use it
                 ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
-                $c->stash->{completed} = is_success($status);
             }
+        }
+        if (is_success($status)) {
+            $c->session->{completed}->{step2} = 1;
+        }
+        else {
+            delete $c->session->{completed}->{step2};
         }
     }
 }
@@ -130,11 +146,34 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
         }
     }
     elsif ($c->request->method eq 'POST') {
-        # Save parameters in user session
-        $c->session(general => {domain => $c->request->params->{'general.domain'},
-                                hostname => $c->request->params->{'general.hostname'},
-                                dhcpservers => $c->request->params->{'general.dhcpservers'}},
-                    alerting => {emailaddr => $c->request->params->{'alerting.emailaddr'}});
+        # Save configuration
+        my ( $status, $message ) = ($STATUS::OK);
+        my $general_domain      = $c->request->params->{'general.domain'};
+        my $general_hostname    = $c->request->params->{'general.hostname'};
+        my $general_dhcpservers = $c->request->params->{'general.dhcpservers'};
+        my $alerting_emailaddr  = $c->request->params->{'alerting.emailaddr'};
+
+        unless ($general_domain && $general_hostname && $general_dhcpservers && $alerting_emailaddr) {
+            ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+        }
+        if (is_success($status)) {
+            my ( $status, $message ) = $c->model('Config::Pf')->update({
+                'general.domain'      => $general_domain,
+                'general.hostname'    => $general_hostname,
+                'general.dhcpservers' => $general_dhcpservers,
+                'alerting.emailaddr'  => $alerting_emailaddr
+            });
+            if (is_error($status)) {
+                delete $c->session->{completed}->{step3};
+            }
+        }
+        if (is_error($status)) {
+            $c->response->status($status);
+            $c->stash->{status_msg} = $message;
+        }
+        else {
+            $c->session->{completed}->{step3} = 1;
+        }
         $c->stash->{current_view} = 'JSON';
     }
 }
@@ -147,7 +186,12 @@ Administrator account
 sub step4 :Chained('object') :PathPart('step4') :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{completed} = defined($c->session->{admin_user});
+    if (defined($c->session->{admin_user})) {
+        $c->session->{completed}->{step4} = 1;
+    }
+    else {
+        delete $c->session->{completed}->{step4};
+    }
 }
 
 =item step5
@@ -157,6 +201,13 @@ Confirmation and services launch
 =cut
 sub step5 :Chained('object') :PathPart('step5') :Args(0) {
     my ( $self, $c ) = @_;
+
+    my $completed = $c->session->{completed};
+    $c->stash->{completed} =
+      $completed->{step1}
+        && $completed->{step2}
+          && $completed->{step3}
+            && $completed->{step4};
 }
 
 =item reset_password
@@ -204,8 +255,9 @@ sub create_admin :Path('create_admin') :Args(0) {
         ($status, $message) = $c->model('Wizard')->createAdminUser($admin_user, $admin_password);
     }
     if ( is_success($status) ) {
-        $c->session('admin_user' => $admin_user);
+        $c->session(admin_user => $admin_user);
     } else {
+        delete $c->session->{admin_user};
         $c->response->status($status);
     }
 

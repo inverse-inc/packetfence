@@ -39,24 +39,24 @@
             <div class="control-group">
               <label class="control-label" for="admin_user">[% l('Username') %]</label>
               <div class="controls">
-                <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF completed %] disabled=""[% END %]>
+                <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF c.session.completed.step4 %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="admin_password">[% l('Password') %]</label>
               <div class="controls">
-                <input id="admin_password" class="text" type="password"[% IF completed %] disabled=""[% END %]>
+                <input id="admin_password" class="text" type="password"[% IF c.session.completed.step4 %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF completed %] disabled=""[% END %]>
+                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.step4 %] disabled=""[% END %]>
               </div>
             </div>
-            <div class="control-group[% IF completed %] success[% END %]">
+            <div class="control-group[% IF c.session.completed.step4 %] success[% END %]">
               <div class="controls">
-                <a id="createUser" class="btn btn-primary[% IF completed %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</a>
-                [% IF completed %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+                <a id="createUser" class="btn btn-primary[% IF c.session.completed.step4 %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</a>
+                [% IF c.session.completed.step4 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
 

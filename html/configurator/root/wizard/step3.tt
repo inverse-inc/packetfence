@@ -54,7 +54,7 @@
               <label class="control-label" for="general_dhcpservers">DHCP Servers</label>
               <div class="controls">
                 <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% config.${"general.dhcpservers"} %]</textarea>
-                <p class="help-block">Comma-delimited list of DHCP servers.</p>
+                <p class="help-block">Comma-delimited list of DHCP servers in your production environment.</p>
               </div>
             </div>
             <h3>[% l('Alerting') %]</h3>
