@@ -140,6 +140,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
     my $result = $c->model('Interface')->get($interface);
 
     $c->stash->{interfaces} = $result;
+    $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
     $c->stash->{current_view} = 'HTML';
 }
 
