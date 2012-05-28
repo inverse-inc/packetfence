@@ -58,8 +58,6 @@ function initStep() {
 
         if (isFormInputEmpty(root_user))
             valid = false;
-//        if (isFormInputEmpty(password))
-//            valid = false;
 
         if (valid) {
             $.ajax({

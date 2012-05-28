@@ -221,7 +221,7 @@ sub reset_password :Path('reset_password') :Args(0) {
         ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
     }
     if ( is_success($status) ) {
-        # ($status, $message) = $c->model('DB')->resetRootPassword($root_user, $root_password);
+        ($status, $message) = $c->model('DB')->secureInstallation($root_user, $root_password);
     }
     if ( is_error($status) ) {
         $c->response->status($status);
