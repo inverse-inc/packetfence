@@ -808,6 +808,9 @@ sub unpretty_bandwidth {
 
 Execute a system command but check the return status and log anything not normal.
 
+Returns output in list or string based on context (like backticks does ``) 
+but returns undef on a failure. Non-zero exit codes are considered failures.
+
 Does not enforce any security. Callers should take care of string sanitization.
 
 =cut

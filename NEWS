@@ -18,6 +18,9 @@ Version <devel> released on <releaseDate>
 Enhancements
  * Improved handling of an empty conf/pf.conf configuration file
  * Improved error reporting for dynamic uplink detection on Cisco
+ * interface gateways are no longer required in configuration (#1447)
+ * general.caching parameter removed from configuration
+ * major refactoring, cleanup and dependencies removal
 
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
@@ -30,15 +33,18 @@ New Features
  * debian packages (#1066, #1067)
 
 Enhancements
- * major refactoring, cleanup and dependencies removal
+ * minor refactoring and cleanup
  * debian support: arp binary location now configurable ([services].arp_binary)
- * interface gateways are no longer required in configuration (#1447)
- * general.caching parameter removed from configuration
+ * log the switch IP when a trap is skipped due to a dynamic uplink fetch not working
+ * performance improvements by reducing the number of forked process (mostly beneficial to pfdhcplistener)
 
 Bug Fixes
  * RADIUS-based Disconnects not working for Aruba, AeroHIVE. Introduced in 3.3.2. (#1437)
  * interface configuration errors in the Web Admin (or on the CLI when editing the vip field)
  * debian support: radiusd is started even if disabled
+ * 'uninitialized value' warnings in checkup phase (pfcmd checkup)
+ * got rid of the unused (unuseful) logs/pfdhcplistener_<int> log files. See logs/packetfence.log instead.
+ * pfdhcplistener doesn't hang anymore
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23

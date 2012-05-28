@@ -762,13 +762,13 @@ sub apache {
 
     # Apache PerlPostConfigRequire scripts *must* compile otherwise apache startup silently fails
     my $captive_portal = pf_run("perl -c $lib_dir/pf/web/captiveportal_modperl_require.pl 2>&1");
-    if ($captive_portal !~ /syntax OK$/) {
+    if (!defined($captive_portal) || $captive_portal !~ /syntax OK$/) {
         add_problem( 
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/captiveportal_modperl_require.pl doesn't compile"
         );
     }
     my $back_end = pf_run("perl -c $lib_dir/pf/web/backend_modperl_require.pl 2>&1");
-    if ($back_end !~ /syntax OK$/) {
+    if (!defined($back_end) || $back_end !~ /syntax OK$/) {
         add_problem( 
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/backend_modperl_require.pl doesn't compile"
         );
