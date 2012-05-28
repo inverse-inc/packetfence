@@ -1,5 +1,4 @@
 package pf::SNMP::Cisco::WLC;
-
 =head1 NAME
 
 pf::SNMP::Cisco::WLC - Object oriented module to parse SNMP traps and manage
@@ -7,7 +6,7 @@ Cisco Wireless Controllers (WLC) and Wireless Service Modules (WiSM)
 
 =head1 STATUS
 
-Developed and tested on IOS version 4.2.130 altought the new RADIUS RFC3576 support requires IOS v5 and later.
+Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576 support requires firmware v5 and later.
 
 =over
 
@@ -29,14 +28,14 @@ Developed and tested on IOS version 4.2.130 altought the new RADIUS RFC3576 supp
 
 =item Version specific issues
 
-Controller issue with Windows 7: It only works with IOS > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
+Controller issue with Windows 7: It only works with firmware > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
 
-With IOS 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
+With firmware 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
 
-With IOS 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
+With firmware 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
 Open SSID.
 
-With IOS 7.2.103.0 (and maybe up but it is currently the latest firmware), 
+With firmware 7.2.103.0 (and maybe up but it is currently the latest firmware), 
 SNMP de-authentication no longer works. It it believed to be caused by the 
 new firmware not accepting SNMP requests with 2 bytes request-id. Doing the 
 same SNMP set with `snmpset` command issues a 4 bytes request-id and the 
@@ -44,22 +43,37 @@ controllers are happy with these. Not a PacketFence issue. I would think it
 relates to the following open caveats CSCtw87226:
 http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
 
-=item FlexConnect (H-REAP) limitations
+=item FlexConnect (H-REAP) limitations before firmware 7.2
 
 Access Points in Hybrid Remote Edge Access Point (H-REAP) mode, now known as 
 FlexConnect, don't support RADIUS dynamic VLAN assignments (AAA override).
 
-Customer specific work-arounds are possible. For example: per-SSID registration, auto-registration, etc.
+Customer specific work-arounds are possible. For example: per-SSID 
+registration, auto-registration, etc. The goal being that only one VLAN
+is ever 'assigned' and that is the local VLAN set on the AP for the SSID.
 
-Even if it looks like FlexConnect can do AAA: 
-http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954. 
-We weren't able to get it working with PacketFence yet.
+Update: L<FlexConnect AAA Override support was introduced in firmware 7.2 series|https://supportforums.cisco.com/message/3605608#3605608>
+
+=item FlexConnect issues with firmware 7.2.103.0
+
+There's an issue with this firmware regarding the AAA Override functionality
+required by PacketFence. The issue is fixed in 7.2.104.16 which is not 
+released as the time of this writing.
+
+The workaround mentioned by Cisco is to downgrade to 7.0.230.0 but it 
+doesn't support the FlexConnect AAA Override feature...
+
+So you can use 7.2.103.0 with PacketFence but not in FlexConnect mode.
+
+Caveat CSCty44701
 
 =back
 
 =head1 SEE ALSO
 
 =over 
+
+=item L<Version 7.2 - Configuring AAA Overrides for FlexConnect|http://www.cisco.com/en/US/docs/wireless/controller/7.2/configuration/guide/cg_flexconnect.html#wp1247954>
 
 =item L<Cisco's RADIUS Packet of Disconnect documentation|http://www.cisco.com/en/US/docs/ios/12_2t/12_2t8/feature/guide/ft_pod1.html>
 
@@ -119,7 +133,7 @@ sub deauthenticateMac {
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 This implementation is deprecated since RADIUS Disconnect-Request (aka 
-RFC3576 aka CoA) is better and also it no longer worked with IOS 7.2 and up.
+RFC3576 aka CoA) is better and also it no longer worked with firmware 7.2 and up.
 See L<BUGS AND LIMITATIONS> for details.
 
 =cut
