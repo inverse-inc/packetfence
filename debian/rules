@@ -142,6 +142,7 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/*.cgi
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/configurator/script/*.pl
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
                 -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
                 -X$(NAME)sbin/pfdetect_remote
