@@ -186,12 +186,7 @@ Administrator account
 sub step4 :Chained('object') :PathPart('step4') :Args(0) {
     my ( $self, $c ) = @_;
 
-    if (defined($c->session->{admin_user})) {
-        $c->session->{completed}->{step4} = 1;
-    }
-    else {
-        delete $c->session->{completed}->{step4};
-    }
+    # See create_admin
 }
 
 =item step5
@@ -212,7 +207,7 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
 
 =item reset_password
 
-Reset the root password
+Reset the root password (step 2)
 
 =cut
 sub reset_password :Path('reset_password') :Args(0) {
@@ -238,7 +233,7 @@ sub reset_password :Path('reset_password') :Args(0) {
 
 =item create_admin
 
-Create the administrative user
+Create the administrative user (step 4)
 
 =cut
 sub create_admin :Path('create_admin') :Args(0) {
@@ -256,8 +251,10 @@ sub create_admin :Path('create_admin') :Args(0) {
     }
     if ( is_success($status) ) {
         $c->session(admin_user => $admin_user);
+        $c->session->{completed}->{step4} = 1;
     } else {
         delete $c->session->{admin_user};
+        delete $c->session->{completed}->{step4};
         $c->response->status($status);
     }
 
