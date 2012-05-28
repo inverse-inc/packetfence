@@ -98,7 +98,7 @@
         </div>
         <div class="span9">
           <div id="interfaces" class="form-horizontal">
-            <form>
+            <form name="interfaces">
               <h3>Enforcement Mechanisms</h3>
               <div class="control-group">
                 <div class="controls">

@@ -49,7 +49,7 @@
         <div id="services" class="span9">
           [% UNLESS completed -%]
         <div class="alert alert-warning">
-          <strong>Warning!</strong> <span>You must complete all steps before starting the services.</span>
+          <strong>Warning!</strong> <span>You must complete all steps in order to start the services.</span>
         </div>
         [% END -%]
           <table class="table">
