@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 72;
+use Test::More tests => 71;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -45,7 +45,6 @@ BEGIN { use_ok('pf::pfcmd::report') }
 BEGIN { use_ok('pf::radius') }
 BEGIN { use_ok('pf::radius::constants') }
 BEGIN { use_ok('pf::radius::custom') }
-BEGIN { use_ok('pf::rawip') }
 BEGIN { use_ok('pf::scan') }
 BEGIN { use_ok('pf::scan::nessus') }
 BEGIN { use_ok('pf::scan::openvas') }
@@ -95,7 +94,7 @@ Regis Balzard <rbalzard@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
     

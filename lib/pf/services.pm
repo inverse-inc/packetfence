@@ -303,9 +303,7 @@ sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %tags;
     $tags{'template'}      = "$conf_dir/snort.conf";
-    $tags{'internal-ips'}  = join( ",", get_internal_ips() );
     $tags{'internal-nets'} = join( ",", get_internal_nets() );
-    $tags{'gateways'}      = join( ",", get_gateways() );
     $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
     $tags{'install_dir'}   = $install_dir;
