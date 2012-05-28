@@ -144,9 +144,17 @@ sub secureInstallation {
     $sql_query = "DELETE FROM user WHERE User=? AND Host='%'";
     $dbHandler->do($sql_query, undef, $root_user);
     if ( $DBI::errstr ) {
-        $status_msg = "Error setting correct permissions to root user $root";
+        $status_msg = "Error setting correct permissions to root user $root_user";
         $logger->warn("$status_msg | $DBI::errstr");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Apply the new privileges
+    $dbHandler->do("FLUSH PRIVILEGES");
+    if ( $DBI::errstr ) {
+        $status_msg = "Error applying new privileges to root user $root_user";
+        $logger->warn("$status_msg | $DBI::errstr");
+        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     $status_msg = "Successfully secured mysql installation";
