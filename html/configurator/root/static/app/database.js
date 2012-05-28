@@ -190,8 +190,10 @@ function saveStep(href) {
         window.location.href = href;
     }
     else {
-        showError($('form'), 'Please verify your configuration.');
-        $("body").animate({scrollTop:0}, 'fast');
+        var form = $('form[name="database"]');
+        resetAlert(form.parent());
+        showError(form, 'Please verify your configuration.');
+        $("body,html").animate({scrollTop:0}, 'fast');
     }
 
     return false;

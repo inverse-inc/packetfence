@@ -60,9 +60,11 @@ function saveStep(href) {
         window.location.href = href;
     }
     else {
+        var form = $('form[name="admin"]');
         btnError(createUser);
-        showError($('form'), 'Please verify your configuration.');
-        $("body").animate({scrollTop:0}, 'fast');
+        resetAlert(form.parent());
+        showError(form, 'Please verify your configuration.');
+        $("body,html").animate({scrollTop:0}, 'fast');
     }
 
     return false;

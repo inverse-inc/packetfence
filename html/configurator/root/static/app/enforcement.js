@@ -67,13 +67,13 @@ function initModals() {
             var modal_body = modal.find('.modal-body').first();
             var form = modal_body.children('form').first();
             if (form.attr('action') != '#created') {
+                // Create VLAN
                 var url = ['/interface',
                            'create',
                            name];
                 resetAlert(modal_body);
                 $.ajax(url.join('/'))
                     .done(function(data) {
-                        // Creation succeed
                         form.attr('action', '#created');
                         refreshInterfaces();
                     })
@@ -177,13 +177,13 @@ function initStep() {
     $('select[name="type"]').change(function(event) {
         var disable = false;
         $('select[name="type"] option[value="management"]').each(function(index) {
-            if (this.selected) {
+            if (this.selected)
                 disable = true;
-                return false;
-            }
+            return !disable;
         });
         $('select[name="type"] option[value="management"]').each(function(index) {
-            if (!this.selected) this.disabled = disable;
+            if (!this.selected)
+                this.disabled = disable;
         });
     }).first().trigger('change');
 }
@@ -247,11 +247,12 @@ function saveStep(validate, successCallback) {
         }).fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
             showError($('#interfaces form'), obj.status_msg);
-            $("body").animate({scrollTop:0}, 'fast');
+            $("body,html").animate({scrollTop:0}, 'fast');
         });
     }
     else {
-        showError($('form'), 'Please verify your configuration.');
-        $("body").animate({scrollTop:0}, 'fast');
+        resetAlert($('#interfaces'));
+        showError($('form[name="interfaces"]'), 'Please verify your configuration.');
+        $("body,html").animate({scrollTop:0}, 'fast');
     }
 }

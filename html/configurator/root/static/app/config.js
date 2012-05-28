@@ -9,7 +9,7 @@ function registerExists() {
 function saveStep(href) {
     var valid = true;
 
-    $('.container form .control-group').each(function(index) {
+    $('form[name="config"] .control-group').each(function(index) {
         var e = $(this);
         var i = e.find('input, textarea').first();
         if (i.length) {
@@ -33,9 +33,15 @@ function saveStep(href) {
             window.location.href = href;
         }).fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
-            showError($('form'), obj.status_msg);
-            $("body").animate({scrollTop:0}, 'fast');
+            showError($('form[name="config"]'), obj.status_msg);
+            $("body,html").animate({scrollTop:0}, 'fast');
         });
+    }
+    else {
+        var form = $('form[name="config"]');
+        resetAlert(form.parent());
+        showError(form, 'Please verify your configuration.');
+        $("body,html").animate({scrollTop:0}, 'fast');
     }
 
     return false;
