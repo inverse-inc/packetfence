@@ -122,6 +122,38 @@ sub create {
     return ( $STATUS::OK, $status_msg );
 }
 
+=item secureInstallation
+
+=cut
+sub secureInstallation {
+    my ( $self, $root_user, $root_password ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+
+    # Changing root password
+    my $sql_query = "UPDATE user SET Password=PASSWORD(?) WHERE User=?";
+    $dbHandler->do($sql_query, undef, $root_password, $root_user);
+    if ( $DBI::errstr ) {
+        $status_msg = "Error changing root user $root_user password";
+        $logger->warn("$status_msg | $DBI::errstr");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Remove root remote connection
+    $sql_query = "DELETE FROM user WHERE User=? AND Host='%'";
+    $dbHandler->do($sql_query, undef, $root_user);
+    if ( $DBI::errstr ) {
+        $status_msg = "Error setting correct permissions to root user $root";
+        $logger->warn("$status_msg | $DBI::errstr");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    $status_msg = "Successfully secured mysql installation";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
+
 =item schema
 
 TODO: Check error handling for pf_run... (undef or whatever)
