@@ -32,6 +32,7 @@ case "$1" in
     ;;
     purge)
 	update-rc.d packetfence remove >/dev/null || exit 0
+	update-rc.d configurator remove >/dev/null || exit 0
         rm -fr /usr/local/pf
     ;;
     *)

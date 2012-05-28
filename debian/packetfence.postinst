@@ -36,6 +36,7 @@ case "$1" in
 		update-rc.d $service remove > /dev/null 2>&1
 		done
 	update-rc.d packetfence defaults . || exit 0
+	update-rc.d configurator defaults . || exit 0
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
