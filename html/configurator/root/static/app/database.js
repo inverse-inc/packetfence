@@ -88,6 +88,7 @@ function initStep() {
         root_user = $('#root_user'),
         root_password = $('#root_password'),
         database = $('input[name="database.db"]'),
+        database_control = database.closest('.control-group'),
         url = [btn.attr('href'), database.val()],
         valid = true;
 
