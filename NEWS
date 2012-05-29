@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
+Security
+ * Fixed a reflected cross-site scripting (XSS) vulnerability in Web Admin guest management (#1454)
+
 New Hardware
  * H3C S5120 series supports MAC-Authentication and 802.1X with or without VoIP
  * Added Role support for all Cisco Wireless (WLC) models
