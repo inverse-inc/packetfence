@@ -47,6 +47,7 @@ use base ('pf::SNMP');
 use pf::SNMP::constants;
 use pf::util;
 use pf::config;
+use Data::Dumper;
 
 =head1 SUBROUTINES
 
@@ -56,7 +57,11 @@ use pf::config;
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
-sub supportsWiredDot1x { return $FALSE; }
+sub supportsWiredDot1x { return $TRUE; }
+sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+sub supportsRadiusVoip { return $TRUE; }
+sub rewriteAccessAccept { return $TRUE; }
+
 
 =item getVersion
 
@@ -77,7 +82,140 @@ sub getVersion {
     return $runtimeSwVersion;
 }
 
+=item _dot1xPortReauthenticate
 
+Actual implementation. 
+Allows callers to refer to this implementation even though someone along the way override the above call.
+
+=cut
+sub dot1xPortReauthenticate {
+    my ($this, $ifIndex) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+
+    my $oid_dot1xPaePortReauthenticate = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
+
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+
+    $logger->trace("Hello mon cocoon ifIndex: $ifIndex");
+    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
+    ]);
+
+    if (!defined($result)) {
+        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+    }
+
+    if (!$this->connectWrite()) {
+        return 0;
+    }
+
+    $logger->trace("SNMP set_request force dot1xPaePortReauthenticate on ifIndex: $ifIndex");
+    $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 2
+    ]);
+
+    if (!defined($result)) {
+        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+    }
+    return (defined($result));
+}
+
+
+=item parseTrap
+
+All traps ignored
+
+=cut
+sub parseTrap {
+    my ( $this, $trapString ) = @_;
+    my $trapHashRef;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->debug("trap ignored, not useful for wireless controller");
+    $trapHashRef->{'trapType'} = 'unknown';
+
+    return $trapHashRef;
+}
+
+=item getVoipVSA
+
+Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
+
+TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
+
+=cut
+sub getVoipVsa {
+    my ($this) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    return (
+        'Foundry-802_1x-enable' => "0",
+        'Tunnel-Type'               => $RADIUS::VLAN,
+        'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
+        'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voiceVlan'),
+    );
+}
+
+=item isVoIPEnabled
+
+Supports VoIP if enabled.
+
+=cut
+sub isVoIPEnabled {
+    my ($self) = @_;
+    return ( $self->{_VoIPEnabled} == 1 );
+}
+=item * _shouldRewriteAccessAccept
+
+If this returns true we will call _rewriteAccessAccept() and overwrite the
+Access-Accept attributes by it's return value.
+
+This is meant to be overridden in L<pf::radius::custom>.
+
+=cut
+sub _shouldRewriteAccessAccept {
+    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    return $TRUE;
+}
+
+=item * _rewriteAccessAccept
+
+Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
+
+Return type should match L<pf::radius::authorize()>'s return type. See its
+documentation for details.
+
+This is meant to be overridden in L<pf::radius::custom>.
+
+=cut
+sub _rewriteAccessAccept {
+    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+    $logger->warn($$RAD_REPLY_REF[0]);
+    
+    return $RAD_REPLY_REF;
+}
+
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # VLAN enforcement
+    my $radius_reply_ref = {
+        #'Foundry-802_1x-enable' => "1",
+	'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+        'Tunnel-Type' => $RADIUS::VLAN,
+        'Tunnel-Private-Group-ID' => $vlan,
+    };
+
+
+    $logger->info("Returning ACCEPT with VLAN: $vlan");
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
 
 =back
 
