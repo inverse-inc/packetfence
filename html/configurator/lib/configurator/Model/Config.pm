@@ -90,10 +90,10 @@ sub _readNetworksConf {
 
     my %networks_conf;
 
-    tie (%networks_conf, 'Config::IniFiles', (-file => "$install_dir/conf/networks.conf"));
+    tie (%networks_conf, 'Config::IniFiles', (-file => $network_config_file));
 
     if ( !%networks_conf ) {
-        $logger->warn("Unable to read conf/networks.conf file");
+        $logger->warn("Unable to read $network_config_file file");
         return;
     }
 
