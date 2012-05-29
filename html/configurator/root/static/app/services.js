@@ -7,16 +7,29 @@ function registerExists() {
 }
 
 function saveStep(href) {
+
     $('table .badge').each(function(index, event) {
-        $(this).fadeIn().delay(1000*index).fadeOut('fast', function(event) {
+        $(this).fadeIn().delay(5000*index).fadeOut('fast', function(event) {
             $(this).text('Starting').addClass('badge-warning');
-        }).fadeIn('fast').delay(2000).fadeOut('fast', function(event) {
+        }).fadeIn('fast').delay(3000).fadeOut('fast', function(event) {
             $(this).text('Started').removeClass('badge-warning').addClass('badge-success');
         }).fadeIn('fast', function(event) {
             if (index == 7) {
                 $('#modalRedirection').modal({ show: true });
-                window.setTimeout(function(event) { window.location.href = 'https://localhost:1443/'; }, 10000);
+                window.setTimeout(function(event) { window.location.href = 'https://localhost:1443/'; }, 40000);
             }
         });
     });
+
+    $.ajax({
+        type: 'POST',
+        url: window.location.pathname
+    }).done(function(data) {
+        resetAlert($('#services'));
+        showSuccess($('#services table'), data.status_msg);
+    }).fail(function(jqXHR) {
+        var obj = $.parseJSON(jqXHR.responseText);
+        showError($('#services table'), obj.status_msg);
+    });
+
 }
