@@ -102,7 +102,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 
     my ($status, $return) = $c->model('Config::Networks')->read_network($network);
     if ( is_success($status) ) {
-        $c->stash->{network} = $return;
+        $c->stash->{networks} = $return;
     } else {
         $c->response->status($status);
         $c->error($return);

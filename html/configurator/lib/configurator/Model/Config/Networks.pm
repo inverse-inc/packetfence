@@ -29,78 +29,97 @@ my $_networks_conf;
 
 =over
 
-=item create_network
+=item create
 
 =cut
-sub create_network {
+sub create {
     my ( $self, $network, $assignments ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    return ($STATUS::FORBIDDEN, "This is a reserved network name") if ( $network eq 'all' );
+    my $status_msg;
 
-    my $networks_conf = $self->_load_conf();
+    # This method does not handle the network 'all'
+    return ($STATUS::FORBIDDEN, "This method does not handle network $network") 
+        if ( $network eq 'all' );
+
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
+
     if ( !($tied_conf->SectionExists($network)) ) {
-        while (my ($param, $value) = each %$assignments) {
+        while ( my ($param, $value) = each %$assignments ) {
             $tied_conf->AddSection($network);
             $tied_conf->newval( $network, $param, $value );
         }
         $self->_write_networks_conf();
     } else {
-        return ($STATUS::PRECONDITION_FAILED, "Network $network already exists");
+        $status_msg = "Network $network already exists";
+        $logger->warn("$status_msg");
+        return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    return ($STATUS::OK, "Successfully created $network");
+    $status_msg = "Network $network successfully created";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
 }
 
-=item delete_network
+=item delete
 
 =cut
-sub delete_network {
+sub delete {
     my ( $self, $network ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    return ($STATUS::FORBIDDEN, "This network can't be deleted") if ( $network eq 'all' );
+    my $status_msg;
 
-    my $networks_conf = $self->_load_conf();
+    # This method does not handle the network 'all'
+    return ($STATUS::FORBIDDEN, "This method does not handle network $network")  
+        if ( $network eq 'all' );
+
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
+
     if ( $tied_conf->SectionExists($network) ) {
         $tied_conf->DeleteSection($network);
         $self->_write_networks_conf();
-    } 
-    else {
-        return ($STATUS::NOT_FOUND, "Network $network not found");
+    } else {
+        $status_msg = "Network $network does not exists";
+        $logger->warn("$status_msg");
+        return ($STATUS::NOT_FOUND, $status_msg);
     }
-  
-    return ($STATUS::OK, "Successfully deleted $network");
+
+    $status_msg = "Network $network successfully deleted";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
 }
 
-=item _load_conf
+=item _load_networks_conf
 
 Load networks.conf into a Config::IniFiles tied hasref.
 
 Performs caching.
 
 =cut
-sub _load_conf {
+sub _load_networks_conf {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     unless ( defined $_networks_conf ) {
         my %conf;
 
-        # load config if it exists
+        # Load existing networks.conf file
         if ( -e $network_config_file ) {
             tie %conf, 'Config::IniFiles', ( -file => $network_config_file )
                 or $logger->logdie("Unable to open config file $network_config_file: ", 
                 join("\n", @Config::IniFiles::errors));
+            $logger->info("Loaded existing $network_config_file file");
         }
-        # starts with an empty file
+        # No existing networks.conf file, create one
         else {
             tie %conf, 'Config::IniFiles';
             tied(%conf)->SetFileName($network_config_file)
                 or $logger->logdie("Unable to open config file $network_config_file: ",
                 join("\n", @Config::IniFiles::errors));
+            $logger->info("Created a new $network_config_file file");
         }
 
         foreach my $section ( tied(%conf)->Sections ) {
@@ -115,61 +134,26 @@ sub _load_conf {
     return $_networks_conf;
 }
 
-=item read
+=item read_value
 
 =cut
-sub read {
-    my ( $self, $config_entry ) = @_;
+sub read_value {
+    my ( $self, $section, $param ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load_conf();
+    my $status_msg;
 
-    my @config_parameters;
-    # config_entry is a scalar and all parameters were requested
-    if ( !ref($config_entry) && $config_entry eq 'all' ) {
-        foreach my $section ( sort keys(%$networks_conf) ) {
-            foreach my $param ( keys( %{ $networks_conf->{$section} } ) ) {
-                push @config_parameters, $self->_read_config_entry( $section, $param );
-            }
-        }
-    }
-    else {
-        # lets build a list of the parameters to retrieve and send to the client
-        my @to_retrieve;
-        push @to_retrieve, $config_entry if (!ref($config_entry)); 
-        push @to_retrieve, @$config_entry if (ref($config_entry) eq 'ARRAY'); 
+    my $networks_conf = $self->_load_networks_conf();
 
-        foreach my $config (@to_retrieve) {
-
-            my ($section, $param) = split( /\s*\.\s*/, $config );
-            if ( defined($networks_conf->{$section}->{$param}) ) {
-                push @config_parameters, $self->_read_config_entry( $section, $param );
-            } else {
-                return ($STATUS::NOT_FOUND, "Unknown configuration parameter $section.$param!");
-            }
-        }
+    if ( !(exists($networks_conf->{$section}->{$param})) ) {
+        $status_msg = "$section.$param does not exists";
+        $logger->warn("$status_msg");
+        return ($STATUS::NOT_FOUND, $status_msg);
     }
 
-    if (!@config_parameters) {
-        $logger->warn("Nothing found when searching for $config_entry");
-        return ($STATUS::NOT_FOUND, "No results");
-    }
+    $status_msg = $networks_conf->{$section}->{$param} || '';
 
-    return ($STATUS::OK, \@config_parameters);
-}
-
-=item _read_config_entry
-
-=cut
-sub _read_config_entry {
-    my ( $self, $section, $param ) = @_;
-
-    my $networks_conf = $self->_load_conf();
-
-    return {
-        'parameter' => $section.'.'.$param,
-        'value' => $networks_conf->{$section}->{$param},
-    };
+    return ($STATUS::OK, $status_msg);    
 }
 
 =item read_network
@@ -179,21 +163,17 @@ sub read_network {
     my ( $self, $network ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->debug("network $network requested");
-
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my @columns = pf::config::ui->instance->field_order('networkconfig get'); 
     my @resultset = @columns;
-    foreach my $s (keys %$networks_conf) {
-        if ( $s =~ /^network (.+)$/ ) {
-            my $network_name = $1;
-            if ( ($network eq 'all') || ($network eq $network_name) ) {
-                my @values;
-                foreach my $column (@columns) {
-                    push @values, ( $networks_conf->{$s}->{$column} || '' );
-                }
-                push @resultset, [$network_name, @values];
+
+    foreach my $section ( keys %$networks_conf ) {
+        if ( ($network eq 'all') || ($network eq $section) ) {
+            my @values;
+            foreach my $column (@columns) {
+                push @values, ( $networks_conf->{$section}->{$column} || '' );
             }
+            push @resultset, [$section, @values];
         }
     }
 
@@ -205,38 +185,24 @@ sub read_network {
     }
 }
 
-=item read_value
+=item update
 
 =cut
-sub read_value {
-    my ( $self, $config_entry ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my ($status, $result_ref) = $self->read($config_entry);
-    # return errors to caller
-    return ($status, $result_ref) if (is_error($status));
-
-    my $config_ref = {};
-    foreach my $param (@$result_ref) {
-        my $value = (defined($param->{'value'})) ? $param->{'value'} : '';
-        $config_ref->{$param->{'parameter'}} = $value;
-    }
-    return ($status, $config_ref);
-}
-
-=item update_network
-
-=cut
-sub update_network {
+sub update {
     my ( $self, $network, $assignments ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    return ($STATUS::FORBIDDEN, "This network can't be updated") if ( $network eq 'all' );
+    my $status_msg;
 
-    my $networks_conf = $self->_load_conf();
+    # This method does not handle the network 'all'
+    return ($STATUS::FORBIDDEN, "This method does not handle network $network")
+        if ( $network eq 'all' );
+
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
+
     if ( $tied_conf->SectionExists($network) ) {
-        while (my ($param, $value) = each %$assignments) {
+        while ( my ($param, $value) = each %$assignments ) {
             if ( defined( $networks_conf->{$network}{$param} ) ) {
                 $tied_conf->setval( $network, $param, $value );
             } else {
@@ -245,10 +211,14 @@ sub update_network {
         }
         $self->_write_networks_conf();
     } else {
-        return ($STATUS::NOT_FOUND, "Network $network not found");
+        $status_msg = "Network $network does not exists";
+        $logger->warn("$status_msg");
+        return ($STATUS::NOT_FOUND, $status_msg);
     }
 
-    return ($STATUS::OK, "Successfully modified $network");
+    $status_msg = "Network $network successfully modified";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
 }
 
 =item _write_networks_conf
@@ -258,11 +228,12 @@ sub _write_networks_conf {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load_conf();
-    tied(%$networks_conf)->WriteConfig($conf_dir . "/networks.conf")
+    my $networks_conf = $self->_load__networks_conf();
+    tied(%$networks_conf)->WriteConfig($network_config_file)
         or $logger->logdie(
-            "Unable to write config to $conf_dir/networks.conf. You might want to check the file's permissions."
+            "Unable to write configs to $network_config_file. You might want to check the file's permissions."
         );
+    $logger->info("Successfully write configs to $network_config_file");
 }
 
 =back

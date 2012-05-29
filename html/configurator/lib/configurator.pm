@@ -60,7 +60,7 @@ __PACKAGE__->config(
        allow_callback  => 1,    # defaults to 0
        callback_param  => 'cb', # defaults to 'callback'
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
-       expose_stash    => [ qw(status_msg error interfaces switches config) ], # defaults to everything
+       expose_stash    => [ qw(status_msg error interfaces networks switches config) ], # defaults to everything
     },
 );
 
