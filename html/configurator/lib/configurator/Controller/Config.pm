@@ -29,21 +29,21 @@ Delete a configuration parameter from session
 Usage: /config/<section>/<parameter>/delete
 
 =cut
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = "";
-}
+#sub delete :Chained('object') :PathPart('delete') :Args(0) {
+#    my ( $self, $c ) = @_;
+#
+#    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = "";
+#}
 
 =item object
 
 =cut
-sub object :Chained('/') :PathPart('config') :CaptureArgs(2) {
-    my ( $self, $c, $section, $parameter ) = @_;
-
-    $c->stash->{section}    = $section;
-    $c->stash->{parameter}  = $parameter;
-}
+#sub object :Chained('/') :PathPart('config') :CaptureArgs(2) {
+#    my ( $self, $c, $section, $parameter ) = @_;
+#
+#    $c->stash->{section}    = $section;
+#    $c->stash->{parameter}  = $parameter;
+#}
 
 =item read
 
@@ -52,11 +52,11 @@ Read a configuration parameter in session
 Usage: /config/<section>/<parameter>/read
 
 =cut
-sub read :Chained('object') :PathPart('read') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{value} = $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}};
-}
+#sub read :Chained('object') :PathPart('read') :Args(0) {
+#    my ( $self, $c ) = @_;
+#
+#    $c->stash->{value} = $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}};
+#}
 
 =item update
 
@@ -65,11 +65,11 @@ Create/update a configuration parameter in session
 Usage: /config/<section>/<parameter>/update/<value>
 
 =cut
-sub update :Chained('object') :PathPart('update') :Args(1) {
-    my ( $self, $c, $value ) = @_;
-
-    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = $value;
-}
+#sub update :Chained('object') :PathPart('update') :Args(1) {
+#    my ( $self, $c, $value ) = @_;
+#
+#    $c->session->{$c->stash->{section} . "." . $c->stash->{parameter}} = $value;
+#}
 
 =back
 
