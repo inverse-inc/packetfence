@@ -29,6 +29,11 @@ BEGIN {
         $report_db_prepared
         report_db_prepare
 
+        report_accounting_all
+        report_accounting_today
+        report_accounting_weekly
+        report_accounting_monthly
+        report_accounting_yearly
         report_os_all
         report_os_active
         report_osclass_all
@@ -225,6 +230,25 @@ sub report_db_prepare {
        GROUP BY ssid 
        ORDER BY nodes
     ]);
+
+    $report_statements->{'report_accounting_sql'} = get_db_handle()->prepare(qq [
+       SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
+           SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
+           ROUND(SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                      INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
+                                                                SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
+                      WHERE timestamp >= DATE_SUB(NOW(),INTERVAL 9999999 SECOND))*100,1) AS percent
+        FROM radacct_log
+            RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
+                                                      SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
+            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
+            LEFT JOIN os_mapping m ON m.os_type=d.os_id 
+            LEFT JOIN os_class c ON m.os_class=c.class_id 
+        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)    
+        GROUP BY c.description
+        ORDER BY percent DESC;
+    });
 
     $report_db_prepared = 1;
     return 1;
@@ -577,6 +601,126 @@ sub report_ssid_active {
     }
 
     push @return_data, { ssid => "Total", percent => "100", nodes => $total };
+    return (@return_data);
+}
+
+=item * report_accounting_all
+
+Reporting - OS Class bandwitdh usage - All time
+
+=cut
+sub report_accounting_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 99999999999 );
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+
+        push @return_data, $record;
+    }
+
+    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    return (@return_data);
+}
+
+=item * report_accounting_daily
+
+Reporting - OS Class bandwitdh usage for the last 24 hours
+
+=cut
+sub report_accounting_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 86400 );
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+
+        push @return_data, $record;
+    }
+
+    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    return (@return_data);
+}
+
+=item * report_accounting_daily
+
+Reporting - OS Class bandwitdh usage for the last 24 hours
+
+=cut
+sub report_accounting_daily {
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 86400 );
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+
+        push @return_data, $record;
+    }
+
+    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    return (@return_data);
+}
+
+=item * report_accounting_weekly
+
+Reporting - OS Class bandwitdh usage for the last week
+
+=cut
+sub report_accounting_weekly {
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 604800 );
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+
+        push @return_data, $record;
+    }
+
+    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    return (@return_data);
+}
+
+=item * report_accounting_monthly
+
+Reporting - OS Class bandwitdh usage for the last month
+
+=cut
+sub report_accounting_monthly {
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 2592000 );
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+
+        push @return_data, $record;
+    }
+
+    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    return (@return_data);
+}
+
+=item * report_accounting_yearly
+
+Reporting - OS Class bandwitdh usage for the last year
+
+=cut
+sub report_accounting_yearly {
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 31536000 );
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+
+        push @return_data, $record;
+    }
+
+    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
     return (@return_data);
 }
 

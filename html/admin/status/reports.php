@@ -40,7 +40,7 @@
     'unknownprints', 'unknownuseragents', 
     'openviolations', 'statics',
     'connectiontype', 'connectiontypereg',
-    'ssid'
+    'ssid', 'accounting'
   );
   $type = set_default($_REQUEST['type'], 'ipmachistory');
   $subtype = set_default($_GET['subtype'], '');

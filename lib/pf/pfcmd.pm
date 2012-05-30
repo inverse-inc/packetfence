@@ -276,17 +276,17 @@ sub parseCommandLine {
                                      ( active | inactive | openviolations 
                                        | os | osclass | registered | statics | ssid
                                        | unknownprints | unknownuseragents | unregistered
-                                       | connectiontype | connectiontypereg
+                                       | connectiontype | connectiontypereg | accounting
                                      )
                                      |
                                      (?: #for grouping only
                                        ( openviolations | os | osclass 
                                          | registered | statics | ssid
                                          | unknownprints | unknownuseragents | unregistered 
-                                         | connectiontype | connectiontypereg
+                                         | connectiontype | connectiontypereg | accounting
                                        )
                                        \s+
-                                       ( all | active )
+                                       ( all | active | today | weekly | monthly | yearly )
                                      )
                                    )
                                  $  }xms,
