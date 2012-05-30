@@ -36,7 +36,24 @@
 
   $is_printable=true;
   $my_table->set_editable(true);
-  $my_table->set_hideable(array('SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd', 'wsTransport', 'wsUser', 'wsPwd', 'customVlan1', 'customVlan2', 'customVlan3', 'customVlan4', 'customVlan5', 'macSearchesMaxNb', 'macSearchesSleepInterval', 'SNMPEngineID', 'SNMPUserNameRead', 'SNMPAuthProtocolRead', 'SNMPAuthPasswordRead', 'SNMPPrivProtocolRead', 'SNMPPrivPasswordRead', 'SNMPUserNameWrite', 'SNMPAuthProtocolWrite', 'SNMPAuthPasswordWrite', 'SNMPPrivProtocolWrite', 'SNMPPrivPasswordWrite', 'SNMPUserNameTrap', 'SNMPAuthProtocolTrap', 'SNMPAuthPasswordTrap', 'SNMPPrivProtocolTrap', 'SNMPPrivPasswordTrap', 'radiusSecret', 'controllerIp', 'roles'));
+  $fields_to_hide_by_default = array(
+      'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd', 
+      'wsTransport', 'wsUser', 'wsPwd', 
+      'radiusSecret', 'controllerIp', 'roles'
+      'macSearchesMaxNb', 'macSearchesSleepInterval', 
+      'SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 
+      'SNMPEngineID', 'SNMPUserNameRead', 'SNMPAuthProtocolRead', 
+      'SNMPAuthPasswordRead', 'SNMPPrivProtocolRead', 'SNMPPrivPasswordRead', 
+      'SNMPUserNameWrite', 'SNMPAuthProtocolWrite', 'SNMPAuthPasswordWrite', 
+      'SNMPPrivProtocolWrite', 'SNMPPrivPasswordWrite', 'SNMPUserNameTrap', 
+      'SNMPAuthProtocolTrap', 'SNMPAuthPasswordTrap', 'SNMPPrivProtocolTrap', 
+      'SNMPPrivPasswordTrap', 
+  );
+  # adding customVlan1 to 99 to the hidden list
+  for ($i = 1; $i <= 99; $i++) {
+      $fields_to_hide_by_default[] = 'customVlan' . $i;
+  };
+  $my_table->set_hideable($fields_to_hide_by_default);
   $my_table->set_page_num(set_default($_REQUEST['page_num'],1));
   $my_table->set_per_page(set_default($_REQUEST['per_page'],25));
 

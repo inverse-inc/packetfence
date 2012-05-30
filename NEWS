@@ -24,6 +24,7 @@ New Hardware
 
 New Features
  * debian packages (#1066, #1067)
+ * Support for up to 100 custom VLANs (Defaults to 5 see relevant FAQ entry to enable more)
 
 Enhancements
  * minor refactoring and cleanup
