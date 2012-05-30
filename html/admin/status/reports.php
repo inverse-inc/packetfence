@@ -57,6 +57,19 @@
     else
       $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=active'>Active</a>";
   }
+  
+  if($type == 'accounting'){
+      if($subtype == 'today')
+         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=today'><u>Today</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
+      else if($subtype == 'weekly')
+         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=today'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'><u>Weekly</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
+      else if($subtype == 'monthly')
+         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=today'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'><u>Monthly</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
+      else if($subtype == 'yearly')
+         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=today'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'><u>Yearly</u></a>";
+      else
+         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=today'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
+  }
 
   $extra_goodness = helper_menu($current_top, $current_sub, $type, $_GET[menu], $additional);
 
@@ -64,7 +77,6 @@
     print $extra_goodness;
     unset($extra_goodness);
   }
-  
   if($type == 'ipmachistory'){
   ?>
   <div id="ipmachistory">

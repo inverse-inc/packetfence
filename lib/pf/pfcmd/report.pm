@@ -237,7 +237,7 @@ sub report_db_prepare {
            ROUND(SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
                       INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
                                                                 SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
-                      WHERE timestamp >= DATE_SUB(NOW(),INTERVAL 9999999 SECOND))*100,1) AS percent
+                      WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND))*100,1) AS percent
         FROM radacct_log
             RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
             INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
@@ -248,7 +248,7 @@ sub report_db_prepare {
         WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)    
         GROUP BY c.description
         ORDER BY percent DESC;
-    });
+    ]);
 
     $report_db_prepared = 1;
     return 1;
@@ -599,7 +599,7 @@ sub report_ssid_active {
         }
 
     }
-
+    
     push @return_data, { ssid => "Total", percent => "100", nodes => $total };
     return (@return_data);
 }
@@ -610,37 +610,17 @@ Reporting - OS Class bandwitdh usage - All time
 
 =cut
 sub report_accounting_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 99999999999 );
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 999999999 , 999999999 );
     my $totalbw   = 0;
     my @return_data;
 
     foreach my $record (@data) {
         $totalbw += $record->{'accttotal'};
-
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
         push @return_data, $record;
     }
-
-    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
-    return (@return_data);
-}
-
-=item * report_accounting_daily
-
-Reporting - OS Class bandwitdh usage for the last 24 hours
-
-=cut
-sub report_accounting_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 86400 );
-    my $totalbw   = 0;
-    my @return_data;
-
-    foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-
-        push @return_data, $record;
-    }
-
-    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
 }
 
@@ -650,17 +630,17 @@ Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
 sub report_accounting_daily {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 86400 );
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 86400 , 86400 );
     my $totalbw   = 0;
     my @return_data;
 
     foreach my $record (@data) {
         $totalbw += $record->{'accttotal'};
-
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
         push @return_data, $record;
     }
-
-    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
 }
 
@@ -670,17 +650,17 @@ Reporting - OS Class bandwitdh usage for the last week
 
 =cut
 sub report_accounting_weekly {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 604800 );
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 604800, 604800 );
     my $totalbw   = 0;
     my @return_data;
 
     foreach my $record (@data) {
         $totalbw += $record->{'accttotal'};
-
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
         push @return_data, $record;
     }
-
-    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
 }
 
@@ -690,17 +670,17 @@ Reporting - OS Class bandwitdh usage for the last month
 
 =cut
 sub report_accounting_monthly {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 2592000 );
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 2592000, 2592000 );
     my $totalbw   = 0;
     my @return_data;
 
     foreach my $record (@data) {
         $totalbw += $record->{'accttotal'};
-
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
         push @return_data, $record;
     }
-
-    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
 }
 
@@ -710,17 +690,17 @@ Reporting - OS Class bandwitdh usage for the last year
 
 =cut
 sub report_accounting_yearly {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 31536000 );
+    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 31536000, 31536000 );
     my $totalbw   = 0;
     my @return_data;
 
     foreach my $record (@data) {
         $totalbw += $record->{'accttotal'};
-
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
         push @return_data, $record;
     }
-
-    push @return_data, { osclass => "Total", percent => "100", accttotal => $total };
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
 }
 
