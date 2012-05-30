@@ -26,57 +26,6 @@ extends 'Catalyst::Model';
 
 =over
 
-=item getNetworkAddress
-
-Calculate the network address for the provided ipaddress/network combination
-
-=cut
-sub getNetworkAddress {
-    my ( $self, $ipaddress, $netmask ) = @_;
-
-    my @ipaddress   = split(/\./,$ipaddress);
-    my @netmask     = split(/\./,$netmask);
-    $ipaddress      = unpack( "N", pack( "C4", @ipaddress ) );
-    $netmask        = unpack( "N", pack( "C4", @netmask ) );
-
-    my $networkaddress  = ( $ipaddress & $netmask );
-    my @networkaddress  = unpack( "C4", pack( "N", $networkaddress ) );
-    $networkaddress     = join( ".", @networkaddress );
-
-    return $networkaddress;
-}
-
-=item _getInterfaceType
-
-Private method to be used when reading the pf.conf/pf.conf.default files
-
-Used to return the correct interface type by matching networks.conf and pf.conf configurations
-
-=cut
-sub _getInterfaceType {
-    my ( $self, $interface ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $type;
-
-    # Since only networks.conf contain the type of the interface, we need to make the match
-    # with the IP of the interface and the declaration using the same network address as the ip address
-    # TODO: Get rid of this when we'll get rid of the networks.conf file
-    my $interface_obj   = IO::Interface::Simple->new($interface);
-    my $ipaddress       = $interface_obj->address;
-    my $netmask         = $interface_obj->netmask;
-    my $networkaddress  = $self->_calculateNetworkAddress($ipaddress, $netmask);
-
-    my %networks_cfg = $self->_readNetworksConf();
-    $type = $networks_cfg{$networkaddress}{'type'};
-
-    if ( $type =~ /vlan-/ ) {
-        $type = substr $type, 5;
-    }
-
-    return $type;
-}
-
 =back
 
 =head1 AUTHORS
