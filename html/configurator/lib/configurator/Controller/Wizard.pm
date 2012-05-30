@@ -206,10 +206,9 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
               && $completed->{step3}
                 && $completed->{step4};
 
-        # FIXME only a PoC for now
-        $c->stash->{'admin_ip'} = 'localhost';
-        $c->stash->{'admin_port'} = '1443';
-        
+        $c->stash->{'admin_ip'} = $c->model('PfConfigAdapter')->getWebAdminIp();
+        $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
+
     }
     elsif ($c->request->method eq 'POST') {
         my ($status, $message) = $c->model('Services')->startServices();
