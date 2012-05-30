@@ -95,6 +95,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     else {
         $c->stash(interfaces => $c->model('Interface')->get('all'));
         $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
+        $c->stash(interfaces_types => $c->model('Config::Networks')->get_types($c->stash->{interfaces}));
     }
 }
 

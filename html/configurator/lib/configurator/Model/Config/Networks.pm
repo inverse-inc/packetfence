@@ -19,7 +19,7 @@ use namespace::autoclean;
 
 use pf::config;
 use pf::config::ui;
-use pf::error qw(is_error);
+use pf::error qw(is_error is_success);
 
 extends 'Catalyst::Model';
 
@@ -90,6 +90,25 @@ sub delete {
     $status_msg = "Network $network successfully deleted";
     $logger->info("$status_msg");
     return ($STATUS::OK, $status_msg);
+}
+
+=item get_types
+
+=cut
+sub get_types {
+    my ( $self, $interfaces_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $types_ref = {};
+    foreach my $interface ( sort keys(%$interfaces_ref) ) {
+        my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
+        if ( is_success($status) ) {
+            $type = substr $type, 5 if ( $type =~ /vlan-/ );
+            $types_ref->{$interface} = $type;
+        }
+    }
+
+    return ($STATUS::OK, $types_ref);
 }
 
 =item _load_networks_conf

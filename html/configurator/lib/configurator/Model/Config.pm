@@ -26,12 +26,12 @@ extends 'Catalyst::Model';
 
 =over
 
-=item _calculateNetworkAddress
+=item getNetworkAddress
 
 Calculate the network address for the provided ipaddress/network combination
 
 =cut
-sub _calculateNetworkAddress {
+sub getNetworkAddress {
     my ( $self, $ipaddress, $netmask ) = @_;
 
     my @ipaddress   = split(/\./,$ipaddress);
@@ -75,29 +75,6 @@ sub _getInterfaceType {
     }
 
     return $type;
-}
-
-=item _readNetworksConf
-
-TODO: Get rid of this when we'll get rid of the networks.conf file
-
-Used to read the networks.conf configuration file
-
-=cut
-sub _readNetworksConf {
-    my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my %networks_conf;
-
-    tie (%networks_conf, 'Config::IniFiles', (-file => $network_config_file));
-
-    if ( !%networks_conf ) {
-        $logger->warn("Unable to read $network_config_file file");
-        return;
-    }
-
-    return %networks_conf;
 }
 
 =back

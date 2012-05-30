@@ -254,19 +254,40 @@ sub get {
     foreach $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
 
-        $result->{"$interface"}->{'name'}      = "$interface";
-        $result->{"$interface"}->{'ipaddress'} = $interface->address;
-        $result->{"$interface"}->{'netmask'}   = $interface->netmask;
-        $result->{"$interface"}->{'running'}   = $interface->is_running;
-        if ((my ($physical_device, $vlan_id) = $self->_interfaceVirtual($interface))) {
-          $result->{"$interface"}->{'name'}    = $physical_device;
-          $result->{"$interface"}->{'vlan'}    = $vlan_id;
+        $result->{"$interface"}->{'name'}       = "$interface";
+        $result->{"$interface"}->{'ipaddress'}  = $interface->address;
+        $result->{"$interface"}->{'netmask'}    = $interface->netmask;
+        $result->{"$interface"}->{'running'}    = $interface->is_running;
+        if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
+          $result->{"$interface"}->{'name'}     = $physical_device;
+          $result->{"$interface"}->{'vlan'}     = $vlan_id;
         }
-        #$result->{$interface}->{'type'} = 
+        $result->{"$interface"}->{'network'}    = $self->_get_network_address($interface->address, $interface->netmask);
     }
 
     return $result;
 }
+
+=item _get_network_address
+
+Calculate the network address for the provided ipaddress/network combination
+
+=cut
+sub _get_network_address {
+    my ( $self, $ipaddress, $netmask ) = @_;
+
+    my @ipaddress   = split( /\./,$ipaddress );
+    my @netmask     = split( /\./,$netmask );
+    $ipaddress      = unpack( "N", pack( "C4", @ipaddress ) );
+    $netmask        = unpack( "N", pack( "C4", @netmask ) );
+
+    my $networkaddress  = ( $ipaddress & $netmask );
+    my @networkaddress  = unpack( "C4", pack( "N", $networkaddress ) );
+    $networkaddress     = join( ".", @networkaddress );
+
+    return $networkaddress;
+}
+
 
 =item _interfaceActive
 
