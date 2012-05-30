@@ -23,7 +23,6 @@ use Catalyst qw/
     Session::Store::File
     Session::State::Cookie
     StackTrace
-    StatusMessage
 /;
 
 use constant INSTALL_DIR => '/usr/local/pf';

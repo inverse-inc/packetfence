@@ -176,15 +176,12 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
 
-        $c->response->redirect($c->uri_for($self->action_for('list'),
-        {mid => $c->set_status_msg($c->stash->{status_msg})}));
+        $c->response->redirect($c->uri_for($self->action_for('list')));
 
         $c->detach();
     }
 
     $c->stash->{interface} = $interface;
-
-    $c->load_status_msgs;
 }
 
 =item up
