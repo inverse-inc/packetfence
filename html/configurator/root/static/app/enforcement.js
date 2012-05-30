@@ -26,8 +26,8 @@ function initModals() {
                 e.removeClass('error');
         });
         if (valid) { 
-            var ip = modal.find('#interfaceIp').val(),
-            netmask = modal.find('#interfaceNetmask').val();
+            var ip = modal.find('#interfaceIp').val();
+            var netmask = modal.find('#interfaceNetmask').val();
             var url = ['/interface',
                        modal.attr('interface'),
                        'edit',
@@ -46,6 +46,8 @@ function initModals() {
                     showError(modal_body.children('form').first(), obj.status_msg);
                 });
         }
+
+        return false;
     });
 
     /* VLAN modal creator */
@@ -63,9 +65,9 @@ function initModals() {
         });
 
         if (valid) {
-            var name = modal.find('h3:first span').text() + '.' + modal.find('#vlanId').val();
-            var modal_body = modal.find('.modal-body').first();
-            var form = modal_body.children('form').first();
+            var name = modal.find('h3:first span').text() + '.' + modal.find('#vlanId').val(),
+            modal_body = modal.children('.modal-body').first(),
+            form = modal_body.children('form').first();
             if (form.attr('action') != '#created') {
                 // Create VLAN
                 var url = ['/interface',
@@ -75,47 +77,63 @@ function initModals() {
                 $.ajax(url.join('/'))
                     .done(function(data) {
                         form.attr('action', '#created');
-                        refreshInterfaces();
+                        editVlan(name, modal, form);
+//                        refreshInterfaces();
                     })
                     .fail(function(jqXHR) {
                         var obj = $.parseJSON(jqXHR.responseText);
+                        alert(obj.status_msg);
                         showError(modal_body.children('form').first(), obj.status_msg);
-                        valid = false;
                     });
             }
-            if (valid) {
-                // Save attributes
-                url = ['/interface',
-                       name,
-                       'edit',
-                       modal.find('#vlanIp').val(),
-                       modal.find('#vlanNetmask').val()];
-                $.ajax(url.join('/'))
-                    .done(function(data) {
-                        modal.modal('toggle');
-                        showSuccess($('#interfaces table'), data.status_msg);
-                        form.attr('action', '');
-                        refreshInterfaces();
-                    })
-                    .fail(function(jqXHR) {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        showError(modal_body.children('form').first(), obj.status_msg);
-                    });
+            else {
+                // VLAN is already created
+                editVlan(name, modal, form);
             }
         }
+
+        return false;
     });
+}
+
+function editVlan(name, modal, form) {
+    // Save attributes
+    var url = ['/interface',
+               name,
+               'edit',
+               modal.find('#vlanIp').val(),
+               modal.find('#vlanNetmask').val()];
+    $.ajax(url.join('/'))
+        .done(function(data) {
+            modal.modal('toggle');
+            showSuccess($('#interfaces table'), data.status_msg);
+            form.attr('action', '');
+            refreshInterfaces();
+        })
+        .fail(function(jqXHR) {
+            var obj = $.parseJSON(jqXHR.responseText);
+            showError(form, obj.status_msg);
+            // Don't afraid the user, ignore next possible error
+            refreshInterfaces(true);
+        });
 }
 
 function initStep() {
     /* Enforcement mechanisms checkboxes */
-    $('input:checkbox[name$="enforcement"]').change(function(event) {
+    $('input:checkbox[name="enforcement"]').change(function(event) {
         var disable = !this.checked;
         var type = $(this).val();
         $('select[name="type"] option').each(function(index) {
             for (var i = 0; i < enforcementTypes[type].length; i++) {
                 var t = enforcementTypes[type][i];
-                if (t == $(this).val())
+                if (t == $(this).val()) {
+                    if (this.selected) {
+                        // Rollback to "None" if option is selected but disabled
+                        if (disable)
+                            $(this).closest('select').first().prop("selectedIndex", 0);
+                    }
                     this.disabled = disable;
+                }
             }
         });
     }).trigger('change');
@@ -146,6 +164,8 @@ function initStep() {
         modal.find('h3:first span').html($(cells[0]).html());
         modal.find('#interfaceIp').val($(cells[1]).text());
         modal.find('#interfaceNetmask').val($(cells[2]).text());
+        // Silently save current step before displaying modal
+        saveStep(false);
     });
 
     /* Create VLAN button */
@@ -154,6 +174,8 @@ function initStep() {
         var cells = $(this).closest('tr').children('td');
         modal.find('h3:first span').html($(cells[0]).html());
         modal.find('input').val('');
+        // Silently save current step before displaying modal
+        saveStep(false);
     });
 
     /* Delete VLAN button */
@@ -165,7 +187,7 @@ function initStep() {
         $.ajax(url.join('/'))
             .done(function(data) {
                 showSuccess($('#interfaces table'), data.status_msg);
-                row.fadeOut('slow');
+                row.fadeOut('slow', function() { $(this).remove(); });
             })
             .fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
@@ -188,16 +210,17 @@ function initStep() {
     }).first().trigger('change');
 }
 
-function refreshInterfaces() {
-    saveStep(false);
+function refreshInterfaces(noAlert) {
     $.ajax('/interface/all/get')
         .done(function(data) {
             var table = $('#interfaces tbody');
             table.html(data);
         })
         .fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showError($('#interfaces table'), obj.status_msg);
+            if (!noAlert) {
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError($('#interfaces table'), obj.status_msg);
+            }
         });
 }
 
@@ -246,8 +269,10 @@ function saveStep(validate, successCallback) {
             if (typeof successCallback == 'function') successCallback(data);
         }).fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
-            showError($('#interfaces form'), obj.status_msg);
-            $("body,html").animate({scrollTop:0}, 'fast');
+            if (validate) {
+                showError($('#interfaces form'), obj.status_msg);
+                $("body,html").animate({scrollTop:0}, 'fast');
+            }
         });
     }
     else {
