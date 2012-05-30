@@ -47,7 +47,7 @@
           </div>
         </div>
         <div id="services" class="span9">
-          [% UNLESS completed -%]
+        [% UNLESS completed -%]
         <div class="alert alert-warning">
           <strong>Warning!</strong> <span>You must complete all steps in order to start the services.</span>
         </div>
@@ -60,38 +60,14 @@
               </tr>
               </thead>
             <tbody>
+              [%- FOREACH service = services_status.keys %]
               <tr>
-                <td>named</td>
-                <td><span class="badge">Stopped</span></td>
+                <td>[% service %]</td>
+                <td><span id="service-[% service %]"
+                  class="badge[% IF services_status.$service %] badge-success[% END %]">
+                  [%- IF services_status.$service %]Started[%- ELSE -%]Stopped[% END -%]</span></td>
               </tr>
-              <tr>
-                <td>dhcpd</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
-              <tr>
-                <td>httpd</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
-              <tr>
-                <td>radiusd</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
-              <tr>
-                <td>snmptrapd</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
-              <tr>
-                <td>pfsetvlan</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
-              <tr>
-                <td>pfmon</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
-              <tr>
-                <td>pfmon</td>
-                <td><span class="badge">Stopped</span></td>
-              </tr>
+              [%- END %]
             </tbody>
           </table>
           <form class="form-horizontal">

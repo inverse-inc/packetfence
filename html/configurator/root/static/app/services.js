@@ -9,27 +9,46 @@ function registerExists() {
 function saveStep(href) {
 
     $('table .badge').each(function(index, event) {
-        $(this).fadeIn().delay(5000*index).fadeOut('fast', function(event) {
-            $(this).text('Starting').addClass('badge-warning');
-        }).fadeIn('fast').delay(3000).fadeOut('fast', function(event) {
-            $(this).text('Started').removeClass('badge-warning').addClass('badge-success');
-        }).fadeIn('fast', function(event) {
-            if (index == 7) {
-                $('#modalRedirection').modal({ show: true });
-                window.setTimeout(function(event) { window.location.href = 'https://localhost:1443/'; }, 40000);
-            }
-        });
+        $(this).fadeIn().delay(100*index).fadeOut('fast', function(event) {
+            $(this).text('Starting').removeClass('badge-error badge-success').addClass('badge-warning');
+        }).fadeIn('fast');
     });
 
     $.ajax({
         type: 'POST',
-        url: window.location.pathname
+        url: href
     }).done(function(data) {
         resetAlert($('#services'));
-        showSuccess($('#services table'), data.status_msg);
+        updateServices(data);
     }).fail(function(jqXHR) {
         var obj = $.parseJSON(jqXHR.responseText);
         showError($('#services table'), obj.status_msg);
     });
 
+}
+
+function updateServices(data) {
+
+    var startFailed = false;
+
+    for ( var service in data.services ) {
+        // identify services that didn't start and set failure flag
+        if (data.services[service] == "0") {
+            $('#service-' + service).fadeOut('fast', function(event) {
+                $(this).text('Started').removeClass('badge-success badge-warning').addClass('badge-error');
+            }).fadeIn();
+            startFailed = true;
+        }
+        // identify started services
+        else {
+            $('#service-' + service).fadeOut('fast', function(event) {
+                $(this).text('Started').removeClass('badge-error badge-warning').addClass('badge-success');
+            }).fadeIn();
+        }
+    }
+
+    if (!startFailed) {
+        // added a delay for dramatic effect
+        window.setTimeout(function() { $('#modalRedirection').modal({ show: true }); }, 2000 );
+    }
 }

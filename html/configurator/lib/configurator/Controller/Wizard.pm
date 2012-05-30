@@ -209,14 +209,31 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
 
         $c->stash->{'admin_ip'} = $c->model('PfConfigAdapter')->getWebAdminIp();
         $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
-
+        my ($status, $services_status) = $c->model('Services')->servicesStatus();
+        if ( is_success($status) ) {
+            $c->log->info("successfully listed services");
+            $c->stash->{'services_status'} = $services_status;
+        }
+        if ( is_error($status) ) {
+            $c->log->info("an error trying to list the services");
+            $c->response->status($status);
+        }
     }
+
+    # Start the services
     elsif ($c->request->method eq 'POST') {
         my ($status, $message) = $c->model('Services')->startServices();
+        $c->stash->{status_msg} = $message;
         if ( is_error($status) ) {
             $c->response->status($status);
         }
-        $c->stash->{status_msg} = $message;
+        if ( is_success($status) ) {
+            my ($status, $services_status) = $c->model('Services')->servicesStatus();
+            if ( is_success($status) ) {
+                $c->log->info("successfully listed services");
+                $c->stash->{'services'} = $services_status;
+            }
+        }
         $c->stash->{current_view} = 'JSON';
     }
 }

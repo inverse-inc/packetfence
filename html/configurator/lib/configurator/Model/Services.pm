@@ -38,6 +38,38 @@ sub startServices {
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
+=item servicesStatus
+
+Calls and parse the output of `bin/pfcmd service pf status`.
+
+Returns a tuple status, hashref with servicename => true / false values. 
+Returns only the list of services that should be started based on 
+configuration.
+
+=cut
+sub servicesStatus {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $cmd = $bin_dir . '/pfcmd service pf status';
+    $logger->info("Requesting services status with: $cmd");
+
+    my @services_status = pf_run( $cmd, ( 'accepted_exit_status' => [3] ) );
+
+    my $services_ref;
+    shift @services_status; # throw out first line
+    foreach my $service_status (@services_status) {
+        chomp($service_status);
+        my ($service_name, $should_be_started, $pids) = split(/\|/, $service_status);
+        $services_ref->{$service_name} = ($pids) if ($should_be_started);
+    }
+
+    return ($STATUS::OK, $services_ref) if ( defined(%$services_ref) );
+
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
+}
+
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
