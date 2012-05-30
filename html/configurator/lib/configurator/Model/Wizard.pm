@@ -54,6 +54,10 @@ sub checkForUpgrade {
 
     my $filehandler;
 
+    if ( !(-e "$install_dir/conf/currently-at") ) {
+        return "installation";
+    }
+
     open( $filehandler, '<', "$install_dir/conf/currently-at" );
     my $currently_at = <$filehandler>;
     close( $filehandler );
