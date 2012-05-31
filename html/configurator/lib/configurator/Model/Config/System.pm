@@ -13,15 +13,24 @@ Catalyst Model.
 use Moose;
 use namespace::autoclean;
 
+use Log::Log4perl;
+
 extends 'Catalyst::Model';
 
-has 'os' => ( is => 'ro', isa => 'Str', default => \&_check_os, );
+=head2 NAME
+
+configurator::Model::Config::SystemFactory
+
+=head2 DESCRIPTION
+
+=cut
+package configurator::Model::Config::SystemFactory;
+use Moose;
 
 sub _check_os {
-    my $self = shift;
 
-    # Default to unknown / non-supported    
-    my $os = "ns";
+    # Default to undef
+    my $os;
 
     # RedHat and derivatives
     $os = "RHEL" if ( -e "/etc/redhat-release" );
@@ -31,14 +40,39 @@ sub _check_os {
     return $os;        
 }
 
-sub get_os {
-    my ( $self ) = @_;
+=item getSystem
 
-    my $test = $self->new();
-    return $test->os;
+Obtain a system object suited for your system.
+
+=cut
+sub getSystem {
+
+    my $os = _check_os();
+    if (defined($os)) {
+        my $system = "configurator::Model::Config::System::$os";
+        return $system->new();
+    }
+
+    # otherwise
+    die("This OS not supported by PacketFence");
 }
 
+=head2 NAME
+
+configurator::Model::Config::System::Role
+
+=head2 DESCRIPTION
+
+=cut
+package configurator::Model::Config::System::Role;
+
+use Moose::Role;
+requires qw(test);
+
 package configurator::Model::Config::System::RHEL;
+
+use Moose;
+with 'configurator::Model::Config::System::Role';
 
 =head2 NAME
 
@@ -46,17 +80,16 @@ configurator::Model::Config::System::RHEL
 
 =head2 DESCRIPTION
 
-Catalyst Model.
-
 =cut
-
-use Moose;
-use namespace::autoclean;
-
-extends 'configurator::Model::Config::System';
-
+sub test {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->info("logging from within RHEL the enterprisy operating system");
+}
 
 package configurator::Model::Config::System::Debian;
+
+use Moose;
+with 'configurator::Model::Config::System::Role';
 
 =head2 NAME
 
@@ -64,19 +97,16 @@ configurator::Model::Config::System::Debian
 
 =head2 DESCRIPTION
 
-Catalyst Model.
-
 =cut
-
-use Moose;
-use namespace::autoclean;
-
-extends 'configurator::Model::Config::System';
-
-
+sub test {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->info("logging from within debian the universal operating system");
+}
 =back
 
 =head1 AUTHORS
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
