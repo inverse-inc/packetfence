@@ -2,7 +2,7 @@ package configurator::Model::Config::System;
 
 =head1 NAME
 
-configurator::Model::Config::Networks - Catalyst Model
+configurator::Model::Config::System - Catalyst Model
 
 =head1 DESCRIPTION
 
@@ -10,17 +10,69 @@ Catalyst Model.
 
 =cut
 
-use strict;
-use warnings;
-
 use Moose;
 use namespace::autoclean;
 
 extends 'Catalyst::Model';
 
-=head1 METHODS
+has 'os' => ( is => 'ro', isa => 'Str', default => \&_check_os, );
 
-=over
+sub _check_os {
+    my $self = shift;
+
+    # Default to unknown / non-supported    
+    my $os = "ns";
+
+    # RedHat and derivatives
+    $os = "RHEL" if ( -e "/etc/redhat-release" );
+    # Debian and derivatives
+    $os = "Debian" if ( -e "/etc/debian_version" );
+
+    return $os;        
+}
+
+sub get_os {
+    my ( $self ) = @_;
+
+    my $test = $self->new();
+    return $test->os;
+}
+
+package configurator::Model::Config::System::RHEL;
+
+=head2 NAME
+
+configurator::Model::Config::System::RHEL
+
+=head2 DESCRIPTION
+
+Catalyst Model.
+
+=cut
+
+use Moose;
+use namespace::autoclean;
+
+extends 'configurator::Model::Config::System';
+
+
+package configurator::Model::Config::System::Debian;
+
+=head2 NAME
+
+configurator::Model::Config::System::Debian
+
+=head2 DESCRIPTION
+
+Catalyst Model.
+
+=cut
+
+use Moose;
+use namespace::autoclean;
+
+extends 'configurator::Model::Config::System';
+
 
 =back
 

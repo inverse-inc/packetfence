@@ -31,6 +31,12 @@ sub index :Path :Args(0) {
     $c->response->body('Matched configurator::Controller::Config::System in Config::System.');
 }
 
+sub test :Path('testmoose') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{os} = $c->model('Config::System')->get_os();
+}
+
 =back
 
 =head1 AUTHORS
