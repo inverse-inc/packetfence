@@ -10,13 +10,12 @@ Catalyst Model.
 
 =cut
 
-use strict;
-use warnings;
+use Moose;
 
 use HTTP::Status qw(:constants is_error is_success);
 use IO::Interface::Simple;
-use Moose;
 use namespace::autoclean;
+use Net::Netmask;
 
 use pf::util;
 
@@ -272,22 +271,15 @@ sub get {
 
 Calculate the network address for the provided ipaddress/network combination
 
+Returns undef on undef IP / Mask
+
 =cut
 sub _get_network_address {
     my ( $self, $ipaddress, $netmask ) = @_;
 
-    my @ipaddress   = split( /\./,$ipaddress );
-    my @netmask     = split( /\./,$netmask );
-    $ipaddress      = unpack( "N", pack( "C4", @ipaddress ) );
-    $netmask        = unpack( "N", pack( "C4", @netmask ) );
-
-    my $networkaddress  = ( $ipaddress & $netmask );
-    my @networkaddress  = unpack( "C4", pack( "N", $networkaddress ) );
-    $networkaddress     = join( ".", @networkaddress );
-
-    return $networkaddress;
+    return if ( !defined($ipaddress) || !defined($netmask) );
+    return Net::Netmask->new($ipaddress, $netmask)->base();
 }
-
 
 =item _interfaceActive
 

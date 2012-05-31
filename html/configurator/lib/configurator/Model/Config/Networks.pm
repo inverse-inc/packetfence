@@ -94,6 +94,14 @@ sub delete {
 
 =item get_types
 
+Returns an hashref with
+
+    $interface => $type
+
+For example
+
+    eth0 => vlan-isolation
+
 =cut
 sub get_types {
     my ( $self, $interfaces_ref ) = @_;
