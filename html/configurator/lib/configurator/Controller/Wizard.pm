@@ -213,7 +213,7 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
 
         $c->stash->{'admin_ip'} = $c->model('PfConfigAdapter')->getWebAdminIp();
         $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
-        my ($status, $services_status) = $c->model('Services')->servicesStatus();
+        my ($status, $services_status) = $c->model('Services')->status();
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
             $c->stash->{'services_status'} = $services_status;
@@ -228,7 +228,7 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
     elsif ($c->request->method eq 'POST') {
 
         # actually try to start the services
-        my ($status, $service_start_output) = $c->model('Services')->startServices();
+        my ($status, $service_start_output) = $c->model('Services')->start();
         # if we detect an error later, we will be able to display the output
         # this will be done on the client side
         $c->stash->{'error'} = encode_entities($service_start_output);
@@ -238,7 +238,7 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
         }
         # success: list the services
         else {
-            my ($status, $services_status) = $c->model('Services')->servicesStatus();
+            my ($status, $services_status) = $c->model('Services')->status();
             if ( is_success($status) ) {
                 $c->log->info("successfully listed services");
                 $c->stash->{'services'} = $services_status;

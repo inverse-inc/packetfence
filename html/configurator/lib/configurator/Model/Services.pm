@@ -18,12 +18,12 @@ Catalyst Model.
 
 =over
 
-=item startServices 
+=item start
 
 Naively calls `bin/pfcmd service pf start` and return output.
 
 =cut
-sub startServices {
+sub start {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -38,7 +38,7 @@ sub startServices {
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
-=item servicesStatus
+=item status 
 
 Calls and parse the output of `bin/pfcmd service pf status`.
 
@@ -47,7 +47,7 @@ Returns only the list of services that should be started based on
 configuration.
 
 =cut
-sub servicesStatus {
+sub status {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
