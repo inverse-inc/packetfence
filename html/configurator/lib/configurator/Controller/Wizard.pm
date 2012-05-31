@@ -56,6 +56,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         # Save parameters in user session
         my $data = decode_json($c->request->params->{json});
         $c->session(gateway => $data->{gateway},
+                    dns => $data->{dns},
                     types => $data->{types},
                     enforcements => {});
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
@@ -96,6 +97,8 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         $c->stash(interfaces => $c->model('Interface')->get('all'));
         $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
         $c->stash(interfaces_types => $c->model('Config::Networks')->get_types($c->stash->{interfaces}));
+        # $c->stash(gateway => ?)
+        # $c->stash(dns => ?)
     }
 }
 

@@ -123,6 +123,13 @@ function initStep() {
     $('input:checkbox[name="enforcement"]').change(function(event) {
         var disable = !this.checked;
         var type = $(this).val();
+        if (type == 'inline') {
+            // Inline mode requires a DNS server
+            if (disable)
+                $('#dnsBlock').fadeOut('fast');
+            else
+                $('#dnsBlock').fadeIn('fast');
+        }
         $('select[name="type"] option').each(function(index) {
             for (var i = 0; i < enforcementTypes[type].length; i++) {
                 var t = enforcementTypes[type][i];
@@ -130,7 +137,7 @@ function initStep() {
                     if (this.selected) {
                         // Rollback to "None" if option is selected but disabled
                         if (disable)
-                            $(this).closest('select').first().prop("selectedIndex", 0);
+                            $(this).closest('select').val(0);
                     }
                     this.disabled = disable;
                 }
@@ -227,7 +234,7 @@ function refreshInterfaces(noAlert) {
 function saveStep(validate, successCallback) {
     var valid = true;
     if (validate) {
-        $('#interfaces .control-group').each(function(index) {
+        $('#interfaces .control-group:visible').each(function(index) {
             var e = $(this);
             var i = e.find('input:text').first();
             if (i.length) {
@@ -253,7 +260,8 @@ function saveStep(validate, successCallback) {
         var form = {
             enforcements: [],
             types: {},
-            gateway: $('#gateway').val()
+            gateway: $('#gateway').val(),
+            dns: $('#dns').val()
         };
         $('input:checkbox:checked[name="enforcement"]').each(function(index) {
             form.enforcements.push($(this).val());
