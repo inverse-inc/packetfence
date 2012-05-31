@@ -20,20 +20,20 @@ Catalyst Model.
 
 =item startServices 
 
-Naively calls `bin/pfcmd service pf start` for now.
+Naively calls `bin/pfcmd service pf start` and return output.
 
 =cut
 sub startServices {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $cmd = $bin_dir . '/pfcmd service pf start';
+    my $cmd = $bin_dir . '/pfcmd service pf start 2>&1';
     $logger->info("About to start the services with: $cmd");
 
-    my $result = pf_run($cmd);
+    my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
     $logger->debug("Startup output: " . $result);
 
-    return ($STATUS::OK, "Services started successfully") if ( defined($result) );
+    return ($STATUS::OK, $result) if ( defined($result) );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }

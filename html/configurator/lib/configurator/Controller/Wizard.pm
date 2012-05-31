@@ -13,6 +13,7 @@ Catalyst Controller.
 use strict;
 use warnings;
 
+use HTML::Entities;
 use HTTP::Status qw(:constants is_error is_success);
 use JSON;
 use Moose;
@@ -225,16 +226,27 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
 
     # Start the services
     elsif ($c->request->method eq 'POST') {
-        my ($status, $message) = $c->model('Services')->startServices();
-        $c->stash->{status_msg} = $message;
+
+        # actually try to start the services
+        my ($status, $service_start_output) = $c->model('Services')->startServices();
+        # if we detect an error later, we will be able to display the output
+        # this will be done on the client side
+        $c->stash->{'error'} = encode_entities($service_start_output);
         if ( is_error($status) ) {
             $c->response->status($status);
+            $c->stash->{status_msg} = $service_start_output;
         }
-        if ( is_success($status) ) {
+        # success: list the services
+        else {
             my ($status, $services_status) = $c->model('Services')->servicesStatus();
             if ( is_success($status) ) {
                 $c->log->info("successfully listed services");
                 $c->stash->{'services'} = $services_status;
+            }
+            else {
+                $c->response->status($status);
+                $c->log->info('problem trying to list the services');
+                $c->stash->{status_msg} = $services_status;
             }
         }
         $c->stash->{current_view} = 'JSON';

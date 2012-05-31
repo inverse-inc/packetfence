@@ -60,6 +60,13 @@ function showError(sibling, msg) {
     alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
 }
 
+function showPermanentError(sibling, msg) {
+    var alert = $('.alert-error').first().clone();
+    alert.find('span').first().text(msg);
+    sibling.before(alert);
+    alert.fadeIn('fast');
+}
+
 function btnError(btn) {
     btn.fadeOut('fast', function(event) {
         $(this).addClass('btn-danger');

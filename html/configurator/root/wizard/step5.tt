@@ -76,7 +76,8 @@
               <a class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step5') %]">Start PacketFence</a>
             </div>
             </fieldset>
-            </form>
+          </form>
+          <div id="serviceErrors" class="hidden"></div>
         </div>
       </div>
       <footer>

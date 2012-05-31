@@ -19,15 +19,16 @@ function saveStep(href) {
         url: href
     }).done(function(data) {
         resetAlert($('#services'));
-        updateServices(data);
+        servicesUpdate(data);
     }).fail(function(jqXHR) {
+        servicesError();
         var obj = $.parseJSON(jqXHR.responseText);
-        showError($('#services table'), obj.status_msg);
+        showPermanentError($('#services table'), obj.status_msg);
     });
 
 }
 
-function updateServices(data) {
+function servicesUpdate(data) {
 
     var startFailed = false;
 
@@ -51,4 +52,15 @@ function updateServices(data) {
         // added a delay for dramatic effect
         window.setTimeout(function() { $('#modalRedirection').modal({ show: true }); }, 2000 );
     }
+    else {
+        $('#serviceErrors').removeClass('hidden').text(data.error);
+    }
+}
+
+function servicesError() {
+    $('table .badge').each(function(index, event) {
+        $(this).fadeIn().delay(100*index).fadeOut('fast', function(event) {
+            $(this).text('Unknown').removeClass('badge-error badge-success').addClass('badge-warning');
+        }).fadeIn('fast');
+    });
 }
