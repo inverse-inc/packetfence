@@ -77,6 +77,7 @@ PacketFence supports the following devices:
 |Aruba            |All Controllers             |Aruba
 |Avaya            |Wireless Controllers        |Avaya::WC
 |                 |See Nortel Below            |
+|Brocade          |Brocade RF Switches         |Brocade::RFS
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
 |                 |Aironet 1240 AG             |Cisco::Aironet_1242
 |                 |Aironet 1250                |Cisco::Aironet_1250
@@ -477,6 +478,20 @@ Avaya
 
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
+
+Brocade
+~~~~~~~
+
+ICX 6400 Series
+^^^^^^^^^^^^^^^
+
+To be contributed.
+
+
+RF Switches
+^^^^^^^^^^^
+
+See the Motorola RF Switches documentation.
 
 Cisco
 ~~~~~
