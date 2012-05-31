@@ -743,3 +743,20 @@ authorizenet_login =
 #
 # The merchant's unique Transaction Key (Provided by Authorize.net)
 authorizenet_trankey =
+
+[node_import]
+#
+# node_import.pid
+#
+# Default pid value to assign to imported nodes.
+pid=1
+#
+# node_import.category
+#
+# Default category to assign to imported nodes.
+category=default
+#
+# node_import.voip
+#
+# By default is an imported node a Voice over IP device or not?
+voip=no
