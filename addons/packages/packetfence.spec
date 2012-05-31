@@ -151,6 +151,7 @@ Requires: perl(Catalyst::Plugin::Static::Simple), perl(Catalyst::Action::RenderV
 Requires: perl(Config::General), perl(Catalyst::Plugin::StackTrace)
 Requires: perl(Catalyst::Plugin::Session), perl(Catalyst::Plugin::Session::Store::File)
 Requires: perl(Catalyst::Plugin::Session::State::Cookie)
+Requires: perl(Catalyst::Plugin::I18N)
 Requires: perl(Catalyst::View::TT), perl(Catalyst::Plugin::StatusMessage)
 Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
 Requires: perl(Catalyst::Plugin::Authentication)
