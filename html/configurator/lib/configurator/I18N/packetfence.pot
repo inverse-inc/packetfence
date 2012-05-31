@@ -24,11 +24,11 @@ msgid "management"
 msgstr ""
 
 #: root/interface/get.tt:12
-msgid "isolation"
+msgid "vlan-isolation"
 msgstr ""
 
 #: root/interface/get.tt:12
-msgid "registration"
+msgid "vlan-registration"
 msgstr ""
 
 #: root/wizard/step1.tt:119

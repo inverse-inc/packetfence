@@ -103,8 +103,8 @@ sub get_types {
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
         my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
         if ( is_success($status) ) {
-            $type = substr $type, 5 if ( $type =~ /vlan-/ );
             $types_ref->{$interface} = $type;
+            $logger->info("$interface = $type");
         }
     }
 
@@ -247,7 +247,7 @@ sub _write_networks_conf {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load__networks_conf();
+    my $networks_conf = $self->_load_networks_conf();
     tied(%$networks_conf)->WriteConfig($network_config_file)
         or $logger->logdie(
             "Unable to write configs to $network_config_file. You might want to check the file's permissions."

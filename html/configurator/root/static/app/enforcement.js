@@ -257,22 +257,22 @@ function saveStep(validate, successCallback) {
         });
     }
     if (valid) {
-        var form = {
+        var data = {
             enforcements: [],
-            types: {},
+            interfaces_types: {},
             gateway: $('#gateway').val(),
             dns: $('#dns').val()
         };
         $('input:checkbox:checked[name="enforcement"]').each(function(index) {
-            form.enforcements.push($(this).val());
+            data.enforcements.push($(this).val());
         });
         $('#interfaces select[name="type"]').each(function(index) {
-            form.types[$(this).attr('interface')] = $(this).val();
+            data.interfaces_types[$(this).attr('interface')] = $(this).val();
         });
         $.ajax({
             type: 'POST',
             url: window.location.pathname,
-            data: {json: $.toJSON(form)}
+            data: {json: $.toJSON(data)}
         }).done(function(data) {
             if (typeof successCallback == 'function') successCallback(data);
         }).fail(function(jqXHR) {

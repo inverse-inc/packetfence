@@ -9,7 +9,7 @@
                 <select class="span2" name="type" interface="[% i %]">
                   <option value="none">None</option>
                   [% FOREACH type IN types %]
-                  <option value="[% type %]"[% IF c.session.types.$i == type %] selected=""[% END %]>[% l(type) %]</option>
+                  <option value="[% type %]"[% IF interfaces_types.$i == type %] selected=""[% END %]>[% l(type) %]</option>
                   [% END %]
                 </select>
               </td>

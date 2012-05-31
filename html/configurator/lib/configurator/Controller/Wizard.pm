@@ -58,13 +58,22 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         my $data = decode_json($c->request->params->{json});
         $c->session(gateway => $data->{gateway},
                     dns => $data->{dns},
-                    types => $data->{types},
                     enforcements => {});
+        $c->stash(interfaces_types => $data->{interfaces_types});
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
+
+        # Update networks.conf
+        my $networksModel = $c->model('Config::Networks');
+        my $interfaceModel = $c->model('Interface');
+        foreach my $interface (keys %{$data->{interfaces_types}}) {
+            my $interface_ref = $interfaceModel->get($interface);
+            $networksModel->create($interface_ref->{$interface}->{network});
+            $networksModel->update($interface_ref->{$interface}->{network}, { type => $data->{interfaces_types}->{$interface} });
+        }
 
         # Make sure all types for each enforcement is assigned to an interface
         # TODO: Shall we ignore disabled interfaces?
-        my @selected_types = values %{$data->{types}};
+        my @selected_types = values %{$data->{interfaces_types}};
         my %seen;
         my @missing = ();
         @seen{@selected_types} = ( ); # build lookup table
@@ -97,7 +106,10 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     else {
         $c->stash(interfaces => $c->model('Interface')->get('all'));
         $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
-        $c->stash(interfaces_types => $c->model('Config::Networks')->get_types($c->stash->{interfaces}));
+        my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($c->stash->{interfaces});
+        if (is_success($status)) {
+            $c->stash(interfaces_types => $interfaces_types);
+        }
         # $c->stash(gateway => ?)
         # $c->stash(dns => ?)
     }

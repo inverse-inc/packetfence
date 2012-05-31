@@ -21,7 +21,7 @@ extends 'Catalyst::Model';
 # TODO: Should migrate theses into a database table with some flags for the mechanisms
 my @mechanisms           = qw/vlan inline option/;
 my %types   = (
-    vlan        => [ 'management', 'registration', 'isolation' ],
+    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
     inline      => [ 'management', 'inline' ],
     option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
 );
