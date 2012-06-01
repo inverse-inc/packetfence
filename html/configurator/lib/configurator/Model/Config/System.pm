@@ -17,17 +17,61 @@ use Log::Log4perl;
 
 extends 'Catalyst::Model';
 
+=head1 METHODS
+
+=over
+
+=item write_network_persistent
+
+=cut
+sub write_network_persistent {
+    my ( $self, $interface_ref ) = @_;
+
+    my ($status, $status_msg);
+
+    my $systemObj = configurator::Model::Config::SystemFactory->getSystem();
+
+    # Write persistent network interfaces configurations
+    ($status, $status_msg) = $systemObj->writeInterfaceConfig($interface_ref);
+    return ($status, $status_msg) if ( is_error($status) );
+
+    # Write persistent system default gateway
+#    ($status, $status_msg) = $systemObj->writeGateway($gateway);
+#    return ($status, $status_msg) if ( is_error($status) );
+
+    $status_msg = "Persistent network configurations successfully written";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
+
+
+package configurator::Model::Config::SystemFactory;
+
+=back
+
 =head2 NAME
 
 configurator::Model::Config::SystemFactory
 
 =head2 DESCRIPTION
 
+Moose class.
+
 =cut
-package configurator::Model::Config::SystemFactory;
+
 use Moose;
 
-sub _check_os {
+=head2 METHODS
+
+=over
+
+=item _checkOs
+
+Checks running operating system
+
+=cut
+sub _checkOs {
+    my ( $self ) = @_;
 
     # Default to undef
     my $os;
@@ -46,16 +90,24 @@ Obtain a system object suited for your system.
 
 =cut
 sub getSystem {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $os = _check_os();
+    my $os = $self->_checkOs();
+
+    $logger->info($os);
     if (defined($os)) {
         my $system = "configurator::Model::Config::System::$os";
         return $system->new();
     }
 
-    # otherwise
-    die("This OS not supported by PacketFence");
+    die("This OS is not supported by PacketFence");
 }
+
+
+package configurator::Model::Config::System::Role;
+
+=back
 
 =head2 NAME
 
@@ -63,45 +115,160 @@ configurator::Model::Config::System::Role
 
 =head2 DESCRIPTION
 
+Moose class implemeting roles.
+
 =cut
-package configurator::Model::Config::System::Role;
 
 use Moose::Role;
-requires qw(test);
+
+requires qw(writeGateway writeInterfaceConfig);
+
 
 package configurator::Model::Config::System::RHEL;
 
-use Moose;
-with 'configurator::Model::Config::System::Role';
-
-=head2 NAME
+=head3 NAME
 
 configurator::Model::Config::System::RHEL
 
-=head2 DESCRIPTION
+=head3 DESCRIPTION
+
+Moose class derivated from role for OS specific methods
 
 =cut
-sub test {
+
+use Moose;
+
+with 'configurator::Model::Config::System::Role';
+
+my $network_conf_dir    = "/etc/sysconfig/";
+my $interfaces_conf_dir = "network-scripts/";
+my $network_conf_file   = "network";
+my $interface_conf_file = "ifcfg-";
+
+=head3 METHODS
+
+=over
+
+=item writeGateway
+
+=cut
+sub writeGateway {
+    my ( $this, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->info("logging from within RHEL the enterprisy operating system");
+
+    die if ( !(-e $network_conf_dir.$network_conf_file) );
+
+    open(CONF, ">>".$network_conf_dir.$network_conf_file);
+    print CONF "\n GATEWAY=$gateway";
+    close(CONF);
 }
+
+=item writeInterfaceConfig
+
+=cut
+sub writeInterfaceConfig {
+    my ( $this, $interfaces_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $status_msg;
+
+    foreach my $interface ( sort keys(%$interfaces_ref) ) {
+        next if ( !($interfaces_ref->{$interface}->{'running'}) );
+
+        my $vars = {
+            logical_name    => $interface,
+            vlan_device     => $interfaces_ref->{$interface}->{'vlan'},
+            hwaddr          => $interfaces_ref->{$interface}->{'hwaddress'},
+            ipaddr          => $interfaces_ref->{$interface}->{'ipaddress'},
+            netmask         => $interfaces_ref->{$interface}->{'netmask'},
+        };
+
+        my $template = Template->new({
+            INCLUDE_PATH    => "/usr/local/pf/html/configurator/root/interface",
+            OUTPUT_PATH     => $network_conf_dir.$interfaces_conf_dir,
+        });
+        $template->process( "interface_rhel.tt", $vars, $interface_conf_file.$interface );
+
+        if ( $template->error() ) {
+            $status_msg = "Error while writing system network interfaces configuration";
+            $logger->error("$status_msg");
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        } 
+    }
+
+    $logger->info("System network interfaces successfully written");
+    return $STATUS::OK;
+}
+
 
 package configurator::Model::Config::System::Debian;
 
-use Moose;
-with 'configurator::Model::Config::System::Role';
+=back
 
-=head2 NAME
+=head3 NAME
 
 configurator::Model::Config::System::Debian
 
-=head2 DESCRIPTION
+=head3 DESCRIPTION
+
+Moose class derivated from role for OS specific methods
 
 =cut
-sub test {
+
+use Moose;
+
+with 'configurator::Model::Config::System::Role';
+
+my $network_conf_dir    = "/etc/network/";
+my $network_conf_file   = "interfaces";
+
+=head3 METHODS
+
+=over
+
+=item writeGateway
+
+=cut
+sub writeGateway {
+    my ( $this, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->info("logging from within debian the universal operating system");
+
+    die if ( !(-e $network_conf_dir.$network_conf_file) );
+
+    open(CONF, ">>".$network_conf_dir.$network_conf_file);
+    print CONF "\n gateway $gateway";
+    close(CONF);
 }
+
+=item writeInterfaceConfig
+
+=cut
+sub writeInterfaceConfig {
+    my ( $this, $interfaces_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $status_msg;
+
+    my $vars = {
+        interfaces  => $interfaces_ref,
+    };
+
+    my $template = Template->new({
+        INCLUDE_PATH    => "/usr/local/pf/html/configurator/root/interface",
+        OUTPUT_PATH     => $network_conf_dir,
+    });
+    $template->process( "interface_debian.tt", $vars, $network_conf_file ) || $logger->error($template->error());
+
+    if ( $template->error() ) {
+        $status_msg = "Error while writing system network interfaces configuration";
+        $logger->error("$status_msg");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    $logger->info("System network interfaces successfully written");
+    return $STATUS::OK;
+}
+
 =back
 
 =head1 AUTHORS

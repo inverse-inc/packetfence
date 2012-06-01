@@ -10,9 +10,7 @@ Catalyst Controller.
 
 =cut
 
-use strict;
-use warnings;
-
+use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 
@@ -22,19 +20,64 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =over
 
-=item index
+=item create
+
+*NOT IMPLEMENTED*
+
+Usage: /config/system/create
 
 =cut
-sub index :Path :Args(0) {
+sub create :Path('create') :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->response->body('Matched configurator::Controller::Config::System in Config::System.');
+    $c->response->status(HTTP_NOT_IMPLEMENTED);
 }
 
-sub test :Path('testmoose') :Args(0) {
+=item delete
+
+*NOT IMPLEMENTED*
+
+Usage: /config/system/delete
+
+=cut
+sub delete :Path('create') :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{os} = $c->model('Config::System')->get_os();
+    $c->response->status(HTTP_NOT_IMPLEMENTED);
+}
+
+=item read
+
+*NOT IMPLEMENTED*
+
+Usage: /config/system/read
+
+=cut
+sub read :Path('read') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->response->status(HTTP_NOT_IMPLEMENTED);
+}
+
+=item update
+
+Update the network interface configurations on system
+
+Usage: /config/system/update
+
+=cut
+sub update :Path('update') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $interfaces = $c->model('Interface')->get('all');
+    my ($status, $return) = $c->model('Config::System')->write_network_persistent($interfaces);
+
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $return;
+    } else {
+        $c->response->status($status);
+        $c->error($return);
+    }
 }
 
 =back
