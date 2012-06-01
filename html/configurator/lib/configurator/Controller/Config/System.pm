@@ -69,8 +69,9 @@ Usage: /config/system/update
 sub update :Path('update') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $interfaces = $c->model('Interface')->get('all');
-    my ($status, $return) = $c->model('Config::System')->write_network_persistent($interfaces);
+    my $interfaces          = $c->model('Interface')->get('all');
+    my $gateway             = $c->request->params->{'gateway'};
+    my ($status, $return)   = $c->model('Config::System')->write_network_persistent($interfaces, $gateway);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $return;

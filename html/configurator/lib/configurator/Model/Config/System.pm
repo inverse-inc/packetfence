@@ -23,7 +23,7 @@ extends 'Catalyst::Model';
 
 =cut
 sub write_network_persistent {
-    my ( $self, $interface_ref ) = @_;
+    my ( $self, $interface_ref, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
@@ -35,8 +35,8 @@ sub write_network_persistent {
     return ($status, $status_msg) if ( is_error($status) );
 
     # Write persistent system default gateway
-#    ($status, $status_msg) = $systemObj->writeGateway($gateway);
-#    return ($status, $status_msg) if ( is_error($status) );
+    ($status, $status_msg) = $systemObj->writeGateway($gateway);
+    return ($status, $status_msg) if ( is_error($status) );
 
     $status_msg = "Persistent network configurations successfully written";
     $logger->info("$status_msg");
