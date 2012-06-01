@@ -1,6 +1,8 @@
 function registerExists() {
     $('.form-actions a').click(function(event) {
-        var href = $(this).attr('href');
+        var btn = $(this);
+        if (btn.hasClass('disabled')) return false;
+        var href = btn.attr('href');
         saveStep(href);
         return false; // don't follow link
     });
@@ -36,7 +38,7 @@ function servicesUpdate(data) {
         // identify services that didn't start and set failure flag
         if (data.services[service] == "0") {
             $('#service-' + service).fadeOut('fast', function(event) {
-                $(this).text('Started').removeClass('badge-success badge-warning').addClass('badge-error');
+                $(this).text('Stopped').removeClass('badge-success badge-warning').addClass('badge-important');
             }).fadeIn();
             startFailed = true;
         }
@@ -53,7 +55,7 @@ function servicesUpdate(data) {
         window.setTimeout(function() { $('#modalRedirection').modal({ show: true }); }, 2000 );
     }
     else {
-        $('#serviceErrors').removeClass('hidden').text(data.error);
+        $('#serviceErrors pre').text(data.error).parent().slideDown();
     }
 }
 

@@ -57,3 +57,6 @@ body {
 #services td {
     min-width: 100px;
 }
+#serviceErrors pre {
+    background-color: transparent;
+}

@@ -77,7 +77,11 @@
             </div>
             </fieldset>
           </form>
-          <div id="serviceErrors" class="hidden"></div>
+          <div id="serviceErrors" class="alert alert-danger" style="display: none;">
+            <button class="close" data-dismiss="alert">×</button>
+            <strong>Console Output</strong>
+            <pre></pre>
+          </div>
         </div>
       </div>
       <footer>
