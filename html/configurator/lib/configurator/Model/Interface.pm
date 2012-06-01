@@ -183,7 +183,7 @@ sub down {
 
 =cut
 sub edit {
-    my ( $self, $interface, $ipaddress, $netmask ) = @_; 
+    my ( $self, $networksModel, $interface, $ipaddress, $netmask ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
@@ -201,6 +201,13 @@ sub edit {
     }
 
     my $interface_object = IO::Interface::Simple->new($interface);
+
+    # Check if the network has changed
+    my $network = $self->_get_network_address($interface_object->address, $interface_object->netmask);
+    my $new_network = $self->_get_network_address($ipaddress, $netmask);
+    if ($network ne $new_network) {
+        $networksModel->update_network($network, $new_network);
+    }
 
     # Edit IP address
     eval { $status = $interface_object->address($ipaddress) };

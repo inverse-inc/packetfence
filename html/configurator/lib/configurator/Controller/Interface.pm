@@ -115,7 +115,7 @@ sub edit :Chained('object') :PathPart('edit') :Args(2) {
     my ( $self, $c, $ipaddress, $netmask ) = @_;
 
     my $interface = $c->stash->{interface};
-    my ($status, $status_msg) = $c->model('Interface')->edit($interface, $ipaddress, $netmask);
+    my ($status, $status_msg) = $c->model('Interface')->edit($c->model('Config::Networks'), $interface, $ipaddress, $netmask);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;

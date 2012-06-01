@@ -112,7 +112,6 @@ sub get_types {
         my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
         if ( is_success($status) ) {
             $types_ref->{$interface} = $type;
-            $logger->info("$interface = $type");
         }
     }
 
@@ -192,7 +191,7 @@ sub read_network {
 
     my $networks_conf = $self->_load_networks_conf();
     my @columns = pf::config::ui->instance->field_order('networkconfig get'); 
-    my @resultset = @columns;
+    my @resultset = [@columns];
 
     foreach my $section ( keys %$networks_conf ) {
         if ( ($network eq 'all') || ($network eq $section) ) {
@@ -200,7 +199,7 @@ sub read_network {
             foreach my $column (@columns) {
                 push @values, ( $networks_conf->{$section}->{$column} || '' );
             }
-            push @resultset, [$section, @values];
+            push @resultset, [@values];
         }
     }
 
@@ -248,6 +247,36 @@ sub update {
     return ($STATUS::OK, $status_msg);
 }
 
+=item update_network
+
+=cut
+sub update_network {
+    my ( $self, $network, $new_network ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $status_msg;
+
+    # This method does not handle the network 'all'
+    return ($STATUS::FORBIDDEN, "This method does not handle network $network")
+        if ( $network eq 'all' );
+
+    my $networks_conf = $self->_load_networks_conf();
+    my $tied_conf = tied(%$networks_conf);
+    if (exists $networks_conf->{$network}) {
+        my $network_ref = $networks_conf->{$network};
+        $networks_conf->{$new_network} = $network_ref;
+        delete $networks_conf->{$network};
+        $self->_write_networks_conf();
+    }
+    else {
+        $logger->error("Network $network not found");
+    }
+
+    $status_msg = "Network $network successfully renamed to $new_network";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
+
 =item _write_networks_conf
 
 =cut
@@ -270,6 +299,8 @@ sub _write_networks_conf {
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
