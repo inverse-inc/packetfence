@@ -30,7 +30,7 @@ BEGIN {
         report_db_prepare
 
         report_accounting_all
-        report_accounting_today
+        report_accounting_daily
         report_accounting_weekly
         report_accounting_monthly
         report_accounting_yearly
@@ -239,7 +239,7 @@ sub report_db_prepare {
                                                                 SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
                       WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND))*100,1) AS percent
         FROM radacct_log
-            RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
             INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
                                                       SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
             LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint

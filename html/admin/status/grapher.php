@@ -56,7 +56,7 @@
     'ssid all' => 'pie',
     'accounting' => 'pie',
     'accounting all' => 'pie',
-    'accounting today' => 'pie',
+    'accounting daily' => 'pie',
     'accounting weekly' => 'pie',
     'accounting monthly' => 'pie',
     'accounting yearly' => 'pie'

@@ -286,7 +286,7 @@ sub parseCommandLine {
                                          | connectiontype | connectiontypereg | accounting
                                        )
                                        \s+
-                                       ( all | active | today | weekly | monthly | yearly )
+                                       ( all | active | daily | weekly | monthly | yearly )
                                      )
                                    )
                                  $  }xms,
