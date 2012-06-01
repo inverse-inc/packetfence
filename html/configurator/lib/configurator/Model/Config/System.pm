@@ -13,8 +13,6 @@ Catalyst Model.
 use Moose;
 use namespace::autoclean;
 
-use Log::Log4perl;
-
 extends 'Catalyst::Model';
 
 =head1 METHODS
@@ -26,6 +24,7 @@ extends 'Catalyst::Model';
 =cut
 sub write_network_persistent {
     my ( $self, $interface_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
 
