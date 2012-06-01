@@ -29,7 +29,12 @@ sub getWebAdminIp {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $mgmt_net = $management_network;
-    return (defined($mgmt_net->tag('vip'))) ? $mgmt_net->tag('vip') : $mgmt_net->tag('ip');
+    my $ip = undef;
+    if ($mgmt_net) {
+        $ip = (defined($mgmt_net->tag('vip'))) ? $mgmt_net->tag('vip') : $mgmt_net->tag('ip');
+    }
+
+    return $ip;
 }
 
 =item getWebAdminPort
