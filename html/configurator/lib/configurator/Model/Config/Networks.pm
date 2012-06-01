@@ -45,9 +45,9 @@ sub create {
     my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
 
-    if ( !($tied_conf->SectionExists($network)) ) {
+    if ( !$tied_conf->SectionExists($network) ) {
+        $tied_conf->AddSection($network);
         while ( my ($param, $value) = each %$assignments ) {
-            $tied_conf->AddSection($network);
             $tied_conf->newval( $network, $param, $value );
         }
         $self->_write_networks_conf();
@@ -109,9 +109,14 @@ sub get_types {
 
     my $types_ref = {};
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
+
+        # skip if we don't have a network address set
+        next if (!defined($interfaces_ref->{$interface}->{'network'}));
+
         my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
         if ( is_success($status) ) {
             $types_ref->{$interface} = $type;
+            $logger->debug("$interface = $type");
         }
     }
 
@@ -171,7 +176,9 @@ sub read_value {
 
     my $networks_conf = $self->_load_networks_conf();
 
-    if ( !(exists($networks_conf->{$section}->{$param})) ) {
+    # Warning: autovivification causes interfaces to be created if the section
+    # is not looked on her own first when the file is written later.
+    if (!defined($networks_conf->{$section}) || !defined($networks_conf->{$section}->{$param})) {
         $status_msg = "$section.$param does not exists";
         $logger->warn("$status_msg");
         return ($STATUS::NOT_FOUND, $status_msg);
@@ -229,7 +236,7 @@ sub update {
 
     if ( $tied_conf->SectionExists($network) ) {
         while ( my ($param, $value) = each %$assignments ) {
-            if ( defined( $networks_conf->{$network}{$param} ) ) {
+            if ( defined( $networks_conf->{$network}->{$param} ) ) {
                 $tied_conf->setval( $network, $param, $value );
             } else {
                 $tied_conf->newval( $network, $param, $value );
@@ -290,6 +297,20 @@ sub _write_networks_conf {
             "Unable to write configs to $network_config_file. You might want to check the file's permissions."
         );
     $logger->info("Successfully write configs to $network_config_file");
+}
+
+=item exist
+
+=cut
+sub exist {
+    my ( $self, $network ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $networks_conf = $self->_load_networks_conf();
+    my $tied_conf = tied(%$networks_conf);
+
+    return $TRUE if ( $tied_conf->SectionExists($network) );
+    return $FALSE;
 }
 
 =back

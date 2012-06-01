@@ -62,13 +62,46 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         $c->stash(interfaces_types => $data->{interfaces_types});
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
 
-        # Update networks.conf
+        # Update networks.conf and pf.conf
         my $networksModel = $c->model('Config::Networks');
-        my $interfaceModel = $c->model('Interface');
+        my $configModel = $c->model('Config::Pf');
         foreach my $interface (keys %{$data->{interfaces_types}}) {
-            my $interface_ref = $interfaceModel->get($interface);
-            $networksModel->create($interface_ref->{$interface}->{network});
-            $networksModel->update($interface_ref->{$interface}->{network}, { type => $data->{interfaces_types}->{$interface} });
+            my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
+
+            # we delete these types
+            if ( $data->{interfaces_types}->{$interface} =~ /^none$|^other$/i ) {
+                $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
+                $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
+            }
+            # otherwise we update pf.conf and networks.conf
+            else {
+                # we willingly silently ignore errors if interface already exists
+                # TODO have a wrapper that does both?
+                $configModel->create_interface($interface);
+                $configModel->update_interface(
+                    $interface,
+                    _prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
+                );
+                # and we must create a network portion for the following types
+                if ( $data->{interfaces_types}->{$interface} =~ /^vlan-isolation$|^vlan-registration$|^inline$/i ) {
+                    $networksModel->create($interface_ref->{network});
+                    $networksModel->update(
+                        $interface_ref->{network}, {
+                            type => $data->{interfaces_types}->{$interface},
+                            netmask => $interface_ref->{'netmask'},
+                            # FIXME push these default values further down in the stack (into pf::config, pf::services, etc.)
+                            gateway => $interface_ref->{'ipaddress'},
+                            dns => $interface_ref->{'ipaddress'},
+                            dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                            dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                            dhcp_default_lease_time => 300,
+                            dhcp_default_lease_time => 600,
+                            named => 'enabled',
+                            dhcpd => 'enabled',
+                        }
+                    );
+                }
+            }
         }
 
         # Make sure all types for each enforcement is assigned to an interface
@@ -104,15 +137,80 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $c->stash(interfaces => $c->model('Interface')->get('all'));
+        my $interfaces_ref = $c->model('Interface')->get('all');
+        $c->stash(interfaces => $interfaces_ref);
         $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
-        my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($c->stash->{interfaces});
+        my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($interfaces_ref);
         if (is_success($status)) {
-            $c->stash(interfaces_types => $interfaces_types);
+            $c->stash->{interfaces_types} = _prepare_types_for_display($c, $interfaces_ref, $interfaces_types);
         }
         # $c->stash(gateway => ?)
         # $c->stash(dns => ?)
     }
+}
+
+=item _prepare_interface_for_pfconf
+
+Process parameters to build a proper pf.conf interface section.
+
+=cut
+# TODO push hardcoded strings as constants (or re-use core constants)
+# this might imply a rework of this out of the controller into the model
+sub _prepare_interface_for_pfconf {
+    my ($int, $int_model, $type) = @_;
+
+    my $int_config_ref = {
+        ip => $int_model->{'ipaddress'},
+        mask => $int_model->{'netmask'},
+    };
+
+    # logic to match our awkward relationship between pf.conf's type and 
+    # enforcement with networks.conf's type
+    if ($type =~ /^vlan/i) {
+        $int_config_ref->{'type'} = 'internal';
+        $int_config_ref->{'enforcement'} = 'vlan';
+    }
+    elsif ($type =~ /^inline$/i) {
+        $int_config_ref->{'type'} = 'internal';
+        $int_config_ref->{'enforcement'} = 'inline';
+    }
+    else {
+        # here we oversimplify a bit, type supports multivalues but it's 
+        # out of scope for now
+        $int_config_ref->{'type'} = $type;
+    }
+
+    return $int_config_ref;
+}
+
+=item _prepare_types_for_display
+
+Process pf.conf's interface type and enforcement and networks.conf's type 
+and present something that is friendly to the user.
+
+=cut
+# TODO push hardcoded strings as constants (or re-use core constants)
+# this might imply a rework of this out of the controller into the model
+sub _prepare_types_for_display {
+    my ($c, $interfaces_ref, $interfaces_types_ref) = @_;
+
+    my $display_int_types_ref;
+#$DB::single=1;
+    foreach my $interface (keys %$interfaces_ref) {
+        # if the interface is in interfaces_types then take that value
+        if (defined($interfaces_types_ref->{$interface})) {
+            $display_int_types_ref->{$interface} = $interfaces_types_ref->{$interface};
+        }
+        # otherwise rely on pf.conf's info
+        else {
+            my $type = $c->model('Config::Pf')->read_interface_value($interface, 'type');
+            # since type is a multi-value field (comma separated), we need to do something like this
+            # you'll notice that we only support management for now
+            $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+            $display_int_types_ref->{$interface} = $type;
+        }
+    }
+    return $display_int_types_ref;
 }
 
 =item step2

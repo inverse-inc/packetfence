@@ -243,6 +243,21 @@ sub exists {
 
 =item get
 
+Returns an hashref with:
+
+    $interface => {
+        name       => physical int (eth0 even if in a VLAN int)
+        ipaddress  => ...
+        netmask    => ...
+        running    => true / false value
+        network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
+    # and optionnally:
+        vlan       => vlan tag
+    }
+
+Where $interface is physical interface if there's no VLAN interface (eth0)
+and phy.vlan (eth0.100) if there's a vlan interface.
+
 =cut
 sub get {
     my ( $self, $interface ) = @_;

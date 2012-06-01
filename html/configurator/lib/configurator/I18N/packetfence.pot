@@ -24,6 +24,10 @@ msgid "management"
 msgstr ""
 
 #: root/interface/get.tt:12
+msgid "other"
+msgstr ""
+
+#: root/interface/get.tt:12
 msgid "vlan-isolation"
 msgstr ""
 

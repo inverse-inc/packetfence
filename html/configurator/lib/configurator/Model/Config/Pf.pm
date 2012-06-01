@@ -321,6 +321,14 @@ sub _update {
 
 Read the pf.conf configuration of an interface.
 
+Returns an arrayref that looks like:
+
+    [ 
+        [ interface, ip, mask, type, enforcement],
+        [ eth0, 10.0.0.100, 255.255.255.0, 'dhcp-listener,management', undef ], 
+        [ eth1.100, 10.100.0.1, 255.255.0.0, 'internal', 'vlan' ],
+    ]
+
 =cut
 sub read_interface {
     my ($self, $interface) = @_;
@@ -349,6 +357,28 @@ sub read_interface {
     }
     else {
         return ($STATUS::NOT_FOUND, "Unknown interface $interface");
+    }
+}
+
+=item read_interface_value
+
+Read the pf.conf configuration of an interface and return a single value.
+
+=cut
+sub read_interface_value {
+    my ($self, $interface, $param) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->debug("interface $interface param $param requested");
+
+    my $pf_conf = $self->_load_conf();
+    # Warning: autovivification causes interfaces to be created if the section
+    # is not looked on her own first when the file is written later.
+    if ( defined($pf_conf->{'interface '.$interface}) && defined($pf_conf->{'interface '.$interface}->{$param}) ) {
+        return ($STATUS::OK, $pf_conf->{'interface '.$interface}->{$param});
+    }
+    else {
+        return ($STATUS::NOT_FOUND, "Unknown parameter $param under interface $interface");
     }
 }
 
@@ -421,9 +451,9 @@ sub create_interface {
     my $interface_name = "interface $interface";
     my $pf_conf = $self->_load_conf();
     my $tied_conf = tied(%$pf_conf);
-    if ( !($tied_conf->SectionExists($interface_name)) ) {
+    if ( !$tied_conf->SectionExists($interface_name) ) {
+        $tied_conf->AddSection($interface_name);
         while (my ($param, $value) = each %$assignments) {
-            $tied_conf->AddSection($interface_name);
             $tied_conf->newval( $interface_name, $param, $value );
         }
         $self->_write_pf_conf();
@@ -432,6 +462,22 @@ sub create_interface {
     }
 
     return ($STATUS::OK, "Successfully created $interface");
+}
+
+=item exist_interface
+
+Whether or not an interface section exists in the pf.conf configuration.
+
+=cut
+sub exist_interface {
+    my ($self, $interface) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $interface_name = "interface $interface";
+    my $pf_conf = $self->_load_conf();
+    my $tied_conf = tied(%$pf_conf);
+    return $TRUE if ( $tied_conf->SectionExists($interface_name) );
+    return $FALSE;
 }
 
 =item _write_pf_conf
