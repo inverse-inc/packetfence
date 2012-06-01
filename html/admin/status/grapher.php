@@ -53,7 +53,13 @@
     'connectiontypereg all' => 'pie',
     'ssid' => 'pie',
     'ssid active' => 'pie',
-    'ssid all' => 'pie'
+    'ssid all' => 'pie',
+    'accounting' => 'pie',
+    'accounting all' => 'pie',
+    'accounting daily' => 'pie',
+    'accounting weekly' => 'pie',
+    'accounting monthly' => 'pie',
+    'accounting yearly' => 'pie'
   );
 
 function jsgraph($options) {

@@ -40,6 +40,7 @@ BEGIN {
         node_accounting_weekly_time
         node_accounting_monthly_time
         node_accounting_yearly_time
+        translate_bw
         $ACCOUNTING_TRIGGER_RE
     );
 }
