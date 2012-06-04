@@ -126,6 +126,7 @@ function initStep() {
         root_password = $('#root_password'),
         database = $('input[name="database.db"]'),
         pf_user = $('input[name="database.user"]'),
+        pf_user_control = pf_user .closest('.control-group'),
         pf_password = $('input[name="database.pass"]'),
         pf_password_control = pf_password.closest('.control-group'),
         pf_password2 = $('input[name="database.pass2"]'),
