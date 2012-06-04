@@ -72,7 +72,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         foreach my $enforcement (@{$data->{enforcements}}) {
             my $types_ref = $c->model('Enforcement')->getAvailableTypes($enforcement);
             foreach my $type (@{$types_ref}) {
-                push(@missing, $type) unless exists $seen{$type};
+                push(@missing, $c->loc($type)) unless exists $seen{$type} || $type eq 'other';
             }
         }
 
