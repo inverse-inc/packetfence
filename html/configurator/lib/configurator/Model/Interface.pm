@@ -150,7 +150,7 @@ sub down {
     # Check if requested interface isn't currently in use
     if ( $self->_interfaceCurrentlyInUse($interface, $host) ) {
         $status_msg = "Interface $interface is currently in use for the configuration";
-        $logger->warn($status_msg);
+        $logger->warn("$status_msg | Is the interface correctly plugged in?");
         return ($STATUS::FORBIDDEN, $status_msg);
     }
 
@@ -404,7 +404,7 @@ sub up {
     # This check is necessary since the previous call (modification of the flag) does not return error or ok
     if ( !$self->_interfaceActive($interface) ) {
         $status_msg = "Interface $interface has not been enabled. Should check server side logs for details";
-        $logger->error($status_msg);
+        $logger->error("$status_msg | Is the interface correctly plugged in?");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
