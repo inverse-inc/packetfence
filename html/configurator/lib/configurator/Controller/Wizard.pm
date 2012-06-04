@@ -62,51 +62,6 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         $c->stash(interfaces_types => $data->{interfaces_types});
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
 
-        # Update networks.conf and pf.conf
-        my $networksModel = $c->model('Config::Networks');
-        my $configModel = $c->model('Config::Pf');
-        foreach my $interface (keys %{$data->{interfaces_types}}) {
-            my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
-
-            # we ignore interface type 'Other' (it basically means unsupported in configurator)
-            next if ( $data->{interfaces_types}->{$interface} =~ /^other$/i );
-
-            # we delete interface type 'None'
-            if ( $data->{interfaces_types}->{$interface} =~ /^none$/i ) {
-                $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
-                $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
-            }
-            # otherwise we update pf.conf and networks.conf
-            else {
-                # we willingly silently ignore errors if interface already exists
-                # TODO have a wrapper that does both?
-                $configModel->create_interface($interface);
-                $configModel->update_interface(
-                    $interface,
-                    _prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
-                );
-                # and we must create a network portion for the following types
-                if ( $data->{interfaces_types}->{$interface} =~ /^vlan-isolation$|^vlan-registration$|^inline$/i ) {
-                    $networksModel->create($interface_ref->{network});
-                    $networksModel->update(
-                        $interface_ref->{network}, {
-                            type => $data->{interfaces_types}->{$interface},
-                            netmask => $interface_ref->{'netmask'},
-                            # FIXME push these default values further down in the stack (into pf::config, pf::services, etc.)
-                            gateway => $interface_ref->{'ipaddress'},
-                            dns => $interface_ref->{'ipaddress'},
-                            dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
-                            dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
-                            dhcp_default_lease_time => 300,
-                            dhcp_default_lease_time => 600,
-                            named => 'enabled',
-                            dhcpd => 'enabled',
-                        }
-                    );
-                }
-            }
-        }
-
         # Make sure all types for each enforcement is assigned to an interface
         # TODO: Shall we ignore disabled interfaces?
         my @selected_types = values %{$data->{interfaces_types}};
@@ -132,7 +87,86 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
             $c->stash->{status_msg} = $c->loc("You must choose at least one enforcement mechanism.");
             delete $c->session->{completed}->{step1};
         }
+        # TODO move IP validation to something provided by core (once in model I guess)
+# XXX needs to check each interfaces in a loop for inline
+#        elsif ($data->{interfaces_types}->{$interface} =~ /^inline$/i && $data->{dns} =~ /\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}/) {
+#            # DNS must be set if in inline enforcement
+#            $c->response->status($STATUS::PRECONDITION_FAILED);
+#            $c->stash->{status_msg} = $c->loc(
+#                "A valid DNS server must be provided for Inline enforcement. "
+#                . "If you are unsure you can always put in your ISP's DNS or a global DNS like 4.2.2.1."
+#            );
+#            delete $c->session->{completed}->{step1};
+#        }
         else {
+
+            # Update networks.conf and pf.conf
+            my $networksModel = $c->model('Config::Networks');
+            my $configModel = $c->model('Config::Pf');
+            foreach my $interface (keys %{$data->{interfaces_types}}) {
+                my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
+    
+                # we ignore interface type 'Other' (it basically means unsupported in configurator)
+                next if ( $data->{interfaces_types}->{$interface} =~ /^other$/i );
+    
+                # we delete interface type 'None'
+                if ( $data->{interfaces_types}->{$interface} =~ /^none$/i ) {
+                    $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
+                    $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
+                }
+                # otherwise we update pf.conf and networks.conf
+                else {
+                    # we willingly silently ignore errors if interface already exists
+                    # TODO have a wrapper that does both?
+                    $configModel->create_interface($interface);
+                    $configModel->update_interface(
+                        $interface,
+                        _prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
+                    );
+    
+                    # FIXME refactor that!
+                    # and we must create a network portion for the following types
+                    if ( $data->{interfaces_types}->{$interface} =~ /^vlan-isolation$|^vlan-registration$/i ) {
+                        $networksModel->create($interface_ref->{network});
+                        $networksModel->update(
+                            $interface_ref->{network}, {
+                                type => $data->{interfaces_types}->{$interface},
+                                netmask => $interface_ref->{'netmask'},
+                                # FIXME push these default values further down in the stack
+                                # (into pf::config, pf::services, etc.)
+                                gateway => $interface_ref->{'ipaddress'},
+                                dns => $interface_ref->{'ipaddress'},
+                                dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                                dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                                dhcp_default_lease_time => 300,
+                                dhcp_default_lease_time => 600,
+                                named => 'enabled',
+                                dhcpd => 'enabled',
+                            }
+                        );
+                    }
+                    elsif ( $data->{interfaces_types}->{$interface} =~ /^inline$/i ) {
+                        $networksModel->create($interface_ref->{network});
+                        $networksModel->update(
+                            $interface_ref->{network}, {
+                                type => $data->{interfaces_types}->{$interface},
+                                netmask => $interface_ref->{'netmask'},
+                                # FIXME push these default values further down in the stack 
+                                # (into pf::config, pf::services, etc.)
+                                gateway => $interface_ref->{'ipaddress'},
+                                dns => $data->{'dns'},
+                                dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                                dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                                dhcp_default_lease_time => 24 * 60 * 60,
+                                dhcp_default_lease_time => 24 * 60 * 60,
+                                named => 'enabled',
+                                dhcpd => 'enabled',
+                            }
+                        );
+                    }
+                }
+            }
+
             # Step passed validation
             $c->session->{completed}->{step1} = 1;
         }
