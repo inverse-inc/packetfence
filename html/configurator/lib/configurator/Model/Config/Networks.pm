@@ -123,6 +123,25 @@ sub get_types {
     return ($STATUS::OK, $types_ref);
 }
 
+=item list_networks
+
+Temporary method to return the list of currently configured networks in networks.conf since read_network returns
+an array of array with the columns first...
+
+=cut
+sub list_networks {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $networks_conf = $self->_load_networks_conf();
+    my @networks = ();
+    foreach my $section ( keys %$networks_conf ) {
+        push @networks, $section;
+    }
+
+    return ($STATUS::OK, \@networks);
+}
+
 =item _load_networks_conf
 
 Load networks.conf into a Config::IniFiles tied hasref.
@@ -139,7 +158,7 @@ sub _load_networks_conf {
 
         # Load existing networks.conf file
         if ( -e $network_config_file ) {
-            tie %conf, 'Config::IniFiles', ( -file => $network_config_file )
+            tie %conf, 'Config::IniFiles', ( -file => $network_config_file, -allowempty => 1 )
                 or $logger->logdie("Unable to open config file $network_config_file: ", 
                 join("\n", @Config::IniFiles::errors));
             $logger->info("Loaded existing $network_config_file file");
