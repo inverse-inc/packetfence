@@ -1,6 +1,6 @@
 var enforcementTypes = {
     'inline': ['inline'],
-    'vlan': ['registration', 'isolation']
+    'vlan': ['vlan-registration', 'vlan-isolation']
 };
 
 function registerExists() {
@@ -78,7 +78,6 @@ function initModals() {
                     .done(function(data) {
                         form.attr('action', '#created');
                         editVlan(name, modal, form);
-//                        refreshInterfaces();
                     })
                     .fail(function(jqXHR) {
                         var obj = $.parseJSON(jqXHR.responseText);
