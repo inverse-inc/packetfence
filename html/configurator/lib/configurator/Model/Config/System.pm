@@ -26,9 +26,11 @@ sub write_network_persistent {
     my ( $self, $interface_ref, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status, $status_msg);
+    my ($status, $status_msg, $systemObj);
 
-    my $systemObj = configurator::Model::Config::SystemFactory->getSystem();
+    # Instantiate an object for the correct OS
+    ($status, $systemObj) = configurator::Model::Config::SystemFactory->getSystem();
+    return ($status, $systemObj) if ( is_error($status) );
 
     # Write persistent network interfaces configurations
     ($status, $status_msg) = $systemObj->writeInterfaceConfig($interface_ref);
@@ -92,15 +94,21 @@ sub getSystem {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+    my $status_msg;
+
     my $os = $self->_checkOs();
 
     $logger->info($os);
     if (defined($os)) {
         my $system = "configurator::Model::Config::System::$os";
-        return $system->new();
+        my $systemObj = $system->new();
+        return ($STATUS::OK, $systemObj);
     }
 
-    die("This OS is not supported by PacketFence");
+    $status_msg = "This OS is not supported by PacketFence";
+    $logger->error("$status_msg | Cannot instantiate an object of this type");
+
+    return ($STATUS::NOT_IMPLEMENTED, $status_msg);
 }
 
 
@@ -155,11 +163,19 @@ sub writeGateway {
     my ( $this, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    die if ( !(-e $network_conf_dir.$network_conf_file) );
+    my ($status, $status_msg);
+
+    if ( !(-e $network_conf_dir.$network_conf_file) ) {
+        $status_msg = "Error while writing system's default gateway";
+        $logger->error($status_msg ." | ". $network_conf_dir.$network_conf_file ." don't exists");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
 
     open(CONF, ">>".$network_conf_dir.$network_conf_file);
     print CONF "\n GATEWAY=$gateway";
     close(CONF);
+
+    return $STATUS::OK;
 }
 
 =item writeInterfaceConfig
