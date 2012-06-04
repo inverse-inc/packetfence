@@ -11,6 +11,9 @@ pf::config - PacketFence configuration
 pf::config contains the code necessary to read and manipulate the 
 PacketFence configuration files.
 
+It automatically imports gazillions of globals into your namespace. You 
+have been warned.
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>, 
@@ -84,6 +87,7 @@ BEGIN {
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
         is_in_list
         $LOG4PERL_RELOAD_TIMER
+        load_config
     );
 }
 
@@ -236,16 +240,34 @@ our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
-try {
-    readPfConfigFiles();
-    readNetworkConfigFile();
-    readFloatingNetworkDeviceFile();
-} catch {
-    chomp($_);
-    $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
-};
+# constants are done, let's load the configuration
+load_config();
+
+=head1 SUBROUTINES
 
 =over
+
+=item load_config
+
+Load configuration. Can be used to reload it too.
+
+WARNING: This has been recently introduced and was not tested with our 
+multi-threaded daemons.
+
+=cut
+sub load_config {
+
+    try {
+
+        readPfConfigFiles();
+        readNetworkConfigFile();
+        readFloatingNetworkDeviceFile();
+
+    } catch {
+        chomp($_);
+        $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
+    };
+}
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
 

@@ -49,6 +49,21 @@ sub getWebAdminPort {
     return $Config{'ports'}{'admin'};
 }
 
+=item reloadConfiguration
+
+Tell pf::config to reload its configuration.
+
+=cut
+sub reloadConfiguration {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->info("reloading PacketFence configuration");
+    pf::config::load_config();
+    $logger->info("done reloading PacketFence configuration");
+    return $TRUE;
+}
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

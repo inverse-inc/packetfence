@@ -358,8 +358,12 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
               && $completed->{step3}
                 && $completed->{step4};
 
-        $c->stash->{'admin_ip'} = $c->model('PfConfigAdapter')->getWebAdminIp();
-        $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
+        if ($c->stash->{completed}) {
+            $c->model('PfConfigAdapter')->reloadConfiguration();
+            $c->stash->{'admin_ip'} = $c->model('PfConfigAdapter')->getWebAdminIp();
+            $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
+        }
+
         my ($status, $services_status) = $c->model('Services')->status();
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
