@@ -497,9 +497,9 @@ sub _write_pf_conf {
         );
 
     # The following snippet updates the database
-    require pf::configfile;
-    import pf::configfile;
-    configfile_import( $conf_dir . "/pf.conf" );
+#    require pf::configfile;
+#    import pf::configfile;
+#    configfile_import( $conf_dir . "/pf.conf" );
 }
 
 =head2 Class helpers
