@@ -68,8 +68,11 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         foreach my $interface (keys %{$data->{interfaces_types}}) {
             my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
 
-            # we delete these types
-            if ( $data->{interfaces_types}->{$interface} =~ /^none$|^other$/i ) {
+            # we ignore interface type 'Other' (it basically means unsupported in configurator)
+            next if ( $data->{interfaces_types}->{$interface} =~ /^other$/i );
+
+            # we delete interface type 'None'
+            if ( $data->{interfaces_types}->{$interface} =~ /^none$/i ) {
                 $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
                 $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
             }
