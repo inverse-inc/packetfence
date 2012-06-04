@@ -54,12 +54,12 @@
     'ssid' => 'pie',
     'ssid active' => 'pie',
     'ssid all' => 'pie',
-    'accounting' => 'pie',
-    'accounting all' => 'pie',
-    'accounting daily' => 'pie',
-    'accounting weekly' => 'pie',
-    'accounting monthly' => 'pie',
-    'accounting yearly' => 'pie'
+    'classaccounting' => 'pie',
+    'classaccounting all' => 'pie',
+    'classaccounting daily' => 'pie',
+    'classaccounting weekly' => 'pie',
+    'classaccounting monthly' => 'pie',
+    'classaccounting yearly' => 'pie'
   );
 
 function jsgraph($options) {

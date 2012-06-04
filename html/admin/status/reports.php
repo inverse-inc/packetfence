@@ -40,7 +40,7 @@
     'unknownprints', 'unknownuseragents', 
     'openviolations', 'statics',
     'connectiontype', 'connectiontypereg',
-    'ssid', 'accounting'
+    'ssid', 'nodeaccouting', 'classaccounting'
   );
   $type = set_default($_REQUEST['type'], 'ipmachistory');
   $subtype = set_default($_GET['subtype'], '');
@@ -58,7 +58,7 @@
       $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=active'>Active</a>";
   }
   
-  if($type == 'accounting'){
+  if($type == 'classaccounting'){
       if($subtype == 'daily')
          $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'><u>Today</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
       else if($subtype == 'weekly')

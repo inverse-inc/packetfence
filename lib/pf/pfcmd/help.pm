@@ -348,13 +348,14 @@ EOT
 
 sub help_report {
     print STDERR << "EOT";
-Usage: pfcmd report <active|inactive> | <accounting>|<connectiontype|connectiontypereg|registered|unregistered|os|osclass|unknownprints|unknownuseragents|openviolations|ssid|statics> [all|active|daily|weekly|monthly|yearly]
+Usage: pfcmd report <active|inactive> | <osaccounting>|<nodeaccounting>|<connectiontype|connectiontypereg|registered|unregistered|os|osclass|unknownprints|unknownuseragents|openviolations|ssid|statics> [all|active|daily|weekly|monthly|yearly|top25]
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
 
 active            | show all nodes with open iplog entries
 inactive          | show all nodes without an open iplog entry
-accounting        | show bandwitdh usage by OS distribution (use daily/weekly/monthly/yearly for the timeframe)
+osaccounting      | show bandwitdh usage by OS distribution (use daily/weekly/monthly/yearly for the timeframe)
+nodeaccounting    | show bandwitdh usage for the nodes - top 25
 connectiontype    | show connections by type for all nodes
 connectiontypereg | show connections by type for registered nodes only
 registered        | show all registered nodes

@@ -29,11 +29,12 @@ BEGIN {
         $report_db_prepared
         report_db_prepare
 
-        report_accounting_all
-        report_accounting_daily
-        report_accounting_weekly
-        report_accounting_monthly
-        report_accounting_yearly
+        report_classaccounting_all
+        report_classaccounting_daily
+        report_classaccounting_weekly
+        report_classaccounting_monthly
+        report_classaccounting_yearly
+        report_nodeaccounting_all
         report_os_all
         report_os_active
         report_osclass_all
@@ -231,7 +232,7 @@ sub report_db_prepare {
        ORDER BY nodes
     ]);
 
-    $report_statements->{'report_accounting_sql'} = get_db_handle()->prepare(qq [
+    $report_statements->{'report_classaccounting_sql'} = get_db_handle()->prepare(qq [
        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
            ROUND(SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
@@ -248,6 +249,20 @@ sub report_db_prepare {
         WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)    
         GROUP BY c.description
         ORDER BY percent DESC;
+    ]);
+
+    $report_statements->{'report_nodeaccounting_sql'} = get_db_handle()->prepare(qq [
+      SELECT LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
+             SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2))) as callingstationid,
+             SUM(radacct_log.acctinputoctets) AS acctinput,
+             SUM(radacct_log.acctoutputoctets) AS acctoutput,
+             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        GROUP BY radacct.callingstationid
+        HAVING radacct.callingstationid IS NOT NULL
+        ORDER BY accttotal DESC
+        LIMIT 25;
     ]);
 
     $report_db_prepared = 1;
@@ -604,13 +619,13 @@ sub report_ssid_active {
     return (@return_data);
 }
 
-=item * report_accounting_all
+=item * report_classaccounting_all
 
 Reporting - OS Class bandwitdh usage - All time
 
 =cut
-sub report_accounting_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 999999999 , 999999999 );
+sub report_classaccounting_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 999999999 , 999999999 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -624,13 +639,13 @@ sub report_accounting_all {
     return (@return_data);
 }
 
-=item * report_accounting_daily
+=item * report_classaccounting_daily
 
 Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
-sub report_accounting_daily {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 86400 , 86400 );
+sub report_classaccounting_daily {
+    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 86400 , 86400 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -644,13 +659,13 @@ sub report_accounting_daily {
     return (@return_data);
 }
 
-=item * report_accounting_weekly
+=item * report_classaccounting_weekly
 
 Reporting - OS Class bandwitdh usage for the last week
 
 =cut
-sub report_accounting_weekly {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 604800, 604800 );
+sub report_classaccounting_weekly {
+    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 604800, 604800 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -664,13 +679,13 @@ sub report_accounting_weekly {
     return (@return_data);
 }
 
-=item * report_accounting_monthly
+=item * report_classaccounting_monthly
 
 Reporting - OS Class bandwitdh usage for the last month
 
 =cut
-sub report_accounting_monthly {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 2592000, 2592000 );
+sub report_classaccounting_monthly {
+    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 2592000, 2592000 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -684,13 +699,13 @@ sub report_accounting_monthly {
     return (@return_data);
 }
 
-=item * report_accounting_yearly
+=item * report_classaccounting_yearly
 
 Reporting - OS Class bandwitdh usage for the last year
 
 =cut
-sub report_accounting_yearly {
-    my @data    = db_data(REPORT, $report_statements, 'report_accounting_sql', 31536000, 31536000 );
+sub report_classaccounting_yearly {
+    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 31536000, 31536000 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -703,6 +718,27 @@ sub report_accounting_yearly {
     push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
 }
+
+=item * report_nodeaccounting_all
+
+Reporting - Node bandwitdh usage for the top 25 consumers
+
+=cut
+sub report_nodeaccounting_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_nodeaccounting_sql');
+    my $totalbw   = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinput'});
+        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutput'});
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        push @return_data, $record;
+    }
+
+    return (@return_data);
+}
+
 
 =item * translate_connection_type
 
