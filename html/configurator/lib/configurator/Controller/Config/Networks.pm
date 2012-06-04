@@ -10,9 +10,6 @@ Catalyst Controller.
 
 =cut
 
-use strict;
-use warnings;
-
 use HTTP::Status qw(:constants is_error is_success);
 use JSON;
 use Moose;
@@ -26,6 +23,8 @@ BEGIN {extends 'Catalyst::Controller'; }
 =over
 
 =item create
+
+Create a new network section in PacketFence networks.conf configuration file
 
 Usage: /config/network/<network>/create
 
@@ -52,6 +51,8 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
 }
 
 =item delete
+
+Delete a network section in PacketFence networks.conf configuration file
 
 Usage: /config/network/<network>/delete
 
