@@ -139,7 +139,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                                 dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
                                 dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
                                 dhcp_default_lease_time => 300,
-                                dhcp_default_lease_time => 600,
+                                dhcp_max_lease_time => 600,
                                 named => 'enabled',
                                 dhcpd => 'enabled',
                             }
@@ -158,7 +158,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                                 dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
                                 dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
                                 dhcp_default_lease_time => 24 * 60 * 60,
-                                dhcp_default_lease_time => 24 * 60 * 60,
+                                dhcp_max_lease_time => 24 * 60 * 60,
                                 named => 'enabled',
                                 dhcpd => 'enabled',
                             }
