@@ -222,6 +222,7 @@ function refreshInterfaces(noAlert) {
         .done(function(data) {
             var table = $('#interfaces tbody');
             table.html(data);
+            $('input:checkbox[name="enforcement"]').trigger('change');
         })
         .fail(function(jqXHR) {
             if (!noAlert) {
