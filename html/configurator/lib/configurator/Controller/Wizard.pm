@@ -167,6 +167,10 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                 }
             }
 
+            # Update the network interface configurations on system
+            $c->model('Config::System')->write_network_persistent($c->model('Interface')->get('all'),
+                                                                  $data->{'gateway'});
+
             # Step passed validation
             $c->session->{completed}->{step1} = 1;
         }
