@@ -175,7 +175,7 @@ sub writeGateway {
     }
 
     open(CONF, ">>".$network_conf_dir.$network_conf_file);
-    print CONF "\n GATEWAY=$gateway";
+    print CONF "GATEWAY=$gateway";
     close(CONF);
 
     return $STATUS::OK;
@@ -251,11 +251,19 @@ sub writeGateway {
     my ( $this, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    die if ( !(-e $network_conf_dir.$network_conf_file) );
+    my ($status, $status_msg);
+
+    if ( !(-e $network_conf_dir.$network_conf_file) ) {
+        $status_msg = "Error while writing system's default gateway";
+        $logger->error($status_msg ." | ". $network_conf_dir.$network_conf_file ." don't exists");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
 
     open(CONF, ">>".$network_conf_dir.$network_conf_file);
-    print CONF "\n gateway $gateway";
+    print CONF "\ngateway $gateway";
     close(CONF);
+
+    return $STATUS::OK;
 }
 
 =item writeInterfaceConfig
