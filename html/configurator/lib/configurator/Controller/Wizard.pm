@@ -243,8 +243,8 @@ sub _prepare_types_for_display {
             $display_int_types_ref->{$interface} = $interfaces_types_ref->{$interface};
         }
         # if doesn't exists in pf.conf and networks.conf
-        elsif ( !defined($interfaces_types_ref->{$interface} 
-             && !defined($c->model('Config::Pf')->read_interface_value($interface, 'type'))) ) {
+        elsif ( !defined($interfaces_types_ref->{$interface})
+             && !defined($c->model('Config::Pf')->read_interface_value($interface, 'type')) ) {
             my $type = 'none';
             $display_int_types_ref->{$interface} = $type;
         }
