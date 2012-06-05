@@ -10,6 +10,7 @@ Catalyst Model.
 
 =cut
 
+use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 
