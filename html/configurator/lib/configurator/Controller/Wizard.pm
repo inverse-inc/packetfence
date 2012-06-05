@@ -125,7 +125,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                     $configModel->create_interface($interface);
                     $configModel->update_interface(
                         $interface,
-                        _prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
+                        $self->_prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
                     );
     
                     # FIXME refactor that!
@@ -194,7 +194,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
         my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($interfaces_ref);
         if (is_success($status)) {
-            $c->stash->{interfaces_types} = _prepare_types_for_display($c, $interfaces_ref, $interfaces_types);
+            $c->stash->{interfaces_types} = $self->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types);
         }
         # $c->stash(gateway => ?)
         # $c->stash(dns => ?)
@@ -209,7 +209,7 @@ Process parameters to build a proper pf.conf interface section.
 # TODO push hardcoded strings as constants (or re-use core constants)
 # this might imply a rework of this out of the controller into the model
 sub _prepare_interface_for_pfconf {
-    my ($int, $int_model, $type) = @_;
+    my ($self, $int, $int_model, $type) = @_;
 
     my $int_config_ref = {
         ip => $int_model->{'ipaddress'},
@@ -244,7 +244,7 @@ and present something that is friendly to the user.
 # TODO push hardcoded strings as constants (or re-use core constants)
 # this might imply a rework of this out of the controller into the model
 sub _prepare_types_for_display {
-    my ($c, $interfaces_ref, $interfaces_types_ref) = @_;
+    my ($self, $c, $interfaces_ref, $interfaces_types_ref) = @_;
 
     my $display_int_types_ref;
 #$DB::single=1;

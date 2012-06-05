@@ -137,11 +137,13 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
 
     my $interface = $c->stash->{interface};
 
-    $c->stash->{interfaces} = $c->model('Interface')->get($interface);
+    my $interfaces_ref = $c->model('Interface')->get($interface);
+    $c->stash->{interfaces} = $interfaces_ref;
     $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
     my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($c->stash->{interfaces});
     if (is_success($status)) {
-        $c->stash(interfaces_types => $interfaces_types);
+        my $wizardController = $c->controller('Wizard');
+        $c->stash(interfaces_types => $wizardController->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types));
     }
     $c->stash->{current_view} = 'HTML';
 }
