@@ -241,7 +241,12 @@ our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
 # constants are done, let's load the configuration
-load_config();
+try {
+    load_config();
+} catch {
+    chomp($_);
+    $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
+};
 
 =head1 SUBROUTINES
 
@@ -257,16 +262,9 @@ multi-threaded daemons.
 =cut
 sub load_config {
 
-    try {
-
-        readPfConfigFiles();
-        readNetworkConfigFile();
-        readFloatingNetworkDeviceFile();
-
-    } catch {
-        chomp($_);
-        $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
-    };
+    readPfConfigFiles();
+    readNetworkConfigFile();
+    readFloatingNetworkDeviceFile();
 }
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf

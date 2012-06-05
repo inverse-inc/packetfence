@@ -77,10 +77,10 @@
             </div>
             </fieldset>
           </form>
-          <div id="serviceErrors" class="alert alert-danger" style="display: none;">
+          <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
             <button class="close" data-dismiss="alert">×</button>
             <strong>Console Output</strong>
-            <pre></pre>
+            <pre>[% error %]</pre>
           </div>
         </div>
       </div>

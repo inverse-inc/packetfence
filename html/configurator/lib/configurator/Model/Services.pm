@@ -51,10 +51,19 @@ sub status {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $cmd = $bin_dir . '/pfcmd service pf status';
+    my $cmd = $bin_dir . '/pfcmd service pf status 2>&1';
     $logger->info("Requesting services status with: $cmd");
 
-    my @services_status = pf_run( $cmd, ( 'accepted_exit_status' => [3] ) );
+    my @services_status = pf_run( $cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+    $logger->debug(
+        "Service status output: " 
+        . ( (@services_status) ? join('', @services_status) : 'NONE' )
+    );
+
+    # TODO extract service\|shouldBeStarted\|pid into constant and use constant both here and when we report on CLI
+    if (!@services_status || $services_status[0] !~ /^service\|shouldBeStarted\|pid$/) {
+        return ( $STATUS::INTERNAL_SERVER_ERROR, join('', @services_status) );
+    }
 
     my $services_ref;
     shift @services_status; # throw out first line

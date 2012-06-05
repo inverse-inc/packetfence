@@ -389,7 +389,13 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
                 && $completed->{step4};
 
         if ($c->stash->{completed}) {
-            $c->model('PfConfigAdapter')->reloadConfiguration();
+            my ($status, $error) = $c->model('PfConfigAdapter')->reloadConfiguration();
+            if ( is_error($status) ) {
+                $c->log->error("an error trying to reload the configuration");
+                $c->response->status($status);
+                $c->stash->{'error'} = $error;
+                $c->detach();
+            }
             $c->stash->{'admin_ip'} = $c->model('PfConfigAdapter')->getWebAdminIp();
             $c->stash->{'admin_port'} = $c->model('PfConfigAdapter')->getWebAdminPort();
         }
@@ -400,8 +406,9 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
             $c->stash->{'services_status'} = $services_status;
         }
         if ( is_error($status) ) {
-            $c->log->info("an error trying to list the services");
+            $c->log->error("an error trying to list the services");
             $c->response->status($status);
+            $c->stash->{'error'} = $services_status;
         }
     }
 

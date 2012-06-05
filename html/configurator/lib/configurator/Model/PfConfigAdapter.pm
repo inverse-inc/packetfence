@@ -4,6 +4,8 @@ use namespace::autoclean;
 
 extends 'Catalyst::Model';
 
+use Try::Tiny;
+
 use pf::config;
 
 =head1 NAME
@@ -59,9 +61,21 @@ sub reloadConfiguration {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->info("reloading PacketFence configuration");
-    pf::config::load_config();
+
+    # reloading packetfence's configuration using fancy Try::Tiny syntax
+    my ($status, $error) = try { pf::config::load_config(); return $TRUE; }
+    catch { return ($FALSE, $_); };
+
     $logger->info("done reloading PacketFence configuration");
-    return $TRUE;
+    return $TRUE if ($status == $TRUE);
+
+    chomp($error);
+    $logger->error($error);
+    if ($error =~ /Fatal error preventing configuration to load/) {
+        return ($FALSE, $error);
+    }
+    # otherwise
+    return ($FALSE, 'Unidentified error see server side logs for details.');
 }
 
 =head1 AUTHOR
