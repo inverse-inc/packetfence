@@ -12,11 +12,11 @@ Catalyst Model.
 
 use Moose;
 
-use HTTP::Status qw(:constants is_error is_success);
 use IO::Interface::Simple;
 use namespace::autoclean;
 use Net::Netmask;
 
+use pf::error qw(is_error is_success);
 use pf::util;
 
 extends 'Catalyst::Model';

@@ -10,9 +10,11 @@ Catalyst Model.
 
 =cut
 
-use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+
 use namespace::autoclean;
+
+use pf::error qw(is_error is_success);
 
 extends 'Catalyst::Model';
 
