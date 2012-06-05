@@ -61,10 +61,9 @@ __PACKAGE__->config(
 
 # Logging
 # TODO define a logging strategy that would fit both catalyst and our core 
-# application. For now, it's all basic
-#__PACKAGE__->log(Log::Log4perl::Catalyst->new());
-#__PACKAGE__->log(Log::Log4perl::Catalyst->new(__PACKAGE__->path_to('Log4perl.conf')->stringify ) );
-# Handle warnings from Perl as fatal log messages
+# application. For now, it's all basic and it logs to logs/packetfence.log.
+__PACKAGE__->log(Log::Log4perl::Catalyst->new());
+# Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # Start the application
