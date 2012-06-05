@@ -187,7 +187,12 @@ function saveStep(href) {
     }
 
     if (valid) {
-        window.location.href = href;
+       $.ajax({
+            type: 'GET',
+            url: window.location.pathname
+        }).done(function(data) {
+            window.location.href = href;
+        });
     }
     else {
         var form = $('form[name="database"]');
