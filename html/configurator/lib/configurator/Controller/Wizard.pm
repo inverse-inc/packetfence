@@ -168,6 +168,10 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                             }
                         );
                     }
+                    elsif ( $data->{interfaces_types}->{$interface} =~ /^management$/ ) {
+                        # management interfaces must not appear in networks.conf
+                        $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
+                    }
                 }
             }
 
