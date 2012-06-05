@@ -171,10 +171,10 @@ use Moose;
 
 with 'configurator::Model::Config::System::Role';
 
-my $network_conf_dir    = "/etc/sysconfig/";
-my $interfaces_conf_dir = "network-scripts/";
-my $network_conf_file   = "network";
-my $interface_conf_file = "ifcfg-";
+our $_network_conf_dir    = "/etc/sysconfig/";
+our $_interfaces_conf_dir = "network-scripts/";
+our $_network_conf_file   = "network";
+our $_interface_conf_file = "ifcfg-";
 
 =head3 METHODS
 
@@ -189,19 +189,19 @@ sub writeGateway {
 
     my ($status, $status_msg);
 
-    if ( !(-e $network_conf_dir.$network_conf_file) ) {
+    if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
         $status_msg = "Error while writing system's default gateway";
-        $logger->error($status_msg ." | ". $network_conf_dir.$network_conf_file ." don't exists");
+        $logger->error($status_msg ." | ". $_network_conf_dir.$_network_conf_file ." don't exists");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    open IN, '<', $network_conf_dir.$network_conf_file;
+    open IN, '<', $_network_conf_dir.$_network_conf_file;
     my @content = <IN>;
     close IN;
 
     @content = grep !/^GATEWAY=/, @content;
 
-    open OUT, '>', $network_conf_dir.$network_conf_file;
+    open OUT, '>', $_network_conf_dir.$_network_conf_file;
     print OUT @content;
     print OUT "GATEWAY=$gateway";
     close OUT;
@@ -231,9 +231,9 @@ sub writeInterfaceConfig {
 
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/configurator/root/interface",
-            OUTPUT_PATH     => $network_conf_dir.$interfaces_conf_dir,
+            OUTPUT_PATH     => $_network_conf_dir.$_interfaces_conf_dir,
         });
-        $template->process( "interface_rhel.tt", $vars, $interface_conf_file.$interface );
+        $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
 
         if ( $template->error() ) {
             $status_msg = "Error while writing system network interfaces configuration";
@@ -265,8 +265,8 @@ use Moose;
 
 with 'configurator::Model::Config::System::Role';
 
-my $network_conf_dir    = "/etc/network/";
-my $network_conf_file   = "interfaces";
+our $_network_conf_dir    = "/etc/network/";
+our $_network_conf_file   = "interfaces";
 
 =head3 METHODS
 
@@ -281,19 +281,19 @@ sub writeGateway {
 
     my ($status, $status_msg);
 
-    if ( !(-e $network_conf_dir.$network_conf_file) ) {
+    if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
         $status_msg = "Error while writing system's default gateway";
-        $logger->error($status_msg ." | ". $network_conf_dir.$network_conf_file ." don't exists");
+        $logger->error($status_msg ." | ". $_network_conf_dir.$_network_conf_file ." don't exists");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    open IN, '<', $network_conf_dir.$network_conf_file;
+    open IN, '<', $_network_conf_dir.$_network_conf_file;
     my @content = <IN>;
     close IN;
 
     @content = grep !/^gateway/, @content;
 
-    open OUT, '>', $network_conf_dir.$network_conf_file;
+    open OUT, '>', $_network_conf_dir.$_network_conf_file;
     print OUT @content;
     print OUT "gateway $gateway";
     close OUT;
@@ -316,9 +316,9 @@ sub writeInterfaceConfig {
 
     my $template = Template->new({
         INCLUDE_PATH    => "/usr/local/pf/html/configurator/root/interface",
-        OUTPUT_PATH     => $network_conf_dir,
+        OUTPUT_PATH     => $_network_conf_dir,
     });
-    $template->process( "interface_debian.tt", $vars, $network_conf_file ) || $logger->error($template->error());
+    $template->process( "interface_debian.tt", $vars, $_network_conf_file ) || $logger->error($template->error());
 
     if ( $template->error() ) {
         $status_msg = "Error while writing system network interfaces configuration";

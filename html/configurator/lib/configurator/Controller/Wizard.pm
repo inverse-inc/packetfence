@@ -341,7 +341,8 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
             }
 
             # Update networks.conf file with correct domain-names for each networks
-            my ($status, $networks_ref) = $c->model('Config::Networks')->list_networks();
+            my $networks_ref;
+            ($status, $networks_ref) = $c->model('Config::Networks')->list_networks();
             foreach my $network ( @$networks_ref ) {
                 my $type = $c->model('Config::Networks')->read_value($network, 'type');
                 $c->model('Config::Networks')->update($network, {'domain-name' => $type . "." . $general_domain});
