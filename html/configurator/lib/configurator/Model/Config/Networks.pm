@@ -116,7 +116,6 @@ sub get_types {
         my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
         if ( is_success($status) ) {
             $types_ref->{$interface} = $type;
-            $logger->debug("$interface = $type");
         }
     }
 

@@ -11,7 +11,7 @@
                   [% FOREACH type IN types %]
                   <option value="[% type %]"
                       [%- IF interfaces_types.$i == type -%] selected=""[%- END -%]
-                      [%- IF interfaces_types.$i == 'other' -%] disabled[%- END -%]
+                      [%- IF type == 'other' -%] disabled[%- END -%]
                       >[% l(type) %]</option>
                   [% END %]
                 </select>
