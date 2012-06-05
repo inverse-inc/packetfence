@@ -174,9 +174,16 @@ sub writeGateway {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    open(CONF, ">>".$network_conf_dir.$network_conf_file);
-    print CONF "GATEWAY=$gateway";
-    close(CONF);
+    open IN, '<', $network_conf_dir.$network_conf_file;
+    my @content = <IN>;
+    close IN;
+
+    @content = grep !/^GATEWAY=/, @content;
+
+    open OUT, '>', $network_conf_dir.$network_conf_file;
+    print OUT @content;
+    print OUT "GATEWAY=$gateway";
+    close OUT;
 
     return $STATUS::OK;
 }
@@ -259,9 +266,16 @@ sub writeGateway {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    open(CONF, ">>".$network_conf_dir.$network_conf_file);
-    print CONF "\ngateway $gateway";
-    close(CONF);
+    open IN, '<', $network_conf_dir.$network_conf_file;
+    my @content = <IN>;
+    close IN;
+
+    @content = grep !/^gateway/, @content;
+
+    open OUT, '>', $network_conf_dir.$network_conf_file;
+    print OUT @content;
+    print OUT "gateway $gateway";
+    close OUT;
 
     return $STATUS::OK;
 }
