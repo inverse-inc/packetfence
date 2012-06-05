@@ -175,6 +175,9 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                 }
             }
 
+            # Inject the defined gateway as the new default route for live purposes
+            $c->model('Config::System')->inject_default_route($data->{'gateway'});
+
             # Update the network interface configurations on system
             $c->model('Config::System')->write_network_persistent($c->model('Interface')->get('all'),
                                                                   $data->{'gateway'});
