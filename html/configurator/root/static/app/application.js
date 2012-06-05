@@ -39,7 +39,7 @@ $(function () {
 
     if (typeof initModals == 'function') initModals();
     if (typeof initStep == 'function') initStep();
-    if (typeof registerExists == 'function') registerExists();
+    if (typeof registerExits == 'function') registerExits();
 });
 
 function resetAlert(parent) {

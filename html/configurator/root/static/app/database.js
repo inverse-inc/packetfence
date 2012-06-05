@@ -1,5 +1,5 @@
-function registerExists() {
-    $('#tracker a, .form-actions a').click(function(event) {
+function registerExits() {
+    $('#tracker a, .form-actions button').click(function(event) {
         var href = $(this).attr('href');
         saveStep(href);
         return false; // don't follow link
@@ -173,9 +173,9 @@ function initStep() {
 }
 
 function saveStep(href) {
-    var createDatabase = $('#createDatabase'),
-    assignUser = $('#assignUser'),
-    valid = true;
+    var createDatabase = $('#createDatabase');
+    var assignUser = $('#assignUser');
+    var valid = true;
 
     if (!createDatabase.hasClass('disabled')) {
         btnError(createDatabase);
@@ -198,14 +198,3 @@ function saveStep(href) {
 
     return false;
 }
-
-//function formSuccess(input, msg) {
-//    input.closest('.control-group').addClass('success');
-//    if (msg) {
-//        input.nextAll().last().after('<span class="help-inline">' + msg + '</span>');
-//    }
-//}
-
-//function formError(input, msg) {
-//    input.closest('.control-group').addClass('error');
-//}

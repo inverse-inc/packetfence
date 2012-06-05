@@ -1,5 +1,5 @@
-function registerExists() {
-    $('#tracker a, .form-actions a').click(function(event) {
+function registerExits() {
+    $('#tracker a, .form-actions button').click(function(event) {
         var href = $(this).attr('href');
         saveStep(href);
         return false; // don't follow link

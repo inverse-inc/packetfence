@@ -73,7 +73,7 @@
           <form class="form-horizontal">
             <fieldset>
             <div class="form-actions">
-              <a class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step5') %]">Start PacketFence</a>
+              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step5') %]">Start PacketFence</button>
             </div>
             </fieldset>
           </form>

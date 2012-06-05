@@ -1,5 +1,5 @@
-function registerExists() {
-    $('.form-actions a').click(function(event) {
+function registerExits() {
+    $('.form-actions button').click(function(event) {
         var btn = $(this);
         if (btn.hasClass('disabled')) return false;
         var href = btn.attr('href');

@@ -137,7 +137,7 @@
           </div>
           <fieldset>
             <div class="form-actions">
-              <a class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></a>
+              <button type="submit" class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
             </div>
           </fieldset>
           </form>

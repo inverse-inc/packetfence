@@ -3,8 +3,8 @@ var enforcementTypes = {
     'vlan': ['vlan-registration', 'vlan-isolation']
 };
 
-function registerExists() {
-    $('#tracker a, .form-actions a').click(function(event) {
+function registerExits() {
+    $('#tracker a, .form-actions button').click(function(event) {
         var href = $(this).attr('href');
         saveStep(true, function(data) { window.location.href = href; } );
         return false; // don't follow link
