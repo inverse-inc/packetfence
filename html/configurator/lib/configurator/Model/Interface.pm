@@ -284,6 +284,7 @@ sub get {
           $result->{"$interface"}->{'vlan'}     = $vlan_id;
         }
         $result->{"$interface"}->{'network'}    = $self->_get_network_address($interface->address, $interface->netmask);
+        $result->{"$interface"}->{'hwaddress'}  = $interface->hwaddr;
     }
 
     return $result;
