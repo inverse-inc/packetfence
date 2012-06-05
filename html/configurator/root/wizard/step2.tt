@@ -76,7 +76,7 @@
               <label class="control-label" for="root_password">[% l('Password') %]</label>
               <div class="controls">
                 <input id="root_password" class="text" type="password">
-                <a class="btn" id="testDatabase" href="[% c.uri_for('/db/test') %]">[% l('Test') %]</a>
+                <button type="submit" class="btn" id="testDatabase" href="[% c.uri_for('/db/test') %]">[% l('Test') %]</button>
               </div>
             </div>
             <h3>[% l('Create the database') %]</h3>
@@ -88,7 +88,7 @@
             </div>
             <div class="control-group[% IF c.session.completed.step2 %] success[% END %]">
               <div class="controls">
-                <a class="btn btn-primary[% IF c.session.completed.step2 %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</a>
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.step2 %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</button>
                 [% IF c.session.completed.step2 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
@@ -112,7 +112,7 @@
             </div>
             <div class="control-group[% IF c.session.completed.step2 %] success[% END %]">
               <div class="controls">
-                <a class="btn btn-primary[% IF c.session.completed.step2 %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</a>
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.step2 %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</button>
                 [% IF c.session.completed.step2 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>

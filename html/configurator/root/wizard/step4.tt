@@ -55,7 +55,7 @@
             </div>
             <div class="control-group[% IF c.session.completed.step4 %] success[% END %]">
               <div class="controls">
-                <a id="createUser" class="btn btn-primary[% IF c.session.completed.step4 %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</a>
+                <button type="submit" id="createUser" class="btn btn-primary[% IF c.session.completed.step4 %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</button>
                 [% IF c.session.completed.step4 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
