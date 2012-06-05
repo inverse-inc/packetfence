@@ -46,8 +46,7 @@
               <label class="control-label" for="general_hostname">Hostname</label>
               <div class="controls">
                 <input type="text"class="input" id="general_hostname" value="[% config.${"general.hostname"} %]">
-                <p class="help-block">Hostname of PacketFence system. This is concatenated with the domain
-                in Apache rewriting rules and therefore must be resolvable by clients.</p>
+                <p class="help-block">Hostname of this PacketFence system. This is concatenated with the above domain and therefore must be resolvable by clients.</p>
               </div>
             </div>
             <div class="control-group">

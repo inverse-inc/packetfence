@@ -126,12 +126,14 @@
               <div class="control-group">
                 <div class="controls">
                   <input id="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway %]">
+                  <p class="help-block">Your gateway IP address to access Internet.</p>
                 </div>
               </div>
               <div id="dnsBlock"[% UNLESS c.session.enforcements.inline %] style="display: none;"[% END %]><h3>[% l('DNS Server') %]</h3>
               <div class="control-group">
                 <div class="controls">
                   <input id="dns" type="text" class="input" placeholder="IP address" value="[% c.session.dns %]">
+                  <p class="help-block">The IP address of your network DNS server.</p>
                 </div>
               </div>
           </div>
