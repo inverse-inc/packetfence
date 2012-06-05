@@ -22,6 +22,26 @@ extends 'Catalyst::Model';
 
 =over
 
+=item inject_default_route
+
+=cut
+sub inject_default_route {
+    my ( $self, $gateway ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+
+    my $cmd = "route add default gw $gateway";
+    eval { $status = pf_run($cmd) };
+    if ( $@ || !$status ) {
+        $status_msg = "Error in injecting new default route: $gateway";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return $STATUS::OK;
+}
+
 =item write_network_persistent
 
 =cut
