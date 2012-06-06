@@ -39,7 +39,7 @@
   $fields_to_hide_by_default = array(
       'cliTransport', 'cliUser', 'cliPwd', 'cliEnablePwd', 
       'wsTransport', 'wsUser', 'wsPwd', 
-      'radiusSecret', 'controllerIp', 'roles'
+      'radiusSecret', 'controllerIp', 'roles',
       'macSearchesMaxNb', 'macSearchesSleepInterval', 
       'SNMPVersion', 'SNMPCommunityRead', 'SNMPCommunityWrite', 'SNMPVersionTrap', 'SNMPCommunityTrap', 
       'SNMPEngineID', 'SNMPUserNameRead', 'SNMPAuthProtocolRead', 
