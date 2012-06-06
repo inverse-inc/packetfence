@@ -258,18 +258,17 @@ sub _prepare_types_for_display {
         if (defined($interfaces_types_ref->{$interface})) {
             $display_int_types_ref->{$interface} = $interfaces_types_ref->{$interface};
         }
-        # if doesn't exists in pf.conf and networks.conf
-        elsif ( !defined($interfaces_types_ref->{$interface})
-             && !defined($c->model('Config::Pf')->read_interface_value($interface, 'type')) ) {
-            my $type = 'none';
-            $display_int_types_ref->{$interface} = $type;
-        }
-        # otherwise rely on pf.conf's info
+        # if the interface is not defined in networks.conf
         else {
-            my $type = $c->model('Config::Pf')->read_interface_value($interface, 'type');
-            # since type is a multi-value field (comma separated), we need to do something like this
-            # you'll notice that we only support management for now
-            $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+            my ($status, $type) = $c->model('Config::Pf')->read_interface_value($interface, 'type');
+            # if the interface is not defined in pf.conf
+            if ( is_error($status) ) {
+                $type = 'none';
+            }
+            # rely on pf.conf's info
+            else {
+                $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+            }
             $display_int_types_ref->{$interface} = $type;
         }
     }
