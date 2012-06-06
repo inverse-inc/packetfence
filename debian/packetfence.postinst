@@ -20,23 +20,35 @@ set -e
 
 case "$1" in
     configure)
-	export PACKETFENCE=/usr/local/pf
-	export PERL5LIB=/usr/local/pf/lib
-	perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
-	mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
-	if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
-		cd $PACKETFENCE/db
-		VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
-		ln -s $VERSIONSQL ./pf-schema.sql
-	fi
-	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
-	for i in `find /etc/freeradius/ -name *.pf`;do mv $i `dirname $i`/`basename $i .pf`; done
-	for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server
-		do
-		update-rc.d $service remove > /dev/null 2>&1
-		done
-	update-rc.d packetfence defaults . || exit 0
-	update-rc.d configurator start 02 2 3 4 5 . stop 20 0 1 6 . || exit 0
+        export PACKETFENCE=/usr/local/pf
+        export PERL5LIB=/usr/local/pf/lib
+    
+        # creating emtpy log files
+        $PACKETFENCE/installer.pl postinst $PACKETFENCE
+    
+        # compile grammar
+        perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
+        mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
+    
+        # link to latest SQL schema
+        if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
+            cd $PACKETFENCE/db
+            VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+            ln -s $VERSIONSQL ./pf-schema.sql
+        fi
+    
+        # we are not compatible with suhosin session encryption
+        sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
+    
+        # backup of original files in freeradius
+        for i in `find /etc/freeradius/ -name *.pf`;do mv $i `dirname $i`/`basename $i .pf`; done
+    
+        # managing services
+        for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
+            update-rc.d $service remove > /dev/null 2>&1
+        done
+        update-rc.d packetfence defaults . || exit 0
+        update-rc.d configurator start 02 2 3 4 5 . stop 20 0 1 6 . || exit 0
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -54,3 +66,5 @@ esac
 #DEBHELPER#
 
 exit 0
+# vim: set shiftwidth=4:
+# vim: set expandtab:

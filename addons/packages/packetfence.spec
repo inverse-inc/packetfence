@@ -50,6 +50,10 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
 %endif
 
+# Log related globals
+%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
+%global logdir /usr/local/pf/logs
+
 BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
@@ -259,7 +263,7 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
+%{__install} -d $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
@@ -328,6 +332,10 @@ cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
+# logfiles
+for LOG in %logfiles; do
+    touch $RPM_BUILD_ROOT%logdir/$LOG
+done
 
 #start create symlinks
 curdir=`pwd`
@@ -690,6 +698,10 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
+# logfiles
+for LOG in %logfiles; do
+%ghost                  %logdir/$LOG
+done
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices

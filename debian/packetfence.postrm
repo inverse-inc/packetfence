@@ -24,17 +24,19 @@ case "$1" in
     ;;
 
     remove)
-	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/radiusd.conf.orig /etc/freeradius/radiusd.conf
-	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/eap.conf.orig /etc/freeradius/eap.conf
-	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/users.orig /etc/freeradius/users
-	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/perl.orig /etc/freeradius/modules/perl
-	dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/sql.conf.orig /etc/freeradius/sql.conf
+        dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/radiusd.conf.orig /etc/freeradius/radiusd.conf
+        dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/eap.conf.orig /etc/freeradius/eap.conf
+        dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/users.orig /etc/freeradius/users
+        dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/perl.orig /etc/freeradius/modules/perl
+        dpkg-divert --package packetfence  --remove --rename --divert /etc/freeradius/sql.conf.orig /etc/freeradius/sql.conf
     ;;
     purge)
-	update-rc.d packetfence remove >/dev/null || exit 0
-	update-rc.d configurator remove >/dev/null || exit 0
+        # removing init scripts
+        update-rc.d packetfence remove >/dev/null || exit 0
+        update-rc.d configurator remove >/dev/null || exit 0
+        # purging all files
         rm -fr /usr/local/pf
-    ;;
+        ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2
         exit 1
@@ -47,3 +49,5 @@ esac
 #DEBHELPER#
 
 exit 0
+# vim: set shiftwidth=4:
+# vim: set expandtab:

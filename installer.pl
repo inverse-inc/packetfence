@@ -8,37 +8,39 @@ installer.pl - install PacketFence and dependencies
 
   cd /usr/local/pf && ./installer.pl
 
-Then answer the questions ...
+=head1 SYNOPSIS
+
+installer.pl [postinst PATH]
 
 =head1 DESCRIPTION
 
-installer.pl will help you with the following tasks:
+installer.pl without any options will help you with the following tasks:
 
 =over
 
-=item * creation of the C<pf> user
-
-=item * creation of the database and database user
-
 =item * installation of Perl module dependencies
-
-=item * installation of JPGraph
 
 =item * update of DHCP fingerprints to latest version
 
 =item * update of OUI prefixes to the latest version
 
+=item * downloading snort rules
+
 =item * compilation of pfcmd grammar
 
 =item * compilation of message catalogue (i18n)
 
-=item * creation of a self-signed SSL certificate
-
-=item * account creation for the Web Admin GUI
-
-=item * installation of the PHP Pear Log package
+=item * creation of the empty directories required and not in source tarball
 
 =item * permissions and ownerships of files in F</usr/local/pf>
+
+=back
+
+installer.pl postinst:
+
+=over
+
+=item * creation of empty log files required for PacketFence operation
 
 =back
 
@@ -76,6 +78,12 @@ my $mysql_db;
 
 my $install_dir = $FindBin::Bin;
 my $conf_dir    = "$install_dir/conf";
+
+if ($ARGV[0] eq 'postint') {
+    die 'You must specify destination path' if (!defined($ARGV[1]));
+    installer::postint($ARGV[1]);
+    exit;
+}
 
 #  check if user is root
 die("You must be root to run the installer!\n") if ( $< != 0 );
@@ -399,21 +407,10 @@ if (questioner(
 }
 
 print "Creating required directories (you can safely ignore 'already exists' notices)\n";
-`mkdir -p $install_dir/conf/ssl $install_dir/conf/users $install_dir/html/admin/mrtg $install_dir/html/admin/traplog $install_dir/html/admin/scan/results $install_dir/logs $install_dir/var/conf $install_dir/var/dhcpd $install_dir/var/named $install_dir/var/run $install_dir/var/rrd $install_dir/var/session $install_dir/var/webadmin_cache`;
+installer::create_empty_directories($install_dir);
 
-# TODO: au démarrage de PF, créer les logs si les fichiers n'existent pas
-# et supprimer cette section
 print "Creating empty log files\n";
-`touch $install_dir/logs/packetfence.log`;
-`touch $install_dir/logs/snmptrapd.log`;
-`touch $install_dir/logs/access_log`;
-`touch $install_dir/logs/error_log`;
-`touch $install_dir/logs/admin_access_log`;
-`touch $install_dir/logs/admin_error_log`;
-`touch $install_dir/logs/admin_debug_log`;
-`touch $install_dir/logs/pfdetect`;
-`touch $install_dir/logs/pfmon`;
-`touch $install_dir/logs/pfredirect`;
+installer::create_empty_log_files($install_dir);
 
 print "Setting permissions\n";
 print "  Chowning $install_dir pf:pf\n";
@@ -424,6 +421,7 @@ foreach my $file (@suids) {
     `chmod 6755 $file`;
 }
 
+# TODO change that
 print
     "Installation is complete\n** Please run $install_dir/configurator.pl before starting PacketFence **\n\n\n";
 
@@ -472,6 +470,44 @@ sub supported_os {
         return ( $oses{$supported} ) if ( $version =~ /^$supported/ );
     }
     return (0);
+}
+
+package installer;
+
+sub create_empty_directories {
+    my ($root_dir) = @_;
+    `mkdir -p $root_dir/conf/ssl $root_dir/conf/users $root_dir/html/admin/mrtg $root_dir/html/admin/traplog $root_dir/html/admin/scan/results $root_dir/logs $root_dir/var/conf $root_dir/var/dhcpd $root_dir/var/named $root_dir/var/run $root_dir/var/rrd $root_dir/var/session $root_dir/var/webadmin_cache`;
+}
+
+sub postinst {
+    my ($root_dir) = @_;
+    create_empty_log_files($root_dir);
+}
+
+=item create_empty_log_files
+
+Create log files in a way that PacketFence will start. Files must exist and
+be owned by pf:pf.
+
+If the files already exists they won't be re-created or deleted.
+
+=cut
+sub create_empty_log_files {
+    my ($root_dir) = @_;
+    my @logfiles = qw(
+        packetfence.log
+        snmptrapd.log
+        access_log error_log
+        admin_access_log admin_error_log admin_debug_log
+        pfdetect pfmon pfredirect
+    );
+    print "Creating log files if they don't already exist\n";
+    foreach my $file (@logfiles) {
+        print "...$file\n";
+        `touch $root_dir/logs/$file`;
+    }
+    print "Setting log file ownership\n";
+    `chown -R pf:pf $root_dir/logs`;
 }
 
 =head1 SEE ALSO
