@@ -11,8 +11,8 @@ Catalyst Model.
 =cut
 
 use Moose;
-
 use namespace::autoclean;
+use Net::Netmask;
 
 use pf::error qw(is_error is_success);
 use pf::util;
@@ -23,45 +23,80 @@ extends 'Catalyst::Model';
 
 =over
 
-=item inject_default_route
+=item _get_gateway_interface
 
 =cut
-sub inject_default_route {
+sub _get_gateway_interface {
+    my ( $self, $interfaces_ref, $gateway ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    foreach my $interface ( sort keys(%$interfaces_ref) ) {
+        next if ( !($interfaces_ref->{$interface}->{'running'}) );
+
+        my $network = $interfaces_ref->{$interface}->{'network'};
+        my $netmask = $interfaces_ref->{$interface}->{'netmask'};
+        my $subnet  = new Net::Netmask($network, $netmask);
+
+        return $interface if ( $subnet->match($gateway) );
+    }
+
+    return;
+}
+
+=item _inject_default_route
+
+=cut
+sub _inject_default_route {
     my ( $self, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status, $status_msg);
+    my $status;
 
-    my $cmd = "route add default gw $gateway";
-    eval { $status = pf_run($cmd) };
-    if ( $@ || !$status ) {
-        $status_msg = "Error in injecting new default route: $gateway";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    return $STATUS::OK;
+# Need to add error handling here...
+    my $cmd = "route del default";
+    pf_run($cmd);
+    $cmd = "route add default gw $gateway";
+    pf_run($cmd);
+    return 1;
+#    my $cmd = "route add default gw $gateway";
+#    eval { $status = pf_run($cmd) };
+#    if ( $@ || !$status ) {
+#        return $STATUS::INTERNAL_SERVER_ERROR;
+#    }
+#
+#    return $STATUS::OK;
 }
 
 =item write_network_persistent
 
 =cut
 sub write_network_persistent {
-    my ( $self, $interface_ref, $gateway ) = @_;
+    my ( $self, $interfaces_ref, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg, $systemObj);
 
+    # Check if gateway is valid
+    my $gateway_interface = $self->_get_gateway_interface($interfaces_ref, $gateway);
+    if ( !$gateway_interface ) {
+        $status_msg = "Invalid gateway. Doesn't belong to any running and configured interface";
+        $logger->error("$status_msg");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Inject gateway for live usage
+    if ( !$self->_inject_default_route($gateway) ) {
+        $status_msg = "Error while injecting gateway on system. See server side logs for details";
+        $logger->error("$status_msg");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    
     # Instantiate an object for the correct OS
     ($status, $systemObj) = configurator::Model::Config::SystemFactory->getSystem();
     return ($status, $systemObj) if ( is_error($status) );
 
-    # Write persistent network interfaces configurations
-    ($status, $status_msg) = $systemObj->writeInterfaceConfig($interface_ref);
-    return ($status, $status_msg) if ( is_error($status) );
-
-    # Write persistent system default gateway
-    ($status, $status_msg) = $systemObj->writeGateway($gateway);
+    # Write persistent network configurations
+    ($status, $status_msg) = $systemObj->writeNetworkConfigs($interfaces_ref, $gateway, $gateway_interface);
     return ($status, $status_msg) if ( is_error($status) );
 
     $status_msg = "Persistent network configurations successfully written";
@@ -122,10 +157,10 @@ sub getSystem {
 
     my $os = $self->_checkOs();
 
-    $logger->info($os);
     if (defined($os)) {
         my $system = "configurator::Model::Config::System::$os";
         my $systemObj = $system->new();
+        $logger->info("Instantiate a new object of type $os");
         return ($STATUS::OK, $systemObj);
     }
 
@@ -152,7 +187,7 @@ Moose class implemeting roles.
 
 use Moose::Role;
 
-requires qw(writeGateway writeInterfaceConfig);
+requires qw(writeNetworkConfigs);
 
 
 package configurator::Model::Config::System::RHEL;
@@ -180,40 +215,11 @@ our $_interface_conf_file = "ifcfg-";
 
 =over
 
-=item writeGateway
+=item writeNetworkConfigs
 
 =cut
-sub writeGateway {
-    my ( $this, $gateway ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my ($status, $status_msg);
-
-    if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
-        $status_msg = "Error while writing system's default gateway";
-        $logger->error($status_msg ." | ". $_network_conf_dir.$_network_conf_file ." don't exists");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    open IN, '<', $_network_conf_dir.$_network_conf_file;
-    my @content = <IN>;
-    close IN;
-
-    @content = grep !/^GATEWAY=/, @content;
-
-    open OUT, '>', $_network_conf_dir.$_network_conf_file;
-    print OUT @content;
-    print OUT "GATEWAY=$gateway";
-    close OUT;
-
-    return $STATUS::OK;
-}
-
-=item writeInterfaceConfig
-
-=cut
-sub writeInterfaceConfig {
-    my ( $this, $interfaces_ref ) = @_;
+sub writeNetworkConfigs {
+    my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
@@ -242,7 +248,24 @@ sub writeInterfaceConfig {
         } 
     }
 
-    $logger->info("System network interfaces successfully written");
+    if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
+        $status_msg = "Error while writing system's default gateway";
+        $logger->error($status_msg ." | ". $_network_conf_dir.$_network_conf_file ." don't exists");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    open IN, '<', $_network_conf_dir.$_network_conf_file;
+    my @content = <IN>;
+    close IN;
+
+    @content = grep !/^GATEWAY=/, @content;
+
+    open OUT, '>', $_network_conf_dir.$_network_conf_file;
+    print OUT @content;
+    print OUT "GATEWAY=$gateway";
+    close OUT;
+
+    $logger->info("System network configurations successfully written");
     return $STATUS::OK;
 }
 
@@ -272,46 +295,19 @@ our $_network_conf_file   = "interfaces";
 
 =over
 
-=item writeGateway
+=item writeNetworkConfigs
 
 =cut
-sub writeGateway {
-    my ( $this, $gateway ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my ($status, $status_msg);
-
-    if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
-        $status_msg = "Error while writing system's default gateway";
-        $logger->error($status_msg ." | ". $_network_conf_dir.$_network_conf_file ." don't exists");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    open IN, '<', $_network_conf_dir.$_network_conf_file;
-    my @content = <IN>;
-    close IN;
-
-    @content = grep !/^gateway/, @content;
-
-    open OUT, '>', $_network_conf_dir.$_network_conf_file;
-    print OUT @content;
-    print OUT "gateway $gateway";
-    close OUT;
-
-    return $STATUS::OK;
-}
-
-=item writeInterfaceConfig
-
-=cut
-sub writeInterfaceConfig {
-    my ( $this, $interfaces_ref ) = @_;
+sub writeNetworkConfigs {
+    my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $status_msg;
 
     my $vars = {
-        interfaces  => $interfaces_ref,
+        interfaces          => $interfaces_ref,
+        gateway             => $gateway,
+        gateway_interface   => $gateway_interface,
     };
 
     my $template = Template->new({
@@ -326,7 +322,7 @@ sub writeInterfaceConfig {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    $logger->info("System network interfaces successfully written");
+    $logger->info("System network configurations successfully written");
     return $STATUS::OK;
 }
 
