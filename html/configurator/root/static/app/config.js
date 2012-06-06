@@ -6,6 +6,10 @@ function registerExits() {
     });
 }
 
+function initStep() {
+    $('#general_domain').focus();
+}
+
 function saveStep(href) {
     var valid = true;
 

@@ -51,6 +51,8 @@ function initStep() {
 
         return false;
     });
+
+    $('#admin_user').focus();
 }
 
 function saveStep(href) {

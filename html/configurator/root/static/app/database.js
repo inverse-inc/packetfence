@@ -170,6 +170,8 @@ function initStep() {
 
         return false;
     });
+
+    $('#root_user').focus();
 }
 
 function saveStep(href) {
