@@ -1,6 +1,10 @@
 body {
     padding-top: 60px;
 }
+#navbar h6 {
+    margin: 0;
+    line-height: 48px;
+}
 [class^="icon-step"],
 [class*=" icon-step"] {
     background-image: url("steps.png");
