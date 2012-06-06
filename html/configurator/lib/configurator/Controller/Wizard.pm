@@ -43,6 +43,11 @@ sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
     $c->stash->{installation_type} = $c->model('Wizard')->checkForUpgrade();
+    if( $c->stash->{installation_type} eq 'configuration' ) {
+        my $admin_ip    = $c->model('PfConfigAdapter')->getWebAdminIp();
+        my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
+        $c->response->redirect("https://$admin_ip:$admin_port");
+    }
 }
 
 =item step1
@@ -428,6 +433,7 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
         else {
             my ($status, $services_status) = $c->model('Services')->status();
             if ( is_success($status) ) {
+                $c->model('Wizard')->update_currently_at();
                 $c->log->info("successfully listed services");
                 $c->stash->{'services'} = $services_status;
             }

@@ -67,8 +67,8 @@ sub checkForUpgrade {
     close( $filehandler );
 
     if ( (!$currently_at) || ($currently_at eq $pf_release) ) {
-        $logger->info("Installation process");
-        return "installation";
+        $logger->info("Configuration process");
+        return "configuration";
     } else {
         $logger->info("Upgrade process");
         return "upgrade";
@@ -106,6 +106,24 @@ sub createAdminUser {
     $status_msg = "Successfully created the administrative user $user";
     $logger->info("$status_msg");
     return ($STATUS::OK, $status_msg);
+}
+
+=item upate_currently_at
+
+=cut
+sub update_currently_at {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    open PFRELEASE, '<', "$conf_dir/pf-release";
+    my @pfrelease  = <PFRELEASE>;
+    close PFRELEASE;
+
+    open CURRENTLYAT, '>', "$conf_dir/currently-at";
+    print CURRENTLYAT @pfrelease;
+    close CURRENTLYAT;
+
+    return $STATUS::OK;
 }
 
 =back
