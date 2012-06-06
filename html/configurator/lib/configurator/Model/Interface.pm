@@ -251,6 +251,7 @@ Returns an hashref with:
         netmask    => ...
         running    => true / false value
         network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
+        hwaddress  => mac address
     # and optionnally:
         vlan       => vlan tag
     }
