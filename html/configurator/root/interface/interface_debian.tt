@@ -6,4 +6,4 @@ iface [% interface %] inet static
     address [% interfaces.$interface.ipaddress %]
     netmask [% interfaces.$interface.netmask %]
 [% IF interface == gateway_interface %]    gateway [% gateway %]
-[% END %][% END %]
+[% END %][% END %][% END %]
