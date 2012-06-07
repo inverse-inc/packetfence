@@ -2885,4 +2885,4 @@ In order to start FreeRADIUS in debug mode, start it using the following command
   # radiusd -X
 
 
-// vim: set syntax=asciidoc:
+// vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
