@@ -106,8 +106,11 @@ case "$1" in
 		2) [ "$VERBOSE" != no ] && log_end_msg 1 ;;
 	esac
 	;;
-  status)
-       status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
+ status)
+        /usr/local/pf/bin/pfcmd service pf status
+        if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
+          exit 3
+       fi
        ;;
   #reload|force-reload)
 	#

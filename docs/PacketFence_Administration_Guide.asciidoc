@@ -191,9 +191,12 @@ Install your distribution with minimal installation and no additional packages. 
 * Enable Firewall
 * Disable SELinux
 
-Make sure your system is up to date and your yum database is updated:
+Make sure your system is up to date and your yum or apt-get database is updated:
 
   yum update
+
+  apt-get update
+  apt-get upgrade
 
 RHEL 5.x / CentOS 5.x
 ^^^^^^^^^^^^^^^^^^^^^
@@ -244,10 +247,16 @@ RedHat doesn't seem to provide a `perl-Net-Telnet` package. PacketFence needs it
 
   yum install perl-Net-Telnet --enablerepo=rpmforge-extras
 
+Debian Squeeze
+^^^^^^^^^^^^^^
+
+All the PacketFence dependencies are available through the official Debian repository. 
+
 Software Download
 ~~~~~~~~~~~~~~~~~
 
 Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / CentOS instead of a single RPM file.
+For Debian squeeze, starting with 3.3.3, PacketFence is now providing an deb repository.
 
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
@@ -258,6 +267,8 @@ This repository contains all required dependencies to install PacketFence. This 
 
 Software Installation
 ~~~~~~~~~~~~~~~~~~~~~
+
+For RHEL / CentOS:
 
 In order to use the repository, just create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content: 
 
@@ -274,6 +285,18 @@ Once the repository is defined, you can install PacketFence with all it's depend
 Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
 
   yum install --enablerepo=PacketFence,rpmforge packetfence
+
+For Debian squeeze:
+
+In order to use the repository, just create a file named `/etc/apt/sources.list.d/packetfence.list` with the following content:
+
+  deb http://inverse.ca/downloads/PacketFence/debian squeeze squeeze
+
+Once the repository is defined, you can install PacketFence with all it's dependencies, and the required external services (DNS server, Database server, DHCP server, RADIUS server) using:
+
+  sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
+  sudo apt-get update
+  sudo apt-get install packetfence
 
 Once installed, execute the installer and follow the instructions:
 
@@ -770,6 +793,8 @@ FreeRADIUS Configuration
 
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
+Under Debian, the freeradius server is a dependencie of PacketFence, so you don't have to install it. Just be careful, the configuration directory is under /etc/freeradius.
+ 
 Install the following packages:
 
 [options="compact"]
