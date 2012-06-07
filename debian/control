@@ -47,6 +47,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libnet-frame-simple-perl, libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
  gettext, vlan, libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
+# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl
 Description: PacketFence network registration / worm mitigation system
@@ -69,6 +70,7 @@ Package: packetfence-remote-snort-sensor
 Architecture: all
 Depends: ${misc:Depends}, snort, libfile-tail-perl, libconfig-inifiles-perl,
  libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
+# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
 Conflicts: packetfence
 Description: Files needed for sending snort alerts to packetfence 
@@ -80,6 +82,7 @@ Package: packetfence-test
 Architecture: all
 Depends: packetfence, libauthen-radius-perl, libauthen-krb5-simple-perl, libtest-mockmodule-perl,
  libtext-csv-perl, libtest-nowarnings-perl, libjson-perl,libtest-mockobject-perl,
+# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-pool-perl, libthread-conveyor-perl, libthread-tie-perl, liberror-perl,
  libtest-exception-perl, libnetpacket-perl (>= 1.3)
 Description: Test suite for packetfence
