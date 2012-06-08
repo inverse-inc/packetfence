@@ -625,14 +625,15 @@ sub report_ssid_active {
     return (@return_data);
 }
 
-=item * report_osclassbandwidth_all
+=item * report_osclassbandwidth
 
-Reporting - OS Class bandwitdh usage - All time
+Reporting - OS Class bandwitdh usage - generic method
 
 =cut
-sub report_osclassbandwidth_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 999999999 , 999999999 );
-    my $totalbw   = 0;
+sub report_osclassbandwidth {
+    my ($range) = @_;
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $range, $range);
+    my $totalbw = 0;
     my @return_data;
 
     foreach my $record (@data) {
@@ -643,6 +644,15 @@ sub report_osclassbandwidth_all {
     $totalbw = pf::util::pretty_bandwidth($totalbw);
     push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
     return (@return_data);
+}
+
+=item * report_osclassbandwidth_all
+
+Reporting - OS Class bandwitdh usage - All time
+
+=cut
+sub report_osclassbandwidth_all {
+    return report_osclassbandwidth(999999999);
 }
 
 =item * report_osclassbandwidth_day
@@ -651,18 +661,7 @@ Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
 sub report_osclassbandwidth_day {
-    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 86400 , 86400 );
-    my $totalbw   = 0;
-    my @return_data;
-
-    foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
-        push @return_data, $record;
-    }
-    $totalbw = pf::util::pretty_bandwidth($totalbw);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
-    return (@return_data);
+    return report_osclassbandwidth(24 * 60 * 60);
 }
 
 =item * report_osclassbandwidth_week
@@ -671,18 +670,7 @@ Reporting - OS Class bandwitdh usage for the last week
 
 =cut
 sub report_osclassbandwidth_week {
-    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 604800, 604800 );
-    my $totalbw   = 0;
-    my @return_data;
-
-    foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
-        push @return_data, $record;
-    }
-    $totalbw = pf::util::pretty_bandwidth($totalbw);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
-    return (@return_data);
+    return report_osclassbandwidth(7 * 24 * 60 * 60);
 }
 
 =item * report_osclassbandwidth_month
@@ -691,18 +679,7 @@ Reporting - OS Class bandwitdh usage for the last month
 
 =cut
 sub report_osclassbandwidth_month {
-    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 2592000, 2592000 );
-    my $totalbw   = 0;
-    my @return_data;
-
-    foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
-        push @return_data, $record;
-    }
-    $totalbw = pf::util::pretty_bandwidth($totalbw);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
-    return (@return_data);
+    return report_osclassbandwidth(30 * 7 * 24 * 60 * 60);
 }
 
 =item * report_osclassbandwidth_year
@@ -711,18 +688,7 @@ Reporting - OS Class bandwitdh usage for the last year
 
 =cut
 sub report_osclassbandwidth_year {
-    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 31536000, 31536000 );
-    my $totalbw   = 0;
-    my @return_data;
-
-    foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
-        push @return_data, $record;
-    }
-    $totalbw = pf::util::pretty_bandwidth($totalbw);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
-    return (@return_data);
+    return report_osclassbandwidth(365 * 7 * 24 * 60 * 60);
 }
 
 =item * report_nodebandwidth_all
