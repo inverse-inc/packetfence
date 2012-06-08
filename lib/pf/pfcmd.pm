@@ -276,16 +276,16 @@ sub parseCommandLine {
                                      ( active | inactive | openviolations 
                                        | os | osclass | registered | statics | ssid
                                        | unknownprints | unknownuseragents | unregistered
-                                       | connectiontype | connectiontypereg | classaccounting
-                                       | nodeaccounting
+                                       | connectiontype | connectiontypereg | osclassbandwidth
+                                       | nodebandwidth
                                      )
                                      |
                                      (?: #for grouping only
                                        ( openviolations | os | osclass 
                                          | registered | statics | ssid
                                          | unknownprints | unknownuseragents | unregistered 
-                                         | connectiontype | connectiontypereg | classaccounting
-                                         | nodeaccounting
+                                         | connectiontype | connectiontypereg | osclassbandwidth
+                                         | nodebandwidth
                                        )
                                        \s+
                                        ( all | active | top25 | daily | weekly | monthly | yearly )

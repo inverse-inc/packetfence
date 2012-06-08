@@ -40,7 +40,7 @@
     'unknownprints', 'unknownuseragents', 
     'openviolations', 'statics',
     'connectiontype', 'connectiontypereg',
-    'ssid', 'nodeaccouting', 'classaccounting'
+    'ssid', 'nodebandwidth', 'osclassbandwidth'
   );
   $type = set_default($_REQUEST['type'], 'ipmachistory');
   $subtype = set_default($_GET['subtype'], '');
@@ -58,9 +58,9 @@
       $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=active'>Active</a>";
   }
   
-  if($type == 'classaccounting'){
+  if($type == 'osclassbandwidth'){
       if($subtype == 'daily')
-         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'><u>Today</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
+         $additional = "$pretty_type Window: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'><u>Today</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
       else if($subtype == 'weekly')
          $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'><u>Weekly</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
       else if($subtype == 'monthly')

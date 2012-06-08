@@ -29,12 +29,12 @@ BEGIN {
         $report_db_prepared
         report_db_prepare
 
-        report_classaccounting_all
-        report_classaccounting_daily
-        report_classaccounting_weekly
-        report_classaccounting_monthly
-        report_classaccounting_yearly
-        report_nodeaccounting_all
+        report_osclassbandwidth_all
+        report_osclassbandwidth_daily
+        report_osclassbandwidth_weekly
+        report_osclassbandwidth_monthly
+        report_osclassbandwidth_yearly
+        report_nodebandwidth_all
         report_os_all
         report_os_active
         report_osclass_all
@@ -232,7 +232,7 @@ sub report_db_prepare {
        ORDER BY nodes
     ]);
 
-    $report_statements->{'report_classaccounting_sql'} = get_db_handle()->prepare(qq [
+    $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq [
        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
            ROUND(SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
@@ -251,7 +251,7 @@ sub report_db_prepare {
         ORDER BY percent DESC;
     ]);
 
-    $report_statements->{'report_nodeaccounting_sql'} = get_db_handle()->prepare(qq [
+    $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
       SELECT LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
              SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2))) as callingstationid,
              SUM(radacct_log.acctinputoctets) AS acctinput,
@@ -614,18 +614,18 @@ sub report_ssid_active {
         }
 
     }
-    
+
     push @return_data, { ssid => "Total", percent => "100", nodes => $total };
     return (@return_data);
 }
 
-=item * report_classaccounting_all
+=item * report_osclassbandwidth_all
 
 Reporting - OS Class bandwitdh usage - All time
 
 =cut
-sub report_classaccounting_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 999999999 , 999999999 );
+sub report_osclassbandwidth_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 999999999 , 999999999 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -639,13 +639,13 @@ sub report_classaccounting_all {
     return (@return_data);
 }
 
-=item * report_classaccounting_daily
+=item * report_osclassbandwidth_daily
 
 Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
-sub report_classaccounting_daily {
-    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 86400 , 86400 );
+sub report_osclassbandwidth_daily {
+    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 86400 , 86400 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -659,13 +659,13 @@ sub report_classaccounting_daily {
     return (@return_data);
 }
 
-=item * report_classaccounting_weekly
+=item * report_osclassbandwidth_weekly
 
 Reporting - OS Class bandwitdh usage for the last week
 
 =cut
-sub report_classaccounting_weekly {
-    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 604800, 604800 );
+sub report_osclassbandwidth_weekly {
+    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 604800, 604800 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -679,13 +679,13 @@ sub report_classaccounting_weekly {
     return (@return_data);
 }
 
-=item * report_classaccounting_monthly
+=item * report_osclassbandwidth_monthly
 
 Reporting - OS Class bandwitdh usage for the last month
 
 =cut
-sub report_classaccounting_monthly {
-    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 2592000, 2592000 );
+sub report_osclassbandwidth_monthly {
+    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 2592000, 2592000 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -699,13 +699,13 @@ sub report_classaccounting_monthly {
     return (@return_data);
 }
 
-=item * report_classaccounting_yearly
+=item * report_osclassbandwidth_yearly
 
 Reporting - OS Class bandwitdh usage for the last year
 
 =cut
-sub report_classaccounting_yearly {
-    my @data    = db_data(REPORT, $report_statements, 'report_classaccounting_sql', 31536000, 31536000 );
+sub report_osclassbandwidth_yearly {
+    my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 31536000, 31536000 );
     my $totalbw   = 0;
     my @return_data;
 
@@ -719,13 +719,13 @@ sub report_classaccounting_yearly {
     return (@return_data);
 }
 
-=item * report_nodeaccounting_all
+=item * report_nodebandwidth_all
 
 Reporting - Node bandwitdh usage for the top 25 consumers
 
 =cut
-sub report_nodeaccounting_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_nodeaccounting_sql');
+sub report_nodebandwidth_all {
+    my @data    = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql');
     my $totalbw   = 0;
     my @return_data;
 
