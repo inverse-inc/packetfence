@@ -30,10 +30,10 @@ BEGIN {
         report_db_prepare
 
         report_osclassbandwidth_all
-        report_osclassbandwidth_daily
-        report_osclassbandwidth_weekly
-        report_osclassbandwidth_monthly
-        report_osclassbandwidth_yearly
+        report_osclassbandwidth_day
+        report_osclassbandwidth_week
+        report_osclassbandwidth_month
+        report_osclassbandwidth_year
         report_nodebandwidth_all
         report_os_all
         report_os_active
@@ -639,12 +639,12 @@ sub report_osclassbandwidth_all {
     return (@return_data);
 }
 
-=item * report_osclassbandwidth_daily
+=item * report_osclassbandwidth_day
 
 Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
-sub report_osclassbandwidth_daily {
+sub report_osclassbandwidth_day {
     my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 86400 , 86400 );
     my $totalbw   = 0;
     my @return_data;
@@ -659,12 +659,12 @@ sub report_osclassbandwidth_daily {
     return (@return_data);
 }
 
-=item * report_osclassbandwidth_weekly
+=item * report_osclassbandwidth_week
 
 Reporting - OS Class bandwitdh usage for the last week
 
 =cut
-sub report_osclassbandwidth_weekly {
+sub report_osclassbandwidth_week {
     my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 604800, 604800 );
     my $totalbw   = 0;
     my @return_data;
@@ -679,12 +679,12 @@ sub report_osclassbandwidth_weekly {
     return (@return_data);
 }
 
-=item * report_osclassbandwidth_monthly
+=item * report_osclassbandwidth_month
 
 Reporting - OS Class bandwitdh usage for the last month
 
 =cut
-sub report_osclassbandwidth_monthly {
+sub report_osclassbandwidth_month {
     my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 2592000, 2592000 );
     my $totalbw   = 0;
     my @return_data;
@@ -699,12 +699,12 @@ sub report_osclassbandwidth_monthly {
     return (@return_data);
 }
 
-=item * report_osclassbandwidth_yearly
+=item * report_osclassbandwidth_year
 
 Reporting - OS Class bandwitdh usage for the last year
 
 =cut
-sub report_osclassbandwidth_yearly {
+sub report_osclassbandwidth_year {
     my @data    = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', 31536000, 31536000 );
     my $totalbw   = 0;
     my @return_data;

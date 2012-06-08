@@ -291,7 +291,7 @@ sub parseCommandLine {
                                      )
                                      |
                                      (?: #for grouping only
-                                       ( osclassbandwidth ) \s+ ( all | daily | weekly | monthly | yearly )
+                                       ( osclassbandwidth ) \s+ ( all | day | week | month | year )
                                      )
                                    )
                                  $  }xms,

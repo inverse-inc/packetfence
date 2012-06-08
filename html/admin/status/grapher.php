@@ -56,10 +56,10 @@
     'ssid all' => 'pie',
     'osclassbandwidth' => 'pie',
     'osclassbandwidth all' => 'pie',
-    'osclassbandwidth daily' => 'pie',
-    'osclassbandwidth weekly' => 'pie',
-    'osclassbandwidth monthly' => 'pie',
-    'osclassbandwidth yearly' => 'pie'
+    'osclassbandwidth day' => 'pie',
+    'osclassbandwidth week' => 'pie',
+    'osclassbandwidth month' => 'pie',
+    'osclassbandwidth year' => 'pie'
   );
 
 function jsgraph($options) {

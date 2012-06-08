@@ -354,7 +354,7 @@ Usage: pfcmd report
                <registered|unregistered|unknownprints|unknownuseragents> [all|active]
                <openviolations|statics> [all|active]
                <os|osclass> [all|active]
-               osclassbandwidth [all|daily|weekly|monthly|yearly]
+               osclassbandwidth [all|day|week|month|year]
                nodebandwidth
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
@@ -367,7 +367,7 @@ registered        | show all registered nodes
 unregistered      | show all unregistered nodes
 os                | show OS distribution
 osclass           | show OS distribution, aggregated by class
-osclassbandwidth  | show bandwitdh usage by OS distribution (use daily/weekly/monthly/yearly for the timeframe)
+osclassbandwidth  | show bandwitdh usage by OS distribution (use day/week/month/year for the time window)
 nodebandwidth     | show bandwitdh usage for the top 25 bandwidth eating nodes
 unknownprints     | show DHCP fingerprints without a known OS mapping
 unknownuseragents | show User-Agents fingerprints without a known Browser or OS mapping

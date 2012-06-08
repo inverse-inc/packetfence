@@ -59,7 +59,7 @@
   }
   
   if ($type == 'osclassbandwidth') {
-      $window_choices = array('all', 'daily', 'weekly', 'monthly', 'yearly');
+      $window_choices = array('all', 'day', 'week', 'month', 'year');
       $additional = "$pretty_type Window: ";
       foreach ($window_choices as $window) {
          if ($subtype == $window) {
