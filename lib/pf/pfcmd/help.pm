@@ -641,6 +641,8 @@ EOT
 
 =head1 AUTHOR
 
+Francois Gaudreault <fgaudreault@inverse.ca>
+
 David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>

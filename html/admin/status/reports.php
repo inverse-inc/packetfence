@@ -22,7 +22,7 @@
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Francois Gaudreault <fgaudreault@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
