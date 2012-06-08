@@ -73,7 +73,6 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
-#use pf::config::ui;
 use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
@@ -2372,10 +2371,6 @@ sub format_assignment {
     }
     return (%return);
 }
-
-#sub field_order {
-#    return pf::config::ui->instance->field_order("@ARGV");
-#}
 
 # return the correct field order listed in ui.conf Display
 #
