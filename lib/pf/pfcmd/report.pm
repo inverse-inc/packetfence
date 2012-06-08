@@ -233,16 +233,32 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq [
-       SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
-           SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
-           ROUND(SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-                      INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
-                                                                SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
-                      WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND))*100,1) AS percent
+        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
+            ROUND(
+                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
+                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                    INNER JOIN node n ON n.mac = LOWER(CONCAT(
+                        SUBSTRING(radacct.callingstationid,1,2),':',
+                        SUBSTRING(radacct.callingstationid,3,2),':',
+                        SUBSTRING(radacct.callingstationid,5,2),':',
+                        SUBSTRING(radacct.callingstationid,7,2),':',
+                        SUBSTRING(radacct.callingstationid,9,2),':',
+                        SUBSTRING(radacct.callingstationid,11,2)))
+                    WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+                )*100,1
+            ) AS percent
         FROM radacct_log
             INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
-            INNER JOIN node n ON n.mac = LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
-                                                      SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2)))
+            INNER JOIN node n ON n.mac = LOWER(CONCAT(
+                SUBSTRING(radacct.callingstationid,1,2),':',
+                SUBSTRING(radacct.callingstationid,3,2),':',
+                SUBSTRING(radacct.callingstationid,5,2),':',
+                SUBSTRING(radacct.callingstationid,7,2),':',
+                SUBSTRING(radacct.callingstationid,9,2),':',
+                SUBSTRING(radacct.callingstationid,11,2))
+            )
             LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
             LEFT JOIN os_mapping m ON m.os_type=d.os_id 
             LEFT JOIN os_class c ON m.os_class=c.class_id 
