@@ -95,7 +95,7 @@ Requires: perl(Time::HiRes)
 Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
-Requires: perl-libwww-perl
+Requires: perl-libwww-perl, perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.11
