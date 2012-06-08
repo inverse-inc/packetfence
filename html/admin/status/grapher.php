@@ -59,7 +59,8 @@
     'osclassbandwidth day' => 'pie',
     'osclassbandwidth week' => 'pie',
     'osclassbandwidth month' => 'pie',
-    'osclassbandwidth year' => 'pie'
+    'osclassbandwidth year' => 'pie',
+    'nodebandwidth' => 'pie'
   );
 
 function jsgraph($options) {

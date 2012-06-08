@@ -58,19 +58,24 @@
       $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=active'>Active</a>";
   }
   
-  if ($type == 'osclassbandwidth') {
-      $window_choices = array('all', 'day', 'week', 'month', 'year');
-      $additional = "$pretty_type Window: ";
-      foreach ($window_choices as $window) {
-         if ($subtype == $window) {
-             $link_title = '<u>'.ucfirst($window).'</u>';
-         }
-         else {
-             $link_title = ucfirst($window);
-         }
-         $menu_html[] = "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=$window'>$link_title</a>";
-      }
-      $additional .= implode(' | ', $menu_html);
+  switch ($type) {
+      case 'osclassbandwidth':
+          $window_choices = array('all', 'day', 'week', 'month', 'year');
+          $additional = "$pretty_type Window: ";
+          foreach ($window_choices as $window) {
+             if ($subtype == $window) {
+                 $link_title = '<u>'.ucfirst($window).'</u>';
+             }
+             else {
+                 $link_title = ucfirst($window);
+             }
+             $menu_html[] = "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=$window'>$link_title</a>";
+          }
+          $additional .= implode(' | ', $menu_html);
+          break;
+      case 'nodebandwidth':
+          $additional = 'Top 25 bandwidth consumers';
+          break;
   }
 
   $extra_goodness = helper_menu($current_top, $current_sub, $type, $_GET[menu], $additional);

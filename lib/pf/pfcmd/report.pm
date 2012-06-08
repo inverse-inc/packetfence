@@ -252,11 +252,17 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
-      SELECT LOWER(CONCAT(SUBSTRING(radacct.callingstationid,1,2),':',SUBSTRING(radacct.callingstationid,3,2),':',SUBSTRING(radacct.callingstationid,5,2),':',
-             SUBSTRING(radacct.callingstationid,7,2),':',SUBSTRING(radacct.callingstationid,9,2),':',SUBSTRING(radacct.callingstationid,11,2))) as callingstationid,
-             SUM(radacct_log.acctinputoctets) AS acctinput,
-             SUM(radacct_log.acctoutputoctets) AS acctoutput,
-             SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+        SELECT LOWER(CONCAT(
+                SUBSTRING(radacct.callingstationid,1,2),':',
+                SUBSTRING(radacct.callingstationid,3,2),':',
+                SUBSTRING(radacct.callingstationid,5,2),':',
+                SUBSTRING(radacct.callingstationid,7,2),':',
+                SUBSTRING(radacct.callingstationid,9,2),':',
+                SUBSTRING(radacct.callingstationid,11,2)
+            )) as callingstationid,
+            SUM(radacct_log.acctinputoctets) AS acctinput,
+            SUM(radacct_log.acctoutputoctets) AS acctoutput,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         GROUP BY radacct.callingstationid
@@ -725,17 +731,38 @@ Reporting - Node bandwitdh usage for the top 25 consumers
 
 =cut
 sub report_nodebandwidth_all {
-    my @data    = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql');
-    my $totalbw   = 0;
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql');
+    my %totalbw = ( 'in' => 0, 'out' => 0, 'both' => 0 );
     my @return_data;
 
+    # loop in the data once the calculate the totals
     foreach my $record (@data) {
+        $totalbw{'in'} += $record->{'acctinput'};
+        $totalbw{'out'} += $record->{'acctoutput'};
+        $totalbw{'both'} += $record->{'accttotal'};
+    }
+
+    # loop on it again to assign the values
+    foreach my $record (@data) {
+        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotal'} / $totalbw{'both'} ) * 100 );
         $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinput'});
         $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutput'});
         $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
         push @return_data, $record;
     }
 
+    # convert to human friendly format
+    foreach my $direction (keys %totalbw) {
+        $totalbw{$direction} = pf::util::pretty_bandwidth($totalbw{$direction});
+    }
+
+    push @return_data, {
+        'callingstationid' => "Total",
+        'acctinput' => $totalbw{'in'},
+        'acctoutput' => $totalbw{'out'},
+        'accttotal' => $totalbw{'both'},
+        'percent' => "100",
+    };
     return (@return_data);
 }
 
