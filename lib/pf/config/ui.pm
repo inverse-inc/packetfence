@@ -115,7 +115,8 @@ sub field_order {
 
     my $uiconfig = $self->_ui_conf();
     my @fields;
-    foreach my $section ( sort tied(%$uiconfig)->Sections ) {
+    # sorting section by longuest command to shortest one so that we do more complete matches first
+    foreach my $section ( sort { length($b) <=> length($a) } tied(%$uiconfig)->Sections ) {
 
         # skipping sections without command
         next if (!defined($uiconfig->{$section}->{command}));
