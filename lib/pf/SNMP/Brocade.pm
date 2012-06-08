@@ -65,6 +65,7 @@ sub rewriteAccessAccept { return $TRUE; }
 =item getVersion
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_snAgImgVer = '.1.3.6.1.4.1.1991.1.1.2.1.11';          #Proprietary Brocade MIB 1.3.6.1.4.1.1991 -> brcdIp
@@ -87,6 +88,7 @@ Actual implementation.
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
+
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -128,6 +130,7 @@ sub dot1xPortReauthenticate {
 All traps ignored
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -146,6 +149,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
 
 =cut
+
 sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -162,10 +166,12 @@ sub getVoipVsa {
 Supports VoIP if enabled.
 
 =cut
+
 sub isVoIPEnabled {
     my ($self) = @_;
     return ( $self->{_VoIPEnabled} == 1 );
 }
+
 =item * _shouldRewriteAccessAccept
 
 If this returns true we will call _rewriteAccessAccept() and overwrite the
@@ -174,6 +180,7 @@ Access-Accept attributes by it's return value.
 This is meant to be overridden in L<pf::radius::custom>.
 
 =cut
+
 sub _shouldRewriteAccessAccept {
     my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -186,6 +193,7 @@ sub _shouldRewriteAccessAccept {
 Overloading L<pf::SNMP>'s implementation because to send vsa in the radius reponse.
 
 =cut
+
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
