@@ -73,6 +73,7 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
+#use pf::config::ui;
 use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
@@ -2372,20 +2373,29 @@ sub format_assignment {
     return (%return);
 }
 
+#sub field_order {
+#    return pf::config::ui->instance->field_order("@ARGV");
+#}
+
 # return the correct field order listed in ui.conf Display
 #
 sub field_order {
     my %uiconfig;
     tie %uiconfig, 'Config::IniFiles', ( -file => $conf_dir . "/ui.conf" )
         or $logger->logdie("Unable to open ui.conf: $!");
+
+    my $command = join(" ", @ARGV );
+
     my @fields;
-    foreach my $section ( sort tied(%uiconfig)->Sections ) {
-        if ( defined $uiconfig{$section}{'command'}
-            && join( " ", @ARGV ) =~ /^$uiconfig{$section}{'command'}/ )
-        {
-            foreach
-                my $val ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) )
-            {
+    # sorting section by longuest command to shortest one so that we do more complete matches first
+    foreach my $section ( sort { length($b) <=> length($a) } tied(%uiconfig)->Sections ) {
+
+        # skipping sections without command
+        next if (!defined($uiconfig{$section}->{command}));
+
+        if ($command =~ /^$uiconfig{$section}{'command'}/) {
+
+            foreach my $val ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) ) {
                 $val =~ s/-//;
                 push @fields, $val;
             }
