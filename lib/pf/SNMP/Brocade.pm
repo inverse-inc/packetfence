@@ -25,7 +25,7 @@ Stacked switch support has not been tested.
 
 =back
 
-Tested on a Brocade ICX 6450.
+Tested on a Brocade ICX 6450 Version 07.4.00T311.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -47,7 +47,6 @@ use base ('pf::SNMP');
 use pf::SNMP::constants;
 use pf::util;
 use pf::config;
-use Data::Dumper;
 
 =head1 SUBROUTINES
 
@@ -68,7 +67,7 @@ sub rewriteAccessAccept { return $TRUE; }
 =cut
 sub getVersion {
     my ($this) = @_;
-    my $oid_snAgImgVer = '.1.3.6.1.4.1.1991.1.1.2.1.11';
+    my $oid_snAgImgVer = '.1.3.6.1.4.1.1991.1.1.2.1.11';          #Proprietary Brocade MIB 1.3.6.1.4.1.1991 -> brcdIp
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return '';
@@ -99,8 +98,8 @@ sub dot1xPortReauthenticate {
         return 0;
     }
 
-    $logger->trace("Hello mon cocoon ifIndex: $ifIndex");
-    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+	$logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");    
+	my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
     ]);
 
@@ -112,7 +111,7 @@ sub dot1xPortReauthenticate {
         return 0;
     }
 
-    $logger->trace("SNMP set_request force dot1xPaePortReauthenticate on ifIndex: $ifIndex");
+    $logger->trace("SNMP set_request force port in auto mode on ifIndex: $ifIndex");
     $result = $this->{_sessionWrite}->set_request(-varbindlist => [
         "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 2
     ]);
@@ -182,24 +181,11 @@ sub _shouldRewriteAccessAccept {
     return $TRUE;
 }
 
-=item * _rewriteAccessAccept
+=item returnRadiusAccessAccept
 
-Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
-
-Return type should match L<pf::radius::authorize()>'s return type. See its
-documentation for details.
-
-This is meant to be overridden in L<pf::radius::custom>.
+Overloading L<pf::SNMP>'s implementation because to send vsa in the radius reponse.
 
 =cut
-sub _rewriteAccessAccept {
-    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->warn($$RAD_REPLY_REF[0]);
-    
-    return $RAD_REPLY_REF;
-}
-
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -221,6 +207,7 @@ sub returnRadiusAccessAccept {
 
 =head1 AUTHOR
 
+Fabrice Durand <fdurand@inverse.ca>
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
