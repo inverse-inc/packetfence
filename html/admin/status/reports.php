@@ -58,17 +58,19 @@
       $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=active'>Active</a>";
   }
   
-  if($type == 'osclassbandwidth'){
-      if($subtype == 'daily')
-         $additional = "$pretty_type Window: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'><u>Today</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
-      else if($subtype == 'weekly')
-         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'><u>Weekly</u></a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
-      else if($subtype == 'monthly')
-         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'><u>Monthly</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
-      else if($subtype == 'yearly')
-         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'>All</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'><u>Yearly</u></a>";
-      else
-         $additional = "$pretty_type: <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=all'><u>All</u></a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=daily'>Today</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=weekly'>Weekly</a> | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=monthly'>Monthly</a>  | <a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=yearly'>Yearly</a>";
+  if ($type == 'osclassbandwidth') {
+      $window_choices = array('all', 'daily', 'weekly', 'monthly', 'yearly');
+      $additional = "$pretty_type Window: ";
+      foreach ($window_choices as $window) {
+         if ($subtype == $window) {
+             $link_title = '<u>'.ucfirst($window).'</u>';
+         }
+         else {
+             $link_title = ucfirst($window);
+         }
+         $menu_html[] = "<a href='$current_top/$current_sub.php?menu=$_GET[menu]&type=$type&subtype=$window'>$link_title</a>";
+      }
+      $additional .= implode(' | ', $menu_html);
   }
 
   $extra_goodness = helper_menu($current_top, $current_sub, $type, $_GET[menu], $additional);
