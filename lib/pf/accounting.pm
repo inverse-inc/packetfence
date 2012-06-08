@@ -40,7 +40,6 @@ BEGIN {
         node_accounting_weekly_time
         node_accounting_monthly_time
         node_accounting_yearly_time
-        translate_bw
         $ACCOUNTING_TRIGGER_RE
     );
 }
@@ -326,7 +325,7 @@ sub node_accounting_view {
 
 =cut
 sub node_accounting_view_all {
-    return translate_bw(db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql'));
+    return _translate_bw(db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql'));
 }
 
 =item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
@@ -443,7 +442,7 @@ sub node_acct_maintenance_bw_total {
     return db_data(ACCOUNTING, $accounting_statements, 'acct_maintenance_bw_total', $intervalSeconds, $bytes );
 }
 
-sub translate_bw {
+sub _translate_bw {
     my (@data) = @_;
 
     # determine fields to translate
@@ -467,7 +466,7 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 
