@@ -29,6 +29,12 @@ BEGIN {
         $report_db_prepared
         report_db_prepare
 
+        report_osclassbandwidth_all
+        report_osclassbandwidth_day
+        report_osclassbandwidth_week
+        report_osclassbandwidth_month
+        report_osclassbandwidth_year
+        report_nodebandwidth_all
         report_os_all
         report_os_active
         report_osclass_all
@@ -224,6 +230,61 @@ sub report_db_prepare {
        WHERE ssid != "" AND (iplog.end_time=0 OR iplog.end_time > now()) 
        GROUP BY ssid 
        ORDER BY nodes
+    ]);
+
+    $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq [
+        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
+            ROUND(
+                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
+                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                    INNER JOIN node n ON n.mac = LOWER(CONCAT(
+                        SUBSTRING(radacct.callingstationid,1,2),':',
+                        SUBSTRING(radacct.callingstationid,3,2),':',
+                        SUBSTRING(radacct.callingstationid,5,2),':',
+                        SUBSTRING(radacct.callingstationid,7,2),':',
+                        SUBSTRING(radacct.callingstationid,9,2),':',
+                        SUBSTRING(radacct.callingstationid,11,2)))
+                    WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+                )*100,1
+            ) AS percent
+        FROM radacct_log
+            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN node n ON n.mac = LOWER(CONCAT(
+                SUBSTRING(radacct.callingstationid,1,2),':',
+                SUBSTRING(radacct.callingstationid,3,2),':',
+                SUBSTRING(radacct.callingstationid,5,2),':',
+                SUBSTRING(radacct.callingstationid,7,2),':',
+                SUBSTRING(radacct.callingstationid,9,2),':',
+                SUBSTRING(radacct.callingstationid,11,2))
+            )
+            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
+            LEFT JOIN os_mapping m ON m.os_type=d.os_id 
+            LEFT JOIN os_class c ON m.os_class=c.class_id 
+        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)    
+        GROUP BY c.description
+        ORDER BY percent DESC;
+    ]);
+
+    $report_statements->{'report_nodebandwidth_sql'} = get_db_handle()->prepare(qq [
+        SELECT LOWER(CONCAT(
+                SUBSTRING(radacct.callingstationid,1,2),':',
+                SUBSTRING(radacct.callingstationid,3,2),':',
+                SUBSTRING(radacct.callingstationid,5,2),':',
+                SUBSTRING(radacct.callingstationid,7,2),':',
+                SUBSTRING(radacct.callingstationid,9,2),':',
+                SUBSTRING(radacct.callingstationid,11,2)
+            )) as callingstationid,
+            SUM(radacct_log.acctinputoctets) AS acctinput,
+            SUM(radacct_log.acctoutputoctets) AS acctoutput,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+        FROM radacct_log
+        LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+        GROUP BY radacct.callingstationid
+        HAVING radacct.callingstationid IS NOT NULL
+        ORDER BY accttotal DESC
+        LIMIT 25;
     ]);
 
     $report_db_prepared = 1;
@@ -580,6 +641,114 @@ sub report_ssid_active {
     return (@return_data);
 }
 
+=item * report_osclassbandwidth
+
+Reporting - OS Class bandwitdh usage - generic method
+
+=cut
+sub report_osclassbandwidth {
+    my ($range) = @_;
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $range, $range);
+    my $totalbw = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        push @return_data, $record;
+    }
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
+    return (@return_data);
+}
+
+=item * report_osclassbandwidth_all
+
+Reporting - OS Class bandwitdh usage - All time
+
+=cut
+sub report_osclassbandwidth_all {
+    return report_osclassbandwidth(999999999);
+}
+
+=item * report_osclassbandwidth_day
+
+Reporting - OS Class bandwitdh usage for the last 24 hours
+
+=cut
+sub report_osclassbandwidth_day {
+    return report_osclassbandwidth(24 * 60 * 60);
+}
+
+=item * report_osclassbandwidth_week
+
+Reporting - OS Class bandwitdh usage for the last week
+
+=cut
+sub report_osclassbandwidth_week {
+    return report_osclassbandwidth(7 * 24 * 60 * 60);
+}
+
+=item * report_osclassbandwidth_month
+
+Reporting - OS Class bandwitdh usage for the last month
+
+=cut
+sub report_osclassbandwidth_month {
+    return report_osclassbandwidth(30 * 7 * 24 * 60 * 60);
+}
+
+=item * report_osclassbandwidth_year
+
+Reporting - OS Class bandwitdh usage for the last year
+
+=cut
+sub report_osclassbandwidth_year {
+    return report_osclassbandwidth(365 * 7 * 24 * 60 * 60);
+}
+
+=item * report_nodebandwidth_all
+
+Reporting - Node bandwitdh usage for the top 25 consumers
+
+=cut
+sub report_nodebandwidth_all {
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql');
+    my %totalbw = ( 'in' => 0, 'out' => 0, 'both' => 0 );
+    my @return_data;
+
+    # loop in the data once the calculate the totals
+    foreach my $record (@data) {
+        $totalbw{'in'} += $record->{'acctinput'};
+        $totalbw{'out'} += $record->{'acctoutput'};
+        $totalbw{'both'} += $record->{'accttotal'};
+    }
+
+    # loop on it again to assign the values
+    foreach my $record (@data) {
+        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotal'} / $totalbw{'both'} ) * 100 );
+        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinput'});
+        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutput'});
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        push @return_data, $record;
+    }
+
+    # convert to human friendly format
+    foreach my $direction (keys %totalbw) {
+        $totalbw{$direction} = pf::util::pretty_bandwidth($totalbw{$direction});
+    }
+
+    push @return_data, {
+        'callingstationid' => "Total",
+        'acctinput' => $totalbw{'in'},
+        'acctoutput' => $totalbw{'out'},
+        'accttotal' => $totalbw{'both'},
+        'percent' => "100",
+    };
+    return (@return_data);
+}
+
+
 =item * translate_connection_type
 
 Translates connection_type database string into a human-understandable string
@@ -630,7 +799,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2010-2012 Inverse inc.
 
 =head1 LICENSE
 

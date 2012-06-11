@@ -276,7 +276,8 @@ sub parseCommandLine {
                                      ( active | inactive | openviolations 
                                        | os | osclass | registered | statics | ssid
                                        | unknownprints | unknownuseragents | unregistered
-                                       | connectiontype | connectiontypereg
+                                       | connectiontype | connectiontypereg | osclassbandwidth
+                                       | nodebandwidth
                                      )
                                      |
                                      (?: #for grouping only
@@ -287,6 +288,10 @@ sub parseCommandLine {
                                        )
                                        \s+
                                        ( all | active )
+                                     )
+                                     |
+                                     (?: #for grouping only
+                                       ( osclassbandwidth ) \s+ ( all | day | week | month | year )
                                      )
                                    )
                                  $  }xms,
@@ -490,7 +495,7 @@ Regis Balzard <rbalzard@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 
