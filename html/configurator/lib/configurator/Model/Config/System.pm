@@ -67,6 +67,27 @@ sub _inject_default_route {
 #    return $STATUS::OK;
 }
 
+=item update_radius_sql
+
+=cut
+sub update_radius_sql {
+    my ( $self, $db, $user, $pass ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg, $systemObj);
+
+    # Instantiate an object for the correct OS
+    ($status, $systemObj) = configurator::Model::Config::SystemFactory->getSystem();
+    return ($status, $systemObj) if ( is_error($status) );
+
+    ($status, $status_msg) = $systemObj->updateRadiusSql($db, $user, $pass);
+    return ($status, $status_msg) if ( is_error($status) );
+
+    $status_msg = "Personnalized RADIUS sql configurations successfully written";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
+
 =item write_network_persistent
 
 =cut
@@ -204,6 +225,8 @@ Moose class derivated from role for OS specific methods
 
 use Moose;
 
+use pf::util;
+
 with 'configurator::Model::Config::System::Role';
 
 our $_network_conf_dir    = "/etc/sysconfig/";
@@ -211,9 +234,30 @@ our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
 
+our $_radius_sql_conf_file  = "/etc/raddb/sql.conf";
+
 =head3 METHODS
 
 =over
+
+=item updateRadiusSql
+
+=cut
+sub updateRadiusSql {
+    my ( $this, $db, $user, $pass ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Update the default user with the configured one
+    pf_run("sed -i 's/login = \"pf\"/login = \"$user\"/g' $_radius_sql_conf_file");
+
+    # Update the default pass with the configured one
+    pf_run("sed -i 's/password = \"pf\"/password = \"$pass\"/g' $_radius_sql_conf_file");
+
+    # Update the default db with the configured one
+    pf_run("sed -i 's/radius_db = \"pf\"/radius_db = \"$db\"/g' $_radius_sql_conf_file");
+
+    return $STATUS::OK;
+}
 
 =item writeNetworkConfigs
 
@@ -286,14 +330,37 @@ Moose class derivated from role for OS specific methods
 
 use Moose;
 
+use pf::util;
+
 with 'configurator::Model::Config::System::Role';
 
 our $_network_conf_dir    = "/etc/network/";
 our $_network_conf_file   = "interfaces";
 
+our $_radius_sql_conf_file  = "/etc/freeradius/sql.conf";
+
 =head3 METHODS
 
 =over
+
+=item updateRadiusSql
+
+=cut
+sub updateRadiusSql {
+    my ( $this, $db, $user, $pass ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Update the default user with the configured one
+    pf_run("sed -i 's/login = \"pf\"/login = \"$user\"/g' $_radius_sql_conf_file");
+
+    # Update the default pass with the configured one
+    pf_run("sed -i 's/password = \"pf\"/password = \"$pass\"/g' $_radius_sql_conf_file");
+
+    # Update the default db with the configured one
+    pf_run("sed -i 's/radius_db = \"pf\"/radius_db = \"$db\"/g' $_radius_sql_conf_file");
+
+    return $STATUS::OK;
+}
 
 =item writeNetworkConfigs
 
