@@ -1,1 +1,2 @@
 debianize.patch
+freeradius-perl-workaround-416266.patch
