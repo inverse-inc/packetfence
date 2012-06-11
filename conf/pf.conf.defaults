@@ -690,6 +690,19 @@ network_detection=enabled
 # By default we will make this reach PacketFence's website as an easy solution.
 #
 network_detection_ip = 67.205.85.245
+#
+# captive_portal.loadbalancers_ip
+#
+# If the captive portal is put behind load-balancer(s) that act at Layer 7 
+# (HTTP level) effectively doing reverse proxying then the captive portal no 
+# longer sees the IP of the node trying to access the portal. In that case,
+# the load-balancers must do SSL offloading and add a X-Forwarded-By header
+# in the HTTP traffic they forward to PacketFence. Most do by default. Then
+# in this parameter you must specify the IP of the various load balancers.
+# This will instruct the captive portal to look for client IPs in the 
+# X-Forwarded-For instead of the actual TCP session when it matches an IP
+# in the list. Format is a comma separated list of IPs.
+loadbalancers_ip=
 
 [advanced]
 #
@@ -738,3 +751,20 @@ authorizenet_login =
 #
 # The merchant's unique Transaction Key (Provided by Authorize.net)
 authorizenet_trankey =
+
+[node_import]
+#
+# node_import.pid
+#
+# Default pid value to assign to imported nodes.
+pid=1
+#
+# node_import.category
+#
+# Default category to assign to imported nodes.
+category=default
+#
+# node_import.voip
+#
+# By default is an imported node a Voice over IP device or not?
+voip=no

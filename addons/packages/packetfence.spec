@@ -654,7 +654,6 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
-%dir                    /usr/local/pf/logs
 %dir                    /usr/local/pf/lib
 %dir                    /usr/local/pf/lib/HTTP
                         /usr/local/pf/lib/HTTP/BrowserDetect.pm

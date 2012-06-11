@@ -53,8 +53,9 @@
 
     # loading user-data
     $user_data['ip'] = $_SERVER['REMOTE_ADDR'];
+    $load_balancers = preg_split("/\s*,\s*/", get_configuration_value('captive_portal.loadbalancers_ip'));
     # Client IP Lookup if Proxy-Bypass is used
-    if ($user_data['ip'] == '127.0.0.1') {
+    if ( $user_data['ip'] == '127.0.0.1' || in_array($user_data['ip'], $load_balancers) ) {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $user_data['ip'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
         }

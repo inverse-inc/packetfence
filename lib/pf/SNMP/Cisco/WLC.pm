@@ -28,20 +28,38 @@ Developed and tested on firmware version 4.2.130 altought the new RADIUS RFC3576
 
 =item Version specific issues
 
-Controller issue with Windows 7: It only works with firmware > 6.x in 802.1x+WPA2. It's not a PacketFence issue.
+=over
 
-With firmware 6.0.182.0 we had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not a PacketFence issue.
+=item < 5.x
 
-With firmware 7.0.116 and 7.0.220, the SNMP deassociation is not working if using WPA2.  It only works if using an
-Open SSID.
+Issue with Windows 7: 802.1x+WPA2. It's not a PacketFence issue.
 
-With firmware 7.2.103.0 (and maybe up but it is currently the latest firmware), 
+=item 6.0.182.0
+
+We had intermittent issues with DHCP. Disabling DHCP Proxy resolved it. Not 
+a PacketFence issue.
+
+=item 7.0.116 and 7.0.220
+
+SNMP deassociation is not working in WPA2.  It only works if using an Open 
+(unencrypted) SSID.
+
+NOTE: This is no longer relevant since we rely on RADIUS Disconnect by 
+default now.
+
+=item 7.2.103.0 (and maybe up but it is currently the latest firmware)
+
 SNMP de-authentication no longer works. It it believed to be caused by the 
 new firmware not accepting SNMP requests with 2 bytes request-id. Doing the 
 same SNMP set with `snmpset` command issues a 4 bytes request-id and the 
 controllers are happy with these. Not a PacketFence issue. I would think it
 relates to the following open caveats CSCtw87226:
 http://www.cisco.com/en/US/docs/wireless/controller/release/notes/crn7_2.html#wp934687
+
+NOTE: This is no longer relevant since we rely on RADIUS Disconnect by 
+default now.
+
+=back
 
 =item FlexConnect (H-REAP) limitations before firmware 7.2
 

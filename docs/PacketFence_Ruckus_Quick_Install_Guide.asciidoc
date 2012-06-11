@@ -19,12 +19,11 @@ About this Guide
 ----------------
 This guide as been created in order to help sales engineers, product managers, or network specialist to demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Ruckus equipment.
 
-The instructions are based on version {release_version} of the PacketFence ZEN VMware Appliance.
+The instructions are based on version {release_version} of the PacketFence Live Image.
 
 Assumptions
 -----------
 * Your customer will provide the network hardware (switch, wires, etc) to interconnect this PoC setup
-* The PC that will handle the ZEN VM is using CentOS/RHEL 5 on 64bit hardware.
 * Ruckus ZoneDirector is loaded with firmware 9.3.1.0 build 9
 * Ruckus ZoneDirector is factory default
 
@@ -32,327 +31,253 @@ Quick Deployment
 ----------------
 Step 1: Pre-load
 ~~~~~~~~~~~~~~~~
-To begin the deployment process, you need to download and install the PacketFence ZEN Desktop appliance to your laptop.  Due to some network drivers limitations, you need to run RHEL/CentOS 5 on your PC, or Ubuntu.  You CANNOT run the VM on a Windows host.
+This step is only necessary in the case you don't already have a pre-loaded PacketFence USB key. If you already have one, proceed to step2, otherwise, follow these quick and simple instructions to pre-load a new USB key with PacketFence.
 
-Install VMWare Player
-^^^^^^^^^^^^^^^^^^^^^
-First of all, you need to get VMware Player.  To download the product, simply go to http://www.vmware.com/download/player, and click on the download link.  You will require to register in order to download the product.
+NOTE: The following process will remove everything from the USB key so if you currently have stuff on it, make sure to do backups!
 
-Once downloaded, you need to run the bundle file.  As root, use the following command :
+Download the PacketFence USB key image
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Make sure you have the latest version of the PacketFence USB key image.
 
-   sh VMware-Player-4.0.2-591240.x86_64.bundle
+Download the application to write the image to the USB key
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To write the PacketFence image on a USB key, you'll need to use a third-party application that will provide you a graphical interface to do so.
 
-Follow the prompt to finish the install procedure.
+Go to https://launchpad.net/win32-image-writer/0.6/0.6/+download/win32diskimager-binary.zip. That will download the necessary application. Once downloaded, extract the zip file.
 
-NOTE: For more information about the VMWare Player installation, you may refer to the page 12 of the "Getting Started with VMware Player" guide available at https://www.vmware.com/pdf/vmware_player40.pdf.
-
-Download the PacketFence ZEN Desktop Appliance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-To download the PacketFence ZEN Desktop Appliance, visit http://www.packetfence.org/download/vmware_appliance_zen.html under the Desktop Version section.  Click on the link to start your download.  Once downloaded, extract the zip file.
-
-Import the PacketFence ZEN Desktop Appliance
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-To import the PacketFence ZEN Desktop appliance, start the VMware Player first :
-
-   vmplayer &
-
-This should show a VMware Player window.  Then, go to File -> Open a Virtual Machine.  Browse for the PacketFence ZEN vmx file, and click Open.
-
-NOTE: For more information about importing a VM into VMware Player, please refer to page 22 of the "Getting Started with VMware Player" guide available at https://www.vmware.com/pdf/vmware_player40.pdf.
+Write the PacketFence image to the USB key
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+First, make sure your USB key is plugged into the PC then open up the folder where you extracted the application and double-click the Win32DiskImager.exe file.
+Once done, simply choose the PacketFence USB image file (unzipped .img file), choose the device on which you want to write and click Write.
 
 Step 2: Configure Network and PacketFence
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The next step is the network setup and the PacketFence configuration.  The following step is usually performed when you arrive at a customer site.  Sometimes, you will know the network settings in advance, sometimes not.  If you want to save time, you should ask/tell the client what is needed in order to have the demonstration running smoothly.  That way, you will be able to preconfigure the PacketFence VM prior arrival.
+The next step is the network setup and the PacketFence configuration. The following step is usually performed when you arrive at a customer site. Sometimes, you will know the network settings in advance, sometimes not. If you want to save time, you should ask/tell the client what is needed in order to have the demonstration running smoothly. That way, you will be able to preconfigure the PacketFence environment prior arrival.
 
 Preliminary Questions
 ^^^^^^^^^^^^^^^^^^^^^
-Here is a quick list of questions to ask to a customer in order to build workable PacketFence configuration files :
+Here is a quick list of questions to ask to a customer in order to easily configure a PacketFence environment:
 
 1. What is the VLAN ID and subnet to be used for a registration VLAN? (ie. VLAN ID 2, Subnet 192.168.2.0/24)
 2. What is the VLAN ID and subnet to be used for an isolation VLAN? (ie. VLAN ID 3, Subnet 192.168.3.0/24)
-3. What is the VLAN ID and subnet of the production VLAN? (ie. VLAN ID 10, Subnet 192.168.10.0/24)
-4. A list of production DHCPs (for rogue DHCP detection)
+3. What is the VLAN ID of the production VLAN? (ie. VLAN ID 10)
+4. A list of production DHCP server(s) (for rogue DHCP detection)
 
 Steps for the customer
 ^^^^^^^^^^^^^^^^^^^^^^
-Some steps needs to be taken by the customer for having the network ready.  Here is a list of what we think should be ready for a demo :
+Some steps needs to be taken by the customer for having the network ready. Here is a list of what we think should be ready for a demo:
 
-* 1 TRUNK port to connect the demonstration PC, the native VLAN is a management VLAN that will be used to talk with the AP and the VM
+* 1 TRUNK port to connect the demonstration PC which will run the PacketFence environment. The native VLAN should be a management VLAN that will be used for communication between the equipment and the environment
 * 1 TRUNK port to connect the controller
 * 1 TRUNK port to connect the AP
-* 1 management ACCESS port to connect another PC to access the PacketFence administrative UI.
 
-Moving away from Inline to VLAN enforcement
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Our ZEN Appliance is configured to do Inline enforcement at first place.  We need to modify the configurations a bit in order to do VLAN enforcement.  Let us guide you through the process.
+Configuring your PacketFence environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Simply plug the previously created USB key in one of the demonstration PC USB port. You will have to make sure the PC will boot from the USB key (it is usually a pre-boot option or a setting in the BIOS).
 
-Start the PacketFence Appliance. The first time VMware Player ask you if the Virtual Machine has been copied or moved; answer "I copied it".
-Login the Appliance using the default credentials, and stop the PacketFence service while doing the configuration changes:
+Before booting, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switcha and the PC and that the link is up.
 
-   service packetfence stop
+Once powered, the PC will boot from the USB key and will automatically get to a graphical user interface with an opened web browser prompting for PacketFence configuration. The configuration process is a five steps process at the end of which, the USB key will be a persistent working PacketFence environment.
 
-NOTE: Default credentials are listed in the PacketFence ZEN Administration Guide at Page 8.
+Step 1: Enforcement Mode
+++++++++++++++++++++++++
+The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them. This step will also ask you to statically configure your network interfaces (Note that DHCP interfaces configuration is not supported yet).
 
-Modify networking scripts
-+++++++++++++++++++++++++
-By default, networking is configured with 1 DHCP management interface (eth0), and one inline interface (eth0.200).  We need to disable the inline interface, and add the registration/isolation interface.
+First of all, you'll choose the enforcement mecanism(s), then, configure every network interfaces that will be needed for the choosen enforcement mode(s). The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
 
-First, let's disable the inline interface.  In /etc/sysconfig/network-scripts/ifcfg-eth0.200, change the ONBOOT flag to "no":
+Second, you choose the type for each of the configured interface. Types will depend on the choosen enforcement mode(s).
 
-   DEVICE=eth0.200
-   VLAN=yes
-   ONBOOT=no
-   IPADDR=192.168.200.10
-   NETMASK=255.255.255.0
-   MTU=1442
-   
-Next, depending on the answers to Q1 to Q3, we need to enable the proper VLAN interface on the appliance.  Let's assume for now that
+Each enforcement mode has it's own required interface type. In all time, you'll need to set a Management interface.
 
-* Registration is VLAN ID 2, with subnet 192.168.2.0/24
-* Isolation is VLAN ID 3, with subnet 192.168.3.0/24
-* Normal is VLAN ID 10, with subnet 192.168.10.0/24
+Inline enforcement needed interface types:
 
-Let's see how the configuration would look.  So, /etc/sysconfig/network-scripts/ifcfg-eth0.2 :
+    Management
+    Inline
 
-   DEVICE=eth0.2
-   VLAN=yes
-   BOOTPROTO=static
-   ONBOOT=yes
-   IPADDR=192.168.2.10
-   NETMASK=255.255.255.0
-   MTU=1442
+VLAN enforcement needed interface types:
 
-Now, /etc/sysconfig/network-scripts/ifcfg-eth0.3 :
+    Management
+    Registration
+    Isolation
 
-   DEVICE=eth0.3
-   VLAN=yes
-   BOOTPROTO=static
-   ONBOOT=yes
-   IPADDR=192.168.3.10
-   NETMASK=255.255.255.0
-   MTU=1442
+Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
-Finally, /etc/sysconfig/network-scripts/ifcfg-eth0.10 :
+In our customer scenario, we will opt for a VLAN Enforcement mechanism. We will then create two new vlans on the wired interface (will be eth0 most of the time).
+To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
 
-   DEVICE=eth0.10
-   VLAN=yes
-   BOOTPROTO=static
-   ONBOOT=yes
-   IPADDR=192.168.10.10
-   NETMASK=255.255.255.0
-   MTU=1442
+Here's a sample configuration for both of them:
 
-CAUTION: Make sure the production IP is not existing on another node and that the PacketFence Appliance is connected to the network by a bridged interface
+Registration
 
-When done, restart the networking services (or reboot) using
+    Virtual LAN ID: 2
+    IP Address: 192.168.2.1
+    Netmask: 255.255.255.0
 
-   service network restart
+Isolation
 
-Modify /usr/local/pf/conf/pf.conf
+    Virtual LAN ID: 3
+    IP Address: 192.168.3.1
+    Netmask: 255.255.255.0
+
+Don't forget to also edit the physical interface with the correct management network informations by clicking the Edit button next to it.
+
+According to our customer scenario, we'll associate the correct type the each interfaces.
+
+    eth0: Management
+    eth0 VLAN 2: Registration
+    eth0 VLAN 3: Isolation
+
+Make sure that those three (3) interface are in an Enabled state for the persistance to occur.
+
+We also need to set the Default Gateway which will generally be the gateway of the management network.
+
+Once everything's set, click Continue to proceed with the next step.
+
+Step 2: Database Configuration
+++++++++++++++++++++++++++++++
+This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
+
+Since Debian based MySQL installations are not "secured", we'll need to go through it.
+That step is fairly simple to accomplish and is a one time deal.
+
+In the root account credentials section, enter root as Username and click Test. You'll be prompted for a new root password. Choose a password for the MySQL root user and click Save. You can now enter your newly setted password in the root account credentials section and click Test.
+
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
+
+Third section will create the database and load the correct schema on it. Simply leave the default and click Create tables and indexes.
+
+You should have Success beside these three section, click Continue.
+
+Step 3: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
-Now that we have the networking side covered, let's hop on the PacketFence side.  First thing to modify is pf.conf.  Again, we need to remove the inline configuration and add the VLAN enforcement configuration.
+This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
-First, remove (or comment) the inline interface block
+Almost all of the required informations here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
-   [interface eth0.200]
-   ip=192.168.200.10
-   mask=255.255.255.0
-   type=internal,monitor
-   enforcement=inline
-   gateway=192.168.200.10
+Click Continue once all the field are completed.
 
-Next, add the VLAN enforcement interface blocks
+Step 4: Administration
+++++++++++++++++++++++
+This is the step where we create the administrative user to access the PacketFence Administration Web Interface.
 
-   [interface eth0.2]
-   ip=192.168.2.10
-   mask=255.255.255.0
-   type=internal
-   enforcement=vlan
-   gateway=192.168.2.10
+Simply provide the desired username and password, then click Create user.
 
-   [interface eth0.3]
-   ip=192.168.3.10
-   mask=255.255.255.0
-   type=internal
-   enforcement=vlan
-   gateway=192.168.3.10
+Step 5: Services - Confirmation
++++++++++++++++++++++++++++++++
+The last but not the least. Here, we start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
 
-   [interface eth0.10]
-   ip=192.168.10.10
-   mask=255.255.255.0
-   type=dhcp-listener,monitor
-   gateway=192.168.10.1
+You'll be able to login to the PacketFence web administration interface with the credentials created in Step 4.
 
-Review the `[interface eth0]` block as well.  You need to make sure the IP and subnet information is properly configured for your management network.
+Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
-Finally, adjust the general.domain, and general.hostname to your own preferred name.  Also adjust general.dhcpservers with the answers provided by the customer for Question 4.
+Configuring Ruckus controller in PacketFence
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Now that you have a fully functionnal PacketFence installation, you'll need to add the Ruckus controller to the PacketFence switches database for correct intergration.
 
-Save the file when done.
+To do so, login to the PacketFence web administration interface if it is not already done. Click on the Configuration tab and select the switches section.
 
-Modify /usr/local/pf/conf/networks.conf
-+++++++++++++++++++++++++++++++++++++++
-This other configuration file needs to be adjusted as well.  Same principle, we remove the Inline network lines and replace them by the VLAN registration and isolation networks.
+We'll use the clone function to add a new switch (the Ruckus controller) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
-So let's remove the Inline network lines.  Remove or comment to following
+The Adding new switch window will appear, in which, you'll enter the correct informations for the integration. Use theses values to populate each of the fields; leave the others as is:
 
-   [192.168.200.0]
-   type=inline
-   netmask=255.255.255.0
-   gateway=192.168.200.10
-   dns=4.2.2.2
-   dhcp_start=192.168.200.11
-   dhcp_end=192.168.200.254
-   dhcp_default_lease_time=300
-   dhcp_max_lease_time=600
-   named=disabled
-   dhcpd=enabled
-   next_hop=
-   domain-name=nac.zen.packetfence.org
+    IP: This will be the IP of the Ruckus controller on the customer management network
+    Type: Ruckus Wireless Controllers
+    Mode: Production
+    Vlans: 2,3,10
+    Normal VLAN: 10
+    Registration VLAN: 2
+    Isolation VLAN: 3
+    SNMP Version: 2c
+    SNMP Read Community: ruckusRead
+    SNMP Write Community: ruckusWrite
+    RADIUS Secret: aSecurePassword
 
-Now, let's add the VLAN registration and isolation network definitions
+Click Add switch
 
-   [192.168.2.0]
-   type=vlan-registration
-   netmask=255.255.255.0
-   gateway=192.168.2.10
-   dns=192.168.2.10
-   dhcp_start=192.168.2.11
-   dhcp_end=192.168.2.254
-   dhcp_default_lease_time=300
-   dhcp_max_lease_time=600
-   named=enabled
-   dhcpd=enabled
-   next_hop=
-   domain-name=registration.zen.packetfence.org
+The newly added controller should shows up in the list.
 
-   [192.168.3.0]
-   type=vlan-isolation
-   netmask=255.255.255.0
-   gateway=192.168.3.10
-   dns=192.168.3.10
-   dhcp_start=192.168.3.11
-   dhcp_end=192.168.3.254
-   dhcp_default_lease_time=300
-   dhcp_max_lease_time=600
-   named=enabled
-   dhcpd=enabled
-   next_hop=
-   domain-name=isolation.zen.packetfence.org
-
-Save the file when done.
-
-Modify /usr/local/pf/conf/switches.conf
-+++++++++++++++++++++++++++++++++++++++
-Adjust switches.conf.  In the `[default]` switch, make sure the VLAN names are properly setup, see below:
-
-   [default]
-   vlans = 2,3,4,10
-   normalVlan = 10
-   registrationVlan = 2
-   isolationVlan = 3
-   macDetectionVlan = 4   #This one is NOT used
-   guestVlan = 5          #This one is NOT used
-
-NOTE: If you need more information about custom VLAN assignment flows (ie. usage of the guestVlan), please see page 9 of the PacketFence Developer's Guide.
-
-At the end of the file, add your Ruckus switch definition.  Ask the customer for the IP to use on the management network for the controller, and replace the RUCKUS_MANAGEMENT_IP with it in the block below.  You can remove the `[10.0.10.2]` and `[10.0.10.3]` switch blocks.
-
-   [RUCKUS_MANAGEMENT_IP]
-   type = Ruckus
-   mode = production
-   radiusSecret = aSecurePassword
-   SNMPVersion = 2c
-   SNMPCommunityRead = ruckusRead
-   SNMPCommunityWrite = ruckusWrite
-
-Modify /etc/raddb/users
-+++++++++++++++++++++++
-Last step for PacketFence, adjust the users file by adding the demouser to test 802.1x connection.
-
-   demouser Cleartext-Password := demouser
-
-Save the config, and start PacketFence!
+PacketFence configuration is done. You may now reboot the demonstation PC (leave the USB key in). Once rebooted, the web browser should open in the PacketFence web administation interface.
 
 Step 3: Configure Ruckus
 ~~~~~~~~~~~~~~~~~~~~~~~~
-This section will discuss about the configuration of your Ruckus controller in order to use it with our configured PacketFence.
+This section will discuss about the configuration of your Ruckus controller in order to use it with our configured PacketFence environment.
 
 Connect APs and Controller
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-First thing to do is to connect the controller and the AP.  Like we saw in Step 2, we should have 1 TRUNK port for the controller and 1 TRUNK port for the AP.  Connect them appropriately.
+First thing to do is to connect the controller and the AP. Like we saw in Step 2, we should have 1 TRUNK port for the controller and 1 TRUNK port for the AP. Connect them appropriately.
 
 Provision the controller
 ^^^^^^^^^^^^^^^^^^^^^^^^
-By default, the controller will come with the management IP set to 192.168.0.2.  You need to connect to it using the default credentials, and change its management IP accordingly.  Make sure also the firmware is at least 9.3.1.0 build 9 for full PacketFence support.
+By default, the controller will come with the management IP set to 192.168.0.2. You need to connect to it using the default credentials, and change its management IP accordingly. Make sure also the firmware is at least 9.3.1.0 build 9 for full PacketFence support.
 
-NOTE:  Please refer to the Ruckus ZoneDirector Quick Start Guide available at http://support.ruckuswireless.com/documents/35-zonedirector-quick-start-guide
+NOTE: Please refer to the Ruckus ZoneDirector Quick Start Guide available at http://support.ruckuswireless.com/documents/35-zonedirector-quick-start-guide
 
 Setup the SSIDs
 ^^^^^^^^^^^^^^^
 For this guide, we will show you how to configure one open SSID with RADIUS mac filtering, and one secure SSID using WPA2-Enterprise.
 
-Login your controller using the admin credentials.  You should see the Dashboard.  Click on the Configure pane, and follow the following steps.
+Login to your controller using the admin credentials. You should see the Dashboard. Click on the Configure pane, and follow the following steps.
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on AAA Servers.  We need to add the PacketFence ZEN Desktop Appliance here.  Click on the Create New button, and provide those information:
+On the left menu, click on AAA Servers. We need to add the PacketFence RADIUS server here. Click on the Create New button, and provide those informations:
 
-   Name: zen_auth
+   Name: pf_auth
    Type: RADIUS
    Auth Method: PAP
-   IP Address : Management IP of the VM
+   IP Address: Management IP of PacketFence
    Port: 1812
    Shared Secret: aSecurePassword
    Confirm Secret: aSecurePassword 
 
-Click OK to save the server.  Repeat the step to add PacketFence ZEN as a accounting server.  This step is *mandatory* otherwise RADIUS CoA will fail.
+Click OK to save the server. Repeat the step to add the PacketFence RADIUS server as an accounting server. This step is *mandatory* otherwise RADIUS CoA will fail.
 
-   Name: zen_accounting
+   Name: pf_accounting
    Type: RADIUS Accounting
-   IP Address: Management IP of the VM
+   IP Address: Management IP of the PacketFence
    Port: 1813
    Shared Secret: aSecurePassword
    Confirm Secret: aSecurePassword
 
-Click OK to save the server.  You should see both authentication and accounting RADIUS servers in the list.
+Click OK to save the server. You should see both authentication and accounting RADIUS servers in the list.
 
 Configure the Open SSID
 +++++++++++++++++++++++
-On the left menu, click on WLAN.  Click the Create New button, and add the following information.  If you do not see the line, it means that you should leave the setting to default value:
+On the left menu, click on WLAN. Click the Create New button, and add the following informations. If you do not see the line, it means that you should leave the setting to default value:
 
    Name/ESSID: DemoOpen
    Decription: Open SSID for PoC
    Type: Standard Usage
    Authentication Method: MAC Address
    Encryption Options: None
-   Authentication Server: zen_auth
+   Authentication Server: pf_auth
    
-   Expend Advanced Options:
-   Accounting Server: zen_accounting
+   Expand Advanced Options:
+   Accounting Server: pf_accounting
    Access VLAN: Select Enable Dynamic VLAN
 
 Click OK to save the WLAN.
 
 Configure the Secure SSID
 +++++++++++++++++++++++++
-On the left menu, click on WLAN.  Click the Create New button, and add the following information.  If you do not see the line it means that you should leave the setting to default value:
+On the left menu, click on WLAN. Click the Create New button, and add the following information. If you do not see the line it means that you should leave the setting to default value:
 
    Name/ESSID: DemoSecure
    Decription: Secure SSID for PoC
    Type: Standard Usage
    Authentication Method: 802.1X EAP
    Encryption Options: WPA2/AES
-   Authentication Server: zen_auth
+   Authentication Server: pf_auth
    
-   Expend Advanced Options:
-   Accounting Server: zen_accounting                                 
+   Expand Advanced Options:
+   Accounting Server: pf_accounting                                 
    Access VLAN: Select Enable Dynamic VLAN
 
 Click OK to save the WLAN.
 
 Configure SNMP
 ^^^^^^^^^^^^^^
-Last step, we need to configure the SNMP to add a valid read community string.  Click on the Configure pane, and on System.  Expend the Network Management section, and look for the SNMPv2 Agent section.
+Last step, we need to configure the SNMP to add a valid read community string. Click on the Configure pane, and on System. Expand the Network Management section, and look for the SNMPv2 Agent section.
 
    Select Enable SNMP Agent
    System Contact: your@email.com
@@ -369,19 +294,18 @@ Click Manually create a network profile
    Security type WPA2-Entreprise
    Encryption AES
 
-Next, Change connection settings. On Security tab, click Settings, uncheck Validate server certificate.
+Next, change connection settings. On Security tab, click Settings, uncheck Validate server certificate.
 On the same tab click Configure and uncheck Automatically use my Windows logon name and password.
-Return on Security tab and click on Advanced settings. On 802.1X settings , click on Specify authentication mode and select User authentication.
+Return on the Security tab and click on Advanced settings. On 802.1X settings, click on Specify authentication mode and select User authentication.
 On 802.11 settings uncheck Enable Pairwise Master Key (PMK) caching.
-Validate all the modification and click on close.
+Validate all the modifications and click on close.
 
 Step 5: Test and Demonstrate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Congratulations, you have everything setup and ready!  If your setup is properly configured, you should be able to :
 
-* reach (ping) the controller from the PacketFence VM
+* reach (ping) the controller from the PacketFence environment
 * see the DemoOpen, and DemoSecure SSIDs
 * login the PacketFence administrative UI (https://management_IP:1443)
-
-NOTE: Configured username/password for device registration, 802.1X, and to login the administrative UI are also listed in the PacketFence ZEN Administration Guide at page 8
-
+* connects a client device on the DemoOpen SSID using demouser/demouser credentials on the captive-portal
+* connects a client device on the DemoSecure SSID using demouser/demouser credentials in the Windows network login dialog

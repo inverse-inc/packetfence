@@ -58,7 +58,7 @@ $grammar = q {
 
    manage_options : 'register' macaddr pid edit_options(?)
 
-   person_options : 'add' value person_edit_options(?)  | 'edit' value person_edit_options | 'delete' value
+   person_options : 'add' pid person_edit_options(?)  | 'edit' pid person_edit_options | 'delete' value
 
    node_options : 'add' macaddr node_edit_options | 'edit' macaddr node_edit_options 
 
@@ -90,7 +90,8 @@ $grammar = q {
    date : /[^,=]+/
 
    # backticks only tolerated because pfcmd manage register is always called within single quotes
-   pid: '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/ '"' {$item[2]} | /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/
+   # another pid regex is also defined in pf::pfcmd. Make sure to maintain both.
+   pid: '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\\\]*/ '"' {$item[2]} | /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/
 
    edit_options : <leftop: assignment ',' assignment>
 
@@ -137,8 +138,8 @@ $grammar = q {
    violationconfig_assignment : violationconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{violationconfig_view_field},$item{value}] }
 
-   node_assignment : node_view_field '=' value
-                {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
+   node_assignment : node_view_field '=' value {push @{$main::cmd{$item[0]}}, [$item{node_view_field},$item{value}] }
+                     | 'pid' '=' pid {push @{$main::cmd{$item[0]}}, ['pid',$item{pid}] }
 
    nodecategory_assignment : nodecategory_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{nodecategory_view_field},$item{value}] }
@@ -160,7 +161,7 @@ $grammar = q {
 
    networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway' | 'next_hop'
 
-   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'wsTransport' | 'wsUser' | 'wsPwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | 'customVlan1' | 'customVlan2' | 'customVlan3' | 'customVlan4' | 'customVlan5' | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap' | 'radiusSecret' | 'controllerIp' | 'roles'
+   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'wsTransport' | 'wsUser' | 'wsPwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | /customVlan\d\d?/ | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap' | 'radiusSecret' | 'controllerIp' | 'roles'
 
    floatingnetworkdeviceconfig_view_field : 'ip' | 'trunkPort' | 'pvid' | 'taggedVlan'
 

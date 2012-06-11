@@ -612,7 +612,9 @@ sub help_import {
     print STDERR << "EOT";
 Usage: pfcmd import <format> <filename>
 
-Bulk import into the database. File input must be a of CSV format.
+Bulk import into the database. File input must be a of CSV format. Default
+pid, category and voip status assigned to the imported nodes can be modified
+in pf.conf.
 
 Supported format:
 - nodes
@@ -620,7 +622,8 @@ Supported format:
 Nodes import format:
 <MAC>
 
-Node import automatically registers MACs with pid = 1
+Node import automatically registers MACs with pid = 1 unless you configured
+otherwise in pf.conf.
 
 example:
   pfcmd import nodes /tmp/new-nodes.csv

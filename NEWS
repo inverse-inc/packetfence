@@ -25,26 +25,35 @@ Enhancements
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
+Security
+ * Fixed a reflected cross-site scripting (XSS) vulnerability in Web Admin guest management (#1454)
+
 New Hardware
  * H3C S5120 series supports MAC-Authentication and 802.1X with or without VoIP
  * Added Role support for all Cisco Wireless (WLC) models
 
 New Features
  * debian packages (#1066, #1067)
+ * Support for up to 100 custom VLANs (Defaults to 5 see relevant FAQ entry to enable more)
+ * Node bulk importation now allow you to define default values for pid, category and voip in pf.conf
 
 Enhancements
  * minor refactoring and cleanup
  * debian support: arp binary location now configurable ([services].arp_binary)
  * log the switch IP when a trap is skipped due to a dynamic uplink fetch not working
  * performance improvements by reducing the number of forked process (mostly beneficial to pfdhcplistener)
+ * captive portal supports being behind an HTTP-based load balancer (see captive_portal.loadbalancers_ip config)
 
 Bug Fixes
+ * Fix guest management Inline
  * RADIUS-based Disconnects not working for Aruba, AeroHIVE. Introduced in 3.3.2. (#1437)
  * interface configuration errors in the Web Admin (or on the CLI when editing the vip field)
  * debian support: radiusd is started even if disabled
  * 'uninitialized value' warnings in checkup phase (pfcmd checkup)
  * got rid of the unused (unuseful) logs/pfdhcplistener_<int> log files. See logs/packetfence.log instead.
  * pfdhcplistener doesn't hang anymore
+ * pid (username) of the form 'domain\\user' are now allowed (#1253)
+ * guest account import didn't work on files with Windows line terminators (\r\n)
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23

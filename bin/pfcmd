@@ -463,23 +463,21 @@ sub violationconfig {
                 $violations_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(desc enabled auto_enable actions max_enable grace priority url button_text trigger vlan 
-                whitelisted_categories
-        );
-        print "vid|" . join( "|", @columns ) . "\n";
+
+        my @fields = field_order();
+        print join( $delimiter, @fields ) . "\n";
         foreach my $section ( keys %violations_conf ) {
             if (   ( $cmd{'command'}[2] eq 'all' )
                 || ( $cmd{'command'}[2] eq $section ) )
             {
                 my @values;
-                foreach my $column (@columns) {
+                foreach my $column (@fields) {
                     push @values,
                         (      $violations_conf{$section}{$column}
                             || $violations_conf{'defaults'}{$column}
                             || '' );
                 }
-                print $section . "|" . join( "|", @values ) . "\n";
+                print $section . $delimiter . join( $delimiter, @values ) . "\n";
             }
         }
     } elsif ( $mode eq 'delete' ) {
@@ -612,18 +610,18 @@ sub floatingnetworkdeviceconfig {
         my @sections_tmp = keys %floatingnetworkdevice_conf;
         my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
             . $_ => @sections_tmp;
-        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(ip trunkPort pvid taggedVlan);
-        print "floatingnetworkdevice|" . join( "|", @columns ) . "\n";
+
+        my @fields = field_order();
+        print join( $delimiter, @fields ) . "\n";
         foreach my $section (@sections) {
             if (   ( $cmd{'command'}[2] eq 'all' )
                 || ( $cmd{'command'}[2] eq $section ) )
             {
                 my @values;
-                foreach my $column (@columns) {
+                foreach my $column (@fields) {
                     push @values, ( $floatingnetworkdevice_conf{$section}{$column} || '' );
                 }
-                print $section . '|' . join( "|", @values ) . "\n";
+                print $section . $delimiter . join( $delimiter, @values ) . "\n";
             }
         }
 
@@ -710,18 +708,14 @@ sub networkconfig {
         my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
             . $_ => @networks_tmp;
 
-        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(
-            type netmask gateway next_hop named dhcpd domain-name dns dhcp_start dhcp_end dhcp_default_lease_time
-            dhcp_max_lease_time
-        );
-        print "network|" . join( "|", @columns ) . "\n";
+        my @fields = field_order();
+        print join( $delimiter, @fields ) . "\n";
         foreach my $network (@networks) {
             if (   ( $cmd{'command'}[2] eq 'all' )
                 || ( $cmd{'command'}[2] eq $network ) )
             {
                 my @values;
-                foreach my $column (@columns) {
+                foreach my $column (@fields) {
                     # pf_gateway to next_hop translation
                     # TODO remove code once pf_gateway is deprecated (somewhere in 2012)
                     if ($column eq 'next_hop' 
@@ -731,7 +725,7 @@ sub networkconfig {
                     }
                     push @values, ( $ConfigNetworks{$network}{$column} || '' );
                 }
-                print $network . '|' . join( "|", @values ) . "\n";
+                print $network . $delimiter . join( $delimiter, @values ) . "\n";
             }
         }
     } elsif ( $mode eq 'delete' ) {
@@ -839,9 +833,9 @@ sub interfaceconfig {
                 $pf_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(ip mask type enforcement vip);
-        print "interface|" . join( "|", @columns ) . "\n";
+
+        my @fields = field_order();
+        print join( $delimiter, @fields ) . "\n";
         foreach my $section ( keys %pf_conf ) {
             if ( $section =~ /^interface (.+)$/ ) {
                 my $interface_name = $1;
@@ -849,10 +843,10 @@ sub interfaceconfig {
                     || ( $cmd{'command'}[2] eq $interface_name ) )
                 {
                     my @values;
-                    foreach my $column (@columns) {
+                    foreach my $column (@fields) {
                         push @values, ( $pf_conf{$section}{$column} || '' );
                     }
-                    print $interface_name . '|' . join( "|", @values ) . "\n";
+                    print $interface_name . $delimiter . join( $delimiter, @values ) . "\n";
                 }
             }
         }
@@ -949,24 +943,6 @@ sub switchconfig {
                 $switches_conf{$section}{$key} =~ s/\s+$//;
             }
         }
-        # TODO columns should be auto-detected and displayed based on ui.conf (like print_results does)
-        my @columns = qw(
-            ip type mode VoIPEnabled uplink 
-            vlans normalVlan registrationVlan isolationVlan macDetectionVlan guestVlan voiceVlan 
-            customVlan1 customVlan2 customVlan3 customVlan4 customVlan5 
-            cliTransport cliUser cliPwd cliEnablePwd 
-            wsTransport wsUser wsPwd 
-            radiusSecret roles
-            controllerIp
-            SNMPVersionTrap SNMPCommunityTrap SNMPUserNameTrap 
-            SNMPAuthProtocolTrap SNMPAuthPasswordTrap SNMPPrivProtocolTrap SNMPPrivPasswordTrap 
-            SNMPVersion SNMPCommunityRead SNMPCommunityWrite 
-            SNMPEngineID SNMPUserNameRead SNMPAuthProtocolRead SNMPAuthPasswordRead SNMPPrivProtocolRead 
-            SNMPPrivPasswordRead SNMPUserNameWrite SNMPAuthProtocolWrite SNMPAuthPasswordWrite SNMPPrivProtocolWrite 
-            SNMPPrivPasswordWrite
-            macSearchesMaxNb macSearchesSleepInterval
-        );
-        print join( "|", @columns ) . "\n";
 
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
         my %switches_conf_tmp = %switches_conf;
@@ -978,12 +954,15 @@ sub switchconfig {
             . $_ => @sections_tmp;
         unshift( @sections, 'default' );
 
+        my @fields = field_order();
+        print join( $delimiter, @fields ) . "\n";
+
         foreach my $section (@sections) {
             if (   ( $cmd{'command'}[2] eq 'all' )
                 || ( $cmd{'command'}[2] eq $section ) )
             {
                 my @values;
-                foreach my $column (@columns) {
+                foreach my $column (@fields) {
                     if ( $column eq 'ip' ) {
                         push @values, $section;
                     } else {
@@ -993,7 +972,7 @@ sub switchconfig {
                                 || '' );
                     }
                 }
-                print join( "|", @values ) . "\n";
+                print join( $delimiter, @values ) . "\n";
             }
         }
     } elsif ( $mode eq 'delete' ) {

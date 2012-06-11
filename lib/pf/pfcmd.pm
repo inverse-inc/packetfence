@@ -28,10 +28,12 @@ Readonly our $ERROR_CONFIG_NO_HELP => 11;
 # if you change something here, make sure
 #   - not to allow unquoted stuff interpreted by the shell
 #   - update the appropriate regexp in lib/pfcmd/pfcmd.pm grammar too
+#   - update the generic pid regex in pf::person (not meant for shell safety)
+# TODO try to consolidate what we should accept as a pid
 my $pid_re = qr{(?: 
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
     |                                                               # OR
-    \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]+ ) \"   # quoted allowed
+    \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\]+ ) \" # quoted allowed
 )}xo;
 
 sub parseCommandLine {

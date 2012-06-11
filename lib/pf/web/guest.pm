@@ -35,6 +35,7 @@ use Net::LDAP;
 use POSIX;
 use Readonly;
 use Template;
+use Text::CSV;
 
 BEGIN {
     use Exporter ();
@@ -46,7 +47,7 @@ BEGIN {
 
 use pf::config;
 use pf::iplog qw(ip2mac);
-use pf::person qw(person_modify);
+use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password 1.10;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format);
@@ -800,22 +801,21 @@ sub import_csv {
 
   # Read CSV file
   if (open (my $import_fh, "<", $filename)) {
-    while (my $line = <$import_fh>) {
-      chomp $line;
-      my @fields = split($delimiter, $line);
-      my $pid = $fields[$index{'c_username'}];
-      if ($pid =~ m/[^a-zA-Z0-9_\-\@]/) {
+    my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+    while (my $row = $csv->getline($import_fh)) {
+      my $pid = $row->[$index{'c_username'}];
+      if ($pid !~ /$PID_RE/) {
         $skipped++;
         next;
       }
       # Create/modify person
-      my %data = ('firstname' => $index{'c_firstname'} ? $fields[$index{'c_firstname'}] : undef,
-                  'lastname'  => $index{'c_lastname'}  ? $fields[$index{'c_lastname'}]  : undef,
-                  'email'     => $index{'c_email'}     ? $fields[$index{'c_email'}]     : undef,
-                  'telephone' => $index{'c_phone'}     ? $fields[$index{'c_phone'}]     : undef,
-                  'company'   => $index{'c_company'}   ? $fields[$index{'c_company'}]   : undef,
-                  'address'   => $index{'c_address'}   ? $fields[$index{'c_address'}]   : undef,
-                  'notes'     => $index{'c_note'}      ? $fields[$index{'c_note'}]      : undef,
+      my %data = ('firstname' => $index{'c_firstname'} ? $row->[$index{'c_firstname'}] : undef,
+                  'lastname'  => $index{'c_lastname'}  ? $row->[$index{'c_lastname'}]  : undef,
+                  'email'     => $index{'c_email'}     ? $row->[$index{'c_email'}]     : undef,
+                  'telephone' => $index{'c_phone'}     ? $row->[$index{'c_phone'}]     : undef,
+                  'company'   => $index{'c_company'}   ? $row->[$index{'c_company'}]   : undef,
+                  'address'   => $index{'c_address'}   ? $row->[$index{'c_address'}]   : undef,
+                  'notes'     => $index{'c_note'}      ? $row->[$index{'c_note'}]      : undef,
                   'sponsor'   => $session->param("username"));
       if ($data{'email'} && $data{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
         $skipped++;
@@ -828,10 +828,11 @@ sub import_csv {
                                                        $expiration,
                                                        $session->param("arrival_date"), 
                                                        valid_access_duration($session->param("access_duration")),
-                                                       $fields[$index{'c_password'}]);
+                                                       $row->[$index{'c_password'}]);
         $count++ if ($success);
       }
     }
+    $csv->eof or $logger->warn("Problem with importation: " . $csv->error_diag());
     close $import_fh;
 
     return (1, "$count,$skipped");

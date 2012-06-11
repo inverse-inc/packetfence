@@ -660,7 +660,6 @@ Either directly connected or through a proxy.
 sub get_client_ip {
     my ($cgi) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-
     $logger->trace("request for client IP");
 
     # we fetch CGI's remote address
@@ -668,29 +667,27 @@ sub get_client_ip {
     my $directly_connected_ip = $cgi->remote_addr();
 
     # every source IP in this table are considered to be from a proxied source
-    my %proxied_lookup = (
-        $LOOPBACK_IPV4 => 1,
-    );
-    # adding virtual IP if one is present
+    my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first
+    $proxied_lookup{$LOOPBACK_IPV4} = 1; # loopback (proxy-bypass)
+    # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
     $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
 
-    # handling most common case first
     # if this is NOT from one of the expected proxy IPs return the IP
     if (!$proxied_lookup{$directly_connected_ip}) {
         return $directly_connected_ip;
     }
 
-    # proxied?
+    # behind a proxy?
     if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
         my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
         $logger->debug(
-            "Remote Address is $LOOPBACK_IPV4. Client is proxied? "
+            "Remote Address is $directly_connected_ip. Client is behind proxy? "
             . "Returning: $proxied_ip according to HTTP Headers"
         );
         return $proxied_ip;
     }
 
-    $logger->debug("Remote Address is $LOOPBACK_IPV4 but no further hints of client IP in HTTP Headers");
+    $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
     return $directly_connected_ip;
 }
 

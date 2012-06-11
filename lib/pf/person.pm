@@ -21,7 +21,7 @@ use constant PERSON => 'person';
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT, @EXPORT_OK );
     @ISA = qw(Exporter);
     @EXPORT = qw(
         $person_db_prepared
@@ -35,16 +35,35 @@ BEGIN {
         person_modify
         person_nodes
     );
+    @EXPORT_OK = qw( $PID_RE );
 }
 
 use pf::db;
 
+=head1 GLOBALS
+
+=over
+
+=cut
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $person_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
 our $person_statements = {};
 
+=item $unquoted_pid_re
+
+Characters allowed in a person id (pid). This is stricter than what we have
+in pf::pfcmd and pf::pfcmd::pfcmd
+
+=cut
+our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
+
+=back
+
+=head1 SUBROUTINES
+
+=cut
 sub person_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::person');
     $logger->debug("Preparing pf::person database queries");

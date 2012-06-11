@@ -112,7 +112,6 @@ sub getVersion {
 
     $logger->trace( "SNMP get_request for OID_hh3cLswSysVersion: ( $OID_hh3cLswSysVersion.$slotNumber )" );
     my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_hh3cLswSysVersion.$slotNumber" ] );
-    $result = $result->{"$OID_hh3cLswSysVersion.$slotNumber"};
 
     # Error handling
     if ( !defined($result) ) {

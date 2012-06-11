@@ -136,7 +136,7 @@ var initialTabName = "single";
             </div>
             <div class="input">
               <span>[% i18n("Columns Order") %]*</span>
-              <input type="hidden" name="columns"id="columns_order" value="[% IF columns %][% columns %][% ELSE %]c_username,c_password[% END %]">
+              <input type="hidden" name="columns" id="columns_order" value="[% IF columns %][% columns | html %][% ELSE %]c_username,c_password[% END %]">
               <div class="note" id="columns">
                 <div class="column"><input type="checkbox" name="c_username" checked disabled><span>[% i18n("Username") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
                 <div class="column"><input type="checkbox" name="c_password" checked disabled><span>[% i18n("Password") %]</span><span class="order"><img src="/content/images/arrow_up_12x12.png"><img src="/content/images/arrow_down_12x12.png"></span></div>
