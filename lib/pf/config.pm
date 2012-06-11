@@ -237,27 +237,13 @@ our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
 try {
-
     readPfConfigFiles();
-
-    # Captive Portal constants
-    Readonly %CAPTIVE_PORTAL => (
-        "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
-        "NET_DETECT_RETRY_DELAY" => 2,
-        "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
-        "NET_DETECT_PENDING_RETRY_DELAY" => 30,
-        "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
-    );
-
     readNetworkConfigFile();
-
     readFloatingNetworkDeviceFile();
-
 } catch {
-
+    chomp($_);
     $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
 };
-
 
 =over
 
@@ -400,6 +386,8 @@ sub readPfConfigFiles {
         $SELFREG_MODE_SPONSOR,
         $Config{'guests_self_registration'}{'modes'}
     );
+
+    _load_captive_portal();
 }
 
 =item readNetworkConfigFiles - networks.conf
@@ -682,6 +670,30 @@ sub _fetch_virtual_ip {
         return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
     }
     return;
+}
+
+=item _load_captive_portal
+
+Populate captive portal related configuration and constants.
+
+=cut
+sub _load_captive_portal {
+
+    # CAPTIVE-PORTAL RELATED
+    # Captive Portal constants
+    %CAPTIVE_PORTAL = (
+        "NET_DETECT_INITIAL_DELAY" => floor($Config{'trapping'}{'redirtimer'} / 4),
+        "NET_DETECT_RETRY_DELAY" => 2,
+        "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
+        "NET_DETECT_PENDING_RETRY_DELAY" => 30,
+        "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
+    );
+
+    # process pf.conf's parameter into an IP => 1 hash
+    %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} = 
+        map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
+    ;
+
 }
 
 =back
