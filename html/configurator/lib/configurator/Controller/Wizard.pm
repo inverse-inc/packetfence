@@ -289,7 +289,6 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
         if (is_success($status)) {
             $c->stash->{'db'} = $result_ref;
             # hash-slice assigning values to the list
-#            my ($pf_user, $pf_pass, $pf_db) = @{$result_ref}{qw/database.user database.pass database.db/};
             if ($pf_user && $pf_pass && $pf_db) {
                 # throwing away result since we don't use it
                 ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
