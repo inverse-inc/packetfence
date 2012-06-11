@@ -70,6 +70,7 @@ sub _inject_default_route {
 =item update_radius_sql
 
 =cut
+# FIXME make disappear once managed-radius is merged
 sub update_radius_sql {
     my ( $self, $db, $user, $pass ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -243,6 +244,10 @@ our $_radius_sql_conf_file  = "/etc/raddb/sql.conf";
 =item updateRadiusSql
 
 =cut
+# FIXME unnecessary code duplication: should push in role and create a per-OS file accessor
+# FIXME make disappear once managed-radius is merged
+# FIXME lack of validation on each pf_run calls
+# FIXME potential command injection.. should run a a-zA-Z0-9_. regex at the earliest we get a user (re-use existing regex)
 sub updateRadiusSql {
     my ( $this, $db, $user, $pass ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -346,6 +351,10 @@ our $_radius_sql_conf_file  = "/etc/freeradius/sql.conf";
 =item updateRadiusSql
 
 =cut
+# FIXME unnecessary code duplication: should push in role and create a per-OS file accessor
+# FIXME make disappear once managed-radius is merged
+# FIXME lack of validation on each pf_run calls
+# FIXME potential command injection.. should run a a-zA-Z0-9_. regex at the earliest we get a user (re-use existing regex)
 sub updateRadiusSql {
     my ( $this, $db, $user, $pass ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

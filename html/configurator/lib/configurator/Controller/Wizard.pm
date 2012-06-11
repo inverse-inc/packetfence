@@ -277,6 +277,8 @@ sub _prepare_types_for_display {
 Database setup
 
 =cut
+# FIXME this is not like we built the rest of configurator.. re-architect?
+# the GET is expected to fail on first run, then the javascript calls it again and it should pass...
 sub step2 :Chained('object') :PathPart('step2') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -285,22 +287,35 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
         my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
             ['database.user', 'database.pass', 'database.db']
         );
+        if (is_error($status)) {
+            delete $c->session->{completed}->{step2};
+            $c->log->warn("Could not read configuration: $result_ref");
+            $c->detach();
+        }
+
+        $c->stash->{'db'} = $result_ref;
+        # hash-slice assigning values to the list
         my ($pf_user, $pf_pass, $pf_db) = @{$result_ref}{qw/database.user database.pass database.db/};
-        if (is_success($status)) {
-            $c->stash->{'db'} = $result_ref;
-            # hash-slice assigning values to the list
-            if ($pf_user && $pf_pass && $pf_db) {
-                # throwing away result since we don't use it
-                ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
+        if ($pf_user && $pf_pass && $pf_db) {
+            # throwing away result since we don't use it
+            ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
+            if (is_error($status)) {
+                delete $c->session->{completed}->{step2};
+                $c->detach();
             }
         }
-        if (is_success($status)) {
-            $c->session->{completed}->{step2} = 1;
-            $c->model('Config::System')->update_radius_sql($pf_db, $pf_user, $pf_pass);
-        }
-        else {
+
+        # FIXME This can break configuration files if certain odd conditions occur 
+        # (it rewrites the file w/ sed no matter what)
+        my $result;
+        ($status, $result) = $c->model('Config::System')->update_radius_sql($pf_db, $pf_user, $pf_pass);
+        if (is_error($status)) {
             delete $c->session->{completed}->{step2};
+            $c->detach();
         }
+
+        # everything has been done successfully
+        $c->session->{completed}->{step2} = 1;
     }
 }
 
