@@ -68,7 +68,10 @@
        <td align="right"><input type="submit" value="Import nodes"></td>
     </tr>
     <tr>
-       <td>Importing automatically registers the nodes with pid 1.</td>
+       <td>
+         Importing automatically registers the nodes with pid 1<br/>
+         unless your configured otherwise in <tt>pf.conf</tt>.
+       </td>
     </tr>
   </table>
 </form>
