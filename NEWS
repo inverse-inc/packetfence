@@ -42,6 +42,7 @@ Bug Fixes
  * got rid of the unused (unuseful) logs/pfdhcplistener_<int> log files. See logs/packetfence.log instead.
  * pfdhcplistener doesn't hang anymore
  * pid (username) of the form 'domain\\user' are now allowed (#1253)
+ * guest account import didn't work on files with Windows line terminators (\r\n)
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
