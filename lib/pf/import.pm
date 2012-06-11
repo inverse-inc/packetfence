@@ -28,6 +28,7 @@ use warnings;
 
 use Log::Log4perl;
 use Text::CSV;
+use POSIX;
 
 BEGIN {
     use Exporter ();
@@ -72,11 +73,14 @@ sub nodes {
         $logger->logdie("Nodes import expects first column of first row to be a MAC address. Not processing file.");
     }
 
-    # TODO extract these in parameters under [import] in pf.conf
     # pre-compute info hash
     my %info = (
         notes => POSIX::strftime("Imported on %Y-%m-%d %H:%M:%S", localtime(time))
     );
+
+    # Assign default values from parameters under [node_import] in pf.conf
+    # fancy hash slicing assigns pid to pid, etc.
+    @info{qw/pid category voip/} = @{$Config{'node_import'}}{qw/pid category voip/};
 
     do {
         # setup
