@@ -31,7 +31,7 @@ Readonly our $ERROR_CONFIG_NO_HELP => 11;
 my $pid_re = qr{(?: 
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
     |                                                               # OR
-    \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]+ ) \"   # quoted allowed
+    \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\]+ ) \" # quoted allowed
 )}xo;
 
 sub parseCommandLine {
