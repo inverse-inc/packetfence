@@ -77,7 +77,8 @@ PacketFence supports the following devices:
 |Aruba            |All Controllers             |Aruba
 |Avaya            |Wireless Controllers        |Avaya::WC
 |                 |See Nortel Below            |
-|Brocade          |Brocade RF Switches         |Brocade::RFS
+|Brocade          |Brocade 6450                |Brocade
+|                 |Brocade RF Switches         |Brocade::RFS
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
 |                 |Aironet 1240 AG             |Cisco::Aironet_1242
 |                 |Aironet 1250                |Cisco::Aironet_1250
@@ -485,7 +486,78 @@ Brocade
 ICX 6400 Series
 ^^^^^^^^^^^^^^^
 
-To be contributed.
+Those switches are supported using 802.1X for networks with or without VoIP.
+
+In order to use 802.1x with Brocade switch, you must modify the dictionary.foundry in FreeRadius.
+
+Replace :
+
+  ATTRIBUTE       Foundry-MAC-Authent-needs-802.1x        6       integer
+  ATTRIBUTE       Foundry-802.1x-Valid-Lookup             7       integer
+
+By:
+
+  ATTRIBUTE       Foundry-802_1x-enable                   6       integer
+  ATTRIBUTE       Foundry-802_1x-valid                    7       integer
+
+* Global config settings:
+
+  aaa authentication dot1x default radius
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default
+  radius-server key 1 $sD-!^!
+
+  vlan 1 name DEFAULT-VLAN by port
+  !
+  vlan 100 by port
+   tagged ethe 1/1/1 ethe 1/1/24
+
+Mac Authentication without VoIP
++++++++++++++++++++++++++++++++
+
+* Enable Mac Auth globally
+
+  mac-authentication enable
+  mac-authentication mac-vlan-dyn-activation
+
+* Enable Mac auth on the switchport 
+
+  interface ethernet 1/1/1
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+
+Mac Authentication with VoIP
+++++++++++++++++++++++++++++
+
+* Enable cdp globally
+
+  cdp run
+
+* Enable Mac auth on the switchport
+
+  interface ethernet 1/1/1
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+   cdp enable
+
+802.1x/Mac Auth
++++++++++++++++
+
+* Enable 802.1X globally
+
+  dot1x-enable
+   re-authentication
+   enable ethe 1/1/1
+
+* Enable Mac auth and 802.1X on the switchport
+
+  interface ethernet 1/1/1
+   dot1x port-control auto
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
 
 
 RF Switches
