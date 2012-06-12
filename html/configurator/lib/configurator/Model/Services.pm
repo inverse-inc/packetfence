@@ -73,7 +73,7 @@ sub status {
         $services_ref->{$service_name} = ($pids) if ($should_be_started);
     }
 
-    return ($STATUS::OK, $services_ref) if ( defined(%$services_ref) );
+    return ($STATUS::OK, $services_ref) if ( %$services_ref );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
