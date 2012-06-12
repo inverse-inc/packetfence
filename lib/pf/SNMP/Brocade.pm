@@ -101,7 +101,7 @@ sub dot1xPortReauthenticate {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
 
-    my $oid_ibrcdDot1xAuthPortConfigPortControl = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
+    my $oid_brcdDot1xAuthPortConfigPortControl = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
 
     if (!$this->connectWrite()) {
         return 0;
