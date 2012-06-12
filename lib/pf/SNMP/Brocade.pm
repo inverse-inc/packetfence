@@ -79,12 +79,19 @@ sub getVersion {
     my $result = $this->{_sessionRead}->get_request( -varbindlist => [$oid_snAgImgVer] );
     my $runtimeSwVersion = ( $result->{$oid_snAgImgVer} || '' );
 
+    # Error handling
+    if ( !defined($result) ) {
+        $logger->warn("Asking for software version failed with " . $this->{_sessionRead}->error());
+        return;
+    }
+
     return $runtimeSwVersion;
 }
 
 =item _dot1xPortReauthenticate
 
-Actual implementation. 
+Actual implementation.
+ 
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
@@ -94,32 +101,28 @@ sub dot1xPortReauthenticate {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
 
-    my $oid_dot1xPaePortReauthenticate = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
+    my $oid_ibrcdDot1xAuthPortConfigPortControl = "1.3.6.1.4.1.1991.1.1.3.38.3.1.1.1"; # from brcdlp
 
     if (!$this->connectWrite()) {
         return 0;
     }
 
-	$logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");    
-	my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
-        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 1
+    $logger->trace("SNMP set_request force port in unauthorized mode on ifIndex: $ifIndex");    
+    my $result = $this->{_sessionWrite}->set_request(-varbindlist => [
+        "$oid_brcdDot1xAuthPortConfigPortControl.$ifIndex", Net::SNMP::INTEGER, $BROCADE::FORCE_UNAUTHORIZED
     ]);
 
     if (!defined($result)) {
-        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
-    }
-
-    if (!$this->connectWrite()) {
-        return 0;
+        $logger->error("got an SNMP error trying to force 802.1x unauthorized: ".$this->{_sessionWrite}->error);
     }
 
     $logger->trace("SNMP set_request force port in auto mode on ifIndex: $ifIndex");
     $result = $this->{_sessionWrite}->set_request(-varbindlist => [
-        "$oid_dot1xPaePortReauthenticate.$ifIndex", Net::SNMP::INTEGER, 2
+        "$oid_brcdDot1xAuthPortConfigPortControl.$ifIndex", Net::SNMP::INTEGER, $BROCADE::CONTROLAUTO
     ]);
 
     if (!defined($result)) {
-        $logger->error("got an SNMP error trying to force 802.1x re-authentication: ".$this->{_sessionWrite}->error);
+        $logger->error("got an SNMP error trying to force 802.1x control auto: ".$this->{_sessionWrite}->error);
     }
     return (defined($result));
 }
@@ -136,7 +139,7 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->debug("trap ignored, not useful for wireless controller");
+    $logger->debug("trap ignored, not useful for switch");
     $trapHashRef->{'trapType'} = 'unknown';
 
     return $trapHashRef;
@@ -154,7 +157,7 @@ sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     return (
-        'Foundry-802_1x-enable' => "0",
+        'Foundry-802_1x-enable' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
         'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voiceVlan'),
@@ -175,6 +178,7 @@ sub isVoIPEnabled {
 =item * _shouldRewriteAccessAccept
 
 If this returns true we will call _rewriteAccessAccept() and overwrite the
+
 Access-Accept attributes by it's return value.
 
 This is meant to be overridden in L<pf::radius::custom>.
@@ -200,8 +204,8 @@ sub returnRadiusAccessAccept {
 
     # VLAN enforcement
     my $radius_reply_ref = {
-        #'Foundry-802_1x-enable' => "1",
-	'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+        #'Foundry-802_1x-enable' => $TRUE,
+        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
         'Tunnel-Private-Group-ID' => $vlan,
     };
@@ -216,6 +220,7 @@ sub returnRadiusAccessAccept {
 =head1 AUTHOR
 
 Fabrice Durand <fdurand@inverse.ca>
+
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT

@@ -365,6 +365,28 @@ Readonly::Scalar our $NAS_PORTS_PER_PORT_RANGE => 4096;
 
 =back
 
+=head1 BROCADE
+
+Brocade constants
+
+=over
+
+=cut
+package BROCADE;
+
+=item dot1xPaePortReauthenticate - 802.1x Port state (from brcdlp)
+
+  force_unauthorized(1),
+  controlauto(2)
+
+Note: Documentation is incomplete other values were found empirically.
+
+=cut
+Readonly::Scalar our $FORCE_UNAUTHORIZED => 1; # aka force unauthorized
+Readonly::Scalar our $CONTROLAUTO => 2; # aka force control auto
+
+=back
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
