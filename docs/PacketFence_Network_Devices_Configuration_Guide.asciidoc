@@ -80,8 +80,7 @@ PacketFence supports the following devices:
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
 |                 |Aironet 1240 AG             |Cisco::Aironet_1242
 |                 |Aironet 1250                |Cisco::Aironet_1250
-|                 |2100 Wireless Controller    |Cisco::WLC_2106
-|                 |4400 Wireless Controller    |Cisco::WLC_4400
+|                 |Aironet (WDS)               |Cisco::Aironet_WDS
 |                 |Catalyst 2900XL Series      |Cisco::Catalyst_2900XL
 |                 |Catalyst 2950               |Cisco::Catalyst_2950
 |                 |Catalyst 2960               |Cisco::Catalyst_2960
@@ -94,6 +93,11 @@ PacketFence supports the following devices:
 |                 |Catalyst 6500               |Cisco::Catalyst_6500
 |                 |Router ISR 1800 Series      |Cisco::ISR_1800
 |                 |Wireless Services Module    |Cisco::WiSM
+|                 |Wireless Services Module 2  |Cisco::WiSM2
+|                 |2100 Wireless Controller    |Cisco::WLC_2106
+|                 |4400 Wireless Controller    |Cisco::WLC_4400
+|                 |5500 Wireless Controller    |Cisco::WLC_5500
+|                 |Wireless Controller (WLC)   |Cisco::WLC
 |D-Link           |DES 3526                    |Dlink::DES_3526
 |                 |DES 3550                    |Dlink::DES_3550
 |                 |DGS 3100                    |Dlink::DGS_3100
