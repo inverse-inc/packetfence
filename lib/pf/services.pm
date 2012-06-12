@@ -186,11 +186,11 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "stop" && do {
-                #my @debug= system('pkill','-f',$daemon);
-                $logger->info("Stopping $daemon with 'pkill $binary'");
-                eval { `pkill $binary`; };
+                my $cmd = "/usr/bin/pkill $binary";
+                $logger->info("Stopping $daemon with '$cmd'");
+                eval { `$cmd`; };
                 if ($@) {
-                    $logger->logcroak("Can't stop $daemon with 'pkill $binary': $@");
+                    $logger->logcroak("Can't stop $daemon with '$cmd': $@");
                     return;
                 }
 
@@ -198,7 +198,6 @@ sub service_ctl {
                     manage_Static_Route();
                 }
 
-                #$logger->info("pkill shows " . join(@debug));
                 my $maxWait = 10;
                 my $curWait = 0;
                 while (( $curWait < $maxWait )
@@ -223,10 +222,12 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "status" && do {
+                # -x: this causes the program to also return process id's of shells running the named scripts.
+                my $cmd = "pidof -x $binary";
                 my $pid;
-                chop( $pid = `pidof -x $binary` );
+                chop( $pid = `$cmd` );
                 $pid = 0 if ( !$pid );
-                $logger->info("pidof -x $binary returned $pid");
+                $logger->info("$cmd returned $pid");
                 return ($pid);
             }
         }

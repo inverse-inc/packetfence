@@ -19,6 +19,7 @@ use warnings;
 use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
+use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use threads;
 use threads::shared;
@@ -41,11 +42,18 @@ use pf::services;
 use pf::traplog;
 use pf::util;
 
+# initialization
+# --------------
+# assign process name (see #1464)
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+# log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
+# init signal handlers
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
