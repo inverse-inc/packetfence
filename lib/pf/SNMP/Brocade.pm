@@ -196,6 +196,8 @@ sub _shouldRewriteAccessAccept {
 
 Overloading L<pf::SNMP>'s implementation because to send vsa in the radius reponse.
 
+It's optional, but we can force the 802.1x authentication by sending Foundry-802_1x-enable at 1
+
 =cut
 
 sub returnRadiusAccessAccept {

@@ -16,7 +16,6 @@ This module is currently only a placeholder, see pf::SNMP::Motorola
 
 use strict;
 use warnings;
-use Log::Log4perl;
 
 use base ('pf::SNMP::Motorola');
 
@@ -26,7 +25,7 @@ Francois Gaudreault <fgaudreault@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 
