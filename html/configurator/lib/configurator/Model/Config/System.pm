@@ -50,21 +50,47 @@ sub _inject_default_route {
     my ( $self, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $status;
+    my $_EXIT_CODE_EXISTS = 7;
 
-# Need to add error handling here...
-    my $cmd = "route del default";
-    pf_run($cmd);
-    $cmd = "route add default gw $gateway";
-    pf_run($cmd);
-    return 1;
-#    my $cmd = "route add default gw $gateway";
-#    eval { $status = pf_run($cmd) };
-#    if ( $@ || !$status ) {
-#        return $STATUS::INTERNAL_SERVER_ERROR;
-#    }
-#
-#    return $STATUS::OK;
+    my ($status, $status_msg);
+
+    # Check for valid IP format
+    if ( !valid_ip($gateway) ) {
+        $status_msg = "Invalid IP format for gateway";
+        $logger->warn("$status_msg");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    my $cmd = "LANG=C route add default gw $gateway 2>&1";
+    $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+
+    # A default gateway already exists, we should delete it first and retry
+    if ( $status =~ /SIOCADDRT:\ File\ exists/ ) {
+        $logger->info("Default gateway already exists, deleting it before adding the new one");
+        $cmd = "route del default 2>&1";
+        $status = pf_run($cmd);
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Error while deleting existing default gateway") 
+            if ( !defined($status) || $status ne "" );
+
+        $logger->info("Old default gateway deleted. Injecting the new one");
+        $cmd = "route add default gw $gateway 2>&1";
+        $status = pf_run($cmd);
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Error while adding the new default gateway after deletion")
+            if ( !defined($status) || $status ne "" );
+    }
+
+    # Everything goes as expected
+    if ( defined($status) && $status eq "" ) {
+        $status_msg = "New default gateway successfully injected";
+        $logger->info($status_msg);
+        return ($STATUS::OK, $status_msg);
+    } 
+    # Something wen't wrong
+    else {
+        $status_msg = "Something wen't wrong while injecting default gateway";
+        $logger->warn($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
 }
 
 =item update_radius_sql
@@ -107,10 +133,10 @@ sub write_network_persistent {
     }
 
     # Inject gateway for live usage
-    if ( !$self->_inject_default_route($gateway) ) {
-        $status_msg = "Error while injecting gateway on system. See server side logs for details";
+    ($status, $status_msg) = $self->_inject_default_route($gateway);
+    if ( is_error($status) ) {
         $logger->error("$status_msg");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        return ($status, $status_msg);
     }
     
     # Instantiate an object for the correct OS
