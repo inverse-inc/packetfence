@@ -25,6 +25,21 @@ body {
 .icon-step5 {
     background-position: 0px -56px;
 }
+.icon-step6 {
+    background-position: 0px -70px;
+}
+.icon-step7 {
+    background-position: 0px -84px;
+}
+.icon-step8 {
+    background-position: 0px -98px;
+}
+.icon-step9 {
+    background-position: 0px -112px;
+}
+.icon-step10 {
+    background-position: 0px -126px;
+}
 #tracker a:hover {
   color: #08c;
 }
