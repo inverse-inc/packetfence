@@ -28,6 +28,11 @@ o Upgrading from a version prior to <nextRelease>:
     made little sense since portal access is denied from users since a long
     time. This was a legacy from the deprecated ARP mode.
 
+    - pf.conf's trapping.registration now enabled by default
+    We changed this setting from disabled to enabled by default since we consider
+    that registration is a whole part of the process. It is still possible to disable
+    this setting by overriding it's default value in pf.conf.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update

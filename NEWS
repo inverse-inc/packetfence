@@ -21,6 +21,7 @@ Enhancements
  * interface gateways are no longer required in configuration (#1447)
  * general.caching parameter removed from configuration
  * major refactoring, cleanup and dependencies removal
+ * trapping.registration now enabled by default
 
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
