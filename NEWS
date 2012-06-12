@@ -44,6 +44,7 @@ Bug Fixes
  * pfdhcplistener doesn't hang anymore
  * pid (username) of the form 'domain\\user' are now allowed (#1253)
  * guest account import didn't work on files with Windows line terminators (\r\n)
+ * process management fixes (#1464)
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
