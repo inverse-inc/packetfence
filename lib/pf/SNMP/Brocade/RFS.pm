@@ -10,7 +10,7 @@ Brocade RF Switches module
 
 =head1 STATUS
 
-This module is currently only a placeholder, see pf::SNMP::Motorola
+This module is currently only a placeholder, see L<pf::SNMP::Motorola>
 
 =cut
 
