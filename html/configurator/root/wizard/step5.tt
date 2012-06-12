@@ -1,20 +1,6 @@
 [% PROCESS wizard/header.inc %]
 
- <!-- redirection to admin interface -->
-  <div class="modal fade hide" id="modalRedirection">
-    <div class="modal-header">
-      <h3>Congratulations!</h3>
-    </div>
-    <div class="modal-body">
-      <p>You have successfully configured and launched PacketFence.</p>
-      <p>You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.</p>
-      <div class="modal-footer">
-        <a class="btn btn-primary" href="https://[% admin_ip %]:[% admin_port %]/">Visit Administration Interface Now!</a>
-      </div>
-    </div>
-  </div>
-
-   <div id="navbar" class="navbar navbar-fixed-top">
+    <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
@@ -29,13 +15,13 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] 5</h1>
+            <h1>[% l('Step') %] [% step %]</h1>
           </div>
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>Start the services
-            <small>Secure your network</small></h1>
+            <h1>Administration
+            <small>Access to the administration interface</small></h1>
           </div>
         </div>
       </div>
@@ -43,45 +29,43 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>The last step of this configuration wizard is to start the PacketFence daemons.</p>
+            <p>On this page, you create an account to access the administration web interface.</p>
+            <p>After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page.</p>
           </div>
         </div>
-        <div id="services" class="span9">
-        [% UNLESS completed -%]
-        <div class="alert alert-warning">
-          <strong>Warning!</strong> <span>You must complete all steps in order to start the services.</span>
-        </div>
-        [% END -%]
-          <table class="table">
-            <thead>
-              <tr>
-                <th>[% l('Daemon') %]</th>
-                <th>[% l('Status') %]</th>
-              </tr>
-              </thead>
-            <tbody>
-              [%- FOREACH service = services_status.keys %]
-              <tr>
-                <td>[% service %]</td>
-                <td><span id="service-[% service %]"
-                  class="badge[% IF services_status.$service %] badge-success[% END %]">
-                  [%- IF services_status.$service %]Started[%- ELSE -%]Stopped[% END -%]</span></td>
-              </tr>
-              [%- END %]
-            </tbody>
-          </table>
-          <form class="form-horizontal">
+        <div class="span9">
+          <form name="admin" class="form-horizontal">
+            <h3>Administrator</h3>
+            <div class="control-group">
+              <label class="control-label" for="admin_user">[% l('Username') %]</label>
+              <div class="controls">
+                <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF c.session.completed.step5 %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="admin_password">[% l('Password') %]</label>
+              <div class="controls">
+                <input id="admin_password" class="text" type="password"[% IF c.session.completed.step5 %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.step5 %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group[% IF c.session.completed.step5 %] success[% END %]">
+              <div class="controls">
+                <button type="submit" id="createUser" class="btn btn-primary[% IF c.session.completed.step5 %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</button>
+                [% IF c.session.completed.step5 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+              </div>
+            </div>
+
             <fieldset>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step5') %]">Start PacketFence</button>
+              <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step6') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
             </div>
             </fieldset>
-          </form>
-          <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
-            <button class="close" data-dismiss="alert">×</button>
-            <strong>Console Output</strong>
-            <pre>[% error %]</pre>
-          </div>
+            </form>
         </div>
       </div>
       <footer>
@@ -90,4 +74,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['services'] %]
+    jsFiles = ['admin'] %]

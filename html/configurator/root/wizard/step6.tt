@@ -1,0 +1,93 @@
+[% PROCESS wizard/header.inc %]
+
+ <!-- redirection to admin interface -->
+  <div class="modal fade hide" id="modalRedirection">
+    <div class="modal-header">
+      <h3>Congratulations!</h3>
+    </div>
+    <div class="modal-body">
+      <p>You have successfully configured and launched PacketFence.</p>
+      <p>You will now be redirected to the administration interface where you can configure violations and monitor your new NAC.</p>
+      <div class="modal-footer">
+        <a class="btn btn-primary" href="https://[% admin_ip %]:[% admin_port %]/">Visit Administration Interface Now!</a>
+      </div>
+    </div>
+  </div>
+
+   <div id="navbar" class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
+          <h6 class="pull-right">Configuration Wizard</h6>
+          </div>
+      </div>
+    </div>
+
+    <div class="container">
+      [% step = 6 %]
+      [% INCLUDE wizard/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>[% l('Step') %] [% step %]</h1>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>Start the services
+            <small>Secure your network</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>Instructions</h3>
+            <p>The last step of this configuration wizard is to start the PacketFence daemons.</p>
+          </div>
+        </div>
+        <div id="services" class="span9">
+        [% UNLESS completed -%]
+        <div class="alert alert-warning">
+          <strong>Warning!</strong> <span>You must complete all steps in order to start the services.</span>
+        </div>
+        [% END -%]
+          <table class="table">
+            <thead>
+              <tr>
+                <th>[% l('Daemon') %]</th>
+                <th>[% l('Status') %]</th>
+              </tr>
+              </thead>
+            <tbody>
+              [%- FOREACH service = services_status.keys %]
+              <tr>
+                <td>[% service %]</td>
+                <td><span id="service-[% service %]"
+                  class="badge[% IF services_status.$service %] badge-success[% END %]">
+                  [%- IF services_status.$service %]Started[%- ELSE -%]Stopped[% END -%]</span></td>
+              </tr>
+              [%- END %]
+            </tbody>
+          </table>
+          <form class="form-horizontal">
+            <fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step6') %]">Start PacketFence</button>
+            </div>
+            </fieldset>
+          </form>
+          <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
+            <button class="close" data-dismiss="alert">×</button>
+            <strong>Console Output</strong>
+            <pre>[% error %]</pre>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2012</p>
+      </footer>
+    </div><!--/container-->
+
+[% INCLUDE wizard/footer.inc
+    jsFiles = ['services'] %]

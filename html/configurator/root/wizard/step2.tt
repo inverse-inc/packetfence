@@ -1,42 +1,74 @@
-[% PROCESS wizard/header.inc %]
+[% PROCESS wizard/header.inc -%]
 
- <!-- root password reset -->
-  <div class="modal fade hide" id="modalRootPassword">
-    <div class="modal-header">
-      <h3>Set a MySQL root password</h3>
-    </div>
-    <div class="modal-body">
+<!-- interface editor -->
+    <div class="modal fade hide" id="modalEditInterface">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3><span>eth0</span></h3>
+      </div>
+      <div class="modal-body">
         <form class="form-horizontal">
           <div class="control-group">
-              <label class="control-label">[% l('Username') %]</label>
-              <div class="controls">
-                <input name="root_user" class="text" type="text" value="[% c.session.root_user | html %]">
-              </div>
+            <label class="control-label" for="interfaceIp">[% l('IP Address') %]</label>
+            <div class="controls">
+              <input type="text" class="input" id="interfaceIp">
             </div>
-            <div class="control-group">
-              <label class="control-label">[% l('New Password') %]</label>
-              <div class="controls">
-                <input name="root_pass_new" class="text" type="password">
-              </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="interfaceNetmask">[% l('Netmask') %]</label>
+            <div class="controls">
+              <input type="text" class="input" id="interfaceNetmask">
             </div>
-            <div class="control-group">
-              <div class="controls">
-                <input name="root_pass2_new" class="text" type="password" placeholder="Retype your password">
-              </div>
-            </div>
+          </div>
         </form>
       </div>
       <div class="modal-footer">
-        <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
+        <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+        <button type="submit" class="btn btn-primary">[% l('Save changes') %]</button>
       </div>
-  </div>
+    </div>
+
+<!-- vlan creator -->
+    <div class="modal fade hide" id="modalCreateVlan">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>New VLAN for <span>eth0</span></h3>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="control-group">
+            <label class="control-label" for="vlanId">[% l('Virtual LAN ID') %]</label>
+            <div class="controls">
+              <input type="text" class="input" id="vlanId">
+                <p class="help-block">VLAN ID associated to the network interface</p>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="vlanIp">[% l('IP Address') %]</label>
+            <div class="controls">
+              <input type="text" class="input" id="vlanIp">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="vlanNetmask">[% l('Netmask') %]</label>
+            <div class="controls">
+              <input type="text" class="input" id="vlanNetmask">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+        <button type="submit" class="btn btn-primary">[% l('Create') %]</button>
+      </div>
+    </div>
 
     <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
           <h6 class="pull-right">Configuration Wizard</h6>
-          </div>
+        </div>
       </div>
     </div>
 
@@ -46,13 +78,13 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] 2</h1>
-          </div>
+            <h1>[% l('Step') %] [% step %]</h1>
+            </div>
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>Database Configuration
-            <small>Create a user in your MySQL server</small></h1>
+            <h1>Networks
+            <small>Activate your network interfaces and create VLANs</small></h1>
           </div>
         </div>
       </div>
@@ -60,67 +92,45 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes.</p>
+            <p>On this page, you configure the network interfaces detected on your system.</p>
+            <p>Don't worry, you can always come back to this step if you change your mind.</p>
           </div>
         </div>
         <div class="span9">
-          <form name="database" class="form-horizontal">
-            <h3>Enter the MySQL root account credentials</h3>
-            <div class="control-group">
-              <label class="control-label" for="root_user">[% l('Username') %]</label>
-              <div class="controls">
-                <input id="root_user" class="text" type="text" value="[% c.session.root_user %]">
+          <div id="interfaces" class="form-horizontal">
+            <form name="interfaces">
+              <h3>[% l('Network Interfaces') %]</h3>
+              <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
+              <table class="table">
+                <thead>
+                  <tr><th>Logical name</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th style="min-width: 60px">[% l('Status') %]</th><th>[% l('Type') %]</th><th>[% l('Actions') %]</th></tr>
+                </thead>
+                <tbody>
+                  [% INCLUDE interface/get.tt %]
+                </tbody>
+              </table>
+              <h3>[% l('Default Gateway') %]</h3>
+              <div class="control-group">
+                <div class="controls">
+                  <input id="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway %]">
+                  <p class="help-block">Your gateway IP address to access Internet.</p>
+                </div>
               </div>
+              [% IF c.session.enforcements.inline -%]
+              <h3>[% l('DNS Server') %]</h3>
+              <div class="control-group">
+                <div class="controls">
+                  <input id="dns" type="text" class="input" placeholder="IP address" value="[% c.session.dns %]">
+                  <p class="help-block">The IP address of your network DNS server.</p>
+                </div>
+              </div>
+              [%- END %]
+          </div>
+          <fieldset>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary pull-right"  href="[% c.uri_for('step3') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
             </div>
-            <div class="control-group">
-              <label class="control-label" for="root_password">[% l('Password') %]</label>
-              <div class="controls">
-                <input id="root_password" class="text" type="password">
-                <button type="submit" class="btn" id="testDatabase" href="[% c.uri_for('/db/test') %]">[% l('Test') %]</button>
-              </div>
-            </div>
-            <h3>[% l('Create the database') %]</h3>
-            <div class="control-group">
-              <label class="control-label" for="database">[% l('Name') %]</label>
-              <div class="controls">
-                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF c.session.completed.step2 %] disabled=""[% END %]>
-              </div>
-            </div>
-            <div class="control-group[% IF c.session.completed.step2 %] success[% END %]">
-              <div class="controls">
-                <button type="submit" class="btn btn-primary[% IF c.session.completed.step2 %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</button>
-                [% IF c.session.completed.step2 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
-              </div>
-            </div>
-            <h3>Create a PacketFence account</h3>
-            <div class="control-group">
-              <label class="control-label" for="pf_user">[% l('Username') %]</label>
-              <div class="controls">
-                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF c.session.completed.step2 %] disabled=""[% END %]>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="pf_password">[% l('Password') %]</label>
-              <div class="controls">
-                <input name="database.pass" class="text" type="password"[% IF c.session.completed.step2 %] disabled=""[% END %]>
-              </div>
-            </div>
-            <div class="control-group">
-              <div class="controls">
-                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.step2 %] disabled=""[% END %]>
-              </div>
-            </div>
-            <div class="control-group[% IF c.session.completed.step2 %] success[% END %]">
-              <div class="controls">
-                <button type="submit" class="btn btn-primary[% IF c.session.completed.step2 %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</button>
-                [% IF c.session.completed.step2 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
-              </div>
-            </div>
-            <fieldset>
-              <div class="form-actions">
-                <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step3') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
-              </div>
-            </fieldset>
+          </fieldset>
           </form>
         </div>
       </div>
@@ -130,4 +140,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['database'] %]
+    jsFiles = ['networks'] -%]

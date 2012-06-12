@@ -1,68 +1,5 @@
 [% PROCESS wizard/header.inc -%]
 
-<!-- interface editor -->
-    <div class="modal fade hide" id="modalEditInterface">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h3><span>eth0</span></h3>
-      </div>
-      <div class="modal-body">
-        <form class="form-horizontal">
-          <div class="control-group">
-            <label class="control-label" for="interfaceIp">[% l('IP Address') %]</label>
-            <div class="controls">
-              <input type="text" class="input" id="interfaceIp">
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="interfaceNetmask">[% l('Netmask') %]</label>
-            <div class="controls">
-              <input type="text" class="input" id="interfaceNetmask">
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
-        <button type="submit" class="btn btn-primary">[% l('Save changes') %]</button>
-      </div>
-    </div>
-
-<!-- vlan creator -->
-    <div class="modal fade hide" id="modalCreateVlan">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h3>New VLAN for <span>eth0</span></h3>
-      </div>
-      <div class="modal-body">
-        <form class="form-horizontal">
-          <div class="control-group">
-            <label class="control-label" for="vlanId">[% l('Virtual LAN ID') %]</label>
-            <div class="controls">
-              <input type="text" class="input" id="vlanId">
-                <p class="help-block">VLAN ID associated to the network interface</p>
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="vlanIp">[% l('IP Address') %]</label>
-            <div class="controls">
-              <input type="text" class="input" id="vlanIp">
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="vlanNetmask">[% l('Netmask') %]</label>
-            <div class="controls">
-              <input type="text" class="input" id="vlanNetmask">
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
-        <button type="submit" class="btn btn-primary">[% l('Create') %]</button>
-      </div>
-    </div>
-
     <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -78,13 +15,13 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] 1</h1>
+            <h1>[% l('Step') %] [% step %]</h1>
             </div>
         </div>
         <div class="span9">
           <div class="page-header">
             <h1>Enforcement
-            <small>Activate your network interfaces and create VLANs</small></h1>
+            <small>Choose your enforcement mechanisms</small></h1>
           </div>
         </div>
       </div>
@@ -92,13 +29,13 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>On this page, you choose your enforcement mechanism(s) and configure the network interfaces detected on your system.</p>
+            <p>On this page, you choose your enforcement mechanism(s).</p>
             <p>Don't worry, you can always come back to this step if you change your mind.</p>
           </div>
         </div>
         <div class="span9">
-          <div id="interfaces" class="form-horizontal">
-            <form name="interfaces">
+          <div class="form-horizontal">
+            <form name="enforcement">
               <h3>Enforcement Mechanisms</h3>
               <div class="control-group">
                 <div class="controls">
@@ -110,30 +47,6 @@
                     <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> <strong>VLAN enforcement</strong>
                     <p class="help-block">PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.</p>
                   </label>
-                </div>
-              </div>
-              <h3>[% l('Network Interfaces') %]</h3>
-              <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
-              <table class="table">
-                <thead>
-                  <tr><th>Logical name</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th style="min-width: 60px">[% l('Status') %]</th><th>[% l('Type') %]</th><th>[% l('Actions') %]</th></tr>
-                </thead>
-                <tbody>
-                  [% INCLUDE interface/get.tt %]
-                </tbody>
-              </table>
-              <h3>[% l('Default Gateway') %]</h3>
-              <div class="control-group">
-                <div class="controls">
-                  <input id="gateway" type="text" class="input" placeholder="IP address" value="[% c.session.gateway %]">
-                  <p class="help-block">Your gateway IP address to access Internet.</p>
-                </div>
-              </div>
-              <div id="dnsBlock"[% UNLESS c.session.enforcements.inline %] style="display: none;"[% END %]><h3>[% l('DNS Server') %]</h3>
-              <div class="control-group">
-                <div class="controls">
-                  <input id="dns" type="text" class="input" placeholder="IP address" value="[% c.session.dns %]">
-                  <p class="help-block">The IP address of your network DNS server.</p>
                 </div>
               </div>
           </div>

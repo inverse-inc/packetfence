@@ -8,22 +8,22 @@
               <td class="control-group">
                 <select class="span2" name="type" interface="[% i %]">
                   <option value="none">None</option>
-                  [% FOREACH type IN types %]
+                  [% FOREACH type IN types -%]
                   <option value="[% type %]"
                       [%- IF interfaces_types.$i == type -%] selected=""[%- END -%]
                       [%- IF type == 'other' -%] disabled[%- END -%]
                       >[% l(type) %]</option>
-                  [% END %]
+                  [% END -%]
                 </select>
               </td>
               <td>
-                [% IF interfaces.$i.vlan %]
+                [% IF interfaces.$i.vlan -%]
                 <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">[% l('Edit') %]</a>
                 <a class="btn btn-mini btn-danger" data-toggle="modal" interface="[% i %]" href="#modalDeleteVlan">[% l('Delete') %]</a>
-                [% ELSE %]
+                [% ELSE -%]
                 <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">[% l('Edit') %]</a>
                 <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalCreateVlan">[% l('Add VLAN') %]</a>
-                [% END %]
+                [% END -%]
               </td>
             </tr>
-            [% END %]
+            [% END -%]

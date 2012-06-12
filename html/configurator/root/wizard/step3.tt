@@ -1,5 +1,36 @@
 [% PROCESS wizard/header.inc %]
 
+ <!-- root password reset -->
+  <div class="modal fade hide" id="modalRootPassword">
+    <div class="modal-header">
+      <h3>Set a MySQL root password</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="control-group">
+              <label class="control-label">[% l('Username') %]</label>
+              <div class="controls">
+                <input name="root_user" class="text" type="text" value="[% c.session.root_user | html %]">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">[% l('New Password') %]</label>
+              <div class="controls">
+                <input name="root_pass_new" class="text" type="password">
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input name="root_pass2_new" class="text" type="password" placeholder="Retype your password">
+              </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
+      </div>
+  </div>
+
     <div id="navbar" class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -15,13 +46,13 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] 3</h1>
+            <h1>[% l('Step') %] [% step %]</h1>
           </div>
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>PacketFence Configuration
-            <small>Setup your NAC</small></h1>
+            <h1>Database Configuration
+            <small>Create a user in your MySQL server</small></h1>
           </div>
         </div>
       </div>
@@ -29,47 +60,68 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>This step covers some basic configuration parameters required to have a functional PacketFence installation.</p>
+            <p>PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes.</p>
           </div>
         </div>
         <div class="span9">
-          <form name="config" class="form-horizontal">
-            <h3>[% l('General') %]</h3>
+          <form name="database" class="form-horizontal">
+            <h3>Enter the MySQL root account credentials</h3>
             <div class="control-group">
-              <label class="control-label" for="general_domain">Domain</label>
+              <label class="control-label" for="root_user">[% l('Username') %]</label>
               <div class="controls">
-                <input type="text" class="input" id="general_domain" value="[% config.${"general.domain"} %]">
-                <p class="help-block">Domain name of PacketFence system.</p>
+                <input id="root_user" class="text" type="text" value="[% c.session.root_user %]">
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="general_hostname">Hostname</label>
+              <label class="control-label" for="root_password">[% l('Password') %]</label>
               <div class="controls">
-                <input type="text" class="input" id="general_hostname" value="[% config.${"general.hostname"} %]">
-                <p class="help-block">Hostname of this PacketFence system. This is concatenated with the above domain and therefore must be resolvable by clients.</p>
+                <input id="root_password" class="text" type="password">
+                <button type="submit" class="btn" id="testDatabase" href="[% c.uri_for('/db/test') %]">[% l('Test') %]</button>
+              </div>
+            </div>
+            <h3>[% l('Create the database') %]</h3>
+            <div class="control-group">
+              <label class="control-label" for="database">[% l('Name') %]</label>
+              <div class="controls">
+                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF c.session.completed.step3 %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group[% IF c.session.completed.step3 %] success[% END %]">
+              <div class="controls">
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.step3 %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</button>
+                [% IF c.session.completed.step3 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+              </div>
+            </div>
+            <h3>Create a PacketFence account</h3>
+            <div class="control-group">
+              <label class="control-label" for="pf_user">[% l('Username') %]</label>
+              <div class="controls">
+                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF c.session.completed.step3 %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="general_dhcpservers">DHCP Servers</label>
+              <label class="control-label" for="pf_password">[% l('Password') %]</label>
               <div class="controls">
-                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% config.${"general.dhcpservers"} %]</textarea>
-                <p class="help-block">Comma-delimited list of DHCP servers in your production environment.</p>
+                <input name="database.pass" class="text" type="password"[% IF c.session.completed.step3 %] disabled=""[% END %]>
               </div>
             </div>
-            <h3>[% l('Alerting') %]</h3>
             <div class="control-group">
-              <label class="control-label" for="alerting_emailaddr"></label>
               <div class="controls">
-                <input type="text" class="input" id="alerting_emailaddr" value="[% config.${"alerting.emailaddr"} %]">
-                <p class="help-block">Email address to which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message goes to.</p>
+                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.step3 %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group[% IF c.session.completed.step3 %] success[% END %]">
+              <div class="controls">
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.step3 %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</button>
+                [% IF c.session.completed.step3 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
             <fieldset>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step4') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
-            </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step4') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+              </div>
             </fieldset>
-            </form>
+          </form>
         </div>
       </div>
       <footer>
@@ -78,4 +130,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['config'] %]
+    jsFiles = ['database'] %]

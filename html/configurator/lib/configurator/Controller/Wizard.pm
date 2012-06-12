@@ -48,11 +48,15 @@ sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
         my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
         $c->response->redirect("https://$admin_ip:$admin_port");
     }
+    if (scalar($c->session->{enforcements}) == 0) {
+        # Defaults to inline mode if no mechanism has been chosen so far
+        $c->session->{enforcements}->{inline} = 1;
+    }
 }
 
 =item step1
 
-Enforcement mechanisms and network interfaces
+Enforcement mechanisms
 
 =cut
 sub step1 :Chained('object') :PathPart('step1') :Args(0) {
@@ -61,11 +65,38 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     if ($c->request->method eq 'POST') {
         # Save parameters in user session
         my $data = decode_json($c->request->params->{json});
-        $c->session(gateway => $data->{gateway},
-                    dns => $data->{dns},
-                    enforcements => {});
-        $c->stash(interfaces_types => $data->{interfaces_types});
+        $c->session(enforcements => {});
         map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
+
+        if (scalar @{$data->{enforcements}} == 0) {
+            # Make sure at least one enforcement method is selected
+            $c->response->status($STATUS::PRECONDITION_FAILED);
+            $c->stash->{status_msg} = $c->loc("You must choose at least one enforcement mechanism.");
+            delete $c->session->{completed}->{step1};
+        }
+        else {
+            # Step passed validation
+            $c->session->{completed}->{step1} = 1;
+        }
+
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
+=item step2
+
+Enforcement mechanisms and network interfaces
+
+=cut
+sub step2 :Chained('object') :PathPart('step2') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    if ($c->request->method eq 'POST') {
+        # Save parameters in user session
+        my $data = decode_json($c->request->params->{json});
+        $c->session(gateway => $data->{gateway},
+                    dns => $data->{dns});
+        $c->stash(interfaces_types => $data->{interfaces_types});
 
         # Make sure all types for each enforcement is assigned to an interface
         # TODO: Shall we ignore disabled interfaces?
@@ -74,27 +105,21 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
         my @missing = ();
         @seen{@selected_types} = ( ); # build lookup table
 
-        foreach my $enforcement (@{$data->{enforcements}}) {
+        foreach my $enforcement (keys %{$c->session->{enforcements}}) {
             my $types_ref = $c->model('Enforcement')->getAvailableTypes($enforcement);
             foreach my $type (@{$types_ref}) {
                 unless (exists $seen{$type} ||
                         $type eq 'other' ||
                         grep {$_ eq $c->loc($type)} @missing) {
-                push(@missing, $c->loc($type));
-            }
+                    push(@missing, $c->loc($type));
+                }
             }
         }
 
         if (scalar @missing > 0) {
             $c->response->status($STATUS::PRECONDITION_FAILED);
             $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
-            delete $c->session->{completed}->{step1};
-        }
-        elsif (scalar @{$data->{enforcements}} == 0) {
-            # Make sure at least one enforcement method is selected
-            $c->response->status($STATUS::PRECONDITION_FAILED);
-            $c->stash->{status_msg} = $c->loc("You must choose at least one enforcement mechanism.");
-            delete $c->session->{completed}->{step1};
+            delete $c->session->{completed}->{step2};
         }
         # TODO move IP validation to something provided by core (once in model I guess)
 # XXX needs to check each interfaces in a loop for inline
@@ -105,7 +130,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
 #                "A valid DNS server must be provided for Inline enforcement. "
 #                . "If you are unsure you can always put in your ISP's DNS or a global DNS like 4.2.2.1."
 #            );
-#            delete $c->session->{completed}->{step1};
+#            delete $c->session->{completed}->{step2};
 #        }
         else {
 
@@ -185,7 +210,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
                                                                   $data->{'gateway'});
 
             # Step passed validation
-            $c->session->{completed}->{step1} = 1;
+            $c->session->{completed}->{step2} = 1;
         }
 
         $c->stash->{current_view} = 'JSON';
@@ -193,7 +218,7 @@ sub step1 :Chained('object') :PathPart('step1') :Args(0) {
     else {
         my $interfaces_ref = $c->model('Interface')->get('all');
         $c->stash(interfaces => $interfaces_ref);
-        $c->stash(types => $c->model('Enforcement')->getAvailableTypes(['inline', 'vlan']));
+        $c->stash(types => $c->model('Enforcement')->getAvailableTypes([ keys %{$c->session->{'enforcements'}} ]));
         my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($interfaces_ref);
         if (is_success($status)) {
             $c->stash->{interfaces_types} = $self->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types);
@@ -272,14 +297,14 @@ sub _prepare_types_for_display {
     return $display_int_types_ref;
 }
 
-=item step2
+=item step3
 
 Database setup
 
 =cut
 # FIXME this is not like we built the rest of configurator.. re-architect?
 # the GET is expected to fail on first run, then the javascript calls it again and it should pass...
-sub step2 :Chained('object') :PathPart('step2') :Args(0) {
+sub step3 :Chained('object') :PathPart('step3') :Args(0) {
     my ( $self, $c ) = @_;
 
     if ($c->request->method eq 'GET') {
@@ -288,7 +313,7 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
             ['database.user', 'database.pass', 'database.db']
         );
         if (is_error($status)) {
-            delete $c->session->{completed}->{step2};
+            delete $c->session->{completed}->{step3};
             $c->log->warn("Could not read configuration: $result_ref");
             $c->detach();
         }
@@ -300,7 +325,7 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
             # throwing away result since we don't use it
             ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
             if (is_error($status)) {
-                delete $c->session->{completed}->{step2};
+                delete $c->session->{completed}->{step3};
                 $c->detach();
             }
         }
@@ -310,21 +335,21 @@ sub step2 :Chained('object') :PathPart('step2') :Args(0) {
         my $result;
         ($status, $result) = $c->model('Config::System')->update_radius_sql($pf_db, $pf_user, $pf_pass);
         if (is_error($status)) {
-            delete $c->session->{completed}->{step2};
+            delete $c->session->{completed}->{step3};
             $c->detach();
         }
 
         # everything has been done successfully
-        $c->session->{completed}->{step2} = 1;
+        $c->session->{completed}->{step3} = 1;
     }
 }
 
-=item step3
+=item step4
 
 PacketFence minimal configuration
 
 =cut
-sub step3 :Chained('object') :PathPart('step3') :Args(0) {
+sub step4 :Chained('object') :PathPart('step4') :Args(0) {
     my ( $self, $c ) = @_;
 
     if ($c->request->method eq 'GET') {
@@ -354,7 +379,7 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
                 'alerting.emailaddr'  => $alerting_emailaddr
             });
             if (is_error($status)) {
-                delete $c->session->{completed}->{step3};
+                delete $c->session->{completed}->{step4};
             }
 
             # Update networks.conf file with correct domain-names for each networks
@@ -371,29 +396,29 @@ sub step3 :Chained('object') :PathPart('step3') :Args(0) {
             $c->stash->{status_msg} = $message;
         }
         else {
-            $c->session->{completed}->{step3} = 1;
+            $c->session->{completed}->{step4} = 1;
         }
         $c->stash->{current_view} = 'JSON';
     }
 }
 
-=item step4
+=item step5
 
 Administrator account
 
 =cut
-sub step4 :Chained('object') :PathPart('step4') :Args(0) {
+sub step5 :Chained('object') :PathPart('step5') :Args(0) {
     my ( $self, $c ) = @_;
 
     # See create_admin
 }
 
-=item step5
+=item step6
 
 Confirmation and services launch
 
 =cut
-sub step5 :Chained('object') :PathPart('step5') :Args(0) {
+sub step6 :Chained('object') :PathPart('step6') :Args(0) {
     my ( $self, $c ) = @_;
 
     if ($c->request->method eq 'GET') {
@@ -403,7 +428,8 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
           $completed->{step1}
             && $completed->{step2}
               && $completed->{step3}
-                && $completed->{step4};
+                && $completed->{step4}
+                  && $completed->{step5};
 
         if ($c->stash->{completed}) {
             my ($status, $error) = $c->model('PfConfigAdapter')->reloadConfiguration();
@@ -461,7 +487,7 @@ sub step5 :Chained('object') :PathPart('step5') :Args(0) {
 
 =item reset_password
 
-Reset the root password (step 2)
+Reset the root password (step 3)
 
 =cut
 sub reset_password :Path('reset_password') :Args(0) {
@@ -487,7 +513,7 @@ sub reset_password :Path('reset_password') :Args(0) {
 
 =item create_admin
 
-Create the administrative user (step 4)
+Create the administrative user (step 5)
 
 =cut
 sub create_admin :Path('create_admin') :Args(0) {
@@ -505,10 +531,10 @@ sub create_admin :Path('create_admin') :Args(0) {
     }
     if ( is_success($status) ) {
         $c->session(admin_user => $admin_user);
-        $c->session->{completed}->{step4} = 1;
+        $c->session->{completed}->{step5} = 1;
     } else {
         delete $c->session->{admin_user};
-        delete $c->session->{completed}->{step4};
+        delete $c->session->{completed}->{step5};
         $c->response->status($status);
     }
 

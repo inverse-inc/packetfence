@@ -15,13 +15,13 @@
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] 4</h1>
+            <h1>[% l('Step') %] [% step %]</h1>
           </div>
         </div>
         <div class="span9">
           <div class="page-header">
-            <h1>Administration
-            <small>Access to the administration interface</small></h1>
+            <h1>PacketFence Configuration
+            <small>Setup your NAC</small></h1>
           </div>
         </div>
       </div>
@@ -29,37 +29,41 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>On this page, you create an account to access the administration web interface.</p>
-            <p>After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page.</p>
+            <p>This step covers some basic configuration parameters required to have a functional PacketFence installation.</p>
           </div>
         </div>
         <div class="span9">
-          <form name="admin" class="form-horizontal">
-            <h3>Administrator</h3>
+          <form name="config" class="form-horizontal">
+            <h3>[% l('General') %]</h3>
             <div class="control-group">
-              <label class="control-label" for="admin_user">[% l('Username') %]</label>
+              <label class="control-label" for="general_domain">Domain</label>
               <div class="controls">
-                <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF c.session.completed.step4 %] disabled=""[% END %]>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="admin_password">[% l('Password') %]</label>
-              <div class="controls">
-                <input id="admin_password" class="text" type="password"[% IF c.session.completed.step4 %] disabled=""[% END %]>
+                <input type="text" class="input" id="general_domain" value="[% config.${"general.domain"} %]">
+                <p class="help-block">Domain name of PacketFence system.</p>
               </div>
             </div>
             <div class="control-group">
+              <label class="control-label" for="general_hostname">Hostname</label>
               <div class="controls">
-                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.step4 %] disabled=""[% END %]>
+                <input type="text" class="input" id="general_hostname" value="[% config.${"general.hostname"} %]">
+                <p class="help-block">Hostname of this PacketFence system. This is concatenated with the above domain and therefore must be resolvable by clients.</p>
               </div>
             </div>
-            <div class="control-group[% IF c.session.completed.step4 %] success[% END %]">
+            <div class="control-group">
+              <label class="control-label" for="general_dhcpservers">DHCP Servers</label>
               <div class="controls">
-                <button type="submit" id="createUser" class="btn btn-primary[% IF c.session.completed.step4 %] disabled[% END %]" href="[% c.uri_for('create_admin') %]">Create user</button>
-                [% IF c.session.completed.step4 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+                <textarea class="input-xlarge" id="general_dhcpservers" rows="3">[% config.${"general.dhcpservers"} %]</textarea>
+                <p class="help-block">Comma-delimited list of DHCP servers in your production environment.</p>
               </div>
             </div>
-
+            <h3>[% l('Alerting') %]</h3>
+            <div class="control-group">
+              <label class="control-label" for="alerting_emailaddr"></label>
+              <div class="controls">
+                <input type="text" class="input" id="alerting_emailaddr" value="[% config.${"alerting.emailaddr"} %]">
+                <p class="help-block">Email address to which notifications of rogue DHCP servers, violations with an action of <i>email</i>, or any other PacketFence-related message goes to.</p>
+              </div>
+            </div>
             <fieldset>
             <div class="form-actions">
               <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step5') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
@@ -74,4 +78,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['admin'] %]
+    jsFiles = ['config'] %]
