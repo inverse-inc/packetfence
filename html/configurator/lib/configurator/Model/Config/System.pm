@@ -62,18 +62,21 @@ sub _inject_default_route {
     }
 
     my $cmd = "LANG=C route add default gw $gateway 2>&1";
+    $logger->debug("Adding default gateway: $cmd");
     $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
     # A default gateway already exists, we should delete it first and retry
-    if ( $status =~ /SIOCADDRT:\ File\ exists/ ) {
+    if ( defined($status)  && $status =~ /SIOCADDRT:\ File\ exists/ ) {
         $logger->info("Default gateway already exists, deleting it before adding the new one");
         $cmd = "route del default 2>&1";
+        $logger->debug("Deleting old default gateway: $cmd");
         $status = pf_run($cmd);
         return ($STATUS::INTERNAL_SERVER_ERROR, "Error while deleting existing default gateway") 
             if ( !defined($status) || $status ne "" );
 
         $logger->info("Old default gateway deleted. Injecting the new one");
         $cmd = "route add default gw $gateway 2>&1";
+        $logger->debug("Adding new default gateway: $cmd");
         $status = pf_run($cmd);
         return ($STATUS::INTERNAL_SERVER_ERROR, "Error while adding the new default gateway after deletion")
             if ( !defined($status) || $status ne "" );
