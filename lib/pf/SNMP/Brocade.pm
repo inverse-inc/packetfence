@@ -17,7 +17,7 @@ to access SNMP enabled Brocade switches.
 
 =over
 
-=item 802.1x and Mac Authentication with and without VoIP
+=item 802.1X and MAC-Authentication with and without VoIP
 
 =back
 
@@ -29,7 +29,28 @@ Tested on a Brocade ICX 6450 Version 07.4.00T311.
 
 =head1 BUGS AND LIMITATIONS
 
-Fallback from 802.1x to MAC-Auth doesn't work except when you first register the VoIP phone in order to send correct VSA
+=over
+
+=item Limitations with 802.1X to MAC-Auth fallback
+
+There is no automatic fallback from 802.1X to MAC-Authentication supported by
+the vendor at this time. However there is a means for RADIUS to explicitly
+say to the switch not to require 802.1X. This has the implication that
+PacketFence must be aware of all non-802.1X capable devices connecting to the
+switch (if 802.1X enforcement is required) and that it tells the switch to
+not require 802.1X for these devices.
+
+The workaround implemented in the Brocade code is such that VoIP devices will
+fallback to MAC-Auth if they have been pre-registered in PacketFence (see
+voip attribute under node). All other device categories (Game consoles,
+appliances, etc.) that don't support 802.1X will have problem in a Brocade
+setup. Customer specific workarounds in L<pf::radius::custom> could be made
+for that.
+
+Vendor is aware of the problem and is working to support 802.1X to MAC-Auth
+fallback.
+
+=back
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
