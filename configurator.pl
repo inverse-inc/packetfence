@@ -429,7 +429,7 @@ sub get_interfaces {
 sub get_networkinfos {
     my @ints;
 
-    open ( my $proc_fh, '-|', "/sbin/ifconfig -a" ) || die "Can't open ifconfig $!\n";
+    open ( my $proc_fh, '-|', "LANG=C /sbin/ifconfig -a" ) || die "Can't open ifconfig $!\n";
 
     while ( <$proc_fh> ) {
         if ( /^(\S+)\s+Link/ ) {
