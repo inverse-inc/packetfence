@@ -80,7 +80,6 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
-sub rewriteAccessAccept { return $TRUE; }
 
 
 =item getVersion
@@ -170,8 +169,6 @@ sub parseTrap {
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
-TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
-
 =cut
 
 sub getVoipVsa {
@@ -196,28 +193,12 @@ sub isVoIPEnabled {
     return ( $self->{_VoIPEnabled} == 1 );
 }
 
-=item * _shouldRewriteAccessAccept
-
-If this returns true we will call _rewriteAccessAccept() and overwrite the
-
-Access-Accept attributes by it's return value.
-
-This is meant to be overridden in L<pf::radius::custom>.
-
-=cut
-
-sub _shouldRewriteAccessAccept {
-    my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    return $TRUE;
-}
-
 =item returnRadiusAccessAccept
 
-Overloading L<pf::SNMP>'s implementation because to send vsa in the radius reponse.
+Overloading L<pf::SNMP>'s implementation to send vsa in the radius reponse.
 
-It's optional, but we can force the 802.1x authentication by sending Foundry-MAC-Authent-needs-802.1x at 1
+It's optional, but we can force the 802.1x authentication by sending Foundry-MAC-Authent-needs-802.1x at 1.
+Disabled by default.
 
 =cut
 

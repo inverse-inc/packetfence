@@ -393,9 +393,13 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
 
+Fabrice Durand <fdurand@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2010-2011 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
