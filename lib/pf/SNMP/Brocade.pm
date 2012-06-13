@@ -17,7 +17,7 @@ to access SNMP enabled Brocade switches.
 
 =over
 
-=item Mac Authentication without VoIP
+=item 802.1x and Mac Authentication with and without VoIP
 
 =back
 
@@ -29,7 +29,7 @@ Tested on a Brocade ICX 6450 Version 07.4.00T311.
 
 =head1 BUGS AND LIMITATIONS
 
-We cannot clear a 802.1X session using SNMP (no PAE MIB)
+Fallback from 802.1x to MAC-Auth doesn't work except when you first register the VoIP phone in order to send correct VSA
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
@@ -196,7 +196,7 @@ sub _shouldRewriteAccessAccept {
 
 Overloading L<pf::SNMP>'s implementation because to send vsa in the radius reponse.
 
-It's optional, but we can force the 802.1x authentication by sending Foundry-802_1x-enable at 1
+It's optional, but we can force the 802.1x authentication by sending Foundry-MAC-Authent-needs-802.1x at 1
 
 =cut
 
