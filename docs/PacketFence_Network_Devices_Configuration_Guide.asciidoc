@@ -2312,52 +2312,52 @@ We create two SSIDs:
 * cstj: non-secure with MAC authentication only
 * interne: secure with WPA2 Enterprise PEAP/MSCHAPv2
 
-image::docs/images/wls-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
+image::docs/images/cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
 
 
 * We choose to not broadcast this SSID on purpose so that it remains hidden.
 
-image::docs/images/wls-ssid-non-secure-create.png[scaledwidth="100%",alt="SSID Broadcast secure"]
+image::docs/images/cisco-wlc-ssid-non-secure-create.png[scaledwidth="100%",alt="SSID Broadcast secure"]
 
 * We select here the appropriate options for the security on layer 2 based on our requirements
 
-image::docs/images/wls-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
+image::docs/images/cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
 
 * No layer 3 security
 
-image::docs/images/wls-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
+image::docs/images/cisco-wlc-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
 
 * We set the IP of the FreeRADIUS server
 
-image::docs/images/wls-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::docs/images/wls-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
+image::docs/images/cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
 
 * Edit the non-secure SSID
 
-image::docs/images/wls-ssid-secure-broadcast.png[scaledwidth="100%",alt="SSID Broadcast non secure"]
+image::docs/images/cisco-wlc-ssid-secure-broadcast.png[scaledwidth="100%",alt="SSID Broadcast non secure"]
 
 * Enable MAC authentication at level 2
 
-image::docs/images/wls-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
+image::docs/images/cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
 
 * Nothing at level 3
 
-image::docs/images/wls-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
+image::docs/images/cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::docs/images/wls-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
+image::docs/images/cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
 
 * In the Controller > Interfaces tab, create one interface per SSID
 
-image::docs/images/wls-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
+image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
 * Define here the FreeRADIUS server
 
-image::docs/images/wls-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
+image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
 D-Link
 ~~~~~~
