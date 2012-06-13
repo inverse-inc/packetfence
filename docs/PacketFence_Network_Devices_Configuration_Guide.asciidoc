@@ -77,6 +77,8 @@ PacketFence supports the following devices:
 |Aruba            |All Controllers             |Aruba
 |Avaya            |Wireless Controllers        |Avaya::WC
 |                 |See Nortel Below            |
+|Brocade          |Brocade 6400 Series         |Brocade
+|                 |Brocade RF Switches         |Brocade::RFS
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
 |                 |Aironet 1240 AG             |Cisco::Aironet_1242
 |                 |Aironet 1250                |Cisco::Aironet_1250
@@ -477,6 +479,76 @@ Avaya
 
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
+
+Brocade
+~~~~~~~
+
+ICX 6400 Series
+^^^^^^^^^^^^^^^
+
+Those switches are supported using 802.1X for networks with or without VoIP.
+
+* Global config settings:
+
+  aaa authentication dot1x default radius
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default
+  radius-server key useStrongerSecret
+
+  vlan 1 name DEFAULT-VLAN by port
+  !
+  vlan 100 by port
+   tagged ethe 1/1/xx ethe 1/1/yy
+
+Where `xx` and `yy` represent the range of ports where you want PacketFence
+enforcement.
+
+MAC-Authentication without VoIP
++++++++++++++++++++++++++++++++
+
+* Enable MAC-Authentication globally
+
+  mac-authentication enable
+  mac-authentication mac-vlan-dyn-activation
+
+* Enable MAC-Authentication on each interface you want PacketFence active
+
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+
+MAC-Authentication with VoIP
+++++++++++++++++++++++++++++
+
+* Enable cdp globally
+
+  cdp run
+
+* Apply the following configuration on each interface you want PacketFence active
+
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+   cdp enable
+
+802.1x/MAC-Auth
++++++++++++++++
+
+* Enable 802.1X globally
+
+  dot1x-enable
+   re-authentication
+   enable ethe 1/1/xx
+
+Where `xx` is the switch port number
+
+* Apply the following configuration on each interface you want PacketFence active
+
+   dot1x port-control auto
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+
 
 Cisco
 ~~~~~
@@ -2107,6 +2179,15 @@ WLAN SSIDs: profiles and virtual AP
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
 
+Brocade
+~~~~~~~
+
+RF Switches
+^^^^^^^^^^^
+
+See the <<_motorola,Motorola RF Switches>> documentation.
+
+
 Cisco
 ~~~~~
 
@@ -2478,7 +2559,9 @@ NOTE: You need to have the *Per-User Firewall* license in order to benefit this 
 Motorola
 ~~~~~~~~
 
-In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs definition, one for the "public" network, and one for the "secure" network. 
+In order to have the Motorola RFS controller working with PacketFence, you
+need to define two Wireless LANs definition, one for the "public" network,
+and one for the "secure" network.
 
 WiNG (Firmware >= 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^
