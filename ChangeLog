@@ -1,3 +1,1936 @@
+commit f44e4b9d27782a9e5310d1ead21de4e6a175ea41
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 13:58:45 2012 -0400
+
+    translation sync with transifex
+
+M	NEWS
+M	README
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+
+commit 91bb9911a3acc84fd1a2fa4de767d541506adbbb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 13:49:36 2012 -0400
+
+    doc: made assumptions lists compact
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 56d1c7e6d9b20e861642ac267d8e660be1bf0906
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 13:48:56 2012 -0400
+
+    doc: several WLC/WiSM changes
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+D	docs/images/cisco-wlc-ssid-non-secure-create.png
+D	docs/images/cisco-wlc-ssid-secure-broadcast.png
+
+commit 659067b989082d5bd7ea032963d7246c4fd7f33b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 13 13:34:58 2012 -0400
+
+    wlc image modification
+
+M	docs/images/cisco-wlc-interface-ssid.png
+M	docs/images/cisco-wlc-ssid-create.png
+M	docs/images/cisco-wlc-ssid-non-secure-create.png
+M	docs/images/cisco-wlc-ssid-secure-broadcast.png
+
+commit d9e959b5f49124f712c613bb04fa017b4e474b1a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 13:17:30 2012 -0400
+
+    doc fix: typos and whitespace
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit a30ec0f1c1c13d1bec81e72d9c1ae5971a855824
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 13:07:08 2012 -0400
+
+    doc: version and revision bump
+
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/docbook/pf-devel-guide.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit d5ba26e801b2bde308c53855a0cfeff73eac1a29
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 13:01:03 2012 -0400
+
+    doc: Cisco Wireless changes
+    
+    - changed SSID names to reflect assumptions
+    - integrated WLC with WiSM
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 633329629deb496d0c76b56ef8feda51c29e3002
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 12:49:22 2012 -0400
+
+    doc: renamed wls-... to cisco-wlc-...
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+A	docs/images/cisco-wlc-interface-ssid.png
+A	docs/images/cisco-wlc-l2-non-secure.png
+A	docs/images/cisco-wlc-l2-secu.png
+A	docs/images/cisco-wlc-l3-non-secure.png
+A	docs/images/cisco-wlc-l3-secu.png
+A	docs/images/cisco-wlc-non-secure-radius-advance.png
+A	docs/images/cisco-wlc-radius-define.png
+A	docs/images/cisco-wlc-secure-radius-advance.png
+A	docs/images/cisco-wlc-secure-radius.png
+A	docs/images/cisco-wlc-ssid-create.png
+A	docs/images/cisco-wlc-ssid-non-secure-create.png
+A	docs/images/cisco-wlc-ssid-secure-broadcast.png
+D	docs/images/wls-interface-ssid.png
+D	docs/images/wls-l2-non-secure.png
+D	docs/images/wls-l2-secu.png
+D	docs/images/wls-l3-non-secure.png
+D	docs/images/wls-l3-secu.png
+D	docs/images/wls-non-secure-radius-advance.png
+D	docs/images/wls-radius-define.png
+D	docs/images/wls-secure-radius-advance.png
+D	docs/images/wls-secure-radius.png
+D	docs/images/wls-ssid-create.png
+D	docs/images/wls-ssid-non-secure-create.png
+D	docs/images/wls-ssid-secure-broadcast.png
+
+commit d41b2ddbcc2feb070062d4949af269e06ec115e9
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 13 12:12:28 2012 -0400
+
+    Fix Pull Request
+
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/constants.pm
+
+commit da21e7ba448cfc45b6ba03736f1b7cd7396be370
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 11:39:53 2012 -0400
+
+    doc: clarified Brocade switch limitation
+
+M	lib/pf/SNMP/Brocade.pm
+
+commit 01955b069f09ac3e860e2192e830a68ee9cef388
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 13 11:16:35 2012 -0400
+
+    Insert Limitations
+
+M	lib/pf/SNMP/Brocade.pm
+
+commit 7dffd00fd4291883afe625ee8aed32428617b878
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 11:13:39 2012 -0400
+
+    doc: typo fix and made a NOTE while I was there
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 6859ec546dcffc2ba2684e50416d0d126ea7411b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 10:37:01 2012 -0400
+
+    added NEWS entry
+
+M	NEWS
+
+commit 5fa1823dabbf3a3d7d468b40f15055a0e1fd4cbb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 10:12:39 2012 -0400
+
+    wireless doc improvements
+    
+    - RFS under Brocade section
+    - nice link to Motorola
+    - mentionning RFS in Motorola section
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 48ceb5ce0dd8379b4de5b89f02510f2dc7090967
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 10:10:34 2012 -0400
+
+    wired doc improvements
+    
+    - using proper secret in assumptions section
+    - MAC-Auth and not Mac-Auth
+    - xx, yy in their `quoted` form
+    - some rewording
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit f598ae05227185733c5d886fab4810598ff0cdec
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 09:48:05 2012 -0400
+
+    got rid of the 999999999 hardcoded constant
+    
+    Created a query without the where clause and _all calls this one instead.
+
+M	lib/pf/pfcmd/report.pm
+
+commit be807dbc8fe310019f8cdde4dad1c77d73f93c22
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jun 13 09:40:20 2012 -0400
+
+    Doc and Radius VSA modification
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/SNMP/Brocade.pm
+
+commit e721078bb83e755b3405f5eb841dedea2edc5dad
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 09:37:56 2012 -0400
+
+    pfsetvlan's POD aligned with other files
+
+M	sbin/pfsetvlan
+
+commit febc7dffe2481310a3ee23ebe815f9c272fd3de6
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Jun 13 09:17:17 2012 -0400
+
+    Updated Ruckus documentation
+
+M	docs/PacketFence_Ruckus_Quick_Install_Guide.asciidoc
+
+commit 54d65c1db1d68b0e47a7fe9a5c867e628b7667dc
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 08:50:26 2012 -0400
+
+    calling ifconfig with LANG=C in front (#1418)
+    
+    Avoids parsing problems when environment is localized in another
+    language.
+    
+    http://packetfence.org/bugs/view.php?id=1418
+
+M	NEWS
+M	configurator.pl
+
+commit 7c337372fea607d390c060de61ec06ef9a9de37d
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jun 12 15:40:08 2012 -0400
+
+    Remove i in variable
+
+M	lib/pf/SNMP/Brocade.pm
+
+commit 375c5ab4aefd27fbba911d6cd1f5237a914c210c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Jun 12 14:47:01 2012 -0400
+
+    cleanup: avoiding string dupliation in pf::services
+
+M	lib/pf/services.pm
+
+commit c0acc17b4c5a19d66c475ffa0682b3be25bc26fe
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Jun 12 14:46:22 2012 -0400
+
+    packaging: added procps as a dep (required for pkill)
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit 4a157c3898bdf6df849daa7847fec9862b64973a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Jun 12 14:42:23 2012 -0400
+
+    bugfix: daemons now set $0 ($PROGRAM_NAME) #1464
+    
+    This fixes situations where `perl` is the process name seen in the
+    process list and tools like pkill no longer work.
+    
+    Happened when debugging, running with perl <daemon> or, I think, when
+    starting from the Web Admin. If it's the case, this fixes a long standing
+    issue.
+    
+    http://packetfence.org/bugs/view.php?id=1464
+
+M	NEWS
+M	sbin/pfdetect
+M	sbin/pfdhcplistener
+M	sbin/pfmon
+M	sbin/pfredirect
+M	sbin/pfsetvlan
+
+commit 768c4332f8506a59ace75c8249a353ac6cbe37c4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jun 12 10:48:08 2012 -0400
+
+    Fix L<pf::SNMP::Motorola>
+
+M	lib/pf/SNMP/Brocade/RFS.pm
+
+commit 43fde656b25068deabe507194725aab3e12f0dea
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jun 12 10:39:38 2012 -0400
+
+    Fix for pull request
+
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/Brocade/RFS.pm
+
+commit a7952f87f25bf3940251a056c0e38bc87d7d7a1f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jun 12 10:26:07 2012 -0400
+
+    Fix for pull request
+
+M	README.network-devices
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/constants.pm
+
+commit 7d69b35d432818a89e127922bc79d6d8a1898193
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Jun 11 14:57:11 2012 -0400
+
+    FreeRADIUS LD_PRELOAD workaround. Fixes #1463 (upstream #416266)
+    
+    Required for PacketFence on Debian. Implemented as a patch on the source
+    that modifies pf::services to add proper LD_PRELOAD environment variable.
+    
+    http://packetfence.org/bugs/view.php?id=1463
+    http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=416266
+
+M	NEWS
+M	debian/packetfence.init
+A	debian/patches/freeradius-perl-workaround-416266.patch
+M	debian/patches/series
+
+commit a100a8453a645088e9801fed7b2bdba48c93a1aa
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jun 11 14:47:13 2012 -0400
+
+    Typos / corrections
+
+M	docs/PacketFence_Ruckus_Quick_Install_Guide.asciidoc
+
+commit 3e178cb3c944381a9df1a6b01442d2c11e0fe49c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Jun 11 14:29:55 2012 -0400
+
+    more flexibility in services launcher
+    
+    Not only flags are defined in pf::services now but because of a sprintf
+    syntax we can also use it to pass environment variables too.
+    
+    This change is required for the upcoming Debian fix #1463
+    http://packetfence.org/bugs/view.php?id=1463
+
+M	lib/pf/services.pm
+
+commit 91619fe89a59baebcc1477f000bd03dfe0f7a858
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jun 11 10:41:21 2012 -0400
+
+    Updated Ruckus documentation for the live CD environment.
+
+M	docs/PacketFence_Ruckus_Quick_Install_Guide-docinfo.xml
+M	docs/PacketFence_Ruckus_Quick_Install_Guide.asciidoc
+
+commit 3713542e62fb80dca2b61b8556701f91b2ba29f1
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jun 11 09:53:45 2012 -0400
+
+    Added Brocade in Network Devices Configuration Guide
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit ea309352469d80da6211bba489364aa1aa7983ad
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 8 13:56:54 2012 -0400
+
+    Insert empty line between the blocs
+
+M	lib/pf/SNMP/Brocade.pm
+
+commit f05467db6ef98e194de74999b5eb3258b45a7f50
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 8 13:51:31 2012 -0400
+
+    Correcting missing stuff
+
+M	README.network-devices
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP/Brocade.pm
+
+commit e36be1b0cddaff2f82a0f968609ef35c2f1bd23d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 13:48:13 2012 -0400
+
+    fix: getVersion probably didn't work here
+
+M	lib/pf/SNMP/H3C.pm
+
+commit 04b2c5b097a43e3ebae007e0066f74a3cd634507
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 11:49:23 2012 -0400
+
+    re-indent large query
+
+M	lib/pf/pfcmd/report.pm
+
+commit 0b9e61f51107c316a937b229ea2f43f97dff6bbf
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 11:42:34 2012 -0400
+
+    reduced code duplication and clarified hard-coded constants
+
+M	lib/pf/pfcmd/report.pm
+
+commit cc39f700d136496de89b11e3966dc243515bb224
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 11:10:38 2012 -0400
+
+    nodebandwidth is now a pie chart on the web admin
+
+M	conf/ui.conf
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd/report.pm
+
+commit f29e4fbaa48cf0c85ca2c15cbd9e7a021ba02298
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 11:07:33 2012 -0400
+
+    fix: web admin graph pie charts assumptions documented and simplified
+    
+    Relies on the column 2 to be meaninful (instead of 1). Most of the
+    reports were already sending the 'percent' column there. Documented
+    that fact.
+
+M	conf/ui.conf
+M	html/admin/status/grapher.php
+
+commit 05fdbd9394a28328d04579a6710e1b9d677b19c2
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:48:00 2012 -0400
+
+    NEWS entry
+
+M	NEWS
+
+commit 7c83a7d7280be180123be36a91dbe0709242657a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:46:43 2012 -0400
+
+    copyright and author bump
+
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
+
+commit 8d78559c189a19543a8d06e61b5e615de4b7543d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:43:05 2012 -0400
+
+    daily -> day, weekly -> week, etc. less confusing
+    
+    In a weekly report you would expect data from weeks to weeks but this is
+    not what this does. It's a window of the last week's worth of data. Renamed
+    to make less confusing. Hopefully...
+
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
+
+commit e7e25347acaf17948ffdf3d693b9f6112aaa217d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:34:55 2012 -0400
+
+    fixed parser to prevent calling reports with unsupported options
+    
+    this commit also eliminated last reference to top25
+
+M	lib/pf/pfcmd.pm
+
+commit e9fa931f06c89ef629791d1939099fd5913aa1f3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:25:46 2012 -0400
+
+    help represently accurate supported features per graph
+
+M	lib/pf/pfcmd/help.pm
+
+commit 538cd2cac8575193bca46d16b076cff1cb594f7d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:05:52 2012 -0400
+
+    these 'reports' don't support active type
+
+M	html/admin/status/reports.php
+
+commit 3660260004e249c3654ce78a5adaeb00d813acb8
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 8 09:00:21 2012 -0400
+
+    eliminated copy and paste with a shorter foreach
+
+M	html/admin/status/reports.php
+
+commit fdb2ce3ffb4f517b9753cf7b9747182506ab93a5
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 22:02:22 2012 -0400
+
+    removed stuff accidentally pushed
+
+M	bin/pfcmd
+
+commit 7f8c73a0dd594049d6bf3f2503a122f7443fc88e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 21:55:18 2012 -0400
+
+    accounting -> bandwidth, class... -> osclass...
+    
+    Also there was a discrepency between classaccounting (code) and
+    osaccounting (documentation) that got fixed. Plus the syntax for report
+    that was fixed.
+
+M	conf/ui.conf
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
+
+commit e8c1bec244aef320cb4a609f9a9603c21f1fdf57
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 21:47:46 2012 -0400
+
+    bugfix: field_order now favors longuest string matches
+    
+    when processing ui.conf. Problem visible when I introduced osclassbandwidth
+    but osclass already existed.
+
+M	bin/pfcmd
+
+commit 94484342c78c56e770ea5198f04e5db4222a2575
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 20:59:01 2012 -0400
+
+    translate_bw not consumed anywhere, not exported and made private
+
+M	lib/pf/accounting.pm
+
+commit 23cdbdcec72cc141fa0ba28280abcbf82ca0cd63
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 14:43:25 2012 -0400
+
+    restored vim integration in admin guide
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 0b9e989410b7a2703a6c3e411e1239dd61afb5d0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 14:42:51 2012 -0400
+
+    few FIXMEs for odd packages I would like removed
+
+M	debian/control
+
+commit 28e27c4eb5c7af537ea7792eb12821ef5207910a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 13:27:50 2012 -0400
+
+    config parameter for HTTP load-balacing support
+    
+    It will trigger proper IP lookup in HTTP Headers if source IP is from
+    the load balancers.
+
+M	NEWS
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	html/captive-portal/remediation.php
+M	lib/pf/config.pm
+M	lib/pf/web.pm
+
+commit 25de2342cad73f0769f686483825b3428dff1b1d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Jun 7 11:00:24 2012 -0400
+
+    pid (username) of the form 'domain\\user' are now allowed
+    
+    Fixes #1253
+    
+    Changes to both the quick grammar (pf::pfcmd) and our expensive one
+    (pf::pfcmd::pfcmd) was required.
+    
+    http://packetfence.org/bugs/view.php?id=1253
+
+M	NEWS
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit c07467580d222d7d4a4e90e82375382a2924b0c6
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 6 12:54:39 2012 -0400
+
+    fix: missing comma breaking configuration/switches.php
+
+M	html/admin/configuration/switches.php
+
+commit 0d7a2877e91b065a77488eb5eec24db32fa57b25
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 6 11:59:21 2012 -0400
+
+    updated documentation for the Cisco WLC line
+    
+    Made clear that 7.x is fine since we support RADIUS Disconnect
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 11c2c29865defd54422bcf0cebf14918f7a31390
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Jun 5 15:04:16 2012 -0400
+
+    log was listed twice in manifest
+
+M	addons/packages/packetfence.spec
+
+commit 13db2a628c13fec3733b1e586c69917a7193e113
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Jun 4 11:13:25 2012 -0400
+
+    Adding the top25 report for accounting.  Ready to review/merge
+
+M	conf/ui.conf
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
+
+commit baa1ef5d7499367825989dd1060d5d48c64c1381
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 1 13:17:14 2012 -0400
+
+    add wls doc in PacketFence_Network_Devices_configuration_Guide
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+A	docs/images/wls-interface-ssid.png
+A	docs/images/wls-l2-non-secure.png
+A	docs/images/wls-l2-secu.png
+A	docs/images/wls-l3-non-secure.png
+A	docs/images/wls-l3-secu.png
+A	docs/images/wls-non-secure-radius-advance.png
+A	docs/images/wls-radius-define.png
+A	docs/images/wls-secure-radius-advance.png
+A	docs/images/wls-secure-radius.png
+A	docs/images/wls-ssid-create.png
+A	docs/images/wls-ssid-non-secure-create.png
+A	docs/images/wls-ssid-secure-broadcast.png
+
+commit a98bec131f25e9bdfb2355dc903790dd71250217
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Jun 1 11:10:56 2012 -0400
+
+    Ready to be reviewed.
+
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
+
+commit 4a24c1163af12cf3cbb6d786183919a279125619
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Jun 1 10:44:02 2012 -0400
+
+    Only need to review the huge report query to make sure it's right
+
+M	conf/ui.conf
+M	html/admin/status/grapher.php
+
+commit 383dbb213d1349ac927d721cc9ecac8de11391ad
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu May 31 12:10:53 2012 -0400
+
+    Adding Brocade RFS support
+
+M	README.network-devices
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+A	lib/pf/SNMP/Brocade/RFS.pm
+
+commit 7022732c8718131730819572250d08ca5e4642cb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 31 11:57:25 2012 -0400
+
+    bulk import now supports default node properties in pf.conf
+
+M	NEWS
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	html/admin/node/import.php
+M	lib/pf/import.pm
+M	lib/pf/pfcmd/help.pm
+
+commit 636a6e971125d5ec34c474296bd3c4f45a18e36d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 31 10:45:43 2012 -0400
+
+    Fixed guest import w/ Windows files
+    
+    - Migrated to Text::CSV for higher level goodness
+    - extracted PID regex into pf::person (reuse++)
+
+M	NEWS
+M	lib/pf/person.pm
+M	lib/pf/pfcmd.pm
+M	lib/pf/web/guest.pm
+
+commit 71c68c25193d07def9fe0247bcc96d5da1852e59
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed May 30 17:22:12 2012 -0400
+
+    Fixing graphs
+
+M	html/admin/status/reports.php
+M	lib/pf/accounting.pm
+M	lib/pf/pfcmd/report.pm
+
+commit e246f595948f0db34412c5de12ad77ca7bc4a1af
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed May 30 16:19:10 2012 -0400
+
+    Branching
+
+M	html/admin/status/grapher.php
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd.pm
+M	lib/pf/pfcmd/report.pm
+
+commit 44b87ff1fd935c1356a0d01aaa63e51a2e81ac15
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue May 29 16:46:17 2012 -0400
+
+    Add Mac auth and dot1x support with voip
+
+M	lib/pf/SNMP/Brocade.pm
+
+commit 3ae90433f6308b45b0990dc8aaa3a860617cf42a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue May 29 09:31:59 2012 -0400
+
+    security fix: reflected XSS vulnerability in Admin Guest (#1454)
+    
+    columns is controllable by the client and was not sanitized before being
+    displayed.
+    http://packetfence.org/bugs/view.php?id=1454
+
+M	NEWS
+M	html/captive-portal/templates/guest/register_guest.html
+
+commit 36316b445a9c760eeacc2f6654fbe5e5abe35c2b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 28 14:52:41 2012 -0400
+
+    Change in NEWS file
+
+M	NEWS
+
+commit 60a7ecf0580d7ea5f1674cd227bbd071657e4379
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri May 25 15:32:32 2012 -0400
+
+    Modify init script for status
+
+M	debian/packetfence.init
+
+commit b4bea697c89aabb5068cb272d0cc8d82e65aa6bc
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 24 16:29:02 2012 -0400
+
+    performance: don't fork on every violation_trigger
+    
+    Added caching to pf::util's getlocalmac (used by trappable_mac used by
+    violation_trigger).
+    
+    This has the most impact on pfdhcplistener which triggers a violation
+    for every MAC and dhcp fingerprint encountered.
+
+M	NEWS
+M	lib/pf/util.pm
+
+commit 07b90d9e0d398258a3bbb0fe3ab2562b53878a5c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 24 13:47:57 2012 -0400
+
+    Net::Pcap breakloop in pfdhcplistener's signal handling
+    
+    an attempt at fixing pfdhcplistener hangs
+
+M	NEWS
+M	sbin/pfdhcplistener
+
+commit d9711f2da026e9a894dd5bc39c610d12d50d5841
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 24 13:44:02 2012 -0400
+
+    pfdhcplistener: fixed potential undefined subroutine
+
+M	sbin/pfdhcplistener
+
+commit 3032cae498b2801f4a62c15644706213b0fe8cc1
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 24 13:31:55 2012 -0400
+
+    pfdhcplistener doesn't log to pfdhcplistener_<int>
+    
+    There was only the messages from the logdie left and they were already in
+    logs/packetfence.log.
+
+M	NEWS
+M	sbin/pfdhcplistener
+
+commit 14dab60ae7a077eb69cd492219ff31b34516784b
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu May 17 11:52:29 2012 -0400
+
+    New Brocade Module
+
+A	lib/pf/SNMP/Brocade.pm
+
+commit b12a3f3b84d93ffca04a11136af1d9a19f5371fa
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 17 11:18:28 2012 -0400
+
+    fixed a typo
+
+M	lib/pf/inline.pm
+
+commit 26b3cc639b63685332e821a56f4b7a0de2f60f40
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 16:11:12 2012 -0400
+
+    fixing bad english
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 28b35b16cc1eb93bafe6dff57f10e0edf39ba467
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 16:04:26 2012 -0400
+
+    clarified that PF can work w/o FlexConnect on WLC
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 108bc3b9d408d9c3d9d39c255b165c6dafa3305e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 16:00:12 2012 -0400
+
+    replaced IOS with firmware
+    
+    IOS is for the wired products
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 3f0692a6508f780c8376368cf60fa93532de659e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 15:58:35 2012 -0400
+
+    doc: more information about the FlexConnect issues
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit a9a37dda1f1d285a5b6e24164386de742a02ec9c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 13:09:22 2012 -0400
+
+    migrated hard-coded columns lists to use field_order()
+    
+    getting rid of this feels sooo good!
+
+M	bin/pfcmd
+M	conf/ui.conf
+
+commit 597dee8e1000b32d1c24a068b6c49c05f68214e4
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 12:20:14 2012 -0400
+
+    NEWS entry
+
+M	NEWS
+
+commit c359ad39d04fa794413a54784979dc11c228d773
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 11:52:44 2012 -0400
+
+    admin: hiding all possible customVlanXX values in switch configuration
+
+M	html/admin/configuration/switches.php
+
+commit c6f98bfedadc203039d368141c6bfc11cc2ad9ec
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed May 16 10:59:44 2012 -0400
+
+    support for 0 to 99 customVlan
+    
+    The expansion is dynamic, the only caveats is that you need to adjust
+    conf/ui.conf based on the number you want to show on the Admin interface.
+
+M	bin/pfcmd
+M	lib/pf/SNMP.pm
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit 046e366072137b57043c4e8b5f65ced2e68f124a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue May 15 15:07:09 2012 -0400
+
+    minimal cleanup
+
+M	lib/pf/SwitchFactory.pm
+
+commit fe205c6665a1ddd6495d10ba974d4463de1b5d94
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 14 15:50:17 2012 -0400
+
+    Permit guest user to reach the activation link send by mail
+
+M	lib/pf/iptables.pm
+
+commit 473608e32ed1170dcb28ce58c1b0708ceb7e588c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon May 14 11:03:36 2012 -0400
+
+    doc: added ref to Cisco's PoD doc
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 7264edeb81ceec1e07230722ccef6ccb1bb4ebb0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri May 11 16:21:20 2012 -0400
+
+    logging improvement on dynamic uplink error
+    
+    Switch IP logged when a trap is skipped due to a dynamic uplink fetch
+    not working. This will save time for people grepping for a switch IP in
+    the logs to identify issues.
+
+M	NEWS
+M	lib/pf/vlan.pm
+
+commit 8a7ed8c4c4f77dfe5c4de04e2d1e8877b92a2e08
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 10 14:11:13 2012 -0400
+
+    doc: FlexConnect still doesn't work with IOS 7.2
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 2f5a693dbcd7d79d7525a23b2406569f6ecfd2f0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 10 13:20:11 2012 -0400
+
+    doc: small RHEL 6 command fixed
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit b585fa86198a8d175ae19140ca9344cf5b9cb7eb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 10 11:13:49 2012 -0400
+
+    clarified pf::util::pf_run's contract in POD doc
+
+M	lib/pf/util.pm
+
+commit ec355462833534a781c8612b8d9a0697587f16a3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 10 11:05:40 2012 -0400
+
+    avoiding apache-related warnings in checkup phase
+
+M	NEWS
+M	lib/pf/pfcmd/checkup.pm
+
+commit a2f1d73018b47cf41af2ebb15adb0c344baadcc6
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu May 10 10:30:44 2012 -0400
+
+    documentation: FlexConnect might work with IOS 7.2
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit d98fb7bfc419f57b61aad0e7d8f2628ab938abe8
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed May 9 11:05:24 2012 -0400
+
+    Modified H3C documentation
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit e83bd1a64daa1a32f06f6deb7cd064178e7a6d18
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue May 8 15:56:10 2012 -0400
+
+    no auto fast-forwards for the integration branch
+
+M	.gitconfig
+
+commit 834532b821c75ae0baf6c7c3417771a01671a2c3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue May 8 09:12:44 2012 -0400
+
+    identified previous issue as fixed in NEWS
+
+M	NEWS
+
+commit 910c1a3f60a6e14d1a71dbaa3dc1b32ac0ac4817
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 7 17:08:07 2012 -0400
+
+    Add dependencies for packetfence-test
+
+M	debian/control
+
+commit a8a99ff93c3813609f57562d7fa64600bb6afdb5
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 7 17:01:23 2012 -0400
+
+    Fix error in previous commit
+
+M	debian/control
+
+commit 52c8b42c6361cf0423905bb1b0463a230d500e4c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 7 16:59:59 2012 -0400
+
+    Update libnetpacket-perl to 1.3
+
+M	debian/control
+
+commit 6b46bd8fbef6085272cc9e0a575c099b4a148875
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 7 16:56:01 2012 -0400
+
+    Update version of libnetpacket-perl
+
+M	debian/control
+
+commit 5f679dd3924b604ba09a2e6d8504bc22f449f2cc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 7 13:44:17 2012 -0400
+
+    Add dependencies for packetfence-test and packetfence
+
+M	debian/control
+
+commit 1a5642a5f13c1adb79ab92b43f36270c2f107b91
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon May 7 10:49:39 2012 -0400
+
+    Add dependencies for packetfence-test
+
+M	debian/control
+
+commit f804db1fd25adf1a7f1ee5a554900f1ea77ecbd1
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri May 4 23:02:00 2012 -0400
+
+    fix: arp binary is /sbin/arp not /usr/sbin/radiusd
+
+M	conf/pf.conf.defaults
+M	debian/patches/debianize.patch
+
+commit ded58ac7c937d8df27c087bdf4b01b00260de128
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri May 4 22:57:26 2012 -0400
+
+    removing arp mode documentation references
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+
+commit 6bc2ac0faef48beb0a84dde99cdfb3d6a4331ec4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri May 4 15:04:20 2012 -0400
+
+    Add iptables dependencie
+
+M	debian/control
+
+commit 4ff5f9a1a1be49eec3db923abab0e55024214c5b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri May 4 15:04:20 2012 -0400
+
+    Add iptables dependencie
+
+M	debian/control
+
+commit 207a91ab14f88397843ca818560e3486dea8f762
+Author: Durand Fabrice <fdurand@oeufdure.(none)>
+Date:   Fri May 4 12:49:09 2012 -0400
+
+    Documentation update for Debian
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 8cc9126bb0c75a6cae7edb224718eb61e646f910
+Author: Durand Fabrice <fdurand@oeufdure.(none)>
+Date:   Fri May 4 09:39:23 2012 -0400
+
+    fix spaces in rules file
+
+M	debian/rules
+
+commit 2d52c0d4c81d065176387b951c6fa4c2b65d72ed
+Author: Durand Fabrice <fdurand@oeufdure.(none)>
+Date:   Fri May 4 09:29:36 2012 -0400
+
+    Add packetfence-test package
+
+M	debian/control
+M	debian/rules
+
+commit 2f500eaa5175c569c5f632c69015fb8d11b51676
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 30 15:21:48 2012 -0400
+
+    initialization of param hashref fixes Aruba and AeroHIVE deauth. Fixes #1437
+    
+    Caused by the re-work in 3.3.2 to fix the critical issue. See #1426.
+    
+    Inclues a nasty regression test that elevates every message besides "No answer" into a warning.
+    
+    http://packetfence.org/bugs/view.php?id=1437
+
+M	NEWS
+M	lib/pf/SNMP.pm
+M	t/network-devices/wireless.t
+
+commit d599e1967f9111bc97f28b8c56105a46d68dd239
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Apr 27 15:02:25 2012 -0400
+
+    Removing some unnecessary timers from the H3C configuration
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit a2985f6e0a419d07d233cdcb4fdaa80ff1e9adce
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Apr 27 14:49:32 2012 -0400
+
+    Added db/pf-schema.sql to .gitignore file
+
+M	.gitignore
+
+commit 8d0e64af2a8f396d04cc38ecaf556aae19eb98ff
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 27 10:48:55 2012 -0400
+
+    recategorized a NEWS entry
+
+M	NEWS
+
+commit b9200d50ae67f2e2566b1fdc302b870cd5cef855
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 27 10:42:06 2012 -0400
+
+    TODO outside of POD
+
+M	lib/pf/SNMP/H3C.pm
+
+commit 6ab3a6630e0639d3a385b64e899a9c8d8c20bf86
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 27 10:40:41 2012 -0400
+
+    error handling improvements
+    
+    - avoiding duplication of no-such-instance
+    - using exists instead of defined is problematic (warnings on non-strings results with the eq operator)
+
+M	lib/pf/SNMP/H3C.pm
+
+commit fdc1b959347ce753ee66716d9439678400a4644f
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 26 16:21:32 2012 -0400
+
+    most of the RHEL problems apply to Fedora
+
+M	docs/README.asciidoc
+
+commit 22ab767cb84f86fbcdc73b51cddbd3ee26507868
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 26 15:03:44 2012 -0400
+
+    translation sync with transifex
+
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/es/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	conf/locale/he_IL/LC_MESSAGES/packetfence.po
+M	conf/locale/it/LC_MESSAGES/packetfence.po
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+
+commit 17c0f3107a65571f134518008a208cf0bda88ef6
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 26 14:40:14 2012 -0400
+
+    transifex integration
+
+A	.tx/config
+
+commit 6e8d258e2fec437ef1f0e22290d38371eadc76c0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 26 14:17:41 2012 -0400
+
+    removed comment that is badly duplicated by transifex
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+
+commit 748683d3084293cff53f334e2e7cbef52db663b8
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 26 13:08:53 2012 -0400
+
+    added several files to gitignore
+
+M	.gitignore
+
+commit b72babea607496e2d1308c94835b59f4cc596f31
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Thu Apr 26 11:45:52 2012 -0400
+
+    Lowercase email and sponsor_email in guest registration
+
+M	html/captive-portal/billing-engine.cgi
+M	lib/pf/web/guest.pm
+
+commit 202e3501d194a5c5edbcd9c05d269848a1387044
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Apr 26 10:15:24 2012 -0300
+
+    Reorder use stuff
+
+M	lib/pf/SNMP/H3C.pm
+
+commit 3796520ddf5f394b3951f134865542e318e99b7c
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Apr 26 10:12:31 2012 -0300
+
+    Typo
+
+M	lib/pf/SNMP/H3C.pm
+
+commit ac3b7641ea9ec350bd53c6a40cafd3549ca97376
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 26 09:01:59 2012 -0400
+
+    news entry for yesterday's grammar fix
+
+M	NEWS
+
+commit 264c6ed186b7f6d3c9c9643f95090f62655c8de2
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Apr 25 15:48:32 2012 -0400
+
+    Adding Role support on WLC
+
+M	NEWS
+M	lib/pf/SNMP/Cisco/WLC.pm
+
+commit 941283fab24447ec49edd8af41931400959675e2
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Wed Apr 25 15:42:43 2012 -0400
+
+    Fix "Command not understood. (pfcmd grammar test failed at line 209.)" when you try to add a network interface
+
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit e1a3bf490a5e545bafbd62b014e572d09f339f52
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 15:06:07 2012 -0400
+
+    Missing NEWS entry
+
+M	NEWS
+
+commit c5c62b3e7c4aa0422d055493ce7abad11466b719
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 15:03:14 2012 -0400
+
+    parseTrap to ignore all traps
+
+M	lib/pf/SNMP/H3C.pm
+
+commit 15a5f590dc5178ef5d68d2134b20bffa2ddcc965
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Apr 25 10:38:44 2012 -0400
+
+    doing permissions and ownership inside rules
+
+M	debian/packetfence.postinst
+M	debian/rules
+
+commit 14a9afa561b71b66826bcf9ba796874a90c741b2
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 16:39:57 2012 -0400
+
+    setuid pfcmd
+
+M	debian/packetfence.postinst
+
+commit 40857a8c0f1bcdc65c0a55ac2d5e22543d9d4907
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 16:25:37 2012 -0400
+
+    conffiles should be a list of files
+
+M	debian/packetfence.conffiles
+
+commit b72cd2e926764471d5bb8dc948d0a97f7ec93916
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 16:13:36 2012 -0400
+
+    Change conffiles and suid
+
+M	debian/packetfence.conffiles
+M	debian/packetfence.postinst
+
+commit 5e68e5fadadaa0f9a84c2a65be2d9f1c30caa2a3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 24 15:36:17 2012 -0400
+
+    attempt at re-using our existing logrotate file for both RPM and Deb
+
+M	addons/logrotate
+D	debian/packetfence.logrotate
+M	debian/rules
+
+commit 57de211352bcfca50a857e444f5f62e517ada240
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 15:53:56 2012 -0400
+
+    Fix dpkg-divert fir /etc/freeradius/modules
+
+M	debian/packetfence.postrm
+M	debian/packetfence.preinst
+
+commit d0e4f4133ff90bad61cce32def3c92c96404c433
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 14:41:58 2012 -0400
+
+    Minor fix
+
+M	debian/packetfence.prerm
+M	debian/rules
+
+commit 2c1ad0b63c66db7d216c205fc5e297de7db4387e
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 14:10:42 2012 -0400
+
+    Fix freeradius configuration files at remove
+
+M	debian/packetfence.postrm
+M	debian/packetfence.prerm
+
+commit f6e6bb6559f271f19f714356809c86648a0b1d50
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 13:58:08 2012 -0400
+
+    Try to fix freeradius conf
+
+M	debian/packetfence.postinst
+M	debian/packetfence.postrm
+M	debian/packetfence.preinst
+M	debian/rules
+
+commit 3611077414b3baaa580701f96a9d8362bcc7dcd0
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 13:24:04 2012 -0400
+
+    Freeradius must be installed before installing packetfence (dpkg-divert)
+
+M	debian/control
+
+commit e561909b448cc888a8e4f099414aa3cec7d7e075
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 11:11:21 2012 -0400
+
+    Use of dpkg-divert for replacing freeradius configuration files
+
+M	debian/packetfence.postrm
+M	debian/packetfence.preinst
+M	debian/rules
+
+commit 2c32304dac1db0bbaad548ca3481f64a34fbc58f
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 10:25:28 2012 -0400
+
+    Fix rules
+
+M	debian/rules
+
+commit 4951df3cecad0be68fd1a22273f2d56450b4fc33
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 10:24:38 2012 -0400
+
+    Use of dh_link for freeradius link
+
+M	debian/packetfence.postinst
+M	debian/rules
+
+commit 6a11538a490663c61f8a7ac1e630eb13004384a8
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 09:44:08 2012 -0400
+
+    Add logrotate for packetfence
+
+A	debian/packetfence.logrotate
+M	debian/rules
+
+commit fd488cfd03a175ad0d262ab2789af8ec5c40114e
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 09:18:31 2012 -0400
+
+    Fix packetfence postrm script
+
+M	debian/packetfence.postrm
+
+commit b30e2a7689ee580848aeab37e14a799e1b8d26a1
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 08:33:33 2012 -0400
+
+    Fix dh_fixperms in rules file
+
+M	debian/rules
+
+commit fcfdcad01c2aca0e2fe683323ddde63fc814c18e
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 24 08:18:47 2012 -0400
+
+    Fix install param in rules file
+
+M	debian/rules
+
+commit a4eb1be7af3e670022d5ad0e3838780308443928
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 16:14:17 2012 -0400
+
+    moved permission fixing into rules instead of post-install
+
+M	debian/packetfence.postinst
+M	debian/rules
+
+commit d77e99aee2f60b556b60bc6162923705dce650ff
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 15:58:15 2012 -0400
+
+    Vcs attributes in control
+
+M	debian/control
+
+commit 4cadf5b729e34d6c3358235949ad4ce7ff7bb687
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 15:07:11 2012 -0400
+
+    changes to packetfence-remote-snort-sensor
+    
+    permissions
+    multi-line Depends
+
+M	debian/control
+M	debian/rules
+
+commit a60c5d4e80192e1c59ea5ccb8673b41a9dc7618f
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 16:01:49 2012 -0400
+
+    Fix remote sensor init script
+
+M	debian/packetfence-remote-snort-sensor.init
+
+commit f35854951c09852f16cd37dd49c33285c783cf34
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 15:27:04 2012 -0400
+
+    Fix packetfence-remote-snort-sensor postinst and prerm
+
+M	debian/packetfence-remote-snort-sensor.postinst
+M	debian/packetfence-remote-snort-sensor.prerm
+M	debian/rules
+
+commit 874c8eaf2566c52b461da1ac279d8d17161ffb88
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 14:39:00 2012 -0400
+
+    Fix rules files and conffiles
+
+M	debian/packetfence-remote-snort-sensor.conffiles
+M	debian/packetfence.conffiles
+M	debian/rules
+
+commit c62bc30d5d4d467e18d2be401887713487adbe71
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 14:17:38 2012 -0400
+
+    Fix conffiles
+
+M	debian/packetfence.conffiles
+
+commit fe265da1ccc9d2cec8473aa65dee45cc5781e552
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 13:54:22 2012 -0400
+
+    updated datetime for release
+
+M	debian/changelog
+
+commit 849189971b9178b876d92ef7148a74cb7572cc76
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 13:53:27 2012 -0400
+
+    typo fix
+
+M	debian/README.source
+
+commit 28b39ba62914863e553ae12c279569e175cbf854
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 14:13:01 2012 -0400
+
+    Fix conffiles
+
+M	debian/packetfence.conffiles
+
+commit a28ce1139eb54b3d9f53cf4eb2286f90aae2b28f
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 13:55:26 2012 -0400
+
+    Fix packetfence-remote-snort-sensor
+
+A	debian/packetfence-remote-snort-sensor.conffiles
+A	debian/packetfence-remote-snort-sensor.init
+M	debian/packetfence-remote-snort-sensor.postinst
+M	debian/packetfence-remote-snort-sensor.postrm
+M	debian/packetfence-remote-snort-sensor.preinst
+M	debian/packetfence-remote-snort-sensor.prerm
+A	debian/packetfence.conffiles
+M	debian/rules
+
+commit 86fb86d34c88bfd1e50d472d1859f5ed35978881
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 13:19:44 2012 -0400
+
+    Fix rules file
+
+M	debian/rules
+
+commit 867bfe07489633c78c226be3d4eb149a4cf2c871
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 12:42:05 2012 -0400
+
+    renamed patch and removed dpkg-source boilerplate
+
+D	debian/patches/debian-changes-3.3.2
+A	debian/patches/debianize.patch
+M	debian/patches/series
+
+commit 0907715b92ca2f77b754d2d5aea73d36a1a66de2
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 12:56:36 2012 -0400
+
+    Fix control file
+
+M	debian/control
+
+commit 5e7975996289961c088cb8b175208a5246466d89
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 23 12:12:23 2012 -0400
+
+    Fixes debian package
+
+M	debian/control
+A	debian/packetfence-remote-snort-sensor.postinst
+A	debian/packetfence-remote-snort-sensor.postrm
+A	debian/packetfence-remote-snort-sensor.preinst
+A	debian/packetfence-remote-snort-sensor.prerm
+M	debian/packetfence.postinst
+M	debian/packetfence.postrm
+D	debian/radiusd.conf.pf.debian
+M	debian/rules
+
+commit 68e18e72cd0816a4c2172619c4bfa748608449c8
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 11:23:09 2012 -0400
+
+    Depends in multiline format
+
+M	debian/control
+
+commit d1b3180d837b5a997a2a4dc580e063aac4c18eeb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 11:24:42 2012 -0400
+
+    debian package: other deletions
+
+D	debian/menu.ex
+D	debian/postinst.ex
+
+commit 5b291bfcd665a86e30cef4ed84571b9ac135bf80
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 10:56:08 2012 -0400
+
+    dropping example files
+
+D	debian/emacsen-install.ex
+D	debian/emacsen-remove.ex
+D	debian/emacsen-startup.ex
+D	debian/httpd.conf.debian
+D	debian/manpage.1.ex
+D	debian/manpage.sgml.ex
+D	debian/manpage.xml.ex
+D	debian/packetfence.cron.d.ex
+D	debian/packetfence.default.ex
+D	debian/packetfence.doc-base.EX
+D	debian/watch.ex
+
+commit c011cea32ffffd20f17fa22b2e9a629f8fa85880
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 10:55:32 2012 -0400
+
+    version 3.3.2 in debian/changelog
+
+M	debian/changelog
+
+commit ff1c8e690fb75415f8ed74f4410135cf2ce3cf8c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 10:40:05 2012 -0400
+
+    added UPGRADE and ChangeLog to docs
+
+M	debian/docs
+
+commit 9a8c9f7a6e4389308de36a16ee1c72184e939639
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 10:39:22 2012 -0400
+
+    updated copyright information (source, copyright, authors, license)
+
+M	debian/copyright
+
+commit fd6ebb63b29311dd7ad639461b5acaf2c1b4ea9d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Apr 20 10:38:41 2012 -0400
+
+    updated the README's
+
+M	debian/README.Debian
+M	debian/README.source
+
+commit c35d3a189f11464dc0048be813b3484c19a0eb20
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 19 15:58:23 2012 -0400
+
+    added Fabrice as a maintainer
+
+M	README
+
+commit b5caf363b0712ebf4e24f87913ecb993c5ea38a0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 19 15:58:01 2012 -0400
+
+    added another issue to list fixed with debian packages
+
+M	NEWS
+
+commit 0f76e83753ba59e90f0bac2c4b7b724d01247396
+Author: root <root@fabrice.(none)>
+Date:   Thu Apr 19 11:35:24 2012 -0400
+
+    Debian freeradius fix
+
+M	debian/packetfence.postinst
+
+commit 03e8cc2d474354c31c9adab8279d3ac4e6ca20bc
+Author: root <root@fabrice.(none)>
+Date:   Thu Apr 19 10:31:14 2012 -0400
+
+    Check the latest version of sqlschema
+
+M	debian/packetfence.postinst
+
+commit d34ef69687e27e683d9b039aebf398ce2a33ba46
+Author: root <root@fabrice.(none)>
+Date:   Thu Apr 19 10:02:19 2012 -0400
+
+    Fix load right sql schema
+
+M	debian/packetfence.postinst
+
+commit 44985cfa82d12440e3eefa6d48bd46c1f6ac09d3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Apr 19 09:20:57 2012 -0400
+
+    SELinux test only for RedHat based distros
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit eee09c3d270e167fdf2e688ecb1935a6b8dc7454
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Wed Apr 18 17:00:25 2012 -0400
+
+    Freeradius patch
+
+M	debian/patches/debian-changes-3.3.2
+
+commit 816b5e19fae67dbbb6cea533d8cd6624b8e12131
+Author: root <root@fabrice.(none)>
+Date:   Wed Apr 18 16:12:05 2012 -0400
+
+    Empty directory fix
+
+M	debian/rules
+
+commit 508e2efc66abc858ae5804cb8804f414eacc2efa
+Author: root <root@fabrice.(none)>
+Date:   Wed Apr 18 14:05:32 2012 -0400
+
+    Update debian package
+
+M	debian/changelog
+M	debian/packetfence.postinst
+A	debian/patches/debian-changes-3.3.2
+M	debian/patches/series
+M	debian/rules
+
+commit 275696b32bd0e4352c86cd4e3f5990eee1b33763
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 16:49:09 2012 -0300
+
+    updated NEWS with debian packages under new features
+
+M	NEWS
+
+commit e16d3ce5a0a00b51e74c6cff3a4110a7af2f1ea9
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Tue Apr 17 15:27:43 2012 -0400
+
+    Update script for debian package
+
+A	debian/httpd.conf.debian
+M	debian/packetfence.postinst
+D	debian/patches/debian-changes-3.2.0-1
+M	debian/patches/series
+A	debian/radiusd.conf.pf.debian
+M	debian/rules
+
+commit c78624dc6fdbf3b997812bc079d84161dab63943
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 14:39:37 2012 -0400
+
+    new arp_binary configuration parameter for debian support
+    
+    removed several patches from debian/patches/
+
+M	NEWS
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	debian/patches/debian-changes-3.2.0-1
+M	lib/pf/iplog.pm
+
+commit 755ba3cb4148f1e8d8125a6deca3e2e58183493d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 14:32:51 2012 -0400
+
+    improved consistency between daemon and binaries in pf::services
+    
+    This prevents at least one bug where freeradius would have been started on debian even if disabled.
+    
+    Also, daemon names will be consistent inside packetfence but proper binary names displayed too where relevant.
+
+M	NEWS
+M	lib/pf/services.pm
+
+commit f5f3375d9d42ffdfb1c19494831bb5727f1b40e1
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 13:50:40 2012 -0400
+
+    added freeradius as a PacketFence daemon
+    
+    - refactored allowed services and binary name lists into a global list and a regex built from it
+    - renamed $exe to $binary to avoid confusion
+
+M	lib/pf/services.pm
+
+commit a7b3f14ec8e0655cb6bfac342fbca0e6a2f82575
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 12:45:34 2012 -0400
+
+    dropped irrelevant comment
+
+M	installer.pl
+
+commit ef9f915af41c575137c05d0af618524bae5696a3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 12:44:51 2012 -0400
+
+    installer.pl detects debian (and cleaned it up a bit)
+    
+    dropped the relvant patch from debian/patches/
+
+M	debian/patches/debian-changes-3.2.0-1
+M	installer.pl
+
+commit 0f2183d536bba00c1bc323001f8c47289c101d3f
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Apr 17 12:37:34 2012 -0400
+
+    got rid of unuseful code
+
+M	installer.pl
+
+commit bfb2d6bd2d13851e218fa770294b2ee028fb73ae
+Author: Fabrice Durand <fdurand@inverse.ca>
+Date:   Mon Apr 16 14:49:17 2012 -0400
+
+    Initial debian packet upload
+
+A	debian/README.Debian
+A	debian/README.source
+A	debian/changelog
+A	debian/compat
+A	debian/control
+A	debian/copyright
+A	debian/docs
+A	debian/emacsen-install.ex
+A	debian/emacsen-remove.ex
+A	debian/emacsen-startup.ex
+A	debian/manpage.1.ex
+A	debian/manpage.sgml.ex
+A	debian/manpage.xml.ex
+A	debian/menu.ex
+A	debian/packetfence-doc.docs
+A	debian/packetfence-doc.install
+A	debian/packetfence.cron.d.ex
+A	debian/packetfence.default.ex
+A	debian/packetfence.doc-base.EX
+A	debian/packetfence.init
+A	debian/packetfence.postinst
+A	debian/packetfence.postrm
+A	debian/packetfence.preinst
+A	debian/packetfence.prerm
+A	debian/patches/debian-changes-3.2.0-1
+A	debian/patches/series
+A	debian/postinst.ex
+A	debian/rules
+A	debian/source/format
+A	debian/watch.ex
+
+commit b07a6d2fa2b7fe331dda897dbc1041557e258e40
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 14:20:42 2012 -0400
+
+    Tests are successful
+
+M	lib/pf/SNMP/H3C.pm
+
+commit 00d28a2899baa7603ea55da2d8ae823e7b07565d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 14:17:37 2012 -0400
+
+    Let's make Olivier happy
+
+M	lib/pf/SNMP/H3C.pm
+M	lib/pf/SNMP/H3C/S5120.pm
+
+commit 8aa8247db7baf4c7eda6f30592434c71e8da329c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Apr 25 14:14:25 2012 -0400
+
+    New wired series of tests to highlight missing parseTrap and getVersion
+    
+    disabled in the smoke.t suite since it always fails for now
+
+M	t/TestUtils.pm
+M	t/all.t
+A	t/network-devices/wired.t
+
+commit dda445b7758a17eadb506af25b13577df1f5366a
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 11:33:06 2012 -0400
+
+    Minor adjustements for guest vlan and snmp read/write communities
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 80dbde152d8cd9387071518eef254c2b5b4e6335
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 11:31:39 2012 -0400
+
+    Configuration documentation
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 487aa579bc82daf8ea3801d1a213081939224c81
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 10:29:55 2012 -0400
+
+    Added dot1x support Part2
+
+M	README.network-devices
+
+commit 0c11238319351d8838cbcbfa5e54aa2347a7cc90
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 10:27:20 2012 -0400
+
+    Added dot1x support
+
+M	lib/pf/SNMP/H3C.pm
+
+commit 6855920b2e79150372831e55115b81371c70ed99
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 09:06:58 2012 -0400
+
+    Modification to HTML files for switch add/edit
+
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+
+commit a8197e90eee2649f36b54768c671f64e44d60cb3
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Apr 25 09:06:02 2012 -0400
+
+    Rework of the H3C module for mac-auth purposes
+
+A	lib/pf/SNMP/H3C.pm
+A	lib/pf/SNMP/H3C/S5120.pm
+
+commit 1079cc5aeeeb76211f240a38db594235e7963f80
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 10:52:19 2012 -0400
+
+    marking development for next stable open
+
+M	NEWS
+M	conf/pf-release
+
+commit 4b7a864e5ebc3fe633bb20a6041ea28d7e74339a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Apr 23 09:52:39 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit 2aa0df29d6c0f70b2672503cbaa5b29778895ab5
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Mon Apr 23 09:51:58 2012 -0400
