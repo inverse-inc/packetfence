@@ -46,6 +46,7 @@ Bug Fixes
  * pid (username) of the form 'domain\\user' are now allowed (#1253)
  * guest account import didn't work on files with Windows line terminators (\r\n)
  * configurator.pl fixes in non-english environment (#1418)
+ * process management fixes (#1464)
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23

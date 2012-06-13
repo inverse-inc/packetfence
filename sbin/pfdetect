@@ -38,11 +38,18 @@ use pf::trigger;
 use pf::util;
 use pf::violation;
 
+# initialization
+# --------------
+# assign process name (see #1464)
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+# log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
 Log::Log4perl::MDC->put( 'tid',  $PID );
 
+# init signal handlers
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
@@ -72,7 +79,6 @@ getopts( 'dhp:', \%args );
 my $daemonize = $args{d};
 my $snortpipe = $args{p};
 my $snortpipe_fh;
-my $script    = basename($0);
 
 pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
 

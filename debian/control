@@ -14,8 +14,12 @@ Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5
 Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils, 
  openssl, openssl-blacklist, openssl-blacklist-extra, php-log, snort, 
- mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear, 
- php5-mysql, php5-gd, perl-suid, libapache-htpasswd-perl, libbit-vector-perl, 
+ mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear,
+ php5-mysql, php5-gd, perl-suid
+# process management
+ procps
+# perl stuff
+ libapache-htpasswd-perl, libbit-vector-perl, 
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
  libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
  libiptables-parse-perl, libiptables-chainmgr-perl, liblist-moreutils-perl,
