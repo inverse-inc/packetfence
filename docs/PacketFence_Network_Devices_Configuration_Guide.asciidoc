@@ -492,36 +492,37 @@ Those switches are supported using 802.1X for networks with or without VoIP.
 
   aaa authentication dot1x default radius
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default
-  radius-server key qwerty
+  radius-server key useStrongerSecret
 
   vlan 1 name DEFAULT-VLAN by port
   !
   vlan 100 by port
    tagged ethe 1/1/xx ethe 1/1/yy
 
-Where xx and yy are switch number port
+Where `xx` and `yy` represent the range of ports where you want PacketFence
+enforcement.
 
-Mac Authentication without VoIP
+MAC-Authentication without VoIP
 +++++++++++++++++++++++++++++++
 
-* Enable Mac Auth globally
+* Enable MAC-Authentication globally
 
   mac-authentication enable
   mac-authentication mac-vlan-dyn-activation
 
-* Enable Mac auth on the switchport 
+* Enable MAC-Authentication on each interface you want PacketFence active
 
    mac-authentication enable
    mac-authentication enable-dynamic-vlan
 
-Mac Authentication with VoIP
+MAC-Authentication with VoIP
 ++++++++++++++++++++++++++++
 
 * Enable cdp globally
 
   cdp run
 
-* Enable Mac auth on the switchport
+* Apply the following configuration on each interface you want PacketFence active
 
    dual-mode
    mac-authentication enable
@@ -529,7 +530,7 @@ Mac Authentication with VoIP
    voice-vlan 100
    cdp enable
 
-802.1x/Mac Auth
+802.1x/MAC-Auth
 +++++++++++++++
 
 * Enable 802.1X globally
@@ -538,9 +539,9 @@ Mac Authentication with VoIP
    re-authentication
    enable ethe 1/1/xx
 
-Where xx is the switch number port
+Where `xx` is the switch port number
 
-* Enable Mac auth and 802.1X on the switchport
+* Apply the following configuration on each interface you want PacketFence active
 
    dot1x port-control auto
    dual-mode
