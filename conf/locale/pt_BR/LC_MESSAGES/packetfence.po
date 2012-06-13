@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-04-26 17:23+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2012-05-03 14:50+0000\n"
+"Last-Translator: djkakaroto <djkakaroto@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.net/projects/p/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -354,28 +354,28 @@ msgid "Firstname"
 msgstr "Nome"
 
 msgid "firstname"
-msgstr ""
+msgstr "nome"
 
 msgid "Lastname"
 msgstr "Sobrenome"
 
 msgid "lastname"
-msgstr ""
+msgstr "sobrenome"
 
 msgid "Company"
 msgstr "Companhia"
 
 msgid "Company / Organization"
-msgstr ""
+msgstr "Companhia / Organização"
 
 msgid "organization"
-msgstr ""
+msgstr "companhia / organização"
 
 msgid "Phone number"
 msgstr "Telefone"
 
 msgid "phone"
-msgstr ""
+msgstr "telefone"
 
 msgid "Phone Provider"
 msgstr "Operadora"
@@ -387,13 +387,13 @@ msgid "Email"
 msgstr "E-mail"
 
 msgid "email"
-msgstr ""
+msgstr "e-mail"
 
 msgid "Sponsor's email"
-msgstr ""
+msgstr "E-mail do Patrocinador"
 
 msgid "sponsor_email"
-msgstr ""
+msgstr "e-mail do patrocinador"
 
 msgid "Address"
 msgstr "Endereço"
@@ -916,13 +916,13 @@ msgid "Registration in advance by SMS is not supported."
 msgstr ""
 
 msgid "%s: Guest Network Access Information"
-msgstr ""
+msgstr "%s: Informação de Acesso à rede de Convidado"
 
 msgid "%s: Guest access confirmed!"
-msgstr ""
+msgstr "%s: Acesso para Convidado confirmado!"
 
 msgid "%s: Guest network access enabled"
-msgstr ""
+msgstr "%s: Acesso à rede de Convidado habilitado"
 
 msgid ""
 "There was a problem trying to find the computer to register. The problem has"
@@ -934,10 +934,10 @@ msgid ""
 msgstr ""
 
 msgid "%s: Guest access request"
-msgstr ""
+msgstr "%s: Pedido de Acesso de Convidado"
 
 msgid "%s: Guest access request accepted"
-msgstr ""
+msgstr "%s: Pedido de Acesso de Convidado aceitado"
 
 msgid "Guest pre-registration is not allowed by policy"
 msgstr ""

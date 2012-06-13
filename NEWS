@@ -50,6 +50,10 @@ Bug Fixes
  * configurator.pl fixes in non-english environment (#1418)
  * process management fixes (#1464)
 
+Translations
+ * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
+ * Updated Dutch (nl) translation (Tnanks to zappo) 
+
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
 
