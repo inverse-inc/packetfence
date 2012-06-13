@@ -25,6 +25,7 @@ Assumptions
 -----------
 * You will need a USB key with a capacity of at least 4GB
 * You will need a laptop or a PC from which the PacketFence Live USB key will run from
+* You will deploy a VLAN enforcement environment according to the customer specifications
 * Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup
 * Ruckus ZoneDirector is loaded with firmware 9.3.1.0 build 9
 * Ruckus ZoneDirector is factory default
@@ -81,15 +82,23 @@ Before booting, make sure the network cable coming from the TRUNK port for the d
 
 Once powered, the PC will boot from the USB key and will automatically get to a graphical user interface with an opened web browser prompting for PacketFence configuration. The configuration process is a five steps process at the end of which, the USB key will be a persistent working PacketFence environment.
 
-Step 1: Enforcement Mode
-++++++++++++++++++++++++
-The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them. This step will also ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
+Step 1: Enforcement
++++++++++++++++++++
+The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them.
 
-First of all, you'll choose the enforcement mecanism(s), then, configure every network interfaces that will be needed for the choosen enforcement mode(s). The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+The choice(s) made on this step will influence the next step where you'll need to configure the different networks.
 
-Second, you choose the type for each of the configured interface. Types will depend on the choosen enforcement mode(s).
+Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-Each enforcement mode has its own required interface type. In all time, you'll need to set a Management interface.
+For our customer scenario, we'll choose VLAN enforcement.
+
+Step 2: Networks
+++++++++++++++++
+This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
+
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+
+In all time, you'll need to set a Management interface.
 
 Required interface types for inline enforcement:
 
@@ -104,7 +113,7 @@ Required interface types for VLAN enforcement:
 
 Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
-In our customer scenario, we will opt for a VLAN Enforcement mechanism. We will then create two new vlans on the wired interface (will be eth0 most of the time).
+In our customer scenario, we will create two new vlans on the wired interface (will be eth0 most of the time).
 To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
 
 Here's a sample configuration for both of them:
@@ -135,7 +144,7 @@ We also need to set the Default Gateway which will generally be the gateway of t
 
 Once everything's set, click Continue to proceed with the next step.
 
-Step 2: Database Configuration
+Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
 This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
 
@@ -150,7 +159,7 @@ Third section will create the database and load the correct schema on it. Simply
 
 You should have Success beside these three section, click Continue.
 
-Step 3: PacketFence Configuration
+Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
@@ -158,13 +167,13 @@ Almost all of the required information here are self-explanatory. The only one t
 
 Click Continue once all the field are completed.
 
-Step 4: Administration
+Step 5: Administration
 ++++++++++++++++++++++
 This is the step where we create the administrative user to access the PacketFence Administration Web Interface.
 
 Simply provide the desired username and password, then click Create user.
 
-Step 5: Services - Confirmation
+Step 6: Services - Confirmation
 +++++++++++++++++++++++++++++++
 The last but not the least. Here, we start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
 
