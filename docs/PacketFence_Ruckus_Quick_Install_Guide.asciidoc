@@ -17,13 +17,16 @@ include::includes/global-attributes.asciidoc[]
 
 About this Guide
 ----------------
-This guide as been created in order to help sales engineers, product managers, or network specialist to demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Ruckus equipment.
+This guide has been created in order to help sales engineers, product managers, or network specialists demonstrate the PacketFence capabilities on-site with an existing or potential customer.  It can also provide guidelines to setup a proof of concept for a potential PacketFence deployment using the Ruckus equipment.
 
 The instructions are based on version {release_version} of the PacketFence Live Image.
 
 Assumptions
 -----------
-* Your customer will provide the network hardware (switch, wires, etc) to interconnect this PoC setup
+* You will need a USB key with a capacity of at least 4GB
+* You will need a laptop or a PC from which the PacketFence Live USB key will run from
+* You will deploy a VLAN enforcement environment according to the customer specifications
+* Your customer will provide the network equipment (switch, cabled, etc) to interconnect this PoC setup
 * Ruckus ZoneDirector is loaded with firmware 9.3.1.0 build 9
 * Ruckus ZoneDirector is factory default
 
@@ -31,7 +34,7 @@ Quick Deployment
 ----------------
 Step 1: Pre-load
 ~~~~~~~~~~~~~~~~
-This step is only necessary in the case you don't already have a pre-loaded PacketFence USB key. If you already have one, proceed to step2, otherwise, follow these quick and simple instructions to pre-load a new USB key with PacketFence.
+This step is only necessary in the case you don't already have a pre-loaded PacketFence USB key. If you already have one, proceed to step 2, otherwise, follow these quick and simple instructions to pre-load a new USB key with PacketFence.
 
 NOTE: The following process will remove everything from the USB key so if you currently have stuff on it, make sure to do backups!
 
@@ -41,7 +44,7 @@ Make sure you have the latest version of the PacketFence USB key image.
 
 Download the application to write the image to the USB key
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-To write the PacketFence image on a USB key, you'll need to use a third-party application that will provide you a graphical interface to do so.
+To write the PacketFence image on a USB key, you'll need to use a third-party application that will provide you with a graphical interface to do so.
 
 Go to https://launchpad.net/win32-image-writer/0.6/0.6/+download/win32diskimager-binary.zip. That will download the necessary application. Once downloaded, extract the zip file.
 
@@ -75,26 +78,34 @@ Configuring your PacketFence environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Simply plug the previously created USB key in one of the demonstration PC USB port. You will have to make sure the PC will boot from the USB key (it is usually a pre-boot option or a setting in the BIOS).
 
-Before booting, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switcha and the PC and that the link is up.
+Before booting, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switch and the PC and that the link is up.
 
 Once powered, the PC will boot from the USB key and will automatically get to a graphical user interface with an opened web browser prompting for PacketFence configuration. The configuration process is a five steps process at the end of which, the USB key will be a persistent working PacketFence environment.
 
-Step 1: Enforcement Mode
-++++++++++++++++++++++++
-The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them. This step will also ask you to statically configure your network interfaces (Note that DHCP interfaces configuration is not supported yet).
+Step 1: Enforcement
++++++++++++++++++++
+The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them.
 
-First of all, you'll choose the enforcement mecanism(s), then, configure every network interfaces that will be needed for the choosen enforcement mode(s). The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+The choice(s) made on this step will influence the next step where you'll need to configure the different networks.
 
-Second, you choose the type for each of the configured interface. Types will depend on the choosen enforcement mode(s).
+Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-Each enforcement mode has it's own required interface type. In all time, you'll need to set a Management interface.
+For our customer scenario, we'll choose VLAN enforcement.
 
-Inline enforcement needed interface types:
+Step 2: Networks
+++++++++++++++++
+This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
+
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+
+In all time, you'll need to set a Management interface.
+
+Required interface types for inline enforcement:
 
     Management
     Inline
 
-VLAN enforcement needed interface types:
+Required interface types for VLAN enforcement:
 
     Management
     Registration
@@ -102,7 +113,7 @@ VLAN enforcement needed interface types:
 
 Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
 
-In our customer scenario, we will opt for a VLAN Enforcement mechanism. We will then create two new vlans on the wired interface (will be eth0 most of the time).
+In our customer scenario, we will create two new vlans on the wired interface (will be eth0 most of the time).
 To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
 
 Here's a sample configuration for both of them:
@@ -119,7 +130,7 @@ Isolation
     IP Address: 192.168.3.1
     Netmask: 255.255.255.0
 
-Don't forget to also edit the physical interface with the correct management network informations by clicking the Edit button next to it.
+Don't forget to also edit the physical interface with the correct management network information by clicking the Edit button next to it.
 
 According to our customer scenario, we'll associate the correct type the each interfaces.
 
@@ -127,13 +138,13 @@ According to our customer scenario, we'll associate the correct type the each in
     eth0 VLAN 2: Registration
     eth0 VLAN 3: Isolation
 
-Make sure that those three (3) interface are in an Enabled state for the persistance to occur.
+Make sure that those three (3) interfaces are in an Enabled state for the persistance to occur.
 
 We also need to set the Default Gateway which will generally be the gateway of the management network.
 
 Once everything's set, click Continue to proceed with the next step.
 
-Step 2: Database Configuration
+Step 3: Database Configuration
 ++++++++++++++++++++++++++++++
 This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
 
@@ -148,21 +159,21 @@ Third section will create the database and load the correct schema on it. Simply
 
 You should have Success beside these three section, click Continue.
 
-Step 3: PacketFence Configuration
+Step 4: PacketFence Configuration
 +++++++++++++++++++++++++++++++++
 This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
 
-Almost all of the required informations here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.
 
 Click Continue once all the field are completed.
 
-Step 4: Administration
+Step 5: Administration
 ++++++++++++++++++++++
 This is the step where we create the administrative user to access the PacketFence Administration Web Interface.
 
 Simply provide the desired username and password, then click Create user.
 
-Step 5: Services - Confirmation
+Step 6: Services - Confirmation
 +++++++++++++++++++++++++++++++
 The last but not the least. Here, we start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
 
@@ -178,7 +189,7 @@ To do so, login to the PacketFence web administration interface if it is not alr
 
 We'll use the clone function to add a new switch (the Ruckus controller) to the PacketFence database. With the mouse pointer, go over the default switch and you'll see a set of icons appearing at the left of it. Click on the second one (a paper sheet with a plus sign).
 
-The Adding new switch window will appear, in which, you'll enter the correct informations for the integration. Use theses values to populate each of the fields; leave the others as is:
+The Adding new switch window will appear, in which, you'll enter the correct information for the integration. Use theses values to populate each of the fields; leave the others as is:
 
     IP: This will be the IP of the Ruckus controller on the customer management network
     Type: Ruckus Wireless Controllers
@@ -220,7 +231,7 @@ Login to your controller using the admin credentials. You should see the Dashboa
 
 Configure the AAA Servers
 +++++++++++++++++++++++++
-On the left menu, click on AAA Servers. We need to add the PacketFence RADIUS server here. Click on the Create New button, and provide those informations:
+On the left menu, click on AAA Servers. We need to add the PacketFence RADIUS server here. Click on the Create New button, and provide those information:
 
    Name: pf_auth
    Type: RADIUS
@@ -243,7 +254,7 @@ Click OK to save the server. You should see both authentication and accounting R
 
 Configure the Open SSID
 +++++++++++++++++++++++
-On the left menu, click on WLAN. Click the Create New button, and add the following informations. If you do not see the line, it means that you should leave the setting to default value:
+On the left menu, click on WLAN. Click the Create New button, and add the following information. If you do not see the line, it means that you should leave the setting to default value:
 
    Name/ESSID: DemoOpen
    Decription: Open SSID for PoC
@@ -285,7 +296,7 @@ Last step, we need to configure the SNMP to add a valid read community string. C
    SNMP RO community: ruckusRead
    SNMP RW community: ruckusWrite
 
-Step 4: Configuration of windows 7 client for DemoSecure
+Step 4: Configuration of Windows 7 client for DemoSecure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In `Control Panel\Network and Internet\Manage Wireless Networks`, click on Add.
 Click Manually create a network profile

@@ -21,9 +21,6 @@ DAEMON=/usr/local/pf/bin/pfcmd # Introduce the server's location here
 PIDFILE=/usr/local/pf/var/run/pfmon.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
-# Freeradius perl fix
-export LD_PRELOAD=/usr/lib/libperl.so.5.10
-
 # Exit if the package is not installed
 [ -x $DAEMON ] || exit 0
 

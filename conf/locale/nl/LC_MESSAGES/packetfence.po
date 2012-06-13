@@ -1,6 +1,6 @@
 # Copyright (C) 2006-2012 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-#
+# 
 # Translators:
 #
 domain "packetfence"
@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-04-26 17:23+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
-"Language-Team: PacketFence support <support@packetfence.org>\n"
+"PO-Revision-Date: 2012-06-03 01:09+0000\n"
+"Last-Translator: zappo <tijdelijkeshit@gmail.com>\n"
+"Language-Team: Dutch (http://www.transifex.net/projects/p/packetfence/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -47,13 +47,13 @@ msgstr "Verkeerde Modus!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: invalid login or password"
-msgstr ""
+msgstr "ongeldige login of wachtwoord"
 
 msgid "Invalid login or password"
 msgstr ""
 
 msgid "error: invalid page number"
-msgstr ""
+msgstr "ongeldig pagina nummer"
 
 msgid "error: max re-enables reached"
 msgstr "Maximum aantal reactivaties bereikt!"
@@ -93,13 +93,13 @@ msgid "Authentication"
 msgstr ""
 
 msgid "or"
-msgstr ""
+msgstr "of"
 
 msgid "Sign up"
-msgstr ""
+msgstr "Registreer"
 
 msgid "register: skip registration"
-msgstr ""
+msgstr "Sla Registratie over"
 
 msgid "release: enabling network"
 msgstr "Netwerk toegang wordt geactiveerd"
@@ -159,7 +159,7 @@ msgid "PacketFence Registration System"
 msgstr "PacketShield Registration System"
 
 msgid "Guest Registration"
-msgstr ""
+msgstr "Gast Registratie"
 
 msgid "guest network disclaimer"
 msgstr ""
@@ -190,7 +190,7 @@ msgid ""
 msgstr ""
 
 msgid "Register by Email"
-msgstr ""
+msgstr "Registreer via e-mail"
 
 msgid ""
 "If you choose to receive your access code <strong>by SMS</strong>, you will "
@@ -201,7 +201,7 @@ msgid "Register by SMS"
 msgstr ""
 
 msgid "Password"
-msgstr ""
+msgstr "Wachtwoord"
 
 msgid "PID"
 msgstr "Eigenaar"
@@ -225,7 +225,7 @@ msgid "unreg"
 msgstr "niet geregistreerd"
 
 msgid "Username"
-msgstr ""
+msgstr "Gebruikersnaam"
 
 msgid "Violations"
 msgstr "Overtredingen"
@@ -255,7 +255,7 @@ msgid "MAC Address"
 msgstr ""
 
 msgid "Banned Operating System"
-msgstr ""
+msgstr "Verbannen Besturingssysteem"
 
 msgid ""
 "You have been detected using an operating system not allowed on the network."

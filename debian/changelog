@@ -1,3 +1,9 @@
+packetfence (3.4.0) unstable; urgency=low
+
+  * Version 3.4.0
+
+ -- Olivier Bilodeau <obilodeau@inverse.ca>  Wed, 13 Apr 2012 14:10:03 -0400
+
 packetfence (3.3.2) unstable; urgency=low
 
   * Version 3.3.2

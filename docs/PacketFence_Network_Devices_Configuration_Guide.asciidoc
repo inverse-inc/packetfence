@@ -77,6 +77,8 @@ PacketFence supports the following devices:
 |Aruba            |All Controllers             |Aruba
 |Avaya            |Wireless Controllers        |Avaya::WC
 |                 |See Nortel Below            |
+|Brocade          |Brocade 6400 Series         |Brocade
+|                 |Brocade RF Switches         |Brocade::RFS
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
 |                 |Aironet 1240 AG             |Cisco::Aironet_1242
 |                 |Aironet 1250                |Cisco::Aironet_1250
@@ -155,6 +157,7 @@ Assumptions
 Throughout this configuration example we use the following assumptions for 
 our network infrastructure: 
 
+[options="compact"]
 * PacketFence is fully configured with FreeRADIUS running (if you want 802.1X or MAC Auth) 
 * PacketFence IP address: 192.168.1.5 
 * Normal VLAN: 1 
@@ -477,6 +480,76 @@ Avaya
 
 Avaya bought Nortel's wired networks assets. So Avaya switches are, in effect, re-branded 
 Nortels. See <<_nortel,Nortel section>> of this document for configuration instructions. 
+
+Brocade
+~~~~~~~
+
+ICX 6400 Series
+^^^^^^^^^^^^^^^
+
+Those switches are supported using 802.1X for networks with or without VoIP.
+
+* Global config settings:
+
+  aaa authentication dot1x default radius
+  radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default
+  radius-server key useStrongerSecret
+
+  vlan 1 name DEFAULT-VLAN by port
+  !
+  vlan 100 by port
+   tagged ethe 1/1/xx ethe 1/1/yy
+
+Where `xx` and `yy` represent the range of ports where you want PacketFence
+enforcement.
+
+MAC-Authentication without VoIP
++++++++++++++++++++++++++++++++
+
+* Enable MAC-Authentication globally
+
+  mac-authentication enable
+  mac-authentication mac-vlan-dyn-activation
+
+* Enable MAC-Authentication on each interface you want PacketFence active
+
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+
+MAC-Authentication with VoIP
+++++++++++++++++++++++++++++
+
+* Enable cdp globally
+
+  cdp run
+
+* Apply the following configuration on each interface you want PacketFence active
+
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+   cdp enable
+
+802.1x/MAC-Auth
++++++++++++++++
+
+* Enable 802.1X globally
+
+  dot1x-enable
+   re-authentication
+   enable ethe 1/1/xx
+
+Where `xx` is the switch port number
+
+* Apply the following configuration on each interface you want PacketFence active
+
+   dot1x port-control auto
+   dual-mode
+   mac-authentication enable
+   mac-authentication enable-dynamic-vlan
+   voice-vlan 100
+
 
 Cisco
 ~~~~~
@@ -1876,6 +1949,7 @@ Assumptions
 
 Throughout this configuration example we use the following assumptions for our network infrastructure:
 
+[options="compact"]
 * PacketFence is fully configured with FreeRADIUS running
 * PacketFence IP address: 192.168.1.5
 * Normal VLAN: 1
@@ -2107,6 +2181,15 @@ WLAN SSIDs: profiles and virtual AP
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
 
+Brocade
+~~~~~~~
+
+RF Switches
+^^^^^^^^^^^
+
+See the <<_motorola,Motorola RF Switches>> documentation.
+
+
 Cisco
 ~~~~~
 
@@ -2216,67 +2299,60 @@ aaa authentication login mac_methods group rad_mac
 ----
 
 
-Wireless LAN Controller (WLC) 2106 and 4400
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  To be contributed...
-
-Wireless Services Module (WiSM)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
 
-We create two SSIDs:
+* First, globally define the FreeRADIUS server running on PacketFence (PacketFence's IP)
 
-* cstj: non-secure with MAC authentication only
-* interne: secure with WPA2 Enterprise PEAP/MSCHAPv2
+image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
-image::docs/images/wls-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
+* Then we create two SSIDs:
+[options="compact"]
+** PacketFence-Public: non-secure with MAC authentication only
+** PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
 
+image::docs/images/cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
 
-* We choose to not broadcast this SSID on purpose so that it remains hidden.
+* In the secure SSID, make sure 802.1X is enabled and select the appropriate encryption for your needs (recommended: WPA + WPA2)
 
-image::docs/images/wls-ssid-non-secure-create.png[scaledwidth="100%",alt="SSID Broadcast secure"]
-
-* We select here the appropriate options for the security on layer 2 based on our requirements
-
-image::docs/images/wls-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
+image::docs/images/cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
 
 * No layer 3 security
 
-image::docs/images/wls-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
+image::docs/images/cisco-wlc-l3-secu.png[scaledwidth="100%",alt="SSID L3 secure"]
 
 * We set the IP of the FreeRADIUS server
 
-image::docs/images/wls-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::docs/images/wls-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
+image::docs/images/cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
 
-* Edit the non-secure SSID
+* Edit the non-secure SSID: Enable MAC authentication at level 2
 
-image::docs/images/wls-ssid-secure-broadcast.png[scaledwidth="100%",alt="SSID Broadcast non secure"]
-
-* Enable MAC authentication at level 2
-
-image::docs/images/wls-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
+image::docs/images/cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
 
 * Nothing at level 3
 
-image::docs/images/wls-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
+image::docs/images/cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
+
+* We set the IP of the FreeRADIUS server
+
+image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
 
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
-image::docs/images/wls-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
+image::docs/images/cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
 
-* In the Controller > Interfaces tab, create one interface per SSID
+* Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could assigned
 
-image::docs/images/wls-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
+image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
-* Define here the FreeRADIUS server
+You are good to go!
 
-image::docs/images/wls-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
 D-Link
 ~~~~~~
@@ -2478,7 +2554,9 @@ NOTE: You need to have the *Per-User Firewall* license in order to benefit this 
 Motorola
 ~~~~~~~~
 
-In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs definition, one for the "public" network, and one for the "secure" network. 
+In order to have the Motorola RFS controller working with PacketFence, you
+need to define two Wireless LANs definition, one for the "public" network,
+and one for the "secure" network.
 
 WiNG (Firmware >= 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^

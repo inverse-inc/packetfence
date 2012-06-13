@@ -20,37 +20,7 @@ pfsetvlan
 Act on SNMP traps and set switch port VLAN according to
 the discovered MACs status in packetfence.
 
-=head1 AUTHOR
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-=head1 COPYRIGHT
-
-Copyright (C) 2006-2011 Inverse inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.
-
 =cut
-
 # }}}1
 
 # use, require {{{1
@@ -61,6 +31,7 @@ require 5.8.8;
 
 use Cache::FileCache;
 use Data::Dumper;
+use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use File::Tail;
 use Getopt::Long;
@@ -96,9 +67,15 @@ $thread = 1;
 
 # }}}1
 
+# initialization
+# --------------
+# assign process name (see #1464)
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+# log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . '/conf/log.conf', $LOG4PERL_RELOAD_TIMER );
-my $logger = Log::Log4perl->get_logger( basename($0) );
-Log::Log4perl::MDC->put( 'proc', basename($0) );
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
 # Initialize a new cache for the traps sent from switches IfIndex
@@ -2023,6 +2000,39 @@ END {
         kill 6, -$$;
     }
 }
+
+=head1 AUTHOR
+
+Dominik Gehl <dgehl@inverse.ca>
+
+Regis Balzard <rbalzard@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2006-2012 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
 
 # vim: set shiftwidth=4:
 # vim: set expandtab:

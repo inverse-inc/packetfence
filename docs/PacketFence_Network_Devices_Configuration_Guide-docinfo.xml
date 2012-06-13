@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
    <revision>
+    <revnumber>2.3</revnumber>
+    <date>2012-06-13</date>
+    <authorinitials>FD, DW, OB</authorinitials>
+    <revremark>Added Brocade, Cisco WLC/WiSM and H3C documentation. Some assumptions were updated.</revremark>
+  </revision>
+   <revision>
     <revnumber>2.2</revnumber>
     <date>2012-04-23</date>
     <authorinitials>OB</authorinitials>
@@ -34,6 +40,15 @@
   <affiliation>
     <address>
       <email>obilodeau@inverse.ca</email>
+    </address>
+  </affiliation>
+</author>
+<author>
+  <firstname>Fabrice</firstname>
+  <surname>Durand</surname>
+  <affiliation>
+    <address>
+      <email>fdurand@inverse.ca</email>
     </address>
   </affiliation>
 </author>

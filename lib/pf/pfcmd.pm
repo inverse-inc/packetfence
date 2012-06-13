@@ -278,7 +278,8 @@ sub parseCommandLine {
                                      ( active | inactive | openviolations 
                                        | os | osclass | registered | statics | ssid
                                        | unknownprints | unknownuseragents | unregistered
-                                       | connectiontype | connectiontypereg
+                                       | connectiontype | connectiontypereg | osclassbandwidth
+                                       | nodebandwidth
                                      )
                                      |
                                      (?: #for grouping only
@@ -289,6 +290,10 @@ sub parseCommandLine {
                                        )
                                        \s+
                                        ( all | active )
+                                     )
+                                     |
+                                     (?: #for grouping only
+                                       ( osclassbandwidth ) \s+ ( all | day | week | month | year )
                                      )
                                    )
                                  $  }xms,

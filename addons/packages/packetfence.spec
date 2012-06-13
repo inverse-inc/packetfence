@@ -57,6 +57,8 @@ BuildRequires: perl(Parse::RecDescent)
 # TODO fop on EL5 is actually xmlgraphics-fop
 %{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
+# for process management
+Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
@@ -751,6 +753,9 @@ fi
 %config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
 
 %changelog
+* Wed Jun 13 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.4.0-1
+- New release 3.4.0
+
 * Thu Apr 23 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.2-1
 - New release 3.3.2
 

@@ -56,23 +56,38 @@ Readonly our $ALL_BINARIES_RE => qr/$services
     |freeradius                                # radiusd on debian
 $/x;
 
-my %flags;
-$flags{'httpd'}          = "-f $generated_conf_dir/httpd.conf";
-$flags{'pfdetect'}       = "-d -p $install_dir/var/alert &";
-$flags{'pfmon'}          = "-d &";
-$flags{'pfdhcplistener'} = "-d &";
-$flags{'pfredirect'}     = "-d &";
-$flags{'pfsetvlan'}      = "-d &";
-$flags{'dhcpd'} = " -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
-$flags{'named'} = "-u pf -c $generated_conf_dir/named.conf";
-$flags{'snmptrapd'} = "-n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
-$flags{'radiusd'} = "";
+=head1 Globals
 
+=over
+
+=item service_launchers
+
+sprintf-formatted strings that control how the services should be started. 
+
+    %1$s: is the binary (w/ full path)
+    %2$s: optional parameters
+
+=cut
+my %service_launchers;
+$service_launchers{'httpd'} = "%1\$s -f $generated_conf_dir/httpd.conf";
+$service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
+$service_launchers{'pfmon'} = "%1\$s -d &";
+$service_launchers{'pfdhcplistener'} = "%1\$s -i %2\$s -d &";
+$service_launchers{'pfredirect'} = "%1\$s -d &";
+$service_launchers{'pfsetvlan'} = "%1\$s -d &";
+# TODO the following join on @listen_ints will cause problems with dynamic config reloading
+$service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
+$service_launchers{'named'} = "%1\$s -u pf -c $generated_conf_dir/named.conf";
+$service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
+$service_launchers{'radiusd'} = "%1\$s";
+
+# TODO $monitor_int will cause problems with dynamic config reloading
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
-    $flags{'snort'} = 
-        "-u pf -c $generated_conf_dir/snort.conf -i $monitor_int " . 
+    $service_launchers{'snort'} =
+        "%1\$s -u pf -c $generated_conf_dir/snort.conf -i $monitor_int " .
         "-N -D -l $install_dir/var --pid-path $install_dir/var/run";
 }
+=back
 
 =head1 SUBROUTINES
 
@@ -120,7 +135,7 @@ sub service_ctl {
                 }
 
                 # valid daemon and flags are set
-                if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($flags{$daemon})) {
+                if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($service_launchers{$daemon})) {
 
                     if ( $daemon ne 'pfdhcplistener' ) {
                         if ( $daemon eq 'dhcpd' ) {
@@ -136,10 +151,10 @@ sub service_ctl {
                             pf::freeradius::freeradius_populate_nas_config();
 
                         }
-                        $logger->info(
-                            "Starting $daemon with '$service $flags{$daemon}'");
-                        my $cmd_line = "$service $flags{$daemon}";
-                        if ($cmd_line =~ /(.+)/) {
+                        my $cmd_line = sprintf($service_launchers{$daemon}, $service);
+                        $logger->info("Starting $daemon with '$cmd_line'");
+                        # FIXME lame taint-mode bypass
+                        if ($cmd_line =~ /^(.+)$/) {
                             $cmd_line = $1;
                             my $t0 = Time::HiRes::time();
                             my $return_value = system($cmd_line);
@@ -153,7 +168,7 @@ sub service_ctl {
                             my @devices = @listen_ints;
                             push @devices, @dhcplistener_ints;
                             foreach my $dev (@devices) {
-                                my $cmd_line = "$service -i $dev $flags{$daemon}";
+                                my $cmd_line = sprintf($service_launchers{$daemon}, $service, $dev);
                                 # FIXME lame taint-mode bypass
                                 if ($cmd_line =~ /^(.+)$/) {
                                     $cmd_line = $1;
@@ -171,11 +186,11 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "stop" && do {
-                #my @debug= system('pkill','-f',$daemon);
-                $logger->info("Stopping $daemon with 'pkill $binary'");
-                eval { `pkill $binary`; };
+                my $cmd = "/usr/bin/pkill $binary";
+                $logger->info("Stopping $daemon with '$cmd'");
+                eval { `$cmd`; };
                 if ($@) {
-                    $logger->logcroak("Can't stop $daemon with 'pkill $binary': $@");
+                    $logger->logcroak("Can't stop $daemon with '$cmd': $@");
                     return;
                 }
 
@@ -183,7 +198,6 @@ sub service_ctl {
                     manage_Static_Route();
                 }
 
-                #$logger->info("pkill shows " . join(@debug));
                 my $maxWait = 10;
                 my $curWait = 0;
                 while (( $curWait < $maxWait )
@@ -208,10 +222,12 @@ sub service_ctl {
                 last CASE;
             };
             $action eq "status" && do {
+                # -x: this causes the program to also return process id's of shells running the named scripts.
+                my $cmd = "pidof -x $binary";
                 my $pid;
-                chop( $pid = `pidof -x $binary` );
+                chop( $pid = `$cmd` );
                 $pid = 0 if ( !$pid );
-                $logger->info("pidof -x $binary returned $pid");
+                $logger->info("$cmd returned $pid");
                 return ($pid);
             }
         }
