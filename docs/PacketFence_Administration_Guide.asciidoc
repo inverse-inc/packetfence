@@ -256,7 +256,8 @@ Software Download
 ~~~~~~~~~~~~~~~~~
 
 Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / CentOS instead of a single RPM file.
-For Debian squeeze, starting with 3.3.3, PacketFence is now providing an deb repository.
+
+For Debian squeeze, starting with 3.4.0, PacketFence is now providing an deb repository.
 
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
@@ -278,7 +279,9 @@ In order to use the repository, just create a file named `/etc/yum.repos.d/Packe
   gpgcheck=0
   enabled=0
 
-Once the repository is defined, you can install PacketFence with all it's dependencies, and the required external services (DNS server, Database server, DHCP server, RADIUS server) using:
+Once the repository is defined, you can install PacketFence with all its
+dependencies, and the required external services (DNS server, Database
+server, DHCP server, RADIUS server) using:
 
   yum groupinstall --enablerepo=PacketFence,rpmforge Packetfence-complete
 
@@ -292,7 +295,9 @@ In order to use the repository, just create a file named `/etc/apt/sources.list.
 
   deb http://inverse.ca/downloads/PacketFence/debian squeeze squeeze
 
-Once the repository is defined, you can install PacketFence with all it's dependencies, and the required external services (DNS server, Database server, DHCP server, RADIUS server) using:
+Once the repository is defined, you can install PacketFence with all its
+dependencies, and the required external services (DNS server, Database
+server, DHCP server, RADIUS server) using:
 
   sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
   sudo apt-get update
