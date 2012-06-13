@@ -26,6 +26,7 @@ New Features
  * debian packages (#1066, #1067, #1463)
  * Support for up to 100 custom VLANs (Defaults to 5 see relevant FAQ entry to enable more)
  * Node bulk importation now allow you to define default values for pid, category and voip in pf.conf
+ * New graphics showing bandwidth consumed by os class and the top 25 bandwidth consumers
 
 Enhancements
  * minor refactoring and cleanup

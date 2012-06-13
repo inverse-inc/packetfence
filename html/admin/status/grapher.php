@@ -23,7 +23,7 @@
  * @author      Olivier Bilodeau <obilodeau@inverse.ca>
  * @author      Francois Gaudreault <fgaudreault@inverse.ca>
  * @author      Dominik Gehl <dgehl@inverse.ca>
- * @copyright   2008-2011 Inverse inc.
+ * @copyright   2008-2012 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 
@@ -53,7 +53,14 @@
     'connectiontypereg all' => 'pie',
     'ssid' => 'pie',
     'ssid active' => 'pie',
-    'ssid all' => 'pie'
+    'ssid all' => 'pie',
+    'osclassbandwidth' => 'pie',
+    'osclassbandwidth all' => 'pie',
+    'osclassbandwidth day' => 'pie',
+    'osclassbandwidth week' => 'pie',
+    'osclassbandwidth month' => 'pie',
+    'osclassbandwidth year' => 'pie',
+    'nodebandwidth' => 'pie'
   );
 
 function jsgraph($options) {
@@ -136,6 +143,13 @@ function _jsgraph($series, $labels, $type, $size, $title, $subtitle) {
   return $js;
 }
 
+/*
+ * get_pie_chart_data
+ *
+ * This function makes the following assumption: the percent value to be 
+ * displayed MUST be at column 2 (index 1) of the `pfcmd report ...` command.
+ * 
+ */
 function get_pie_chart_data($cmd){
         $cached_data = preg_replace("/\s+/", '_', get_cache_path() . "$cmd");
 
@@ -151,7 +165,7 @@ function get_pie_chart_data($cmd){
         foreach($rows as $row){
                 $parts = explode('|', $row);
                 $x_labels[$parts[0]]=1;
-                $chart_data['values'][]=$parts[2];
+                $chart_data['values'][]=$parts[1];
         }
 
     if (count($rows) > 0) {

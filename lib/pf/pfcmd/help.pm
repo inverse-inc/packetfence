@@ -348,7 +348,14 @@ EOT
 
 sub help_report {
     print STDERR << "EOT";
-Usage: pfcmd report <active|inactive> | <connectiontype|connectiontypereg|registered|unregistered|os|osclass|unknownprints|unknownuseragents|openviolations|ssid|statics> [all|active]
+Usage: pfcmd report
+               <active|inactive>
+               <connectiontype|connectiontypereg|ssid> [all|active]
+               <registered|unregistered|unknownprints|unknownuseragents> [all|active]
+               <openviolations|statics> [all|active]
+               <os|osclass> [all|active]
+               osclassbandwidth [all|day|week|month|year]
+               nodebandwidth
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
 
@@ -360,6 +367,8 @@ registered        | show all registered nodes
 unregistered      | show all unregistered nodes
 os                | show OS distribution
 osclass           | show OS distribution, aggregated by class
+osclassbandwidth  | show bandwitdh usage by OS distribution (use day/week/month/year for the time window)
+nodebandwidth     | show bandwitdh usage for the top 25 bandwidth eating nodes
 unknownprints     | show DHCP fingerprints without a known OS mapping
 unknownuseragents | show User-Agents fingerprints without a known Browser or OS mapping
 openviolations    | show all open violations
@@ -634,6 +643,8 @@ EOT
 =back
 
 =head1 AUTHOR
+
+Francois Gaudreault <fgaudreault@inverse.ca>
 
 David LaPorte <david@davidlaporte.org>
 
