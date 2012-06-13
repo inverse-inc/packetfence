@@ -488,28 +488,18 @@ ICX 6400 Series
 
 Those switches are supported using 802.1X for networks with or without VoIP.
 
-In order to use 802.1x with Brocade switch, you must modify the dictionary.foundry in FreeRadius.
-
-Replace :
-
-  ATTRIBUTE       Foundry-MAC-Authent-needs-802.1x        6       integer
-  ATTRIBUTE       Foundry-802.1x-Valid-Lookup             7       integer
-
-By:
-
-  ATTRIBUTE       Foundry-802_1x-enable                   6       integer
-  ATTRIBUTE       Foundry-802_1x-valid                    7       integer
-
 * Global config settings:
 
   aaa authentication dot1x default radius
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 default
-  radius-server key 1 $sD-!^!
+  radius-server key qwerty
 
   vlan 1 name DEFAULT-VLAN by port
   !
   vlan 100 by port
-   tagged ethe 1/1/1 ethe 1/1/24
+   tagged ethe 1/1/xx ethe 1/1/yy
+
+Where xx and yy are switch number port
 
 Mac Authentication without VoIP
 +++++++++++++++++++++++++++++++
@@ -521,7 +511,6 @@ Mac Authentication without VoIP
 
 * Enable Mac auth on the switchport 
 
-  interface ethernet 1/1/1
    mac-authentication enable
    mac-authentication enable-dynamic-vlan
 
@@ -534,7 +523,6 @@ Mac Authentication with VoIP
 
 * Enable Mac auth on the switchport
 
-  interface ethernet 1/1/1
    dual-mode
    mac-authentication enable
    mac-authentication enable-dynamic-vlan
@@ -548,22 +536,18 @@ Mac Authentication with VoIP
 
   dot1x-enable
    re-authentication
-   enable ethe 1/1/1
+   enable ethe 1/1/xx
+
+Where xx is the switch number port
 
 * Enable Mac auth and 802.1X on the switchport
 
-  interface ethernet 1/1/1
    dot1x port-control auto
    dual-mode
    mac-authentication enable
    mac-authentication enable-dynamic-vlan
    voice-vlan 100
 
-
-RF Switches
-^^^^^^^^^^^
-
-See the Motorola RF Switches documentation.
 
 Cisco
 ~~~~~
@@ -2625,6 +2609,12 @@ SNMP Global configuration
 ++++++++++++++++++++++++++
 
 Add the two Read-Only and Read-Write users under *Management Access -> SNMP Access*.
+
+
+RF Switches
+^^^^^^^^^^^
+
+See the Motorola RF Switches documentation.
 
 
 Ruckus

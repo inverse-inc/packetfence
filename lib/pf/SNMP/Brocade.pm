@@ -157,7 +157,7 @@ sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     return (
-        'Foundry-802_1x-enable' => $FALSE,
+        'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
         'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voiceVlan'),
@@ -206,7 +206,7 @@ sub returnRadiusAccessAccept {
 
     # VLAN enforcement
     my $radius_reply_ref = {
-        #'Foundry-802_1x-enable' => $TRUE,
+        #'Foundry-MAC-Authent-needs-802.1x' => $TRUE,
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
         'Tunnel-Type' => $RADIUS::VLAN,
         'Tunnel-Private-Group-ID' => $vlan,
