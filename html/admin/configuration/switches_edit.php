@@ -112,6 +112,8 @@
                            'Aruba' => 'Aruba Networks',
                            'Avaya::WC' => 'Avaya Wireless Controller',
                            'Avaya' => 'Avaya Switch (see Nortel)',
+                           'Brocade' => 'Brocade Switches',
+                           'Brocade::RFS' => 'Brocade RF Switches',
                            'Cisco::Aironet_1130' => 'Cisco Aironet 1130',
                            'Cisco::Aironet_1242' => 'Cisco Aironet 1242',
                            'Cisco::Aironet_1250' => 'Cisco Aironet 1250',
