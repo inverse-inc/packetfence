@@ -246,6 +246,39 @@ sub report_db_prepare {
                         SUBSTRING(radacct.callingstationid,7,2),':',
                         SUBSTRING(radacct.callingstationid,9,2),':',
                         SUBSTRING(radacct.callingstationid,11,2)))
+                )*100,1
+            ) AS percent
+        FROM radacct_log
+            INNER JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+            INNER JOIN node n ON n.mac = LOWER(CONCAT(
+                SUBSTRING(radacct.callingstationid,1,2),':',
+                SUBSTRING(radacct.callingstationid,3,2),':',
+                SUBSTRING(radacct.callingstationid,5,2),':',
+                SUBSTRING(radacct.callingstationid,7,2),':',
+                SUBSTRING(radacct.callingstationid,9,2),':',
+                SUBSTRING(radacct.callingstationid,11,2))
+            )
+            LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
+            LEFT JOIN os_mapping m ON m.os_type=d.os_id
+            LEFT JOIN os_class c ON m.os_class=c.class_id
+        GROUP BY c.description
+        ORDER BY percent DESC;
+    ]);
+
+    $report_statements->{'report_osclassbandwidth_with_range_sql'} = get_db_handle()->prepare(qq[
+        SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
+            ROUND(
+                SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
+                    SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
+                    FROM radacct_log RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
+                    INNER JOIN node n ON n.mac = LOWER(CONCAT(
+                        SUBSTRING(radacct.callingstationid,1,2),':',
+                        SUBSTRING(radacct.callingstationid,3,2),':',
+                        SUBSTRING(radacct.callingstationid,5,2),':',
+                        SUBSTRING(radacct.callingstationid,7,2),':',
+                        SUBSTRING(radacct.callingstationid,9,2),':',
+                        SUBSTRING(radacct.callingstationid,11,2)))
                     WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
                 )*100,1
             ) AS percent
@@ -260,9 +293,9 @@ sub report_db_prepare {
                 SUBSTRING(radacct.callingstationid,11,2))
             )
             LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint
-            LEFT JOIN os_mapping m ON m.os_type=d.os_id 
-            LEFT JOIN os_class c ON m.os_class=c.class_id 
-        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)    
+            LEFT JOIN os_mapping m ON m.os_type=d.os_id
+            LEFT JOIN os_class c ON m.os_class=c.class_id
+        WHERE timestamp >= DATE_SUB(NOW(),INTERVAL ? SECOND)
         GROUP BY c.description
         ORDER BY percent DESC;
     ]);
@@ -641,14 +674,16 @@ sub report_ssid_active {
     return (@return_data);
 }
 
-=item * report_osclassbandwidth
+=item * _report_osclassbandwidth_with_range
 
-Reporting - OS Class bandwitdh usage - generic method
+Reporting - OS Class bandwitdh usage
+
+Sub that supports a range from now til $range window.
 
 =cut
-sub report_osclassbandwidth {
+sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $range, $range);
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $range, $range);
     my $totalbw = 0;
     my @return_data;
 
@@ -668,7 +703,18 @@ Reporting - OS Class bandwitdh usage - All time
 
 =cut
 sub report_osclassbandwidth_all {
-    return report_osclassbandwidth(999999999);
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql');
+    my $totalbw = 0;
+    my @return_data;
+
+    foreach my $record (@data) {
+        $totalbw += $record->{'accttotal'};
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        push @return_data, $record;
+    }
+    $totalbw = pf::util::pretty_bandwidth($totalbw);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
+    return (@return_data);
 }
 
 =item * report_osclassbandwidth_day
@@ -677,7 +723,7 @@ Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
 sub report_osclassbandwidth_day {
-    return report_osclassbandwidth(24 * 60 * 60);
+    return _report_osclassbandwidth_with_range(24 * 60 * 60);
 }
 
 =item * report_osclassbandwidth_week
@@ -686,7 +732,7 @@ Reporting - OS Class bandwitdh usage for the last week
 
 =cut
 sub report_osclassbandwidth_week {
-    return report_osclassbandwidth(7 * 24 * 60 * 60);
+    return _report_osclassbandwidth_with_range(7 * 24 * 60 * 60);
 }
 
 =item * report_osclassbandwidth_month
@@ -695,7 +741,7 @@ Reporting - OS Class bandwitdh usage for the last month
 
 =cut
 sub report_osclassbandwidth_month {
-    return report_osclassbandwidth(30 * 7 * 24 * 60 * 60);
+    return _report_osclassbandwidth_with_range(30 * 7 * 24 * 60 * 60);
 }
 
 =item * report_osclassbandwidth_year
@@ -704,7 +750,7 @@ Reporting - OS Class bandwitdh usage for the last year
 
 =cut
 sub report_osclassbandwidth_year {
-    return report_osclassbandwidth(365 * 7 * 24 * 60 * 60);
+    return _report_osclassbandwidth_with_range(365 * 7 * 24 * 60 * 60);
 }
 
 =item * report_nodebandwidth_all
