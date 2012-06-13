@@ -2302,18 +2302,18 @@ Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
 
 In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
 
-We create two SSIDs:
+* First, globally define the FreeRADIUS server running on PacketFence (PacketFence's IP)
 
-* PacketFence-Public: non-secure with MAC authentication only
-* PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
+image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
+
+* Then we create two SSIDs:
+[options="compact"]
+** PacketFence-Public: non-secure with MAC authentication only
+** PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
 
 image::docs/images/cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
 
-* We choose to not broadcast this SSID on purpose so that it remains hidden.
-
-image::docs/images/cisco-wlc-ssid-non-secure-create.png[scaledwidth="100%",alt="SSID Broadcast secure"]
-
-* We select here the appropriate options for the security on layer 2 based on our requirements
+* In the secure SSID, make sure 802.1X is enabled and select the appropriate encryption for your needs (recommended: WPA + WPA2)
 
 image::docs/images/cisco-wlc-l2-secu.png[scaledwidth="100%",alt="SSID L2 secure"]
 
@@ -2329,11 +2329,7 @@ image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius se
 
 image::docs/images/cisco-wlc-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced secure"]
 
-* Edit the non-secure SSID
-
-image::docs/images/cisco-wlc-ssid-secure-broadcast.png[scaledwidth="100%",alt="SSID Broadcast non secure"]
-
-* Enable MAC authentication at level 2
+* Edit the non-secure SSID: Enable MAC authentication at level 2
 
 image::docs/images/cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 non secure"]
 
@@ -2341,17 +2337,20 @@ image::docs/images/cisco-wlc-l2-non-secure.png[scaledwidth="100%",alt="SSID L2 n
 
 image::docs/images/cisco-wlc-l3-non-secure.png[scaledwidth="100%",alt="SSID L3 non secure"]
 
+* We set the IP of the FreeRADIUS server
+
+image::docs/images/cisco-wlc-secure-radius.png[scaledwidth="100%",alt="Radius secure"]
+
 * VERY IMPORTANT: Allow AAA override (this allows VLAN assignment from RADIUS)
 
 image::docs/images/cisco-wlc-non-secure-radius-advance.png[scaledwidth="100%",alt="Radius advanced non secure"]
 
-* In the Controller > Interfaces tab, create one interface per SSID
+* Finally, in _Controller > Interfaces_ tab, create an interface per VLAN that could assigned
 
 image::docs/images/cisco-wlc-interface-ssid.png[scaledwidth="100%",alt="SSID Interface"]
 
-* Define here the FreeRADIUS server
+You are good to go!
 
-image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
 D-Link
 ~~~~~~
