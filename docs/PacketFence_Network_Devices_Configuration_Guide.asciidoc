@@ -2297,23 +2297,17 @@ aaa authentication login mac_methods group rad_mac
 ----
 
 
-Wireless LAN Controller (WLC) 2106 and 4400
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-  To be contributed...
-
-Wireless Services Module (WiSM)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
 
 We create two SSIDs:
 
-* cstj: non-secure with MAC authentication only
-* interne: secure with WPA2 Enterprise PEAP/MSCHAPv2
+* PacketFence-Public: non-secure with MAC authentication only
+* PacketFence-Secure: secure with WPA2 Enterprise PEAP/MSCHAPv2
 
 image::docs/images/cisco-wlc-ssid-create.png[scaledwidth="100%",alt="SSID creation"]
-
 
 * We choose to not broadcast this SSID on purpose so that it remains hidden.
 
