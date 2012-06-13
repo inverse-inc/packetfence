@@ -793,7 +793,9 @@ FreeRADIUS Configuration
 
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
-Under Debian, the freeradius server is a dependencie of PacketFence, so you don't have to install it. Just be careful, the configuration directory is under /etc/freeradius.
+NOTE: Under Debian, the freeradius server is a dependency of PacketFence, so
+you don't have to install it. Just be careful, the configuration directory is
+under `/etc/freeradius`.
  
 Install the following packages:
 
