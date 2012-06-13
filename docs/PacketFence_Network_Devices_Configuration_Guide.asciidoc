@@ -2179,6 +2179,15 @@ WLAN SSIDs: profiles and virtual AP
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
 
+Brocade
+~~~~~~~
+
+RF Switches
+^^^^^^^^^^^
+
+See the <<_motorola,Motorola RF Switches>> documentation.
+
+
 Cisco
 ~~~~~
 
@@ -2498,7 +2507,9 @@ NOTE: You need to have the *Per-User Firewall* license in order to benefit this 
 Motorola
 ~~~~~~~~
 
-In order to have the Motorola controller working with PacketFence, you need to define two Wireless LANs definition, one for the "public" network, and one for the "secure" network. 
+In order to have the Motorola RFS controller working with PacketFence, you
+need to define two Wireless LANs definition, one for the "public" network,
+and one for the "secure" network.
 
 WiNG (Firmware >= 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -2610,12 +2621,6 @@ SNMP Global configuration
 ++++++++++++++++++++++++++
 
 Add the two Read-Only and Read-Write users under *Management Access -> SNMP Access*.
-
-
-RF Switches
-^^^^^^^^^^^
-
-See the Motorola RF Switches documentation.
 
 
 Ruckus
