@@ -472,6 +472,11 @@ sub supported_os {
     return (0);
 }
 
+=head1 SUBROUTINES
+
+=over
+
+=cut
 package installer;
 
 sub create_empty_directories {
@@ -509,6 +514,8 @@ sub create_empty_log_files {
     print "Setting log file ownership\n";
     `chown -R pf:pf $root_dir/logs`;
 }
+
+=back
 
 =head1 SEE ALSO
 
