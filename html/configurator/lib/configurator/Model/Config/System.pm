@@ -112,7 +112,7 @@ sub update_radius_sql {
     ($status, $systemObj) = configurator::Model::Config::SystemFactory->getSystem();
     return ($status, $systemObj) if ( is_error($status) );
 
-    my $radius_sql_conf_file = $systemObj->_radius_sql_conf_file;
+    my $radius_sql_conf_file = $systemObj->_getRadiusSqlConfFile();
 
     # Update the default user with the configured one
     my $cmd = "sed -i 's/login = \"pf\"/login = \"$user\"/g' $radius_sql_conf_file";
@@ -258,7 +258,7 @@ Moose class implemeting roles.
 
 use Moose::Role;
 
-requires qw(writeNetworkConfigs);
+requires qw(_getRadiusSqlConfFile writeNetworkConfigs);
 
 
 package configurator::Model::Config::System::RHEL;
@@ -279,16 +279,29 @@ use pf::util;
 
 with 'configurator::Model::Config::System::Role';
 
+has '_radius_sql_conf_file' => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => '/etc/raddb/sql.conf',
+);
+
 our $_network_conf_dir    = "/etc/sysconfig/";
 our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
 
-our $_radius_sql_conf_file  = "/etc/raddb/sql.conf";
-
 =head3 METHODS
 
 =over
+
+=item _getRadiusSqlConfFile
+
+=cut
+sub _getRadiusSqlConfFile {
+    my ( $this ) = @_;
+
+    return $this->_radius_sql_conf_file();
+}
 
 =item writeNetworkConfigs
 
@@ -365,14 +378,27 @@ use pf::util;
 
 with 'configurator::Model::Config::System::Role';
 
+has '_radius_sql_conf_file' => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => '/etc/raddb/sql.conf',
+);
+
 our $_network_conf_dir    = "/etc/network/";
 our $_network_conf_file   = "interfaces";
-
-our $_radius_sql_conf_file  = "/etc/freeradius/sql.conf";
 
 =head3 METHODS
 
 =over
+
+=item _getRadiusSqlConfFile
+
+=cut
+sub _getRadiusSqlConfFile {
+    my ( $this ) = @_;
+
+    return $this->_radius_sql_conf_file();
+}
 
 =item writeNetworkConfigs
 
