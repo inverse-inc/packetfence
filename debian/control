@@ -50,7 +50,6 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libnet-appliance-session-perl, libnet-cli-interact-perl,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
-<<<<<<< HEAD
  gettext, vlan, libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
