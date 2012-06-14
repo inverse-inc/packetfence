@@ -62,7 +62,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
 # catalyst-server
- libcatalyst-engine-http-prefork-perl
+ libcatalyst-engine-http-prefork-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl
 Description: PacketFence network registration / worm mitigation system
