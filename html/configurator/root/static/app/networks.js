@@ -159,7 +159,7 @@ function initStep() {
     });
 
     /* Delete VLAN button */
-    $('#interfaces tbody').on('click', '[href=#modalDeleteVlan]', function(event) {
+    $('#interfaces tbody').on('click', '[href=#deleteVlan]', function(event) {
         var row = $(this).closest('tr');
         var url = ['/interface',
                    $(this).attr('interface'),

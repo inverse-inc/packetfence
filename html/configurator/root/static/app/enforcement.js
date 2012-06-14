@@ -8,15 +8,9 @@ function registerExits() {
 
 function saveStep(href) {
     var valid = true;
-
     var form = $('form[name="enforcement"]');
-    var control = form.children('.control-group');
     if (form.find('input:checked').length == 0) {
-        control.addClass('error');
         valid = false;
-    }
-    else {
-        control.removeClass('error');
     }
 
     if (valid) {

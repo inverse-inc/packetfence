@@ -64,6 +64,14 @@ body {
 .page-header.step {
     text-align: right;
 }
+form[name="enforcement"] .table th,
+form[name="enforcement"] .table td {
+    border-top: 0;
+}
+form[name="enforcement"] .table .graph {
+    text-align: center;
+    vertical-align: middle;
+}
 #interfaces table {
     margin-top: 20px;
 }

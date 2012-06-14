@@ -37,26 +37,44 @@
           <div class="form-horizontal">
             <form name="enforcement">
               <h3>Enforcement Mechanisms</h3>
-              <div class="control-group">
-                <div class="controls">
-                  <label class="checkbox">
-                    <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %]> <strong>Inline enforcement</strong>
-                    <p class="help-block">Activate this mechanism if you have unmanageable devices such as entry-level consumer switches or access-point. PacketFence becomes the gateway of that inline network, and NAT the traffic using IPTables to the Internet.</p>
-                  </label>
-                  <label class="checkbox">
-                    <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> <strong>VLAN enforcement</strong>
-                    <p class="help-block">PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.</p>
-                  </label>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th width="50%">
+                      <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %]> Inline enforcement
+                    </th>
+                    <th>
+                      <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> VLAN enforcement
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      Activate this mechanism if you have unmanageable devices such as entry-level consumer switches or access-point. PacketFence becomes the gateway of that inline network, and NAT the traffic using IPTables to the Internet.
+                    </td>
+                    <td>
+                      PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="graph">
+                      <img src="[% c.uri_for('/static/app/enforcement-inline.png') %]">
+                    </td>
+                    <td class="graph">
+                      <img src="[% c.uri_for('/static/app/enforcement-vlan.png') %]">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <fieldset>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
                 </div>
-              </div>
-          </div>
-          <fieldset>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right"  href="[% c.uri_for('step2') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
-            </div>
-          </fieldset>
-          </form>
-        </div>
+              </fieldset>
+            </form>
+         </div>
       </div>
       <footer>
         <p>&copy; Inverse 2012</p>
