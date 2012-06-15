@@ -11,6 +11,12 @@ http://www.packetfence.org/support/community.html
 This is a list of noteworthy changes across releases. 
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
+ 
+--------------------------------------------------------------------------------
+Version <stable-version> released on <releaseDate>
+
+Bug Fixes
+ * Regression in interface, network, floating-device and violation management Admin and CLI (#1468)
 
 --------------------------------------------------------------------------------
 Version 3.4.0 released on 2012-06-13

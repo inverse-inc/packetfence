@@ -469,16 +469,19 @@ sub violationconfig {
 
         my @fields = field_order();
         print join( $delimiter, @fields ) . "\n";
+
+        # Now that we printed all the fields, we skip the key since it's not
+        # under the config section but actually the section itself
+        shift @fields;
+
+        # Loop, filter and display
         foreach my $section ( keys %violations_conf ) {
-            if (   ( $cmd{'command'}[2] eq 'all' )
-                || ( $cmd{'command'}[2] eq $section ) )
-            {
+            if ( $cmd{'command'}[2] eq 'all' || $cmd{'command'}[2] eq $section ) {
+
                 my @values;
                 foreach my $column (@fields) {
                     push @values,
-                        (      $violations_conf{$section}{$column}
-                            || $violations_conf{'defaults'}{$column}
-                            || '' );
+                        ( $violations_conf{$section}{$column} || $violations_conf{'defaults'}{$column} || '' );
                 }
                 print $section . $delimiter . join( $delimiter, @values ) . "\n";
             }
@@ -616,10 +619,14 @@ sub floatingnetworkdeviceconfig {
 
         my @fields = field_order();
         print join( $delimiter, @fields ) . "\n";
+
+        # Now that we printed all the fields, we skip the key since it's not
+        # under the config section but actually the section itself
+        shift @fields;
+
+        # Loop, filter and display
         foreach my $section (@sections) {
-            if (   ( $cmd{'command'}[2] eq 'all' )
-                || ( $cmd{'command'}[2] eq $section ) )
-            {
+            if ( $cmd{'command'}[2] eq 'all' || $cmd{'command'}[2] eq $section ) {
                 my @values;
                 foreach my $column (@fields) {
                     push @values, ( $floatingnetworkdevice_conf{$section}{$column} || '' );
@@ -713,9 +720,14 @@ sub networkconfig {
 
         my @fields = field_order();
         print join( $delimiter, @fields ) . "\n";
+
+        # Now that we printed all the fields, we skip the key since it's not
+        # under the config section but actually the section itself
+        shift @fields;
+
+        # Loop, filter and display
         foreach my $network (@networks) {
-            if (   ( $cmd{'command'}[2] eq 'all' )
-                || ( $cmd{'command'}[2] eq $network ) )
+            if ( $cmd{'command'}[2] eq 'all' || $cmd{'command'}[2] eq $network )
             {
                 my @values;
                 foreach my $column (@fields) {
@@ -839,12 +851,16 @@ sub interfaceconfig {
 
         my @fields = field_order();
         print join( $delimiter, @fields ) . "\n";
+
+        # Now that we printed all the fields, we skip the key since it's not
+        # under the config section but actually the section itself
+        shift @fields;
+
+        # Loop, filter and display
         foreach my $section ( keys %pf_conf ) {
             if ( $section =~ /^interface (.+)$/ ) {
                 my $interface_name = $1;
-                if (   ( $cmd{'command'}[2] eq 'all' )
-                    || ( $cmd{'command'}[2] eq $interface_name ) )
-                {
+                if ( $cmd{'command'}[2] eq 'all' || $cmd{'command'}[2] eq $interface_name ) {
                     my @values;
                     foreach my $column (@fields) {
                         push @values, ( $pf_conf{$section}{$column} || '' );
@@ -960,22 +976,19 @@ sub switchconfig {
         my @fields = field_order();
         print join( $delimiter, @fields ) . "\n";
 
+        # Now that we printed all the fields, we skip the key since it's not
+        # under the config section but actually the section itself
+        shift @fields;
+
+        # Loop, filter and display
         foreach my $section (@sections) {
-            if (   ( $cmd{'command'}[2] eq 'all' )
-                || ( $cmd{'command'}[2] eq $section ) )
-            {
+            if ( $cmd{'command'}[2] eq 'all' || $cmd{'command'}[2] eq $section ) {
                 my @values;
                 foreach my $column (@fields) {
-                    if ( $column eq 'ip' ) {
-                        push @values, $section;
-                    } else {
-                        push @values,
-                            (      $switches_conf{$section}{$column}
-                                || $switches_conf{'default'}{$column}
-                                || '' );
-                    }
+                    push @values,
+                        ( $switches_conf{$section}{$column} || $switches_conf{'default'}{$column} || '' );
                 }
-                print join( $delimiter, @values ) . "\n";
+                print $section . $delimiter . join( $delimiter, @values ) . "\n";
             }
         }
     } elsif ( $mode eq 'delete' ) {
