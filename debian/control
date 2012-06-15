@@ -19,7 +19,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
 # process management
  procps,
 # perl stuff
- libapache-htpasswd-perl, libbit-vector-perl, 
+ libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl, 
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
  libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
  libiptables-parse-perl, libiptables-chainmgr-perl, liblist-moreutils-perl,
