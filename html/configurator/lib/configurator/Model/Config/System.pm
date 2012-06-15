@@ -381,7 +381,7 @@ with 'configurator::Model::Config::System::Role';
 has '_radius_sql_conf_file' => (
     is      => 'ro',
     isa     => 'Str',
-    default => '/etc/raddb/sql.conf',
+    default => '/etc/freeradius/sql.conf',
 );
 
 our $_network_conf_dir    = "/etc/network/";
