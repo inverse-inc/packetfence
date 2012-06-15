@@ -114,6 +114,10 @@ sub update_radius_sql {
 
     my $radius_sql_conf_file = $systemObj->_getRadiusSqlConfFile();
 
+    # Check if file exists
+    return ($STATUS::INTERNAL_SERVER_ERROR, "RADIUS sql.conf file doesn't seems to exists")
+        if ( !-e $radius_sql_conf_file );
+
     # Update the default user with the configured one
     my $cmd = "sed -i 's/login = \"pf\"/login = \"$user\"/g' $radius_sql_conf_file";
     $logger->debug("Updating user in RADIUS sql file: $cmd");
