@@ -20,6 +20,9 @@ Bug Fixes
  * Load-balancer support: Apache Access List are now updated to allow them to reach the portal
  * Debian: missing dependency preventing Apache (captive portal, webadmin) to start
 
+Translations
+ * Updated Brazilian Portuguese (pt_BR) translation (Thanks to Diego de Souza Lopes)
+
 --------------------------------------------------------------------------------
 Version 3.4.0 released on 2012-06-13
 
