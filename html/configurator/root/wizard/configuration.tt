@@ -10,12 +10,11 @@
     </div>
 
     <div class="container">
-      [% step = 4 %]
       [% INCLUDE wizard/tracker.inc %]
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] [% step %]</h1>
+            <h1>[% l('Step') %] [% step_index %]</h1>
           </div>
         </div>
         <div class="span9">
@@ -66,7 +65,7 @@
             </div>
             <fieldset>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step5') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+              <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
             </div>
             </fieldset>
             </form>
@@ -78,4 +77,4 @@
     </div><!--/container-->
 
 [% INCLUDE wizard/footer.inc
-    jsFiles = ['config'] %]
+    jsFiles = ['configuration'] %]

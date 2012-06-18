@@ -41,12 +41,11 @@
     </div>
 
     <div class="container">
-      [% step = 3 %]
       [% INCLUDE wizard/tracker.inc %]
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] [% step %]</h1>
+            <h1>[% l('Step') %] [% step_index %]</h1>
           </div>
         </div>
         <div class="span9">
@@ -83,42 +82,42 @@
             <div class="control-group">
               <label class="control-label" for="database">[% l('Name') %]</label>
               <div class="controls">
-                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF c.session.completed.step3 %] disabled=""[% END %]>
+                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
-            <div class="control-group[% IF c.session.completed.step3 %] success[% END %]">
+            <div class="control-group[% IF c.session.completed.database %] success[% END %]">
               <div class="controls">
-                <button type="submit" class="btn btn-primary[% IF c.session.completed.step3 %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</button>
-                [% IF c.session.completed.step3 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.database %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</button>
+                [% IF c.session.completed.database %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
             <h3>Create a PacketFence account</h3>
             <div class="control-group">
               <label class="control-label" for="pf_user">[% l('Username') %]</label>
               <div class="controls">
-                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF c.session.completed.step3 %] disabled=""[% END %]>
+                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="pf_password">[% l('Password') %]</label>
               <div class="controls">
-                <input name="database.pass" class="text" type="password"[% IF c.session.completed.step3 %] disabled=""[% END %]>
+                <input name="database.pass" class="text" type="password"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.step3 %] disabled=""[% END %]>
+                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
-            <div class="control-group[% IF c.session.completed.step3 %] success[% END %]">
+            <div class="control-group[% IF c.session.completed.database %] success[% END %]">
               <div class="controls">
-                <button type="submit" class="btn btn-primary[% IF c.session.completed.step3 %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</button>
-                [% IF c.session.completed.step3 %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.database %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</button>
+                [% IF c.session.completed.database %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
             <fieldset>
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary pull-right" href="[% c.uri_for('step4') %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+                <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
               </div>
             </fieldset>
           </form>

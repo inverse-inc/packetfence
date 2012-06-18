@@ -24,12 +24,11 @@
     </div>
 
     <div class="container">
-      [% step = 6 %]
       [% INCLUDE wizard/tracker.inc %]
       <div class="row">
         <div class="span3">
           <div class="page-header step">
-            <h1>[% l('Step') %] [% step %]</h1>
+            <h1>[% l('Step') %] [% step_index %]</h1>
           </div>
         </div>
         <div class="span9">
@@ -73,7 +72,7 @@
           <form class="form-horizontal">
             <fieldset>
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% c.uri_for('step6') %]">Start PacketFence</button>
+              <button type="submit" class="btn btn-primary pull-right[% UNLESS completed %] disabled[% END %]" href="[% next_step %]">Start PacketFence</button>
             </div>
             </fieldset>
           </form>
