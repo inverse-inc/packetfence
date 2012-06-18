@@ -124,7 +124,7 @@ sub field_order {
         if ($resource =~ /^$uiconfig->{$section}->{command}/) {
 
             foreach my $val ( split( /\s*,\s*/, $uiconfig->{$section}->{'display'} ) ) {
-                $val =~ s/-//;
+                $val =~ s/^-//;
                 push @fields, $val;
             }
             last;
