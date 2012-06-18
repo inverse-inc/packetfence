@@ -1,3 +1,104 @@
+commit 7004ef85c89c14107b09e93685574459cecc33b3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Jun 18 11:15:22 2012 -0400
+
+    transifex synx: pt_BR
+
+M	NEWS
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+
+commit 44f98136b41a7b743d93a5fd0db0cd1e420fcdf5
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Jun 18 10:54:49 2012 -0400
+
+    NEWS entry for fix in revno 19fe432c
+
+M	NEWS
+
+commit c976a07ff6f253026cdb95efb123d2f828138339
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Jun 18 10:26:29 2012 -0400
+
+    Fix in Load-Balancer support feature
+    
+    Apache Access List are now updated to allow them to reach the portal.
+
+M	NEWS
+M	conf/httpd.conf.d/captive-portal-common.conf
+M	lib/pf/services/apache.pm
+
+commit c83365af97b9f4d5737205342093c2134e5778b2
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Jun 18 10:21:27 2012 -0400
+
+    introduced loadbalanced_combined LogFormat
+    
+    Makes it easier for people to have client IP in apache logs. I decided
+    against integrating it by default because it breaks from the well-known
+    combined (and well parsed) LogFormat. I think this is a good compromise
+    considering the corner use-case and the fact that I documented it in the
+    parameter.
+
+M	conf/documentation.conf
+M	conf/httpd.conf.apache22
+M	conf/pf.conf.defaults
+
+commit 785324c910808542ad1b6c4d50cb3606368091e4
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 15 14:53:03 2012 -0400
+
+    fixed regression in Web Admin and CLI (#1468)
+    
+    Affecting interface, network, floating-device and violation management in
+    Web Admin and CLI.
+    
+    Introduced when we consolidated the display of fields with field_order in
+    a9a37dda1f1d285a5b6e24164386de742a02ec9c.
+    
+    http://packetfence.org/bugs/view.php?id=1468
+
+M	NEWS
+M	bin/pfcmd
+
+commit 35dba50bb25eed72a4ff9957f5c05ce11d54f461
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Jun 15 14:45:06 2012 -0400
+
+    bugfix: field_order's too aggressive s/-//
+    
+    Long standing issue in field_order highlighted by our latest consolidation
+    behind it. It has been buggy since all available history...
+
+M	bin/pfcmd
+
+commit 19fe432c00672975afbeca09cf9cef68296c5c31
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 15 10:02:28 2012 -0400
+
+    Missing libtext-csv-perl dependencie for captiv portal
+
+M	debian/control
+
+commit 775f5fe7711de62a0e70d7e244a9cecc9744d7d5
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 15:13:41 2012 -0400
+
+    package fix
+
+M	debian/control
+
+commit 48bb9f9c3c6cbce23937454552d1dbe939d1248d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 13 14:11:47 2012 -0400
+
+    version bump
+
+M	ChangeLog
+M	NEWS
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	debian/changelog
+
 commit f44e4b9d27782a9e5310d1ead21de4e6a175ea41
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Wed Jun 13 13:58:45 2012 -0400
