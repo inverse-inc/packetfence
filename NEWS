@@ -18,6 +18,7 @@ Version <stable-version> released on <releaseDate>
 Bug Fixes
  * Regression in interface, network, floating-device and violation management Admin and CLI (#1468)
  * Load-balancer support: Apache Access List are now updated to allow them to reach the portal
+ * Debian: missing dependency preventing Apache (captive portal, webadmin) to start
 
 --------------------------------------------------------------------------------
 Version 3.4.0 released on 2012-06-13
