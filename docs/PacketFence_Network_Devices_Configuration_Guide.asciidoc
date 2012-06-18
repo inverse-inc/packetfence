@@ -130,6 +130,7 @@ PacketFence supports the following devices:
 |Meru             |MC Series                   |Meru::MC
 |Motorola         |RF Switches                 |Motorola::RFS
 |Netgear          |FSM726v1                    |Netgear::FSM726v1
+|                 |GS110                       |Netgear::GS110
 |Nortel           |BPS2000                     |Nortel::BPS2000
 |                 |ERS 2500  Series            |Nortel::ERS2500
 |                 |ERS 4000 Series             |Nortel::ERS4000
@@ -1814,6 +1815,10 @@ On each interface
 Netgear
 ~~~~~~~
 
+The "web-managed smart switch" models GS108Tv2/GS110/GS110TP are supported with Link up/down traps only.
+
+Higher-end "fully managed" switches including FSM726v1 are supported in Port Security mode.
+
 FSM726 / FSM726S version 1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1839,6 +1844,66 @@ Under *Advanced -> Advanced Security -> Trusted MAC Address*, create a fake MAC 
   
 Don't forget to save the configuration!
 
+GS108Tv2 / GS110T / GS110TP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionnality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
+
+[float]
+Switch Configuration
+++++++++++++++++++++
+
+It can be difficult to find the advanced features in the web GUI. We recommend using the GUI "Maintenance" tab to Upload the configuration to a file, and then edit it there.
+
+Hints on file upload/download:
+
+From the File Type menu, choose Text Configuration.
+
+If you're uploading to the TFTP root directory, leave Path blank.
+
+At the top of the config file, you need:
+
+  vlan database
+  vlan 1,2,3,4,5
+  vlan name 1 "Normal"
+  vlan name 2 "Registration"
+  vlan name 3 "Isolation"
+  vlan name 4 "MAC Detection"
+  vlan name 5 "Guest"
+  exit
+
+In the same section as "users passwd", you need to specify your PacketFence server's management address:
+
+  snmptrap useStrongerSecret ipaddr 192.168.1.5
+
+In the same section as the "voip oui" lines, you need to allow your SNMP server:
+
+  snmp-server community "public"
+  snmp-server community rw useStrongerSecret
+  snmp-server community ipaddr 192.168.1.5 public
+  snmp-server community ipmask 255.255.255.0 public
+  no voip vlan
+
+You should use port 1 as the uplink. If you connect port 1 of a GS108Tv2 switch into a Power over Ethernet switch, then the GS108Tv2 does not need AC power. If you bought GS110T(P) switches, presumably it's for the SFP uplink option. You'll want to configure both port 1 and the SFP ports 9-10 as trunks:
+
+  interface 0/1
+  no snmp trap link-status
+  ip dhcp filtering trust
+  vlan pvid 1
+  vlan ingressfilter
+  vlan participation include 1,2,3,4,5
+  vlan tagging 2,3,4,5
+  no auto-voip
+  exit
+
+Each user-facing, PacketFence-managed port should be configured like:
+
+  interface 0/2
+  vlan pvid 4
+  vlan ingressfilter
+  vlan participation include 4
+  no auto-voip
+  exit
 
 Nortel
 ~~~~~~
