@@ -75,7 +75,7 @@ form[name="enforcement"] .table .graph {
 #interfaces table {
     margin-top: 20px;
 }
-#interfaces td span.badge {
+#interfaces td span.label {
     float: right;
 }
 #interfaces .btn-toggle {

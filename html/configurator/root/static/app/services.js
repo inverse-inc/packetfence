@@ -10,9 +10,9 @@ function registerExits() {
 
 function saveStep(href) {
 
-    $('table .badge').each(function(index, event) {
+    $('table .label').each(function(index, event) {
         $(this).fadeIn().delay(100*index).fadeOut('fast', function(event) {
-            $(this).text('Starting').removeClass('badge-error badge-success').addClass('badge-warning');
+            $(this).text('Starting').removeClass('label-error label-success').addClass('label-warning');
         }).fadeIn('fast');
     });
 
@@ -38,14 +38,14 @@ function servicesUpdate(data) {
         // identify services that didn't start and set failure flag
         if (data.services[service] == "0") {
             $('#service-' + service).fadeOut('fast', function(event) {
-                $(this).text('Stopped').removeClass('badge-success badge-warning').addClass('badge-important');
+                $(this).text('Stopped').removeClass('label-success label-warning').addClass('label-important');
             }).fadeIn();
             startFailed = true;
         }
         // identify started services
         else {
             $('#service-' + service).fadeOut('fast', function(event) {
-                $(this).text('Started').removeClass('badge-error badge-warning').addClass('badge-success');
+                $(this).text('Started').removeClass('label-error label-warning').addClass('label-success');
             }).fadeIn();
         }
     }
@@ -60,9 +60,9 @@ function servicesUpdate(data) {
 }
 
 function servicesError() {
-    $('table .badge').each(function(index, event) {
+    $('table .label').each(function(index, event) {
         $(this).fadeIn().delay(100*index).fadeOut('fast', function(event) {
-            $(this).text('Unknown').removeClass('badge-error badge-success').addClass('badge-warning');
+            $(this).text('Unknown').removeClass('label-error label-success').addClass('label-warning');
         }).fadeIn('fast');
     });
 }

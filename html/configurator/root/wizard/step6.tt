@@ -64,7 +64,7 @@
               <tr>
                 <td>[% service %]</td>
                 <td><span id="service-[% service %]"
-                  class="badge[% IF services_status.$service %] badge-success[% END %]">
+                  class="label[% IF services_status.$service %] label-success[% END %]">
                   [%- IF services_status.$service %]Started[%- ELSE -%]Stopped[% END -%]</span></td>
               </tr>
               [%- END %]

@@ -1,7 +1,7 @@
 [% PROCESS macros.inc -%]
            [% FOREACH i IN interfaces.keys.sort %]
             <tr>
-              <td>[% interfaces.$i.name %][% IF interfaces.$i.vlan %] <span class="badge">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
+              <td>[% interfaces.$i.name %][% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
               <td>[% interfaces.$i.ipaddress %]</td>
               <td>[% interfaces.$i.netmask %]</td>
               <td>[% IF interfaces.$i.running %]<a class="btn btn-mini btn-success btn-toggle" toggle-hover="Disable" toggle-hover-else="Enable" toggle-value="Disabled" toggle-value-else="Enabled" interface="[% i %]" toggle-href="#down" href="#up">Enabled</a>[% ELSE %]<a class="btn btn-mini btn-toggle" toggle-hover="Enable" toggle-hover-else="Disable" toggle-value="Enabled" toggle-value-else="Disabled" interface="[% i %]" toggle-href="#up" href="#down">Disabled</a>[% END %]</td>
