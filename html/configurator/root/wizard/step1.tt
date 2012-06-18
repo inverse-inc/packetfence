@@ -37,7 +37,7 @@
           <div class="form-horizontal">
             <form name="enforcement">
               <h3>Enforcement Mechanisms</h3>
-              <table class="table table-bordered">
+              <table class="table">
                 <thead>
                   <tr>
                     <th width="50%">
