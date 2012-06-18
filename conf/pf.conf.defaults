@@ -706,7 +706,10 @@ network_detection_ip = 67.205.85.245
 # in this parameter you must specify the IP of the various load balancers.
 # This will instruct the captive portal to look for client IPs in the 
 # X-Forwarded-For instead of the actual TCP session when it matches an IP
-# in the list. Format is a comma separated list of IPs.
+# in the list. Format is a comma separated list of IPs. Note: Apache access
+# log format is not changed to automatically log the X-Forwarded-By header.
+# Modify conf/httpd.conf.d/captive-portal-common.conf to use 
+# loadbalanced_combined instead of combined in CustomLog statement.
 loadbalancers_ip=
 
 [advanced]
