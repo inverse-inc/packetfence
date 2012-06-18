@@ -1882,6 +1882,8 @@ In the same section as the "voip oui" lines, you need to allow your SNMP server:
   snmp-server community rw useStrongerSecret
   snmp-server community ipaddr 192.168.1.5 public
   snmp-server community ipmask 255.255.255.0 public
+  snmp-server community ipaddr 192.168.1.5 useStrongerSecret
+  snmp-server community ipmask 255.255.255.0 useStrongerSecret
   no voip vlan
 
 You should use port 1 as the uplink. If you connect port 1 of a GS108Tv2 switch into a Power over Ethernet switch, then the GS108Tv2 does not need AC power. If you bought GS110T(P) switches, presumably it's for the SFP uplink option. You'll want to configure both port 1 and the SFP ports 9-10 as trunks:
