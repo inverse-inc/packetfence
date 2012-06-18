@@ -46,6 +46,7 @@ sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
     if( $c->stash->{installation_type} eq 'configuration' ) {
         my $admin_ip    = $c->model('PfConfigAdapter')->getWebAdminIp();
         my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
+        $c->log->info("Redirecting to admin interface https://$admin_ip:$admin_port");
         $c->response->redirect("https://$admin_ip:$admin_port");
     }
     if (scalar($c->session->{enforcements}) == 0) {
@@ -471,9 +472,16 @@ sub step6 :Chained('object') :PathPart('step6') :Args(0) {
         else {
             my ($status, $services_status) = $c->model('Services')->status();
             if ( is_success($status) ) {
-                $c->model('Wizard')->update_currently_at();
                 $c->log->info("successfully listed services");
                 $c->stash->{'services'} = $services_status;
+                # a service has failed to start if its status is 0
+                my $start_failed = scalar(grep {$_ == 0} values %{$services_status}) > 0;
+                if ($start_failed) {
+                    $c->log->warn("some services were not started");
+                }
+                else {
+                    $c->model('Wizard')->update_currently_at();
+                }
             }
             else {
                 $c->response->status($status);
