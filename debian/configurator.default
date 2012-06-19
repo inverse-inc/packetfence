@@ -1,4 +1,0 @@
-### /etc/default/configurator
-# export CONFIGURATOR_ENGINE=HTTP::Prefork
-# export CONFIGURATOR_DEBUG=1
-# export DBIC_TRACE=1

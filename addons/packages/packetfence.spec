@@ -684,7 +684,7 @@ fi
 %config                 /usr/local/pf/html/captive-portal/wispr/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
-                        /usr/local/pf/html/configurator/
+                        /usr/local/pf/html/pfappserver/
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
                         /usr/local/pf/lib
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm

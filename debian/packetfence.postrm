@@ -33,7 +33,7 @@ case "$1" in
     purge)
         # removing init scripts
         update-rc.d packetfence remove >/dev/null || exit 0
-        update-rc.d configurator remove >/dev/null || exit 0
+        update-rc.d pfappserver remove >/dev/null || exit 0
         # purging all files
         rm -fr /usr/local/pf
         ;;

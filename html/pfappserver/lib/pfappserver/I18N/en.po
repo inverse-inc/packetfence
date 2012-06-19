@@ -1,0 +1,138 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Francis Lachapelle <flachapelle@inverse.ca>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2012-05-24 10:47-0400\n"
+"Last-Translator: Francis Lachapelle <flachapelle@inverse.ca>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: root/interface/get.tt:12
+msgid "inline"
+msgstr "Inline"
+
+#: root/interface/get.tt:12
+msgid "management"
+msgstr "Management"
+
+#: root/interface/get.tt:12
+msgid "other"
+msgstr "Other"
+
+#: root/interface/get.tt:12
+msgid "vlan-isolation"
+msgstr "Isolation"
+
+#: root/interface/get.tt:12
+msgid "vlan-registration"
+msgstr "Registration"
+
+#: root/wizard/step1.tt:119
+msgid "Actions"
+msgstr ""
+
+#: root/interface/get.tt:22
+msgid "Add VLAN"
+msgstr ""
+
+#: root/wizard/step1.tt:26 root/wizard/step1.tt:61
+msgid "Cancel"
+msgstr ""
+
+#: root/wizard/step1.tt:134 root/wizard/step2.tt:90
+msgid "Continue"
+msgstr ""
+
+#: root/wizard/step1.tt:62
+msgid "Create"
+msgstr ""
+
+#: root/wizard/step2.tt:60
+msgid "Create database, tables and indexes"
+msgstr ""
+
+#: root/wizard/step2.tt:84
+msgid "Create user"
+msgstr ""
+
+#: root/wizard/step2.tt:51
+msgid "Database"
+msgstr ""
+
+#: root/wizard/step1.tt:125
+msgid "Default Gateway"
+msgstr ""
+
+#: root/interface/get.tt:19
+msgid "Delete"
+msgstr ""
+
+#: root/interface/get.tt:18 root/interface/get.tt:21
+msgid "Edit"
+msgstr ""
+
+#: root/wizard/step1.tt:119 root/wizard/step1.tt:12 root/wizard/step1.tt:47
+msgid "IP Address"
+msgstr ""
+
+#: root/wizard/step2.tt:53
+msgid "Name"
+msgstr ""
+
+#: root/wizard/step1.tt:119 root/wizard/step1.tt:18 root/wizard/step1.tt:53
+msgid "Netmask"
+msgstr ""
+
+#: root/wizard/step1.tt:115
+msgid "Network Interfaces"
+msgstr ""
+
+#: root/wizard/step2.tt:45 root/wizard/step2.tt:72
+msgid "Password"
+msgstr ""
+
+#: root/wizard/step1.tt:27
+msgid "Save changes"
+msgstr ""
+
+#: root/wizard/step1.tt:119
+msgid "Status"
+msgstr ""
+
+#: root/wizard/step1.tt:81 root/wizard/step2.tt:18
+msgid "Step"
+msgstr ""
+
+#: root/wizard/step2.tt:61 root/wizard/step2.tt:85
+msgid "Success!"
+msgstr ""
+
+#: root/wizard/step2.tt:48
+msgid "Test"
+msgstr ""
+
+#: root/wizard/step1.tt:119
+msgid "Type"
+msgstr ""
+
+#: root/wizard/step2.tt:39 root/wizard/step2.tt:66
+msgid "Username"
+msgstr ""
+
+#: root/wizard/step1.tt:40
+msgid "Virtual LAN ID"
+msgstr ""
+
+#. (join(", ", @missing)
+#: lib/pfappserver/Controller/Wizard.pm:79
+msgid "You must assign an interface to the following types: %1"
+msgstr ""
