@@ -33,19 +33,19 @@ sub new {
     my $this = bless {}, $class;
 
     # default values
-    $this->{'_profile'} = 'default';
+    $this->{'_name'} = 'default';
 
     return $this;
 }
 
-=item getProfile
+=item getName
 
 Returns the name of the captive portal profile.
 
 =cut
-sub getProfile {
+sub getName {
     my ($self) = @_;
-    return $self->{'_profile'};
+    return $self->{'_name'};
 }
 
 =back
