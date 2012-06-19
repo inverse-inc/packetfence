@@ -18,6 +18,8 @@ use warnings;
 
 use Log::Log4perl;
 
+use pf::config;
+
 =head1 METHODS
 
 =over
@@ -46,6 +48,16 @@ Returns the name of the captive portal profile.
 sub getName {
     my ($self) = @_;
     return $self->{'_name'};
+}
+
+=item getLogo
+
+Returns the logo for the current captive portal profile.
+
+=cut
+sub getLogo {
+    # XXX hardcoded for now: proof of concept
+    return $Config{'general'}{'logo'};
 }
 
 =back

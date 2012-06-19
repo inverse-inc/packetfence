@@ -22,6 +22,7 @@ use CGI::Session;
 use Log::Log4perl;
 
 use pf::iplog qw(ip2mac);
+use pf::Portal::Profile;
 # TODO we should aim to get rid of these deps (see other TODO tasks in _initialize)
 use pf::web;
 # called last to allow redefinitions
@@ -48,6 +49,9 @@ sub new {
 =item _initialize
 
 =cut
+# Warning: this task must be the least expensive possible since it will be
+# run on every portal hit. We should profile then re-architect to store
+# in session expensive components to look for.
 sub _initialize {
     my ($self) = @_;
 
@@ -62,6 +66,8 @@ sub _initialize {
 
     # TODO inline this work here once there's no other pf::web::get_destination_url callers
     $self->{'_destination_url'} = pf::web::get_destination_url($self->getCgi);
+
+    $self->{'_profile'} = pf::Portal::Profile->new();
 }
 
 =item getCgi
@@ -115,6 +121,16 @@ Returns the original destination URL requested by the client.
 sub getDestinationUrl {
     my ($self) = @_;
     return $self->{'_destination_url'};
+}
+
+=item getProfile
+
+Returns the proper captive portal profile for the current session.
+
+=cut
+sub getProfile {
+    my ($self) = @_;
+    return $self->{'_profile'};
 }
 
 =back
