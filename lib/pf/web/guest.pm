@@ -529,9 +529,11 @@ Sub to present a login form. Template is provided as a parameter.
 sub generate_custom_login_page {
     my ( $cgi, $session, $err, $html_template ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
+
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $ip   = $cgi->remote_addr;
@@ -546,7 +548,7 @@ sub generate_custom_login_page {
     $vars->{'username'} = encode_entities($cgi->param("username"));
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process($html_template, $vars);
+    $template->process($html_template, $vars) || $logger->error($template->error());
     exit;
 }
 
@@ -659,7 +661,7 @@ sub preregister_multiple {
 =cut
 sub generate_registration_confirmation_page {
     my ( $cgi, $session, $info ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -690,7 +692,8 @@ sub generate_registration_confirmation_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process($pf::web::guest::REGISTRATION_CONFIRMATION_TEMPLATE, $vars);
+    $template->process($pf::web::guest::REGISTRATION_CONFIRMATION_TEMPLATE, $vars)
+        || $logger->error($template->error());
     exit;
 }
 
@@ -748,7 +751,7 @@ sub generate_sms_confirmation_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $template->process( 'guest/sms_confirmation.html' , $vars );
+    $template->process( 'guest/sms_confirmation.html' , $vars ) || $logger->error($template->error());
     exit;
 }
 

@@ -245,6 +245,7 @@ sub generate_apple_mobileconfig_provisioning_xml {
 
 sub generate_scan_start_page {
     my ( $cgi, $session, $destination_url, $r ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -269,7 +270,7 @@ sub generate_scan_start_page {
     # Once the progress bar is over, try redirecting
     my $html_txt;
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "scan.html", $vars, \$html_txt );
+    $template->process( "scan.html", $vars, \$html_txt ) || $logger->error($template->error());
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
         -cookie         => $cookie,
@@ -282,9 +283,12 @@ sub generate_scan_start_page {
 
 sub generate_login_page {
     my ( $cgi, $session, $destination_url, $mac, $err ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $ip = get_client_ip($cgi);
     my $vars = {
         i18n            => \&i18n,
@@ -310,15 +314,18 @@ sub generate_login_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "login.html", $vars );
+    $template->process( "login.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
 sub generate_enabler_page {
     my ( $cgi, $session, $destination_url, $violation_id, $enable_text ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $vars = {
         logo            => $Config{'general'}{'logo'},
         destination_url => encode_entities($destination_url),
@@ -331,7 +338,7 @@ sub generate_enabler_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
-    $template->process( "enabler.html", $vars );
+    $template->process( "enabler.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
@@ -365,9 +372,12 @@ Called when someone clicked on /aup which is the pop=up URL for mobile phones.
 =cut
 sub generate_aup_standalone_page {
     my ( $cgi, $session, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $ip = get_client_ip($cgi);
     my $vars = {
         logo            => $Config{'general'}{'logo'},
@@ -381,14 +391,15 @@ sub generate_aup_standalone_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], }
-    );
-    $template->process( "aup.html", $vars );
+    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
+    $template->process( "aup.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
 sub generate_scan_status_page {
     my ( $cgi, $session, $scan_start_time, $destination_url, $r ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     my $refresh_timer = 10; # page will refresh each 10 seconds
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
@@ -414,14 +425,17 @@ sub generate_scan_status_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "scan-in-progress.html", $vars, $r );
+    $template->process( "scan-in-progress.html", $vars, $r ) || $logger->error($template->error());
 }
 
 sub generate_error_page {
     my ( $cgi, $session, $error_msg, $r ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $vars = {
         logo => $Config{'general'}{'logo'},
         i18n => \&i18n,
@@ -440,12 +454,13 @@ sub generate_error_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "error.html", $vars, $r );
+    $template->process( "error.html", $vars, $r ) || $logger->error($template->error());
 }
 
 # ugly hack - fix me!
 sub generate_status_page {
     my ( $cgi, $session, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $node_info = node_attributes($mac);
     if ( $session->param("username") ne $node_info->{'pid'} ) {
@@ -501,7 +516,7 @@ sub generate_status_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "status.html", $vars );
+    $template->process( "status.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
@@ -651,7 +666,8 @@ sub web_user_authenticate {
 
 sub generate_registration_page {
     my ( $cgi, $session, $destination_url, $mac, $pagenumber ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     $pagenumber = 1 if (!defined($pagenumber));
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
@@ -695,7 +711,7 @@ sub generate_registration_page {
     }
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "register.html", $vars );
+    $template->process( "register.html", $vars ) || $logger->error($template->error());
     exit;
 }
 
@@ -706,9 +722,12 @@ Shows a page to user saying registration is pending.
 =cut
 sub generate_pending_page {
     my ( $cgi, $session, $destination_url, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $ip = $cgi->remote_addr;
     my $vars = {
         logo            => $Config{'general'}{'logo'},
@@ -733,7 +752,7 @@ sub generate_pending_page {
     print $cgi->header( -cookie => $cookie );
 
     my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process("pending.html", $vars);
+    $template->process("pending.html", $vars) || $logger->error($template->error());
     exit;
 }
 
