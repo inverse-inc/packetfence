@@ -48,6 +48,14 @@ my @steps = (
 
 =over
 
+=item end
+
+=cut
+sub end : ActionClass('RenderView') {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_view} = 'Configurator';
+}
+
 =item index
 
 =cut

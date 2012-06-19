@@ -1,14 +1,4 @@
-[% PROCESS wizard/header.inc %]
-
-    <div id="navbar" class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
-          <h6 class="pull-right">Configuration Wizard</h6>
-          </div>
-      </div>
-    </div>
-
+[% jsFiles = ['admin'] -%]
     <div class="container">
       [% INCLUDE wizard/tracker.inc %]
       <div class="row">
@@ -71,6 +61,3 @@
         <p>&copy; Inverse 2012</p>
       </footer>
     </div><!--/container-->
-
-[% INCLUDE wizard/footer.inc
-    jsFiles = ['admin'] %]

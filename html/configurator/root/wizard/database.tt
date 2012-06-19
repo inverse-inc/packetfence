@@ -1,5 +1,4 @@
-[% PROCESS wizard/header.inc %]
-
+[% jsFiles = ['database'] -%]
  <!-- root password reset -->
   <div class="modal fade hide" id="modalRootPassword">
     <div class="modal-header">
@@ -30,15 +29,6 @@
         <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
       </div>
   </div>
-
-    <div id="navbar" class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
-          <h6 class="pull-right">Configuration Wizard</h6>
-          </div>
-      </div>
-    </div>
 
     <div class="container">
       [% INCLUDE wizard/tracker.inc %]
@@ -127,6 +117,3 @@
         <p>&copy; Inverse 2012</p>
       </footer>
     </div><!--/container-->
-
-[% INCLUDE wizard/footer.inc
-    jsFiles = ['database'] %]

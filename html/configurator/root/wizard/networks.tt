@@ -1,5 +1,4 @@
-[% PROCESS wizard/header.inc -%]
-
+[% jsFiles = ['networks'] -%]
 <!-- interface editor -->
     <div class="modal fade hide" id="modalEditInterface">
       <div class="modal-header">
@@ -60,15 +59,6 @@
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
         <button type="submit" class="btn btn-primary">[% l('Create') %]</button>
-      </div>
-    </div>
-
-    <div id="navbar" class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
-          <h6 class="pull-right">Configuration Wizard</h6>
-        </div>
       </div>
     </div>
 
@@ -137,6 +127,3 @@
         <p>&copy; Inverse 2012</p>
       </footer>
     </div><!--/container-->
-
-[% INCLUDE wizard/footer.inc
-    jsFiles = ['networks'] -%]
