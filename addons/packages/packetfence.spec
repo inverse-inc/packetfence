@@ -54,7 +54,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 %global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd, rpm-macros-rpmforge
+BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -699,9 +699,16 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
 %dir                    /usr/local/pf/logs
 # logfiles
-for LOG in %logfiles; do
-%ghost                  %logdir/$LOG
-done
+%ghost                  %logdir/packetfence.log
+%ghost                  %logdir/snmptrapd.log
+%ghost                  %logdir/access_log
+%ghost                  %logdir/error_log
+%ghost                  %logdir/admin_access_log
+%ghost                  %logdir/admin_error_log
+%ghost                  %logdir/admin_debug_log
+%ghost                  %logdir/pfdetect
+%ghost                  %logdir/pfmon
+%ghost                  %logdir/pfredirect
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
