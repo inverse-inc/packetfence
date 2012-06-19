@@ -115,6 +115,37 @@ sub web_get_locale {
     return $authorized_locale_array[0];
 }
 
+=item _render_template
+
+Cuts in the session cookies and template rendering boiler plate.
+
+=cut
+sub _render_template {
+    my ($portalSession, $template, $vars_ref, $r) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    # so that we will get the calling sub in the logs instead of this utility sub
+    local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
+
+    # add generic components to template's vars
+    $vars_ref->{'logo'} = $portalSession->getProfile->getLogo;
+    $vars_ref->{'i18n'} = \&i18n;
+    $vars_ref->{'i18n_format'} = \&i18n_format;
+
+    my $cgi = $portalSession->getCgi;
+    my $session = $portalSession->getSession;
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+
+    $logger->debug("rendering template named $template");
+    my $tt = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    $tt->process( $template, $vars_ref, $r ) || do {
+        $logger->error($tt->error());
+        return $FALSE;
+    };
+    return $TRUE;
+}
+
 sub generate_release_page {
     my ( $cgi, $session, $destination_url, $mac, $r ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
