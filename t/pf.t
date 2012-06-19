@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 72;
+use Test::More tests => 74;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -42,6 +42,8 @@ BEGIN { use_ok('pf::pfcmd::graph') }
 BEGIN { use_ok('pf::pfcmd::help') }
 BEGIN { use_ok('pf::pfcmd::pfcmd') }
 BEGIN { use_ok('pf::pfcmd::report') }
+BEGIN { use_ok('pf::Portal::Profile') }
+BEGIN { use_ok('pf::Portal::Session') }
 BEGIN { use_ok('pf::radius') }
 BEGIN { use_ok('pf::radius::constants') }
 BEGIN { use_ok('pf::radius::custom') }
