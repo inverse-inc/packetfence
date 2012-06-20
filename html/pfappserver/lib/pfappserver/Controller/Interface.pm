@@ -142,8 +142,8 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
     $c->stash(types => $c->model('Enforcement')->getAvailableTypes([ keys %{$c->session->{'enforcements'}} ]));
     my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($c->stash->{interfaces});
     if (is_success($status)) {
-        my $wizardController = $c->controller('Wizard');
-        $c->stash(interfaces_types => $wizardController->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types));
+        my $configuratorController = $c->controller('Configurator');
+        $c->stash(interfaces_types => $configuratorController->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types));
     }
     $c->stash->{current_view} = 'HTML';
 }

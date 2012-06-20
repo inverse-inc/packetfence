@@ -14,7 +14,7 @@
   </div>
 
     <div class="container">
-      [% INCLUDE wizard/tracker.inc %]
+      [% INCLUDE configurator/tracker.inc %]
       <div class="row">
         <div class="span3">
           <div class="page-header step">

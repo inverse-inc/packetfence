@@ -1,8 +1,8 @@
-package pfappserver::Model::Wizard;
+package pfappserver::Model::Configurator;
 
 =head1 NAME
 
-pfappserver::Model::Wizard - Catalyst Model
+pfappserver::Model::Configurator - Catalyst Model
 
 =head1 DESCRIPTION
 

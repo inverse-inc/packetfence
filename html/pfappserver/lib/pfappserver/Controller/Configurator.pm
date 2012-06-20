@@ -1,8 +1,8 @@
-package pfappserver::Controller::Wizard;
+package pfappserver::Controller::Configurator;
 
 =head1 NAME
 
-pfappserver::Controller::Wizard - Catalyst Controller
+pfappserver::Controller::Configurator - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -67,13 +67,13 @@ sub index :Path :Args(0) {
 
 =item object
 
-Wizard controller dispatcher
+Configurator controller dispatcher
 
 =cut
-sub object :Chained('/') :PathPart('wizard') :CaptureArgs(0) {
+sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    $c->stash->{installation_type} = $c->model('Wizard')->checkForUpgrade();
+    $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
     if( $c->stash->{installation_type} eq 'configuration' ) {
         my $admin_ip    = $c->model('PfConfigAdapter')->getWebAdminIp();
         my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
@@ -468,7 +468,7 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
             ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if ( is_success($status) ) {
-            ($status, $message) = $c->model('Wizard')->createAdminUser($admin_user, $admin_password);
+            ($status, $message) = $c->model('Configurator')->createAdminUser($admin_user, $admin_password);
         }
         if ( is_success($status) ) {
             $c->session(admin_user => $admin_user);
@@ -551,7 +551,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
                     $c->log->warn("some services were not started");
                 }
                 else {
-                    $c->model('Wizard')->update_currently_at();
+                    $c->model('Configurator')->update_currently_at();
                 }
             }
             else {

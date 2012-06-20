@@ -8,7 +8,7 @@ extends 'Catalyst::View::TT';
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
-    WRAPPER => 'wizard/wrapper.tt',
+    WRAPPER => 'configurator/wrapper.tt',
     PRE_PROCESS => 'macros.inc',
     render_die => 1,
 );
