@@ -26,18 +26,24 @@ use pf::config;
 
 =item new
 
+No one should call ->new by himself. L<pf::Portal::ProfileFactory> should
+be used instead.
+
 =cut
 sub new {
-    my ( $class, %argv ) = @_;
+    my ( $class, $args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
-    my $this = bless {}, $class;
+    # XXX if complex init is required, it should be done in a sub and the 
+    # below should be kept for the simple parameters using an hashref slice
 
-    # default values
-    $this->{'_name'} = 'default';
+    # prepending all parameters in hashref with _ (ex: logo => a.jpg becomes _logo => a.jpg)
+    %$args_ref = map { '_'.$_ => $args_ref->{$_} } keys %$args_ref;
 
-    return $this;
+    my $self = bless $args_ref, $class;
+
+    return $self;
 }
 
 =item getName
@@ -56,9 +62,11 @@ Returns the logo for the current captive portal profile.
 
 =cut
 sub getLogo {
-    # XXX hardcoded for now: proof of concept
-    return $Config{'general'}{'logo'};
+    my ($self) = @_;
+    return $self->{'_logo'};
 }
+
+# XXX add additional getters consumed by the portal
 
 =back
 

@@ -22,7 +22,7 @@ use CGI::Session;
 use Log::Log4perl;
 
 use pf::iplog qw(ip2mac);
-use pf::Portal::Profile;
+use pf::Portal::ProfileFactory;
 # TODO we should aim to get rid of these deps (see other TODO tasks in _initialize)
 use pf::web;
 # called last to allow redefinitions
@@ -67,7 +67,8 @@ sub _initialize {
     # TODO inline this work here once there's no other pf::web::get_destination_url callers
     $self->{'_destination_url'} = pf::web::get_destination_url($self->getCgi);
 
-    $self->{'_profile'} = pf::Portal::Profile->new();
+    # XXX pass mac here
+    $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate();
 }
 
 =item getCgi
