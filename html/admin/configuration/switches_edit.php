@@ -124,6 +124,7 @@
                            'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL Series',
                            'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
                            'Cisco::Catalyst_3560' => 'Cisco Catalyst 3560',
+                           'Cisco::Catalyst_3560G' => 'Cisco Catalyst 3560G',
                            'Cisco::Catalyst_3750' => 'Cisco Catalyst 3750',
                            'Cisco::Catalyst_4500' => 'Cisco Catalyst 4500 Series',
                            'Cisco::Catalyst_6500' => 'Cisco Catalyst 6500 Series',

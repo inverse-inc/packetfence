@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>
 
+New Hardware
+ * Adding support for Cisco Catalyst 3560G
+
 --------------------------------------------------------------------------------
 Version 3.4.1 released on 2012-06-18
 
