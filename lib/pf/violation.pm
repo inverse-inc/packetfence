@@ -403,13 +403,6 @@ sub violation_trigger {
         return 0;
     }
 
-    # if we were given an IP as additionnal violation trigger info
-    # test whether this ip is trappable or not
-    if (defined($data{ip}) && !trappable_ip($data{ip})) {
-        $logger->info("violation not added, IP ".$data{ip}." is not trappable! trigger ${type}::${tid}, MAC: $mac");
-        return 0;
-    }
-
     require pf::trigger;
     my @trigger_info = pf::trigger::trigger_view_enable( $tid, $type );
     if ( !scalar(@trigger_info) ) {
@@ -560,7 +553,9 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

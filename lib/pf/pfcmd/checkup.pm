@@ -147,7 +147,7 @@ sub interfaces_defined {
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
 
         if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /$int_with_no_config_required_regexp/) {
-            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'} || !defined $int_conf{'gateway'}) {
+            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
@@ -183,13 +183,11 @@ sub interfaces {
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
-        if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'}
-            && $Config{$device}{'gateway'} && $Config{$device}{'type'})
-            && !$seen{$interface}) {
-                add_problem( $FATAL, 
-                    "Incomplete network information for $device. " .
-                    "IP, network mask, gateway and type required."
-                );
+        if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'} && $Config{$device}{'type'}) && !$seen{$interface}) {
+            add_problem( $FATAL, 
+                "Incomplete network information for $device. " .
+                "IP, network mask and type required."
+            );
         }
         $seen{$interface} = 1;
 
@@ -303,15 +301,6 @@ Configuration validation of the network portion of the config
 
 =cut
 sub network {
-
-    # network size warning
-    my $internal_total;
-    foreach my $internal_net (@internal_nets) {
-        if ( $internal_net->bits() < 16 && isenabled( $Config{'general'}{'caching'} ) ) {
-            add_problem( $WARN, "network $internal_net is larger than a /16 - you should disable general.caching!" );
-        }
-        $internal_total += $internal_net->size();
-    }
 
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
@@ -535,6 +524,11 @@ sub registration {
 
 # TODO Consider moving to a test
 sub is_config_documented {
+
+    if (!-e $conf_dir . '/pf.conf') {
+        add_problem($WARN, 'We have been unable to load your configuration. Are you sure you ran configurator.pl?');
+        return;
+    }
 
     #compare configuration with documentation
     tie my %myconfig, 'Config::IniFiles', (

@@ -81,8 +81,6 @@ getopts( 'dhvr', \%args );
 
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
-pfmon_preload();
-
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $restart   = $args{r};
@@ -118,6 +116,14 @@ exit(0);
 =head1 SUBROUTINES
 
 =over
+
+=item arp_detector
+
+Listens to ARP traffic and logs.
+
+In PacketFence 3.0 we dropped support for ARP mode. This method has been 
+severely crippled as part of that work. However it has been kept around since
+we might introduce ARP surveillance in the future.
 
 =cut
 sub arp_detector {
@@ -158,14 +164,18 @@ However it has been kept around since we might introduce ARP surveillance in the
 =cut
 sub listen_arp {
     my ( $type, $srcmac, $srcip, $destmac, $destip ) = &decode(@_);
-    return if ( !isinternal($srcip) );
+    # below was commented as part of the interface.gateway removal
+    # if re-implementation required, go through conf/networks.conf to determine if it's internal or not
+    #return if ( !isinternal($srcip) );
 
     if ( $type == 1 ) {
         $logger->debug(
             "ARP who-has $destip tell $srcip  $srcmac $srcip $destmac $destip"
         );
-        my $gip = ip2gateway($srcip);
-        if ( valid_ip($srcip) && valid_ip($gip) && ( $srcip eq $gip ) ) {
+        # commented as part of the interface.gateway removal
+        # if re-implementation required, go through conf/networks.conf to fetch the gateway for a network
+        #my $gip = ip2gateway($srcip);
+        #if ( valid_ip($srcip) && valid_ip($gip) && ( $srcip eq $gip ) ) {
             if (   $destmac =~ /ff:ff:ff:ff:ff:ff/i
                 || $destmac =~ /00:00:00:00:00:00/i )
             {
@@ -181,7 +191,7 @@ sub listen_arp {
                     "arp request from router for $destmac ($destip)");
                 return;
             }
-        }
+        #}
 
     } elsif ( $type == 2 ) {
         $logger->debug("ARP $srcip is-at $srcmac $srcmac $srcip $destmac $destip");
@@ -278,7 +288,9 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

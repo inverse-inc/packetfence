@@ -199,7 +199,7 @@ sub parseCommandLine {
                                  )$  }xms,
         'manage'          => qr/ ^ 
                                    (?:
-                                     ( freemac | deregister )
+                                     ( deregister )
                                      \s+
                                      ( $RE{net}{MAC} )
                                      |

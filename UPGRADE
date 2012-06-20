@@ -5,6 +5,34 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <nextRelease>:
+
+    - Upgrade helper scripts
+    Very basic upgrade scripts for 3.4 were created in addons/upgrade/. See 
+    their POD doc for usage information:
+    perldoc addons/upgrade/to-3.4-pf.conf.pl 
+
+    - pf.conf interface gateway deprecated 
+    The gateway=... parameters under every network interface is no longer 
+    required. You will have to get rid of it (or run the above mentionned 
+    upgrade helper script).
+
+    - pf.conf's general.caching deprecated
+    The caching=... parameter under [general] is no longer required. You 
+    will have to get rid of it if you diverged from default configuration
+    which was disabled (or run the above mentionned upgrade helper script).
+
+    - Captive portal node status page removed
+    We deprecated a never used feature: /status inside the captive portal
+    who gave node information if the user was authenticated properly. This 
+    made little sense since portal access is denied from users since a long
+    time. This was a legacy from the deprecated ARP mode.
+
+    - pf.conf's trapping.registration now enabled by default
+    We changed this setting from disabled to enabled by default since we consider
+    that registration is a whole part of the process. It is still possible to disable
+    this setting by overriding it's default value in pf.conf.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update

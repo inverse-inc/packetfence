@@ -69,6 +69,11 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/webadmin_cache
+	#Configurator integration
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
+	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
+	install -m0755 $(CURDIR)/debian/pfappserver.init $(CURDIR)/debian/packetfence/etc/init.d/pfappserver
+	install -m0644 $(CURDIR)/debian/pfappserver.default $(CURDIR)/debian/packetfence/etc/default/pfappserver
 	#Freeradius intégration
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/freeradius/modules
@@ -137,6 +142,7 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/*.cgi
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
                 -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
                 -X$(NAME)sbin/pfdetect_remote

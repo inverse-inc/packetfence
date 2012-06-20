@@ -1,0 +1,7 @@
+DEVICE=[% logical_name %]
+[% IF !vlan_device %]HWADDR=[% hwaddr %][% END %][% IF vlan_device %]VLAN=yes[% END %]
+ONBOOT=yes
+BOOTPROTO=static
+NM_CONTROLLED=no
+IPADDR=[% ipaddr %]
+NETMASK=[% netmask %]

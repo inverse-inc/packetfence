@@ -1,9 +1,7 @@
 # Snort configuration
 # This file is manipulated on PacketFence's startup before being given to snort
-var INTERNAL_IPS [%%internal-ips%%]
 var HOME_NET [%%internal-nets%%]
 var EXTERNAL_NET !$HOME_NET
-var GATEWAYS [%%gateways%%]
 
 var DHCP_SERVERS [%%dhcp_servers%%]
 var DNS_SERVERS [%%dns_servers%%]

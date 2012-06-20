@@ -50,7 +50,11 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
 %endif
 
-BuildRequires: gettext, httpd, rpm-macros-rpmforge
+# Log related globals
+%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
+%global logdir /usr/local/pf/logs
+
+BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -91,7 +95,7 @@ Requires: perl(Time::HiRes)
 Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
-Requires: perl-libwww-perl
+Requires: perl-libwww-perl, perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.11
@@ -101,7 +105,6 @@ Requires: perl(Log::Log4perl) >= 1.11
 Requires: perl(Net::Appliance::Session) = 1.36
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::Frame), perl(Net::Frame::Simple)
 Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
 Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
@@ -115,7 +118,6 @@ Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
-Requires: perl(Net::Write)
 Requires: perl(Parse::Nessus::NBE)
 Requires: perl(Parse::RecDescent)
 # Note: portability for non-x86 is questionnable for Readonly::XS
@@ -147,6 +149,27 @@ Requires: perl(Text::CSV_XS)
 # BILLING ENGINE
 Requires: perl(LWP::UserAgent)
 Requires: perl(HTTP::Request::Common)
+# Catalyst
+Requires: perl(Catalyst::Runtime), perl(Catalyst::Plugin::ConfigLoader)
+Requires: perl(Catalyst::Plugin::Static::Simple), perl(Catalyst::Action::RenderView)
+Requires: perl(Config::General), perl(Catalyst::Plugin::StackTrace)
+Requires: perl(Catalyst::Plugin::Session), perl(Catalyst::Plugin::Session::Store::File)
+Requires: perl(Catalyst::Plugin::Session::State::Cookie)
+Requires: perl(Catalyst::Plugin::I18N)
+Requires: perl(Catalyst::View::TT)
+Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
+Requires: perl(Catalyst::Plugin::Authentication)
+Requires: perl(Catalyst::Authentication::Credential::HTTP)
+Requires: perl(Catalyst::Authentication::Store::Htpasswd)
+Requires: perl(Catalyst::Controller::HTML::FormFu)
+# for Catalyst stand-alone server
+Requires: perl(Catalyst::Devel)
+# these are probably missing dependencies for the above. 
+# I shall file upstream tickets to openfusion before we integrate
+Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
+Requires: perl(MooseX::Types::LoadableClass)
+# configuration-wizard
+Requires: perl(IO::Interface::Simple)
 #
 # TESTING related
 #
@@ -240,7 +263,7 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
+%{__install} -d $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
@@ -309,6 +332,10 @@ cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
+# logfiles
+for LOG in %logfiles; do
+    touch $RPM_BUILD_ROOT%logdir/$LOG
+done
 
 #start create symlinks
 curdir=`pwd`
@@ -657,58 +684,31 @@ fi
 %config                 /usr/local/pf/html/captive-portal/wispr/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
+                        /usr/local/pf/html/pfappserver/
 %attr(0755, pf, pf)     /usr/local/pf/installer.pl
-%dir                    /usr/local/pf/lib
-%dir                    /usr/local/pf/lib/HTTP
-                        /usr/local/pf/lib/HTTP/BrowserDetect.pm
-%dir                    /usr/local/pf/lib/IPTables/
-                        /usr/local/pf/lib/IPTables/Interface.pm
-%dir                    /usr/local/pf/lib/IPTables/Interface/
-                        /usr/local/pf/lib/IPTables/Interface/Lock.pm
-%dir                    /usr/local/pf/lib/pf
-                        /usr/local/pf/lib/pf/*.pm
-%dir                    /usr/local/pf/lib/pf/billing
-                        /usr/local/pf/lib/pf/billing/constants.pm
+                        /usr/local/pf/lib
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
-%dir                    /usr/local/pf/lib/pf/billing/gateway
-                        /usr/local/pf/lib/pf/billing/gateway/*.pm
-%dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
-%dir                    /usr/local/pf/lib/pf/inline
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
-%dir                    /usr/local/pf/lib/pf/lookup
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
-%dir                    /usr/local/pf/lib/pf/pfcmd
-                        /usr/local/pf/lib/pf/pfcmd/*
-%dir                    /usr/local/pf/lib/pf/radius
-                        /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
-%dir                    /usr/local/pf/lib/pf/roles
 %config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
-%dir                    /usr/local/pf/lib/pf/scan
-                        /usr/local/pf/lib/pf/scan/*
-%dir                    /usr/local/pf/lib/pf/services
-                        /usr/local/pf/lib/pf/services/*
-%dir                    /usr/local/pf/lib/pf/SNMP
-                        /usr/local/pf/lib/pf/SNMP/*
-%dir                    /usr/local/pf/lib/pf/soh
 %config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
-%dir                    /usr/local/pf/lib/pf/util
-                        /usr/local/pf/lib/pf/util/*
-%dir                    /usr/local/pf/lib/pf/vlan
-                        /usr/local/pf/lib/pf/vlan/*.pm
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
-%dir                    /usr/local/pf/lib/pf/web
-                        /usr/local/pf/lib/pf/web/*.pl
-                        /usr/local/pf/lib/pf/web/auth.pm
-                        /usr/local/pf/lib/pf/web/billing.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
-                        /usr/local/pf/lib/pf/web/guest.pm
-                        /usr/local/pf/lib/pf/web/util.pm
-                        /usr/local/pf/lib/pf/web/wispr.pm
-                        /usr/local/pf/lib/pf/web/release.pm
 %dir                    /usr/local/pf/logs
+# logfiles
+%ghost                  %logdir/packetfence.log
+%ghost                  %logdir/snmptrapd.log
+%ghost                  %logdir/access_log
+%ghost                  %logdir/error_log
+%ghost                  %logdir/admin_access_log
+%ghost                  %logdir/admin_error_log
+%ghost                  %logdir/admin_debug_log
+%ghost                  %logdir/pfdetect
+%ghost                  %logdir/pfmon
+%ghost                  %logdir/pfredirect
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices

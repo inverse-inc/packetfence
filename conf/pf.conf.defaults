@@ -25,11 +25,6 @@ dnsservers=127.0.0.1
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
 dhcpservers=127.0.0.1
 #
-# general.caching
-#
-# Enable caching of isinternal values. Not recommended on large networks. Disabled by default. 
-caching=disabled
-#
 # general.locale
 #
 # Locale used for message translation
@@ -97,7 +92,7 @@ range=192.168.0.0/24
 #
 # If enabled, nodes will be required to register on first network access.  Further registration options are configured in the 
 # registration section.
-registration=disabled
+registration=enabled
 #
 # trapping.redirtimer
 #

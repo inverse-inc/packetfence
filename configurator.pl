@@ -259,7 +259,6 @@ configuration process) ***\n";
             %{ $pf_cfg{"interface $int"} } = ();
             $pf_cfg{"interface $int"}{'ip'}   = $net->{ip};
             $pf_cfg{"interface $int"}{'mask'} = $net->{mask};
-            $pf_cfg{"interface $int"}{"gateway"} = $tmp_net->nth(1);
 
             if ( !$management ) {
                 $type = gatherer ( "What kind of interface is it?", \%pf_cfg, "interface $int.type", 

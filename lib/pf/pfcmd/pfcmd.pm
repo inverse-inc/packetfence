@@ -157,7 +157,7 @@ $grammar = q {
 
    nodecategory_view_field :  'name' | 'max_nodes_per_pid' | 'notes'
 
-   interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'gateway' | 'enforcement' | 'vip'
+   interfaceconfig_view_field : 'interface' | 'ip' | 'mask' | 'type' | 'enforcement' | 'vip'
 
    networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway' | 'next_hop'
 
