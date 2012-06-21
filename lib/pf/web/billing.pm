@@ -58,8 +58,14 @@ Will produce billing.html
 
 =cut
 sub generate_billing_page {
-    my ( $cgi, $session, $destination_url, $mac, $error_code ) = @_;
+    my ( $portalSession, $error_code ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
+    my $mac = $portalSession->getClientMac();
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
