@@ -355,8 +355,13 @@ sub generate_login_page {
 }
 
 sub generate_enabler_page {
-    my ( $cgi, $session, $destination_url, $violation_id, $enable_text ) = @_;
+    my ( $portalSession, $violation_id, $enable_text ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
