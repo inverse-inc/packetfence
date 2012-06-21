@@ -720,8 +720,14 @@ sub web_user_authenticate {
 }
 
 sub generate_registration_page {
-    my ( $cgi, $session, $destination_url, $mac, $pagenumber ) = @_;
+    my ( $portalSession, $pagenumber ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
+    my $mac = $portalSession->getClientMac();
 
     $pagenumber = 1 if (!defined($pagenumber));
 
