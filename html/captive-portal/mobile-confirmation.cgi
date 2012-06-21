@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 mobile-confirmation.cgi 
@@ -8,20 +9,19 @@ mobile-confirmation.cgi
 Handles captive-portal SMS authentication.
 
 =cut
+
 use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use CGI::Carp qw( fatalsToBrowser );
-use CGI;
-use CGI::Session;
 use Log::Log4perl;
 use POSIX;
 use URI::Escape qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
+use pf::Portal::Session;
 use pf::node;
 use pf::util;
 use pf::violation;
@@ -35,58 +35,51 @@ my $logger = Log::Log4perl->get_logger('mobile-confirmation.cgi');
 Log::Log4perl::MDC->put('proc', 'mobile-confirmation.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-my $ip = $cgi->remote_addr;
-my $destination_url = pf::web::get_destination_url($cgi);
+my $portalSession = pf::Portal::Session->new();
 
 # we need a valid MAC to identify a node
-# TODO this is duplicated too much, it should be brought up in a global dispatcher
-my $mac = ip2mac($ip);
-if (!valid_mac($mac)) {
-  $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
-  exit(0);
+if ( !valid_mac($portalSession->getClientMac()) ) {
+    $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
+    pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
+    exit(0);
 }
 
-$logger->info("$ip - $mac on mobile confirmation page");
+$logger->info($portalSession->getClientIp() . " - " . $portalSession->getClientMac()  . " on mobile confirmation page");
 
 my %info;
 
 # FIXME to enforce 'harder' trapping (proper workflow) once this all work
 # put code as main if () and provide a way to unset session in template
-if ($cgi->param("pin")) { # && $session->param("authType")) {
+if ( $portalSession->getCgi()->param("pin") ) { # && $portalSession->getSession()->param("authType")) {
 
     $logger->info("Entering guest authentication by SMS");
-    my ($auth_return, $err) = pf::web::guest::web_sms_validation($cgi, $session);
-    if ($auth_return != 1) {
+    my ($auth_return, $err) = pf::web::guest::web_sms_validation($portalSession);
+    if ( $auth_return != 1 ) {
         # Invalid PIN -- redirect to confirmation template 
         $logger->info("Loading SMS confirmation page");
-        pf::web::guest::generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url, $err);
+        pf::web::guest::generate_sms_confirmation_page($portalSession, $ENV{REQUEST_URI}, $err);
         return (0);
     }
 
     $logger->info("Valid PIN -- Registering user");
    
-
     # Setting access timeout and category from config
     my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
     $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
-    my $pid = $session->param( "guest_pid" ) || 1;
-    pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
+    my $pid = $portalSession->getSession()->param("guest_pid") || 1;
+    pf::web::web_node_register($portalSession, $pid, %info);
     # clear state that redirects to the Enter PIN page
-    $session->clear(["guest_pid"]);
+    $portalSession->getSession()->clear(["guest_pid"]);
 
-    pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
+    pf::web::end_portal_session($portalSession);
 
-} elsif ($cgi->param("action_confirm")) {
-  # No PIN specified
-  pf::web::guest::generate_sms_confirmation_page($cgi, $session, $ENV{REQUEST_URI}, $destination_url);
+} elsif ($portalSession->getCgi()->param("action_confirm")) {
+    # No PIN specified
+    pf::web::guest::generate_sms_confirmation_page($portalSession, $ENV{REQUEST_URI});
 } else {
-  pf::web::generate_registration_page($cgi, $session, $destination_url, $mac,1);
+    pf::web::generate_registration_page($portalSession, 1);
 }
 
 =head1 AUTHOR
@@ -94,6 +87,8 @@ if ($cgi->param("pin")) { # && $session->param("authType")) {
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Francis Lachapelle <flachapelle@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
@@ -117,4 +112,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-
