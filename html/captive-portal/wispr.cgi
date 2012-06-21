@@ -9,30 +9,28 @@ wispr.cgi - front-end to pf::web::wispr
 See L<pf::web::wispr> for details.
 
 =cut
+
 use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use CGI;
-use CGI::Carp qw( fatalsToBrowser );
-use CGI::Session;
 use Log::Log4perl;
 
+use pf::Portal::Session;
 use pf::web::wispr;
 # called last to allow redefinitions
 use pf::web::custom;
 
+my $portalSession = pf::Portal::Session->new();
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-
-pf::web::wispr::generate_redirect($cgi, $session);
+pf::web::wispr::generate_redirect($portalSession);
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
         
 =head1 COPYRIGHT
         
