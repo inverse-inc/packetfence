@@ -195,10 +195,15 @@ and that the node's category matches the configuration.
 
 =cut
 sub supports_mobileconfig_provisioning {
-    my ( $cgi, $session, $mac ) = @_;
+    my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
 
     return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $mac = $portalSession->getClientMac();
 
     # is this an iDevice?
     # TODO get rid of hardcoded targets like that
@@ -868,7 +873,7 @@ sub end_portal_session {
     }
 
     # handle mobile provisioning if relevant
-    if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
+    if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
         pf::web::generate_mobileconfig_provisioning_page($cgi, $session, $mac);
         exit(0);
     }
