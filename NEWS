@@ -18,6 +18,9 @@ Version <stable-version> released on <releaseDate>
 New Hardware
  * Adding support for Cisco Catalyst 3560G
 
+Enhancements
+ * Closing expired violations using the release_date (#1476)
+
 --------------------------------------------------------------------------------
 Version 3.4.1 released on 2012-06-18
 

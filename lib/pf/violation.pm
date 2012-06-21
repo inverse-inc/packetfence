@@ -56,11 +56,14 @@ BEGIN {
         violation_view_top
         violation_delete
         violation_exist_open
+        violation_maintenance
+
     );
 }
 
 use pf::action;
 use pf::config;
+use pf::enforcement;
 use pf::db;
 use pf::node;
 use pf::util;
@@ -148,6 +151,9 @@ sub violation_db_prepare {
 
     $violation_statements->{'violation_count_vid_sql'} = get_db_handle()->prepare(
         qq [ select count(*) from violation where mac=? and vid=? ]);
+
+    $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
+        qq [ select mac,vid from violation where release_date !=0 AND release_date <= NOW() AND status = "open" ]);
 
     $violation_db_prepared = 1;
     return 1;
@@ -544,6 +550,32 @@ sub _is_node_category_whitelisted {
     return $category_found;
 }
 
+=item violation_maintenance 
+
+Check if we should close violations based on release_date
+
+=cut
+sub violation_maintenance {
+    my $logger = Log::Log4perl::get_logger('pf::violation');
+
+    $logger->debug("Looking at expired violations...");
+
+    my $violation_query = db_query_execute(VIOLATION, $violation_statements, 'violation_release_sql') || return (0);
+
+    while (my $row = $violation_query->fetchrow_hashref()) {
+        my $currentMac = $row->{mac};
+        my $currentVid = $row->{vid};
+        my $result = violation_force_close($currentMac,$currentVid);
+        
+        # If close is a success, reevaluate the Access for the node
+        if ($result) {
+            pf::enforcement::reevaluate_access( $currentMac, "manage_vclose" );
+        }
+    };
+
+    return (1);
+}
+
 =back
 
 =head1 AUTHOR
@@ -554,13 +586,15 @@ Kevin Amorin <kev@amorin.org>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Francois Gaudreault <fgaudreault@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
