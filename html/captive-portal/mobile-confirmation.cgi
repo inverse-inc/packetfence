@@ -50,7 +50,7 @@ my %info;
 
 # FIXME to enforce 'harder' trapping (proper workflow) once this all work
 # put code as main if () and provide a way to unset session in template
-if ( $portalSession->getCgi()->param("pin") ) { # && $portalSession->getSession()->param("authType")) {
+if ( $portalSession->getCgi->param("pin") ) { # && $portalSession->getSession->param("authType")) {
 
     $logger->info("Entering guest authentication by SMS");
     my ($auth_return, $err) = pf::web::guest::web_sms_validation($portalSession);
@@ -68,14 +68,14 @@ if ( $portalSession->getCgi()->param("pin") ) { # && $portalSession->getSession(
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
     $info{'category'} = $Config{'guests_self_registration'}{'category'};
 
-    my $pid = $portalSession->getSession()->param("guest_pid") || 1;
+    my $pid = $portalSession->getSession->param("guest_pid") || 1;
     pf::web::web_node_register($portalSession, $pid, %info);
     # clear state that redirects to the Enter PIN page
-    $portalSession->getSession()->clear(["guest_pid"]);
+    $portalSession->getSession->clear(["guest_pid"]);
 
     pf::web::end_portal_session($portalSession);
 
-} elsif ($portalSession->getCgi()->param("action_confirm")) {
+} elsif ($portalSession->getCgi->param("action_confirm")) {
     # No PIN specified
     pf::web::guest::generate_sms_confirmation_page($portalSession, $ENV{REQUEST_URI});
 } else {
