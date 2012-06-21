@@ -460,8 +460,12 @@ sub generate_scan_status_page {
 }
 
 sub generate_error_page {
-    my ( $cgi, $session, $error_msg, $r ) = @_;
+    my ( $portalSession, $error_msg, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -495,7 +499,7 @@ sub generate_status_page {
 
     my $node_info = node_attributes($mac);
     if ( $session->param("username") ne $node_info->{'pid'} ) {
-        generate_error_page( $cgi, $session, i18n("error: access denied not owner") );
+        generate_error_page( $portalSession, i18n("error: access denied not owner") );
         exit(0);
     }
 
@@ -587,7 +591,7 @@ sub web_node_register {
 
     if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         pf::web::generate_error_page(
-            $cgi, $session, 
+            $portalSession, 
             i18n("You have reached the maximum number of devices you are able to register with this username.")
         );
         exit(0);

@@ -52,7 +52,7 @@ sub handler
   my $mac = ip2mac($ip);
   if (!valid_mac($mac)) {
     $logger->info("$ip not resolvable, generating error page");
-    pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"), $r);
+    pf::web::generate_error_page($portalSession, i18n("error: not found in the database"), $r);
     return Apache2::Const::OK;
   }
 
@@ -77,7 +77,7 @@ sub handler
   # is violations valid
   if (!defined($violations) || ref($violations) ne 'HASH' || !defined($violations->{'vid'})) {
     # not valid, we should not be here then, lets tell the user to re-open his browser
-    pf::web::generate_error_page($cgi, $session, i18n("release: reopen browser"), $r);
+    pf::web::generate_error_page($portalSession, i18n("release: reopen browser"), $r);
     return Apache2::Const::OK;
   }
   
@@ -157,7 +157,7 @@ sub handler
       return Apache2::Const::REDIRECT;
     }
     else {
-      pf::web::generate_error_page($cgi, $session, i18n("error: max re-enables reached"), $r);
+      pf::web::generate_error_page($portalSession, i18n("error: max re-enables reached"), $r);
       return Apache2::Const::OK;
     }
   }

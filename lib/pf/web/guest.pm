@@ -593,7 +593,7 @@ sub preregister {
 
     # failure, redirect to error page
     if (!defined($password)) {
-        pf::web::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
+        pf::web::generate_error_page($portalSession, i18n("error: something went wrong creating the guest"));
     }
 
     # on success
@@ -646,7 +646,7 @@ sub preregister_multiple {
 
     # failure, redirect to error page
     if ($count == 0) {
-        pf::web::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest") );
+        pf::web::generate_error_page($portalSession, i18n("error: something went wrong creating the guest") );
         return;
     }
 
