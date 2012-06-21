@@ -384,8 +384,13 @@ sub generate_enabler_page {
 }
 
 sub generate_redirect_page {
-    my ( $cgi, $session, $violation_url, $destination_url ) = @_;
+    my ( $portalSession, $violation_url ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
