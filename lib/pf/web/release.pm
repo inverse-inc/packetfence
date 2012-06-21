@@ -98,7 +98,7 @@ sub handler
     # this should only happen if the user explicitly put /release in his browser address
     if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
       $logger->info("captive portal redirect to the scan in progress page");
-      pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url, $r);
+      pf::web::generate_scan_status_page($portalSession, $1, $r);
       return Apache2::Const::OK;
     }
     

@@ -433,8 +433,13 @@ sub generate_aup_standalone_page {
 }
 
 sub generate_scan_status_page {
-    my ( $cgi, $session, $scan_start_time, $destination_url, $r ) = @_;
+    my ( $portalSession, $scan_start_time, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
 
     my $refresh_timer = 10; # page will refresh each 10 seconds
 
