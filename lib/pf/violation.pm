@@ -62,6 +62,7 @@ BEGIN {
 }
 
 use pf::action;
+use pf::class qw(class_view);
 use pf::config;
 use pf::enforcement;
 use pf::db;
@@ -463,9 +464,27 @@ sub violation_trigger {
             );
             next;
         }
-        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
+        # Compute the release date
+        my $date = 0;
+        
+        # Check if we have a window defined for the violation, and act properly 
+        # TODO: Handle the "dynamic" keyword
+        my $class = class_view($vid);
+
+        if (defined($class->{'window'})) {
+          if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
+            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
+            $logger->info("IN");
+          } elsif ($class->{'window'} eq 'dynamic') {
+            # Funky calculus here
+            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + 999999));
+            $logger->info("OUT");
+          }
+        } 
+
+        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac,release_date=$date' (trigger ${type}::${tid})");
         # running pfcmd because it will call an access re-evaluation if needed
-        pf_run("$bin_dir/pfcmd violation add vid=$vid,mac=$mac");
+        pf_run("$bin_dir/pfcmd \'violation add vid=$vid,mac=$mac,release_date=\"$date\"\'");
         $addedViolation = 1;
     }
     return $addedViolation;

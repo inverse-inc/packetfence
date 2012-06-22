@@ -552,6 +552,29 @@ if($sajax){
                  print "  <input class=\"button\" type='image' src='/images/famfamfam_silk_icons/page_delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete the violation " . $this->rows[$i]['vid'] . " ?');\">\n";
                  print "  </form>";
                }
+             } elseif ($current_top == 'violation') {
+               print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,450)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
+               if ($this->rows[$i]['status'] == "open"){
+                   print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
+                   print "  <input type='hidden' name='action' value='vclose'>\n";
+                   print "  <input type='hidden' name='commit' value='true'>\n";
+                   print "  <input type='hidden' name='original' value='".htmlentities(implode("\t", $this->rows[$i]), ENT_QUOTES)."'>\n";
+                   print "  <input class=\"button\" type='image' src='/images/close.png' align=bottom title='Close this record' onClick=\"return confirm('Are you sure you want to close ".htmlentities($this->rows[$i][$this->key], ENT_QUOTES)."?');\">\n";
+       	           print "  </form>";
+               } else {
+                   print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
+                   print "  <input type='hidden' name='action' value='vopen'>\n";
+                   print "  <input type='hidden' name='commit' value='true'>\n";
+                   print "  <input type='hidden' name='original' value='".htmlentities(implode("\t", $this->rows[$i]), ENT_QUOTES)."'>\n";
+                   print "  <input class=\"button\" type='image' src='/images/open.png' align=bottom title='Re-Open this record' onClick=\"return confirm('Are you sure you want to open ".htmlentities($this->rows[$i][$this->key], ENT_QUOTES)."?');\">\n";
+       	           print "  </form>";
+               }
+               print "<form action='/$current_top/$current_sub.php?filter=$filter&amp;sort=$sort&amp;direction=$direction&amp;page_num=$this->page_num&amp;per_page=$this->per_page&amp;action=$action&amp;item=$item' method='post'>";
+               print "  <input type='hidden' name='action' value='delete'>\n";
+               print "  <input type='hidden' name='commit' value='true'>\n";
+               print "  <input type='hidden' name='original' value='".htmlentities(implode("\t", $this->rows[$i]), ENT_QUOTES)."'>\n";
+               print "  <input class=\"button\" type='image' src='/images/delete.png' align=bottom title='Delete this record' onClick=\"return confirm('Are you sure you want to delete ".htmlentities($this->rows[$i][$this->key], ENT_QUOTES)."?');\">\n";
+               print "  </form>";
              } else {
                print "  <a href=\"javascript:popUp('/$current_top/edit.php?item=$key_item',500,450)\" title='Edit this record'><img src='/images/edit.png' alt=\"[ Edit ]\"></a>\n";
                if($this->violationable){

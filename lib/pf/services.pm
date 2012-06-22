@@ -387,6 +387,10 @@ sub read_violations_conf {
             $violations{$violation}{'grace'} = normalize_time($violations{$violation}{'grace'});
         }
 
+        if ( defined $violations{$violation}{'window'} && $violations{$violation}{'window'} ne "dynamic" ) {
+            $violations{$violation}{'window'} = normalize_time($violations{$violation}{'window'});
+        }
+
         # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
         class_merge(
             $violation,
@@ -394,6 +398,7 @@ sub read_violations_conf {
             $violations{$violation}{'auto_enable'},
             $violations{$violation}{'max_enable'},
             $violations{$violation}{'grace'},
+            $violations{$violation}{'window'},
             $violations{$violation}{'priority'},
             $violations{$violation}{'url'},
             $violations{$violation}{'max_enable_url'},

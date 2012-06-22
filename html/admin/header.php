@@ -106,9 +106,27 @@
       $cmd="$current_top $_REQUEST[action] $key $cmd";
     }
 
+    if($_REQUEST['action'] == 'vopen'){
+      $new_array=preg_split("/\t/", $_POST['original']);
+        if (preg_match("/\s/", $new_array[0]))
+          $new_array[0]  = '"'.$new_array[0].'"';
+
+        $cmd = "violation edit $new_array[0] status=open,release_date=0";
+    }
+
+    if($_REQUEST['action'] == 'vclose'){
+       $new_array=preg_split("/\t/", $_POST['original']);
+        if (preg_match("/\s/", $new_array[0]))
+          $new_array[0]  = '"'.$new_array[0].'"';
+
+        $date = date( 'Y-m-d H:i:s', time() );
+
+        $cmd = "violation edit $new_array[0] status=closed,release_date=\"$date\"";
+    }
+
     $result=PFCMD($cmd);
 
-    if($_REQUEST['action'] == 'edit' || $_REQUEST['action'] == 'delete'){
+    if($_REQUEST['action'] == 'edit' || $_REQUEST['action'] == 'delete' || $_REQUEST['action'] == 'vopen' || $_REQUEST['action'] == 'vclose'){
       $my_table->refresh(); 
     }
   }
