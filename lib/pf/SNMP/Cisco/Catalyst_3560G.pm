@@ -54,6 +54,8 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 
 =back
 
+=over
+
 =cut
 use strict;
 use warnings;
@@ -86,6 +88,8 @@ sub NasPortToIfIndex {
     }
     return $NAS_port;
 }
+
+=back
 
 =head1 AUTHOR
 
