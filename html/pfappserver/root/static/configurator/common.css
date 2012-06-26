@@ -1,0 +1,58 @@
+#tracker .active i {
+    background-image: url("../app/steps-white.png");
+}
+#tracker a:hover {
+  color: #08c;
+}
+#tracker .active a:hover {
+  color: #fff;
+}
+#tracker {
+    margin-top: 20px;
+}
+#tracker b {
+    color: #999;
+    line-height: 16px;
+    display: block;
+    margin-left: 40px;
+    font-size: 14px;
+    font-weight: normal;
+}
+#tracker .active b {
+    color: #000;
+    font-weight: bold;
+}
+.page-header.step {
+    text-align: right;
+}
+
+/* page specific */
+
+form[name="enforcement"] .table th,
+form[name="enforcement"] .table td {
+    border-top: 0;
+}
+form[name="enforcement"] .table tr th:first-child,
+form[name="enforcement"] .table tr td:first-child {
+    border-right: 1px solid #ddd;
+    width: 50%;
+}
+form[name="enforcement"] .table .graph {
+    text-align: center;
+    vertical-align: middle;
+}
+#interfaces table {
+    margin-top: 20px;
+}
+#interfaces td span.label {
+    float: right;
+}
+#interfaces .btn-toggle {
+    min-width: 50px;
+}
+#services td {
+    min-width: 100px;
+}
+#serviceErrors pre {
+    background-color: transparent;
+}

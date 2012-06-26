@@ -48,10 +48,10 @@
                   </tr>
                   <tr>
                     <td class="graph">
-                      <img src="[% c.uri_for('/static/app/enforcement-inline.png') %]">
+                      <img src="[% c.uri_for('/static/configurator/enforcement-inline.png') %]">
                     </td>
                     <td class="graph">
-                      <img src="[% c.uri_for('/static/app/enforcement-vlan.png') %]">
+                      <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
                     </td>
                   </tr>
                 </tbody>
