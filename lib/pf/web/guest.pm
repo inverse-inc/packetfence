@@ -154,12 +154,8 @@ Sub to present a guest registration form where we create the guest accounts.
 
 =cut
 sub generate_registration_page {
-    my ( $portalSession, $post_uri, $err, $section ) = @_;
+    my ( $cgi, $session, $post_uri, $err, $section ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-    # First blast of portalSession object consumption
-    my $cgi = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
