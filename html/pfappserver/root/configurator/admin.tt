@@ -18,7 +18,7 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>On this page, you create an account to access the administration web interface.</p>
+            <p>On this page, you create an account to access the web administrative interface of PacketFence.</p>
             <p>After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page.</p>
           </div>
         </div>
