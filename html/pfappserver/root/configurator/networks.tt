@@ -89,7 +89,7 @@
           <div id="interfaces" class="form-horizontal">
             <form name="interfaces">
               <h3>[% l('Network Interfaces') %]</h3>
-              <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to registration, isolation, and management.</p><p></p>
+              <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to your registration, isolation, and management subnets.</p><p></p>
               <table class="table">
                 <thead>
                   <tr><th>Logical name</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th style="min-width: 60px">[% l('Status') %]</th><th>[% l('Type') %]</th><th>[% l('Actions') %]</th></tr>
