@@ -40,10 +40,10 @@
                 <tbody>
                   <tr>
                     <td>
-                      Activate this mechanism if you have unmanageable devices such as entry-level consumer switches or access-point. PacketFence becomes the gateway of that inline network, and NAT the traffic using IPTables to the Internet.
+                      Activate this mechanism if you have unmanageable equipment such as entry-level consumer switches or access points. PacketFence becomes the gateway of that inline network, and will NAT the traffic to the Internet.
                     </td>
                     <td>
-                      PacketFence is the server that assigns the VLAN to the devices. This is the prefered enforcement mechanism.
+                      PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment.
                     </td>
                   </tr>
                   <tr>
