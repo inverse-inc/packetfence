@@ -8,8 +8,8 @@ Here is the information the guest provided with registration form:
 
 Firstname: [% firstname %]
 Lastname: [% lastname %]
-Phone number: [% phone %]
-Email: [% email %]
+Phone number: [% telephone %]
+Email: [% pid %]
 
 In order to activate access we need you to click on the following link: [% activation_uri %]
 
