@@ -164,7 +164,7 @@ if (defined($session->param("username"))) {
           my $file = $cgi->upload('users_file');
           if (!$file && $cgi->cgi_error) {
             $logger->error("Import: Received corrupted file: " . $cgi->cgi_error);
-            pf::web::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
+            pf::web::generate_admin_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
           }
           else {
             my $filename = $cgi->param('users_file');

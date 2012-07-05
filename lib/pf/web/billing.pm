@@ -110,8 +110,12 @@ sub generate_billing_page {
 
 =cut
 sub validate_billing_infos {
-    my ( $cgi, $session ) = @_;
+    my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger();
+
+    # First blast for portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     # Fetch available tiers hash to check if the tier in param is ok
     my $billingObj = new pf::billing::custom();

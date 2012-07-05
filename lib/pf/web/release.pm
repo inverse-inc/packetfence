@@ -13,15 +13,13 @@ use Apache2::RequestRec ();
 use Apache2::RequestIO ();
 use Apache2::Const -compile => qw(OK REDIRECT);
 use Date::Parse;
-use CGI;
-use CGI::Carp qw( fatalsToBrowser );
-use CGI::Session;
 use Log::Log4perl;
 use URI::Escape qw(uri_escape);
 
 use pf::class;
 use pf::config;
 use pf::iplog;
+use pf::Portal::Session;
 use pf::node;
 use pf::scan qw($SCAN_VID);
 use pf::trigger;
@@ -40,12 +38,11 @@ sub handler
   Log::Log4perl::MDC->put('proc', 'release.pm');
   Log::Log4perl::MDC->put('tid', 0);
 
-  my $cgi = new CGI;
-  $cgi->charset("UTF-8");
-  my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-  my $ip = pf::web::get_client_ip($cgi);
-  my $destination_url = pf::web::get_destination_url($cgi);
-  $destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
+  my $portalSession     = pf::Portal::Session->new();
+  my $cgi               = $portalSession->getCgi();
+  my $session           = $portalSession->getSession();
+  my $ip                = $portalSession->getClientIp();
+  my $destination_url   = $portalSession->getDestinationUrl();
 
   # we need a valid MAC to identify a node
   # TODO this is duplicated too much, it should be brought up in a global dispatcher
@@ -67,7 +64,7 @@ sub handler
         );
         return Apache2::Const::REDIRECT;
       } else {
-        pf::web::generate_release_page($cgi, $session, $destination_url, $mac, $r);
+        pf::web::generate_release_page($portalSession, $r);
         return Apache2::Const::OK;
       }
     }
@@ -138,7 +135,7 @@ sub handler
         return Apache2::Const::REDIRECT;
       }
       else {
-        pf::web::generate_release_page($cgi, $session, $destination_url, $mac, $r);
+        pf::web::generate_release_page($portalSession, $r);
         return Apache2::Const::OK;
       }
     }

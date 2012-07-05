@@ -58,7 +58,7 @@
         # max 2 nodes per guest
         if (node_pid($pid) >= 2) {
           $logger->info("2 nodes are already registered to $pid");
-          pf::web::generate_error_page($cgi, $session, "error: only register max nodes");
+          pf::web::generate_error_page($portalSession, "error: only register max nodes");
           return(0);
         }
 

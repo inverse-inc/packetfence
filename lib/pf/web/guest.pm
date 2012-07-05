@@ -95,8 +95,15 @@ Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
 sub generate_selfregistration_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $mac, $error_code, $error_args_ref ) = @_;
+    my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
+    my $mac = $portalSession->getClientMac();
+
     $logger->info('generate_selfregistration_page');
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
@@ -261,8 +268,12 @@ Sub to validate self-registering guests, this is not hooked-up by default
 
 =cut
 sub validate_selfregistration {
-    my ($cgi, $session) = @_;
+    my ($portalSession) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     # is preregistration allowed?
     if ($session->param("preregistration") && isdisabled($Config{'guests_self_registration'}{'preregistration'})) {
@@ -487,8 +498,13 @@ This is meant to be overridden in L<pf::web::custom>.
 
 =cut
 sub prepare_email_guest_activation_info {
-    my ( $cgi, $session, $mac, %info ) = @_;
+    my ( $portalSession, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $mac     = $portalSession->getClientMac();
 
     $info{'firstname'} = $session->param("firstname");
     $info{'lastname'} = $session->param("lastname");
@@ -507,8 +523,13 @@ This is meant to be overridden in L<pf::web::custom>.
 
 =cut
 sub prepare_sponsor_guest_activation_info {
-    my ( $cgi, $session, $mac, %info ) = @_;
+    my ( $portalSession, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+    my $mac     = $portalSession->getClientMac();
 
     $info{'firstname'} = $session->param("firstname");
     $info{'lastname'} = $session->param("lastname");
@@ -528,8 +549,12 @@ Sub to present a login form. Template is provided as a parameter.
 
 =cut
 sub generate_custom_login_page {
-    my ( $cgi, $session, $err, $html_template ) = @_;
+    my ( $portalSession, $err, $html_template ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -594,7 +619,7 @@ sub preregister {
 
     # failure, redirect to error page
     if (!defined($password)) {
-        pf::web::generate_error_page($portalSession, i18n("error: something went wrong creating the guest"));
+        pf::web::generate_admin_error_page($cgi, $session, i18n("error: something went wrong creating the guest"));
     }
 
     # on success
@@ -647,7 +672,7 @@ sub preregister_multiple {
 
     # failure, redirect to error page
     if ($count == 0) {
-        pf::web::generate_error_page($portalSession, i18n("error: something went wrong creating the guest") );
+        pf::web::generate_admin_error_page($cgi, $session, i18n("error: something went wrong creating the guest") );
         return;
     }
 
@@ -725,8 +750,14 @@ sub send_template_email {
 }
 
 sub generate_sms_confirmation_page {
-    my ( $cgi, $session, $post_uri, $destination_url, $error_code, $error_args_ref ) = @_;
+    my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at consuming portalSession object
+    my $cgi             = $portalSession->getCgi();
+    my $session         = $portalSession->getSession();
+    my $destination_url = $portalSession->getDestinationUrl();
+
     setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
@@ -757,9 +788,12 @@ sub generate_sms_confirmation_page {
 }
 
 sub web_sms_validation {
-
-    my ($cgi, $session) = @_;
+    my ($portalSession) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     # no form was submitted, assume first time
     if ($cgi->param("pin")) {
@@ -899,6 +933,8 @@ Readonly::Hash our %ERRORS => (
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

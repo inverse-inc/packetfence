@@ -23,6 +23,7 @@ use Log::Log4perl;
 
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
+use pf::util;
 # TODO we should aim to get rid of these deps (see other TODO tasks in _initialize)
 use pf::web;
 # called last to allow redefinitions
@@ -66,6 +67,8 @@ sub _initialize {
 
     # TODO inline this work here once there's no other pf::web::get_destination_url callers
     $self->{'_destination_url'} = pf::web::get_destination_url($self->getCgi);
+
+    $self->{'_guest_node_mac'} = undef;
 
     # XXX pass mac here
     $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate();
@@ -124,6 +127,18 @@ sub getDestinationUrl {
     return $self->{'_destination_url'};
 }
 
+=item setDestinationUrl
+
+Sets the destination url.
+
+=cut
+# TODO get rid of this when destination url for billing-engine (different destination url for each tier) will be implemented
+sub setDestinationUrl {
+    my ($self, $new_destination_url) = @_;
+
+    $self->{'_destination_url'} = $new_destination_url;
+}
+
 =item getProfile
 
 Returns the proper captive portal profile for the current session.
@@ -134,11 +149,34 @@ sub getProfile {
     return $self->{'_profile'};
 }
 
+=item getGuestNodeMac
+
+Return the guest node mac address in the case of an email activation.
+
+=cut
+sub getGuestNodeMac {
+    my ($self) = @_;
+    return $self->{'_guest_node_mac'};
+}
+
+=item setGuestNodeMac
+
+Sets the guest node mac address in the case of an email activation.
+
+=cut
+sub setGuestNodeMac {
+    my ($self, $guest_node_mac) = @_;
+
+    $self->{'_guest_node_mac'} = clean_mac($guest_node_mac);
+}
+
 =back
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

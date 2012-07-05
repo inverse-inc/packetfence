@@ -21,8 +21,8 @@ use URI::Escape qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
-use pf::Portal::Session;
 use pf::node;
+use pf::Portal::Session;
 use pf::util;
 use pf::violation;
 use pf::web;

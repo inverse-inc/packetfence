@@ -9,9 +9,6 @@ billing-engine.cgi - billing engine portal
 use strict;
 use warnings;
 
-use CGI;
-use CGI::Carp qw( fatalsToBrowser );
-use CGI::Session;
 use HTML::Entities;
 use Log::Log4perl;
 use POSIX;
@@ -23,6 +20,7 @@ use pf::config;
 use pf::iplog;
 use pf::node;
 use pf::person qw(person_modify);
+use pf::Portal::Session;
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -35,29 +33,24 @@ my $logger = Log::Log4perl->get_logger('billing-engine.cgi');
 Log::Log4perl::MDC->put('proc', 'billing-engine.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-my $destination_url = pf::web::get_destination_url($cgi);
-my $ip = $cgi->remote_addr();
+my $portalSession = pf::Portal::Session->new();
+my $cgi = $portalSession->getCgi();
 
 # If the billing engine isn't enabled (you shouldn't be here), redirect to portal entrance
-print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
-        if ( isdisabled($Config{'registration'}{'billing_engine'}) );
+print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
+    if ( isdisabled($Config{'registration'}{'billing_engine'}) );
 
 # we need a valid MAC to identify a node
-# TODO this is duplicated too much, it should be brought up in a global dispatcher
-my $mac = ip2mac($ip);
-if (!valid_mac($mac)) {
-  $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
-  exit(0);
+if ( !valid_mac($portalSession->getClientMac()) ) {
+    $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
+    pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
+    exit(0);
 }
 
 if ( defined($cgi->param('submit')) ) {
 
     # Validate the form
-    my ($validation_return, $error_code) = pf::web::billing::validate_billing_infos($cgi, $session);
+    my ($validation_return, $error_code) = pf::web::billing::validate_billing_infos($portalSession);
 
     # Form is valid (Provided infos are ok)
     if ( $validation_return ) {
@@ -68,8 +61,8 @@ if ( defined($cgi->param('submit')) ) {
         my $tier                  = $cgi->param('tier');
         my %tiers_infos           = $billingObj->getAvailableTiers();
         my $transaction_infos_ref = {
-                ip              => $ip,
-                mac             => $mac,
+                ip              => $portalSession->getClientIp(),
+                mac             => $portalSession->getClientMac(),
                 firstname       => $cgi->param('firstname'),
                 lastname        => $cgi->param('lastname'),
                 email           => lc($cgi->param('email')),
@@ -86,7 +79,7 @@ if ( defined($cgi->param('submit')) ) {
 
         if ( $paymentStatus eq $BILLING::SUCCESS ) {
             # Adding person (using modify in case person already exists)
-            person_modify($session->param('login'), (
+            person_modify($portalSession->getSession->param('login'), (
                     'firstname' => $cgi->param('firstname'),
                     'lastname'  => $cgi->param('lastname'),
                     'email'     => lc($cgi->param('email')),
@@ -96,18 +89,19 @@ if ( defined($cgi->param('submit')) ) {
             # Grab additional infos about the node
             my %info;
             my $timeout         = normalize_time($tiers_infos{$tier}{'timeout'});
-            $info{'pid'}        = $session->param('login');
+            $info{'pid'}        = $portalSession->getSession->param('login');
             $info{'category'}   = $tiers_infos{$tier}{'category'};
             $info{'unregdate'}  = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
 
             # Register the node
-            pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
+            pf::web::web_node_register($portalSession, $info{'pid'}, %info);
 
             # Generate the release page
-            $destination_url = decode_entities(uri_unescape($tiers_infos{$tier}{'destination_url'}))
-                    if ( $tiers_infos{$tier}{'destination_url'} );
+            # XXX Should be part of the portal profile
+            $portalSession->setDestinationUrl(decode_entities(uri_unescape($tiers_infos{$tier}{'destination_url'})))
+                if ($tiers_infos{$tier}{'destination_url'});
             
-            pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
+            pf::web::end_portal_session($portalSession);
         } 
         # There was an error with the payment processing
         else {
@@ -116,9 +110,7 @@ if ( defined($cgi->param('submit')) ) {
                 . "(MAC: $transaction_infos_ref->{mac})"
             );
 
-            pf::web::billing::generate_billing_page(
-                    $cgi, $session, $destination_url, $mac, $BILLING::ERROR_PAYMENT_GATEWAY_FAILURE
-            );
+            pf::web::billing::generate_billing_page($portalSession, $BILLING::ERROR_PAYMENT_GATEWAY_FAILURE);
             exit(0);
         }            
     }
@@ -126,9 +118,7 @@ if ( defined($cgi->param('submit')) ) {
     # The form was invalid, return to the billing page and show error message
     if ( !$validation_return ) {
         $logger->info("Billing form was invalid, return to the billing page.");
-        pf::web::billing::generate_billing_page(
-                $cgi, $session, $destination_url, $mac, $error_code
-        );
+        pf::web::billing::generate_billing_page($portalSession, $error_code);
         exit(0);
     }
 
@@ -140,9 +130,8 @@ else {
     $cgi->delete('firstname', 'lastname', 'email', 'ccnumber', 'ccexpiration', 'ccvalidation');
 
     # By default, show billing page
-    pf::web::billing::generate_billing_page($cgi, $session, $destination_url, $mac);
+    pf::web::billing::generate_billing_page($portalSession);
 }
-
 
 =head1 AUTHOR
 
@@ -172,5 +161,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-
-1;
