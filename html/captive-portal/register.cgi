@@ -9,6 +9,7 @@ register.cgi
 Handles captive-portal authentication, /status, de-registration, multiple registration pages workflow and viewing AUP
 
 =cut
+
 use strict;
 use warnings;
 
@@ -47,11 +48,11 @@ $logger->info($portalSession->getClientIp() . " - " . $portalSession->getClientM
 my %info;
 
 # Pull username
-$info{'pid'}=1;
-$info{'pid'}=$cgi->remote_user if (defined $cgi->remote_user);
+$info{'pid'} = 1;
+$info{'pid'} = $cgi->remote_user if (defined $cgi->remote_user);
 
 # Pull browser user-agent string
-$info{'user_agent'}=$cgi->user_agent;
+$info{'user_agent'} = $cgi->user_agent;
 
 if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 

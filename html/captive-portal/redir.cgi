@@ -5,7 +5,7 @@
 redir.cgi - handle first hit on the captive portal
 
 =cut
-#use Data::Dumper;
+
 use strict;
 use warnings;
 
@@ -164,6 +164,8 @@ Dominik Gehl <dgehl@inverse.ca>
 Regis Balzard <rbalzard@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
         
 =head1 COPYRIGHT
         

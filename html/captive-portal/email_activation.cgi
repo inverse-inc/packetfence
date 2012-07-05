@@ -1,9 +1,11 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 email_activation.cgi - handles email activation links
 
 =cut
+
 use strict;
 use warnings;
 
@@ -19,6 +21,7 @@ use pf::Portal::Session;
 use pf::util qw(valid_mac);
 use pf::web;
 use pf::web::guest 1.30;
+# called last to allow redefinitions
 use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
@@ -102,7 +105,6 @@ if (defined($cgi->url_param('code'))) {
 
     # Sponsor activated guests. We need the sponsor to authenticate before allowing access
     elsif ($activation_record->{'type'} eq $SPONSOR_ACTIVATION) {
-
 
         # if we have a username in session it means user has already authenticated 
         # so we go ahead and allow the guest in
@@ -262,4 +264,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-

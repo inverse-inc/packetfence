@@ -1,9 +1,11 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 guest-selfregistration.cgi - guest self registration portal
 
 =cut
+
 use strict;
 use warnings;
 
@@ -80,12 +82,12 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       # form valid, adding person (using modify in case person already exists)
       person_modify($session->param('guest_pid'), (
-          'firstname' => $session->param("firstname"),
-          'lastname' => $session->param("lastname"),
-          'company' => $session->param('company'),
-          'email' => $session->param("email"),
-          'telephone' => $session->param("phone"),
-          'notes' => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
+          'firstname'   => $session->param("firstname"),
+          'lastname'    => $session->param("lastname"),
+          'company'     => $session->param('company'),
+          'email'       => $session->param("email"),
+          'telephone'   => $session->param("phone"),
+          'notes'       => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
       ));
       $logger->info("Adding guest person " . $session->param('guest_pid'));
 
@@ -258,4 +260,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-
