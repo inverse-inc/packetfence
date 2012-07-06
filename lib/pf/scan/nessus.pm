@@ -23,6 +23,7 @@ use base ('pf::scan');
 use pf::config;
 use pf::scan;
 use pf::util;
+use Net::Nessus::XMLRPC;
 
 =head1 SUBROUTINES
 
@@ -60,7 +61,6 @@ sub new {
 
     # Nessus specific attributes
     $this->{_port} = $Config{'scan'}{'nessus_port'};
-    $this->{_file} = $install_dir . '/conf/nessus/' . $Config{'scan'}{'nessus_clientfile'};
     $this->{_policy} = $Config{'scan'}{'nessus_clientpolicy'};
 
     return $this;
@@ -82,44 +82,27 @@ sub startScan {
     my $port                = $this->{_port};
     my $user                = $this->{_user};
     my $pass                = $this->{_pass};
-    my $nessus_clientfile   = $this->{_file};
     my $nessus_clientpolicy = $this->{_policy};
-    my $nessusRcHome        = 'HOME=' . $install_dir . '/conf/nessus/';
+    my $n = Net::Nessus::XMLRPC->new ('https://'.$host.':'.$port.'/',$user,$pass);
 
-    # preparing host to scan temporary file and result file
-    my $infileName = '/tmp/pf_nessus_' . $id . '.txt';
-    my $outfileName = $install_dir . '/html/admin/scan/results/dump_' . $id . '.nbe';
-    my $infile_fh;
-    open( $infile_fh, '>', $infileName );
-    print {$infile_fh} $hostaddr;
-    close( $infile_fh );
-
-    # the scan
-    my $cmd = 
-        "$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile " 
-        . "--policy-name $nessus_clientpolicy $host $port $user $pass --target-file $infileName $outfileName 2>&1"
-    ;
-    $logger->info("executing $cmd");
+    # select nessus policy on the server, set scan name and launch the scan
+    my $polid=$n->policy_get_id($nessus_clientpolicy);
+    my $scanname="pf-".$hostaddr;
+    my $scanid=$n->scan_new($polid,$scanname,$hostaddr);
+    $logger->info("executing Nessus scan");
     $this->{'_status'} = $pf::scan::STATUS_STARTED;
     $this->statusReportSyncToDb();
-    my $output = pf_run($cmd);
-    unlink($infileName);
 
-    # did it went well?
-    if ($?) { $logger->warn("nessus scan failed, it returned: $output"); }
-    if ( ! -r $outfileName ) {
-        $logger->warn("unable to open $outfileName for reading; Nessus scan might have failed");
-        return 1;
+    # Wait the scan to finish
+    while (not $n->scan_finished($scanid)) {
+        $logger->info("Nessus is scanning $hostaddr");
+        sleep 15;
     }
-
-    # Preparing and parsing output file
-    chmod 0644, $outfileName;
-    open( $infile_fh, '<', $outfileName);
-
-    # slurp the whole file in arrayref
-    $this->{'_report'} = [ <$infile_fh> ];
-
-    close( $infile_fh );
+    
+    # Get the report
+    $this->{'_report'} = $n->report_filenbe_download($scanid);
+    # Clean the report
+    $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
 
     pf::scan::parse_scan_report($this);
 }
@@ -127,6 +110,8 @@ sub startScan {
 =back
 
 =head1 AUTHOR
+
+Fabrice Durand <fdurand@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 

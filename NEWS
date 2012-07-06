@@ -20,7 +20,7 @@ New Hardware
 
 Enhancements
  * Closing expired violations using the release_date (#1476)
-
+ * Use of Nessus XMLRPC to launch the remote scan
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)
 
