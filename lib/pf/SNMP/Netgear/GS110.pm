@@ -2,7 +2,7 @@ package pf::SNMP::Netgear::GS110;
 
 =head1 NAME
 
-pf::SNMP::Netgear::GS110 - Object oriented module to access and configure enabled Netgear GS110 switches.
+pf::SNMP::Netgear::GS110 - Object oriented module to access and configure NETGEAR GS108Tv2/GS110TP switches.
 
 =head1 STATUS
 
@@ -10,9 +10,21 @@ pf::SNMP::Netgear::GS110 - Object oriented module to access and configure enable
 
 =item Link up/down
 
-This switch only support links up/down SNMP enforcement
+These switches only support link up/down SNMP enforcement
 
 =back
+
+=head1 BUGS AND LIMITATIONS
+
+There can be a lag of up to a minute before changes made via SNMP are reflected
+in the switch's own web management interface.
+
+We make only one set per SNMP packet because while multiple set requests are
+acknowledged, changes after the first are not actually made.
+
+VLANs 1-3 should be avoided because they have hard-coded behavior (vlan 1 is
+always available via GVRP) or mean something else to NETGEAR (automatic guest
+and voice VLANs).
 
 =cut
 
@@ -95,45 +107,13 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item setAdminStatus
-
-=cut
-sub setAdminStatus {
-    my ( $this, $ifIndex, $enabled ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $OID_ifAdminStatus = "1.3.6.1.2.1.2.2.1.7";    # ifMIB
-
-    if ( !$this->isProductionMode() ) {
-        $logger->info("The switch isn't in production mode (Do nothing): Should bounce ifIndex $ifIndex");
-        return 1;
-    }
-
-    if ( !$this->connectWrite() ) {
-        return;
-    }
-
-    $logger->trace("SNNP set_request for OID_ifAdminStatus: ( $OID_ifAdminStatus.$ifIndex )");
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-        "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER, ( $enabled ? 1 : 2 )
-    ] );
-    if ( !defined($result) ) {
-        $logger->error("Error bouncing ifIndex $ifIndex: " . $this->{_sessionWrite}->error);
-    } else {
-        $logger->info("Bouncing ifIndex $ifIndex");
-    }
-
-    return (defined($result));
-}
-
 =item _setVlan
 
 =cut
+
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $OID_dot1qPvid = "1.3.6.1.2.1.17.7.1.4.5.1.1";    # Q-BRIDGE MIB
 
     if ( !$this->isProductionMode() ) {
         $logger->info("The switch isn't in production mode (Do nothing): Should set ifIndex $ifIndex to VLAN $newVlan");
@@ -144,17 +124,123 @@ sub _setVlan {
         return;
     }
 
-    $logger->trace("SNMP set_request for OID_dot1qPvid: ( $OID_dot1qPvid.$ifIndex u $newVlan )");
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-        "$OID_dot1qPvid.$ifIndex", Net::SNMP::GAUGE, $newVlan
-    ] );
-    if ( !defined($result) ) {
-        $logger->error("Error setting PVID $newVlan on ifIndex $ifIndex: " . $this->{_sessionWrite}->error);
-    } else {
-        $logger->info("Setting PVID $newVlan on ifIndex $ifIndex");
-    }
+    my $OID_dot1qPvid = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
+    my $OID_dot1qVlanStaticUntaggedPorts
+        = '1.3.6.1.2.1.17.7.1.4.3.1.4';                  # Q-BRIDGE-MIB
+    my $OID_dot1qVlanStaticEgressPorts
+        = '1.3.6.1.2.1.17.7.1.4.3.1.2';                  # Q-BRIDGE-MIB
+    my $result;
 
-    return (defined($result));
+    $logger->trace( "locking - trying to lock \$switch_locker{"
+            . $this->{_ip}
+            . "} in _setVlan" );
+    {
+        lock %{ $switch_locker_ref->{ $this->{_ip} } };
+        $logger->trace( "locking - \$switch_locker{"
+                . $this->{_ip}
+                . "} locked in _setVlan" );
+
+        # get current egress and untagged ports
+        $this->{_sessionRead}->translate(0);
+        $logger->trace(
+            "SNMP get_request for dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts"
+        );
+        $result = $this->{_sessionRead}->get_request(
+            -varbindlist => [
+                "$OID_dot1qVlanStaticEgressPorts.$oldVlan",
+                "$OID_dot1qVlanStaticEgressPorts.$newVlan",
+                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan",
+                "$OID_dot1qVlanStaticUntaggedPorts.$newVlan"
+            ]
+        );
+
+        # calculate new settings
+        my $egressPortsOldVlan
+            = $this->modifyBitmask(
+            $result->{"$OID_dot1qVlanStaticEgressPorts.$oldVlan"},
+            $ifIndex - 1, 0 );
+        my $egressPortsVlan
+            = $this->modifyBitmask(
+            $result->{"$OID_dot1qVlanStaticEgressPorts.$newVlan"},
+            $ifIndex - 1, 1 );
+        my $untaggedPortsOldVlan
+            = $this->modifyBitmask(
+            $result->{"$OID_dot1qVlanStaticUntaggedPorts.$oldVlan"},
+            $ifIndex - 1, 0 );
+        my $untaggedPortsVlan
+            = $this->modifyBitmask(
+            $result->{"$OID_dot1qVlanStaticUntaggedPorts.$newVlan"},
+            $ifIndex - 1, 1 );
+        $this->{_sessionRead}->translate(1);
+
+        # set all values
+        if ( !$this->connectWrite() ) {
+            return 0;
+        }
+        $logger->info(
+            "SNMP set_request for dot1qPvid, dot1qVlanStaticUntaggedPorts and dot1qVlanStaticEgressPorts: $newVlan $untaggedPortsOldVlan $egressPortsOldVlan $egressPortsVlan $untaggedPortsVlan"
+        );
+
+        # NETGEAR bug: If bind more than one variable in the same set session,
+        # all will be parsed and acknowledged, but only the first OID will
+        # actually change. Hence the tedious series of five sessions below.
+
+        $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+                "$OID_dot1qPvid.$ifIndex", Net::SNMP::GAUGE, $newVlan
+        ]);
+        if ( !defined($result) ) {
+            $logger->error("Error setting PVID $newVlan on ifIndex $ifIndex: " . $this->{_sessionWrite}->error);
+        } else {
+            $logger->info("Set PVID $newVlan on ifIndex $ifIndex");
+        }
+
+        $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+                "$OID_dot1qVlanStaticUntaggedPorts.$oldVlan", Net::SNMP::OCTET_STRING, $untaggedPortsOldVlan,
+        ]);
+        if ( !defined($result) ) {
+            $logger->error("Error setting untagged mask on old vlan $oldVlan: " . $this->{_sessionWrite}->error);
+        } else {
+            $logger->info("Set untagged mask on old vlan $oldVlan");
+        }
+
+        $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+                "$OID_dot1qVlanStaticEgressPorts.$oldVlan", Net::SNMP::OCTET_STRING, $egressPortsOldVlan,,
+        ]);
+        if ( !defined($result) ) {
+            $logger->error("Error setting tagged egress mask on old vlan $oldVlan: " . $this->{_sessionWrite}->error);
+        } else {
+            $logger->info("Set tagged egress mask on old vlan $oldVlan");
+        }
+
+        $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+                "$OID_dot1qVlanStaticUntaggedPorts.$newVlan", Net::SNMP::OCTET_STRING, $untaggedPortsVlan,
+        ]);
+        if ( !defined($result) ) {
+            $logger->error("Error setting untagged mask on new vlan $newVlan: " . $this->{_sessionWrite}->error);
+        } else {
+            $logger->info("Set untagged mask on new vlan $newVlan");
+        }
+
+        $result = $this->{_sessionWrite}->set_request(
+            -varbindlist => [
+                "$OID_dot1qVlanStaticEgressPorts.$newVlan", Net::SNMP::OCTET_STRING, $egressPortsVlan,,
+        ]);     
+        if ( !defined($result) ) {
+            $logger->error("Error setting tagged egress mask on new vlan $newVlan: " . $this->{_sessionWrite}->error);
+        } else {
+            $logger->info("Set tagged egress mask on new vlan $newVlan");
+        }
+
+    }
+    $logger->trace( "locking - \$switch_locker{"
+            . $this->{_ip}
+            . "} unlocked in _setVlan" );
+    return ( defined($result) );
+
 }
 
 =back
