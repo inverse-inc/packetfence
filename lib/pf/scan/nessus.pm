@@ -101,6 +101,9 @@ sub startScan {
     
     # Get the report
     $this->{'_report'} = $n->report_filenbe_download($scanid);
+    # Remove report on the server and logout from nessus
+    $n->report_delete($scanid);
+    $n->DESTROY;
     # Clean the report
     $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
 
