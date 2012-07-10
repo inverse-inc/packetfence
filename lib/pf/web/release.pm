@@ -43,10 +43,10 @@ sub handler
   my $session           = $portalSession->getSession();
   my $ip                = $portalSession->getClientIp();
   my $destination_url   = $portalSession->getDestinationUrl();
+  my $mac               = $portalSession->getClientMac();
 
   # we need a valid MAC to identify a node
   # TODO this is duplicated too much, it should be brought up in a global dispatcher
-  my $mac = ip2mac($ip);
   if (!valid_mac($mac)) {
     $logger->info("$ip not resolvable, generating error page");
     pf::web::generate_error_page($portalSession, i18n("error: not found in the database"), $r);
@@ -105,7 +105,7 @@ sub handler
     $r->pool->cleanup_register(\&scan, [$logger, $violations, $cmd]); 
  
     $logger->trace("parent part, redirecting to scan started page");
-    pf::web::generate_scan_start_page($cgi, $session, $destination_url, $r);
+    pf::web::generate_scan_start_page($portalSession, $r);
   
     return Apache2::Const::OK;
   }

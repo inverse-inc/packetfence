@@ -101,8 +101,6 @@ sub generate_selfregistration_page {
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
-    my $mac = $portalSession->getClientMac();
 
     $logger->info('generate_selfregistration_page');
 
@@ -112,15 +110,14 @@ sub generate_selfregistration_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
+        logo            => $portalSession->getProfile->getLogo,
         i18n            => \&i18n,
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
         post_uri => $post_uri,
     };
@@ -150,7 +147,9 @@ sub generate_selfregistration_page {
         $vars->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
     exit;
 }
@@ -230,7 +229,9 @@ sub generate_registration_page {
 
     $vars->{'section'} = $section if ($section);
 
-    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
     $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
     exit;
 }
@@ -502,9 +503,7 @@ sub prepare_email_guest_activation_info {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $mac     = $portalSession->getClientMac();
 
     $info{'firstname'} = $session->param("firstname");
     $info{'lastname'} = $session->param("lastname");
@@ -527,9 +526,7 @@ sub prepare_sponsor_guest_activation_info {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $mac     = $portalSession->getClientMac();
 
     $info{'firstname'} = $session->param("firstname");
     $info{'lastname'} = $session->param("lastname");
@@ -562,9 +559,8 @@ sub generate_custom_login_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
     my $vars = {
-        logo => $Config{'general'}{'logo'},
+        logo => $portalSession->getProfile->getLogo,
         i18n => \&i18n
     };
 
@@ -573,7 +569,9 @@ sub generate_custom_login_page {
     # return login
     $vars->{'username'} = encode_entities($cgi->param("username"));
 
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process($html_template, $vars) || $logger->error($template->error());
     exit;
 }
@@ -717,7 +715,9 @@ sub generate_registration_confirmation_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
     $template->process($pf::web::guest::REGISTRATION_CONFIRMATION_TEMPLATE, $vars)
         || $logger->error($template->error());
     exit;
@@ -756,21 +756,18 @@ sub generate_sms_confirmation_page {
     # First blast at consuming portalSession object
     my $cgi             = $portalSession->getCgi();
     my $session         = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
 
     setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
-    my $ip   = $cgi->remote_addr;
-    my $mac  = ip2mac($ip);
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
+        logo            => $portalSession->getProfile->getLogo,
         i18n            => \&i18n,
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         post_uri        => $post_uri,
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ]
     };
 
@@ -782,7 +779,9 @@ sub generate_sms_confirmation_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process( 'guest/sms_confirmation.html' , $vars ) || $logger->error($template->error());
     exit;
 }

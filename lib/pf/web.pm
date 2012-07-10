@@ -23,6 +23,7 @@ F<register.html>.
 =cut
 
 #TODO all template destination should be variables allowing redefinitions by pf::web::custom
+
 use strict;
 use warnings;
 
@@ -138,7 +139,9 @@ sub _render_template {
     print $cgi->header( -cookie => $cookie );
 
     $logger->debug("rendering template named $template");
-    my $tt = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    my $tt = Template->new({ 
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath], 
+    });
     $tt->process( $template, $vars_ref, $r ) || do {
         $logger->error($tt->error());
         return $FALSE;
@@ -153,18 +156,15 @@ sub generate_release_page {
     # First blast at consuming portalSession object
     my $cgi             = $portalSession->getCgi();
     my $session         = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
-    my $mac             = $portalSession->getClientMac();
-    my $ip              = $portalSession->getClientIp();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
+        logo            => $portalSession->getProfile->getLogo,
         timer           => $Config{'trapping'}{'redirtimer'},
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         redirect_url => $Config{'trapping'}{'redirecturl'},
         i18n => \&i18n,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
@@ -172,8 +172,8 @@ sub generate_release_page {
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     };
 
@@ -183,7 +183,9 @@ sub generate_release_page {
     }
 
     my $html_txt;
-    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
+    my $template = Template->new({ 
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process( "release.html", $vars, \$html_txt ) || $logger->error($template->error());
     
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -208,14 +210,9 @@ sub supports_mobileconfig_provisioning {
 
     return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
 
-    # First blast of portalSession object consumption
-    my $cgi = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-    my $mac = $portalSession->getClientMac();
-
     # is this an iDevice?
     # TODO get rid of hardcoded targets like that
-    my $node_attributes = node_attributes($mac);
+    my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
     return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/); 
 
@@ -236,28 +233,25 @@ Offers a page that links to the proper provisioning XML.
 
 =cut
 sub generate_mobileconfig_provisioning_page {
-    my ( $cgi, $session, $mac ) = @_;
+    my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
+
+    # First blast at portalSession object consumption
+    my $cgi     = $portalSession->getCgi;
+    my $session = $portalSession->getSession;
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $ip = get_client_ip($cgi);
     my $vars = {
-        logo => $Config{'general'}{'logo'},
-        i18n => \&i18n,
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     };
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "release_with_xmlconfig.html", $vars ) || $logger->error($template->error());
+    _render_template($portalSession, 'release_with_xmlconfig.html', $vars);
 }
 
 =item generate_apple_mobileconfig_provisioning_xml
@@ -287,37 +281,43 @@ sub generate_apple_mobileconfig_provisioning_xml {
     print $cgi->header( 'Content-Disposition: attachment; filename="wireless-profile.mobileconfig"' );
 
     # Using TT to render the XML with correct variables populated
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    my $template = Template->new({ 
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process( "wireless-profile.xml", $vars ) || $logger->error($template->error());
 }
 
 sub generate_scan_start_page {
-    my ( $cgi, $session, $destination_url, $r ) = @_;
+    my ( $portalSession, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at portalSession object consumption
+    my $cgi             = $portalSession->getCgi;
+    my $session         = $portalSession->getSession;
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $ip = get_client_ip($cgi);
-    my $mac = ip2mac($ip);
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
+        logo            => $portalSession->getProfile->getLogo,
         timer           => $Config{'scan'}{'duration'},
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         i18n => \&i18n,
         txt_message     => sprintf(
             i18n("system scan in progress"),
             $Config{'scan'}{'duration'}
         ),
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     };
     # Once the progress bar is over, try redirecting
     my $html_txt;
-    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    my $template = Template->new({ 
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process( "scan.html", $vars, \$html_txt ) || $logger->error($template->error());
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
@@ -336,25 +336,20 @@ sub generate_login_page {
     # First blast at consuming portalSession object
     my $cgi             = $portalSession->getCgi();
     my $session         = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
-    my $mac             = $portalSession->getClientMac();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $ip = get_client_ip($cgi);
     my $vars = {
-        i18n            => \&i18n,
-        logo            => $Config{'general'}{'logo'},
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     };
 
-    $vars->{'guest_allowed'} = isenabled($Config{'registration'}{'guests_self_registration'});
+    $vars->{'guest_allowed'} = isenabled($portalSession->getProfile->getGuestSelfReg);
     $vars->{'txt_auth_error'} = i18n($err) if (defined($err)); 
 
     # return login
@@ -364,12 +359,7 @@ sub generate_login_page {
     $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 
     $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "login.html", $vars ) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'login.html', $vars);
 }
 
 sub generate_enabler_page {
@@ -379,26 +369,18 @@ sub generate_enabler_page {
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         violation_id    => $violation_id,
         enable_text     => $enable_text,
-        i18n            => \&i18n
     };
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
-    $template->process( "enabler.html", $vars ) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'enabler.html', $vars)
 }
 
 sub generate_redirect_page {
@@ -408,25 +390,17 @@ sub generate_redirect_page {
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
         violation_url   => $violation_url,
-        destination_url => encode_entities($destination_url),
-        i18n            => \&i18n,
+        destination_url => encode_entities($portalSession->getDestinationUrl),
     };
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "redirect.html", $vars ) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'redirect.html', $vars);
 }
 
 =item generate_aup_standalone_page
@@ -441,65 +415,47 @@ sub generate_aup_standalone_page {
     # First blast at consuming portalSession object
     my $cgi     = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $mac     = $portalSession->getClientMac();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $ip = get_client_ip($cgi);
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n,
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     };
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new({ INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], });
-    $template->process( "aup.html", $vars ) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'aup.html', $vars);
 }
 
 sub generate_scan_status_page {
     my ( $portalSession, $scan_start_time, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+    my $refresh_timer = 10; # page will refresh each 10 seconds
+
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
-
-    my $refresh_timer = 10; # page will refresh each 10 seconds
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $ip = get_client_ip($cgi);
-    my $mac = ip2mac($ip);
     my $vars = {
-        logo             => $Config{'general'}{'logo'},
-        i18n             => \&i18n,
         txt_message      => i18n_format('scan in progress contact support if too long', $scan_start_time),
         txt_auto_refresh => i18n_format('automatically refresh', $refresh_timer),
-        destination_url  => encode_entities($destination_url),
+        destination_url  => encode_entities($portalSession->getDestinationUrl),
         refresh_timer    => $refresh_timer,
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     };
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "scan-in-progress.html", $vars, $r ) || $logger->error($template->error());
+    _render_template($portalSession, 'scan-in-progress.html', $vars, $r);
 }
 
 sub generate_error_page {
@@ -515,24 +471,14 @@ sub generate_error_page {
     textdomain("packetfence");
 
     my $vars = {
-        logo => $Config{'general'}{'logo'},
-        i18n => \&i18n,
-        i18n_format => \&i18n_format,
         txt_message => $error_msg,
+        list_help_info  => [
+            { name => i18n('IP'),   value => $portalSession->getClientIp },
+            { name => i18n('MAC'),  value => $portalSession->getClientMac },
+        ],
     };
 
-    my $ip = get_client_ip($cgi);
-    my $mac = ip2mac($ip);
-    push @{ $vars->{list_help_info} }, { name => i18n('IP'), value => $ip };
-    if ($mac) {
-        push @{ $vars->{list_help_info} }, { name => i18n('MAC'), value => $mac };
-    }
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "error.html", $vars, $r ) || $logger->error($template->error());
+    _render_template($portalSession, 'error.html', $vars, $r);
 }
 
 =item generate_admin_error_page
@@ -567,7 +513,9 @@ sub generate_admin_error_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    my $template = Template->new({ 
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
     $template->process( "error.html", $vars, $r ) || $logger->error($template->error());
 }
 
@@ -593,8 +541,6 @@ sub generate_status_page {
     textdomain("packetfence");
 
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n,
         list_help_info  => [
             { name => i18n('IP'),  value => $ip },
             { name => i18n('MAC'), value => $mac }
@@ -632,11 +578,7 @@ sub generate_status_page {
             };
     }
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "status.html", $vars ) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'status.html', $vars);
 }
 
 =item generate_status_json
@@ -761,7 +703,7 @@ sub validate_form {
 
         # validates if supplied auth type is allowed by configuration
         my $auth = $cgi->param("auth");
-        my @auth_choices = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+        my @auth_choices = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
         if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
             return ( 0, 'Unable to validate credentials at the moment' );
         }
@@ -808,8 +750,6 @@ sub generate_registration_page {
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
-    my $mac = $portalSession->getClientMac();
 
     $pagenumber = 1 if (!defined($pagenumber));
 
@@ -817,17 +757,12 @@ sub generate_registration_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $ip   = get_client_ip($cgi);
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => encode_entities($destination_url),
-        i18n            => \&i18n,
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
         reg_page_content_file => "register_$pagenumber.html",
     };
@@ -853,9 +788,7 @@ sub generate_registration_page {
         $vars->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process( "register.html", $vars ) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'register.html', $vars);
 }
 
 =item generate_pending_page
@@ -870,22 +803,17 @@ sub generate_pending_page {
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $destination_url = $portalSession->getDestinationUrl();
-    my $mac = $portalSession->getClientMac();
 
     setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $ip = $cgi->remote_addr;
     my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n => \&i18n,
         list_help_info  => [
-            { name => i18n('IP'),  value => $ip },
-            { name => i18n('MAC'), value => $mac }
+            { name => i18n('IP'),  value => $portalSession->getClientIp },
+            { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-        destination_url => encode_entities($destination_url),
+        destination_url => encode_entities($portalSession->getDestinationUrl),
         redirect_url => $Config{'trapping'}{'redirecturl'},
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
@@ -897,12 +825,7 @@ sub generate_pending_page {
         $vars->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
     }
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
-    $template->process("pending.html", $vars) || $logger->error($template->error());
-    exit;
+    _render_template($portalSession, 'pending.html', $vars);
 }
 
 =item get_client_ip
@@ -989,7 +912,7 @@ sub end_portal_session {
 
     # handle mobile provisioning if relevant
     if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
-        pf::web::generate_mobileconfig_provisioning_page($cgi, $session, $mac);
+        pf::web::generate_mobileconfig_provisioning_page($portalSession);
         exit(0);
     }
 
@@ -1023,26 +946,14 @@ sub generate_generic_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $ip = get_client_ip($cgi);
-    my $mac = ip2mac($ip);
-
     my $vars = $template_args;
-    $vars->{'logo'} = $Config{'general'}{'logo'};
-    $vars->{'i18n'} = \&i18n;
-    $vars->{'i18n_format'} = \&i18n_format;
     $vars->{'list_help_info'} = [
-        { name => i18n('IP'),  value => $ip },
-        { name => i18n('MAC'), value => $mac }
+        { name => i18n('IP'),  value => $portalSession->getClientIp },
+        { name => i18n('MAC'), value => $portalSession->getClientMac }
     ];
 
-    my $tt = Template->new({INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],});
-    $tt->process($template, $vars) || $logger->error($tt->error());
-    exit;
+    _render_template($portalSession, $template, $vars);
 }
-
 
 =back
 
@@ -1055,6 +966,8 @@ Kevin Amorin <kev@amorin.org>
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

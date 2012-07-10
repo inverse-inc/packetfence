@@ -101,11 +101,17 @@ if ($violation){
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   # Redirect to the billing engine if enabled
-  if ( isenabled($Config{'registration'}{'billing_engine'}) ) {
+  if ( isenabled($portalSession->getProfile->getBilling) ) {
     $logger->info("$mac redirected to billing page");
     pf::web::billing::generate_billing_page($portalSession);
     exit(0);
-  } 
+  }
+  # Redirect to the guests self registration page if configured to do so
+  elsif ( $portalSession->getProfile->getAuth eq 'guests_self_registration_only') {
+    $logger->info("$mac redirected to guests self registration page");
+    pf::web::guest::generate_selfregistration_page($portalSession);
+    exit(0);
+  }
   elsif ($Config{'registration'}{'nbregpages'} == 0) {
     $logger->info("$mac redirected to authentication page");
     pf::web::generate_login_page($portalSession);

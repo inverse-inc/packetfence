@@ -65,7 +65,7 @@ if (defined($cgi->url_param('code'))) {
             node_modify($node_mac, (
                 'unregdate' => $expiration, 
                 'status' => 'reg', 
-                'category' => $Config{'guests_self_registration'}{'category'},
+                'category' => $portalSession->getProfile->getGuestCategory,
             ));
 
             # send to a success page
@@ -182,7 +182,7 @@ if (defined($cgi->url_param('code'))) {
             # update node info and prepare for registration according to config
             my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
             $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
-            $info{'category'} = $Config{'guests_self_registration'}{'category'};
+            $info{'category'} = $portalSession->getProfile->getGuestCategory;
     
             # register the node
             pf::web::web_node_register($portalSession, $node_info->{'pid'}, %info);

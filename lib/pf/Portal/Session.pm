@@ -71,7 +71,7 @@ sub _initialize {
     $self->{'_guest_node_mac'} = undef;
 
     # XXX pass mac here
-    $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate();
+    $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
 }
 
 =item getCgi

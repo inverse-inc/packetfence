@@ -1,4 +1,5 @@
 package pf::Portal::ProfileFactory;
+
 =head1 NAME
 
 pf::Portal::ProfileFactory - Factory to construct special 
@@ -12,12 +13,14 @@ configuration containing all the necessary information needed to actually
 instantiate the objects.
 
 =cut
+
 use strict;
 use warnings;
 
 use Log::Log4perl;
 
 use pf::config;
+use pf::node;
 use pf::Portal::Profile;
 
 =head1 SUBROUTINES
@@ -31,7 +34,7 @@ Create a new pf::Portal::Profile instance based on parameters given.
 =cut
 # XXX incomplete
 sub instantiate {
-    my ( $self, $profile_type ) = @_;
+    my ( $self, $mac, $profile_type ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
 #    $logger->debug("creating new portal profile of type $profile_type");
@@ -42,14 +45,72 @@ sub instantiate {
     #     reload in there in the future
     # XXX also take the given mac and lookup the SSID on it and return proper
     #     portal object
+
+    return pf::Portal::Profile->new(_default_profile()) if (!defined(tied(%Config)->GroupMembers("portal-profile")));
+
+    # Fetch filter for every configured portal-profiles
+    # Structure: FILTER => NAME OF PROFILE
+    my %filters;
+    foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
+        my $profile = $portalprofile;
+        $profile =~ s/portal-profile //;
+        $filters{$Config{$portalprofile}{'filter'}} = $profile;
+    }
+
+    # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
+    # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
+    my $node_info = node_view($mac);
+    my $last_ssid = $node_info->{'last_ssid'};
+    return pf::Portal::Profile->new(_default_profile()) if (!defined($last_ssid));
+
+    foreach my $filter ( keys %filters ) {
+        if ( $filter eq $last_ssid ) {
+            $logger->info("instantiating new portal profile of type " . $filters{$filter});
+            return pf::Portal::Profile->new(_custom_profile($filters{$filter}));
+        }
+    }
+
     return pf::Portal::Profile->new(_default_profile());
 }
 
 sub _default_profile {
     return {
-        'name' => 'default',
-        'logo' => $Config{'general'}{'logo'},
+        'name'              => 'default',
+        'logo'              => $Config{'general'}{'logo'},
+        'auth'              => $Config{'registration'}{'auth'},
+        'guest_self_reg'    => $Config{'registration'}{'guests_self_registration'},
+        'guest_modes'       => $Config{'guests_self_registration'}{'modes'},
+        'guest_category'    => $Config{'guests_self_registration'}{'category'},
+        'template_path'     => '/',
+        'billing_engine'    => $Config{'registration'}{'billing-engine'},
         # XXX other default settings
+#        'redirtimer'            => $Config{'trapping'}{'redirtimer'},
+#        'redirecturl'           => $Config{'trapping'}{'redirecturl'},
+#        'always_use_redirect'   => $Config{'trapping'}{'always_use_redirect'},
+#        'button_text'           => $Config{'registration'}{'button_text'},
+#        'nbregpages'            => $Config{'registration'}{'nbregpages'},
+    };
+}
+
+sub _custom_profile {
+    my ($name) = @_;
+
+    return {
+        'name'              => $name,
+        'logo'              => $Config{"portal-profile $name"}{'logo'}
+                            || $Config{'general'}{'logo'},
+        'auth'              => $Config{"portal-profile $name"}{'auth'}
+                            || 'guests_self_registration_only',
+        'guest_self_reg'    => $Config{"portal-profile $name"}{'guest_self_reg'}
+                            || $Config{'registration'}{'guests_self_registration'},
+        'guest_modes'       => $Config{"portal-profile $name"}{'guest_modes'}
+                            || $Config{'guests_self_registration'}{'modes'},
+        'guest_category'    => $Config{"portal-profile $name"}{'guest_category'}
+                            || $Config{'guests_self_registration'}{'category'},
+        'template_path'     => $Config{"portal-profile $name"}{'template_path'}
+                            || '/',
+        'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}
+                            || $Config{'registration'}{'billing-engine'},
     };
 }
 
@@ -58,6 +119,8 @@ sub _default_profile {
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

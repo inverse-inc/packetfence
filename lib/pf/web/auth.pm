@@ -31,6 +31,7 @@ use Log::Log4perl;
 use Try::Tiny;
 
 use pf::config;
+use pf::Portal::Session;
 
 BEGIN {
     use Exporter ();
@@ -56,7 +57,9 @@ Doing this only once gives us appreciable performance gains.
 sub initialize {
     my $logger = Log::Log4perl::get_logger("pf::web::auth");
 
-    my @auth_types = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    my $portalSession = pf::Portal::Session->new();
+
+    my @auth_types = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
     # if sponsored guest authentication is enabled add the module
     if ($guest_self_registration{$SELFREG_MODE_SPONSOR}) {
         push @auth_types, $Config{'guests_self_registration'}{'sponsor_authentication'};
@@ -84,10 +87,12 @@ Will cache the returned list for faster subsequent retrieval.
 sub list_enabled_auth_types {
     initialize() if (!$initialized);
 
+   my $portalSession = pf::Portal::Session->new();
+
     # cache hit
     return $pretty_names_ref_cache if (defined($pretty_names_ref_cache));
 
-    my @auth_types = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
+    my @auth_types = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
     
     my $pretty_names_ref = {};
     foreach my $auth_type (@auth_types) {

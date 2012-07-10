@@ -45,7 +45,7 @@ my $session = $portalSession->getSession();
 
 # if self registration is not enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
-    if (isdisabled($Config{'registration'}{'guests_self_registration'}));
+    if (isdisabled($portalSession->getProfile->getGuestSelfReg));
 
 # if we can resolve the MAC we are in on-site self-registration
 # if we can't resolve it and preregistration is disabled, generate an error
@@ -94,7 +94,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       # grab additional info about the node
       my %info;
       $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $Config{'guests_self_registration'}{'category'};
+      $info{'category'} = $portalSession->getProfile->getGuestCategory;
 
       # unreg in guests.email_activation_timeout seconds
       my $timeout = $Config{'guests_self_registration'}{'email_activation_timeout'};
@@ -183,7 +183,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       # grab additional info about the node
       my %info;
       $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $Config{'guests_self_registration'}{'category'};
+      $info{'category'} = $portalSession->getProfile->getGuestCategory;
       $info{'status'} = $pf::node::STATUS_PENDING;
 
       if (!$session->param("preregistration")) {

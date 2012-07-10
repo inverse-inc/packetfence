@@ -66,13 +66,75 @@ sub getLogo {
     return $self->{'_logo'};
 }
 
-# XXX add additional getters consumed by the portal
+=item getAuth
+
+Returns the configured allowed authentication methods for the current captive portal profile.
+
+=cut
+sub getAuth {
+    my ($self) = @_;
+    return $self->{'_auth'};
+}
+
+=item getGuestSelfReg
+
+Returns either enabled or disabled depending on if the current captive portal profile allows guest self-registration.
+
+=cut
+sub getGuestSelfReg {
+    my ($self) = @_;
+    return $self->{'_guest_self_reg'};
+}
+
+=item getGuestModes
+
+Returns the available enabled modes for guest self-registration for the current captive portal profile.
+
+=cut
+sub getGuestModes {
+    my ($self) = @_;
+    return $self->{'_guest_modes'};
+}
+
+=item getGuestCategory
+
+Returns the category that should be assigned to guests who self-registers themselves on the current captive portal profile.
+
+=cut
+sub getGuestCategory {
+    my ($self) = @_;
+    return $self->{'_guest_category'};
+}
+
+=item getTemplatePath
+
+Returns the path for custom templates for the current captive portal profile.
+
+Relative to html/captive-portal/templates/
+
+=cut
+sub getTemplatePath {
+    my ($self) = @_;
+    return $self->{'_template_path'};
+}
+
+=item getBillingEngine
+
+Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
+
+=cut
+sub getBillingEngine {
+    my ($self) = @_;
+    return $self->{'_billing_engine'};
+}
 
 =back
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

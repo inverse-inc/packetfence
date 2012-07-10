@@ -66,7 +66,7 @@ if ( $portalSession->getCgi->param("pin") ) { # && $portalSession->getSession->p
     # Setting access timeout and category from config
     my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
-    $info{'category'} = $Config{'guests_self_registration'}{'category'};
+    $info{'category'} = $portalSession->getProfile->getGuestCategory;
 
     my $pid = $portalSession->getSession->param("guest_pid") || 1;
     pf::web::web_node_register($portalSession, $pid, %info);
