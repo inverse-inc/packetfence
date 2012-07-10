@@ -101,7 +101,7 @@ if ($violation){
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   # Redirect to the billing engine if enabled
-  if ( isenabled($portalSession->getProfile->getBilling) ) {
+  if ( isenabled($portalSession->getProfile->getBillingEngine) ) {
     $logger->info("$mac redirected to billing page");
     pf::web::billing::generate_billing_page($portalSession);
     exit(0);
