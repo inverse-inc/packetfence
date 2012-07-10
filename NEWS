@@ -18,6 +18,9 @@ Version <stable-version> released on <releaseDate>
 New Hardware
  * Adding support for Cisco Catalyst 3560G
 
+New Features 
+ * Remediation module for SourceFire 3D (addons/sourcefire)
+
 Enhancements
  * Closing expired violations using the release_date (#1476)
 
