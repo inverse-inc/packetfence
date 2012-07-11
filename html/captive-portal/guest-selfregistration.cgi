@@ -45,7 +45,8 @@ my $session = $portalSession->getSession();
 
 # if self registration is not enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
-    if (isdisabled($portalSession->getProfile->getGuestSelfReg));
+    if ( isdisabled($portalSession->getProfile->getGuestSelfReg) 
+         && $portalSession->getProfile->getAuth ne 'guests_self_registration_only');
 
 # if we can resolve the MAC we are in on-site self-registration
 # if we can't resolve it and preregistration is disabled, generate an error
