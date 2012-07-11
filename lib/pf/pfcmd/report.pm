@@ -234,7 +234,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_osclassbandwidth_sql'} = get_db_handle()->prepare(qq [
         SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
@@ -267,7 +267,7 @@ sub report_db_prepare {
 
     $report_statements->{'report_osclassbandwidth_with_range_sql'} = get_db_handle()->prepare(qq[
         SELECT IFNULL(c.description, 'Unknown Fingerprint') as dhcp_fingerprint,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets,
             ROUND(
                 SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets)/(
                     SELECT SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) 
@@ -309,14 +309,14 @@ sub report_db_prepare {
                 SUBSTRING(radacct.callingstationid,9,2),':',
                 SUBSTRING(radacct.callingstationid,11,2)
             )) as callingstationid,
-            SUM(radacct_log.acctinputoctets) AS acctinput,
-            SUM(radacct_log.acctoutputoctets) AS acctoutput,
-            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotal
+            SUM(radacct_log.acctinputoctets) AS acctinputoctets,
+            SUM(radacct_log.acctoutputoctets) AS acctoutputoctets,
+            SUM(radacct_log.acctinputoctets+radacct_log.acctoutputoctets) AS accttotaloctets
         FROM radacct_log
         LEFT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         GROUP BY radacct.callingstationid
         HAVING radacct.callingstationid IS NOT NULL
-        ORDER BY accttotal DESC
+        ORDER BY accttotaloctets DESC
         LIMIT 25;
     ]);
 
@@ -684,16 +684,16 @@ Sub that supports a range from now til $range window.
 sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
     my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $range, $range);
-    my $totalbw = 0;
+    my $totalbwoctets = 0;
     my @return_data;
 
     foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        $totalbwoctets += $record->{'accttotaloctets'};
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
         push @return_data, $record;
     }
-    $totalbw = pf::util::pretty_bandwidth($totalbw);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
+    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
     return (@return_data);
 }
 
@@ -704,16 +704,16 @@ Reporting - OS Class bandwitdh usage - All time
 =cut
 sub report_osclassbandwidth_all {
     my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql');
-    my $totalbw = 0;
+    my $totalbwoctets = 0;
     my @return_data;
 
     foreach my $record (@data) {
-        $totalbw += $record->{'accttotal'};
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        $totalbwoctets += $record->{'accttotaloctets'};
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
         push @return_data, $record;
     }
-    $totalbw = pf::util::pretty_bandwidth($totalbw);
-    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotal => $totalbw };
+    my $totalbw = pf::util::pretty_bandwidth($totalbwoctets);
+    push @return_data, { dhcp_fingerprint => "Total", percent => "100", accttotaloctets => $totalbwoctets, accttotal => $totalbw };
     return (@return_data);
 }
 
@@ -760,32 +760,37 @@ Reporting - Node bandwitdh usage for the top 25 consumers
 =cut
 sub report_nodebandwidth_all {
     my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql');
-    my %totalbw = ( 'in' => 0, 'out' => 0, 'both' => 0 );
+    my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
     my @return_data;
 
     # loop in the data once the calculate the totals
     foreach my $record (@data) {
-        $totalbw{'in'} += $record->{'acctinput'};
-        $totalbw{'out'} += $record->{'acctoutput'};
-        $totalbw{'both'} += $record->{'accttotal'};
+        $totalbw{'inoctets'} += $record->{'acctinputoctets'};
+        $totalbw{'outoctets'} += $record->{'acctoutputoctets'};
+        $totalbw{'bothoctets'} += $record->{'accttotaloctets'};
     }
 
     # loop on it again to assign the values
     foreach my $record (@data) {
-        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotal'} / $totalbw{'both'} ) * 100 );
-        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinput'});
-        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutput'});
-        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotal'});
+        $record->{'percent'} = sprintf( "%.1f", ( $record->{'accttotaloctets'} / $totalbw{'bothoctets'} ) * 100 );
+        $record->{'acctinput'} = pf::util::pretty_bandwidth($record->{'acctinputoctets'});
+        $record->{'acctoutput'} = pf::util::pretty_bandwidth($record->{'acctoutputoctets'});
+        $record->{'accttotal'} = pf::util::pretty_bandwidth($record->{'accttotaloctets'});
         push @return_data, $record;
     }
 
     # convert to human friendly format
     foreach my $direction (keys %totalbw) {
-        $totalbw{$direction} = pf::util::pretty_bandwidth($totalbw{$direction});
+        my $direction_pretty = $direction;
+        $direction_pretty =~ s/octets$//;
+        $totalbw{$direction_pretty} = pf::util::pretty_bandwidth($totalbw{$direction});
     }
 
     push @return_data, {
         'callingstationid' => "Total",
+        'acctinputoctets' => $totalbw{'inoctets'},
+        'acctoutputoctets' => $totalbw{'outoctets'},
+        'accttotaloctets' => $totalbw{'bothoctets'},
         'acctinput' => $totalbw{'in'},
         'acctoutput' => $totalbw{'out'},
         'accttotal' => $totalbw{'both'},
