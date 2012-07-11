@@ -92,7 +92,7 @@ sub iptables_generate {
 
     # per-feature firewall rules
     # self-registered guest by email or sponsored
-    my $guests_enabled = isenabled($Config{'registration'}{'guests_self_registration'});
+    my $guests_enabled = $guest_self_registration{'enabled'};
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guests_enabled && ($email_enabled || $sponsor_enabled)) {

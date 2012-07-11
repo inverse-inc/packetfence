@@ -76,7 +76,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($portalSession);
 
     # Email
-    if ($auth_return && defined($cgi->param('by_email')) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
+    if ( $auth_return && defined($cgi->param('by_email')) && is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ) {
       # User chose to register by email
       $logger->info( "registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest by email" );
 
@@ -133,7 +133,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     }
 
     # SMS
-    elsif ( $auth_return && defined($cgi->param('by_sms')) && defined($guest_self_registration{$SELFREG_MODE_SMS}) ) {
+    elsif ( $auth_return && defined($cgi->param('by_sms')) && is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ) {
       if ($session->param("preregistration")) {
           pf::web::generate_error_page($portalSession, i18n("Registration in advance by SMS is not supported."));
           exit(0);
@@ -162,7 +162,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     }
 
     # SPONSOR
-    elsif ( $auth_return && defined($cgi->param('by_sponsor')) && defined($guest_self_registration{$SELFREG_MODE_SPONSOR}) ) {
+    elsif ( $auth_return && defined($cgi->param('by_sponsor')) && is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
       # User chose to register through a sponsor
       $logger->info(
           "registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest through a sponsor"

@@ -119,7 +119,7 @@ sub generate_selfregistration_page {
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-        post_uri => $post_uri,
+        post_uri => defined($post_uri) || "/signup?mode=guest-register",
     };
 
     # put seperately because of side effects in anonymous hashref
@@ -135,9 +135,9 @@ sub generate_selfregistration_page {
 
     $vars->{'sms_carriers'} = sms_carrier_view_all();
 
-    $vars->{'email_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_EMAIL});
-    $vars->{'sms_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SMS});
-    $vars->{'sponsored_guest_allowed'} = defined($guest_self_registration{$SELFREG_MODE_SPONSOR});
+    $vars->{'email_guest_allowed'} = is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes);
+    $vars->{'sms_guest_allowed'} = is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes);
+    $vars->{'sponsored_guest_allowed'} = is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes);
     $vars->{'is_preregistration'} = $session->param('preregistration');
 
     # Error management
