@@ -83,34 +83,23 @@ sub _default_profile {
         'guest_category'    => $Config{'guests_self_registration'}{'category'},
         'template_path'     => '/',
         'billing_engine'    => $Config{'registration'}{'billing-engine'},
-        # XXX other default settings
-#        'redirtimer'            => $Config{'trapping'}{'redirtimer'},
-#        'redirecturl'           => $Config{'trapping'}{'redirecturl'},
-#        'always_use_redirect'   => $Config{'trapping'}{'always_use_redirect'},
-#        'button_text'           => $Config{'registration'}{'button_text'},
-#        'nbregpages'            => $Config{'registration'}{'nbregpages'},
     };
 }
 
 sub _custom_profile {
     my ($name) = @_;
 
+    my $defaults = _default_profile();
+
     return {
         'name'              => $name,
-        'logo'              => $Config{"portal-profile $name"}{'logo'}
-                            || $Config{'general'}{'logo'},
-        'auth'              => $Config{"portal-profile $name"}{'auth'}
-                            || 'guests_self_registration_only',
-        'guest_self_reg'    => $Config{"portal-profile $name"}{'guest_self_reg'}
-                            || $Config{'registration'}{'guests_self_registration'},
-        'guest_modes'       => $Config{"portal-profile $name"}{'guest_modes'}
-                            || $Config{'guests_self_registration'}{'modes'},
-        'guest_category'    => $Config{"portal-profile $name"}{'guest_category'}
-                            || $Config{'guests_self_registration'}{'category'},
-        'template_path'     => $Config{"portal-profile $name"}{'template_path'}
-                            || '/',
-        'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}
-                            || $Config{'registration'}{'billing-engine'},
+        'logo'              => $Config{"portal-profile $name"}{'logo'}              || $defaults->{'logo'},
+        'auth'              => $Config{"portal-profile $name"}{'auth'}              || 'guests_self_registration_only',
+        'guest_self_reg'    => $Config{"portal-profile $name"}{'guest_self_reg'}    || $defaults->{'guest_self_reg'},
+        'guest_modes'       => $Config{"portal-profile $name"}{'guest_modes'}       || $defaults->{'guest_modes'},
+        'guest_category'    => $Config{"portal-profile $name"}{'guest_category'}    || $defaults->{'guest_category'},
+        'template_path'     => $Config{"portal-profile $name"}{'template_path'}     || $defaults->{'template_path'},
+        'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}    || $defaults->{'billing_engine'},
     };
 }
 
