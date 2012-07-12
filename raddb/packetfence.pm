@@ -12,8 +12,6 @@ packetfence.pm contains the functions necessary to integrate PacketFence and Fre
 
 use strict;
 use warnings;
-use diagnostics;
-use Sys::Syslog;
 
 # Configuration parameters
 use constant {
@@ -43,6 +41,19 @@ use constant    RLM_MODULE_NOOP=>      7;#  /* module succeeded without doing an
 use constant    RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
 use constant    RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
 
+#
+# FreeRADIUS log facility names
+#
+# Same as src/include/radiusd.h
+use constant {
+    L_DBG   => 1,
+    L_AUTH  => 2,
+    L_INFO  => 3,
+    L_ERR   => 4,
+    L_PROXY => 5,
+    L_ACCT  => 6,
+};
+
 # when troubleshooting run radius -X and change the following line with: use SOAP::Lite +trace => qw(all), 
 use SOAP::Lite
     # SOAP global error handler (mostly transport or server errors)
@@ -55,8 +66,7 @@ use SOAP::Lite
         } else {
             $errmsg = $soap->transport->status;
         }
-        syslog("info", "Error in SOAP communication with server: $errmsg");
-        &radiusd::radlog(1, "PacketFence DENIED CONNECTION because of SOAP error see syslog for details.");
+        &radiusd::radlog(L_ERR, "Error in SOAP communication with server: $errmsg");
     };  
 
 #TODO format well and document the fact that we might need re-create the object on error or something
@@ -80,9 +90,6 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
 
-    # syslog logging
-    openlog("radiusd_pf", "perror,pid", "user");
-
     # is it EAP-based Wired MAC Authentication?
     if (is_eap_mac_authentication()) {
 
@@ -90,16 +97,11 @@ sub authorize {
         my $mac = $RAD_REQUEST{'User-Name'};
         # Password will be the MAC address, we set Cleartext-Password to it so that EAP Auth will perform auth properly
         $RAD_CHECK{'Cleartext-Password'} = $mac;
-        my $infolog = "This is a Wired MAC Authentication request with EAP for MAC: $mac. ";
-        syslog("info", "$infolog Authentication should pass. File a bug report if it doesn't");
-        &radiusd::radlog(1, "$infolog Setting Cleartext-Password to $mac");
-        closelog();
+        &radiusd::radlog(L_DBG, "This is a Wired MAC Authentication request with EAP for MAC: $mac. Authentication should pass. File a bug report if it doesn't");
         return RLM_MODULE_UPDATED;
     }
 
-
     # otherwise, we don't do a thing
-    closelog();
     return RLM_MODULE_NOOP;
 }
 
@@ -110,17 +112,13 @@ Once we authenticated the user's identity, we perform PacketFence's Network Acce
 =cut
 sub post_auth {
 
-    # syslog logging
-    openlog("radiusd_pf", "perror,pid", "user");
-
     my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
     my $port = $RAD_REQUEST{'NAS-Port'};
 
     # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
     if (length($mac) != 17) {
-        syslog("info", "warning: mac address is empty or invalid in this request. "
+        &radiusd::radlog(L_INFO, "MAC address is empty or invalid in this request. "
             . "It could be normal on certain radius calls");
-        closelog();
         return RLM_MODULE_OK;
     }
 
@@ -161,26 +159,23 @@ sub post_auth {
 
     if ($radius_return_code == 2) {
         if (defined($RAD_REPLY{'Tunnel-Private-Group-ID'})) {
-            syslog("info", "returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+            &radiusd::radlog(L_AUTH, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
                 . "to request from $mac port $port");
-            &radiusd::radlog(1, "PacketFence RESULT VLAN: ".$RAD_REPLY{'Tunnel-Private-Group-ID'});
         } else {
-            syslog("info", "request from $mac port $port was accepted but no VLAN returned. "
-                . "See server logs for details");
-            &radiusd::radlog(1, "PacketFence NO RESULT VLAN");
+            &radiusd::radlog(L_AUTH, "request from $mac port $port was accepted but no VLAN returned. "
+                . "This could be normal. See server logs for details.");
         }
     } else {
-        syslog("info", "request from $mac port $port was not accepted but a proper error code was provided. "
+        &radiusd::radlog(L_INFO, "request from $mac port $port was not accepted but a proper error code was provided. "
             . "Check server side logs for details");
-        &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
     }
 
-    &radiusd::radlog(1, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+    &radiusd::radlog(L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
     # Uncomment for verbose debugging with radius -X
+    # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
     # use Data::Dumper;
     # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
-    # &radiusd::radlog(1, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
-    closelog();
+    # &radiusd::radlog(L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     return $radius_return_code;
 }
 
@@ -192,10 +187,10 @@ If a customer wants to degrade gracefully, he should put some logic here to assi
 
 =cut
 sub server_error_handler {
-   closelog();
+   # no need to log here as on_fault is already triggered
    return RLM_MODULE_FAIL; 
 
-   # FIXME provide complete examples
+   # TODO provide complete examples
    # for example:
    # send an email
    # set vlan default according to $nas_ip
@@ -211,10 +206,9 @@ Called whenever an invalid answer is returned from the server
 
 =cut
 sub invalid_answer_handler {
-    syslog("info","No or invalid reply in SOAP communication with server. Check server side logs for details.");
-    &radiusd::radlog(1, "PacketFence UNDEFINED RESULT RESPONSE CODE");
-    &radiusd::radlog(1, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
-    closelog;
+    &radiusd::radlog(L_ERR, "No or invalid reply in SOAP communication with server. Check server side logs for details.");
+    &radiusd::radlog(L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
+    &radiusd::radlog(L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
     return RLM_MODULE_FAIL;
 }
 
@@ -233,20 +227,18 @@ sub is_eap_mac_authentication {
     if (exists($RAD_REQUEST{'EAP-Type'}) && $RAD_REQUEST{'User-Name'} =~ /[0-9a-fA-F]{12}/) {
 
         # clean station MAC
-        my $mac = $RAD_REQUEST{'Calling-Station-Id'};
+        my $mac = lc($RAD_REQUEST{'Calling-Station-Id'});
         $mac =~ s/ /0/g;
         # trim garbage
         $mac =~ s/[\s\-\.:]//g;
         if (length($mac) == 12) {
 
             # if Calling MAC and User-Name are the same thing, then we are processing a EAP Mac Auth request
-            if ($mac eq $RAD_REQUEST{'User-Name'}) {
+            if ($mac eq lc($RAD_REQUEST{'User-Name'})) {
                 return 1;
             }
         } else {
-            my $infolog = "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.";
-            syslog("info", $infolog);
-            &radiusd::radlog(1, $infolog);
+            &radiusd::radlog(L_DBG, "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.");
         }
     }
     return 0;
@@ -331,7 +323,7 @@ sub detach {
 #       &log_request_attributes;
 
         # Do some logging.
-        &radiusd::radlog(0,"rlm_perl::Detaching. Reloading. Done.");
+        &radiusd::radlog(L_DBG, "rlm_perl::Detaching. Reloading. Done.");
 }
 
 #
@@ -342,7 +334,7 @@ sub log_request_attributes {
         # This shouldn't be done in production environments!
         # This is only meant for debugging!
         for (keys %RAD_REQUEST) {
-                &radiusd::radlog(1, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
+                &radiusd::radlog(L_INFO, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
         }
 }
 
@@ -366,7 +358,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2006-2010  Inverse inc. <support@inverse.ca>
+Copyright (C) 2006-2010, 2012 Inverse inc. <support@inverse.ca>
 
 =head1 LICENSE
 
