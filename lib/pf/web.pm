@@ -868,20 +868,6 @@ sub get_client_ip {
     return $directly_connected_ip;
 }
 
-=item get_destination_url
-
-Returns destination_url properly parsed, defended against XSS and with configured value if not defined.
-
-=cut
-sub get_destination_url {
-    my ($cgi) = @_;
-
-    # set default if destination_url not set
-    return $Config{'trapping'}{'redirecturl'} if (!defined($cgi->param("destination_url")));
-
-    return decode_entities(uri_unescape($cgi->param("destination_url")));
-}
-
 =item end_portal_session
 
 Call after you made your changes to the user / node. 

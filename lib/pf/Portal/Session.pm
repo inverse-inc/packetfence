@@ -19,8 +19,11 @@ use CGI;
 # TODO reconsider logging or showing generic error instead of this..
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use HTML::Entities;
 use Log::Log4perl;
+use URI::Escape qw(uri_escape uri_unescape);
 
+use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
 use pf::util;
@@ -65,13 +68,26 @@ sub _initialize {
     $self->{'_client_ip'} = pf::web::get_client_ip($self->getCgi);
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
 
-    # TODO inline this work here once there's no other pf::web::get_destination_url callers
-    $self->{'_destination_url'} = pf::web::get_destination_url($self->getCgi);
+    $self->{'_destination_url'} = $self->_getDestinationUrl($self->getCgi);
 
     $self->{'_guest_node_mac'} = undef;
 
     # XXX pass mac here
     $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+}
+
+=item _getDestinationUrl
+
+Returns destination_url properly parsed, defended against XSS and with configured value if not defined.
+
+=cut
+sub _getDestinationUrl {
+    my ($self, $cgi) = @_;
+
+    # set default if destination_url not set
+    return $Config{'trapping'}{'redirecturl'} if (!defined($cgi->param("destination_url")));
+
+    return decode_entities(uri_unescape($cgi->param("destination_url")));
 }
 
 =item getCgi
