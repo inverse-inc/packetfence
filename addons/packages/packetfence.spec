@@ -64,8 +64,8 @@ Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
 Requires: dhcp, bind
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
-%{?el5:Requires: freeradius2 >= 2.1.12}
-%{?el6:Requires: freeradius >= 2.1.12}
+%{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
+%{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -681,6 +681,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Thu Jul 12 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding some RADIUS deps
+
 * Mon Jun 18 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.4.1-1
 - New release 3.4.1
 
