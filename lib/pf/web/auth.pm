@@ -240,7 +240,15 @@ Default implementation returns an empty list. Meant to be overridden.
 =cut
 sub getNodeAttributes {
     my ($this) = @_;
-    return ();
+    my $portalSession = pf::Portal::Session->new();
+
+    my $category = $portalSession->getProfile->getCategory;
+    if (defined($category)) {
+        return (category => $category);
+    }
+    else {
+        return ();
+    }
 }
 
 =item isAllowedToSponsorGuests

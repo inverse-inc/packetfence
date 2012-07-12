@@ -102,6 +102,7 @@ sub _custom_profile {
         'template_path'     => $Config{"portal-profile $name"}{'template_path'}     || $defaults->{'template_path'},
         'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}    || $defaults->{'billing_engine'},
         'default_auth'      => $Config{"portal-profile $name"}{'default_auth'}      || $defaults->{'default_auth'},
+        'category'          => $Config{"portal-profile $name"}{'category'},
     };
 }
 

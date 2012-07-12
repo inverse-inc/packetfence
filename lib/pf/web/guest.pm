@@ -119,7 +119,7 @@ sub generate_selfregistration_page {
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-        post_uri => defined($post_uri) || "/signup?mode=guest-register",
+        post_uri => $post_uri || "/signup?mode=guest-register",
     };
 
     # put seperately because of side effects in anonymous hashref

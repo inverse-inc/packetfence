@@ -138,6 +138,16 @@ sub getDefaultAuth {
     return $self->{'_default_auth'};
 }
 
+=item getCategory
+
+Returns the default category for the current captive portal profile.
+
+=cut
+sub getCategory {
+    my ($self) = @_;
+    return $self->{'_category'};
+}
+
 =back
 
 =head1 AUTHOR
