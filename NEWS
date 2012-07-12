@@ -21,6 +21,7 @@ Enhancements
  * interface gateways are no longer required in configuration (#1447)
  * general.caching parameter removed from configuration
  * major refactoring, cleanup and dependencies removal
+ * node.expire now works for VLAN/Inline mode (#1481)
 
 --------------------------------------------------------------------------------
 Version <stable-version> released on <releaseDate>

@@ -247,6 +247,9 @@ sub node_db_prepare {
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
 
+    $node_statements->{'node_expire_lastdhcp_sql'} = get_db_handle()->prepare(
+        qq [ select mac from node where unix_timestamp(last_dhcp) < (unix_timestamp(now()) - ?) and last_dhcp !=0 and status="$STATUS_UNREGISTERED" ]);
+
     $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, bypass_vlan, status,
             detect_date, regdate, unregdate, lastskip, 
@@ -894,14 +897,29 @@ sub node_expire_lastarp {
     return db_data(NODE, $node_statements, 'node_expire_lastarp_sql', $time);
 }
 
+sub node_expire_lastdhcp {
+    my ($time) = @_;
+    return db_data(NODE, $node_statements, 'node_expire_lastdhcp_sql', $time);
+}
+
 sub node_cleanup {
     my ($time) = @_;
     my $logger = Log::Log4perl::get_logger('pf::node');
     $logger->debug("calling node_cleanup with time=$time");
+
     foreach my $row ( node_expire_lastarp($time) ) {
         my $mac = $row->{'mac'};
         $logger->info("mac $mac not seen for $time seconds, deleting");
         node_delete( $row->{'mac'} );
+    }
+
+    foreach my $rowVlan ( node_expire_lastdhcp($time) ) {
+        my $mac = $rowVlan->{'mac'};
+        require pf::locationlog;
+        if (pf::locationlog::locationlog_update_end_mac($mac)) {
+            $logger->info("mac $mac not seen for $time seconds, deleting");
+           node_delete($mac);
+        }
     }
     return (0);
 }
