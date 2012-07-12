@@ -94,7 +94,7 @@
       # TODO: port to printMultiSelect (and look for others to port too)
       print "\n<select multiple name='$key" .  "[]'>";
       $my_values = explode(",", $val);
-      $my_options = array('autoreg' => 'Autoreg', 'email' => 'Email', 'log' => 'Log', 'trap' => 'Trap');
+      $my_options = array('autoreg' => 'Autoreg', 'close' => 'Close', 'email' => 'Email', 'log' => 'Log', 'trap' => 'Trap');
       foreach ($my_options as $option_val => $option_txt) {
         if (in_array($option_val, $my_values)) {
           print "<option value='$option_val' SELECTED>$option_txt</option>\n";

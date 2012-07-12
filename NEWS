@@ -18,8 +18,12 @@ Version <stable-version> released on <releaseDate>
 New Hardware
  * Adding support for Cisco Catalyst 3560G
 
+New Feature
+ * Adding a new action to close another violation 
+
 Enhancements
  * Closing expired violations using the release_date (#1476)
+ * Refactoring of the accounting violations
 
 --------------------------------------------------------------------------------
 Version 3.4.1 released on 2012-06-18

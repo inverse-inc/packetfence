@@ -1,7 +1,15 @@
 --
--- Alter table structure for node_category to add max_nodes_per_pid
+-- Alter table structure for class to add the class.window
 --
 
 ALTER TABLE class
   ADD `window` varchar(255) default 0 AFTER grace_period
+;
+
+--
+-- Alter table structure for class to add the class.vclose         
+--
+
+ALTER TABLE class
+  ADD `vclose` int(11) AFTER `window`
 ;

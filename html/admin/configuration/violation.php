@@ -38,7 +38,7 @@
   $my_table->set_editable(true);
 
   $my_table->set_hideable(array(
-    'grace', 'window', 'priority', 'button_text', 'url', 'auto_enable', 'max_enable', 'whitelisted_categories'
+    'grace', 'window', 'vclose', 'priority', 'button_text', 'url', 'auto_enable', 'max_enable', 'whitelisted_categories'
   ));
 
   $is_printable=true;

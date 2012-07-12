@@ -399,6 +399,7 @@ sub read_violations_conf {
             $violations{$violation}{'max_enable'},
             $violations{$violation}{'grace'},
             $violations{$violation}{'window'},
+            $violations{$violation}{'vclose'},
             $violations{$violation}{'priority'},
             $violations{$violation}{'url'},
             $violations{$violation}{'max_enable_url'},

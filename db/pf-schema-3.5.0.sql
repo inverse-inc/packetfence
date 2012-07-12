@@ -9,6 +9,7 @@ CREATE TABLE class (
   max_enables int(11) NOT NULL default 0,
   grace_period int(11) NOT NULL,
   window varchar(255) NOT NULL default 0,
+  vclose int(11),
   priority int(11) NOT NULL,
   url varchar(255),
   max_enable_url varchar(255),
