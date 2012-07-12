@@ -356,7 +356,7 @@ sub generate_login_page {
     $vars->{'username'} = encode_entities($cgi->param("username"));
 
     # authentication
-    $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $Config{'registration'}{'default_auth'}; 
+    $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $portalSession->getProfile->getDefaultAuth; 
     $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
 
     _render_template($portalSession, 'login.html', $vars);

@@ -83,6 +83,7 @@ sub _default_profile {
         'guest_category'    => $Config{'guests_self_registration'}{'category'},
         'template_path'     => '/',
         'billing_engine'    => $Config{'registration'}{'billing-engine'},
+        'default_auth'      => $Config{'registration'}{'default_auth'},
     };
 }
 
@@ -100,6 +101,7 @@ sub _custom_profile {
         'guest_category'    => $Config{"portal-profile $name"}{'guest_category'}    || $defaults->{'guest_category'},
         'template_path'     => $Config{"portal-profile $name"}{'template_path'}     || $defaults->{'template_path'},
         'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}    || $defaults->{'billing_engine'},
+        'default_auth'      => $Config{"portal-profile $name"}{'default_auth'}      || $defaults->{'default_auth'},
     };
 }
 
