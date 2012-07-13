@@ -23,7 +23,9 @@ use base ('pf::scan');
 use pf::config;
 use pf::scan;
 use pf::util;
+use pf::node;
 use Net::Nessus::XMLRPC;
+use Data::Dumper;
 
 =head1 SUBROUTINES
 
@@ -61,7 +63,7 @@ sub new {
 
     # Nessus specific attributes
     $this->{_port} = $Config{'scan'}{'nessus_port'};
-    $this->{_policy} = $Config{'scan'}{'nessus_clientpolicy'};
+    $this->{_policy} = getPolicyByCategory($this);
 
     return $this;
 }
@@ -89,7 +91,7 @@ sub startScan {
     my $polid=$n->policy_get_id($nessus_clientpolicy);
     my $scanname="pf-".$hostaddr;
     my $scanid=$n->scan_new($polid,$scanname,$hostaddr);
-    $logger->info("executing Nessus scan");
+    $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
     $this->{'_status'} = $pf::scan::STATUS_STARTED;
     $this->statusReportSyncToDb();
 
@@ -109,6 +111,29 @@ sub startScan {
 
     pf::scan::parse_scan_report($this);
 }
+
+=item getPolicyByCategory
+
+Get the policy to apply to a category
+
+=cut
+sub getPolicyByCategory {
+my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $mac = clean_mac($this->{_scanMac});
+    my $node_info = node_view($mac);
+    if (defined($node_info->{'category'})) {
+        if (defined($Config{'nessus_category_policy'}{$node_info->{'category'}})) {
+            return $Config{'nessus_category_policy'}{$node_info->{'category'}};
+        }
+    }
+    else {
+        return $Config{'scan'}{'nessus_clientpolicy'};
+    }
+}
+
+
 
 =back
 
