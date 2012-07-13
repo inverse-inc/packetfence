@@ -53,7 +53,7 @@ my @steps = (
 =cut
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-    $c->stash->{current_view} = 'Configurator';
+    $c->stash->{current_view} = 'Configurator' unless ($c->stash->{current_view});
 }
 
 =item index

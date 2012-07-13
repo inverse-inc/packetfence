@@ -4,18 +4,15 @@ use strict;
 use warnings;
 
 use Moose;
-extends 'Catalyst::View::TT';
+extends 'pfappserver::View::HTML';
 
 __PACKAGE__->config(
-    TEMPLATE_EXTENSION => '.tt',
     WRAPPER => 'configurator/wrapper.tt',
-    PRE_PROCESS => 'macros.inc',
-    render_die => 1,
 );
 
 =head1 NAME
 
-pfappserver::View::Configurator - TT View for configurator
+pfappserver::View::Configurator - HTML View for configurator
 
 =head1 DESCRIPTION
 

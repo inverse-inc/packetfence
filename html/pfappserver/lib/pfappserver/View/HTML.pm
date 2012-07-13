@@ -7,6 +7,10 @@ use base 'Catalyst::View::TT';
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
+    PRE_PROCESS => 'macros.inc',
+    FILTERS => {
+        id => \&id_filter,
+    },
     render_die => 1,
 );
 
@@ -21,6 +25,15 @@ TT View for pfappserver.
 =head1 SEE ALSO
 
 L<pfappserver>
+
+=cut
+
+sub id_filter {
+    my $id = shift;
+    $id =~ s/\./_/g;
+
+    return $id;
+}
 
 =head1 AUTHOR
 
