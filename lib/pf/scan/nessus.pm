@@ -90,13 +90,13 @@ sub startScan {
     # select nessus policy on the server, set scan name and launch the scan
     my $polid=$n->policy_get_id($nessus_clientpolicy);
     if ($polid eq "") {
-        $logger->info("Nessus policy doesnt exist ".$nessus_clientpolicy);
+        $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
         # TODO return a value that the scan can't be done
     }
     my $scanname="pf-".$hostaddr."-".$nessus_clientpolicy;
     my $scanid=$n->scan_new($polid,$scanname,$hostaddr);
     if ( $scanid eq "") {
-        $logger->info("Nessus scan doesnt start");
+        $logger->warn("Nessus scan doesnt start");
         # TODO return a value that the scan can't be done
     }
     $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
