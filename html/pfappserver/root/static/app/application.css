@@ -1,17 +1,29 @@
+/* bootstrap.css fix for larger top navbar */
 body {
     padding-top: 60px;
+}
+.navbar .nav > li > a {
+    line-height: 30px;
+}
+#navbar .navbar-text {
+    line-height: 50px;
 }
 #navbar h6 {
     margin: 0;
     line-height: 48px;
 }
+.dropdown .caret {
+    margin-top: 13px;
+}
+/* bootstrap.css fix to remove padding surrounding sidebar */
+.sidebar-nav {
+  padding: 9px 0;
+}
+/* steps icons */
 [class^="icon-step"],
 [class*=" icon-step"] {
     background-image: url("steps.png");
     background-position: 0px 0px;
-}
-#tracker .active i {
-    background-image: url("steps-white.png");
 }
 .icon-step2 {
     background-position: 0px -14px;
@@ -40,55 +52,7 @@ body {
 .icon-step10 {
     background-position: 0px -126px;
 }
-#tracker a:hover {
-  color: #08c;
-}
-#tracker .active a:hover {
-  color: #fff;
-}
-#tracker {
-    margin-top: 20px;
-}
-#tracker b {
-    color: #999;
-    line-height: 16px;
-    display: block;
-    margin-left: 40px;
-    font-size: 14px;
-    font-weight: normal;
-}
-#tracker .active b {
-    color: #000;
-    font-weight: bold;
-}
-.page-header.step {
-    text-align: right;
-}
-form[name="enforcement"] .table th,
-form[name="enforcement"] .table td {
-    border-top: 0;
-}
-form[name="enforcement"] .table tr th:first-child,
-form[name="enforcement"] .table tr td:first-child {
-    border-right: 1px solid #ddd;
-    width: 50%;
-}
-form[name="enforcement"] .table .graph {
-    text-align: center;
-    vertical-align: middle;
-}
-#interfaces table {
-    margin-top: 20px;
-}
-#interfaces td span.label {
-    float: right;
-}
-#interfaces .btn-toggle {
-    min-width: 50px;
-}
-#services td {
-    min-width: 100px;
-}
-#serviceErrors pre {
-    background-color: transparent;
+
+a.active {
+    color: #333;
 }

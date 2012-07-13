@@ -1,7 +1,4 @@
 $(function () {
-    /* Register tracker tooltips */
-    $('#tracker [rel=tooltip]').tooltip({placement: 'bottom'});
-
     /* Activate toggle buttons */
     $('tbody').on(
         {'mouseenter': function(event) {
@@ -37,9 +34,7 @@ $(function () {
          }},
         '.btn-toggle');
 
-    if (typeof initModals == 'function') initModals();
-    if (typeof initStep == 'function') initStep();
-    if (typeof registerExits == 'function') registerExits();
+    $('.dropdown-toggle').dropdown();
 });
 
 function resetAlert(parent) {
