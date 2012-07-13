@@ -41,6 +41,7 @@ use pf::node;
 use pf::services;
 use pf::traplog;
 use pf::util;
+use pf::violation qw(violation_maintenance);
 
 # initialization
 # --------------
@@ -221,6 +222,9 @@ sub cleanup {
 
             $logger->info("checking registered nodes for expiration");
             nodes_maintenance();
+
+            $logger->info("checking violations for expiration");
+            violation_maintenance();
 
             $logger->info("checking accounting data for potential bandwidth abuse");
             acct_maintenance();
