@@ -90,7 +90,7 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     }
 }
 
-sub _next_step {
+sub _next_step :Private {
     my ( $self, $c ) = @_;
 
     my $i;
@@ -119,7 +119,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
 
         if (scalar @{$data->{enforcements}} == 0) {
             # Make sure at least one enforcement method is selected
-            $c->response->status($STATUS::PRECONDITION_FAILED);
+            $c->response->status(HTTP_PRECONDITION_FAILED);
             $c->stash->{status_msg} = $c->loc("You must choose at least one enforcement mechanism.");
             delete $c->session->{completed}->{$c->action->name};
         }
@@ -166,7 +166,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         }
 
         if (scalar @missing > 0) {
-            $c->response->status($STATUS::PRECONDITION_FAILED);
+            $c->response->status(HTTP_PRECONDITION_FAILED);
             $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
             delete $c->session->{completed}->{$c->action->name};
         }
@@ -174,7 +174,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 # XXX needs to check each interfaces in a loop for inline
 #        elsif ($data->{interfaces_types}->{$interface} =~ /^inline$/i && $data->{dns} =~ /\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}/) {
 #            # DNS must be set if in inline enforcement
-#            $c->response->status($STATUS::PRECONDITION_FAILED);
+#            $c->response->status(HTTP_PRECONDITION_FAILED);
 #            $c->stash->{status_msg} = $c->loc(
 #                "A valid DNS server must be provided for Inline enforcement. "
 #                . "If you are unsure you can always put in your ISP's DNS or a global DNS like 4.2.2.1."
@@ -411,14 +411,14 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     }
     elsif ($c->request->method eq 'POST') {
         # Save configuration
-        my ( $status, $message ) = ($STATUS::OK);
+        my ( $status, $message ) = (HTTP_OK);
         my $general_domain      = $c->request->params->{'general.domain'};
         my $general_hostname    = $c->request->params->{'general.hostname'};
         my $general_dhcpservers = $c->request->params->{'general.dhcpservers'};
         my $alerting_emailaddr  = $c->request->params->{'alerting.emailaddr'};
 
         unless ($general_domain && $general_hostname && $general_dhcpservers && $alerting_emailaddr) {
-            ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+            ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if (is_success($status)) {
             my ( $status, $message ) = $c->model('Config::Pf')->update({
@@ -460,12 +460,12 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
     my ( $self, $c ) = @_;
 
     if ($c->request->method eq 'POST') {
-        my ($status, $message) = ( $STATUS::OK );
+        my ($status, $message) = ( HTTP_OK );
         my $admin_user      = $c->request->params->{admin_user};
         my $admin_password  = $c->request->params->{admin_password};
 
         unless ( $admin_user && $admin_password ) {
-            ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+            ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if ( is_success($status) ) {
             ($status, $message) = $c->model('Configurator')->createAdminUser($admin_user, $admin_password);
@@ -566,18 +566,18 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
 
 =item reset_password
 
-Reset the root password (step 3)
+Reset the root password (database)
 
 =cut
 sub reset_password :Path('reset_password') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my ($status, $message) = ( $STATUS::OK );
+    my ($status, $message) = ( HTTP_OK );
     my $root_user      = $c->request->params->{root_user};
     my $root_password  = $c->request->params->{root_password_new};
 
     unless ( $root_user && $root_password ) {
-        ($status, $message) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+        ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
     }
     if ( is_success($status) ) {
         ($status, $message) = $c->model('DB')->secureInstallation($root_user, $root_password);

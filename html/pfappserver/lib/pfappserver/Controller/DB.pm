@@ -44,20 +44,20 @@ Usage: /db/assign/<database_name>
 sub assign :Path('assign') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
-    my ( $status, $message ) = ( $STATUS::OK );
+    my ( $status, $message ) = ( HTTP_OK );
     my $root_user = $c->request->params->{'root_user'};
     my $root_password = $c->request->params->{'root_password'};
     my $pf_user = $c->request->params->{'database.user'};
     my $pf_password = $c->request->params->{'database.pass'};
 
     unless ( $root_user && $pf_user && $pf_password ) {
-        ( $status, $message ) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+        ( $status, $message ) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
     }
     if ( is_success($status) && length $root_password == 0 ) {
-        ( $status, $message ) = ($STATUS::PRECONDITION_FAILED, 'The root password must be set.');
+        ( $status, $message ) = ( HTTP_PRECONDITION_FAILED, 'The root password must be set.' );
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->assign($db, $pf_user, $pf_password);
@@ -83,18 +83,18 @@ Usage: /db/create/<database_name>
 sub create :Path('create') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
-    my ( $status, $message ) = ( $STATUS::OK );
+    my ( $status, $message ) = ( HTTP_OK );
     my $root_user       = $c->request->params->{root_user};
     my $root_password   = $c->request->params->{root_password};
 
     unless ( $root_user ) {
-        ( $status, $message ) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+        ( $status, $message ) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
     }
     if ( is_success($status) && length $root_password == 0 ) {
-        ( $status, $message ) = ($STATUS::PRECONDITION_FAILED, 'The root password must be set.');
+        ( $status, $message ) = ( HTTP_PRECONDITION_FAILED, 'The root password must be set.' );
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
@@ -125,19 +125,19 @@ Usage: /db/test
 sub test :Path('test') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my ( $status, $message ) = ( $STATUS::OK );
+    my ( $status, $message ) = ( HTTP_OK );
     my $root_user       = $c->request->params->{root_user};
     my $root_password   = $c->request->params->{root_password};
 
     unless ( $root_user ) {
-        ( $status, $message ) = ( $STATUS::BAD_REQUEST, 'Some required parameters are missing.' );
+        ( $status, $message ) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
     }
     if ( is_success($status) ) {
         unless ( $root_password ) {
-            ( $status, $message ) = ($STATUS::PRECONDITION_FAILED, 'The root password must be set.');
+            ( $status, $message ) = ( HTTP_PRECONDITION_FAILED, 'The root password must be set.' );
         }
     }
     if ( is_error($status) ) {
