@@ -688,7 +688,13 @@ sub parseTrap {
 
             # skip unknown traps
             my $trapType = $trapHashRef->{'trapType'};
-            if ( $trapType ne 'unknown' ) {
+
+            if ( $trapType eq 'wirelessIDS' ) {
+                #Do some crazy stuff
+                $logger->info("Here we will do some crazy stuff soon! trapline: $trapLine");
+                return;            
+
+            } elsif ( $trapType ne 'unknown' ) {
                 my $switch_ip     = $switch->{_ip};
                 my $switch_port   = $trapHashRef->{'trapIfIndex'};
                 my $trapVlan      = '';
