@@ -125,9 +125,10 @@ Usage: /db/test
 sub test :Path('test') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my ( $status, $message ) = ( HTTP_OK );
-    my $root_user       = $c->request->params->{root_user};
-    my $root_password   = $c->request->params->{root_password};
+    my ( $status, $message )    = ( HTTP_OK );
+    my $root_user               = $c->request->params->{root_user};
+    my $root_password           = $c->request->params->{root_password};
+    $c->session->{root_user}    = $root_user;
 
     unless ( $root_user ) {
         ( $status, $message ) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );

@@ -355,6 +355,9 @@ Database setup (step 3)
 # the GET is expected to fail on first run, then the javascript calls it again and it should pass...
 sub database :Chained('object') :PathPart('database') :Args(0) {
     my ( $self, $c ) = @_;
+    
+    # Default username if nothing else have already been entered (provide a pre-filled field)
+    $c->session->{root_user} = 'root' if (!defined($c->session->{root_user}));
 
     if ($c->request->method eq 'GET') {
         # Check if the database and user exist
