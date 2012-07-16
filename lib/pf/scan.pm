@@ -252,7 +252,18 @@ sub run_scan {
     my $scan = instantiate_scan_engine($type, %scan_attributes);
 
     # Start the scan
-    $scan->startScan();
+    my $failed_scan = $scan->startScan();
+    
+    # Hum ... somethings wrong in the scan ?
+    if ( $failed_scan ) {
+        my $cmd = $bin_dir . "/pfcmd manage vclose $host_mac $SCAN_VID";
+        $logger->info("Calling $cmd");
+        my $grace = pf_run("$cmd");
+        # FIXME shouldn't we focus on return code instead of output? pretty sure this is broken
+        if ( $grace == -1 ) {
+            $logger->warn("Problem trying to close scan violation");
+        }
+    }
 }
 
 =back
