@@ -136,16 +136,23 @@ sub read {
     my $pf_conf = $self->_load_conf();
     my $defaults_conf = $self->_load_defaults();
 
+    my @sections;
     my @config_parameters;
     # config_entry is a scalar and all parameters were requested
-    if ( !ref($config_entry) && $config_entry eq 'all' ) {
-        foreach my $section ( sort keys(%$pf_conf) ) {
-            foreach my $param ( keys( %{ $pf_conf->{$section} } ) ) {
+    if ( !ref($config_entry) ) {
+        if ( $config_entry eq 'all' ) {
+            @sections = sort keys(%$pf_conf)
+        }
+        elsif ( index($config_entry, '.') < 0 ) {
+            @sections = ($config_entry);
+        }
+        foreach my $section ( @sections ) {
+            foreach my $param ( keys( %{ $defaults_conf->{$section} } ) ) {
                 push @config_parameters, $self->_read_config_entry( $section, $param );
             }
         }
     }
-    else {
+    unless ( @sections ) {
         # lets build a list of the parameters to retrieve and send to the client
         my @to_retrieve;
         push @to_retrieve, $config_entry if (!ref($config_entry)); 
@@ -210,14 +217,19 @@ sub _read_config_entry {
     my $defaults_conf = $self->_load_defaults();
     my $doc_conf = $self->_load_doc();
 
-    my $options_ref = $self->_extract_config_options($section.'.'.$param);
-    return {
+    my $config_entry = $section.'.'.$param;
+    my $options_ref = $self->_extract_config_options($config_entry);
+    my $description_ref = $self->_extract_config_desc($config_entry);
+    my $entry_ref = {
         'parameter' => $section.'.'.$param,
         'value' => $pf_conf->{$section}->{$param},
         'default_value' => $defaults_conf->{$section}->{$param},
         'type' => $doc_conf->{$section.'.'.$param}->{'type'} || "text",
         'options' => $options_ref,
+        'description' => $description_ref,
     };
+
+    return $entry_ref;
 }
 
 =item help
