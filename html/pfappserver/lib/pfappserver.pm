@@ -19,6 +19,7 @@ use Catalyst qw/
     Static::Simple
     I18N
 
+    Authentication
     Session
     Session::Store::File
     Session::State::Cookie
@@ -57,6 +58,23 @@ __PACKAGE__->config(
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
        expose_stash    => [ qw(status_msg error interfaces networks switches config services) ], # defaults to everything
     },
+
+    'Plugin::Authentication' => {
+       default_realm => 'admin',
+       realms => {
+         admin => {
+           credential => {
+             class => 'Password',
+             password_field => 'password',
+             password_type => 'self_check',
+           },
+           store => {
+             class => 'Htpasswd',
+             file => '/usr/local/pf/conf/admin.conf', # must exist
+           }
+         }
+       }
+     },
 );
 
 # Logging

@@ -1,0 +1,58 @@
+<h2>[% title %]</h2>
+<div class="options">
+  <a href="[% c.uri_for('/dashboard/graph') %]" class="favorite">
+    <i class="icon-star-empty" rel="tooltip" title="Show this graph on the dashboard?"></i>
+  </a> <!--<a href="[% c.uri_for(c.action, 'all') %]"[% IF type == 'all' %] class="active"[% END %]>All</a> | <a href="[% c.uri_for(c.action, 'active') %]"[% IF type == 'active' %] class="active"[% END %]>Active only</a>-->
+  [% FOREACH r IN reports -%]
+    [% IF r.size > 1 %]<a href="[% c.uri_for(c.action, r.0, option) %]"[% IF report == r.0 %] class="active"[% END %]>[% r.1 %]</a>[% ELSE %]
+    <a href="[% c.uri_for(c.action, r, option) %]"[% IF report == r %] class="active"[% END %]>[% r %]</a>[% END %]
+    [% UNLESS loop.last %] |[% END -%]
+    [% END -%]
+  [% FOREACH o IN options -%]
+    <a href="[% c.uri_for(c.action, report, o) %]"[% IF option == o %] class="active"[% END %]>[% o %]</a>
+    [% UNLESS loop.last %] |[% END -%]
+    [% END -%]
+</div>
+<hr>
+[%- IF labels.size > 0 %]
+<div class="row-fluid">
+<div class="span8">
+<div id="[% id %]" class="chart"></div>
+<script type="text/javascript">
+graphs['[% id %]'] = {
+    type: '[% graphtype %]',
+    size: '[% size %]',
+    labels: ['[% labels.join("','") %]'],
+    series: {
+    [% FOREACH set IN series.keys -%]
+      '[% set %]' : [[% series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+    [%- END %]
+    }
+};
+</script>
+</div>
+<div class="span4">
+<table class="table table-bordered table-striped table-condensed">
+  <thead>
+    <tr>
+      <th>[% l(label) %]</th><th>[% l(value) %]</th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH label IN labels -%]
+    <tr[% IF loop.count > piecut %] class="muted"[% END %]>
+      <td>[% label %]</td>
+      <td>[% i = loop.index %][% values.$i %]</td>
+    </tr>
+    [%- END %]
+  </tbody>
+</table>
+</div>
+</div>
+[%- ELSE %]
+<div class="alert alert-block">
+  <a class="close" data-dismiss="alert" href="#">×</a>
+  <h4 class="alert-heading">What's going on?</h4>
+  There's not enough data to generate this graph. Is PacketFence in production?
+</div>
+[%- END %]
