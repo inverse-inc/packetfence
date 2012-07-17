@@ -46,17 +46,17 @@ my @steps = (
 
 =head1 SUBROUTINES
 
-=over
+=head2 begin
 
-=item end
+Set the default view to pfappserver::View::Configurator.
 
 =cut
-sub end : ActionClass('RenderView') {
+sub begin :Private {
     my ( $self, $c ) = @_;
-    $c->stash->{current_view} = 'Configurator' unless ($c->stash->{current_view});
+    $c->stash->{current_view} = 'Configurator';
 }
 
-=item index
+=head2 index
 
 =cut
 sub index :Path :Args(0) {
@@ -65,7 +65,7 @@ sub index :Path :Args(0) {
     $c->response->redirect($c->uri_for($self->action_for($steps[0]->{id})));
 }
 
-=item object
+=head2 object
 
 Configurator controller dispatcher
 
@@ -90,6 +90,11 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     }
 }
 
+=head2 _next_step
+
+Set the next step with respect to the current action.
+
+=cut
 sub _next_step :Private {
     my ( $self, $c ) = @_;
 
@@ -103,7 +108,7 @@ sub _next_step :Private {
     $c->stash->{next_step} = $c->uri_for($steps[$i]->{id});
 }
 
-=item enforcement
+=head2 enforcement
 
 Enforcement mechanisms (step 1)
 
@@ -132,7 +137,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
     }
 }
 
-=item networks
+=head2 networks
 
 Network interfaces (step 2)
 
@@ -276,7 +281,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
     }
 }
 
-=item _prepare_interface_for_pfconf
+=head2 _prepare_interface_for_pfconf
 
 Process parameters to build a proper pf.conf interface section.
 
@@ -310,7 +315,7 @@ sub _prepare_interface_for_pfconf {
     return $int_config_ref;
 }
 
-=item _prepare_types_for_display
+=head2 _prepare_types_for_display
 
 Process pf.conf's interface type and enforcement and networks.conf's type 
 and present something that is friendly to the user.
@@ -345,7 +350,7 @@ sub _prepare_types_for_display {
     return $display_int_types_ref;
 }
 
-=item database
+=head2 database
 
 Database setup (step 3)
 
@@ -395,7 +400,7 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
     }
 }
 
-=item config
+=head2 config
 
 PacketFence minimal configuration (step 4)
 
@@ -453,7 +458,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     }
 }
 
-=item admin
+=head2 admin
 
 Administrator account (step 5)
 
@@ -486,7 +491,7 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
     }
 }
 
-=item services
+=head2 services
 
 Confirmation and services launch (step 6)
 
@@ -566,7 +571,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
     }
 }
 
-=item reset_password
+=head2 reset_password
 
 Reset the root password (database)
 
@@ -591,8 +596,6 @@ sub reset_password :Path('reset_password') :Args(0) {
     $c->stash->{status_msg} = $message;
     $c->stash->{current_view} = 'JSON';
 }
-
-=back
 
 =head1 AUTHORS
 
