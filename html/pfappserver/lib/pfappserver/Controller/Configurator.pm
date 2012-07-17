@@ -170,6 +170,10 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
             $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
             delete $c->session->{completed}->{$c->action->name};
         }
+        else {
+            # Step passed validation
+            $c->session->{completed}->{$c->action->name} = 1;
+        }
         # TODO move IP validation to something provided by core (once in model I guess)
 # XXX needs to check each interfaces in a loop for inline
 #        elsif ($data->{interfaces_types}->{$interface} =~ /^inline$/i && $data->{dns} =~ /\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}/) {
@@ -181,85 +185,80 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 #            );
 #            delete $c->session->{completed}->{$c->action->name};
 #        }
-        else {
 
-            # Update networks.conf and pf.conf
-            my $networksModel = $c->model('Config::Networks');
-            my $configModel = $c->model('Config::Pf');
-            foreach my $interface (keys %{$data->{interfaces_types}}) {
-                my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
-    
-                # we ignore interface type 'Other' (it basically means unsupported in configurator)
-                next if ( $data->{interfaces_types}->{$interface} =~ /^other$/i );
-    
-                # we delete interface type 'None'
-                if ( $data->{interfaces_types}->{$interface} =~ /^none$/i ) {
-                    $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
-                    $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
-                }
-                # otherwise we update pf.conf and networks.conf
-                else {
-                    # we willingly silently ignore errors if interface already exists
-                    # TODO have a wrapper that does both?
-                    $configModel->create_interface($interface);
-                    $configModel->update_interface(
-                        $interface,
-                        $self->_prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
+        # Update networks.conf and pf.conf
+        my $networksModel = $c->model('Config::Networks');
+        my $configModel = $c->model('Config::Pf');
+        foreach my $interface (keys %{$data->{interfaces_types}}) {
+            my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
+
+            # we ignore interface type 'Other' (it basically means unsupported in configurator)
+            next if ( $data->{interfaces_types}->{$interface} =~ /^other$/i );
+
+            # we delete interface type 'None'
+            if ( $data->{interfaces_types}->{$interface} =~ /^none$/i ) {
+                $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
+                $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
+            }
+            # otherwise we update pf.conf and networks.conf
+            else {
+                # we willingly silently ignore errors if interface already exists
+                # TODO have a wrapper that does both?
+                $configModel->create_interface($interface);
+                $configModel->update_interface(
+                    $interface,
+                    $self->_prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
+                );
+
+                # FIXME refactor that!
+                # and we must create a network portion for the following types
+                if ( $data->{interfaces_types}->{$interface} =~ /^vlan-isolation$|^vlan-registration$/i ) {
+                    $networksModel->create($interface_ref->{network});
+                    $networksModel->update(
+                        $interface_ref->{network}, {
+                            type => $data->{interfaces_types}->{$interface},
+                            netmask => $interface_ref->{'netmask'},
+                            # FIXME push these default values further down in the stack
+                            # (into pf::config, pf::services, etc.)
+                            gateway => $interface_ref->{'ipaddress'},
+                            dns => $interface_ref->{'ipaddress'},
+                            dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                            dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                            dhcp_default_lease_time => 300,
+                            dhcp_max_lease_time => 600,
+                            named => 'enabled',
+                            dhcpd => 'enabled',
+                        }
                     );
-    
-                    # FIXME refactor that!
-                    # and we must create a network portion for the following types
-                    if ( $data->{interfaces_types}->{$interface} =~ /^vlan-isolation$|^vlan-registration$/i ) {
-                        $networksModel->create($interface_ref->{network});
-                        $networksModel->update(
-                            $interface_ref->{network}, {
-                                type => $data->{interfaces_types}->{$interface},
-                                netmask => $interface_ref->{'netmask'},
-                                # FIXME push these default values further down in the stack
-                                # (into pf::config, pf::services, etc.)
-                                gateway => $interface_ref->{'ipaddress'},
-                                dns => $interface_ref->{'ipaddress'},
-                                dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
-                                dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
-                                dhcp_default_lease_time => 300,
-                                dhcp_max_lease_time => 600,
-                                named => 'enabled',
-                                dhcpd => 'enabled',
-                            }
-                        );
-                    }
-                    elsif ( $data->{interfaces_types}->{$interface} =~ /^inline$/i ) {
-                        $networksModel->create($interface_ref->{network});
-                        $networksModel->update(
-                            $interface_ref->{network}, {
-                                type => $data->{interfaces_types}->{$interface},
-                                netmask => $interface_ref->{'netmask'},
-                                # FIXME push these default values further down in the stack 
-                                # (into pf::config, pf::services, etc.)
-                                gateway => $interface_ref->{'ipaddress'},
-                                dns => $data->{'dns'},
-                                dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
-                                dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
-                                dhcp_default_lease_time => 24 * 60 * 60,
-                                dhcp_max_lease_time => 24 * 60 * 60,
-                                named => 'enabled',
-                                dhcpd => 'enabled',
-                            }
-                        );
-                    }
-                    elsif ( $data->{interfaces_types}->{$interface} =~ /^management$/ ) {
-                        # management interfaces must not appear in networks.conf
-                        $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
-                    }
+                }
+                elsif ( $data->{interfaces_types}->{$interface} =~ /^inline$/i ) {
+                    $networksModel->create($interface_ref->{network});
+                    $networksModel->update(
+                        $interface_ref->{network}, {
+                            type => $data->{interfaces_types}->{$interface},
+                            netmask => $interface_ref->{'netmask'},
+                            # FIXME push these default values further down in the stack 
+                            # (into pf::config, pf::services, etc.)
+                            gateway => $interface_ref->{'ipaddress'},
+                            dns => $data->{'dns'},
+                            dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                            dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                            dhcp_default_lease_time => 24 * 60 * 60,
+                            dhcp_max_lease_time => 24 * 60 * 60,
+                            named => 'enabled',
+                            dhcpd => 'enabled',
+                        }
+                    );
+                }
+                elsif ( $data->{interfaces_types}->{$interface} =~ /^management$/ ) {
+                    # management interfaces must not appear in networks.conf
+                    $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
                 }
             }
 
             # Update the network interface configurations on system
             $c->model('Config::System')->write_network_persistent($c->model('Interface')->get('all'),
                                                                   $data->{'gateway'});
-
-            # Step passed validation
-            $c->session->{completed}->{$c->action->name} = 1;
         }
 
         $c->stash->{current_view} = 'JSON';
