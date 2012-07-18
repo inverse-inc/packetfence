@@ -16,7 +16,7 @@
 </style>
 
 <div class="report">
-<div class="counter">
+<!--<div class="counter">
   <h3>37</h3>
   <p>Registered</p>
   <p><a href="[% c.uri_for('/dashboard/graph') %]" class="favorite"><i class="icon-star-empty" rel="tooltip" title="Show this counter on the dashboard?"></i></a></p>
@@ -24,7 +24,7 @@
 <div class="counter">
   <h3>10284</h3>
   <p>Unregistered</p>
-  <p><a href="[% c.uri_for('/dashboard/graph') %]" class="favorite"><i class="icon-star-empty" rel="tooltip" title="Show this counter on the dashboard?"></i></a></p>
+  <p><a href="[% c.uri_for('/dashboard/graph') %]" class="favorite"><i class="icon-star-empty" rel="tooltip" title="Show this counter on the dashboard?"></i></a></p>-->
 </div>
 
 <h2>[% title %]</h2>
