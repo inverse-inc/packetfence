@@ -19,40 +19,6 @@ body {
 .sidebar-nav {
   padding: 9px 0;
 }
-/* steps icons */
-[class^="icon-step"],
-[class*=" icon-step"] {
-    background-image: url("steps.png");
-    background-position: 0px 0px;
-}
-.icon-step2 {
-    background-position: 0px -14px;
-}
-.icon-step3 {
-    background-position: 0px -28px;
-}
-.icon-step4 {
-    background-position: 0px -42px;
-}
-.icon-step5 {
-    background-position: 0px -56px;
-}
-.icon-step6 {
-    background-position: 0px -70px;
-}
-.icon-step7 {
-    background-position: 0px -84px;
-}
-.icon-step8 {
-    background-position: 0px -98px;
-}
-.icon-step9 {
-    background-position: 0px -112px;
-}
-.icon-step10 {
-    background-position: 0px -126px;
-}
-
 a.active {
     color: #333;
 }
