@@ -25,7 +25,6 @@ use pf::scan;
 use pf::util;
 use pf::node;
 use Net::Nessus::XMLRPC;
-use Data::Dumper;
 
 =head1 SUBROUTINES
 
@@ -147,11 +146,11 @@ my ( $this ) = @_;
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
-
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 
