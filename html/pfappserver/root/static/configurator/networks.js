@@ -116,15 +116,18 @@ function editVlan(name, modal, form) {
 
 function initStep() {
     /* Enable/Disable toggle button */
-    $('#interfaces tbody').on('click:toggled', '.btn-toggle', function(event) {
-        var name = $(this).attr('interface');
-        var action = $(this).attr('href').substr(1);
+    $('#interfaces tbody').on('click', '.btn-toggle', function(event) {
+        var btn = $(this);
+        var name = btn.attr('interface');
+        var action = btn.attr('href').substr(1);
         var url = ['/interface', name, action];
-        var row = $(this).closest('tr');
+        var row = btn.closest('tr');
         var sibling = $('#interfaces table');
         $.ajax(url.join('/'))
             .done(function(data) {
                 showSuccess(sibling, data.status_msg);
+                // Toggle button only on success
+                btn.trigger('toggle');
             })
             .fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);

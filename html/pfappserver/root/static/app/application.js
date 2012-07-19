@@ -2,35 +2,34 @@ $(function () {
     /* Activate toggle buttons */
     $('tbody').on(
         {'mouseenter': function(event) {
-            var e = $(this);
-            e.text(e.attr('toggle-hover'));
-            e.toggleClass('btn-success btn-danger');
+            var btn = $(this);
+            btn.text(btn.attr('toggle-hover'));
+            btn.toggleClass('btn-success btn-danger');
          },
          'mouseleave': function(event) {
-             var e = $(this);
-             var value = e.text().trim();
-             if (value == e.attr('toggle-hover')) {
-                 e.text(e.attr('toggle-value-else'));
-                 e.toggleClass('btn-success btn-danger');
+             var btn = $(this);
+             var value = btn.text().trim();
+             if (value == btn.attr('toggle-hover')) {
+                 btn.text(btn.attr('toggle-value-else'));
+                 btn.toggleClass('btn-success btn-danger');
              }
          },
-         'click': function(event) {
-            var e = $(this);
-            var value = e.attr('toggle-value');
-            e.fadeOut('fast', function(event) {
-                e.text(e.attr('toggle-value-else'));
-                if (e.hasClass('btn-danger'))
-                    e.removeClass('btn-danger');
-            }).fadeIn('fast');
-            e.attr('toggle-value', e.attr('toggle-value-else'));
-            e.attr('toggle-value-else', value);
-            value = e.attr('toggle-hover');
-            e.attr('toggle-hover', e.attr('toggle-hover-else'));
-            e.attr('toggle-hover-else', value);
-            value = e.attr('toggle-href');
-            e.attr('toggle-href', e.attr('href'));
-            e.attr('href', value);
-            e.trigger('click:toggled');
+         'toggle': function(event) {
+             var btn = $(this);
+             var value = btn.attr('toggle-value');
+             btn.fadeOut('fast', function(event) {
+                 btn.text(btn.attr('toggle-value-else'));
+                 if (btn.hasClass('btn-danger'))
+                     btn.removeClass('btn-danger');
+             }).fadeIn('fast');
+             btn.attr('toggle-value', btn.attr('toggle-value-else'));
+             btn.attr('toggle-value-else', value);
+             value = btn.attr('toggle-hover');
+             btn.attr('toggle-hover', btn.attr('toggle-hover-else'));
+             btn.attr('toggle-hover-else', value);
+             value = btn.attr('toggle-href');
+             btn.attr('toggle-href', btn.attr('href'));
+             btn.attr('href', value);
          }},
         '.btn-toggle');
 
