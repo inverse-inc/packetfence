@@ -269,6 +269,8 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
+        $c->session->{gateway} = $c->model('Config::System')->getDefaultGateway if (!defined($c->session->{gateway}));
+
         my $interfaces_ref = $c->model('Interface')->get('all');
         $c->stash(interfaces => $interfaces_ref);
         $c->stash(types => $c->model('Enforcement')->getAvailableTypes([ keys %{$c->session->{'enforcements'}} ]));

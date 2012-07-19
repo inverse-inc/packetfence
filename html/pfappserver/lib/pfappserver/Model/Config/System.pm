@@ -23,6 +23,18 @@ extends 'Catalyst::Model';
 
 =over
 
+=item getDefaultGateway
+
+=cut
+sub getDefaultGateway {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $default_gateway = (split(" ", `ip route | grep default`))[2];
+
+    return $default_gateway if defined($default_gateway);
+}
+
 =item _get_gateway_interface
 
 =cut
