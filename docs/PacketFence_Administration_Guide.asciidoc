@@ -43,7 +43,7 @@ These files are included in the package and release tarballs.
 Introduction
 ------------
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort/Suricata IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
 
 Features
 ~~~~~~~~
@@ -67,7 +67,7 @@ Registration::
   PacketFence supports an optional registration mechanism similar to "captive portal" solutions. Contrary to most captive portal solutions, PacketFence remembers users who previously registered and will automatically give them access without another authentication. Of course, this is configurable. An Acceptable Use Policy can be specified such that users cannot enable network access without first accepting it.
 
 Detection of abnormal network activities::
-  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
+  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or Suricata sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
   Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
@@ -116,7 +116,7 @@ Depending on your setup you may have to install additional components like:
 * DHCP server (ISC DHCP)
 * DNS server (BIND)
 * RADIUS server (FreeRADIUS)
-* NIDS (Snort)
+* NIDS (Snort/Suricata)
 
 In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
 
@@ -132,6 +132,7 @@ The following table provides recommendations for the required components, togeth
 |DNS server       |BIND 9
 |RADIUS server    |FreeRADIUS 2.1.12
 |Snort            |Snort 2.8 or 2.9
+|Suricata         |Suricata 1.x
 |========================================
 
 More recent versions of the software mentioned above can also be used.
@@ -172,7 +173,7 @@ PacketFence takes care of handling the operation of the following services:
 * DHCP server (dhcpd)
 * DNS server (named)
 * FreeRADIUS server (radiusd)
-* Snort Network IDS (snort)
+* Snort/Suricata Network IDS (snort/suricata)
 * Firewall (iptables)
 
 *Make sure that all the other services are automatically started by your operating system!*
@@ -1311,7 +1312,7 @@ Blocking malicious activities with violations
 
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
-In order to be able to block malicious activities, you need to install and configure the SNORT IDS to talk with PacketFence.
+In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence.
 
 Snort
 ^^^^^
@@ -1327,6 +1328,21 @@ Configuration
 +++++++++++++
 
 PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version. The file is located in `/usr/local/pf/conf`. It is rarely necessary to change anything in that file to make Snort work and trap alerts. DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
+
+Suricata
+^^^^^^^^
+
+Installation
+++++++++++++
+
+Since the suricata IDS is not packaged with the distros (except maybe Fedora, which we do not officially support), you need to build it the "old" way.
+
+The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
+
+Configuration
++++++++++++++
+
+PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
 
 Violations
 ^^^^^^^^^^

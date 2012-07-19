@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.3</revnumber>
+    <date>2012-07-19</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>Adding suricata documentation</revremark>
+  </revision>
+  <revision>
     <revnumber>2.2</revnumber>
     <date>2012-06-13</date>
     <authorinitials>OB, FD</authorinitials>
