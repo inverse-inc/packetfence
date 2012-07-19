@@ -84,7 +84,8 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     $c->stash->{steps} = \@steps;
     $self->_next_step($c);
 
-    if (scalar($c->session->{enforcements}) == 0) {
+    if ($c->action->name() ne 'enforcement' &&
+        (!exists($c->session->{enforcements}) || scalar($c->session->{enforcements}) == 0)) {
         # Defaults to inline mode if no mechanism has been chosen so far
         $c->session->{enforcements}->{inline} = 1;
     }
@@ -135,6 +136,37 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
 
         $c->stash->{current_view} = 'JSON';
     }
+    elsif (!exists($c->session->{enforcements})) {
+        # Detect chosen mechanisms from networks.conf
+        my $interfaces_ref = $c->model('Interface')->get('all');
+        my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($interfaces_ref);
+        if (is_success($status)) {
+            # If some interfaces are associated to a type, find the corresponding mechanism
+            my @active_types = values %{$interfaces_types};
+            $c->session(enforcements => {});
+            my $mechanisms_ref = $c->model('Enforcement')->getAvailableMechanisms();
+            foreach my $mechanism (@{$mechanisms_ref}) {
+                my $mechanism_types = $c->model('Enforcement')->getAvailableTypes($mechanism);
+                my %types_lookup;
+                @types_lookup{@{$mechanism_types}} = (); # built lookup table
+                foreach my $type (@active_types) {
+                    if (exists $types_lookup{$type}) {
+                        $c->session->{enforcements}->{$mechanism} = 1;
+                        last;
+                    }
+                }
+            }
+        }
+
+        if (exists($c->session->{enforcements}) && scalar($c->session->{enforcements}) > 0) {
+            $c->log->info("Detected mechanisms: " . join(', ', keys %{$c->session->{enforcements}}));
+        }
+        else {
+            # Defaults to inline mode if no mechanism has been detected
+            $c->session->{enforcements}->{inline} = 1;
+        }
+    }
+
 }
 
 =head2 networks
@@ -290,7 +322,7 @@ Process parameters to build a proper pf.conf interface section.
 =cut
 # TODO push hardcoded strings as constants (or re-use core constants)
 # this might imply a rework of this out of the controller into the model
-sub _prepare_interface_for_pfconf {
+sub _prepare_interface_for_pfconf :Private {
     my ($self, $int, $int_model, $type) = @_;
 
     my $int_config_ref = {
@@ -325,7 +357,7 @@ and present something that is friendly to the user.
 =cut
 # TODO push hardcoded strings as constants (or re-use core constants)
 # this might imply a rework of this out of the controller into the model
-sub _prepare_types_for_display {
+sub _prepare_types_for_display :Private {
     my ($self, $c, $interfaces_ref, $interfaces_types_ref) = @_;
 
     my $display_int_types_ref;
