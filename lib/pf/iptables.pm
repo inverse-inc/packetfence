@@ -24,6 +24,7 @@ use IPTables::ChainMgr;
 use IPTables::Interface;
 use Log::Log4perl;
 use Readonly;
+use NetAddr::IP;
 
 BEGIN {
     use Exporter ();
@@ -40,6 +41,7 @@ use pf::config;
 use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
+use pf::iplog;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -61,7 +63,7 @@ TODO: This list is incomplete
 =cut
 sub iptables_generate {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-
+    $logger->info("IPSET_VERSION ". $IPSET_VERSION);
     my %tags = ( 
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '', 
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
@@ -70,7 +72,34 @@ sub iptables_generate {
 
     # global substitution variables
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
-
+    # init ipset tables
+    if ($IPSET_VERSION > 0) {
+        $logger->warn("We are using IPSET");
+        my $cmd = "sudo ipset destroy";
+        my $out = `$cmd`;
+        foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+            if ($IPSET_VERSION > 4) {
+                $logger->warn("We are using IPSET version $IPSET_VERSION");
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_REG\_$network bitmap:ip,mac range $network/$inline_obj->{BITS}";
+                $out = `$cmd`;
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_ISOLATION\_$network bitmap:ip,mac range $network/$inline_obj->{BITS}";
+                $out = `$cmd`;
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_UNREG\_$network bitmap:ip,mac range $network/$inline_obj->{BITS}";
+                $out = `$cmd`;
+            }
+            else {
+                $logger->warn("We are using IPSET version $IPSET_VERSION");
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_REG\_$network macipmap $network/$inline_obj->{BITS}";
+                $out = `$cmd`;
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_ISOLATION\_$network macipmap $network/$inline_obj->{BITS}";
+                $out = `$cmd`;
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_UNREG\_$network macipmap $network/$inline_obj->{BITS}";
+                $out = `$cmd`;
+            }
+        }
+    }
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= generate_filter_if_src_to_chain();
@@ -259,16 +288,53 @@ sub generate_mangle_rules {
 
     # default catch all: mark unreg
     $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
-
+    if ($IPSET_VERSION > 0) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$IPTABLES_MARK_REG\_$network src,src " .
+            "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
+            ;
+            $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$IPTABLES_MARK_ISOLATION\_$network src,src " .
+            "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
+            ;
+            $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_$IPTABLES_MARK_UNREG\_$network src,src " .
+            "--jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n"
+            ;
+       }
+    }
     # mark registered nodes that should not be isolated 
     # TODO performance: mark all *inline* registered users only
     my @registered = nodes_registered_not_violators();
     foreach my $row (@registered) {
-        my $mac = $row->{'mac'};
-        $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
-            "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
-        ;
+        if ($IPSET_VERSION > 0) { 
+            foreach my $network ( keys %ConfigNetworks ) {
+                next if ( !pf::config::is_network_type_inline($network) );
+                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+                my $mac = $row->{'mac'};
+                my @iplog = iplog_history_mac($mac);
+                my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+                $logger->info("IPSET ". $ip);
+                if ($IPSET_VERSION > 4) {
+                     if ($net_addr->contains($ip)) {
+                        my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'},$mac";
+                        my $out = `$cmd`;
+                     }
+                }
+                else {
+                     if ($net_addr->contains($ip)) {
+                         my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'},$mac";
+                         my $out = `$cmd`;
+                     }
+                }
+            }
+        }
+        else {
+            my $mac = $row->{'mac'};
+            $mangle_rules .= 
+                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+                "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
+            ;
+        }
     }
 
     # mark all open violations
@@ -334,39 +400,85 @@ sub generate_nat_redirect_rules {
 sub iptables_mark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = IPTables::Interface::new('mangle')
-        || logger->logcroak("unable to create IPTables::Interface object");
-
-    $logger->debug("marking node $mac with mark 0x$mark");
-    my $success = $iptables->iptables_do_command(
-        "-A $FW_PREROUTING_INT_INLINE",  "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
-    );
-
-    if (!$success) {
-        $logger->error("Unable to mark mac $mac: $!");
-        return;
-    }
-    $iptables->commit();
+    if ($IPSET_VERSION > 0) { 
+        foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            my @iplog = iplog_history_mac($mac);
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+            if ($IPSET_VERSION > 4) {
+                 if ($net_addr->contains($ip)) {
+                    my $cmd = "sudo ipset --add pfsession_$mark\_$network $iplog[0]->{'ip'},$mac";
+                    my $out = `$cmd`;
+                 }
+            }
+            else {
+                 if ($net_addr->contains($ip)) {
+                     my $cmd = "sudo ipset --add pfsession_$mark\_$network $iplog[0]->{'ip'},$mac";
+                     my $out = `$cmd`;
+                 }
+            }
+        }
     return (1);
-}
+    }
+    else {
+        my $iptables = IPTables::Interface::new('mangle')
+            || logger->logcroak("unable to create IPTables::Interface object");
 
+        $logger->debug("marking node $mac with mark 0x$mark");
+        my $success = $iptables->iptables_do_command(
+             "-A $FW_PREROUTING_INT_INLINE",  "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
+        );
+
+        if (!$success) {
+            $logger->error("Unable to mark mac $mac: $!");
+            return;
+        }
+        $iptables->commit();
+        return (1);
+    }
+}
 sub iptables_unmark_node {
     my ( $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = IPTables::Interface::new('mangle')
-        || logger->logcroak("unable to create IPTables::Interface object");
-
-    $logger->debug("removing mark 0x$mark on node $mac");
-    my $success = $iptables->iptables_do_command(
-        "-D $FW_PREROUTING_INT_INLINE", "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
-    );
-
-    if (!$success) {
-        $logger->error("Unable to unmark mac $mac: $!");
-        return;
-    }
-    $iptables->commit();
+    if ($IPSET_VERSION > 0) {
+        foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            $logger->info("IPSET ". $ConfigNetworks{$network}{'netmask'} ."  ".$network);
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            my @iplog = iplog_history_mac($mac);
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+            if ($IPSET_VERSION > 4) {
+                 if ($net_addr->contains($ip)) {
+                    my $cmd = "sudo ipset --del pfsession_$mark\_$network $iplog[0]->{'ip'},$mac";
+                    my $out = `$cmd`;
+                 }
+            }
+            else {
+                 if ($net_addr->contains($ip)) {
+                     my $cmd = "sudo ipset --del pfsession_$mark\_$network $iplog[0]->{'ip'},$mac";
+                     my $out = `$cmd`;
+                 }
+            }
+        }
     return (1);
+    }
+    else {    
+        my $iptables = IPTables::Interface::new('mangle')
+            || logger->logcroak("unable to create IPTables::Interface object");
+
+        $logger->debug("removing mark 0x$mark on node $mac");
+        my $success = $iptables->iptables_do_command(
+            "-D $FW_PREROUTING_INT_INLINE", "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
+        );
+
+        if (!$success) {
+            $logger->error("Unable to unmark mac $mac: $!");
+            return;
+        }
+        $iptables->commit();
+        return (1);
+    }
 }
 
 =item get_mangle_mark_for_mac
@@ -381,31 +493,58 @@ Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 sub get_mangle_mark_for_mac {
     my ( $mac ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
-    my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
-        || logger->logcroak("unable to create IPTables::ChainMgr object");
-    my $iptables_cmd = $iptables->{'_iptables'};
-
-    # list mangle rules
-    my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd("$iptables_cmd -t mangle -L -v -n");
-    if ($rv) {
-        # MAC in iptables -L -nv are uppercase
-        $mac = uc($mac);
-        foreach my $ipt_line (@$out_ar) {
-            chomp($ipt_line);
-            # matching with end of line ($) for performance
-            # saw some instances were a space was present at the end of the line
-            if ($ipt_line =~ /MAC $mac MARK set 0x(\d+)\s*$/) {
-                return $1;
+    if ($IPSET_VERSION > 0) { 
+        foreach my $network ( keys %ConfigNetworks ) {
+            next if ( !pf::config::is_network_type_inline($network) );
+            my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+            my @iplog = iplog_history_mac($mac);
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+            if ($net_addr->contains($ip)) {
+                my $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'}";
+                my @out = `$cmd 2>&1`;
+                if (!($out[0] =~ m/NOT/i)) {
+                    return $IPTABLES_MARK_REG;
+                }
+                $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'}";
+                @out = `$cmd 2>&1`;
+                if (!($out[0] =~ m/NOT/i)) {
+                    return $IPTABLES_MARK_ISOLATION;
+                }
+                $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_UNREG\_$network $iplog[0]->{'ip'}";
+                @out = `$cmd 2>&1`;
+                if (!($out[0] =~ m/NOT/i)) {
+                    return $IPTABLES_MARK_UNREG;
+                }
             }
         }
-    } else {
-        if (@$errs_ar) {
-            $logger->error("Unable to list iptables mangle table: $!");
-            return;
-        }
     }
-    # if we didn't find him it means it's the catch all which is 
-    return $IPTABLES_MARK_UNREG; 
+    else {
+        my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
+            || logger->logcroak("unable to create IPTables::ChainMgr object");
+        my $iptables_cmd = $iptables->{'_iptables'};
+
+        # list mangle rules
+        my ($rv, $out_ar, $errs_ar) = $iptables->run_ipt_cmd("$iptables_cmd -t mangle -L -v -n");
+        if ($rv) {
+            # MAC in iptables -L -nv are uppercase
+            $mac = uc($mac);
+            foreach my $ipt_line (@$out_ar) {
+                chomp($ipt_line);
+                # matching with end of line ($) for performance
+                # saw some instances were a space was present at the end of the line
+                if ($ipt_line =~ /MAC $mac MARK set 0x(\d+)\s*$/) {
+                    return $1;
+                }
+            }
+        } else {
+            if (@$errs_ar) {
+                $logger->error("Unable to list iptables mangle table: $!");
+                return;
+            }
+        }
+        # if we didn't find him it means it's the catch all which is 
+    }       
+ return $IPTABLES_MARK_UNREG; 
 }
 
 =item update_mark
@@ -631,6 +770,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 David LaPorte <david@davidlaporte.org>
 
 Kevin Amorin <kev@amorin.org>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

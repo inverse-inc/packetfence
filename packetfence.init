@@ -19,7 +19,11 @@ source /etc/rc.d/init.d/functions
 
 start() {
 	echo -n $"Starting PacketFence..."
-	/usr/local/pf/bin/pfcmd service pf start
+	IPSET=`command -v ipset`
+        if [ $IPSET ]; then
+            modprobe ip_set
+        fi
+        /usr/local/pf/bin/pfcmd service pf start
 	RETVAL=$?
 	echo
 	return $RETVAL

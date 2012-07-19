@@ -65,6 +65,7 @@ New Features
  * Adding a new web based configurator that helps the installation and configuration process
    of a new PacketFence installation
  * Adding support for Suricata IDS (#1141)
+ * Using ipset to replace IPTables::ChainMgr (if ipset is not found we use IPTables::ChainMgr)
 
 Enhancements
  * Improved handling of an empty conf/pf.conf configuration file

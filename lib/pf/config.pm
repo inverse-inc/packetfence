@@ -34,6 +34,7 @@ use POSIX;
 use Readonly;
 use threads;
 use Try::Tiny;
+use File::Which;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -212,6 +213,8 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
+my $ipsetversion = ipset_version();
+Readonly::Scalar our $IPSET_VERSION => $ipsetversion;
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
@@ -265,6 +268,23 @@ sub load_config {
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
+
+=item ipset_version -  check the ipset version on the system
+
+=cut
+
+sub ipset_version {
+  my $logger = Log::Log4perl::get_logger('pf::config');
+  my $exe_path = which('ipset');
+  if (defined($exe_path)) {
+    my $cmd = "sudo ".$exe_path." --version";
+    my $out = `$cmd`;
+    my ($ipset_version) = $out =~ m/^ipset\s+v?([\d+]).*$/ims;
+    return $ipset_version;
+  }
+  else {
+    return 0;
+  }
 }
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
