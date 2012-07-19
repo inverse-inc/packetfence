@@ -690,8 +690,11 @@ sub parseTrap {
             my $trapType = $trapHashRef->{'trapType'};
 
             if ( $trapType eq 'wirelessIDS' ) {
+                my $switch_ip = $switch->{_ip};
+                my $trapMac = $trapHashRef->{'trapMac'};
+
                 #Do some crazy stuff
-                $logger->info("Here we will do some crazy stuff soon! trapline: $trapLine");
+                $logger->info("Here we will do some crazy stuff soon! Got $trapType for $trapMac");
                 return;            
 
             } elsif ( $trapType ne 'unknown' ) {
