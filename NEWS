@@ -34,6 +34,7 @@ New Features
 
 Enhancements
  * Closing expired violations using the release_date (#1476)
+ * Excluding the local switch when building the NAS SQL table (#1491)
 
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)
