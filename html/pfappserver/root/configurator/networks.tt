@@ -16,7 +16,7 @@
           <div class="control-group">
             <label class="control-label" for="interfaceNetmask">[% l('Netmask') %]</label>
             <div class="controls">
-              <input type="text" class="input" id="interfaceNetmask">
+              <input type="text" class="input" id="interfaceNetmask" placeholder="255.255.255.0">
             </div>
           </div>
         </form>
@@ -51,7 +51,7 @@
           <div class="control-group">
             <label class="control-label" for="vlanNetmask">[% l('Netmask') %]</label>
             <div class="controls">
-              <input type="text" class="input" id="vlanNetmask">
+              <input type="text" class="input" id="vlanNetmask" placeholder="255.255.255.0">
             </div>
           </div>
         </form>

@@ -13,21 +13,20 @@ function registerExits() {
 
 function initModals() {
     /* Interface modal editor */
+    $('#modalEditInterface').on('shown', function() { $('#interfaceIp').focus(); });
     $('#modalEditInterface button[type="submit"]').click(function(event) {
         var modal = $('#modalEditInterface');
+        var ip_input = modal.find('#interfaceIp');
         var valid = true;
-        modal.find('.control-group').each(function(index) {
-            var e = $(this);
-            if (e.find('input').first().val().trim().length == 0) {
-                e.addClass('error');
-                valid = false;
-            }
-            else
-                e.removeClass('error');
-        });
+        if (isFormInputEmpty(ip_input))
+            valid = false;
         if (valid) { 
-            var ip = modal.find('#interfaceIp').val();
-            var netmask = modal.find('#interfaceNetmask').val();
+            var ip = ip_input.val();
+            var netmask_input = modal.find('#interfaceNetmask');
+            var netmask = netmask_input.val().trim();
+            if (netmask.length == 0)
+                // If no netmask is specified, use the placeholder
+                netmask = netmask_input.attr('placeholder');
             var url = ['/interface',
                        modal.attr('interface'),
                        'edit',
@@ -51,19 +50,12 @@ function initModals() {
     });
 
     /* VLAN modal creator */
+    $('#modalCreateVlan').on('shown', function() { $('#vlanId').focus(); });
     $('#modalCreateVlan button[type="submit"]').click(function(event) {
         var modal = $('#modalCreateVlan');
         var valid = true;
-        modal.find('.control-group').each(function(index) {
-            var e = $(this);
-            if (e.find('input').first().val().trim().length == 0) {
-                e.addClass('error');
-                valid = false;
-            }
-            else
-                e.removeClass('error');
-        });
-
+        if (isFormInputEmpty($('#vlanId')) || isFormInputEmpty($('#vlanIp')))
+            valid = false;
         if (valid) {
             var name = modal.find('h3:first span').text() + '.' + modal.find('#vlanId').val(),
             modal_body = modal.children('.modal-body').first(),
@@ -97,11 +89,16 @@ function initModals() {
 
 function editVlan(name, modal, form) {
     // Save attributes
+    var netmask_input = modal.find('#vlanNetmask');
+    var netmask = netmask_input.val().trim();
+    if (netmask.length == 0)
+        // If no netmask is specified, use the placeholder
+        netmask = netmask_input.attr('placeholder');
     var url = ['/interface',
                name,
                'edit',
                modal.find('#vlanIp').val(),
-               modal.find('#vlanNetmask').val()];
+               netmask];
     $.ajax(url.join('/'))
         .done(function(data) {
             modal.modal('toggle');
