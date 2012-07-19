@@ -31,10 +31,10 @@ my %types   = (
 
 =over
 
-=item _getAvailableMechanisms
+=item getAvailableMechanisms
 
 =cut
-sub _getAvailableMechanisms {
+sub getAvailableMechanisms {
     my ( $self ) = @_;
 
     return \@mechanisms;
