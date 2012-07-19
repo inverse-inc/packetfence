@@ -223,11 +223,24 @@ sub service_ctl {
             };
             $action eq "status" && do {
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                my $cmd = "pidof -x $binary";
                 my $pid;
-                chop( $pid = `$cmd` );
-                $pid = 0 if ( !$pid );
-                $logger->info("$cmd returned $pid");
+                # Handle the pfdhcplistener case. Check how much internal interfaces + management we have, and if the number of pids
+                # are not equals this (internal+management), then return 0 to force a restart.
+                if ($exe ne "pfdhcplistener") {
+                    chop( $pid = `pidof -x $exe` );
+                    $pid = 0 if ( !$pid );
+                } else {
+                    my @devs = get_internal_devs_phy();
+                    my $numPids = $#devs+1;
+
+                    $pid = `pidof -x $exe`;
+                    my @pidArray = split(/ /, $pid);
+
+                    if ($#pidArray != $numPids) {
+                       $pid = 0
+                    }
+                }
+                $logger->info("pidof -x $exe returned $pid");
                 return ($pid);
             }
         }
