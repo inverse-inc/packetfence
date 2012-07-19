@@ -342,11 +342,35 @@ sub generate_mangle_rules {
     my @macarray = violation_view_open_uniq();
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
-            my $mac = $row->{'mac'};
-            $mangle_rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
-                "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
-            ;
+            if ($IPSET_VERSION > 0) {
+                foreach my $network ( keys %ConfigNetworks ) {
+                    next if ( !pf::config::is_network_type_inline($network) );
+                    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+                    my $mac = $row->{'mac'};
+                    my @iplog = iplog_history_mac($mac);
+                    my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+                    $logger->info("IPSET ". $ip);
+                    if ($IPSET_VERSION > 4) {
+                        if ($net_addr->contains($ip)) {
+                            my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'},$mac";
+                            my $out = `$cmd`;
+                        }
+                    }
+                    else {
+                        if ($net_addr->contains($ip)) {
+                            my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'},$mac";
+                            my $out = `$cmd`;
+                        }
+                    }
+                }
+            }
+            else {
+                my $mac = $row->{'mac'};
+                $mangle_rules .=
+                    "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " .
+                    "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
+                ;
+            }
         }
     }
 
