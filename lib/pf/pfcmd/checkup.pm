@@ -235,20 +235,27 @@ Validation related to the Snort/Suricata IDS usage
 =cut
 sub ids {
 
-    # make sure a monitor device is present if snort is enabled
+    # make sure a monitor device is present if trapping.detection is enabled
     if ( !$monitor_int ) {
         add_problem( $FATAL, 
-            "monitor interface not defined, please disable trapping.dectection " . 
+            "monitor interface not defined, please disable trapping.detection " . 
             "or set an interface type=...,monitor in pf.conf"
         );
     }
 
-    # make sure named pipe 'alert' is present if snort is enabled
+    # make sure named pipe 'alert' is present if trapping.detection is enabled
     my $alertpipe = "$install_dir/var/alert";
     if ( !-p $alertpipe ) {
         if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
             add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
         }
+    }
+
+    # make sure trapping.detection_engine=snort|suricata
+    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' || $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
+        add_problem( $FATAL,
+            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
+        );
     }
 
     if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
@@ -967,21 +974,6 @@ sub unsupported {
     # This was not implemented due to a time constraint. We can fix it.
     if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
         add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
-    }
-}
-
-=item ids
-
-IDS Checkup
-
-=cut
-sub ids {
-
-    # make sure trapping.detection_engine=snort|suricata
-    if ( !$Config{'trapping'}{'detection_engine'} eq 'snort' && !$Config{'trapping'}{'detection_engine'} eq 'suricata' ) {
-        add_problem( $FATAL,
-            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
-        );
     }
 }
 
