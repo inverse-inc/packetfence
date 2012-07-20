@@ -226,14 +226,14 @@ sub service_ctl {
                 my $pid;
                 # Handle the pfdhcplistener case. Check how much internal interfaces + management we have, and if the number of pids
                 # are not equals this (internal+management), then return 0 to force a restart.
-                if ($exe ne "pfdhcplistener") {
-                    chop( $pid = `pidof -x $exe` );
+                if ($binary ne "pfdhcplistener") {
+                    chop( $pid = `pidof -x $binary` );
                     $pid = 0 if ( !$pid );
                 } else {
                     my @devs = get_internal_devs_phy();
                     my $numPids = $#devs+1;
 
-                    $pid = `pidof -x $exe`;
+                    $pid = `pidof -x $binary`;
                     my @pidArray = split(/ /, $pid);
 
                     if ($#pidArray != $numPids) {
