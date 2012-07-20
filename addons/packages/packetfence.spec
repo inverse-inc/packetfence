@@ -71,7 +71,7 @@ Requires: dhcp, bind
 Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
-Requires: mysql, perl(DBD::mysql)
+Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
@@ -255,6 +255,7 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
+%{__install} -D -m0755 pfappserver.init $RPM_BUILD_ROOT%{_initrddir}/pfappserver
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
@@ -407,6 +408,8 @@ fi
 %post
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
+echo "Adding pfappserver startup script"
+/sbin/chkconfig --add pfappserver
 for service in snortd httpd snmptrapd
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
@@ -422,7 +425,7 @@ fi
 
 echo Installation complete
 #TODO: consider renaming installer.pl to setup.pl?
-echo "  * Please cd /usr/local/pf && ./installer.pl to finish installation and configure PF"
+echo "  * Please fire up your Internet browser and go to http://@ip_packetfence:3000 to complete the PacketFence installation and configuration."
 
 %post remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
@@ -522,6 +525,7 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
+%attr(0755, root, root) %{_initrddir}/pfappserver
 %dir                    %{_sysconfdir}/logrotate.d
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
