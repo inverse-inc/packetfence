@@ -25,7 +25,7 @@ use POSIX;
 use Readonly;
 
 use pf::config;
-use pf::util qw(get_gateways get_internal_ips parse_template);
+use pf::util qw(get_all_internal_ips parse_template);
 
 BEGIN {
     use Exporter ();
@@ -46,9 +46,8 @@ sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %tags;
     $tags{'template'}      = "$conf_dir/snort.conf";
-    $tags{'internal-ips'}  = join( ",", get_internal_ips() );
+    $tags{'internal-ips'}  = join( ",", get_all_internal_ips() );
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
-    $tags{'gateways'}      = join( ",", get_gateways() );
     $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
     $tags{'install_dir'}   = $install_dir;

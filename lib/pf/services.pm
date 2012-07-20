@@ -122,7 +122,6 @@ sub service_ctl {
                 }
 
                 if ( $daemon =~ /(named|dhcpd|snort|suricata|httpd|snmptrapd)/ && !$quick )
-                    && !$quick )
                 {
                     my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
