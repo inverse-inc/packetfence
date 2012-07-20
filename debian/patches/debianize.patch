@@ -1,39 +1,6 @@
 Description: Debianize PacketFence
 Author: Fabrice Durand <fdurand@inverse.ca>
 
---- a/addons/freeradius-integration/radiusd.conf.pf
-+++ b/addons/freeradius-integration/radiusd.conf.pf
-@@ -2,23 +2,23 @@ prefix = /usr
- exec_prefix = /usr
- sysconfdir = /etc
- localstatedir = /var
--sbindir = /usr/sbin
--logdir = ${localstatedir}/log/radius
--raddbdir = ${sysconfdir}/raddb
-+sbindir = ${exec_prefix}/sbin
-+logdir = /var/log/freeradius
-+raddbdir = /etc/freeradius
- radacctdir = ${logdir}/radacct
- 
--name = radiusd
-+name = freeradius
- 
- confdir = ${raddbdir}
- run_dir = ${localstatedir}/run/${name}
- 
- db_dir = ${raddbdir}
- 
--libdir = /usr/lib64/freeradius
-+libdir = /usr/lib/freeradius
- pidfile = ${run_dir}/${name}.pid
- 
--user = radiusd
--group = radiusd
-+user = freerad
-+group = freerad
- 
- max_request_time = 30
- cleanup_delay = 5
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -573,7 +573,7 @@ snort_binary=/usr/sbin/snort
