@@ -65,7 +65,7 @@ Readonly our $ACCOUNTING_TRIGGER_RE => qr/
     ($BANDWIDTH_DIRECTION_RE)     # bandwidth direction
     (\d+)                         # nb of bandwidth units
     ($BANDWIDTH_UNITS_RE)         # bandwidth units
-    ($TIME_MODIFIER_RE)?          # optional time window (number + time modifier)
+    ($TIME_MODIFIER_RE)?          # optional time window (time modifier)
 /x;
 
 Readonly our $DIRECTION_IN => 'IN';
