@@ -16,8 +16,8 @@ source /etc/rc.d/init.d/functions
 
 start() {
 	echo -n $"Starting pfappserver..."
-        iptables -I INPUT -p tcp --dport 3000 -j ACCEPT
-        $PFAPPSERVER_DIR$PFAPPSERVER 1>/dev/null 2>&1 &
+ 	iptables -I INPUT -p tcp --dport 3000 -j ACCEPT
+	$PFAPPSERVER_DIR$PFAPPSERVER 1>/dev/null 2>&1 &
 	RETVAL=$?
 	echo
 	return $RETVAL
@@ -25,7 +25,7 @@ start() {
 
 stop() {
 	echo -n $"Shutting down pfappserver..."
-        iptables -D INPUT -p tcp --dport 3000 -j ACCEPT
+	iptables -D INPUT -p tcp --dport 3000 -j ACCEPT
 	kill -15 `pidof pfappserver_server.pl`
 	RETVAL=$?
 	echo
@@ -33,12 +33,12 @@ stop() {
 }
 
 restart() {
-        echo -n $"Restarting pfappserver..."
-        stop
-        start
-        RETVAL=$?
-        echo
-        return $RETVAL
+	echo -n $"Restarting pfappserver..."
+	stop
+	start
+	RETVAL=$?
+	echo
+	return $RETVAL
 }
 
 case "$1" in
