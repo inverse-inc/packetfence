@@ -162,6 +162,7 @@ Requires: perl(Catalyst::Plugin::Authentication)
 Requires: perl(Catalyst::Authentication::Credential::HTTP)
 Requires: perl(Catalyst::Authentication::Store::Htpasswd)
 Requires: perl(Catalyst::Controller::HTML::FormFu)
+Requires: perl(Params::Validate) >= 0.97
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
 # these are probably missing dependencies for the above. 
