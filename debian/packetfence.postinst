@@ -42,6 +42,24 @@ case "$1" in
     
         # backup of original files in freeradius
         for i in `find /etc/freeradius/ -name *.pf`;do mv $i `dirname $i`/`basename $i .pf`; done
+
+        #Check if packetfence.log exist and create it with the right owner
+        if [ ! -e /usr/local/pf/logs/packetfence.log ]; then
+            touch /usr/local/pf/logs/packetfence.log
+            chown pf.pf /usr/local/pf/logs/packetfence.log
+        fi
+
+        #Make ssl certificate
+        if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
+            openssl req -x509 -new -nodes -keyout -batch\
+            -out /usr/local/pf/conf/ssl/server.crt\
+            -keyout /usr/local/pf/conf/ssl/server.key\
+            -nodes -config /usr/local/pf/conf/openssl.cnf
+        fi
+
+        #Enable ip_forward
+        echo 1 > /proc/sys/net/ipv4/ip_forward
+
     
         # managing services
         for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
