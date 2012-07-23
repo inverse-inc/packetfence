@@ -664,6 +664,12 @@ fi
 %attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-soh
 %config		        /usr/local/pf/raddb/sites-available/packetfence-tunnel
 %attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-tunnel
+%config                 /usr/local/pf/raddb/sites-enabled/packetfence
+%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence
+%config                 /usr/local/pf/raddb/sites-enabled/packetfence-soh
+%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-soh
+%config                 /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
+%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session

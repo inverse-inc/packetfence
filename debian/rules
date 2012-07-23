@@ -100,11 +100,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installinfo
 	dh_installman
-	dh_link /etc/freeradius/sites-available/control-socket /etc/freeradius/sites-enabled/control-socket \
-                /etc/freeradius/sites-available/packetfence /etc/freeradius/sites-enabled/packetfence \
-                /etc/freeradius/sites-available/packetfence-soh /etc/freeradius/sites-enabled/packetfence-soh \
-                /etc/freeradius/sites-available/packetfence-tunnel /etc/freeradius/sites-enabled/packetfence-tunnel \
-		/usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
+	dh_link /usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
 		/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf
 	dh_strip
 	dh_compress
