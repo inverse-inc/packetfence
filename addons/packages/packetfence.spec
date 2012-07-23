@@ -413,11 +413,14 @@ echo "Adding PacketFence startup script"
 echo "Adding pfappserver startup script"
 /sbin/chkconfig --add pfappserver
 
-#Check if packetfence.log exist and create it with the right owner
-if [ ! -e /usr/local/pf/logs/packetfence.log ]; then
-  touch /usr/local/pf/logs/packetfence.log
-  chown pf.pf /usr/local/pf/logs/packetfence.log
+#Check if log files exist and create them with the correct owner
+for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
+do
+if [ ! -e /usr/local/pf/logs/$fic_log ]; then
+  touch /usr/local/pf/logs/$fic_log
+  chown pf.pf /usr/local/pf/logs/$fic_log
 fi
+done
 
 #Make ssl certificate
 if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
