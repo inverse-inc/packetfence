@@ -171,6 +171,7 @@ Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 # configuration-wizard
 Requires: perl(IO::Interface::Simple)
+Requires: vconfig
 #
 # TESTING related
 #
