@@ -66,7 +66,7 @@ Requires: dhcp, bind
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
 %{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
 %{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
-BuildRequires: make
+Requires: make
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
@@ -371,7 +371,7 @@ fi
 
 #Check if RADIUS have a dh
 if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-  echo "Bulding default RADIUS certificates..."
+  echo "Building default RADIUS certificates..."
   cd /usr/local/pf/raddb/certs
   make dh
 else

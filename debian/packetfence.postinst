@@ -30,7 +30,13 @@ case "$1" in
 		ln -s $VERSIONSQL ./pf-schema.sql
 	fi
 	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
-	for i in `find /etc/freeradius/ -name *.pf`;do mv $i `dirname $i`/`basename $i .pf`; done
+	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+		echo "Bulding default RADIUS certificates..."
+		cd /usr/local/pf/raddb/certs
+		make dh
+	else
+		echo "DH already exists, won't touch it!"
+	fi
 	for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server
 		do
 		update-rc.d $service remove > /dev/null 2>&1
