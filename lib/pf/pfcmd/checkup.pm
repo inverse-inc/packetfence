@@ -117,6 +117,7 @@ sub sanity_check {
     permissions();
     violations();
     switches();
+    portal_profiles();
     unsupported();
 
     return @problems;
@@ -968,6 +969,28 @@ sub unsupported {
     # This was not implemented due to a time constraint. We can fix it.
     if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
         add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
+    }
+}
+
+=item portal_profiles
+
+Make sure that portal profiles, if defined, have a filter and no unsupported parameters
+
+=cut
+# TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
+sub portal_profiles {
+
+    my $profile_params = qr/(?:filter|logo|auth|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
+
+    foreach my $portal_profile ( tied(%Config)->GroupMembers("portal-profile") ) {
+
+        add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
+            if ( !defined($Config{$portal_profile}{'filter'}) );
+
+        foreach my $key ( keys %{$Config{$portal_profile}} ) {
+            add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
+                if ( $key !~ /$profile_params/ );
+        }
     }
 }
 
