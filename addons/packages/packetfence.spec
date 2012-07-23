@@ -54,7 +54,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-
 %global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
+BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind, openssl
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -412,6 +412,27 @@ echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
 echo "Adding pfappserver startup script"
 /sbin/chkconfig --add pfappserver
+
+#Check if packetfence.log exist and create it with the right owner
+if [ ! -e /usr/local/pf/logs/packetfence.log ]; then
+  touch /usr/local/pf/logs/packetfence.log
+  chown pf.pf /usr/local/pf/logs/packetfence.log
+fi
+
+#Make ssl certificate
+if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
+    openssl req -x509 -new -nodes -keyout -batch\
+    	-out /usr/local/pf/conf/ssl/server.crt\
+    	-keyout /usr/local/pf/conf/ssl/server.key\
+    	-nodes -config /usr/local/pf/conf/openssl.cnf
+fi
+
+#Disable selinux
+setenforce 0
+
+#Enable ip_forward
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
 for service in snortd httpd snmptrapd
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
@@ -424,6 +445,9 @@ if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
 fi
+
+#Start pfappserver
+service pfappserver start
 
 echo Installation complete
 #TODO: consider renaming installer.pl to setup.pl?
