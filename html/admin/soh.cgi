@@ -335,7 +335,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
 # Anything else is an error
 
 else {
-    pf::web::generate_admin_error_page($cgi, $session, i18n("Unrecognised request"));
+    pf::web::generate_admin_error_page($q, $csession, i18n("Unrecognised request"));
 }
 
 =head1 AUTHOR
