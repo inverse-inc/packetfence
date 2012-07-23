@@ -641,6 +641,7 @@ fi
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
 %config(noreplace)      /usr/local/pf/conf/networks.conf
+%config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
 #%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
