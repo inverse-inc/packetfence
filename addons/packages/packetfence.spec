@@ -450,7 +450,6 @@ fi
 service pfappserver start
 
 echo Installation complete
-#TODO: consider renaming installer.pl to setup.pl?
 echo "  * Please fire up your Internet browser and go to http://@ip_packetfence:3000/configurator to complete the PacketFence installation and configuration."
 
 %post remote-snort-sensor
