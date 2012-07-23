@@ -4,7 +4,7 @@
 # Author: Olivier Bilodeau <obilodeau@inverse.ca>
 #
 diff --git a/lib/pf/services.pm b/lib/pf/services.pm
-index e8115ef..fcbc00f 100644
+index 0e67fd7..9bb570a 100644
 --- a/lib/pf/services.pm
 +++ b/lib/pf/services.pm
 @@ -81,7 +81,7 @@ $service_launchers{'pfsetvlan'} = "%1\$s -d &";
@@ -15,4 +15,6 @@ index e8115ef..fcbc00f 100644
 +$service_launchers{'radiusd'} = "LD_PRELOAD=/usr/lib/libperl.so.5.10 %1\$s -d $install_dir/raddb/";
  
  # TODO $monitor_int will cause problems with dynamic config reloading
- if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int ) {
+ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'snort' ) {
+
+
