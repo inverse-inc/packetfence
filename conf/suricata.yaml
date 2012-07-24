@@ -547,6 +547,8 @@ vars:
 
     EXTERNAL_NET: any
 
+    GATEWAYS: any
+
     HTTP_SERVERS: "$HOME_NET"
 
     SMTP_SERVERS: "$HOME_NET"
