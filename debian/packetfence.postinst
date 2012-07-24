@@ -64,7 +64,7 @@ case "$1" in
         done
         update-rc.d packetfence defaults . || exit 0
         update-rc.d pfappserver defaults . || exit 0
-	echo "* Please fire up your Internet browser and go to http://@ip_packetfence:3000/configurator to complete the PacketFence installation and configuration."
+        echo "* Please fire up your Internet browser and go to http://@ip_packetfence:3000/configurator to complete the PacketFence installation and configuration."
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
