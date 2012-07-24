@@ -109,6 +109,33 @@
         printMultiSelect(get_nodecategories_for_dropdown(), 'hash', $selected, "multiple name='{$key}[]'");
     } elseif ($key == 'trigger') {
       print "<tr><td></td><td>$pretty_key:</td><td><textarea name='$key'>$val</textarea>";
+    } elseif ($key == 'vclose') {
+      $vids_pfcmd=PFCMD("class view all");
+
+      foreach($vids_pfcmd as $line){
+        $parts=preg_split("/\|/", $line);
+        $vids[]=array('vid' => $parts[2], 'desc' => $_SESSION['violation_classes'][$parts[2]]);
+      }
+      array_shift($vids);
+      $isSelected = 0;
+      $dropdown = "";
+      print "<tr><td></td><td>$pretty_key:</td><td><select name='$key'>\n";
+      foreach($vids as $vid) {
+        if ($val == $vid[vid]) {
+            $dropdown = $dropdown . "      <option value='$vid[vid]' SELECTED>$vid[desc] ($vid[vid])</option>\n";
+            $isSelected = 1;
+        } else {
+            $dropdown = $dropdown . "      <option value='$vid[vid]'>$vid[desc] ($vid[vid])</option>\n";
+        }
+      }
+
+      if (!$isSelected) {
+        print "  <option value='' SELECTED>No Violation</option>\n";
+      } else {
+        print "	 <option value=''>No Violation</option>\n";
+      }
+      
+      print $dropdown . "</select>\n";
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }
