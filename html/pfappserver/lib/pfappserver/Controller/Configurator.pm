@@ -158,7 +158,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
             }
         }
 
-        if (exists($c->session->{enforcements}) && scalar($c->session->{enforcements}) > 0) {
+        if (exists($c->session->{enforcements}) && keys(%{$c->session->{enforcements}}) > 0) {
             $c->log->info("Detected mechanisms: " . join(', ', keys %{$c->session->{enforcements}}));
         }
         else {

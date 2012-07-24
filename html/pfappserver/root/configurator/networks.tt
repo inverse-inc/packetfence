@@ -39,7 +39,7 @@
             <label class="control-label" for="vlanId">[% l('Virtual LAN ID') %]</label>
             <div class="controls">
               <input type="text" class="input" id="vlanId">
-                <p class="help-block">VLAN ID associated to the network interface</p>
+                <p class="help-block">VLAN ID (must be a number bellow 4096)</p>
             </div>
           </div>
           <div class="control-group">

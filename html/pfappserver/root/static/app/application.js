@@ -84,3 +84,25 @@ function isFormInputEmpty(input) {
 
     return empty;
 }
+
+function isInvalidNumber(input, min, max) {
+    var control = input.closest('.control-group');
+    var isInvalid = false;
+
+    if (/^[0-9]+$/.test(input.val().trim())) {
+        var value = parseInt(input.val());
+        if (value < min || value > max)
+            isInvalid = true;
+    }
+    else {
+        isInvalid = true;
+    }
+    if (isInvalid) {
+        control.addClass('error');
+    }
+    else {
+        control.removeClass('error');
+    }
+
+    return isInvalid;
+}
