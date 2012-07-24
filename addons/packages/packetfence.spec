@@ -430,11 +430,6 @@ if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
     	-nodes -config /usr/local/pf/conf/openssl.cnf
 fi
 
-#Disable selinux
-setenforce 0
-
-#Enable ip_forward
-echo 1 > /proc/sys/net/ipv4/ip_forward
 
 for service in snortd httpd snmptrapd
 do
