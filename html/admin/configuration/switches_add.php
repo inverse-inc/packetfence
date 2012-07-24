@@ -171,6 +171,7 @@
                            'Meru::MC' => 'Meru MC',
                            'Motorola::RFS' => 'Motorola RF Switches',
                            'Netgear::FSM726v1' => 'Netgear FSM726v1',
+                           'Netgear::GS110' => 'Netgear GS110',
                            'Nortel::BayStack4550' => 'Nortel BayStack 4550',
                            'Nortel::BayStack470' => 'Nortel BayStack 470',
                            'Nortel::BayStack5500' => 'Nortel BayStack 5500 Series',
