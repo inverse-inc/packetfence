@@ -424,7 +424,7 @@ done
 
 #Make ssl certificate
 if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
-    openssl req -x509 -new -nodes -keyout -batch\
+    openssl req -x509 -new -nodes -keyout -days 365 -batch\
     	-out /usr/local/pf/conf/ssl/server.crt\
     	-keyout /usr/local/pf/conf/ssl/server.key\
     	-nodes -config /usr/local/pf/conf/openssl.cnf
