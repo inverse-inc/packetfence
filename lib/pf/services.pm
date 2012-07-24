@@ -240,7 +240,7 @@ sub service_ctl {
                        $pid = 0
                     }
                 }
-                $logger->info("pidof -x $exe returned $pid");
+                $logger->info("pidof -x $binary returned $pid");
                 return ($pid);
             }
         }
