@@ -28,6 +28,7 @@ Version <stable-version> released on <releaseDate>
 
 New Hardware
  * Adding support for Cisco Catalyst 3560G
+ * Netgear GS110 series support (SNMP Link up/down)
 
 New Features 
  * Remediation module for SourceFire 3D (addons/sourcefire)
@@ -61,7 +62,6 @@ New Hardware
  * Added Role support for all Cisco Wireless (WLC) models
  * Brocade 6400 series supports MAC-Authentication and 802.1X with or without VoIP
  * Brocade RF Switches support (Wireless controller)
- * Netgear GS110 series support (SNMP Link up/down)
 
 New Features
  * debian packages (#1066, #1067, #1463)
