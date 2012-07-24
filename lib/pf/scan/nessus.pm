@@ -103,9 +103,15 @@ sub startScan {
     $this->statusReportSyncToDb();
 
     # Wait the scan to finish
+    my $counter = 0;
     while (not $n->scan_finished($scanid)) {
+        if ($count > 3600) {
+            $logger->info("Nessus scan is older than 1 hour ...");
+            return 1;
+        }
         $logger->info("Nessus is scanning $hostaddr");
         sleep 15;
+        $count = $count + 15;
     }
     
     # Get the report

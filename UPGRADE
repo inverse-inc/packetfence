@@ -5,6 +5,13 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 3.4.1:
+
+    - Nessus scan XMLRPC
+    We made some change in the way nessus scan is working.
+    We directly use the policy on the server and now you don't have to declare
+    nessus_clientfile in pf.conf
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update

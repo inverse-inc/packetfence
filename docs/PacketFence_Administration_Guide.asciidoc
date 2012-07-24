@@ -1466,11 +1466,19 @@ Using Nessus:
   [scan]
   engine=nessus
   host=127.0.0.1
-  nessus_clientfile=basic-policy.nessus
   nessus_clientpolicy=basic-policy
   pass=nessusUserPassword
   registration=enabled
   user=nessusUsername
+
+Of course the basic-policy must exist on the nessus server
+If you want to use a different nessus policy by category you have to ajust the settings like the following (if the policy doesn't exist, PacketFence will be use the default policy defined by nessus_clientpolicy):
+
+  [nessus_category_policy]
+  guest=guest_policy
+  wifi=wifi_policy
+
+A node who is register like a guest will be scanned by the guest_policy , etc ...
 
 Using OpenVAS:
 
