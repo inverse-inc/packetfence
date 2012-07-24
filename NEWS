@@ -23,6 +23,7 @@ New Features
 
 Enhancements
  * Closing expired violations using the release_date (#1476)
+ * FreeRADIUS configuration is now fully managed (pf/raddb)
 
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)
