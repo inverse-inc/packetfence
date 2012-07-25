@@ -5,7 +5,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 16;
+use Test::More tests => 18;
 use Test::NoWarnings;
 
 BEGIN { use_ok('pf::util') }
@@ -39,6 +39,9 @@ is_deeply(
     ["day", "days", 3],
     "able to translate new format with capital date modifiers"
 );
+
+is( format_mac_as_cisco('f0:4d:a2:cb:d9:c5'), 'f04d.a2cb.d9c5', 'format_mac_as_cisco legit conversion');
+is( format_mac_as_cisco(), undef, 'format_mac_as_cisco return undef on failure');
 
 # TODO add more tests, we should test:
 #  - all methods ;)

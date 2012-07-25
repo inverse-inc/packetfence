@@ -33,7 +33,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip 
-        clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct
+        clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
         ip2interface ip2device ip2int int2ip 
         isenabled isdisabled isempty
         getlocalmac
@@ -151,7 +151,7 @@ sub clean_mac {
 
 =item format_mac_for_acct
 
-Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx
+Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx:xx
 
 Returning format XXXXXXXXXXXX
 
@@ -166,6 +166,25 @@ sub format_mac_for_acct {
     return ($mac);
 }
 
+=item format_mac_as_cisco
+
+Put the mac address in the cisco format, accepting xx:xx:xx:xx:xx:xx
+
+Returning format aabb.ccdd.eeff
+
+=cut
+sub format_mac_as_cisco {
+    my ($mac) = @_;
+
+    if (defined($mac) && 
+        $mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/
+        ) {
+            return "$1$2.$3$4.$5$6";
+    }
+
+    # couldn't process, return undef
+    return;
+}
 
 =item valid_mac 
 
