@@ -60,10 +60,12 @@ case "$1" in
     
         # managing services
         for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
+            service $service stop  > /dev/null 2>&1
             update-rc.d $service remove > /dev/null 2>&1
         done
         update-rc.d packetfence defaults . || exit 0
         update-rc.d pfappserver defaults . || exit 0
+        service pfappserver restart
         echo "* Please fire up your Internet browser and go to http://@ip_packetfence:3000/configurator to complete the PacketFence installation and configuration."
     ;;
 
