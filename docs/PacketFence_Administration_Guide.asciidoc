@@ -1915,11 +1915,11 @@ CAUTION: The use of different billing tiers requires different category in Packe
 Portal profiles
 ~~~~~~~~~~~~~~~
 
-In some cases, you may want to present a different captive-portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence introduced, in version 3.5, the notion of portal profiles which gives you this opportunity. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence introduced, in version 3.5, the concept of portal profiles which gives you this possibility. 
 
-When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take it's default ones (according to either pf.conf or pf.conf.defaults), except for the authentication which, if not set in the profile, will revert back to guests self-registration only.
+When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to either pf.conf or pf.conf.defaults), except for the authentication which, if not set in the profile, will revert back to guests self-registration only.
 
-Here's the different configuration parameters that can be set for each portal profiles. The only mandatory field is the filter one, otherwise, PacketFence won't be able to correctly apply the portal profile.
+Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile.
 
   [portal-profile name1]
   filter = the name of the SSID for which you'd like to apply the profile
@@ -1930,6 +1930,8 @@ Here's the different configuration parameters that can be set for each portal pr
   guest_category = the category that will be assigned to the self-registered guests
   template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
   billing_engine = either enabled or disabled
+  default_auth = the default authentication method that will be selectionned on the captive portal
+  category = the default category that will be assigned to users when they registerer
 
 CAUTION: If you set a custom template_path, make sure to copy over all of the default template files in the new custom folder. PacketFence will only render templates from the files in that custom folder if the value is setted. If files are missing, you'll be facing some error in templates generation. 
 
