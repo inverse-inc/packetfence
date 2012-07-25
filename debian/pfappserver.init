@@ -96,7 +96,6 @@ start() {
 
 stop() {
     log_daemon_msg "Stopping $APPNAME" $UNIXNAME
-    iptables -D INPUT -p tcp --dport 3000 -j ACCEPT
     start-stop-daemon --stop --retry 1 --user $USER --quiet --pidfile $PIDFILE
     log_end_msg $?
     return $?

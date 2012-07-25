@@ -25,7 +25,6 @@ start() {
 
 stop() {
 	echo -n $"Shutting down pfappserver..."
-	iptables -D INPUT -p tcp --dport 3000 -j ACCEPT
 	kill -15 `pidof pfappserver_server.pl`
 	RETVAL=$?
 	echo
