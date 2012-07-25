@@ -2,14 +2,14 @@
 # Start a Catalyst app under Engine::HTTP(::Prefork)
 
 ### BEGIN INIT INFO
-# Provides: myapp
+# Provides: pfappserver
 # Required-Start: $local_fs $network $named
 # Required-Stop: $local_fs $network $named
-# Should-Start: apache2
-# Should-Stop: apache2
+# Should-Start: 
+# Should-Stop: 
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: MyApp
+# Short-Description: Configurator for PacketFence
 ### END INIT INFO
 
 . /lib/lsb/init-functions
