@@ -175,6 +175,14 @@ Interface controller dispatcher
 sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     my ( $self, $c, $interface ) = @_;
 
+    $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
+    if( $c->stash->{installation_type} eq 'configuration' ) {
+        my $admin_ip    = $c->model('PfConfigAdapter')->getWebAdminIp();
+        my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
+        $c->log->info("Redirecting to admin interface https://$admin_ip:$admin_port");
+        $c->response->redirect("https://$admin_ip:$admin_port");
+    }
+
     my ($status, $status_msg) = $c->model('Interface')->exists($interface);
     unless ( is_success($status) ) {
         $c->response->status($status);
