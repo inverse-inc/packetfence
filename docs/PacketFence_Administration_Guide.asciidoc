@@ -309,7 +309,7 @@ First Step
 
 The first step after installing the necessary packages is the configuration step. PacketFence provides an helpful and detailed web-based configurator.
 
-Like mentioned at the end of the packages installation, fire up a web browser and go to http://packetfenceIP:3000/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
+Like mentioned at the end of the packages installation, fire up a web browser and go to http://@ip_packetfence:3000/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
 
 [options="compact"]
 * Step 1: Enforcement technique. You'll choose either vlan enforcement, inline enforcement or both;
