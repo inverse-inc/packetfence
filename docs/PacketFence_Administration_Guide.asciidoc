@@ -229,6 +229,7 @@ Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmf
 
   enabled = 0
 
+Under RHEL 5.x /Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-PathTools*,perl-File-Spec* on the section [rpmforge]
 
 RHEL 6.x
 ^^^^^^^^
