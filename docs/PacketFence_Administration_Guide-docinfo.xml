@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.3</revnumber>
+    <date>2012-07-26</date>
+    <authorinitials>DW</authorinitials>
+    <revremark>Added documentation for new captive portal profiles feature.</revremark>
+  </revision>
+  <revision>
     <revnumber>2.2</revnumber>
     <date>2012-06-13</date>
     <authorinitials>OB, FD</authorinitials>
