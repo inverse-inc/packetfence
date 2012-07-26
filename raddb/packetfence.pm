@@ -22,6 +22,9 @@ use constant {
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
 
+#Prevent error from LWP : ensure it connects to servers that have a valid certificate matching the expected hostname
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
+
 require 5.8.8;
 
 # This is very important! Without this script will not get the filled hashes from FreeRADIUS.

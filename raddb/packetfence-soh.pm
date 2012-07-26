@@ -24,6 +24,8 @@ use constant {
     WEBADMIN_HOST  => 'localhost:1443',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
+#Prevent error from LWP : ensure it connects to servers that have a valid certificate matching the expected hostname
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
 
 require 5.8.8;
 
