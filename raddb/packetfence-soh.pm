@@ -21,7 +21,8 @@ use constant {
     # FreeRADIUS to PacketFence communications (SOAP Server settings)
     WS_USER        => 'webservice',
     WS_PASS        => 'password',
-    WEBADMIN_HOST  => 'localhost:1443',
+    # On Centos 5 we must use http instead of https (Net::SSleay pb) 
+    WEBADMIN_HOST  => 'localhost:80',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
 #Prevent error from LWP : ensure it connects to servers that have a valid certificate matching the expected hostname
@@ -84,7 +85,7 @@ sub authorize {
     try {
         $soap ||= SOAP::Lite->new(
             uri => API_URI,
-            proxy => 'https://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
+            proxy => 'http://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
         );
 
         my $som = $soap->soh_authorize(%RAD_REQUEST);

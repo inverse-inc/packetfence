@@ -18,7 +18,8 @@ use constant {
     # FreeRADIUS to PacketFence communications (SOAP Server settings)
     WS_USER        => 'webservice',
     WS_PASS        => 'password',
-    WEBADMIN_HOST  => 'localhost:1443',
+    # For centos 5 we must use http instead of https (Net::SSLeay pb) 
+    WEBADMIN_HOST  => 'localhost:80',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
 
@@ -75,7 +76,7 @@ use SOAP::Lite
 #TODO format well and document the fact that we might need re-create the object on error or something
 my $soap = new SOAP::Lite(
     uri   => API_URI,
-    proxy => 'https://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
+    proxy => 'http://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
 ) or return server_error_handler();
 
 =head1 SUBROUTINES
