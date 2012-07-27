@@ -140,6 +140,9 @@ my ( $this ) = @_;
         if (defined($Config{'nessus_category_policy'}{$node_info->{'category'}})) {
             return $Config{'nessus_category_policy'}{$node_info->{'category'}};
         }
+        else {
+            return $Config{'scan'}{'nessus_clientpolicy'};
+        }
     }
     else {
         return $Config{'scan'}{'nessus_clientpolicy'};
