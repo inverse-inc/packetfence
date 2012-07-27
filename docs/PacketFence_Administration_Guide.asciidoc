@@ -1388,7 +1388,9 @@ Also included in `violation.conf` is the defaults section. The defaults section 
   actions=email,log
   auto_enable=Y
   enable=N
-  grace=120
+  grace=120m
+  window=0
+  vclose=
   button_text=Enable Network
   snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
   vlan=isolationVlan
@@ -1399,7 +1401,14 @@ Number of times a host will be able to try and self remediate before they are lo
 `auto_enable`::
 Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
 `grace`::
-Number of minutes before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+`window`::
+Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can
+use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
+accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the
+current month.)
+`vclose`::
+When selecting the "close" action, triggering the violation will close the one you select in the vclose field.  This is an experimental workflow for Mobile Device Management (MDM).
 `button_text`::
 Text displayed on the violation form to hosts.
 `snort_rules`::
