@@ -689,8 +689,6 @@ vars:
 
     EXTERNAL_NET: "!$HOME_NET"
  
-    GATEWAYS: "127.0.0.1"
-
     HTTP_SERVERS: "$HOME_NET"
 
     SMTP_SERVERS: "$HOME_NET"
