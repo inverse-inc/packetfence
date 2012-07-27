@@ -6,7 +6,7 @@
 # Adapted from script by Dag Wieers <dag@wieers.com>
 # Last changes: Dominik Gehl <dgehl@inverse.ca> 2009-04-06
 #
-# chkconfig: - 90 10
+# chkconfig: 2345 90 10
 # description: pfappserver for configuring PacketFence
 #
 PFAPPSERVER=pfappserver_server.pl
