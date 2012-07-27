@@ -66,6 +66,7 @@ BEGIN {
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
+        $IPSET_VERSION
         $default_config_file %Default_Config
         $config_file %Config
         $network_config_file %ConfigNetworks
