@@ -33,6 +33,15 @@ o Upgrading from a version prior to <nextRelease>:
     we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
     conf/.
 
+o Upgrading from a version prior to 3.5.0:
+
+    - Nessus scan XMLRPC
+    We made some changes in the way nessus scan is working.
+    We directly use the policy on the server and you no longuer have to declare
+    nessus_clientfile in pf.conf.
+    scan.nessus_clientfile parameter has also been dropped so make sure to adapt
+    your configuration accordingly.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update

@@ -23,6 +23,8 @@ use base ('pf::scan');
 use pf::config;
 use pf::scan;
 use pf::util;
+use pf::node;
+use Net::Nessus::XMLRPC;
 
 =head1 SUBROUTINES
 
@@ -60,8 +62,7 @@ sub new {
 
     # Nessus specific attributes
     $this->{_port} = $Config{'scan'}{'nessus_port'};
-    $this->{_file} = $install_dir . '/conf/nessus/' . $Config{'scan'}{'nessus_clientfile'};
-    $this->{_policy} = $Config{'scan'}{'nessus_clientpolicy'};
+    $this->{_policy} = getPolicyByCategory($this);
 
     return $this;
 }
@@ -82,47 +83,73 @@ sub startScan {
     my $port                = $this->{_port};
     my $user                = $this->{_user};
     my $pass                = $this->{_pass};
-    my $nessus_clientfile   = $this->{_file};
     my $nessus_clientpolicy = $this->{_policy};
-    my $nessusRcHome        = 'HOME=' . $install_dir . '/conf/nessus/';
+    my $n = Net::Nessus::XMLRPC->new ('https://'.$host.':'.$port.'/',$user,$pass);
 
-    # preparing host to scan temporary file and result file
-    my $infileName = '/tmp/pf_nessus_' . $id . '.txt';
-    my $outfileName = $install_dir . '/html/admin/scan/results/dump_' . $id . '.nbe';
-    my $infile_fh;
-    open( $infile_fh, '>', $infileName );
-    print {$infile_fh} $hostaddr;
-    close( $infile_fh );
-
-    # the scan
-    my $cmd = 
-        "$nessusRcHome /opt/nessus/bin/nessus -q -V -x --dot-nessus $nessus_clientfile " 
-        . "--policy-name $nessus_clientpolicy $host $port $user $pass --target-file $infileName $outfileName 2>&1"
-    ;
-    $logger->info("executing $cmd");
-    $this->{'_status'} = $pf::scan::STATUS_STARTED;
-    $this->statusReportSyncToDb();
-    my $output = pf_run($cmd);
-    unlink($infileName);
-
-    # did it went well?
-    if ($?) { $logger->warn("nessus scan failed, it returned: $output"); }
-    if ( ! -r $outfileName ) {
-        $logger->warn("unable to open $outfileName for reading; Nessus scan might have failed");
+    # select nessus policy on the server, set scan name and launch the scan
+    my $polid=$n->policy_get_id($nessus_clientpolicy);
+    if ($polid eq "") {
+        $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
         return 1;
     }
+    my $scanname="pf-".$hostaddr."-".$nessus_clientpolicy;
+    my $scanid=$n->scan_new($polid,$scanname,$hostaddr);
+    if ( $scanid eq "") {
+        $logger->warn("Nessus scan doesnt start");
+        return 1;
+    }
+    $logger->info("executing Nessus scan with this policy ".$nessus_clientpolicy);
+    $this->{'_status'} = $pf::scan::STATUS_STARTED;
+    $this->statusReportSyncToDb();
 
-    # Preparing and parsing output file
-    chmod 0644, $outfileName;
-    open( $infile_fh, '<', $outfileName);
-
-    # slurp the whole file in arrayref
-    $this->{'_report'} = [ <$infile_fh> ];
-
-    close( $infile_fh );
+    # Wait the scan to finish
+    my $counter = 0;
+    while (not $n->scan_finished($scanid)) {
+        if ($counter > 3600) {
+            $logger->info("Nessus scan is older than 1 hour ...");
+            return 1;
+        }
+        $logger->info("Nessus is scanning $hostaddr");
+        sleep 15;
+        $counter = $counter + 15;
+    }
+    
+    # Get the report
+    $this->{'_report'} = $n->report_filenbe_download($scanid);
+    # Remove report on the server and logout from nessus
+    $n->report_delete($scanid);
+    $n->DESTROY;
+    # Clean the report
+    $this->{'_report'} = [ split("\n", $this->{'_report'}) ];
 
     pf::scan::parse_scan_report($this);
 }
+
+=item getPolicyByCategory
+
+Get the policy to apply to a category
+
+=cut
+sub getPolicyByCategory {
+my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $mac = clean_mac($this->{_scanMac});
+    my $node_info = node_view($mac);
+    if (defined($node_info->{'category'})) {
+        if (defined($Config{'nessus_category_policy'}{$node_info->{'category'}})) {
+            return $Config{'nessus_category_policy'}{$node_info->{'category'}};
+        }
+        else {
+            return $Config{'scan'}{'nessus_clientpolicy'};
+        }
+    }
+    else {
+        return $Config{'scan'}{'nessus_clientpolicy'};
+    }
+}
+
+
 
 =back
 
@@ -131,6 +158,8 @@ sub startScan {
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

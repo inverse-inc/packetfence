@@ -451,19 +451,12 @@ pass=packet
 #
 # Remote port of the Nessus scanning engine. Default value should be fine in
 # most cases.
-nessus_port=1241
-#
-# scan.nessus_clientfile
-#
-# Name of the NessusClient file; the file format is documented at
-# http://www.nessus.org/documentation/dot_nessus_file_format.pdf.
-# This file must be found in conf/nessus/.
-nessus_clientfile=remotescan.nessus
+nessus_port=8834
 #
 # scan.nessus_clientpolicy
 #
-# Name of the policy inside the NessusClient file
-nessus_clientpolicy=RemoteScan
+# Name of the remote policy on the nessus server
+nessus_clientpolicy=Internal Network Scan
 #
 # scan.openvas_port
 #
