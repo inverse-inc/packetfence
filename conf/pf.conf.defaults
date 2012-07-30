@@ -458,14 +458,6 @@ pass=packet
 # most cases.
 nessus_port=8834
 #
-# scan.nessus_clientfile
-#
-# Name of the NessusClient file; the file format is documented at
-# http://www.nessus.org/documentation/dot_nessus_file_format.pdf.
-# This file must be found in conf/nessus/.
-# Deprecated with Net::Nessus::XMLRPC perl module
-nessus_clientfile=remotescan.nessus
-#
 # scan.nessus_clientpolicy
 #
 # Name of the remote policy on the nessus server

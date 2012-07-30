@@ -1510,17 +1510,6 @@ Where `violationId` is either the ID of the Nessus plugin or the OID of the Open
 
 NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
-NessusClient Integration
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-New since 1.8.3 is the ability to directly use the nessus command line client and `dot nessus` files. The `NessusClient` file format is documented at http://www.nessus.org/documentation/dot_nessus_file_format.pdf and can easily be generated using the official Nessus Client.
-
-You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessus_clientfile` configuration setting. You'll also have to specify your policy name using the `scan.nessus_clientpolicy` setting. After that, you can execute your scan using:
-
-  $ pfcmd schedule now <IP>
-
-NOTE: If you provide credentials in the `.nessus` file, you need to enable the "Store passwords as plain text" option in your Nessus Client.
-
 Scan on registration
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -1543,6 +1532,11 @@ If you are using the OpenVAS scanning engine:
 * The scanning server need to be able to reach PacketFence's Admin interface (on port 1443 by default) by its DNS entry. Otherwise PacketFence won't be notified of completed scans.
 * You must have a valid SSL certificate on your PacketFence server
 
+If you are using the Nessus scanning engine:
+
+[options="compact"]
+* You just have to change the host value by the Nessus server IP.
+ 
 RADIUS Accounting
 ~~~~~~~~~~~~~~~~~
 
