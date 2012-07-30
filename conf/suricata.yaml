@@ -7,36 +7,44 @@
 
 
 # Number of packets allowed to be processed simultaneously.  Default is a
-# conservative 50. a higher number will make sure CPU's/CPU cores will be
-# more easily kept busy, but will negatively impact caching.
+# conservative 1024. A higher number will make sure CPU's/CPU cores will be
+# more easily kept busy, but may negatively impact caching.
 #
 # If you are using the CUDA pattern matcher (b2g_cuda below), different rules
 # apply. In that case try something like 4000 or more. This is because the CUDA
 # pattern matcher scans many packets in parallel.
-#max-pending-packets: 50
+#max-pending-packets: 1024
 
-# Runmode custom mode the engine should run in.  Please check --list-runmodes
-# to get the runmode custom modes that can be used here for a particular runmode.
-#runmode: auto
+# Runmode the engine should use. Please check --list-runmodes to get the available
+# runmodes for each packet acquisition method. Defaults to "autofp" (auto flow pinned
+# load balancing).
+#runmode: autofp
+
+# Specifies the kind of flow load balancer used by the flow pinned autofp mode.
+#
+# Supported schedulers are:
+#
+# round-robin       - Flows assigned to threads in a round robin fashion.
+# active-packets    - Flows assigned to threads that have the lowest number of
+#                     unprocessed packets (default).
+# hash              - Flow alloted usihng the address hash. More of a random
+#                     technique. Was the default in Suricata 1.2.1 and older.
+#
+#autofp-scheduler: active-packets
+
+# Default pid file.
+# Will use this file if no --pidfile in command options.
+#pid-file: /var/run/suricata.pid
 
 # Preallocated size for packet. Default is 1514 which is the classical
 # size for pcap on ethernet. You should adjust this value to the highest
 # packet size (MTU + hardware header) on your system.
 #default-packet-size: 1514
 
-# Set the order of alerts bassed on actions
-# The default order is pass, drop, reject, alert
-action-order:
-  - pass
-  - drop
-  - reject
-  - alert
-
-
 # The default logging directory.  Any log or output file will be
 # placed here if its not specified with a full path name.  This can be
 # overridden with the -l command line parameter.
-default-log-dir: %%install_dir%%/logs
+default-log-dir: %%install_dir%%/var
 
 # Configure the type of alert (and other) logging you would like.
 outputs:
@@ -46,46 +54,40 @@ outputs:
       enabled: yes
       filename: alert
       append: yes
-
-  # log output for use with Barnyard
-  - unified-log:
-      enabled: no
-      filename: unified.log
-
-      # Limit in MB.
-      #limit: 32
-
-  # alert output for use with Barnyard
-  - unified-alert:
-      enabled: no
-      filename: unified.alert
-
-      # Limit in MB.
-      #limit: 32
+      filetype: unix_stream
 
   # alert output for use with Barnyard2
   - unified2-alert:
       enabled: no
       filename: unified2.alert
 
-      # Limit in MB.
-      #limit: 32
+      # File size limit.  Can be specified in kb, mb, gb.  Just a number
+      # is parsed as bytes.
+      #limit: 32mb
 
   # a line based log of HTTP requests (no alerts)
   - http-log:
-      enabled: yes
+      enabled: no
       filename: http.log
       append: yes
+      #extended: yes     # enable this for extended logging information
+      #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
+
+  # a line based log to used with pcap file study.
+  # this module is dedicated to offline pcap parsing (empty output
+  # if used with an other kind of input). It can interoperate with
+  # pcap parser like wireshark via the suriwire plugin.
+  - pcap-info:
+      enabled: no
 
   # Packet log... log packets in pcap format. 2 modes of operation: "normal"
   # and "sguil".
   #
   # In normal mode a pcap file "filename" is created in the default-log-dir,
-  # or if filename is an absolute path a that path. In Sguil mode "sguil_base_dir"
-  # indicates the base directory. In this base dir the pcaps are created in the
-  # directory structure Sguil expects:
+  # or are as specified by "dir". In Sguil mode "dir" indicates the base directory.
+  # In this base dir the pcaps are created in th directory structure Sguil expects:
   #
-  # $sguil_base_dir/YYYY-MM-DD/$filename.<timestamp>
+  # $sguil-base-dir/YYYY-MM-DD/$filename.<timestamp>
   #
   # By default all packets are logged except:
   # - TCP streams beyond stream.reassembly.depth
@@ -95,11 +97,17 @@ outputs:
       enabled:  no
       filename: log.pcap
 
-      # Limit in MB.
-      #limit: 32
+      # File size limit.  Can be specified in kb, mb, gb.  Just a number
+      # is parsed as bytes.
+      limit: 1000mb
 
-      #mode: sguil # "normal" (default) or sguil.
-      #sguil_base_dir: /nsm_data/
+      # If set to a value will enable ring buffer mode. Will keep Maximum of "max-files" of size "limit"
+      max-files: 2000
+
+      mode: normal # normal or sguil.
+      #sguil-base-dir: /nsm_data/
+      #ts-format: usec # sec or usec second format (default) is filename.sec usec is filename.sec.usec
+      use-stream-depth: no #If set to "yes" packets seen after reaching stream inspection depth are ignored. "no" logs all packets
 
   # a full alerts log containing much information for signature writers
   # or for investigating suspected false positives.
@@ -107,14 +115,15 @@ outputs:
       enabled: no
       filename: alert-debug.log
       append: yes
+      #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
 
   # alert output to prelude (http://www.prelude-technologies.com/) only
   # available if Suricata has been compiled with --enable-prelude
   - alert-prelude:
       enabled: no
       profile: suricata
-      log_packet_content: no
-      log_packet_header: yes
+      log-packet-content: no
+      log-packet-header: yes
 
   # Stats.log contains data from various counters of the suricata engine.
   # The interval field (in seconds) tells after how long output will be written
@@ -126,19 +135,51 @@ outputs:
 
   # a line based alerts log similar to fast.log into syslog
   - syslog:
-      enabled: no
+      enabled: yes
       # reported identity to syslog. If ommited the program name (usually
       # suricata) will be used.
       #identity: "suricata"
       facility: local5
       #level: Info ## possible levels: Emergency, Alert, Critical,
                    ## Error, Warning, Notice, Info, Debug
-  # a line based information for dropped packet
+
+  # a line based information for dropped packets in IPS mode
   - drop:
-      enabled: yes
+      enabled: no
       filename: drop.log
       append: yes
+      #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
 
+  # output module to store extracted files to disk
+  #
+  # The files are stored to the log-dir in a format "file.<id>" where <id> is
+  # an incrementing number starting at 1. For each file "file.<id>" a meta
+  # file "file.<id>.meta" is created.
+  #
+  # File extraction depends on a lot of things to be fully done:
+  # - stream reassembly depth. For optimal results, set this to 0 (unlimited)
+  # - http request / response body sizes. Again set to 0 for optimal results.
+  # - rules that contain the "filestore" keyword.
+  - file-store:
+      enabled: no       # set to yes to enable
+      log-dir: files    # directory to store the files
+      force-magic: no   # force logging magic on all stored files
+      force-md5: no     # force logging of md5 checksums
+      #waldo: file.waldo # waldo file to store the file_id across runs
+
+  # output module to log files tracked in a easily parsable json format
+  - file-log:
+      enabled: no
+      filename: files-json.log
+      append: yes
+      #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
+
+      force-magic: no   # force logging magic on all logged files
+      force-md5: no     # force logging of md5 checksums
+
+# Magic file. The extension .mgc is added to the value here.
+#magic-file: /usr/share/file/magic
+magic-file: /usr/share/file/magic
 
 # When running in NFQ inline mode, it is possible to use a simulated
 # non-terminal NFQUEUE verdict.
@@ -147,30 +188,64 @@ outputs:
 # And below, you can have your standard filtering ruleset. To activate
 # this mode, you need to set mode to 'repeat'
 # If you want packet to be sent to another queue after an ACCEPT decision
-# set mode to 'route' and set next_queue value.
+# set mode to 'route' and set next-queue value.
 nfq:
 #  mode: accept
-#  repeat_mark: 1
-#  repeat_mask: 1
-#  route_queue: 2
+#  repeat-mark: 1
+#  repeat-mask: 1
+#  route-queue: 2
 
-defrag:
-  max-frags: 65535
-  prealloc: yes
-  timeout: 60
-
-# When run with the option --engine-analysis, the engine will read each of
-# the parameters below, and print reports for each of the enabled sections
-# and exit.  The reports are printed to a file in the default log dir
-# given by the parameter "default-log-dir", with engine reporting
-# subsection below printing reports in its own report file.
-engine-analysis:
-  # enables printing reports for fast-pattern for every rule.
-  rules-fast-pattern: yes
+# af-packet support
+# Set threads to > 1 to use PACKET_FANOUT support
+af-packet:
+  - interface: eth0
+    # Number of receive threads (>1 will enable experimental flow pinned
+    # runmode)
+    threads: 1
+    # Default clusterid.  AF_PACKET will load balance packets based on flow.
+    # All threads/processes that will participate need to have the same
+    # clusterid.
+    cluster-id: 99
+    # Default AF_PACKET cluster type. AF_PACKET can load balance per flow or per hash.
+    # This is only supported for Linux kernel > 3.1
+    # possible value are:
+    #  * cluster_round_robin: round robin load balancing
+    #  * cluster_flow: all packets of a given flow are send to the same socket
+    #  * cluster_cpu: all packets treated in kernel by a CPU are send to the same socket
+    cluster-type: cluster_round_robin
+    # In some fragmentation case, the hash can not be computed. If "defrag" is set
+    # to yes, the kernel will do the needed defragmentation before sending the packets.
+    defrag: yes
+    # To use the ring feature of AF_PACKET, set 'use-mmap' to yes
+    use-mmap: yes
+    # recv buffer size, increase value could improve performance
+    # buffer-size: 32768
+    # Set to yes to disable promiscuous mode
+    # disable-promisc: no
+    # Choose checksum verification mode for the interface. At the moment
+    # of the capture, some packets may be with an invalid checksum due to
+    # offloading to the network card of the checksum computation.
+    # Possible values are:
+    #  - kernel: use indication sent by kernel for each packet (default)
+    #  - yes: checksum validation is forced
+    #  - no: checksum validation is disabled
+    #  - auto: suricata uses a statistical approach to detect when
+    #  checksum off-loading is used.
+    # Warning: 'checksum-validation' must be set to yes to have any validation
+    #checksum-checks: kernel
+    # BPF filter to apply to this interface. The pcap filter syntax apply here.
+    #bpf-filter: port 80 or udp
+  - interface: eth1
+    threads: 1
+    cluster-id: 98
+    cluster-type: cluster_round_robin
+    defrag: yes
+    # buffer-size: 32768
+    # disable-promisc: no
 
 # You can specify a threshold config file by setting "threshold-file"
 # to the path of the threshold config file:
-# threshold-file: /etc/suricata/threshold.config
+threshold-file: %%install_dir%%/conf/snort/threshold.config
 
 # The detection engine builds internal groups of signatures. The engine
 # allow us to specify the profile to use for them, to manage memory on an
@@ -181,12 +256,12 @@ engine-analysis:
 #
 # "sgh mpm-context", indicates how the staging should allot mpm contexts for
 # the signature groups.  "single" indicates the use of a single context for
-# all the signature group heads.  "full" indicates a mpm_context for each
+# all the signature group heads.  "full" indicates a mpm-context for each
 # group head.  "auto" lets the engine decide the distribution of contexts
 # based on the information the engine gathers on the patterns from each
 # group head.
 #
-# The option inspection_recursion_limit is used to limit the recursive calls
+# The option inspection-recursion-limit is used to limit the recursive calls
 # in the content inspection code.  For certain payload-sig combinations, we
 # might end up taking too much time in the content inspection code.
 # If the argument specified is 0, the engine uses an internally defined
@@ -194,16 +269,19 @@ engine-analysis:
 detect-engine:
   - profile: medium
   - custom-values:
-      toclient_src_groups: 2
-      toclient_dst_groups: 2
-      toclient_sp_groups: 2
-      toclient_dp_groups: 3
-      toserver_src_groups: 2
-      toserver_dst_groups: 4
-      toserver_sp_groups: 2
-      toserver_dp_groups: 25
+      toclient-src-groups: 2
+      toclient-dst-groups: 2
+      toclient-sp-groups: 2
+      toclient-dp-groups: 3
+      toserver-src-groups: 2
+      toserver-dst-groups: 4
+      toserver-sp-groups: 2
+      toserver-dp-groups: 25
   - sgh-mpm-context: auto
   - inspection-recursion-limit: 3000
+  # When rule-reload is enabled, sending a USR2 signal to the Suricata process
+  # will trigger a live rule reload. Experimental feature, use with care.
+  #- rule-reload: true
 
 # Suricata is multi-threaded. Here the threading can be influenced.
 threading:
@@ -213,36 +291,39 @@ threading:
   #
   # On Intel Core2 and Nehalem CPU's enabling this will degrade performance.
   #
-  set_cpu_affinity: no
+  set-cpu-affinity: no
   # Tune cpu affinity of suricata threads. Each family of threads can be bound
   # on specific CPUs.
-  cpu_affinity:
-    - management_cpu_set:
+  cpu-affinity:
+    - management-cpu-set:
         cpu: [ 0 ]  # include only these cpus in affinity settings
-    - receive_cpu_set:
+    - receive-cpu-set:
         cpu: [ 0 ]  # include only these cpus in affinity settings
-    - decode_cpu_set:
+    - decode-cpu-set:
         cpu: [ 0, 1 ]
         mode: "balanced"
-    - stream_cpu_set:
+    - stream-cpu-set:
         cpu: [ "0-1" ]
-    - detect_cpu_set:
+    - detect-cpu-set:
         cpu: [ "all" ]
         mode: "exclusive" # run detect threads in these cpus
+        # Use explicitely 3 threads and don't compute number by using
+        # detect-thread-ratio variable:
+        # threads: 3
         prio:
           low: [ 0 ]
           medium: [ "1-2" ]
           high: [ 3 ]
           default: "medium"
-    - verdict_cpu_set:
+    - verdict-cpu-set:
         cpu: [ 0 ]
         prio:
           default: "high"
-    - reject_cpu_set:
+    - reject-cpu-set:
         cpu: [ 0 ]
         prio:
           default: "low"
-    - output_cpu_set:
+    - output-cpu-set:
         cpu: [ "all" ]
         prio:
            default: "medium"
@@ -255,7 +336,7 @@ threading:
   # thread being created. Regardless of the setting at a minimum 1 detect
   # thread will always be created.
   #
-  detect_thread_ratio: 1.5
+  detect-thread-ratio: 1.5
 
 # Cuda configuration.
 cuda:
@@ -264,37 +345,38 @@ cuda:
   - mpm:
       # Threshold limit for no of packets buffered to the GPU.  Once we hit this
       # limit, we pass the buffer to the gpu.
-      packet_buffer_limit: 2400
+      packet-buffer-limit: 2400
       # The maximum length for a packet that we would buffer to the gpu.
       # Anything over this is MPM'ed on the CPU.  All entries > 0 are valid.
-      packet_size_limit: 1500
+      # Can be specified in kb, mb, gb.  Just a number indicates it's in bytes.
+      packet-size-limit: 1500
       # No of packet buffers we initialize.  All entries > 0 are valid.
-      packet_buffers: 10
+      packet-buffers: 10
       # The timeout limit for batching of packets in secs.  If we don't fill the
       # buffer within this timeout limit, we pass the currently filled buffer to the gpu.
       # All entries > 0 are valid.
-      batching_timeout: 1
-      # Specifies whether to use page_locked memory whereever possible.  Accepted values
+      batching-timeout: 1
+      # Specifies whether to use page-locked memory whereever possible.  Accepted values
       # are "enabled" and "disabled".
-      page_locked: enabled
+      page-locked: enabled
       # The device to use for the mpm.  Currently we don't support load balancing
       # on multiple gpus.  In case you have multiple devices on your system, you
       # can specify the device to use, using this conf.  By default we hold 0, to
-      # specify the first device cuda sees.  To find out device_id associated with
+      # specify the first device cuda sees.  To find out device-id associated with
       # the card(s) on the system run "suricata --list-cuda-cards".
-      device_id: 0
+      device-id: 0
       # No of Cuda streams used for asynchronous processing. All values > 0 are valid.
       # For this option you need a device with Compute Capability > 1.0 and
-      # page_locked enabled to have any effect.
-      cuda_streams: 2
+      # page-locked enabled to have any effect.
+      cuda-streams: 2
 
 # Select the multi pattern algorithm you want to run for scan/search the
 # in the engine. The supported algorithms are b2g, b2gc, b2gm, b3g, wumanber,
 # ac and ac-gfbs.
 #
 # The mpm you choose also decides the distribution of mpm contexts for
-# signature groups, specified by the conf - "detect-engine.sgh_mpm_context".
-# Selecting "ac" as the mpm would require "detect-engine.sgh_mpm_context"
+# signature groups, specified by the conf - "detect-engine.sgh-mpm-context".
+# Selecting "ac" as the mpm would require "detect-engine.sgh-mpm-context"
 # to be set to "single", because of ac's memory requirements, unless the
 # ruleset is small enough to fit in one's memory, in which case one can
 # use "full" with "ac".  Rest of the mpms can be run in "full" mode.
@@ -323,49 +405,58 @@ mpm-algo: ac
 
 pattern-matcher:
   - b2gc:
-      search_algo: B2gSearchBNDMq
-      hash_size: low
-      bf_size: medium
+      search-algo: B2gSearchBNDMq
+      hash-size: low
+      bf-size: medium
   - b2gm:
-      search_algo: B2gSearchBNDMq
-      hash_size: low
-      bf_size: medium
+      search-algo: B2gSearchBNDMq
+      hash-size: low
+      bf-size: medium
   - b2g:
-      search_algo: B2gSearchBNDMq
-      hash_size: low
-      bf_size: medium
+      search-algo: B2gSearchBNDMq
+      hash-size: low
+      bf-size: medium
   - b3g:
-      search_algo: B3gSearchBNDMq
-      hash_size: low
-      bf_size: medium
+      search-algo: B3gSearchBNDMq
+      hash-size: low
+      bf-size: medium
   - wumanber:
-      hash_size: low
-      bf_size: medium
+      hash-size: low
+      bf-size: medium
+
+# Defrag settings:
+
+defrag:
+  max-frags: 65535
+  prealloc: yes
+  timeout: 60
 
 # Flow settings:
 # By default, the reserved memory (memcap) for flows is 32MB. This is the limit
 # for flow allocation inside the engine. You can change this value to allow
 # more memory usage for flows.
-# The hash_size determine the size of the hash used to identify flows inside
+# The hash-size determine the size of the hash used to identify flows inside
 # the engine, and by default the value is 65536.
 # At the startup, the engine can preallocate a number of flows, to get a better
 # performance. The number of flows preallocated is 10000 by default.
-# emergency_recovery is the percentage of flows that the engine need to
+# emergency-recovery is the percentage of flows that the engine need to
 # prune before unsetting the emergency state. The emergency state is activated
 # when the memcap limit is reached, allowing to create new flows, but
 # prunning them with the emergency timeouts (they are defined below).
-# If the memcap is reached, the engine will try to prune prune_flows
+# If the memcap is reached, the engine will try to prune prune-flows
 # with the default timeouts. If it doens't find a flow to prune, it will set
 # the emergency bit and it will try again with more agressive timeouts.
 # If that doesn't work, then it will try to kill the last time seen flows
 # not in use.
+# The memcap can be specified in kb, mb, gb.  Just a number indicates it's
+# in bytes.
 
 flow:
-  memcap: 33554432
-  hash_size: 65536
+  memcap: 32mb
+  hash-size: 65536
   prealloc: 10000
-  emergency_recovery: 30
-  prune_flows: 5
+  emergency-recovery: 30
+  prune-flows: 5
 
 # Specific timeouts for flows. Here you can specify the timeouts that the
 # active flows will wait to transit from the current state to another, on each
@@ -379,7 +470,7 @@ flow:
 #
 # There's an emergency mode that will become active under attack circumstances,
 # making the engine to check flow status faster. This configuration variables
-# use the prefix "emergency_" and work similar as the normal ones.
+# use the prefix "emergency-" and work similar as the normal ones.
 # Some timeouts doesn't apply to all the protocols, like "closed", for udp and
 # icmp.
 
@@ -389,61 +480,78 @@ flow-timeouts:
     new: 30
     established: 300
     closed: 0
-    emergency_new: 10
-    emergency_established: 100
-    emergency_closed: 0
+    emergency-new: 10
+    emergency-established: 100
+    emergency-closed: 0
   tcp:
     new: 60
     established: 3600
     closed: 120
-    emergency_new: 10
-    emergency_established: 300
-    emergency_closed: 20
+    emergency-new: 10
+    emergency-established: 300
+    emergency-closed: 20
   udp:
     new: 30
     established: 300
-    emergency_new: 10
-    emergency_established: 100
+    emergency-new: 10
+    emergency-established: 100
   icmp:
     new: 30
     established: 300
-    emergency_new: 10
-    emergency_established: 100
+    emergency-new: 10
+    emergency-established: 100
 
 # Stream engine settings. Here the TCP stream tracking and reaasembly
 # engine is configured.
 #
 # stream:
-#   memcap: 33554432            # 32mb tcp session memcap
-#   checksum_validation: yes    # To validate the checksum of received
+#   memcap: 32mb                # Can be specified in kb, mb, gb.  Just a
+#                               # number indicates it's in bytes.
+#   checksum-validation: yes    # To validate the checksum of received
 #                               # packet. If csum validation is specified as
 #                               # "yes", then packet with invalid csum will not
 #                               # be processed by the engine stream/app layer.
 #                               # Warning: locally generated trafic can be
 #                               # generated without checksum due to hardware offload
-#                               # of checksum
-#   max_sessions: 262144        # 256k concurrent sessions
-#   prealloc_sessions: 32768    # 32k sessions prealloc'd
+#                               # of checksum. You can control the handling of checksum
+#				# on a per-interface basis via the 'checksum-checks'
+#				# option
+#   max-sessions: 262144        # 256k concurrent sessions
+#   prealloc-sessions: 32768    # 32k sessions prealloc'd
 #   midstream: false            # don't allow midstream session pickups
-#   async_oneside: false        # don't enable async stream handling
+#   async-oneside: false        # don't enable async stream handling
 #   inline: no                  # stream inline mode
 #
 #   reassembly:
-#     memcap: 67108864          # 64mb tcp reassembly memcap
-#     depth: 1048576            # 1 MB reassembly depth
-#     toserver_chunk_size: 2560 # inspect raw stream in chunks of at least
-#                               # this size
-#     toclient_chunk_size: 2560 # inspect raw stream in chunks of at least
-#                               # this size
+#     memcap: 64mb              # Can be specified in kb, mb, gb.  Just a number
+#                               # indicates it's in bytes.
+#     depth: 1mb                # Can be specified in kb, mb, gb.  Just a number
+#                               # indicates it's in bytes.
+#     toserver-chunk-size: 2560 # inspect raw stream in chunks of at least
+#                               # this size.  Can be specified in kb, mb,
+#                               # gb.  Just a number indicates it's in bytes.
+#     toclient-chunk-size: 2560 # inspect raw stream in chunks of at least
+#                               # this size.  Can be specified in kb, mb,
+#                               # gb.  Just a number indicates it's in bytes.
+
 stream:
-  memcap: 33554432              # 32mb
-  checksum_validation: yes      # reject wrong csums
+  memcap: 32mb
+  checksum-validation: yes      # reject wrong csums
   inline: no                    # no inline mode
   reassembly:
-    memcap: 67108864            # 64mb for reassembly
-    depth: 1048576              # reassemble 1mb into a stream
-    toserver_chunk_size: 2560
-    toclient_chunk_size: 2560
+    memcap: 64mb
+    depth: 1mb                  # reassemble 1mb into a stream
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+
+# Host table:
+#
+# Host table is used by tagging and per host thresholding subsystems.
+#
+host:
+  hash-size: 4096
+  prealloc: 1000
+  memcap: 16777216
 
 # Logging configuration.  This is not about logging IDS alerts, but
 # IDS output about what its doing, errors, etc.
@@ -473,10 +581,10 @@ logging:
   # disabled you will get the default - console output.
   outputs:
   - console:
-      enabled: yes
-  - file:
       enabled: no
-      filename: %%install_dir%%/logs/suricata.log
+  - file:
+      enabled: yes
+      filename: /var/log/suricata.log
   - syslog:
       enabled: no
       facility: local5
@@ -485,21 +593,55 @@ logging:
 # PF_RING configuration. for use with native PF_RING support
 # for more info see http://www.ntop.org/PF_RING.html
 pfring:
-  # Number of receive threads (>1 will enable experimental flow pinned
-  # runmode)
-  threads: 1
+  - interface: eth0
+    # Number of receive threads (>1 will enable experimental flow pinned
+    # runmode)
+    threads: 1
 
-  # Default interface we will listen on.
-  interface: eth0
+    # Default interface we will listen on.
+    interface: eth0
 
-  # Default clusterid.  PF_RING will load balance packets based on flow.
-  # All threads/processes that will participate need to have the same
-  # clusterid.
-  cluster-id: 99
+    # Default clusterid.  PF_RING will load balance packets based on flow.
+    # All threads/processes that will participate need to have the same
+    # clusterid.
+    cluster-id: 99
 
-  # Default PF_RING cluster type. PF_RING can load balance per flow or per hash.
-  # This is only supported in versions of PF_RING > 4.1.1.
-  cluster-type: cluster_round_robin
+    # Default PF_RING cluster type. PF_RING can load balance per flow or per hash.
+    # This is only supported in versions of PF_RING > 4.1.1.
+    cluster-type: cluster_round_robin
+    # bpf filter for this interface
+    #bpf-filter: tcp
+    # Choose checksum verification mode for the interface. At the moment
+    # of the capture, some packets may be with an invalid checksum due to
+    # offloading to the network card of the checksum computation.
+    # Possible values are:
+    #  - rxonly: only compute checksum for packets received by network card.
+    #  - yes: checksum validation is forced
+    #  - no: checksum validation is disabled
+    #  - auto: suricata uses a statistical approach to detect when
+    #  checksum off-loading is used. (default)
+    # Warning: 'checksum-validation' must be set to yes to have any validation
+    #checksum-checks: auto
+  # Second interface
+  #- interface: eth1
+  #  threads: 3
+  #  cluster-id: 93
+  #  cluster-type: cluster_flow
+
+pcap:
+  - interface: eth0
+    #buffer-size: 32768
+    #bpf-filter: "tcp and port 25"
+    # Choose checksum verification mode for the interface. At the moment
+    # of the capture, some packets may be with an invalid checksum due to
+    # offloading to the network card of the checksum computation.
+    # Possible values are:
+    #  - yes: checksum validation is forced
+    #  - no: checksum validation is disabled
+    #  - auto: suricata uses a statistical approach to detect when
+    #  checksum off-loading is used. (default)
+    # Warning: 'checksum-validation' must be set to yes to have any validation
+    #checksum-checks: auto
 
 # For FreeBSD ipfw(8) divert(4) support.
 # Please make sure you have ipfw_load="YES" and ipdivert_load="YES"
@@ -545,8 +687,8 @@ vars:
 
     HOME_NET: "[%%trapping-range%%]"
 
-    EXTERNAL_NET: any
-
+    EXTERNAL_NET: "!$HOME_NET"
+ 
     HTTP_SERVERS: "$HOME_NET"
 
     SMTP_SERVERS: "$HOME_NET"
@@ -557,7 +699,7 @@ vars:
 
     TELNET_SERVERS: "$HOME_NET"
 
-    AIM_SERVERS: any
+    AIM_SERVERS: "$EXTERNAL_NET"
 
   # Holds the port group vars that would be passed in a Signature.
   # These would be retrieved during the Signature port parsing stage.
@@ -571,6 +713,16 @@ vars:
 
     SSH_PORTS: 22
 
+
+# Set the order of alerts bassed on actions
+# The default order is pass, drop, reject, alert
+action-order:
+  - pass
+  - drop
+  - reject
+  - alert
+
+
 # Host specific policies for defragmentation and TCP stream
 # reassembly.  The host OS lookup is done using a radix tree, just
 # like a routing table so the most specific entry matches.
@@ -578,10 +730,10 @@ host-os-policy:
   # Make the default policy windows.
   windows: [0.0.0.0/0]
   bsd: []
-  bsd_right: []
-  old_linux: []
+  bsd-right: []
+  old-linux: []
   linux: [10.0.0.0/8, 192.168.1.100, "8762:2352:6241:7245:E000:0000:0000:0000"]
-  old_solaris: []
+  old-solaris: []
   solaris: ["::1"]
   hpux10: []
   hpux11: []
@@ -592,7 +744,23 @@ host-os-policy:
 
 
 # Limit for the maximum number of asn1 frames to decode (default 256)
-asn1_max_frames: 256
+asn1-max-frames: 256
+
+# When run with the option --engine-analysis, the engine will read each of
+# the parameters below, and print reports for each of the enabled sections
+# and exit.  The reports are printed to a file in the default log dir
+# given by the parameter "default-log-dir", with engine reporting
+# subsection below printing reports in its own report file.
+engine-analysis:
+  # enables printing reports for fast-pattern for every rule.
+  rules-fast-pattern: yes
+  # enables printing reports for each rule
+  rules: yes
+
+#recursion and match limits for PCRE where supported
+pcre:
+  match-limit: 3500
+  match-limit-recursion: 1500
 
 ###########################################################################
 # Configure libhtp.
@@ -600,13 +768,13 @@ asn1_max_frames: 256
 #
 # default-config:       Used when no server-config matches
 #   personality:        List of personalities used by default
-#   request_body_limit: Limit reassembly of request body for inspection
+#   request-body-limit: Limit reassembly of request body for inspection
 #                       by http_client_body & pcre /P option.
 #
 # server-config:        List of server configurations to use if address matches
 #   address:            List of ip addresses or networks for this block
 #   personalitiy:       List of personalities used by this block
-#   request_body_limit: Limit reassembly of request body for inspection
+#   request-body-limit: Limit reassembly of request body for inspection
 #                       by http_client_body & pcre /P option.
 #
 # Currently Available Personalities:
@@ -626,32 +794,44 @@ libhtp:
 
    default-config:
      personality: IDS
-     request_body_limit: 3072
+     # Can be specified in kb, mb, gb.  Just a number indicates
+     # it's in bytes.
+     request-body-limit: 3072
+     response-body-limit: 3072
 
    server-config:
 
      - apache:
          address: [192.168.1.0/24, 127.0.0.0/8, "::1"]
          personality: Apache_2_2
-         request_body_limit: 4096
+         # Can be specified in kb, mb, gb.  Just a number indicates
+         # it's in bytes.
+         request-body-limit: 4096
+         response-body-limit: 4096
 
      - iis7:
          address:
            - 192.168.0.0/24
            - 192.168.10.0/24
          personality: IIS_7_0
-         request_body_limit: 4096
+         # Can be specified in kb, mb, gb.  Just a number indicates
+         # it's in bytes.
+         request-body-limit: 4096
+         response-body-limit: 4096
 
-# rule profiling settings. Only effective if Suricata has been built with the
+# Profiling settings. Only effective if Suricata has been built with the
 # the --enable-profiling configure flag.
 #
 profiling:
 
+  # rule profiling
   rules:
 
     # Profiling can be disabled here, but it will still have a
     # performance impact if compiled in.
     enabled: yes
+    filename: rule_perf.log
+    append: yes
 
     # Sort options: ticks, avgticks, checks, matches, maxticks
     sort: avgticks
@@ -659,3 +839,38 @@ profiling:
     # Limit the number of items printed at exit.
     limit: 100
 
+  # packet profiling
+  packets:
+
+    # Profiling can be disabled here, but it will still have a
+    # performance impact if compiled in.
+    enabled: yes
+    filename: packet_stats.log
+    append: yes
+
+    # per packet csv output
+    csv:
+
+      # Output can be disabled here, but it will still have a
+      # performance impact if compiled in.
+      enabled: no
+      filename: packet_stats.csv
+
+  # profiling of locking. Only available when Suricata was built with
+  # --enable-profiling-locks.
+  locks:
+    enabled: no
+    filename: lock_stats.log
+    append: yes
+
+# Suricata core dump configuration. Limits the size of the core dump file to
+# approximately max-dump. The actual core dump size will be a multiple of the
+# page size. Core dumps that would be larger than max-dump are truncated. On
+# Linux, the actual core dump size may be a few pages larger than max-dump.
+# Setting max-dump to 0 disables core dumping.
+# Setting max-dump to 'unlimited' will give the full core dump file.
+# On 32-bit Linux, a max-dump value >= ULONG_MAX may cause the core dump size
+# to be 'unlimited'.
+
+coredump:
+  max-dump: unlimited

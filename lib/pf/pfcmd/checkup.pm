@@ -252,7 +252,7 @@ sub ids {
     }
 
     # make sure trapping.detection_engine=snort|suricata
-    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' || $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
+    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' && $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
         add_problem( $FATAL,
             "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
         );
