@@ -5,6 +5,17 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 3.5.0:
+
+    - Database schema update
+    New accounting violations and other violation related stuff needed some modifications
+    to the current database schema. Make sur you run the following to update
+    you schema EVEN IF YOU DON'T USE THE FEATURE:
+    mysql -u root -p pf -v < db/upgrade-3.3.0-3.5.0.sql
+
+    - modified trigger type
+    Accounting violations trigger type TOT20GB1M has been renamed to TOT20GB1M.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update
