@@ -486,7 +486,7 @@ sub violation_trigger {
             $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
           } elsif ($class->{'window'} eq 'dynamic' && $type eq "accounting") {
             # Funky calculus here
-            my $acct_trigger =~ /$ACCOUNTING_TRIGGER_RE/;
+            $tid =~ /$ACCOUNTING_TRIGGER_RE/;
 
             if (defined($4)) {
                 if ($4 eq 'D'){
