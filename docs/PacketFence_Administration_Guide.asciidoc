@@ -798,28 +798,7 @@ FreeRADIUS Configuration
 
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
-NOTE: Under Debian, the freeradius server is a dependency of PacketFence, so
-you don't have to install it. Just be careful, the configuration directory is
-under `/etc/freeradius`.
- 
-Install the following packages:
-
-[options="compact"]
-* packetfence-freeradius2
-
-In /etc/raddb/clients.conf
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-CAUTION: As of PacketFence 3.0, this step is now unnecessary. As you saw previously in this guide, we are now using the radiusSecret attribute in the switch configuration file.
-
-For PacketFence versions prior to 3.0, you will still use the RADIUS client flat file. Replace <...> with values useful to you. You need one client entry per network device.
-
-  client <useful_device_name> {
-    ipaddr    = <network_device_ip_address>
-    secret    = <radius secret>
-  }
-
-In /etc/raddb/packetfence.pm
+In /usr/local/pf/raddb/packetfence.pm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure to set the required configuration parameters on top of the file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
@@ -828,21 +807,10 @@ Make sure to set the required configuration parameters on top of the file. Set t
   WS_USER     => 'webservice',
   WS_PASS     => 'password',
 
-In /etc/raddb/sql.conf
-^^^^^^^^^^^^^^^^^^^^^^
-
-Make sure to set the proper credentials to access the PacketFence database.
-
-  # Connection info:
-  server = "localhost"
-  port = 3306
-  login = "pf"
-  password = "pf"
-
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Replace `/etc/raddb/modules/mschap` with the following configuration: 
+Replace `/usr/local/pf/raddb/modules/mschap` with the following configuration: 
 
   mschap {
           use_mppe = yes
@@ -950,7 +918,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth`:
 Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Add your user's entries at the end of the `/etc/raddb/users` file with the following format:
+Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
 
   username Cleartext-Password := "password"
 
@@ -1790,7 +1758,7 @@ By default, we turn SoH off. To enable its support, simply uncomment the followi
   soh=yes
   soh-virtual-server = "soh-server"
 
-Then make sure to set the required configuration parameters on top of the `/etc/raddb/packetfence-soh.pm` file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
+Then make sure to set the required configuration parameters on top of the `/usr/local/pf/raddb/packetfence-soh.pm` file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
 
   # FreeRADIUS to PacketFence communications (SOAP Server settings)
   WS_USER     => 'webservice',
