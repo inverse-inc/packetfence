@@ -16,11 +16,6 @@ set -e
 
 case "$1" in
     install|upgrade)
-	dpkg-divert --package packetfence --add --rename --divert  /etc/freeradius/radiusd.conf.orig /etc/freeradius/radiusd.conf
-	dpkg-divert --package packetfence --add --rename --divert  /etc/freeradius/eap.conf.orig /etc/freeradius/eap.conf
-	dpkg-divert --package packetfence --add --rename --divert  /etc/freeradius/users.orig /etc/freeradius/users
-	dpkg-divert --package packetfence --add --rename --divert  /etc/freeradius/perl.orig /etc/freeradius/modules/perl
-	dpkg-divert --package packetfence --add --rename --divert  /etc/freeradius/sql.conf.orig /etc/freeradius/sql.conf
         if grep -E "^pf:" /etc/passwd > /dev/null ; then
                 echo "pf user already exist"
         else
