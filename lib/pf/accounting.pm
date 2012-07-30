@@ -273,7 +273,7 @@ sub accounting_db_prepare {
         RIGHT JOIN radacct ON radacct_log.acctsessionid = radacct.acctsessionid
         WHERE DAY(timestamp) = DAY(CURRENT_DATE()) AND timestamp >= ? 
         GROUP BY radacct.callingstationid     
-       	HAVING accttotal >= ?;
+        HAVING accttotal >= ?;
     ]);
 
     $accounting_statements->{'acct_maintenance_bw_weekly_all'} = get_db_handle()->prepare(qq[
@@ -376,10 +376,10 @@ sub acct_maintenance {
                     $interval = "daily";
                 } elsif ($4 eq 'W') {
                     $interval = "weekly";
-                } elsif	($4 eq 'M') {
-       	       	    $interval =	"monthly";
-                } elsif	($4 eq 'Y') {
-       	       	    $interval =	"yearly";
+                } elsif ($4 eq 'M') {
+                    $interval = "monthly";
+                } elsif ($4 eq 'Y') {
+                    $interval = "yearly";
                 }
             } 
             # no interval given so we assume from beginning of time
@@ -417,12 +417,12 @@ sub acct_maintenance {
                          } 
                     } elsif ($direction eq $DIRECTION_OUT) {
                          if(node_acct_maintenance_bw_outbound_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) { 
-       	       	       	      violation_trigger($cleanedMac,$acct_policy,"accounting");
-       	       	       	 } 
+                                 violation_trigger($cleanedMac,$acct_policy,"accounting");
+                         } 
                     } else {
                          if(node_acct_maintenance_bw_total_exists($releaseDate,$bwInBytes,$mac->{'callingstationid'})) { 
-       	       	       	      violation_trigger($cleanedMac,$acct_policy,"accounting");
-       	       	       	 } 
+                                 violation_trigger($cleanedMac,$acct_policy,"accounting");
+                         } 
                     }
                 } else {
                     violation_trigger($cleanedMac,$acct_policy,"accounting");
@@ -596,7 +596,7 @@ sub node_acct_maintenance_bw_inbound {
 =cut
 sub node_acct_maintenance_bw_outbound {
     my ($interval,$releaseDate,$bytes) = @_;
-    my $query =	"acct_maintenance_bw_" . $interval . "_outbound";    
+    my $query = "acct_maintenance_bw_" . $interval . "_outbound";    
     return db_data(ACCOUNTING, $accounting_statements, $query, $releaseDate, $bytes );
 
 }
@@ -606,7 +606,7 @@ sub node_acct_maintenance_bw_outbound {
 =cut
 sub node_acct_maintenance_bw_total {
     my ($interval,$releaseDate,$bytes) = @_;
-    my $query =	"acct_maintenance_bw_" . $interval . "_all";
+    my $query = "acct_maintenance_bw_" . $interval . "_all";
     return db_data(ACCOUNTING, $accounting_statements, $query, $releaseDate, $bytes );
 }
 
