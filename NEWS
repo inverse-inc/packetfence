@@ -23,6 +23,8 @@ New Features
 
 Enhancements
  * Closing expired violations using the release_date (#1476)
+ * Use of Nessus XMLRPC to launch the remote scan
+ * Possibility to select a policy in nessus by the node category
 
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)
