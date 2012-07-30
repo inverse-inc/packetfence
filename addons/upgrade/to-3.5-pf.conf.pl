@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-to-3.4-pf.conf.pl - 3.4 upgrade script for conf/pf.conf
+to-3.5-pf.conf.pl - 3.5 upgrade script for conf/pf.conf
 
 =head1 USAGE
 
 Basically: 
 
-  addons/upgrade/to-3.4-pf.conf.pl < conf/pf.conf > pf.conf.new
+  addons/upgrade/to-3.5-pf.conf.pl < conf/pf.conf > pf.conf.new
 
 Then look at pf.conf.new and if it's ok, replace your conf/pf.conf with it.
 

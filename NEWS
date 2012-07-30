@@ -13,18 +13,7 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
-Version <devel> released on <releaseDate>
-
-Enhancements
- * Improved handling of an empty conf/pf.conf configuration file
- * Improved error reporting for dynamic uplink detection on Cisco
- * interface gateways are no longer required in configuration (#1447)
- * general.caching parameter removed from configuration
- * major refactoring, cleanup and dependencies removal
- * node.expire now works for VLAN/Inline mode (#1481)
-
---------------------------------------------------------------------------------
-Version <stable-version> released on <releaseDate>
+Version 3.5.0 released on <releaseDate>
 
 New Hardware
  * Adding support for Cisco Catalyst 3560G
@@ -33,18 +22,24 @@ New Hardware
 
 New Features 
  * Remediation module for SourceFire 3D (addons/sourcefire)
-
-New Feature
+ * Adding portal profile feature that allow to present a custom captive portal depending
+   on the SSID you connect to. Refer to Administration Guide for further details
  * Adding a new action to close another violation 
 
 Enhancements
+ * Improved handling of an empty conf/pf.conf configuration file
+ * Improved error reporting for dynamic uplink detection on Cisco
+ * interface gateways are no longer required in configuration (#1447)
+ * general.caching parameter removed from configuration
+ * major refactoring, cleanup and dependencies removal
+ * node.expire now works for VLAN/Inline mode (#1481)
  * Closing expired violations using the release_date (#1476)
-<<<<<<< HEAD
  * Excluding the local switch when building the NAS SQL table (#1491)
  * FreeRADIUS configuration is now fully managed (pf/raddb)
  * Use of Nessus XMLRPC to launch the remote scan
  * Possibility to select a policy in nessus by the node category
  * Refactoring of the accounting violations
+ * Refactoring of the captive portal templates generation
 
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)
