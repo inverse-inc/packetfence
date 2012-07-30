@@ -382,22 +382,47 @@ sub readPfConfigFiles {
     }
 
     # GUEST RELATED
+    # explode self-registration status and modes for easier and cached boolean tests for different services
+    $guest_self_registration{'enabled'} = $TRUE
+        if ( $Config{'registration'}{'guests_self_registration'} =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i );
 
-    # explode self-registration modes for easier and cached boolean tests
     $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE if is_in_list(
         $SELFREG_MODE_EMAIL,
         $Config{'guests_self_registration'}{'modes'}
     );
-
     $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE if is_in_list(
         $SELFREG_MODE_SMS,
         $Config{'guests_self_registration'}{'modes'}
     );
-
     $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE if is_in_list(
         $SELFREG_MODE_SPONSOR,
         $Config{'guests_self_registration'}{'modes'}
     );
+
+    # check for portal profile guest self registration options in case they're disabled in default profile
+    foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
+        # marking guest_self_registration as globally enabled if needed by one of the portal profiles
+        if ( (defined($Config{$portalprofile}{'guest_self_reg'})) && 
+             ($Config{$portalprofile}{'guest_self_reg'} =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i) ) {
+            $guest_self_registration{'enabled'} = $TRUE;
+        }
+
+        # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
+        # no auth method == guest self registration
+        if ( !defined($Config{$portalprofile}{'auth'}) ) {
+            $guest_self_registration{'enabled'} = $TRUE;
+        }
+
+        # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
+        if ( defined($Config{$portalprofile}{'guest_modes'}) ) {
+            $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE
+                if is_in_list($SELFREG_MODE_EMAIL, $Config{$portalprofile}{'guest_modes'});
+            $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE
+                if is_in_list($SELFREG_MODE_SMS, $Config{$portalprofile}{'guest_modes'});
+            $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE
+                if is_in_list($SELFREG_MODE_SPONSOR, $Config{$portalprofile}{'guest_modes'});
+        }
+    }
 
     _load_captive_portal();
 }

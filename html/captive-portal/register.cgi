@@ -9,20 +9,19 @@ register.cgi
 Handles captive-portal authentication, /status, de-registration, multiple registration pages workflow and viewing AUP
 
 =cut
+
 use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use CGI::Carp qw( fatalsToBrowser );
-use CGI;
-use CGI::Session;
 use Log::Log4perl;
 use URI::Escape qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
 use pf::node;
+use pf::Portal::Session;
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -34,52 +33,46 @@ my $logger = Log::Log4perl->get_logger('register.cgi');
 Log::Log4perl::MDC->put('proc', 'register.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-my $ip = pf::web::get_client_ip($cgi);
-my $destination_url = pf::web::get_destination_url($cgi);
-$destination_url = $Config{'trapping'}{'redirecturl'} if (!$destination_url);
+my $portalSession = pf::Portal::Session->new();
+my $cgi = $portalSession->getCgi();
 
 # we need a valid MAC to identify a node
-# TODO this is duplicated too much, it should be brought up in a global dispatcher
-my $mac = ip2mac($ip);
-if (!valid_mac($mac)) {
-  $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
+if ( !valid_mac($portalSession->getClientMac()) ) {
+  $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
+  pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
   exit(0);
 }
 
-$logger->info("$ip - $mac on registration page");
+$logger->info($portalSession->getClientIp() . " - " . $portalSession->getClientMac() . " on registration page");
 
 my %info;
 
 # Pull username
-$info{'pid'}=1;
-$info{'pid'}=$cgi->remote_user if (defined $cgi->remote_user);
+$info{'pid'} = 1;
+$info{'pid'} = $cgi->remote_user if (defined $cgi->remote_user);
 
 # Pull browser user-agent string
-$info{'user_agent'}=$cgi->user_agent;
+$info{'user_agent'} = $cgi->user_agent;
 
 if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 
-  my ($form_return, $err) = pf::web::validate_form($cgi, $session);
+  my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
-    $logger->trace("form validation failed or first time for $mac");
-    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
+    $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
+    pf::web::generate_login_page($portalSession, $err);
     exit(0);
   }
 
-  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($cgi, $session, $cgi->param("auth"));
+  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
   if ($auth_return != 1) {
-    $logger->trace("authentication failed for $mac");
+    $logger->trace("authentication failed for " . $portalSession->getClientMac());
     my $error;
     if (!defined($authenticator)) {
         $error = 'Unable to validate credentials at the moment';
     } else {
         $error = $authenticator->getLastError();
     }
-    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $error);
+    pf::web::generate_login_page($portalSession, $error);
     exit(0);
   }
 
@@ -87,48 +80,48 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   # This appends the hashes to one another. values returned by authenticator wins on key collision
   %info = (%info, $authenticator->getNodeAttributes());
  
-  my $pid = $session->param("username");
-  pf::web::web_node_register($cgi, $session, $mac, $pid, %info);
-  pf::web::end_portal_session($cgi, $session, $mac, $destination_url);
+  my $pid = $portalSession->getSession->param("username");
+  pf::web::web_node_register($portalSession, $pid, %info);
+  pf::web::end_portal_session($portalSession);
 
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "next_page") {
   my $pageNb = int($cgi->url_param('page'));
   if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
-    pf::web::generate_registration_page($cgi, $session, $destination_url, $mac, $pageNb);
+    pf::web::generate_registration_page($portalSession, $pageNb);
   } else {
-    pf::web::generate_error_page($cgi, $session, i18n("error: invalid page number"));
+    pf::web::generate_error_page($portalSession, i18n("error: invalid page number"));
   }
 
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "deregister") {
-  my ($form_return, $err) = pf::web::validate_form($cgi, $session);
+  my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
-    $logger->trace("form validation failed or first time for $mac");
-    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $err);
+    $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
+    pf::web::generate_login_page($portalSession, $err);
     exit(0);
   }
 
-  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($cgi, $session, $cgi->param("auth"));
+  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
   if ($auth_return != 1) {
-    $logger->trace("authentication failed for $mac");
+    $logger->trace("authentication failed for " . $portalSession->getClientMac());
     my $error;
     if (!defined($authenticator)) {
         $error = 'Unable to validate credentials at the moment';
     } else {
         $error = $authenticator->getLastError();
     }
-    pf::web::generate_login_page($cgi, $session, $destination_url, $mac, $error);
+    pf::web::generate_login_page($portalSession, $error);
     exit(0);
   }
 
-  my $node_info = node_view($mac);
+  my $node_info = node_view($portalSession->getClientMac());
   my $pid = $node_info->{'pid'};
-  if ($session->param("username") eq $pid) {
-    my $cmd = $bin_dir."/pfcmd manage deregister $mac";
+  if ($portalSession->getSession->param("username") eq $pid) {
+    my $cmd = $bin_dir."/pfcmd manage deregister " . $portalSession->getClientMac();
     my $output = qx/$cmd/;
-    $logger->info("calling $bin_dir/pfcmd  manage deregister $mac");
+    $logger->info("calling $bin_dir/pfcmd  manage deregister " . $portalSession->getClientMac());
     print $cgi->redirect("/authenticate");
   } else {
-    pf::web::generate_error_page($cgi, $session, i18n("error: access denied not owner"));
+    pf::web::generate_error_page($portalSession, i18n("error: access denied not owner"));
   }
 
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "release") {
@@ -137,19 +130,19 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   if ($cgi->https()) {
     print $cgi->redirect(
       "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-      .'/access?destination_url=' . uri_escape($destination_url)
+      .'/access?destination_url=' . uri_escape($portalSession->getDestinationUrl())
     );
   } else {
-    pf::web::generate_release_page($cgi, $session, $destination_url, $mac);
+    pf::web::generate_release_page($portalSession);
   }
   exit(0);
 } elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "aup") {
-  pf::web::generate_aup_standalone_page($cgi, $session, $mac);
+  pf::web::generate_aup_standalone_page($portalSession);
   exit(0);
 } elsif (defined($cgi->url_param('mode'))) {
-  pf::web::generate_error_page($cgi, $session, i18n("error: incorrect mode"));
+  pf::web::generate_error_page($portalSession, i18n("error: incorrect mode"));
 } else {
-  pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
+  pf::web::generate_login_page($portalSession);
 }
 
 =head1 AUTHOR
@@ -160,6 +153,8 @@ Regis Balzard <rbalzard@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
         
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
         
 Copyright (C) 2008-2012 Inverse inc.

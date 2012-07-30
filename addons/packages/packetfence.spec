@@ -607,6 +607,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/Portal
+                        /usr/local/pf/lib/pf/Portal/*
 %dir                    /usr/local/pf/lib/pf/radius
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm

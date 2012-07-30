@@ -1,17 +1,16 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 guest-selfregistration.cgi - guest self registration portal
 
 =cut
+
 use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use CGI;
-use CGI::Carp qw( fatalsToBrowser );
-use CGI::Session;
 use Date::Format qw(time2str);
 use Log::Log4perl;
 use Readonly;
@@ -24,6 +23,7 @@ use pf::sms_activation;
 use pf::iplog;
 use pf::node;
 use pf::person qw(person_modify);
+use pf::Portal::Session;
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -39,23 +39,21 @@ my $logger = Log::Log4perl->get_logger('guest-selfregistration.cgi');
 Log::Log4perl::MDC->put('proc', 'guest-selfregistration.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-my $ip = pf::web::get_client_ip($cgi);
-my $destination_url = pf::web::get_destination_url($cgi);
+my $portalSession = pf::Portal::Session->new();
+my $cgi = $portalSession->getCgi();
+my $session = $portalSession->getSession();
 
 # if self registration is not enabled, redirect to portal entrance
-print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
-    if (isdisabled($Config{'registration'}{'guests_self_registration'}));
+print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
+    if ( isdisabled($portalSession->getProfile->getGuestSelfReg) 
+         && $portalSession->getProfile->getAuth ne 'guests_self_registration_only');
 
 # if we can resolve the MAC we are in on-site self-registration
 # if we can't resolve it and preregistration is disabled, generate an error
-my $mac = ip2mac($ip);
-my $is_valid_mac = valid_mac($mac);
+my $is_valid_mac = valid_mac($portalSession->getClientMac());
 if ( !$is_valid_mac && isdisabled($Config{'guests_self_registration'}{'preregistration'}) ) {
-    $logger->info("$ip not resolvable, generating error page");
-    pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
+    $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
+    pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
     exit(0);
 }
 # we can't resolve the MAC and preregistration is enabled: pre-registration
@@ -70,34 +68,34 @@ if (defined($cgi->url_param("preregistration")) && $cgi->url_param("preregistrat
 # Clearing the MAC if in pre-registration
 # Warning: this assumption is important for preregistration
 if ($session->param("preregistration")) {
-    $mac = undef;
+    $portalSession->setGuestNodeMac(undef);
 }
 
 if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGISTRATION) {
 
     # is form valid?
-    my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($cgi, $session);
+    my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($portalSession);
 
     # Email
-    if ($auth_return && defined($cgi->param('by_email')) && defined($guest_self_registration{$SELFREG_MODE_EMAIL})) {
+    if ( $auth_return && defined($cgi->param('by_email')) && is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ) {
       # User chose to register by email
-      $logger->info( "registering " . ( $session->param("preregistration") ? 'a remote' : $mac ) . " guest by email" );
+      $logger->info( "registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest by email" );
 
       # form valid, adding person (using modify in case person already exists)
       person_modify($session->param('guest_pid'), (
-          'firstname' => $session->param("firstname"),
-          'lastname' => $session->param("lastname"),
-          'company' => $session->param('company'),
-          'email' => $session->param("email"),
-          'telephone' => $session->param("phone"),
-          'notes' => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
+          'firstname'   => $session->param("firstname"),
+          'lastname'    => $session->param("lastname"),
+          'company'     => $session->param('company'),
+          'email'       => $session->param("email"),
+          'telephone'   => $session->param("phone"),
+          'notes'       => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
       ));
       $logger->info("Adding guest person " . $session->param('guest_pid'));
 
       # grab additional info about the node
       my %info;
       $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $Config{'guests_self_registration'}{'category'};
+      $info{'category'} = $portalSession->getProfile->getGuestCategory;
 
       # unreg in guests.email_activation_timeout seconds
       my $timeout = $Config{'guests_self_registration'}{'email_activation_timeout'};
@@ -105,15 +103,15 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       # if we are on-site: register the node
       if (!$session->param("preregistration")) {
-          pf::web::web_node_register($cgi, $session, $mac, $info{'pid'}, %info);
+          pf::web::web_node_register($portalSession, $info{'pid'}, %info);
       }
 
       # add more info for the activation email
-      %info = pf::web::guest::prepare_email_guest_activation_info($cgi, $session, $mac, %info);
+      %info = pf::web::guest::prepare_email_guest_activation_info($portalSession, %info);
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $mac, $info{'pid'}, $info{'pid'}, 
+          $portalSession->getClientMac(), $info{'pid'}, $info{'pid'}, 
           ( $session->param("preregistration") 
               ? $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION
               : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION 
@@ -124,27 +122,27 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       if (!$session->param("preregistration")) {
           # does the necessary captive portal escape sequence (violations, provisionning, etc.)
-          pf::web::end_portal_session($cgi, $session, $mac, $destination_url) if ($auth_return);
+          pf::web::end_portal_session($portalSession) if ($auth_return);
       }
       # pregistration: we show a confirmation page
       else {
           # send to a success page
           pf::web::generate_generic_page(
-              $cgi, $session, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_EMAIL }
+              $portalSession, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_EMAIL }
           );
       }
     }
 
     # SMS
-    elsif ( $auth_return && defined($cgi->param('by_sms')) && defined($guest_self_registration{$SELFREG_MODE_SMS}) ) {
+    elsif ( $auth_return && defined($cgi->param('by_sms')) && is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ) {
       if ($session->param("preregistration")) {
-          pf::web::generate_error_page($cgi, $session, i18n("Registration in advance by SMS is not supported."));
+          pf::web::generate_error_page($portalSession, i18n("Registration in advance by SMS is not supported."));
           exit(0);
       }
 
       # User chose to register by SMS
-      $logger->info("registering $mac guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
-      ($auth_return, $err, $errargs_ref) = sms_activation_create_send($mac, $session->param("phone"), $cgi->param("mobileprovider") );
+      $logger->info("registering " . $portalSession->getClientMac() . " guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
+      ($auth_return, $err, $errargs_ref) = sms_activation_create_send($portalSession->getClientMac(), $session->param("phone"), $cgi->param("mobileprovider") );
       if ($auth_return) {
 
           # form valid, adding person (using modify in case person already exists)
@@ -159,16 +157,16 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
           ));
 
           $logger->info("redirecting to mobile confirmation page");
-          pf::web::guest::generate_sms_confirmation_page($cgi, $session, "/activate/sms", $destination_url, $err, $errargs_ref);
+          pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms", $err, $errargs_ref);
           exit(0);
       }
     }
 
     # SPONSOR
-    elsif ( $auth_return && defined($cgi->param('by_sponsor')) && defined($guest_self_registration{$SELFREG_MODE_SPONSOR}) ) {
+    elsif ( $auth_return && defined($cgi->param('by_sponsor')) && is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
       # User chose to register through a sponsor
       $logger->info(
-          "registering " . ( $session->param("preregistration") ? 'a remote' : $mac ) . " guest through a sponsor"
+          "registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest through a sponsor"
       );
 
       # form valid, adding person (using modify in case person already exists)
@@ -186,35 +184,35 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
       # grab additional info about the node
       my %info;
       $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $Config{'guests_self_registration'}{'category'};
+      $info{'category'} = $portalSession->getProfile->getGuestCategory;
       $info{'status'} = $pf::node::STATUS_PENDING;
 
       if (!$session->param("preregistration")) {
           # modify the node
-          node_modify($mac, %info);
+          node_modify($portalSession->getClientMac(), %info);
       }
 
       # fetch more info for the activation email
       # this is meant to be overridden in pf::web::custom with customer specific needs
-      %info = pf::web::guest::prepare_sponsor_guest_activation_info($cgi, $session, $mac, %info);
+      %info = pf::web::guest::prepare_sponsor_guest_activation_info($portalSession, %info);
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $mac, $info{'pid'}, $info{'sponsor'}, $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
+          $portalSession->getClientMac(), $info{'pid'}, $info{'sponsor'}, $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
           $pf::email_activation::SPONSOR_ACTIVATION,
           %info
       );
 
       # on-site: redirection will show pending page (unless there's a violation for the node)
       if (!$session->param("preregistration")) {
-          print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($destination_url));
+          print $cgi->redirect('/captive-portal?destination_url=' . uri_escape($portalSession->getDestinationUrl()));
           exit(0);
       }
       # pregistration: we show a confirmation page
       else {
           # send to a success page
           pf::web::generate_generic_page(
-              $cgi, $session, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_SPONSOR }
+              $portalSession, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_SPONSOR }
           );
       }
     }
@@ -222,8 +220,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     # Registration form was invalid, return to guest self-registration page and show error message
     if ($auth_return != $TRUE) {
         $logger->info("Missing information for self-registration");
-        pf::web::guest::generate_selfregistration_page(
-            $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac, $err, $errargs_ref
+        pf::web::guest::generate_selfregistration_page($portalSession, "/signup?mode=$GUEST_REGISTRATION", $err, $errargs_ref
         );
         exit(0);
     }
@@ -233,14 +230,14 @@ else {
     $cgi->delete('firstname', 'lastname', 'email', 'phone', 'organization');
 
     # by default, show guest registration page
-    pf::web::guest::generate_selfregistration_page(
-        $cgi, $session, "/signup?mode=$GUEST_REGISTRATION", $destination_url, $mac
-    );
+    pf::web::guest::generate_selfregistration_page($portalSession, "/signup?mode=$GUEST_REGISTRATION");
 }
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
         
@@ -264,4 +261,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-
