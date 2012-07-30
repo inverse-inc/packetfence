@@ -32,6 +32,7 @@ Readonly::Scalar our $TRAP => 'trap';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
 Readonly::Scalar our $WINPOPUP => 'winpopup';
+Readonly::Scalar our $CLOSE => 'close';
 
 BEGIN {
     use Exporter ();
@@ -44,6 +45,7 @@ BEGIN {
         action_view          action_view_all
         action_delete        action_delete_all 
         action_execute       action_log
+        action_close
     );
 }
 
@@ -51,6 +53,7 @@ use pf::config;
 use pf::db;
 use pf::util;
 use pf::class qw(class_view class_view_actions);
+use pf::violation qw(violation_force_close);
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $action_db_prepared = 0;
@@ -163,6 +166,8 @@ sub action_execute {
             action_winpopup( $mac, $vid );
         } elsif ( $action =~ /^autoreg$/i ) {
             action_autoregister($mac, $vid);
+        } elsif ( $action =~ /^close$/i ) {
+            action_close( $mac, $vid );
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
@@ -281,6 +286,29 @@ sub action_autoregister {
     } else {
         $logger->warn("autoreg action defined for violation $vid, but registration disabled");
     }
+}
+
+sub action_close {
+   my ($mac, $vid) = @_;
+   my $logger = Log::Log4perl::get_logger('pf::action');
+
+   #We need to fetch which violation id to close
+   my $class = class_view($vid);
+
+   $logger->info("VID to close: $class->{'vclose'}");
+
+   if (defined($class->{'vclose'})) {
+     my $result = violation_force_close($mac,$class->{'vclose'});
+        
+     # If close is a success, reevaluate the Access for the node
+     if ($result) {
+         pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
+     } else {
+        $logger->warn("No open violation was found for $mac and vid $class->{'vclose'}, won't do anything");
+     }
+   } else {
+       $logger->warn("close action defined for violation $vid, but cannot tell which violation to close");
+   }
 }
 
 =head1 AUTHOR

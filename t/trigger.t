@@ -112,12 +112,12 @@ is_deeply(
 );
 
 # Bandwidth accounting
-lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M") }
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GBM") }
     'parsing bandwidth accounting trigger'
 ;
 is_deeply(
     $parsing_result_ref,
-    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
+    [ [ "TOT20GBM", "TOT20GBM", "accounting" ], ],
     'validating bandwidth accounting trigger'
 );
 
@@ -135,22 +135,22 @@ throws_ok { parse_triggers("VENDORMAC::TOT20GB") }
     'parsing a trigger with an invalid trigger id out of the accounting context expecting exception'
 ;
 
-lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M ") }
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GBM ") }
     'parsing bandwidth accounting trigger with a trailing space'
 ;
 is_deeply(
     $parsing_result_ref,
-    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], ],
+    [ [ "TOT20GBM", "TOT20GBM", "accounting" ], ],
     'validating bandwidth accounting trigger with a trailing space'
 );
 
 
-lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB1M ,Accounting::IN10GB2W") }
+lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GBM ,Accounting::IN10GBW") }
     'parsing bandwidth accounting trigger with spaces in between'
 ;
 is_deeply(
     $parsing_result_ref,
-    [ [ "TOT20GB1M", "TOT20GB1M", "accounting" ], [ "IN10GB2W", "IN10GB2W", "accounting" ], ],
+    [ [ "TOT20GBM", "TOT20GBM", "accounting" ], [ "IN10GBW", "IN10GBW", "accounting" ], ],
     'validating bandwidth accounting trigger with spaces in between'
 );
 

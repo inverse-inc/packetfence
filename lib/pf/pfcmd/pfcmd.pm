@@ -165,7 +165,7 @@ $grammar = q {
 
    floatingnetworkdeviceconfig_view_field : 'ip' | 'trunkPort' | 'pvid' | 'taggedVlan'
 
-   violationconfig_view_field : 'desc' | 'enabled' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
+   violationconfig_view_field : 'desc' | 'enabled' | 'auto_enable' | 'actions' | 'max_enable' | 'grace' | 'window' | 'vclose' | 'priority' | 'url' | 'button_text' | 'trigger' | 'vlan' | 'whitelisted_categories'
 
    violation_view_field :  'id' | 'mac' | 'vid' | 'start_date' | 'release_date' | 'status' | 'notes'
 

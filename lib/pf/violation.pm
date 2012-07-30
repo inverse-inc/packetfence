@@ -21,6 +21,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Readonly;
+use POSIX;
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
@@ -56,12 +57,16 @@ BEGIN {
         violation_view_top
         violation_delete
         violation_exist_open
+        violation_exist_acct
+        violation_view_last_closed
         violation_maintenance
 
     );
 }
 
 use pf::action;
+use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
+use pf::class qw(class_view);
 use pf::config;
 use pf::enforcement;
 use pf::db;
@@ -154,6 +159,12 @@ sub violation_db_prepare {
 
     $violation_statements->{'violation_release_sql'} = get_db_handle()->prepare(
         qq [ select mac,vid from violation where release_date !=0 AND release_date <= NOW() AND status = "open" ]);
+
+    $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
+        qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
+    
+    $violation_statements->{'violation_exist_acct_sql'} = get_db_handle()->prepare(
+        qq [ select id from violation where mac = ? AND vid = ? AND release_date >= ? AND release_date <= NOW()]);
 
     $violation_db_prepared = 1;
     return 1;
@@ -456,9 +467,42 @@ sub violation_trigger {
             );
             next;
         }
-        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac' (trigger ${type}::${tid})");
+        # Compute the release date
+        my $date = 0;
+        
+        # Check if we have a window defined for the violation, and act properly 
+        # TODO: Handle the "dynamic" keyword
+        my $class = class_view($vid);
+
+        if (defined($class->{'window'})) {
+          if ($class->{'window'} ne 'dynamic' && $class->{'window'} ne '0' ) {
+            $date = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $class->{'window'}));
+          } elsif ($class->{'window'} eq 'dynamic' && $type eq "accounting") {
+            # Funky calculus here
+            $tid =~ /$ACCOUNTING_TRIGGER_RE/;
+
+            if (defined($4)) {
+                if ($4 eq 'D'){
+                    $date = POSIX::strftime("%Y-%m-%d 23:59:59", localtime(time));
+                } elsif ($4 eq 'W') {
+                    $date = POSIX::strftime("%Y-%m-%d 23:59:59", localtime(time + (6-(localtime(time))[6])*3600*24));
+                } elsif ($4 eq 'M') {
+                    my $curMonth = (localtime())[4];
+                    my $curYear = (localtime())[5];
+                    my @time = localtime(POSIX::mktime(0,0,0,0,$curMonth+1,$curYear,0,0,-1));
+
+                    $date = POSIX::strftime("%Y-%m-$time[3] 23:59:59", localtime(time));
+                } elsif ($4 eq 'Y') {
+                    $date = POSIX::strftime("%Y-12-31 23:59:59", localtime(time));
+                }
+            }
+            # no interval given so we assume from beginning of time (10 years)
+          }
+        } 
+
+        $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac,release_date=$date' (trigger ${type}::${tid})");
         # running pfcmd because it will call an access re-evaluation if needed
-        pf_run("$bin_dir/pfcmd violation add vid=$vid,mac=$mac");
+        pf_run("$bin_dir/pfcmd \'violation add vid=$vid,mac=$mac,release_date=\"$date\"\'");
         $addedViolation = 1;
     }
     return $addedViolation;
@@ -509,6 +553,41 @@ sub violation_force_close {
         || return (0);
     $logger->info("violation $vid force-closed for $mac");
     return (1);
+}
+
+=item * violation_exist_acct - check if a closed violation exists within the accounting interval window
+
+=cut
+sub violation_exist_acct {
+    my ( $mac, $vid, $interval ) = @_;
+    my $ceil;
+
+    if ($interval eq "daily") {
+       $ceil = POSIX::strftime("%Y-%m-%d 00:00:00",localtime(time));
+    } elsif ($interval eq "weekly") {
+       $ceil = POSIX::strftime("%Y-%m-%d 00:00:00",localtime(time - (localtime(time))[6]*24*3600));
+    } elsif ($interval eq "monthly") {
+       $ceil = POSIX::strftime("%Y-%m-01 00:00:00",localtime(time));
+    } elsif ($interval eq "yearly") {
+       $ceil = POSIX::strftime("%Y-01-01 00:00:00",localtime(time));
+    } else {
+       $ceil = 0;
+    }
+
+    my $query = db_query_execute(VIOLATION, $violation_statements, 'violation_exist_acct_sql', $mac, $vid, $ceil)
+        || return (0);
+    my $val = $query->fetchrow_hashref();
+    $query->finish();
+    return ($val);
+}
+
+=item * violation_view_last_closed - grab the last closed violation within the accounting interval window
+
+=cut
+sub violation_view_last_closed {
+    my ( $mac, $vid ) = @_;
+
+    return db_data(VIOLATION, $violation_statements, 'violation_last_closed_sql', $mac, $vid);
 }
 
 =item * _is_node_category_whitelisted - is a node immune to a given violation based on its category

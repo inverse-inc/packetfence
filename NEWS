@@ -34,12 +34,17 @@ New Hardware
 New Features 
  * Remediation module for SourceFire 3D (addons/sourcefire)
 
+New Feature
+ * Adding a new action to close another violation 
+
 Enhancements
  * Closing expired violations using the release_date (#1476)
+<<<<<<< HEAD
  * Excluding the local switch when building the NAS SQL table (#1491)
  * FreeRADIUS configuration is now fully managed (pf/raddb)
  * Use of Nessus XMLRPC to launch the remote scan
  * Possibility to select a policy in nessus by the node category
+ * Refactoring of the accounting violations
 
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)
