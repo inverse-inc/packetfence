@@ -91,13 +91,14 @@ sub iptables_generate {
             }
             else {
                 $logger->warn("We are using IPSET version $IPSET_VERSION");
-                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_REG\_$network macipmap $network/$inline_obj->{BITS}";
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_REG\_$network macipmap --network $network/$inline_obj->{BITS}";
                 $out = `$cmd`;
-                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_ISOLATION\_$network macipmap $network/$inline_obj->{BITS}";
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_ISOLATION\_$network macipmap --network $network/$inline_obj->{BITS}";
                 $out = `$cmd`;
-                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_UNREG\_$network macipmap $network/$inline_obj->{BITS}";
+                $cmd = "sudo ipset --create pfsession_$IPTABLES_MARK_UNREG\_$network macipmap --network $network/$inline_obj->{BITS}";
                 $out = `$cmd`;
             }
+
         }
     }
     # FILTER
@@ -524,17 +525,17 @@ sub get_mangle_mark_for_mac {
             my @iplog = iplog_history_mac($mac);
             my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
             if ($net_addr->contains($ip)) {
-                my $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'}";
+                my $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'},$mac";
                 my @out = `$cmd 2>&1`;
                 if (!($out[0] =~ m/NOT/i)) {
                     return $IPTABLES_MARK_REG;
                 }
-                $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'}";
+                $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'},$mac";
                 @out = `$cmd 2>&1`;
                 if (!($out[0] =~ m/NOT/i)) {
                     return $IPTABLES_MARK_ISOLATION;
                 }
-                $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_UNREG\_$network $iplog[0]->{'ip'}";
+                $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK_UNREG\_$network $iplog[0]->{'ip'},$mac";
                 @out = `$cmd 2>&1`;
                 if (!($out[0] =~ m/NOT/i)) {
                     return $IPTABLES_MARK_UNREG;
