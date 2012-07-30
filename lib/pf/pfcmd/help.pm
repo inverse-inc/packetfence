@@ -124,6 +124,7 @@ Services managed by PacketFence:
   radiusd          | FreeRADIUS daemon
   snmptrapd        | SNMP trap receiver daemon
   snort            | if stopped or restarted, pfredirect must also be restarted
+  suricata         | Suricata IDS.  if stopped or restarted, pfredirect must also be restarted
 
 watch
 Watch performs services checks to make sure that everything is fine. It's 

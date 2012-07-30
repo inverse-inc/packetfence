@@ -539,6 +539,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
 %config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
+%config(noreplace)      /usr/local/pf/conf/suricata.yaml
 %dir                    /usr/local/pf/conf/templates
 %config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf

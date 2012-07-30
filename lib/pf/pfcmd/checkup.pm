@@ -96,9 +96,11 @@ sub sanity_check {
     if ( isenabled($Config{'services'}{'radiusd'} ) ) {
         freeradius();
     }
-
+    
     if ( isenabled($Config{'trapping'}{'detection'}) ) {
-        ids_snort();
+        ids();
+
+        #TODO Suricata check
     }
 
     scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
@@ -226,31 +228,41 @@ sub freeradius {
 }
 
 
-=item ids_snort
+=item ids
 
-Validation related to the Snort IDS usage 
+Validation related to the Snort/Suricata IDS usage 
 
 =cut
-sub ids_snort {
+sub ids {
 
-    # make sure a monitor device is present if snort is enabled
+    # make sure a monitor device is present if trapping.detection is enabled
     if ( !$monitor_int ) {
         add_problem( $FATAL, 
-            "monitor interface not defined, please disable trapping.dectection " . 
+            "monitor interface not defined, please disable trapping.detection " . 
             "or set an interface type=...,monitor in pf.conf"
         );
     }
 
-    # make sure named pipe 'alert' is present if snort is enabled
-    my $snortpipe = "$install_dir/var/alert";
-    if ( !-p $snortpipe ) {
-        if ( !POSIX::mkfifo( $snortpipe, oct(666) ) ) {
-            add_problem( $FATAL, "snort alert pipe ($snortpipe) does not exist and unable to create it" );
+    # make sure named pipe 'alert' is present if trapping.detection is enabled
+    my $alertpipe = "$install_dir/var/alert";
+    if ( !-p $alertpipe ) {
+        if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
+            add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
         }
     }
 
-    if ( !-x $Config{'services'}{'snort_binary'} ) {
+    # make sure trapping.detection_engine=snort|suricata
+    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' || $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
+        add_problem( $FATAL,
+            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
+        );
+    }
+
+    if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
         add_problem( $FATAL, "snort binary is not executable / does not exist!" );
+    }
+    elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
+        add_problem( $FATAL, "suricata binary is not executable / does not exist!" );
     }
 
 }
