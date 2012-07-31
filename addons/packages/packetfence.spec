@@ -498,7 +498,7 @@ fi
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/snort
-                        /usr/local/pf/addons/snort/update_rules.pl
+%attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
 %dir                    /usr/local/pf/addons/soh
