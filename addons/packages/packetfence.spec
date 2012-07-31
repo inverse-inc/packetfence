@@ -300,7 +300,6 @@ rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
-cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
@@ -309,7 +308,6 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
-cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
@@ -606,7 +604,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
-%attr(0755, pf, pf)     /usr/local/pf/configurator.pl
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
@@ -643,7 +640,6 @@ fi
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/pfappserver/
-%attr(0755, pf, pf)     /usr/local/pf/installer.pl
                         /usr/local/pf/lib
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
