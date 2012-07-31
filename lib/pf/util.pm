@@ -823,7 +823,7 @@ sub unpretty_bandwidth {
     return $bw;
 }
 
-=item pf_run
+=item pf_run ( COMMAND, %OPTIONS )
 
 Execute a system command but check the return status and log anything not normal.
 
@@ -832,14 +832,21 @@ but returns undef on a failure. Non-zero exit codes are considered failures.
 
 Does not enforce any security. Callers should take care of string sanitization.
 
+Takes an optional hash that offers additional options. For now, 
+accepted_exit_status => arrayref allows the command to succeed and a proper
+value being returned if the exit status is mentionned in the arrayref. For 
+example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
+with code 1, 2 or 3 without reporting it as an error.
+
 =cut
 sub pf_run {
-    my ($command) = @_;
+    my ($command, %options) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
 
     local $OS_ERROR;
     # Using perl trickery to figure out what the caller expects so I can return him just that
     # this is to perfectly emulate the backtick operator behavior
+    my (@result, $result);
     if (not defined wantarray) {
         # void context
         `$command`;
@@ -847,12 +854,12 @@ sub pf_run {
 
     } elsif (wantarray) { 
         # list context
-        my @result = `$command`;
+        @result = `$command`;
         return @result if ($CHILD_ERROR == 0);
 
     } else {
         # scalar context
-        my $result = `$command`;
+        $result = `$command`;
         return $result if ($CHILD_ERROR == 0);
     }
     # copying as soon as possible
@@ -862,9 +869,11 @@ sub pf_run {
     my $caller = ( caller(1) )[3] || basename($0);
     $caller =~ s/^(pf::\w+|main):://;
 
+    # died with an OS problem
     if ($CHILD_ERROR == -1) {
         $logger->warn("Problem trying to run command: $command called from $caller. OS Error: $exception");
 
+    # died with a signal
     } elsif ($CHILD_ERROR & 127) {
         my $signal = ($CHILD_ERROR & 127);
         my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
@@ -872,8 +881,16 @@ sub pf_run {
             "Problem trying to run command: $command called from $caller. " 
             . "Child died with signal $signal $with_core coredump."
         );
+    # Non-zero exit code received
     } else {
         my $exit_status = $CHILD_ERROR >> 8;
+        # user specified that this error code is ok
+        if (grep { $_ == $exit_status } @{$options{'accepted_exit_status'}}) {
+            # we accept the result
+            return if (not defined wantarray); # void context
+            return @result if (wantarray); # list context
+            return $result; # scalar context
+        }
         $logger->warn(
             "Problem trying to run command: $command called from $caller. " 
             . "Child exited with non-zero value $exit_status"

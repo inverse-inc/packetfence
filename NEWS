@@ -40,6 +40,7 @@ Enhancements
  * Possibility to select a policy in nessus by the node category
  * Refactoring of the accounting violations
  * Refactoring of the captive portal templates generation
+ * trapping.registration now enabled by default
 
 Bug Fixes
  * Wrong information sent by mail for sponsored registration (#1445)

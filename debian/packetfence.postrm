@@ -26,9 +26,12 @@ case "$1" in
     remove)
     ;;
     purge)
-	update-rc.d packetfence remove >/dev/null || exit 0
+        # removing init scripts
+        update-rc.d packetfence remove >/dev/null || exit 0
+        update-rc.d pfappserver remove >/dev/null || exit 0
+        # purging all files
         rm -fr /usr/local/pf
-    ;;
+        ;;
     *)
         echo "postrm called with unknown argument \`$1'" >&2
         exit 1
@@ -41,3 +44,5 @@ esac
 #DEBHELPER#
 
 exit 0
+# vim: set shiftwidth=4:
+# vim: set expandtab:
