@@ -57,6 +57,7 @@ attributes              = req_attributes
 x509_extensions         = custom 
 string_mask             = nombstr 
 prompt                  = no
+default_bits		= 2048
 
 [ crl_distribution ] 
 

@@ -223,7 +223,7 @@ Install the proper repositories in `yum` so it can directly lookup for packages:
 .For RHEL 6.x / CentOS 6.x
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
-  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-5.noarch.rpm
+  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-7.noarch.rpm
   # rpm -Uvh http://www.openfusion.com.au/mrepo/centos6-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el6.noarch.rpm
 
 Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
