@@ -111,7 +111,6 @@ binary-arch: build install
 	dh_compress
 	# PERMISSIONS
 	# Executables
-	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/802.1X/packetfence.pm
