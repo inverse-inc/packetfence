@@ -800,13 +800,14 @@ FreeRADIUS Configuration
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
 In /usr/local/pf/raddb/packetfence.pm
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure to set the required configuration parameters on top of the file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
 
   # FreeRADIUS to PacketFence communications (SOAP Server settings)
   WS_USER     => 'webservice',
   WS_PASS     => 'password',
+
 
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
