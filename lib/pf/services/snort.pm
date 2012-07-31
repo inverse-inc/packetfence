@@ -46,7 +46,6 @@ sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %tags;
     $tags{'template'}      = "$conf_dir/snort.conf";
-    $tags{'internal-ips'}  = join( ",", get_all_internal_ips() );
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
