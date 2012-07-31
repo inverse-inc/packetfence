@@ -261,8 +261,8 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
                             dns => $interface_ref->{'ipaddress'},
                             dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
                             dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
-                            dhcp_default_lease_time => 300,
-                            dhcp_max_lease_time => 600,
+                            dhcp_default_lease_time => 30,
+                            dhcp_max_lease_time => 30,
                             named => 'enabled',
                             dhcpd => 'enabled',
                         }
