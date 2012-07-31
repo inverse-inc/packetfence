@@ -59,6 +59,16 @@ o Upgrading from a version prior to 3.5.0:
     that registration is a whole part of the process. It is still possible to disable
     this setting by overriding it's default value in pf.conf.
 
+    - dropping installation.pl and configurator.pl
+    We dropped both the installation.pl and configurator.pl scripts in favor of the
+    newly implemented web based configurator. Make sure to pay attention to the directives
+    ate the end of the package installation.
+
+    - introduction of a new repository: OpenFusion
+    The use of perl Catalyst as a web engine for the new web platform required the introduction
+    of the OpenFusion repository. Make sure to take a quick look at the Administration Guide for
+    integration of this new repository.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update

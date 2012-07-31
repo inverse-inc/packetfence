@@ -25,6 +25,8 @@ New Features
  * Adding portal profile feature that allow to present a custom captive portal depending
    on the SSID you connect to. Refer to Administration Guide for further details
  * Adding a new action to close another violation 
+ * Adding a new web based configurator that helps the installation and configuration process
+   of a new PacketFence installation
 
 Enhancements
  * Improved handling of an empty conf/pf.conf configuration file
