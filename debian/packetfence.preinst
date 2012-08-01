@@ -26,7 +26,7 @@ case "$1" in
     ;;
     
     upgrade)
-        invoke-rc.d pfappserver start
+        invoke-rc.d pfappserver stop
         exit 0
     ;;
     abort-upgrade)
