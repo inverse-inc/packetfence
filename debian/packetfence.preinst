@@ -15,7 +15,7 @@ set -e
 
 
 case "$1" in
-    install|upgrade)
+    install)
         if grep -E "^pf:" /etc/passwd > /dev/null ; then
                 echo "pf user already exist"
         else
@@ -24,7 +24,11 @@ case "$1" in
         fi
         exit 0
     ;;
-
+    
+    upgrade)
+        invoke-rc.d pfappserver start
+        exit 0
+    ;;
     abort-upgrade)
     ;;
 
