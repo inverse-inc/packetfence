@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.1</revnumber>
+    <date>2012-08-01</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>Adjust doc for the new configurator</revremark>
+  </revision>
+  <revision>
     <revnumber>2.0</revnumber>
     <date>2012-02-22</date>
     <authorinitials>FG</authorinitials>
