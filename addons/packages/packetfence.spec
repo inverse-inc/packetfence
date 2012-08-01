@@ -178,8 +178,6 @@ Requires: perl(MooseX::Types::LoadableClass)
 # configuration-wizard
 Requires: perl(IO::Interface::Simple)
 Requires: vconfig
-# prevent freeradius crash when it use ssl to communicate with packetfence
-Requires: perl(Net::SSLeay) < 1.37 
 #
 # TESTING related
 #
