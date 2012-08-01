@@ -722,6 +722,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Mon Aug 01 2012 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.5.0-1
+- New release 3.5.0
+
 * Thu Jul 12 2012 Francois Gaudreault <fgaudreault@inverse.ca>
 - Adding some RADIUS deps
 
