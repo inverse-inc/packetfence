@@ -20,22 +20,57 @@ set -e
 
 case "$1" in
     configure)
-	export PACKETFENCE=/usr/local/pf
-	export PERL5LIB=/usr/local/pf/lib
-	perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
-	mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
-	if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
-		cd $PACKETFENCE/db
-		VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
-		ln -s $VERSIONSQL ./pf-schema.sql
-	fi
-	sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
-	for i in `find /etc/freeradius/ -name *.pf`;do mv $i `dirname $i`/`basename $i .pf`; done
-	for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server
-		do
-		update-rc.d $service remove > /dev/null 2>&1
-		done
-	update-rc.d packetfence defaults . || exit 0
+        export PACKETFENCE=/usr/local/pf
+        export PERL5LIB=/usr/local/pf/lib
+    
+        # compile grammar
+        perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
+        mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
+    
+        # link to latest SQL schema
+        if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
+            cd $PACKETFENCE/db
+            VERSIONSQL=$(ls pf-schema-* |sort -r | head -1)
+            ln -s $VERSIONSQL ./pf-schema.sql
+        fi
+    
+        # we are not compatible with suhosin session encryption
+        sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
+    
+        #Check if log files exist and create them with the correct owner
+        for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
+        do
+        if [ ! -e /usr/local/pf/logs/$fic_log ]; then
+            touch /usr/local/pf/logs/$fic_log
+            chown pf.pf /usr/local/pf/logs/$fic_log
+        fi
+        done
+
+        #Make ssl certificate
+        if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
+            openssl req -x509 -new -nodes -days 365 -batch\
+            -out /usr/local/pf/conf/ssl/server.crt\
+            -keyout /usr/local/pf/conf/ssl/server.key\
+            -nodes -config /usr/local/pf/conf/openssl.cnf
+        fi
+
+	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+		    echo "Bulding default RADIUS certificates..."
+		    cd /usr/local/pf/raddb/certs
+		    make dh 
+	    else
+		    echo "DH already exists, won't touch it!"
+        fi
+
+        # managing services
+        for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
+            service $service stop  > /dev/null 2>&1
+            update-rc.d $service remove > /dev/null 2>&1
+        done
+        update-rc.d packetfence defaults . || exit 0
+        update-rc.d pfappserver defaults . || exit 0
+        invoke-rc.d pfappserver start
+        echo "* Reboot your server and after please fire up your Web browser and go to http://@ip_packetfence:3000/configurator to complete your PacketFence configuration."
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -53,3 +88,5 @@ esac
 #DEBHELPER#
 
 exit 0
+# vim: set shiftwidth=4:
+# vim: set expandtab:

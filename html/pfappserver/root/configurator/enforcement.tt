@@ -1,0 +1,71 @@
+[%  jsFiles = ['enforcement'] -%]
+    <div class="container">
+      [% INCLUDE configurator/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>[% l('Step') %] [% step_index %]</h1>
+            </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>Enforcement
+            <small>Choose your enforcement mechanisms</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>Instructions</h3>
+            <p>On this page, you choose your enforcement mechanism(s).</p>
+            <p>Don't worry, you can always come back to this step if you change your mind.</p>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="form-horizontal">
+            <form name="enforcement">
+              <h3>Enforcement Mechanisms</h3>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th width="50%">
+                      <input type="checkbox" name="enforcement" value="inline"[% IF c.session.enforcements.inline %] checked=""[% END %]> Inline enforcement
+                    </th>
+                    <th>
+                      <input type="checkbox" name="enforcement" value="vlan"[% IF c.session.enforcements.vlan %] checked=""[% END %]> VLAN enforcement
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      Activate this mechanism if you have unmanageable equipment such as entry-level consumer switches or access points. PacketFence becomes the gateway of that inline network, and will NAT the traffic to the Internet.
+                    </td>
+                    <td>
+                      PacketFence is the server that assigns the VLAN (or roles) to the devices. This is the prefered enforcement mechanism for manageable equipment.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="graph">
+                      <img src="[% c.uri_for('/static/configurator/enforcement-inline.png') %]">
+                    </td>
+                    <td class="graph">
+                      <img src="[% c.uri_for('/static/configurator/enforcement-vlan.png') %]">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <fieldset>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary pull-right"  href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+                </div>
+              </fieldset>
+            </form>
+         </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2012</p>
+      </footer>
+    </div><!--/container-->

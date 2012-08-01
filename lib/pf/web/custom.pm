@@ -65,12 +65,17 @@ To set the particular session variable use the following:
 
 =cut
 #*pf::web::web_node_register = sub {
-#    my ( $cgi, $session, $mac, $pid, %info ) = @_;
+#    my ( $portalSession, $pid, %info ) = @_;
 #    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+#
+#    # First blast of portalSession object consumption
+#    my $cgi = $portalSession->getCgi();
+#    my $session = $portalSession->getSession();
+#    my $mac = $portalSession->getClientMac();
 #
 #    if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
 #        pf::web::generate_error_page(
-#            $cgi, $session, 
+#            $portalSession, 
 #            i18n("You have reached the maximum number of devices you are able to register with this username.")
 #        );  
 #        exit(0);
@@ -104,6 +109,8 @@ To set the particular session variable use the following:
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

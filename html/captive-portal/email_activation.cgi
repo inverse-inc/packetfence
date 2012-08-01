@@ -1,26 +1,27 @@
 #!/usr/bin/perl
+
 =head1 NAME
 
 email_activation.cgi - handles email activation links
 
 =cut
+
 use strict;
 use warnings;
 
 use lib "/usr/local/pf/lib";
 
-use CGI;
-use CGI::Carp qw( fatalsToBrowser );
-use CGI::Session;
 use Log::Log4perl;
 use POSIX;
 
 use pf::config;
 use pf::email_activation qw($GUEST_ACTIVATION $SPONSOR_ACTIVATION);
 use pf::node;
+use pf::Portal::Session;
 use pf::util qw(valid_mac);
 use pf::web;
 use pf::web::guest 1.30;
+# called last to allow redefinitions
 use pf::web::custom;
 
 Log::Log4perl->init("$conf_dir/log.conf");
@@ -28,9 +29,9 @@ my $logger = Log::Log4perl->get_logger('email_activation.cgi');
 Log::Log4perl::MDC->put('proc', 'email_activation.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
+my $portalSession = pf::Portal::Session->new();
+my $cgi = $portalSession->getCgi();
+my $node_mac = undef;
 
 if (defined($cgi->url_param('code'))) {
 
@@ -38,18 +39,23 @@ if (defined($cgi->url_param('code'))) {
     my $activation_record = pf::email_activation::validate_code($cgi->url_param('code'));
     if (!defined($activation_record) || ref($activation_record) ne 'HASH' || !defined($activation_record->{'type'})) {
 
-        pf::web::generate_error_page($cgi, $session, i18n("The activation code provided is invalid. "
+        pf::web::generate_error_page($portalSession, i18n("The activation code provided is invalid. "
             . "Reasons could be: it never existed, it was already used or has expired.")
         );
         exit(0);
     }
 
+    # if we have a MAC, guest is on-site and we set that mac in session
+    if ( defined($activation_record->{'mac'}) ) {
+        $portalSession->setGuestNodeMac($activation_record->{'mac'});
+        $node_mac = $portalSession->getGuestNodeMac();
+    }
+
     # Email activated guests only need to prove their email was valid by clicking on the link. 
     if ($activation_record->{'type'} eq $GUEST_ACTIVATION) {
 
-        # if we have a MAC, guest is on-site, we proceed with registration
-        my $node_mac = $activation_record->{'mac'};
-        if (defined($node_mac) && valid_mac($node_mac)) {
+        # if we have a MAC, guest is on-site and we need to proceed with registration
+        if ( defined($node_mac) && valid_mac($node_mac) ) {
 
             # calculate expiration according to config
             my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
@@ -59,12 +65,12 @@ if (defined($cgi->url_param('code'))) {
             node_modify($node_mac, (
                 'unregdate' => $expiration, 
                 'status' => 'reg', 
-                'category' => $Config{'guests_self_registration'}{'category'},
+                'category' => $portalSession->getProfile->getGuestCategory,
             ));
 
             # send to a success page
             pf::web::generate_generic_page(
-                $cgi, $session, $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE, { 'expiration' => $expiration }
+                $portalSession, $pf::web::guest::EMAIL_CONFIRMED_TEMPLATE, { 'expiration' => $expiration }
             );
         }
         # if we don't have the MAC it means it's a preregistered guest
@@ -90,7 +96,7 @@ if (defined($cgi->url_param('code'))) {
             ); 
 
             # send to a success page
-            pf::web::generate_generic_page($cgi, $session, $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE, \%info);
+            pf::web::generate_generic_page($portalSession, $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE, \%info);
         }
 
         # code has been consumed, deactivate
@@ -100,10 +106,9 @@ if (defined($cgi->url_param('code'))) {
     # Sponsor activated guests. We need the sponsor to authenticate before allowing access
     elsif ($activation_record->{'type'} eq $SPONSOR_ACTIVATION) {
 
-
         # if we have a username in session it means user has already authenticated 
         # so we go ahead and allow the guest in
-        if (!defined($session->param("username"))) {
+        if (!defined($portalSession->getSession->param("username"))) {
 
             # User is not logged and didn't provide username or password: show login form
             if (!($cgi->param("username") && $cgi->param("password"))) {
@@ -111,13 +116,13 @@ if (defined($cgi->url_param('code'))) {
                     'Sponsor needs to authenticate in order to activate guest. '
                     . 'Guest token: ' . $cgi->url_param('code')
                 );
-                pf::web::guest::generate_custom_login_page($cgi, $session, undef, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
+                pf::web::guest::generate_custom_login_page($portalSession, undef, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
                 exit(0);
             }
 
             # User provided username and password: authenticate
             my ($auth_return, $authenticator) = pf::web::web_user_authenticate(
-                $cgi, $session, $Config{'guests_self_registration'}{'sponsor_authentication'}
+                $portalSession, $Config{'guests_self_registration'}{'sponsor_authentication'}
             );
 
             if ($auth_return != $TRUE) {
@@ -128,7 +133,7 @@ if (defined($cgi->url_param('code'))) {
                 } else {
                     $error = $authenticator->getLastError();
                 }
-                pf::web::guest::generate_custom_login_page($cgi, $session, $error, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
+                pf::web::guest::generate_custom_login_page($portalSession, $error, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
                 exit(0);
             }
 
@@ -138,21 +143,20 @@ if (defined($cgi->url_param('code'))) {
         # TODO: if we ever expose it, we'll need to alter the form action to make sure to trim it
         # otherwise we'll submit our authentication but with ?action=logout so it'll delete the session right away
         if (defined($cgi->url_param("action")) && $cgi->url_param("action") eq "logout") {
-            $session->delete();
+            $portalSession->getSession->delete();
     
-            pf::web::guest::generate_custom_login_page($cgi, $session, undef, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
+            pf::web::guest::generate_custom_login_page($portalSession, undef, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
             exit(0);
         }
 
         # User is authenticated (session username exists OR auth_return == $TRUE above)
-        $logger->debug($session->param('username') . " successfully authenticated. Activating sponsored guest");
+        $logger->debug($portalSession->getSession->param('username') . " successfully authenticated. Activating sponsored guest");
 
         my ($pid, %info, $template);
     
-        if (defined($activation_record->{'mac'})) {
+        if ( defined($node_mac) ) {
     
             # If MAC is defined, it's a guest already here that we need to register
-            my $node_mac = $activation_record->{'mac'};
             my $node_info = node_view($node_mac);
             if (!defined($node_info) || ref($node_info) ne 'HASH') {
     
@@ -160,7 +164,7 @@ if (defined($cgi->url_param('code'))) {
                     "Problem finding more information about a mac address to enable guest access for mac: $node_mac"
                 );
                 pf::web::generate_error_page(
-                    $cgi, $session, 
+                    $portalSession, 
                     i18n("There was a problem trying to find the computer to register. The problem has been logged.")
                 );
                 exit(0);
@@ -169,7 +173,7 @@ if (defined($cgi->url_param('code'))) {
             if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
     
                 $logger->warn("node mac: $node_mac has already been registered.");
-                pf::web::generate_error_page($cgi, $session,
+                pf::web::generate_error_page($portalSession,
                     i18n_format("The device with MAC address %s has already been authorized to your network.", $node_mac),
                 );
                 exit(0);
@@ -178,10 +182,10 @@ if (defined($cgi->url_param('code'))) {
             # update node info and prepare for registration according to config
             my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
             $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
-            $info{'category'} = $Config{'guests_self_registration'}{'category'};
+            $info{'category'} = $portalSession->getProfile->getGuestCategory;
     
             # register the node
-            pf::web::web_node_register($cgi, $session, $node_mac, $node_info->{'pid'}, %info);
+            pf::web::web_node_register($portalSession, $node_info->{'pid'}, %info);
     
             # populating variables used for temporary account
             $pid = $node_info->{'pid'};
@@ -220,7 +224,7 @@ if (defined($cgi->url_param('code'))) {
     
         # send to a success page
         pf::web::generate_generic_page(
-            $cgi, $session, $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE
+            $portalSession, $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE
         );
         exit(0);
     }
@@ -236,10 +240,12 @@ if (defined($cgi->url_param('code'))) {
 
 Olivier Bilodeau <obilodeau@inverse.ca>
         
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
         
 Copyright (C) 2010-2012 Inverse inc.
-    
+
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or
@@ -258,4 +264,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
-

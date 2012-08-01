@@ -90,6 +90,7 @@ my $is_inline_vlan;
 my $accessControl;
 my $interface_ip;
 my $interface_vlan;
+my @local_dhcp_servers;
 my $pcap;
 
 # standard signals and daemonize
@@ -399,8 +400,8 @@ sub rogue_dhcp_handling {
         return;
     }
 
-    # ignore if DHCP server is a local pf gateway
-    return if ( grep({ $_ eq $dhcp_srv_ip } get_gateways()) );
+    # ignore local DHCP servers
+    return if ( grep({$_ eq $dhcp_srv_ip} get_local_dhcp_servers()) );
 
     # ignore whitelisted DHCP servers
     return if ( grep({$_ eq $dhcp_srv_ip} split(/\s*,\s*/, $Config{'general'}{'dhcpservers'})) );
@@ -562,6 +563,27 @@ sub normal_sighandler {
     }
 }
 
+=item get_local_dhcp_servers
+
+Return a list of all dhcp servers IP that could be running locally.
+
+Caches results on first run then returns from cache.
+
+=cut
+sub get_local_dhcp_servers {
+
+    # return from cache
+    return @local_dhcp_servers if (@local_dhcp_servers);
+
+    # look them up, fill cache and return result
+    foreach my $network (keys %ConfigNetworks) {
+
+        push @local_dhcp_servers, $ConfigNetworks{$network}{'gateway'}
+            if ($ConfigNetworks{$network}{'dhcpd'} eq 'enabled');
+    }
+    return @local_dhcp_servers;
+}
+
 =back
 
 =head1 BUGS AND LIMITATIONS
@@ -584,7 +606,7 @@ Copyright (C) 2005 Dave Laporte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2007-2012 Inverse inc.
 
 =head1 LICENSE
 

@@ -5,7 +5,7 @@
 redir.cgi - handle first hit on the captive portal
 
 =cut
-#use Data::Dumper;
+
 use strict;
 use warnings;
 
@@ -22,6 +22,7 @@ use pf::config;
 use pf::enforcement;
 use pf::iplog;
 use pf::node;
+use pf::Portal::Session;
 use pf::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
@@ -35,34 +36,29 @@ my $logger = Log::Log4perl->get_logger('redir.cgi');
 Log::Log4perl::MDC->put('proc', 'redir.cgi');
 Log::Log4perl::MDC->put('tid', 0);
 
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
-my $ip = pf::web::get_client_ip($cgi);
-my $destination_url = pf::web::get_destination_url($cgi);
+my $portalSession = pf::Portal::Session->new();
 
 # we need a valid MAC to identify a node
-# TODO this is duplicated too much, it should be brought up in a global dispatcher
-my $mac = ip2mac($ip);
-if (!valid_mac($mac)) {
-  $logger->info("$ip not resolvable, generating error page");
-  pf::web::generate_error_page($cgi, $session, i18n("error: not found in the database"));
+if (!valid_mac($portalSession->getClientMac())) {
+  $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
+  pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
   exit(0);
 }
 
+my $mac = $portalSession->getClientMac();
 $logger->info("$mac being redirected");
 
 # recording user agent for this mac in node table
 # TODO: this validation will not be required if shipped CGI module is > 3.45, see bug #850
-if (defined($cgi->user_agent)) {
-  pf::web::web_node_record_user_agent($mac,$cgi->user_agent);
+if (defined($portalSession->getCgi->user_agent)) {
+  pf::web::web_node_record_user_agent($mac,$portalSession->getCgi->user_agent);
 } else {
   $logger->warn("$mac has no user agent");
 }
 
 # if we are going to provide a provisionned wi-fi profile then we should not deauth the user
-if (pf::web::supports_mobileconfig_provisioning($cgi, $session, $mac)) {
-  $session->param("do_not_deauth", $TRUE);
+if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
+  $portalSession->getSession->param("do_not_deauth", $TRUE);
 }
 
 # check violation 
@@ -77,7 +73,7 @@ if ($violation){
   # detect if a system scan is in progress, if so redirect to scan in progress page
   if ($vid == $SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
     $logger->info("captive portal redirect to the scan in progress page");
-    pf::web::generate_scan_status_page($cgi, $session, $1, $destination_url);
+    pf::web::generate_scan_status_page($portalSession, $1);
     exit(0);
   }
 
@@ -87,15 +83,15 @@ if ($violation){
   # TODO: We need to validate that a user cannot request a frame with the enable button activated
 
   # enable button
-  if ($cgi->param("enable_menu")) {
+  if ($portalSession->getCgi->param("enable_menu")) {
     $logger->debug("violation redirect: generating enable button frame (enable_menu = 1)");
-    pf::web::generate_enabler_page($cgi, $session, $destination_url, $vid, $class->{'button_text'});
+    pf::web::generate_enabler_page($portalSession, $vid, $class->{'button_text'});
   } elsif  ($class->{'auto_enable'} eq 'Y'){
     $logger->debug("violation redirect: generating redirect frame");
-    pf::web::generate_redirect_page($cgi, $session, $class->{'url'}, $destination_url);
+    pf::web::generate_redirect_page($portalSession, $class->{'url'});
   } else {
     $logger->debug("violation redirect: showing violation url directly since there is no enable button");
-    print $cgi->redirect($class->{'url'});
+    print $portalSession->getCgi->redirect($class->{'url'});
   }
   exit(0);
 }
@@ -105,19 +101,25 @@ if ($violation){
 my $unreg = node_unregistered($mac);
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   # Redirect to the billing engine if enabled
-  if ( isenabled($Config{'registration'}{'billing_engine'}) ) {
+  if ( isenabled($portalSession->getProfile->getBillingEngine) ) {
     $logger->info("$mac redirected to billing page");
-    pf::web::billing::generate_billing_page($cgi, $session, $destination_url, $mac);
+    pf::web::billing::generate_billing_page($portalSession);
     exit(0);
-  } 
+  }
+  # Redirect to the guests self registration page if configured to do so
+  elsif ( $portalSession->getProfile->getAuth eq 'guests_self_registration_only') {
+    $logger->info("$mac redirected to guests self registration page");
+    pf::web::guest::generate_selfregistration_page($portalSession);
+    exit(0);
+  }
   elsif ($Config{'registration'}{'nbregpages'} == 0) {
     $logger->info("$mac redirected to authentication page");
-    pf::web::generate_login_page($cgi, $session, $destination_url, $mac);
+    pf::web::generate_login_page($portalSession);
     exit(0);
   } 
   else {
     $logger->info("$mac redirected to multi-page registration process");
-    pf::web::generate_registration_page($cgi, $session, $destination_url, $mac);
+    pf::web::generate_registration_page($portalSession);
     exit(0);
   }
 }
@@ -126,13 +128,13 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 my $node_info = node_view($mac);
 if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
   # we drop HTTPS for pending so we can perform our Internet detection and avoid all sort of certificate errors
-  if ($cgi->https()) {
-    print $cgi->redirect(
+  if ($portalSession->getCgi->https()) {
+    print $portalSession->getCgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-        .'/captive-portal?destination_url=' . uri_escape($destination_url)
+        .'/captive-portal?destination_url=' . uri_escape($portalSession->getDestinationUrl)
     );
   } else {
-    pf::web::generate_pending_page($cgi, $session, $destination_url, $mac);
+    pf::web::generate_pending_page($portalSession);
   }
   exit(0);
 }
@@ -157,7 +159,7 @@ if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
     pf::enforcement::reevaluate_access( $mac, 'redir.cgi', (force => $TRUE) );
 }
 
-pf::web::generate_error_page($cgi, $session, 
+pf::web::generate_error_page($portalSession, 
   i18n("Your network should be enabled within a minute or two. If it is not reboot your computer.")
 );
 
@@ -168,6 +170,8 @@ Dominik Gehl <dgehl@inverse.ca>
 Regis Balzard <rbalzard@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
         
 =head1 COPYRIGHT
         

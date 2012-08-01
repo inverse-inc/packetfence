@@ -15,7 +15,7 @@ Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
 Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils, 
  openssl, openssl-blacklist, openssl-blacklist-extra, php-log, snort, 
  mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear,
- php5-mysql, php5-gd, perl-suid,
+ php5-mysql, php5-gd, perl-suid, make,
 # process management
  procps,
 # perl stuff
@@ -38,7 +38,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libfile-tail-perl, libnetwork-ipv4addr-perl, libiptables-parse-perl, 
  libiptables-chainmgr-perl, liblist-moreutils-perl, liblocale-gettext-perl, 
  liblog-log4perl-perl, libnet-mac-perl, libnet-mac-vendor-perl, 
- libnet-netmask-perl, libnet-pcap-perl, libnet-write-perl, libnet-snmp-perl,
+ libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl,
  libnet-telnet-perl, libparse-recdescent-perl, libregexp-common-perl,
  libreadonly-perl, libtemplate-perl, libterm-readkey-perl, 
  libtest-perl-critic-perl, libtest-pod-perl, libtest-pod-coverage-perl, 
@@ -48,12 +48,24 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  bind9, librrds-perl, libnetpacket-perl (>= 1.3), libcache-cache-perl, libcarp-perl,
  libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl,
  libnet-appliance-session-perl, libnet-cli-interact-perl,
- libnet-frame-simple-perl, libnet-interface-perl, libnet-radius-perl,
+ libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
  gettext, vlan, libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
+ libnet-nessus-xmlrpc-perl (>= 0.4),
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
- liberror-perl
+ liberror-perl,
+# required by pfappserver
+ libio-interface-perl, libnet-route-perl,
+# required by catalyst
+ libcatalyst-perl, libcatalyst-modules-perl,
+ libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
+ libcatalyst-authentication-store-htpasswd-perl,
+ libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
+# catalyst-server
+ libcatalyst-engine-http-prefork-perl,
+# packaging workaround (we don't require it but something in catalyst seem to do)
+ libmodule-install-perl
 Description: PacketFence network registration / worm mitigation system
  PacketFence is an open source network access control (NAC) system.
  It can be used to effectively secure networks, from small to very large

@@ -43,7 +43,7 @@ These files are included in the package and release tarballs.
 Introduction
 ------------
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort/Suricata IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
 
 Features
 ~~~~~~~~
@@ -67,7 +67,7 @@ Registration::
   PacketFence supports an optional registration mechanism similar to "captive portal" solutions. Contrary to most captive portal solutions, PacketFence remembers users who previously registered and will automatically give them access without another authentication. Of course, this is configurable. An Acceptable Use Policy can be specified such that users cannot enable network access without first accepting it.
 
 Detection of abnormal network activities::
-  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
+  Abnormal network activities (computer virus, worms, spyware, traffic denied by establishment policy, etc.) can be detected using local and remote http://www.snort.org/[Snort] or Suricata sensors. Beyond simple detection, PacketFence layers its own alerting and suppression mechanism on each alert type. A set of configurable actions for each violation is available to administrators.
 
 Proactive vulnerability scans::
   Either http://www.nessus.org/nessus/[Nessus] or http://www.openvas.org[OpenVAS] vulnerability scans can be performed upon registration, scheduled or on an ad-hoc basis. PacketFence correlates the scan engine vulnerability ID's of each scan to the violation configuration, returning content specific web pages about which vulnerability the host may have.
@@ -116,7 +116,7 @@ Depending on your setup you may have to install additional components like:
 * DHCP server (ISC DHCP)
 * DNS server (BIND)
 * RADIUS server (FreeRADIUS)
-* NIDS (Snort)
+* NIDS (Snort/Suricata)
 
 In this guide, we assume that all those components are running on the same server (i.e., "localhost" or "127.0.0.1") that PacketFence will be installed on.
 
@@ -132,6 +132,7 @@ The following table provides recommendations for the required components, togeth
 |DNS server       |BIND 9
 |RADIUS server    |FreeRADIUS 2.1.12
 |Snort            |Snort 2.8 or 2.9
+|Suricata         |Suricata 1.x
 |========================================
 
 More recent versions of the software mentioned above can also be used.
@@ -172,7 +173,7 @@ PacketFence takes care of handling the operation of the following services:
 * DHCP server (dhcpd)
 * DNS server (named)
 * FreeRADIUS server (radiusd)
-* Snort Network IDS (snort)
+* Snort/Suricata Network IDS (snort/suricata)
 * Firewall (iptables)
 
 *Make sure that all the other services are automatically started by your operating system!*
@@ -198,46 +199,46 @@ Make sure your system is up to date and your yum or apt-get database is updated:
   apt-get update
   apt-get upgrade
 
-RHEL 5.x / CentOS 5.x
-^^^^^^^^^^^^^^^^^^^^^
 
-Some PacketFence dependencies are available through the Repoforge repository (http://repoforge.org/) so you need to configure YUM to use it.
+RedHat-based systems
+^^^^^^^^^^^^^^^^^^^^
 
-Then install the latest version of the RPMForge package for your architecture (http://pkgs.repoforge.org/rpmforge-release/). For example (i386):
+NOTE: Includes CentOS and Scientific Linux. Both i386 and x86_64 architectures supported.
 
-  wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.i386.rpm
-  rpm -i rpmforge-release-0.5.2-2.el5.rf.i386.rpm
+Several third party repositories are required to pull all the proper PacketFence dependencies:
 
-Disable the repository by default. In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+[options="compact"]
+* http://repoforge.org/[Repoforge], also previously known as rpmforge
+* http://fedoraproject.org/wiki/EPEL/FAQ[EPEL], Extra Packages for Enterprise Linux
+* http://www.openfusion.net/linux/openfusion_rpm_repository[OpenFusion]
 
-  enabled = 0
+Install the proper repositories in `yum` so it can directly lookup for packages:
 
-Then install the EPEL repository (http://fedoraproject.org/wiki/EPEL/FAQ). To do so, simply grab the latest EPEL rpm (version 5.4 at the time of this release), and install it :
+.For RHEL 5.x / CentOS 5.x
 
-  wget http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
-  rpm -i epel-release-5-4.noarch.rpm
+  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.`uname -i`.rpm
+  # rpm -Uvh http://download.fedoraproject.org/pub/epel/5/`uname -i`/epel-release-5-4.noarch.rpm
+  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos5-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el5.noarch.rpm
 
-RHEL 6.x / CentOS 6.x
-^^^^^^^^^^^^^^^^^^^^^
+.For RHEL 6.x / CentOS 6.x
 
-Some PacketFence dependencies are available through the Repoforge repository (http://repoforge.org/) so you need to configure YUM to use it.
+  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
+  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-7.noarch.rpm
+  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos6-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el6.noarch.rpm
 
-Then install the latest version of the RPMForge package for your architecture (http://pkgs.repoforge.org/rpmforge-release/). For example (x86_64):
-
-  wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-  rpm -i rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
-
-Disable this repository by default. In the `/etc/yum.repos.d/rpmforge.repo`, set enabled to 0 under the rpmforge section:
+Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
 
   enabled = 0
 
-Then install the EPEL repository (http://fedoraproject.org/wiki/EPEL/FAQ). To do so, simply grab the latest EPEL rpm (version 6.5 at the time of this release), and install it :
-
-  wget http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-5.noarch.rpm
-  rpm -i epel-release-6-5.noarch.rpm
+Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-PathTools*,perl-File-Spec* on the section [rpmforge]
+Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
+Edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-Apache-Test* on the section [rpmforge]
+Edit /etc/yum.repos.d/openfusion.repo and add the line exclude = perl-Apache-Test* on the section [of].
 
 RHEL 6.x
 ^^^^^^^^
+
+NOTE: These are extra steps are required for RHEL 6 systems only. Derivatives such as CentOS or Scientific Linux don't need to take the extra steps.
 
 RedHat Enterprise Linux users need to take an additional setup step. If you are not using the RHN Subscription Management from RedHat you need to enable the optional channel by running the following as root:
 
@@ -262,7 +263,7 @@ For Debian squeeze, starting with 3.4.0, PacketFence is now providing an deb rep
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
 [options="compact"]
-* very easy installation
+* easy installation
 * everything is packaged as RPM (no more CPAN hassle)
 * easy upgrade
 
@@ -283,11 +284,11 @@ Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (DNS server, Database
 server, DHCP server, RADIUS server) using:
 
-  yum groupinstall --enablerepo=PacketFence,rpmforge Packetfence-complete
+  yum groupinstall --enablerepo=PacketFence,rpmforge,of Packetfence-complete
 
 Or, if you prefer, to install only the core PacketFence without all the external services, you can use:
 
-  yum install --enablerepo=PacketFence,rpmforge packetfence
+  yum install --enablerepo=PacketFence,rpmforge,of packetfence
 
 For Debian squeeze:
 
@@ -303,12 +304,6 @@ server, DHCP server, RADIUS server) using:
   sudo apt-get update
   sudo apt-get install packetfence
 
-Once installed, execute the installer and follow the instructions:
-
-  /usr/local/pf/installer.pl
-
-Once completed, PacketFence will be fully installed on your server. You are now ready to configure it.
-
 Configuration
 -------------
 
@@ -317,11 +312,19 @@ In this section, you'll learn how to configure PacketFence. PacketFence will use
 First Step
 ~~~~~~~~~~
 
-In order to properly begin the configuration of PacketFence, we strongly recommend to execute the configuration script located at `/usr/local/pf/configurator.pl`. This script will guide you through the process of creating a working PacketFence configuration file that is suitable to your needs.
+The first step after installing the necessary packages is the configuration step. PacketFence provides an helpful and detailed web-based configurator.
 
-The script will give you different avenues for configuration. Depending on what you want to achieve you answer the questions presented to you. The script will ask some more information about your network infrastructure, like the DNS servers, and the DHCP servers address, etc.
+Like mentioned at the end of the packages installation, fire up a web browser and go to http://@ip_packetfence:3000/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
 
-Keep in mind that the resulting PacketFence configuration will be located in `/usr/local/pf/conf/pf.conf` and `/usr/local/pf/conf/networks.conf` and it can always be adjusted by hand afterward.
+[options="compact"]
+* Step 1: Enforcement technique. You'll choose either vlan enforcement, inline enforcement or both;
+* Step 2: Network configuration. You'll be able to configure the network interfaces of the system as well as assigning the correct interfaces for each of the required types of the chosen enforcement technique(s);
+* Step 3: Database configuration. This step will create the PacketFence database and populate it with the correct structure. A MySQL user will also be created and assigned to the newly created database;
+* Step 4: General configuration. You will need to configure some of the basic PacketFence configuration parameters;
+* Step 5: Administrative user. This step will ask you to create an administrative user that will be able to access the web-based adminsitration interface once the services are functionals;
+* Step 6: Let's do this! See the status of your configuration and start your new NAC!
+
+NOTE: Keep in mind that the resulting PacketFence configuration will be located in `/usr/local/pf/conf/pf.conf` and `/usr/local/pf/conf/networks.conf` and it can always be adjusted by hand afterward.
 
 Web-based Administration Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -798,29 +801,8 @@ FreeRADIUS Configuration
 
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
-NOTE: Under Debian, the freeradius server is a dependency of PacketFence, so
-you don't have to install it. Just be careful, the configuration directory is
-under `/etc/freeradius`.
- 
-Install the following packages:
-
-[options="compact"]
-* packetfence-freeradius2
-
-In /etc/raddb/clients.conf
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-CAUTION: As of PacketFence 3.0, this step is now unnecessary. As you saw previously in this guide, we are now using the radiusSecret attribute in the switch configuration file.
-
-For PacketFence versions prior to 3.0, you will still use the RADIUS client flat file. Replace <...> with values useful to you. You need one client entry per network device.
-
-  client <useful_device_name> {
-    ipaddr    = <network_device_ip_address>
-    secret    = <radius secret>
-  }
-
-In /etc/raddb/packetfence.pm
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In /usr/local/pf/raddb/packetfence.pm
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure to set the required configuration parameters on top of the file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
 
@@ -828,21 +810,11 @@ Make sure to set the required configuration parameters on top of the file. Set t
   WS_USER     => 'webservice',
   WS_PASS     => 'password',
 
-In /etc/raddb/sql.conf
-^^^^^^^^^^^^^^^^^^^^^^
-
-Make sure to set the proper credentials to access the PacketFence database.
-
-  # Connection info:
-  server = "localhost"
-  port = 3306
-  login = "pf"
-  password = "pf"
 
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Replace `/etc/raddb/modules/mschap` with the following configuration: 
+Replace `/usr/local/pf/raddb/modules/mschap` with the following configuration: 
 
   mschap {
           use_mppe = yes
@@ -950,7 +922,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth`:
 Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Add your user's entries at the end of the `/etc/raddb/users` file with the following format:
+Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
 
   username Cleartext-Password := "password"
 
@@ -1311,7 +1283,7 @@ Blocking malicious activities with violations
 
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
-In order to be able to block malicious activities, you need to install and configure the SNORT IDS to talk with PacketFence.
+In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence.
 
 Snort
 ^^^^^
@@ -1327,6 +1299,21 @@ Configuration
 +++++++++++++
 
 PacketFence provides a basic `snort.conf` template that you may need to edit depending of the Snort version. The file is located in `/usr/local/pf/conf`. It is rarely necessary to change anything in that file to make Snort work and trap alerts. DO NOT edit the `snort.conf` located in `/usr/local/pf/var/conf`, all the modification will be destroyed on each PacketFence restart.
+
+Suricata
+^^^^^^^^
+
+Installation
+++++++++++++
+
+Since the suricata IDS is not packaged with the distros (except maybe Fedora, which we do not officially support), you need to build it the "old" way.
+
+The OISF provides a really well written how-to for that.  It's available here: https://redmine.openinfosecfoundation.org/projects/suricata/wiki/CentOS5
+
+Configuration
++++++++++++++
+
+PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
 
 Violations
 ^^^^^^^^^^
@@ -1388,7 +1375,9 @@ Also included in `violation.conf` is the defaults section. The defaults section 
   actions=email,log
   auto_enable=Y
   enable=N
-  grace=120
+  grace=120m
+  window=0
+  vclose=
   button_text=Enable Network
   snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
   vlan=isolationVlan
@@ -1399,7 +1388,14 @@ Number of times a host will be able to try and self remediate before they are lo
 `auto_enable`::
 Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.
 `grace`::
-Number of minutes before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
+`window`::
+Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can
+use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
+accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the
+current month.)
+`vclose`::
+When selecting the "close" action, triggering the violation will close the one you select in the vclose field.  This is an experimental workflow for Mobile Device Management (MDM).
 `button_text`::
 Text displayed on the violation form to hosts.
 `snort_rules`::
@@ -1466,11 +1462,19 @@ Using Nessus:
   [scan]
   engine=nessus
   host=127.0.0.1
-  nessus_clientfile=basic-policy.nessus
   nessus_clientpolicy=basic-policy
   pass=nessusUserPassword
   registration=enabled
   user=nessusUsername
+
+Of course the basic-policy must exist on the nessus server
+If you want to use a different nessus policy by category you have to ajust the settings like the following (if the policy doesn't exist, PacketFence will be use the default policy defined by nessus_clientpolicy):
+
+  [nessus_category_policy]
+  guest=guest_policy
+  wifi=wifi_policy
+
+A node who is register like a guest will be scanned by the guest_policy , etc ...
 
 Using OpenVAS:
 
@@ -1502,17 +1506,6 @@ Where `violationId` is either the ID of the Nessus plugin or the OID of the Open
 
 NOTE: Violations will trigger if the plugin is higher than a low severity vulnerability.
 
-NessusClient Integration
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-New since 1.8.3 is the ability to directly use the nessus command line client and `dot nessus` files. The `NessusClient` file format is documented at http://www.nessus.org/documentation/dot_nessus_file_format.pdf and can easily be generated using the official Nessus Client.
-
-You'll have to save your `dot nessus` file in the `/usr/local/pf/conf/nessus/` directory and specify its filename using the `scan.nessus_clientfile` configuration setting. You'll also have to specify your policy name using the `scan.nessus_clientpolicy` setting. After that, you can execute your scan using:
-
-  $ pfcmd schedule now <IP>
-
-NOTE: If you provide credentials in the `.nessus` file, you need to enable the "Store passwords as plain text" option in your Nessus Client.
-
 Scan on registration
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -1535,6 +1528,11 @@ If you are using the OpenVAS scanning engine:
 * The scanning server need to be able to reach PacketFence's Admin interface (on port 1443 by default) by its DNS entry. Otherwise PacketFence won't be notified of completed scans.
 * You must have a valid SSL certificate on your PacketFence server
 
+If you are using the Nessus scanning engine:
+
+[options="compact"]
+* You just have to change the host value by the Nessus server IP.
+ 
 RADIUS Accounting
 ~~~~~~~~~~~~~~~~~
 
@@ -1790,7 +1788,7 @@ By default, we turn SoH off. To enable its support, simply uncomment the followi
   soh=yes
   soh-virtual-server = "soh-server"
 
-Then make sure to set the required configuration parameters on top of the `/etc/raddb/packetfence-soh.pm` file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
+Then make sure to set the required configuration parameters on top of the `/usr/local/pf/raddb/packetfence-soh.pm` file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
 
   # FreeRADIUS to PacketFence communications (SOAP Server settings)
   WS_USER     => 'webservice',
@@ -1911,6 +1909,29 @@ For example, you may want to provide basic Internet access with a decent speed a
 To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
 
 CAUTION: The use of different billing tiers requires different category in PacketFence. Make sure to create those category first otherwise you will run into problems.
+
+Portal profiles
+~~~~~~~~~~~~~~~
+
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence introduced, in version 3.5, the concept of portal profiles which gives you this possibility. 
+
+When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to either pf.conf or pf.conf.defaults), except for the authentication which, if not set in the profile, will revert back to guests self-registration only.
+
+Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile.
+
+  [portal-profile name1]
+  filter = the name of the SSID for which you'd like to apply the profile
+  logo = the logo to be displayed on the various captive portal pages
+  auth = available options are the same as the default auth options. In case the field is empty, guest self-registration will be the only way to login
+  guest_self_reg = either enabled or disabled
+  guest_modes = the availables guest self-registration modes (sms|email|sponsor)
+  guest_category = the category that will be assigned to the self-registered guests
+  template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
+  billing_engine = either enabled or disabled
+  default_auth = the default authentication method that will be selectionned on the captive portal
+  category = the default category that will be assigned to users when they registerer
+
+CAUTION: If you set a custom template_path, make sure to copy over all of the default template files in the new custom folder. PacketFence will only render templates from the files in that custom folder if the value is setted. If files are missing, you'll be facing some error in templates generation. 
 
 Operating System Best Practices
 -------------------------------

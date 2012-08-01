@@ -1,0 +1,81 @@
+HOME            = ./ 
+RANDFILE        = $ENV::HOME/.rnd 
+
+############################################################################
+# These fields will be used to create the Vulture X509 Digital Certificate #
+#       Default Values are good for default VultureNG configuration        #
+############################################################################
+
+[ req_distinguished_name ] 
+
+C		= CA
+ST		= QC
+L		= Montreal
+O		= Inverse
+CN		= 127.0.0.1
+emailAddress	= support@inverse.ca
+
+############################################################################
+#    YOU DO NOT NEED TO MODIFY WHAT IS FOLLOWING, UNLESS YOU ARE A GURU    #
+############################################################################
+
+
+[ ca ] 
+default_ca      = ROOT 
+
+[ ROOT ] 
+certs           = $HOME/certificates 
+crl_dir         = $HOME/crl 
+crlnumber       = $HOME/crlnumber 
+database        = $HOME/index.txt 
+new_certs_dir   = $HOME/newcerts 
+serial          = $HOME/serial 
+crl             = $HOME/crl.pem 
+private_key     = $HOME/private/ca_key.pem
+certificate     = $HOME/private/ca_cert.pem 
+RANDFILE        = $HOME/private/.rand 
+x509_extensions = custom 
+default_days    = 3650
+default_crl_days= 90
+default_md      = SHA1
+preserve        = Yes
+policy          = policy_optional 
+
+[ policy_optional ] 
+C 		= optional 
+ST 		= optional 
+L 		= optional 
+O 		= optional 
+CN 		= optional 
+emailAddress 	= optional 
+
+[ req_attributes ] 
+
+[ req ] 
+distinguished_name      = req_distinguished_name 
+attributes              = req_attributes 
+x509_extensions         = custom 
+string_mask             = nombstr 
+prompt                  = no
+default_bits		= 2048
+
+[ crl_distribution ] 
+
+[ custom ] 
+subjectKeyIdentifier    = hash 
+authorityKeyIdentifier  = keyid:always,issuer:always 
+basicConstraints        = critical,CA: false 
+issuerAltName		= issuer:copy 
+#crlDistributionPoints  = @crl_distribution 
+keyUsage 		= digitalSignature, nonRepudiation, keyEncipherment
+extendedKeyUsage	= serverAuth
+nsCertType		= server
+
+[ v3_ca ]
+subjectKeyIdentifier	= hash
+authorityKeyIdentifier	= keyid:always,issuer:always
+basicConstraints	= critical,CA:true
+keyUsage		= critical, cRLSign, keyCertSign
+subjectAltName		= email:copy
+issuerAltName		= issuer:copy
+

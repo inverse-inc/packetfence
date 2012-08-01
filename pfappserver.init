@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# Init script for pfappserver (PacketFence Configurator)
+#
+# Written by David LaPorte <dlaporte@packetfence.org>
+# Adapted from script by Dag Wieers <dag@wieers.com>
+# Last changes: Dominik Gehl <dgehl@inverse.ca> 2009-04-06
+#
+# chkconfig: 2345 90 10
+# description: pfappserver for configuring PacketFence
+#
+PFAPPSERVER=pfappserver_server.pl
+PFAPPSERVER_DIR=/usr/local/pf/html/pfappserver/script/
+source /etc/rc.d/init.d/functions
+
+
+start() {
+	echo -n $"Starting pfappserver..."
+ 	iptables -I INPUT -p tcp --dport 3000 -j ACCEPT
+	$PFAPPSERVER_DIR$PFAPPSERVER 1>/dev/null 2>&1 &
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down pfappserver..."
+	kill -15 `pidof pfappserver_server.pl`
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+restart() {
+	echo -n $"Restarting pfappserver..."
+	stop
+	start
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	restart
+	;;
+  status)
+	pidof pfappserver_server.pl
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|status}"
+	RETVAL=1
+esac
+
+exit $RETVAL

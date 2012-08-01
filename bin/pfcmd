@@ -73,6 +73,7 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
+use pf::config::ui;
 use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
@@ -265,10 +266,7 @@ sub manage {
     my $id;
     $id = $cmd{manage_options}[2] if ( defined $cmd{manage_options}[2] );
     my $function = "manage_" . $option;
-    if ( $option eq "freemac" ) {
-        require pf::rawip;
-        pf::rawip::freemac($mac);
-    } elsif ( $option eq "register" ) {
+    if ( $option eq "register" ) {
         return 1 if ( !$id );
         my %params = format_assignment( @{ $cmd{assignment} } );
         require pf::node;
@@ -1228,7 +1226,7 @@ sub service {
             return 1;
         } else {
             if ( !pf::services::service_ctl( $service, "status" ) ) {
-                $command = "start";
+                $command = "restart";
             }
         }
     }
@@ -1532,11 +1530,18 @@ sub config {
     tie %documentation, 'Config::IniFiles',
         ( -file => $conf_dir . "/documentation.conf" )
         or $logger->logdie("Unable to open documentation.conf: $!");
-    tie %defaults, 'Config::IniFiles',
-        ( -file => $conf_dir . "/pf.conf.defaults" )
-        or $logger->logdie("Unable to open pf.conf.defaults: $!");
-    tie %myconfig, 'Config::IniFiles', ( -file => $conf_dir . "/pf.conf" )
-        or $logger->logdie("Unable to open pf.conf: $!");
+    tie %defaults, 'Config::IniFiles', ( -file => $default_config_file )
+        or $logger->logdie("Unable to open $default_config_file: $!");
+    # load config if it exists
+    if ( -e $config_file ) {
+        tie %myconfig, 'Config::IniFiles', ( -file => $config_file )
+            or $logger->logdie("Unable to open $config_file: $!");
+    }
+    # start with an empty file
+    else {
+        tie %myconfig, 'Config::IniFiles';
+        tied(%myconfig)->SetFileName($config_file);
+    }
 
     if ( lc($option) eq 'set' ) {
         if ($param =~ /^([^=]+)=(.+)?$/) {
@@ -2385,33 +2390,8 @@ sub format_assignment {
     return (%return);
 }
 
-# return the correct field order listed in ui.conf Display
-#
 sub field_order {
-    my %uiconfig;
-    tie %uiconfig, 'Config::IniFiles', ( -file => $conf_dir . "/ui.conf" )
-        or $logger->logdie("Unable to open ui.conf: $!");
-
-    my $command = join(" ", @ARGV );
-
-    my @fields;
-    # sorting section by longuest command to shortest one so that we do more complete matches first
-    foreach my $section ( sort { length($b) <=> length($a) } tied(%uiconfig)->Sections ) {
-
-        # skipping sections without command
-        next if (!defined($uiconfig{$section}->{command}));
-
-        if ($command =~ /^$uiconfig{$section}{'command'}/) {
-
-            foreach my $val ( split( /\s*,\s*/, $uiconfig{$section}{'display'} ) ) {
-                $val =~ s/^-//;
-                push @fields, $val;
-            }
-            last;
-        }
-    }
-    untie %uiconfig;
-    return (@fields);
+    return pf::config::ui->instance->field_order("@ARGV");
 }
 
 =head1 AUTHOR

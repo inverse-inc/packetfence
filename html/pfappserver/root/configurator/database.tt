@@ -1,0 +1,120 @@
+[% jsFiles = ['database'] -%]
+ <!-- root password reset -->
+  <div class="modal fade hide" id="modalRootPassword">
+    <div class="modal-header">
+      <h3>Set a MySQL root password</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="control-group">
+              <label class="control-label">[% l('Username') %]</label>
+              <div class="controls">
+                <input name="root_user" class="text" type="text" value="[% c.session.root_user | html %]">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">[% l('New Password') %]</label>
+              <div class="controls">
+                <input name="root_pass_new" class="text" type="password">
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input name="root_pass2_new" class="text" type="password" placeholder="Retype your password">
+              </div>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
+      </div>
+  </div>
+
+    <div class="container">
+      [% INCLUDE configurator/tracker.inc %]
+      <div class="row">
+        <div class="span3">
+          <div class="page-header step">
+            <h1>[% l('Step') %] [% step_index %]</h1>
+          </div>
+        </div>
+        <div class="span9">
+          <div class="page-header">
+            <h1>Database Configuration
+            <small>Create a user in your MySQL server</small></h1>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span3">
+          <div class="well">
+            <h3>Instructions</h3>
+            <p>PacketFence uses a MySQL database. On this page, you need to specify the root password to access the MySQL server to create an account specific to PacketFence and create the required database tables and indexes.</p>
+          </div>
+        </div>
+        <div class="span9">
+          <form name="database" class="form-horizontal">
+            <h3>Enter the MySQL root account credentials</h3>
+            <p class="help-block">If you don't know what's the current password of your MySQL installation, it is probably because you haven't set one. In this case, just enter the root username, which will mostly be 'root' without any password and click the 'Test' button. For security reasons, you'll be prompted to set one.</p><p></p>
+            <div class="control-group">
+              <label class="control-label" for="root_user">[% l('Username') %]</label>
+              <div class="controls">
+                <input id="root_user" class="text" type="text" value="[% c.session.root_user %]">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="root_password">[% l('Password') %]</label>
+              <div class="controls">
+                <input id="root_password" class="text" type="password">
+                <button type="submit" class="btn" id="testDatabase" href="[% c.uri_for('/db/test') %]">[% l('Test') %]</button>
+              </div>
+            </div>
+            <h3>[% l('Create the database') %]</h3>
+            <div class="control-group">
+              <label class="control-label" for="database">[% l('Name') %]</label>
+              <div class="controls">
+                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group[% IF c.session.completed.database %] success[% END %]">
+              <div class="controls">
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.database %] disabled[% END %]" id="createDatabase" href="[% c.uri_for('/db/create') %]">[% l('Create database and tables') %]</button>
+                [% IF c.session.completed.database %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+              </div>
+            </div>
+            <h3>Create a PacketFence account</h3>
+            <div class="control-group">
+              <label class="control-label" for="pf_user">[% l('Username') %]</label>
+              <div class="controls">
+                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="pf_password">[% l('Password') %]</label>
+              <div class="controls">
+                <input name="database.pass" class="text" type="password"[% IF c.session.completed.database %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.database %] disabled=""[% END %]>
+              </div>
+            </div>
+            <div class="control-group[% IF c.session.completed.database %] success[% END %]">
+              <div class="controls">
+                <button type="submit" class="btn btn-primary[% IF c.session.completed.database %] disabled[% END %]" id="assignUser" href="[% c.uri_for('/db/assign') %]">[% l('Create user') %]</button>
+                [% IF c.session.completed.database %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
+              </div>
+            </div>
+            <fieldset>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary pull-right" href="[% next_step %]">[% l('Continue') %] <i class="icon-circle-arrow-right icon-white"></i></button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+      <footer>
+        <p>&copy; Inverse 2012</p>
+      </footer>
+    </div><!--/container-->

@@ -5,6 +5,70 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to 3.5.0:
+
+    - Database schema update
+    New accounting violations and other violation related stuff needed some modifications
+    to the current database schema. Make sur you run the following to update
+    you schema EVEN IF YOU DON'T USE THE FEATURE:
+    mysql -u root -p pf -v < db/upgrade-3.3.0-3.5.0.sql
+
+    - Upgrade helper scripts
+    Very basic upgrade scripts for 3.5 were created in addons/upgrade/. See 
+    their POD doc for usage information:
+    perldoc addons/upgrade/to-3.5-pf.conf.pl 
+
+    - pf.conf interface gateway deprecated 
+    The gateway=... parameters under every network interface is no longer 
+    required. You will have to get rid of it (or run the above mentionned 
+    upgrade helper script).
+
+    - pf.conf's general.caching deprecated
+    The caching=... parameter under [general] is no longer required. You 
+    will have to get rid of it if you diverged from default configuration
+    which was disabled (or run the above mentionned upgrade helper script).
+
+    - Captive portal node status page removed
+    We deprecated a never used feature: /status inside the captive portal
+    who gave node information if the user was authenticated properly. This 
+    made little sense since portal access is denied from users since a long
+    time. This was a legacy from the deprecated ARP mode.
+
+    - Captive portal variables consumption
+    Captive portal generation methods now consume portalSession object rather than
+    cgi, session and other variables. Please make sure to adapt your custom code (if needed)
+    in lib/pf/web/custom.pm.
+
+    - RADIUS configuration is now in the PacketFence directory.  You may need
+    to import custom configuration from /etc/raddb to pf/raddb.  Note that
+    we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
+    conf/.
+
+    - Nessus scan XMLRPC
+    We made some changes in the way nessus scan is working.
+    We directly use the policy on the server and you no longuer have to declare
+    nessus_clientfile in pf.conf.
+    scan.nessus_clientfile parameter has also been dropped so make sure to adapt
+    your configuration accordingly.
+
+    - modified trigger type
+    Accounting violations trigger type TOT20GB1M has been renamed to TOT20GB1M.
+    
+    - pf.conf's trapping.registration now enabled by default
+    We changed this setting from disabled to enabled by default since we consider
+    that registration is a whole part of the process. It is still possible to disable
+    this setting by overriding it's default value in pf.conf.
+
+    - dropping installation.pl and configurator.pl
+    We dropped both the installation.pl and configurator.pl scripts in favor of the
+    newly implemented web based configurator. Make sure to pay attention to the directives
+    ate the end of the package installation.
+
+    - introduction of a new repository: OpenFusion
+    The use of perl Catalyst as a web engine for the new web platform required the introduction
+    of the OpenFusion repository. Make sure to take a quick look at the Administration Guide for
+    integration of this new repository.
+
 o Upgrading from a version prior to 3.3.0:
 
     - Database schema update

@@ -1,0 +1,24 @@
+/* bootstrap.css fix for larger top navbar */
+body {
+    padding-top: 60px;
+}
+.navbar .nav > li > a {
+    line-height: 30px;
+}
+#navbar .navbar-text {
+    line-height: 50px;
+}
+#navbar h6 {
+    margin: 0;
+    line-height: 48px;
+}
+.dropdown .caret {
+    margin-top: 13px;
+}
+/* bootstrap.css fix to remove padding surrounding sidebar */
+.sidebar-nav {
+  padding: 9px 0;
+}
+a.active {
+    color: #333;
+}

@@ -82,7 +82,6 @@
 /usr/local/pf/html/captive-portal/templates/error.html
 /usr/local/pf/html/captive-portal/templates/header.html
 /usr/local/pf/html/captive-portal/templates/release_with_xmlconfig.html
-/usr/local/pf/html/captive-portal/templates/status.html
 /usr/local/pf/html/captive-portal/templates/register_2.html
 /usr/local/pf/html/captive-portal/templates/login.html
 /usr/local/pf/html/captive-portal/templates/remediation.html
@@ -120,3 +119,6 @@
 /usr/local/pf/lib/pf/soh/custom.pm
 /usr/local/pf/lib/pf/vlan/custom.pm
 /usr/local/pf/lib/pf/web/custom.pm
+/usr/local/pf/raddb/sites-enabled/packetfence
+/usr/local/pf/raddb/sites-enabled/packetfence-soh
+/usr/local/pf/raddb/sites-enabled/packetfence-tunnel

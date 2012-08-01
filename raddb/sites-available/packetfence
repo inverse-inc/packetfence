@@ -1,0 +1,57 @@
+server packetfence {
+
+authorize {
+        suffix
+        preprocess
+        eap {
+                ok = return
+        }
+        files
+        expiration
+        logintime
+	packetfence
+}
+
+authenticate {
+        Auth-Type MS-CHAP {
+                mschap
+        }
+        eap
+}
+
+preacct {
+        preprocess
+        acct_unique
+        suffix
+        files
+}
+
+accounting {
+        detail
+        unix
+        sql
+        radutmp
+        attr_filter.accounting_response
+}
+
+session {
+        radutmp
+}
+
+post-auth {
+        exec
+        if (!EAP-Type || (EAP-Type != 21 && EAP-Type != 25)) {
+             packetfence
+        }
+        Post-Auth-Type REJECT {
+                attr_filter.access_reject
+        }
+}
+
+pre-proxy {
+}
+
+post-proxy {
+        eap
+}
+}

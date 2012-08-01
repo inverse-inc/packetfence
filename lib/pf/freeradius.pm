@@ -137,8 +137,8 @@ sub freeradius_populate_nas_config {
     $logger->debug("Starting to insert switches in radius_nas table for FreeRADIUS");
     foreach my $switch (sort keys %SwitchConfig) {
 
-        # we skip the 'default' entry
-        if ($switch eq 'default') { next; }
+        # we skip the 'default' entry or the local switch
+        if ($switch eq 'default' || $switch eq '127.0.0.1') { next; }
 
         # valid if switch's radiusSecret exists and is not all whitespace
         my $valid_sw_radiussecret = (

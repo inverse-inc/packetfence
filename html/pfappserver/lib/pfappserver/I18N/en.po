@@ -1,0 +1,162 @@
+# English translations for PACKAGE package.
+# Copyright (C) 2012 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Francis Lachapelle <flachapelle@inverse.ca>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2012-05-24 10:47-0400\n"
+"Last-Translator: Francis Lachapelle <flachapelle@inverse.ca>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: root/interface/get.tt:12
+msgid "inline"
+msgstr "Inline"
+
+#: root/interface/get.tt:12
+msgid "management"
+msgstr "Management"
+
+#: root/interface/get.tt:12
+msgid "other"
+msgstr "Other"
+
+#: root/interface/get.tt:12
+msgid "vlan-isolation"
+msgstr "Isolation"
+
+#: root/interface/get.tt:12
+msgid "vlan-registration"
+msgstr "Registration"
+
+#: root/configurator/networks.tt:95
+msgid "Actions"
+msgstr ""
+
+#: root/interface/get.tt:25
+msgid "Add VLAN"
+msgstr ""
+
+#: root/configurator/configuration.tt:48
+msgid "Alerting"
+msgstr ""
+
+#: root/configurator/networks.tt:25 root/configurator/networks.tt:60
+msgid "Cancel"
+msgstr ""
+
+#: root/configurator/admin.tt:54 root/configurator/configuration.tt:58 root/configurator/database.tt:111 root/configurator/enforcement.tt:62 root/configurator/networks.tt:120
+msgid "Continue"
+msgstr ""
+
+#: root/configurator/networks.tt:61
+msgid "Create"
+msgstr ""
+
+#: root/configurator/database.tt:81
+msgid "Create database and tables"
+msgstr ""
+
+#: root/configurator/database.tt:72
+msgid "Create the database"
+msgstr ""
+
+#: root/configurator/database.tt:105
+msgid "Create user"
+msgstr ""
+
+#: root/configurator/networks.tt:109
+msgid "DNS Server"
+msgstr ""
+
+#: root/configurator/services.tt:47
+msgid "Daemon"
+msgstr ""
+
+#: root/configurator/networks.tt:101
+msgid "Default Gateway"
+msgstr ""
+
+#: root/interface/get.tt:22
+msgid "Delete"
+msgstr ""
+
+#: root/interface/get.tt:21 root/interface/get.tt:24
+msgid "Edit"
+msgstr ""
+
+#: root/configurator/configuration.tt:26
+msgid "General"
+msgstr ""
+
+#: root/configurator/networks.tt:11 root/configurator/networks.tt:46 root/configurator/networks.tt:95
+msgid "IP Address"
+msgstr ""
+
+#: root/configurator/database.tt:74
+msgid "Name"
+msgstr ""
+
+#: root/configurator/networks.tt:17 root/configurator/networks.tt:52 root/configurator/networks.tt:95
+msgid "Netmask"
+msgstr ""
+
+#: root/configurator/networks.tt:91
+msgid "Network Interfaces"
+msgstr ""
+
+#: root/configurator/database.tt:16
+msgid "New Password"
+msgstr ""
+
+#: root/configurator/admin.tt:35 root/configurator/database.tt:66 root/configurator/database.tt:93
+msgid "Password"
+msgstr ""
+
+#: root/configurator/database.tt:29
+msgid "Save"
+msgstr ""
+
+#: root/configurator/networks.tt:26
+msgid "Save changes"
+msgstr ""
+
+#: root/configurator/networks.tt:95 root/configurator/services.tt:48
+msgid "Status"
+msgstr ""
+
+#: root/configurator/admin.tt:7 root/configurator/configuration.tt:7 root/configurator/database.tt:38 root/configurator/enforcement.tt:7 root/configurator/networks.tt:70 root/configurator/services.tt:21
+msgid "Step"
+msgstr ""
+
+#: root/configurator/admin.tt:48 root/configurator/database.tt:106 root/configurator/database.tt:82
+msgid "Success!"
+msgstr ""
+
+#: root/configurator/database.tt:69
+msgid "Test"
+msgstr ""
+
+#: root/configurator/networks.tt:95
+msgid "Type"
+msgstr ""
+
+#: root/configurator/admin.tt:29 root/configurator/database.tt:10 root/configurator/database.tt:60 root/configurator/database.tt:87
+msgid "Username"
+msgstr ""
+
+#: root/configurator/networks.tt:39
+msgid "Virtual LAN ID"
+msgstr ""
+
+#. (join(", ", @missing)
+#: lib/pfappserver/Controller/Configurator.pm:79
+msgid "You must assign an interface to the following types: %1"
+msgstr ""

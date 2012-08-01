@@ -51,7 +51,12 @@ Tested on iPod touch 4.2.1
 
 =cut
 sub generate_redirect {
-    my ( $cgi, $session ) = @_;
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     my $vars = { 
         'login_url' => "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
@@ -59,7 +64,7 @@ sub generate_redirect {
 
     print $cgi->header( 'text/html' );
     my $template = Template->new( { INCLUDE_PATH => [$WISPR_TEMPLATE_DIR], } );
-    $template->process( "redirect.tt", $vars );
+    $template->process( "redirect.tt", $vars ) || $logger->error($template->error());;
     exit;
 }
 
@@ -70,9 +75,11 @@ sub generate_redirect {
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011-2012 Inverse inc.
 
 =head1 LICENSE
 

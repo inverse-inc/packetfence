@@ -58,8 +58,12 @@ Will produce billing.html
 
 =cut
 sub generate_billing_page {
-    my ( $cgi, $session, $destination_url, $mac, $error_code ) = @_;
+    my ( $portalSession, $error_code ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # First blast of portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
@@ -70,11 +74,11 @@ sub generate_billing_page {
 
     my $vars = {
         i18n            => \&i18n,
-        destination_url => encode_entities($destination_url),
-        logo            => $Config{'general'}{'logo'},
+        destination_url => encode_entities($portalSession->getDestinationUrl),
+        logo            => $portalSession->getProfile->getLogo,
         list_help_info  => [
-            { name => i18n('IP'),   value => $cgi->remote_addr },
-            { name => i18n('MAC'),  value => $mac }
+            { name => i18n('IP'),   value => $portalSession->getClientIp },
+            { name => i18n('MAC'),  value => $portalSession->getClientMac }
         ],
     };
 
@@ -95,7 +99,9 @@ sub generate_billing_page {
 
     # Generating the page with the correct template
     $logger->info('generate_billing_page');
-    my $template = Template->new( { INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}], } );
+    my $template = Template->new({ 
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
     $template->process( "billing/billing.html", $vars ) || $logger->error($template->error());
     exit;
 }
@@ -104,8 +110,12 @@ sub generate_billing_page {
 
 =cut
 sub validate_billing_infos {
-    my ( $cgi, $session ) = @_;
+    my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger();
+
+    # First blast for portalSession object consumption
+    my $cgi = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
 
     # Fetch available tiers hash to check if the tier in param is ok
     my $billingObj = new pf::billing::custom();

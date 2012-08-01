@@ -9,32 +9,30 @@ wireless-profile.cgi
 Generates proper XML to provision Wi-Fi settings for mobile devices.
 
 =cut
+
 use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
 
-use CGI;
-use CGI::Carp qw( fatalsToBrowser );
-use CGI::Session;
 use Log::Log4perl;
 
+use pf::Portal::Session;
 use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
 
-
-my $cgi = new CGI;
-$cgi->charset("UTF-8");
-my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
+my $portalSession = pf::Portal::Session->new();
 
 # we only support Apple iOS for now
-pf::web::generate_apple_mobileconfig_provisioning_xml($cgi, $session);
+pf::web::generate_apple_mobileconfig_provisioning_xml($portalSession);
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
         
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
         
 Copyright (C) 2011, 2012 Inverse inc.

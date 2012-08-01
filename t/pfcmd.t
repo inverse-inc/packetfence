@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 90;
+use Test::More tests => 89;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -131,15 +131,6 @@ is_deeply(\%cmd, { 'command' => [ 'lookup', 'person', 'host/user' ] }, 'pfcmd lo
 # regression test for #1322
 %cmd = pf::pfcmd::parseCommandLine('lookup person "user name"');
 is_deeply(\%cmd, { 'command' => [ 'lookup', 'person', 'user name' ] }, 'pfcmd lookup person pid with space');
-
-%cmd = pf::pfcmd::parseCommandLine('manage freemac 00:00:00:00:00:01');
-is_deeply(\%cmd,
-          { 'command' 
-              => [ 'manage', 'freemac', '00:00:00:00:00:01' ],
-            'manage_options'
-              => [ 'freemac', '00:00:00:00:00:01' ]
-          },
-          'pfcmd manage freemac 00:00:00:00:00:01');
 
 %cmd = pf::pfcmd::parseCommandLine('networkconfig get all');
 is_deeply(\%cmd,

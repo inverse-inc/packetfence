@@ -11,6 +11,9 @@ pf::config - PacketFence configuration
 pf::config contains the code necessary to read and manipulate the 
 PacketFence configuration files.
 
+It automatically imports gazillions of globals into your namespace. You 
+have been warned.
+
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>, 
@@ -84,6 +87,7 @@ BEGIN {
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
         is_in_list
         $LOG4PERL_RELOAD_TIMER
+        load_config
     );
 }
 
@@ -236,31 +240,61 @@ our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
+# constants are done, let's load the configuration
 try {
-    readPfConfigFiles();
-    readNetworkConfigFile();
-    readFloatingNetworkDeviceFile();
+    load_config();
 } catch {
     chomp($_);
     $logger->logdie("Fatal error preventing configuration to load. Please review your configuration. Error: $_");
 };
 
+=head1 SUBROUTINES
+
 =over
+
+=item load_config
+
+Load configuration. Can be used to reload it too.
+
+WARNING: This has been recently introduced and was not tested with our 
+multi-threaded daemons.
+
+=cut
+sub load_config {
+
+    readPfConfigFiles();
+    readNetworkConfigFile();
+    readFloatingNetworkDeviceFile();
+}
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
 
 =cut
 sub readPfConfigFiles {
 
-    if ( -e $default_config_file ) {
+    # load default and override by local config (most common case)
+    if ( -e $default_config_file && -e $config_file ) {
         tie %Config, 'Config::IniFiles',
             (
             -file   => $config_file,
             -import => Config::IniFiles->new( -file => $default_config_file )
             );
-    } else {
+    }
+    # load default values only (local config doesn't exist)
+    elsif ( -e $default_config_file ) {
+        # import from default values then assign filename to save configuration file
+        tie %Config, 'Config::IniFiles', ( -import => Config::IniFiles->new( -file => $default_config_file ) );
+        tied(%Config)->SetFileName($config_file);
+    }
+    # load only local config
+    elsif ( -e $config_file ) {
         tie %Config, 'Config::IniFiles', ( -file => $config_file );
     }
+    # fail
+    else {
+        die ("No configuration files present.");
+    }
+
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
@@ -320,14 +354,12 @@ sub readPfConfigFiles {
 
         my $ip             = $Config{$interface}{'ip'};
         my $mask           = $Config{$interface}{'mask'};
-        my $gateway        = $Config{$interface}{'gateway'};
         my $type           = $Config{$interface}{'type'};
 
         if ( defined($ip) && defined($mask) ) {
             $ip   =~ s/ //g;
             $mask =~ s/ //g;
             $int_obj = new Net::Netmask( $ip, $mask );
-            $int_obj->tag( "gw",      $gateway );
             $int_obj->tag( "ip",      $ip );
             $int_obj->tag( "int",     $int );
         }
@@ -370,22 +402,47 @@ sub readPfConfigFiles {
     }
 
     # GUEST RELATED
+    # explode self-registration status and modes for easier and cached boolean tests for different services
+    $guest_self_registration{'enabled'} = $TRUE
+        if ( $Config{'registration'}{'guests_self_registration'} =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i );
 
-    # explode self-registration modes for easier and cached boolean tests
     $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE if is_in_list(
         $SELFREG_MODE_EMAIL,
         $Config{'guests_self_registration'}{'modes'}
     );
-
     $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE if is_in_list(
         $SELFREG_MODE_SMS,
         $Config{'guests_self_registration'}{'modes'}
     );
-
     $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE if is_in_list(
         $SELFREG_MODE_SPONSOR,
         $Config{'guests_self_registration'}{'modes'}
     );
+
+    # check for portal profile guest self registration options in case they're disabled in default profile
+    foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
+        # marking guest_self_registration as globally enabled if needed by one of the portal profiles
+        if ( (defined($Config{$portalprofile}{'guest_self_reg'})) && 
+             ($Config{$portalprofile}{'guest_self_reg'} =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i) ) {
+            $guest_self_registration{'enabled'} = $TRUE;
+        }
+
+        # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
+        # no auth method == guest self registration
+        if ( !defined($Config{$portalprofile}{'auth'}) ) {
+            $guest_self_registration{'enabled'} = $TRUE;
+        }
+
+        # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
+        if ( defined($Config{$portalprofile}{'guest_modes'}) ) {
+            $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE
+                if is_in_list($SELFREG_MODE_EMAIL, $Config{$portalprofile}{'guest_modes'});
+            $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE
+                if is_in_list($SELFREG_MODE_SMS, $Config{$portalprofile}{'guest_modes'});
+            $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE
+                if is_in_list($SELFREG_MODE_SPONSOR, $Config{$portalprofile}{'guest_modes'});
+        }
+    }
 
     _load_captive_portal();
 }
@@ -714,7 +771,7 @@ Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2011 Inverse, inc.
+Copyright (C) 2009-2012 Inverse, inc.
 
 =head1 LICENSE
 

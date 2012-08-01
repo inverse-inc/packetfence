@@ -1,0 +1,29 @@
+[% PROCESS macros.inc -%]
+           [% FOREACH i IN interfaces.keys.sort %]
+            <tr>
+              <td>[% interfaces.$i.name %][% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
+              <td>[% interfaces.$i.ipaddress %]</td>
+              <td>[% interfaces.$i.netmask %]</td>
+              <td>[% IF interfaces.$i.running %]<a class="btn btn-mini btn-success btn-toggle" toggle-hover="Disable" toggle-hover-else="Enable" toggle-value="Disabled" toggle-value-else="Enabled" interface="[% i %]" toggle-href="#up" href="#down">Enabled</a>[% ELSE %]<a class="btn btn-mini btn-toggle" toggle-hover="Enable" toggle-hover-else="Disable" toggle-value="Enabled" toggle-value-else="Disabled" interface="[% i %]" toggle-href="#down" href="#up">Disabled</a>[% END %]</td>
+              <td class="control-group">
+                <select class="span2" name="type" interface="[% i %]">
+                  <option value="none">None</option>
+                  [% FOREACH type IN types -%]
+                  <option value="[% type %]"
+                      [%- IF interfaces_types.$i == type -%] selected=""[%- END -%]
+                      [%- IF type == 'other' -%] disabled[%- END -%]
+                      >[% l(type) %]</option>
+                  [% END -%]
+                </select>
+              </td>
+              <td>
+                [% IF interfaces.$i.vlan -%]
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">[% l('Edit') %]</a>
+                <a class="btn btn-mini btn-danger" interface="[% i %]" href="#deleteVlan">[% l('Delete') %]</a>
+                [% ELSE -%]
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalEditInterface">[% l('Edit') %]</a>
+                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="#modalCreateVlan">[% l('Add VLAN') %]</a>
+                [% END -%]
+              </td>
+            </tr>
+            [% END -%]

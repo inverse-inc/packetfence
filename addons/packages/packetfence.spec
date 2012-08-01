@@ -50,7 +50,11 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.
 Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
 %endif
 
-BuildRequires: gettext, httpd, rpm-macros-rpmforge
+# Log related globals
+%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
+%global logdir /usr/local/pf/logs
+
+BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -63,11 +67,15 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
 Requires: dhcp, bind
+# FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
+%{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
+%{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
+Requires: make
 # php-pear-Log required not php-pear, fixes #804
 Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
-Requires: mysql, perl(DBD::mysql)
+Requires: mysql, mysql-server, perl(DBD::mysql)
 Requires: perl >= 5.8.8, perl-suidperl
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
@@ -91,7 +99,7 @@ Requires: perl(Time::HiRes)
 Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
-Requires: perl-libwww-perl
+Requires: perl-libwww-perl, perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.11
@@ -101,7 +109,6 @@ Requires: perl(Log::Log4perl) >= 1.11
 Requires: perl(Net::Appliance::Session) = 1.36
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::Frame), perl(Net::Frame::Simple)
 Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
 Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
@@ -115,9 +122,10 @@ Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
-Requires: perl(Net::Write)
 Requires: perl(Parse::Nessus::NBE)
 Requires: perl(Parse::RecDescent)
+# for nessus scan, this version add the NBE download (inverse patch)
+Requires: perl(Net::Nessus::XMLRPC) >= 0.40
 # Note: portability for non-x86 is questionnable for Readonly::XS
 Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
@@ -147,6 +155,29 @@ Requires: perl(Text::CSV_XS)
 # BILLING ENGINE
 Requires: perl(LWP::UserAgent)
 Requires: perl(HTTP::Request::Common)
+# Catalyst
+Requires: perl(Catalyst::Runtime), perl(Catalyst::Plugin::ConfigLoader)
+Requires: perl(Catalyst::Plugin::Static::Simple), perl(Catalyst::Action::RenderView)
+Requires: perl(Config::General), perl(Catalyst::Plugin::StackTrace)
+Requires: perl(Catalyst::Plugin::Session), perl(Catalyst::Plugin::Session::Store::File)
+Requires: perl(Catalyst::Plugin::Session::State::Cookie)
+Requires: perl(Catalyst::Plugin::I18N)
+Requires: perl(Catalyst::View::TT)
+Requires: perl(Catalyst::View::JSON), perl(Log::Log4perl::Catalyst)
+Requires: perl(Catalyst::Plugin::Authentication)
+Requires: perl(Catalyst::Authentication::Credential::HTTP)
+Requires: perl(Catalyst::Authentication::Store::Htpasswd)
+Requires: perl(Catalyst::Controller::HTML::FormFu)
+Requires: perl(Params::Validate) >= 0.97
+# for Catalyst stand-alone server
+Requires: perl(Catalyst::Devel)
+# these are probably missing dependencies for the above. 
+# I shall file upstream tickets to openfusion before we integrate
+Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
+Requires: perl(MooseX::Types::LoadableClass)
+# configuration-wizard
+Requires: perl(IO::Interface::Simple)
+Requires: vconfig
 #
 # TESTING related
 #
@@ -181,17 +212,6 @@ Summary: Files needed for sending snort alerts to packetfence
 The packetfence-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
-
-%package freeradius2
-Group: System Environment/Daemons
-%{?el5:Requires: freeradius2, freeradius2-perl freeradius2-mysql}
-%{?el6:Requires: freeradius, freeradius-perl freeradius-mysql}
-Requires: perl(SOAP::Lite)
-Summary: Configuration pack for FreeRADIUS 2
-
-%description freeradius2
-The freeradius2-packetfence package contains the files needed to
-make FreeRADIUS properly interact with PacketFence
 
 %prep
 %setup -q
@@ -232,15 +252,17 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
+%{__install} -D -m0755 pfappserver.init $RPM_BUILD_ROOT%{_initrddir}/pfappserver
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/logs
+%{__install} -d $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
@@ -249,10 +271,8 @@ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
-cp -r addons/802.1X/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/freeradius-integration/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -267,6 +287,7 @@ cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
+cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
 #pfdetect_remote
 mv addons/pfdetect_remote/initrd/pfdetectd $RPM_BUILD_ROOT%{_initrddir}/
 mv addons/pfdetect_remote/sbin/pfdetect_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
@@ -276,25 +297,7 @@ rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
-#freeradius2-packetfence
-%{__install} -d $RPM_BUILD_ROOT/etc/raddb
-%{__install} -d $RPM_BUILD_ROOT/etc/raddb/modules
-%{__install} -d $RPM_BUILD_ROOT/etc/raddb/sites-available
-%{__install} -d $RPM_BUILD_ROOT/etc/raddb/sql/mysql
-cp -r addons/freeradius-integration/radiusd.conf.pf $RPM_BUILD_ROOT/etc/raddb
-cp -r addons/freeradius-integration/eap.conf.pf $RPM_BUILD_ROOT/etc/raddb
-cp -r addons/freeradius-integration/users.pf $RPM_BUILD_ROOT/etc/raddb
-cp -r addons/freeradius-integration/modules/perl.pf $RPM_BUILD_ROOT/etc/raddb/modules
-cp -r addons/freeradius-integration/sql.conf.pf $RPM_BUILD_ROOT/etc/raddb
-cp -r addons/freeradius-integration/sql/mysql/packetfence.conf $RPM_BUILD_ROOT/etc/raddb/sql/mysql
-cp -r addons/soh/packetfence-soh.pm $RPM_BUILD_ROOT/etc/raddb
-cp -r addons/802.1X/packetfence.pm $RPM_BUILD_ROOT/etc/raddb
-cp -r addons/freeradius-integration/sites-available/packetfence $RPM_BUILD_ROOT/etc/raddb/sites-available
-cp -r addons/freeradius-integration/sites-available/packetfence-soh $RPM_BUILD_ROOT/etc/raddb/sites-available
-cp -r addons/freeradius-integration/sites-available/packetfence-tunnel $RPM_BUILD_ROOT/etc/raddb/sites-available
-#end
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
-cp -r configurator.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
 cp -r docs $RPM_BUILD_ROOT/usr/local/pf/
@@ -303,12 +306,15 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/docbook
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
-cp -r installer.pl $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
 cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
 cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
+# logfiles
+for LOG in %logfiles; do
+    touch $RPM_BUILD_ROOT%logdir/$LOG
+done
 
 #start create symlinks
 curdir=`pwd`
@@ -380,6 +386,27 @@ fi
 %post
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
+echo "Adding pfappserver startup script"
+/sbin/chkconfig --add pfappserver
+
+#Check if log files exist and create them with the correct owner
+for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
+do
+if [ ! -e /usr/local/pf/logs/$fic_log ]; then
+  touch /usr/local/pf/logs/$fic_log
+  chown pf.pf /usr/local/pf/logs/$fic_log
+fi
+done
+
+#Make ssl certificate
+if [ ! -f /usr/local/pf/conf/ssl/server.crt ]; then
+    openssl req -x509 -new -nodes -days 365 -batch\
+    	-out /usr/local/pf/conf/ssl/server.crt\
+    	-keyout /usr/local/pf/conf/ssl/server.key\
+    	-nodes -config /usr/local/pf/conf/openssl.cnf
+fi
+
+
 for service in snortd httpd snmptrapd
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
@@ -393,59 +420,24 @@ if [ -e /etc/logrotate.d/snort ]; then
   rm -f /etc/logrotate.d/snort
 fi
 
-echo Installation complete
-#TODO: consider renaming installer.pl to setup.pl?
-echo "  * Please cd /usr/local/pf && ./installer.pl to finish installation and configure PF"
-
-%post remote-snort-sensor
-echo "Adding PacketFence remote Snort Sensor startup script"
-/sbin/chkconfig --add pfdetectd
-
-%post freeradius2
-#Make Backups
-cp /etc/raddb/radiusd.conf /etc/raddb/radiusd.conf.pfsave   
-chown root:radiusd /etc/raddb/radiusd.conf.pfsave
-
-cp /etc/raddb/eap.conf /etc/raddb/eap.conf.pfsave      
-chown root:radiusd /etc/raddb/eap.conf.pfsave
-
-cp /etc/raddb/users /etc/raddb/users.pfsave
-chown root:radiusd /etc/raddb/users.pfsave
-
-cp /etc/raddb/sql.conf /etc/raddb/sql.conf.pfsave
-chown root:radiusd /etc/raddb/sql.conf.pfsave
-
-cp /etc/raddb/modules/perl /etc/raddb/modules-perl.pfsave
-chown root:radiusd /etc/raddb/modules-perl.pfsave
-
-#Copy dummy config to the real one
-mv /etc/raddb/radiusd.conf.pf /etc/raddb/radiusd.conf
-mv /etc/raddb/eap.conf.pf /etc/raddb/eap.conf
-mv /etc/raddb/users.pf /etc/raddb/users
-mv /etc/raddb/sql.conf.pf /etc/raddb/sql.conf
-mv /etc/raddb/modules/perl.pf /etc/raddb/modules/perl
-
-#Create symlinks for virtual hosts
-if [ ! -f /etc/raddb/sites-enabled/packetfence ]; then
-	ln -s /etc/raddb/sites-available/packetfence /etc/raddb/sites-enabled/packetfence
-fi
-if [ ! -f /etc/raddb/sites-enabled/packetfence-soh ]; then
-        ln -s /etc/raddb/sites-available/packetfence-soh /etc/raddb/sites-enabled/packetfence-soh
-fi
-if [ ! -f /etc/raddb/sites-enabled/packetfence-tunnel ]; then
-	ln -s /etc/raddb/sites-available/packetfence-tunnel /etc/raddb/sites-enabled/packetfence-tunnel
-fi
-
-if [ ! -f /etc/raddb/certs/dh ]; then
-  echo "Bulding default RADIUS certificates..."
-  cd /etc/raddb/certs/
-  make
+#Check if RADIUS have a dh
+if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+  echo "Building default RADIUS certificates..."
+  cd /usr/local/pf/raddb/certs
+  make dh
 else
   echo "DH already exists, won't touch it!"
 fi
 
-echo Installation complete.  Make sure you configure packetfence.pm, and restart Radius....
+#Start pfappserver
+service pfappserver start
 
+echo Installation complete
+echo "  * Please fire up your Web browser and go to http://@ip_packetfence:3000/configurator to complete your PacketFence configuration."
+
+%post remote-snort-sensor
+echo "Adding PacketFence remote Snort Sensor startup script"
+/sbin/chkconfig --add pfdetectd
 
 %preun
 if [ $1 -eq 0 ] ; then
@@ -458,19 +450,6 @@ if [ $1 -eq 0 ] ; then
         /sbin/service pfdetectd stop &>/dev/null || :
         /sbin/chkconfig --del pfdetectd
 fi
-
-%preun freeradius2
-# Remove custom configs and put back the right one
-mv /etc/raddb/radiusd.conf.pfsave /etc/raddb/radiusd.conf   
-mv /etc/raddb/eap.conf.pfsave /etc/raddb/eap.conf       
-mv /etc/raddb/users.pfsave /etc/raddb/users
-mv /etc/raddb/sql.conf.pfsave /etc/raddb/sql.conf
-mv /etc/raddb/modules-perl.pfsave /etc/raddb/modules/perl
-
-# Remove symnlinks
-rm -f /etc/raddb/sites-enabled/packetfence 
-rm -f /etc/raddb/sites-enabled/packetfence-soh
-rm -f /etc/raddb/sites-enabled/packetfence-tunnel
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -495,6 +474,7 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
+%attr(0755, root, root) %{_initrddir}/pfappserver
 %dir                    %{_sysconfdir}/logrotate.d
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
@@ -502,15 +482,10 @@ fi
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
-%dir                    /usr/local/pf/addons/802.1X
-%doc                    /usr/local/pf/addons/802.1X/README
-%attr(0755, pf, pf)     /usr/local/pf/addons/802.1X/packetfence.pm
 %dir                    /usr/local/pf/addons/captive-portal/
                         /usr/local/pf/addons/captive-portal/*
 %dir                    /usr/local/pf/addons/dev-helpers/
                         /usr/local/pf/addons/dev-helpers/*
-%dir                    /usr/local/pf/addons/freeradius-integration/
-                        /usr/local/pf/addons/freeradius-integration/*
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
@@ -521,6 +496,7 @@ fi
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/snort
+%attr(0755, pf, pf)     /usr/local/pf/addons/snort/update_rules.pl
                         /usr/local/pf/addons/snort/oinkmaster.conf
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
 %dir                    /usr/local/pf/addons/soh
@@ -585,11 +561,16 @@ fi
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
 %config(noreplace)      /usr/local/pf/conf/networks.conf
+%config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
 #%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
 #%config                 /usr/local/pf/conf/services.conf
+%dir			/usr/local/pf/conf/radiusd
+%config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
+%config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
+%config(noreplace)	/usr/local/pf/conf/radiusd/sql.conf
 %dir                    /usr/local/pf/conf/snort
 %config(noreplace)      /usr/local/pf/conf/snort/classification.config
 %config(noreplace)      /usr/local/pf/conf/snort/local.rules
@@ -614,6 +595,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
 %config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
+%config(noreplace)      /usr/local/pf/conf/suricata.yaml
 %dir                    /usr/local/pf/conf/templates
 %config(noreplace)      /usr/local/pf/conf/templates/*
 %config                 /usr/local/pf/conf/ui.conf
@@ -621,7 +603,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/ui-global.conf
 %dir                    /usr/local/pf/conf/users
 %config(noreplace)      /usr/local/pf/conf/violations.conf
-%attr(0755, pf, pf)     /usr/local/pf/configurator.pl
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
@@ -657,58 +638,36 @@ fi
 %config                 /usr/local/pf/html/captive-portal/wispr/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
-%attr(0755, pf, pf)     /usr/local/pf/installer.pl
-%dir                    /usr/local/pf/lib
-%dir                    /usr/local/pf/lib/HTTP
-                        /usr/local/pf/lib/HTTP/BrowserDetect.pm
-%dir                    /usr/local/pf/lib/IPTables/
-                        /usr/local/pf/lib/IPTables/Interface.pm
-%dir                    /usr/local/pf/lib/IPTables/Interface/
-                        /usr/local/pf/lib/IPTables/Interface/Lock.pm
-%dir                    /usr/local/pf/lib/pf
-                        /usr/local/pf/lib/pf/*.pm
-%dir                    /usr/local/pf/lib/pf/billing
-                        /usr/local/pf/lib/pf/billing/constants.pm
+                        /usr/local/pf/html/pfappserver/
+                        /usr/local/pf/lib
 %config(noreplace)      /usr/local/pf/lib/pf/billing/custom.pm
-%dir                    /usr/local/pf/lib/pf/billing/gateway
-                        /usr/local/pf/lib/pf/billing/gateway/*.pm
-%dir                    /usr/local/pf/lib/pf/floatingdevice
 %config(noreplace)      /usr/local/pf/lib/pf/floatingdevice/custom.pm
-%dir                    /usr/local/pf/lib/pf/inline
 %config(noreplace)      /usr/local/pf/lib/pf/inline/custom.pm
-%dir                    /usr/local/pf/lib/pf/lookup
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/node.pm
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/Portal
+                        /usr/local/pf/lib/pf/Portal/*
 %dir                    /usr/local/pf/lib/pf/radius
                         /usr/local/pf/lib/pf/radius/constants.pm
 %config(noreplace)      /usr/local/pf/lib/pf/radius/custom.pm
-%dir                    /usr/local/pf/lib/pf/roles
 %config(noreplace)      /usr/local/pf/lib/pf/roles/custom.pm
-%dir                    /usr/local/pf/lib/pf/scan
-                        /usr/local/pf/lib/pf/scan/*
-%dir                    /usr/local/pf/lib/pf/services
-                        /usr/local/pf/lib/pf/services/*
-%dir                    /usr/local/pf/lib/pf/SNMP
-                        /usr/local/pf/lib/pf/SNMP/*
-%dir                    /usr/local/pf/lib/pf/soh
 %config(noreplace)      /usr/local/pf/lib/pf/soh/custom.pm
-%dir                    /usr/local/pf/lib/pf/util
-                        /usr/local/pf/lib/pf/util/*
-%dir                    /usr/local/pf/lib/pf/vlan
-                        /usr/local/pf/lib/pf/vlan/*.pm
 %config(noreplace)      /usr/local/pf/lib/pf/vlan/custom.pm
-%dir                    /usr/local/pf/lib/pf/web
-                        /usr/local/pf/lib/pf/web/*.pl
-                        /usr/local/pf/lib/pf/web/auth.pm
-                        /usr/local/pf/lib/pf/web/billing.pm
 %config(noreplace)      /usr/local/pf/lib/pf/web/custom.pm
-                        /usr/local/pf/lib/pf/web/guest.pm
-                        /usr/local/pf/lib/pf/web/util.pm
-                        /usr/local/pf/lib/pf/web/wispr.pm
-                        /usr/local/pf/lib/pf/web/release.pm
 %dir                    /usr/local/pf/logs
+# logfiles
+%ghost                  %logdir/packetfence.log
+%ghost                  %logdir/snmptrapd.log
+%ghost                  %logdir/access_log
+%ghost                  %logdir/error_log
+%ghost                  %logdir/admin_access_log
+%ghost                  %logdir/admin_error_log
+%ghost                  %logdir/admin_debug_log
+%ghost                  %logdir/pfdetect
+%ghost                  %logdir/pfmon
+%ghost                  %logdir/pfredirect
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
@@ -723,6 +682,29 @@ fi
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/var/named
+%dir			/usr/local/pf/raddb
+			/usr/local/pf/raddb/*
+%config			/usr/local/pf/raddb/clients.conf
+%config			/usr/local/pf/raddb/packetfence.pm
+%attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence.pm
+%config			/usr/local/pf/raddb/packetfence-soh.pm
+%attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence-soh.pm
+%config			/usr/local/pf/raddb/proxy.conf
+%config			/usr/local/pf/raddb/users
+%config			/usr/local/pf/raddb/modules/mschap
+%config                 /usr/local/pf/raddb/modules/perl
+%config			/usr/local/pf/raddb/sites-available/packetfence
+%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence
+%config		        /usr/local/pf/raddb/sites-available/packetfence-soh
+%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-soh
+%config		        /usr/local/pf/raddb/sites-available/packetfence-tunnel
+%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-tunnel
+%config                 /usr/local/pf/raddb/sites-enabled/packetfence
+%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence
+%config                 /usr/local/pf/raddb/sites-enabled/packetfence-soh
+%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-soh
+%config                 /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
+%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
@@ -739,30 +721,25 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
 
-%files freeradius2
-%defattr(0640, root, radiusd)
-
-%config                                    /etc/raddb/radiusd.conf.pf 
-%config                                    /etc/raddb/eap.conf.pf
-%config                                    /etc/raddb/users.pf
-%config                                    /etc/raddb/sql.conf.pf
-%config                                    /etc/raddb/modules/perl.pf
-%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence.pm
-%attr(0755, -, radiusd) %config(noreplace) /etc/raddb/packetfence-soh.pm
-%config                                    /etc/raddb/sql/mysql/packetfence.conf
-%config(noreplace)                         /etc/raddb/sites-available/packetfence
-%config(noreplace)                         /etc/raddb/sites-available/packetfence-soh
-%config(noreplace)                         /etc/raddb/sites-available/packetfence-tunnel
-
 %changelog
+* Thu Jul 12 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding some RADIUS deps
+
 * Mon Jun 18 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.4.1-1
 - New release 3.4.1
 
 * Wed Jun 13 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.4.0-1
 - New release 3.4.0
 
+* Wed Apr 25 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Changing directory for raddb configuration
+
 * Thu Apr 23 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.2-1
 - New release 3.3.2
+
+* Tue Apr 17 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Dropped configuration package for FR.  We now have everything
+in /usr/local/pf
 
 * Thu Apr 16 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.3.1-1
 - New release 3.3.1

@@ -120,7 +120,7 @@ sub generate_httpd_conf {
     # Guest related URLs allowed through Apache ACL's
     $tags{'allowed_from_all_urls'} = '';
     # /signup and /preregister if pre-registration is allowed
-    my $guest_regist_allowed = isenabled($Config{'registration'}{'guests_self_registration'});
+    my $guest_regist_allowed = $guest_self_registration{'enabled'};
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
         # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 

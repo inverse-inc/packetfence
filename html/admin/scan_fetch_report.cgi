@@ -54,7 +54,7 @@ try {
     }
     else {
         $logger->info("Request to fetch a scan report with unrecognized or expired scan id: $params{'scanid'}");
-        pf::web::generate_error_page($cgi, $session, i18n("The scan report code provided is invalid or expired."));
+        pf::web::generate_admin_error_page($cgi, $session, i18n("The scan report code provided is invalid or expired."));
     }
 
 } catch {

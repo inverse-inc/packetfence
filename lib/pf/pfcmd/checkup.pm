@@ -96,9 +96,11 @@ sub sanity_check {
     if ( isenabled($Config{'services'}{'radiusd'} ) ) {
         freeradius();
     }
-
+    
     if ( isenabled($Config{'trapping'}{'detection'}) ) {
-        ids_snort();
+        ids();
+
+        #TODO Suricata check
     }
 
     scan() if ( lc($Config{'scan'}{'engine'}) ne "none" );
@@ -117,6 +119,7 @@ sub sanity_check {
     permissions();
     violations();
     switches();
+    portal_profiles();
     unsupported();
 
     return @problems;
@@ -147,7 +150,7 @@ sub interfaces_defined {
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
 
         if (!defined($int_conf{'type'}) || $int_conf{'type'} !~ /$int_with_no_config_required_regexp/) {
-            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'} || !defined $int_conf{'gateway'}) {
+            if (!defined $int_conf{'ip'} || !defined $int_conf{'mask'}) {
                 add_problem( $FATAL, "incomplete network information for $interface" );
             }
         }
@@ -183,13 +186,11 @@ sub interfaces {
     foreach my $interface (@network_interfaces) {
         my $device = "interface " . $interface;
 
-        if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'}
-            && $Config{$device}{'gateway'} && $Config{$device}{'type'})
-            && !$seen{$interface}) {
-                add_problem( $FATAL, 
-                    "Incomplete network information for $device. " .
-                    "IP, network mask, gateway and type required."
-                );
+        if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'} && $Config{$device}{'type'}) && !$seen{$interface}) {
+            add_problem( $FATAL, 
+                "Incomplete network information for $device. " .
+                "IP, network mask and type required."
+            );
         }
         $seen{$interface} = 1;
 
@@ -228,31 +229,41 @@ sub freeradius {
 }
 
 
-=item ids_snort
+=item ids
 
-Validation related to the Snort IDS usage 
+Validation related to the Snort/Suricata IDS usage 
 
 =cut
-sub ids_snort {
+sub ids {
 
-    # make sure a monitor device is present if snort is enabled
+    # make sure a monitor device is present if trapping.detection is enabled
     if ( !$monitor_int ) {
         add_problem( $FATAL, 
-            "monitor interface not defined, please disable trapping.dectection " . 
+            "monitor interface not defined, please disable trapping.detection " . 
             "or set an interface type=...,monitor in pf.conf"
         );
     }
 
-    # make sure named pipe 'alert' is present if snort is enabled
-    my $snortpipe = "$install_dir/var/alert";
-    if ( !-p $snortpipe ) {
-        if ( !POSIX::mkfifo( $snortpipe, oct(666) ) ) {
-            add_problem( $FATAL, "snort alert pipe ($snortpipe) does not exist and unable to create it" );
+    # make sure named pipe 'alert' is present if trapping.detection is enabled
+    my $alertpipe = "$install_dir/var/alert";
+    if ( !-p $alertpipe ) {
+        if ( !POSIX::mkfifo( $alertpipe, oct(666) ) ) {
+            add_problem( $FATAL, "IDS alert pipe ($alertpipe) does not exist and unable to create it" );
         }
     }
 
-    if ( !-x $Config{'services'}{'snort_binary'} ) {
+    # make sure trapping.detection_engine=snort|suricata
+    if ( $Config{'trapping'}{'detection_engine'} ne 'snort' && $Config{'trapping'}{'detection_engine'} ne 'suricata' ) {
+        add_problem( $FATAL,
+            "Detection Engine (trapping.detection_engine) needs to be either snort or suricata."
+        );
+    }
+
+    if ( $Config{'trapping'}{'detection_engine'} eq "snort" && !-x $Config{'services'}{'snort_binary'} ) {
         add_problem( $FATAL, "snort binary is not executable / does not exist!" );
+    }
+    elsif ( $Config{'trapping'}{'detection_engine'} eq "suricata" && !-x $Config{'services'}{'suricata_binary'} ) {
+        add_problem( $FATAL, "suricata binary is not executable / does not exist!" );
     }
 
 }
@@ -303,15 +314,6 @@ Configuration validation of the network portion of the config
 
 =cut
 sub network {
-
-    # network size warning
-    my $internal_total;
-    foreach my $internal_net (@internal_nets) {
-        if ( $internal_net->bits() < 16 && isenabled( $Config{'general'}{'caching'} ) ) {
-            add_problem( $WARN, "network $internal_net is larger than a /16 - you should disable general.caching!" );
-        }
-        $internal_total += $internal_net->size();
-    }
 
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
@@ -536,6 +538,11 @@ sub registration {
 # TODO Consider moving to a test
 sub is_config_documented {
 
+    if (!-e $conf_dir . '/pf.conf') {
+        add_problem($WARN, 'We have been unable to load your configuration. Are you sure you ran configurator.pl?');
+        return;
+    }
+
     #compare configuration with documentation
     tie my %myconfig, 'Config::IniFiles', (
         -file   => $config_file,
@@ -596,7 +603,7 @@ sub is_config_documented {
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
         next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
-                  || ($section =~ /^(services|interface)/));
+                  || ($section =~ /^(services|interface|portal-profile|nessus_category_policy)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $documentation{"$section.$item"} ) ) {
@@ -968,6 +975,28 @@ sub unsupported {
     # This was not implemented due to a time constraint. We can fix it.
     if (isenabled($Config{'guests_self_registration'}{'preregistration'}) && $guest_self_registration{$SELFREG_MODE_SMS}) {
         add_problem( $WARN, "Registering by SMS doesn't work with preregistration enabled." );
+    }
+}
+
+=item portal_profiles
+
+Make sure that portal profiles, if defined, have a filter and no unsupported parameters
+
+=cut
+# TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
+sub portal_profiles {
+
+    my $profile_params = qr/(?:filter|logo|auth|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
+
+    foreach my $portal_profile ( tied(%Config)->GroupMembers("portal-profile") ) {
+
+        add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
+            if ( !defined($Config{$portal_profile}{'filter'}) );
+
+        foreach my $key ( keys %{$Config{$portal_profile}} ) {
+            add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
+                if ( $key !~ /$profile_params/ );
+        }
     }
 }
 
