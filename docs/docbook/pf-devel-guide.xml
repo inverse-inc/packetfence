@@ -18,7 +18,7 @@
 <info>
   <title>PacketFence Developer's Guide</title>
   <subtitle>for version 3.5.0</subtitle>
-  <date>2012-06-18</date>
+  <date>2012-08-01</date>
   <revhistory>
     <revision>
       <revnumber>2.9</revnumber>
@@ -131,7 +131,7 @@
     <para>Copyright © Barry Schwartz, <ulink url="http://www.crudfactory.com">http://www.crudfactory.com</ulink>, with Reserved Font Name: "Sorts Mill Goudy".</para>
     <para>Copyright © Raph Levien, <ulink url="http://levien.com/">http://levien.com/</ulink>, with Reserved Font Name: "Inconsolata".</para>
   </legalnotice>
-  <releaseinfo>Version 3.4.1 - June 2012</releaseinfo>
+  <releaseinfo>Version 3.5.0 - August 2012</releaseinfo>
   <mediaobject>
     <objectinfo>
       <corpname>Inverse inc.</corpname>

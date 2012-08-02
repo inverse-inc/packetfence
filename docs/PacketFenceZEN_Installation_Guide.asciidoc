@@ -43,12 +43,6 @@ This setup has been tested using VMWare ESXi 4.0, Fusion 3.x and Workstation 7.x
 We build two separate virtual machine, one to run on ESXi 4.0 (OVF format) and one to run on VMWare Fusion/Workstation (VMX/VMDK format).
 
 
-Inline Enforcement
-~~~~~~~~~~~~~~~~~~
-
-Inline enforcement is enabled by default. Every device is supported, and the only thing you need to do is to drop the VM in the proper VLAN (Management and Inline VLAN) and bridge your devices to this inline VLAN. In other words, the eth0 of the VM is intended to be the management interface, and the eth0.200 interface (eth5 in the desktop version) is intended to be the inline interface.  Hook them to the right place.
-
-
 VLAN Enforcement
 ~~~~~~~~~~~~~~~~
 
@@ -57,9 +51,6 @@ In order to build a VLAN isolation setup you need :
 * a supported switch (please consult the list of supported switch vendors and types in the _Network Devices Configuration Guide_ including information on uplinks
 * a regular, isolation, MAC detection, registration, and a guest VLAN for wireless visitors (VLAN numbers and subnets)
 * a switch port for the PacketFence (PacketFence) ZEN box which needs to be configured as a dot1q trunk (several VLANs on the port) with VLAN 1 as the native (untagged) VLAN.
-
-NOTE: This mode is not enabled by default in the new ZEN version.   To enable this mode, follow the indications in pf.conf, networks.conf, and start the proper ethernet interfaces on the VM, they are configured with “ONBOOT=no”.
-
 
 Assumptions
 -----------
@@ -100,48 +91,13 @@ DHCP/DNS
 * We use a DNS server on the PacketFence ZEN box which will take care of domain resolution in VLANs 2 and 3
 
 
-Network Devices (VLAN enforcement)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.Switch
-* IP: 10.0.10.2
-* Type: Catalyst 2960
-* Uplink: f0/24
-* SNMP Read Community = public
-* SNMP Write Community = private
-* Radius Secret (802.1X/MAC Auth.)  = s3cr3t
-
-.Access Point
-* IP: 10.0.10.3
-* Type: Aironet 1242
-* Uplink: f0/0
-* Telnet username : Cisco, password: Cisco
-* Public (MAC Auth.) SSID = InverseGuest
-* Secure (WPA2) SSID = InverseSecure
-* Radius Secret (802.1X/MAC Auth.)  = s3cr3t
-
-
-Wireless use case (VLAN enforcement)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For our setup, we are considering the following use case for the *public* SSID wireless users :
-
-* Unregistered users will end in the registration VLAN, and hit the captive portal
-* When registered, the user will be placed in the guest VLAN (VLAN 5)
-
-For our setup, we are considering the following use case for the *secure* SSID wireless users :
-
-* Unregistered users that provides valid 802.1X credentials will be automatically registered, and won't hit the captive portal.
-* When registered, the user will be placed in the regular VLAN (VLAN 10)
-
-
 Installation
 ------------
 
 Import the virtual machine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence ZEN 3.1.0 comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+PacketFence ZEN 3.5.0 comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
 
 
 Import to ESX
@@ -165,11 +121,6 @@ Virtual Machine passwords
 * Login: root
 * Password: p@ck3tf3nc3
 
-.Administrative UI
-* URL: https://dhcp_ip:1443
-* Login: admin
-* Password: p@ck3tf3nc3
-
 .Captive Portal / 802.1X Registration User
 * Login: demouser
 * Password: demouser
@@ -178,24 +129,113 @@ Virtual Machine passwords
 Configuration
 -------------
 
-Introduction
-~~~~~~~~~~~~
+Configuring your PacketFence environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switch and the PC and that the link is up.
 
-Since the PacketFence ZEN virtual machine comes as a pre-configured machine ready to serve, this section will explains how things are configured, and not how to configure them.  For more information about custom configurations, please refer to the PacketFence 3.1.0 Administration Guide.
+Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. http://PF_IP:3000/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
 
-TIP: The following section may expose some of the ESX VM version configurations.
+Step 1: Enforcement
++++++++++++++++++++
+The first and most important step of the configuration process. This is where you'll choose the enforcement technique; either VLAN (out-of-band), INLINE (in-band) or both of them.
 
+The choice(s) made on this step will influence the next step where you'll need to configure the different networks.
 
-PacketFence Configurator
-~~~~~~~~~~~~~~~~~~~~~~~~
+Each enforcement mode has its own required interface types that you'll have to configure on step 2.
 
-PacketFence provides a configurator that sets a minimum of options for you depending on the type of setup you want. You just have to choose the appropriate template and answer the questions. In our case, for the setup covered in this document, this portion was done. But, if you want to change subnets or other configuration parameters feel free to run the configurator again.
+For our customer scenario, we'll choose VLAN enforcement.
+
+Step 2: Networks
+++++++++++++++++
+This step will ask you to statically configure your network interfaces (note that DHCP interfaces configuration is not supported yet).
+
+Depending on the choice(s) made on step 1, you'll have to configure the required types of interface. The web interface will list all currently installed network interfaces on the system. An IP and a netmask will be visible if the network interface is configured (either by DHCP or already manually configured). You can edit those ones, create/delete VLANs on physical interfaces and enable/disable an interface. Note that theses changes are effective on the moment you make them. Persistance will be written only for ENABLED interfaces.
+
+In all time, you'll need to set a Management interface.
+
+Required interface types for inline enforcement:
+
+    Management
+    Inline
+
+Required interface types for VLAN enforcement:
+
+    Management
+    Registration
+    Isolation
+
+Note that you can only set ONE (1) management interface. This one will work for both in the case you choose both modes.
+
+In our customer scenario, we will create two new vlans on the wired interface (will be eth0 most of the time).
+To do so, click the Add VLAN button besides the wired interface for each of the needed vlan:
+
+Here's a sample configuration for both of them:
+
+Registration
+
+    Virtual LAN ID: 2
+    IP Address: 192.168.2.1
+    Netmask: 255.255.255.0
+
+Isolation
+
+    Virtual LAN ID: 3
+    IP Address: 192.168.3.1
+    Netmask: 255.255.255.0
+
+Don't forget to also edit the physical interface with the correct management network information by clicking the Edit button next to it.
+
+According to our customer scenario, we'll associate the correct type the each interfaces.
+
+    eth0: Management
+    eth0 VLAN 2: Registration
+    eth0 VLAN 3: Isolation
+
+Make sure that those three (3) interfaces are in an Enabled state for the persistance to occur.
+
+We also need to set the Default Gateway which will generally be the gateway of the management network.
+
+Once everything's set, click Continue to proceed with the next step.
+
+Step 3: Database Configuration
+++++++++++++++++++++++++++++++
+This step will configure the MySQL server needed by PacketFence. Database and schema will be created as well as the necessary user for operations. Root account will also be secured if necessary (set a password and disallow remote login).
+
+Since the MySQL installation is pre-built with the username "root" and the password "p@ck3tfence", you can simply enter these in the root account credentials section and click Test.
+
+Next section of this step is the PacketFence user account on the MySQL server. Simply leave the default pf username here and choose of a password. This one will automatically be set in the PacketFence configuration where you'll be able to retrive it in any case. Once the password entered twice, click Create user.
+
+Third section will create the database and load the correct schema on it. Simply leave the default and click Create tables and indexes.
+
+You should have Success beside these three section, click Continue.
+
+Step 4: PacketFence Configuration
++++++++++++++++++++++++++++++++++
+This step will configure the general options of your PacketFence installation. Theses are needed configurations that will most of the time fits customer specifications.
+
+Almost all of the required information here are self-explanatory. The only one that could be confusing is the DHCP Servers section. In this one, enter a comma-delimited list of all the DHCP Server on the customer network so when PacketFence will see DHCP trafic originating from these IPs, no rogue-dhcp alerts will be triggered.  Don't forget to add your newly created local VLAN interface!
+
+Click Continue once all the field are completed.
+
+Step 5: Administration
+++++++++++++++++++++++
+This is the step where we create the administrative user to access the PacketFence Administration Web Interface.
+
+Simply provide the desired username and password, then click Create user.
+
+Step 6: Services - Confirmation
++++++++++++++++++++++++++++++++
+The last but not the least. Here, we start the PacketFence server according to the configurations made in the previous steps. If everything goes as expected, you'll be prompted by a window inviting you to continue to the web administration interface.
+
+You'll be able to login to the PacketFence web administration interface with the credentials created in Step 4.
+
+Services status will help you monitor if everything goes as expected. If not, you'll see which service is in trouble and the log output will help you determine the problem that occurs.
 
 
 PacketFence configuration files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to customize the provisioned configuration files, we suggest that you take a look into the PacketFence Administration Guide prior doing so.  In standard inline enforcement setup, you should not have to modify anything to make things work.
+If you want to customize the configuration files, we suggest that you take a look into the PacketFence Administration Guide prior doing so.  In standard inline enforcement setup, you should not have to modify anything to make things work.
 
 The main configuration files are :
 
@@ -210,27 +250,20 @@ Network Devices
 Please refer to the http://www.packetfence.org/documentation/[Network Devices Configuration Guide] in order to properly configure your devices.
 
 
-Production DHCP
-~~~~~~~~~~~~~~~
-
-By default, we disabled the DHCP for the regular VLAN (VLAN 10).  However, the network definitions are commented in conf/networks.conf.  Simply remove the pound signs, and restart the packetfence service if you need it to be enabled.
-
-
 FreeRADIUS
 ~~~~~~~~~~
 
-PacketFence ZEN 3.1.0 comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  The fictive Cisco 2960 and the Aironet 1242 are already configured as RADIUS clients, and we created a local user for the 802.1X authentication.
+PacketFence ZEN 3.5.0 comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  We created a local user for the 802.1X authentication.
 
 The main configuration files are :
 
-* /etc/raddb/radiusd.conf : Configuration for the RADIUS service
-* /etc/raddb/eap.conf : Configuration for 802.1X using EAP
-* /etc/raddb/clients : Definition of our RADIUS clients
-* /etc/raddb/users: Definition of our local 802.1X user
-* /etc/raddb/sites-enabled/packetfence : Definition of the default virtual to configure the modules used in the different phase of the AAA (authenticate-authorization-accounting)
-* /etc/raddb/sites-enabled/packetfence-tunnel : Definition of a local virtual host mainly for tunnelled EAP processing.  This is an extension of the default virtual host.
-* /etc/raddb/packetfence.pm : PacketFence's FreeRADIUS module. Talks with PacketFence server.
-* /etc/raddb/sql.conf : Relates to the RADIUS accounting and RADIUS clients configuration in PacketFence.
+* /usr/local/pf/conf/radiusd.conf : Template for the configuration for the RADIUS service
+* /usr/local/pf/conf/eap.conf : Template for the configuration for 802.1X using EAP
+* /usr/local/pf/conf/sql.conf : Template for the RADIUS accounting and RADIUS clients configuration in PacketFence.
+* /usr/local/pf/raddb/users: Definition of our local 802.1X user
+* /usr/local/pf/raddb/sites-enabled/packetfence : Definition of the default virtual to configure the modules used in the different phase of the AAA (authenticate-authorization-accounting)
+* /usr/local/pf/raddb/sites-enabled/packetfence-tunnel : Definition of a local virtual host mainly for tunnelled EAP processing.  This is an extension of the default virtual host.
+* /usr/local/pf/raddb/packetfence.pm : PacketFence's FreeRADIUS module. Talks with PacketFence server.
 
 
 VLAN Access
@@ -250,12 +283,6 @@ VLAN Access
 * make sure the device in VLAN 3 can communicate with PacketFence through (and only through) eth0.3
 * make sure the device in VLAN 3 can not communicate with any device in any other VLAN
 * make sure the device in VLAN 4 can not communicate with any device in any other VLAN
-
-
-SNORT
-~~~~~
-
-SNORT is configured to listen and monitor the inline (eth0.200) interface. However, no violations other than the default ones have been configured. This is done in the conf/violations.conf file or under Configuration > Violations in the Web Administration.
 
 
 Test
