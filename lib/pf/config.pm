@@ -269,6 +269,7 @@ sub load_config {
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
+}
 
 =item ipset_version -  check the ipset version on the system
 
