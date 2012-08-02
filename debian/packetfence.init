@@ -53,11 +53,10 @@ do_start()
 	if [ ! `find /lib/modules/$UNAME/ -name ip_set.ko` ]
 	then
 		module-assistant auto-install xtables-addons
+		modprobe ip_set
+	else
+		modprobe ip_set
 	fi
-	IPSET=`command -v ipset`
-        if [ $IPSET ]; then
-            modprobe ip_set
-        fi
 	$DAEMON service pf start
 	#	|| return 0
 	# Add code here, if necessary, that waits for the process to be ready
