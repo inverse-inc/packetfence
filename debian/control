@@ -17,7 +17,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear,
  php5-mysql, php5-gd, perl-suid,
 # ipset
- ipset, make, sudo, xtables-addons-source,
+ make, sudo, xtables-addons-source,
 # process management
  procps,
 # perl stuff
