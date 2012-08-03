@@ -788,7 +788,6 @@ sub node_deregister {
     $info{'regdate'}   = 0;
     $info{'unregdate'} = 0;
     $info{'lastskip'}  = 0;
-    $info{'pid'}       = 1;
 
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("unable to de-register node $mac");
