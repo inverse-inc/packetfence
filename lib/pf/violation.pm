@@ -197,6 +197,16 @@ sub violation_modify {
             return (0);
         }
     }
+
+    # Check if the violation was open or closed
+    my $was_open = 0;
+
+    if ($existing->{status} eq 'open') {
+       $was_open = 1;
+    } else {
+       $was_open = 0;
+    }
+
     foreach my $item ( keys(%data) ) {
         $existing->{$item} = $data{$item};
     }
@@ -205,6 +215,14 @@ sub violation_modify {
             . $existing->{mac} . " vid "
             . $existing->{vid}
             . " modified" );
+
+    # Handle the release date case on the modify (from the GUI)
+    if ($data{status} eq 'closed' && $was_open && $existing->{release_date} eq '') {
+        $existing->{release_date} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time));
+    } elsif ($data{status} eq 'open' && !$was_open) {
+        $existing->{release_date} = "";
+    }
+
     db_query_execute(VIOLATION, $violation_statements, 'violation_modify_sql',
         $existing->{mac},        $existing->{vid},
         $existing->{start_date}, $existing->{release_date},
