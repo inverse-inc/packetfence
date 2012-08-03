@@ -1,0 +1,22 @@
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="sidebar-nav well">
+            <ul class="nav nav-list">
+              <li class="nav-header">Overview</li>
+              <li class="active"><a href="#">Dashboard</a></li>
+              <li class="nav-header">Services</li>
+              <li><a href="#">pfdhcplistener</a></li>
+              <li><a href="#">pfredirect</a></li>
+              <li><a href="#">named</a></li>
+              <li class="nav-header">System</li>
+              <li><a href="#">Server</a></li>
+              <li><a href="#">Logs</a></li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div id="section" class="span10">
+
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/container-->

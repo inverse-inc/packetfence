@@ -1,0 +1,57 @@
+<style type="text/css">
+.counter {
+    border-left: 1px solid #eee;
+    float: right;
+    text-align: center;
+    min-width: 80px;
+    height: 70px;
+}
+.counter h3 {
+    margin-top: 5px;
+}
+.counter p {
+    font-size: 11px;
+    margin-bottom: 0px;
+}
+</style>
+
+<div class="report">
+<!--<div class="counter">
+  <h3>37</h3>
+  <p>Registered</p>
+  <p><a href="[% c.uri_for('/dashboard/graph') %]" class="favorite"><i class="icon-star-empty" rel="tooltip" title="Show this counter on the dashboard?"></i></a></p>
+</div>
+<div class="counter">
+  <h3>10284</h3>
+  <p>Unregistered</p>
+  <p><a href="[% c.uri_for('/dashboard/graph') %]" class="favorite"><i class="icon-star-empty" rel="tooltip" title="Show this counter on the dashboard?"></i></a></p>-->
+</div>
+
+<h2>[% title %]</h2>
+<div class="options">
+  <a href="[% c.uri_for('/dashboard/graph') %]" class="favorite"><i class="icon-star-empty" rel="tooltip" title="Show this graph on the dashboard?"></i></a>
+  Per <a href="[% c.uri_for(c.action, 'day') %]"[% IF interval == 'day' %] class="active"[% END %]>day</a> | <a href="[% c.uri_for(c.action, 'month') %]"[% IF interval == 'month' %] class="active"[% END %]>month</a> | <a href="[% c.uri_for(c.action, 'year') %]"[% IF interval == 'year' %] class="active"[% END %]>year</a>
+</div>
+<hr>
+[%- IF labels.size > 0 %]
+<div id="[% id %]" class="chart"></div>
+<script type="text/javascript">
+graphs['[% id %]'] = {
+    type: '[% graphtype %]',
+    size: '[% size %]',
+    labels: ['[% labels.join("','") %]'],
+    series: {
+    [% FOREACH set IN series.keys -%]
+      '[% set %]' : [[% series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+    [%- END %]
+    }
+};
+</script>
+[%- ELSE %]
+<div class="alert alert-block">
+  <a class="close" data-dismiss="alert" href="#">×</a>
+  <h4 class="alert-heading">What's going on?</h4>
+  There's not enough data to generate this graph. Is PacketFence in production?
+</div>
+[%- END %]
+</div>

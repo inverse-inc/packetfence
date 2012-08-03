@@ -1,0 +1,29 @@
+[%  jsFiles = ['app/bootstrap-datepicker', 'app/raphael/raphael-min', 'app/raphael/g.raphael-min', 'app/raphael/g.bar-min', 'app/raphael/g.dot-min', 'app/raphael/g.line-min', 'app/raphael/g.pie-min', 'app/graphs', 'admin/reports']
+     cssFiles = ['app/bootstrap-datepicker'] -%]
+    <!--<script type="text/javascript">var graphs = {};</script>-->
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="sidebar-nav well">
+            <ul class="nav nav-list">
+              <li class="nav-header">Nodes</li>
+              <li><a href="[% c.uri_for('/graph/nodes') %]">Nodes States</a></li>
+              <li><a href="[% c.uri_for('/graph/os') %]">Operating Systems</a></li>
+              <li><a href="[% c.uri_for('/graph/violations') %]">Violations</a></li>
+              <li class="nav-header">Connections</li>
+              <li><a href="[% c.uri_for('/graph/connectiontype') %]">Types</a></li>
+              <li><a href="[% c.uri_for('/graph/connectiontypereg') %]">Types (Registered)</a></li>
+              <li><a href="[% c.uri_for('/graph/ssid') %]">SSIDs</a></li>
+              <li class="nav-header">Accounting</li>
+              <li><a href="[% c.uri_for('/graph/nodebandwidth/all') %]">Top 25 Bandwith Consumers</a></li>
+              <li><a href="[% c.uri_for('/graph/osclassbandwidth/all') %]">Bandwith per Operating System</a></li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div id="section" class="span10">
+          <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+          <div class="graph"></div>
+        </div><!--/span -->
+      </div><!--/row -->
+    </div><!--/.fluid-container-->

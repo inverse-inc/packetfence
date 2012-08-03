@@ -1,0 +1,21 @@
+/* bootstrap.css fix to keep form elements inline */
+.row-fluid table [class*="span"] {
+    display: inline;
+}
+/* boostrap-datepicker.css fix to align datepicker with inline form elements */
+.datepicker {
+    padding-top: 0px;
+    padding-left: 0px;
+}
+
+.table-search {
+    width: 100%;
+}
+.page-header h1 form {
+    display: inline;
+}
+.loader {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}

@@ -1,0 +1,170 @@
+[%  jsFiles = ['app/bootstrap-datepicker', 'app/raphael/raphael-min', 'app/raphael/g.raphael-min', 'app/raphael/g.bar-min', 'app/raphael/g.dot-min', 'app/raphael/g.line', 'app/raphael/g.pie-min', 'app/graphs', 'admin/nodes']
+     cssFiles = ['app/bootstrap-datepicker'] -%]
+
+<style type="text/css">
+form {
+    margin-bottom: 0px;
+}
+.chart {
+}
+</style>
+
+      <div class="modal fade hide" id="saveSearch">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3>[% l('Save Search') %]</h3>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal">
+            <div class="control-group">
+              <label class="control-label">[% l('Name') %]</label>
+              <div class="controls">
+                <input type="text">
+                <p class="help-block">Your saved search will appear in the menu on the left side of your screen.</p>
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <label class="checkbox"><input type="checkbox"> Show in dashboard</label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">Close</a>
+          <a href="#" class="btn btn-primary">Save</a>
+        </div>
+      </div>
+      
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="sidebar-nav well">
+            <ul class="nav nav-list">
+              <li class="nav-header">Nodes</li>
+              <li class="active"><a href="#">Search</a></li>
+              <li><a href="#">Create</a></li>
+              <li class="nav-header">Saved Searches</li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span10">
+            <div class="tabbable">
+              <div class="tab-content">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
+                  <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
+                </ul>
+                <div class="tab-pane active well" id="simple">
+                  <form name="simpleSearch" class="form-inline" action="[% c.uri_for('/node/search') %]">
+                  <div class="input-daterange datepicker">
+                    <input type="text" class="input-small" name="start">
+                    <span class="add-on">to</span>
+                    <input type="text" class="input-small" name="end">
+                    <a href="#last0day">Today</a> | <a href="#last7days">7 days</a> | <a href="#last30days">30 days</a> | <a href="#last60days">60 days</a>
+                  </div>
+                  <input id="simpleString" type="text" placeholder="Search...">
+                  <div class="btn-group pull-right">
+                    <button class="btn btn-primary"><i class="icon-search icon-white"></i> Search</button>
+                    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="#" data-toggle="modal" data-target="#saveSearch">Save as...</a></li>
+                    </ul>
+                  </div>
+                  </form>
+                </div>
+                <div class="tab-pane well" id="advanced">
+                  <form name="advancedSearch" class="form-inline" action="[% c.uri_for('/node/search') %]">
+                  <div class="input-daterange datepicker">
+                    <input type="text" class="input-small" name="start">
+                    <span class="add-on">to</span>
+                    <input type="text" class="input-small" name="end">
+                    <a href="#last0day">Today</a> | <a href="#last7days">7 days</a> | <a href="#last30days">30 days</a> | <a href="#last60days">60 days</a>
+                  </div>
+                  <table class="table-search">
+                    <tbody>
+                      <tr>
+                        <td colspan="2">
+                          Match
+                          <select class="span1">
+                            <option>all</option>
+                            <option>any</option>
+                          </select>
+                          of the following conditions :
+                        </td>
+                      </tr>
+                      <tr class="hidden">
+                        <td>
+                          <span class="btn-group">
+                            <a class="btn btn-mini" href="#add"><i class="icon-plus-sign"></i></a>
+                            <a class="btn btn-mini" href="#delete"><i class="icon-minus-sign"></i></a>
+                          </span>
+                        </td>
+                        <td>
+                          <select>
+                            <option>Node MAC</option>
+                            <option>Node category</option>
+                            <option>Person name</option>
+                            <option>Violation name</option>
+                            <option>User agent</option>
+                            <option>Source switch IP</option>
+                          </select>
+                          <select class="span2">
+                            <option>is</option>
+                            <option>is not</option>
+                            <option>starts with</option>
+                            <option>ends with</option>
+                            <option>matches</option>
+                          </select>
+                          <input type="text" placeholder="String...">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="btn-group">
+                            <a class="btn btn-mini" href="#add"><i class="icon-plus-sign"></i></a>
+                            <a class="btn btn-mini disabled" href="#delete"><i class="icon-minus-sign"></i></a>
+                          </span>
+                        </td>
+                        <td>
+                          <select>
+                            <option>Node MAC</option>
+                            <option>Node category</option>
+                            <option>Person name</option>
+                            <option selected="selected">Violation name</option>
+                            <option>User agent</option>
+                            <option>Switch IP</option>
+                          </select>
+                          <select class="span2">
+                            <option>is</option>
+                            <option>is not</option>
+                            <option>starts with</option>
+                            <option>ends with</option>
+                            <option>matches</option>
+                          </select>
+                          <input type="text" placeholder="String..." value="bittorrent">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td></td>
+                        <td>
+                          <div class="btn-group pull-right">
+                            <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> Search</a>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="#" data-toggle="modal" data-target="#saveSearch">Save as...</a></li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="row-fluid" id="results">
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->
