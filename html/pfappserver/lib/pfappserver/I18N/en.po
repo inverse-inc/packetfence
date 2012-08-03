@@ -160,3 +160,545 @@ msgstr ""
 #: lib/pfappserver/Controller/Configurator.pm:79
 msgid "You must assign an interface to the following types: %1"
 msgstr ""
+
+#: conf/pf.conf.defaults:0
+msgid "general"
+msgstr "General"
+
+#: conf/pf.conf.defaults:5
+msgid "general.domain"
+msgstr "Domain"
+
+#: conf/pf.conf.defaults:10
+msgid "general.hostname"
+msgstr "Hostname"
+
+#: conf/pf.conf.defaults:15
+msgid "general.logo"
+msgstr "Logo"
+
+#: conf/pf.conf.defaults:20
+msgid "general.dnsservers"
+msgstr "DNS servers"
+
+#: conf/pf.conf.defaults:25
+msgid "general.dhcpservers"
+msgstr "DHCP servers"
+
+#: conf/pf.conf.defaults:31
+msgid "general.locale"
+msgstr "Locale"
+
+#: conf/pf.conf.defaults:37
+msgid "general.timezone"
+msgstr "Timezone"
+
+#: conf/pf.conf.defaults:42
+msgid "general.maintenance_interval"
+msgstr "Maintenance interval"
+
+#: conf/pf.conf.defaults:45
+msgid "network"
+msgstr "Network"
+
+#: conf/pf.conf.defaults:52
+msgid "network.dhcpdetector"
+msgstr "DHCP detector"
+
+#: conf/pf.conf.defaults:58
+msgid "network.rogue_dhcp_detection"
+msgstr "Rogue DHCP detection"
+
+#: conf/pf.conf.defaults:64
+msgid "network.rogueinterval"
+msgstr "Rogue interval"
+
+#: conf/pf.conf.defaults:70
+msgid "network.dhcpoption82logger"
+msgstr "DHCP option82"
+
+#: conf/pf.conf.defaults:79
+msgid "proxies"
+msgstr "Proxies"
+
+#: conf/pf.conf.defaults:82
+msgid "trapping"
+msgstr "Trapping"
+
+#: conf/pf.conf.defaults:88
+msgid "trapping.range"
+msgstr "Addresses ranges"
+
+#: conf/pf.conf.defaults:94
+msgid "trapping.registration"
+msgstr "Registration"
+
+#: conf/pf.conf.defaults:101
+msgid "trapping.redirtimer"
+msgstr "Redirection delay"
+
+#: conf/pf.conf.defaults:112
+msgid "trapping.passthrough"
+msgstr "Passthrough"
+
+#: conf/pf.conf.defaults:117
+msgid "trapping.blacklist"
+msgstr "Blacklist"
+
+#: conf/pf.conf.defaults:124
+msgid "trapping.whitelist"
+msgstr "Whitelist"
+
+#: conf/pf.conf.defaults:130
+msgid "trapping.redirecturl"
+msgstr "Redirect URL"
+
+#: conf/pf.conf.defaults:138
+msgid "trapping.always_use_redirecturl"
+msgstr "Force redirect URL"
+
+#: conf/pf.conf.defaults:144
+msgid "trapping.detection"
+msgstr "Detection"
+
+#: conf/pf.conf.defaults:146
+msgid "registration"
+msgstr "Registration"
+
+#: conf/pf.conf.defaults:151
+msgid "registration.range"
+msgstr "Addresses ranges"
+
+#: conf/pf.conf.defaults:158
+msgid "registration.skip_mode"
+msgstr "Skip mode"
+
+#: conf/pf.conf.defaults:164
+msgid "registration.skip_deadline"
+msgstr "Deadline"
+
+#: conf/pf.conf.defaults:170
+msgid "registration.skip_window"
+msgstr "Skip window"
+
+#: conf/pf.conf.defaults:176
+msgid "registration.skip_reminder"
+msgstr "Skip reminder"
+
+#: conf/pf.conf.defaults:184
+msgid "registration.auth"
+msgstr "Registration methods"
+
+#: conf/pf.conf.defaults:191
+msgid "registration.default_auth"
+msgstr "Default authentication"
+
+#: conf/pf.conf.defaults:202
+msgid "registration.expire_mode"
+msgstr "Expire mode"
+
+#: conf/pf.conf.defaults:208
+msgid "registration.expire_deadline"
+msgstr "Expire deadline"
+
+#: conf/pf.conf.defaults:214
+msgid "registration.expire_window"
+msgstr "Expire window"
+
+#: conf/pf.conf.defaults:221
+msgid "registration.expire_session"
+msgstr "Expire session"
+
+#: conf/pf.conf.defaults:226
+msgid "registration.maxnodes"
+msgstr "Maximum number of nodes"
+
+#: conf/pf.conf.defaults:231
+msgid "registration.button_text"
+msgstr "Button text"
+
+#: conf/pf.conf.defaults:236
+msgid "registration.nbregpages"
+msgstr "Number of registration pages"
+
+#: conf/pf.conf.defaults:243
+msgid "registration.guests_self_registration"
+msgstr "Guests self-registration"
+
+#: conf/pf.conf.defaults:248
+msgid "registration.billing_engine"
+msgstr "Billing engine"
+
+#: conf/pf.conf.defaults:250
+msgid "guests_self_registration"
+msgstr ""
+
+#: conf/pf.conf.defaults:258
+msgid "guests_self_registration.modes"
+msgstr ""
+
+#: conf/pf.conf.defaults:263
+msgid "guests_self_registration.category"
+msgstr ""
+
+#: conf/pf.conf.defaults:269
+msgid "guests_self_registration.access_duration"
+msgstr ""
+
+#: conf/pf.conf.defaults:277
+msgid "guests_self_registration.email_activation_timeout"
+msgstr ""
+
+#: conf/pf.conf.defaults:282
+msgid "guests_self_registration.allow_localdomain"
+msgstr ""
+
+#: conf/pf.conf.defaults:290
+msgid "guests_self_registration.mandatory_fields"
+msgstr ""
+
+#: conf/pf.conf.defaults:295
+msgid "guests_self_registration.guest_pid"
+msgstr ""
+
+#: conf/pf.conf.defaults:301
+msgid "guests_self_registration.sponsors_only_from_localdomain"
+msgstr ""
+
+#: conf/pf.conf.defaults:312
+msgid "guests_self_registration.sponsor_authentication"
+msgstr ""
+
+#: conf/pf.conf.defaults:320
+msgid "guests_self_registration.preregistration"
+msgstr ""
+
+#: conf/pf.conf.defaults:323
+msgid "guests_admin_registration"
+msgstr ""
+
+#: conf/pf.conf.defaults:329
+msgid "guests_admin_registration.access_duration_choices"
+msgstr ""
+
+#: conf/pf.conf.defaults:335
+msgid "guests_admin_registration.default_access_duration"
+msgstr ""
+
+#: conf/pf.conf.defaults:341
+msgid "guests_admin_registration.category"
+msgstr ""
+
+#: conf/pf.conf.defaults:357
+msgid "passthroughs"
+msgstr ""
+
+#: conf/pf.conf.defaults:359
+msgid "alerting"
+msgstr ""
+
+#: conf/pf.conf.defaults:365
+msgid "alerting.emailaddr"
+msgstr ""
+
+#: conf/pf.conf.defaults:370
+msgid "alerting.fromaddr"
+msgstr ""
+
+#: conf/pf.conf.defaults:376
+msgid "alerting.smtpserver"
+msgstr ""
+
+#: conf/pf.conf.defaults:382
+msgid "alerting.subjectprefix"
+msgstr ""
+
+#: conf/pf.conf.defaults:387
+msgid "alerting.log"
+msgstr ""
+
+#: conf/pf.conf.defaults:392
+msgid "alerting.wins_server"
+msgstr ""
+
+#: conf/pf.conf.defaults:397
+msgid "alerting.admin_netbiosname"
+msgstr ""
+
+#: conf/pf.conf.defaults:399
+msgid "ports"
+msgstr ""
+
+#: conf/pf.conf.defaults:406
+msgid "ports.listeners"
+msgstr ""
+
+#: conf/pf.conf.defaults:411
+msgid "ports.admin"
+msgstr ""
+
+#: conf/pf.conf.defaults:413
+msgid "scan"
+msgstr ""
+
+#: conf/pf.conf.defaults:418
+msgid "scan.engine"
+msgstr ""
+
+#: conf/pf.conf.defaults:424
+#, fuzzy
+msgid "scan.registration"
+msgstr "Registration"
+
+#: conf/pf.conf.defaults:430
+msgid "scan.duration"
+msgstr ""
+
+#: conf/pf.conf.defaults:437
+msgid "scan.host"
+msgstr ""
+
+#: conf/pf.conf.defaults:442
+msgid "scan.user"
+msgstr ""
+
+#: conf/pf.conf.defaults:447
+msgid "scan.pass"
+msgstr ""
+
+#: conf/pf.conf.defaults:453
+msgid "scan.nessus_port"
+msgstr ""
+
+#: conf/pf.conf.defaults:460
+msgid "scan.nessus_clientfile"
+msgstr ""
+
+#: conf/pf.conf.defaults:465
+msgid "scan.nessus_clientpolicy"
+msgstr ""
+
+#: conf/pf.conf.defaults:471
+msgid "scan.openvas_port"
+msgstr ""
+
+#: conf/pf.conf.defaults:476
+msgid "scan.openvas_configid"
+msgstr ""
+
+#: conf/pf.conf.defaults:481
+msgid "scan.openvas_reportformatid"
+msgstr ""
+
+#: conf/pf.conf.defaults:483
+msgid "database"
+msgstr ""
+
+#: conf/pf.conf.defaults:488
+msgid "database.pass"
+msgstr ""
+
+#: conf/pf.conf.defaults:493
+msgid "database.db"
+msgstr ""
+
+#: conf/pf.conf.defaults:498
+msgid "database.user"
+msgstr ""
+
+#: conf/pf.conf.defaults:503
+msgid "database.port"
+msgstr ""
+
+#: conf/pf.conf.defaults:508
+msgid "database.host"
+msgstr ""
+
+#: conf/pf.conf.defaults:510
+msgid "expire"
+msgstr ""
+
+#: conf/pf.conf.defaults:518
+msgid "expire.node"
+msgstr ""
+
+#: conf/pf.conf.defaults:526
+msgid "expire.iplog"
+msgstr ""
+
+#: conf/pf.conf.defaults:534
+msgid "expire.traplog"
+msgstr ""
+
+#: conf/pf.conf.defaults:544
+msgid "expire.locationlog"
+msgstr ""
+
+#: conf/pf.conf.defaults:546
+msgid "services"
+msgstr ""
+
+#: conf/pf.conf.defaults:551
+msgid "services.dhcpd"
+msgstr ""
+
+#: conf/pf.conf.defaults:556
+msgid "services.named"
+msgstr ""
+
+#: conf/pf.conf.defaults:561
+msgid "services.radiusd"
+msgstr ""
+
+#: conf/pf.conf.defaults:566
+msgid "services.snort_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:571
+msgid "services.httpd_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:576
+msgid "services.dhcpd_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:581
+msgid "services.named_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:586
+msgid "services.snmptrapd_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:591
+msgid "services.radiusd_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:596
+msgid "services.arp_binary"
+msgstr ""
+
+#: conf/pf.conf.defaults:598
+msgid "vlan"
+msgstr ""
+
+#: conf/pf.conf.defaults:604
+msgid "vlan.closelocationlogonstop"
+msgstr ""
+
+#: conf/pf.conf.defaults:610
+msgid "vlan.nbtraphandlerthreads"
+msgstr ""
+
+#: conf/pf.conf.defaults:615
+msgid "vlan.nbtrapparserthreads"
+msgstr ""
+
+#: conf/pf.conf.defaults:621
+msgid "vlan.bounce_duration"
+msgstr ""
+
+#: conf/pf.conf.defaults:630
+msgid "vlan.trap_limit"
+msgstr ""
+
+#: conf/pf.conf.defaults:636
+msgid "vlan.trap_limit_threshold"
+msgstr ""
+
+#: conf/pf.conf.defaults:644
+#, fuzzy
+msgid "vlan.trap_limit_action"
+msgstr "Registration"
+
+#: conf/pf.conf.defaults:656
+msgid "inline.ports_redirect"
+msgstr ""
+
+#: conf/pf.conf.defaults:658
+msgid "servicewatch"
+msgstr ""
+
+#: conf/pf.conf.defaults:666
+msgid "servicewatch.email"
+msgstr ""
+
+#: conf/pf.conf.defaults:674
+msgid "servicewatch.restart"
+msgstr ""
+
+#: conf/pf.conf.defaults:676
+msgid "captive_portal"
+msgstr ""
+
+#: conf/pf.conf.defaults:681
+msgid "captive_portal.network_detection"
+msgstr ""
+
+#: conf/pf.conf.defaults:691
+msgid "captive_portal.network_detection_ip"
+msgstr ""
+
+#: conf/pf.conf.defaults:707
+msgid "captive_portal.loadbalancers_ip"
+msgstr ""
+
+#: conf/pf.conf.defaults:709
+msgid "advanced"
+msgstr ""
+
+#: conf/pf.conf.defaults:714
+msgid "advanced.reevaluate_access_reasons"
+msgstr ""
+
+#: conf/pf.conf.defaults:716
+msgid "provisioning"
+msgstr ""
+
+#: conf/pf.conf.defaults:721
+msgid "provisioning.autoconfig"
+msgstr ""
+
+#: conf/pf.conf.defaults:727
+msgid "provisioning.ssid"
+msgstr ""
+
+#: conf/pf.conf.defaults:733
+msgid "provisioning.category"
+msgstr ""
+
+#: conf/pf.conf.defaults:735
+msgid "billing"
+msgstr ""
+
+#: conf/pf.conf.defaults:740
+msgid "billing.gateway"
+msgstr ""
+
+#: conf/pf.conf.defaults:745
+msgid "billing.authorizenet_posturl"
+msgstr ""
+
+#: conf/pf.conf.defaults:750
+msgid "billing.authorizenet_login"
+msgstr ""
+
+#: conf/pf.conf.defaults:755
+msgid "billing.authorizenet_trankey"
+msgstr ""
+
+#: conf/pf.conf.defaults:757
+msgid "node_import"
+msgstr ""
+
+#: conf/pf.conf.defaults:762
+msgid "node_import.pid"
+msgstr ""
+
+#: conf/pf.conf.defaults:767
+msgid "node_import.category"
+msgstr ""
+
+#: conf/pf.conf.defaults:772
+msgid "node_import.voip"
+msgstr ""
