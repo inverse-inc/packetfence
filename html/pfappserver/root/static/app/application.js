@@ -42,21 +42,21 @@ function resetAlert(parent) {
 
 function showSuccess(sibling, msg) {
     var alert = $('.alert-success').first().clone();
-    alert.find('span').first().text(msg);
+    alert.find('span').first().html(msg);
     sibling.before(alert);
     alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
 }
 
 function showError(sibling, msg) {
     var alert = $('.alert-error').first().clone();
-    alert.find('span').first().text(msg);
+    alert.find('span').first().html(msg);
     sibling.before(alert);
     alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
 }
 
 function showPermanentError(sibling, msg) {
     var alert = $('.alert-error').first().clone();
-    alert.find('span').first().text(msg);
+    alert.find('span').first().html(msg);
     sibling.before(alert);
     alert.fadeIn('fast');
 }
