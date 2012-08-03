@@ -154,7 +154,7 @@ function graphLineData(holder, size, labels, series) {
     if (svg.length) svg.attr('height', (height+h));
 }
 
-function graphPieData(holder, size, labels, series) {
+ function graphPieData(holder, size, labels, series) {
     var width = 600,
     height = 250,
     ray = 90;
@@ -197,7 +197,7 @@ function graphPieData(holder, size, labels, series) {
 }
 
 function graphBarData(holder, size, labels, series) {
-    var width = 500,
+    var width = 800,
     height = 250,
     margin = 50;
 
@@ -273,9 +273,62 @@ function graphBarData(holder, size, labels, series) {
     if (svg) svg.attr('height', (height+h));
 }
 
+function graphDotData(holder, size, ylabels, xlabels, series) {
+    var width = xlabels.length * 32,
+    height = ylabels.length * 50;
+
+    var values = [];
+    var xs = [];
+    var ys = [];
+
+     $('#'+holder).css({ width: width+'px',
+                         height: (height + 50)+'px' });
+
+    for (var j = 0; j < ylabels.length; j++) {
+        var y = ylabels[j];
+        for (var i = 0; i < series[y].length; i++) {
+            xs.push(i);
+            ys.push(j+1);
+            values.push(series[y][i]);
+        }
+    }
+
+    var r = Raphael(holder),
+    txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
+    var chart = r.dotchart(10, 0,
+                           width, height,
+                           xs, ys, values,
+                           {
+                               symbol: "o",
+                               max: 12,
+                               heat: false,
+                               axis: "0 0 1 1",
+                               axisxstep: xlabels.length - 1, //(xlabels.length > 1)?2:1,
+                               axisystep: ylabels.length - 1,
+                               axisxtype: " ",
+                               axisytype: " ",
+                               axisxlabels: xlabels,
+                               axisylabels: ylabels
+                           }
+                          );
+
+    // Customize x-axis
+    for (var j = 0; j < chart.axis[0][1].items.length; j++) {
+        var label = chart.axis[0][1].items[j];
+        // Rotate and translate label
+        label.transform("R30").translate(30, 0);
+        // Add vertical line above label
+        var lx = label.getBBox().x;
+        r.rect(lx+1, 15, 1, 70).attr({fill: Raphael.color("#ccc"), stroke: "none"}).toBack();
+    }
+
+    // Set the graph height a little smaller than the container
+     var svg = $('#'+holder).children('svg');
+     if (svg) svg.attr('height', (height+45));
+}
+
 function drawGraphs() {
     for (var name in graphs) {
-        console.info("Drawing " + name);
         var graph = graphs[name];
 
         switch(graph['type']) {
@@ -284,6 +337,9 @@ function drawGraphs() {
             break;
         case 'bar':
             graphBarData(name, graph['size'], graph['labels'], graph['series']);
+            break;
+        case 'dot':
+            graphDotData(name, graph['size'], graph['ylabels'], graph['xlabels'], graph['series']);
             break;
         case 'stacked':
             graphBarData(name, graph['size'], graph['labels'], graph['series']);
