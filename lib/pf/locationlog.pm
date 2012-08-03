@@ -96,7 +96,7 @@ sub locationlog_db_prepare {
     $logger->debug("Preparing pf::locationlog database queries");
 
     $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time 
+        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time,
         FROM locationlog
         WHERE mac=? 
         ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
@@ -110,7 +110,9 @@ sub locationlog_db_prepare {
     ]);
 
     $locationlog_statements->{'locationlog_history_mac_date_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time 
+        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time,
+          UNIX_TIMESTAMP(start_time) AS start_timestamp,
+          UNIX_TIMESTAMP(end_time) AS end_timestamp
         FROM locationlog
         WHERE mac=? AND start_time < from_unixtime(?) AND (end_time > from_unixtime(?) OR ISNULL(end_time)) 
         ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
@@ -239,6 +241,11 @@ sub locationlog_history_mac {
         return translate_connection_type(
             db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
                 $mac, $params{'date'}, $params{'date'})
+        );
+    } elsif ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) ) {
+        return translate_connection_type(
+            db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
+                $mac, $params{'end_time'}, $params{'start_time'})
         );
     } else {
         return translate_connection_type(

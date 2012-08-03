@@ -85,13 +85,21 @@ sub iplog_db_prepare {
         qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
 
     $iplog_statements->{'iplog_history_mac_date_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
+        qq [ SELECT mac,ip,start_time,end_time,
+               UNIX_TIMESTAMP(start_time) AS start_timestamp,
+               UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog
+             WHERE mac=? AND start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0)
+             ORDER BY start_time ASC ]);
 
     $iplog_statements->{'iplog_history_ip_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where ip=? order by start_time desc ]);
 
     $iplog_statements->{'iplog_history_mac_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? order by start_time desc ]);
+        qq [ SELECT mac,ip,start_time,end_time,
+               UNIX_TIMESTAMP(start_time) AS start_timestamp,
+               UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog WHERE mac=? ORDER BY start_time ASC ]);
 
     $iplog_statements->{'iplog_open_sql'} = get_db_handle()->prepare(
         qq [ insert into iplog(mac,ip,start_time) values(?,?,now()) ]);
