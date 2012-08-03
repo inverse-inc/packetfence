@@ -1,0 +1,102 @@
+      <div class="modal fade hide" id="modalNode">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3>[% node.info.mac %]</h3>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#nodeInfo" data-toggle="tab">Info</a></li>
+            <li><a href="#nodeHistory" data-toggle="tab">History</a></li>
+            <li><a href="#nodeAccounting" data-toggle="tab">Accounting</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane fade in active" id="nodeInfo">
+              <dl class="dl-horizontal">
+                <dt></dt><dd><h6>Profile</h6></dd>
+                <dt>Identifer</dt><dd>[% node.info.pid %]</dd>
+                <dt>Category</dt><dd>[% node.info.category || "No category" %]</dd>
+                <dt>Status</dt><dd><span class="label[% IF node.info.status == 'reg' %] label-success[% END %]">[% l(node.info.status) %]
+                [%- IF node.info.status == 'reg' %] since [% node.info.regdate %]
+                [%- ELSIF node.info.status == 'unreg' && node.info.unregdate %] since [% node.info.unregdate %][% END %]</span></dd>
+                <dt>IP Address</dt><dd>[% node.iplog.ip %] <span
+                  [% IF node.iplog.active -%]
+                    class="label label-success">Active since [% node.iplog.start_time %]
+                  [% ELSE -%]
+                    class="label label-important">Inactive[% IF node.iplog.end_time %] since [% node.iplog.end_time %][% END %]
+                  [% END -%]
+                </span></dd>
+                [% IF node.info.vendor %]<dt>MAC Vendor</dt><dd>[% node.info.vendor %]</dd>[% END %]
+                <dt>OS</dt><dd>[% node.dhcp.os %]</dd>
+                [% IF node.info.computername %]<dt>Name</dt><dd>[% node.info.computername %]</dd>[% END %]
+                <dt></dt><dd><input type="checkbox" disabled[% IF node.info.voip != "no" %] checked="checked"[% END %]> Is VoIP</dd>
+                <!--<dt>Owner</dt><dd></dd>
+                <dt>Category</dt><dd></dd>
+                <dt>Status</dt><dd></dd>
+                <dt>VoIP</dt><dd></dd>-->
+              </dl>
+              <dl class="dl-horizontal">
+                <dt></dt><dd><h6>Location</h6></dd>
+                [% IF node.info.last_switch -%]
+                <dt>Switch</dt><dd><a href="#" rel="tooltip" title="Edit switch">[% node.info.last_switch %]</a>
+                  [%- IF node.info.last_port.length %] <span class="badge badge-info">port [% node.info.last_port %]</span>[% END %]
+                  [%- IF node.info.last_vlan.length %] <span class="badge badge-info">vlan [% node.info.last_vlan %]</span>[% END %]</dd>
+                <dt>Since</dt><dd>[% node.info.last_start_time %]</dd>
+                [%- END %]
+                [% IF node.info.last_ssid -%]
+                <dt>Wireless SSID</dt><dd><i class="icon-signal"></i> [% node.info.last_ssid %]</dd>
+                [% END -%]
+              </dl>
+
+              [% IF node.info.user_agent -%]
+              <dl class="dl-horizontal">
+                <dt></dt><dd><h6>USER-AGENT INFORMATION</h6></dd>
+                <dt>Raw User-Agent</dt><dd>[% node.info.user_agent %]</dd>
+                <dt>Browser</dt><dd><a href="#" rel="tooltip" title="See browsers statistics">[% node.useragent.browser %]</a></dd>
+                <dt>OS</dt><dd><a href="#" rel="tooltip" title="See operating systems statistics">[% node.useragent.os %]</a></dd>
+                <dt></dt><dd><input type="checkbox" disabled[% IF node.useragent.device != "no" %] checked="checked"[% END %]> Is a device</dd>
+                <dt></dt><dd><input type="checkbox" disabled[% IF node.useragent.mobile != "no" %] checked="checked"[% END %]> Is a mobile</dd>
+              </dl>
+              [%- END %]
+
+              <!--<dl class="dl-horizontal">
+                <dt></dt><dd><h6>DHCP INFORMATION</h6></dd>
+                <dt>OS</dt><dd>[% node.dhcp.os %]</dd>
+                <dt>DHCP Info</dt><dd></dd>
+              </dl>-->
+
+            </div>
+            <div class="tab-pane fade" id="nodeHistory">
+
+              <h6>Last 2 weeks</h6>
+[%- IF node.iplog.series %]
+<div id="iplog" class="chart"></div>
+<script type="text/javascript">
+graphs['iplog'] = {
+    type: 'dot',
+    size: 'large',
+    ylabels: ['[% node.iplog.ylabels.join("','") %]'],
+    xlabels: ['[% node.iplog.xlabels.join("','") %]'],
+    series: {
+    [% FOREACH set IN node.iplog.series.keys -%]
+      '[% set %]' : [[% node.iplog.series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+    [%- END %]
+    }
+};
+</script>
+[%- ELSE %]
+<div class="alert alert-warning">
+  <strong>Warning!</strong> <span>This MAC address has not been seen recently.</span>
+</div>
+[%- END %]
+
+            </div>
+            <div class="tab-pane fade" id="nodeAccounting">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> Delete</a>
+          <a href="#" class="btn pull-left"><i class="icon-pencil"></i> Edit...</a>
+          <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
+        </div>
+      </div>

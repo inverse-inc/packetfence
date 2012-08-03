@@ -1,0 +1,34 @@
+[%  jsFiles = ['app/application', 'admin/login'] %]
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2"></div>
+        <div class="span10">
+          <h2>[% l('Admin Login') %]</h2>
+[% IF status_msg %]
+          <div class="alert alert-warning">
+            <button class="close" data-dismiss="alert-success">×</button>
+            <strong>Warning!</strong> <span>[% status_msg %]</span>
+          </div>
+[% END %]
+          <form name="login" class="form-horizontal" action="[% c.uri_for('/admin/login') %]" method="post">
+            <input type="hidden" name="redirect_url" value="[% c.uri_for(redirect_action || 'admin/status') %]">
+            <div class="control-group">
+              <label class="control-label" for="username">[% l('Username') %]</label>
+              <div class="controls">
+                <input type="text" class="input" name="username" id="username" placeholder="[% l('Your username or email address') %]">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="password">[% l('Password') %]</label>
+              <div class="controls">
+                <input type="password" class="input" name="password" id="password">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" data-loading-text="Logging in ..">[% l('Login') %]</button>
+            </div>
+          </form>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/container-->

@@ -1,0 +1,26 @@
+            <h2>Results</h2>
+            <table class="table table-condensed table-striped">
+              <thead>
+                <tr>
+                  <th><a href="[% c.uri_for(c.action.name) %]?by=mac">MAC <i class="icon-chevron-down"></i></a></th>
+                  <th><a href="[% c.uri_for(c.action.name) %]?by=computer_name">Computer Name</a></th>
+                  <th><a href="[% c.uri_for(c.action.name) %]?by=pid">Identifier</a></th>
+                  <th><a href="[% c.uri_for(c.action.name) %]?by=status">Last AP/Controller</a></th>
+                  <th><a href="[% c.uri_for(c.action.name) %]?by=dhcp_fingerprint">OS (DHCP)</a></th>
+                </tr>
+              </thead>
+              <tbody>
+                [%- FOREACH node IN nodes -%]
+                <tr>
+                  <td><a href="[% c.urif_for('node', node.mac, 'get') %]#modalNode">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td>[% node.computername %]</td>
+                  <td>[% node.pid %]</td>
+                  <td>[% node.last_switch %]
+                    [%- IF node.last_port %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
+                    [%- IF node.last_ssid %] <span class="label label-info"><i class="icon-signal icon-white"></i> [% node.last_ssid %]</span>[% END %]</td>
+                  <td>[% node.dhcp_fingerprint %]</td>
+                </tr>
+                [%- END -%]
+              </tbody>
+            </table>
+[% INCLUDE admin/pagination.inc %]

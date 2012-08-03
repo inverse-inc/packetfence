@@ -1,0 +1,55 @@
+[%  jsFiles = ['app/bootstrap-datepicker', 'admin/configuration']
+     cssFiles = ['app/bootstrap-datepicker'] -%]
+
+<style type="text/css">
+.row-fluid [class*="span"] {
+    display: inline-block;
+}
+.row-fluid .interval [class*="span"] {
+    float: left;
+    margin-right: 4px;
+}
+</style>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header"><i class="icon-home"></i> Main</li>
+              <li><a href="[% c.uri_for('/configuration/general') %]">[% l('general') %]</a></li>
+              <li><a href="[% c.uri_for('/configuration/network') %]">[% l('network') %]</a></li>
+              <li><a href="[% c.uri_for('/configuration/proxies') %]">[% l('proxies') %]</a></li>
+              <li><a href="[% c.uri_for('/configuration/trapping') %]">[% l('trapping') %]</a></li>
+              <li><a href="[% c.uri_for('/configuration/registration') %]">[% l('registration') %]</a></li>
+              <li><a href="#">Portal Pages</a></li>
+              <li class="nav-header"><i class="icon-random"></i> Network<li>
+              <li><a href="#">Interfaces</a></li>
+              <li><a href="#">Networks</a></li>
+              <li><a href="#">Switches</a></li>
+              <li><a href="#">Floating devices</a></li>
+              <li class="nav-header"><i class="icon-user"></i> Users</li>
+              <li><a href="#">Sources</a></li>
+              <li><a href="#">Guests</a></li>
+              <li class="nav-header"><i class="icon-check"></i> Compliance</li>
+              <li><a href="#">Violations</a></li>
+              <li><a href="#">SoH Filters</a></li>
+              <li><a href="#">Roles</a></li>
+              <li><a href="#">Remediation Pages</a></li>
+              <li class="nav-header"><i class="icon-eye-open"></i> Identification</li>
+              <li><a href="#">Fingerprints</a></li>
+              <li><a href="#">User agents</a></li>              
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div id="section" class="span10">
+        </div><!--/span-->
+      </div><!--/row-->
+      
+<!--      <hr>
+
+      <footer>
+        <p>&copy; PacketFence by Inverse 2012</p>
+      </footer>-->
+
+    </div><!--/.fluid-container-->
