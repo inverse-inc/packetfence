@@ -299,10 +299,10 @@ sub generate_mangle_rules {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                 my $mac = $row->{'mac'};
-                my @iplog = iplog_history_mac($mac);
-                my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+                my $iplog = mac2ip($mac);
+                my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
-                    my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'},$mac";
+                    my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog,$mac";
                     my $out = `$cmd`;
                 }
             }
@@ -326,10 +326,10 @@ sub generate_mangle_rules {
                     next if ( !pf::config::is_network_type_inline($network) );
                     my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                     my $mac = $row->{'mac'};
-                    my @iplog = iplog_history_mac($mac);
-                    my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+                    my $iplog = mac2ip($mac);
+                    my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
-                        my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'},$mac";
+                        my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog,$mac";
                         my $out = `$cmd`;
                     }
                 }
@@ -398,10 +398,10 @@ sub iptables_mark_node {
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my @iplog = iplog_history_mac($mac);
-            my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+            my $iplog = mac2ip($mac);
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog);
             if ($net_addr->contains($ip)) {
-                my $cmd = "sudo ipset --add pfsession_$mark\_$network $iplog[0]->{'ip'},$mac";
+                my $cmd = "sudo ipset --add pfsession_$mark\_$network $iplog,$mac";
                 my $out = `$cmd`;
             }
         }
@@ -431,10 +431,10 @@ sub iptables_unmark_node {
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my @iplog = iplog_history_mac($mac);
-            my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+            my $iplog = mac2ip($mac);
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog);
             if ($net_addr->contains($ip)) {
-                my $cmd = "sudo ipset --del pfsession_$mark\_$network $iplog[0]->{'ip'},$mac";
+                my $cmd = "sudo ipset --del pfsession_$mark\_$network $iplog,$mac";
                 my $out = `$cmd`;
             }
         }
@@ -474,11 +474,11 @@ sub get_mangle_mark_for_mac {
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-            my @iplog = iplog_history_mac($mac);
-            my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
+            my $iplog = mac2ip($mac);
+            my $ip = new NetAddr::IP::Lite clean_ip($iplog);
             if ($net_addr->contains($ip)) {
                 foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                    my $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK\_$network $iplog[0]->{'ip'},$mac";
+                    my $cmd = "sudo ipset --test pfsession_$IPTABLES_MARK\_$network $iplog,$mac";
                     my @out = `$cmd 2>&1`;
                     if (!($out[0] =~ m/NOT/i)) {
                         return $IPTABLES_MARK;

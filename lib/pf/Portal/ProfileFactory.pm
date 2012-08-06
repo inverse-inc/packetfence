@@ -61,12 +61,14 @@ sub instantiate {
     # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
     my $node_info = node_view($mac);
     my $last_ssid = $node_info->{'last_ssid'};
-    return pf::Portal::Profile->new(_default_profile()) if (!defined($last_ssid));
+    return pf::Portal::Profile->new(_default_profile()) if (!(defined($node_info->{'last_ssid'}) || defined($node_info->{'last_vlan'})));
 
-    foreach my $filter ( keys %filters ) {
-        if ( $filter eq $last_ssid ) {
-            $logger->info("instantiating new portal profile of type " . $filters{$filter});
-            return pf::Portal::Profile->new(_custom_profile($filters{$filter}));
+    foreach my $last_info ("last_ssid","last_vlan") {
+        foreach my $filter ( keys %filters ) {
+            if ( $filter eq $node_info->{$last_info} ) {
+                $logger->info("instantiating new portal profile of type " . $filters{$filter});
+                return pf::Portal::Profile->new(_custom_profile($filters{$filter}));
+            }
         }
     }
 
