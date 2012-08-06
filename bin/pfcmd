@@ -1686,9 +1686,13 @@ sub reload {
         print "$fp_total DHCP fingerprints reloaded\n";
     } elsif ( $option eq "violations" ) {
         require pf::services;
-        pf::services::read_violations_conf();
-        $logger->info("Violation classes reloaded");
-        print "Violation classes reloaded\n";
+        my $result = pf::services::read_violations_conf();
+        if (!$result) {
+            print "There was an error reloading the violations, check the logs for more info\n";
+        } else { 
+            $logger->info("Violation classes reloaded");
+            print "Violation classes reloaded\n";
+        }
     }
     exit;
 }

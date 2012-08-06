@@ -800,7 +800,30 @@ sub violations {
     if ( scalar(@errors) ) {
         add_problem( $FATAL, "Error reading violations.conf");
     }
+    
+    # Checking for dupes ID.  It is not sexy, but it works
+    #
+    open (my $FH, "$install_dir/conf/violations.conf");
+    my @buf = <$FH>;
+    close ($FH);
+    my @lines = grep (/\[.*[0-9]\]/, @buf);
+    
+    my %dupecheck;
 
+    foreach (@lines) {
+       #Remove angle brakets first for presentation concerns
+       my $id = $_;
+       $id =~ s/\[//g;
+       $id =~ s/\]//g;
+       
+       #if the ID already exists in the hash, bail out!
+       if (exists($dupecheck{$id})){
+           add_problem( $FATAL, "Duplicate violation id found: $id");
+       } else {
+           $dupecheck{$id} = 1;
+       }
+    }
+       
     my %violations = pf::services::class_set_defaults(%violations_conf);    
 
     my $deprecated_disable_seen = $FALSE;
