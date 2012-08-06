@@ -301,7 +301,6 @@ sub generate_mangle_rules {
                 my $mac = $row->{'mac'};
                 my @iplog = iplog_history_mac($mac);
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
-                $logger->info("IPSET ". $ip);
                 if ($net_addr->contains($ip)) {
                     my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog[0]->{'ip'},$mac";
                     my $out = `$cmd`;
@@ -329,7 +328,6 @@ sub generate_mangle_rules {
                     my $mac = $row->{'mac'};
                     my @iplog = iplog_history_mac($mac);
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
-                    $logger->info("IPSET ". $ip);
                     if ($net_addr->contains($ip)) {
                         my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog[0]->{'ip'},$mac";
                         my $out = `$cmd`;
@@ -432,7 +430,6 @@ sub iptables_unmark_node {
     if ($IPSET_VERSION > 0) {
         foreach my $network ( keys %ConfigNetworks ) {
             next if ( !pf::config::is_network_type_inline($network) );
-            $logger->info("IPSET ". $ConfigNetworks{$network}{'netmask'} ."  ".$network);
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my @iplog = iplog_history_mac($mac);
             my $ip = new NetAddr::IP::Lite clean_ip($iplog[0]->{'ip'});
