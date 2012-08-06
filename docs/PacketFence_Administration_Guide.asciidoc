@@ -307,6 +307,11 @@ server, DHCP server, RADIUS server) using:
   sudo apt-get update
   sudo apt-get install packetfence
 
+In order to use ipset in inline mode, you must install two news dependencies and compile kernel modules:
+
+  apt-get install xtables-addons-source xtables-addons-common
+  module-assistant auto-install xtables-addons
+
 Configuration
 -------------
 

@@ -16,8 +16,8 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  openssl, openssl-blacklist, openssl-blacklist-extra, php-log, snort, 
  mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear,
  php5-mysql, php5-gd, perl-suid, make,
-# ipset (ipset is included in xtables-addons-source)
- sudo, xtables-addons-source, xtables-addons-common,
+# ipset (ipset must be installed by hand  apt-get install xtables-addons-common  xtables-addons-source)
+ sudo,
 # process management
  procps,
 # perl stuff

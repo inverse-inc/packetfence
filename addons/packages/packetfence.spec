@@ -479,7 +479,7 @@ fi
 %dir                    %{_sysconfdir}/logrotate.d
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 %dir                    %{_sysconfdir}/sudoers.d
-%config                 %{_sysconfdir}/sudoers.d.d/pf
+%config                 %{_sysconfdir}/sudoers.d/pf
 
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/addons

@@ -15,7 +15,8 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
-Enhancements
+New Features
+ * Adding ipset support for inline mode
 
 Bug Fixes
 
