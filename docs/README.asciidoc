@@ -137,7 +137,7 @@ Turns out this is quite tricky and unfortunately doesn't yield the best results.
 
 
 CentOS 6 / RHEL6 / Fedora: Could not compile stylesheet
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Getting an error similar to:
 
@@ -160,7 +160,7 @@ Try patching your `/usr/bin/fop` with `docs/docbook/fop-centos6.patch`:
 
 
 CentOS 6 / RHEL6 / Fedora: Output is not the same
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You are probably not running asciidoc >= 8.6.2. Install from rpmforge-extras:
 
