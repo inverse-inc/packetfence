@@ -499,11 +499,15 @@ if ($reevaluateAccess) {
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+        exit 1;
     } else {
         $logger->debug("start handling 'deauthenticateDot1x' command");
         if (defined($mac) && $mac ne '') {
             $logger->info("wireless deauthentication of a 802.1x MAC");
-            $switch->deauthenticateMac($mac, 1);
+            # TODO make sure the return code of deauthenticateMac() is coherent in all modules
+            # this was not done when this simple fix was committed
+            my $result = $switch->deauthenticateMac($mac, $TRUE)
+            exit(1) if (!defined($result) || $result != $TRUE );
         } elsif (defined($ifIndex) && $ifIndex != 0) {
             $logger->info("wired deauthentication of a 802.1x MAC");
             $switch->dot1xPortReauthenticate($ifIndex);
