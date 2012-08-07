@@ -345,30 +345,6 @@ sub read_violations_conf {
         $logger->error( "Error reading violations.conf: " .  join( "\n", @errors ) . "\n" );
         return 0;
     }
-
-    # Checking for dupes ID.  It is not sexy, but it works
-    #
-    open (my $FH, "$install_dir/conf/violations.conf");
-    my @buf = <$FH>;
-    close ($FH);
-    my @lines = grep (/\[.*[0-9]\]/, @buf);
-
-    my %dupecheck;
-
-    foreach (@lines) {
-       #Remove angle brakets first for presentation concerns
-       my $id = $_;
-       $id =~ s/\[//g;
-       $id =~ s/\]//g;
-
-       #if the ID already exists in the hash, bail out!
-       if (exists($dupecheck{$id})){
-           $logger->error("Duplicate violation id found: $id");
-           return 0;
-       } else {
-           $dupecheck{$id} = 1;
-       }
-    }
     my %violations = class_set_defaults(%violations_conf);
 
     #clear all triggers at startup
