@@ -48,8 +48,8 @@ o Upgrading from a version prior to 3.5.0:
     We made some changes in the way nessus scan is working.
     We directly use the policy on the server and you no longer have to declare
     nessus_clientfile in pf.conf.
-    scan.nessus_clientfile parameter has also been dropped so make sure to adapt
-    your configuration accordingly.
+    pf.conf's nessus_clientfile parameter has been dropped so make sure to 
+    remove it (or run the upgrade helper script mentionned earlier).
 
     - Bandwidth accounting violation changes
     Triggers are no longer sliding windows but current day, week, month, 

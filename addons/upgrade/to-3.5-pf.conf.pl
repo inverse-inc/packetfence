@@ -39,6 +39,9 @@ while (<>) {
     # removing the caching parameter
     next if (/^\s*caching\s*=.*$/i);
 
+    # removing nessus_clientfile parameter
+    next if (/^\s*nessus_clientfile\s*=.*$/i);
+
     # if we didn't skip, we keep
     print;
 }
