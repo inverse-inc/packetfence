@@ -17,6 +17,8 @@ Version <stableRelease> released on <releaseDate>
 
 New Features
  * Adding ipset support for inline mode
+ * Adding support for multivlan in inline mode
+ * Adding support of portal profil by vlan
 
 Bug Fixes
 
