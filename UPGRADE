@@ -46,7 +46,7 @@ o Upgrading from a version prior to 3.5.0:
 
     - Nessus scan XMLRPC
     We made some changes in the way nessus scan is working.
-    We directly use the policy on the server and you no longuer have to declare
+    We directly use the policy on the server and you no longer have to declare
     nessus_clientfile in pf.conf.
     scan.nessus_clientfile parameter has also been dropped so make sure to adapt
     your configuration accordingly.
@@ -62,7 +62,7 @@ o Upgrading from a version prior to 3.5.0:
     - dropping installation.pl and configurator.pl
     We dropped both the installation.pl and configurator.pl scripts in favor of the
     newly implemented web based configurator. Make sure to pay attention to the directives
-    ate the end of the package installation.
+    at the end of the package installation.
 
     - introduction of a new repository: OpenFusion
     The use of perl Catalyst as a web engine for the new web platform required the introduction
