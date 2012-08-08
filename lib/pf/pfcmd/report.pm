@@ -35,6 +35,7 @@ BEGIN {
         report_osclassbandwidth_month
         report_osclassbandwidth_year
         report_nodebandwidth_all
+        report_sponsoruser_all
         report_os_all
         report_os_active
         report_osclass_all
@@ -318,6 +319,11 @@ sub report_db_prepare {
         HAVING radacct.callingstationid IS NOT NULL
         ORDER BY accttotaloctets DESC
         LIMIT 25;
+    ]);
+
+    $report_statements->{'report_sponsoruser_sql'} = get_db_handle()->prepare(qq [
+        SELECT email,count(*) as sponsor
+        FROM email_activation limit 25;
     ]);
 
     $report_db_prepared = 1;
@@ -832,6 +838,16 @@ sub translate_connection_type {
     return (@data);
 }
 
+=item * report_sponsoruser_all
+
+Reporting - top 25 Sponsor user
+
+=cut
+sub report_sponsoruser_all {
+    my @data = db_data(REPORT, $report_statements, 'report_sponsoruser_sql');
+    return (@data);
+}
+
 =back
 
 =head1 AUTHOR
@@ -843,6 +859,8 @@ Kevin Amorin <kev@amorin.org>
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Francois Gaudreault <fgaudreault@inverse.ca>
+
+fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 
