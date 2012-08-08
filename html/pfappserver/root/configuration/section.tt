@@ -78,10 +78,12 @@
                 <input type="text" class="input span1" id="[% config.parameter | id %]" placeholder="[% config.default_value %]" value="[% config.value %]">
                 <div class="btn-group" data-toggle="buttons-radio">
                   <button class="btn[% IF config.unit == "s" %] active[% END %]" value="s">[% l('seconds') %]</button>
+                  <button class="btn[% IF config.unit == "m" %] active[% END %]" value="m">[% l('minutes') %]</button>
                   <button class="btn[% IF config.unit == "h" %] active[% END %]" value="h">[% l('hours') %]</button>
                   <button class="btn[% IF config.unit == "D" %] active[% END %]" value="D">[% l('days') %]</button>
                   <button class="btn[% IF config.unit == "W" %] active[% END %]" value="W">[% l('weeks') %]</button>
                   <button class="btn[% IF config.unit == "M" %] active[% END %]" value="M">[% l('months') %]</button>
+                  <button class="btn[% IF config.unit == "Y" %] active[% END %]" value="Y">[% l('years') %]</button>
                 </div>
                 <p class="help-block">[% l(config.description) %]</p>
               </div>
