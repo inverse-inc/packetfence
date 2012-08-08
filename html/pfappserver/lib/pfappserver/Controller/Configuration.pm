@@ -19,6 +19,10 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+# imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be 
+# imported but it's better than duplicating regex all over the place.
+use pf::config;
+
 BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 METHODS
@@ -52,12 +56,12 @@ sub _format_params :Private {
         # Extract unit from time
         elsif ($entry_ref->{type} eq "time") {
             my $value = $entry_ref->{value} || $entry_ref->{default_value};
-            if ($value =~ m/(\d+)([shDWM])/) {
+            if ($value =~ m/(\d+)($TIME_MODIFIER_RE)/) {
                 my ($interval, $unit) = ($1, $2);
                 $entry_ref->{unit} = $unit;
                 if (defined $entry_ref->{value}) {
                     $entry_ref->{value} = $interval;
-                } elsif ($entry_ref->{default_value} =~ m/(\d+)([shDWM])/) {
+                } elsif ($entry_ref->{default_value} =~ m/(\d+)($TIME_MODIFIER_RE)/) {
                     my ($interval, $unit) = ($1, $2);
                     $entry_ref->{default_value} = $interval;
                 }
