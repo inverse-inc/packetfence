@@ -51,8 +51,10 @@ o Upgrading from a version prior to 3.5.0:
     scan.nessus_clientfile parameter has also been dropped so make sure to adapt
     your configuration accordingly.
 
-    - modified trigger type
-    Accounting violations trigger type TOT20GB1M has been renamed to TOT20GB1M.
+    - Bandwidth accounting violation changes
+    Triggers are no longer sliding windows but current day, week, month, 
+    etc. instead. The trigger format changed. You should remove the digits
+    between size and duration. For example: TOT20GB1M becomes TOT20GBM.
     
     - pf.conf's trapping.registration now enabled by default
     We changed this setting from disabled to enabled by default since we consider
