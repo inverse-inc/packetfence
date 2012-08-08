@@ -506,7 +506,7 @@ if ($reevaluateAccess) {
             $logger->info("wireless deauthentication of a 802.1x MAC");
             # TODO make sure the return code of deauthenticateMac() is coherent in all modules
             # this was not done when this simple fix was committed
-            my $result = $switch->deauthenticateMac($mac, $TRUE)
+            my $result = $switch->deauthenticateMac($mac, $TRUE);
             exit(1) if (!defined($result) || $result != $TRUE );
         } elsif (defined($ifIndex) && $ifIndex != 0) {
             $logger->info("wired deauthentication of a 802.1x MAC");
