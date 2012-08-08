@@ -207,6 +207,7 @@ sub new {
         '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
+        '_deAuthMethod'             => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -302,6 +303,8 @@ sub new {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
+        } elsif (/^-?deAuthMethod$/i) {
+            $this->{_deAuthMethod} = $argv{$_};
         }
     }
     return $this;
