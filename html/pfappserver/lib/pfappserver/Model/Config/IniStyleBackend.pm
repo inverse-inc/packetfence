@@ -1,18 +1,14 @@
-package pfappserver::Model::Config::Networks;
+package pfappserver::Model::Config::IniStyleBackend;
 
 =head1 NAME
 
-pfappserver::Model::Config::Networks - Catalyst Model
+pfappserver::Model::Config::IniStyleBackend - Catalyst Model
 
 =head1 DESCRIPTION
 
 Catalyst Model.
 
 =cut
-
-use strict;
-use warnings;
-
 use Config::IniFiles;
 use Moose;
 use namespace::autoclean;
@@ -21,13 +17,64 @@ use pf::config;
 use pf::config::ui;
 use pf::error qw(is_error is_success);
 
-extends 'pfappserver::Model::Config::IniStyleBackend';
+extends 'Catalyst::Model';
 
-sub _myConfigFile { return $network_config_file };
+has 'config_file' => (
+    is => 'ro', 
+    isa => 'Str', 
+    required => 1,
+    builder => '_myConfigFile',
+);
+has '_cached_conf' => (is => 'rw', isa => 'HashRef');
 
 =head1 METHODS
 
 =over
+
+=item _load_conf
+
+Load .ini style config file into a Config::IniFiles tied hasref.
+
+Performs caching.
+
+=cut
+sub _load_conf {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    unless ( defined $self->_cached_conf ) {
+        my %conf;
+
+        # Load existing file
+        if ( -e $self->config_file ) {
+            tie %conf, 'Config::IniFiles', ( -file => $self->config_file, -allowempty => 1 )
+                or $logger->logdie("Unable to open config file $self->{config_file}: ", 
+                join("\n", @Config::IniFiles::errors));
+            $logger->info("Loaded existing $self->{config_file} file");
+        }
+        # No existing file, create one
+        else {
+            tie %conf, 'Config::IniFiles';
+            tied(%conf)->SetFileName($self->config_file)
+                or $logger->logdie("Unable to open config file $self->{config_file}: ",
+                join("\n", @Config::IniFiles::errors));
+            $logger->info("Created a new $self->{config_file} file");
+        }
+
+        foreach my $section ( tied(%conf)->Sections ) {
+            foreach my $key ( keys %{ $conf{$section} } ) {
+                $conf{$section}{$key} =~ s/\s+$//;
+            }
+        }
+
+        $self->_cached_conf(\%conf);
+    }
+
+    return $self->_cached_conf;
+}
+
+1;
+__END__
 
 =item create
 
@@ -42,7 +89,7 @@ sub create {
     return ($STATUS::FORBIDDEN, "This method does not handle network $network") 
         if ( $network eq 'all' );
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
 
     if ( !$tied_conf->SectionExists($network) ) {
@@ -75,7 +122,7 @@ sub delete {
     return ($STATUS::FORBIDDEN, "This method does not handle network $network")  
         if ( $network eq 'all' );
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
 
     if ( $tied_conf->SectionExists($network) ) {
@@ -132,7 +179,7 @@ sub list_networks {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my @networks = ();
     foreach my $section ( keys %$networks_conf ) {
         push @networks, $section;
@@ -140,6 +187,7 @@ sub list_networks {
 
     return ($STATUS::OK, \@networks);
 }
+
 
 =item read_value
 
@@ -150,7 +198,7 @@ sub read_value {
 
     my $status_msg;
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
 
     # Warning: autovivification causes interfaces to be created if the section
     # is not looked on her own first when the file is written later.
@@ -172,7 +220,7 @@ sub read_network {
     my ( $self, $network ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my @columns = pf::config::ui->instance->field_order('networkconfig get'); 
     my @resultset = [@columns];
 
@@ -207,7 +255,7 @@ sub update {
     return ($STATUS::FORBIDDEN, "This method does not handle network $network")
         if ( $network eq 'all' );
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
 
     if ( $tied_conf->SectionExists($network) ) {
@@ -243,7 +291,7 @@ sub update_network {
     return ($STATUS::FORBIDDEN, "This method does not handle network $network")
         if ( $network eq 'all' );
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
     if (exists $networks_conf->{$network}) {
         my $network_ref = $networks_conf->{$network};
@@ -267,7 +315,7 @@ sub _write_networks_conf {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     tied(%$networks_conf)->WriteConfig($network_config_file)
         or $logger->logdie(
             "Unable to write configs to $network_config_file. You might want to check the file's permissions."
@@ -282,7 +330,7 @@ sub exist {
     my ( $self, $network ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $networks_conf = $self->_load_conf();
+    my $networks_conf = $self->_load_networks_conf();
     my $tied_conf = tied(%$networks_conf);
 
     return $TRUE if ( $tied_conf->SectionExists($network) );
