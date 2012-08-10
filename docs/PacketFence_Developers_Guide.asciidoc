@@ -223,7 +223,447 @@ violation set to load the `malware` template.
 In the templates, if a string is in a `i18n()` call it will be translated. 
 Also `pf::web` takes care of performing some of the other translations.
 
-//TODO: process the rest. I found quickest way to be: 
+
+Adding custom fields to the database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can, if needed, add additional fields to the PacketFence database. Keep in mind though that this
+might lead to more work when you upgrade to the next PacketFence version. Depending on the degree of
+integration of these fields with PacketFence, you'll have to execute one or more of the following steps
+
+Adding a field to the database only
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this case, the field is part of one of the main PacketFence tables, but PacketFence is unaware of
+it. PacketFence won't consult the field and won't be able to modify it. A possible usage scenario would be a
+3rd party application which maintains this field.
+
+Since PacketFence doesn't have to know about the field, all you have to do is execute your `SQL ALTER
+TABLE` query and you are done.
+
+Adding a field and giving PacketFence read-only access
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this case, PacketFence can show the contents of the table using both
+`pfcmd` and the Web Admin GUI, but won't be able to modify the contents of the field.
+
+Start by modifying the database table using an `SQL ALTER TABLE` query.
+
+Then, modify the Perl module having the same name as the table you have added the field to, i.e. If you
+added the field to the node table, then edit `/usr/local/pf/lib/pf/node.pm`. You'll have to modify the
+`SQL SELECT` queries at the beginning of the file to include your new field and, possibly the functions
+using these queries. If your new field should be used in reports, the dashboard or graphs, you'll also
+have to modify the queries in `/usr/local/pf/lib/pf/pfcmd/graph.pm`, `/usr/local/pf/lib/pf/pfcmd/report.pm`
+and `/usr/local/pf/lib/pf/pfcmd/dashboard.pm`.
+
+Last, but not least, you'll have to modify the file `/usr/local/pf/conf/ui.conf`.
+In this file, you can also give a nice looking name to your field for showing
+up in the Web Admin GUI.
+
+
+Adding a field and giving PacketFence read-write access
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Start by creating the read-only field as described above.
+
+Then, modify the `SQL UPDATE` and `INSERT` queries in the database tables'
+Perl module, as well as the associated functions.
+
+The last step is to make PacketFence's grammar aware of the new field. Modify
+`/usr/local/pf/lib/pf/pfcmd/pfcmd.pm` and then re-generate the precompiled grammar (which
+is used by the `pfcmd` CLI) with:
+
+  cd /usr/local/pf
+  /usr/bin/perl -w -e '
+    use strict; use warnings;
+    use Parse::RecDescent; use lib "/usr/local/pf/lib";
+    use pf::pfcmd::pfcmd;
+    Parse::RecDescent->Precompile($grammar, "pfcmd_pregrammar");
+  '
+  mv pfcmd_pregrammar.pm /usr/local/pf/lib/pf/pfcmd/pfcmd_pregrammar.pm
+
+VLAN assignment
+~~~~~~~~~~~~~~~
+
+pfsetvlan uses the `getNormalVlan` function defined in `pf::vlan::custom`
+to determine a node's VLAN. Here's the default function:
+
+  sub getNormalVlan {
+      #$switch is the switch object (pf::SNMP)
+      #$ifIndex is the ifIndex of the computer connected to
+      #$mac is the mac connected
+      #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+      #$conn_type is set to the connnection type expressed as the constant in pf::config
+      #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+      #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+
+      my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+      my $logger = Log::Log4perl->get_logger();
+
+      return $switch->getVlanByName('normalVlan');
+  }
+
+
+As you can see, the function receives several parameters (such as the switch and full node details)
+which allow you to return the VLAN in a way that matches exactly your needs!
+
+SNMP
+----
+
+Introduction
+~~~~~~~~~~~~
+
+Good places to start reading about SNMP are http://en.wikipedia.org/wiki/SNMP
+and http://www.net-snmp.org/.
+
+When working with SNMP, you'll sooner or later (in fact more sooner than later) be confronted with having
+to translate between OIDs and variable names. When the OIDs are part of the Cisco MIBs, you can use the
+following tool to do the translation: http://tools.cisco.com/Support/SNMP/public.jsp. Otherwise, you'll
+have to use `snmptranslate` for example and setup your own collection of MIBs, provided (hopefully) by
+the manufacturer of your network equipment.
+
+Obtaining switch and port information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Below are some example of how to obtain simple switch and port information using SNMP. We'll assume that
+your switch understands SNMP v2, has the read community `public` defined and is reachable at `192.168.1.10`.
+
+Switch Type
+^^^^^^^^^^^
+
+  snmpwalk -v 2c -c public 192.168.1.10 sysDescr
+
+Switchport indexes and descriptions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  snmpwalk -v 2c -c public 192.168.1.10 ifDescr
+
+Switchport types
+^^^^^^^^^^^^^^^^
+
+  snmpwalk -v 2c -c public 192.168.1.10 ifType
+
+Switchport status
+^^^^^^^^^^^^^^^^^
+
+  snmpwalk -v 2c -c public 192.168.1.10 ifAdminStatus
+  snmpwalk -v 2c -c public 192.168.1.10 ifOperStatus
+
+Supporting new network hardware
+-------------------------------
+
+PacketFence is designed to ease the addition of support for new network hardware referred to as Network
+Devices. All supported network devices are represented through Perl objects with an extensive use of inheritance.
+Adding support for a new product comes down to extending the `pf::SNMP` class (in `/usr/local/pf/lib/pf`).
+
+The starting point to adding support for a new network device should be the vendor's documentation! First
+of all, you'll have to figure out the exact capabilities of the switch and how these capabilities will fit into
+PacketFence. Is it a Switch, an Access-Point or a Wireless Controller?
+
+Switch
+~~~~~~
+
+Will you be able to use only link change traps? Does your switch allow you to use MAC notification traps?
+Port Security? MAC Authentication? 802.1X?
+
+Link change capabilities
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+You need to define a new class which inherits from `pf::SNMP` and defines
+at least the following functions:
+
+[options="compact"]
+* `getMacAddrVlan`
+* `getVersion`
+* `getVlan`
+* `getVlans`
+* `isDefinedVlan`
+* `parseTrap`
+* `_getMacAtIfIndex`
+* `_setVlan`
+
+The `parseTrap` function will need to return an hash with keys `trapType` and
+`trapIfIndex`.  The associated values must be `up` or `down` for `trapType`
+and the traps' `ifIndex` for `trapIfIndex`.  See a similar switch's
+implementation for inspiration. Usually recent modules are better coded than
+older ones.
+
+MAC notification capabilities
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to the functions mentioned for link change, you need to define the following
+function:
+
+* `isLearntTrapsEnabled`
+
+Also, your `parseTrap` function will need to return `trapOperation`, `trapVlan`
+and `trapMac` keys in addition to `trapType` equals `mac`. See a similar switch's
+implementation for inspiration. Usually recent modules are better coded than
+older ones.
+
+Port security capabilities
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to the functions mentioned for link change, you need to define the following
+functions:
+
+[options="compact"]
+* `isPortSecurityEnabled`
+* `authorizeMAC`
+
+In this case, the `parseTrap` function needs to return `secureMacAddrViolation` for the
+`trapType` key. See a similar switch's implementation for inspiration. Usually
+recent modules are better coded than older ones.
+
+MAC Authentication
+^^^^^^^^^^^^^^^^^^
+
+NOTE: Work in progress
+
+NAS-Port translation
+++++++++++++++++++++
+
+Often the `ifIndex` provided by the switch in a RADIUS `Access-Request` is
+not the same as it's real world physical equivalent. For example in Cisco
+requests are in the 50xxx while physical ifIndex are 10xxx. In order for
+PacketFence to properly shut the port or request re-authentication a
+translation between the two is required. To do so provide an implementation
+of the following interface:
+
+* `NasPortToIfIndex`
+
+MAC Authentication re-evaluation
+++++++++++++++++++++++++++++++++
+
+MAC Authentication re-evaluation is necessary in order to provoke a VLAN change in the PacketFence
+system. This happens for instance when a node is isolated based on an IDS event or when the user
+succesfully authenticates through the captive portal. The default implementation in
+`pf::SNMP` will bounce the port if there is no Voice over IP (VoIP) devices connected to the
+port. Otherwise it will do nothing and send an email. If your device has specific needs (for example it
+doesn't support RADIUS Dynamic VLAN Assignments) override:
+
+* `handleReAssignVlanTrapForWiredMacAuth`
+
+Please note that the default implementation works 99% of the time. If you
+are unsure whether to override, it means you don't need to override.
+
+Once the MAC Authentication works, add the Wired MAC Auth capability to the switch's code with:
+
+  sub supportsWiredMacAuth { return $TRUE; }
+
+
+802.1X
+^^^^^^
+
+NOTE: Work in progress
+
+NAS-Port translation
+++++++++++++++++++++
+
+Often the `ifIndex` provided by the switch in a RADIUS `Access-Request` is
+not the same as it's real world physical equivalent. For example in Cisco
+requests are in the 50xxx while physical ifIndex are 10xxx. In order for
+PacketFence to properly shut the port or request re-authentication a
+translation between the two is required. To do so provide an implementation
+of the following interface:
+
+* `NasPortToIfIndex`
+
+So far the implementation has been the same for MAC Authentication and 802.1X.
+
+Force 802.1X re-authentication
+++++++++++++++++++++++++++++++
+
+802.1X re-authentication is necessary in order to provoke a VLAN change in the PacketFence system.
+This happens for instance when a node is isolated based on an IDS event or when the user succesfully
+authenticates through the captive portal. The default implementation in `pf::SNMP` uses SNMP and the
+standard `IEEE8021-PAE-MIB` and is generally well supported. If the default implementation to
+force 802.1X re-authentication doesn't work override:
+
+
+* `dot1xPortReauthenticate`
+
+Proper 802.1X implementations will perform re-authentication while still allowing traffic to go
+through for supplicants under re-evaluation.
+
+Once the `802.1X` works, add the Wired Dot1X capability to the switch's code with:
+
+  sub supportsWiredDot1x { return $TRUE; }
+
+RADIUS Dynamic Authorization (RFC3576)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+NOTE: RADIUS Dynamic Authorization implementation is not recommended on the wired side at this point.
+
+RADIUS Dynamic Authorization also known as RADIUS Change of Authorization (CoA) or RADIUS Disconnect
+Messages is supported by PacketFence starting with version 3.1.
+
+On wired network devices CoA can be used to change the security posture of a MAC and perform other
+functions like bounce a port. So far we only encountered support for CoA on the wired side on the Cisco
+hardware. For an implementation example check `_radiusBounceMac` in `pf::SNMP::Cisco`.
+
+Floating Network Devices Support
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Floating Network Devices are described in the Administration Guide under "Floating Network Devices" in
+the "Optional Components" section. Refer to this documentation if you don't know what Floating Network
+Devices are.
+
+In order to support Floating Network Devices on a switch, you need to implement the following
+methods:
+
+[options="compact"]
+* `setPortSecurityEnableByIfIndex($ifIndex, $enable)`
+* `isTrunkPort($ifIndex)`
+* `setModeTrunk($ifIndex, $enable)`
+* `setTaggedVlans($ifIndex, $switch_locker_ref, @vlans)`
+* `removeAllTaggedVlans($ifIndex, $switch_locker_ref)`
+
+You might need to implement the following:
+
+* `enablePortConfigAsTrunk($mac, $switch_port, $switch_locker, $taggedVlans)`
++
+Provided by `pf::SNMP` core as the glue between `setModeTrunk()`,
+`setTaggedVlans()` and `removeAllTaggedVlans()`. Override if necessary.
+
+* `disablePortConfigAsTrunk($switch_port)`
++
+Provided by `pf::SNMP` core as the glue between `setModeTrunk()`,
+`setTaggedVlans()` and `removeAllTaggedVlans()`. Override if necessary.
+
+* `enablePortSecurityByIfIndex($ifIndex)`
++
+Provided by `pf::SNMP` core as a slim accessor to
+`setPortSecurityEnableByIfIndex()`. Override if necessary.
+
+* `disablePortSecurityByIfIndex($ifIndex)`
++
+Provided by `pf::SNMP` core as a slim accessor to
+`setPortSecurityEnableByIfIndex()`. Override if necessary.
+
+* `enableIfLinkUpDownTraps($ifIndex)`
++
+Provided by `pf::SNMP` core as a slim accessor to
+`setIfLinkUpDownTrapEnable`. Override if necessary.
+
+* `disableIfLinkUpDownTraps($ifIndex)`
++
+Provided by `pf::SNMP` core as a slim accessor to
+`setIfLinkUpDownTrapEnable`. Override if necessary.
+
+Once all the required methods are implemented, enable the capability in the switch's code with:
+
+  sub supportsFloatingDevice { return $TRUE; }
+
+
+Wireless Access-Points or Controllers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Minimum hardware requirements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence's minimum requirements regarding Wireless hardware is:
+
+[options="compact"]
+* definition of several SSID with several VLANs inside every SSID (minimum of 2 VLANs per SSID)
+* RADIUS authentication (MAC Authentication / 802.1X)
+* Dynamic VLAN assignment through RADIUS attributes
+* a means to de-associate or de-authenticate a client through CLI (Telnet or SSH),
+  SNMP, RADIUS Dyn-Auth footnote:[RADIUS Dynamic Authorization (RFC 3576) aka
+  Change of Authorization (CoA) or Disconnect-Messages (DM aka PoD)] or WebServices
+
+Most of these features are available on enterprise grade Access Points (AP) or Controllers.
+Where the situation starts to vary wildly is for deauthentication support.
+
+De-authentication techniques
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CLI (SSH or Telnet)
++++++++++++++++++++
+
+An error prone interface and requires preparation for the SSH access or is insecure for Telnet. Not
+recommended if you can avoid it.
+
+SNMP
+++++
+
+SNMP de-authentication works well when available. However Vendor support is not consistent and the
+OID to use are not standard.
+
+RADIUS Dynamic Authorization (RFC3576)
+++++++++++++++++++++++++++++++++++++++
+
+RADIUS Dynamic Authorization also known as RADIUS Change of Authorization (CoA) or RADIUS
+Disconnect Messages is supported by PacketFence starting with version 3.1. When supported it is the
+preferred technique to perform de-authentication. It is standard and requires less configuration from the
+user.
+
+An actual implementation can be found in `pf::SNMP::Aruba`.
+
+Template module
+^^^^^^^^^^^^^^^
+
+Start with a copy of the template module `pf/lib/pf/SNMP/WirelessModuleTemplate.pm`
+and fill in appropriate documentation and code.
+
+Required methods
+^^^^^^^^^^^^^^^^
+
+You need to implement at least:
+
+`getVersion()`::
+  Fetches firmware version
+
+`parseTrap()`::
+  Parses the SNMP Traps sent by the hardware. For wireless hardware an empty method
+  like the one in `pf::SNMP::WirelessModuleTemplate` is ok.
+
+`deauthenticateMac()`::
+  Performs deauthentication
+
+`supportsWirelessMacAuth()`::
+  Return `$TRUE` if MAC-Authentication is supported
+
+`supportsWirelessDot1x()`::
+  Return `$TRUE` if 802.1X (aka WPA-Enterprise) is supported
+
+Override methods
+^^^^^^^^^^^^^^^^
+
+If default implementation of the following methods doesn't work you will need to override them:
+
+`extractSsid()`::
+  Extract SSID from RADIUS Request
+
+Special case: bridged versus tunneled modes and deauthentication
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is important to validate the Access-Point (AP) to Controller relationship when operating in bridged
+mode versus when operating in tunneled mode. For example, some hardware will send the RADIUS `Access-Request`
+from the AP when in bridged mode even though it is controlled by a controller. This behavior impacts
+deauthentication because it still needs to be performed on the controller. To support this behavior a
+`switches.conf` parameter was introduced: `controller_ip`.
+
+When adding a new Wireless module try to validate the bridged versus tunneled behavior and modify
+`deauthenticateMac()` to honor `controller_ip` if required.
+
+The "adding a new network device module in PacketFence" checklist
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here's a quick rundown of the several files you need to edit in order to add a new switch into
+PacketFence. There's a plan to reduce this amount of work in progress see
+http://packetfence.org/bugs/view.php?id=1085[issue #1085].
+
+[options="compact"]
+* Tested model and firmware version should be documented in module's POD
+* Any bugs and limitations should be documented in module's POD
+* Add it to `pf/html/admin/configuration/switches_add.php` and `switches_edit.php`
+* Make sure that all tests pass
+* Add configuration documentation to the Network Devices Guide
+* Add switch to the Network Devices Guide's switch chart
+* Add switch to the chart in `README.network-devices`
+
+//TODO: process the rest. I found quickest way to be:
 // paste from docbook then use vim(:1,9s#<\_.\{-1,}>##g) and reformat by hand
 
 include::includes/additional-info.asciidoc[]
