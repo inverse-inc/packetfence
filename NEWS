@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
+Enhancements
+ * Developers guide was migrated from Docbook into the asciidoc format
+
 --------------------------------------------------------------------------------
 Version 3.5.0 released on 2012-08-01
 
