@@ -13,7 +13,7 @@
                 <li class="disabled"><a href="#">…</a></li>
                 [%- END -%]
                 [% page = first_page; WHILE page <= last_page -%]
-                <li[% IF page == page_num %] class="active"[% END %]><a href="[% c.uri_for(c.action.name) %]?page_num=[% page %]&per_page=[% per_page %]" title="Coucou">[% page %]</a></li>
+                <li[% IF page == page_num %] class="active"[% END %]><a href="[% c.uri_for(c.action.name) %]?page_num=[% page %]&per_page=[% per_page %]">[% page %]</a></li>
                 [%- page = page + 1 -%]
                 [%- END -%]
                 [%- IF last_page < pages_count %]
