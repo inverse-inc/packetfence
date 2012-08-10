@@ -30,7 +30,7 @@
             <div class="control-group">
               <label class="control-label" for="[% config.parameter | id %]">[% l(config.parameter) %]</label>
               <div class="controls">
-                <select multiple="multiple" id="[% config.parameter | id %]">
+                <select data-placeholder="[% l(config.parameter) %]" multiple="multiple" class="chzn-select" id="[% config.parameter | id %]">
                   [%- FOREACH option IN config.options %]
                   <option value="[% option %]"[% IF option == config.value %] selected="selected'"[% END %]>[% l(option) %]</option>
                   [%- END %]
