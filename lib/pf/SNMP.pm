@@ -2753,6 +2753,34 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
+=item supportedDeauthTechniques
+
+return Default Deauthentication Method
+
+=cut
+sub supportedDeauthTechniques {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    my %tech = (
+        'Default' => \&$this->deauthenticateMacDefault,
+    );
+    return %tech;
+}
+
+=item supportedDeauthTechniques
+
+return Default Deauthentication Default Method
+
+=cut
+sub deauthenticateMacDefault {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("Deauthentication is not supported on switch type " . ref($this));
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR

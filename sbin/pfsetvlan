@@ -1576,14 +1576,41 @@ sub handleTrap {
         $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
         #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
-        if ($connection_type == $WIRELESS_802_1X) {
-            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
-            # http://www.cpanforum.com/threads/6909
-            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
-        } else {
-            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
-            # http://www.cpanforum.com/threads/6909
-            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac");
+        my $switchdeAuthMethod = $switch->{_deAuthMethod};
+        my %supportedDeauthTechniques = $switch->supportedDeauthTechniques;
+        if ((defined($switchdeAuthMethod)) && (defined($supportedDeauthTechniques{$switchdeAuthMethod}))) {
+            if ($connection_type == $WIRELESS_802_1X) {
+                if (($switchdeAuthMethod eq "SSH") || ($switchdeAuthMethod eq "Telnet")) {
+                    # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+                    # http://www.cpanforum.com/threads/6909
+                    pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
+                }
+                else {
+                   $supportedDeauthTechniques{$switchdeAuthMethod}($trapMac);
+                }
+            }
+            else {
+                if (($switchdeAuthMethod eq "SSH") || ($switchdeAuthMethod eq "Telnet")) {
+                    # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+                    # http://www.cpanforum.com/threads/6909
+                    pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac");
+                }
+                else {
+                   $supportedDeauthTechniques{$switchdeAuthMethod}($trapMac);
+                }
+            }
+        }
+        else {
+            if ($connection_type == $WIRELESS_802_1X) {
+               # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+               # http://www.cpanforum.com/threads/6909
+               pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
+            }
+            else {
+               # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
+               # http://www.cpanforum.com/threads/6909
+               pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac"); 
+            }
         }
 
         # }}}2

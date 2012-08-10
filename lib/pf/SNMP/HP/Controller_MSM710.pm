@@ -34,6 +34,7 @@ use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
+use Net::Appliance::Session;
 
 =head1 SUBROUTINES
 
@@ -167,6 +168,69 @@ sub extractSsid {
         . "Please let us know so we can add support for it."
     );
     return;
+}
+
+=item _deauthenticateMacWithSSH
+
+Method to deauthenticate a node with SSH
+
+=cut
+
+sub _deauthenticateMacWithSSH {
+    my ( $this, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    my $session;
+    eval {
+        $session = new Net::Appliance::Session->new(
+            Host      => $this->{_controllerIp},
+            Timeout   => 5,
+            Transport => $this->{_cliTransport}
+        );
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );
+    };
+
+    if ($@) {
+        $logger->error( "ERROR: Can not connect to controller $this->{'_ip'} using "
+                . $this->{_cliTransport} );
+        return 1;
+    }
+    $session->cmd("enable");
+    $session->cmd("disassociate controlled-ap wireless client $mac");
+    $session->close();
+
+    return 1;
+}
+
+=item supportedDeauthTechniques
+
+Supported method to deauth a node.
+
+=cut
+
+sub supportedDeauthTechniques {
+    my $this = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my %tech = (
+        'SNMP' => \&deauthenticateMac,
+        'SSH'  => \&_deauthenticateMacWithSSH,
+    );
+    return %tech;
+}
+
+=item deauthenticateMacDefault
+
+Default method to deauthenticate a node
+
+=cut 
+
+sub deauthenticateMacDefault {
+    my ($this, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $this->deauthenticateMac($mac);
 }
 
 =back
