@@ -1,4 +1,4 @@
-$(function () {
+function init() {
     /* Register links in the sidebar list */
     $('.sidebar-nav .nav-list a').click(function(event) {
         var href = $(this).attr('href');
@@ -20,8 +20,14 @@ $(function () {
                     });
                 })
                 .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError(section, obj.status_msg); // TODO : need inner div
+                    if (jqXHR.status == 401) {
+                        // Unauthorized; redirect to URL specified in the location header
+                        window.location.href = jqXHR.getResponseHeader('Location');
+                    }
+                    else {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        showError(section, obj.status_msg); // TODO : need inner div
+                    }
                 });
         });
 
@@ -30,4 +36,4 @@ $(function () {
 
     /* Load initial section */
     $('.sidebar-nav .nav-list a').first().trigger('click');
-});
+}

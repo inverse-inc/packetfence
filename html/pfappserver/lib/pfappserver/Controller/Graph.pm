@@ -30,16 +30,8 @@ sub auto :Private {
     my ($self, $c) = @_;
 
     unless ($c->user_exists()) {
-        # Try to redirect the user to the referer page once logged in
-        my $base = $c->req->base;
-        my $redirect_action = substr($c->req->referer, length($base) - 1) # Keep a leading slash
-          if ($c->req->referer =~ m/^$base/);
-
         $c->response->status(HTTP_UNAUTHORIZED);
-        $c->stash->{status_msg} = sprintf("You must <a href=\"%s\">login</a> to view this page.",
-                                          $c->uri_for($c->controller('Admin')->action_for('login'),
-                                                     undef,
-                                                     { redirect_action => $c->req->referer }));
+        $c->response->location($c->req->referer);
         $c->detach();
     }
 }

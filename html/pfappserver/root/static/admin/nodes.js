@@ -17,14 +17,20 @@ function init() {
             results.stop();
             results.fadeTo('fast', 1.0);
         }).fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showPermanentError($('#results'), obj.status_msg);
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else {
+                var obj = $.parseJSON(jqXHR.responseText);
+                showPermanentError($('#results'), obj.status_msg);
+            }
         });
         
         return false;
     });
 
-    /* View node */
+    /* Node editor */
     $('#results').on('click', '[href*="#modalNode"]', function(event) {
         var mac = this.innerHTML;
         var url = ['/node', mac, 'get'];
@@ -53,7 +59,13 @@ function init() {
         results.html(data);
     })
     .fail(function(jqXHR) {
-        var obj = $.parseJSON(jqXHR.responseText);
-        showError($('#results'), obj.status_msg);
+        if (jqXHR.status == 401) {
+            // Unauthorized; redirect to URL specified in the location header
+            window.location.href = jqXHR.getResponseHeader('Location');
+        }
+        else {
+            var obj = $.parseJSON(jqXHR.responseText);
+            showError($('#results'), obj.status_msg);
+        }
     });
 }
