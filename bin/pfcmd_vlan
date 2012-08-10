@@ -482,7 +482,6 @@ if ($reevaluateAccess) {
         my $deAuthMethod = $switch->{_deAuthMethod};
         $logger->warn($deAuthMethod);
         my %supportedDeauthTechniques = $switch->supportedDeauthTechniques;
-        $logger->warn(Dumper %supportedDeauthTechniques);
         if ((defined($deAuthMethod)) && (defined($supportedDeauthTechniques{$deAuthMethod}))) {
             $supportedDeauthTechniques{$deAuthMethod}($mac);
         }
