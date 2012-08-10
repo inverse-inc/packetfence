@@ -79,7 +79,6 @@ Readonly our $TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION => 'guest_admin_pregist
 Readonly our $TEMPLATE_EMAIL_GUEST_ON_REGISTRATION => 'guest_registered';
 
 our $EMAIL_FROM = undef;
-our $EMAIL_CC = undef;
 
 =head1 SUBROUTINES
 
@@ -737,7 +736,7 @@ sub send_template_email {
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
-        Cc          =>  $pf::web::guest::EMAIL_CC,
+        Cc          =>  $info->{'cc'},
         Subject     =>  encode("MIME-Q", $subject),
         Template    =>  "emails-$template.txt.tt",
         TmplOptions =>  { INCLUDE_PATH => "$conf_dir/templates/" },

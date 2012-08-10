@@ -207,6 +207,7 @@ if (defined($cgi->url_param('code'))) {
         $info{'email'} = $pid;
         # username
         $info{'pid'} = $pid;
+        $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
         # we create temporary password with default expiration / arrival date and access duration from config
         # TODO sponsor could control these (but current feature sponsor doesn't need the feature)
         $info{'password'} = pf::temporary_password::generate(
