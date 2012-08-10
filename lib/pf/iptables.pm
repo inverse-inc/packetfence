@@ -300,10 +300,12 @@ sub generate_mangle_rules {
                 my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                 my $mac = $row->{'mac'};
                 my $iplog = mac2ip($mac);
-                my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                if ($net_addr->contains($ip)) {
-                    my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog,$mac";
-                    my $out = `$cmd`;
+                if (defined $iplog) {
+                    my $ip = new NetAddr::IP::Lite clean_ip($iplog);
+                    if ($net_addr->contains($ip)) {
+                        my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_REG\_$network $iplog,$mac";
+                        my $out = `$cmd`;
+                    }
                 }
             }
         }
@@ -327,10 +329,12 @@ sub generate_mangle_rules {
                     my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                     my $mac = $row->{'mac'};
                     my $iplog = mac2ip($mac);
-                    my $ip = new NetAddr::IP::Lite clean_ip($iplog);
-                    if ($net_addr->contains($ip)) {
-                        my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog,$mac";
-                        my $out = `$cmd`;
+                    if (defined $iplog) {
+                        my $ip = new NetAddr::IP::Lite clean_ip($iplog);
+                        if ($net_addr->contains($ip)) {
+                            my $cmd = "sudo ipset --add pfsession_$IPTABLES_MARK_ISOLATION\_$network $iplog,$mac";
+                            my $out = `$cmd`;
+                        }
                     }
                 }
             }
