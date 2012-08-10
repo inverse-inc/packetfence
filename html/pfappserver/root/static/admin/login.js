@@ -1,4 +1,4 @@
-$(function () {
+function init() {
     /* Perform authentication using AJAX */
     $('form[name="login"]').submit(function(event) {
         var form = $(this),
@@ -31,4 +31,4 @@ $(function () {
             
         return false;
     });
-});
+}

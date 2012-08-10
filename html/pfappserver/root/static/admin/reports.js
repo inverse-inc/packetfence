@@ -21,9 +21,15 @@ function init() {
                     drawGraphs();
                 })
                 .fail(function(jqXHR) {
-                    loader.hide();
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError(graph, obj.status_msg);
+                    if (jqXHR.status == 401) {
+                        // Unauthorized; redirect to URL specified in the location header
+                        window.location.href = jqXHR.getResponseHeader('Location');
+                    }
+                    else {
+                        loader.hide();
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        showError(graph, obj.status_msg);
+                    }
                 });
         });
 
@@ -44,9 +50,15 @@ function init() {
                 drawGraphs();
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError(graph, obj.status_msg);
-                graph.fadeTo('fast', 1.0);
+                if (jqXHR.status == 401) {
+                    // Unauthorized; redirect to URL specified in the location header
+                    window.location.href = jqXHR.getResponseHeader('Location');
+                }
+                else {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError(graph, obj.status_msg);
+                    graph.fadeTo('fast', 1.0);
+                }
             });
 
         return false;
@@ -62,16 +74,22 @@ function init() {
         if (icon.hasClass('icon-star-empty')) action = "remove";
         var graph_id = $(this).parentsUntil('.report').nextAll('.chart').attr('id');
         console.info("Toggling " + graph_id + " as favorite");
-        var url = [$(this).attr('href'), graph_id, action]
+        var url = [$(this).attr('href'), graph_id, action];
         // Send the action (add or remove)
         $.ajax(url.join('/'))
-            .done(function(data) {
+        .done(function(data) {
                 
-            })
-            .fail(function(jqXHR) {
+        })
+        .fail(function(jqXHR) {
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else {
                 var obj = $.parseJSON(jqXHR.responseText);
                 showError($('#section .graph'), obj.status_msg);
-            });
+            }
+        });
 
         return false;
     });

@@ -29,6 +29,21 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =cut
 
+=head2 auto
+
+Allow only authenticated users
+
+=cut
+sub auto :Private {
+    my ($self, $c) = @_;
+
+    unless ($c->user_exists()) {
+        $c->response->status(HTTP_UNAUTHORIZED);
+        $c->response->location($c->req->referer);
+        $c->detach();
+    }
+}
+
 =head2 _format_params
 
 =cut
