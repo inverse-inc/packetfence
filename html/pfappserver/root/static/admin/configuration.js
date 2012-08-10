@@ -13,6 +13,7 @@ function init() {
                     section.html(data);
                     section.fadeIn('fast', function() {
                         $('.datepicker').datepicker();
+                        $('.chzn-select').chosen();
                         $('.btn-group .btn').click(function() {
                             $(this).button('toggle');
                             return false;
