@@ -1,11 +1,28 @@
-[%  jsFiles = ['app/bootstrap-datepicker', 'app/raphael/raphael-min', 'app/raphael/g.raphael-min', 'app/raphael/g.bar-min', 'app/raphael/g.dot-min', 'app/raphael/g.line', 'app/raphael/g.pie-min', 'app/graphs', 'admin/nodes']
-     cssFiles = ['app/bootstrap-datepicker'] -%]
+[%  jsFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/chosen.jquery.min',
+        'app/raphael/raphael-min',
+        'app/raphael/g.raphael-min',
+        'app/raphael/g.bar-min',
+        'app/raphael/g.dot-min',
+        'app/raphael/g.line-min',
+        'app/raphael/g.pie-min',
+        'app/graphs',
+        'admin/nodes'
+        ]
+     cssFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/chosen'
+        ] -%]
 
 <style type="text/css">
 form {
     margin-bottom: 0px;
 }
-.chart {
+.bootstrap-timepicker table {
+    width: 160px;
 }
 </style>
 

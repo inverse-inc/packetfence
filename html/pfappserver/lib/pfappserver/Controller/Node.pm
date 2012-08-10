@@ -16,6 +16,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
+use POSIX;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -94,21 +95,66 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     unless ( is_success($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $node_ref;
-        #$c->response->redirect($c->uri_for($self->action_for('list')));
+        $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
 
     $c->stash->{mac} = $mac;
 }
 
-=head2
+=head2 get
 
 =cut
 sub get :Chained('object') :PathPart('get') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $node_ref = $c->model('Node')->get($c->stash->{mac});
-    $c->stash->{node} = $node_ref;
+    my ($status, $result);
+
+    ($status, $result) = $c->model('Node')->get($c->stash->{mac});
+    $c->stash->{node} = $result;
+
+    ($status, $result) = $c->model('NodeCategory')->list();
+    $c->stash->{categories} = $result;
+
+    $c->stash->{status} = $c->model('Node')->availableStatus();
+
+    my @now = localtime;
+    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
+                         time => POSIX::strftime("%H:%M", @now) };
+}
+
+=head2 edit
+
+=cut
+sub edit :Chained('object') :PathPart('edit') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message);
+
+    my $node_ref = {};
+
+    $node_ref->{category_id} = $c->request->params->{category_id} || undef;
+    $node_ref->{status} = $c->request->params->{status} if ($c->request->params->{status});
+    if ($c->request->params->{reg_date} && $c->request->params->{reg_time}) {
+        $node_ref->{regdate} = $c->request->params->{reg_date} . ' ' . $c->request->params->{reg_time};
+    }
+    else {
+        $node_ref->{regdate} = undef;
+    }
+    if ($c->request->params->{unreg_date} && $c->request->params->{unreg_time}) {
+        $node_ref->{unregdate} = $c->request->params->{unreg_date} . ' ' . $c->request->params->{unreg_time};
+    }
+    else {
+        $node_ref->{unregdate} = undef;
+    }
+
+    ($status, $message) = $c->model('Node')->edit($c->stash->{mac}, $node_ref);
+    if ( is_error($status) ) {
+        $c->response->status($status);
+    }
+
+    $c->stash->{status_msg} = $message;
+    $c->stash->{current_view} = 'JSON';
 }
 
 =head1 AUTHOR

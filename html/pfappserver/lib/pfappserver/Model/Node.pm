@@ -24,19 +24,15 @@ use pf::accounting qw(
     node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
     node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
 );
-#use pf::config;
-#use pf::db;
+use pf::config;
 use pf::error qw(is_error is_success);
 use pf::node;
-#use pf::nodecategory;
-#use pf::scan qw($SCAN_VID);
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
 use pf::os;
 use pf::useragent qw(node_useragent_view);
 use pf::util;
-#use pf::violation;
 
 =head1 METHODS
 
@@ -126,57 +122,107 @@ sub get {
     my ($status, $status_msg);
 
     my $node = {};
-    $node->{info} = node_view($mac);
-    $node->{info}->{vendor} = oui_to_vendor($mac);
-    delete $node->{info}->{unregdate} if ($node->{info}->{unregdate} =~ m/^0000-/);
+    eval {
+        $node->{info} = node_view($mac);
+        $node->{info}->{vendor} = oui_to_vendor($mac);
+        if ($node->{info}->{regdate_timestamp}) {
+            my @regdate = CORE::localtime($node->{info}->{regdate_timestamp});
+            $node->{info}->{reg_date} = POSIX::strftime("%Y-%m-%d", @regdate);
+            $node->{info}->{reg_time} = POSIX::strftime("%H:%M", @regdate);
+        }
+        if ($node->{info}->{unregdate_timestamp}) {
+            my @unregdate = CORE::localtime($node->{info}->{unregdate_timestamp});
+            $node->{info}->{unreg_date} = POSIX::strftime("%Y-%m-%d", @unregdate);
+            $node->{info}->{unreg_time} = POSIX::strftime("%H:%M", @unregdate);
+        }
 
-    # Fetch IP information
-    $node->{iplog} = iplog_view_open_mac($mac);
+        # Show 802.1X username only if connection is of type EAP
+        my $connection_type = str_to_connection_type($node->{info}->{last_connection_type}) if ($node->{info}->{last_connection_type});
+        unless ($connection_type && ($connection_type & $EAP) == $EAP) {
+            delete $node->{info}->{last_dot1x_username};
+        }
 
-    # Fetch the IP activity of the past 14 days
-    my $start_time = time() - 14 * 24 * 60 * 60;
-    my $end_time = time();
-    my @iplog_history = iplog_history_mac($mac,
-                                          (start_time => $start_time, end_time => $end_time));
-    $node->{iplog}->{history} = \@iplog_history;
-    _graphIplogHistory($node, $start_time, $end_time);
+        # Fetch IP information
+        $node->{iplog} = iplog_view_open_mac($mac);
 
-    if ($node->{iplog}->{'ip'}) {
-        $node->{iplog}->{active} = 1;
+        # Fetch the IP activity of the past 14 days
+        my $start_time = time() - 14 * 24 * 60 * 60;
+        my $end_time = time();
+        my @iplog_history = iplog_history_mac($mac,
+                                              (start_time => $start_time, end_time => $end_time));
+        $node->{iplog}->{history} = \@iplog_history;
+        _graphIplogHistory($node, $start_time, $end_time);
+
+        if ($node->{iplog}->{'ip'}) {
+            $node->{iplog}->{active} = 1;
+        } else {
+            my $last_iplog = pop @iplog_history;
+            $node->{iplog}->{ip} = $last_iplog->{ip};
+            $node->{iplog}->{end_time} = $last_iplog->{end_time};
+        }
+
+        #my @locationlog_history = locationlog_history_mac($mac,
+        #                                                  (start_time => $start_time, end_time => $end_time));
+
+        # Fetch user-agent information
+        if ($node->{info}->{user_agent}) {
+            $node->{useragent} = node_useragent_view($mac);
+        }
+
+        # Fetch DHCP fingerprint information
+        if ($node->{info}->{'dhcp_fingerprint'}) {
+            my @fingerprint_info = dhcp_fingerprint_view( $node->{info}->{'dhcp_fingerprint'} );
+            $node->{dhcp} = pop @fingerprint_info;
+        }
+
+        #    my $node_accounting = node_accounting_view($mac);
+        #    if (defined($node_accounting->{'mac'})) {
+        #        my $daily_bw = node_accounting_daily_bw($mac);
+        #        my $weekly_bw = node_accounting_weekly_bw($mac);
+        #        my $monthly_bw = node_accounting_monthly_bw($mac);
+        #        my $yearly_bw = node_accounting_yearly_bw($mac);
+        #        my $daily_time = node_accounting_daily_time($mac);
+        #        my $weekly_time = node_accounting_weekly_time($mac);
+        #        my $monthly_time = node_accounting_monthly_time($mac);
+        #        my $yearly_time = node_accounting_yearly_time($mac);
+        #    }
+    };
+    if ($@) {
+        $status_msg = "Can't retrieve node ($mac) from database.";
+        $logger->error($@);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-    else {
-        my $last_iplog = pop @iplog_history;
-        $node->{iplog}->{ip} = $last_iplog->{ip};
-        $node->{iplog}->{end_time} = $last_iplog->{end_time};
+
+    return ($STATUS::OK, $node);
+}
+
+=head2 edit
+
+=cut
+sub edit {
+    my ( $self, $mac, $node_ref ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    unless (node_modify($mac, %{$node_ref})) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = 'An error occurred while saving the node.';
     }
 
-#    my @locationlog_history = locationlog_history_mac($mac,
-#                                                      (start_time => $start_time, end_time => $end_time));
+    return ($status, $status_msg);
+}
 
-    # Fetch user-agent information
-    if ($node->{info}->{user_agent}) {
-        $node->{useragent} = node_useragent_view($mac);
-    }
+=head2 availableStatus
 
-    # Fetch DHCP fingerprint information
-    if ($node->{info}->{'dhcp_fingerprint'}) {
-        my @fingerprint_info = dhcp_fingerprint_view( $node->{info}->{'dhcp_fingerprint'} );
-        $node->{dhcp} = pop @fingerprint_info;
-    }
+=cut
+sub availableStatus {
+    my ( $self ) = @_;
 
-#    my $node_accounting = node_accounting_view($mac);
-#    if (defined($node_accounting->{'mac'})) {
-#        my $daily_bw = node_accounting_daily_bw($mac);
-#        my $weekly_bw = node_accounting_weekly_bw($mac);
-#        my $monthly_bw = node_accounting_monthly_bw($mac);
-#        my $yearly_bw = node_accounting_yearly_bw($mac);
-#        my $daily_time = node_accounting_daily_time($mac);
-#        my $weekly_time = node_accounting_weekly_time($mac);
-#        my $monthly_time = node_accounting_monthly_time($mac);
-#        my $yearly_time = node_accounting_yearly_time($mac);   
-#    }
-
-    return $node;
+    return [ $pf::node::STATUS_REGISTERED,
+             $pf::node::STATUS_UNREGISTERED,
+             $pf::node::STATUS_PENDING,
+             $pf::node::STATUS_GRACE ];
 }
 
 =head2 _graphIplogHistory

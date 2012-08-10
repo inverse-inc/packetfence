@@ -17,8 +17,22 @@ body {
 }
 /* bootstrap.css fix to remove padding surrounding sidebar */
 .sidebar-nav {
-  padding: 9px 0;
+    padding: 9px 0;
 }
 a.active {
     color: #333;
+}
+.modal h3 i,
+.modal dt i {
+    font-weight: normal;
+    font-style: normal;
+}
+/* datepicker + timepicker fix to limit the bottom margin */
+.modal .datepicker,
+.modal .timepicker-default {
+    margin-top: 1px;
+    margin-bottom: 0px;
+}
+.dl-expanded dt, .dl-expanded dd {
+    line-height: 27px;
 }
