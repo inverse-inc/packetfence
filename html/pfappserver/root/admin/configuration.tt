@@ -1,5 +1,12 @@
-[%  jsFiles = ['app/bootstrap-datepicker', 'admin/configuration']
-     cssFiles = ['app/bootstrap-datepicker'] -%]
+[%  jsFiles = [
+        'app/bootstrap-datepicker',
+        'app/chosen.jquery.min',
+        'admin/configuration'
+        ]
+     cssFiles = [
+        'app/bootstrap-datepicker',
+        'app/chosen'
+        ] -%]
 
 <style type="text/css">
 .row-fluid [class*="span"] {
@@ -45,11 +52,4 @@
         <div id="section" class="span10">
         </div><!--/span-->
       </div><!--/row-->
-      
-<!--      <hr>
-
-      <footer>
-        <p>&copy; PacketFence by Inverse 2012</p>
-      </footer>-->
-
     </div><!--/.fluid-container-->
