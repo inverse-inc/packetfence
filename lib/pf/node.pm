@@ -174,12 +174,14 @@ sub node_db_prepare {
     ]);
 
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
-            node.notes
+            node.notes,
+            UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
+            UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE node.mac=?
@@ -223,7 +225,7 @@ sub node_db_prepare {
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
-            node.user_agent, node.computername, node.dhcp_fingerprint,
+            node.user_agent, node.computername, IFNULL(os_type.description, ' ') as dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
@@ -232,6 +234,8 @@ sub node_db_prepare {
             node.notes
         FROM node
             LEFT JOIN node_category USING (category_id)
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint = dhcp_fingerprint.fingerprint
+            LEFT JOIN os_type ON dhcp_fingerprint.os_id = os_type.os_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
         GROUP BY node.mac
