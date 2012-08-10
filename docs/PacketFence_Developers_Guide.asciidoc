@@ -8,7 +8,7 @@ PacketFence Developer's Guide
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Developers_Guide-docinfo.xml for authors, copyright and 
+    See PacketFence_Developers_Guide-docinfo.xml for authors, copyright and
     license information.
 
 ////
@@ -29,12 +29,12 @@ Other sources of information
 Network Devices Configuration Guide::
   Covers switch, controllers and access points configuration.
 Administration Guide::
-  Covers PacketFence installation, configuration and administration. 
+  Covers PacketFence installation, configuration and administration.
 `NEWS`::
-  Covers noteworthy features, improvements and bugfixes by release. 
+  Covers noteworthy features, improvements and bugfixes by release.
 `UPGRADE`::
-  Covers compatibility related changes, manual instructions and general notes 
-  about upgrading. 
+  Covers compatibility related changes, manual instructions and general notes
+  about upgrading.
 `ChangeLog`::
   Covers all changes to the source code.
 
@@ -43,8 +43,8 @@ These files are included in the package and release tarballs.
 Documentation
 -------------
 
-The in-depth or more technical documentation is always as close to the code 
-as possible. Always look at the `POD` doc 
+The in-depth or more technical documentation is always as close to the code
+as possible. Always look at the `POD` doc
 footnote:[Perl's Plain Old Documentation: http://perldoc.perl.org/perlpod.html].
 To do so, the prefered way is using the `perldoc` command as follows:
 
@@ -59,10 +59,10 @@ Code style
 
 CAUTION: Work in progress.
 
-We are slowly migrating away from an automated `perltidy` code style. The 
-reason we are not doing another pass of tidy is that it messes up code 
+We are slowly migrating away from an automated `perltidy` code style. The
+reason we are not doing another pass of tidy is that it messes up code
 history and makes maintainer's job more complicated than it should be. Every
-new change uses the new guidelines so over time the old code style will 
+new change uses the new guidelines so over time the old code style will
 slowly disappear.
 
 * Lines of 120 character width maximum (lower encouraged)
@@ -71,7 +71,7 @@ slowly disappear.
 
 * Use constants instead of hardcoded strings or numbers (use `constant` or `Readonly` modules)
 
-* in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase] 
+* in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase]
   notation (ex: `$radiusRequest->getVoIpAttributes();`)
 
 * in procedural modules we use perl's usual notation (ex: `$node_info{'pid'} = $current_request{'pid'};`)
@@ -117,15 +117,15 @@ XHTML Templates
 
 Captive portal content use http://template-toolkit.org/[Template Toolkit]
 templates. All the template files are located in `/usr/local/pf/html/captive-portal/templates`.
-You can freely edit the `HTML` code in these files. However, if you want to 
-customize the pages beyond the `HTML` template (for example by adding new 
+You can freely edit the `HTML` code in these files. However, if you want to
+customize the pages beyond the `HTML` template (for example by adding new
 variables to it), you'll need to look into the `/usr/local/pf/lib/pf/web/custom.pm`
 Perl module. This module allows you to overload the behavior of the default
 `/usr/local/pf/lib/pf/web.pm` module.
 
-Each template relies on `header.html` and `footer.html` for the common top 
+Each template relies on `header.html` and `footer.html` for the common top
 and bottom portion of each file.
-      
+
 CSS
 +++
 
@@ -140,28 +140,28 @@ Workflow
 ++++++++
 
 When a `HTTP` request is received by the Apache web server, the following workflow happens:
-      
-        
-. URL is compared against the redirection instructions in 
+
+
+. URL is compared against the redirection instructions in
   `/usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf`
 
 . Requested CGI script in `/usr/local/pf/html/captive-portal/` is executed
 
 . CGI script calls a `generate_<type>` which is defined in `/usr/local/pf/lib/pf/web.pm`
 
-. The `generate_<type>` function populate the proper template in 
+. The `generate_<type>` function populate the proper template in
   `/usr/local/pf/html/captive-portal/templates` in order to render the page
 
 Authentication modules
 ++++++++++++++++++++++
 
 Default authentication modules are provided in `conf/authentication/`. These
-modules are meant to be modified by users. A version check in made in 
+modules are meant to be modified by users. A version check in made in
 `pfcmd checkup` to verify `API` compatibility of modified modules. Since the
-3.0 release these modules are objects and they have a couple of useful 
-methods to override. Check the `pf::web::auth` POD documentation for the 
-details and the list of all object methods. Below is the list of, arguably, 
-the most interesting: 
+3.0 release these modules are objects and they have a couple of useful
+methods to override. Check the `pf::web::auth` POD documentation for the
+details and the list of all object methods. Below is the list of, arguably,
+the most interesting:
 
 * getNodeAttributes
 * authenticate
@@ -169,14 +169,14 @@ the most interesting:
 * getName
 
 Here's an example of a `getNodeAttributes` that will automatically categorize
-nodes of a given authentication type and set an `unregdate` to tomorrow at 
-midnight: 
+nodes of a given authentication type and set an `unregdate` to tomorrow at
+midnight:
 
     sub getNodeAttributes {
         my ($this) = @_;
         return (
             unregdate => POSIX::strftime( "%Y-%m-%d 00:00:00", localtime(time + 24*60*60) ),
-            category => 'consultants', 
+            category => 'consultants',
         );
     }
 
@@ -185,10 +185,10 @@ Remediation Pages
 
 The remediation page shown to the user during isolation are specified through
 the URL parameter of the given violation in `/usr/local/pf/conf/violations.conf`.
-In its default configuration, PacketFence uses PHP to render text provided 
-in the directory `/usr/local/pf/html/captive-portal/violations/` and obeys 
+In its default configuration, PacketFence uses PHP to render text provided
+in the directory `/usr/local/pf/html/captive-portal/violations/` and obeys
 to everything mentionned in the <<_presentation,Presentation>> section. The
-only caveat being that the template (`remediation.html`) is not Template 
+only caveat being that the template (`remediation.html`) is not Template
 Toolkit but pure PHP.
 
 
@@ -196,31 +196,31 @@ Toolkit but pure PHP.
 Translations
 ++++++++++++
 
-The language of the user registration pages is selected through the 
-`general.locale` configuration parameter. Translatable strings are handled 
+The language of the user registration pages is selected through the
+`general.locale` configuration parameter. Translatable strings are handled
 differently for the Remediation pages and the rest of the captive portal:
 
 * Remediation pages
 +
 Strings defined in the violation pages (in `/usr/local/pf/html/captive-portal/violations/`)
 will be looked up in the translation files in `/usr/local/pf/conf/locale/..`
-and if a translation is available the translated string will be the one 
+and if a translation is available the translated string will be the one
 visible on the captive portal.
 +
-Also, if you create a violation template with the name of your locale in 
-`/usr/local/pf/html/captive-portal/violations/` in the format: 
-`<template_name>.<locale_name>.php`. It will be loaded instead of the default 
-`<template_name>.php` and so you can put strings and HTML directly in your 
-target language without the hassle of escaping everything properly as you 
+Also, if you create a violation template with the name of your locale in
+`/usr/local/pf/html/captive-portal/violations/` in the format:
+`<template_name>.<locale_name>.php`. It will be loaded instead of the default
+`<template_name>.php` and so you can put strings and HTML directly in your
+target language without the hassle of escaping everything properly as you
 would need to do with `gettext`.
 +
 For example, if `malware.es_ES.php` exists and you are using the `es_ES`
-(Spanish) locale then it will be loaded instead of `malware.php` on a 
+(Spanish) locale then it will be loaded instead of `malware.php` on a
 violation set to load the `malware` template.
 +
 * Rest of the captive portal
 +
-In the templates, if a string is in a `i18n()` call it will be translated. 
+In the templates, if a string is in a `i18n()` call it will be translated.
 Also `pf::web` takes care of performing some of the other translations.
 
 
