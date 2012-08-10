@@ -288,20 +288,22 @@ VLAN assignment
 pfsetvlan uses the `getNormalVlan` function defined in `pf::vlan::custom`
 to determine a node's VLAN. Here's the default function:
 
-  sub getNormalVlan {
-      #$switch is the switch object (pf::SNMP)
-      #$ifIndex is the ifIndex of the computer connected to
-      #$mac is the mac connected
-      #$node_info is the node info hashref (result of pf::node's node_view on $mac)
-      #$conn_type is set to the connnection type expressed as the constant in pf::config
-      #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
-      #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+----
+sub getNormalVlan {
+    #$switch is the switch object (pf::SNMP)
+    #$ifIndex is the ifIndex of the computer connected to
+    #$mac is the mac connected
+    #$node_info is the node info hashref (result of pf::node's node_view on $mac)
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 
-      my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-      my $logger = Log::Log4perl->get_logger();
+    my $logger = Log::Log4perl->get_logger();
 
-      return $switch->getVlanByName('normalVlan');
-  }
+    return $switch->getVlanByName('normalVlan');
+}
+----
 
 
 As you can see, the function receives several parameters (such as the switch and full node details)
