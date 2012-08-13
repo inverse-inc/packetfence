@@ -1,6 +1,13 @@
 #!/bin/bash
-
-# Copyright 2010 Inverse inc. 
+#
+# FreeRADIUS watchdog
+#
+# Exist because, at some point, FreeRADIUS was locking and no longer
+# replying to requests but the process was still alive.
+#
+# TODO this test should be migrated into `bin/pfcmd service ... watch`
+#
+# Copyright 2010, 2012 Inverse inc.
 # Author: Olivier Bilodeau <obilodeau@inverse.ca>
 # Licensed under the GPLv2 or later.
 
@@ -9,7 +16,9 @@ EMAILTO="user@domain.tld"
 # if you want to add more recipients seperate them with a comma
 
 # NOTE TO HIGH AVAILABILITY USERS
-# Need to change 127.0.0.1 to the vIP and add a radius client from the vIP with secret testing123
+# Need to change SERVER_IP to the virtual IP and add a radius client in
+# raddb/clients from the virtual IP with secret testing123
+SERVER_IP=127.0.0.1
 
 # setting separator to newline
 IFS='
@@ -20,12 +29,12 @@ HOST=`hostname`
 function radius_test () {
     # looping on individual lines
     WORKING=0
-    for OUTPUT in `radtest testuser testpass 127.0.0.1 12 testing123 2>&1`
+    for OUTPUT in `radtest testuser testpass $SERVER_IP 12 testing123 2>&1`
     do
-        if [[ "$OUTPUT" =~ "^radclient: no response from server for.*$" ]]; then
+        if [[ "$OUTPUT" =~ "^radclient: no response from server for" ]]; then
             WORKING=0
             break
-        elif [[ "$OUTPUT" =~ "^rad_recv: Access-Accept packet from host 127.0.0.1" ]]; then
+        elif [[ "$OUTPUT" =~ "^rad_recv: Access-Accept packet from host" ]]; then
             WORKING=1
         fi
     done
@@ -38,7 +47,7 @@ if [[ $? == 0 ]]; then
 
     # try friendly stop, give 10 secs for shutdown then agressive kill
     /sbin/service radiusd stop && sleep 10 && pkill -9 radiusd
-    /sbin/service radiusd start
+    /usr/local/pf/bin/pfcmd service radiusd start
 
     # re-test and report success or failure
     radius_test
