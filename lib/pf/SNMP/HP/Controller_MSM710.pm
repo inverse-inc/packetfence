@@ -179,13 +179,15 @@ Method to deauthenticate a node with SSH
 sub _deauthenticateMacWithSSH {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-
+    $logger->warn(Dumper $this);
     my $session;
     eval {
         $session = new Net::Appliance::Session->new(
             Host      => $this->{_controllerIp},
-            Timeout   => 5,
-            Transport => $this->{_cliTransport}
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},
+            Platform => 'HP',
+            Source   => $lib_dir.'/pf/SNMP/HP/nas-pb.yml',
         );
         $session->connect(
             Name     => $this->{_cliUser},
@@ -194,7 +196,7 @@ sub _deauthenticateMacWithSSH {
     };
 
     if ($@) {
-        $logger->error( "ERROR: Can not connect to controller $this->{'_ip'} using "
+        $logger->error( "ERROR: Can not connect to controller $this->{'_controllerIp'} using "
                 . $this->{_cliTransport} );
         return 1;
     }

@@ -124,6 +124,34 @@ sub deauthenticateMac {
 
 }
 
+=item supportedDeauthTechniques
+
+Supported method to deauth a node.
+
+=cut
+
+sub supportedDeauthTechniques {
+    my $this = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my %tech = (
+        'SNMP' => \&deauthenticateMac,
+    );
+    return %tech;
+}
+
+=item deauthenticateMacDefault
+
+Default method to deauthenticate a node
+
+=cut
+
+sub deauthenticateMacDefault {
+    my ($this, $mac) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $this->deauthenticateMac($mac);
+}
+
+
 =back
 
 =head1 AUTHOR

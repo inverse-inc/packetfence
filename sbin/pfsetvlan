@@ -1586,7 +1586,7 @@ sub handleTrap {
                     pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
                 }
                 else {
-                   $supportedDeauthTechniques{$switchdeAuthMethod}($trapMac);
+                   $supportedDeauthTechniques{$switchdeAuthMethod}($switch,$trapMac);
                 }
             }
             else {
@@ -1596,7 +1596,7 @@ sub handleTrap {
                     pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac");
                 }
                 else {
-                   $supportedDeauthTechniques{$switchdeAuthMethod}($trapMac);
+                   $supportedDeauthTechniques{$switchdeAuthMethod}($switch,$trapMac);
                 }
             }
         }
