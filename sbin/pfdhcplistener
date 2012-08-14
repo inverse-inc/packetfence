@@ -485,34 +485,11 @@ sub update_iplog {
         iplog_close_now($srcip);
     }
     if ( $oldip && $oldip ne $srcip ) {
-        my $view_mac = node_view($srcmac);
-        if ($view_mac->{'last_connection_type'} eq "Inline") {
-            foreach my $network ( keys %ConfigNetworks ) {
-                next if ( !pf::config::is_network_type_inline($network) );
-                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
-                my $src_ip = new NetAddr::IP::Lite clean_ip($srcip);
-                my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
-                next if (!($net_addr->contains($src_ip) || $net_addr->contains($old_ip)));
-                if ($net_addr->contains($src_ip) && $net_addr->contains($old_ip)) {
-                    $logger->info(
-                    "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
-                    );
-                    iplog_close_now($oldip);
-                }
-                else {
-                    iplog_close_now($oldip);
-                    node_deregister($srcmac);
-                }
-            }
-        }
-        else {
-            $logger->info(
-                "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
-            );
-            iplog_close_now($oldip);
-        }
+        $logger->info(
+            "oldip ($oldip) and newip ($srcip) are different for $srcmac - closing iplog entry"
+        );
+        iplog_close_now($oldip);
     }
-
     iplog_open( $srcmac, $srcip, $lease_length );
 }
 
