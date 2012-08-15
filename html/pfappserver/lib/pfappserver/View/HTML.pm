@@ -9,7 +9,7 @@ __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
     PRE_PROCESS => 'macros.inc',
     FILTERS => {
-        id => \&id_filter,
+        css => \&css_filter,
     },
     render_die => 1,
 );
@@ -28,11 +28,14 @@ L<pfappserver>
 
 =cut
 
-sub id_filter {
-    my $id = shift;
-    $id =~ s/\./_/g;
+=head2 css_filter
 
-    return $id;
+=cut
+sub css_filter {
+    my $string = shift;
+    $string =~ s/\./_/g;
+
+    return $string;
 }
 
 =head1 AUTHOR
