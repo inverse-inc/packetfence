@@ -532,7 +532,15 @@ sub web_node_register {
     # First blast at consuming portalSession object
     my $cgi     = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-    my $mac     = $portalSession->getClientMac() if (!defined($portalSession->getGuestNodeMac()));
+
+    # FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
+    my $mac;
+    if (defined($portalSession->getGuestNodeMac)) {
+        $mac = $portalSession->getGuestNodeMac;
+    }
+    else {
+        $mac = $portalSession->getClientMac;
+    }
 
     if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         pf::web::generate_error_page(

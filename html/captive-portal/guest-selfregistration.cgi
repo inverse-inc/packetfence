@@ -70,6 +70,11 @@ if (defined($cgi->url_param("preregistration")) && $cgi->url_param("preregistrat
 if ($session->param("preregistration")) {
     $portalSession->setGuestNodeMac(undef);
 }
+# Assigning MAC as guest MAC
+# FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
+else {
+    $portalSession->setGuestNodeMac($portalSession->getClientMac());
+}
 
 if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGISTRATION) {
 
@@ -111,7 +116,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $portalSession->getClientMac(), $info{'pid'}, $info{'pid'}, 
+          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'pid'}, 
           ( $session->param("preregistration") 
               ? $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION
               : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION 
@@ -142,7 +147,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       # User chose to register by SMS
       $logger->info("registering " . $portalSession->getClientMac() . " guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
-      ($auth_return, $err, $errargs_ref) = sms_activation_create_send($portalSession->getClientMac(), $session->param("phone"), $cgi->param("mobileprovider") );
+      ($auth_return, $err, $errargs_ref) = sms_activation_create_send($portalSession->getGuestNodeMac(), $session->param("phone"), $cgi->param("mobileprovider") );
       if ($auth_return) {
 
           # form valid, adding person (using modify in case person already exists)
@@ -198,7 +203,8 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $portalSession->getClientMac(), $info{'pid'}, $info{'sponsor'}, $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
+          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'sponsor'}, 
+          $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
           $pf::email_activation::SPONSOR_ACTIVATION,
           %info
       );

@@ -183,7 +183,7 @@ Sets the guest node mac address in the case of an email activation.
 sub setGuestNodeMac {
     my ($self, $guest_node_mac) = @_;
 
-    $self->{'_guest_node_mac'} = clean_mac($guest_node_mac);
+    $self->{'_guest_node_mac'} = $guest_node_mac;
 }
 
 =back
