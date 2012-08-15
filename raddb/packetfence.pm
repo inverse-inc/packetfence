@@ -76,7 +76,7 @@ use SOAP::Lite
 #TODO format well and document the fact that we might need re-create the object on error or something
 my $soap = new SOAP::Lite(
     uri   => API_URI,
-    proxy => 'http://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
+    proxy => 'http://'.sanitize_parameter(WS_USER).':'.sanitize_parameter(WS_PASS).'@'.WEBADMIN_HOST.'/webapi'
 ) or return server_error_handler();
 
 =head1 SUBROUTINES
@@ -269,6 +269,29 @@ sub clean_mac {
     return ($mac);
 }
 
+=item * sanitize_parameter
+
+URL encode illegal characters from WS_USER/WS_PASS used in SOAP calls.
+
+Ref: http://tools.ietf.org/html/rfc1738#section-3.1
+
+=cut
+sub sanitize_parameter {
+    my ($parameter) = @_;
+
+    my %ascii_hex_value = (
+        ':' => '%3A',
+        '@' => '%40',
+        '/' => '%2F',
+    );
+
+    while (my ($find, $replace) = each %ascii_hex_value) {
+        eval "\$parameter =~ s{$find}{$replace}";
+    }
+
+    return $parameter;
+}
+
 #
 # --- Unused FreeRADIUS hooks ---
 #
@@ -355,6 +378,8 @@ Regis Balzard <rbalzard@inverse.ca>
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
