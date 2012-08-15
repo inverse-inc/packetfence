@@ -1,12 +1,19 @@
+[% MACRO header(column, title) BLOCK -%]
+[% params = { by => column, filter => filter };
+    IF by == column && direction == 'asc';
+      params.direction = 'desc';
+    END %]
+                  <th><a href="[% c.uri_for(c.action.name, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+[% END -%]
             <h2>Results</h2>
             <table class="table table-condensed table-striped">
               <thead>
                 <tr>
-                  <th><a href="[% c.uri_for(c.action.name) %]?by=mac">MAC <i class="icon-chevron-down"></i></a></th>
-                  <th><a href="[% c.uri_for(c.action.name) %]?by=computer_name">Computer Name</a></th>
-                  <th><a href="[% c.uri_for(c.action.name) %]?by=pid">Identifier</a></th>
-                  <th><a href="[% c.uri_for(c.action.name) %]?by=status">Last AP/Controller</a></th>
-                  <th><a href="[% c.uri_for(c.action.name) %]?by=dhcp_fingerprint">OS (DHCP)</a></th>
+                  [% header('mac', 'MAC') %]
+                  [% header('computer_name', 'Computer Name') %]
+                  [% header('pid', 'Identifier') %]
+                  [% header('status', 'Last AP/Controller') %]
+                  [% header('dhcp_fingerprint', 'OS (DHCP)') %]
                 </tr>
               </thead>
               <tbody>
