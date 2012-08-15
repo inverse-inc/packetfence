@@ -55,6 +55,7 @@ use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
 use pf::web::auth; 
+use pf::web::constants; 
 
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
@@ -92,6 +93,20 @@ sub i18n_format {
 
     return sprintf(gettext($msgid), @args);
 }
+
+=item _initialize_template_variables
+
+Returns an hashref meant for TT's ->process() $vars preloaded
+with interesting variables for the captive portal.
+
+=cut
+sub _initialize_template_variables {
+    my ( %vars ) = @_;
+
+    # Hashref merge, right-hand side wins on conflicts
+    return { (pf::web::constants::to_hash(), %vars) };
+}
+
 
 sub web_get_locale {
     my ($cgi,$session) = @_;

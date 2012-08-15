@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 23;
+use Test::More tests => 27;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -22,6 +22,7 @@ use CGI;
 use pf::config;
 
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::guest') }
 BEGIN { use_ok('pf::web::release') }
@@ -29,6 +30,18 @@ BEGIN { use_ok('pf::web::util') }
 BEGIN { use_ok('pf::web::wispr') }
 
 =head1 TESTS
+
+=item pf::web::_initialize_template_variables
+
+=cut
+{
+    my $result =  pf::web::_initialize_template_variables( 'test' => 'true' );
+    is( $result->{'test'}, 'true', 'variable passed to _initialize_template_variables is kept');
+    is(
+        $result->{'URL_SIGNUP'}, '/signup',
+        'constant from pf::web::constant is returned by _initialize_template_variables'
+    );
+}
 
 =item pf::web::get_client_ip()
 
@@ -85,6 +98,11 @@ is(
     pf::web::util::validate_phone_number("223344556677"), $expected, 
     "validate phone number format xxxxxxxxxxxx"
 );
+
+=item pf::web::constants
+
+=cut
+ok(defined($WEB::URL_SIGNUP), 'WEB constants are available since we imported pf::web::constants');
 
 
 # TODO add more tests, we should test:
