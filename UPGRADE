@@ -5,6 +5,13 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <stableRelease>:
+
+    - Changes to Guest API
+    pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
+    parameter. If you want to customize it, change post_uri in the guest.html
+    template.
+
 o Upgrading from a version prior to 3.5.0:
 
     - Database schema update

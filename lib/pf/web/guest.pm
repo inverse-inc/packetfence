@@ -69,6 +69,9 @@ our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
 our $REGISTRATION_CONTINUE = 10;
 
+# flag used in URLs
+Readonly our $GUEST_REGISTRATION => "guest-register";
+
 # Available default email templates
 Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_email_activation';
 Readonly our $TEMPLATE_EMAIL_SPONSOR_ACTIVATION => 'guest_sponsor_activation';
@@ -95,7 +98,7 @@ Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
 sub generate_selfregistration_page {
-    my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
+    my ( $portalSession, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
     # First blast of portalSession object consumption
@@ -119,7 +122,7 @@ sub generate_selfregistration_page {
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-        post_uri => $post_uri || "/signup?mode=guest-register",
+        post_uri => "/signup?mode=$GUEST_REGISTRATION",
     };
 
     # put seperately because of side effects in anonymous hashref
