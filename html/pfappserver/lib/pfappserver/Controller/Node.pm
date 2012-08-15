@@ -51,7 +51,7 @@ sub index :Path :Args(0) {
 =cut
 sub search :Path('search') :Args(0) {
     my ( $self, $c ) = @_;
-    my ($filter, $status, $result, $nodes_ref, $count);
+    my ($filter, $orderby, $orderdirection, $status, $result, $nodes_ref, $count);
 
     my $page_num = $c->request->params->{'page_num'} || 1;
     my $per_page = $c->request->params->{'per_page'} || 25;
@@ -61,6 +61,19 @@ sub search :Path('search') :Args(0) {
     if (exists($c->req->params->{'filter'})) {
         $filter = $c->req->params->{'filter'};
         $params{'where'} = { type => 'any', like => $filter };
+        $c->stash->{filter} = $filter;
+    }
+    if (exists($c->request->params->{'by'})) {
+        $orderby = $c->request->params->{'by'};
+        if (grep {$_ eq $orderby} ('mac', 'pid', 'dhcp_fingerprint')) {
+            $orderdirection = $c->request->params->{'direction'};
+            unless (grep {$_ eq $orderdirection} ('asc', 'desc')) {
+                $orderdirection = 'asc';
+            }
+            $params{'orderby'} = "ORDER BY $orderby $orderdirection";
+            $c->stash->{by} = $orderby;
+            $c->stash->{direction} = $orderdirection;
+        }
     }
 
     ($status, $result) = $c->model('Node')->search(%params);
@@ -72,9 +85,11 @@ sub search :Path('search') :Args(0) {
         $count = $result;
         $c->stash->{page_num} = $page_num;
         $c->stash->{per_page} = $per_page;
+        $c->stash->{by} = $orderby || 'mac';
+        $c->stash->{direction} = $orderdirection || 'asc';
         $c->stash->{nodes} = $nodes_ref;
         $c->stash->{count} = $count;
-        $c->stash->{pages_count} = int($count/$per_page);
+        $c->stash->{pages_count} = ceil($count/$per_page);
     }
     else {
         $c->response->status($status);

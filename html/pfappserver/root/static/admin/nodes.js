@@ -30,7 +30,32 @@ function init() {
         return false;
     });
 
-    /* Node editor */
+    /* Sort the search results */
+    $('#results').on('click', 'thead a', function(event) {
+        var url = $(this).attr('href');
+        var results = $('#results');
+        results.fadeTo('fast', 0.5);
+        $.ajax(url)
+        .done(function(data) {
+            results.html(data);
+            results.stop();
+            results.fadeTo('fast', 1.0);
+        })
+        .fail(function(jqXHR) {
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else {
+                var obj = $.parseJSON(jqXHR.responseText);
+                showPermanentError($('#results'), obj.status_msg);
+            }
+        });
+
+        return false;
+    });
+
+    /* View a node (show the modal editor) */
     $('#results').on('click', '[href*="#modalNode"]', function(event) {
         var mac = this.innerHTML;
         var url = ['/node', mac, 'get'];
@@ -72,6 +97,8 @@ function init() {
             }
         });
     });
+
+    /* Save a node (from the modal editor) */
     $('body').on('click', '#editNode', function(event) {
         var btn = $(this),
         modal = $('#modalNode'),
@@ -106,6 +133,8 @@ function init() {
 
         return false;
     });
+
+    /* Delete a node (from the modal editor) */
     $('body').on('click', '#deleteNode', function(event) {
         alert("delete node");
         return false;
