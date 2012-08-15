@@ -242,7 +242,7 @@ sub service_ctl {
                     my @devs = get_internal_devs_phy();
                     my $numPids = $#devs+1;
 
-                    $pid = chomp( `pidof -x $binary` );
+                    chomp( $pid = `pidof -x $binary` );
                     my @pidArray = split(/ /, $pid);
 
                     if ($#pidArray != $numPids) {
