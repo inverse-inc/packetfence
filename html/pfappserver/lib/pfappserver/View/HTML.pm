@@ -33,7 +33,7 @@ L<pfappserver>
 =cut
 sub css_filter {
     my $string = shift;
-    $string =~ s/\./_/g;
+    $string =~ s/[^_a-zA-Z0-9]/_/g;
 
     return $string;
 }
