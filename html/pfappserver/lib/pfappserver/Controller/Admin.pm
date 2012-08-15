@@ -33,7 +33,6 @@ sub auto :Private {
         $c->stash->{status_msg} = 'Your session has expired.';
         $c->stash->{'template'} = 'admin/login.tt';
         $c->stash->{'redirect_action'} = $c->action;
-        $c->detach();
     }
 }
 
