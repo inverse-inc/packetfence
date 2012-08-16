@@ -33,6 +33,7 @@ sub auto :Private {
     unless ($c->user_exists()) {
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->response->location($c->req->referer);
+        $c->stash->{template} = 'admin/unauthorized.tt';
         $c->detach();
     }
 }
