@@ -114,11 +114,21 @@ when rendering. Use it like that:
 
 and then username in the template will be set with the proper values.
 
+One can also use a syntax like this:
+
+  $portalSession->stash( { 'username' =>  encode_entities($cgi->param("username")) } );
+
 Also, it is prepopulated with the Web constants from pf::web::constants.
 
 =cut
 sub stash {
-    my ( $self ) = @_;
+    my ( $self, $hashref ) = @_;
+
+    if (defined($hashref) && ref($hashref) eq 'HASH') {
+        # merging the hashes, keys provided by caller wins
+        $self->{'stash'} = { %{$self->{'stash'}}, %$hashref };
+    }
+
     return $self->{'stash'};
 }
 

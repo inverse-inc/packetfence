@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 27;
+use Test::More tests => 26;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -30,18 +30,6 @@ BEGIN { use_ok('pf::web::util') }
 BEGIN { use_ok('pf::web::wispr') }
 
 =head1 TESTS
-
-=item pf::web::_initialize_template_variables
-
-=cut
-{
-    my $result =  pf::web::_initialize_template_variables( 'test' => 'true' );
-    is( $result->{'test'}, 'true', 'variable passed to _initialize_template_variables is kept');
-    is(
-        $result->{'URL_SIGNUP'}, '/signup',
-        'constant from pf::web::constant is returned by _initialize_template_variables'
-    );
-}
 
 =item pf::web::get_client_ip()
 
@@ -103,6 +91,11 @@ is(
 
 =cut
 ok(defined($WEB::URL_SIGNUP), 'WEB constants are available since we imported pf::web::constants');
+
+my %result =  pf::web::constants::to_hash();
+is(
+    $result{'URL_SIGNUP'}, '/signup', 'constant from pf::web::constant is returned in hashref by to_hash'
+);
 
 
 # TODO add more tests, we should test:

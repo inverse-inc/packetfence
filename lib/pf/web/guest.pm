@@ -113,47 +113,46 @@ sub generate_selfregistration_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $vars = {
+    $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
         i18n            => \&i18n,
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => encode_entities($portalSession->getDestinationUrl),
         list_help_info  => [
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
         post_uri => "/signup?mode=$GUEST_REGISTRATION",
-    };
+    });
 
     # put seperately because of side effects in anonymous hashref
-    $vars->{'firstname'} = $cgi->param("firstname");
-    $vars->{'lastname'} = $cgi->param("lastname");
+    $portalSession->stash->{'firstname'} = $cgi->param("firstname");
+    $portalSession->stash->{'lastname'} = $cgi->param("lastname");
 
-    $vars->{'organization'} = $cgi->param("organization");
-    $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
-    $vars->{'email'} = lc($cgi->param("email"));
+    $portalSession->stash->{'organization'} = $cgi->param("organization");
+    $portalSession->stash->{'phone'} = $cgi->param("phone");
+    $portalSession->stash->{'mobileprovider'} = $cgi->param("mobileprovider");
+    $portalSession->stash->{'email'} = lc($cgi->param("email"));
 
-    $vars->{'sponsor_email'} = lc($cgi->param("sponsor_email"));
+    $portalSession->stash->{'sponsor_email'} = lc($cgi->param("sponsor_email"));
 
-    $vars->{'sms_carriers'} = sms_carrier_view_all();
+    $portalSession->stash->{'sms_carriers'} = sms_carrier_view_all();
 
-    $vars->{'email_guest_allowed'} = is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes);
-    $vars->{'sms_guest_allowed'} = is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes);
-    $vars->{'sponsored_guest_allowed'} = is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes);
-    $vars->{'is_preregistration'} = $session->param('preregistration');
+    $portalSession->stash->{'email_guest_allowed'} = is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'sms_guest_allowed'} = is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'sponsored_guest_allowed'} = is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'is_preregistration'} = $session->param('preregistration');
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
         # ideally we'll set the array_ref always and won't need the following
         $error_args_ref = [] if (!defined($error_args_ref)); 
-        $vars->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
+    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $portalSession->stash) || $logger->error($template->error());
     exit;
 }
 
@@ -562,20 +561,20 @@ sub generate_custom_login_page {
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
-    my $vars = {
+    $portalSession->stash({
         logo => $portalSession->getProfile->getLogo,
         i18n => \&i18n
-    };
+    });
 
-    $vars->{'txt_auth_error'} = i18n($err) if (defined($err));
+    $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
     # return login
-    $vars->{'username'} = encode_entities($cgi->param("username"));
+    $portalSession->stash->{'username'} = encode_entities($cgi->param("username"));
 
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process($html_template, $vars) || $logger->error($template->error());
+    $template->process($html_template, $portalSession->stash) || $logger->error($template->error());
     exit;
 }
 
@@ -763,20 +762,19 @@ sub generate_sms_confirmation_page {
     setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
-    my $vars = {
+    $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
         i18n            => \&i18n,
-        destination_url => encode_entities($portalSession->getDestinationUrl),
         post_uri        => $post_uri,
         list_help_info  => [
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ]
-    };
+    });
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
-        $vars->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        $portalSession->stash->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
@@ -785,7 +783,7 @@ sub generate_sms_confirmation_page {
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process( 'guest/sms_confirmation.html' , $vars ) || $logger->error($template->error());
+    $template->process( 'guest/sms_confirmation.html' , $portalSession->stash ) || $logger->error($template->error());
     exit;
 }
 

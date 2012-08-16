@@ -5,7 +5,21 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
-o Upgrading from a version prior to <stableRelease>:
+Upgrading from a version prior to <develRelease>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Changes to Web API
+^^^^^^^^^^^^^^^^^^
+
+Variables meant for the consumption of the templates are now stored in the
+Portal::Session->stash. Code in pf::web::custom should be updated to assign
+to $portalSession->stash->... or (->stash(...)) instead of using $vars. It
+implicitly passes more information to the templates including the new URL
+constants (see below).
+
+The `login.html` template was updated to consume the newly introduced URL 
+constants. If you customized your code like generate_login_page then you
+need to make sure to update it to use the stash mentionned above.
 
     - Changes to Guest API
     pf::web::guest::generate_selfregistration_page no longer takes a $post_uri

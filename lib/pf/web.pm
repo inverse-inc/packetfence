@@ -162,10 +162,9 @@ sub generate_release_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
+    $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
         timer           => $Config{'trapping'}{'redirtimer'},
-        destination_url => encode_entities($portalSession->getDestinationUrl),
         redirect_url => $Config{'trapping'}{'redirecturl'},
         i18n => \&i18n,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
@@ -176,18 +175,18 @@ sub generate_release_page {
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-    };
+    });
 
     # override destination_url if we enabled the always_use_redirecturl option
     if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
-        $vars->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
+        $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
     }
 
     my $html_txt;
     my $template = Template->new({ 
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process( "release.html", $vars, \$html_txt ) || $logger->error($template->error());
+    $template->process( "release.html", $portalSession->stash, \$html_txt ) || $logger->error($template->error());
     
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
@@ -245,14 +244,12 @@ sub generate_mobileconfig_provisioning_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
-    };
+    $portalSession->stash->{'list_help_info'} = [
+        { name => i18n('IP'),  value => $portalSession->getClientIp },
+        { name => i18n('MAC'), value => $portalSession->getClientMac }
+    ];
 
-    _render_template($portalSession, 'release_with_xmlconfig.html', $vars);
+    _render_template($portalSession, 'release_with_xmlconfig.html', $portalSession->stash);
 }
 
 =item generate_apple_mobileconfig_provisioning_xml
@@ -271,10 +268,8 @@ sub generate_apple_mobileconfig_provisioning_xml {
     # if not logged in, disallow access
     return if (!defined($session->param('username')));
 
-    my $vars = {
-        username => $session->param('username'),
-        ssid => $Config{'provisioning'}{'ssid'},
-    };
+    $portalSession->stash->{'username'} = $session->param('username');
+    $portalSession->stash->{'ssid'} = $Config{'provisioning'}{'ssid'};
 
     # Some required headers
     # http://www.rootmanager.com/iphone-ota-configuration/iphone-ota-setup-with-signed-mobileconfig.html
@@ -285,7 +280,7 @@ sub generate_apple_mobileconfig_provisioning_xml {
     my $template = Template->new({ 
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process( "wireless-profile.xml", $vars ) || $logger->error($template->error());
+    $template->process( "wireless-profile.xml", $portalSession->stash) || $logger->error($template->error());
 }
 
 sub generate_scan_start_page {
@@ -300,10 +295,9 @@ sub generate_scan_start_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
+    $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
         timer           => $Config{'scan'}{'duration'},
-        destination_url => encode_entities($portalSession->getDestinationUrl),
         i18n => \&i18n,
         txt_message     => sprintf(
             i18n("system scan in progress"),
@@ -313,13 +307,13 @@ sub generate_scan_start_page {
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-    };
+    });
     # Once the progress bar is over, try redirecting
     my $html_txt;
     my $template = Template->new({ 
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process( "scan.html", $vars, \$html_txt ) || $logger->error($template->error());
+    $template->process( "scan.html", $portalSession->stash, \$html_txt ) || $logger->error($template->error());
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header(
         -cookie         => $cookie,
@@ -342,25 +336,23 @@ sub generate_login_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
-    };
+    $portalSession->stash->{'list_help_info'} = [
+        { name => i18n('IP'),  value => $portalSession->getClientIp },
+        { name => i18n('MAC'), value => $portalSession->getClientMac },
+    ];
 
-    $vars->{'guest_allowed'} = isenabled($portalSession->getProfile->getGuestSelfReg);
-    $vars->{'txt_auth_error'} = i18n($err) if (defined($err)); 
+    $portalSession->stash->{'guest_allowed'} = isenabled($portalSession->getProfile->getGuestSelfReg);
+    $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
     # return login
-    $vars->{'username'} = encode_entities($cgi->param("username"));
+    $portalSession->stash->{'username'} = encode_entities($cgi->param("username"));
 
     # authentication
-    $vars->{selected_auth} = encode_entities($cgi->param("auth")) || $portalSession->getProfile->getDefaultAuth; 
-    $vars->{list_authentications} = pf::web::auth::list_enabled_auth_types();
+    $portalSession->stash->{'selected_auth'} = encode_entities($cgi->param("auth"))
+        || $portalSession->getProfile->getDefaultAuth;
+    $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
 
-    _render_template($portalSession, 'login.html', $vars);
+    _render_template($portalSession, 'login.html', $portalSession->stash);
 }
 
 sub generate_enabler_page {
@@ -375,13 +367,10 @@ sub generate_enabler_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-        violation_id    => $violation_id,
-        enable_text     => $enable_text,
-    };
+    $portalSession->stash->{'violation_id'} = $violation_id;
+    $portalSession->stash->{'enable_text'} = $enable_text;
 
-    _render_template($portalSession, 'enabler.html', $vars);
+    _render_template($portalSession, 'enabler.html', $portalSession->stash);
 }
 
 sub generate_redirect_page {
@@ -396,12 +385,9 @@ sub generate_redirect_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
-        violation_url   => $violation_url,
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-    };
+    $portalSession->stash->{'violation_url'} = $violation_url;
 
-    _render_template($portalSession, 'redirect.html', $vars);
+    _render_template($portalSession, 'redirect.html', $portalSession->stash);
 }
 
 =item generate_aup_standalone_page
@@ -421,14 +407,12 @@ sub generate_aup_standalone_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
-    };
+    $portalSession->stash->{'list_help_info'} = [
+        { name => i18n('IP'),  value => $portalSession->getClientIp },
+        { name => i18n('MAC'), value => $portalSession->getClientMac }
+    ];
 
-    _render_template($portalSession, 'aup.html', $vars);
+    _render_template($portalSession, 'aup.html', $portalSession->stash);
 }
 
 sub generate_scan_status_page {
@@ -445,18 +429,17 @@ sub generate_scan_status_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
+    $portalSession->stash({
         txt_message      => i18n_format('scan in progress contact support if too long', $scan_start_time),
         txt_auto_refresh => i18n_format('automatically refresh', $refresh_timer),
-        destination_url  => encode_entities($portalSession->getDestinationUrl),
         refresh_timer    => $refresh_timer,
         list_help_info  => [
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
-    };
+    });
 
-    _render_template($portalSession, 'scan-in-progress.html', $vars, $r);
+    _render_template($portalSession, 'scan-in-progress.html', $portalSession->stash, $r);
 }
 
 sub generate_error_page {
@@ -471,15 +454,13 @@ sub generate_error_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
-        txt_message => $error_msg,
-        list_help_info  => [
-            { name => i18n('IP'),   value => $portalSession->getClientIp },
-            { name => i18n('MAC'),  value => $portalSession->getClientMac },
-        ],
-    };
+    $portalSession->stash->{'txt_message'} = $error_msg;
+    $portalSession->stash->{'list_help_info'} = [
+        { name => i18n('IP'),  value => $portalSession->getClientIp },
+        { name => i18n('MAC'), value => $portalSession->getClientMac }
+    ];
 
-    _render_template($portalSession, 'error.html', $vars, $r);
+    _render_template($portalSession, 'error.html', $portalSession->stash, $r);
 }
 
 =item generate_admin_error_page
@@ -675,7 +656,7 @@ sub generate_registration_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
+    $portalSession->stash({
         deadline        => $Config{'registration'}{'skip_deadline'},
         destination_url => encode_entities($portalSession->getDestinationUrl),
         list_help_info  => [
@@ -683,30 +664,30 @@ sub generate_registration_page {
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
         reg_page_content_file => "register_$pagenumber.html",
-    };
+    });
 
     # generate list of locales
     my $authorized_locale_txt = $Config{'general'}{'locale'};
     my @authorized_locale_array = split(/,/, $authorized_locale_txt);
     if ( scalar(@authorized_locale_array) == 1 ) {
-        push @{ $vars->{list_locales} },
+        push @{ $portalSession->stash->{'list_locales'} },
             { name => 'locale', value => $authorized_locale_array[0] };
     } else {
         foreach my $authorized_locale (@authorized_locale_array) {
-            push @{ $vars->{list_locales} },
+            push @{ $portalSession->stash->{'list_locales'} },
                 { name => 'locale', value => $authorized_locale };
         }
     }
 
     if ( $pagenumber == $Config{'registration'}{'nbregpages'} ) {
-        $vars->{'button_text'} = i18n($Config{'registration'}{'button_text'});
-        $vars->{'form_action'} = '/authenticate';
+        $portalSession->stash->{'button_text'} = i18n($Config{'registration'}{'button_text'});
+        $portalSession->stash->{'form_action'} = '/authenticate';
     } else {
-        $vars->{'button_text'} = i18n("Next page");
-        $vars->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
+        $portalSession->stash->{'button_text'} = i18n("Next page");
+        $portalSession->stash->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
-    _render_template($portalSession, 'register.html', $vars);
+    _render_template($portalSession, 'register.html', $portalSession->stash);
 }
 
 =item generate_pending_page
@@ -726,7 +707,7 @@ sub generate_pending_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = {
+    $portalSession->stash({
         list_help_info  => [
             { name => i18n('IP'),  value => $portalSession->getClientIp },
             { name => i18n('MAC'), value => $portalSession->getClientMac }
@@ -736,14 +717,14 @@ sub generate_pending_page {
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
-    };
+    });
 
     # override destination_url if we enabled the always_use_redirecturl option
     if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
-        $vars->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
+        $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
     }
 
-    _render_template($portalSession, 'pending.html', $vars);
+    _render_template($portalSession, 'pending.html', $portalSession->stash);
 }
 
 =item get_client_ip
@@ -850,13 +831,13 @@ sub generate_generic_page {
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
-    my $vars = $template_args;
-    $vars->{'list_help_info'} = [
+    $portalSession->stash( $template_args );
+    $portalSession->stash->{'list_help_info'} = [
         { name => i18n('IP'),  value => $portalSession->getClientIp },
         { name => i18n('MAC'), value => $portalSession->getClientMac }
     ];
 
-    _render_template($portalSession, $template, $vars);
+    _render_template($portalSession, $template, $portalSession->stash);
 }
 
 =back

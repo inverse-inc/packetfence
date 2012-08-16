@@ -72,37 +72,36 @@ sub generate_billing_page {
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
 
-    my $vars = {
+    my $billingObj  = new pf::billing::custom();
+    my %tiers       = $billingObj->getAvailableTiers();
+
+    $portalSession->stash({
         i18n            => \&i18n,
-        destination_url => encode_entities($portalSession->getDestinationUrl),
         logo            => $portalSession->getProfile->getLogo,
         list_help_info  => [
             { name => i18n('IP'),   value => $portalSession->getClientIp },
             { name => i18n('MAC'),  value => $portalSession->getClientMac }
         ],
-    };
+        'tiers' => \%tiers,
+        'selected_tier' => $cgi->param("tier"),
+        'firstname' => $cgi->param("firstname"),
+        'lastname' => $cgi->param("lastname"),
+        'email' => $cgi->param("email"),
+        'ccnumber' => $cgi->param("ccnumber"),
+        'ccexpiration' => $cgi->param("ccexpiration"),
+        'ccverification' => $cgi->param("ccverification"),
 
-    my $billingObj  = new pf::billing::custom();
-    my %tiers       = $billingObj->getAvailableTiers();
-
-    $vars->{'tiers'}            = \%tiers;
-    $vars->{'selected_tier'}    = $cgi->param("tier");
-    $vars->{'firstname'}        = $cgi->param("firstname");
-    $vars->{'lastname'}         = $cgi->param("lastname");
-    $vars->{'email'}            = $cgi->param("email");
-    $vars->{'ccnumber'}         = $cgi->param("ccnumber");
-    $vars->{'ccexpiration'}     = $cgi->param("ccexpiration");
-    $vars->{'ccverification'}   = $cgi->param("ccverification");
+    });
 
     # Error management
-    $vars->{'txt_validation_error'} = $BILLING::ERRORS{$error_code} if (defined($error_code));
+    $portalSession->stash->{'txt_validation_error'} = $BILLING::ERRORS{$error_code} if (defined($error_code));
 
     # Generating the page with the correct template
     $logger->info('generate_billing_page');
     my $template = Template->new({ 
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
     });
-    $template->process( "billing/billing.html", $vars ) || $logger->error($template->error());
+    $template->process( "billing/billing.html", $portalSession->stash ) || $logger->error($template->error());
     exit;
 }
 
