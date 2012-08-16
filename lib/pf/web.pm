@@ -380,7 +380,7 @@ sub generate_enabler_page {
         enable_text     => $enable_text,
     };
 
-    _render_template($portalSession, 'enabler.html', $vars)
+    _render_template($portalSession, 'enabler.html', $vars);
 }
 
 sub generate_redirect_page {
