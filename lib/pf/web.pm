@@ -94,20 +94,6 @@ sub i18n_format {
     return sprintf(gettext($msgid), @args);
 }
 
-=item _initialize_template_variables
-
-Returns an hashref meant for TT's ->process() $vars preloaded
-with interesting variables for the captive portal.
-
-=cut
-sub _initialize_template_variables {
-    my ( %vars ) = @_;
-
-    # Hashref merge, right-hand side wins on conflicts
-    return { (pf::web::constants::to_hash(), %vars) };
-}
-
-
 sub web_get_locale {
     my ($cgi,$session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');

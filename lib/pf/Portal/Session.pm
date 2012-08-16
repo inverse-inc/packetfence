@@ -72,8 +72,23 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
 
-    # XXX pass mac here
     $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+
+    $self->_initializeStash();
+}
+
+=item _initializeStash
+
+Initialize a catalyst-style stash variable that is passed to the template
+when rendering.
+
+=cut
+sub _initializeStash {
+    my ($self) = @_;
+
+    # Fill it with the Web constants first
+    $self->{'stash'} = { pf::web::constants::to_hash() };
+    $self->stash->{'destination_url'} = $self->getDestinationUrl();
 }
 
 =item _getDestinationUrl
@@ -89,6 +104,24 @@ sub _getDestinationUrl {
 
     return decode_entities(uri_unescape($cgi->param("destination_url")));
 }
+
+=item stash
+
+Initialize a catalyst-style stash variable that is passed to the template
+when rendering. Use it like that:
+
+  $portalSession->stash->{'username'} = encode_entities($cgi->param("username"));
+
+and then username in the template will be set with the proper values.
+
+Also, it is prepopulated with the Web constants from pf::web::constants.
+
+=cut
+sub stash {
+    my ( $self ) = @_;
+    return $self->{'stash'};
+}
+
 
 =item getCgi
 
