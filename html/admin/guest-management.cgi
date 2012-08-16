@@ -73,7 +73,7 @@ if (defined($session->param("username"))) {
           print $cgi->redirect("/login.php?logout=true");
         }
         else {
-          pf::web::guest::generate_custom_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+          pf::web::guest::generate_admin_login_page($cgi, $session, undef, "guest/mgmt_login.html");
         }
 
     }
@@ -191,12 +191,12 @@ if (defined($session->param("username"))) {
 else {
     # User is not logged and didn't provide username or password: show login form
     if (!($cgi->param("username") && $cgi->param("password"))) {
-        pf::web::guest::generate_custom_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+        pf::web::guest::generate_admin_login_page($cgi, $session, undef, "guest/mgmt_login.html");
         exit(0);
     }
 
     # User provided username and password: authenticate
-    my ($auth_return, $authenticator) = pf::web::web_user_authenticate($cgi, $session, "guest_managers");
+    my ($auth_return, $authenticator) = pf::web::guest::manager_authenticate($cgi, $session, "guest_managers");
     if ($auth_return != 1) {
         $logger->info("authentication failed for user ".$cgi->param("username"));
         my $error;
@@ -205,7 +205,7 @@ else {
         } else {
             $error = $authenticator->getLastError();
         }
-        pf::web::guest::generate_custom_login_page($cgi, $session, $error, "guest/mgmt_login.html");
+        pf::web::guest::generate_admin_login_page($cgi, $session, $error, "guest/mgmt_login.html");
         exit(0);
     }
 

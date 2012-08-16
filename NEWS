@@ -28,6 +28,7 @@ Bug Fixes
  * cosmetic fix in `pfcmd service ... status` regarding pfdhcplistener (#1515)
  * Guests are not able to confirm registration in some cases - take 2 (#1302)
  * Sponsored guests regressions (#1505)
+ * Guest management login and authentication regressions (#1518)
 
 --------------------------------------------------------------------------------
 Version 3.5.0 released on 2012-08-01
