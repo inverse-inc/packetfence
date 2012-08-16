@@ -576,6 +576,67 @@ sub generate_custom_login_page {
     exit;
 }
 
+=item generate_admin_login_page
+
+Sub to present a admin login form.
+
+=cut
+# Note: quick fix for #1518. Long term goal is to have that functionality in the Catalyst-based admin
+sub generate_admin_login_page {
+    my ( $cgi, $session, $err, $html_template ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+
+    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+
+    my $cookie = $cgi->cookie( CGISESSID => $session->id );
+    print $cgi->header( -cookie => $cookie );
+    my $ip   = $cgi->remote_addr;
+    my $vars = {
+        logo => $Config{'general'}{'logo'},
+        i18n => \&i18n
+    };
+
+    $vars->{'txt_auth_error'} = i18n($err) if (defined($err));
+
+    # return login
+    $vars->{'username'} = encode_entities($cgi->param("username"));
+
+    my $template = Template->new({
+        INCLUDE_PATH => ["$install_dir/html/admin/templates", $CAPTIVE_PORTAL{'TEMPLATE_DIR'}]
+    });
+    $template->process($html_template, $vars) || $logger->error($template->error());
+    exit;
+}
+
+=item manager_authenticate
+
+    return (1, pf::web::auth subclass) for successfull authentication
+    return (0, undef) for inability to check credentials
+    return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
+
+=cut
+# Note: quick fix for #1518. Long term goal is to have that functionality in the Catalyst-based admin
+sub manager_authenticate {
+    my ( $cgi, $session, $auth_module ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->trace("authentication attempt");
+
+    my $authenticator = pf::web::auth::instantiate($auth_module);
+    return (0, undef) if (!defined($authenticator));
+
+    # validate login and password
+    my $return = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
+
+    if (defined($return) && $return == 1) {
+        #save login into session
+        $session->param( "username", $cgi->param("username") );
+        $session->param( "authType", $auth_module );
+    }
+    return ($return, $authenticator);
+}
+
 =item preregister
 
 =cut
