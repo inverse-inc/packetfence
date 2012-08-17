@@ -1,5 +1,5 @@
       <div class="modal fade hide" id="modalNode">
-        <form action="[% c.uri_for(c.controller('Node').action_for('edit'), [node.info.mac]) %]">
+        <form action="[% c.uri_for(c.controller('Node').action_for('update'), [node.info.mac]) %]">
         <div class="modal-header">
           <a class="close" data-dismiss="modal">×</a>
           <h3><i>MAC</i> [% node.info.mac %]</h3>
@@ -123,9 +123,9 @@ graphs['iplog'] = {
           </div>
         </div>
         <div class="modal-footer">
-          <a href="[% c.uri_for("/node/${node.info.mac}/delete") %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> Delete</a>
-          <a href="[% c.uri_for("/node/${node.info.mac}/edit") %]" id="editNode" class="btn btn-primary pull-left" data-loading-text="Saving">Save</a>
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
+          <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [node.info.mac]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          <a href="[% c.uri_for(c.controller('Node').action_for('update'), [node.info.mac]) %]" id="updateNode" class="btn btn-primary pull-left" data-loading-text="Saving">[% l('Save') %]</a>
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div>
         </form>
       </div>

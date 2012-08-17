@@ -139,10 +139,10 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
                          time => POSIX::strftime("%H:%M", @now) };
 }
 
-=head2 edit
+=head2 update
 
 =cut
-sub edit :Chained('object') :PathPart('edit') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
     my ($status, $message);
@@ -164,7 +164,7 @@ sub edit :Chained('object') :PathPart('edit') :Args(0) {
         $node_ref->{unregdate} = undef;
     }
 
-    ($status, $message) = $c->model('Node')->edit($c->stash->{mac}, $node_ref);
+    ($status, $message) = $c->model('Node')->update($c->stash->{mac}, $node_ref);
     if ( is_error($status) ) {
         $c->response->status($status);
     }
