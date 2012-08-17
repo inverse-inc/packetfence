@@ -77,5 +77,5 @@ function init() {
     });
 
     /* Load initial section */
-    $('.sidebar-nav .nav-list a').first().trigger('click');
+    $('.sidebar-nav .nav-list .active a').trigger('click');
 }
