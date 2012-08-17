@@ -230,6 +230,11 @@ sub _read_config_entry {
         'options' => $options_ref,
         'description' => $description_ref,
     };
+    # Convert the value to an array when the parameter can have multiple values
+    if ($entry_ref->{type} eq 'multi') {
+        my @values = split( /\s*,\s*/, $entry_ref->{value} );
+        $entry_ref->{value} = \@values;
+    }
 
     return $entry_ref;
 }
@@ -307,8 +312,12 @@ sub _update {
         if ( !defined($pf_conf->{$section}->{$param}) && !defined($defaults_conf->{$section}->{$param}) );
 
     if ( defined($pf_conf->{$section}->{$param}) ) {
+        # a pf.conf parameter is unset: delete it
+        if (!length($value)) {
+            tied(%$pf_conf)->delval( $section, $param );
+        }
         # a pf.conf parameter is replaced to another value and is not the default: replace with new value
-        if ( $defaults_conf->{$section}->{$param} ne $value ) {   
+        elsif ( $defaults_conf->{$section}->{$param} ne $value ) {
             tied(%$pf_conf)->setval( $section, $param, $value );
         }
         # a pf.conf parameter replaced to it's default value
