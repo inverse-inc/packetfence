@@ -138,9 +138,11 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 =head2 configuration
 
 =cut
-sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
-    my ( $self, $c ) = @_;
+sub configuration :Chained('object') :PathPart('configuration') {
+    my ( $self, $c, $section ) = @_;
 
+    $section = 'general' unless ($section);
+    $c->stash->{section} = $section;
 }
 
 =head1 AUTHOR

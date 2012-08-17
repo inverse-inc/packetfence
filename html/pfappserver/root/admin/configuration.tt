@@ -24,11 +24,21 @@
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header"><i class="icon-home"></i> Main</li>
-              <li><a href="[% c.uri_for(c.controller('Configuration').action_for('general')) %]">[% l('general') %]</a></li>
-              <li><a href="[% c.uri_for(c.controller('Configuration').action_for('network')) %]">[% l('network') %]</a></li>
-              <li><a href="[% c.uri_for(c.controller('Configuration').action_for('proxies')) %]">[% l('proxies') %]</a></li>
-              <li><a href="[% c.uri_for(c.controller('Configuration').action_for('trapping')) %]">[% l('trapping') %]</a></li>
-              <li><a href="[% c.uri_for(c.controller('Configuration').action_for('registration')) %]">[% l('registration') %]</a></li>
+              <li[% IF section == 'general' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('general')) %]">[% l('general') %]</a>
+              </li>
+              <li[% IF section == 'network' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('network')) %]">[% l('network') %]</a>
+              </li>
+              <li[% IF section == 'proxies' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('proxies')) %]">[% l('proxies') %]</a>
+              </li>
+              <li[% IF section == 'trapping' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('trapping')) %]">[% l('trapping') %]</a>
+              </li>
+              <li[% IF section == 'registration' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('registration')) %]">[% l('registration') %]</a>
+              </li>
               <li><a href="#">Portal Pages</a></li>
               <li class="nav-header"><i class="icon-random"></i> Network<li>
               <li><a href="#">Interfaces</a></li>
@@ -37,10 +47,14 @@
               <li><a href="#">Floating devices</a></li>
               <li class="nav-header"><i class="icon-user"></i> Users</li>
               <li><a href="#">Sources</a></li>
-              <li><a href="[% c.uri_for(c.controller('Configuration').action_for('Guests')) %]">Guests</a></li>
+              <li[% IF section == 'guests' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('guests'))%]">[% l('Guests') %]</a>
+              </li>
               <li class="nav-header"><i class="icon-check"></i> Compliance</li>
               <li><a href="#">Violations</a></li>
-              <li><a href="#">SoH Filters</a></li>
+              <li[% IF section == 'soh' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('soh')) %]">[% l('SoH Filters') %]</a>
+              </li>
               <li><a href="#">Roles</a></li>
               <li><a href="#">Remediation Pages</a></li>
               <li class="nav-header"><i class="icon-eye-open"></i> Identification</li>
