@@ -40,10 +40,13 @@ can get rid of the following lines from your custom code:
   bindtextdomain( "packetfence", "$conf_dir/locale" );
   textdomain("packetfence");
 
-    - Changes to Guest API
-    pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
-    parameter. If you want to customize it, change post_uri in the guest.html
-    template.
+Changes to Guest API
+^^^^^^^^^^^^^^^^^^^^
+
+pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
+parameter. If you want to customize it, change post_uri in the guest.html
+template.
+
 
 o Upgrading from a version prior to 3.5.0:
 
