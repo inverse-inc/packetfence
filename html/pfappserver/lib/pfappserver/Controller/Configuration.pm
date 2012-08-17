@@ -40,14 +40,15 @@ sub auto :Private {
     unless ($c->user_exists()) {
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->response->location($c->req->referer);
+        $c->stash->{template} = 'admin/unauthorized.tt';
         $c->detach();
     }
 }
 
-=head2 _format_params
+=head2 _format_section
 
 =cut
-sub _format_params :Private {
+sub _format_section :Private {
     my ($self, $entries_ref) = @_;
 
     for (my $i = 0; $i < scalar @{$entries_ref}; $i++) {
@@ -58,9 +59,14 @@ sub _format_params :Private {
             $entry_ref->{type} = 'text-large';
         }
 
-        # Switch to a popup list (select) when the toggle has no enabled/disabled options
-        elsif ($entry_ref->{type} eq "toggle" && $entry_ref->{options}->[0] ne "enabled") {
-            $entry_ref->{type} = "select";
+        # Value should always be defined for toggles (checkbox and select)
+        elsif ($entry_ref->{type} eq "toggle") {
+            $entry_ref->{value} = $entry_ref->{default_value} unless ($entry_ref->{value});
+
+            # Switch to a popup list (select) when the toggle has no enabled/disabled options
+            if ($entry_ref->{options}->[0] ne "enabled") {
+                $entry_ref->{type} = "select";
+            }
         }
 
         elsif ($entry_ref->{type} eq "date") {
@@ -95,6 +101,37 @@ sub _format_params :Private {
     }
 }
 
+=head2 _update_section
+
+=cut
+sub _update_section :Private {
+    my ($self, $c) = @_;
+
+    my $entries_ref = $c->model('Config::Pf')->read($c->action->name);
+    my $data = {};
+
+    foreach my $config (@{$entries_ref}) {
+        if (exists($c->request->params->{$config->{parameter}})) {
+            $data->{$config->{parameter}} = $c->request->params->{$config->{parameter}};
+            if ($data->{$config->{parameter}} && $config->{type} eq 'time') {
+                my $unit = $c->request->params->{$config->{parameter} . '_unit'};
+                $data->{$config->{parameter}} .= $unit if ($unit);
+            }
+            elsif (exists($data->{$config->{parameter}}) && $config->{type} eq 'toggle') {
+                $data->{$config->{parameter}} = 'disabled' unless ($data->{$config->{parameter}});
+            }
+        }
+    }
+
+    my ( $status, $message ) = $c->model('Config::Pf')->update($data);
+
+    if (is_error($status)) {
+        $c->response->status($status);
+    }
+    $c->stash->{status_msg} = $message;
+    $c->stash->{current_view} = 'JSON';
+}
+
 =head2 general
 
 =cut
@@ -102,10 +139,15 @@ sub general :Local {
     my ( $self, $c ) = @_;
 
     $c->stash->{section} = $c->action->name;
-    $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
     $c->stash->{template} = 'configuration/section.tt';
 
-    $self->_format_params($c->stash->{params});
+    if ($c->request->method eq 'POST') {
+        $self->_update_section($c);
+    }
+    else {
+        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
+        $self->_format_section($c->stash->{params});
+    }
 }
 
 =head2 network
@@ -115,10 +157,15 @@ sub network :Local {
     my ( $self, $c ) = @_;
 
     $c->stash->{section} = $c->action->name;
-    $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
     $c->stash->{template} = 'configuration/section.tt';
 
-    $self->_format_params($c->stash->{params});
+    if ($c->request->method eq 'POST') {
+        $self->_update_section($c);
+    }
+    else {
+        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
+        $self->_format_section($c->stash->{params});
+    }
 }
 
 =head2 proxies
@@ -128,10 +175,15 @@ sub proxies :Local {
     my ( $self, $c ) = @_;
 
     $c->stash->{section} = $c->action->name;
-    $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
     $c->stash->{template} = 'configuration/section.tt';
 
-    $self->_format_params($c->stash->{params});
+    if ($c->request->method eq 'POST') {
+        $self->_update_section($c);
+    }
+    else {
+        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
+        $self->_format_section($c->stash->{params});
+    }
 }
 
 =head2 trapping
@@ -141,10 +193,15 @@ sub trapping :Local {
     my ( $self, $c ) = @_;
 
     $c->stash->{section} = $c->action->name;
-    $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
     $c->stash->{template} = 'configuration/section.tt';
 
-    $self->_format_params($c->stash->{params});
+    if ($c->request->method eq 'POST') {
+        $self->_update_section($c);
+    }
+    else {
+        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
+        $self->_format_section($c->stash->{params});
+    }
 }
 
 =head2 registration
@@ -154,10 +211,15 @@ sub registration :Local {
     my ( $self, $c ) = @_;
 
     $c->stash->{section} = $c->action->name;
-    $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
     $c->stash->{template} = 'configuration/section.tt';
 
-    $self->_format_params($c->stash->{params});
+    if ($c->request->method eq 'POST') {
+        $self->_update_section($c);
+    }
+    else {
+        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
+        $self->_format_section($c->stash->{params});
+    }
 }
 
 =head1 AUTHOR

@@ -1,5 +1,5 @@
   <h3>[% l(section) %]</h3>
-  <form class="form-horizontal">
+  <form class="form-horizontal" action="[% c.uri_for(c.action) %]" method="POST">
 [% FOREACH config IN params -%]
 [% SWITCH config.type -%]
 [% CASE 'text' %]
@@ -7,7 +7,7 @@
               <label class="control-label" for="[% config.parameter | css %]">[% l(config.parameter) %]</label>
               <div class="controls">
                 <input name="[% config.parameter %]" type="text" class="input" id="[% config.parameter | css %]" placeholder="[% config.default_value %]" value="[% config.value %]">
-                <p class="help-block">[% l(config.description) %]</p>
+                [% IF config.description %]<p class="help-block">[% l(config.description) %]</p>[% END %]
               </div>
             </div>
 [% CASE 'text-large' %]
@@ -32,7 +32,8 @@
               <div class="controls">
                 <select name="[% config.parameter %]" data-placeholder="[% l(config.parameter) %]" multiple="multiple" class="chzn-select" id="[% config.parameter | css %]">
                   [%- FOREACH option IN config.options %]
-                  <option value="[% option %]"[% IF option == config.value %] selected="selected'"[% END %]>[% l(option) %]</option>
+                  <option value="[% option %]"[% FOREACH v IN config.value %]
+                          [% IF option == v %] selected="selected"[% LAST; END %][% END %]>[% l(option) %]</option>
                   [%- END %]
                 </select>
                 <p class="help-block">[% l(config.description) %]</p>
@@ -44,7 +45,7 @@
               <div class="controls">
                 <select name="[% config.parameter %]" id="[% config.parameter | css %]">
                   [%- FOREACH option IN config.options %]
-                  <option value="[% option %]"[% IF option == config.value %] selected="selected'"[% END %]>[% l(option) %]</option>
+                  <option value="[% option %]"[% IF option == config.value %] selected="selected"[% END %]>[% l(option) %]</option>
                   [%- END %]
                 </select>
                 <p class="help-block">[% l(config.description) %]</p>
@@ -55,7 +56,7 @@
               <label class="control-label" for="[% config.parameter | css %]">[% l(config.parameter) %]</label>
               <div class="controls">
                 <label class="checkbox">
-                  <input name="[% config.parameter %]" type="checkbox" id="[% config.parameter | css %]" value="1">
+                  <input name="[% config.parameter %]" type="checkbox" id="[% config.parameter | css %]"[% IF config.value == 'enabled' %] checked="checked"[% END %] value="enabled">
                   <p class="help-inline">[% l(config.description) %]</p>
                 </label>
               </div>
@@ -77,13 +78,13 @@
               <div class="controls interval">
                 <input name="[% config.parameter %]" type="text" class="input span1" id="[% config.parameter | css %]" placeholder="[% config.default_value %]" value="[% config.value %]">
                 <div class="btn-group" data-toggle="buttons-radio">
-                  <button class="btn[% IF config.unit == "s" %] active[% END %]" value="s">[% l('seconds') %]</button>
-                  <button class="btn[% IF config.unit == "m" %] active[% END %]" value="m">[% l('minutes') %]</button>
-                  <button class="btn[% IF config.unit == "h" %] active[% END %]" value="h">[% l('hours') %]</button>
-                  <button class="btn[% IF config.unit == "D" %] active[% END %]" value="D">[% l('days') %]</button>
-                  <button class="btn[% IF config.unit == "W" %] active[% END %]" value="W">[% l('weeks') %]</button>
-                  <button class="btn[% IF config.unit == "M" %] active[% END %]" value="M">[% l('months') %]</button>
-                  <button class="btn[% IF config.unit == "Y" %] active[% END %]" value="Y">[% l('years') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "s" %] active[% END %]" value="s">[% l('seconds') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "m" %] active[% END %]" value="m">[% l('minutes') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "h" %] active[% END %]" value="h">[% l('hours') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "D" %] active[% END %]" value="D">[% l('days') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "W" %] active[% END %]" value="W">[% l('weeks') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "M" %] active[% END %]" value="M">[% l('months') %]</button>
+                  <button name="[% config.parameter %]_unit" class="btn[% IF config.unit == "Y" %] active[% END %]" value="Y">[% l('years') %]</button>
                 </div>
                 <p class="help-block">[% l(config.description) %]</p>
               </div>
