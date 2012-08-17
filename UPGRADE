@@ -11,6 +11,9 @@ Upgrading from a version prior to <develRelease>
 Changes to Web API
 ^^^^^^^^^^^^^^^^^^
 
+NOTE: Remember, if you don't have custom extensions or customized templates
+you don't have to worry about anything below.
+
 Deprecations
 ~~~~~~~~~~~~
 
