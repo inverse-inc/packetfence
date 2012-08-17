@@ -63,12 +63,6 @@ sub generate_billing_page {
     my %tiers       = $billingObj->getAvailableTiers();
 
     $portalSession->stash({
-        i18n            => \&i18n,
-        logo            => $portalSession->getProfile->getLogo,
-        list_help_info  => [
-            { name => i18n('IP'),   value => $portalSession->getClientIp },
-            { name => i18n('MAC'),  value => $portalSession->getClientMac }
-        ],
         'tiers' => \%tiers,
         'selected_tier' => $portalSession->cgi->param("tier"),
         'firstname' => $portalSession->cgi->param("firstname"),

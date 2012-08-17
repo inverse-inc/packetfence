@@ -143,6 +143,13 @@ sub render_template {
         'i18n_format' => \&i18n_format,
     });
 
+    my @list_help_info;
+    push @list_help_info, { name => i18n('IP'),  value => $portalSession->getClientIp }
+        if (defined($portalSession->getClientIp));
+    push @list_help_info, { name => i18n('MAC'),  value => $portalSession->getClientMac }
+        if (defined($portalSession->getClientMac));
+    $portalSession->stash({ list_help_info => [ @list_help_info ] });
+
     # lastly add user-defined stash elements
     $portalSession->stash( pf::web::stash_template_vars() );
 
@@ -179,25 +186,14 @@ sub stash_template_vars {
 
 sub generate_release_page {
     my ( $portalSession, $r ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-
-    # First blast at consuming portalSession object
-    my $cgi             = $portalSession->getCgi();
-    my $session         = $portalSession->getSession();
 
     $portalSession->stash({
-        logo            => $portalSession->getProfile->getLogo,
         timer           => $Config{'trapping'}{'redirtimer'},
         redirect_url => $Config{'trapping'}{'redirecturl'},
-        i18n => \&i18n,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
     });
 
     # override destination_url if we enabled the always_use_redirecturl option
@@ -244,13 +240,6 @@ Offers a page that links to the proper provisioning XML.
 =cut
 sub generate_mobileconfig_provisioning_page {
     my ( $portalSession ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-
-    $portalSession->stash->{'list_help_info'} = [
-        { name => i18n('IP'),  value => $portalSession->getClientIp },
-        { name => i18n('MAC'), value => $portalSession->getClientMac }
-    ];
-
     render_template($portalSession, 'release_with_xmlconfig.html');
 }
 
@@ -261,14 +250,11 @@ Generate the proper .mobileconfig XML to automatically configure Wireless for iO
 =cut
 sub generate_apple_mobileconfig_provisioning_xml {
     my ( $portalSession ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-
-    my $session = $portalSession->getSession();
 
     # if not logged in, disallow access
-    return if (!defined($session->param('username')));
+    return if (!defined($portalSession->session->param('username')));
 
-    $portalSession->stash->{'username'} = $session->param('username');
+    $portalSession->stash->{'username'} = $portalSession->session->param('username');
     $portalSession->stash->{'ssid'} = $Config{'provisioning'}{'ssid'};
 
     # Some required headers
@@ -284,17 +270,11 @@ sub generate_scan_start_page {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $portalSession->stash({
-        logo            => $portalSession->getProfile->getLogo,
         timer           => $Config{'scan'}{'duration'},
-        i18n => \&i18n,
         txt_message     => sprintf(
             i18n("system scan in progress"),
             $Config{'scan'}{'duration'}
         ),
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
     });
 
     # Once the progress bar is over, try redirecting
@@ -303,12 +283,6 @@ sub generate_scan_start_page {
 
 sub generate_login_page {
     my ( $portalSession, $err ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    $portalSession->stash->{'list_help_info'} = [
-        { name => i18n('IP'),  value => $portalSession->getClientIp },
-        { name => i18n('MAC'), value => $portalSession->getClientMac },
-    ];
 
     $portalSession->stash->{'guest_allowed'} = isenabled($portalSession->getProfile->getGuestSelfReg);
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
@@ -325,7 +299,6 @@ sub generate_login_page {
 
 sub generate_enabler_page {
     my ( $portalSession, $violation_id, $enable_text ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $portalSession->stash->{'violation_id'} = $violation_id;
     $portalSession->stash->{'enable_text'} = $enable_text;
@@ -335,7 +308,6 @@ sub generate_enabler_page {
 
 sub generate_redirect_page {
     my ( $portalSession, $violation_url ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
 
     $portalSession->stash->{'violation_url'} = $violation_url;
 
@@ -349,19 +321,11 @@ Called when someone clicked on /aup which is the pop=up URL for mobile phones.
 =cut
 sub generate_aup_standalone_page {
     my ( $portalSession ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    $portalSession->stash->{'list_help_info'} = [
-        { name => i18n('IP'),  value => $portalSession->getClientIp },
-        { name => i18n('MAC'), value => $portalSession->getClientMac }
-    ];
-
     render_template($portalSession, 'aup.html');
 }
 
 sub generate_scan_status_page {
     my ( $portalSession, $scan_start_time, $r ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $refresh_timer = 10; # page will refresh each 10 seconds
 
@@ -369,10 +333,6 @@ sub generate_scan_status_page {
         txt_message      => i18n_format('scan in progress contact support if too long', $scan_start_time),
         txt_auto_refresh => i18n_format('automatically refresh', $refresh_timer),
         refresh_timer    => $refresh_timer,
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
     });
 
     render_template($portalSession, 'scan-in-progress.html', $r);
@@ -380,13 +340,8 @@ sub generate_scan_status_page {
 
 sub generate_error_page {
     my ( $portalSession, $error_msg, $r ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $portalSession->stash->{'txt_message'} = $error_msg;
-    $portalSession->stash->{'list_help_info'} = [
-        { name => i18n('IP'),  value => $portalSession->getClientIp },
-        { name => i18n('MAC'), value => $portalSession->getClientMac }
-    ];
 
     render_template($portalSession, 'error.html', $r);
 }
@@ -565,17 +520,11 @@ sub web_user_authenticate {
 
 sub generate_registration_page {
     my ( $portalSession, $pagenumber ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $pagenumber = 1 if (!defined($pagenumber));
 
     $portalSession->stash({
         deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
         reg_page_content_file => "register_$pagenumber.html",
     });
 
@@ -610,14 +559,8 @@ Shows a page to user saying registration is pending.
 =cut
 sub generate_pending_page {
     my ( $portalSession ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $portalSession->stash({
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
-        destination_url => encode_entities($portalSession->getDestinationUrl),
         redirect_url => $Config{'trapping'}{'redirecturl'},
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
@@ -722,16 +665,12 @@ sub end_portal_session {
 Present a generic page. Template and arguments provided to template passed as arguments
 
 =cut
+# TODO we could even deprecate that since people calling this here
+# could stash to portalSession first.
 sub generate_generic_page {
     my ( $portalSession, $template, $template_args ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $portalSession->stash( $template_args );
-    $portalSession->stash->{'list_help_info'} = [
-        { name => i18n('IP'),  value => $portalSession->getClientIp },
-        { name => i18n('MAC'), value => $portalSession->getClientMac }
-    ];
-
     render_template($portalSession, $template);
 }
 

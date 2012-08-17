@@ -103,13 +103,7 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     $portalSession->stash({
-        logo            => $portalSession->getProfile->getLogo,
-        i18n            => \&i18n,
         deadline        => $Config{'registration'}{'skip_deadline'},
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
         post_uri => "/signup?mode=$GUEST_REGISTRATION",
 
         firstname => $portalSession->cgi->param("firstname"),
@@ -533,12 +527,6 @@ Sub to present a login form. Template is provided as a parameter.
 =cut
 sub generate_custom_login_page {
     my ( $portalSession, $err, $html_template ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-    $portalSession->stash({
-        logo => $portalSession->getProfile->getLogo,
-        i18n => \&i18n
-    });
 
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
@@ -725,17 +713,8 @@ sub send_template_email {
 
 sub generate_sms_confirmation_page {
     my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $portalSession->stash({
-        logo            => $portalSession->getProfile->getLogo,
-        i18n            => \&i18n,
-        post_uri        => $post_uri,
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ]
-    });
+    $portalSession->stash->{'post_uri'} = $post_uri;
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
