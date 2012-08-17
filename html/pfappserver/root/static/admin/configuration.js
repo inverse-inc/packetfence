@@ -35,6 +35,47 @@ function init() {
         return false;
     });
 
+    /* Save a section */
+    $('body').on('submit', 'form', function(event) {
+        var url = $(this).attr('action');
+        var data = {};
+        // Extract values from inputs, textareas, selects and buttons (time units)
+        $(this).find('input:text, textarea, select, button.active').each(function () {
+            if (this.name.length > 0) {
+                var val = $(this).val();
+                data[this.name] = $.isArray(val)? val.join(',') : val;
+            }
+        });
+        // Extract values from checkboxes
+        $(this).find('input:checkbox').each(function () {
+            if (this.name.length > 0) {
+                var val = this.checked? $(this).val() : '';
+                data[this.name] = val;
+            }
+        });
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: data
+        })
+        .done(function(data) {
+            resetAlert($('h3'));
+            showSuccess($('form'), data.status_msg);
+        })
+        .fail(function(jqXHR) {
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else {
+                var obj = $.parseJSON(jqXHR.responseText);
+                showPermanentError($('form'), obj.status_msg);
+            }
+        });
+
+        return false;
+    });
+
     /* Load initial section */
     $('.sidebar-nav .nav-list a').first().trigger('click');
 }
