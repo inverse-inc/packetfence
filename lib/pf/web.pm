@@ -56,6 +56,7 @@ use pf::web::auth;
 use pf::web::constants; 
 
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
+Readonly our $LOGIN_TEMPLATE => 'login.html';
 
 =head1 SUBROUTINES
 
@@ -319,7 +320,7 @@ sub generate_login_page {
         || $portalSession->getProfile->getDefaultAuth;
     $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
 
-    render_template($portalSession, 'login.html');
+    render_template($portalSession, $LOGIN_TEMPLATE);
 }
 
 sub generate_enabler_page {

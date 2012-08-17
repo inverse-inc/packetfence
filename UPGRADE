@@ -52,6 +52,8 @@ pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
 parameter. If you want to customize it, change post_uri in the guest.html
 template.
 
+$pf::web::guest::LOGIN_TEMPLATE was moved to $pf::web::LOGIN_TEMPLATE.
+References should be updated.
 
 o Upgrading from a version prior to 3.5.0:
 

@@ -57,7 +57,6 @@ use pf::sms_activation;
 
 our $VERSION = 1.30;
 
-our $LOGIN_TEMPLATE = "login.html";
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
