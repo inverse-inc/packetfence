@@ -99,12 +99,12 @@ function init() {
     });
 
     /* Save a node (from the modal editor) */
-    $('body').on('click', '#editNode', function(event) {
+    $('body').on('click', '#updateNode', function(event) {
         var btn = $(this),
         modal = $('#modalNode'),
         form = modal.find('form').first(),
         modal_body = modal.find('.modal-body'),
-        url = form.attr('action');
+        url = $(this).attr('href');
 
         btn.button('loading');
         $.ajax({

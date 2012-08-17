@@ -196,10 +196,10 @@ sub get {
     return ($STATUS::OK, $node);
 }
 
-=head2 edit
+=head2 update
 
 =cut
-sub edit {
+sub update {
     my ( $self, $mac, $node_ref ) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
