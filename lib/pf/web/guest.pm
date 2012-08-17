@@ -107,10 +107,6 @@ sub generate_selfregistration_page {
 
     $logger->info('generate_selfregistration_page');
 
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     $portalSession->stash({
@@ -168,6 +164,7 @@ sub generate_registration_page {
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $ip   = $cgi->remote_addr;
@@ -267,7 +264,7 @@ sub valid_arrival_date {
 
 =item validate_selfregistration
 
-Sub to validate self-registering guests, this is not hooked-up by default
+Sub to validate self-registering guests.
 
 =cut
 sub validate_selfregistration {
@@ -551,16 +548,8 @@ sub generate_custom_login_page {
     my ( $portalSession, $err, $html_template ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
+    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
+    print $portalSession->cgi->header( -cookie => $cookie );
     $portalSession->stash({
         logo => $portalSession->getProfile->getLogo,
         i18n => \&i18n
@@ -569,7 +558,7 @@ sub generate_custom_login_page {
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
     # return login
-    $portalSession->stash->{'username'} = encode_entities($cgi->param("username"));
+    $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
 
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
@@ -581,6 +570,7 @@ sub generate_custom_login_page {
 =item preregister
 
 =cut
+# TODO migrate to Portal::Session
 sub preregister {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -755,13 +745,6 @@ sub generate_sms_confirmation_page {
     my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # First blast at consuming portalSession object
-    my $cgi             = $portalSession->getCgi();
-    my $session         = $portalSession->getSession();
-
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
     $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
         i18n            => \&i18n,
@@ -777,8 +760,8 @@ sub generate_sms_confirmation_page {
         $portalSession->stash->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
+    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
+    print $portalSession->cgi->header( -cookie => $cookie );
 
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
@@ -791,14 +774,10 @@ sub web_sms_validation {
     my ($portalSession) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
     # no form was submitted, assume first time
-    if ($cgi->param("pin")) {
+    if ($portalSession->cgi->param("pin")) {
         $logger->info("Mobile phone number validation attempt");
-        if (validate_code($cgi->param("pin"))) {
+        if (validate_code($portalSession->cgi->param("pin"))) {
             return ( $TRUE, 0 );
         } else {
             return ( $FALSE, $GUEST::ERROR_INVALID_PIN );

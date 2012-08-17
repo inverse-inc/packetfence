@@ -18,9 +18,6 @@ See F<pf::web::custom> for details.
 use strict;
 use warnings;
 
-use Locale::gettext;
-use POSIX;
-
 use pf::config;
 use pf::util;
 use pf::web;
@@ -172,9 +169,6 @@ Returns an hashref that holds time values.
 =cut
 sub get_translated_time_hash {
     my ($to_translate, $locale) = @_;
-    setlocale( LC_MESSAGES, $locale );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
 
     my %time;
     foreach my $keys (@{$to_translate}) {

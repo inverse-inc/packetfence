@@ -22,10 +22,8 @@ use warnings;
 use Encode;
 use HTML::Entities;
 use HTTP::Request::Common qw(POST);
-use Locale::gettext;
 use Log::Log4perl;
 use LWP::UserAgent;
-use POSIX;
 use Template;
 
 BEGIN {
@@ -64,10 +62,6 @@ sub generate_billing_page {
     # First blast of portalSession object consumption
     my $cgi = $portalSession->getCgi();
     my $session = $portalSession->getSession();
-
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
 
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
