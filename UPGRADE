@@ -17,6 +17,8 @@ Deprecations
 `pf::web::web_get_locale` will disappear soon. See <_i18n,I18N> below for
 details.
 
+`pf::web::_render_template` no longer exists. See below for details.
+
 Core
 ~~~~
 
@@ -29,6 +31,9 @@ constants (see below).
 The `login.html` template was updated to consume the newly introduced URL 
 constants. If you customized your code like generate_login_page then you
 need to make sure to update it to use the stash mentionned above.
+
+`_render_template` is now `render_template` and it no longer needs the
+template vars hashref. It uses $portalSession's stash automatically.
 
 I18N
 ~~~~

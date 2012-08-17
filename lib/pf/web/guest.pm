@@ -50,7 +50,7 @@ use pf::iplog qw(ip2mac);
 use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password 1.10;
 use pf::util;
-use pf::web qw(i18n ni18n i18n_format);
+use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::auth;
 use pf::web::util;
 use pf::sms_activation;
@@ -101,14 +101,8 @@ sub generate_selfregistration_page {
     my ( $portalSession, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    # First blast of portalSession object consumption
-    my $cgi = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
     $logger->info('generate_selfregistration_page');
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
     $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
         i18n            => \&i18n,
@@ -118,25 +112,22 @@ sub generate_selfregistration_page {
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
         post_uri => "/signup?mode=$GUEST_REGISTRATION",
+
+        firstname => $portalSession->cgi->param("firstname"),
+        lastname => $portalSession->cgi->param("lastname"),
+        organization => $portalSession->cgi->param("organization"),
+        phone => $portalSession->cgi->param("phone"),
+        mobileprovider => $portalSession->cgi->param("mobileprovider"),
+        email => lc($portalSession->cgi->param("email")),
+        sponsor_email => lc($portalSession->cgi->param("sponsor_email")),
+
+        sms_carriers => sms_carrier_view_all(),
+        email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
+        sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
+        sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),
+
+        is_preregistration => $portalSession->session->param('preregistration'),
     });
-
-    # put seperately because of side effects in anonymous hashref
-    $portalSession->stash->{'firstname'} = $cgi->param("firstname");
-    $portalSession->stash->{'lastname'} = $cgi->param("lastname");
-
-    $portalSession->stash->{'organization'} = $cgi->param("organization");
-    $portalSession->stash->{'phone'} = $cgi->param("phone");
-    $portalSession->stash->{'mobileprovider'} = $cgi->param("mobileprovider");
-    $portalSession->stash->{'email'} = lc($cgi->param("email"));
-
-    $portalSession->stash->{'sponsor_email'} = lc($cgi->param("sponsor_email"));
-
-    $portalSession->stash->{'sms_carriers'} = sms_carrier_view_all();
-
-    $portalSession->stash->{'email_guest_allowed'} = is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes);
-    $portalSession->stash->{'sms_guest_allowed'} = is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes);
-    $portalSession->stash->{'sponsored_guest_allowed'} = is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes);
-    $portalSession->stash->{'is_preregistration'} = $session->param('preregistration');
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
@@ -145,10 +136,7 @@ sub generate_selfregistration_page {
         $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $portalSession->stash) || $logger->error($template->error());
+    render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
     exit;
 }
 
@@ -548,8 +536,6 @@ sub generate_custom_login_page {
     my ( $portalSession, $err, $html_template ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
-    print $portalSession->cgi->header( -cookie => $cookie );
     $portalSession->stash({
         logo => $portalSession->getProfile->getLogo,
         i18n => \&i18n
@@ -560,10 +546,7 @@ sub generate_custom_login_page {
     # return login
     $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
 
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process($html_template, $portalSession->stash) || $logger->error($template->error());
+    render_template($portalSession, $html_template);
     exit;
 }
 
@@ -760,13 +743,7 @@ sub generate_sms_confirmation_page {
         $portalSession->stash->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
-    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
-    print $portalSession->cgi->header( -cookie => $cookie );
-
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( 'guest/sms_confirmation.html' , $portalSession->stash ) || $logger->error($template->error());
+    render_template($portalSession, 'guest/sms_confirmation.html');
     exit;
 }
 

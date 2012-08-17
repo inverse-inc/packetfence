@@ -37,7 +37,7 @@ BEGIN {
 use pf::billing::constants;
 use pf::billing::custom;
 use pf::config;
-use pf::web qw(i18n ni18n);
+use pf::web qw(i18n ni18n render_template);
 use pf::web::util;
 
 our $VERSION = 1.00;
@@ -59,13 +59,6 @@ sub generate_billing_page {
     my ( $portalSession, $error_code ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # First blast of portalSession object consumption
-    my $cgi = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
     my $billingObj  = new pf::billing::custom();
     my %tiers       = $billingObj->getAvailableTiers();
 
@@ -77,13 +70,13 @@ sub generate_billing_page {
             { name => i18n('MAC'),  value => $portalSession->getClientMac }
         ],
         'tiers' => \%tiers,
-        'selected_tier' => $cgi->param("tier"),
-        'firstname' => $cgi->param("firstname"),
-        'lastname' => $cgi->param("lastname"),
-        'email' => $cgi->param("email"),
-        'ccnumber' => $cgi->param("ccnumber"),
-        'ccexpiration' => $cgi->param("ccexpiration"),
-        'ccverification' => $cgi->param("ccverification"),
+        'selected_tier' => $portalSession->cgi->param("tier"),
+        'firstname' => $portalSession->cgi->param("firstname"),
+        'lastname' => $portalSession->cgi->param("lastname"),
+        'email' => $portalSession->cgi->param("email"),
+        'ccnumber' => $portalSession->cgi->param("ccnumber"),
+        'ccexpiration' => $portalSession->cgi->param("ccexpiration"),
+        'ccverification' => $portalSession->cgi->param("ccverification"),
 
     });
 
@@ -92,10 +85,7 @@ sub generate_billing_page {
 
     # Generating the page with the correct template
     $logger->info('generate_billing_page');
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( "billing/billing.html", $portalSession->stash ) || $logger->error($template->error());
+    render_template($portalSession, 'billing/billing.html');
     exit;
 }
 

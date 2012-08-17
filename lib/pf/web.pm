@@ -41,7 +41,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # No export to force users to use full package name and allowing pf::web::custom to redefine us
-    @EXPORT = qw(i18n ni18n i18n_format);
+    @EXPORT = qw(i18n ni18n i18n_format render_template);
 }
 
 use pf::config;
@@ -124,37 +124,56 @@ sub web_get_locale {
     return $authorized_locale_array[0];
 }
 
-=item _render_template
+=item render_template
 
 Cuts in the session cookies and template rendering boiler plate.
 
 =cut
-sub _render_template {
-    my ($portalSession, $template, $vars_ref, $r) = @_;
+sub render_template {
+    my ($portalSession, $template, $r) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     # so that we will get the calling sub in the logs instead of this utility sub
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
 
-    # add generic components to template's vars
-    $vars_ref->{'logo'} = $portalSession->getProfile->getLogo;
-    $vars_ref->{'i18n'} = \&i18n;
-    $vars_ref->{'i18n_format'} = \&i18n_format;
+    # add generic components to the stash
+    $portalSession->stash({
+        'logo' => $portalSession->getProfile->getLogo,
+        'i18n' => \&i18n,
+        'i18n_format' => \&i18n_format,
+    });
 
-    my $cgi = $portalSession->getCgi;
-    my $session = $portalSession->getSession;
+    # lastly add user-defined stash elements
+    $portalSession->stash( pf::web::stash_template_vars() );
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
+    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
+    print $portalSession->cgi->header( -cookie => $cookie );
 
     $logger->debug("rendering template named $template");
     my $tt = Template->new({ 
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath], 
     });
-    $tt->process( $template, $vars_ref, $r ) || do {
+    $tt->process( $template, $portalSession->stash, $r ) || do {
         $logger->error($tt->error());
         return $FALSE;
     };
     return $TRUE;
+}
+
+=item stash_template_vars
+
+Sub meant to be overridden in L<pf::web::custom> to inject new variables for
+consumption by the Templates.
+
+For example, to add a helpdesk phone number variable:
+
+  return { 'helpdesk_phone' => '514-555-1337' };
+
+Afterwards it is available globally, in every template.
+
+=cut
+sub stash_template_vars {
+    my ($portalSession, $template) = @_;
+    return {};
 }
 
 sub generate_release_page {
@@ -185,20 +204,7 @@ sub generate_release_page {
         $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
     }
 
-    my $html_txt;
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( "release.html", $portalSession->stash, \$html_txt ) || $logger->error($template->error());
-    
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header(
-        -cookie         => $cookie,
-        -Content_length => length($html_txt),
-        -Connection     => 'Close'
-    );
-    if ($r) { print $r->print($html_txt); }
-    else    { print STDOUT $html_txt; }
+    render_template($portalSession, 'release.html', $r);
 }
 
 =item supports_mobileconfig_provisioning
@@ -244,7 +250,7 @@ sub generate_mobileconfig_provisioning_page {
         { name => i18n('MAC'), value => $portalSession->getClientMac }
     ];
 
-    _render_template($portalSession, 'release_with_xmlconfig.html', $portalSession->stash);
+    render_template($portalSession, 'release_with_xmlconfig.html');
 }
 
 =item generate_apple_mobileconfig_provisioning_xml
@@ -269,20 +275,12 @@ sub generate_apple_mobileconfig_provisioning_xml {
     print $portalSession->cgi->header('Content-type: application/x-apple-aspen-config; chatset=utf-8');
     print $portalSession->cgi->header('Content-Disposition: attachment; filename="wireless-profile.mobileconfig"');
 
-    # Using TT to render the XML with correct variables populated
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( "wireless-profile.xml", $portalSession->stash) || $logger->error($template->error());
+    render_template($portalSession, 'wireless-profile.xml');
 }
 
 sub generate_scan_start_page {
     my ( $portalSession, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    # First blast at portalSession object consumption
-    my $cgi             = $portalSession->getCgi;
-    my $session         = $portalSession->getSession;
 
     $portalSession->stash({
         logo            => $portalSession->getProfile->getLogo,
@@ -297,20 +295,9 @@ sub generate_scan_start_page {
             { name => i18n('MAC'), value => $portalSession->getClientMac }
         ],
     });
+
     # Once the progress bar is over, try redirecting
-    my $html_txt;
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( "scan.html", $portalSession->stash, \$html_txt ) || $logger->error($template->error());
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header(
-        -cookie         => $cookie,
-        -Content_length => length($html_txt),
-        -Connection     => 'Close'
-    );
-    if ($r) { $r->print($html_txt); }
-    else    { print STDOUT $html_txt; }
+    render_template($portalSession, 'scan.html', $r);
 }
 
 sub generate_login_page {
@@ -332,7 +319,7 @@ sub generate_login_page {
         || $portalSession->getProfile->getDefaultAuth;
     $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
 
-    _render_template($portalSession, 'login.html', $portalSession->stash);
+    render_template($portalSession, 'login.html');
 }
 
 sub generate_enabler_page {
@@ -342,7 +329,7 @@ sub generate_enabler_page {
     $portalSession->stash->{'violation_id'} = $violation_id;
     $portalSession->stash->{'enable_text'} = $enable_text;
 
-    _render_template($portalSession, 'enabler.html', $portalSession->stash);
+    render_template($portalSession, 'enabler.html');
 }
 
 sub generate_redirect_page {
@@ -351,7 +338,7 @@ sub generate_redirect_page {
 
     $portalSession->stash->{'violation_url'} = $violation_url;
 
-    _render_template($portalSession, 'redirect.html', $portalSession->stash);
+    render_template($portalSession, 'redirect.html');
 }
 
 =item generate_aup_standalone_page
@@ -368,7 +355,7 @@ sub generate_aup_standalone_page {
         { name => i18n('MAC'), value => $portalSession->getClientMac }
     ];
 
-    _render_template($portalSession, 'aup.html', $portalSession->stash);
+    render_template($portalSession, 'aup.html');
 }
 
 sub generate_scan_status_page {
@@ -387,7 +374,7 @@ sub generate_scan_status_page {
         ],
     });
 
-    _render_template($portalSession, 'scan-in-progress.html', $portalSession->stash, $r);
+    render_template($portalSession, 'scan-in-progress.html', $r);
 }
 
 sub generate_error_page {
@@ -400,7 +387,7 @@ sub generate_error_page {
         { name => i18n('MAC'), value => $portalSession->getClientMac }
     ];
 
-    _render_template($portalSession, 'error.html', $portalSession->stash, $r);
+    render_template($portalSession, 'error.html', $r);
 }
 
 =item generate_admin_error_page
@@ -410,6 +397,7 @@ object since this one is used in the admin portion of the web management and we 
 object in this part.
 
 =cut
+# TODO this will disappear inside the new Web Admin
 sub generate_admin_error_page {
     my ( $cgi, $session, $error_msg, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -611,7 +599,7 @@ sub generate_registration_page {
         $portalSession->stash->{'form_action'} = '/authenticate?mode=next_page&page=' . ( int($pagenumber) + 1 );
     }
 
-    _render_template($portalSession, 'register.html', $portalSession->stash);
+    render_template($portalSession, 'register.html');
 }
 
 =item generate_pending_page
@@ -640,7 +628,7 @@ sub generate_pending_page {
         $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
     }
 
-    _render_template($portalSession, 'pending.html', $portalSession->stash);
+    render_template($portalSession, 'pending.html');
 }
 
 =item get_client_ip
@@ -743,7 +731,7 @@ sub generate_generic_page {
         { name => i18n('MAC'), value => $portalSession->getClientMac }
     ];
 
-    _render_template($portalSession, $template, $portalSession->stash);
+    render_template($portalSession, $template);
 }
 
 =back
