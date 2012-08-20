@@ -92,6 +92,22 @@ To set the particular session variable use the following:
 #};
 
 
+=item inject variables for templates
+
+Here's an example to make variables accessible to the templates globally.
+
+Also remember that you can always use the $portalSession->stash to add
+variables from every location in the code (CGI's, pf::web, etc.). It's
+probably the best approach if what you want to inject depend on some state
+or user input.
+
+=cut
+#*pf::web::stash_template_vars = sub {
+#    my ($portalSession, $template) = @_;
+#    return { 'helpdesk_phone' => '514-555-1337' };
+#};
+
+
 # If you want to redefine pf::web::guest methods, remember to place yourself in that package with:
 #package pf::web::guest;
 # and also to redefine in pf::web::guest::... not pf::web::...

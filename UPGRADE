@@ -5,6 +5,59 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+Upgrading from a version prior to <develRelease>
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Changes to Web API
+^^^^^^^^^^^^^^^^^^
+
+NOTE: Remember, if you don't have custom extensions or customized templates
+you don't have to worry about anything below.
+
+Deprecations
+~~~~~~~~~~~~
+
+`pf::web::web_get_locale` will disappear soon. See <_i18n,I18N> below for
+details.
+
+`pf::web::_render_template` no longer exists. See below for details.
+
+Core
+~~~~
+
+Variables meant for the consumption of the templates are now stored in the
+Portal::Session->stash. Code in pf::web::custom should be updated to assign
+to $portalSession->stash->... or (->stash(...)) instead of using $vars. It
+implicitly passes more information to the templates including the new URL
+constants (see below).
+
+The `login.html` template was updated to consume the newly introduced URL 
+constants. If you customized your code like generate_login_page then you
+need to make sure to update it to use the stash mentionned above.
+
+`_render_template` is now `render_template` and it no longer needs the
+template vars hashref. It uses $portalSession's stash automatically.
+
+I18N
+~~~~
+
+Translation system initialization is now performed by Portal::Session. You
+can get rid of the following lines from your custom code:
+
+  setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
+  bindtextdomain( "packetfence", "$conf_dir/locale" );
+  textdomain("packetfence");
+
+Changes to Guest API
+^^^^^^^^^^^^^^^^^^^^
+
+pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
+parameter. If you want to customize it, change post_uri in the guest.html
+template.
+
+$pf::web::guest::LOGIN_TEMPLATE was moved to $pf::web::LOGIN_TEMPLATE.
+References should be updated.
+
 o Upgrading from a version prior to 3.5.0:
 
     - Database schema update

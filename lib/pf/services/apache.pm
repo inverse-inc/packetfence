@@ -26,6 +26,7 @@ use Readonly;
 use pf::class qw(class_view_all);
 use pf::config;
 use pf::util;
+use pf::web::constants;
 
 BEGIN {
     use Exporter ();
@@ -82,8 +83,11 @@ Generate proper F<httpd.conf> configuration file.
 =cut
 
 sub generate_httpd_conf {
-    my ( %tags, $httpdconf_fh, $authconf_fh );
-    my $logger = Log::Log4perl::get_logger('pf::services::apache');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # injecting Web constants first
+    my %tags = pf::web::constants::to_hash();
+
     $tags{'template'} = "$conf_dir/httpd.conf";
     $tags{'internal-nets'} = join(" ", get_internal_nets() );
     $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets()) ." ". join(" ", get_inline_nets());
@@ -119,20 +123,18 @@ sub generate_httpd_conf {
 
     # Guest related URLs allowed through Apache ACL's
     $tags{'allowed_from_all_urls'} = '';
-    # /signup and /preregister if pre-registration is allowed
+    # signup and preregister if pre-registration is allowed
     my $guest_regist_allowed = $guest_self_registration{'enabled'};
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
-        # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
-        $tags{'allowed_from_all_urls'} .= '|/signup|/guest-selfregistration.cgi|/preregister';
+        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::URL_SIGNUP_UGLY|$WEB::URL_PREREGISTER";
     }
     # /activate/email allowed if sponsor or email mode enabled
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
-        # TODO hardcoded URL mentionned here is probably suboptimal for maintenance
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
-        $tags{'allowed_from_all_urls'} .= '|/activate/email|/email_activation.cgi';
+        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::URL_EMAIL_ACTIVATION_UGLY";
     }
 
     my ($pt_http, $pt_https, $remediation);

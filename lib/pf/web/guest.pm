@@ -50,14 +50,14 @@ use pf::iplog qw(ip2mac);
 use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password 1.10;
 use pf::util;
-use pf::web qw(i18n ni18n i18n_format);
+use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::auth;
+use pf::web::constants;
 use pf::web::util;
 use pf::sms_activation;
 
 our $VERSION = 1.30;
 
-our $LOGIN_TEMPLATE = "login.html";
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
 our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
@@ -68,6 +68,9 @@ our $EMAIL_PREREG_CONFIRMED_TEMPLATE = 'guest/preregistration_confirmation.html'
 our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
 our $REGISTRATION_CONTINUE = 10;
+
+# flag used in URLs
+Readonly our $GUEST_REGISTRATION => "guest-register";
 
 # Available default email templates
 Readonly our $TEMPLATE_EMAIL_GUEST_ACTIVATION => 'guest_email_activation';
@@ -95,62 +98,39 @@ Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
 sub generate_selfregistration_page {
-    my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
+    my ( $portalSession, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-    # First blast of portalSession object consumption
-    my $cgi = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
 
     $logger->info('generate_selfregistration_page');
 
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
+    $portalSession->stash({
+        deadline => $Config{'registration'}{'skip_deadline'},
+        post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $vars = {
-        logo            => $portalSession->getProfile->getLogo,
-        i18n            => \&i18n,
-        deadline        => $Config{'registration'}{'skip_deadline'},
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ],
-        post_uri => $post_uri || "/signup?mode=guest-register",
-    };
+        firstname => $portalSession->cgi->param("firstname"),
+        lastname => $portalSession->cgi->param("lastname"),
+        organization => $portalSession->cgi->param("organization"),
+        phone => $portalSession->cgi->param("phone"),
+        mobileprovider => $portalSession->cgi->param("mobileprovider"),
+        email => lc($portalSession->cgi->param("email")),
+        sponsor_email => lc($portalSession->cgi->param("sponsor_email")),
 
-    # put seperately because of side effects in anonymous hashref
-    $vars->{'firstname'} = $cgi->param("firstname");
-    $vars->{'lastname'} = $cgi->param("lastname");
+        sms_carriers => sms_carrier_view_all(),
+        email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
+        sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
+        sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),
 
-    $vars->{'organization'} = $cgi->param("organization");
-    $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'mobileprovider'} = $cgi->param("mobileprovider");
-    $vars->{'email'} = lc($cgi->param("email"));
-
-    $vars->{'sponsor_email'} = lc($cgi->param("sponsor_email"));
-
-    $vars->{'sms_carriers'} = sms_carrier_view_all();
-
-    $vars->{'email_guest_allowed'} = is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes);
-    $vars->{'sms_guest_allowed'} = is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes);
-    $vars->{'sponsored_guest_allowed'} = is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes);
-    $vars->{'is_preregistration'} = $session->param('preregistration');
+        is_preregistration => $portalSession->session->param('preregistration'),
+    });
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
         # ideally we'll set the array_ref always and won't need the following
         $error_args_ref = [] if (!defined($error_args_ref)); 
-        $vars->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process($pf::web::guest::SELF_REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
+    render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
     exit;
 }
 
@@ -166,6 +146,7 @@ sub generate_registration_page {
     setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
+
     my $cookie = $cgi->cookie( CGISESSID => $session->id );
     print $cgi->header( -cookie => $cookie );
     my $ip   = $cgi->remote_addr;
@@ -265,7 +246,7 @@ sub valid_arrival_date {
 
 =item validate_selfregistration
 
-Sub to validate self-registering guests, this is not hooked-up by default
+Sub to validate self-registering guests.
 
 =cut
 sub validate_selfregistration {
@@ -547,38 +528,20 @@ Sub to present a login form. Template is provided as a parameter.
 =cut
 sub generate_custom_login_page {
     my ( $portalSession, $err, $html_template ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $vars = {
-        logo => $portalSession->getProfile->getLogo,
-        i18n => \&i18n
-    };
-
-    $vars->{'txt_auth_error'} = i18n($err) if (defined($err));
+    $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
     # return login
-    $vars->{'username'} = encode_entities($cgi->param("username"));
+    $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
 
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process($html_template, $vars) || $logger->error($template->error());
+    render_template($portalSession, $html_template);
     exit;
 }
 
 =item preregister
 
 =cut
+# TODO migrate to Portal::Session
 sub preregister {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -751,38 +714,15 @@ sub send_template_email {
 
 sub generate_sms_confirmation_page {
     my ( $portalSession, $post_uri, $error_code, $error_args_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # First blast at consuming portalSession object
-    my $cgi             = $portalSession->getCgi();
-    my $session         = $portalSession->getSession();
-
-    setlocale( LC_MESSAGES, $Config{'general'}{'locale'} );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-    my $vars = {
-        logo            => $portalSession->getProfile->getLogo,
-        i18n            => \&i18n,
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-        post_uri        => $post_uri,
-        list_help_info  => [
-            { name => i18n('IP'),  value => $portalSession->getClientIp },
-            { name => i18n('MAC'), value => $portalSession->getClientMac }
-        ]
-    };
+    $portalSession->stash->{'post_uri'} = $post_uri;
 
     # Error management
     if (defined($error_code) && $error_code != 0) {
-        $vars->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+        $portalSession->stash->{'txt_auth_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( 'guest/sms_confirmation.html' , $vars ) || $logger->error($template->error());
+    render_template($portalSession, 'guest/sms_confirmation.html');
     exit;
 }
 
@@ -790,14 +730,10 @@ sub web_sms_validation {
     my ($portalSession) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
     # no form was submitted, assume first time
-    if ($cgi->param("pin")) {
+    if ($portalSession->cgi->param("pin")) {
         $logger->info("Mobile phone number validation attempt");
-        if (validate_code($cgi->param("pin"))) {
+        if (validate_code($portalSession->cgi->param("pin"))) {
             return ( $TRUE, 0 );
         } else {
             return ( $FALSE, $GUEST::ERROR_INVALID_PIN );
