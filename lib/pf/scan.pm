@@ -19,6 +19,7 @@ use Log::Log4perl;
 use Parse::Nessus::NBE;
 use Readonly;
 use Try::Tiny;
+use Nmap::Parser;
 
 use overload '""' => "toString";
 
@@ -33,6 +34,7 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::iplog qw(ip2mac);
+use pf::scan::nmap;
 use pf::scan::nessus;
 use pf::scan::openvas;
 use pf::util;

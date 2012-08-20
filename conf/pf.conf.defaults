@@ -480,6 +480,31 @@ openvas_configid=
 #
 # ID of the .NBE report format on the OpenVAS server
 openvas_reportformatid=f5c2a364-47d2-4700-b21d-0a7693daddab
+#
+# scan.nmap_opts
+#
+# Extra options passed to nmap during scan
+nmap_port_start=1
+#
+# scan.nmap_port_end
+#
+# Select port range from which nmap will scan
+nmap_port_end=65535
+#
+# scan.nmap_version_detection
+#
+# Enable service and application version detection
+nmap_version_detection=no
+#
+# scan.nmap_os_detection
+#
+# Enable operating system detection
+nmap_os_detection=no
+#
+# scan.nmap_syn_scan
+#
+# Use SYN scan instead of connection scan
+nmap_syn_scan=no
 
 [database]
 #

@@ -125,7 +125,7 @@ $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
 Readonly our @VALID_TRIGGER_TYPES => ( "accounting", "detect", "internal", "mac", "nessus", "openvas", "os", "soh", "useragent", 
-        "vendormac" );
+        "vendormac", "nmap" );
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
