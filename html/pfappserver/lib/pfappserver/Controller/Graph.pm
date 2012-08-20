@@ -34,7 +34,10 @@ sub auto :Private {
         $c->response->location($c->req->referer);
         $c->stash->{template} = 'admin/unauthorized.tt';
         $c->detach();
+        return 0;
     }
+
+    return 1;
 }
 
 =head2 begin

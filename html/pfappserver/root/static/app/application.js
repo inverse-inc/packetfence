@@ -37,7 +37,7 @@ $(function () {
 });
 
 function resetAlert(parent) {
-    parent.children('.alert').hide(); //slideUp('fast', function() { $(this).remove(); });
+    parent.children('.alert').hide('fast', function() { $(this).remove(); }); //slideUp('fast', function() { $(this).remove(); });
 }
 
 function showSuccess(sibling, msg) {

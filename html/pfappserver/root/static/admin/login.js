@@ -8,7 +8,7 @@ function init() {
         password = form.find('#password'),
         action = $(this).attr('action'),
         valid = true;
-        
+
         if (isFormInputEmpty(username) ||
             isFormInputEmpty(password))
             valid = false;
@@ -24,7 +24,7 @@ function init() {
             }).fail(function(jqXHR) {
                 btn.button('reset');
                 var obj = $.parseJSON(jqXHR.responseText);
-                resetAlert(form);
+                resetAlert(form.parent());
                 showError(form_control, obj.status_msg);
             });
         }
