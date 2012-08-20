@@ -27,7 +27,8 @@ function init() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
-                        showError(section, obj.status_msg); // TODO : need inner div
+                        section.append('<div></div>').fadeIn();
+                        showError(section.children().first(), obj.status_msg);
                     }
                 });
         });
