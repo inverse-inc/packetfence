@@ -22,6 +22,13 @@ Bug Fixes
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
+Bug Fixes
+ * FreeRADIUS watchdog updated for 3.5.0 changes (#1514)
+ * debian packages improvements regarding FreeRADIUS configuration
+ * cosmetic fix in `pfcmd service ... status` regarding pfdhcplistener (#1515)
+ * Guests are not able to confirm registration in some cases - take 2 (#1302)
+ * Sponsored guests regressions (#1505)
+
 --------------------------------------------------------------------------------
 Version 3.5.0 released on 2012-08-01
 

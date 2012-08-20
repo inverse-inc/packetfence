@@ -70,7 +70,7 @@
     <tr>
        <td>
          Importing automatically registers the nodes with pid 1<br/>
-         unless your configured otherwise in <tt>pf.conf</tt>.
+         unless you are configured otherwise in <tt>pf.conf</tt>.
        </td>
     </tr>
   </table>

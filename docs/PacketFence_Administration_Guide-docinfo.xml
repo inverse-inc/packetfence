@@ -4,6 +4,15 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.6</revnumber>
+    <date>2012-08-14</date>
+    <authorinitials>OB, DW</authorinitials>
+    <revremark>
+      Proper ownership of the /var/lib/samba/winbind_privileged folder since
+      3.5 release. Added EPEL on the installation line for RHEL-based systems.
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.5</revnumber>
     <date>2012-07-30</date>
     <authorinitials>FG</authorinitials>

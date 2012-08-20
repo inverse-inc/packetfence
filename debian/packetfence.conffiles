@@ -119,6 +119,15 @@
 /usr/local/pf/lib/pf/soh/custom.pm
 /usr/local/pf/lib/pf/vlan/custom.pm
 /usr/local/pf/lib/pf/web/custom.pm
+/usr/local/pf/raddb/clients.conf
+/usr/local/pf/raddb/packetfence.pm
+/usr/local/pf/raddb/packetfence.pm
+/usr/local/pf/raddb/packetfence-soh.pm
+/usr/local/pf/raddb/packetfence-soh.pm
+/usr/local/pf/raddb/proxy.conf
+/usr/local/pf/raddb/users
+/usr/local/pf/raddb/modules/mschap
+/usr/local/pf/raddb/modules/perl
 /usr/local/pf/raddb/sites-enabled/packetfence
 /usr/local/pf/raddb/sites-enabled/packetfence-soh
 /usr/local/pf/raddb/sites-enabled/packetfence-tunnel

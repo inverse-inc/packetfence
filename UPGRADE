@@ -13,6 +13,28 @@ o Upgrading from a version prior to 3.5.0:
     you schema EVEN IF YOU DON'T USE THE FEATURE:
     mysql -u root -p pf -v < db/upgrade-3.3.0-3.5.0.sql
 
+    - RADIUS configuration is now in the PacketFence directory.  You may need
+    to import custom configuration from /etc/raddb to pf/raddb.  Note that
+    we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
+    conf/. Especially important files would be packetfence.pm, packetfence-soh.pm
+    and modules/mschap. Additionally users running from source should make sure 
+    to migrate or create DH parameters (this is handled automatically by the 
+    packages):
+    cd /usr/local/pf/raddb/certs; make dh
+
+    - FreeRADIUS user radiusd changed to pf
+    FreeRADIUS now runs as user `pf`. PEAP-MsCHAPv2 users will need to change
+    the ownership of the /var/lib/samba/winbindd_privileged/ directory so that
+    pf is the group owner. Other changes might be required based on your
+    configuration.
+
+    - Critical changes in FreeRADIUS watchdog
+    addons/watchdog/freeradius-watchdog.sh was updated. The previous version
+    of the watchdog on PacketFence 3.5.0 will simply kill radiusd and never
+    restart it. Unfortunately that change was made after 3.5.0 was released
+    so you need to get the latest watchdog from github:
+    https://github.com/inverse-inc/packetfence/raw/stable/addons/watchdog/freeradius-watchdog.sh
+
     - Upgrade helper scripts
     Very basic upgrade scripts for 3.5 were created in addons/upgrade/. See 
     their POD doc for usage information:
@@ -39,20 +61,17 @@ o Upgrading from a version prior to 3.5.0:
     cgi, session and other variables. Please make sure to adapt your custom code (if needed)
     in lib/pf/web/custom.pm.
 
-    - RADIUS configuration is now in the PacketFence directory.  You may need
-    to import custom configuration from /etc/raddb to pf/raddb.  Note that
-    we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
-    conf/.
-
     - Nessus scan XMLRPC
     We made some changes in the way nessus scan is working.
-    We directly use the policy on the server and you no longuer have to declare
+    We directly use the policy on the server and you no longer have to declare
     nessus_clientfile in pf.conf.
-    scan.nessus_clientfile parameter has also been dropped so make sure to adapt
-    your configuration accordingly.
+    pf.conf's nessus_clientfile parameter has been dropped so make sure to 
+    remove it (or run the upgrade helper script mentionned earlier).
 
-    - modified trigger type
-    Accounting violations trigger type TOT20GB1M has been renamed to TOT20GB1M.
+    - Bandwidth accounting violation changes
+    Triggers are no longer sliding windows but current day, week, month, 
+    etc. instead. The trigger format changed. You should remove the digits
+    between size and duration. For example: TOT20GB1M becomes TOT20GBM.
     
     - pf.conf's trapping.registration now enabled by default
     We changed this setting from disabled to enabled by default since we consider
@@ -62,7 +81,7 @@ o Upgrading from a version prior to 3.5.0:
     - dropping installation.pl and configurator.pl
     We dropped both the installation.pl and configurator.pl scripts in favor of the
     newly implemented web based configurator. Make sure to pay attention to the directives
-    ate the end of the package installation.
+    at the end of the package installation.
 
     - introduction of a new repository: OpenFusion
     The use of perl Catalyst as a web engine for the new web platform required the introduction

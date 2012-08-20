@@ -231,8 +231,11 @@ Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmf
   enabled = 0
 
 Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-PathTools*,perl-File-Spec* on the section [rpmforge]
+
 Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
+
 Edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-Apache-Test* on the section [rpmforge]
+
 Edit /etc/yum.repos.d/openfusion.repo and add the line exclude = perl-Apache-Test* on the section [of].
 
 RHEL 6.x
@@ -244,9 +247,9 @@ RedHat Enterprise Linux users need to take an additional setup step. If you are 
 
   rhn-channel --add --channel=rhel-`uname -m`-server-optional-6
 
-RedHat doesn't seem to provide a `perl-Net-Telnet` package. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
+RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` packages. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
 
-  yum install perl-Net-Telnet --enablerepo=rpmforge-extras
+  yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras
 
 Debian Squeeze
 ^^^^^^^^^^^^^^
@@ -916,7 +919,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth`:
 
   # service winbind start
   # chkconfig --level 345 winbind on
-  # chgrp radiusd /var/lib/samba/winbindd_privileged/
+  # chgrp pf /var/lib/samba/winbindd_privileged/
   # ntlm_auth --username myDomainUser
 
 Option 2: Local Authentication
