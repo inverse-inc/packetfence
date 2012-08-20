@@ -48,6 +48,9 @@ package WEB;
 
 =cut
 
+Readonly::Scalar our $URL_EMAIL_ACTIVATION => '/activate/email';
+Readonly::Scalar our $URL_EMAIL_ACTIVATION_UGLY => '/email_activation.cgi';
+Readonly::Scalar our $URL_PREREGISTER => '/preregister';
 Readonly::Scalar our $URL_SIGNUP => '/signup';
 Readonly::Scalar our $URL_SIGNUP_UGLY => '/guest-selfregistration.cgi';
 

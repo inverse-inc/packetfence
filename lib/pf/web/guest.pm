@@ -52,6 +52,7 @@ use pf::temporary_password 1.10;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::auth;
+use pf::web::constants;
 use pf::web::util;
 use pf::sms_activation;
 
@@ -103,8 +104,8 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     $portalSession->stash({
-        deadline        => $Config{'registration'}{'skip_deadline'},
-        post_uri => "/signup?mode=$GUEST_REGISTRATION",
+        deadline => $Config{'registration'}{'skip_deadline'},
+        post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
 
         firstname => $portalSession->cgi->param("firstname"),
         lastname => $portalSession->cgi->param("lastname"),
