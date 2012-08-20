@@ -250,7 +250,6 @@ done
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
 %{__install} -D -m0755 pfappserver.init $RPM_BUILD_ROOT%{_initrddir}/pfappserver
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
-%{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
@@ -282,7 +281,6 @@ cp addons/*.pl $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/*.sh $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp addons/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/packetfence
-cp addons/sudoers/pf.sudoers $RPM_BUILD_ROOT/etc/sudoers.d/pf
 cp -r sbin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r conf $RPM_BUILD_ROOT/usr/local/pf/
 cp -r raddb $RPM_BUILD_ROOT/usr/local/pf/
@@ -430,6 +428,14 @@ else
   echo "DH already exists, won't touch it!"
 fi
 
+#Add for sudo 
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+fi
+if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
+  echo 'Defaults:pf !requiretty' >> /etc/sudoers
+fi
+
 #Start pfappserver
 service pfappserver start
 
@@ -478,8 +484,6 @@ fi
 %attr(0755, root, root) %{_initrddir}/pfappserver
 %dir                    %{_sysconfdir}/logrotate.d
 %config                 %{_sysconfdir}/logrotate.d/packetfence
-%dir                    %{_sysconfdir}/sudoers.d
-%config                 %{_sysconfdir}/sudoers.d/pf
 
 %dir                    /usr/local/pf
 %dir                    /usr/local/pf/addons

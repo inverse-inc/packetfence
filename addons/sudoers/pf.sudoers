@@ -1,3 +1,0 @@
-Defaults:pf !requiretty
-pf ALL=NOPASSWD: /usr/sbin/iptables, /usr/sbin/ipset
-

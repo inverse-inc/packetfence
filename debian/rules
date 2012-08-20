@@ -74,9 +74,6 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
 	install -m0755 $(CURDIR)/debian/pfappserver.init $(CURDIR)/debian/packetfence/etc/init.d/pfappserver
 	install -m0644 $(CURDIR)/debian/pfappserver.default $(CURDIR)/debian/packetfence/etc/default/pfappserver
-	#Sudo integration
-	install -d -m0440 $(CURDIR)/debian/packetfence/etc/sudoers.d
-	install -m044 addons/sudoers/pf.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/pf
 	#PacketFence remote Snort sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
