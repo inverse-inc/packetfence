@@ -33,7 +33,11 @@ sub auto :Private {
         $c->stash->{status_msg} = 'Your session has expired.';
         $c->stash->{'template'} = 'admin/login.tt';
         $c->stash->{'redirect_action'} = $c->action;
+        $c->detach();
+        return 0;
     }
+
+    return 1;
 }
 
 =head2 begin
@@ -60,6 +64,7 @@ sub login :Local :Args(0) {
     if (exists($c->req->params->{'username'}) && exists($c->req->params->{'password'})) {
         if ($c->authenticate( {username => $c->req->params->{'username'},
                                password => $c->req->params->{'password'}} )) {
+            $c->log->info("login: " . $c->req->params->{'username'});
             $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
             $c->detach();
         }
