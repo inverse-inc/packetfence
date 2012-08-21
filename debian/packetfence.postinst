@@ -69,8 +69,8 @@ case "$1" in
         done
        
         # add sudo entry
-        if ! (grep "^pf ALL=NOPASSWD:.*/usr/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-            echo "pf ALL=NOPASSWD: /usr/sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
         fi
         if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
             echo 'Defaults:pf !requiretty' >> /etc/sudoers
