@@ -19,7 +19,7 @@
               <tbody>
                 [%- FOREACH node IN nodes -%]
                 <tr>
-                  <td><a href="[% c.urif_for('node', node.mac, 'get') %]#modalNode">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('get'), [ node.mac ]) %]#modalNode">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
                   <td>[% node.computername %]</td>
                   <td>[% node.pid %]</td>
                   <td>[% node.last_switch %]

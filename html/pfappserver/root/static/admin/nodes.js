@@ -57,9 +57,8 @@ function init() {
 
     /* View a node (show the modal editor) */
     $('#results').on('click', '[href*="#modalNode"]', function(event) {
-        var mac = this.innerHTML;
-        var url = ['/node', mac, 'get'];
-        $.ajax(url.join('/'))
+        var url = $(this).attr('href');
+        $.ajax(url)
         .done(function(data) {
             $('body').append(data);
             $('#modalNode').modal({show: true});
@@ -96,6 +95,8 @@ function init() {
                 showError($('#results'), obj.status_msg);
             }
         });
+
+        return false;
     });
 
     /* Save a node (from the modal editor) */
@@ -117,6 +118,7 @@ function init() {
                     unreg_date: form.find('[name="unreg_date"]').val(),
                     unreg_time: form.find('[name="unreg_time"]').val() }
         }).done(function(data) {
+            // TODO : refresh search results
             modal.modal('hide');
         }).fail(function(jqXHR) {
             if (jqXHR.status == 401) {

@@ -123,8 +123,8 @@ graphs['iplog'] = {
           </div>
         </div>
         <div class="modal-footer">
-          <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [node.info.mac]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
-          <a href="[% c.uri_for(c.controller('Node').action_for('update'), [node.info.mac]) %]" id="updateNode" class="btn btn-primary pull-left" data-loading-text="Saving">[% l('Save') %]</a>
+          <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [ node.info.mac ]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          <a href="[% c.uri_for(c.controller('Node').action_for('update'), [ node.info.mac ]) %]" id="updateNode" class="btn btn-primary pull-left" data-loading-text="Saving">[% l('Save') %]</a>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div>
         </form>
