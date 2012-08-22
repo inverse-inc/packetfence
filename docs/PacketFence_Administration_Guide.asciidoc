@@ -958,6 +958,22 @@ If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the 
 
   # radiusd -X
 
+Additionally there is a `raddebug` tool that can extract debug logs from a
+running FreeRADIUS daemon. Starting with version 3.5.0 PacketFence's
+FreeRADIUS is preconfigured with such support.
+
+In order to have an output from `raddebug`, you need to either:
+
+* Give a temp shell to the `radiusd` user in `/etc/passwd`, and execute `raddebug` as `radiusd`
+* Run `radiusd` as root (but please don't!)
+* Add the `radiusd` user to the root group (but please don't!)
+
+Now you can run `raddebug` easily:
+
+  raddebug -t 300
+
+The above will output FreeRADIUS' debug logs for 5 minutes. See `man raddebug` for all the options.
+
 Starting PacketFence Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
