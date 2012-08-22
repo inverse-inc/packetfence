@@ -960,7 +960,7 @@ Between 3.4.1 and 3.2.0::
 
 If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following command:
 
-  # radiusd -X
+  # radiusd -X -d /usr/local/pf/raddb
 
 Additionally there is a `raddebug` tool that can extract debug logs from a
 running FreeRADIUS daemon. Starting with version 3.5.0 PacketFence's
