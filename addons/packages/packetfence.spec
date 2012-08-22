@@ -429,6 +429,9 @@ else
 fi
 
 #Add for sudo 
+if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
+  sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
+fi
 if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
   echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
 fi
