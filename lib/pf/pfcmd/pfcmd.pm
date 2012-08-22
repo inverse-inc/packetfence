@@ -89,9 +89,8 @@ $grammar = q {
 
    date : /[^,=]+/
 
-   # backticks only tolerated because pfcmd manage register is always called within single quotes
    # another pid regex is also defined in pf::pfcmd. Make sure to maintain both.
-   pid: '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\\\]*/ '"' {$item[2]} | /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#]*/
+   pid: '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\\\]+/ '"' {$item[2]} | /[a-zA-Z0-9\-\_\.\@\/\:\+\!,]+/
 
    edit_options : <leftop: assignment ',' assignment>
 

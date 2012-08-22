@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 89;
+use Test::More tests => 91;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -207,6 +207,35 @@ is_deeply(\%cmd,
     { 'command' => [ 'person', 'view', 'user name' ], 'person_options' => [ 'view', 'user name' ] },
     'pfcmd person view pid with space'
 );
+
+# regression tests for #1523
+# Watch out! Grammar parser is tested differently than normal regex parser.
+# TODO we should probably refactor it to make it easier to test.
+%cmd = pf::pfcmd::parseCommandLine('person add peter@initech.com firstname="",lastname="",email="",telephone="",company="",address="",notes="",sponsor=""');
+is( $cmd{'grammar'}, 1, 'pfcmd person add pid spaces without quotes regression (issue 1523) - grammar passed' );
+
+# avoiding use only once warning for %main::cmd
+# we can safely remove it once we use it at least twice
+{
+    no warnings 'once';
+    is_deeply(\%main::cmd,
+        {
+            'command' => [ 'person', ],
+            'person_assignment' => [
+                [ 'firstname', '' ],
+                [ 'lastname', '' ],
+                [ 'email', '' ],
+                [ 'telephone', '' ],
+                [ 'company', '' ],
+                [ 'address', '' ],
+                [ 'notes', '' ],
+                [ 'sponsor', '' ]
+            ],
+            'person_options' => [ 'add', 'peter@initech.com', [ 1, 2, 3, 4, 5, 6, 7, 8 ] ],
+        },
+        'pfcmd person add pid spaces without quotes regression (issue 1523) - proper option parse'
+    );
+}
 
 %cmd = pf::pfcmd::parseCommandLine('reload fingerprints');
 is_deeply(\%cmd,
