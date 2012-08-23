@@ -235,22 +235,32 @@ sub service_ctl {
                 if ($binary ne "pfdhcplistener") {
                     chomp( $pid = `pidof -x $binary` );
                     $pid = 0 if ( !$pid );
+                    $logger->info("pidof -x $binary returned $pid");
+                    return ($pid);
                 }
-                # Handle the pfdhcplistener case. Check how much internal interfaces + management we have,
-                # and if the number of pids are not equals this (internal+management), then return 0 to force a restart.
+                # Handle the pfdhcplistener case. Grab exact interfaces where pfdhcplistner should run,
+                # explicitly check process names per interface then return 0 to force a restart if one is missing.
                 else {
-                    my @devs = get_internal_devs_phy();
-                    my $numPids = $#devs+1;
+                    my %int_to_pid = map { $_ => $FALSE } @listen_ints, @dhcplistener_ints;
+                    $logger->debug( "Expecting $binary on interfaces: ", join(", ", keys %int_to_pid) );
 
-                    chomp( $pid = `pidof -x $binary` );
-                    my @pidArray = split(/ /, $pid);
-
-                    if ($#pidArray != $numPids) {
-                       $pid = 0
+                    my $dead_flag;
+                    foreach my $interface (keys %int_to_pid) {
+                        chomp($int_to_pid{$interface} = `pgrep -f "$binary: listening on $interface"`);
+                        # if one check returned a false value ('' is false) then we failed the check
+                        $dead_flag = $TRUE if (!$int_to_pid{$interface});
                     }
+
+                    # outputs: a list of interface => pid, ... helpful for sysadmin and forensics
+                    $logger->info(
+                        sprintf( "$binary pids %s", join(", ", map { "$_ => $int_to_pid{$_}" } keys %int_to_pid) )
+                    );
+
+                    # return 0 if one is not working
+                    return 0 if ($dead_flag);
+                    # otherwise the list of pids
+                    return join(" ", values %int_to_pid);
                 }
-                $logger->info("pidof -x $binary returned $pid");
-                return ($pid);
             }
         }
     }
