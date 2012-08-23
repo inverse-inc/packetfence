@@ -30,9 +30,11 @@ sub auto :Private {
     my ($self, $c) = @_;
 
     unless ($c->action->name eq 'login' || $c->user_exists()) {
-        $c->stash->{status_msg} = 'Your session has expired.';
         $c->stash->{'template'} = 'admin/login.tt';
-        $c->stash->{'redirect_action'} = $c->action;
+        unless ($c->action->name eq 'index') {
+            $c->stash->{status_msg} = 'Your session has expired.';
+            $c->stash->{'redirect_action'} = $c->action;
+        }
         $c->detach();
         return 0;
     }
