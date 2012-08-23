@@ -1,5 +1,5 @@
   <h3>[% l(section) %]</h3>
-  <form class="form-horizontal" action="[% c.uri_for(c.action) %]" method="POST">
+  <form name="section" class="form-horizontal" action="[% c.uri_for(c.action) %]" method="POST">
 [% FOREACH config IN params -%]
 [% SWITCH config.type -%]
 [% CASE 'text' %]

@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap.css') %]">
     <link rel="stylesheet" href="[% c.uri_for('/static/app/application.css') %]">
     <link rel="stylesheet" href="[% c.uri_for('/static/css/bootstrap-responsive.css') %]">
-    [% FOREACH css = cssFiles %]<link rel="stylesheet" href="[% c.uri_for("/static/${css}.css") %]">[% END %]
+[% FOREACH css = cssFiles -%]
+    <link rel="stylesheet" href="[% c.uri_for("/static/${css}.css") %]">
+[% END -%]
     <link rel="stylesheet" href="[% c.uri_for('/static/admin/common.css') %]">
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -74,8 +76,9 @@
     <script type="text/javascript" src="[% c.uri_for('/static/app/jquery.js') %]"></script>
     <script type="text/javascript" src="[% c.uri_for('/static/app/jquery.json-2.3.min.js') %]"></script>
     <script type="text/javascript" src="[% c.uri_for('/static/js/bootstrap.js') %]"></script>
-    [% FOREACH js = jsFiles %]<script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>
-    [% END %]
+[% FOREACH js = jsFiles -%]
+    <script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>
+[% END -%]
     <script type="text/javascript" src="[% c.uri_for('/static/app/application.js') %]"></script>
     <script type="text/javascript" src="[% c.uri_for('/static/admin/common.js') %]"></script>
 

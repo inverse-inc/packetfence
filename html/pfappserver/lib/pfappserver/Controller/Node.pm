@@ -111,7 +111,7 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     my ( $self, $c, $mac ) = @_;
 
     my ($status, $node_ref) = $c->model('Node')->exists($mac);
-    unless ( is_success($status) ) {
+    if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $node_ref;
         $c->stash->{current_view} = 'JSON';

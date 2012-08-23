@@ -1,3 +1,6 @@
+.modal-body {
+    max-height: 480px;
+}
 #tracker a:hover {
   color: #08c;
 }

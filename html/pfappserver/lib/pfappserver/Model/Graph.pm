@@ -400,8 +400,8 @@ sub ratioBase {
     if ($function) {
         eval { @results = $function->(); };
         if ($@) {
-            $status_msg = "Can't fetch data from database for report $report.";
             $logger->error($@);
+            $status_msg = "Can't fetch data from database for report $report.";
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
     }
