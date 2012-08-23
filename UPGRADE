@@ -16,10 +16,10 @@ o Upgrading from a version prior to 3.5.0:
     - RADIUS configuration is now in the PacketFence directory.  You may need
     to import custom configuration from /etc/raddb to pf/raddb.  Note that
     we now generates radiusd.conf, eap.conf, and sql.conf based on templates in
-    conf/. Especially important files would be packetfence.pm, packetfence-soh.pm
-    and modules/mschap. Additionally users running from source should make sure 
-    to migrate or create DH parameters (this is handled automatically by the 
-    packages):
+    conf/. Especially important files to migrate would be packetfence.pm,
+    packetfence-soh.pm, proxy.conf, clients.conf, users and modules/mschap.
+    Additionally users running from source should make sure to migrate or create
+    DH parameters (this is handled automatically by the packages):
     cd /usr/local/pf/raddb/certs; make dh
 
     - FreeRADIUS user radiusd changed to pf

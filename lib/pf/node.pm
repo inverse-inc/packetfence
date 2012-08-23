@@ -725,7 +725,7 @@ sub node_register {
     }
 
     require pf::person;
-    # do not check for max_node is it's for auto-register
+    # do not check for max_node if it's for auto-register
     if (!$auto_registered) {
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
             $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
