@@ -268,7 +268,13 @@ sub generate_apple_mobileconfig_provisioning_xml {
     my $session = $portalSession->getSession();
 
     # if not logged in, disallow access
-    return if (!defined($session->param('username')));
+    if (!defined($session->param('username'))) {
+        pf::web::generate_error_page(
+            $portalSession,
+            i18n("You need to be authenticated to access this page.")
+        );
+        exit(0);
+    }
 
     my $vars = {
         username => $session->param('username'),

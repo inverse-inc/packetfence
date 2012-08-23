@@ -878,3 +878,6 @@ msgstr ""
 
 msgid "Email %s is not allowed to sponsor guest access"
 msgstr ""
+
+msgid "You need to be authenticated to access this page."
+msgstr ""
