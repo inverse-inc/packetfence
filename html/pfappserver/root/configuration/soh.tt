@@ -1,0 +1,54 @@
+<style type="text/css">
+form {
+    margin-bottom: 0px;
+}
+table .action {
+    text-align: right;
+}
+</style>
+
+      <div class="modal fade hide" id="modalFilter">
+      </div>
+
+      <div class="modal fade hide" id="deleteFilter">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3><i>[% l('Delete Filter') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this statement of health filter?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary">[% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Filters')  %]</h2>
+      <p>[% l('Define the filters which will apply to all NAP-capable clients that produce a statement of health (SoH).') %]</p>
+      [% IF filters.size -%]
+      <table class="table">
+        <thead>
+          <tr>
+            <th>[% l('Name') %]</th><th>[% l('Action') %]</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH filter IN filters %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller('SoH').action_for('get'), [ filter.filter_id ]) %]#modalFilter">[% filter.name %]</a></td>
+            <td>[% l(filter.action) %]</td>
+            <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('SoH').action_for('delete'), [ filter.filter_id ]) %]#deleteFilter">[% l('Delete') %]</a></td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
+      [% END -%]
+
+      <div id="noFilter" class="unwell[% ' hidden' IF filters.size > 0 %]">
+        <i class="icon-filter icon-large"></i><p>[% l('No filter defined') %]</p>
+      </div>
+
+      <div class="form-actions">
+        <a id="createFilter" class="btn" href="[% c.uri_for(c.controller('SoH').action_for('create')) %]">Add filter</a>
+      </div>

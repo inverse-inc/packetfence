@@ -1,7 +1,8 @@
 [%  jsFiles = [
         'app/bootstrap-datepicker',
         'app/chosen.jquery.min',
-        'admin/configuration'
+        'admin/configuration',
+        'admin/configuration/soh'
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
