@@ -59,6 +59,51 @@ sub soh_db_prepare {
         select filter_id, class, op, status from soh_filter_rules
             order by rule_id asc
     SQL
+
+    $soh_statements->{'soh_filter'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT filter_id, name, action, vid
+            FROM soh_filters
+            WHERE filter_id = ?
+    SQL
+
+    $soh_statements->{'soh_filter_rules'} = get_db_handle()->prepare(<<"    SQL");
+        SELECT rule_id, class, op, status
+            FROM soh_filter_rules
+            WHERE filter_id = ?
+    SQL
+
+    $soh_statements->{'soh_filter_add'} = get_db_handle()->prepare(<<"    SQL");
+        INSERT INTO soh_filters (
+            name, action, vid
+        ) VALUES (
+            ?, ?, ?
+        )
+    SQL
+
+    $soh_statements->{'soh_filter_update'} = get_db_handle()->prepare(<<"    SQL");
+        UPDATE soh_filters SET
+            action = ?, vid = ?
+        WHERE filter_id = ?
+    SQL
+
+    $soh_statements->{'soh_filter_delete'} = get_db_handle()->prepare(<<"    SQL");
+        DELETE FROM soh_filters
+        WHERE filter_id = ?
+    SQL
+
+    $soh_statements->{'soh_filter_rule_add'} = get_db_handle()->prepare(<<"    SQL");
+        INSERT INTO soh_filter_rules (
+            filter_id, class, op, status
+        ) VALUES (
+            ?, ?, ?, ?
+        )
+    SQL
+
+    $soh_statements->{'soh_filter_rules_delete'} = get_db_handle()->prepare(<<"    SQL");
+        DELETE FROM soh_filter_rules
+        WHERE filter_id = ?
+    SQL
+
 }
 
 =head1 SUBROUTINES
@@ -370,6 +415,46 @@ sub matches_one {
     return $match;
 }
 
+=item * trigger_violation - trigger a violation
+
+Triggers a violation for the specified MAC address and filter.
+
+=cut
+
+sub trigger_violation {
+    my $self = shift;
+    my ($filter) = @_;
+
+    $self->{logger}->debug(
+        "Triggering violation $filter->{vid} for MAC $self->{mac_address} ".
+        "and filter $filter->{name}"
+    );
+    pf::violation::violation_trigger(
+        $self->{mac_address}, $filter->{filter_id}, "soh"
+    );
+}
+
+=item * filter - fetch a filter from the db
+
+Returns a hashref representing a single SoH filter.
+
+=cut
+
+sub filter {
+    my ($self, $filter_id) = @_;
+
+    my (@results, $filter_ref);
+
+    @results = db_data("soh", $soh_statements, "soh_filter", $filter_id);
+    $filter_ref = pop @results;
+    if ($filter_ref) {
+        @results = db_data("soh", $soh_statements, "soh_filter_rules", $filter_id);
+        $filter_ref->{rules} = \@results;
+    }
+
+    return $filter_ref;
+}
+
 =item * filters - fetch filters from the db
 
 Returns a reference to an array of hashrefs, each representing a single
@@ -393,23 +478,83 @@ sub filters {
     return [ @filters ];
 }
 
-=item * trigger_violation - trigger a violation
-
-Triggers a violation for the specified MAC address and filter.
+=item * create_filter
 
 =cut
 
-sub trigger_violation {
-    my $self = shift;
-    my ($filter) = @_;
+sub create_filter {
+    my ($self, $name, $action, $vid) = @_;
 
-    $self->{logger}->debug(
-        "Triggering violation $filter->{vid} for MAC $self->{mac_address} ".
-        "and filter $filter->{name}"
-    );
-    pf::violation::violation_trigger(
-        $self->{mac_address}, $filter->{filter_id}, "soh"
-    );
+    db_query_execute("soh", $soh_statements, 'soh_filter_add',
+                     $name, $action, $vid
+                    ) || return (0);
+    my $id = get_db_handle()->last_insert_id((undef)x4);
+
+    $self->{logger}->debug("Created filter $name (id $id)");
+
+    return $id;
+}
+
+=item * update_filter
+
+=cut
+
+sub update_filter {
+    my ($self, $filter_id, $action, $vid) = @_;
+
+    db_query_execute("soh", $soh_statements, 'soh_filter_update',
+                     $action, $vid, $filter_id
+                    ) || return (0);
+
+    return (1);
+}
+
+=item * delete_filter
+
+=cut
+
+sub delete_filter {
+    my ($self, $filter_id, $action, $vid) = @_;
+
+    db_query_execute("soh", $soh_statements, 'soh_filter_delete',
+                     $filter_id
+                    ) || return (0);
+
+    $self->{logger}->debug("Deleted filter $filter_id");
+
+    return (1);
+}
+
+=item * create_rule
+
+=cut
+
+sub create_rule {
+    my ($self, $filter_id, $class, $op, $status) = @_;
+
+    db_query_execute("soh", $soh_statements, 'soh_filter_rule_add',
+                     $filter_id, $class, $op, $status
+                    ) || return (0);
+
+    $self->{logger}->debug("Created rule $class/$op/$status for filter $filter_id");
+
+    return (1);
+}
+
+=item * delete_rules
+
+=cut
+
+sub delete_rules {
+    my ($self, $filter_id) = @_;
+
+    db_query_execute("soh", $soh_statements, 'soh_filter_rules_delete',
+                     $filter_id
+                    ) || return (0);
+
+    $self->{logger}->debug("Deleted rules of filter $filter_id");
+
+    return (1);
 }
 
 =back

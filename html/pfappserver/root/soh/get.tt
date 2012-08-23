@@ -1,0 +1,100 @@
+        <form name="filter" action="[% c.uri_for(c.controller('SoH').action_for('update'), [ filter.filter_id ]) %]">
+
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3><i>Filter</i> [% filter.name %]</h3>
+        </div>
+
+        <div class="modal-body">
+          <dl>
+            <dt>[% l('Action') %]</dt>
+            <dd>
+              <select name="action" class="span4">
+                <option value="accept"[% ' selected' IF filter.action == 'accept' %]>[% l('Accept') %]</option>
+                <option value="reject"[% ' selected' IF filter.action == 'reject' %]>[% l('Reject') %]</option>
+                <option value="violation"[% ' selected' IF filter.action == 'violation' %]>[% l('Trigger violation') %]</option>
+              </select>
+              <select name="vid" class="span6"[% IF filter.action != 'violation' %] style="display: none"[% END %]>
+                  [% FOREACH violation IN violations -%]
+                  <option value="[% violation.id %]"[% ' selected' IF violation.id == filter.vid %]>[% IF violation.id == 'defaults' %][% l('Defaults') %][% ELSE %][% violation.desc %][% END %]</option>
+                  [% END -%]
+              </select>
+            </dd>
+          </dl>
+          <dl>
+            <dt>[% l('Conditions') %]</dt>
+            <dd>
+              <table class="table table-condensed">
+                <tbody>
+                  <tr class="filterRule hidden">
+                    <td>
+                      <select name="rule" class="span4">
+                        <option value="firewall">[% l('Firewall') %]</option>
+                        <option value="antivirus">[% l('Anti-virus') %]</option>
+                        <option value="antispyware">[% l('Anti-spyware') %]</option>
+                        <option value="auto-updates">[% l('Auto-updates') %]</option>
+                        <option value="security-updates">[% l('Security updates') %]</option>
+                      </select>
+                      <select name="op" class="span3">
+                        <option value="is">[% l('is') %]</option>
+                        <option value="isnot">[% l('is not') %]</option>
+                      </select>
+                      <select name="status" class="span4">
+                        <option value="ok">ok</option>
+                        <option value="installed">[% l('installed') %]</option>
+                        <option value="enabled">[% l('enabled') %]</option>
+                        <option value="disabled">[% l('disabled') %]</option>
+                        <option value="up2date">[% l('up-to-date') %]</option>
+                        <option value="microsoft">[% l('from Microsoft') %]</option>
+                      </select>
+                      </td>
+                    <td class="action">
+                      <a class="btn btn-danger btn-small" href="#deleteRule">[% l('Delete') %]</a>
+                    </td>
+                  </tr>
+                  [% FOREACH rule IN filter.rules -%]
+                  <tr class="filterRule">
+                    <td>
+                      <select name="rule" class="span4">
+                        <option value="firewall" [% ' selected' IF rule.class == 'firewall' %]>[% l('Firewall') %]</option>
+                        <option value="antivirus" [% ' selected' IF rule.class == 'antivirus' %]>[% l('Anti-virus') %]</option>
+                        <option value="antispyware" [% ' selected' IF rule.class == 'antispyware' %]>[% l('Anti-spyware') %]</option>
+                        <option value="auto-updates" [% ' selected' IF rule.class == 'auto-updates' %]>[% l('Auto-updates') %]</option>
+                        <option value="security-updates" [% ' selected' IF rule.class == 'security-updates' %]>[% l('Security updates') %]</option>
+                      </select>
+                      <select name="op" class="span3">
+                        <option value="is" [% ' selected' IF rule.op == 'is' %]>[% l('is') %]</option>
+                        <option value="isnot" [% ' selected' IF rule.op == 'isnot' %]>[% l('is not') %]</option>
+                      </select>
+                      <select name="status" class="span4">
+                        <option value="ok" [% ' selected' IF rule.status == 'ok' %]>ok</option>
+                        <option value="installed" [% ' selected' IF rule.status == 'installed' %]>[% l('installed') %]</option>
+                        <option value="enabled" [% ' selected' IF rule.status == 'enabled' %]>[% l('enabled') %]</option>
+                        <option value="disabled" [% ' selected' IF rule.status == 'disabled' %]>[% l('disabled') %]</option>
+                        <option value="up2date" [% ' selected' IF rule.status == 'up2date' %]>[% l('up-to-date') %]</option>
+                        <option value="microsoft" [% ' selected' IF rule.status == 'microsoft' %]>[% l('from Microsoft') %]</option>
+                      </select>
+                      </td>
+                    <td class="action">
+                      <a class="btn btn-danger btn-small[% ' disabled' IF loop.first %]" href="#deleteRule">[% l('Delete') %]</a>
+                    </td>
+                  </tr>
+                  [% END -%]
+                  <tr>
+                    <td></td>
+                    <td class="action">
+                      <a class="btn btn-success btn-small" href="#addRule">[% l('Add condition') %]</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </dd>
+          </dl>
+        </div>
+
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+          <button class="btn btn-primary" data-loading-text="Saving">[% l('Save') %]</button>
+        </div>
+
+        </form>

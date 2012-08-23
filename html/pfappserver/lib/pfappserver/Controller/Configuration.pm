@@ -135,6 +135,16 @@ sub _update_section :Private {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 index
+
+=cut
+sub index :Path :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('general')));
+    $c->detach();
+}
+
 =head2 general
 
 =cut
@@ -222,6 +232,30 @@ sub registration :Local {
     else {
         $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
         $self->_format_section($c->stash->{params});
+    }
+}
+
+=head2 soh
+
+=cut
+sub soh :Local {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{template} = 'configuration/soh.tt';
+
+    my ($status, $result) = $c->model('SoH')->filters();
+    if (is_success($status)) {
+        $c->stash->{filters} = $result;
+
+        ($status, $result) = $c->model('Config::Violations')->read_violation('all');
+        if (is_success($status)) {
+            $c->stash->{violations} = $result;
+        }
+    }
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
     }
 }
 

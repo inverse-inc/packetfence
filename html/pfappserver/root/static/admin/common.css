@@ -19,3 +19,16 @@
     margin-left: auto;
     margin-right: auto;
 }
+.unwell {
+    color: #ccc;
+    font-size: 24px;
+    padding: 15px;
+    text-align: center;
+}
+.unwell i {
+    color: #eee;
+    font-size: 48px;
+    line-height: 48px;
+    display: block;
+    margin-bottom: 10px;
+}

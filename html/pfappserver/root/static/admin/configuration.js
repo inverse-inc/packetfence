@@ -81,4 +81,6 @@ function init() {
 
     /* Load initial section */
     $('.sidebar-nav .nav-list .active a').trigger('click');
+
+    initSoH();
 }
