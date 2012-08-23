@@ -37,7 +37,7 @@ function init() {
     });
 
     /* Save a section */
-    $('body').on('submit', 'form', function(event) {
+    $('#section').on('submit', 'form[name="section"]', function(event) {
         var url = $(this).attr('action');
         var data = {};
         // Extract values from inputs, textareas, selects and buttons (time units)
@@ -60,6 +60,7 @@ function init() {
             data: data
         })
         .done(function(data) {
+            $("body,html").animate({scrollTop:0}, 'fast');
             resetAlert($('h3'));
             showSuccess($('form'), data.status_msg);
         })
@@ -70,6 +71,7 @@ function init() {
             }
             else {
                 var obj = $.parseJSON(jqXHR.responseText);
+                $("body,html").animate({scrollTop:0}, 'fast');
                 showPermanentError($('form'), obj.status_msg);
             }
         });

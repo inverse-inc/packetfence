@@ -45,24 +45,23 @@ sub exists {
     my ( $self, $mac ) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($status, $status_msg);
+    my ($status, $result) = ($STATUS::OK);
 
-    my $result = ();
     eval {
         $result = node_exist($mac);
     };
     if ($@) {
-        $status_msg = "Can't validate node ($mac) from database.";
-        $logger->error($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        $result = "Can't validate node ($mac) from database.";
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $logger->error($@);
     }
     unless ($result) {
-        $status_msg = "Node $mac was not found.";
-        $logger->warn($status_msg);
-        return ($STATUS::NOT_FOUND, $status_msg);
+        $result = "Node $mac was not found.";
+        $status = $STATUS::NOT_FOUND;
+        $logger->warn($result);
     }
 
-    return ($STATUS::OK, $result);
+    return ($status, $result);
 }
 
 =head2 countAll
