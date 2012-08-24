@@ -71,7 +71,10 @@ sub create :Local {
             $result = $c->loc("The specified violation doesn't exist.");
         }
         else {
-            ($status, $result) = $c->model('SoH')->create($data->{name}, $data->{action}, $data->{vid}, $data->{rules});
+            my $configViolationsModel = $c->model('Config::Violations');
+            ($status, $result) = $c->model('SoH')->create($configViolationsModel,
+                                                          $data->{name}, $data->{action}, $data->{vid},
+                                                          $data->{rules});
         }
         if (is_error($status)) {
             $c->response->status($status);
@@ -139,7 +142,11 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
 
     my $data = decode_json($c->request->params->{json});
-    my ($status, $result) = $c->model('SoH')->update($c->stash->{filter}->{filter_id}, $data->{action}, $data->{vid}, $data->{rules});
+    my $configViolationsModel = $c->model('Config::Violations');
+    my ($status, $result) = $c->model('SoH')->update($configViolationsModel,
+                                                     $c->stash->{filter},
+                                                     $data->{action}, $data->{vid},
+                                                     $data->{rules});
     if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
@@ -155,7 +162,9 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
 
-    my ($status, $result) = $c->model('SoH')->delete($c->stash->{filter}->{filter_id});
+    my $configViolationsModel = $c->model('Config::Violations');
+    my ($status, $result) = $c->model('SoH')->delete($configViolationsModel,
+                                                     $c->stash->{filter});
     if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;

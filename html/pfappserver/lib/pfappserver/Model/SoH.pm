@@ -82,17 +82,30 @@ sub filters {
 =cut
 
 sub update {
-    my ($self, $filter_id, $action, $vid, $rules_ref) = @_;
+    my ($self, $configViolationsModel, $filter_ref, $action, $vid, $rules_ref) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
         my $soh = pf::soh->new();
-        if ($soh->update_filter($filter_id, $action, $vid) &&
-            $soh->delete_rules($filter_id)) {
+
+        my ($tstatus, $trigger);
+        if ($filter_ref->{action} eq 'violation' &&
+            ($action ne 'violation' || $filter_ref->{vid} != $vid)) {
+            # Remove trigger from previous violation
+            ($tstatus, $trigger) = $configViolationsModel->delete_trigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
+        }
+        if ($action eq 'violation' &&
+            ($filter_ref->{action} ne 'violation' || $filter_ref->{vid} != $vid)) {
+            # Add trigger to new violation
+            ($status, $status_msg) = $configViolationsModel->add_trigger($vid, 'soh::' . $filter_ref->{filter_id});
+        }
+
+        if ($soh->update_filter($filter_ref->{filter_id}, $action, $vid) &&
+            $soh->delete_rules($filter_ref->{filter_id})) {
             foreach my $rule (@$rules_ref) {
-                $soh->create_rule($filter_id, @$rule);
+                $soh->create_rule($filter_ref->{filter_id}, @$rule);
             }
         }
     };
@@ -110,14 +123,17 @@ sub update {
 =cut
 
 sub delete {
-    my ($self, $filter_id) = @_;
+    my ($self, $configViolationsModel, $filter_ref) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
 
     eval {
         my $soh = pf::soh->new();
-        $soh->delete_filter($filter_id); # rules will be automatically deleted
+        $soh->delete_filter($filter_ref->{filter_id}); # rules will be automatically deleted
+        if ($filter_ref->{action} eq 'violation') {
+            ($status, $status_msg) = $configViolationsModel->delete_trigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
+        }
     };
     if ($@) {
         $logger->error($@);
@@ -133,7 +149,7 @@ sub delete {
 =cut
 
 sub create {
-    my ($self, $name, $action, $vid, $rules_ref) = @_;
+    my ($self, $configViolationsModel, $name, $action, $vid, $rules_ref) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
@@ -144,6 +160,9 @@ sub create {
         if ($id) {
             foreach my $rule (@$rules_ref) {
                 $soh->create_rule($id, @$rule);
+            }
+            if ($action eq 'violation') {
+                ($status, $status_msg) = $configViolationsModel->add_trigger($vid, 'soh::' . $id);
             }
         }
     };
