@@ -25,23 +25,9 @@ Here's the example with the Admin guide.
 . Then render the PDF from the docbook
 
   $ fop -c docs/fonts/fop-config.xml \
-    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
+    -xml docs/docbook/PacketFence_Administration_Guide.docbook \
     -pdf docs/PacketFence_Administration_Guide.pdf
-
-
-Docbook
--------
-
-CAUTION: deprecated. See <<_asciidoc,asciidoc>> instead.
-
-To build HTML from Docbook:
-
-  $ xsltproc --output packetfence-developers-guide.html /opt/local/share/xsl/docbook-xsl/html/docbook.xsl docs/docbook/pf-devel-guide.xml
-
-To build PDF from Docbook:
-
-  $ fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml -xsl docs/docbook/xsl/packetfence-fo.xsl -pdf packetfence-developers-guide.pdf
 
 
 Troubleshooting
