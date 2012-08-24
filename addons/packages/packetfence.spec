@@ -233,8 +233,8 @@ done
 xsltproc -o docs/docbook/xsl/titlepage-fo.xsl \
     /usr/share/sgml/docbook/xsl-stylesheets/template/titlepage.xsl \
     docs/docbook/xsl/titlepage-fo.xml
-# admin, network device config and ZEN install guides
-for GUIDE in PacketFence_Administration_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide; do 
+# admin, network device config, devel and ZEN install guides
+for GUIDE in PacketFence_Administration_Guide PacketFence_Developers_Guide PacketFence_Network_Devices_Configuration_Guide PacketFenceZEN_Installation_Guide; do 
 asciidoc -a docinfo2 -b docbook -d book \
     -o docs/docbook/$GUIDE.docbook \
     docs/$GUIDE.asciidoc
@@ -243,10 +243,6 @@ fop -c docs/fonts/fop-config.xml \
     -xsl docs/docbook/xsl/packetfence-fo.xsl \
     -pdf docs/$GUIDE.pdf
 done
-# devel guide (docbook only)
-fop -c docs/fonts/fop-config.xml -xml docs/docbook/pf-devel-guide.xml \
-    -xsl docs/docbook/xsl/packetfence-fo.xsl \
-    -pdf docs/PacketFence_Developers_Guide.pdf
 %endif
 
 %install

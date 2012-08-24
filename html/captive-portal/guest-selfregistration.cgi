@@ -197,6 +197,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
           node_modify($portalSession->getClientMac(), %info);
       }
 
+      $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
       # fetch more info for the activation email
       # this is meant to be overridden in pf::web::custom with customer specific needs
       %info = pf::web::guest::prepare_sponsor_guest_activation_info($portalSession, %info);

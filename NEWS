@@ -22,6 +22,10 @@ Bug Fixes
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
+Enhancements
+ * Configuration item to notify of guest sponsorships by email: guests_self_registration.sponsorship_cc
+ * Developers guide was migrated from Docbook into the asciidoc format
+
 Bug Fixes
  * FreeRADIUS watchdog updated for 3.5.0 changes (#1514)
  * debian packages improvements regarding FreeRADIUS configuration
