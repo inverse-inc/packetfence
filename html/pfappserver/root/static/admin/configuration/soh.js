@@ -148,7 +148,7 @@ function initSoH() {
                 });
             }).fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
-                showError(form, obj.status_msg);
+                showError(form.find('.modal-body'), obj.status_msg);
                 $("body,html").animate({scrollTop:0}, 'fast');
             });
         }
