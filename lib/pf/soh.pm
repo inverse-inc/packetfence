@@ -514,13 +514,13 @@ sub update_filter {
 =cut
 
 sub delete_filter {
-    my ($self, $filter_id, $action, $vid) = @_;
+    my ($self, $filter_id) = @_;
 
     db_query_execute("soh", $soh_statements, 'soh_filter_delete',
                      $filter_id
                     ) || return (0);
 
-    $self->{logger}->debug("Deleted filter $filter_id");
+    $self->{logger}->debug("Deleted filter " . $filter_id);
 
     return (1);
 }
