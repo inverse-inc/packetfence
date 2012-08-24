@@ -346,6 +346,9 @@ fi
 cd $curdir
 #end create symlinks
 
+%clean
+rm -rf $RPM_BUILD_ROOT
+
 %pre
 
 if ! /usr/bin/id pf &>/dev/null; then
@@ -718,6 +721,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Fri Aug 24 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- Added clean to avoid filling up build systems.. Sorry about that.
+
 * Mon Aug 01 2012 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.5.0-1
 - New release 3.5.0
 
