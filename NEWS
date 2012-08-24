@@ -15,10 +15,6 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <develRelease> released on <releaseDate>
 
-Bug Fixes
- * Keep the PID on node_deregister (#1501)
- * Handle the release_date on violation modify (#1474)
-
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
