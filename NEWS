@@ -15,6 +15,10 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <develRelease> released on <releaseDate>
 
+New Features
+ * Adding routing support for the inline mode
+ * Adding support to choose multiples DNAT interfaces for inline mode
+
 New Hardware
  * Support Belair Networks AP
 
