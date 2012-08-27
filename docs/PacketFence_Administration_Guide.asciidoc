@@ -249,7 +249,7 @@ RedHat Enterprise Linux users need to take an additional setup step. If you are 
 
 RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` packages. PacketFence needs it so we will install it from the rpmforge-extras repository now: 
 
-  yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras
+  yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras,rpmforge
 
 Debian Squeeze
 ^^^^^^^^^^^^^^
