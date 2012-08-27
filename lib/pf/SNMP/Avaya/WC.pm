@@ -144,7 +144,7 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        'SNMP' => \&deauthenticateMac,
+        $SNMP => \&deauthenticateMac,
     );
     return %tech;
 }
@@ -167,6 +167,8 @@ sub deauthenticateMacDefault {
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

@@ -177,8 +177,8 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        'Telnet' => \&deauthenticateMac,
-        'SSH'  => \&deauthenticateMac,
+        $TELNET => \&deauthenticateMac,
+        $SSH  => \&deauthenticateMac,
     );
     return %tech;
 }
@@ -205,6 +205,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

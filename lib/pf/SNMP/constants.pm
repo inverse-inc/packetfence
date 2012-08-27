@@ -126,6 +126,17 @@ Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
 Readonly::Scalar our $ETHERNET_CSMACD => 6;
 Readonly::Scalar our $GIGABIT_ETHERNET => 117;
 
+=item Deauth type method
+
+Deauth type method constant
+
+=cut
+Readonly my $TELNET => 'Telnet';
+Readonly my $SSH => 'SSH';
+Readonly my $SNMP => 'SNMP';
+Readonly my $RADIUS => 'Radius';
+Readonly my $HTTP => 'Http';
+Readonly my $HTTPS => 'Https';
 
 =back
 

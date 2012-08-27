@@ -329,8 +329,8 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        'Radius' => \&deauthenticateMac,
-        'SNMP'  => \&_deauthenticateMacSNMP,
+        $RADIUS => \&deauthenticateMac,
+        $SNMP  => \&_deauthenticateMacSNMP,
     );
     return %tech;
 }
@@ -355,6 +355,8 @@ sub deauthenticateMacDefault {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

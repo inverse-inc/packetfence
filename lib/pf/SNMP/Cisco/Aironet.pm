@@ -236,7 +236,7 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        'Telnet' => \&deauthenticateMac,
+        $TELNET => \&deauthenticateMac,
     );
     return %tech;
 }
@@ -262,6 +262,8 @@ sub deauthenticateMacDefault {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

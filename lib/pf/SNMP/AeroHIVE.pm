@@ -270,8 +270,8 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        'Radius' => \&deauthenticateMac,
-        'Telnet'  => \&_deauthenticateMacTelnet,
+        $RADIUS => \&deauthenticateMac,
+        $TELNET  => \&_deauthenticateMacTelnet,
     );
     return %tech;
 }
@@ -295,6 +295,8 @@ sub deauthenticateMacDefault {
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Francois Gaudreault <fgaudreault@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 
