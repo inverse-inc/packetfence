@@ -29,8 +29,9 @@ use pf::Portal::ProfileFactory;
 use pf::util;
 # TODO we should aim to get rid of these deps (see other TODO tasks in _initialize)
 use pf::web;
-# called last to allow redefinitions
-use pf::web::custom;
+# Commented as a quick fix for #1507. 
+# A better fix will be done in our devel series.
+#use pf::web::custom;
 
 =head1 METHODS
 
