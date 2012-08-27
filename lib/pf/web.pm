@@ -346,45 +346,6 @@ sub generate_error_page {
     render_template($portalSession, 'error.html', $r);
 }
 
-=item generate_admin_error_page
-
-Same behavior of pf::web::generate_error_page but consume old cgi/session paramaters rather than the new portalSession
-object since this one is used in the admin portion of the web management and we didn't implement the portalSession
-object in this part.
-
-=cut
-# TODO this will disappear inside the new Web Admin
-sub generate_admin_error_page {
-    my ( $cgi, $session, $error_msg, $r ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $vars = {
-        logo => $Config{'general'}{'logo'},
-        i18n => \&i18n,
-        i18n_format => \&i18n_format,
-        txt_message => $error_msg,
-    };
-
-    my $ip = get_client_ip($cgi);
-    my $mac = ip2mac($ip);
-    push @{ $vars->{list_help_info} }, { name => i18n('IP'), value => $ip };
-    if ($mac) {
-        push @{ $vars->{list_help_info} }, { name => i18n('MAC'), value => $mac };
-    }
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
-    $template->process( "error.html", $vars, $r ) || $logger->error($template->error());
-}
-
 =item web_node_register
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.

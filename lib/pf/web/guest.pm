@@ -51,6 +51,7 @@ use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password 1.10;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
+use pf::web::admin 1.00;
 use pf::web::auth;
 use pf::web::constants;
 use pf::web::util;
@@ -580,7 +581,7 @@ sub preregister {
 
     # failure, redirect to error page
     if (!defined($password)) {
-        pf::web::generate_admin_error_page($cgi, $session, i18n("error: something went wrong creating the guest"));
+        pf::web::admin::generate_error_page($cgi, $session, i18n("error: something went wrong creating the guest"));
     }
 
     # on success
@@ -633,7 +634,7 @@ sub preregister_multiple {
 
     # failure, redirect to error page
     if ($count == 0) {
-        pf::web::generate_admin_error_page($cgi, $session, i18n("error: something went wrong creating the guest") );
+        pf::web::admin::generate_error_page($cgi, $session, i18n("error: something went wrong creating the guest") );
         return;
     }
 

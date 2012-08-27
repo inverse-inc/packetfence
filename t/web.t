@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -22,6 +22,7 @@ use CGI;
 use pf::config;
 
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::admin') }
 BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::guest') }
@@ -107,7 +108,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
     

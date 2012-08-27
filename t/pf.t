@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 74;
+use Test::More tests => 76;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
@@ -72,6 +72,8 @@ BEGIN { use_ok('pf::violation') }
 BEGIN { use_ok('pf::vlan') }
 BEGIN { use_ok('pf::vlan::custom') }
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::admin') }
+BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::guest') }
 BEGIN { use_ok('pf::web::release') }

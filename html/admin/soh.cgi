@@ -26,6 +26,7 @@ use JSON;
 
 use pf::config;
 use pf::web;
+use pf::web::admin 1.00;
 use pf::web::custom;
 
 # If we can find an existing PHP session, we allow the user to proceed.
@@ -335,12 +336,14 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
 # Anything else is an error
 
 else {
-    pf::web::generate_admin_error_page($q, $csession, i18n("Unrecognised request"));
+    pf::web::admin::generate_error_page($q, $csession, i18n("Unrecognised request"));
 }
 
 =head1 AUTHOR
 
 Abhijit Menon-Sen <amenonsen@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

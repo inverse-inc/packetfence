@@ -26,6 +26,7 @@ use pf::node;
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::web::admin 1.00;
 use pf::web::guest 1.20;
 # called last to allow redefinitions
 use pf::web::custom;
@@ -161,7 +162,7 @@ if (defined($session->param("username"))) {
           my $file = $cgi->upload('users_file');
           if (!$file && $cgi->cgi_error) {
             $logger->error("Import: Received corrupted file: " . $cgi->cgi_error);
-            pf::web::generate_admin_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
+            pf::web::admin::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
           }
           else {
             my $filename = $cgi->param('users_file');
