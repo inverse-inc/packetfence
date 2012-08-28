@@ -30,6 +30,8 @@ Bug Fixes
  * Sponsored guests regressions (#1505)
  * Keep the PID on node_deregister (#1501)
  * Handle the release_date on violation modify (#1474)
+ * Billing screen does not appear when billing feature is enabled (#1525)
+ * Web extension point regression (#1507)
 
 --------------------------------------------------------------------------------
 Version 3.5.0 released on 2012-08-01

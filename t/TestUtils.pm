@@ -46,7 +46,7 @@ our @dao_tests = qw(
 );
 
 our @integration_tests = qw(
-    integration.t integration/radius.t integration/captive-portal.t integration/pfcmd.t
+    integration.t integration/captive-portal.t integration/pfcmd.t integration/Portal.t integration/radius.t
 );
 
 our @quality_tests = qw(
@@ -60,8 +60,8 @@ our @quality_failing_tests = qw(
 our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t 
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t 
-    radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t vlan.t web.t 
-    web-auth.t
+    Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t
+    vlan.t web.t web-auth.t
 );
 
 our @unit_failing_tests = qw(

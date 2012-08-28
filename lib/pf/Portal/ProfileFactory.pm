@@ -82,7 +82,7 @@ sub _default_profile {
         'guest_modes'       => $Config{'guests_self_registration'}{'modes'},
         'guest_category'    => $Config{'guests_self_registration'}{'category'},
         'template_path'     => '/',
-        'billing_engine'    => $Config{'registration'}{'billing-engine'},
+        'billing_engine'    => $Config{'registration'}{'billing_engine'},
         'default_auth'      => $Config{'registration'}{'default_auth'},
     };
 }
