@@ -7,6 +7,7 @@ function init() {
         $('.sidebar-nav .nav-list .active').removeClass('active');
         item.addClass('active');
         section.fadeOut('fast', function() {
+            $("body,html").animate({scrollTop:0}, 'fast');
             $(this).empty();
             $.ajax(href)
                 .done(function(data) {
