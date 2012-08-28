@@ -3,17 +3,14 @@ body {
     padding-top: 60px;
 }
 .navbar .nav > li > a {
-    line-height: 30px;
-}
-#navbar .navbar-text {
-    line-height: 50px;
+    line-height: 28px;
 }
 #navbar h6 {
     margin: 0;
     line-height: 48px;
 }
-.dropdown .caret {
-    margin-top: 13px;
+.navbar .nav .dropdown-toggle .caret {
+    margin-top: 12px;
 }
 /* bootstrap.css fix to remove padding surrounding sidebar */
 .sidebar-nav {
