@@ -31,6 +31,7 @@ use Date::Parse;
 use File::Basename;
 use HTML::Entities;
 use JSON;
+use Locale::gettext qw(gettext ngettext);
 use Log::Log4perl;
 use Readonly;
 use Template;
@@ -91,38 +92,6 @@ sub i18n_format {
     my ($msgid, @args) = @_;
 
     return sprintf(gettext($msgid), @args);
-}
-
-=item web_get_locale
-
-Deprecated: Functionality has been migrated into pf::Portal::Session.
-This is still here because admin-related functions still use it but it
-will disappear soon.
-
-=cut
-use Locale::gettext;
-use POSIX;
-sub web_get_locale {
-    my ($cgi,$session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    my $authorized_locale_txt = $Config{'general'}{'locale'};
-    my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
-    if ( defined($cgi->url_param('lang')) ) {
-        $logger->info("url_param('lang') is " . $cgi->url_param('lang'));
-        my $user_chosen_language = $cgi->url_param('lang');
-        if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
-            $logger->info("setting language to user chosen language "
-                 . $user_chosen_language);
-            $session->param("lang", $user_chosen_language);
-            return $user_chosen_language;
-        }
-    }
-    if ( defined($session->param("lang")) ) {
-        $logger->info("returning language " . $session->param("lang")
-            . " from session");
-        return $session->param("lang");
-    }
-    return $authorized_locale_array[0];
 }
 
 =item render_template

@@ -17,8 +17,8 @@ you don't have to worry about anything below.
 Deprecations
 ~~~~~~~~~~~~
 
-`pf::web::web_get_locale` will disappear soon. See <_i18n,I18N> below for
-details.
+`pf::web::web_get_locale` moved into `pf::web::admin`. See <_i18n,I18N>
+below for details.
 
 `pf::web::_render_template` no longer exists. See below for details.
 

@@ -49,6 +49,35 @@ Warning: The list of subroutine is incomplete
 
 =over
 
+=item web_get_locale
+
+Admin-related i18n setup.
+
+=cut
+sub web_get_locale {
+    my ($cgi,$session) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $authorized_locale_txt = $Config{'general'}{'locale'};
+    my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
+    if ( defined($cgi->url_param('lang')) ) {
+        $logger->info("url_param('lang') is " . $cgi->url_param('lang'));
+        my $user_chosen_language = $cgi->url_param('lang');
+        if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
+            $logger->info("setting language to user chosen language "
+                 . $user_chosen_language);
+            $session->param("lang", $user_chosen_language);
+            return $user_chosen_language;
+        }
+    }
+    if ( defined($session->param("lang")) ) {
+        $logger->info("returning language " . $session->param("lang")
+            . " from session");
+        return $session->param("lang");
+    }
+    return $authorized_locale_array[0];
+}
+
+
 =item render_template
 
 Cuts in the session cookies and template rendering boiler plate.
@@ -60,7 +89,7 @@ sub render_template {
     # so that we will get the calling sub in the logs instead of this utility sub
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
 
-    setlocale( POSIX::LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    setlocale( POSIX::LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
     bind_textdomain_codeset( "packetfence", "UTF-8" );

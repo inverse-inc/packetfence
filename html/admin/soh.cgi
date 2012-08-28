@@ -65,7 +65,7 @@ my $dbh = DBI->connect(
     { RaiseError => 0, PrintError => 0 }
 );
 
-setlocale(LC_MESSAGES, pf::web::web_get_locale($q, $csession));
+setlocale(LC_MESSAGES, pf::web::admin::web_get_locale($q, $csession));
 bindtextdomain("packetfence", "$conf_dir/locale");
 textdomain("packetfence");
 

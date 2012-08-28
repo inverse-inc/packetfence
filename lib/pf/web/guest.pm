@@ -144,7 +144,7 @@ sub generate_registration_page {
     my ( $cgi, $session, $post_uri, $err, $section ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
@@ -174,7 +174,7 @@ sub generate_registration_page {
 
     $vars->{'duration'} = pf::web::util::get_translated_time_hash(
         [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
-        pf::web::web_get_locale($cgi, $session)
+        pf::web::admin::web_get_locale($cgi, $session)
     );
 
     # multiple section
@@ -547,7 +547,7 @@ sub preregister {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
@@ -595,7 +595,7 @@ sub preregister_multiple {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
 
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
@@ -651,7 +651,7 @@ sub generate_registration_confirmation_page {
     my ( $cgi, $session, $info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 
