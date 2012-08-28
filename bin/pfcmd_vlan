@@ -480,7 +480,6 @@ if ($reevaluateAccess) {
     } else {
         $logger->debug("start handling 'deauthenticate' command");
         my $deAuthMethod = $switch->{_deAuthMethod};
-        $logger->warn($deAuthMethod);
         my %supportedDeauthTechniques = $switch->supportedDeauthTechniques;
         if ((defined($deAuthMethod)) && (defined($supportedDeauthTechniques{$deAuthMethod}))) {
             $supportedDeauthTechniques{$deAuthMethod}($switch,$mac);

@@ -2760,7 +2760,6 @@ return Default Deauthentication Method
 =cut
 sub supportedDeauthTechniques {
     my ( $this ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
 
     my %tech = (
         'Default' => \&$this->deauthenticateMacDefault,
