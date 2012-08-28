@@ -680,14 +680,14 @@ Checking some important permissions
 =cut
 sub permissions {
 
-    # pfcmd needs to be setuid / setgid and 
     my (undef, undef, $pfcmd_mode, undef, $pfcmd_owner, $pfcmd_group) = stat($bin_dir . "/pfcmd");
-    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
-        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
-    }
-    # pfcmd needs to be owned by root (owner id 0 / group id 0) 
+    # pfcmd needs to be owned by root (owner id 0 / group id 0)
     if ($pfcmd_owner || $pfcmd_group) {
         add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
+    }
+    # and pfcmd needs to be setuid / setgid
+    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
+        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
     }
 
     # Disabled because it was causing too many false positives 
