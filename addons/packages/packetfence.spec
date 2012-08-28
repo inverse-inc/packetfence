@@ -221,7 +221,7 @@ server.
 %package pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
-Requires: packetfence >= 3.4.0
+Requires: packetfence >= 3.6.0
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
