@@ -36,6 +36,7 @@ URL: http://www.packetfence.org
 AutoReqProv: 0
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{rev}-root
+# disables the creation of the debug package for our setuid C wrapper
 %define debug_package %{nil}
 
 Packager: Inverse inc. <support@inverse.ca>
