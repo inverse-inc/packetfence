@@ -70,7 +70,7 @@ sub _initialize {
     $self->{'_client_ip'} = pf::web::get_client_ip($self->getCgi);
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
 
-    $self->{'_destination_url'} = $self->_getDestinationUrl($self->getCgi);
+    $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->{'_guest_node_mac'} = undef;
 
@@ -133,12 +133,12 @@ Returns destination_url properly parsed, defended against XSS and with configure
 
 =cut
 sub _getDestinationUrl {
-    my ($self, $cgi) = @_;
+    my ($self) = @_;
 
     # set default if destination_url not set
-    return $Config{'trapping'}{'redirecturl'} if (!defined($cgi->param("destination_url")));
+    return $Config{'trapping'}{'redirecturl'} if (!defined($self->cgi->param("destination_url")));
 
-    return decode_entities(uri_unescape($cgi->param("destination_url")));
+    return decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
 =item stash
