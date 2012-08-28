@@ -99,6 +99,7 @@ sub search {
     my @nodes;
     eval {
         @nodes = node_view_all(undef, %params);
+        @nodes = grep { keys %$_ ? $_ : undef } @nodes;
     };
     if ($@) {
         $status_msg = "Can't fetch nodes from database.";
