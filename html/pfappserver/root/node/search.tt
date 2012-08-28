@@ -30,4 +30,7 @@
                 [%- END -%]
               </tbody>
             </table>
-[% INCLUDE admin/pagination.inc %]
+[% INCLUDE admin/pagination.inc IF nodes.size > 0 %]
+      <div id="noResult" class="unwell[% ' hidden' IF nodes.size > 0 %]">
+        <i class="icon-search icon-large"></i><p>[% l('No matching nodes') %]</p>
+      </div>
