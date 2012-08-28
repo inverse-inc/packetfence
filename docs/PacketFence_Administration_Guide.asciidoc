@@ -940,13 +940,13 @@ Tests
 Test your setup with `radtest` using the following command and make sure you get an `Access-Accept` answer:
 
 ----
-# radtest dd9999 Abcd1234 localhost 12 testing123
-Sending Access-Request of id 74 to 127.0.0.1 port 1812
+# radtest dd9999 Abcd1234 localhost:18120 12 testing123
+Sending Access-Request of id 74 to 127.0.0.1 port 18120
   User-Name = "dd9999"
   User-Password = "Abcd1234"
   NAS-IP-Address = 255.255.255.255
   NAS-Port = 12
-rad_recv: Access-Accept packet from host 127.0.0.1:1812, id=74, length=20
+rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 ----
 
 Debug
