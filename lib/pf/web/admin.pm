@@ -56,7 +56,7 @@ Admin-related i18n setup.
 =cut
 sub web_get_locale {
     my ($cgi,$session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $authorized_locale_txt = $Config{'general'}{'locale'};
     my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
     if ( defined($cgi->url_param('lang')) ) {
