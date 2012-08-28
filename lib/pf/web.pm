@@ -56,7 +56,6 @@ use pf::violation qw(violation_count);
 use pf::web::auth; 
 use pf::web::constants; 
 
-Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 Readonly our $LOGIN_TEMPLATE => 'login.html';
 
 =head1 SUBROUTINES
@@ -503,46 +502,6 @@ sub generate_pending_page {
     }
 
     render_template($portalSession, 'pending.html');
-}
-
-=item get_client_ip
-
-Returns IP address of the client reaching the captive portal. 
-Either directly connected or through a proxy.
-
-=cut
-sub get_client_ip {
-    my ($cgi) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    $logger->trace("request for client IP");
-
-    # we fetch CGI's remote address
-    # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
-    my $directly_connected_ip = $cgi->remote_addr();
-
-    # every source IP in this table are considered to be from a proxied source
-    my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first
-    $proxied_lookup{$LOOPBACK_IPV4} = 1; # loopback (proxy-bypass)
-    # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
-    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
-
-    # if this is NOT from one of the expected proxy IPs return the IP
-    if (!$proxied_lookup{$directly_connected_ip}) {
-        return $directly_connected_ip;
-    }
-
-    # behind a proxy?
-    if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
-        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
-        $logger->debug(
-            "Remote Address is $directly_connected_ip. Client is behind proxy? "
-            . "Returning: $proxied_ip according to HTTP Headers"
-        );
-        return $proxied_ip;
-    }
-
-    $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
-    return $directly_connected_ip;
 }
 
 =item end_portal_session

@@ -22,6 +22,9 @@ below for details.
 
 `pf::web::_render_template` no longer exists. See below for details.
 
+`pf::web::get_client_ip` was migrated into `pf::Portal::Session` and is
+no longer available for public consumption.
+
 Core
 ~~~~
 
