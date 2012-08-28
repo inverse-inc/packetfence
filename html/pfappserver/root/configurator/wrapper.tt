@@ -31,7 +31,7 @@
       <strong>Error!</strong> <span></span>
     </div>
 
-    <div id="navbar" class="navbar navbar-fixed-top">
+    <div id="navbar" class="navbar navbar-fixed-top navbar-inverse">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
