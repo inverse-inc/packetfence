@@ -82,7 +82,7 @@ if (defined($session->param("username"))) {
         # Single user registration
         #
 
-        my ($success, $error) = pf::web::guest::validate_registration($cgi, $session);
+        my ($success, $error) = pf::web::admin::validate_guest_creation($cgi, $session);
         if (!$success) {
             $logger->debug("guest registration form didn't pass validation");
             pf::web::admin::generate_registration_page( $cgi, $session, $error, 'single' );
@@ -132,7 +132,7 @@ if (defined($session->param("username"))) {
         #
         # Multiple user registration
         #
-        my ($success, $error) = pf::web::guest::validate_registration_multiple($cgi, $session);
+        my ($success, $error) = pf::web::admin::validate_guest_creation_multiple($cgi, $session);
         if (!$success) {
           $logger->debug("multiple guest creation form didn't pass validation");
           pf::web::admin::generate_registration_page($cgi, $session, $error, 'multiple');
@@ -151,7 +151,7 @@ if (defined($session->param("username"))) {
         #
         # CSV import
         #
-        my ($success, $error) = pf::web::guest::validate_registration_import($cgi, $session);
+        my ($success, $error) = pf::web::admin::validate_guest_import($cgi, $session);
         if (!$success) {
           $logger->debug("guest import form didn't pass validation");
           pf::web::admin::generate_registration_page($cgi, $session, $error, 'import');

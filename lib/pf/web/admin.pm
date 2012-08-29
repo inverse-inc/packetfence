@@ -41,6 +41,7 @@ use pf::config;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format);
 use pf::web::constants;
+use pf::web::guest 1.30;
 use pf::web::util;
 
 our $VERSION = 1.00;
@@ -213,6 +214,136 @@ sub generate_registration_page {
 
     render_template($cgi, $session, $pf::web::admin::REGISTRATION_TEMPLATE, $vars);
     exit;
+}
+
+=item validate_guest_creation
+
+Validation of guest creation. Single guest.
+
+  return (1,0) for successfull validation
+  return (0,1) for wrong guest info
+  return (0,2) for invalid access duration
+
+=cut
+sub validate_guest_creation {
+    my ($cgi, $session) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->info("duration: " . $cgi->param('access_duration'));
+    my $valid_email = ($cgi->param('email') =~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/);
+
+    if (!$valid_email) {
+        return (0, 1);
+    }
+
+    if (!pf::web::guest::valid_access_duration($cgi->param('access_duration'))) {
+        return (0, 2);
+    }
+
+    if (!pf::web::guest::valid_arrival_date($cgi->param('arrival_date'))) {
+        return (0, 3);
+    }
+
+    $session->param("firstname", $cgi->param("firstname"));
+    $session->param("lastname", $cgi->param("lastname"));
+    $session->param("company", $cgi->param("company"));
+    $session->param("email", lc($cgi->param("email"))); 
+    $session->param("phone", $cgi->param("phone"));
+    $session->param("address", $cgi->param("address"));
+    $session->param("arrival_date", $cgi->param("arrival_date"));
+    $session->param("access_duration", $cgi->param("access_duration"));
+    $session->param("notes", $cgi->param("notes"));
+    return (1, 0);
+}
+
+=item validate_guest_creation_multiple
+
+Validation of guest creation. Multiple guests.
+
+  return (1,0) for successfull validation
+  return (0,1) for missing info
+  return (0,2) for invalid access duration
+  return (0,3) for invalid arrival date
+  return (0,6) for invalid username (prefix)
+
+=cut
+sub validate_guest_creation_multiple {
+    my ($cgi, $session) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $prefix = $cgi->param('prefix');
+    my $quantity = $cgi->param('quantity');
+
+    unless ($prefix && int($quantity) > 0) {
+        return (0, 1);
+    }
+
+    if (!pf::web::guest::valid_access_duration($cgi->param('access_duration'))) {
+        return (0, 2);
+    }
+
+    if (!pf::web::guest::valid_arrival_date($cgi->param('arrival_date'))) {
+        return (0, 3);
+    }
+
+    if ($prefix =~ m/[^a-zA-Z0-9_\-\@]/) {
+        return (0, 6);
+    }
+
+    $session->param("fistname", $cgi->param("firstname"));
+    $session->param("lastname", $cgi->param("lastname"));
+    $session->param("company", $cgi->param("company"));
+    $session->param("email", lc($cgi->param("email")));
+    $session->param("phone", $cgi->param("phone"));
+    $session->param("address", $cgi->param("address"));
+    $session->param("arrival_date", $cgi->param("arrival_date"));
+    $session->param("access_duration", $cgi->param("access_duration"));
+    $session->param("notes", $cgi->param("notes"));
+   
+    return (1, 0);
+}
+
+=item validate_guest_import
+
+Validation of mass guest imports.
+
+  return (1,0) for successfull validation
+  return (0,1) for missing info
+  return (0,2) for invalid access duration
+  return (0,3) for invalid arrival date
+  return (0,4) for corrupted input file
+
+=cut
+sub validate_guest_import {
+    my ($cgi, $session) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $filename = $cgi->param('users_file');
+    my $delimiter = $cgi->param('delimiter');
+    my $columns = $cgi->param('columns');
+
+    unless ($filename && $delimiter && $columns) {
+        return (0, 1);
+    }
+
+    if (!pf::web::guest::valid_access_duration($cgi->param('access_duration'))) {
+        return (0, 2);
+    }
+
+    if (!pf::web::guest::valid_arrival_date($cgi->param('arrival_date'))) {
+        return (0, 3);
+    }
+
+    my $file = $cgi->upload('users_file');
+    if (!$file && $cgi->cgi_error) {
+        $logger->warn("Import: Received corrupted file: " . $cgi->cgi_error);
+        return (0, 4);
+    }
+
+    $session->param("arrival_date", $cgi->param("arrival_date"));
+    $session->param("access_duration", $cgi->param("access_duration"));
+
+    return (1, 0);
 }
 
 =back
