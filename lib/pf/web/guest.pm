@@ -24,18 +24,14 @@ F<register.html>.
 
 use strict;
 use warnings;
-use Date::Parse;
+
 use Encode;
 use File::Basename;
 use HTML::Entities;
-use Locale::gettext;
 use Log::Log4perl;
 use MIME::Lite::TT;
-use Net::LDAP;
-use POSIX;
 use Readonly;
 use Template;
-use Text::CSV;
 
 BEGIN {
     use Exporter ();
@@ -46,12 +42,9 @@ BEGIN {
 }
 
 use pf::config;
-use pf::iplog qw(ip2mac);
-use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password 1.10;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
-use pf::web::admin 1.00;
 use pf::web::auth;
 use pf::web::constants;
 use pf::web::util;
@@ -61,7 +54,6 @@ our $VERSION = 1.30;
 
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
-our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
 our $PREREGISTRATION_CONFIRMED_TEMPLATE = 'guest/preregistration.html';
 our $EMAIL_CONFIRMED_TEMPLATE = "activated.html";
 our $EMAIL_PREREG_CONFIRMED_TEMPLATE = 'guest/preregistration_confirmation.html';
@@ -131,33 +123,6 @@ sub generate_selfregistration_page {
 
     render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
     exit;
-}
-
-=item valid_access_duration
-
-Sub to validate that access duration provided is allowed by configuration. 
-We are doing this because we can't trust what comes from the client.
-
-=cut
-sub valid_access_duration {
-    my ($value) = @_;
-    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})) {
-        return $allowed_duration if ($value == normalize_time($allowed_duration));
-    }
-    return $FALSE;
-}
-
-=item valid_arrival_date
-
-Validate arrival date
-
-=cut
-sub valid_arrival_date {
-    my ($value) = @_;
-
-    return $TRUE if ($value =~ /^\d{4}-\d{2}-\d{2}$/);
-    # otherwise
-    return $FALSE;
 }
 
 =item validate_selfregistration
@@ -331,154 +296,6 @@ sub generate_custom_login_page {
     exit;
 }
 
-=item preregister
-
-=cut
-# TODO migrate to Portal::Session
-sub preregister {
-    my ($cgi, $session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    # by default guest identifier is their email address
-    my $pid = $session->param("email");
-    $session->param("pid", $pid);
-
-    # Login successful, adding person (using modify in case person already exists)
-    person_modify($pid, (
-        'firstname' => $session->param("firstname"),
-        'lastname' => $session->param("lastname"),
-        'email' => $session->param("email"),
-        'telephone' => $session->param("phone"),
-        'company' => $session->param("company"),
-        'address' => $session->param("address"),
-        'notes' => $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date")),
-        'sponsor' => $session->param("username")
-    ));
-    $logger->info("Adding guest person " . $pid);
-
-    # expiration is arrival date + access duration + a tolerance window of 24 hrs
-    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
-        localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60)
-    );
-
-    # we create temporary password with the expiration and a 'not valid before' value
-    my $password = pf::temporary_password::generate(
-        $pid, $expiration, $session->param("arrival_date"), 
-        valid_access_duration($session->param("access_duration"))
-    );
-
-    # failure, redirect to error page
-    if (!defined($password)) {
-        pf::web::admin::generate_error_page($cgi, $session, i18n("error: something went wrong creating the guest"));
-    }
-
-    # on success
-    return $password;
-}
-
-=item preregister_multiple
-
-=cut
-sub preregister_multiple {
-    my ($cgi, $session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $prefix = $cgi->param('prefix');
-    my $quantity = int($cgi->param('quantity'));
-    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
-                                     localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60));
-    my %users = ();
-    my $count = 0;
-
-    for (my $i = 1; $i <= $quantity; $i++) {
-      my $pid = "$prefix$i";
-      # Create/modify person
-      my $notes = $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date"));
-      my $result = person_modify($pid, ('firstname' => $session->param("firstname"),
-                                        'lastname' => $session->param("lastname"),
-                                        'email' => $session->param("email"),
-                                        'telephone' => $session->param("phone"),
-                                        'company' => $session->param("company"),
-                                        'address' => $session->param("address"),
-                                        'notes' => $notes,
-                                        'sponsor' => $session->param("username")));
-      if ($result) {
-        # Create/update password
-        my $password = pf::temporary_password::generate($pid,
-                                                        $expiration,
-                                                        $session->param("arrival_date"), 
-                                                        valid_access_duration($session->param("access_duration")));
-        if ($password) {
-          $users{$pid} = $password;
-          $count++;
-        }
-      }
-    }
-    $logger->info("Created $count guest accounts: $prefix"."[1-$quantity]. Sponsor by ".$session->param("username"));
-
-    # failure, redirect to error page
-    if ($count == 0) {
-        pf::web::admin::generate_error_page($cgi, $session, i18n("error: something went wrong creating the guest") );
-        return;
-    }
-
-    # on success
-    return {'valid_from' => $session->param("arrival_date"),
-            'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),
-            'users' => \%users};
-}
-
-=item generate_registration_confirmation_page
-
-=cut
-sub generate_registration_confirmation_page {
-    my ( $cgi, $session, $info ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        i18n            => \&i18n
-    };
-
-    # add the whole info hashref to the information available in the template
-    $vars->{'info'} = $info;
-
-    $vars->{'txt_valid_from'} = sprintf(
-        i18n("This username and password will be valid starting %s."),
-        $info->{'valid_from'}
-    );
-
-    # admin username
-    $vars->{'username'} = $session->param("username"); 
-
-    my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
-    $vars->{'txt_duration'} = sprintf(
-        i18n("Once authenticated the access will be valid for %d %s."),
-        $value, ni18n($singular, $plural, $value)
-    );
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
-    $template->process($pf::web::guest::REGISTRATION_CONFIRMATION_TEMPLATE, $vars)
-        || $logger->error($template->error());
-    exit;
-}
-
 =item send_template_email
 
 =cut
@@ -535,78 +352,6 @@ sub web_sms_validation {
         # this won't display an error
         return ( $FALSE, 0 );
     }
-}
-
-sub import_csv {
-  my ($filename, $delimiter, $columns, $session) = @_;
-  my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-  # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-  my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
-                                   localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60));
-
-  # Build hash table for columns order
-  my $count = 0;
-  my $skipped = 0;
-  my @order = split(",", $columns);
-  my %index = ();
-  for (my $i = 0; $i < scalar @order; $i++) {
-    $index{$order[$i]} = $i;
-  }
-
-  # Map delimiter to its actual character
-  if ($delimiter eq 'comma') {
-    $delimiter = ',';
-  } elsif ($delimiter eq 'semicolon') {
-    $delimiter = ';';
-  } elsif ($delimiter eq 'colon') {
-    $delimiter = ':';
-  } elsif ($delimiter eq 'tab') {
-    $delimiter = "\t";
-  }
-
-  # Read CSV file
-  if (open (my $import_fh, "<", $filename)) {
-    my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
-    while (my $row = $csv->getline($import_fh)) {
-      my $pid = $row->[$index{'c_username'}];
-      if ($pid !~ /$PID_RE/) {
-        $skipped++;
-        next;
-      }
-      # Create/modify person
-      my %data = ('firstname' => $index{'c_firstname'} ? $row->[$index{'c_firstname'}] : undef,
-                  'lastname'  => $index{'c_lastname'}  ? $row->[$index{'c_lastname'}]  : undef,
-                  'email'     => $index{'c_email'}     ? $row->[$index{'c_email'}]     : undef,
-                  'telephone' => $index{'c_phone'}     ? $row->[$index{'c_phone'}]     : undef,
-                  'company'   => $index{'c_company'}   ? $row->[$index{'c_company'}]   : undef,
-                  'address'   => $index{'c_address'}   ? $row->[$index{'c_address'}]   : undef,
-                  'notes'     => $index{'c_note'}      ? $row->[$index{'c_note'}]      : undef,
-                  'sponsor'   => $session->param("username"));
-      if ($data{'email'} && $data{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
-        $skipped++;
-        next;
-      }
-      my $result = person_modify($pid, %data);
-      if ($result) {
-        # Create/update password
-        my $success = pf::temporary_password::generate($pid,
-                                                       $expiration,
-                                                       $session->param("arrival_date"), 
-                                                       valid_access_duration($session->param("access_duration")),
-                                                       $row->[$index{'c_password'}]);
-        $count++ if ($success);
-      }
-    }
-    $csv->eof or $logger->warn("Problem with importation: " . $csv->error_diag());
-    close $import_fh;
-
-    return (1, "$count,$skipped");
-  }
-  else {
-    $logger->warn("Can't open CSV file $filename: $@");
-    return (0, 5);
-  }
 }
 
 =back

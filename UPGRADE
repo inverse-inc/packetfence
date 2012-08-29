@@ -76,12 +76,21 @@ and no longer takes a $post_uri parameter.
 `pf::web::guest`'s `validate_sponsor` now takes an instance of
 pf::Portal::Session instead of $cgi and $session.
 
+`pf::web::guest`'s `$REGISTRATION_CONFIRMATION_TEMPLATE` was dropped.
+
 Several subroutines moved from `pf::web::guest` into `pf::web::admin`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+* `valid_access_duration`
+* `valid_arrival_date`
 * `validate_registration` -> `validate_guest_creation`
 * `validate_registration_multiple` -> `validate_guest_creation_multiple`
 * `validate_registration_import` -> `validate_guest_import`
+* `preregister` -> `create_guest`
+* `preregister_multiple` -> `create_guest_multiple`
+* `generate_registration_confirmation_page` -> `generate_guestcreation_confirmation_page`
+* `import_csv`
+
 
 o Upgrading from a version prior to 3.5.0:
 

@@ -90,7 +90,7 @@ if (defined($session->param("username"))) {
         else {
             $logger->debug("guest registration form passed validation");
 
-            my $password = pf::web::guest::preregister( $cgi, $session );
+            my $password = pf::web::admin::create_guest( $cgi, $session );
 
             my $info = {
                 'firstname' => $session->param("firstname"),
@@ -99,7 +99,7 @@ if (defined($session->param("username"))) {
                 'username' => $session->param("pid"),
                 'password' => $password,
                 'valid_from' => $session->param("arrival_date"),
-                'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),
+                'duration' => pf::web::admin::valid_access_duration($session->param("access_duration")),
                 'notes' => $session->param("notes"),
             };
 
@@ -108,7 +108,7 @@ if (defined($session->param("username"))) {
 
             if (defined($cgi->param("action_print"))) {
                 # Print page
-                pf::web::guest::generate_registration_confirmation_page($cgi, $session, $info);
+                pf::web::admin::generate_guestcreation_confirmation_page($cgi, $session, $info);
             }
             else {
                 # Otherwise send email
@@ -139,11 +139,11 @@ if (defined($session->param("username"))) {
         }
         else {
           $logger->debug("multiple guest creation form passed validation");
-          my $info = pf::web::guest::preregister_multiple($cgi, $session);
+          my $info = pf::web::admin::create_guest_multiple($cgi, $session);
 
           if ($info) {
             # Print page
-            pf::web::guest::generate_registration_confirmation_page($cgi, $session, $info);
+            pf::web::admin::generate_guestcreation_confirmation_page($cgi, $session, $info);
           }
         }
     }
@@ -170,7 +170,7 @@ if (defined($session->param("username"))) {
             my $delimiter = $cgi->param('delimiter');
             my $columns = $cgi->param('columns');
             $logger->info("CSV file import users from $tmpfilename ($filename, \"$delimiter\", \"$columns\")");
-            ($success, $error) = pf::web::guest::import_csv($tmpfilename, $delimiter, $columns, $session);
+            ($success, $error) = pf::web::admin::import_csv($tmpfilename, $delimiter, $columns, $session);
             if ($success) {
               my ($count, $skipped) = split(',',$error);
               $logger->info("CSV file import $count users, skip $skipped users");

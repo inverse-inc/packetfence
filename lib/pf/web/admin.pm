@@ -23,11 +23,13 @@ Templates files are located under: html/admin/templates/.
 use strict;
 use warnings;
 
+use Date::Parse qw(str2time);
 use HTML::Entities;
 use Locale::gettext qw(bindtextdomain textdomain bind_textdomain_codeset);
 use Log::Log4perl;
 use POSIX qw(setlocale);
 use Template;
+use Text::CSV;
 
 BEGIN {
     use Exporter ();
@@ -38,6 +40,8 @@ BEGIN {
 }
 
 use pf::config;
+use pf::person qw(person_modify $PID_RE);
+use pf::temporary_password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format);
 use pf::web::constants;
@@ -216,6 +220,36 @@ sub generate_registration_page {
     exit;
 }
 
+=item generate_guestcreation_confirmation_page
+
+=cut
+sub generate_guestcreation_confirmation_page {
+    my ( $cgi, $session, $info ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    _init_i18n($cgi, $session);
+
+    my $vars = { };
+    # add the whole info hashref to the information available in the template
+    $vars->{'info'} = $info;
+
+    $vars->{'txt_valid_from'} = sprintf(
+        i18n("This username and password will be valid starting %s."),
+        $info->{'valid_from'}
+    );
+
+    # admin username
+    $vars->{'username'} = $session->param("username"); 
+
+    my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
+    $vars->{'txt_duration'} = sprintf(
+        i18n("Once authenticated the access will be valid for %d %s."),
+        $value, ni18n($singular, $plural, $value)
+    );
+
+    render_template($cgi, $session, 'guestcreation_confirmation.html', $vars);
+    exit;
+}
+
 =item validate_guest_creation
 
 Validation of guest creation. Single guest.
@@ -236,11 +270,11 @@ sub validate_guest_creation {
         return (0, 1);
     }
 
-    if (!pf::web::guest::valid_access_duration($cgi->param('access_duration'))) {
+    if (!valid_access_duration($cgi->param('access_duration'))) {
         return (0, 2);
     }
 
-    if (!pf::web::guest::valid_arrival_date($cgi->param('arrival_date'))) {
+    if (!valid_arrival_date($cgi->param('arrival_date'))) {
         return (0, 3);
     }
 
@@ -278,11 +312,11 @@ sub validate_guest_creation_multiple {
         return (0, 1);
     }
 
-    if (!pf::web::guest::valid_access_duration($cgi->param('access_duration'))) {
+    if (!valid_access_duration($cgi->param('access_duration'))) {
         return (0, 2);
     }
 
-    if (!pf::web::guest::valid_arrival_date($cgi->param('arrival_date'))) {
+    if (!valid_arrival_date($cgi->param('arrival_date'))) {
         return (0, 3);
     }
 
@@ -326,11 +360,11 @@ sub validate_guest_import {
         return (0, 1);
     }
 
-    if (!pf::web::guest::valid_access_duration($cgi->param('access_duration'))) {
+    if (!valid_access_duration($cgi->param('access_duration'))) {
         return (0, 2);
     }
 
-    if (!pf::web::guest::valid_arrival_date($cgi->param('arrival_date'))) {
+    if (!valid_arrival_date($cgi->param('arrival_date'))) {
         return (0, 3);
     }
 
@@ -344,6 +378,205 @@ sub validate_guest_import {
     $session->param("access_duration", $cgi->param("access_duration"));
 
     return (1, 0);
+}
+
+=item valid_access_duration
+
+Sub to validate that access duration provided is allowed by configuration. 
+We are doing this because we can't trust what comes from the client.
+
+=cut
+sub valid_access_duration {
+    my ($value) = @_;
+    foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})) {
+        return $allowed_duration if ($value == normalize_time($allowed_duration));
+    }
+    return $FALSE;
+}
+
+=item valid_arrival_date
+
+Validate arrival date
+
+=cut
+sub valid_arrival_date {
+    my ($value) = @_;
+
+    return $TRUE if ($value =~ /^\d{4}-\d{2}-\d{2}$/);
+    # otherwise
+    return $FALSE;
+}
+
+=item create_guest
+
+=cut
+sub create_guest {
+    my ($cgi, $session) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    _init_i18n($cgi, $session);
+
+    # by default guest identifier is their email address
+    my $pid = $session->param("email");
+    $session->param("pid", $pid);
+
+    # Login successful, adding person (using modify in case person already exists)
+    person_modify($pid, (
+        'firstname' => $session->param("firstname"),
+        'lastname' => $session->param("lastname"),
+        'email' => $session->param("email"),
+        'telephone' => $session->param("phone"),
+        'company' => $session->param("company"),
+        'address' => $session->param("address"),
+        'notes' => $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date")),
+        'sponsor' => $session->param("username")
+    ));
+    $logger->info("Adding guest person " . $pid);
+
+    # expiration is arrival date + access duration + a tolerance window of 24 hrs
+    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
+        localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60)
+    );
+
+    # we create temporary password with the expiration and a 'not valid before' value
+    my $password = pf::temporary_password::generate(
+        $pid, $expiration, $session->param("arrival_date"), 
+        valid_access_duration($session->param("access_duration"))
+    );
+
+    # failure, redirect to error page
+    if (!defined($password)) {
+        pf::web::admin::generate_error_page($cgi, $session, i18n("error: something went wrong creating the guest"));
+    }
+
+    # on success
+    return $password;
+}
+
+=item create_guest_multiple
+
+=cut
+sub create_guest_multiple {
+    my ($cgi, $session) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+    _init_i18n($cgi, $session);
+
+    my $prefix = $cgi->param('prefix');
+    my $quantity = int($cgi->param('quantity'));
+    my $expiration = POSIX::strftime(
+      "%Y-%m-%d %H:%M:%S", 
+      localtime( str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60 )
+    );
+    my %users = ();
+    my $count = 0;
+
+    for (my $i = 1; $i <= $quantity; $i++) {
+      my $pid = "$prefix$i";
+      # Create/modify person
+      my $notes = $session->param("notes").". ".i18n_format("Expected on %s", $session->param("arrival_date"));
+      my $result = person_modify($pid, ('firstname' => $session->param("firstname"),
+                                        'lastname' => $session->param("lastname"),
+                                        'email' => $session->param("email"),
+                                        'telephone' => $session->param("phone"),
+                                        'company' => $session->param("company"),
+                                        'address' => $session->param("address"),
+                                        'notes' => $notes,
+                                        'sponsor' => $session->param("username")));
+      if ($result) {
+        # Create/update password
+        my $password = pf::temporary_password::generate($pid,
+                                                        $expiration,
+                                                        $session->param("arrival_date"), 
+                                                        valid_access_duration($session->param("access_duration")));
+        if ($password) {
+          $users{$pid} = $password;
+          $count++;
+        }
+      }
+    }
+    $logger->info("Created $count guest accounts: $prefix"."[1-$quantity]. Sponsor by ".$session->param("username"));
+
+    # failure, redirect to error page
+    if ($count == 0) {
+        pf::web::admin::generate_error_page($cgi, $session, i18n("error: something went wrong creating the guest") );
+        return;
+    }
+
+    # on success
+    return {'valid_from' => $session->param("arrival_date"),
+            'duration' => valid_access_duration($session->param("access_duration")),
+            'users' => \%users};
+}
+
+sub import_csv {
+  my ($filename, $delimiter, $columns, $session) = @_;
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+  # Expiration is arrival date + access duration + a tolerance window of 24 hrs
+  my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
+                                   localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60));
+
+  # Build hash table for columns order
+  my $count = 0;
+  my $skipped = 0;
+  my @order = split(",", $columns);
+  my %index = ();
+  for (my $i = 0; $i < scalar @order; $i++) {
+    $index{$order[$i]} = $i;
+  }
+
+  # Map delimiter to its actual character
+  if ($delimiter eq 'comma') {
+    $delimiter = ',';
+  } elsif ($delimiter eq 'semicolon') {
+    $delimiter = ';';
+  } elsif ($delimiter eq 'colon') {
+    $delimiter = ':';
+  } elsif ($delimiter eq 'tab') {
+    $delimiter = "\t";
+  }
+
+  # Read CSV file
+  if (open (my $import_fh, "<", $filename)) {
+    my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+    while (my $row = $csv->getline($import_fh)) {
+      my $pid = $row->[$index{'c_username'}];
+      if ($pid !~ /$PID_RE/) {
+        $skipped++;
+        next;
+      }
+      # Create/modify person
+      my %data = ('firstname' => $index{'c_firstname'} ? $row->[$index{'c_firstname'}] : undef,
+                  'lastname'  => $index{'c_lastname'}  ? $row->[$index{'c_lastname'}]  : undef,
+                  'email'     => $index{'c_email'}     ? $row->[$index{'c_email'}]     : undef,
+                  'telephone' => $index{'c_phone'}     ? $row->[$index{'c_phone'}]     : undef,
+                  'company'   => $index{'c_company'}   ? $row->[$index{'c_company'}]   : undef,
+                  'address'   => $index{'c_address'}   ? $row->[$index{'c_address'}]   : undef,
+                  'notes'     => $index{'c_note'}      ? $row->[$index{'c_note'}]      : undef,
+                  'sponsor'   => $session->param("username"));
+      if ($data{'email'} && $data{'email'} !~ /^[A-z0-9_.-]+@[A-z0-9_-]+(\.[A-z0-9_-]+)*\.[A-z]{2,6}$/) {
+        $skipped++;
+        next;
+      }
+      my $result = person_modify($pid, %data);
+      if ($result) {
+        # Create/update password
+        my $success = pf::temporary_password::generate($pid,
+                                                       $expiration,
+                                                       $session->param("arrival_date"), 
+                                                       valid_access_duration($session->param("access_duration")),
+                                                       $row->[$index{'c_password'}]);
+        $count++ if ($success);
+      }
+    }
+    $csv->eof or $logger->warn("Problem with importation: " . $csv->error_diag());
+    close $import_fh;
+
+    return (1, "$count,$skipped");
+  }
+  else {
+    $logger->warn("Can't open CSV file $filename: $@");
+    return (0, 5);
+  }
 }
 
 =back
