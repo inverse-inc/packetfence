@@ -14,8 +14,8 @@ Template files movement
 Some templates were moved. Any custom changes should be re-made on the new
 file locations.
 
-* html/captive-portal/templates/guest/register_guest.html -> html/admin/templates/register_guest.html
-
+* `html/captive-portal/templates/guest/register_guest.html` -> `html/admin/templates/register_guest.html`
+* `html/captive-portal/templates/guest/mgmt_login.html` -> `html/admin/templates/login.html`
 
 Changes to Web API
 ^^^^^^^^^^^^^^^^^^
@@ -90,6 +90,8 @@ Several subroutines moved from `pf::web::guest` into `pf::web::admin`
 * `preregister_multiple` -> `create_guest_multiple`
 * `generate_registration_confirmation_page` -> `generate_guestcreation_confirmation_page`
 * `import_csv`
+* `generate_admin_login_page` -> `generate_login_page`
+* `manager_authenticate` -> `authenticate`
 
 
 o Upgrading from a version prior to 3.5.0:

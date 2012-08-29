@@ -44,6 +44,7 @@ use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format);
+use pf::web::auth;
 use pf::web::constants;
 use pf::web::guest 1.30;
 use pf::web::util;
@@ -248,6 +249,52 @@ sub generate_guestcreation_confirmation_page {
 
     render_template($cgi, $session, 'guestcreation_confirmation.html', $vars);
     exit;
+}
+
+=item generate_login_page
+
+Sub to present a admin login form.
+
+=cut
+sub generate_login_page {
+    my ( $cgi, $session, $err ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    _init_i18n($cgi, $session);
+
+    my $vars = {};
+    $vars->{'txt_auth_error'} = i18n($err) if (defined($err));
+
+    # return login
+    $vars->{'username'} = encode_entities($cgi->param("username"));
+
+    render_template($cgi, $session, 'login.html', $vars);
+    exit;
+}
+
+=item authenticate
+
+    return (1, pf::web::auth subclass) for successfull authentication
+    return (0, undef) for inability to check credentials
+    return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
+
+=cut
+sub authenticate {
+    my ( $cgi, $session, $auth_module ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->trace("authentication attempt");
+
+    my $authenticator = pf::web::auth::instantiate($auth_module);
+    return (0, undef) if (!defined($authenticator));
+
+    # validate login and password
+    my $return = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
+
+    if (defined($return) && $return == 1) {
+        #save login into session
+        $session->param( "username", $cgi->param("username") );
+        $session->param( "authType", $auth_module );
+    }
+    return ($return, $authenticator);
 }
 
 =item validate_guest_creation
