@@ -40,8 +40,13 @@ BEGIN {
 use pf::config;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format);
+use pf::web::constants;
+use pf::web::util;
 
 our $VERSION = 1.00;
+
+our $REGISTRATION_TEMPLATE = "register_guest.html";
+our $REGISTRATION_CONTINUE = 10;
 
 =head1 SUBROUTINES
 
@@ -77,6 +82,17 @@ sub web_get_locale {
     return $authorized_locale_array[0];
 }
 
+=item _init_i18n
+
+=cut
+sub _init_i18n {
+    my ($cgi, $session) = @_;
+
+    setlocale( POSIX::LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
+    bind_textdomain_codeset( "packetfence", "UTF-8" );
+}
 
 =item render_template
 
@@ -89,13 +105,9 @@ sub render_template {
     # so that we will get the calling sub in the logs instead of this utility sub
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
 
-    setlocale( POSIX::LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-    bind_textdomain_codeset( "packetfence", "UTF-8" );
-
     # initialize generic components to the stash
     my $default = {
+        pf::web::constants::to_hash(),
         'logo' => $Config{'general'}{'logo'},
         'i18n' => \&i18n,
         'i18n_format' => \&i18n_format,
@@ -124,6 +136,7 @@ sub generate_error_page {
     my ( $cgi, $session, $error_msg, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->trace("error page requested");
+    _init_i18n($cgi, $session);
 
     my $stash_ref = {
         txt_message => $error_msg,
@@ -131,6 +144,75 @@ sub generate_error_page {
     };
     render_template($cgi, $session, 'error.html', $stash_ref, $r);
     exit(0);
+}
+
+=item generate_registration_page
+
+Sub to present a guest registration form where we create the guest accounts.
+
+=cut
+sub generate_registration_page {
+    my ( $cgi, $session, $err, $section ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    _init_i18n($cgi, $session);
+
+    my $vars = {};
+    # put seperately because of side effects in anonymous hashref
+    $vars->{'firstname'} = $cgi->param("firstname");
+    $vars->{'lastname'} = $cgi->param("lastname");
+    $vars->{'company'} = $cgi->param("company");
+    $vars->{'phone'} = $cgi->param("phone");
+    $vars->{'email'} = lc($cgi->param("email"));
+    $vars->{'address'} = $cgi->param("address");
+    $vars->{'arrival_date'} = $cgi->param("arrival_date") || POSIX::strftime("%Y-%m-%d", localtime(time));
+    $vars->{'notes'} = $cgi->param("notes");
+
+    # access duration
+    $vars->{'default_duration'} = $cgi->param("access_duration")
+        || $Config{'guests_admin_registration'}{'default_access_duration'};
+
+    $vars->{'duration'} = pf::web::util::get_translated_time_hash(
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
+        pf::web::admin::web_get_locale($cgi, $session)
+    );
+
+    # multiple section
+    $vars->{'prefix'} = $cgi->param("prefix");
+    $vars->{'quantity'} = $cgi->param("quantity");
+    $vars->{'columns'} = $cgi->param("columns");
+
+    # import section
+    $vars->{'delimiter'} = $cgi->param("delimiter");
+    $vars->{'columns'} = $cgi->param("columns"); 
+
+    $vars->{'username'} = $session->param("username") || "unknown";
+
+    # showing errors
+    # TODO migrate to the error constants mechanism
+    if ( defined($err) ) {
+        if ( $err == 1 ) {
+            $vars->{'txt_error'} = i18n("Missing mandatory parameter or malformed entry.");
+        } elsif ( $err == 2 ) {
+            $vars->{'txt_error'} = i18n("Access duration is not of an allowed value.");
+        } elsif ( $err == 3 ) {
+            $vars->{'txt_error'} = i18n("Arrival date is not of expected format.");
+        } elsif ( $err == 4 ) {
+            $vars->{'txt_error'} = i18n("The uploaded file was corrupted. Please try again.");
+        } elsif ( $err == 5 ) {
+            $vars->{'txt_error'} = i18n("Can't open uploaded file.");
+        } elsif ( $err == 6 ) {
+            $vars->{'txt_error'} = i18n("Usernames must only contain alphanumeric characters.");
+        } elsif ( $err == $REGISTRATION_CONTINUE ) {
+            $vars->{'txt_error'} = i18n("Guest successfully registered. An email with the username and password has been sent.");
+        } else {
+            $vars->{'txt_error'} = $err;
+        }
+    }
+
+    $vars->{'section'} = $section if ($section);
+
+    render_template($cgi, $session, $pf::web::admin::REGISTRATION_TEMPLATE, $vars);
+    exit;
 }
 
 =back

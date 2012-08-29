@@ -61,14 +61,12 @@ our $VERSION = 1.30;
 
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
-our $REGISTRATION_TEMPLATE = "guest/register_guest.html";
 our $REGISTRATION_CONFIRMATION_TEMPLATE = "guest/registration_confirmation.html";
 our $PREREGISTRATION_CONFIRMED_TEMPLATE = 'guest/preregistration.html';
 our $EMAIL_CONFIRMED_TEMPLATE = "activated.html";
 our $EMAIL_PREREG_CONFIRMED_TEMPLATE = 'guest/preregistration_confirmation.html';
 our $SPONSOR_CONFIRMED_TEMPLATE = "guest/sponsor_accepted.html";
 our $SPONSOR_LOGIN_TEMPLATE = "guest/sponsor_login.html";
-our $REGISTRATION_CONTINUE = 10;
 
 # flag used in URLs
 Readonly our $GUEST_REGISTRATION => "guest-register";
@@ -132,89 +130,6 @@ sub generate_selfregistration_page {
     }
 
     render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
-    exit;
-}
-
-=item generate_registration_page
-
-Sub to present a guest registration form where we create the guest accounts.
-
-=cut
-sub generate_registration_page {
-    my ( $cgi, $session, $post_uri, $err, $section ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web::guest');
-
-    setlocale( LC_MESSAGES, pf::web::admin::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-    my $ip   = $cgi->remote_addr;
-    my $vars = {
-        logo            => $Config{'general'}{'logo'},
-        deadline        => $Config{'registration'}{'skip_deadline'},
-        i18n            => \&i18n,
-        post_uri => $post_uri,
-    };
-
-    # put seperately because of side effects in anonymous hashref
-    $vars->{'firstname'} = $cgi->param("firstname");
-    $vars->{'lastname'} = $cgi->param("lastname");
-    $vars->{'company'} = $cgi->param("company");
-    $vars->{'phone'} = $cgi->param("phone");
-    $vars->{'email'} = lc($cgi->param("email"));
-    $vars->{'address'} = $cgi->param("address");
-    $vars->{'arrival_date'} = $cgi->param("arrival_date") || POSIX::strftime("%Y-%m-%d", localtime(time));
-    $vars->{'notes'} = $cgi->param("notes");
-
-    # access duration
-    $vars->{'default_duration'} = $cgi->param("access_duration")
-        || $Config{'guests_admin_registration'}{'default_access_duration'};
-
-    $vars->{'duration'} = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
-        pf::web::admin::web_get_locale($cgi, $session)
-    );
-
-    # multiple section
-    $vars->{'prefix'} = $cgi->param("prefix");
-    $vars->{'quantity'} = $cgi->param("quantity");
-    $vars->{'columns'} = $cgi->param("columns");
-
-    # import section
-    $vars->{'delimiter'} = $cgi->param("delimiter");
-    $vars->{'columns'} = $cgi->param("columns"); 
-
-    $vars->{'username'} = $session->param("username") || "unknown";
-
-    # showing errors
-    if ( defined($err) ) {
-        if ( $err == 1 ) {
-            $vars->{'txt_error'} = i18n("Missing mandatory parameter or malformed entry.");
-        } elsif ( $err == 2 ) {
-            $vars->{'txt_error'} = i18n("Access duration is not of an allowed value.");
-        } elsif ( $err == 3 ) {
-            $vars->{'txt_error'} = i18n("Arrival date is not of expected format.");
-        } elsif ( $err == 4 ) {
-            $vars->{'txt_error'} = i18n("The uploaded file was corrupted. Please try again.");
-        } elsif ( $err == 5 ) {
-            $vars->{'txt_error'} = i18n("Can't open uploaded file.");
-        } elsif ( $err == 6 ) {
-            $vars->{'txt_error'} = i18n("Usernames must only contain alphanumeric characters.");
-        } elsif ( $err == $REGISTRATION_CONTINUE ) {
-            $vars->{'txt_error'} = i18n("Guest successfully registered. An email with the username and password has been sent.");
-        } else {
-            $vars->{'txt_error'} = $err;
-        }
-    }
-
-    $vars->{'section'} = $section if ($section);
-
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
-    $template->process($pf::web::guest::REGISTRATION_TEMPLATE, $vars) || $logger->error($template->error());
     exit;
 }
 

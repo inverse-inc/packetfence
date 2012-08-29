@@ -8,6 +8,15 @@ Notes on upgrading from an older release
 Upgrading from a version prior to <develRelease>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Template files movement
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Some templates were moved. Any custom changes should be re-made on the new
+file locations.
+
+* html/captive-portal/templates/guest/register_guest.html -> html/admin/templates/register_guest.html
+
+
 Changes to Web API
 ^^^^^^^^^^^^^^^^^^
 
@@ -60,6 +69,10 @@ template.
 
 $pf::web::guest::LOGIN_TEMPLATE was moved to $pf::web::LOGIN_TEMPLATE.
 References should be updated.
+
+`pf::web::guest`'s `generate_registration_page` was moved in `pf::web::admin`
+and no longer takes a $post_uri parameter.
+
 
 o Upgrading from a version prior to 3.5.0:
 

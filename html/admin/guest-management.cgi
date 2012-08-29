@@ -85,7 +85,7 @@ if (defined($session->param("username"))) {
         my ($success, $error) = pf::web::guest::validate_registration($cgi, $session);
         if (!$success) {
             $logger->debug("guest registration form didn't pass validation");
-            pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage", $error, 'single' );
+            pf::web::admin::generate_registration_page( $cgi, $session, $error, 'single' );
         }
         else {
             $logger->debug("guest registration form passed validation");
@@ -123,8 +123,8 @@ if (defined($session->param("username"))) {
                 );
                         
                 # Return user to the guest registration page
-                pf::web::guest::generate_registration_page($cgi, $session,"/guests/manage",
-                                                           $pf::web::guest::REGISTRATION_CONTINUE, 'single');
+                pf::web::admin::generate_registration_page($cgi, $session,
+                                                           $pf::web::admin::REGISTRATION_CONTINUE, 'single');
             }
         }
     }
@@ -135,7 +135,7 @@ if (defined($session->param("username"))) {
         my ($success, $error) = pf::web::guest::validate_registration_multiple($cgi, $session);
         if (!$success) {
           $logger->debug("multiple guest creation form didn't pass validation");
-          pf::web::guest::generate_registration_page($cgi, $session, "/guests/manage", $error, 'multiple');
+          pf::web::admin::generate_registration_page($cgi, $session, $error, 'multiple');
         }
         else {
           $logger->debug("multiple guest creation form passed validation");
@@ -154,7 +154,7 @@ if (defined($session->param("username"))) {
         my ($success, $error) = pf::web::guest::validate_registration_import($cgi, $session);
         if (!$success) {
           $logger->debug("guest import form didn't pass validation");
-          pf::web::guest::generate_registration_page($cgi, $session, "/guests/manage", $error, 'import');
+          pf::web::admin::generate_registration_page($cgi, $session, $error, 'import');
         }
         else {
           $logger->debug("guest import form passed validation");
@@ -179,13 +179,13 @@ if (defined($session->param("username"))) {
               # Tear down session information
               $session->clear([ "delimiter", "columns", "arrival_date", "access_duration" ]);
             }
-            pf::web::guest::generate_registration_page($cgi, $session, "/guests/manage", $error, 'import');
+            pf::web::admin::generate_registration_page($cgi, $session, $error, 'import');
           }
         }
       }
     else {
       # No specific action, show guest registration page
-      pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
+      pf::web::admin::generate_registration_page( $cgi, $session );
     }
 }
 else {
@@ -210,7 +210,7 @@ else {
     }
 
     # auth succeeded: redirect to guest registration page
-    pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
+    pf::web::admin::generate_registration_page( $cgi, $session );
 }
 
 =head1 AUTHOR

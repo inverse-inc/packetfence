@@ -21,7 +21,7 @@ var initialTabName = "single";
           </ul>
 
           <div id="single" class="tab">
-            <form method="post" action="[% post_uri %]" enctype="multipart/form-data">
+            <form method="post" action="[% URL_ADMIN_MANAGE_GUESTS %]" enctype="multipart/form-data">
             <div class="input">
               <span>[% i18n("Firstname") %]</span>
               <input class="field first" name="firstname" type="text" value="[% firstname | html %]" />
@@ -68,7 +68,7 @@ var initialTabName = "single";
           </div> <!-- tab#single -->
 
           <div id="multiple" class="tab">
-            <form method="post" action="[% post_uri %]" enctype="multipart/form-data">
+            <form method="post" action="[% URL_ADMIN_MANAGE_GUESTS %]" enctype="multipart/form-data">
             <div class="input">
               <span>[% i18n("Username Prefix") %]*</span>
               <input class="field first" name="prefix" type="text" value="[% prefix | html %]" />
@@ -120,7 +120,7 @@ var initialTabName = "single";
           </div> <!-- tab#multiple -->
 
           <div id="import" class="tab">
-            <form method="post" action="[% post_uri %]" enctype="multipart/form-data">
+            <form method="post" action="[% URL_ADMIN_MANAGE_GUESTS %]" enctype="multipart/form-data">
             <div class="input">
               <span>[% i18n("CSV file") %]*</span>
               <input type="file" name="users_file" id="users_file" />
