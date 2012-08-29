@@ -50,6 +50,9 @@ need to make sure to update it to use the stash mentionned above.
 `_render_template` is now `render_template` and it no longer needs the
 template vars hashref. It uses $portalSession's stash automatically.
 
+All admin-related subs were moved out of `pf::web` and `pf::web::guest`
+into `pf::web::admin`.
+
 I18N
 ~~~~
 
@@ -62,6 +65,9 @@ can get rid of the following lines from your custom code:
 
 Changes to Guest API
 ^^^^^^^^^^^^^^^^^^^^
+
+NOTE: Remember, if you don't have custom extensions or customized templates
+you don't have to worry about anything below.
 
 pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
 parameter. If you want to customize it, change post_uri in the guest.html
