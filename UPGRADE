@@ -73,6 +73,9 @@ References should be updated.
 `pf::web::guest`'s `generate_registration_page` was moved in `pf::web::admin`
 and no longer takes a $post_uri parameter.
 
+`pf::web::guest`'s `validate_sponsor` now takes an instance of
+pf::Portal::Session instead of $cgi and $session.
+
 
 o Upgrading from a version prior to 3.5.0:
 

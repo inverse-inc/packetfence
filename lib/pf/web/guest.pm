@@ -222,7 +222,7 @@ sub validate_selfregistration {
 
     # sponsor validation in another sub to ease overrides
     if (defined($cgi->param('by_sponsor'))) {
-        my ($valid_sponsor, $error_code, $error_args_ref) = pf::web::guest::validate_sponsor($cgi, $session);
+        my ($valid_sponsor, $error_code, $error_args_ref) = pf::web::guest::validate_sponsor($portalSession);
         return ($FALSE, $error_code, $error_args_ref) if (!$valid_sponsor);
     }
 
@@ -244,12 +244,12 @@ Performs sponsor validation.
 
 =cut
 sub validate_sponsor {
-    my ($cgi, $session) = @_;
+    my ($portalSession) = @_;
 
     # sponsors should be from the local network
     if (isenabled($Config{'guests_self_registration'}{'sponsors_only_from_localdomain'})) {
         my $localdomain = $Config{'general'}{'domain'};
-        if ($cgi->param('sponsor_email') !~ /[@.]$localdomain$/i) {
+        if ($portalSession->cgi->param('sponsor_email') !~ /[@.]$localdomain$/i) {
             return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN, [ $localdomain ]);
         }
     }
@@ -258,8 +258,8 @@ sub validate_sponsor {
     return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
 
     # validate that this email can sponsor network accesses
-    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( lc($cgi->param('sponsor_email')) );
-    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] ) if (!$can_sponsor);
+    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( lc($portalSession->cgi->param('sponsor_email')) );
+    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $portalSession->cgi->param('sponsor_email') ] ) if (!$can_sponsor);
 
     # all sponsor checks passed
     return ($TRUE, 0);
