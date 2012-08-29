@@ -152,12 +152,12 @@ sub generate_error_page {
     exit(0);
 }
 
-=item generate_registration_page
+=item generate_guestcreation_page
 
 Sub to present a guest registration form where we create the guest accounts.
 
 =cut
-sub generate_registration_page {
+sub generate_guestcreation_page {
     my ( $cgi, $session, $err, $section ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     _init_i18n($cgi, $session);

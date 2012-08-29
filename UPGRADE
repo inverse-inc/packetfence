@@ -70,8 +70,8 @@ template.
 $pf::web::guest::LOGIN_TEMPLATE was moved to $pf::web::LOGIN_TEMPLATE.
 References should be updated.
 
-`pf::web::guest`'s `generate_registration_page` was moved in `pf::web::admin`
-and no longer takes a $post_uri parameter.
+`pf::web::guest`'s `generate_registration_page` was moved in `pf::web::admin`,
+no longer takes a $post_uri parameter and was renamed generate_guestcreation_page.
 
 `pf::web::guest`'s `validate_sponsor` now takes an instance of
 pf::Portal::Session instead of $cgi and $session.
@@ -92,6 +92,7 @@ Several subroutines moved from `pf::web::guest` into `pf::web::admin`
 * `import_csv`
 * `generate_admin_login_page` -> `generate_login_page`
 * `manager_authenticate` -> `authenticate`
+* `generate_registration_page` -> `generate_guestcreation_page`
 
 
 o Upgrading from a version prior to 3.5.0:
