@@ -50,7 +50,7 @@ use pf::web::constants;
 use pf::web::util;
 use pf::sms_activation;
 
-our $VERSION = 1.30;
+our $VERSION = 1.40;
 
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 

@@ -27,7 +27,7 @@ use pf::util;
 use pf::violation;
 use pf::web;
 use pf::web::admin 1.00;
-use pf::web::guest 1.20;
+use pf::web::guest 1.40;
 # called last to allow redefinitions
 use pf::web::custom;
 
