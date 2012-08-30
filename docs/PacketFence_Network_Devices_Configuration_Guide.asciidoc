@@ -2808,10 +2808,11 @@ RADIUS configuration
 Service Profiles
 +++++++++++++++++
 
-Here we define two service profiles, one for the open SSID (PF-Open) and one for the WPA2-Enterprise SSID (PF-Secure):
+Here we define two service profiles, one for the open SSID (PacketFence-Public)
+and one for the WPA2-Enterprise SSID (PacketFence-Secure):
 
 ----
-set service-profile PF-Open ssid-name CSPI-PF-Open
+set service-profile PF-Open ssid-name PacketFence-Public
 set service-profile PF-Open ssid-type clear
 set service-profile PF-Open auth-fallthru last-resort
 set service-profile PF-Open cipher-tkip enable
@@ -2819,7 +2820,7 @@ set service-profile PF-Open auth-dot1x disable
 set service-profile PF-Open 11n mode-na required
 set service-profile PF-Open attr vlan-name WLAN_REG
 
-set service-profile PF-Secure ssid-name CSPI-PF-Secure
+set service-profile PF-Secure ssid-name PacketFence-Secure
 set service-profile PF-Secure cipher-tkip enable
 set service-profile PF-Secure cipher-ccmp enable
 set service-profile PF-Secure wpa-ie enable
@@ -2827,8 +2828,8 @@ set service-profile PF-Secure rsn-ie enable
 set service-profile PF-Secure 11n mode-na required
 set service-profile PF-Secure attr vlan-name Wlan
 
-set radio-profile default service-profile CSPI-PF-Open
-set radio-profile default service-profile CSPI-PF-Secure
+set radio-profile default service-profile PacketFence-Public
+set radio-profile default service-profile PacketFence-Secure
 ----
 
 [float]
@@ -2837,10 +2838,10 @@ AAA configuration
 
 Finally, we need to tie the service profiles with the proper AAA configuration.
 
-  set accounting dot1x ssid PF-Secure ** start-stop PF-RADIUS
-  set accounting mac ssid PF-Open * start-stop PF-RADIUS
-  set authentication mac ssid PF-Open * PF-RADIUS
-  set authentication dot1x ssid PF-Secure ** pass-through PF-RADIUS
+  set accounting dot1x ssid PacketFence-Secure ** start-stop PF-RADIUS
+  set accounting mac ssid PacketFence-Public * start-stop PF-RADIUS
+  set authentication mac ssid PacketFence-Public * PF-RADIUS
+  set authentication dot1x ssid PacketFence-Secure ** pass-through PF-RADIUS
 
 Xirrus
 ~~~~~~
