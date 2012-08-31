@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 91;
+use Test::More tests => 93;
 use Test::NoWarnings;
 
 use English '-no_match_vars';
@@ -305,35 +305,49 @@ is_deeply(\%cmd, {
 
 =item full grammar (Parse::RecDescent based) tests
 
+Watch out! Grammar parser is tested differently than normal regex parser.
+
 =cut
-# regression tests for #1523
-# Watch out! Grammar parser is tested differently than normal regex parser.
 # TODO we should probably refactor it to make it easier to test.
+
+# regression tests for #1523
 %cmd = pf::pfcmd::parseCommandLine('person add peter@initech.com firstname="",lastname="",email="",telephone="",company="",address="",notes="",sponsor=""');
 is( $cmd{'grammar'}, 1, 'pfcmd person add pid spaces without quotes regression (issue 1523) - grammar passed' );
 
-# avoiding use only once warning for %main::cmd
-# we can safely remove it once we use it at least twice
-{
-    no warnings 'once';
-    is_deeply(\%main::cmd,
-        {
-            'command' => [ 'person', ],
-            'person_assignment' => [
-                [ 'firstname', '' ],
-                [ 'lastname', '' ],
-                [ 'email', '' ],
-                [ 'telephone', '' ],
-                [ 'company', '' ],
-                [ 'address', '' ],
-                [ 'notes', '' ],
-                [ 'sponsor', '' ]
-            ],
-            'person_options' => [ 'add', 'peter@initech.com', [ 1, 2, 3, 4, 5, 6, 7, 8 ] ],
-        },
-        'pfcmd person add pid spaces without quotes regression (issue 1523) - proper option parse'
-    );
-}
+is_deeply(\%main::cmd,
+    {
+        'command' => [ 'person', ],
+        'person_assignment' => [
+            [ 'firstname', '' ],
+            [ 'lastname', '' ],
+            [ 'email', '' ],
+            [ 'telephone', '' ],
+            [ 'company', '' ],
+            [ 'address', '' ],
+            [ 'notes', '' ],
+            [ 'sponsor', '' ]
+        ],
+        'person_options' => [ 'add', 'peter@initech.com', [ 1, 2, 3, 4, 5, 6, 7, 8 ] ],
+    },
+    'pfcmd person add pid spaces without quotes regression (issue 1523) - proper option parse'
+);
+# cleanup the tainted global
+%main::cmd = ();
+
+# regression tests for #848: password handling
+%cmd = pf::pfcmd::parseCommandLine('switchconfig add 10.0.0.1 SNMPCommunityWrite="$tr0ngP@;;"');
+is( $cmd{'grammar'}, 1, 'allowing more characters in certain fields of switchconfig (issue 848) - grammar passed' );
+
+is_deeply(\%main::cmd,
+    {
+        'command' => [ 'switchconfig', ],
+        'switchconfig_assignment' => [ [ 'SNMPCommunityWrite', '$tr0ngP@;;' ], ],
+        'switchconfig_options' => [ 'add', '10.0.0.1', 1 ],
+    },
+    'allowing more characters in certain fields of switchconfig (issue 848) - proper option parse'
+);
+# cleanup the tainted global
+%main::cmd = ();
 
 =item command line help tests
 
