@@ -26,10 +26,19 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
+=head1 TESTS
+
+=over
+
+=cut
+
 BEGIN { use_ok('pf::pfcmd') }
 
 my %cmd;
 
+=item pf::pfcmd regex-based parser tests
+
+=cut
 %cmd = pf::pfcmd::parseCommandLine('checkup');
 is_deeply(\%cmd,
           { 'command' => [ 'checkup'] },
@@ -208,35 +217,6 @@ is_deeply(\%cmd,
     'pfcmd person view pid with space'
 );
 
-# regression tests for #1523
-# Watch out! Grammar parser is tested differently than normal regex parser.
-# TODO we should probably refactor it to make it easier to test.
-%cmd = pf::pfcmd::parseCommandLine('person add peter@initech.com firstname="",lastname="",email="",telephone="",company="",address="",notes="",sponsor=""');
-is( $cmd{'grammar'}, 1, 'pfcmd person add pid spaces without quotes regression (issue 1523) - grammar passed' );
-
-# avoiding use only once warning for %main::cmd
-# we can safely remove it once we use it at least twice
-{
-    no warnings 'once';
-    is_deeply(\%main::cmd,
-        {
-            'command' => [ 'person', ],
-            'person_assignment' => [
-                [ 'firstname', '' ],
-                [ 'lastname', '' ],
-                [ 'email', '' ],
-                [ 'telephone', '' ],
-                [ 'company', '' ],
-                [ 'address', '' ],
-                [ 'notes', '' ],
-                [ 'sponsor', '' ]
-            ],
-            'person_options' => [ 'add', 'peter@initech.com', [ 1, 2, 3, 4, 5, 6, 7, 8 ] ],
-        },
-        'pfcmd person add pid spaces without quotes regression (issue 1523) - proper option parse'
-    );
-}
-
 %cmd = pf::pfcmd::parseCommandLine('reload fingerprints');
 is_deeply(\%cmd,
           { 'command' => [ 'reload', 'fingerprints' ] },
@@ -315,7 +295,49 @@ is_deeply(\%cmd,
           { 'command' => [ 'import', 'nodes', 'filename.csv' ] },
           'pfcmd import nodes filename.csv');
 
-# test command line help
+# reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
+%cmd = pf::pfcmd::parseCommandLine('node view pid=email@address.com');
+is_deeply(\%cmd, {
+    'command' => [ 'node', 'view', 'pid', 'email@address.com' ],
+    'node_filter' => [ 'pid', 'email@address.com' ],
+    'node_options' => [ 'view', 'pid' ],
+}, 'pfcmd node view with pid as an email');
+
+=item full grammar (Parse::RecDescent based) tests
+
+=cut
+# regression tests for #1523
+# Watch out! Grammar parser is tested differently than normal regex parser.
+# TODO we should probably refactor it to make it easier to test.
+%cmd = pf::pfcmd::parseCommandLine('person add peter@initech.com firstname="",lastname="",email="",telephone="",company="",address="",notes="",sponsor=""');
+is( $cmd{'grammar'}, 1, 'pfcmd person add pid spaces without quotes regression (issue 1523) - grammar passed' );
+
+# avoiding use only once warning for %main::cmd
+# we can safely remove it once we use it at least twice
+{
+    no warnings 'once';
+    is_deeply(\%main::cmd,
+        {
+            'command' => [ 'person', ],
+            'person_assignment' => [
+                [ 'firstname', '' ],
+                [ 'lastname', '' ],
+                [ 'email', '' ],
+                [ 'telephone', '' ],
+                [ 'company', '' ],
+                [ 'address', '' ],
+                [ 'notes', '' ],
+                [ 'sponsor', '' ]
+            ],
+            'person_options' => [ 'add', 'peter@initech.com', [ 1, 2, 3, 4, 5, 6, 7, 8 ] ],
+        },
+        'pfcmd person add pid spaces without quotes regression (issue 1523) - proper option parse'
+    );
+}
+
+=item command line help tests
+
+=cut
 my @output = `/usr/local/pf/bin/pfcmd help`;
 my @main_args;
 foreach my $line (@output) {
@@ -330,20 +352,15 @@ foreach my $help_arg (@main_args) {
          "pfcmd $help_arg is documented" );
 }
 
+=item exit status tests
+
+=cut
 # required to avoid warnings in admin guide asciidoc build
 my @pfcmd_help = `/usr/local/pf/bin/pfcmd help`;
 is($CHILD_ERROR, 0, "pfcmd help exit with status 0"); 
 
 # required to have help placed into the admin guide asciidoc during build
 ok(@pfcmd_help, "pfcmd help outputs on STDOUT"); 
-
-# reproducing issue #1206: pid=email@address.com not accepted in pfcmd node view ...
-%cmd = pf::pfcmd::parseCommandLine('node view pid=email@address.com');
-is_deeply(\%cmd, { 
-    'command' => [ 'node', 'view', 'pid', 'email@address.com' ],
-    'node_filter' => [ 'pid', 'email@address.com' ],
-    'node_options' => [ 'view', 'pid' ],
-}, 'pfcmd node view with pid as an email');
 
 # pfcmd's exit status
 # see perldoc perlvar on CHILD_ERROR for the reason behind the >> 8 shift
@@ -352,6 +369,8 @@ is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM, "exit status: inva
 
 my $pfcmd_config_no_help_stdout = `/usr/local/pf/bin/pfcmd config help invalid.fail`;
 is($CHILD_ERROR >> 8, $pf::pfcmd::ERROR_CONFIG_NO_HELP, "exit status: pfcmd config help w/o help"); 
+
+=back
 
 =head1 AUTHOR
 
