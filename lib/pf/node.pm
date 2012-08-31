@@ -47,6 +47,7 @@ BEGIN {
         node_add
         node_add_simple
         node_attributes
+        node_attributes_with_fingerprint
         node_view
         node_count_all
         node_view_all
@@ -134,6 +135,21 @@ sub node_db_prepare {
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
     ]);
+ 
+    $node_statements->{'node_attributes_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
+        SELECT mac, pid, voip, status, bypass_vlan, 
+            IF(ISNULL(node_category.name), '', node_category.name) as category, 
+            detect_date, regdate, unregdate, lastskip, 
+            user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint, 
+            last_arp, last_dhcp,
+            node.notes
+        FROM node
+            LEFT JOIN node_category USING (category_id)
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint 
+            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type 
+            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id 
+        WHERE mac = ?
+    ]);
 
     # DEPRECATED see _node_view_old()
     $node_statements->{'node_view_old_sql'} = get_db_handle()->prepare(qq[
@@ -176,6 +192,7 @@ sub node_db_prepare {
        WHERE mac = ? AND end_time IS NULL
     SQL
 
+    # DEPRECATED see node_view_with_fingerprint()'s POD
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, 
             IF(ISNULL(node_category.name), '', node_category.name) as category,
@@ -446,6 +463,26 @@ sub node_attributes {
     return ($ref);
 }
 
+=item node_attributes_with_fingerprint
+
+Returns information about a given MAC address (node) with the DHCP
+fingerprint class as a string.
+
+It's a simpler and faster version of node_view_with_fingerprint with 
+fewer fields returned.
+
+=cut
+sub node_attributes_with_fingerprint {
+    my ($mac) = @_;
+
+    my $query = db_query_execute(NODE, $node_statements, 'node_attributes_with_fingerprint_sql', $mac) || return (0);
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
 =item _node_view_old
 
 Returning lots of information about a given MAC address (node)
@@ -588,8 +625,17 @@ sub node_view_all {
     return translate_connection_type(db_data(NODE, $node_statements, 'node_view_all_sql_custom'));
 }
 
+=item node_view_with_fingerprint
+
+DEPRECATED: This has been kept in case of regressions in the new 
+node_attributes_with_fingerprint code.  This code will disappear in 2013.
+
+=cut
 sub node_view_with_fingerprint {
     my ($mac) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    $logger->warn("DEPRECATED! You should migrate the caller to the faster node_attributes_with_fingerprint");
     my $query = db_query_execute(NODE, $node_statements, 'node_view_with_fingerprint_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 

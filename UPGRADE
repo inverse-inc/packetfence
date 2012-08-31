@@ -5,6 +5,12 @@ http://www.packetfence.org/
 Notes on upgrading from an older release
 ----------------------------------------
 
+o Upgrading from a version prior to <stableRelease>:
+
+    - Deprecation advance notice: pf::node's node_view_with_fingerprint
+    node_view_with_fingerprint will be deprecated somewhere in 2013. Please
+    migrate your custom code to the faster node_attributes_with_fingerprint.
+
 o Upgrading from a version prior to 3.5.0:
 
     - Database schema update

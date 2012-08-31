@@ -269,7 +269,7 @@ sub recoverSwitch {
                 @currentPhones
                     = $switch->getPhonesDPAtIfIndex($currentIfIndex);
                 foreach my $mac (@currentMacs) {
-                    my $node_info = node_view_with_fingerprint($mac);
+                    my $node_info = node_attributes_with_fingerprint($mac);
                     my $isPhone   = (
                         ( grep( {/^$mac$/i} @currentPhones ) != 0 )
                             || ( defined($node_info)

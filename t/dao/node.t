@@ -48,8 +48,8 @@ my @simple_methods = qw(
     }
 }
 
-# node_view_with_fingerprint returns 0 on failure, test against that
-ok(node_view_with_fingerprint('f0:4d:a2:cb:d9:c5'), "node_view_with_fingerprint SQL query pass");
+# node_attributes_with_fingerprint returns 0 on failure, test against that
+ok(node_attributes_with_fingerprint('f0:4d:a2:cb:d9:c5'), "node_attributes_with_fingerprint SQL query pass");
 
 # node_view returns 0 on failure, test against that
 ok(node_view('f0:4d:a2:cb:d9:c5'), "node_view SQL query pass");
@@ -64,7 +64,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2010-2012 Inverse inc.
 
 =head1 LICENSE
     
