@@ -13,7 +13,7 @@ use warnings;
 use Digest::MD5 qw(md5_hex);
 use Locale::gettext;
 use Log::Log4perl;
-use MIME::Lite::TT;
+use MIME::Lite;
 use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
