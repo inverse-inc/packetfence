@@ -134,9 +134,11 @@ sub supportsRoleBasedEnforcement {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->warn(
-        "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
-    );
+    if (defined($this->{'_roles'}) && $this->{'_roles'} =~ /^\s*$/) {
+        $logger->warn(
+            "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
+        );
+    }
     return $FALSE;
 }
 
