@@ -186,7 +186,7 @@ sub service_ctl {
                             my $t0 = Time::HiRes::time();
                             my $return_value = system($cmd_line);
                             my $elapsed = Time::HiRes::time() - $t0;
-                            $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
+                            $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $daemon, $elapsed));
                             return $return_value;
                         }
                     } elsif ($daemon eq 'pfdhcplistener') {
@@ -203,7 +203,7 @@ sub service_ctl {
                                     my $t0 = Time::HiRes::time();
                                     system($cmd_line);
                                     my $elapsed = Time::HiRes::time() - $t0;
-                                    $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
+                                    $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $daemon, $elapsed));
                                 }
                             }
                             return 1;
