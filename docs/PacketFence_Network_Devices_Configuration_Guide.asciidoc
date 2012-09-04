@@ -1562,6 +1562,9 @@ where `xx` stands for the interface index
 2600 Series and 3400cl Series
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Port-Security
++++++++++++++
+
 linkUp/linkDown traps are enabled by default so we disable them and enable Port Security only.
 
 On 2600's, we *don't* need to secure bogus MAC addresses on ports in order for the switch to send a trap when a new MAC appears on a port.
@@ -1577,6 +1580,35 @@ On each interface:
   port-security xx learn-mode configured action send-alarm
 
 where `xx` stands for the interface index
+
+MAC Authentication (Firmware > 11.72)
+++++++++++++++++++
+
+In order to enable RADIUS mac authentication on the ports, you first need to join the ports to either the registration or the mac detection vlan (as a security measure).
+
+Next, define the RADIUS server host:
+
+   radius-server host 192.168.1.5 key use_stong_secret
+
+Since HP now supports server-group, let's create a group for the MAC authentication.  Another one can be used for management access:
+
+   aaa server-group radius "packetfence" host 192.168.1.5
+   aaa server-group radius "management" host 10.0.0.15
+
+Configure the AAA authentication for MAC authentication to use the proper server-group:
+
+   aaa authentication mac-based chap-radius server-group "packetfence"
+
+Finally, enable MAC authentication on all necessary ports:
+
+   aaa port-access mac-based 1-24
+
+Don't forget to permit address moves and the reauth period.  x represents the port index:
+
+   aaa port-access mac-based x addr-moves
+   aaa port-access mac-based x reauth-period 14400
+   
+(Thanks to Jean-Francois Laporte for this contribution)
 
 4100, 5300, 5400 Series
 ^^^^^^^^^^^^^^^^^^^^^^^
