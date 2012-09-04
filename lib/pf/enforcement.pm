@@ -24,6 +24,7 @@ Remove this note when it will be no longer relevant. ;)
 use strict;
 use warnings;
 
+use List::MoreUtils qw(none);
 use Log::Log4perl;
 
 BEGIN {
@@ -61,41 +62,43 @@ sub reevaluate_access {
     # Untaint MAC
     $mac = clean_mac($mac);
 
-    # is function in advanced.reevaluate_access_reasons list
-    if (grep( { $_ eq $function } split(/\s*,\s*/, $Config{'advanced'}{'reevaluate_access_reasons'})) > 0) {
-        $logger->info("re-evaluating access for node $mac ($function called)");
+    # function must be in advanced.reevaluate_access_reasons list otherwise bail out
+    if ( none { $_ eq $function } split(/\s*,\s*/, $Config{'advanced'}{'reevaluate_access_reasons'}) ) {
+        $logger->info("access re-evaluation requested but denied by configuration");
+        return $FALSE;
+    }
 
-        my $locationlog_entry = locationlog_view_open_mac($mac);
-        if (!$locationlog_entry) {
-            $logger->warn("Can't re-evaluate access for mac $mac because no open locationlog entry was found");
-            return;
+    $logger->info("re-evaluating access for node $mac ($function called)");
+    my $locationlog_entry = locationlog_view_open_mac($mac);
+    if (!$locationlog_entry) {
+        $logger->warn("Can't re-evaluate access for mac $mac because no open locationlog entry was found");
+        return;
 
-        } else {
+    } else {
 
-            my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
-            if ($conn_type == $INLINE) {
+        my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
+        if ($conn_type == $INLINE) {
 
-                my $inline = new pf::inline::custom();
-                if ($inline->isInlineEnforcementRequired($mac)) {
+            my $inline = new pf::inline::custom();
+            if ($inline->isInlineEnforcementRequired($mac)) {
 
-                    # TODO avoidable load?
-                    my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
-                    if ($trapSender) {
-                        $logger->debug("sending a local firewallRequest trap to force firewall change");
-                        $trapSender->sendLocalFirewallRequestTrap('127.0.0.1', $mac);
-                    } else {
-                        $logger->error("Can't instantiate switch 127.0.0.1! It's critical for internal messages!");
-                    }
-
+                # TODO avoidable load?
+                my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
+                if ($trapSender) {
+                    $logger->debug("sending a local firewallRequest trap to force firewall change");
+                    $trapSender->sendLocalFirewallRequestTrap('127.0.0.1', $mac);
                 } else {
-                    $logger->debug("MAC: $mac is already properly enforced in firewall, no change required");
+                    $logger->error("Can't instantiate switch 127.0.0.1! It's critical for internal messages!");
                 }
 
             } else {
-                return _vlan_reevaluation($mac, $locationlog_entry, %opts);
+                $logger->debug("MAC: $mac is already properly enforced in firewall, no change required");
             }
 
+        } else {
+            return _vlan_reevaluation($mac, $locationlog_entry, %opts);
         }
+
     }
 }
 
