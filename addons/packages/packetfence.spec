@@ -34,7 +34,6 @@ License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
 AutoReqProv: 0
-BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{rev}-root
 # disables the creation of the debug package for our setuid C wrapper
 %define debug_package %{nil}
@@ -62,6 +61,26 @@ BuildRequires: perl(Parse::RecDescent)
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
 %{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
+
+%description
+
+PacketFence is an open source network access control (NAC) system.
+It can be used to effectively secure networks, from small to very large
+heterogeneous networks. PacketFence provides features such
+as
+* registration of new network devices
+* detection of abnormal network activities
+* isolation of problematic devices
+* remediation through a captive portal
+* registration-based and scheduled vulnerability scans.
+
+# arch-specific pfcmd-suid subpackage required us to move all of PacketFence
+# into a noarch subpackage and have the top level package virtual.
+%package core
+Group: System Environment/Daemons
+Summary: PacketFence network registration / worm mitigation system
+BuildArch: noarch
+
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 # for process management
 Requires: procps
@@ -192,7 +211,7 @@ Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 
-%description
+%description core
 
 PacketFence is an open source network access control (NAC) system. 
 It can be used to effectively secure networks, from small to very large 
@@ -204,6 +223,7 @@ as
 * remediation through a captive portal 
 * registration-based and scheduled vulnerability scans.
 
+
 %package remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
@@ -211,6 +231,7 @@ Requires: perl(SOAP::Lite)
 Conflicts: packetfence
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
+BuildArch: noarch
 
 %description remote-snort-sensor
 The packetfence-remote-snort-sensor package contains the files needed
@@ -221,13 +242,14 @@ server.
 %package pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
-Requires: packetfence >= 3.6.0
+Requires: packetfence-core >= 3.6.0
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
 %description pfcmd-suid
 The packetfence-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
+
 
 %prep
 %setup -q
@@ -487,7 +509,7 @@ fi
 # to a directory, RPM will automatically package every file in that 
 # directory, as well as every file in each subdirectory."
 # -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
-%files
+%files core
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
@@ -742,6 +764,10 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Tue Sep 06 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- Made packetfence a virtual package added -core as noarch so we can build
+  -pfcmd-suid as arch-specific.
+
 * Wed Sep 05 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.5.1-1
 - New release 3.5.1
 
