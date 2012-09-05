@@ -2023,7 +2023,11 @@ sub handle_wireless_ids {
           if ($_ !~ /$match/) {
               my $percent = ($i/16)*100;
               my $rounded = floor(floor($percent)/5)*5;
-              $matchingNodes{$_} = $rounded if ($rounded >= $threshold);
+              if ($rounded >= $threshold) {
+                  $matchingNodes{$_} = $rounded;
+              } else {
+                  $logger->info("WIDS: Found a valid MAC $_ , but the reliability is below the configured threshold, do nothing");
+              }
               last;
           } 
         }
