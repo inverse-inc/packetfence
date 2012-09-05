@@ -39,6 +39,7 @@ Bug Fixes
  * illegal characters in webservices user / pass not properly escaped (#1516)
 
 Translations
+ * Updated Spanish (es) translation (Thanks to Dominique Couot)
  * Updated French (fr) translation (Thanks to Dominique Couot)
 
 --------------------------------------------------------------------------------
