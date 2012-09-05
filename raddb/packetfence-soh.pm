@@ -85,7 +85,7 @@ sub authorize {
     try {
         $soap ||= SOAP::Lite->new(
             uri => API_URI,
-            proxy => 'http://'.WS_USER.':'.WS_PASS.'@'.WEBADMIN_HOST.'/webapi'
+            proxy => 'http://'.sanitize_parameter(WS_USER).':'.sanitize_parameter(WS_PASS).'@'.WEBADMIN_HOST.'/webapi'
         );
 
         my $som = $soap->soh_authorize(%RAD_REQUEST);
@@ -109,6 +109,29 @@ sub authorize {
     return $code;
 }
 
+=item * sanitize_parameter
+
+URL encode illegal characters from WS_USER/WS_PASS used in SOAP calls.
+
+Ref: http://tools.ietf.org/html/rfc1738#section-3.1
+
+=cut
+sub sanitize_parameter {
+    my ($parameter) = @_;
+
+    my %ascii_hex_value = (
+        ':' => '%3A',
+        '@' => '%40',
+        '/' => '%2F',
+    );
+
+    while (my ($find, $replace) = each %ascii_hex_value) {
+        eval { $parameter =~ s{$find}{$replace}; };
+    }
+
+    return $parameter;
+}
+
 =back
 
 =head1 SEE ALSO
@@ -119,11 +142,13 @@ L<http://wiki.freeradius.org/Rlm_perl>
 
 Abhijit Menon-Sen <amenonsen@inverse.ca>
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 Based on packetfence.pm (from PacketFence's 802.1x addon).
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc. <support@inverse.ca>
+Copyright (C) 2011-2012 Inverse inc. <support@inverse.ca>
 
 =head1 LICENSE
 
