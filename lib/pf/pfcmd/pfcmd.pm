@@ -128,8 +128,13 @@ $grammar = q {
    networkconfig_assignment : networkconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{networkconfig_view_field},$item{value}] }
 
-   switchconfig_assignment : switchconfig_view_field '=' value
-                {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
+   switchconfig_assignment : 
+       switchconfig_view_field '=' value 
+           {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
+       |
+       switchconfig_password_field '=' password
+           {push @{$main::cmd{$item[0]}}, [$item{switchconfig_password_field},$item{password}] }
+
 
    floatingnetworkdeviceconfig_assignment : floatingnetworkdeviceconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{floatingnetworkdeviceconfig_view_field},$item{value}] }
@@ -150,6 +155,9 @@ $grammar = q {
 
    value : '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ \+\!]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@]+/
 
+   # allowing more chars as passwords
+   password : '"' /[&=?()\/,0-9a-zA-Z_\*\.\-\:_\;\@\ \+\!\$]*/ '"' {$item[2]} | /[\/0-9a-zA-Z_\*\.\-\:_\;\@\$]+/
+
    person_view_field : 'pid' | 'firstname' | 'lastname' | 'email' | 'telephone' | 'company' | 'address' | 'notes' | 'sponsor'
 
    node_view_field : 'mac' | 'pid' | 'category' | 'detect_date' | 'regdate' | 'unregdate' | 'lastskip' | 'status' | 'user_agent' | 'computername'  | 'notes' | 'last_arp' | 'last_dhcp' | 'dhcp_fingerprint' | 'voip' | 'bypass_vlan'
@@ -160,7 +168,9 @@ $grammar = q {
 
    networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway' | 'next_hop'
 
-   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPVersion' | 'SNMPCommunityTrap' | 'cliTransport' | 'cliUser' | 'cliPwd' | 'cliEnablePwd' | 'wsTransport' | 'wsUser' | 'wsPwd' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | /customVlan\d\d?/ | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPAuthPasswordRead' | 'SNMPPrivProtocolRead' | 'SNMPPrivPasswordRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPAuthPasswordWrite' | 'SNMPPrivProtocolWrite' | 'SNMPPrivPasswordWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPAuthPasswordTrap' | 'SNMPPrivProtocolTrap' | 'SNMPPrivPasswordTrap' | 'radiusSecret' | 'controllerIp' | 'roles'
+   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPVersion' | 'cliTransport' | 'cliUser' | 'wsTransport' | 'wsUser' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | /customVlan\d\d?/ | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPPrivProtocolRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPPrivProtocolWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPPrivProtocolTrap' | 'controllerIp' | 'roles'
+
+   switchconfig_password_field : 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPCommunityTrap' | 'cliPwd' | 'cliEnablePwd' | 'wsPwd' | 'SNMPAuthPasswordRead' | 'SNMPPrivPasswordRead' | 'SNMPAuthPasswordWrite' | 'SNMPPrivPasswordWrite' | 'SNMPAuthPasswordTrap' | 'SNMPPrivPasswordTrap' | 'radiusSecret'
 
    floatingnetworkdeviceconfig_view_field : 'ip' | 'trunkPort' | 'pvid' | 'taggedVlan'
 
