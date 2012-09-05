@@ -1476,7 +1476,7 @@ sub isPhoneAtIfIndex {
         return 0;
     }
     $logger->trace("determining DHCP fingerprint info for $mac");
-    my $node_info = node_view_with_fingerprint($mac);
+    my $node_info = node_attributes_with_fingerprint($mac);
 
     if (defined($node_info->{'voip'}) && $node_info->{'voip'} eq $VOIP) {
         $logger->debug("This is a VoIP phone according to node.voip");

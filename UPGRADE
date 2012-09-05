@@ -9,6 +9,7 @@ Upgrading from a version prior to <stableRelease>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .Parser updates
+
 Changes were made to the command parser. If you are using a packaged
 distribution you have nothing to do. If you installed from source, you
 will need to regenerate the precompiled grammar. Follow the instructions
@@ -16,6 +17,10 @@ in:
 
     perldoc /usr/local/pf/lib/pfcmd/pfcmd.pm
 
+.Deprecation advance notice: `pf::node`'s `node_view_with_fingerprint`
+
+`node_view_with_fingerprint` will be deprecated somewhere in 2013. Please
+migrate your custom code to the faster `node_attributes_with_fingerprint`.
 
 o Upgrading from a version prior to 3.5.0:
 
