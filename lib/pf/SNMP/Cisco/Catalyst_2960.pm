@@ -35,6 +35,21 @@ Earlier IOS were not explicitly tested.
 
 This module extends pf::SNMP::Cisco::Catalyst_2950.
 
+=head1 PRODUCT LINES
+
+=over
+
+=item 2960, 2960S, 2960G
+
+With no limitations that we are aware of.
+
+=item 2960 LanLite
+
+The LanLite series doesn't support the fallback VLAN on RADIUS AAA based
+approaches (MAC-Auth, 802.1X). This can affect fail-open scenarios.
+
+=back
+
 =head1 BUGS AND LIMITATIONS
 
 =over
