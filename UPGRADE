@@ -16,7 +16,7 @@ distribution you have nothing to do. If you installed from source, you
 will need to regenerate the precompiled grammar. Follow the instructions
 in:
 
-    perldoc /usr/local/pf/lib/pfcmd/pfcmd.pm
+    perldoc /usr/local/pf/lib/pf/pfcmd/pfcmd.pm
 
 .Deprecation advance notice: `pf::node`'s `node_view_with_fingerprint`
 
