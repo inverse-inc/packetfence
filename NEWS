@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <new version> release on <release date>
 
+New Features
+ * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
+
 Bug Fixes
  * Keep the PID on node_deregister (#1501)
  * Handle the release_date on violation modify (#1474)
