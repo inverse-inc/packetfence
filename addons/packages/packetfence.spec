@@ -721,6 +721,9 @@ fi
 %dir                    /usr/local/pf/var
 
 %changelog
+* Wed Sep 05 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.5.1-1
+- New release 3.5.1
+
 * Fri Aug 24 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - Added clean to avoid filling up build systems.. Sorry about that.
 
