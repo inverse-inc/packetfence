@@ -65,6 +65,7 @@ BEGIN {
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
+        $IPSET_VERSION
         $default_config_file %Default_Config
         $config_file %Config
         $network_config_file %ConfigNetworks
@@ -212,6 +213,7 @@ $ENV{PATH} = '/sbin:/bin:/usr/bin:/usr/sbin';
 Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
+Readonly::Scalar our $IPSET_VERSION => ipset_version();
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
@@ -265,6 +267,24 @@ sub load_config {
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
+}
+
+=item ipset_version -  check the ipset version on the system
+
+=cut
+
+sub ipset_version {
+    my $logger = Log::Log4perl::get_logger('pf::config');
+    my $exe_path = which('ipset');
+    if (defined($exe_path)) {
+        my $cmd = "sudo ".$exe_path." --version";
+        my $out = `$cmd`;
+        my ($ipset_version) = $out =~ m/^ipset\s+v?([\d+]).*$/ims;
+        return $ipset_version;
+    }
+    else {
+        return 0;
+    }
 }
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf

@@ -59,7 +59,24 @@ TODO: This list is incomplete
 =over
 
 =cut
+
+=item new
+
+Constructor
+
+=cut
+
+sub new {
+   my $logger = Log::Log4perl::get_logger("pf::iptables");
+   $logger->debug("instantiating new pf::iptables object");
+   my ( $class, %argv ) = @_;
+   my $self = bless {}, $class;
+   return $self;
+}
+
+
 sub iptables_generate {
+    my $self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     my %tags = ( 
@@ -77,17 +94,17 @@ sub iptables_generate {
 
     if (is_inline_enforcement_enabled()) {
         # Note: I'm giving references to this guy here so he can directly mess with the tables
-        generate_inline_rules(
+        $self->generate_inline_rules(
             \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'}
         );
     
         # MANGLE
-        $tags{'mangle_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
-        $tags{'mangle_prerouting_inline'} .= generate_mangle_rules();
+        $tags{'mangle_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
+        $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();
     
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
-        $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_NAT);
-        $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
+        $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
+        $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
     }
 
     # per-feature firewall rules
@@ -111,7 +128,7 @@ sub iptables_generate {
     );
 
     parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
-    iptables_restore("$generated_conf_dir/iptables.conf");
+    $self->iptables_restore("$generated_conf_dir/iptables.conf");
 }
 
 
@@ -121,6 +138,7 @@ Creating proper source interface matches to jump to the right chains for proper 
 
 =cut
 sub generate_filter_if_src_to_chain {
+    my $self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -173,7 +191,7 @@ Handling both FILTER and NAT tables at the same time.
 
 =cut
 sub generate_inline_rules {
-    my ($filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref) = @_;
+    my ($self, $filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
@@ -211,7 +229,7 @@ Creating proper source interface matches to jump to the right chains for inline 
 
 =cut
 sub generate_inline_if_src_to_chain {
-    my ($table) = @_;
+    my ($self, $table) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -251,6 +269,7 @@ The last mark will be the one having an effect.
 
 =cut
 sub generate_mangle_rules {
+    my $self =@_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $mangle_rules = '';
 
@@ -307,6 +326,7 @@ sub generate_mangle_rules {
 
 =cut
 sub generate_nat_redirect_rules {
+    my $self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -332,7 +352,7 @@ sub generate_nat_redirect_rules {
 }
 
 sub iptables_mark_node {
-    my ( $mac, $mark ) = @_;
+    my ( $self, $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = IPTables::Interface::new('mangle')
         || logger->logcroak("unable to create IPTables::Interface object");
@@ -351,7 +371,7 @@ sub iptables_mark_node {
 }
 
 sub iptables_unmark_node {
-    my ( $mac, $mark ) = @_;
+    my ( $self, $mac, $mark ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = IPTables::Interface::new('mangle')
         || logger->logcroak("unable to create IPTables::Interface object");
@@ -379,7 +399,7 @@ Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 =cut
 # TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
-    my ( $mac ) = @_;
+    my ( $self, $mac ) = @_;
     my $logger   = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
         || logger->logcroak("unable to create IPTables::ChainMgr object");
@@ -416,26 +436,26 @@ This sub lives under the guarantee that there is a change, that if old_mark == n
 # TODO wrap this into the commit transaction system of IPTables::Interface
 # TODO once updated, we should re-validate that the marks are ok and re-try otherwise (maybe in a loop)
 sub update_mark {
-    my ($mac, $old_mark, $new_mark) = @_;
+    my ($self , $mac, $old_mark, $new_mark) = @_;
 
     # if we come from registration, we are only adding a rule
     if ($old_mark == $IPTABLES_MARK_UNREG) {
-        iptables_mark_node($mac, $new_mark);
+        $self->iptables_mark_node($mac, $new_mark);
 
     # if we go to registration, we are only deleting a rule
     } elsif ($new_mark == $IPTABLES_MARK_UNREG) {
-        iptables_unmark_node($mac, $old_mark);
+        $self->iptables_unmark_node($mac, $old_mark);
 
     # otherwise we delete and then add
     } else {
-        iptables_unmark_node($mac, $old_mark);
-        iptables_mark_node($mac, $new_mark);
+        $self->iptables_unmark_node($mac, $old_mark);
+        $self->iptables_mark_node($mac, $new_mark);
     }
     return 1;
 }
 
 sub iptables_save {
-    my ($save_file) = @_;
+    my ($self, $save_file) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     $logger->info( "saving existing iptables to " . $save_file );
     pf_run("/sbin/iptables-save -t nat > $save_file");
@@ -444,7 +464,7 @@ sub iptables_save {
 }
 
 sub iptables_restore {
-    my ($restore_file) = @_;
+    my ($self, $restore_file) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     if ( -r $restore_file ) {
         $logger->info( "restoring iptables from " . $restore_file );
@@ -453,7 +473,7 @@ sub iptables_restore {
 }
 
 sub iptables_restore_noflush {
-    my ($restore_file) = @_;
+    my ($self, $restore_file) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     if ( -r $restore_file ) {
         $logger->info(
@@ -475,6 +495,7 @@ of the inline mode because of time constraints.
 
 =cut
 sub generate_filter_input_listeners {
+    my $self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -493,6 +514,7 @@ sub generate_filter_input_listeners {
 
 =cut
 sub generate_filter_forward_scanhost {
+    my @self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $filter_rules = '';
 
@@ -526,6 +548,7 @@ sub generate_filter_forward_scanhost {
 #
 
 sub generate_passthrough {
+    my @self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $filter_rules = '';
 

@@ -20,7 +20,13 @@ use pf::config;
 use pf::iptables;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_trap);
-
+if ($IPSET_VERSION > 0) {
+    use pf::ipset;
+    my $iptables = new pf::ipset;
+} else {
+    use pf::iptables;
+    my $iptables = new pf::iptables;
+}
 our $VERSION = 1.01;
 
 =head1 SUBROUTINES
@@ -49,7 +55,7 @@ sub performInlineEnforcement {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # What is the MAC's current state?
-    my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
+    my $current_mark = get_mangle_mark_for_mac($mac);
     my $should_be_mark = $this->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
@@ -58,7 +64,7 @@ sub performInlineEnforcement {
     }
 
     $logger->info("MAC: $mac stated changed, adapting firewall rules for proper enforcement");
-    return pf::iptables::update_mark($mac, $current_mark, $should_be_mark);
+    return $iptables->update_mark($mac, $current_mark, $should_be_mark);
 }
 
 =item isInlineEnforcementRequired
@@ -70,7 +76,7 @@ sub isInlineEnforcementRequired {
     my ($this, $mac) = @_;
 
     # What is the MAC's current state?
-    my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
+    my $current_mark = $iptables->get_mangle_mark_for_mac($mac);
     my $should_be_mark = $this->fetchMarkForNode($mac);
     if ($current_mark == $should_be_mark) {
         return $FALSE;
@@ -119,6 +125,8 @@ sub fetchMarkForNode {
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 
