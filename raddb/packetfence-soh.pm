@@ -126,7 +126,7 @@ sub sanitize_parameter {
     );
 
     while (my ($find, $replace) = each %ascii_hex_value) {
-        eval "\$parameter =~ s{$find}{$replace}";
+        eval { $parameter =~ s{$find}{$replace}; };
     }
 
     return $parameter;
