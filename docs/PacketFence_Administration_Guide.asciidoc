@@ -952,11 +952,33 @@ rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 Debug
 ^^^^^
 
-First, check the `/var/log/radius/radius.log` file, the PacketFence module logs there since version 3.2 (otherwise check the syslog).
+First, check the FreeRADIUS logs. Depending on your PacketFence version this changed.
+
+3.5 or greater::
+  See `/usr/local/pf/logs/radius.log`.
+Between 3.4.1 and 3.2.0::
+  See `/var/log/radius/radius.log`.
+3.2.0 or earlier::
+  Check the syslog (`/var/log/messages` or `/var/log/syslog`).
 
 If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following command:
 
-  # radiusd -X
+  # radiusd -X -d /usr/local/pf/raddb
+
+Additionally there is a `raddebug` tool that can extract debug logs from a
+running FreeRADIUS daemon. Starting with version 3.5.0 PacketFence's
+FreeRADIUS is preconfigured with such support.
+
+In order to have an output from `raddebug`, you need to either:
+
+a. Make sure user `pf` has a shell in `/etc/passwd`, add `/usr/sbin` to PATH (`export PATH=/usr/sbin:$PATH`) and execute `raddebug` as `pf`
+b. Run `raddebug` as root (less secure!)
+
+Now you can run `raddebug` easily:
+
+  raddebug -t 300 -d /usr/local/pf/raddb
+
+The above will output FreeRADIUS' debug logs for 5 minutes. See `man raddebug` for all the options.
 
 Starting PacketFence Services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1780,6 +1802,8 @@ The Statement of Health (SoH) is product that has been developed by Microsoft. I
 
 Packages
 ^^^^^^^^
+
+NOTE: The additional package is no longer required since PacketFence 3.5.0.
 
 Adding the SoH functionality requires specific RADIUS configuration. Ensure that you have at least the version 3.1 of the packetfence-freeradius2 package.
  
