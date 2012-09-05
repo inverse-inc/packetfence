@@ -92,9 +92,9 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    # Handle WIDS Trap
+    # Handle WIPS Trap
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
-        $trapHashRef->{'trapType'}    = 'wirelessIDS';
+        $trapHashRef->{'trapType'}    = 'wirelessIPS';
         $trapHashRef->{'trapMac'} = clean_mac($1);
     } else {
         $logger->debug("trap currently not handled.  TrapString was: $trapString");

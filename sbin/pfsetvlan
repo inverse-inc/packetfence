@@ -689,11 +689,11 @@ sub parseTrap {
             # skip unknown traps
             my $trapType = $trapHashRef->{'trapType'};
 
-            if ( $trapType eq 'wirelessIDS' ) {
+            if ( $trapType eq 'wirelessIPS' ) {
                 my $switch_ip = $switch->{_ip};
                 my $trapMac = $trapHashRef->{'trapMac'};
 
-                handle_wireless_ids(clean_mac($trapMac));
+                handle_wireless_ips(clean_mac($trapMac));
 
                 return;            
 
@@ -1999,11 +1999,11 @@ sub do_port_security {
 
 # }}}1
 
-sub handle_wireless_ids {
+sub handle_wireless_ips {
    my ($trapMac) = @_;
 
-   # Return if wireless IDS feature is disabled
-   return if (isdisabled($Config{'trapping'}{'wireless_ids'}));
+   # Return if wireless IPS feature is disabled
+   return if (isdisabled($Config{'trapping'}{'wireless_ips'}));
    
    # Grab the OUI part
    $trapMac =~ /^([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}).*$/;
@@ -2013,7 +2013,7 @@ sub handle_wireless_ids {
    #compare the strings, and output the percentage of match
    my $match;
    my %matchingNodes;
-   my $threshold = $Config{'trapping'}{'wireless_ids_threshold'};
+   my $threshold = $Config{'trapping'}{'wireless_ips_threshold'};
 
    if (defined($nodes[0])) {
     foreach (@nodes) {
@@ -2026,14 +2026,14 @@ sub handle_wireless_ids {
               if ($rounded >= $threshold) {
                   $matchingNodes{$_} = $rounded;
               } else {
-                  $logger->info("WIDS: Found a valid MAC $_ , but the reliability is below the configured threshold, do nothing");
+                  $logger->info("WIPS: Found a valid MAC $_ , but the reliability is below the configured threshold, do nothing");
               }
               last;
           } 
         }
     }
   } else {
-       $logger->info("WIDS: Cannot find a valid match for $trapMac in the database, do nothing");
+       $logger->info("WIPS: Cannot find a valid match for $trapMac in the database, do nothing");
        return;
   }
    
@@ -2041,7 +2041,7 @@ sub handle_wireless_ids {
    #For each matching nodes, fire an internal WIDS violation
    foreach my $keys (keys %matchingNodes) {
        $logger->info("We will isolate $keys, threshold is $matchingNodes{$keys} percent");
-       violation_trigger( $keys, $WIDS_VID, 'INTERNAL' );
+       violation_trigger( $keys, $WIPS_VID, 'INTERNAL' );
    }
    
    return;

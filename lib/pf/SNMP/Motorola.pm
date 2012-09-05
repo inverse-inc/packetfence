@@ -110,9 +110,9 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    # Handle WIDS Trap
+    # Handle WIPS Trap
     if ( $trapString =~ /BEGIN VARIABLEBINDINGS.*\.1\.3\.6\.1\.4\.1\.388\.50\.1\.2\.1\.4 = STRING: "Unsanctioned AP ([A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2}-[A-F0-9]{2})/){
-        $trapHashRef->{'trapType'}    = 'wirelessIDS';
+        $trapHashRef->{'trapType'}    = 'wirelessIPS';
         $trapHashRef->{'trapMac'} = clean_mac($1);
     } else {
         $logger->debug("trap currently not handled");
