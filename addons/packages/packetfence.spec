@@ -500,7 +500,6 @@ fi
                         /usr/local/pf/addons/snort/oinkmaster.conf.2.8.6
 %dir                    /usr/local/pf/addons/soh
 %doc                    /usr/local/pf/addons/soh/README.rst
-%attr(0755, pf, pf)     /usr/local/pf/addons/soh/packetfence-soh.pm
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %dir                    /usr/local/pf/addons/watchdog
