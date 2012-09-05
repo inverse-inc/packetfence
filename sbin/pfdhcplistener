@@ -144,6 +144,10 @@ sub dhcp_detector {
     my $mask;
     my $opt = 1;
     my $err;
+
+    # updating process name so we know what interface we are listening on
+    # WARNING: the format is expected by watchdog in pf::services. Don't change lightly.
+    $PROGRAM_NAME = basename($PROGRAM_NAME) . ": listening on $interface";
     $pcap = Net::Pcap::pcap_open_live( $interface, 576, 1, 0, \$err );
 
     if (!defined($pcap)) {
