@@ -38,6 +38,9 @@ Bug Fixes
  * More characters are allowed in password types on CLI and WebAdmin (#848)
  * illegal characters in webservices user / pass not properly escaped (#1516)
 
+Translations
+ * Updated French (fr) translation (Thanks to Dominique Couot)
+
 --------------------------------------------------------------------------------
 Version 3.5.0 released on 2012-08-01
 
