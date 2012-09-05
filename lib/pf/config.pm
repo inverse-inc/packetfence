@@ -71,7 +71,7 @@ BEGIN {
         $dhcp_fingerprints_file $dhcp_fingerprints_url 
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
-        $blackholemac $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $blackholemac $portscan_sid $WIDS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -129,6 +129,8 @@ Readonly our @VALID_TRIGGER_TYPES => ( "accounting", "detect", "internal", "mac"
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
+
+Readonly our $WIDS_VID => '1100020';
 
 # Interface types
 Readonly our $IF_INTERNAL => 'internal';

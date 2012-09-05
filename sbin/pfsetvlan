@@ -2037,6 +2037,7 @@ sub handle_wireless_ids {
    #For each matching nodes, fire an internal WIDS violation
    foreach my $keys (keys %matchingNodes) {
        $logger->info("We will isolate $keys, threshold is $matchingNodes{$keys} percent");
+       violation_trigger( $keys, $WIDS_VID, 'INTERNAL' );
    }
    
    return;
