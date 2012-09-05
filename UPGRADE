@@ -1,12 +1,13 @@
-                         PacketFence
+PacketFence Upgrade Guide
+=========================
 
 http://www.packetfence.org/
 
-Notes on upgrading from an older release
-----------------------------------------
+Notes on upgrading from an older release.
+
 
 Upgrading from a version prior to <stableRelease>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 .Parser updates
 
@@ -22,7 +23,11 @@ in:
 `node_view_with_fingerprint` will be deprecated somewhere in 2013. Please
 migrate your custom code to the faster `node_attributes_with_fingerprint`.
 
-o Upgrading from a version prior to 3.5.0:
+
+Upgrading from a version prior to 3.5.0
+---------------------------------------
+
+----
 
     - Database schema update
     New accounting violations and other violation related stuff needed some modifications
@@ -105,7 +110,12 @@ o Upgrading from a version prior to 3.5.0:
     of the OpenFusion repository. Make sure to take a quick look at the Administration Guide for
     integration of this new repository.
 
-o Upgrading from a version prior to 3.3.0:
+----
+
+Upgrading from a version prior to 3.3.0
+---------------------------------------
+
+----
 
     - Database schema update
     New sponsored guest feature and max nodes per user per category support 
@@ -230,8 +240,13 @@ o Upgrading from a version prior to 3.3.0:
     in custom code (most, if not all, of you don't) then you'll need to update
     your callers. We are now accepting an attributes hashref instead of the
     accouting session id and username scalars.
+----
 
-o Upgrading from a version prior to 3.2.0:
+
+Upgrading from a version prior to 3.2.0
+---------------------------------------
+
+----
 
     - Database schema update
     OpenVAS and billing engine support required database changes. Make sure you
@@ -298,8 +313,13 @@ o Upgrading from a version prior to 3.2.0:
 
     - pfcmd exit status
     Some exit status of pfcmd changed regarding the config sub-command.
+----
 
-o Upgrading from a version prior to 3.1.0:
+
+Upgrading from a version prior to 3.1.0
+---------------------------------------
+
+----
 
     - New repository required for RHEL 5 / CentOS 5: EPEL
     Extra Packages for Enterprise Linux (EPEL) is a repository provided by 
@@ -370,8 +390,13 @@ o Upgrading from a version prior to 3.1.0:
     We migrated out of jpgraph into a new javascript-based library for our 
     charts and graphs. Source users will have to create a webadmin_cache/ 
     directory in var/. Packaged users won't have to do a thing.
+----
 
-o Upgrading from a version prior to 3.0.3:
+
+Upgrading from a version prior to 3.0.3
+---------------------------------------
+
+----
 
     - New dependency
     This version introduces a new perl dependency: NetPacket. If you don't have
@@ -382,8 +407,13 @@ o Upgrading from a version prior to 3.0.3:
     We are now using an ISO like format for time, s=seconds, m=minutes, D=days,
     W=weeks, M=months, and Y=years.  Make sure you adjust your configs,
     especially your violations.conf.
+----
 
-o Upgrading from a version prior to 3.0.2:
+
+Upgrading from a version prior to 3.0.2
+---------------------------------------
+
+----
 
     - Database schema update
     A new trigger has been added to delete the node useragent when deleting
@@ -436,15 +466,25 @@ o Upgrading from a version prior to 3.0.2:
     - pfcmd_vlan interface changes
     reevaluateVlan is now called reevaluateAccess and will perform appropriate
     changes for a firewall change too (inline enforcement).
+----
 
-o Upgrading from a version prior to 3.0.1:
+
+Upgrading from a version prior to 3.0.1
+---------------------------------------
+
+----
 
     - MySQL pf user rights
     The user pf in the database is missing the execute rights.  Make sure
     you run :
     mysql -u root -p pf -v < db/upgrade-3.0.0-3.0.1.sql
+----
 
-o Upgrading from a version prior to 3.0.0:
+
+Upgrading from a version prior to 3.0.0
+---------------------------------------
+
+----
 
     - BACKUP YOUR /usr/local/pf/ BEFORE UPGRADING
     All files in html/user/ will be removed on upgrade (everything is now
@@ -638,8 +678,13 @@ o Upgrading from a version prior to 3.0.0:
     802.1X, you need to add the radiusSecret=YOUR_SECRET to the
     switches.conf entry for that device.  Change YOUR_SECRET with the 
     actual RADIUS secret.
+----
 
-o Upgrading from a version prior to 2.2.1:
+
+Upgrading from a version prior to 2.2.1
+---------------------------------------
+
+----
 
     - Cisco port-security + Voice over IP support on 2960, 2970, 3550 and 4500
     Changes (regressions?) in the Cisco 2960 IOS behavior in 12.2(46)SE or 
@@ -664,8 +709,13 @@ o Upgrading from a version prior to 2.2.1:
     important fields should still be available in $node_info however if you 
     needed one that is no longer there feel free to call node_view() yourself.
     This was done to reduce the overall latency of RADIUS replies.
+----
 
-o Upgrading from a version prior to 2.2.0:
+
+Upgrading from a version prior to 2.2.0
+---------------------------------------
+
+----
 
     - Database schema update
     Related to the easier User-Agent violation system, some tables were 
@@ -743,8 +793,13 @@ o Upgrading from a version prior to 2.2.0:
     module with the new file (.rpmnew). Be aware that the output of `pfcmd 
     lookup node <mac>` changed so make sure you update your parsing scripts (if
     any). This also affects the Node lookup section of the Web Admin interface.
+----
 
-o Upgrading from a version prior to 2.1.0:
+
+Upgrading from a version prior to 2.1.0
+---------------------------------------
+
+----
 
     - You MUST upgrade conf/templates/httpd.conf and 
     conf/templates/named_vlan.conf
@@ -804,8 +859,13 @@ o Upgrading from a version prior to 2.1.0:
     We changed the contract of setAdminStatus() so we bumped the version of 
     pf::SNMP to 2.00. If you use setAdminStatus() in custom code make sure you
     update your calls.
+----
 
-o Upgrading from a version prior to 2.0.1:
+
+Upgrading from a version prior to 2.0.1
+---------------------------------------
+
+----
 
     - lib/pf/vlan.pm's fetchVlanForNode interface changed
     If you built a customized version of this method in lib/pf/vlan/custom.pm
@@ -820,8 +880,13 @@ o Upgrading from a version prior to 2.0.1:
     The output of `pfcmd lookup node <mac>` changed. Make sure you update your
     parsing scripts (if any). This also affects the Node lookup section of the
     Web Admin interface.
+----
 
-o Upgrading from a version prior to 2.0.0:
+
+Upgrading from a version prior to 2.0.0
+---------------------------------------
+
+----
 
     - Database schema update
     Several new fields were added. You need to update your schema with:
@@ -922,8 +987,13 @@ o Upgrading from a version prior to 2.0.0:
     are now deprecated and will be removed in the future. Use 
     setVlanByName($ifIndex, $switch_locker_ref, $vlanName) instead. For 
     example: setVlanByName($ifIndex, \%switch_locker, 'guestVlan'); 
+----
 
-o Upgrading from a version prior to 1.9.1:
+
+Upgrading from a version prior to 1.9.1
+---------------------------------------
+
+----
 
     - Captive portal using mod_perl
     The captive portal's default mode of operation relies on mod_perl now. 
@@ -954,8 +1024,13 @@ o Upgrading from a version prior to 1.9.1:
     parameters. Only the Intel Express 460 module is affected. The parameters
     will still work but if you are reading this you should migrate them to the 
     new wsUser, wsPwd and wsTransport parameters.
+----
 
-o Upgrading from a version prior to 1.9.0:
+
+Upgrading from a version prior to 1.9.0
+---------------------------------------
+
+----
 
     - Passthrough
     Passthrough is now set to disabled by default. If you need it, make sure
@@ -1039,8 +1114,13 @@ o Upgrading from a version prior to 1.9.0:
     - Backup script less aggressive about history
     We are now keeping 1 month of locationlog instead of 15 days with the 
     optional database backup script in addons/. Makes more sense for most users.
+----
 
-o Upgrading from a version prior to 1.8.7:
+
+Upgrading from a version prior to 1.8.7
+---------------------------------------
+
+----
 
     - No action on wireless deauthentication traps
     PacketFence no longer close locationlog entries based on wireless 
@@ -1054,8 +1134,13 @@ o Upgrading from a version prior to 1.8.7:
     You would have been automatically authenticated. This is no longer the case.
     You will need to re-authenticate now. You might have relied on that 
     behavior.
+----
 
-o Upgrading from a version prior to 1.8.6:
+
+Upgrading from a version prior to 1.8.6
+---------------------------------------
+
+----
 
     - Table format changed
     Migrated tables `configfiles` and `traplog` from type MyISAM to InnoDB. You
@@ -1099,8 +1184,13 @@ o Upgrading from a version prior to 1.8.6:
     allow guests on your network, doublecheck your rlm_perl_packetfence.pl 
     module and align it on your naming (update all to guest or change back to 
     visitor).
+----
 
-o Upgrading from a version prior to 1.8.5:
+
+Upgrading from a version prior to 1.8.5
+---------------------------------------
+
+----
 
     - 802.1X freeradius module updated 
     pfcmd_ap.pl's code has been integrated in rlm_perl_packetfence.pl. If you 
@@ -1156,12 +1246,19 @@ o Upgrading from a version prior to 1.8.5:
     switch's entry or the default entry in switches.conf. This makes more sense
     for most new installs.
 
+----
 
-o Upgrading from a version prior to 1.8.4:
+
+Upgrading from a version prior to 1.8.4
+---------------------------------------
+
+----
 
     There was no upgrade-specific documentation done prior to 1.8.5.
 
     - Database schema
     Always make sure that your database schema is up to date. See if upgrade 
     scripts are available in db/.
+
+----
 
