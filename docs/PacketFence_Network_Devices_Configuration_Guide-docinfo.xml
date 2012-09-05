@@ -5,9 +5,9 @@
 <revhistory>
   <revision>
     <revnumber>2.4.1</revnumber>
-    <date>2012-09-04</date>
-    <authorinitials>FG</authorinitials>
-    <revremark>Adding the server-group support on Procurve 2610 switches</revremark>
+    <date>2012-09-05</date>
+    <authorinitials>FG, OB</authorinitials>
+    <revremark>Adding the server-group support on Procurve 2610 switches. Minor fix to Trapeze config.</revremark>
   </revision>
   <revision>
     <revnumber>2.4</revnumber>

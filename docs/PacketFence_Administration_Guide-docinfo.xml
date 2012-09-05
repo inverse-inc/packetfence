@@ -5,8 +5,8 @@
 <revhistory>
   <revision>
     <revnumber>2.6</revnumber>
-    <date>2012-08-22</date>
-    <authorinitials>OB, DW</authorinitials>
+    <date>2012-09-05</date>
+    <authorinitials>OB, DW, FD</authorinitials>
     <revremark>
       Managed FreeRADIUS updates. Proper ownership of the
       /var/lib/samba/winbind_privileged folder since 3.5 release. Added EPEL
