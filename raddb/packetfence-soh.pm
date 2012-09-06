@@ -16,6 +16,10 @@ use warnings;
 use Sys::Syslog;
 use Try::Tiny;
 
+use lib '/usr/local/pf/lib/';
+
+use pf::util::freeradius qw(sanitize_parameter);
+
 # Configuration parameters
 use constant {
     # FreeRADIUS to PacketFence communications (SOAP Server settings)
@@ -109,29 +113,6 @@ sub authorize {
     return $code;
 }
 
-=item * sanitize_parameter
-
-URL encode illegal characters from WS_USER/WS_PASS used in SOAP calls.
-
-Ref: http://tools.ietf.org/html/rfc1738#section-3.1
-
-=cut
-sub sanitize_parameter {
-    my ($parameter) = @_;
-
-    my %ascii_hex_value = (
-        ':' => '%3A',
-        '@' => '%40',
-        '/' => '%2F',
-    );
-
-    while (my ($find, $replace) = each %ascii_hex_value) {
-        eval { $parameter =~ s{$find}{$replace}g; };
-    }
-
-    return $parameter;
-}
-
 =back
 
 =head1 SEE ALSO
@@ -139,6 +120,8 @@ sub sanitize_parameter {
 L<http://wiki.freeradius.org/Rlm_perl>
 
 =head1 AUTHOR
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 Abhijit Menon-Sen <amenonsen@inverse.ca>
 
