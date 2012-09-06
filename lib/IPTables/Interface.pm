@@ -80,7 +80,7 @@ sub new
 	my $errmsg = "Cannot init libiptc handle: \"$!\"";
 	$logger->logcroak($errmsg);
     } else {
-	my $logtxt = sprintf("$log (InitTime:[%.3fs])", $init_time);
+	my $logtxt = sprintf("%s (InitTime:[%.3fs])", $log, $init_time);
 	#
 	# Inform through error logging, if init time is high.
 	if ($init_time > 0.5) {

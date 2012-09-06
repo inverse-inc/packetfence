@@ -134,9 +134,11 @@ sub supportsRoleBasedEnforcement {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->warn(
-        "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
-    );
+    if (defined($this->{'_roles'}) && $this->{'_roles'} =~ /^\s*$/) {
+        $logger->warn(
+            "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
+        );
+    }
     return $FALSE;
 }
 
@@ -1474,7 +1476,7 @@ sub isPhoneAtIfIndex {
         return 0;
     }
     $logger->trace("determining DHCP fingerprint info for $mac");
-    my $node_info = node_view_with_fingerprint($mac);
+    my $node_info = node_attributes_with_fingerprint($mac);
 
     if (defined($node_info->{'voip'}) && $node_info->{'voip'} eq $VOIP) {
         $logger->debug("This is a VoIP phone according to node.voip");

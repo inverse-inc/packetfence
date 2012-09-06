@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the PacketFence project.
 #
 # Translators:
+#  <cgagun@gmail.com>, 2012.
 # Juan Camilo Valencia <juan.valencia@seguratec.com.co>, 2011-2012.
 # Dominique Couot <dcouot@hotmail.com>, 2012.
-# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
 #
 domain "packetfence"
 #, fuzzy
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: es\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "en_US"
 msgstr "English"

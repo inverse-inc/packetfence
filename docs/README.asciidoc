@@ -29,6 +29,20 @@ Here's the example with the Admin guide.
     -xml docs/docbook/PacketFence_Administration_Guide.docbook \
     -pdf docs/PacketFence_Administration_Guide.pdf
 
+Batch convert
+-------------
+
+  $ for GUIDE in PacketFence_Administration_Guide \
+      PacketFence_Network_Devices_Configuration_Guide \
+      PacketFence_Developers_Guide PacketFenceZEN_Installation_Guide; do
+        asciidoc -a docinfo2 -b docbook -d book \
+          -o docs/docbook/$GUIDE.docbook \
+          docs/$GUIDE.asciidoc;
+        fop -c docs/fonts/fop-config.xml \
+          -xml docs/docbook/$GUIDE.docbook \
+          -xsl docs/docbook/xsl/packetfence-fo.xsl \
+          -pdf docs/$GUIDE.pdf
+    done
 
 Troubleshooting
 ---------------
