@@ -80,6 +80,8 @@ as
 Group: System Environment/Daemons
 Summary: PacketFence network registration / worm mitigation system
 BuildArch: noarch
+Provides: packetfence = %{ver}
+Obsoletes: packetfence < 3.6.0
 
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 # for process management
