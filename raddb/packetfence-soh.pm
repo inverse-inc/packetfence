@@ -12,7 +12,7 @@ This module forwards SoH authorization requests to Packetfence.
 
 use strict;
 use warnings;
-use diagnostics;
+
 use Sys::Syslog;
 use Try::Tiny;
 
@@ -144,11 +144,9 @@ Abhijit Menon-Sen <amenonsen@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
-Based on packetfence.pm (from PacketFence's 802.1x addon).
-
 =head1 COPYRIGHT
 
-Copyright (C) 2011-2012 Inverse inc. <support@inverse.ca>
+Copyright (C) 2011-2012 Inverse inc.
 
 =head1 LICENSE
 

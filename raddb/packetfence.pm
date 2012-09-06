@@ -387,7 +387,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2006-2010, 2012 Inverse inc. <support@inverse.ca>
+Copyright (C) 2006-2010, 2012 Inverse inc.
 
 =head1 LICENSE
 
