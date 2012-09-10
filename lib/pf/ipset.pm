@@ -21,7 +21,6 @@ use Log::Log4perl;
 use Readonly;
 use NetAddr::IP;
 
-
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
 use pf::node qw(nodes_registered_not_violators);
@@ -48,9 +47,8 @@ TODO: This list is incomplete
 
 =cut
 sub iptables_generate {
-    my $self = @_;
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-
     # init ipset tables
     $logger->warn("We are using IPSET");
     my $cmd = "sudo ipset --destroy";
@@ -80,7 +78,7 @@ The last mark will be the one having an effect.
 
 =cut
 sub generate_mangle_rules {
-    my $self =@_;
+    my ($self) =@_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $mangle_rules = '';
 

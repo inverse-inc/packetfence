@@ -48,7 +48,6 @@ Instantiate the correct iptables modification method between iptables and ipset
 
 =cut
 sub get_technique {
-    my $self = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $type;
     if ($IPSET_VERSION > 0) {
@@ -58,7 +57,6 @@ sub get_technique {
     }
 
     $logger->info("Instantiate a new iptables modification method. ". $type);
-
     try {
         # try to import module and re-throw the error to catch if there's one
         eval "use $type";

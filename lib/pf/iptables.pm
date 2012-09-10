@@ -76,7 +76,7 @@ sub new {
 
 
 sub iptables_generate {
-    my $self = @_;
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     my %tags = (
@@ -94,7 +94,7 @@ sub iptables_generate {
 
     if (is_inline_enforcement_enabled()) {
         # Note: I'm giving references to this guy here so he can directly mess with the tables
-        generate_inline_rules(
+        $self->generate_inline_rules(
             \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'}
         );
     
@@ -138,7 +138,7 @@ Creating proper source interface matches to jump to the right chains for proper 
 
 =cut
 sub generate_filter_if_src_to_chain {
-    my $self = @_;
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -269,7 +269,7 @@ The last mark will be the one having an effect.
 
 =cut
 sub generate_mangle_rules {
-    my $self =@_;
+    my ($self) =@_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $mangle_rules = '';
 
@@ -326,7 +326,7 @@ sub generate_mangle_rules {
 
 =cut
 sub generate_nat_redirect_rules {
-    my $self = @_;
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -495,7 +495,7 @@ of the inline mode because of time constraints.
 
 =cut
 sub generate_filter_input_listeners {
-    my $self = @_;
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
