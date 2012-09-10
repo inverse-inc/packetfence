@@ -15,7 +15,11 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
-Enhancements
+New Features
+ * Adding ipset support for inline mode (under debian you have to install two news dependencies and compile kernel modules)
+   For RHEL5 no way to use ipset , for RHEL6 ipset is a dependency.
+ * Adding support for multivlan in inline mode
+ * Adding support of portal profiles by vlan
 
 Bug Fixes
 

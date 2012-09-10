@@ -40,6 +40,7 @@ use pf::os;
 use pf::util;
 use pf::util::dhcp;
 use pf::violation qw(violation_trigger);
+use NetAddr::IP;
 
 # initialization
 # --------------
@@ -489,7 +490,6 @@ sub update_iplog {
         );
         iplog_close_now($oldip);
     }
-
     iplog_open( $srcmac, $srcip, $lease_length );
 }
 
