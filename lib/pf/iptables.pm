@@ -85,7 +85,7 @@ sub iptables_generate {
         'filter_forward_vlan' => '', 
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 
-        'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '' 
+        'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'nonat_postrouting_inline' => '',
     );
 
@@ -201,34 +201,19 @@ sub generate_filter_if_src_to_chain {
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
-        if (defined ($Config{'inline'}{'interfaceSNAT'})) {
-            my @values = split(',', $Config{'inline'}{'interfaceSNAT'});
-            foreach my $val (@values) {
-                foreach my $network ( keys %ConfigNetworks ) {
-                    next if ( !pf::config::is_network_type_inline($network) );
-                    my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    my $NAT = $ConfigNetworks{$network}{'nat'};
-                    if (defined ($NAT) && ($NAT eq $NO)) {
-                        $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
-                        $rules .= "--jump ACCEPT";
-                        $rules .= "\n";
-                    }
-                }
-                $rules .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
-            }
-        }
-        else {
+        my @values = split(',', get_snat_interface()});
+        foreach my $val (@values) {
             foreach my $network ( keys %ConfigNetworks ) {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                 my $NAT = $ConfigNetworks{$network}{'nat'};
                 if (defined ($NAT) && ($NAT eq $NO)) {
-                    $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $mgmt_int ";
+                    $rules .= "-A FORWARD -d $network/$inline_obj->{BITS} --in-interface $val ";
                     $rules .= "--jump ACCEPT";
                     $rules .= "\n";
                 }
             }
-            $rules .= "-A FORWARD --in-interface $mgmt_int --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
+            $rules .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
         }
     }
 
@@ -367,41 +352,22 @@ sub generate_inline_if_src_to_chain {
         # Every marked packet should be NATed
         # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
         foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-            if (defined ($Config{'inline'}{'interfaceSNAT'})) {
-                my @values = split(',', $Config{'inline'}{'interfaceSNAT'});
-                foreach my $val (@values) {
-                    foreach my $network ( keys %ConfigNetworks ) {
-                        next if ( !pf::config::is_network_type_inline($network) );
-                        my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                        my $NAT = $ConfigNetworks{$network}{'nat'};
-                        if (defined ($NAT) && ($NAT eq $NO)) {
-                            $rules .= "-A POSTROUTING -s $network/$inline_obj->{BITS} --out-interface $val ";
-                            $rules .= "--match mark --mark 0x$_ ";
-                            $rules .= "--jump $FW_POSTROUTING_INT_INLINE_NONAT";
-                            $rules .= "\n";
-                        }
- 
-                    }
-
-                    $rules .= "-A POSTROUTING --out-interface $val ";
-                    $rules .= "--match mark --mark 0x$_ ";
-                    $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
-                    $rules .= "\n";
-                }
-            }
-            else {
+            my @values = split(',', get_snat_interface());
+            foreach my $val (@values) {
                 foreach my $network ( keys %ConfigNetworks ) {
                     next if ( !pf::config::is_network_type_inline($network) );
                     my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
                     my $NAT = $ConfigNetworks{$network}{'nat'};
                     if (defined ($NAT) && ($NAT eq $NO)) {
-                        $rules .= "-A POSTROUTING -s $network/$inline_obj->{BITS} --out-interface $mgmt_int ";
+                        $rules .= "-A POSTROUTING -s $network/$inline_obj->{BITS} --out-interface $val ";
                         $rules .= "--match mark --mark 0x$_ ";
                         $rules .= "--jump $FW_POSTROUTING_INT_INLINE_NONAT";
                         $rules .= "\n";
                     }
+
                 }
-                $rules .= "-A POSTROUTING --out-interface $mgmt_int ";
+
+                $rules .= "-A POSTROUTING --out-interface $val ";
                 $rules .= "--match mark --mark 0x$_ ";
                 $rules .= "--jump $FW_POSTROUTING_INT_INLINE";
                 $rules .= "\n";
@@ -791,6 +757,22 @@ Update session when the ip address change
 sub update_node {
     #Just to have an iptables method
 }
+
+=item get_snat_interface
+
+Return the list of network interface to enable SNAT.
+
+=cut
+sub get_snat_interface {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    if (defined ($Config{'inline'}{'interfaceSNAT'})) {
+        return $Config{'inline'}{'interfaceSNAT'};
+    } else {
+        return  $management_network->tag("int");
+    }
+}
+
 
 =back
 
