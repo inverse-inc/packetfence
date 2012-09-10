@@ -27,7 +27,7 @@
 # rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
 #
 Summary: PacketFence network registration / worm mitigation system
-Name: packetfence
+Name: packetfence-virtual
 Version: %{ver}
 Release: %{rev}%{?dist}
 License: GPL
@@ -76,12 +76,10 @@ as
 
 # arch-specific pfcmd-suid subpackage required us to move all of PacketFence
 # into a noarch subpackage and have the top level package virtual.
-%package core
+%package -n packetfence
 Group: System Environment/Daemons
 Summary: PacketFence network registration / worm mitigation system
 BuildArch: noarch
-Provides: packetfence = %{ver}
-Obsoletes: packetfence < 3.6.0
 
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 # for process management
@@ -213,7 +211,7 @@ Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 
-%description core
+%description -n packetfence
 
 PacketFence is an open source network access control (NAC) system. 
 It can be used to effectively secure networks, from small to very large 
@@ -226,7 +224,7 @@ as
 * registration-based and scheduled vulnerability scans.
 
 
-%package remote-snort-sensor
+%package -n packetfence-remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
 Requires: perl(SOAP::Lite)
@@ -235,20 +233,20 @@ AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
 BuildArch: noarch
 
-%description remote-snort-sensor
+%description -n packetfence-remote-snort-sensor
 The packetfence-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
 
-%package pfcmd-suid
+%package -n packetfence-pfcmd-suid
 Group: System Environment/Daemons
 BuildRequires: gcc
-Requires: packetfence-core >= 3.6.0
+Requires: packetfence >= 3.6.0
 AutoReqProv: 0
 Summary: Replace pfcmd by a C wrapper for suid
 
-%description pfcmd-suid
+%description -n packetfence-pfcmd-suid
 The packetfence-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
 See https://bugzilla.redhat.com/show_bug.cgi?id=611009
 
@@ -391,7 +389,7 @@ cd $curdir
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
+%pre -n packetfence
 
 if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
@@ -417,14 +415,14 @@ fi
 #fi
 
 
-%pre remote-snort-sensor
+%pre -n packetfence-remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
 
-%post
+%post -n packetfence
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
 echo "Adding pfappserver startup script"
@@ -476,23 +474,23 @@ service pfappserver start
 echo Installation complete
 echo "  * Please fire up your Web browser and go to http://@ip_packetfence:3000/configurator to complete your PacketFence configuration."
 
-%post remote-snort-sensor
+%post -n packetfence-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
 
-%preun
+%preun -n packetfence
 if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
 fi
 
-%preun remote-snort-sensor
+%preun -n packetfence-remote-snort-sensor
 if [ $1 -eq 0 ] ; then
         /sbin/service pfdetectd stop &>/dev/null || :
         /sbin/chkconfig --del pfdetectd
 fi
 
-%postun
+%postun -n packetfence
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 #       /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
@@ -500,7 +498,7 @@ if [ $1 -eq 0 ]; then
 #       /sbin/service pf condrestart &>/dev/null || :
 fi
 
-%postun remote-snort-sensor
+%postun -n packetfence-remote-snort-sensor
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
@@ -511,7 +509,7 @@ fi
 # to a directory, RPM will automatically package every file in that 
 # directory, as well as every file in each subdirectory."
 # -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
-%files core
+%files -n packetfence
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
@@ -751,7 +749,7 @@ fi
 %dir                    /usr/local/pf/var/webadmin_cache
 
 # Remote snort sensor file list
-%files remote-snort-sensor
+%files -n packetfence-remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 %dir                    /usr/local/pf
@@ -762,13 +760,13 @@ fi
 %dir                    /usr/local/pf/var
 
 
-%files pfcmd-suid
+%files -n packetfence-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
-* Tue Sep 06 2012 Olivier Bilodeau <obilodeau@inverse.ca>
-- Made packetfence a virtual package added -core as noarch so we can build
-  -pfcmd-suid as arch-specific.
+* Mon Sep 10 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- Made packetfence a a noarch subpackage of a new virtual packetfence-virtual
+  so we can build -pfcmd-suid as arch-specific.
 
 * Wed Sep 05 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.5.1-1
 - New release 3.5.1
