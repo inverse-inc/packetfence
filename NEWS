@@ -19,6 +19,7 @@ Enhancements
 
 Bug Fixes
 * Adding radius.log into the logrotate script (#1526)
+* Tweaking some accounting queries for performance (#1534)
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05
