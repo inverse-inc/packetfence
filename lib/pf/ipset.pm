@@ -2,18 +2,14 @@ package pf::ipset;
 
 =head1 NAME
 
-pf::iptables - module for iptables rules management.
+pf::ipset - module for ipset tables management.
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::iptables contains the functions necessary to manipulate the 
-iptables rules used when using PacketFence in ARP or DHCP mode.
-
-=head1 CONFIGURATION AND ENVIRONMENT
-
-F<pf.conf> configuration file and iptables template F<iptables.conf>.
+pf::ipset contains the functions necessary to manipulate the
+ipset tables used when using PacketFence in ARP or DHCP mode.
 
 =cut
 
@@ -25,15 +21,6 @@ use Log::Log4perl;
 use Readonly;
 use NetAddr::IP;
 
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT );
-    @ISA = qw(Exporter);
-    @EXPORT = qw(
-        iptables_generate iptables_save iptables_restore 
-        iptables_mark_node iptables_unmark_node get_mangle_mark_for_mac update_mark
-    );
-}
 
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
@@ -41,6 +28,17 @@ use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
+
+Readonly my $FW_TABLE_FILTER => 'filter';
+Readonly my $FW_TABLE_MANGLE => 'mangle';
+Readonly my $FW_TABLE_NAT => 'nat';
+Readonly my $FW_FILTER_INPUT_INT_VLAN => 'input-internal-vlan-if';
+Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
+Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
+Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
+Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
+Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
+Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
 =head1 SUBROUTINES
 
@@ -260,12 +258,12 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 USA.
 
 =cut

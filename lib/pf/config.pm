@@ -34,6 +34,7 @@ use POSIX;
 use Readonly;
 use threads;
 use Try::Tiny;
+use File::Which;
 
 # Categorized by feature, pay attention when modifying
 our (

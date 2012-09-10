@@ -8,7 +8,7 @@ pf::iptables - module for iptables rules management.
 
 =head1 DESCRIPTION
 
-pf::iptables contains the functions necessary to manipulate the 
+pf::iptables contains the functions necessary to manipulate the
 iptables rules used when using PacketFence in ARP or DHCP mode.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -30,7 +30,7 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        iptables_generate iptables_save iptables_restore 
+        iptables_generate iptables_save iptables_restore
         iptables_mark_node iptables_unmark_node get_mangle_mark_for_mac update_mark
     );
 }
@@ -79,10 +79,10 @@ sub iptables_generate {
     my $self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
-    my %tags = ( 
-        'filter_if_src_to_chain' => '', 'filter_forward_inline' => '', 
-        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
-        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 'nat_postrouting_inline' => '' 
+    my %tags = (
+        'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
+        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
+        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 'nat_postrouting_inline' => ''
     );
 
     # global substitution variables
@@ -90,11 +90,11 @@ sub iptables_generate {
 
     # FILTER
     # per interface-type pointers to pre-defined chains
-    $tags{'filter_if_src_to_chain'} .= generate_filter_if_src_to_chain();
+    $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
 
     if (is_inline_enforcement_enabled()) {
         # Note: I'm giving references to this guy here so he can directly mess with the tables
-        $self->generate_inline_rules(
+        generate_inline_rules(
             \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'}
         );
     
@@ -113,7 +113,7 @@ sub iptables_generate {
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guests_enabled && ($email_enabled || $sponsor_enabled)) {
-        $tags{'input_mgmt_guest_rules'} = 
+        $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;
     }
@@ -123,7 +123,7 @@ sub iptables_generate {
 
     chomp(
         $tags{'filter_if_src_to_chain'}, $tags{'filter_forward_inline'},
-        $tags{'mangle_if_src_to_chain'}, $tags{'mangle_prerouting_inline'}, 
+        $tags{'mangle_if_src_to_chain'}, $tags{'mangle_prerouting_inline'},
         $tags{'nat_if_src_to_chain'}, $tags{'nat_prerouting_inline'},
     );
 
@@ -163,7 +163,7 @@ sub generate_filter_if_src_to_chain {
 
         # nothing? something is wrong
         } else {
-            $logger->warn("Didn't assign any firewall rules to interface $dev."); 
+            $logger->warn("Didn't assign any firewall rules to interface $dev.");
         }
     }
 
@@ -216,7 +216,7 @@ sub generate_inline_rules {
         $logger->info(
             "trapping.registration is disabled, adding rule so we accept unregistered users through inline interface"
         );
-        $$filter_rules_ref .= 
+        $$filter_rules_ref .=
             "-A $FW_FILTER_FORWARD_INT_INLINE "
             . "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"
         ;
@@ -229,7 +229,7 @@ Creating proper source interface matches to jump to the right chains for inline 
 
 =cut
 sub generate_inline_if_src_to_chain {
-    my ($self, $table) = @_;
+    my ($table) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
@@ -249,7 +249,7 @@ sub generate_inline_if_src_to_chain {
     if ($table eq $FW_TABLE_NAT) {
         my $mgmt_int = $management_network->tag("int");
 
-        # Every marked packet should be NATed 
+        # Every marked packet should be NATed
         # Note that here we don't wonder if they should be allowed or not. This is a filtering step done in FORWARD.
         foreach ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             $rules .= "-A POSTROUTING --out-interface $mgmt_int ";
@@ -279,13 +279,13 @@ sub generate_mangle_rules {
     # default catch all: mark unreg
     $mangle_rules .= "-A $FW_PREROUTING_INT_INLINE --jump MARK --set-mark 0x$IPTABLES_MARK_UNREG\n";
 
-    # mark registered nodes that should not be isolated 
+    # mark registered nodes that should not be isolated
     # TODO performance: mark all *inline* registered users only
     my @registered = nodes_registered_not_violators();
     foreach my $row (@registered) {
         my $mac = $row->{'mac'};
-        $mangle_rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+        $mangle_rules .=
+            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " .
             "--jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
         ;
     }
@@ -296,8 +296,8 @@ sub generate_mangle_rules {
     if ( $macarray[0] ) {
         foreach my $row (@macarray) {
             my $mac = $row->{'mac'};
-            $mangle_rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " . 
+            $mangle_rules .=
+                "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac " .
                 "--jump MARK --set-mark 0x$IPTABLES_MARK_ISOLATION\n"
             ;
         }
@@ -306,7 +306,7 @@ sub generate_mangle_rules {
     # mark whitelisted users
     # TODO whitelist concept on it's way to the graveyard
     foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'whitelist'} ) ) {
-        $mangle_rules .= 
+        $mangle_rules .=
             "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
         ;
     }
@@ -314,7 +314,7 @@ sub generate_mangle_rules {
     # mark blacklisted users
     # TODO blacklist concept on it's way to the graveyard
     foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
-        $mangle_rules .= 
+        $mangle_rules .=
             "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
         ;
     }
@@ -336,15 +336,15 @@ sub generate_nat_redirect_rules {
 
         # Destination NAT to the portal on the UNREG mark if trapping.registration is enabled
         if ( isenabled( $Config{'trapping'}{'registration'} ) ) {
-            $rules .= 
-                "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
+            $rules .=
+                "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
                 "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump REDIRECT\n"
             ;
         }
 
         # Destination NAT to the portal on the ISOLATION mark
-        $rules .= 
-            "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
+        $rules .=
+            "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
             "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump REDIRECT\n"
         ;
     }
@@ -353,13 +353,13 @@ sub generate_nat_redirect_rules {
 
 sub iptables_mark_node {
     my ( $self, $mac, $mark ) = @_;
-    my $logger   = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = IPTables::Interface::new('mangle')
         || logger->logcroak("unable to create IPTables::Interface object");
 
     $logger->debug("marking node $mac with mark 0x$mark");
     my $success = $iptables->iptables_do_command(
-        "-A $FW_PREROUTING_INT_INLINE",  "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
+        "-A $FW_PREROUTING_INT_INLINE", "--match mac --mac-source $mac", "--jump MARK --set-mark 0x$mark"
     );
 
     if (!$success) {
@@ -372,7 +372,7 @@ sub iptables_mark_node {
 
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
-    my $logger   = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = IPTables::Interface::new('mangle')
         || logger->logcroak("unable to create IPTables::Interface object");
 
@@ -391,7 +391,7 @@ sub iptables_unmark_node {
 
 =item get_mangle_mark_for_mac
 
-Fetches the current mangle mark for a given mark. 
+Fetches the current mangle mark for a given mark.
 Useful to re-evaluate what to do with a given node who's state changed.
 
 Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
@@ -400,7 +400,7 @@ Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 # TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
-    my $logger   = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $iptables = new IPTables::ChainMgr('ipt_exec_style' => 'system')
         || logger->logcroak("unable to create IPTables::ChainMgr object");
     my $iptables_cmd = $iptables->{'_iptables'};
@@ -424,8 +424,8 @@ sub get_mangle_mark_for_mac {
             return;
         }
     }
-    # if we didn't find him it means it's the catch all which is 
-    return $IPTABLES_MARK_UNREG; 
+    # if we didn't find him it means it's the catch all which is
+    return $IPTABLES_MARK_UNREG;
 }
 
 =item update_mark
@@ -539,11 +539,11 @@ sub generate_filter_forward_scanhost {
 #
 #my @trapvids = class_trappable();
 #foreach my $row (@trapvids) {
-#    my $vid = $row->{'vid'};
-#    $rules .=
-#        "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " . 
-#        "--match mark --mark 0x$vid --jump REDIRECT\n"
-#    ;
+# my $vid = $row->{'vid'};
+# $rules .=
+# "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
+# "--match mark --mark 0x$vid --jump REDIRECT\n"
+# ;
 #}
 #
 
@@ -554,16 +554,16 @@ sub generate_passthrough {
 
     # poke passthroughs
     my %passthroughs;
-    %passthroughs =  %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
+    %passthroughs = %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
     $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
     foreach my $passthrough ( keys %passthroughs ) {
         if ( $passthroughs{$passthrough} =~ /^(http|https):\/\// ) {
             my $destination;
-            my ($service, $host, $port, $path) = 
+            my ($service, $host, $port, $path) =
                 $passthroughs{$passthrough} =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
             $port =~ s/:// if $port;
 
-            $port = 80  if ( !$port && $service =~ /^http$/i );
+            $port = 80 if ( !$port && $service =~ /^http$/i );
             $port = 443 if ( !$port && $service =~ /^https$/i );
 
             my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
@@ -581,7 +581,7 @@ sub generate_passthrough {
             }
         } elsif ( $passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/ ) {
             $logger->info("adding FILTER passthrough for $passthrough");
-            $filter_rules .= internal_append_entry( 
+            $filter_rules .= internal_append_entry(
                 "-A FORWARD --destination " . $passthroughs{$passthrough} . " --jump ACCEPT"
             );
         } else {
@@ -594,10 +594,10 @@ sub generate_passthrough {
     if ( $Config{'trapping'}{'passthrough'} eq "iptables" ) {
         my @contents = class_view_all();
         foreach my $content (@contents) {
-            my $vid            = $content->{'vid'};
-            my $url            = $content->{'url'};
+            my $vid = $content->{'vid'};
+            my $url = $content->{'url'};
             my $max_enable_url = $content->{'max_enable_url'};
-            my $redirect_url   = $content->{'redirect_url'};
+            my $redirect_url = $content->{'redirect_url'};
 
             foreach my $u ( $url, $max_enable_url, $redirect_url ) {
 
@@ -613,7 +613,7 @@ sub generate_passthrough {
 
                 $port =~ s/:// if $port;
 
-                $port = 80  if ( !$port && $service =~ /^http$/i );
+                $port = 80 if ( !$port && $service =~ /^http$/i );
                 $port = 443 if ( !$port && $service =~ /^https$/i );
 
                 my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
@@ -672,12 +672,12 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 USA.
 
 =cut
