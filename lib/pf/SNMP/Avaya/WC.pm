@@ -97,12 +97,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
-deauthenticate a MAC address from wireless network (including 802.1x)
+deauthenticateMacDefault a MAC address from wireless network (including 802.1x)
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my $oid_avWlanAssociatedClientDisassociateAction = '1.3.6.1.4.1.45.7.9.1.1.1.10';
@@ -144,21 +144,9 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $SNMP => \&deauthenticateMac,
+        $SNMP::SNMP => \&deauthenticateMacDefault,
     );
     return %tech;
-}
-
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
 }
 
 

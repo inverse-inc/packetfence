@@ -120,14 +120,14 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac 
+=item deauthenticateMacDefault 
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
 New implementation using RADIUS Disconnect-Request.
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
@@ -393,22 +393,10 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $RADIUS => \&deauthenticateMac,
-        $TELNET  => \&_deauthenticateMacWithTelnet,
+        $SNMP::RADIUS => \&deauthenticateMacDefault,
+        $SNMP::TELNET  => \&_deauthenticateMacWithTelnet,
     );
     return %tech;
-}
-
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
 }
 
 

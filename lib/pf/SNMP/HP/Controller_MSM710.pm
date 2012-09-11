@@ -94,11 +94,11 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x) through SNMP
+=item deauthenticateMacDefault - deauthenticate a MAC address from wireless network (including 802.1x) through SNMP
 
 =cut
 
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_coDevWirCliStaMACAddress = '1.3.6.1.4.1.8744.5.25.1.7.1.1.2'; # from COLUBRIS-DEVICE-WIRELESS-MIB
@@ -214,26 +214,15 @@ Supported method to deauth a node.
 =cut
 
 sub supportedDeauthTechniques {
-    my $this = @_;
+    my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $SNMP => \&deauthenticateMac,
-        $SSH  => \&_deauthenticateMacWithSSH,
+        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SSH  => \&_deauthenticateMacWithSSH,
     );
     return %tech;
 }
 
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut 
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
-}
 
 =back
 

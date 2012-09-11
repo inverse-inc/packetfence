@@ -60,7 +60,7 @@ use pf::util qw(format_mac_as_cisco);
 
 =over
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
     
 De-authenticate a MAC address from wireless network (including 802.1x).
     
@@ -76,7 +76,7 @@ Diverges from L<pf::SNMP::Cisco::WLC> in the following aspects:
 
 =cut
 # The Service-Type entry was causing the WDS enabled Aironet to crash (IOS 12.3.8JEC3)
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -218,21 +218,9 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $RADIUS => \&deauthenticateMac,
+        $SNMP::RADIUS => \&deauthenticateMacDefault,
     );
     return %tech;
-}
-
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
 }
 
 

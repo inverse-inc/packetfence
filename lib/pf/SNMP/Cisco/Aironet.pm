@@ -72,7 +72,7 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # special features 
 sub supportsSaveConfig { return $FALSE; }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
 safe: 
@@ -80,7 +80,7 @@ safe:
 L<http://www.cpanforum.com/threads/6909/>
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -236,21 +236,9 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $TELNET => \&deauthenticateMac,
+        $SNMP::TELNET => \&deauthenticateMacDefault,
     );
     return %tech;
-}
-
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
 }
 
 

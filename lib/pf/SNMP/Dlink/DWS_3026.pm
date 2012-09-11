@@ -57,7 +57,7 @@ use pf::util;
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_wsAssociatedClientDisassociateAction = '1.3.6.1.4.1.171.10.73.30.9.1.1.9';
@@ -175,22 +175,11 @@ sub supportedDeauthTechniques {
     my $this = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $SNMP => \&deauthenticateMac,
+        $SNMP::SNMP => \&deauthenticateMacDefault,
     );
     return %tech;
 }
 
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
-}
 
 
 =head1 AUTHOR

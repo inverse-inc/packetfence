@@ -131,12 +131,13 @@ Readonly::Scalar our $GIGABIT_ETHERNET => 117;
 Deauth type method constant
 
 =cut
-Readonly my $TELNET => 'Telnet';
-Readonly my $SSH => 'SSH';
-Readonly my $SNMP => 'SNMP';
-Readonly my $RADIUS => 'Radius';
-Readonly my $HTTP => 'Http';
-Readonly my $HTTPS => 'Https';
+
+Readonly::Scalar our $TELNET => 'Telnet';
+Readonly::Scalar our $SSH => 'SSH';
+Readonly::Scalar our $SNMP => 'SNMP';
+Readonly::Scalar our $RADIUS => 'RADIUS';
+Readonly::Scalar our $HTTP => 'HTTP';
+Readonly::Scalar our $HTTPS => 'HTTPS';
 
 =back
 

@@ -2413,10 +2413,14 @@ is_dot1x - set to 1 if special dot1x de-authentication is required
 sub deauthenticateMac {
     my ($this, $mac, $is_dot1x) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-
-    $logger->warn("Unimplemented! First, make sure your configuration is ok. "
-        . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
-    return;
+    my $deAuthMethod = $this->{_deAuthMethod};
+    my %supportedDeauthTechniques = $this->supportedDeauthTechniques;
+    if ((defined($deAuthMethod)) && (defined($supportedDeauthTechniques{$deAuthMethod}))) {
+        $supportedDeauthTechniques{$deAuthMethod}($this,$mac);
+    }
+    else {
+        $this->deauthenticateMacDefault($mac);
+    }
 }
 
 =item dot1xPortReauthenticate
@@ -2767,16 +2771,17 @@ sub supportedDeauthTechniques {
     return %tech;
 }
 
-=item supportedDeauthTechniques
+=item deauthenticateMacDefault
 
-return Default Deauthentication Default Method
+return Default Deauthentication Default technique
 
 =cut
 sub deauthenticateMacDefault {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->error("Deauthentication is not supported on switch type " . ref($this));
+    $logger->warn("Unimplemented! First, make sure your configuration is ok. "
+        . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
     return $FALSE;
 }
 

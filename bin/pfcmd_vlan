@@ -479,14 +479,7 @@ if ($reevaluateAccess) {
         print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
     } else {
         $logger->debug("start handling 'deauthenticate' command");
-        my $deAuthMethod = $switch->{_deAuthMethod};
-        my %supportedDeauthTechniques = $switch->supportedDeauthTechniques;
-        if ((defined($deAuthMethod)) && (defined($supportedDeauthTechniques{$deAuthMethod}))) {
-            $supportedDeauthTechniques{$deAuthMethod}($switch,$mac);
-        }
-        else {
-            $switch->deauthenticateMacDefault($mac);
-        }
+        $switch->deauthenticateMac($mac);
         $logger->debug("finished handling 'deauthenticate' command");
     }   
 

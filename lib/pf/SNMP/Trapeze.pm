@@ -98,14 +98,14 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network
 
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -174,25 +174,13 @@ Supported method to deauth a node.
 =cut
 
 sub supportedDeauthTechniques {
-    my $this = @_;
+    my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my %tech = (
-        $TELNET => \&deauthenticateMac,
-        $SSH  => \&deauthenticateMac,
+        $SNMP::TELNET => \&deauthenticateMacDefault,
+        $SNMP::SSH  => \&deauthenticateMacDefault,
     );
     return %tech;
-}
-
-=item deauthenticateMacDefault
-
-Default method to deauthenticate a node
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ($this, $mac) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $this->deauthenticateMac($mac);
 }
 
 
