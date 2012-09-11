@@ -73,10 +73,10 @@ sprintf-formatted strings that control how the services should be started.
 my %service_launchers;
 $service_launchers{'httpd'} = "%1\$s -f $generated_conf_dir/httpd.conf";
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
-$service_launchers{'pfmon'} = "%1\$s -d &";
-$service_launchers{'pfdhcplistener'} = "%1\$s -i %2\$s -d &";
-$service_launchers{'pfredirect'} = "%1\$s -d &";
-$service_launchers{'pfsetvlan'} = "%1\$s -d &";
+$service_launchers{'pfmon'} = '%1$s -d &';
+$service_launchers{'pfdhcplistener'} = '%1$s -i %2$s -d &';
+$service_launchers{'pfredirect'} = '%1$s -d &';
+$service_launchers{'pfsetvlan'} = '%1$s -d &';
 # TODO the following join on @listen_ints will cause problems with dynamic config reloading
 $service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
 $service_launchers{'named'} = "%1\$s -u pf -c $generated_conf_dir/named.conf";
