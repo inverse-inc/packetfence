@@ -246,7 +246,8 @@ sub service_ctl {
 
                     my $dead_flag;
                     foreach my $interface (keys %int_to_pid) {
-                        chomp($int_to_pid{$interface} = `pgrep -f "$binary: listening on $interface"`);
+                        # -f: whole command line, -x: exact match (fixes #1545)
+                        chomp($int_to_pid{$interface} = `pgrep -f -x "$binary: listening on $interface"`);
                         # if one check returned a false value ('' is false) then we failed the check
                         $dead_flag = $TRUE if (!$int_to_pid{$interface});
                     }
