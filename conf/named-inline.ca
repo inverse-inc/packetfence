@@ -1,6 +1,6 @@
 ; Inline network DNS configuration
 ; This file is manipulated on PacketFence's startup before being given to named
-$TTL 3600
+$TTL 1
 . IN SOA %%hostname%%. %%incharge%% (
     2009020901  ; serial
     10800       ; refresh
