@@ -15,13 +15,18 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <develRelease> released on <releaseDate>
 
+Bug Fixes
+ * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
+
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
 Enhancements
 
 Bug Fixes
- * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
+ * Adding radius.log into the logrotate script (#1526)
+ * Tweaking some accounting queries for performance (#1534)
+ * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05

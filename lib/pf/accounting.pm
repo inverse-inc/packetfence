@@ -103,7 +103,7 @@ sub accounting_db_prepare {
                nasipaddress,nasportid,nasporttype,acctinputoctets AS acctoutput,
                acctoutputoctets AS acctinput,(acctinputoctets+acctoutputoctets) AS accttotal,
                IF(ISNULL(acctstoptime),'',acctterminatecause) AS acctterminatecause
-        FROM (SELECT * FROM radacct ORDER BY acctstarttime DESC) AS tmp
+        FROM (SELECT * FROM radacct WHERE callingstationid = ? ORDER BY acctstarttime DESC) AS tmp
         GROUP BY callingstationid
         HAVING callingstationid = ?;
     ]);
@@ -480,7 +480,7 @@ sub node_accounting_exist {
 =cut
 sub node_accounting_view {
     my ($mac) = format_mac_for_acct(@_);
-    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_view_sql', $mac);
+    my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_view_sql', $mac, $mac);
     my $ref = $query->fetchrow_hashref();
     $query->finish();
     return ($ref);
