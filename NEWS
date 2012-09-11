@@ -18,8 +18,8 @@ Version <stableRelease> released on <releaseDate>
 Enhancements
 
 Bug Fixes
-* Adding radius.log into the logrotate script (#1526)
-* Tweaking some accounting queries for performance (#1534)
+ * Adding radius.log into the logrotate script (#1526)
+ * Tweaking some accounting queries for performance (#1534)
  * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
 
 --------------------------------------------------------------------------------
