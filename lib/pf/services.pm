@@ -242,7 +242,7 @@ sub service_ctl {
                 # explicitly check process names per interface then return 0 to force a restart if one is missing.
                 else {
                     my %int_to_pid = map { $_ => $FALSE } @listen_ints, @dhcplistener_ints;
-                    $logger->debug( "Expecting $binary on interfaces: ", join(", ", keys %int_to_pid) );
+                    $logger->debug( "Expecting $binary on interfaces: " . join(", ", keys %int_to_pid) );
 
                     my $dead_flag;
                     foreach my $interface (keys %int_to_pid) {
