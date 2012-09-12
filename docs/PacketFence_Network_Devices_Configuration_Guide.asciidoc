@@ -2700,6 +2700,10 @@ Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at
 * Select your AAA Policy previously created
 * Ensure that you selected Open as the Encryption
 
+.Accounting configuration:
+* Make sure you select "Enable RADIUS Accounting"
+* Select the previously configured AAA Policy
+
 .Advanced configuration:
 * Make sure you select RADIUS Dynamic Authorization
 
@@ -2720,6 +2724,10 @@ Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at
 * Select your AAA Policy previously created
 * Ensure that you selected WPA/WPA2-TKIP as the Encryption
 * Unselect everything under Fast Roaming (Disable caching)
+
+.Accounting configuration:
+* Make sure you select "Enable RADIUS Accounting"
+* Select the previously configured AAA Policy
 
 .Advanced configuration:
 * Make sure you select RADIUS Dynamic Authorization
