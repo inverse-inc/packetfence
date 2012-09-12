@@ -101,11 +101,9 @@ Description: Files needed for sending snort alerts to packetfence
 
 Package: packetfence-test
 Architecture: all
-Depends: packetfence, libauthen-radius-perl, libauthen-krb5-simple-perl, libtest-mockmodule-perl,
- libtext-csv-perl, libtest-nowarnings-perl, libjson-perl,libtest-mockobject-perl,
-# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
- libthread-pool-perl, libthread-conveyor-perl, libthread-tie-perl, liberror-perl,
- libtest-exception-perl, libnetpacket-perl (>= 1.3)
+Depends: packetfence, libtest-mockmodule-perl,
+ libtest-nowarnings-perl, libtest-mockobject-perl,
+ libtest-exception-perl
 Description: Test suite for packetfence
  The PacketFence package contains a suite of test for validate packetfence
  installation.
