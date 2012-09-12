@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 23;
+use Test::More tests => 26;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -22,6 +22,7 @@ use CGI;
 use pf::config;
 
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::guest') }
 BEGIN { use_ok('pf::web::release') }
@@ -84,6 +85,16 @@ is(
 is(
     pf::web::util::validate_phone_number("223344556677"), $expected, 
     "validate phone number format xxxxxxxxxxxx"
+);
+
+=item pf::web::constants
+
+=cut
+ok(defined($WEB::URL_SIGNUP), 'WEB constants are available since we imported pf::web::constants');
+
+my %result =  pf::web::constants::to_hash();
+is(
+    $result{'URL_SIGNUP'}, '/signup', 'constant from pf::web::constant is returned in hashref by to_hash'
 );
 
 

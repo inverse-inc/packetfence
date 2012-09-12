@@ -20,7 +20,9 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use HTML::Entities;
+use Locale::gettext qw(bindtextdomain textdomain);
 use Log::Log4perl;
+use POSIX qw(setlocale);
 use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::config;
@@ -73,8 +75,59 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
 
-    # XXX pass mac here
     $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+
+    $self->_initializeStash();
+    $self->_initializeI18n();
+}
+
+=item _initializeStash
+
+Initialize a catalyst-style stash variable that is passed to the template
+when rendering.
+
+=cut
+sub _initializeStash {
+    my ($self) = @_;
+
+    # Fill it with the Web constants first
+    $self->{'stash'} = { pf::web::constants::to_hash() };
+    $self->stash->{'destination_url'} = $self->getDestinationUrl();
+}
+
+=item _initializeI18n
+
+=cut
+sub _initializeI18n {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $authorized_locale_txt = $Config{'general'}{'locale'};
+    my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
+
+    # assign to session if explicit lang was requested
+    if ( defined($self->getCgi->url_param('lang')) ) {
+        $logger->debug("url_param('lang') is " . $self->getCgi->url_param('lang'));
+        my $user_chosen_language = $self->getCgi->url_param('lang');
+        if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
+            $logger->debug("setting language to user chosen language $user_chosen_language");
+            $self->getSession->param("lang", $user_chosen_language);
+        }
+    }
+
+    # look at override from session and log
+    my $override_lang;
+    if ( defined($self->getSession->param("lang")) ) {
+        $logger->debug("returning language " . $self->getSession->param("lang") . " from session");
+        $override_lang = $self->getSession->param("lang");
+    }
+
+    # if it's overridden take it otherwise we take the first locale specified in config
+    my $locale = defined($override_lang) ? $override_lang : $authorized_locale_array[0];
+
+    setlocale( POSIX::LC_MESSAGES, $locale );
+    bindtextdomain( "packetfence", "$conf_dir/locale" );
+    textdomain("packetfence");
 }
 
 =item _getDestinationUrl
@@ -91,6 +144,34 @@ sub _getDestinationUrl {
     return decode_entities(uri_unescape($cgi->param("destination_url")));
 }
 
+=item stash
+
+Initialize a catalyst-style stash variable that is passed to the template
+when rendering. Use it like that:
+
+  $portalSession->stash->{'username'} = encode_entities($cgi->param("username"));
+
+and then username in the template will be set with the proper values.
+
+One can also use a syntax like this:
+
+  $portalSession->stash( { 'username' =>  encode_entities($cgi->param("username")) } );
+
+Also, it is prepopulated with the Web constants from pf::web::constants.
+
+=cut
+sub stash {
+    my ( $self, $hashref ) = @_;
+
+    if (defined($hashref) && ref($hashref) eq 'HASH') {
+        # merging the hashes, keys provided by caller wins
+        $self->{'stash'} = { %{$self->{'stash'}}, %$hashref };
+    }
+
+    return $self->{'stash'};
+}
+
+
 =item getCgi
 
 Returns the CGI object.
@@ -101,12 +182,36 @@ sub getCgi {
     return $self->{'_cgi'};
 }
 
+=item cgi
+
+Returns the CGI object. Allows for more perl-ish syntax:
+
+   $portalSession->cgi->param...
+
+=cut
+sub cgi {
+    my ($self) = @_;
+    return $self->{'_cgi'};
+}
+
 =item getSession
 
 Returns the CGI::Session object.
 
 =cut
 sub getSession {
+    my ($self) = @_;
+    return $self->{'_session'};
+}
+
+=item session
+
+Returns the CGI::Session object. Allows for more perl-ish syntax:
+
+   $portalSession->session->param...
+
+=cut
+sub session {
     my ($self) = @_;
     return $self->{'_session'};
 }

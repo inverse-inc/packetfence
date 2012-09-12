@@ -22,10 +22,8 @@ use warnings;
 use Encode;
 use HTML::Entities;
 use HTTP::Request::Common qw(POST);
-use Locale::gettext;
 use Log::Log4perl;
 use LWP::UserAgent;
-use POSIX;
 use Template;
 
 BEGIN {
@@ -39,7 +37,7 @@ BEGIN {
 use pf::billing::constants;
 use pf::billing::custom;
 use pf::config;
-use pf::web qw(i18n ni18n);
+use pf::web qw(i18n ni18n render_template);
 use pf::web::util;
 
 our $VERSION = 1.00;
@@ -61,48 +59,27 @@ sub generate_billing_page {
     my ( $portalSession, $error_code ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # First blast of portalSession object consumption
-    my $cgi = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
-    setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $vars = {
-        i18n            => \&i18n,
-        destination_url => encode_entities($portalSession->getDestinationUrl),
-        logo            => $portalSession->getProfile->getLogo,
-        list_help_info  => [
-            { name => i18n('IP'),   value => $portalSession->getClientIp },
-            { name => i18n('MAC'),  value => $portalSession->getClientMac }
-        ],
-    };
-
     my $billingObj  = new pf::billing::custom();
     my %tiers       = $billingObj->getAvailableTiers();
 
-    $vars->{'tiers'}            = \%tiers;
-    $vars->{'selected_tier'}    = $cgi->param("tier");
-    $vars->{'firstname'}        = $cgi->param("firstname");
-    $vars->{'lastname'}         = $cgi->param("lastname");
-    $vars->{'email'}            = $cgi->param("email");
-    $vars->{'ccnumber'}         = $cgi->param("ccnumber");
-    $vars->{'ccexpiration'}     = $cgi->param("ccexpiration");
-    $vars->{'ccverification'}   = $cgi->param("ccverification");
+    $portalSession->stash({
+        'tiers' => \%tiers,
+        'selected_tier' => $portalSession->cgi->param("tier"),
+        'firstname' => $portalSession->cgi->param("firstname"),
+        'lastname' => $portalSession->cgi->param("lastname"),
+        'email' => $portalSession->cgi->param("email"),
+        'ccnumber' => $portalSession->cgi->param("ccnumber"),
+        'ccexpiration' => $portalSession->cgi->param("ccexpiration"),
+        'ccverification' => $portalSession->cgi->param("ccverification"),
+
+    });
 
     # Error management
-    $vars->{'txt_validation_error'} = $BILLING::ERRORS{$error_code} if (defined($error_code));
+    $portalSession->stash->{'txt_validation_error'} = $BILLING::ERRORS{$error_code} if (defined($error_code));
 
     # Generating the page with the correct template
     $logger->info('generate_billing_page');
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
-    });
-    $template->process( "billing/billing.html", $vars ) || $logger->error($template->error());
+    render_template($portalSession, 'billing/billing.html');
     exit;
 }
 

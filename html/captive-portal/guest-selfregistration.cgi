@@ -31,9 +31,6 @@ use pf::web::guest 1.30;
 # called last to allow redefinitions
 use pf::web::custom;
 
-# constants
-Readonly::Scalar my $GUEST_REGISTRATION => "guest-register";
-
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('guest-selfregistration.cgi');
 Log::Log4perl::MDC->put('proc', 'guest-selfregistration.cgi');
@@ -76,7 +73,7 @@ else {
     $portalSession->setGuestNodeMac($portalSession->getClientMac());
 }
 
-if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGISTRATION) {
+if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::guest::GUEST_REGISTRATION) {
 
     # is form valid?
     my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($portalSession);
@@ -227,7 +224,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $GUEST_REGIST
     # Registration form was invalid, return to guest self-registration page and show error message
     if ($auth_return != $TRUE) {
         $logger->info("Missing information for self-registration");
-        pf::web::guest::generate_selfregistration_page($portalSession, "/signup?mode=$GUEST_REGISTRATION", $err, $errargs_ref
+        pf::web::guest::generate_selfregistration_page($portalSession, $err, $errargs_ref
         );
         exit(0);
     }
@@ -237,7 +234,7 @@ else {
     $cgi->delete('firstname', 'lastname', 'email', 'phone', 'organization');
 
     # by default, show guest registration page
-    pf::web::guest::generate_selfregistration_page($portalSession, "/signup?mode=$GUEST_REGISTRATION");
+    pf::web::guest::generate_selfregistration_page($portalSession);
 }
 
 =head1 AUTHOR

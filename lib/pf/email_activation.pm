@@ -103,6 +103,7 @@ BEGIN {
 use pf::config;
 use pf::db;
 use pf::util;
+use pf::web::constants;
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
 use pf::web::guest;
 
@@ -362,10 +363,10 @@ sub send_email {
     my ($hash_version, $hash) = _unpack_activation_code($activation_code);
 
     if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "/activate/email/$hash";
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION/$hash";
     } else {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."/activate/email/$hash";
+            ."$WEB::URL_EMAIL_ACTIVATION/$hash";
     }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win

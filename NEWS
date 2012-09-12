@@ -15,6 +15,10 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <develRelease> released on <releaseDate>
 
+Enhancements
+ * Code cleanups (#1484)
+ * Important simplification of the Captive Portal code to make it harder to introduce problems
+
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
 

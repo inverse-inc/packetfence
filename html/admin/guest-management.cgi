@@ -34,9 +34,6 @@ use pf::web::custom;
 use lib "/usr/local/pf/conf";
 use authentication::guest_managers;
 
-# constants
-Readonly::Scalar my $GUEST_REGISTRATION => "guest-register";
-
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('guest-management.cgi');
 Log::Log4perl::MDC->put('proc', 'guest-management.cgi');
