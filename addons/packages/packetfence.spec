@@ -223,8 +223,8 @@ mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
 for TRANSLATION in de en es fr he_IL it nl pt_BR; do 
-    /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po
-    mv packetfence.mo conf/locale/$TRANSLATION/LC_MESSAGES/
+    /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
+      --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
 # RHEL6 only: generating PDF guides

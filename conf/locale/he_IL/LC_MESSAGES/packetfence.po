@@ -4,8 +4,6 @@
 # Translators:
 # Ereli <ereli@securegion.com>, 2011.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
