@@ -104,16 +104,18 @@ sub _initializeI18n {
     my $authorized_locale_txt = $Config{'general'}{'locale'};
     my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
 
-    my $override_lang;
+    # assign to session if explicit lang was requested
     if ( defined($self->getCgi->url_param('lang')) ) {
         $logger->debug("url_param('lang') is " . $self->getCgi->url_param('lang'));
         my $user_chosen_language = $self->getCgi->url_param('lang');
         if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
             $logger->debug("setting language to user chosen language $user_chosen_language");
             $self->getSession->param("lang", $user_chosen_language);
-            $override_lang = $user_chosen_language;
         }
     }
+
+    # look at override from session and log
+    my $override_lang;
     if ( defined($self->getSession->param("lang")) ) {
         $logger->debug("returning language " . $self->getSession->param("lang") . " from session");
         $override_lang = $self->getSession->param("lang");
