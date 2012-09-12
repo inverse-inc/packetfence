@@ -120,6 +120,7 @@
                            'Cisco::Catalyst_2900XL' => 'Cisco Catalyst 2900XL Series',
                            'Cisco::Catalyst_2950' => 'Cisco Catalyst 2950',
                            'Cisco::Catalyst_2960' => 'Cisco Catalyst 2960',
+                           'Cisco::Catalyst_2960G' => 'Cisco Catalyst 2960G',
                            'Cisco::Catalyst_2970' => 'Cisco Catalyst 2970',
                            'Cisco::Catalyst_3500XL' => 'Cisco Catalyst 3500XL Series',
                            'Cisco::Catalyst_3550' => 'Cisco Catalyst 3550',
