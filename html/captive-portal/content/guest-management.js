@@ -68,7 +68,7 @@ function onClickTab(event) {
     });
 
     var name = this.readAttribute("name");
-    var tab = $(name);
+    var tab = $$('#'+name).first(); // direct selector fails in IE7
     if (tab) {
         tab.addClassName("active");
         var field = tab.down("input.first");
