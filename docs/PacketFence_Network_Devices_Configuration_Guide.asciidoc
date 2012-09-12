@@ -82,8 +82,7 @@ PacketFence supports the following devices:
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
 |                 |Aironet 1240 AG             |Cisco::Aironet_1242
 |                 |Aironet 1250                |Cisco::Aironet_1250
-|                 |2100 Wireless Controller    |Cisco::WLC_2106
-|                 |4400 Wireless Controller    |Cisco::WLC_4400
+|                 |Aironet (WDS)               |Cisco::Aironet_WDS
 |                 |Catalyst 2900XL Series      |Cisco::Catalyst_2900XL
 |                 |Catalyst 2950               |Cisco::Catalyst_2950
 |                 |Catalyst 2960               |Cisco::Catalyst_2960
@@ -96,6 +95,11 @@ PacketFence supports the following devices:
 |                 |Catalyst 6500               |Cisco::Catalyst_6500
 |                 |Router ISR 1800 Series      |Cisco::ISR_1800
 |                 |Wireless Services Module    |Cisco::WiSM
+|                 |Wireless Services Module 2  |Cisco::WiSM2
+|                 |2100 Wireless Controller    |Cisco::WLC_2106
+|                 |4400 Wireless Controller    |Cisco::WLC_4400
+|                 |5500 Wireless Controller    |Cisco::WLC_5500
+|                 |Wireless Controller (WLC)   |Cisco::WLC
 |D-Link           |DES 3526                    |Dlink::DES_3526
 |                 |DES 3550                    |Dlink::DES_3550
 |                 |DGS 3100                    |Dlink::DGS_3100
@@ -130,6 +134,7 @@ PacketFence supports the following devices:
 |Meru             |MC Series                   |Meru::MC
 |Motorola         |RF Switches                 |Motorola::RFS
 |Netgear          |FSM726v1                    |Netgear::FSM726v1
+|                 |GS110                       |Netgear::GS110
 |Nortel           |BPS2000                     |Nortel::BPS2000
 |                 |ERS 2500  Series            |Nortel::ERS2500
 |                 |ERS 4000 Series             |Nortel::ERS4000
@@ -1814,6 +1819,10 @@ On each interface
 Netgear
 ~~~~~~~
 
+The "web-managed smart switch" models GS108Tv2/GS110/GS110TP are supported with Link up/down traps only.
+
+Higher-end "fully managed" switches including FSM726v1 are supported in Port Security mode.
+
 FSM726 / FSM726S version 1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1839,6 +1848,68 @@ Under *Advanced -> Advanced Security -> Trusted MAC Address*, create a fake MAC 
   
 Don't forget to save the configuration!
 
+GS108Tv2 / GS110T / GS110TP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence supports certain lower-end Netgear switches in Link Up/Link Down traps. These "web-managed" switches have no command-line interface and only a subset of the port security and 802.1X functionnality needed to interoperate with PacketFence in these more advanced modes. There is no way to send a trap upon port security violation, and there is only pure 802.1X, no MAC Address Bypass.
+
+[float]
+Switch Configuration
+++++++++++++++++++++
+
+It can be difficult to find the advanced features in the web GUI. We recommend using the GUI "Maintenance" tab to Upload the configuration to a file, and then edit it there.
+
+Hints on file upload/download:
+
+From the File Type menu, choose Text Configuration.
+
+If you're uploading to the TFTP root directory, leave Path blank.
+
+At the top of the config file, you need:
+
+  vlan database
+  vlan 1,2,3,4,5
+  vlan name 1 "Normal"
+  vlan name 2 "Registration"
+  vlan name 3 "Isolation"
+  vlan name 4 "MAC Detection"
+  vlan name 5 "Guest"
+  exit
+
+In the same section as "users passwd", you need to specify your PacketFence server's management address:
+
+  snmptrap useStrongerSecret ipaddr 192.168.1.5
+
+In the same section as the "voip oui" lines, you need to allow your SNMP server:
+
+  snmp-server community "public"
+  snmp-server community rw useStrongerSecret
+  snmp-server community ipaddr 192.168.1.5 public
+  snmp-server community ipmask 255.255.255.0 public
+  snmp-server community ipaddr 192.168.1.5 useStrongerSecret
+  snmp-server community ipmask 255.255.255.0 useStrongerSecret
+  no voip vlan
+
+You should use port 1 as the uplink. If you connect port 1 of a GS108Tv2 switch into a Power over Ethernet switch, then the GS108Tv2 does not need AC power. If you bought GS110T(P) switches, presumably it's for the SFP uplink option. You'll want to configure both port 1 and the SFP ports 9-10 as trunks:
+
+  interface 0/1
+  no snmp trap link-status
+  ip dhcp filtering trust
+  vlan pvid 1
+  vlan ingressfilter
+  vlan participation include 1,2,3,4,5
+  vlan tagging 2,3,4,5
+  no auto-voip
+  exit
+
+Each user-facing, PacketFence-managed port should be configured like:
+
+  interface 0/2
+  vlan pvid 4
+  vlan ingressfilter
+  vlan participation include 4
+  no auto-voip
+  exit
 
 Nortel
 ~~~~~~
@@ -2119,13 +2190,6 @@ Roles
 Since PacketFence 3.3.0, we now support roles for the Aruba hardware.  To add roles, go in *Configuration -> Access Control -> User Roles -> Add*.  You don't need to force a VLAN usage in the Role
 since we send also the VLAN ID along with the Aruba User Role in the RADIUS request.  Refer to the Aruba User Guide for more information about the Role creation.
 
-WIPS
-++++
-
-In order to use the WIPS feature in PacketFence, please follow those simple steps to send the traps to PacketFence.
-
-First, configure PacketFence to be a trap receiver.  Under *Configuration > SNMP > Trap Receivers*, add an entry for the PF management IP.  By default, all traps will be enabled.  If you want to disable some, you will need
-to connect via CLI, and run the *snmp-server trap disable <trapname>* command.
 
 Aruba Controller 200
 ^^^^^^^^^^^^^^^^^^^^
@@ -2304,6 +2368,12 @@ aaa group server radius rad_mac
   server 192.168.0.10 auth-port 1812 acct-port 1813
 aaa authentication login mac_methods group rad_mac
 ----
+
+
+Aironet (WDS)
+^^^^^^^^^^^^^
+
+  To be contributed...
 
 
 Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
@@ -2654,70 +2724,6 @@ Finally, don't forget to configure the appropriate firewall rules for your Roles
 
 NOTE: You need to have an *Advanced Security* license to enable the Per-User Firewall feature.
 
-WIPS
-++++
-
-In order to enable the WIPS functionality on the Motorola, you need to follow this procedure.  The steps have been done using the CLI.
-
-First, Create a wips-policy:
-
-   wips-policy Rogue-AP
-   history-throttle-duration 86400
-   event ap-anomaly airjack
-   event ap-anomaly null-probe-response
-   event ap-anomaly asleap
-   event ap-anomaly ad-hoc-violation
-   event ap-anomaly ap-ssid-broadcast-in-beacon
-   event ap-anomaly impersonation-attack
-   ap-detection
-
-Next, create an event policy:
-
-   event-system-policy PF-WIDS
-   event wips wips-event syslog off snmp on forward-to-switch off email off
-
-Next, create or adjust your management policy to configure the SNMP traps.  Here is an example policy, please note the two last lines:
-
-   management-policy default
-   no http server
-   https server
-   ssh
-   user admin password 1 e4c93663e3356787d451312eeb8d4704ef09f2331a20133764c3dc3121f13a5b role superuser access all
-   user operator password 1 7c9b1fbb2ed7d5bb50dba0b563eac722b0676b45fed726d3e4e563b0c87d236d role monitor access all
-   no snmp-server manager v3
-   snmp-server community public ro
-   snmp-server community private rw
-   snmp-server user snmpoperator v3 encrypted des auth md5 0 operator
-   snmp-server user snmptrap v3 encrypted des auth md5 0 motorola
-   snmp-server user snmpmanager v3 encrypted des auth md5 0 motorola
-   snmp-server enable traps
-   snmp-server host 10.0.0.100 v2c 162
-
-You then need to tell your controller to use the event policy:
-
-   rfs6000 5C-0E-8B-17-F2-E3
-   ...
-   use event-system-policy PF-WIDS
-
-Finally, you need to configure a radio interface on your AP to act as a sensor.  Here is an example configuration for a dual-radio AP650:
-
-   ap650 00-23-68-86-EB-BC
-   use profile default-ap650
-   use rf-domain default
-   hostname ap650-86EBBC
-   country-code ca
-   use wips-policy Rogue-AP
-   interface radio1
-   rf-mode sensor
-   channel smart
-   power smart
-   data-rates default
-   no preamble-short
-   radio-share-mode off
-   interface radio2
-   ...
-
-
 Older Firmwares (< 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2785,26 +2791,6 @@ NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.
 * Select the proper RADIUS server as the accounting server
 * Check the *Enable Dynamic VLAN* checkbox
 
-WIPS
-++++
-
-To enable the WIPS feature of the Ruckus in order to send SNMP traps to PacketFence, the setup is fairly simple.  
-
-First, configure the controller to send the traps to PacketFence.  Under *Configure > System > Network Management > SNMP Trap*:
-
-*Select "Enable SNMP Trap"
-*Put the PacketFence Management IP in the Trap Server IP field
-
-NOTE: The traps will arrive with the "public" community string
-
-Next, you need to configure the Alarm Settings.  Under *Configure > Alarm Settings*, make sure the following are selected:
-
-*Rogue AP Detected
-*SSID-Spoofing AP Detected
-*MAC-Spoofing AP Detected
-*LAN Rogue AP Detected
-
-Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > Intrusion Detection and Prevention*, make sure both box are selected, click Apply. 
 
 Trapeze
 ~~~~~~~
