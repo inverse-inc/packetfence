@@ -145,7 +145,10 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # Rules that reduce server load by blocking undesired requests
   Include %%varconf_dir%%/block-unwanted.conf
-  
+
+  # OCSP/CRL List
+  Include %%varconf_dir%%/ocsp-crl.conf
+
 %%passthrough-http-proxies%%
 
 %%remediation-proxies%%
