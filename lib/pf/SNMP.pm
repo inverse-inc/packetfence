@@ -207,6 +207,7 @@ sub new {
         '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
+        '_Enforcement'              => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -302,6 +303,8 @@ sub new {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
+        } elsif (/^-?Enforcement$/i) {
+            $this->{_Enforcement} = $argv{$_};
         }
     }
     return $this;
@@ -1002,6 +1005,9 @@ sub getManagedIfIndexes {
 sub isManagedVlan {
     my ($this, $vlan) = @_;
 
+    if ($this->isSwitchInlineMode) {
+        return 1;
+    }
     # can I find $vlan in _vlans ?
     if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
         #unmanaged VLAN
@@ -2714,6 +2720,10 @@ sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
+    if ($self->isSwitchInlineMode) {
+        $logger->info("Returning ACCEPT without VLAN because of inline mode");
+        return [$RADIUS::RLM_MODULE_OK];
+    }
     # VLAN enforcement
     my $radius_reply_ref = {
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
@@ -2749,6 +2759,23 @@ sub returnRadiusAccessAccept {
     $logger->info("Returning ACCEPT with VLAN: $vlan");
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
+
+=item isSwitchInlineMode
+
+Check if the switch is configured in inline mode.
+
+Default implementation.
+
+=cut
+sub isSwitchInlineMode {
+    my ($self) = @_;
+    if ($self->{'_Enforcement'} eq "Inline") {
+        return $SNMP::TRUE;
+    } else {
+        return $SNMP::FALSE;
+    }
+}
+
 
 =back
 
