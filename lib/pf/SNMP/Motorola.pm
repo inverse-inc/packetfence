@@ -200,19 +200,24 @@ sub returnRoleAttribute {
     return 'Symbol-User-Group';
 }
 
-=item supportedDeauthTechniques
+=item DeauthTechniques
 
-Supported method to deauth a node.
+Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub supportedDeauthTechniques {
-    my $this = @_;
+sub DeauthTechniques {
+    my ($this, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::SNMP => \&_deauthenticateMacSNMP,
+        $SNMP::SNMP => \&deauthenticateMacDefault,
     );
-    return %tech;
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
 }
 
 
