@@ -29,6 +29,15 @@ use Log::Log4perl;
 use File::Copy;
 
 use constant CONFIGFILE => 'configfile';
+use constant DEFAULT_SWITCH => '
+[127.0.0.1]
+type=PacketFence
+mode=production
+uplink=dynamic
+# SNMP Traps v1 are used for internal messages
+SNMPVersionTrap=1
+SNMPCommunityTrap=public
+';
 
 BEGIN {
     use Exporter ();
@@ -157,9 +166,13 @@ sub configfile_add {
     my $lastMod = ( stat($filename) )[9];
 
     open my $configfile_fh, '<', $filename;
-    my @content = <$configfile_fh>;
+    my $content ='';
+    while (<$configfile_fh>) {
+        $content .= $_;
+    }
+    $content .= DEFAULT_SWITCH;
     close $configfile_fh;
-    db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_add_sql', $filename, join('', @content), $lastMod)
+    db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_add_sql', $filename, $content, $lastMod)
         || return (0);
     return (1);
 }
@@ -169,10 +182,14 @@ sub configfile_update {
     my $lastMod = ( stat($filename) )[9];
 
     open my $configfile_fh, '<', $filename;
-    my @content = <$configfile_fh>;
+    my $content ='';
+    while (<$configfile_fh>) {
+        $content .= $_;
+    }
+    $content .= DEFAULT_SWITCH;
     close $configfile_fh;
-    db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_update_sql', 
-        join('', @content), $lastMod, $filename)
+    db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_update_sql',
+        $content, $lastMod, $filename)
         || return (0);
     return (1);
 }
