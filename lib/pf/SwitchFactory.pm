@@ -358,6 +358,10 @@ sub readConfig {
             $SwitchConfig{$section}{$key} =~ s/\s+$//;
         }
     }
+    #Instanciate 127.0.0.1 switch
+    $SwitchConfig{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
+
+
     %{ $this->{_config} } = %SwitchConfig;
 
     return 1;
