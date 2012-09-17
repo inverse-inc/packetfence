@@ -171,7 +171,7 @@ sub configfile_update {
     open my $configfile_fh, '<', $filename;
     my @content = <$configfile_fh>;
     close $configfile_fh;
-    db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_update_sql', 
+    db_query_execute(CONFIGFILE, $configfile_statements, 'configfile_update_sql',
         join('', @content), $lastMod, $filename)
         || return (0);
     return (1);
