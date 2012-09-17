@@ -26,12 +26,16 @@ Bug Fixes
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 
+New Hardware
+ * Support for Cisco Catalyst 2960G in 802.1X / MAC-Authentication
+
 Enhancements
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
  * Tweaking some accounting queries for performance (#1534)
  * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
+ * Guest management page doesn't load on Internet Explorer 7 (#1404)
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05

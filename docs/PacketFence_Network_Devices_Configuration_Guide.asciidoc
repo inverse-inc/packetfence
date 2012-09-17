@@ -2413,7 +2413,8 @@ Wireless LAN Controller (WLC) or Wireless Services Module (WiSM)
 
 In this section, we cover the basic configuration of the WiSM for PacketFence using the web interface.
 
-* First, globally define the FreeRADIUS server running on PacketFence (PacketFence's IP)
+* First, globally define the FreeRADIUS server running on PacketFence
+  (PacketFence's IP) and make sure _Support for RFC 3576_ is enabled (if not present it is enabled by default)
 
 image::docs/images/cisco-wlc-radius-define.png[scaledwidth="100%",alt="Freeradius server"]
 
@@ -2699,6 +2700,10 @@ Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at
 * Select your AAA Policy previously created
 * Ensure that you selected Open as the Encryption
 
+.Accounting configuration:
+* Make sure you select "Enable RADIUS Accounting"
+* Select the previously configured AAA Policy
+
 .Advanced configuration:
 * Make sure you select RADIUS Dynamic Authorization
 
@@ -2719,6 +2724,10 @@ Under *Configuration -> Wireless -> Wireless LANs*, click on the *Add* button at
 * Select your AAA Policy previously created
 * Ensure that you selected WPA/WPA2-TKIP as the Encryption
 * Unselect everything under Fast Roaming (Disable caching)
+
+.Accounting configuration:
+* Make sure you select "Enable RADIUS Accounting"
+* Select the previously configured AAA Policy
 
 .Advanced configuration:
 * Make sure you select RADIUS Dynamic Authorization

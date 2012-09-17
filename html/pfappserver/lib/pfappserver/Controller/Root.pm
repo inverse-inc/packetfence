@@ -37,8 +37,9 @@ The root page (/)
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    # Hello World
-    $c->response->body( $c->welcome_message );
+    # Redirect to the configurator
+    $c->response->redirect($c->uri_for($c->controller('Configurator')->action_for('index')));
+    $c->detach();
 }
 
 =item default
