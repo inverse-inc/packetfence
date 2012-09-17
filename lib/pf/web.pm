@@ -391,6 +391,34 @@ sub generate_admin_error_page {
     $template->process( "error.html", $vars, $r ) || $logger->error($template->error());
 }
 
+=item generate_o2_page
+
+Handle the redirect to the proper OAuth2 Provider
+
+=cut
+sub generate_o2_page {
+   my { $portalSession, $err } = @_;
+   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+   # Generate the proper Client
+   my $provider = $portalSession->getCgi()->param('o2');
+
+   #TODO: Handle the client creation in a better way
+   if ($provider eq 'google') {
+       my $client = Net::OAuth2::Client->new(
+		config->{962416173273.apps.googleusercontent.com},
+		config->{I22vQlHAkei8fVTCQww2C100},
+		site => 'https://accounts.google.com',
+		authorize_path => '/o/oauth2/auth',
+		access_token_path => '/o/oauth2/token',
+		access_token_param => 'oauth_token',
+                protected_resource_url => 'https://www.google.com/m8/feeds/contacts/default/full',
+		scope => 'https://www.google.com/m8/feeds/'
+       )->web_server(redirect_uri => "https://auth.packetfence.org/o2/google")));
+
+       print $portalSession->cgi->redirect('$client->authorize_url');
+   }  
+}
 =item web_node_register
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.
