@@ -19,6 +19,7 @@ New Hardware
  * Support for Cisco Catalyst 2960G in 802.1X / MAC-Authentication
 
 Enhancements
+ * Removed 127.0.0.1 switch from the config and added in the code
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
