@@ -34,7 +34,6 @@ Release: %{rev}%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
-AutoReqProv: 0
 BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
 # disables the creation of the debug package for our setuid C wrapper
 %define debug_package %{nil}
@@ -81,6 +80,8 @@ as
 Group: System Environment/Daemons
 Summary: PacketFence network registration / worm mitigation system
 BuildArch: noarch
+# TODO we might consider re-enabling this to simplify our SPEC
+AutoReqProv: 0
 
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 # for process management
