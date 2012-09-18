@@ -25,7 +25,7 @@ Depends: ${misc:Depends}, vlan, make,
 # process management
  procps,
 # perl basic components
- perl-suid, liblist-moreutils-perl, libwww-perl, libtry-tiny-perl
+ perl-suid, liblist-moreutils-perl, libwww-perl, libtry-tiny-perl,
 # perl uncategorized modules
  libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
