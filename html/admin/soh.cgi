@@ -66,6 +66,7 @@ my $dbh = DBI->connect(
 
 setlocale(LC_MESSAGES, pf::web::web_get_locale($q, $csession));
 bindtextdomain("packetfence", "$conf_dir/locale");
+bind_textdomain_codeset("packetfence", "UTF-8");
 textdomain("packetfence");
 
 # Now, what does this request ask of us?
@@ -107,7 +108,7 @@ if ($method eq 'GET' && $action eq '') {
     my $vars = {
         self => $self,
         logo => $Config{general}{logo},
-        i18n => \&pf::web::i18n,
+        i18n => \&i18n,
         list_filters => $filters,
         list_rules => $rules,
         list_violations => \%violations
