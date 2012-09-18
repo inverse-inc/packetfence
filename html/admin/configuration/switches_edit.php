@@ -205,9 +205,9 @@
         printSelect( array('' => 'please choose', 'yes' => 'Yes', 'no' => 'No'), 'hash', $val, "name='$key'");
         break;
 
-      case 'Enforcement':
+      case 'enforcement':
         print "<tr><td></td><td>$pretty_key:</td><td>";
-        printSelect( array('' => 'please choose', 'Vlan' => 'VLAN', 'Inline' => 'INLINE'), 'hash', $val, "name='$key'");
+        printSelect( array('' => 'please choose', 'Vlan' => 'vlan', 'Inline' => 'inline'), 'hash', $val, "name='$key'");
         break;
 
       default:

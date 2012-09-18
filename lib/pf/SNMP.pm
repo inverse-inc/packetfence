@@ -207,7 +207,7 @@ sub new {
         '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
-        '_Enforcement'              => undef,
+        '_enforcement'              => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -303,8 +303,8 @@ sub new {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
-        } elsif (/^-?Enforcement$/i) {
-            $this->{_Enforcement} = $argv{$_};
+        } elsif (/^-?enforcement$/i) {
+            $this->{_enforcement} = $argv{$_};
         }
     }
     return $this;
@@ -1006,14 +1006,15 @@ sub isManagedVlan {
     my ($this, $vlan) = @_;
 
     if ($this->isSwitchInlineMode) {
-        return 1;
+        #In inline mode we didn´t have to check if the vlan is managed (We didn´t return vlan in radius answer)
+        return $TRUE;
     }
     # can I find $vlan in _vlans ?
     if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
         #unmanaged VLAN
-        return 0;
+        return $FALSE;
     }
-    return 1;
+    return $TRUE;
 }
 
 =item getMode - get the mode
@@ -2769,10 +2770,10 @@ Default implementation.
 =cut
 sub isSwitchInlineMode {
     my ($self) = @_;
-    if ($self->{'_Enforcement'} eq "Inline") {
-        return $SNMP::TRUE;
+    if ($self->{'_Enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+        return $TRUE;
     } else {
-        return $SNMP::FALSE;
+        return $FALSE;
     }
 }
 
