@@ -222,6 +222,7 @@ server.
 mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
+# TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
 for TRANSLATION in de en es fr he_IL it nl pt_BR; do 
     /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po
     mv packetfence.mo conf/locale/$TRANSLATION/LC_MESSAGES/

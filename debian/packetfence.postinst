@@ -22,11 +22,7 @@ case "$1" in
     configure)
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
-    
-        # compile grammar
-        perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
-        mv pfcmd_pregrammar.pm $PACKETFENCE/lib/pf/pfcmd/
-    
+
         # link to latest SQL schema
         if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
             cd $PACKETFENCE/db
