@@ -14,7 +14,9 @@ use lib '/usr/local/pf/lib';
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use Locale::gettext;
 use Log::Log4perl;
+use POSIX;
 use URI::Escape qw(uri_escape);
 
 use pf::class;
@@ -40,6 +42,11 @@ $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 my $ip = pf::web::get_client_ip($cgi);
 my $destination_url = pf::web::get_destination_url($cgi);
+
+# translation fix: setup gettext before gettext (i18n) calls are made
+setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+bindtextdomain( "packetfence", "$conf_dir/locale" );
+textdomain("packetfence");
 
 # we need a valid MAC to identify a node
 # TODO this is duplicated too much, it should be brought up in a global dispatcher
