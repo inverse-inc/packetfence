@@ -17,7 +17,7 @@ Version <develRelease> released on <releaseDate>
 
 New Features
  * Adding routing support for the inline mode
- * Adding support to choose multiples DNAT interfaces for inline mode
+ * Adding support to choose multiples SNAT interfaces for inline mode
 
 New Hardware
  * Support Belair Networks AP

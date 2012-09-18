@@ -52,7 +52,7 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
-Readonly my $FW_POSTROUTING_INT_INLINE_NONAT => 'postrouting-int-inline-nonat';
+Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-int-inline-routed';
 
 =head1 SUBROUTINES
 
@@ -84,7 +84,7 @@ sub iptables_generate {
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
         'filter_forward_vlan' => '', 
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
-        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 
+        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'nonat_postrouting_inline' => '',
     );
@@ -246,8 +246,8 @@ sub generate_inline_rules {
     $logger->info("Adding NAT Masquarade statement (PAT)");
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
     
-    $logger->info("Addind NONAT statement");
-    $$nonat_postrouting_inline .= "-A $FW_POSTROUTING_INT_INLINE_NONAT --jump ACCEPT\n";
+    $logger->info("Addind ROUTED statement");
+    $$nonat_postrouting_inline .= "-A $FW_POSTROUTING_INT_INLINE_ROUTED --jump ACCEPT\n";
 
     $logger->info("building firewall to accept registered users through inline interface");
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
@@ -357,11 +357,11 @@ sub generate_inline_if_src_to_chain {
                 foreach my $network ( keys %ConfigNetworks ) {
                     next if ( !pf::config::is_network_type_inline($network) );
                     my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                    my $NAT = $ConfigNetworks{$network}{'nat'};
-                    if (defined ($NAT) && ($NAT eq $NO)) {
+                    my $nat = $ConfigNetworks{$network}{'nat'};
+                    if (defined ($nat) && ($nat eq $NO)) {
                         $rules .= "-A POSTROUTING -s $network/$inline_obj->{BITS} --out-interface $val ";
                         $rules .= "--match mark --mark 0x$_ ";
-                        $rules .= "--jump $FW_POSTROUTING_INT_INLINE_NONAT";
+                        $rules .= "--jump $FW_POSTROUTING_INT_INLINE_ROUTED";
                         $rules .= "\n";
                     }
 
@@ -765,7 +765,7 @@ Return the list of network interface to enable SNAT.
 =cut
 sub get_snat_interface {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     if (defined ($Config{'inline'}{'interfaceSNAT'})) {
         return $Config{'inline'}{'interfaceSNAT'};
     } else {
