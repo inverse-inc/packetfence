@@ -16,6 +16,8 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  openssl, openssl-blacklist, openssl-blacklist-extra, php-log, snort, 
  mysql-server, libapache2-mod-proxy-html, libapache2-mod-php5, php-pear,
  php5-mysql, php5-gd, perl-suid, make,
+# ipset (ipset must be installed by hand  apt-get install xtables-addons-common  xtables-addons-source)
+ sudo,
 # process management
  procps,
 # perl stuff
@@ -51,7 +53,7 @@ Depends: ${misc:Depends}, apache2, apache2.2-common, apache2-utils,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
  gettext, vlan, libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
- libnet-nessus-xmlrpc-perl (>= 0.4),
+ libnetaddr-ip-perl, libfile-which-perl, libnet-nessus-xmlrpc-perl (>= 0.4),
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl,
