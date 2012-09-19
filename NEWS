@@ -40,6 +40,7 @@ Bug Fixes
  * Guest management page doesn't load on Internet Explorer 7 (#1404)
  * Debian: issues with translations (#1465)
  * Debian: SSH and Telnet based deauthentication (#1511)
+ * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05
