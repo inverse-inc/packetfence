@@ -22,6 +22,7 @@ Enhancements
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
+ * Translation of captive portal error messages
 
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
