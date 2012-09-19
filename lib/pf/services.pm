@@ -171,11 +171,11 @@ sub service_ctl {
                             return $return_value;
                         }
                     } else {
-                        if ( isenabled( $Config{'network'}{'dhcpdetector'} ) )
-                        {
-                            my @devices = @listen_ints;
-                            push @devices, @dhcplistener_ints;
-                            foreach my $dev (@devices) {
+                        if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
+                            # putting interfaces to run listener on in hash so that
+                            # only one listener per interface will ever run
+                            my %interfaces = map { $_ => $TRUE } @listen_ints, @dhcplistener_ints;
+                            foreach my $dev (keys %interfaces) {
                                 my $cmd_line = sprintf($service_launchers{$daemon}, $service, $dev);
                                 # FIXME lame taint-mode bypass
                                 if ($cmd_line =~ /^(.+)$/) {
