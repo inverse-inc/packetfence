@@ -249,7 +249,15 @@ sub service_ctl {
                         # -f: whole command line, -x: exact match (fixes #1545)
                         chomp($int_to_pid{$interface} = `pgrep -f -x "$binary: listening on $interface"`);
                         # if one check returned a false value ('' is false) then we failed the check
-                        $dead_flag = $TRUE if (!$int_to_pid{$interface});
+                        if (!$int_to_pid{$interface}) {
+                            $dead_flag = $TRUE;
+                            $logger->debug( "Missing $binary process on interface: $interface" );
+                        }
+                        # more than one running instance: fail
+                        elsif ($int_to_pid{$interface} =~ /\n/) {
+                            $logger->debug( "More than one $binary process running on interface: $interface" );
+                            $dead_flag = $TRUE;
+                        }
                     }
 
                     # outputs: a list of interface => pid, ... helpful for sysadmin and forensics
