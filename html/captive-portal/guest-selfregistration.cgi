@@ -13,6 +13,7 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use Date::Format qw(time2str);
+use Locale::gettext;
 use Log::Log4perl;
 use Readonly;
 use POSIX;
@@ -44,6 +45,11 @@ $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 my $ip = pf::web::get_client_ip($cgi);
 my $destination_url = pf::web::get_destination_url($cgi);
+
+# translation fix: setup gettext before gettext (i18n) calls are made
+setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+bindtextdomain( "packetfence", "$conf_dir/locale" );
+textdomain("packetfence");
 
 # if self registration is not enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))

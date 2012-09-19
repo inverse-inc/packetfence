@@ -12,6 +12,7 @@ use lib "/usr/local/pf/lib";
 use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
+use Locale::gettext;
 use Log::Log4perl;
 use POSIX;
 
@@ -27,6 +28,11 @@ Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('email_activation.cgi');
 Log::Log4perl::MDC->put('proc', 'email_activation.cgi');
 Log::Log4perl::MDC->put('tid', 0);
+
+# translation fix: setup gettext before gettext (i18n) calls are made
+setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+bindtextdomain( "packetfence", "$conf_dir/locale" );
+textdomain("packetfence");
 
 my $cgi = new CGI;
 $cgi->charset("UTF-8");

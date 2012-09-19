@@ -13,6 +13,7 @@ use CGI;
 use CGI::Carp qw( fatalsToBrowser );
 use CGI::Session;
 use HTML::Entities;
+use Locale::gettext;
 use Log::Log4perl;
 use POSIX;
 use URI::Escape qw(uri_escape uri_unescape);
@@ -40,6 +41,11 @@ $cgi->charset("UTF-8");
 my $session = new CGI::Session(undef, $cgi, {Directory=>'/tmp'});
 my $destination_url = pf::web::get_destination_url($cgi);
 my $ip = $cgi->remote_addr();
+
+# translation fix: setup gettext before gettext (i18n) calls are made
+setlocale( LC_MESSAGES, pf::web::web_get_locale($cgi, $session) );
+bindtextdomain( "packetfence", "$conf_dir/locale" );
+textdomain("packetfence");
 
 # If the billing engine isn't enabled (you shouldn't be here), redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($destination_url))
