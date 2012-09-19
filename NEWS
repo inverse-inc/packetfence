@@ -15,6 +15,9 @@ For a list of compatibility related changes see the UPGRADE file.
 --------------------------------------------------------------------------------
 Version <develRelease> released on <releaseDate>
 
+New Hardware
+ * New module for Cisco Catalyst 3750G to fix offset issues
+
 Enhancements
  * Code cleanups (#1484)
  * Important simplification of the Captive Portal code to make it harder to introduce problems

@@ -199,7 +199,8 @@ Readonly::Scalar our $TERMINAL => 5;
 Used for NAS-Port to ifIndex translation
 
 =cut
-Readonly::Scalar our $IFINDEX_OFFSET => 10100;
+Readonly::Scalar our $IFINDEX_OFFSET => 10000;
+Readonly::Scalar our $IFINDEX_GIG_OFFSET => 10100;
 Readonly::Scalar our $IFINDEX_PER_STACK => 500;
 
 =back
