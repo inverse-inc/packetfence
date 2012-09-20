@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 12;
+use Test::More tests => 20;
 use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
@@ -36,6 +36,26 @@ $switch = $switchFactory->instantiate('10.0.0.4');
 
 # sample NAS-Port -> ifIndex mappings
 my %nasPortIfIndex = (
+    '50101' => '10001',
+    '50128' => '10028',
+    '50201' => '10501',
+    '50228' => '10528',
+    '50301' => '11001',
+    '50328' => '11028',
+    '50401' => '11501',
+    '50428' => '11528',
+);
+
+foreach my $nasPort (keys %nasPortIfIndex) {
+    is($switch->NasPortToIfIndex($nasPort), $nasPortIfIndex{$nasPort}, "port translation for $nasPort");
+}
+
+# Catalyst 3750G tests
+
+$switch = $switchFactory->instantiate('10.0.0.11');
+
+# sample NAS-Port -> ifIndex mappings
+%nasPortIfIndex = (
     '50101' => '10101',
     '50128' => '10128',
     '50201' => '10601',
@@ -60,7 +80,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2010-2012 Inverse inc.
 
 =head1 LICENSE
     
