@@ -1,6 +1,6 @@
 ; Isolation network DNS configuration
 ; This file is manipulated on PacketFence's startup before being given to named
-$TTL 1
+$TTL 15
 . IN SOA %%hostname%%. %%incharge%% (
     2009020901  ; serial
     10800       ; refresh
