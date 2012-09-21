@@ -2770,7 +2770,7 @@ Default implementation.
 =cut
 sub isSwitchInlineMode {
     my ($self) = @_;
-    if ($self->{'_Enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+    if ($self->{'_enforcement'} eq $IF_ENFORCEMENT_INLINE) {
         return $TRUE;
     } else {
         return $FALSE;
