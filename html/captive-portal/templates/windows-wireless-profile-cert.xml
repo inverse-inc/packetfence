@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+        <name>[% ssid %]</name>
+        <SSIDConfig>
+                <SSID>
+                        <hex>[% ssid_hex %]</hex>
+                        <name>[% ssid %]</name>
+                </SSID>
+                <nonBroadcast>false</nonBroadcast>
+        </SSIDConfig>
+        <connectionType>ESS</connectionType>
+        <connectionMode>auto</connectionMode>
+        <autoSwitch>false</autoSwitch>
+        <MSM>
+                <security>
+                        <authEncryption>
+                                <authentication>WPA2</authentication>
+                                <encryption>AES</encryption>
+                                <useOneX>true</useOneX>
+                                <FIPSMode xmlns="http://www.microsoft.com/networking/WLAN/profile/v2">false</FIPSMode>
+                        </authEncryption>
+                        <PMKCacheMode>enabled</PMKCacheMode>
+                        <PMKCacheTTL>720</PMKCacheTTL>
+                        <PMKCacheSize>128</PMKCacheSize>
+                        <preAuthMode>disabled</preAuthMode>
+                        <OneX xmlns="http://www.microsoft.com/networking/OneX/v1">
+                                <cacheUserData>true</cacheUserData>
+                                <authMode>user</authMode>
+                                <EAPConfig>
+                                        <EapHostConfig xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+                                                <EapMethod>
+                                                        <Type xmlns="http://www.microsoft.com/provisioning/EapCommon">25</Type>
+                                                        <VendorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorId>
+                                                        <VendorType xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorType>
+                                                        <AuthorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</AuthorId>
+                                                </EapMethod>
+                                                <Config xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+                                                        <Eap xmlns="http://www.microsoft.com/provisioning/BaseEapConnectionPropertiesV1">
+                                                                <Type>25</Type>
+                                                                <EapType xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV1">
+                                                                        <ServerValidation><DisableUserPromptForServerValidation>false</DisableUserPromptForServerValidation>
+                                                                                <ServerNames></ServerNames>
+                                                                                <TrustedRootCA>[% key %]</TrustedRootCA>
+                                                                        </ServerValidation>
+                                                                        <FastReconnect>false</FastReconnect>
+                                                                        <InnerEapOptional>false</InnerEapOptional>
+                                                                        <Eap xmlns="http://www.microsoft.com/provisioning/BaseEapConnectionPropertiesV1">
+                                                                                <Type>26</Type>
+                                                                                <EapType xmlns="http://www.microsoft.com/provisioning/MsChapV2ConnectionPropertiesV1">
+                                                                                        <UseWinLogonCredentials>false</UseWinLogonCredentials>
+                                                                                </EapType>
+                                                                         </Eap>
+                                                                         <EnableQuarantineChecks>false</EnableQuarantineChecks>
+                                                                         <RequireCryptoBinding>false</RequireCryptoBinding>
+                                                                         <PeapExtensions>
+                                                                                 <PerformServerValidation xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV2">true</PerformServerValidation>
+                                                                                 <AcceptServerName xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV2">false</AcceptServerName>
+                                                                         </PeapExtensions>
+                                                               </EapType>
+                                                        </Eap>
+                                                </Config>
+                                        </EapHostConfig>
+                                </EAPConfig>
+                        </OneX>
+                </security>
+        </MSM>
+</WLANProfile>
+
