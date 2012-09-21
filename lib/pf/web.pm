@@ -36,7 +36,7 @@ use Log::Log4perl;
 use Readonly;
 use Template;
 use URI::Escape qw(uri_escape uri_unescape);
-use List::MoreUtils qw(any);
+use Crypt::OpenSSL::X509;
 
 BEGIN {
     use Exporter ();
@@ -197,7 +197,7 @@ sub supports_mobileconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/);
+    return $FALSE if ((!defined($fingerprint[0]->{'os'})) ||  ($fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad / && $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/)); 
 
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
@@ -251,6 +251,83 @@ sub generate_apple_mobileconfig_provisioning_xml {
     $portalSession->stash->{'headers'} = @headers;
 
     render_template($portalSession, 'wireless-profile.xml');
+}
+
+=item generate_windows_provisioning_xml
+
+Generate the proper XML config to automatically configure Wireless for windows devices.
+
+=cut
+sub generate_windows_provisioning_xml {
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+
+    # if not logged in, disallow access
+    #return if (!defined($session->param('username')));
+    my $ssid_hex = $Config{'provisioning'}{'ssid'};
+    $ssid_hex =~ s/(.)/sprintf("%x",ord($1))/eg;
+    my $vars = {
+        username => $session->param('username'),
+        ssid => $Config{'provisioning'}{'ssid'},
+        ssid_hex => $ssid_hex,
+    };
+
+# Some required headers
+    print $cgi->header( 'Content-type: application/xml; charset=utf-8' );
+    print $cgi->header( 'Content-Disposition: attachment; filename="windows-wireless-profile"' );
+
+    # Using TT to render the XML with correct variables populated
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+    });
+    if (defined($Config{'provisioning'}{'certificate'})) {
+        my $x509 = Crypt::OpenSSL::X509->new_from_file($Config{'provisioning'}{'certificate'});
+        my $key = $x509->fingerprint_sha1();
+        $key =~ s/:/ /g;
+        $vars->{ 'key' } = $key;
+        $template->process( "windows-wireless-profile-cert.xml", $vars ) || $logger->error($template->error());
+    }
+    else {
+        $vars->{ 'key' } = "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        $template->process( "windows-wireless-profile.xml", $vars ) || $logger->error($template->error());
+    }
+
+}
+
+=item send radius certificate
+
+Send the radius certificate (ca.der) for windows.
+
+=cut
+sub send_radius_certificate {
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    # First blast at consuming portalSession object
+    my $cgi     = $portalSession->getCgi();
+    my $session = $portalSession->getSession();
+
+    # if not logged in, disallow access
+    #return if (!defined($session->param('username')));
+
+    if (defined($Config{'provisioning'}{'certificate'})) {
+
+        # Some required headers
+        print $cgi->header( 'Content-type: application/x-x509-ca-cert, charset=utf-8' );
+        print $cgi->header( 'Content-Disposition: attachment; filename="cacert.pem"' );
+        open( FILE, "<$Config{'provisioning'}{'certificate'}" );
+        while(read(FILE, my $buffer, 100) )
+        {
+           print("$buffer");
+        }
+    }
+    else {
+        print $cgi->header(-status=>'404',-type=>'text/html'),$cgi->start_html(-title=>'404 Page Not Found'),'<hi>you did not configure a certificate in your config</h1>';
+    }
 }
 
 sub generate_scan_start_page {
