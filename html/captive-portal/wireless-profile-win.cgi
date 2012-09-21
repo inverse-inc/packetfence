@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-wireless-profile.cgi 
+wireless-profile-win.cgi 
 
 =head1 DESCRIPTION
 
-Generates proper XML to provision Wi-Fi settings for mobile devices.
+Generates proper XML to provision Wi-Fi settings for windows os.
 
 =cut
 
@@ -24,7 +24,7 @@ use pf::web::custom;
 
 my $portalSession = pf::Portal::Session->new();
 
-# we only support Apple iOS for now
+
 pf::web::generate_windows_provisioning_xml($portalSession);
 
 =head1 AUTHOR
@@ -32,6 +32,8 @@ pf::web::generate_windows_provisioning_xml($portalSession);
 Olivier Bilodeau <obilodeau@inverse.ca>
         
 Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Durand Fabrice <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
         
