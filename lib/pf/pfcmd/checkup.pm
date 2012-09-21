@@ -591,6 +591,7 @@ sub is_config_documented {
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
+        next if ( ( $group eq 'provisioning' ) && ( $item eq 'certificate') );
 
         if ( defined( $Config{$group}{$item} ) ) {
             if ( $type eq "toggle" ) {
