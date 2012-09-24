@@ -18,6 +18,7 @@ use Template;
 use URI::Escape qw(uri_escape);
 
 use pf::config;
+use pf::util;
 use pf::web::constants;
 
 =head1 SUBROUTINES
@@ -95,9 +96,9 @@ sub handler {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
 
-    # XXX https vs http portal in a variable
+    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? 'https' : 'http';
     my $stash = {
-        'login_url' => "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
+        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
     };
 
     # prepare custom REDIRECT response
