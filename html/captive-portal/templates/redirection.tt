@@ -1,4 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head><title>302 Moved Temporarily</title></head><body>
+<h1>Moved</h1>
+<p>The document has moved <a href="[% login_url %]">here</a>.</p>
+<!--
+<?xml version="1.0" encoding="UTF-8"?>
 <WISPAccessGatewayParam
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:noNamespaceSchemaLocation="http://www.wballiance.net/wispr_2_0.xsd">
@@ -13,3 +18,5 @@
    <LoginURL>[% login_url %]</LoginURL>
  </Redirect>
 </WISPAccessGatewayParam>
+-->
+</body></html>

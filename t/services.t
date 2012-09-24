@@ -12,9 +12,8 @@ Exercizing pf::services and sub modules components.
 
 use strict;
 use warnings;
-use diagnostics;
 
-use Test::More tests => 23;
+use Test::More tests => 19;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -40,35 +39,13 @@ use pf::config;
 
 =cut
 
-# _url_parser 
-my @return = pf::services::apache::_url_parser('http://packetfence.org/tests/conficker.html');
-is_deeply(\@return,
-    [ 'http\:\/\/packetfence\.org', 'http', 'packetfence\.org', '\/tests\/conficker\.html' ],
-    "Parsing a standard URL"
-);
-
-@return = pf::services::apache::_url_parser('HTTPS://www.inverse.ca/');
-is_deeply(\@return,
-    [ 'https\:\/\/www\.inverse\.ca', 'https', 'www\.inverse\.ca', '\/' ],
-    "Parsing an uppercase HTTPS URL with no query"
-);
-
-@return = pf::services::apache::_url_parser('http://www.google.co.uk');
-is_deeply(\@return,
-    [ 'http\:\/\/www\.google\.co\.uk', 'http', 'www\.google\.co\.uk', '\/' ],
-    'regression test for issue 1368: accept domains without ending slash'
-);
-
-@return = pf::services::apache::_url_parser('invalid://url$.com');
-ok(!@return, "Passed invalid URL expecting undef");
-
 # generate_passthrough_rewrite_proxy_config
 my %sample_config = (
     "packetfencebugs" => 'http://www.packetfence.org/bugs/',
     "invalid" => "bad-url.ca",
     "inverse" => "http://www.inverse.ca/"
 );
-@return = generate_passthrough_rewrite_proxy_config(%sample_config);
+my @return = generate_passthrough_rewrite_proxy_config(%sample_config);
 is_deeply(\@return,
     [
         [ '  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs', 

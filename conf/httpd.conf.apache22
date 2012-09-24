@@ -40,7 +40,6 @@ AddHandler cgi-script .cgi
 TypesConfig /etc/mime.types
 AddType .gif image/gif binary
 AddType .jpg image/jpg binary
-Options Indexes
 DirectoryIndex index.html index.cgi index.php
 
 <IfModule !mod_auth_basic.c>
@@ -103,7 +102,9 @@ DirectoryIndex index.html index.cgi index.php
 
 # -- GLOBAL OPTIONS --
 PerlSwitches -I%%install_dir%%/lib
-PerlChildInitHandler "sub { srand }"
+# Initialize random seed per child (avoid random clashes)
+# Setting child process id in Log4perl
+PerlChildInitHandler "sub { srand; Log::Log4perl::MDC->put('tid', $$) }";
 php_value date.timezone "%%timezone%%"
  
 AddType application/x-httpd-php .php
@@ -153,27 +154,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   # Captive Portal Clean URLs
   Include %%varconf_dir%%/captive-portal-cleanurls.conf
 
-  # Warning: old cgi style URL deprecated will be removed in an upcoming release
-  # Still accepted for a transition period. To be deprecated in 2012.
-  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
-  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
-  RewriteCond %{REQUEST_URI} !^/common
-  RewriteCond %{REQUEST_URI} !^/content
-  RewriteCond %{REQUEST_URI} !^/favicon.ico
-  RewriteCond %{REQUEST_URI} !^/proxies
-  RewriteCond %{REQUEST_URI} !^/proxy
-  RewriteCond %{REQUEST_URI} !^/remediation.php
-  # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=http://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
+%%proxies%%                
 
 </VirtualHost>
 
@@ -198,28 +179,6 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # Captive Portal Clean URLs
   Include %%varconf_dir%%/captive-portal-cleanurls.conf
-
-  # Warning: old cgi style URL deprecated will be removed in an upcoming release
-  # Still accepted for a transition period. To be deprecated in 2012.
-  ScriptAlias /cgi-bin/ "%%install_dir%%/html/captive-portal/"
-  RewriteRule ^/cgi-bin/content/(.*)$ /content/$1 [PT]
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-selfregistration.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/email_activation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/mobile-confirmation.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/guest-management.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/redir.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/release.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/register.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/enabler.cgi
-  RewriteCond %{REQUEST_URI} !^/cgi-bin/wispr.cgi
-  RewriteCond %{REQUEST_URI} !^/common
-  RewriteCond %{REQUEST_URI} !^/content
-  RewriteCond %{REQUEST_URI} !^/favicon.ico
-  RewriteCond %{REQUEST_URI} !^/proxies
-  RewriteCond %{REQUEST_URI} !^/proxy
-  RewriteCond %{REQUEST_URI} !^/remediation.php
-  # Now using temporary redirects instead of permanent (fixes #757)
-  RewriteRule ^.*$ https://%%hostname%%.%%domain%%/captive-portal?destination_url=https://%{HTTP_HOST}%{REQUEST_URI} [R=307,L]
 
 %%proxies%%                
 
