@@ -96,7 +96,7 @@ sub handler {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
 
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? 'https' : 'http';
+    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
     my $stash = {
         'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
     };
