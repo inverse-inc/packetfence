@@ -55,8 +55,6 @@ use pf::violation qw(violation_count);
 use pf::web::auth; 
 use pf::web::constants; 
 
-use Data::Dumper;
-
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 Readonly our $LOGIN_TEMPLATE => 'login.html';
 

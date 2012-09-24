@@ -5,7 +5,7 @@
 ; This file is manipulated on PacketFence's startup before being given to named
 $ORIGIN facebook.com.
 $TTL 1
-@ IN SOA pf-dev3.facebook.com. pf.pf-dev3.facebook.com. (
+@ IN SOA %%hostname%%. %%incharge%% (
     2009020902  ; serial
     10800       ; refresh
     3600        ; retry
