@@ -55,6 +55,8 @@ use pf::violation qw(violation_count);
 use pf::web::auth; 
 use pf::web::constants; 
 
+use Data::Dumper;
+
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 Readonly our $LOGIN_TEMPLATE => 'login.html';
 
@@ -397,28 +399,57 @@ Handle the redirect to the proper OAuth2 Provider
 
 =cut
 sub generate_o2_page {
-   my { $portalSession, $err } = @_;
+   my ( $portalSession, $err ) = @_;
    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
    # Generate the proper Client
-   my $provider = $portalSession->getCgi()->param('o2');
+   my $provider = $portalSession->getCgi()->url_param('o2');
 
-   #TODO: Handle the client creation in a better way
-   if ($provider eq 'google') {
-       my $client = Net::OAuth2::Client->new(
-		config->{962416173273.apps.googleusercontent.com},
-		config->{I22vQlHAkei8fVTCQww2C100},
-		site => 'https://accounts.google.com',
-		authorize_path => '/o/oauth2/auth',
-		access_token_path => '/o/oauth2/token',
-		access_token_param => 'oauth_token',
-                protected_resource_url => 'https://www.google.com/m8/feeds/contacts/default/full',
-		scope => 'https://www.google.com/m8/feeds/'
-       )->web_server(redirect_uri => "https://auth.packetfence.org/o2/google")));
-
-       print $portalSession->cgi->redirect('$client->authorize_url');
-   }  
+   print $portalSession->cgi->redirect(oauth2_client($provider)->authorize_url);
 }
+
+=item generate_o2_result
+
+Handle the redirect to the proper OAuth2 Provider
+
+=cut
+sub generate_o2_result {
+   my ( $portalSession, $provider ) = @_;
+   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+   my $code = $portalSession->getCgi()->url_param('code');
+
+   $logger->info("API CODE: $code");
+
+   #Get the token
+   my $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+
+   my $response;
+
+   # Validate the token
+   if ($provider eq 'google') {
+       $response = $token->get('https://www.googleapis.com/oauth2/v2/userinfo');
+   } elsif ($provider eq 'facebook') {
+       $response = $token->get('https://graph.facebook.com/me');
+   }
+   
+   if ($response->is_success) {
+        # Grab JSON content
+        my $json = new JSON;
+        my $json_text = $json->decode($response->content());
+        if ($provider eq 'google') {
+            $logger->info("OAuth2 successfull, register and release for email $json_text->{email}");
+            return ($TRUE,$json_text->{email});
+        } elsif ($provider eq 'facebook') {
+            $logger->info("OAuth2 successfull, register and release for username $json_text->{username}");
+            return ($TRUE,$json_text->{username});
+        }
+   } else {
+        $logger->info("OAuth2 failed, redireting to login page with appropriate error");
+        return 0;
+   }
+}
+
 =item web_node_register
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.
@@ -706,6 +737,23 @@ sub generate_generic_page {
 
     $portalSession->stash( $template_args );
     render_template($portalSession, $template);
+}
+
+sub oauth2_client {
+      my $provider = shift;
+      
+      
+
+      Net::OAuth2::Client->new(
+                $Config{"OAuth2 $provider"}{'client_id'},
+                $Config{"OAuth2 $provider"}{'client_secret'},
+                site => $Config{"OAuth2 $provider"}{'site'},
+                authorize_path => $Config{"OAuth2 $provider"}{'authorize_path'},
+		access_token_path => $Config{"OAuth2 $provider"}{'access_token_path'},
+		access_token_method => $Config{"OAuth2 $provider"}{'access_token_method'},
+		access_token_param => $Config{"OAuth2 $provider"}{'access_token_param'},
+		scope => $Config{"OAuth2 $provider"}{'scope'}
+       )->web_server(redirect_uri => $Config{"OAuth2 $provider"}{'redirect_uri'} );
 }
 
 =back
