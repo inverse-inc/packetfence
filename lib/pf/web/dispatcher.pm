@@ -46,18 +46,22 @@ sub translate {
     #          to reload Apache dynamically. pf::web::constants will need some
     #          rework also
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
+        # DECLINED tells Apache to continue further mod_rewrite / alias processing
         return Apache2::Const::DECLINED;
     }
 
     # passthrough
     # if the regex is not defined, we skip, this allow us to skip an expensive Config test
     if (defined $CAPTIVE_PORTAL{'PASSTHROUGH_HOSTS_RE'} ) {
+        # DECLINED tells Apache to continue further mod_rewrite / alias processing
         return Apache2::Const::DECLINED if (_matches_passthrough($r));
     }
 
-    # fallback to a redirection
-    $r->uri('/perl/portal-redirect');
-    return Apache2::Const::DECLINED;
+    # fallback to a redirection: inject local redirection handler
+    $r->handler('modperl');
+    $r->set_handlers( PerlResponseHandler => \&handler );
+    # OK tells Apache to stop further mod_rewrite / alias processing
+    return Apache2::Const::OK;
 }
 
 =item _matches_passthrough
@@ -92,7 +96,7 @@ L<pf::Portal::Session>.
 
 =cut
 sub handler {
-    my ($r) = shift;
+    my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
 
