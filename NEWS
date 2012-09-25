@@ -22,6 +22,8 @@ Enhancements
  * Code cleanups (#1484)
  * Important simplification of the Captive Portal code to make it harder to introduce problems
  * Adding default OCSP/CRL Proxies (#1329)
+ * Better WISPR support
+ * New parameter to control captive portal interception: secure_redirect
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)

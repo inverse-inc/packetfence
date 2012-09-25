@@ -25,6 +25,12 @@ details.
 All CGI style URLs (ex: `/cgi-bin/redir.cgi`) are now no longer supported.
 They were first marked as deprecated in 3.0.
 
+Apache config
+^^^^^^^^^^^^^
+
+Apache configuration was radically modified. Anyone with customizations will
+need to re-apply them after an upgrade.
+
 Core
 ^^^^
 
