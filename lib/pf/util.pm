@@ -53,6 +53,8 @@ BEGIN {
     );
 }
 
+# TODO pf::util shouldn't rely on pf::config as this prevent pf::config from
+#      being able to use pf::util
 use pf::config;
 
 =head1 SUBROUTINES
@@ -926,7 +928,6 @@ sub generate_id {
 
     return $id;
 }
-
 
 =back
 

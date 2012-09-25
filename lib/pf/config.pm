@@ -82,6 +82,7 @@ BEGIN {
         $ROLE_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR
         %CAPTIVE_PORTAL
+        $HTTP $HTTPS
         normalize_time $TIME_MODIFIER_RE
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
@@ -90,6 +91,8 @@ BEGIN {
         load_config
     );
 }
+
+use pf::util::apache qw(url_parser);
 
 $thread = 0;
 
@@ -193,6 +196,10 @@ Readonly our $EAP      => 0b010000000;
 # VoIP constants
 Readonly our $VOIP    => 'yes';
 Readonly our $NO_VOIP => 'no';
+
+# HTTP constants
+Readonly our $HTTP => 'http';
+Readonly our $HTTPS => 'https';
 
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
@@ -746,11 +753,24 @@ sub _load_captive_portal {
         "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
     );
 
+    # passthrough proxy is enabled, we need to inject proper 'allow through' for pf::web::dispatcher
+    if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
+
+        my $passthrough_ref = {};
+        foreach my $key (keys %{$Config{'passthroughs'}}) {
+            my (undef, undef, $host, $query) = url_parser($Config{'passthroughs'}{$key});
+            $passthrough_ref->{$host} = $query;
+        }
+        $CAPTIVE_PORTAL{'PASSTHROUGHS'} = $passthrough_ref;
+        # pre-loading an regex for hosts so that the first passthrough pass is fast
+        my $pt_hosts = join('|', keys %$passthrough_ref);
+        $CAPTIVE_PORTAL{'PASSTHROUGH_HOSTS_RE'} = qr/^(?:$pt_hosts)$/;
+    }
+
     # process pf.conf's parameter into an IP => 1 hash
     %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} = 
         map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
     ;
-
 }
 
 =back

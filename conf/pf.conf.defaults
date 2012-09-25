@@ -717,6 +717,13 @@ network_detection_ip = 67.205.85.245
 # Modify conf/httpd.conf.d/captive-portal-common.conf to use 
 # loadbalanced_combined instead of combined in CustomLog statement.
 loadbalancers_ip=
+#
+# captive_portal.secure_redirect
+#
+# If secure_redirect is enabled, the captive portal uses HTTPS when redirecting
+# captured clients. This is the default behavior.
+secure_redirect=enabled
+
 
 [advanced]
 #

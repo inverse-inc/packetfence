@@ -24,10 +24,10 @@ use pf::config;
 BEGIN { use_ok('pf::web') }
 BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
+BEGIN { use_ok('pf::web::dispatcher') }
 BEGIN { use_ok('pf::web::guest') }
 BEGIN { use_ok('pf::web::release') }
 BEGIN { use_ok('pf::web::util') }
-BEGIN { use_ok('pf::web::wispr') }
 
 =head1 TESTS
 
@@ -107,7 +107,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011, 2012 Inverse inc.
 
 =head1 LICENSE
     

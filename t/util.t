@@ -2,13 +2,15 @@
 
 use strict;
 use warnings;
-use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 18;
+use Test::More tests => 23;
 use Test::NoWarnings;
 
-BEGIN { use_ok('pf::util') }
+BEGIN {
+    use_ok('pf::util');
+    use_ok('pf::util::apache');
+}
 
 # valid_mac
 ok(valid_mac("aa:bb:cc:dd:ee:ff"), "validate MAC address of the form xx:xx:xx:xx:xx:xx");
@@ -42,6 +44,31 @@ is_deeply(
 
 is( format_mac_as_cisco('f0:4d:a2:cb:d9:c5'), 'f04d.a2cb.d9c5', 'format_mac_as_cisco legit conversion');
 is( format_mac_as_cisco(), undef, 'format_mac_as_cisco return undef on failure');
+
+# pf::util::apache
+
+# url_parser
+my @return = pf::util::apache::url_parser('http://packetfence.org/tests/conficker.html');
+is_deeply(\@return,
+    [ 'http\:\/\/packetfence\.org', 'http', 'packetfence\.org', '\/tests\/conficker\.html' ],
+    "Parsing a standard URL"
+);
+
+@return = pf::util::apache::url_parser('HTTPS://www.inverse.ca/');
+is_deeply(\@return,
+    [ 'https\:\/\/www\.inverse\.ca', 'https', 'www\.inverse\.ca', '\/' ],
+    "Parsing an uppercase HTTPS URL with no query"
+);
+
+@return = pf::util::apache::url_parser('http://www.google.co.uk');
+is_deeply(\@return,
+    [ 'http\:\/\/www\.google\.co\.uk', 'http', 'www\.google\.co\.uk', '\/' ],
+    'regression test for issue 1368: accept domains without ending slash'
+);
+
+@return = pf::util::apache::url_parser('invalid://url$.com');
+ok(!@return, "Passed invalid URL expecting undef");
+
 
 # TODO add more tests, we should test:
 #  - all methods ;)
