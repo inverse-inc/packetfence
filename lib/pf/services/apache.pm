@@ -26,6 +26,7 @@ use Readonly;
 use pf::class qw(class_view_all);
 use pf::config;
 use pf::util;
+use pf::util::apache qw(url_parser);
 use pf::web::constants;
 
 BEGIN {
@@ -39,42 +40,9 @@ BEGIN {
     );
 }
 
-Readonly::Scalar my $HTTP => 'http';
-Readonly::Scalar my $HTTPS => 'https';
-
-# url decompositor regular expression. 
-my $url_pattern = qr/^
-    (((?i)$HTTP|$HTTPS):\/\/ # must begin by http or https (matched in a case-insensitive way)
-    ([^\/]+))                # capture domain_url and the host (everything up to \/)
-    (\/.*)?                  # optinally capture everything else as query string (path)
-$/x;
-
 =head1 SUBROUTINES
 
 =over
-
-=item _url_parser
-
-Returns a list with 
- Domain with protocol
- Protocol (http or https)
- Hostname
- Query string (path, file and arguments)
-
-All values have ambiguous regexp characters quoted.
-
-=cut
-sub _url_parser {
-    my ($url) = @_;
-
-    if (defined($url) && $url =~ /$url_pattern/) {
-        # if query_string is empty assign '/'
-        my $query_string = (defined($4) ? quotemeta($4) : '\/');
-        return (quotemeta(lc($1)), lc($2), quotemeta(lc($3)), $query_string);
-    }
-
-    return;
-}
 
 =item generate_httpd_conf
 
@@ -88,6 +56,7 @@ sub generate_httpd_conf {
     # injecting Web constants first
     my %tags = pf::web::constants::to_hash();
 
+    $tags{'aliases'} = _generate_aliases();
     $tags{'template'} = "$conf_dir/httpd.conf";
     $tags{'internal-nets'} = join(" ", get_internal_nets() );
     $tags{'routed-nets'} = join(" ", get_routed_isolation_nets()) ." ". join(" ", get_routed_registration_nets()) ." ". join(" ", get_inline_nets());
@@ -106,7 +75,7 @@ sub generate_httpd_conf {
     my %proxy_configs = %{ $Config{'proxies'} };
     foreach my $proxy ( keys %proxy_configs ) {
         if ( $proxy =~ /^\// ) {
-            if ( $proxy !~ /^\/(content|admin|redirect|cgi-bin)/ ) {
+            if ( $proxy !~ /$WEB::ALLOWED_RESOURCES/ ) {
                 push @proxies, "ProxyPassReverse $proxy $proxy_configs{$proxy}";
                 push @proxies, "ProxyPass $proxy $proxy_configs{$proxy}";
                 $logger->warn( "proxy $proxy is not relative - add path to apache rewrite exclude list!");
@@ -127,14 +96,14 @@ sub generate_httpd_conf {
     my $guest_regist_allowed = $guest_self_registration{'enabled'};
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
-        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::URL_SIGNUP_UGLY|$WEB::URL_PREREGISTER";
+        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::ACL_SIGNUP_CGI|$WEB::URL_PREREGISTER";
     }
     # /activate/email allowed if sponsor or email mode enabled
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
-        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::URL_EMAIL_ACTIVATION_UGLY";
+        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::ACL_EMAIL_ACTIVATION_CGI";
     }
 
     my ($pt_http, $pt_https, $remediation);
@@ -247,7 +216,7 @@ sub generate_passthrough_rewrite_proxy_config {
     my (@passthrough_http_proxies, @passthrough_https_proxies);
 
     foreach my $key ( keys %passthroughs ) {
-        my ($domainonly_url, $proto, $host, $query) = _url_parser($passthroughs{$key});
+        my ($domainonly_url, $proto, $host, $query) = url_parser($passthroughs{$key});
         # test that URL was parsed properly
         if (!defined($domainonly_url) || !defined($proto) || !defined($host) || !defined($query)) {
             $logger->warn("passthrough $key: unrecognized content URL: " .$passthroughs{$key}. ". "
@@ -307,7 +276,7 @@ sub generate_remediation_rewrite_proxy_config {
         my $url = $row->{'url'};
         my $vid = $row->{'vid'};
         next if ( ( !defined($url) ) || ( $url =~ /^\// ) );
-        my ($domainonly_url, $proto, $host, $query) = _url_parser($url);
+        my ($domainonly_url, $proto, $host, $query) = url_parser($url);
         # test that URL was parsed properly
         if (!defined($domainonly_url) || !defined($proto) || !defined($host) || !defined($query)) {
             $logger->warn("vid " . $vid . ": unrecognized content URL: " . $url . ". "
@@ -347,6 +316,20 @@ sub generate_remediation_rewrite_proxy_config {
     return \@remediation_proxies;
 }
 
+=item _generate_aliases
+
+Automatically generates Apache's Alias statements so the captive portal works.
+
+=cut
+sub _generate_aliases {
+    my $aliases = "";
+    my ($path, $filesystem);
+    while (($path, $filesystem) = each %WEB::STATIC_CONTENT_ALIASES) {
+        $aliases .= "Alias $path $install_dir$filesystem\n";
+    }
+    return $aliases;
+}
+
 =back
 
 =head1 AUTHOR
@@ -355,7 +338,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2010, 2011, 2012 Inverse inc.
 
 =head1 LICENSE
 

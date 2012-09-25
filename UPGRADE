@@ -22,6 +22,9 @@ details.
 
 `pf::web::_render_template` no longer exists. See below for details.
 
+All CGI style URLs (ex: `/cgi-bin/redir.cgi`) are now no longer supported.
+They were first marked as deprecated in 3.0.
+
 Core
 ^^^^
 

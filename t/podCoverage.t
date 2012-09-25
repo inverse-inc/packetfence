@@ -9,7 +9,7 @@ use lib qw(
    /usr/local/pf/lib
 );
 
-use Test::Pod::Coverage tests => 23;
+use Test::Pod::Coverage tests => 24;
 
 pod_coverage_ok('authentication::guest_managers');
 pod_coverage_ok('authentication::kerberos');
@@ -30,13 +30,14 @@ pod_coverage_ok("pf::services::dhcpd");
 pod_coverage_ok("pf::services::named");
 pod_coverage_ok("pf::soh");
 pod_coverage_ok("pf::SNMP");
+pod_coverage_ok("pf::util::apache");
 pod_coverage_ok("pf::util::dhcp");
 pod_coverage_ok("pf::util::radius");
 pod_coverage_ok("pf::vlan");
 pod_coverage_ok("pf::web");
+pod_coverage_ok("pf::web::dispatcher");
 pod_coverage_ok("pf::web::guest");
 pod_coverage_ok("pf::web::util");
-pod_coverage_ok("pf::web::wispr");
 
 # Warning: this doesn't test for PFAPI subs since it's under another package name
 # I couldn't find a way to tell T::P::C to cover it
@@ -52,7 +53,7 @@ Regis Balzard <rbalzard@inverse.ca>
         
 =head1 COPYRIGHT
         
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
     
