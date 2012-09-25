@@ -31,6 +31,13 @@ has '_cached_conf' => (is => 'rw', isa => 'HashRef');
 
 =over
 
+=item _myConfigFile
+
+TEMP TO ALLOW CORRECT STARTUP
+
+=cut
+sub _myConfigFile { return " "; }
+
 =item _load_conf
 
 Load .ini style config file into a Config::IniFiles tied hasref.
