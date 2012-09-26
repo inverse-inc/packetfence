@@ -1,0 +1,51 @@
+      <div class="modal fade hide" id="modalViolation">
+      </div>
+
+      <div class="modal fade hide" id="deleteViolation">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3><i>[% l('Delete Violation') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this violation?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Violations')  %]</h2>
+      [% IF violations.size -%]
+      <table class="table">
+        <thead>
+          <tr>
+            <th>[% l('Id') %]</th><th>[% l('Description') %]</th><th>[% l('Actions') %]</th><th>[% l('Target VLAN') %]</th><th>[% l('Action') %]</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH violation IN violations %]
+          <tr[% IF violation.enabled == 'N' %] class="muted"[% END %]>
+            <td><a href="[% c.uri_for(c.controller('Violation').action_for('read'), [ violation.id ]) %]#modalViolation">[% violation.id %]</a></td>
+            <td>[% violation.desc %]</td>
+            <td>[% FOREACH action IN violation.actions %]
+              <span class="label label-info">[% l(action) %]</span>
+              [%- END %]</td>
+            <td>[% violation.vlan %]</td>
+            <td>
+              <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('delete'), [ violation.id ]) %]#deleteViolation">[% l('Delete') %]</a>
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller('Violation').action_for('preview'), [ violation.id ]) %]#previewPage"><i class="icon-eye-open"></i> [% l('Page') %]</a>
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
+      [% END -%]
+
+      <div id="noViolation" class="unwell[% ' hidden' IF violations.size > 0 %]">
+        <i class="icon-legal icon-large"></i><p>[% l('No violation defined') %]</p>
+      </div>
+
+      <div class="form-actions">
+        <a id="createViolation" class="btn" href="[% c.uri_for(c.controller('Violation').action_for('create')) %]">[% l('Add violation') %]</a>
+      </div>

@@ -235,9 +235,30 @@ sub registration :Local {
     }
 }
 
+=head2 violations
+
+=cut
+
+sub violations :Local {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{template} = 'configuration/violations.tt';
+
+    my ($status, $result) = $c->model('Config::Violations')->read_violation('all');
+    if (is_success($status)) {
+        $c->stash->{violations} = $result;
+    }
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
 =head2 soh
 
 =cut
+
 sub soh :Local {
     my ( $self, $c ) = @_;
 
