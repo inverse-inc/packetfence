@@ -1,6 +1,17 @@
-[%  jsFiles = ['app/bootstrap-datepicker', 'app/raphael/raphael-min', 'app/raphael/g.raphael-min', 'app/raphael/g.bar-min', 'app/raphael/g.dot-min', 'app/raphael/g.line-min', 'app/raphael/g.pie-min', 'app/graphs', 'admin/reports']
-     cssFiles = ['app/bootstrap-datepicker'] -%]
-    <!--<script type="text/javascript">var graphs = {};</script>-->
+[%  jsFiles = [
+        'app/bootstrap-datepicker',
+        'app/raphael/raphael-min',
+        'app/raphael/g.raphael-min',
+        'app/raphael/g.bar-min',
+        'app/raphael/g.dot-min',
+        'app/raphael/g.line-min',
+        'app/raphael/g.pie-min',
+        'app/graphs',
+        'admin/reports'
+        ]
+     cssFiles = [
+        'app/bootstrap-datepicker'
+        ] -%]
 
     <div class="container-fluid">
       <div class="row-fluid">
