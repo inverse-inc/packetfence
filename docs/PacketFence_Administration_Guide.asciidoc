@@ -1574,7 +1574,7 @@ Let's explain each chunk properly:
 
 [options="compact"]
 * `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
-* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megavytes(MB), gigabytes(GB), or petabytes(PB)
+* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
 * `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install.
 
 Example triggers
