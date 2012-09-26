@@ -12,7 +12,7 @@
           </div>
 [% END %]
           <form name="login" class="form-horizontal" action="[% c.uri_for(c.controller('Admin').action_for('login')) %]" method="post">
-            <input type="hidden" name="redirect_url" value="[% c.uri_for(redirect_action || '/admin/status') %]">
+            <input type="hidden" name="redirect_url" value="[% redirect_action || c.uri_for(c.controller('Admin').action_for('status')) %]">
             <div class="control-group">
               <label class="control-label" for="username">[% l('Username') %]</label>
               <div class="controls">
