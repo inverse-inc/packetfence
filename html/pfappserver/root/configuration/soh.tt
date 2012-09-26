@@ -1,7 +1,4 @@
 <style type="text/css">
-form {
-    margin-bottom: 0px;
-}
 table .action {
     text-align: right;
 }
@@ -20,7 +17,7 @@ table .action {
         </div>
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-          <a href="#" class="btn btn-primary">[% l('Delete') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
         </div>
       </div>
 
@@ -50,5 +47,5 @@ table .action {
       </div>
 
       <div class="form-actions">
-        <a id="createFilter" class="btn" href="[% c.uri_for(c.controller('SoH').action_for('create')) %]">Add filter</a>
+        <a id="createFilter" class="btn" href="[% c.uri_for(c.controller('SoH').action_for('create')) %]">[% l('Add filter') %]</a>
       </div>

@@ -2,7 +2,7 @@
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">×</a>
-          <h3><i>Filter</i> [% filter.name %]</h3>
+          <h3><i>[% l('Filter') %]</i> [% filter.name %]</h3>
         </div>
 
         <div class="modal-body">

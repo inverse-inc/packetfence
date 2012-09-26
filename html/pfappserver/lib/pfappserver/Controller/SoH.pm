@@ -99,7 +99,7 @@ SoH controller dispatcher
 sub object :Chained('/') :PathPart('soh') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
 
-    my ($status, $result) = $c->model('SoH')->exists($id);
+    my ($status, $result) = $c->model('SoH')->read($id);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;

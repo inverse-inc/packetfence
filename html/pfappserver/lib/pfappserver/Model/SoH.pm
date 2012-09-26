@@ -15,7 +15,6 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
-#use Readonly;
 
 use pf::config;
 use pf::error qw(is_error is_success);
@@ -31,7 +30,7 @@ This method must be called before any CRUD method.
 
 =cut
 
-sub exists {
+sub read {
     my ($self, $filter_id) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -157,13 +156,17 @@ sub create {
     eval {
         my $soh = pf::soh->new();
         my $id = $soh->create_filter($name, $action, $vid);
-        if ($id) {
+        if ($id > 0) {
             foreach my $rule (@$rules_ref) {
                 $soh->create_rule($id, @$rule);
             }
             if ($action eq 'violation') {
                 ($status, $status_msg) = $configViolationsModel->add_trigger($vid, 'soh::' . $id);
             }
+        }
+        else {
+            $status = $STATUS::INTERNAL_SERVER_ERROR;
+            $status_msg = "Can't insert filter in the database.";
         }
     };
     if ($@) {
