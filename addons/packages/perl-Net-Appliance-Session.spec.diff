@@ -1,0 +1,21 @@
+#
+# Applied this patch on top of repoforge's SPEC at rev cf42a5fd9f
+# https://github.com/repoforge/rpms/commit/cf42a5fd9fcdc1b9959d773621ba13ab3a086bf7
+# https://github.com/repoforge/rpms/blob/master/specs/perl-Net-Appliance-Session/perl-Net-Appliance-Session.spec
+#
+# This works around bug #1556: depsolving problems with Net::Appliance::Session
+# http://packetfence.org/bugs/view.php?id=1556
+#
+# Olivier Bilodeau <obilodeau@inverse.ca>
+# Copyright 2012 Inverse inc.
+#
+--- perl-Net-Appliance-Session.spec     2012-09-26 13:40:14.000000000 -0400
++++ SPECS/perl-Net-Appliance-Session.spec       2012-09-26 13:38:08.000000000 -0400
+@@ -9,6 +9,7 @@
+ 
+ Summary: Run command-line sessions to network appliances
+ Name: perl-Net-Appliance-Session
++Epoch: 1
+ Version: 1.36
+ Release: 1%{?dist}
+ License: Artistic/GPL
