@@ -43,11 +43,19 @@
             <div class="control-group">
               <label class="control-label" for="[% config.parameter | css %]">[% l(config.parameter) %]</label>
               <div class="controls">
+                [%- IF config.options.size > 4 %]
                 <select name="[% config.parameter %]" id="[% config.parameter | css %]">
                   [%- FOREACH option IN config.options %]
-                  <option value="[% option %]"[% IF option == config.value %] selected="selected"[% END %]>[% l(option) %]</option>
+                  <option value="[% option %]"[% ' selected' IF option == config.value %]>[% l(option) %]</option>
                   [%- END %]
                 </select>
+                [%- ELSE %]
+                  [%- FOREACH option IN config.options %]
+                  <label class="radio inline">
+                    <input type="radio" name="[% config.parameter %]" value="[% option.value %]"[% ' checked' IF option == config.value %]> [% l(option) %]
+                  </label>
+                  [%- END %]
+                [%- END %]
                 <p class="help-block">[% l(config.description) %]</p>
               </div>
             </div>
