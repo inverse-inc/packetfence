@@ -20,6 +20,7 @@ New Hardware
 
 Enhancements
  * Debian packages improvements
+ * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
