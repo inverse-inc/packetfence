@@ -824,7 +824,7 @@ Replace `/usr/local/pf/raddb/modules/mschap` with the following configuration:
           require_encryption = yes
           require_strong = yes
           with_ntdomain_hack = yes
-          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} -–nt-response=%{mschap:NT-Response:-00}"
+          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
   }
 
 Samba / Kerberos / Winbind
