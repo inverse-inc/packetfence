@@ -218,25 +218,33 @@ Install the proper repositories in `yum` so it can directly lookup for packages:
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.`uname -i`.rpm
   # rpm -Uvh http://download.fedoraproject.org/pub/epel/5/`uname -i`/epel-release-5-4.noarch.rpm
-  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos5-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el5.noarch.rpm
+  # rpm -Uvh http://repo.openfusion.net/centos5-`uname -i`/openfusion-release-0.6.2-1.of.el5.noarch.rpm
 
 .For RHEL 6.x / CentOS 6.x
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
   # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-7.noarch.rpm
-  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos6-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el6.noarch.rpm
+  # rpm -Uvh http://repo.openfusion.net/centos6-`uname -i`/openfusion-release-0.6.2-1.of.el6.noarch.rpm
 
 Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
 
   enabled = 0
 
-Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-PathTools*,perl-File-Spec* on the section [rpmforge]
+Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add on the section [rpmforge] the line:
+
+  exclude = perl-PathTools*,perl-File-Spec*
+
 
 Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
 
-Edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-Apache-Test* on the section [rpmforge]
+Edit /etc/yum.repos.d/rpmforge.repo and add on the section [rpmforge] the line:
 
-Edit /etc/yum.repos.d/openfusion.repo and add the line exclude = perl-Apache-Test* on the section [of].
+  exclude = perl-Apache-Test*
+
+
+Edit /etc/yum.repos.d/openfusion.repo and add on the section [of] the line:
+
+  exclude = perl-Apache-Test*
 
 RHEL 6.x
 ^^^^^^^^
