@@ -1,0 +1,220 @@
+<form name="violation" class="form-horizontal" action="[% action_uri %]">
+  [%- IF violation %]<input type="hidden" name="id" value="[% violation.id %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a> 
+    <h3>[% IF violation %]<i>[% l('Violation') %]</i> [% violation.desc || violation.id %][% ELSE %][% l('New Violation') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#violationDefinition" data-toggle="tab">Definition</a></li>
+      <li><a href="#violationTriggers" data-toggle="tab">Triggers</a></li>
+      <li><a href="#violationRemediation" data-toggle="tab">Remediation</a></li>
+      <li><a href="#violationAdvanced" data-toggle="tab">Advanced</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade in active" id="violationDefinition">
+
+        <div class="control-group">
+          <label class="control-label" for="enabled">[% l('Enabled') %]</label>
+          <div class="controls">
+            <div class="onoffswitch">
+              <input type="checkbox" name="enabled" class="onoffswitch-checkbox" id="enabled"[% ' checked' IF violation.enabled == 'Y' %]>
+                <label class="onoffswitch-label" for="enabled">
+                  <div class="onoffswitch-inner">
+                    <div class="onoffswitch-active">ON</div>
+                    <div class="onoffswitch-inactive">OFF</div>
+                  </div>
+                  <div class="onoffswitch-switch"></div>
+                </label>
+            </div>
+          </div>
+        </div>
+
+        [% UNLESS violation -%]
+        <div class="control-group">
+          <label class="control-label" for="violation_id">[% l('Identifier') %]</label>
+          <div class="controls">
+            <input type="text" name="id" id="violation_id">
+          </div>
+        </div>
+        [% END -%]
+
+        <div class="control-group">
+          <label class="control-label" for="desc">[% l('Description') %]</label>
+          <div class="controls">
+            <input type="text" name="desc" id="desc" value="[% violation.desc %]">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="actions">[% l('Actions') %]</label>
+          <div class="controls">
+            <select name="actions" multiple="multiple" class="chzn-select" id="actions" data-placeholder="[% l('Click to add an action') %]">
+              [%- FOREACH action IN actions %]
+              <option value="[% action.key %]"[% FOREACH a IN violation.actions %]
+                      [% IF action.key == a %] selected="selected"[% LAST; END %][% END %]>[% l(action.value) %]</option>
+              [%- END %]
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="vclose">[% l('Violation to Close') %]</label>
+          <div class="controls">
+            <select name="vclose" class="chzn-select" id="vclose" data-placeholder="[% l('Click to add a violation') %]">
+              [%- FOREACH v IN violations %]
+              <option value="[% v.id %]"[% ' selected="selected"' IF violation.vclose == v.id %]>[% l(v.desc || v.id) %]</option>
+              [%- END %]
+            </select>
+            <p class="help-inline">When selecting the <strong>close</strong> action, triggering the violation will close the one you select in the vclose field.  This is an experimental workflow for Mobile Device Management (MDM).</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="priority">[% l('Priority') %]</label>
+          <div class="controls">
+            <input type="number" name="priority" id="priority" class="span2" value="[% violation.priority %]">
+              <p class="inline-help">Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="whitelisted_categories">[% l('Whitelisted Categories') %]</label>
+          <div class="controls">
+            <p class="help-inline">Nodes in the selected categories won't be affected by a violation of this type.</p>
+          </div>
+        </div>
+
+      </div><!-- tab-pane -->
+
+      <div class="tab-pane fade" id="violationTriggers">
+
+        <div class="control-group">
+          <label class="control-label" for="trigger">[% l('Triggers') %]</label>
+          <div class="controls">
+            <select name="trigger" multiple="multiple" class="chzn-select" id="trigger" style="width: 561px" data-placeholder="[% l('Click to add a trigger') %]">
+              [%- FOREACH trigger IN triggers %]
+              <option value="[% trigger %]"[% FOREACH t IN violation.trigger %]
+                      [% IF trigger == t %] selected="selected"[% LAST; END %][% END %]>[% trigger %]</option>
+              [%- END %]
+            </select>
+            <p class="help-inline">Method to reference externbal detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+        </div>
+
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="violationRemediation">
+
+        <div class="control-group">
+          <label class="control-label" for="auto_enable">[% l('Auto Enable') %]</label>
+          <div class="controls">
+            <label class="checkbox">
+              <input type="checkbox" name="auto_enable" id="auto_enable"[% ' checked' IF violation.auto_enable == 'Y' %]>
+                <p class="help-inline">Specifies if a host can self remediate the violation (enable network button) or if they can not and must call the help desk.</p>
+            </label>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="max_enable">[% l('Max Enables') %]</label>
+          <div class="controls">
+            <input type="number" name="max_enable" id="max_enable" class="span2" value="[% violation.max_enable %]">
+              <p class="help-inline">Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just <i>click through</i> violation pages.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="grace">[% l('Grace') %]</label>
+          <div class="controls interval">
+            <input name="grace" type="number" class="input span2" id="grace" value="[% violation.grace.interval %]">
+              <div class="btn-group" data-toggle="buttons-radio">
+                <a name="grace_unit" class="btn[% ' active' IF violation.grace.unit == "s" %]" value="s">[% l('seconds') %]</a>
+                <a name="grace_unit" class="btn[%' active' IF violation.grace.unit == "m" %]" value="m">[% l('minutes') %]</a>
+                <a name="grace_unit" class="btn[%' active' IF violation.grace.unit == "h" %]" value="h">[% l('hours') %]</a>
+                <a name="grace_unit" class="btn[%' active' IF violation.grace.unit == "D" %]" value="D">[% l('days') %]</a>
+                <a name="grace_unit" class="btn[%' active' IF violation.grace.unit == "W" %]" value="W">[% l('weeks') %]</a>
+                <a name="grace_unit" class="btn[%' active' IF violation.grace.unit == "M" %]" value="M">[% l('months') %]</a>
+                <a name="grace_unit" class="btn[%' active' IF violation.grace.unit == "Y" %]" value="Y">[% l('years') %]</a>
+              </div>
+              <p class="help-inline">Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="window">[% l('Dynamic Window') %]</label>
+          <div class="controls">
+            <label class="checkbox">
+              <input type="checkbox" name="window_dynamic" id="window_dynamic"[% ' checked' IF violation.window == 'dynamic' %]>
+                <p class="help-inline">Only works for accounting violations.  The violation will be opened according to the time you set in the accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month).</p>
+            </label>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <label class="control-label" for="window">[% l('Window') %]</label>
+          <div class="controls interval">
+            <input name="window" type="number" class="input span2" id="window" value="[% violation.window.interval %]">
+              <div class="btn-group" data-toggle="buttons-radio">
+                <a name="window_unit" class="btn[% ' active' IF violation.window.unit == "s" %]" value="s">[% l('seconds') %]</a>
+                <a name="window_unit" class="btn[%' active' IF violation.window.unit == "m" %]" value="m">[% l('minutes') %]</a>
+                <a name="window_unit" class="btn[%' active' IF violation.window.unit == "h" %]" value="h">[% l('hours') %]</a>
+                <a name="window_unit" class="btn[%' active' IF violation.window.unit == "D" %]" value="D">[% l('days') %]</a>
+                <a name="window_unit" class="btn[%' active' IF violation.window.unit == "W" %]" value="W">[% l('weeks') %]</a>
+                <a name="window_unit" class="btn[%' active' IF violation.window.unit == "M" %]" value="M">[% l('months') %]</a>
+                <a name="window_unit" class="btn[%' active' IF violation.window.unit == "Y" %]" value="Y">[% l('years') %]</a>
+              </div>
+              <p class="help-inline">Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="url">[% l('URL') %]</label>
+          <div class="controls">
+            <input name="url" type="text" class="input span12" id="url" value="[% violation.url %]">
+              <p class="help-inline">HTML URL the host will be redirected to while in violation. This is usually a local URL of the form <code>/content/index.php?template=...</code> where <code>...</code> is the name of the remediation template to show to the user. Full URLs like <code>http://myportal.com/violation1234/</code> are also supported if <code>passthrough=proxy</code> is set under <code>[trapping]</code>. In that case, the Captive Portal will do reverse proxying to the specified URL.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="button_text">[% l('Button Text') %]</label>
+          <div class="controls">
+            <input type="text" name="button_text" id="button_text" value="[% violation.button_text %]">
+              <p class="help-inline">Text displayed on the violation form to hosts.</p>
+          </div>
+        </div>
+
+      </div><!--tab-pane-->
+      
+      <div class="tab-pane fade" id="violationAdvanced">
+
+        <div class="control-group">
+          <label class="control-label" for="desc">[% l('Target VLAN') %]</label>
+          <div class="controls">
+            <input type="text" id="vlan" name="vlan" value="[% violation.vlan %]">
+              <p class="help-inline">Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:</p>
+              <ul class="help-inline">
+                <li><strong>isolationVlan</strong> Isolation VLAN as specified in <code>switches.conf</code>. This is the recommended value for most violation types.</li>
+                <li><strong>registrationVlan</strong> Registration VLAN as specified in <code>switches.conf</code></li>
+                <li><strong>normalVlan</strong> Normal VLAN as specified in <code>switches.conf</code>. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.</li>
+              </ul>
+          </div>
+        </div>
+
+      </div><!--tab-pane-->
+
+    </div><!--tab-content-->
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="Saving">[% l('Save') %]</button>
+  </div>
+
+</form>

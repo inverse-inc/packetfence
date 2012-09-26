@@ -73,10 +73,21 @@ function btnError(btn) {
 function isFormInputEmpty(input) {
     var control = input.closest('.control-group');
     var empty = false;
+    var value;
 
-    if ($.trim(input.val()).length == 0) {
+    if (input.attr('data-toggle') == 'buttons-radio')
+        value = input.find('.active').length == 0? null : 1;
+    else
+        value = input.val();
+
+    if (value == null
+        || typeof value == 'string' && $.trim(value).length == 0
+        || value.length == 0) {
         control.addClass('error');
         empty = true;
+
+        // If input is in a tab, show the tab
+        showTab(control, input);
     }
     else {
         control.removeClass('error');
@@ -99,10 +110,31 @@ function isInvalidNumber(input, min, max) {
     }
     if (isInvalid) {
         control.addClass('error');
+        showTab(control, input);
     }
     else {
         control.removeClass('error');
     }
 
     return isInvalid;
+}
+
+function switchIsOn(input) {
+    var onoffswitch = input.closest('.onoffswitch').find('.onoffswitch-switch');
+    var cssRight = parseInt(onoffswitch.css('right'));
+
+    return cssRight == 0;
+}
+
+function showTab(control, input) {
+    var tab = control.closest('.tab-pane');
+    if (tab) {
+        var a = tab.closest('form').find('.nav-tabs a[href="#' + tab.attr('id') + '"]');
+        a.tab('show');
+        // Scroll to the input
+        var container = tab.closest('.modal-body');
+        if (!container)
+            container = $("body,html");
+        container.animate({scrollTop: input.position().top}, 'fast');
+    }
 }

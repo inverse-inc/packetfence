@@ -66,7 +66,9 @@
                 <a href="[% c.uri_for(c.controller('Configuration').action_for('guests'))%]">[% l('Guests') %]</a>
               </li>
               <li class="nav-header"><i class="icon-check"></i> Compliance</li>
-              <li><a href="#">Violations</a></li>
+              <li[% IF section == 'violations' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('violations')) %]">[% l('Violations') %]</a>
+              </li>
               <li[% IF section == 'soh' %] class="active"[% END %]>
                 <a href="[% c.uri_for(c.controller('Configuration').action_for('soh')) %]">[% l('SoH Filters') %]</a>
               </li>
