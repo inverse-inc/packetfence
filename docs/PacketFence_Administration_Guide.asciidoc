@@ -824,7 +824,7 @@ Replace `/usr/local/pf/raddb/modules/mschap` with the following configuration:
           require_encryption = yes
           require_strong = yes
           with_ntdomain_hack = yes
-          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} –nt-response=%{mschap:NT-Response:-00}"
+          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} -–nt-response=%{mschap:NT-Response:-00}"
   }
 
 Samba / Kerberos / Winbind
@@ -915,12 +915,22 @@ After that, you need to start samba, and join the machine to the domain:
   # chkconfig --level 345 smb on
   # net ads join -U administrator
 
-Finally, start `winbind`, and test the setup using `ntlm_auth`:
+Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
   # service winbind start
   # chkconfig --level 345 winbind on
   # chgrp pf /var/lib/samba/winbindd_privileged/
   # ntlm_auth --username myDomainUser
+  # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
+    Sending Access-Request of id 108 to 127.0.0.1 port 18120
+        User-Name = "myDomainUser"
+        NAS-IP-Address = 10.0.0.1
+        NAS-Port = 12
+        Message-Authenticator = 0x00000000000000000000000000000000
+        MS-CHAP-Challenge = 0x79d62c9da4e55104
+        MS-CHAP-Response = 0x000100000000000000000000000000000000000000000000000091c843b420f0dec4228ed2f26bff07d5e49ad9a2974229e5
+    rad_recv: Access-Accept packet from host 127.0.0.1 port 18120, id=108, length=20
+
 
 Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
