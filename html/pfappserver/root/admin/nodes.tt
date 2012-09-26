@@ -13,8 +13,7 @@
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
-        'app/bootstrap-timepicker',
-        'app/chosen'
+        'app/bootstrap-timepicker'
         ] -%]
 
 <style type="text/css">

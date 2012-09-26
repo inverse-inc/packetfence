@@ -2,19 +2,18 @@
 body {
     padding-top: 60px;
 }
-.navbar .nav > li > a {
-    line-height: 28px;
-}
-#navbar h6 {
-    margin: 0;
-    line-height: 48px;
-}
-.navbar .nav .dropdown-toggle .caret {
-    margin-top: 12px;
+.navbar .brand {
+    padding: 11px 20px 11px;
 }
 /* bootstrap.css fix to remove padding surrounding sidebar */
 .sidebar-nav {
     padding: 9px 0;
+}
+/* bootstrap.css fix to restore 2.0.4 apparence */
+h6 {
+  font-size: 11px;
+  color: #999999;
+  text-transform: uppercase;
 }
 a.active {
     color: #333;

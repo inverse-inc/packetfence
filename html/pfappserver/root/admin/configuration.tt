@@ -2,20 +2,34 @@
         'app/bootstrap-datepicker',
         'app/chosen.jquery.min',
         'admin/configuration',
+        'admin/configuration/violations',
         'admin/configuration/soh'
         ]
      cssFiles = [
-        'app/bootstrap-datepicker',
-        'app/chosen'
+        'app/bootstrap-datepicker'
         ] -%]
 
 <style type="text/css">
 .row-fluid [class*="span"] {
     display: inline-block;
 }
+/* position time selectors on the same row */
 .row-fluid .interval [class*="span"] {
     float: left;
     margin-right: 4px;
+}
+/* fix for time units position */
+.interval .btn-group {
+    display: inline;
+}
+/* bootstrap fix for modals */
+.modal form, .modal select {
+    margin-bottom: 0px;
+}
+/* enlarge modal of violation */
+#modalViolation {
+    margin-left: -390px;
+    width: 780px;
 }
 </style>
 
