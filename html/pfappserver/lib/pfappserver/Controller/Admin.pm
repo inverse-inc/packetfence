@@ -27,13 +27,13 @@ Allow only authenticated users
 
 =cut
 sub auto :Private {
-    my ($self, $c) = @_;
+    my ($self, $c, @args) = @_;
 
-    unless ($c->action->name eq 'login' || $c->user_exists()) {
+    unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_exists()) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($c->action->name eq 'index') {
             $c->stash->{status_msg} = 'Your session has expired.';
-            $c->stash->{'redirect_action'} = $c->action;
+            $c->stash->{'redirect_action'} = $c->uri_for($c->action, @args);
         }
         $c->detach();
         return 0;
@@ -92,7 +92,6 @@ sub logout :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     $c->logout();
-    $c->stash->{'redirect_action'} = $c->controller('Admin')->action_for('status');
     $c->stash->{'template'} = 'admin/login.tt';
     $c->stash->{'status_msg'} = $c->loc("You have been logged out.");
 }
@@ -145,7 +144,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 =head2 configuration
 
 =cut
-sub configuration :Chained('object') :PathPart('configuration') {
+sub configuration :Local :PathPart('configuration') :Args() {
     my ( $self, $c, $section ) = @_;
 
     $section = 'general' unless ($section);
