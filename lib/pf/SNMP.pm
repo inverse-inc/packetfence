@@ -766,34 +766,6 @@ sub setVlanByName {
     return $this->setVlan($ifIndex, $this->{"_".$vlanName}, $switch_locker_ref);
 }
 
-=item setIsolationVlan - set the port VLAN to the isolation VLAN
-
-DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'isolationVlan') instead 
-
-=cut
-# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
-sub setIsolationVlan {
-    my ( $this, $ifIndex, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
-    return $this->setVlan( $ifIndex, $this->{_isolationVlan},
-        $switch_locker_ref );
-}
-
-=item setRegistrationVlan - set the port VLAN to the registration VLAN
-
-DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'registrationVlan') instead 
-
-=cut
-# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
-sub setRegistrationVlan {
-    my ( $this, $ifIndex, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
-    return $this->setVlan( $ifIndex, $this->{_registrationVlan},
-        $switch_locker_ref );
-}
-
 =item getIfOperStatus - obtain the ifOperStatus of the specified switch port (1 indicated up, 2 indicates down)
 
 =cut
@@ -822,20 +794,6 @@ sub setMacDetectionVlan {
         = @_;
     return $this->setVlan( $ifIndex, $this->{_macDetectionVlan},
         $switch_locker_ref, undef, $closeAllOpenLocationlogEntries );
-}
-
-=item setNormalVlan - set the port VLAN to the 'normal' VLAN
-
-DEPRECATED: use setVlanByName($ifIndex, $switch_locker_ref, 'normalVlan') instead
-
-=cut
-# TODO deprecated in 1.8.7 remove for 1.9 / 2.0 ?
-sub setNormalVlan {
-    my ( $this, $ifIndex, $switch_locker_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-    $logger->warn("this method is deprecated, please update your code to use setVlanByName instead");
-    return $this->setVlan( $ifIndex, $this->{_normalVlan},
-        $switch_locker_ref );
 }
 
 =item getAlias - get the port description

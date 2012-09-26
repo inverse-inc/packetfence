@@ -78,6 +78,12 @@ If you have a 3750G make sure to update your configuration from
 `Cisco::Catalyst_3750` to `Cisco::Catalyst_3750G`. The old 3750 behaved like
 a 3750G in RADIUS-based access mechanisms (MAC-Auth and 802.1X).
 
+Changes to pf::SNMP API
+~~~~~~~~~~~~~~~~~~~~~~~
+
+After a few years marked as deprecated. `pf::SNMP.pm`'s `setIsolationVlan`,
+`setRegistrationVlan` and `setNormalVlan` were removed.
+
 
 Upgrading from a version prior to 3.5.1
 ---------------------------------------
