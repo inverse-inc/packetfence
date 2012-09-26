@@ -63,6 +63,7 @@
 /usr/local/pf/html/captive-portal/templates/enabler.html
 /usr/local/pf/html/captive-portal/templates/register_1.html
 /usr/local/pf/html/captive-portal/templates/redirect.html
+/usr/local/pf/html/captive-portal/templates/redirection.tt
 /usr/local/pf/html/captive-portal/templates/activated.html
 /usr/local/pf/html/captive-portal/templates/release.html
 /usr/local/pf/html/captive-portal/templates/footer.html
@@ -108,7 +109,6 @@
 /usr/local/pf/html/captive-portal/violations/system_scan.php
 /usr/local/pf/html/captive-portal/violations/trojan.php
 /usr/local/pf/html/captive-portal/violations/zotob.php
-/usr/local/pf/html/captive-portal/wispr/redirect.tt
 /usr/local/pf/lib/pf/billing/custom.pm
 /usr/local/pf/lib/pf/floatingdevice/custom.pm
 /usr/local/pf/lib/pf/inline/custom.pm
