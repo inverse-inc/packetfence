@@ -1393,6 +1393,7 @@ This is the list of actions that will be executed on a violation addition. The a
     Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
   `winpopup`;; send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
   `external`;; execute an external command, specified in `[paths].externalapi`.
+  `close`;; close the violation ID specified in the vclose field.
 `vlan`:: 
   Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
   `isolationVlan`;;
