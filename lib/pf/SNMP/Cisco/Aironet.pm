@@ -72,6 +72,7 @@ sub supportsWirelessMacAuth { return $TRUE; }
 # disabling special features supported by generic Cisco's but not on Aironet
 sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $FALSE; }
+sub supportsLldp { return $FALSE; }
 
 =item deauthenticateMac
 
