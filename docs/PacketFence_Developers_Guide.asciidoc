@@ -804,7 +804,7 @@ If you want to add support for a new language, please follow these steps:
 . translate the message strings in `packetfence.po`
 . create the MO file by executing:
 
-  /usr/bin/msgfmt packetfence.po`
+  /usr/bin/msgfmt packetfence.po
 
 Submit your new translation to the PacketFence project by contacting us at packetfence-devel@lists.sourceforge.net.
 
