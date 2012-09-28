@@ -8,7 +8,7 @@ $(function () {
          },
          'mouseleave': function(event) {
              var btn = $(this);
-             var value = btn.text().trim();
+             var value = $.trim(btn.text());
              if (value == btn.attr('toggle-hover')) {
                  btn.text(btn.attr('toggle-value-else'));
                  btn.toggleClass('btn-success btn-danger');
@@ -74,7 +74,7 @@ function isFormInputEmpty(input) {
     var control = input.closest('.control-group');
     var empty = false;
 
-    if (input.val().trim().length == 0) {
+    if ($.trim(input.val()).length == 0) {
         control.addClass('error');
         empty = true;
     }
@@ -89,7 +89,7 @@ function isInvalidNumber(input, min, max) {
     var control = input.closest('.control-group');
     var isInvalid = false;
 
-    if (/^[0-9]+$/.test(input.val().trim())) {
+    if (/^[0-9]+$/.test($.trim(input.val()))) {
         var value = parseInt(input.val());
         if (value < min || value > max)
             isInvalid = true;
