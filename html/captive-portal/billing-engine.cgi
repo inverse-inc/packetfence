@@ -9,6 +9,8 @@ billing-engine.cgi - billing engine portal
 use strict;
 use warnings;
 
+use lib '/usr/local/pf/lib';
+
 use HTML::Entities;
 use Log::Log4perl;
 use POSIX;
