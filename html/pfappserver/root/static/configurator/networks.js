@@ -23,7 +23,7 @@ function initModals() {
         if (valid) { 
             var ip = ip_input.val();
             var netmask_input = modal.find('#interfaceNetmask');
-            var netmask = netmask_input.val().trim();
+            var netmask = $.trim(netmask_input.val());
             if (netmask.length == 0)
                 // If no netmask is specified, use the placeholder
                 netmask = netmask_input.attr('placeholder');
@@ -91,7 +91,7 @@ function initModals() {
 function editVlan(name, modal, form) {
     // Save attributes
     var netmask_input = modal.find('#vlanNetmask');
-    var netmask = netmask_input.val().trim();
+    var netmask = $.trim(netmask_input.val());
     if (netmask.length == 0)
         // If no netmask is specified, use the placeholder
         netmask = netmask_input.attr('placeholder');
@@ -214,7 +214,7 @@ function saveStep(validate, successCallback) {
             var control = $(this);
             var input = control.find('input:text').first();
             if (input.length) {
-                if (input.val().trim().length == 0) {
+                if ($.trim(input.val()).length == 0) {
                     control.addClass('error');
                     valid = false;
                 }

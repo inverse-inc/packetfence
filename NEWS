@@ -38,6 +38,7 @@ New Hardware
 
 Enhancements
  * Debian packages improvements
+ * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
@@ -47,6 +48,7 @@ Bug Fixes
  * Debian: issues with translations (#1465)
  * Debian: SSH and Telnet based deauthentication (#1511)
  * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
+ * Typo in Admin Guide (#1383, Thanks to Alberto Chavez)
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05

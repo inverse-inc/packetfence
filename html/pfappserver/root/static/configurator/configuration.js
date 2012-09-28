@@ -17,7 +17,7 @@ function saveStep(href) {
         var e = $(this);
         var i = e.find('input, textarea').first();
         if (i.length) {
-            if (i.val().trim().length == 0) {
+            if ($.trim(i.val()).length == 0) {
                 e.addClass('error');
                 valid = false;
             }

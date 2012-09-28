@@ -218,25 +218,33 @@ Install the proper repositories in `yum` so it can directly lookup for packages:
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.`uname -i`.rpm
   # rpm -Uvh http://download.fedoraproject.org/pub/epel/5/`uname -i`/epel-release-5-4.noarch.rpm
-  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos5-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el5.noarch.rpm
+  # rpm -Uvh http://repo.openfusion.net/centos5-`uname -i`/openfusion-release-0.6.2-1.of.el5.noarch.rpm
 
 .For RHEL 6.x / CentOS 6.x
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
   # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-7.noarch.rpm
-  # rpm -Uvh http://www.openfusion.com.au/mrepo/centos6-`uname -i`/RPMS.of/openfusion-release-0.5-1.of.el6.noarch.rpm
+  # rpm -Uvh http://repo.openfusion.net/centos6-`uname -i`/openfusion-release-0.6.2-1.of.el6.noarch.rpm
 
 Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
 
   enabled = 0
 
-Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-PathTools*,perl-File-Spec* on the section [rpmforge]
+Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add on the section [rpmforge] the line:
+
+  exclude = perl-PathTools*,perl-File-Spec*
+
 
 Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
 
-Edit /etc/yum.repos.d/rpmforge.repo and add the line exclude = perl-Apache-Test* on the section [rpmforge]
+Edit /etc/yum.repos.d/rpmforge.repo and add on the section [rpmforge] the line:
 
-Edit /etc/yum.repos.d/openfusion.repo and add the line exclude = perl-Apache-Test* on the section [of].
+  exclude = perl-Apache-Test*
+
+
+Edit /etc/yum.repos.d/openfusion.repo and add on the section [of] the line:
+
+  exclude = perl-Apache-Test*
 
 RHEL 6.x
 ^^^^^^^^
@@ -824,7 +832,7 @@ Replace `/usr/local/pf/raddb/modules/mschap` with the following configuration:
           require_encryption = yes
           require_strong = yes
           with_ntdomain_hack = yes
-          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} –nt-response=%{mschap:NT-Response:-00}"
+          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{%{Stripped-User-Name}:-%{mschap:User-Name:-None}} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
   }
 
 Samba / Kerberos / Winbind
@@ -915,12 +923,22 @@ After that, you need to start samba, and join the machine to the domain:
   # chkconfig --level 345 smb on
   # net ads join -U administrator
 
-Finally, start `winbind`, and test the setup using `ntlm_auth`:
+Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
   # service winbind start
   # chkconfig --level 345 winbind on
   # chgrp pf /var/lib/samba/winbindd_privileged/
   # ntlm_auth --username myDomainUser
+  # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
+    Sending Access-Request of id 108 to 127.0.0.1 port 18120
+        User-Name = "myDomainUser"
+        NAS-IP-Address = 10.0.0.1
+        NAS-Port = 12
+        Message-Authenticator = 0x00000000000000000000000000000000
+        MS-CHAP-Challenge = 0x79d62c9da4e55104
+        MS-CHAP-Response = 0x000100000000000000000000000000000000000000000000000091c843b420f0dec4228ed2f26bff07d5e49ad9a2974229e5
+    rad_recv: Access-Accept packet from host 127.0.0.1 port 18120, id=108, length=20
+
 
 Option 2: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1383,6 +1401,7 @@ This is the list of actions that will be executed on a violation addition. The a
     Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
   `winpopup`;; send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
   `external`;; execute an external command, specified in `[paths].externalapi`.
+  `close`;; close the violation ID specified in the vclose field.
 `vlan`:: 
   Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
   `isolationVlan`;;
@@ -1574,7 +1593,7 @@ Let's explain each chunk properly:
 
 [options="compact"]
 * `DIRECTION`: You can either set a limit to inbound(IN), outbound(OUT), or total(TOT) bandwidth
-* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megavytes(MB), gigabytes(GB), or petabytes(PB)
+* `LIMIT`: You can set a number of bytes(B), kilobytes(KB), megabytes(MB), gigabytes(GB), or petabytes(PB)
 * `INTERVAL`: This is actually the time window we will look for potential abuse.  You can set a number of seconds(s),minutes(m),hours(h),days(D),weeks(W),months(M), or years(Y).  This value is optional, if you set nothing, we will check in all the data we have since your packetfence install.
 
 Example triggers

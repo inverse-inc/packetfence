@@ -2,6 +2,7 @@ server packetfence-tunnel {
 
 authorize {	
         suffix
+        ntdomain
         eap {
                 ok = return
         }

@@ -20,6 +20,7 @@ conf/locale/*/*/*.mo
 
 # SSL certificates
 conf/ssl/
+raddb/certs/
 
 # documentation build temporary artifacts
 docs/*.pdf
