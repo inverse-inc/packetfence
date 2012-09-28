@@ -24,16 +24,12 @@ my @binaries = (
 # all files + no warnings
 plan tests => scalar @binaries * 1 + 1;
 
-# TODO because of the 'hack' described below, we can only run these tests as root
-
 foreach my $current_binary (@binaries) {
-    # hack: removing setuid bit otherwise we can't run a compile test. see 'Switches On the "#!" Line' in perlsec 
-    `chmod ug-s $current_binary` if ($current_binary eq '/usr/local/pf/bin/pfcmd');
+    # hack: we add Taint mode to the pfcmd.pl check.
+    # See 'Switches On the "#!" Line' in perlsec
+    my $flags = ($current_binary eq '/usr/local/pf/bin/pfcmd.pl') ? '-T' : '';
 
-    is( system("/usr/bin/perl -c $current_binary 2>&1"), 0, "$current_binary compiles" );
-
-    # hack: putting back setuid bit. see above
-    `chmod ug+s $current_binary` if ($current_binary eq '/usr/local/pf/bin/pfcmd');
+    is( system("/usr/bin/perl $flags -c $current_binary 2>&1"), 0, "$current_binary compiles" );
 }
 
 =head1 AUTHOR
