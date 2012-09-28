@@ -80,7 +80,7 @@ sub performInlineEnforcement {
 
     # What is the MAC's current state?
     my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
-    my $should_be_mark = $this->{_technique}->fetchMarkForNode($mac);
+    my $should_be_mark = $this->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
         $logger->debug("MAC: $mac is already properly enforced in firewall, no change required");
