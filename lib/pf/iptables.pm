@@ -229,7 +229,7 @@ Creating proper source interface matches to jump to the right chains for inline 
 
 =cut
 sub generate_inline_if_src_to_chain {
-    my ($table) = @_;
+    my ($self, $table) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
