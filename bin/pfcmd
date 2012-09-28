@@ -1261,7 +1261,8 @@ sub service {
             $logger->info("saving current iptables to var/iptables.bak");
             require pf::inline::custom;
             my $iptables = pf::inline::custom->new();
-            $iptables->{_technique}->iptables_save( $install_dir . '/var/iptables.bak' );
+            my $technique = $iptables->{_technique};
+            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
         }
     }
 
@@ -1274,7 +1275,8 @@ sub service {
         print "iptables|$command\n";
         require pf::inline::custom;
         my $iptables = pf::inline::custom->new();
-        $iptables->{_technique}->iptables_generate();
+        my $technique = $iptables->{_technique};
+        $technique->iptables_generate();
     }
 
     foreach my $srv (@services) {
@@ -1298,7 +1300,8 @@ sub service {
         if ( $nb_running_services == 0 ) {
             require pf::inline::custom;
             my $iptables = pf::inline::custom->new();
-            $iptables->{_technique}->iptables_restore( $install_dir . '/var/iptables.bak' );
+            my $technique = $iptables->{_technique}
+            $technique->iptables_restore( $install_dir . '/var/iptables.bak' );
         } else {
             if ( lc($service) eq 'pf' ) {
                 $logger->error(

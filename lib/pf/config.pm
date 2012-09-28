@@ -278,9 +278,10 @@ sub ipset_version {
     my $logger = Log::Log4perl::get_logger('pf::config');
     my $exe_path = which('ipset');
     if (defined($exe_path)) {
+        # TODO: once we can import pf::util in here, we should run this through pf_run instead of backticks
         my $cmd = "sudo ".$exe_path." --version";
         my $out = `$cmd`;
-        my ($ipset_version) = $out =~ m/^ipset\s+v?([\d+]).*$/ims;
+        my ($ipset_version) = $out =~ m/^ipset\s+v?([\d+])/ims;
         return $ipset_version;
     }
     else {
