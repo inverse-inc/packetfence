@@ -49,6 +49,7 @@ Readonly my $FW_FILTER_INPUT_INT_INLINE => 'input-internal-inline-if';
 Readonly my $FW_FILTER_INPUT_MGMT => 'input-management-if';
 Readonly my $FW_FILTER_INPUT_INT_HA => 'input-highavailability-if';
 Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
+Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 
@@ -63,9 +64,11 @@ sub iptables_generate {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     my %tags = ( 
-        'filter_if_src_to_chain' => '', 'filter_forward_inline' => '', 
+        'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
+        'filter_forward_vlan' => '', 
         'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
-        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 'nat_postrouting_inline' => '' 
+        'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '', 
+        'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '' 
     );
 
     # global substitution variables
@@ -88,6 +91,16 @@ sub iptables_generate {
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= generate_inline_if_src_to_chain($FW_TABLE_NAT);
         $tags{'nat_prerouting_inline'} .= generate_nat_redirect_rules();
+    }
+
+    # OAuth
+    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+
+    if ($google_enabled || $facebook_enabled) {
+        generate_oauth_rules(
+            $google_enabled,$facebook_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
+        );
     }
 
     # per-feature firewall rules
@@ -124,6 +137,9 @@ sub generate_filter_if_src_to_chain {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
+    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
         my $dev = $interface->tag("int");
@@ -134,6 +150,11 @@ sub generate_filter_if_src_to_chain {
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
+            
+            if ($google_enabled || $facebook_enabled) {
+                $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+                $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
+            }
 
         # inline enforcement
         } elsif ($enforcement_type eq $IF_ENFORCEMENT_INLINE) {
@@ -203,6 +224,44 @@ sub generate_inline_rules {
             . "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"
         ;
     }
+}
+
+=item generate_oauth_rules
+
+Creating the proper firewall rules to allow Google/Facebook OAuth2
+
+=cut
+sub generate_oauth_rules {
+    my ($google,$facebook,$forward_rules_ref,$nat_rules_ref) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+
+    $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers.");
+    my $reg_int = "";
+
+    if ($google) {
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d accounts.google.com --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d accounts-cctld.l.google.com --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s accounts.google.com --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s accounts-cctld.l.google.com --jump ACCEPT\n";
+    }
+
+    if ($facebook) {
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 69.171.234.21 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 69.171.228.70 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 66.220.149.93 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 23.11.2.110 --jump ACCEPT\n";
+       	$$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 23.11.13.177 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 69.171.234.21 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 69.171.228.70 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 66.220.149.93 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 23.11.2.110 --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 23.11.13.177 --jump ACCEPT\n";
+    }
+
+    $logger->info("Adding NAT Masquerade statement.");
+    my $mgmt_int = $management_network->tag("int");
+    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int --jump MASQUERADE";
+
 }
 
 =item generate_inline_if_src_to_chain

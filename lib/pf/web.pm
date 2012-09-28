@@ -299,6 +299,8 @@ sub generate_login_page {
     $portalSession->stash->{'selected_auth'} = encode_entities($portalSession->cgi->param("auth"))
         || $portalSession->getProfile->getDefaultAuth;
     $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
+    $portalSession->stash->{'oauth_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    $portalSession->stash->{'oauth_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
 
     render_template($portalSession, $LOGIN_TEMPLATE);
 }
@@ -743,15 +745,15 @@ sub oauth2_client {
       
 
       Net::OAuth2::Client->new(
-                $Config{"OAuth2 $provider"}{'client_id'},
-                $Config{"OAuth2 $provider"}{'client_secret'},
-                site => $Config{"OAuth2 $provider"}{'site'},
-                authorize_path => $Config{"OAuth2 $provider"}{'authorize_path'},
-		access_token_path => $Config{"OAuth2 $provider"}{'access_token_path'},
-		access_token_method => $Config{"OAuth2 $provider"}{'access_token_method'},
-		access_token_param => $Config{"OAuth2 $provider"}{'access_token_param'},
-		scope => $Config{"OAuth2 $provider"}{'scope'}
-       )->web_server(redirect_uri => $Config{"OAuth2 $provider"}{'redirect_uri'} );
+                $Config{"oauth2 $provider"}{'client_id'},
+                $Config{"oauth2 $provider"}{'client_secret'},
+                site => $Config{"oauth2 $provider"}{'site'},
+                authorize_path => $Config{"oauth2 $provider"}{'authorize_path'},
+		access_token_path => $Config{"oauth2 $provider"}{'access_token_path'},
+		access_token_method => $Config{"oauth2 $provider"}{'access_token_method'},
+		access_token_param => $Config{"oauth2 $provider"}{'access_token_param'},
+		scope => $Config{"oauth2 $provider"}{'scope'}
+       )->web_server(redirect_uri => $Config{"oauth2 $provider"}{'redirect_uri'} );
 }
 
 =back

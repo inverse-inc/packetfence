@@ -103,6 +103,22 @@ sub generate_named_conf {
         $tags{'registration_clients'} .= $net . "; ";
     }
 
+    #OAuth
+    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};    
+
+    #If we have Google/Facebook enabled
+    if ($google_enabled) {
+        $tags{'oauth_zones'} .= "zone \"google.com\" IN {\n    type master;\n    file \"named-google.com\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones'} .= "zone \"google.ca\" IN {\n    type master;\n    file \"named-google.ca\";\n    allow-update { none; };\n};\n\n";
+    }
+
+    if ($facebook_enabled) {
+        $tags{'oauth_zones'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-facebook.com\";\n    allow-update { none; };\n};\n\n";
+       	$tags{'oauth_zones'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
+
+    }
+
     parse_template( \%tags, "$conf_dir/named.conf", "$generated_conf_dir/named.conf" );
 
     if ( $generate_inline ) {
@@ -134,6 +150,21 @@ sub generate_named_conf {
         $tags_registration{'PTR_blackhole'} = reverse_ip($registration_blackhole) . ".in-addr.arpa.";
         parse_template(\%tags_registration, "$conf_dir/named-registration.ca", "$var_dir/named/named-registration.ca", 
                 ";");
+        
+        #If we have Google/Facebook Enabled
+        if ($google_enabled) {
+            parse_template(\%tags_registration, "$conf_dir/named-google.ca", "$var_dir/named/named-google.ca",
+                    ";");
+            parse_template(\%tags_registration, "$conf_dir/named-google.com", "$var_dir/named/named-google.com",
+                    ";");
+        }
+
+        if ($facebook_enabled) {
+            parse_template(\%tags_registration, "$conf_dir/named-facebook.com", "$var_dir/named/named-facebook.com",
+                    ";");
+            parse_template(\%tags_registration, "$conf_dir/named-fbcdn.net", "$var_dir/named/named-fbcdn.net",
+                    ";");
+        }
     }
 
     return 1;

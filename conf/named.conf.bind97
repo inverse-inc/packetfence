@@ -42,29 +42,7 @@ view "isolation" {
 view "registration" {
   match-clients { %%registration_clients%% };
 
-  zone "google.com" IN {
-    type master;
-    file "named-google.com";
-    allow-update { none; };
-  };
-
-  zone "google.ca" IN {
-    type master;
-    file "named-google.ca";
-    allow-update { none; };
-  };
-
-  zone "facebook.com" IN {
-    type master;
-    file "named-facebook.com";
-    allow-update { none; };
-  };
-
-  zone "fbcdn.net" IN {
-    type master;
-    file "named-fbcdn.net";
-    allow-update { none; };
-  };
+  %%oauth_zones%%
 
   zone "." IN {
     type master;

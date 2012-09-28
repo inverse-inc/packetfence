@@ -42,7 +42,14 @@
           <div class="input">
             <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
           </div>
-
+          
+          [% IF oauth_google %]
+           <span><a href="/o2/auth?o2=google"><img src="/common/sign_in_google.png" /></a></span>
+          [% END %]
+          [% IF oauth_facebook %]
+       	  <span><a href="/o2/auth?o2=facebook"><img src="/common/sign_in_facebook.png" /></a></span>
+       	  [% END %]
+          
           [%# AUP %]
           <div class="input">
             <div>[% i18n("Acceptable Use Policy") %]</div>

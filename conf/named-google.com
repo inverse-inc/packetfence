@@ -13,6 +13,7 @@ $TTL 1
     86400       ; default_ttl
 )
 	IN NS accounts.google.com.
+        IN A %%A_blackhole%%
 
 accounts     IN      A       74.125.142.84
 *	     IN	     A 	     %%A_blackhole%%

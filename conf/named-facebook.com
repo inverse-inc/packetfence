@@ -13,6 +13,7 @@ $TTL 1
     86400       ; default_ttl
 )
 	IN NS www.facebook.com.
+        IN A %%A_blackhole%%
 
 www     IN      A       69.171.234.21
 www	IN	A	69.171.228.70

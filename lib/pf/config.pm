@@ -80,7 +80,7 @@ BEGIN {
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLE_API_LEVEL
-        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR
+        $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK
         %CAPTIVE_PORTAL
         normalize_time $TIME_MODIFIER_RE
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
@@ -220,6 +220,8 @@ Readonly::Scalar our $NO_VLAN => 0;
 Readonly our $SELFREG_MODE_EMAIL => 'email';
 Readonly our $SELFREG_MODE_SMS => 'sms';
 Readonly our $SELFREG_MODE_SPONSOR => 'sponsor';
+Readonly our $SELFREG_MODE_GOOGLE => 'google';
+Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 
 # this is broken NIC on Dave's desk - it better be unique!
 $blackholemac = "00:60:8c:83:d7:34";
@@ -418,6 +420,14 @@ sub readPfConfigFiles {
         $SELFREG_MODE_SPONSOR,
         $Config{'guests_self_registration'}{'modes'}
     );
+    $guest_self_registration{$SELFREG_MODE_GOOGLE} = $TRUE if is_in_list(
+        $SELFREG_MODE_GOOGLE,
+        $Config{'guests_self_registration'}{'modes'}
+    );
+    $guest_self_registration{$SELFREG_MODE_FACEBOOK} = $TRUE if is_in_list(
+        $SELFREG_MODE_FACEBOOK,
+        $Config{'guests_self_registration'}{'modes'}
+    );
 
     # check for portal profile guest self registration options in case they're disabled in default profile
     foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
@@ -441,6 +451,10 @@ sub readPfConfigFiles {
                 if is_in_list($SELFREG_MODE_SMS, $Config{$portalprofile}{'guest_modes'});
             $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE
                 if is_in_list($SELFREG_MODE_SPONSOR, $Config{$portalprofile}{'guest_modes'});
+            $guest_self_registration{$SELFREG_MODE_GOOGLE} = $TRUE
+                if is_in_list($SELFREG_MODE_GOOGLE, $Config{$portalprofile}{'guest_modes'});
+            $guest_self_registration{$SELFREG_MODE_FACEBOOK} = $TRUE
+                if is_in_list($SELFREG_MODE_FACEBOOK, $Config{$portalprofile}{'guest_modes'});
         }
     }
 

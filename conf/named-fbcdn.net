@@ -13,6 +13,7 @@ $TTL 1
     86400       ; default_ttl
 )
 	IN NS s-static.ak.fbcdn.net.
+        IN A %%A_blackhole%%
 
 s-static.ak IN  A       23.11.13.177
 *	     IN	     A 	     %%A_blackhole%%
