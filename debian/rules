@@ -88,7 +88,10 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0755 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
-	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf	
+	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
+	#PacketFence pfcmd suid
+	install -d -m0700 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
+	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
 	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
 # Build architecture-independent files here.
@@ -135,8 +138,8 @@ binary-arch: build install
 	# Everything is owned by pf:pf
 	chown pf:pf -R $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
 	# Set setuid root on bin/pfcmd
-	chown root:root $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
-	chmod ug+s $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/pfcmd
+	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
+	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb

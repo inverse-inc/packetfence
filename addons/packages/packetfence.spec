@@ -27,15 +27,16 @@
 # rpmbuild -ba --define 'version 3.3.0' --define 'snapshot 1' --define 'dist .el5' --define 'rev 0.20100506' SPECS/packetfence.spec
 #
 Summary: PacketFence network registration / worm mitigation system
-Name: packetfence
+%global real_name packetfence
+Name: %{real_name}-source
 Version: %{ver}
 Release: %{rev}%{?dist}
 License: GPL
 Group: System Environment/Daemons
 URL: http://www.packetfence.org
-AutoReqProv: 0
-BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{rev}-root
+BuildRoot: %{_tmppath}/%{real_name}-%{version}-%{rev}-root
+# disables the creation of the debug package for our setuid C wrapper
+%define debug_package %{nil}
 
 Packager: Inverse inc. <support@inverse.ca>
 Vendor: PacketFence, http://www.packetfence.org
@@ -44,10 +45,10 @@ Vendor: PacketFence, http://www.packetfence.org
 %define is_release %{?snapshot:0}%{!?snapshot:1}
 %if %{is_release}
 # used for official releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}.tar.gz
+Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}.tar.gz
 %else
 # used for snapshot releases
-Source: http://www.packetfence.org/downloads/PacketFence/src/%{name}-%{version}-%{rev}.tar.gz
+Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{version}-%{rev}.tar.gz
 %endif
 
 # Log related globals
@@ -60,6 +61,28 @@ BuildRequires: perl(Parse::RecDescent)
 # See docs/docbook/README.asciidoc for more info about installing requirements.
 # TODO fop on EL5 is actually xmlgraphics-fop
 %{?el6:BuildRequires: asciidoc >= 8.6.2, fop, libxslt, docbook-style-xsl, xalan-j2 }
+
+%description
+
+PacketFence is an open source network access control (NAC) system.
+It can be used to effectively secure networks, from small to very large
+heterogeneous networks. PacketFence provides features such
+as
+* registration of new network devices
+* detection of abnormal network activities
+* isolation of problematic devices
+* remediation through a captive portal
+* registration-based and scheduled vulnerability scans.
+
+# arch-specific pfcmd-suid subpackage required us to move all of PacketFence
+# into a noarch subpackage and have the top level package virtual.
+%package -n %{real_name}
+Group: System Environment/Daemons
+Summary: PacketFence network registration / worm mitigation system
+BuildArch: noarch
+# TODO we might consider re-enabling this to simplify our SPEC
+AutoReqProv: 0
+
 Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 # for process management
 Requires: procps
@@ -76,7 +99,9 @@ Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
-Requires: perl >= 5.8.8, perl-suidperl
+Requires: perl >= 5.8.8
+# replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
+Requires: %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
 Requires: perl(Class::Accessor)
@@ -188,7 +213,7 @@ Requires: perl(Test::NoWarnings)
 # required for the fake CoA server
 Requires: perl(Net::UDP)
 
-%description
+%description -n %{real_name}
 
 PacketFence is an open source network access control (NAC) system. 
 It can be used to effectively secure networks, from small to very large 
@@ -200,21 +225,36 @@ as
 * remediation through a captive portal 
 * registration-based and scheduled vulnerability scans.
 
-%package remote-snort-sensor
+
+%package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
 Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
 Requires: perl(SOAP::Lite)
-Conflicts: packetfence
+Conflicts: %{real_name}
 AutoReqProv: 0
 Summary: Files needed for sending snort alerts to packetfence
+BuildArch: noarch
 
-%description remote-snort-sensor
-The packetfence-remote-snort-sensor package contains the files needed
+%description -n %{real_name}-remote-snort-sensor
+The %{real_name}-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
 
+
+%package -n %{real_name}-pfcmd-suid
+Group: System Environment/Daemons
+BuildRequires: gcc
+Requires: %{real_name} >= 3.6.0
+AutoReqProv: 0
+Summary: Replace pfcmd by a C wrapper for suid
+
+%description -n %{real_name}-pfcmd-suid
+The %{real_name}-pfcmd-suid is a C wrapper to replace perl-suidperl dependency.
+See https://bugzilla.redhat.com/show_bug.cgi?id=611009
+
+
 %prep
-%setup -q
+%setup -q -n %{real_name}-%{version}
 
 %build
 # generate pfcmd_pregrammar
@@ -245,6 +285,8 @@ fop -c docs/fonts/fop-config.xml \
     -pdf docs/$GUIDE.pdf
 done
 %endif
+# build pfcmd C wrapper
+gcc -g0 src/pfcmd.c -o bin/pfcmd
 
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
@@ -350,7 +392,7 @@ cd $curdir
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%pre
+%pre -n %{real_name}
 
 if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
@@ -376,14 +418,14 @@ fi
 #fi
 
 
-%pre remote-snort-sensor
+%pre -n %{real_name}-remote-snort-sensor
 
 if ! /usr/bin/id pf &>/dev/null; then
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 echo Unexpected error adding user "pf" && exit
 fi
 
-%post
+%post -n %{real_name}
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
 echo "Adding pfappserver startup script"
@@ -435,23 +477,23 @@ service pfappserver start
 echo Installation complete
 echo "  * Please fire up your Web browser and go to http://@ip_packetfence:3000/configurator to complete your PacketFence configuration."
 
-%post remote-snort-sensor
+%post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
 
-%preun
+%preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
         /sbin/service packetfence stop &>/dev/null || :
         /sbin/chkconfig --del packetfence
 fi
 
-%preun remote-snort-sensor
+%preun -n %{real_name}-remote-snort-sensor
 if [ $1 -eq 0 ] ; then
         /sbin/service pfdetectd stop &>/dev/null || :
         /sbin/chkconfig --del pfdetectd
 fi
 
-%postun
+%postun -n %{real_name}
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 #       /usr/sbin/groupdel pf || %logmsg "Group \"pf\" could not be deleted."
@@ -459,7 +501,7 @@ if [ $1 -eq 0 ]; then
 #       /sbin/service pf condrestart &>/dev/null || :
 fi
 
-%postun remote-snort-sensor
+%postun -n %{real_name}-remote-snort-sensor
 if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
@@ -470,7 +512,7 @@ fi
 # to a directory, RPM will automatically package every file in that 
 # directory, as well as every file in each subdirectory."
 # -- http://www.rpm.org/max-rpm/s1-rpm-inside-files-list.html
-%files
+%files -n %{real_name}
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
@@ -506,7 +548,7 @@ fi
 %dir                    /usr/local/pf/addons/watchdog
 %attr(0755, pf, pf)     /usr/local/pf/addons/watchdog/*.sh
 %dir                    /usr/local/pf/bin
-%attr(6755, root, root) /usr/local/pf/bin/pfcmd
+%attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
@@ -708,7 +750,7 @@ fi
 %dir                    /usr/local/pf/var/webadmin_cache
 
 # Remote snort sensor file list
-%files remote-snort-sensor
+%files -n %{real_name}-remote-snort-sensor
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/pfdetectd
 %dir                    /usr/local/pf
@@ -718,7 +760,15 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
 
+
+%files -n %{real_name}-pfcmd-suid
+%attr(6755, root, root) /usr/local/pf/bin/pfcmd
+
 %changelog
+* Mon Sep 17 2012 Olivier Bilodeau <obilodeau@inverse.ca>
+- Made packetfence a a noarch subpackage of a new virtual packetfence-source
+  so we can build -pfcmd-suid as arch-specific.
+
 * Wed Sep 05 2012 Olivier Bilodeau <obilodeau@inverse.ca> - 3.5.1-1
 - New release 3.5.1
 

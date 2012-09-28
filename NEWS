@@ -24,6 +24,7 @@ Enhancements
  * Adding default OCSP/CRL Proxies (#1329)
  * Better WISPR support
  * New parameter to control captive portal interception: secure_redirect
+ * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
