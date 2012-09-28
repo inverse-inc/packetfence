@@ -25,6 +25,9 @@ Enhancements
  * Better WISPR support
  * New parameter to control captive portal interception: secure_redirect
  * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
+ * Minimal performance improvements to bin/pfcmd startup
+ * Less dependencies on hard to find packages
+ * simplify configuration: some default values provided for networks.conf
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)

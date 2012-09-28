@@ -30,7 +30,6 @@ use warnings;
 
 use Digest::MD5 qw(md5_hex);
 use Log::Log4perl;
-use MIME::Lite::TT;
 use POSIX;
 use Readonly;
 use Time::HiRes qw(time);
@@ -375,6 +374,14 @@ sub send_email {
     my %options; 
     $options{INCLUDE_PATH} = "$conf_dir/templates/";
 
+    my $import_succesfull = try { require MIME::Lite::TT; };
+    if (!$import_succesfull) {
+        $logger->error(
+            "Could not send email because I couldn't load a module. ".
+            "Are you sure you have MIME::Lite::TT installed?"
+        );
+        return $FALSE;
+    }
     my $msg = MIME::Lite::TT->new( 
         From        =>  $info{'from'},
         To          =>  $info{'email'}, 
