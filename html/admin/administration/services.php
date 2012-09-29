@@ -118,14 +118,18 @@ function print_status_table(){
           } else {
             print "<td>&nbsp;</td>\n";
           }
-          if (($services[1] == 1) && ($services[2] != 0)) {
+          if ($services[2] != 0) {
             print "<td align=center>";
             image_button(
                 "$current_top/$current_sub.php", array( 'service' => $services[0], 'action' => 'stop' ), 
                 'images/stop.png', "Stop $services[0]"
             );
             print "</td>\n";
+          } else {
+            print "<td>&nbsp;</td>\n";
+          }
 
+          if (($services[1] == 1) && ($services[2] != 0)) {
             print "<td align=center>";
             image_button(
                 "$current_top/$current_sub.php", array( 'service' => $services[0], 'action' => 'restart'), 
@@ -133,7 +137,6 @@ function print_status_table(){
             );
             print "</td>\n";
           } else {
-            print "<td>&nbsp;</td>\n";
             print "<td>&nbsp;</td>\n";
           }
           print "</tr>\n";    
