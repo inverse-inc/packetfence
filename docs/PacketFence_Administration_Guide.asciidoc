@@ -1963,7 +1963,7 @@ CAUTION: If you set a custom template_path, make sure to copy over all of the de
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
-Some public captive portal provides the capability of allowing a guest/user to register using his Google or Facebook account.  We can also do that in PacketFence.
+The captive portal of PacketFence allows a guest/user to register using his Google or Facebook account.
 
 Google
 ^^^^^^
