@@ -1473,6 +1473,13 @@ sub getPhonesDPAtIfIndex {
 
     # filtering duplicates w/ hashmap (key collisions handles it)
     my %phones = map { $_ => $TRUE } @phones;
+
+    # Log
+    if (%phones) {
+        $logger->info("We found an IP phone through discovery protocols for ifIndex $ifIndex");
+    } else {
+        $logger->info("Could not find any IP phones through discovery protocols for ifIndex $ifIndex");   
+    }
     return keys %phones;
 }
 
