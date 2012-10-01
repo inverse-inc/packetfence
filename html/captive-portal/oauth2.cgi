@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-OAuth2.cgi
+oauth2.cgi
 
 =head1 SYNOPSYS
 

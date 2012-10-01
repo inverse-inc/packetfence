@@ -1983,7 +1983,7 @@ Once you have your client id, and API key, you need to configure the OAuth2 prov
    access_token_param = oauth_token
    redirect_uri = https://o2.packetfence.org/o2/google
 
-Also, enable the Google authentication in the guests_self_registration.modes field.
+Also, enable the Google authentication in the `guests_self_registration.modes` field.
 
 Facebook
 ^^^^^^^^
@@ -2001,7 +2001,7 @@ Once you have your information, configure the OAuth2 provider in pf.conf that wa
    access_token_param = access_token
    redirect_uri = https://o2.packetfence.org/o2/facebook
 
-Also, enable the Facebook authentication in the guests_self_registration.modes field.
+Also, enable the Facebook authentication in the `guests_self_registration.modes` field.
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
