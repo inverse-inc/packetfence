@@ -23,19 +23,9 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Nortel');
 
-sub getPhonesLLDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones;
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesLLDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    $logger->debug("LLDP is not available on BPS2000");
-    return @phones;
-}
+# special features
+# LLDP is not available on BPS2000
+sub supportsLldp { return $FALSE; }
 
 =head1 AUTHOR
 
@@ -45,7 +35,7 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2006-2012 Inverse inc.
 
 =head1 LICENSE
 

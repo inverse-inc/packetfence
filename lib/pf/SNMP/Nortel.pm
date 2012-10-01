@@ -52,6 +52,9 @@ use pf::util;
 =cut
 sub supportsFloatingDevice { return $TRUE; }
 
+# special features
+sub supportsLldp { return $TRUE; }
+
 =back
 
 =head1 METHODS
@@ -713,19 +716,6 @@ sub isPortSecurityEnabled {
                 || $s5SbsCurrentPortSecurStatus eq 'noSuchInstance' 
                 || $s5SbsCurrentPortSecurStatus >= 2)
     );
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones;
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    return $this->getPhonesLLDPAtIfIndex($ifIndex);
 }
 
 sub getPhonesLLDPAtIfIndex {

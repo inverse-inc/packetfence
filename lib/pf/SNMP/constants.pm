@@ -154,6 +154,32 @@ Readonly::Scalar our $DELETE_ON_RESET => 4;
 Readonly::Scalar our $DELETE_ON_TIMEOUT => 5;
 
 =back
+
+=head1 LLDP
+
+=over
+
+=cut
+package SNMP::LLDP;
+
+=item LldpSystemCapabilitiesMap
+
+Defined by IEEE 802.1AB. Values below from LLDP-MIB.
+
+ other(0),
+ repeater(1),
+ bridge(2),
+ wlanAccessPoint(3),
+ router(4),
+ telephone(5),
+ docsisCableDevice(6),
+ stationOnly(7)
+
+=cut
+# only the one in use are defined
+Readonly::Scalar our $TELEPHONE => 5;
+
+=back
  
 =head1 CISCO
 
@@ -201,6 +227,13 @@ Used for NAS-Port to ifIndex translation
 =cut
 Readonly::Scalar our $IFINDEX_OFFSET => 10100;
 Readonly::Scalar our $IFINDEX_PER_STACK => 500;
+
+=item LLDP constants
+
+lldpRemTimeMark is always set to 0 on Cisco's (at least those we tried)
+
+=cut
+Readonly::Scalar our $DEFAULT_LLDP_REMTIMEMARK => 0;
 
 =back
 

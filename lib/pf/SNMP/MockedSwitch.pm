@@ -90,6 +90,7 @@ sub supportsRadiusVoip { return $TRUE; }
 # special features supported
 sub supportsFloatingDevice { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
+sub supportsCdp { return $TRUE; }
 
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything
@@ -1887,18 +1888,6 @@ sub getAllMacs {
         }
     }
     return $ifIndexVlanMacHashRef;
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->debug("fake getPhonesDPAtIfIndex ifIndex: $ifIndex");
-    my @phones;
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug("VoIP not enabled on switch ".$this->{_ip}.". getPhonesDPAtIfIndex will return empty list.");
-        return @phones;
-    }
-    return $this->getPhonesCDPAtIfIndex($ifIndex);
 }
 
 # FIXME not properly mocked

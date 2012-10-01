@@ -151,6 +151,28 @@ sub supportsSaveConfig {
     return $FALSE;
 }
 
+=item supportsCdp
+
+Does the network device supports Cisco Discovery Protocol (CDP)
+
+=cut
+sub supportsCdp {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $FALSE;
+}
+
+=item supportsLldp
+
+Does the network device supports Link-Layer Discovery Protocol (LLDP)
+
+=cut
+sub supportsLldp {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $FALSE;
+}
+
 =item supportsRadiusDynamicVlanAssignment
 
 =cut
@@ -1420,15 +1442,45 @@ sub isStaticPortSecurityEnabled {
     return ( 0 == 1 );
 }
 
+=item getPhonesDPAtIfIndex
+
+Obtain phones from discovery protocol at ifIndex.
+
+Polls from all supported sources and will filter out duplicates.
+
+=cut
+# TODO one day, with Moose roles, the CDP / LLDP role will require the proper
+# implementations of getPhonesCDPAtIfIndex / getPhonesLLDPAtIfIndex
 sub getPhonesDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones;
+
     if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch " . $this->{_ip} );
-        return @phones;
+        $logger->debug( "VoIP not enabled on network device $this->{_ip}: no phones returned" );
+        return;
     }
-    return @phones;
+
+    my @phones = ();
+    # CDP
+    if ($this->supportsCdp()) {
+        push @phones, $this->getPhonesCDPAtIfIndex($ifIndex);
+    }
+
+    # LLDP
+    if ($this->supportsLldp()) {
+        push @phones, $this->getPhonesLLDPAtIfIndex($ifIndex);
+    }
+
+    # filtering duplicates w/ hashmap (key collisions handles it)
+    my %phones = map { $_ => $TRUE } @phones;
+
+    # Log
+    if (%phones) {
+        $logger->info("We found an IP phone through discovery protocols for ifIndex $ifIndex");
+    } else {
+        $logger->info("Could not find any IP phones through discovery protocols for ifIndex $ifIndex");   
+    }
+    return keys %phones;
 }
 
 =item hasPhoneAtIfIndex
