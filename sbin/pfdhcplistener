@@ -482,7 +482,7 @@ sub update_iplog {
     if ( $oldip && $oldip ne $srcip ) {
         my $view_mac = node_view($srcmac);
         if ($view_mac->{'last_connection_type'} eq $connection_type_to_str{$INLINE}) {
-            my $technique = $$accessControl->{_technique};
+            my $technique = $accessControl->{_technique};
             $technique->update_node($oldip, $srcip, $srcmac);
         }
         $logger->info(
