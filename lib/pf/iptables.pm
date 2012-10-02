@@ -644,6 +644,15 @@ sub generate_passthrough {
     return $filter_rules;
 }
 
+=item update_node
+
+Update session when the ip address change
+
+=cut
+
+sub update_node {
+    #Just to have an iptables method
+}
 
 =back
 

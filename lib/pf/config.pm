@@ -50,6 +50,7 @@ our (
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
     %connection_type, %connection_type_to_str, %connection_type_explained,
+    %mark_type_to_str, %mark_type,
     $blackholemac, $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL
 );
@@ -66,7 +67,7 @@ BEGIN {
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
-        $IPSET_VERSION
+        $IPSET_VERSION %mark_type_to_str %mark_type
         $default_config_file %Default_Config
         $config_file %Config
         $network_config_file %ConfigNetworks
@@ -215,6 +216,19 @@ Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
 Readonly::Scalar our $IPSET_VERSION => ipset_version();
+
+%mark_type = (
+    'Reg'   => $IPTABLES_MARK_REG,
+    'Isol' => $IPTABLES_MARK_ISOLATION,
+    'Unreg'          => $IPTABLES_MARK_UNREG,
+);
+
+# Their string equivalent for database storage
+%mark_type_to_str = (
+    $IPTABLES_MARK_REG => 'Reg',
+    $IPTABLES_MARK_ISOLATION => 'Isol',
+    $IPTABLES_MARK_UNREG => 'Unreg',
+);
 
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;

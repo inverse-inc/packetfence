@@ -666,6 +666,10 @@ trap_limit_action =
 # We also have experimental IMAP and POP3 listeners which give fake emails telling users to open their browsers.
 # Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
 ports_redirect=80/tcp,443/tcp
+#
+# should_reauth_on_vlan_change
+# Should have to reauthenticate the node if it change vlan
+should_reauth_on_vlan_change = disabled
 
 [servicewatch]
 #
