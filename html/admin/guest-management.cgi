@@ -100,11 +100,12 @@ if (defined($session->param("username"))) {
                 'password' => $password,
                 'valid_from' => $session->param("arrival_date"),
                 'duration' => pf::web::admin::valid_access_duration($session->param("access_duration")),
+                'category' => $session->param("category"),
                 'notes' => $session->param("notes"),
             };
 
             # tear down session information
-            $session->clear([ "firstname", "lastname", "email", "phone", "arrival_date", "access_duration" ]);
+            $session->clear([ "firstname", "lastname", "email", "phone", "arrival_date", "access_duration", "category" ]);
 
             if (defined($cgi->param("action_print"))) {
                 # Print page

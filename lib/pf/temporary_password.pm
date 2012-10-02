@@ -94,15 +94,15 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, valid_from, expiration, access_duration
+        SELECT pid, password, valid_from, expiration, access_duration, category
         FROM temporary_password 
         WHERE pid = ?
     ]);
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
-            (pid, password, valid_from, expiration, access_duration)
-        VALUES (?, ?, ?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration, category)
+        VALUES (?, ?, ?, ?, ?, ?)
     ]);
 
     $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
@@ -111,7 +111,7 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[ 
         SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from, UNIX_TIMESTAMP(expiration) as expiration,
-            access_duration
+            access_duration, category
         FROM temporary_password
         WHERE pid = ?
         ORDER BY expiration DESC
@@ -175,7 +175,7 @@ sub create {
 
     return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
         'temporary_password_add_sql',
-        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
+        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'category'}
     ));
 }
 
@@ -226,7 +226,7 @@ Defaults to 0 (no per user limit)
 
 =cut
 sub generate {
-    my ($pid, $expiration, $valid_from, $access_duration, $password) = @_;
+    my ($pid, $expiration, $valid_from, $access_duration, $category, $password) = @_;
     my $logger = Log::Log4perl::get_logger('pf::temporary_password');
 
     my %data;
@@ -243,6 +243,9 @@ sub generate {
 
     # generate password 
     $data{'password'} = $password || _generate_password();
+
+    # category
+    $data{'category'} = $category || undef;
 
     # if an entry of the same pid already exist, delete it
     if (defined(view($pid))) {
@@ -302,7 +305,7 @@ sub validate_password {
 
     # password match success
     if ($temppass_record->{'password'} eq $password) {
-        return ( $AUTH_SUCCESS, $temppass_record->{'access_duration'});
+        return ( $AUTH_SUCCESS, $temppass_record->{'access_duration'}, $temppass_record->{'category'});
     }
 
     # otherwise failure
