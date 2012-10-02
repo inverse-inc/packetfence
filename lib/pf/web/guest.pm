@@ -404,12 +404,6 @@ Readonly::Hash our %ERRORS => (
 
 =back
 
-=head1 AUTHOR
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
 =head1 COPYRIGHT
 
 Copyright (C) 2010, 2011, 2012 Inverse inc.
