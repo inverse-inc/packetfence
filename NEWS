@@ -21,6 +21,7 @@ New Hardware
 Enhancements
  * Debian packages improvements
  * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
+ * LLDP support for Cisco switches
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
