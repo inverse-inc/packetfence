@@ -383,13 +383,13 @@ sub returnRoleAttribute {
     return 'Aruba-User-Role';
 }
 
-=item DeauthTechniques
+=item deauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub DeauthTechniques {
+sub deauthTechniques {
     my ($this, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::RADIUS;

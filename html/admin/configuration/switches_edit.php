@@ -205,7 +205,7 @@
         printSelect( array('' => 'please choose', 'yes' => 'Yes', 'no' => 'No'), 'hash', $val, "name='$key'");
         break;
 
-      case 'deAuthMethod':
+      case 'deauthMethod':
         print "<tr><td></td><td>$pretty_key:</td><td>";
         printSelect( array('' => 'please choose', 'Telnet' => 'Telnet', 'SSH' => 'SSH', 'SNMP' => 'SNMP', 'Radius' => 'RADIUS', 'Http' => 'HTTP', 'Https' => 'HTTPS'), 'hash', $val, "name='$key'");
         break;

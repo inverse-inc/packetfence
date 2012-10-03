@@ -1578,14 +1578,14 @@ sub handleTrap {
      
         $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
         my $switchIp = $switch->{_ip};
-        my ($switchdeAuthMethod, $DeauthTechniques) = $switch->DeauthTechniques($switch->{_deAuthMethod});
-        if (($switchdeAuthMethod eq $SNMP::SSH) || ($switchdeAuthMethod eq $SNMP::TELNET)) {
+        my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{_deauthMethod});
+        if (($switchdeauthMethod eq $SNMP::SSH) || ($switchdeauthMethod eq $SNMP::TELNET)) {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
             pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchIp -mac $trapMac");
         }    
         else {
-           $DeauthTechniques->($switch,$trapMac);
+           $deauthTechniques->($switch,$trapMac);
         }    
 
         # }}}2

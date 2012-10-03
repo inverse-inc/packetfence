@@ -207,7 +207,7 @@ sub new {
         '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
-        '_deAuthMethod'             => undef,
+        '_deauthMethod'             => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -303,8 +303,8 @@ sub new {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
-        } elsif (/^-?deAuthMethod$/i) {
-            $this->{_deAuthMethod} = $argv{$_};
+        } elsif (/^-?deauthMethod$/i) {
+            $this->{_deauthMethod} = $argv{$_};
         }
     }
     return $this;
@@ -2413,8 +2413,8 @@ is_dot1x - set to 1 if special dot1x de-authentication is required
 sub deauthenticateMac {
     my ($this, $mac, $is_dot1x) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    my ($switchdeAuthMethod, $DeauthTechniques) = $this->DeauthTechniques($this->{_deAuthMethod});
-    $DeauthTechniques->($this,$mac);
+    my ($switchdeauthMethod, $deauthTechniques) = $this->deauthTechniques($this->{_deauthMethod});
+    $deauthTechniques->($this,$mac);
 }
 
 =item dot1xPortReauthenticate
@@ -2751,13 +2751,13 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
-=item DeauthTechniques
+=item deauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
 
 =cut
 
-sub DeauthTechniques {
+sub deauthTechniques {
     my ($this, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $default = $SNMP::DEFAULT;
@@ -2771,12 +2771,12 @@ sub DeauthTechniques {
     return $method,$tech{$method};
 }
 
-=item supportedDeauthTechniques
+=item supporteddeauthTechniques
 
 return Default Deauthentication Method
 
 =cut
-sub supportedDeauthTechniques {
+sub supporteddeauthTechniques {
     my ( $this ) = @_;
 
     my %tech = (

@@ -326,9 +326,9 @@ sub instantiate {
                    $SwitchConfig{$requestedSwitch}{'roles'}
                 || $SwitchConfig{'default'}{'roles'}
         ),
-        '-deAuthMethod' => (
-                   $SwitchConfig{$requestedSwitch}{'deAuthMethod'}
-                || $SwitchConfig{'default'}{'deAuthMethod'}
+        '-deauthMethod' => (
+                   $SwitchConfig{$requestedSwitch}{'deauthMethod'}
+                || $SwitchConfig{'default'}{'deauthMethod'}
         ),
     );
 }
