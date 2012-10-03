@@ -115,7 +115,13 @@ binary-arch: build install
 #	dh_installinfo
 	dh_installman
 	dh_link /usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
-		/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf
+			/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf \
+			/usr/local/pf/raddb/sites-available/control-socket /usr/local/pf/raddb/sites-enabled/control-socket \
+			/usr/local/pf/raddb/sites-available/default /usr/local/pf/raddb/sites-enabled/default \
+			/usr/local/pf/raddb/sites-available/inner-tunnel /usr/local/pf/raddb/sites-enabled/inner-tunnel \
+			/usr/local/pf/raddb/sites-available/packetfence /usr/local/pf/raddb/sites-enabled/packetfence
+			/usr/local/pf/raddb/sites-available/packetfence-soh /usr/local/pf/raddb/sites-enabled/packetfence-soh \
+			/usr/local/pf/raddb/sites-available/packetfence-tunnel /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
 	dh_strip
 	dh_compress
 	# PERMISSIONS

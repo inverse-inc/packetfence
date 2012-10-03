@@ -344,6 +344,16 @@ else
     ln -s named.conf.pre_bind97 ./named.conf
 fi
 
+#radius sites-enabled symlinks
+#We standardize the way to use site-available/sites-enabled for the RADIUS server
+cd $RPM_BUILD_ROOT/usr/local/pf/raddb
+ln -s sites-available/control-socket sites-enabled/control-socket
+ln -s sites-available/default sites-enabled/default
+ln -s sites-avaialble/inner-tunnel sites-enabled/inner-tunnel
+ln -s sites-available/packetfence sites-enabled/packetfence
+ln -s sites-available/packetfence-soh sites-enabled/packetfence-soh
+ln -s sites-available/packetfence-tunnel sites-enabled/packetfence-tunnel
+
 cd $curdir
 #end create symlinks
 
@@ -682,29 +692,23 @@ fi
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/var/named
-%dir			/usr/local/pf/raddb
-			/usr/local/pf/raddb/*
-%config			/usr/local/pf/raddb/clients.conf
-%config			/usr/local/pf/raddb/packetfence.pm
-%attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence.pm
-%config			/usr/local/pf/raddb/packetfence-soh.pm
-%attr(0755, pf, pf)	/usr/local/pf/raddb/packetfence-soh.pm
-%config			/usr/local/pf/raddb/proxy.conf
-%config			/usr/local/pf/raddb/users
-%config			/usr/local/pf/raddb/modules/mschap
+%dir			        /usr/local/pf/raddb
+			            /usr/local/pf/raddb/*
+%config			        /usr/local/pf/raddb/clients.conf
+%config			        /usr/local/pf/raddb/packetfence.pm
+%attr(0755, pf, pf)	    /usr/local/pf/raddb/packetfence.pm
+%config			        /usr/local/pf/raddb/packetfence-soh.pm
+%attr(0755, pf, pf)	    /usr/local/pf/raddb/packetfence-soh.pm
+%config			        /usr/local/pf/raddb/proxy.conf
+%config			        /usr/local/pf/raddb/users
+%config			        /usr/local/pf/raddb/modules/mschap
 %config                 /usr/local/pf/raddb/modules/perl
-%config			/usr/local/pf/raddb/sites-available/packetfence
-%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence
-%config		        /usr/local/pf/raddb/sites-available/packetfence-soh
-%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-soh
-%config		        /usr/local/pf/raddb/sites-available/packetfence-tunnel
-%attr(0755, pf, pf)	/usr/local/pf/raddb/sites-available/packetfence-tunnel
-%config                 /usr/local/pf/raddb/sites-enabled/packetfence
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence
-%config                 /usr/local/pf/raddb/sites-enabled/packetfence-soh
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-soh
-%config                 /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
+%config			        /usr/local/pf/raddb/sites-available/packetfence
+%attr(0755, pf, pf)	    /usr/local/pf/raddb/sites-available/packetfence
+%config		            /usr/local/pf/raddb/sites-available/packetfence-soh
+%attr(0755, pf, pf)	    /usr/local/pf/raddb/sites-available/packetfence-soh
+%config		            /usr/local/pf/raddb/sites-available/packetfence-tunnel
+%attr(0755, pf, pf)	    /usr/local/pf/raddb/sites-available/packetfence-tunnel
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session

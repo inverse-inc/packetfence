@@ -128,6 +128,3 @@
 /usr/local/pf/raddb/users
 /usr/local/pf/raddb/modules/mschap
 /usr/local/pf/raddb/modules/perl
-/usr/local/pf/raddb/sites-enabled/packetfence
-/usr/local/pf/raddb/sites-enabled/packetfence-soh
-/usr/local/pf/raddb/sites-enabled/packetfence-tunnel
