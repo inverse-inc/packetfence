@@ -85,6 +85,22 @@ After a few years marked as deprecated. `pf::SNMP.pm`'s `setIsolationVlan`,
 `setRegistrationVlan` and `setNormalVlan` were removed.
 
 
+Upgrading from a version prior to <stableRelease>
+-------------------------------------------------
+
+.LLDP Support
+
+LLDP discovery of VoIP phones has been improved and streamlined. Let us know
+if you experience any regressions or if you have switches that support LLDP
+that you would like to see supported.
+
+.Modification to the sites-available / sites-enabled for FreeRADIUS configuration.
+
+We standardize the way to work with these two directories in the way that files in sites-enabled
+are symlinks of files in sites-available. This way, modifications to files are less error prone.
+Make sure to copy files from sites-enabled to sites-available before updating to avoid losing any changes made to 
+theses files. After the update, files that differs from originals will be saved as .rpmsave.
+
 Upgrading from a version prior to 3.5.1
 ---------------------------------------
 

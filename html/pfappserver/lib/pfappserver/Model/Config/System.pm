@@ -108,52 +108,6 @@ sub _inject_default_route {
     }
 }
 
-=item update_radius_sql
-
-=cut
-# FIXME make disappear once managed-radius is merged
-# FIXME make disappear once managed-radius is merged
-# FIXME potential command injection.. should run a a-zA-Z0-9_. regex at the earliest we get a user (re-use existing regex)
-sub update_radius_sql {
-    my ( $self, $db, $user, $pass ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my ($status, $status_msg, $systemObj);
-
-    # Instantiate an object for the correct OS
-    ($status, $systemObj) = pfappserver::Model::Config::SystemFactory->getSystem();
-    return ($status, $systemObj) if ( is_error($status) );
-
-    my $radius_sql_conf_file = $systemObj->_getRadiusSqlConfFile();
-
-    # Check if file exists
-    return ($STATUS::INTERNAL_SERVER_ERROR, "RADIUS sql.conf file doesn't seems to exists")
-        if ( !-e $radius_sql_conf_file );
-
-    # Update the default user with the configured one
-    my $cmd = "sed -i 's/login = \"pf\"/login = \"$user\"/g' $radius_sql_conf_file";
-    $logger->debug("Updating user in RADIUS sql file: $cmd");
-    $status = pf_run($cmd);
-    return ($STATUS::INTERNAL_SERVER_ERROR, "Error while updating user in RADIUS sql.conf file")
-        if ( !defined($status) || $status ne "" );
-
-    # Update the default pass with the configured one
-    $cmd = "sed -i 's/password = \"pf\"/password = \"$pass\"/g' $radius_sql_conf_file";
-    $logger->debug("Updating password in RADIUS sql file: $cmd");
-    $status = pf_run($cmd);
-    return ($STATUS::INTERNAL_SERVER_ERROR, "Error while updating password in RADIUS sql.conf file")
-        if ( !defined($status) || $status ne "" );
-
-    # Update the default db with the configured one
-    $cmd = "sed -i 's/radius_db = \"pf\"/radius_db = \"$db\"/g' $radius_sql_conf_file";
-    $logger->debug("Updating database in RADIUS sql file: $cmd");
-    $status = pf_run($cmd);
-    return ($STATUS::INTERNAL_SERVER_ERROR, "Error while updating database in RADIUS sql.conf file")
-        if ( !defined($status) || $status ne "" );
-
-    return $STATUS::OK;
-}
-
 =item write_network_persistent
 
 =cut
@@ -274,7 +228,7 @@ Moose class implemeting roles.
 
 use Moose::Role;
 
-requires qw(_getRadiusSqlConfFile writeNetworkConfigs);
+requires qw(writeNetworkConfigs);
 
 
 package pfappserver::Model::Config::System::RHEL;
@@ -295,12 +249,6 @@ use pf::util;
 
 with 'pfappserver::Model::Config::System::Role';
 
-has '_radius_sql_conf_file' => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => '/etc/raddb/sql.conf',
-);
-
 our $_network_conf_dir    = "/etc/sysconfig/";
 our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
@@ -309,15 +257,6 @@ our $_interface_conf_file = "ifcfg-";
 =head3 METHODS
 
 =over
-
-=item _getRadiusSqlConfFile
-
-=cut
-sub _getRadiusSqlConfFile {
-    my ( $this ) = @_;
-
-    return $this->_radius_sql_conf_file();
-}
 
 =item writeNetworkConfigs
 
@@ -394,27 +333,12 @@ use pf::util;
 
 with 'pfappserver::Model::Config::System::Role';
 
-has '_radius_sql_conf_file' => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => '/etc/freeradius/sql.conf',
-);
-
 our $_network_conf_dir    = "/etc/network/";
 our $_network_conf_file   = "interfaces";
 
 =head3 METHODS
 
 =over
-
-=item _getRadiusSqlConfFile
-
-=cut
-sub _getRadiusSqlConfFile {
-    my ( $this ) = @_;
-
-    return $this->_radius_sql_conf_file();
-}
 
 =item writeNetworkConfigs
 

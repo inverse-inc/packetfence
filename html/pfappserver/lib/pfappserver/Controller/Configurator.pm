@@ -420,15 +420,6 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
             }
         }
 
-        # FIXME This can break configuration files if certain odd conditions occur 
-        # (it rewrites the file w/ sed no matter what)
-        my $result;
-        ($status, $result) = $c->model('Config::System')->update_radius_sql($pf_db, $pf_user, $pf_pass);
-        if (is_error($status)) {
-            delete $c->session->{completed}->{$c->action->name};
-            $c->detach();
-        }
-
         # everything has been done successfully
         $c->session->{completed}->{$c->action->name} = 1;
     }

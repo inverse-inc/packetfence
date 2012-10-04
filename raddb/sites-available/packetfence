@@ -27,8 +27,6 @@ preacct {
 }
 
 accounting {
-        detail
-        unix
         sql
         radutmp
         attr_filter.accounting_response

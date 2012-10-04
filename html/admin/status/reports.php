@@ -76,6 +76,9 @@
       case 'nodebandwidth':
           $additional = 'Top 25 bandwidth consumers';
           break;
+      case 'topsponsor':
+          $additional = 'Top 25 Sponsors';
+          break;
   }
 
   $extra_goodness = helper_menu($current_top, $current_sub, $type, $_GET[menu], $additional);

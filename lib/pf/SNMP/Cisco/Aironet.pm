@@ -69,8 +69,10 @@ TODO: This list is incomplete
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
-# special features 
+# disabling special features supported by generic Cisco's but not on Aironet
 sub supportsSaveConfig { return $FALSE; }
+sub supportsCdp { return $FALSE; }
+sub supportsLldp { return $FALSE; }
 
 =item deauthenticateMac
 
@@ -179,20 +181,6 @@ sub isDefinedVlan {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->error("function is NOT implemented");
     return 0;
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones = ();
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    $logger->debug("no DP is available on Aironet");
-    return @phones;
 }
 
 sub isVoIPEnabled {

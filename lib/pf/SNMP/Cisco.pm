@@ -29,6 +29,7 @@ use pf::util::radius qw(perform_coa);
 # CAPABILITIES
 # special features 
 sub supportsSaveConfig { return $TRUE; }
+sub supportsCdp { return $TRUE; }
 
 =head1 SUBROUTINES
 
@@ -1327,19 +1328,6 @@ sub getHubs {
 
     }
     return $hubPorts;
-}
-
-sub getPhonesDPAtIfIndex {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    my @phones;
-    if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
-                . ". getPhonesDPAtIfIndex will return empty list." );
-        return @phones;
-    }
-    return $this->getPhonesCDPAtIfIndex($ifIndex);
 }
 
 sub getPhonesCDPAtIfIndex {
