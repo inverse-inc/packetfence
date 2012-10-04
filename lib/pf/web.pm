@@ -419,19 +419,25 @@ sub generate_o2_result {
 
    my $code = $portalSession->getCgi()->url_param('code');
 
-   $logger->info("API CODE: $code");
+   $logger->debug("API CODE: $code");
 
    #Get the token
-   my $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+   my $token;
+
+   eval {
+      $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+   };
+   
+   if ($@) {
+       $logger->info("OAuth2: failed to receive the token from the provider, redireting to login page");
+       generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to get the token") );
+       return 0;
+   }
 
    my $response;
 
    # Validate the token
-   if ($provider eq 'google') {
-       $response = $token->get('https://www.googleapis.com/oauth2/v2/userinfo');
-   } elsif ($provider eq 'facebook') {
-       $response = $token->get('https://graph.facebook.com/me');
-   }
+   $response = $token->get($Config{"oauth2 $provider"}{'protected_resource_url'});
    
    if ($response->is_success) {
         # Grab JSON content
@@ -445,7 +451,8 @@ sub generate_o2_result {
             return ($TRUE,$json_text->{username});
         }
    } else {
-        $logger->info("OAuth2 failed, redireting to login page with appropriate error");
+        $logger->info("OAuth2: failed to validate the token, redireting to login page");
+        generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to validate the token, please retry") );
         return 0;
    }
 }

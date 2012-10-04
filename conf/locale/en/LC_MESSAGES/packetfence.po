@@ -881,3 +881,9 @@ msgstr ""
 
 msgid "You need to be authenticated to access this page."
 msgstr ""
+
+msgid "OAuth2 Error: Failed to get the token"
+msgstr ""
+
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr ""

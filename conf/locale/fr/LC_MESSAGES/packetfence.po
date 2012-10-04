@@ -997,3 +997,9 @@ msgstr "Impossible de valider votre sponsor pour le moment"
 
 msgid "Email %s is not allowed to sponsor guest access"
 msgstr "Le courriel %s n'est pas autoriser pour sponsoriser les accès invité"
+
+msgid "OAuth2 Error: Failed to get the token"
+msgstr "OAuth2: Impossible d'obtenir un jeton"
+
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr "OAuth2: Impossible de valider le jeton, SVP ressayez de nouveau"
