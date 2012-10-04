@@ -76,8 +76,8 @@
       case 'nodebandwidth':
           $additional = 'Top 25 bandwidth consumers';
           break;
-      case 'sponsoruser':
-          $additional = 'Top 25 sponsor users';
+      case 'topsponsor':
+          $additional = 'Top 25 Sponsors';
           break;
   }
 

@@ -357,7 +357,7 @@ Usage: pfcmd report
                <os|osclass> [all|active]
                osclassbandwidth [all|day|week|month|year]
                nodebandwidth
-               sponsoruser
+               topsponsor
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
 
