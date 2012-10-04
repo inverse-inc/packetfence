@@ -229,7 +229,7 @@ my $switchFactory = pf::SwitchFactory->getInstance();
 if ($reevaluateAccess) {
 
     if (!defined($mac) || $mac eq '' ) {
-        pod2usage("MAC argument is necessary");
+        exit_wrong_args("MAC argument is necessary");
     }
 
     pf::enforcement::reevaluate_access( $mac, 'pfcmd_vlan' );
@@ -240,10 +240,10 @@ if ($reevaluateAccess) {
 } elsif ($runSwitchMethod) {
 
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
 
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -264,10 +264,10 @@ if ($reevaluateAccess) {
 } elsif ($getUpLinks) {
 
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -284,10 +284,10 @@ if ($reevaluateAccess) {
 } elsif ($getSwitchLocation) {
 
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -301,10 +301,10 @@ if ($reevaluateAccess) {
 } elsif ($getVersion) {
 
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -319,10 +319,10 @@ if ($reevaluateAccess) {
 
     # TODO: remove this feature or add all switches we support (saying Oops if we can't tell)
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -406,10 +406,10 @@ if ($reevaluateAccess) {
 } elsif ($getAllMacs) {
 
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -430,10 +430,10 @@ if ($reevaluateAccess) {
 } elsif ($getHubs) {
 
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -466,13 +466,13 @@ if ($reevaluateAccess) {
 } elsif ($deauthenticate) {
 
     if (!defined($mac) || $mac eq '') {
-        pod2usage("the MAC argument is necessary");
+        exit_wrong_args("the MAC argument is necessary");
     }
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -488,27 +488,31 @@ if ($reevaluateAccess) {
     my $macUndefOrEmpty     = (!defined($mac) || $mac eq '');
     my $ifIndexUndefOrEmpty = (!defined($ifIndex) || $ifIndex == 0);
     if ($macUndefOrEmpty && $ifIndexUndefOrEmpty) {
-        pod2usage("Please provide a MAC for wireless 802.1x or an ifIndex for wired 802.1x");
+        exit_wrong_args("Please provide a MAC for wireless 802.1x or an ifIndex for wired 802.1x");
     }
     if ($switchDescRegExp eq '') {
-        pod2usage("the switch argument is necessary");
+        exit_wrong_args("the switch argument is necessary");
     }
     if (!exists( $switchFactory->{_config}{$switchDescRegExp})) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
+        exit 1;
     } else {
         $logger->debug("start handling 'deauthenticateDot1x' command");
         if (defined($mac) && $mac ne '') {
             $logger->info("wireless deauthentication of a 802.1x MAC");
-            $switch->deauthenticateMac($mac, 1);
+            # TODO make sure the return code of deauthenticateMac() is coherent in all modules
+            # this was not done when this simple fix was committed
+            my $result = $switch->deauthenticateMac($mac, $TRUE);
+            exit(1) if (!defined($result) || $result != $TRUE );
         } elsif (defined($ifIndex) && $ifIndex != 0) {
             $logger->info("wired deauthentication of a 802.1x MAC");
             $switch->dot1xPortReauthenticate($ifIndex);
         } else {
-            pod2usage("Please provide a MAC for wireless 802.1x or an ifIndex for wired 802.1x");
+            exit_wrong_args("Please provide a MAC for wireless 802.1x or an ifIndex for wired 802.1x");
         }
         $logger->debug("finished handling 'deauthenticateDot1x' command");
     }
@@ -531,14 +535,14 @@ if ($reevaluateAccess) {
 
     if ( !$resetVlanAllPort && !$setVlanAllPort ) {
         if ( $ifIndex == 0 ) {
-            pod2usage("the ifIndex option is necessary");
+            exit_wrong_args("the ifIndex option is necessary");
         }
     }
     if ( $switchDescRegExp eq '' ) {
-        pod2usage("you must specify the switch");
+        exit_wrong_args("you must specify the switch");
     }
     if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
-        pod2usage("unknown switch $switchDescRegExp");
+        exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
@@ -606,10 +610,10 @@ if ($reevaluateAccess) {
             $logger->debug("finished handling 'reAssignVlan' command");
         } elsif ($setVlan) {
             if ( $vlan == 0 && $vlanName eq '' ) {
-                pod2usage("you must specify the VLAN to set (either with -vlan or -vlanName)");
+                exit_wrong_args("you must specify the VLAN to set (either with -vlan or -vlanName)");
             }
             if ($vlan != 0 && $vlanName ne '') {
-                pod2usage("you must specify only one way to set VLAN (-vlan or -vlanName)");
+                exit_wrong_args("you must specify only one way to set VLAN (-vlan or -vlanName)");
             }
             $logger->debug("start handling 'setVlan' command");
             my %switch_locker : shared;
@@ -631,7 +635,7 @@ if ($reevaluateAccess) {
             $logger->debug("finished handling 'getAlias' command");
         } elsif ($setAlias) {
             if ( $alias == '' ) {
-                pod2usage("you must specify the description to set");
+                exit_wrong_args("you must specify the description to set");
             }
             $logger->debug("start handling 'setAlias' command");
             $switch->setAlias( $ifIndex, $alias );
@@ -645,7 +649,7 @@ if ($reevaluateAccess) {
             print "finished handling 'resetVlanAllPort' command\n";
         } elsif ($setVlanAllPort) {
             if ( $vlan == 0 ) {
-                pod2usage("you must specify the VLAN to set");
+                exit_wrong_args("you must specify the VLAN to set");
             }
             $logger->debug("start handling 'setVlanAllPort' command");
             my %switch_locker : shared;
@@ -677,7 +681,7 @@ if ($reevaluateAccess) {
 } elsif ($getLocation) {
 
     if (! defined($mac) || ($mac eq '')) {
-       pod2usage("The MAC argument is necessary");
+       exit_wrong_args("The MAC argument is necessary");
     }
     $logger->debug("start handling 'getLocation' command");
     my %Config = %{ $switchFactory->{_config} };
@@ -756,6 +760,13 @@ if ($reevaluateAccess) {
 
 } else {
     pod2usage( -verbose => 1 );
+}
+
+# simple wrapper to use to display documentation when wrong arguments were
+# provided
+sub exit_wrong_args {
+    my ($msg) = @_;
+    pod2usage(-message => $msg, -exitval => 1);
 }
 
 =head1 AUTHOR

@@ -41,6 +41,7 @@ New Hardware
 Enhancements
  * Debian packages improvements
  * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
+ * Improved the relevance of exit status in pfcmd_vlan (#1493)
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
