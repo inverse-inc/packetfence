@@ -13,6 +13,10 @@ packetfence.pm contains the functions necessary to integrate PacketFence and Fre
 use strict;
 use warnings;
 
+use lib '/usr/local/pf/lib/';
+
+use pf::util::freeradius qw(clean_mac sanitize_parameter);
+
 # Configuration parameters
 use constant {
     # FreeRADIUS to PacketFence communications (SOAP Server settings)
@@ -248,50 +252,6 @@ sub is_eap_mac_authentication {
     return 0;
 }
 
-=item * clean_mac 
-
-Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
-
-Returns a string with MAC in format: xx:xx:xx:xx:xx:xx
-
-Note: This sub was copied from pf::util.
-
-=cut
-sub clean_mac {
-    my ($mac) = @_;
-    return (0) if ( !$mac );
-    # trim garbage
-    $mac =~ s/[\s\-\.:]//g;
-    # lowercase
-    $mac = lc($mac);
-    # inject :
-    $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
-    return ($mac);
-}
-
-=item * sanitize_parameter
-
-URL encode illegal characters from WS_USER/WS_PASS used in SOAP calls.
-
-Ref: http://tools.ietf.org/html/rfc1738#section-3.1
-
-=cut
-sub sanitize_parameter {
-    my ($parameter) = @_;
-
-    my %ascii_hex_value = (
-        ':' => '%3A',
-        '@' => '%40',
-        '/' => '%2F',
-    );
-
-    while (my ($find, $replace) = each %ascii_hex_value) {
-        eval { $parameter =~ s{$find}{$replace}g; };
-    }
-
-    return $parameter;
-}
-
 #
 # --- Unused FreeRADIUS hooks ---
 #
@@ -387,7 +347,7 @@ Copyright (C) 2002  The FreeRADIUS server project
 
 Copyright (C) 2002  Boian Jordanov <bjordanov@orbitel.bg>
 
-Copyright (C) 2006-2010, 2012 Inverse inc. <support@inverse.ca>
+Copyright (C) 2006-2010, 2012 Inverse inc.
 
 =head1 LICENSE
 

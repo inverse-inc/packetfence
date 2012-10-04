@@ -12,9 +12,13 @@ This module forwards SoH authorization requests to Packetfence.
 
 use strict;
 use warnings;
-use diagnostics;
+
 use Sys::Syslog;
 use Try::Tiny;
+
+use lib '/usr/local/pf/lib/';
+
+use pf::util::freeradius qw(sanitize_parameter);
 
 # Configuration parameters
 use constant {
@@ -109,29 +113,6 @@ sub authorize {
     return $code;
 }
 
-=item * sanitize_parameter
-
-URL encode illegal characters from WS_USER/WS_PASS used in SOAP calls.
-
-Ref: http://tools.ietf.org/html/rfc1738#section-3.1
-
-=cut
-sub sanitize_parameter {
-    my ($parameter) = @_;
-
-    my %ascii_hex_value = (
-        ':' => '%3A',
-        '@' => '%40',
-        '/' => '%2F',
-    );
-
-    while (my ($find, $replace) = each %ascii_hex_value) {
-        eval { $parameter =~ s{$find}{$replace}g; };
-    }
-
-    return $parameter;
-}
-
 =back
 
 =head1 SEE ALSO
@@ -140,15 +121,15 @@ L<http://wiki.freeradius.org/Rlm_perl>
 
 =head1 AUTHOR
 
+Olivier Bilodeau <obilodeau@inverse.ca>
+
 Abhijit Menon-Sen <amenonsen@inverse.ca>
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>
 
-Based on packetfence.pm (from PacketFence's 802.1x addon).
-
 =head1 COPYRIGHT
 
-Copyright (C) 2011-2012 Inverse inc. <support@inverse.ca>
+Copyright (C) 2011-2012 Inverse inc.
 
 =head1 LICENSE
 
