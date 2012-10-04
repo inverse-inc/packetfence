@@ -260,6 +260,7 @@ done
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
 %{__install} -d $RPM_BUILD_ROOT%logdir
+%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
