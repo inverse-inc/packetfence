@@ -88,7 +88,7 @@ sub _deauthenticateMacSnmp {
 
     my $session;
     eval {
-        $session = new Net::Appliance::Session->new(
+        $session = Net::Appliance::Session->new(
             Host      => $this->{_ip},
             Timeout   => 5,
             Transport => $this->{_cliTransport}

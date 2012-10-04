@@ -182,7 +182,7 @@ sub _deauthenticateMacWithSSH {
     $logger->warn(Dumper $this);
     my $session;
     eval {
-        $session = new Net::Appliance::Session->new(
+        $session = Net::Appliance::Session->new(
             Host      => $this->{_controllerIp},
             Timeout   => 20,
             Transport => $this->{_cliTransport},
