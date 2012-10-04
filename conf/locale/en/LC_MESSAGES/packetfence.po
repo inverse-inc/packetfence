@@ -5,8 +5,6 @@
 # Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
 # Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
