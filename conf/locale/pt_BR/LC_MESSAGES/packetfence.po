@@ -5,8 +5,6 @@
 # Brivaldo Junior <condector@gmail.com>, 2011.
 # Diego de Souza Lopes <djkakaroto@gmail.com>, 2011, 2012.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"

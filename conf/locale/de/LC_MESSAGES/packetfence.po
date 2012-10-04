@@ -4,8 +4,6 @@
 # Translators:
 # Tino Matysiak <tmatysiak@meetyoo.de>, 2011.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"

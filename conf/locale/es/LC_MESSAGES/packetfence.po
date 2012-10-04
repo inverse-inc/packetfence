@@ -6,8 +6,6 @@
 # Juan Camilo Valencia <juan.valencia@seguratec.com.co>, 2011-2012.
 # Dominique Couot <dcouot@hotmail.com>, 2012.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"

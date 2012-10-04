@@ -4,8 +4,6 @@
 # Translators:
 # Mario Varelli <mvarelli@biologia.unipi.it>, 2009.
 #
-domain "packetfence"
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
