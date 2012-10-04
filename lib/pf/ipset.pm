@@ -51,19 +51,21 @@ sub iptables_generate {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     # init ipset tables
     $logger->warn("We are using IPSET");
-    my $cmd = "sudo ipset --destroy";
-    my $out = `$cmd`;
+    #Flush mangle table to permit ipset destroy
+    $self->iptables_flush_mangle;
+    my $cmd = "LANG=C sudo ipset --destroy";
+    my @lines = pf_run($cmd);
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
         my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
         foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
             if ($IPSET_VERSION > 4) {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS}";
-                $out = `$cmd`;
+                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network bitmap:ip,mac range $network/$inline_obj->{BITS}";
+                 my @lines  = pf_run($cmd);
             }
             else {
-                $cmd = "sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network macipmap --network $network/$inline_obj->{BITS}";
-                $out = `$cmd`;
+                $cmd = "LANG=C sudo ipset --create pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network macipmap --network $network/$inline_obj->{BITS}";
+                my @lines  = pf_run($cmd);
             }
         }
     }
@@ -108,8 +110,8 @@ sub generate_mangle_rules {
             if (defined $iplog) {
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
-                    my $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac";
-                    my $out = `$cmd`;
+                    my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac";
+                    my @lines  = pf_run($cmd);
                 }
             }
         }
@@ -128,8 +130,8 @@ sub generate_mangle_rules {
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
-                        my $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac";
-                        my $out = `$cmd`;
+                        my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac";
+                        my @lines  = pf_run($cmd);
                     }
                 }
             }
@@ -172,8 +174,8 @@ sub iptables_mark_node {
             if ($net_addr->contains($ip)) {
                 #Prevent double entries in ipset
                 $self->ipset_remove_ip($iplog, $mark, $network);
-                my $cmd = "sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog,$mac";
-                my $out = `$cmd`;
+                my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$mark}\_$network $iplog,$mac";
+                my @lines  = pf_run($cmd);
             }
         }
         else {
@@ -191,8 +193,8 @@ sub iptables_unmark_node {
     while ( my ($network, $iplist) = each(%$ipset) ) {
         if (defined($iplist)) {
             foreach my $IP ( split( ',', $iplist ) ) {
-                my $cmd = "sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP";
-                my $out = `$cmd`;
+                my $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP";
+                my @lines  = pf_run($cmd);
             }
         }
     }
@@ -210,17 +212,25 @@ Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 # TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
+
     my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $_EXIT_CODE_EXISTS = 1;
+
     foreach my $network ( keys %ConfigNetworks ) {
         next if ( !pf::config::is_network_type_inline($network) );
+
         my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
         my $iplog = mac2ip($mac);
+
         if (defined $iplog) {
             my $ip = new NetAddr::IP::Lite clean_ip($iplog);
+
             if ($net_addr->contains($ip)) {
                 foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                    my $cmd = "sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac";
-                    my @out = `$cmd 2>&1`;
+                    
+                    my $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac";
+                    my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+
                     if (!($out[0] =~ m/NOT/i)) {
                         return $IPTABLES_MARK;
                     }
@@ -246,12 +256,12 @@ sub ipset_remove_ip {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my ($cmd, $out);
     if ($IPSET_VERSION > 4) {
-        $cmd = "sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network";
-        $out = `$cmd`;
+        $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network";
+        $out  = pf_run($cmd);
     }
     else {
-       $cmd = "sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network";
-       $out = `$cmd`;
+       $cmd = "LANG=C sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network";
+       $out  = pf_run($cmd);
     }
     my @lines = split "\n+", $out;
 
@@ -263,8 +273,8 @@ sub ipset_remove_ip {
         # skip comment lines from ipset list
         next if $line =~ m/:\s|:\Z/;
         if ($line =~ m/^\s* $ip , .* \s* $/x) {
-            my $cmd = "sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip";
-            my $out = `$cmd`;
+            $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip";
+            $out = pf_run($cmd);
         }
     }
 }
@@ -284,12 +294,12 @@ sub get_ip_from_ipset_by_mac {
         next if ( !pf::config::is_network_type_inline($network) );
         my $ip;
         if ($IPSET_VERSION > 4) {
-            $cmd = "sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network";
-            $out = `$cmd`;
+            $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network";
+            $out = pf_run($cmd);
         }
         else {
-            $cmd = "sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network";
-            $out = `$cmd`;
+            $cmd = "LANG=C sudo ipset -n --list pfsession_$mark_type_to_str{$mark}\_$network";
+            $out =  pf_run($cmd);
         }
         my @lines = split "\n+", $out;
 
@@ -364,6 +374,20 @@ sub update_node {
     }
     return (1);
 }
+
+=item iptables_flush_mangle
+
+Flush mangle table
+
+=cut
+
+sub iptables_flush_mangle {
+    my ($self, $restore_file) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::ipset');
+    $logger->info( "flushing iptables" );
+    pf_run("/sbin/iptables -t mangle -F");
+}
+
 
 =back
 

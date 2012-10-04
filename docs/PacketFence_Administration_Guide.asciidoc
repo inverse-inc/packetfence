@@ -622,7 +622,8 @@ Introduced in PacketFence 3.3, inline enforcement now use DNS DNAT for unregiste
 
 Introduced in PacketFence 3.6, under debian squeeze and RHEL6/Centos 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
 It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try
-to register on an other inline interface PacketFence detect that the node is already registered on the first vlan 
+to register on an other inline interface PacketFence detect that the node is already registered on the first vlan.
+It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change vlan.
 ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
