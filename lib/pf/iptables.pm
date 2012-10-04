@@ -214,6 +214,22 @@ sub generate_inline_rules {
     
 
     $logger->info("building firewall to accept registered users through inline interface");
+    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+
+    if ($google_enabled) {
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d accounts.google.com --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d accounts-cctld.l.google.com --jump ACCEPT\n";
+    }
+
+    if ($facebook_enabled) {
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 69.171.234.21 --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 69.171.228.70 --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 66.220.149.93 --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 23.11.2.110 --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 23.11.13.177 --jump ACCEPT\n";
+    }
+
     $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
     if (!isenabled($Config{'trapping'}{'registration'})) {
         $logger->info(
@@ -369,7 +385,31 @@ sub generate_nat_redirect_rules {
     my $logger = Log::Log4perl::get_logger('pf::iptables');
     my $rules = '';
 
-    # how we do our magic
+    # Exclude the OAuth from the DNAT
+    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+
+    if ($google_enabled) {
+         $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d accounts.google.com --destination-port 443 ".
+                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+         $rules	.= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d accounts-cctld.l.google.com --destination-port 443 ".
+       	       	   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+    }
+
+    if ($facebook_enabled) {
+        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 69.171.234.21 --destination-port 443 ".
+                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 69.171.228.70 --destination-port 443 ".
+                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 66.220.149.93 --destination-port 443 ".
+                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 23.11.2.110 --destination-port 443 ".
+                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"; 
+        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 23.11.13.177 --destination-port 443 ".
+       	           "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+    }
+    
+    # Now, do your magic
     foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
         my ( $port, $protocol ) = split( "/", $redirectport );
 

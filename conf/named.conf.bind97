@@ -23,6 +23,9 @@ acl pf {
 
 view "inline" {
   match-clients { %%inline_clients%% };
+
+  %%oauth_zones_inline%%
+
   zone "." IN {
     type master;
     file "named-inline.ca";
@@ -42,7 +45,7 @@ view "isolation" {
 view "registration" {
   match-clients { %%registration_clients%% };
 
-  %%oauth_zones%%
+  %%oauth_zones_vlan%%
 
   zone "." IN {
     type master;

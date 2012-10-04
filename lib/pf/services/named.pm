@@ -109,14 +109,17 @@ sub generate_named_conf {
 
     #If we have Google/Facebook enabled
     if ($google_enabled) {
-        $tags{'oauth_zones'} .= "zone \"google.com\" IN {\n    type master;\n    file \"named-google.com\";\n    allow-update { none; };\n};\n\n";
-        $tags{'oauth_zones'} .= "zone \"google.ca\" IN {\n    type master;\n    file \"named-google.ca\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_vlan'} .= "zone \"google.com\" IN {\n    type master;\n    file \"named-google.com\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_vlan'} .= "zone \"google.ca\" IN {\n    type master;\n    file \"named-google.ca\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_inline'} .= "zone \"google.com\" IN {\n    type master;\n    file \"named-inline-google.com\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_inline'} .= "zone \"google.ca\" IN {\n    type master;\n    file \"named-inline-google.ca\";\n    allow-update { none; };\n};\n\n";
     }
 
     if ($facebook_enabled) {
-        $tags{'oauth_zones'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-facebook.com\";\n    allow-update { none; };\n};\n\n";
-       	$tags{'oauth_zones'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
-
+        $tags{'oauth_zones_vlan'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-facebook.com\";\n    allow-update { none; };\n};\n\n";
+       	$tags{'oauth_zones_vlan'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_inline'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-inline-facebook.com\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_inline'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-inline-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
     }
 
     parse_template( \%tags, "$conf_dir/named.conf", "$generated_conf_dir/named.conf" );
@@ -129,6 +132,21 @@ sub generate_named_conf {
         $tags_inline{'A_blackhole'} = $inline_blackhole;
         $tags_inline{'PTR_blackhole'} = reverse_ip($inline_blackhole) . ".in-addr.arpa.";
         parse_template(\%tags_inline, "$conf_dir/named-inline.ca", "$var_dir/named/named-inline.ca", ";");
+
+        #If we have Google/Facebook Enabled
+        if ($google_enabled) {
+            parse_template(\%tags_inline, "$conf_dir/named-google.ca", "$var_dir/named/named-inline-google.ca",
+                    ";");
+            parse_template(\%tags_inline, "$conf_dir/named-google.com", "$var_dir/named/named-inline-google.com",
+                    ";");
+        }
+
+        if ($facebook_enabled) {
+            parse_template(\%tags_inline, "$conf_dir/named-facebook.com", "$var_dir/named/named-inline-facebook.com",
+                    ";");
+            parse_template(\%tags_inline, "$conf_dir/named-fbcdn.net", "$var_dir/named/named-inline-fbcdn.net",
+                    ";");
+        }
     }
 
     if ( $generate_isolation ) {
