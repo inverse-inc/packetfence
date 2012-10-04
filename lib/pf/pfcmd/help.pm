@@ -357,6 +357,7 @@ Usage: pfcmd report
                <os|osclass> [all|active]
                osclassbandwidth [all|day|week|month|year]
                nodebandwidth
+               topsponsor
 
 display canned reports - "active" modifier shows only nodes with open iplog entries
 
@@ -370,6 +371,7 @@ os                | show OS distribution
 osclass           | show OS distribution, aggregated by class
 osclassbandwidth  | show bandwitdh usage by OS distribution (use day/week/month/year for the time window)
 nodebandwidth     | show bandwitdh usage for the top 25 bandwidth eating nodes
+sponsoruser       | show top 25 of sponsor user
 unknownprints     | show DHCP fingerprints without a known OS mapping
 unknownuseragents | show User-Agents fingerprints without a known Browser or OS mapping
 openviolations    | show all open violations
@@ -656,6 +658,8 @@ Dominik Gehl <dgehl@inverse.ca>
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 
