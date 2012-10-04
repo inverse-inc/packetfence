@@ -30,6 +30,7 @@ Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
  * Translation of captive portal error messages
  * Side effect fixes of captive portal rework (#1366)
+ * No more domain in our gettext po resources files (#1433)
 
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
