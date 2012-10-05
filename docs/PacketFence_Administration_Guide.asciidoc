@@ -745,9 +745,27 @@ image::docs/images/diagram-routed-net.png[scaledwidth="100%",alt="Routed network
 
 For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP Helpers in the remote routers) to the PacketFence server. Then make sure you followed the instructions in the <<_dhcp_and_dns_server_configuration_networks_conf,DHCP and DNS Server Configuration (networks.conf)>> for your locally accessible network.
 
+If we consider the network architecture illustrated in the above schema, `conf/pf.conf` will include the local registration and isolation interfaces only.
+
+---
+[interface eth0.2]
+enforcement=vlan
+ip=192.168.2.1
+type=internal
+mask=255.255.255.0
+
+[interface eth0.3]
+enforcement=vlan
+ip=192.168.3.1
+type=internal
+mask=255.255.255.0
+---
+
+NOTE: PacketFence will not start unless you have at least one 'internal' interface, so you need to create local registration and isolation VLANs even if you don't intend to use them.  Also, the 'internal' interfaces are the only ones on which dhcpd listens, so the remote registration and isolation subnets need to point their DHCP helper-address to those particular IPs.
+
 Then you need to provide the routed networks information to PacketFence. You can do it through the GUI in *Administration -> Networks* (or in `conf/networks.conf`).
 
-If we consider the network architecture illustrated in the above schema, `conf/networks.conf` will look like this:
+`conf/networks.conf` will look like this:
 
 ----
 [192.168.2.0]
@@ -806,6 +824,30 @@ type=vlan-isolation
 named=enabled
 dhcpd=enabled
 ----
+
+DHCP clients on the registration and isolation networks receive the PF
+server IP as their DNS server (dns=x.x.x.x), and PF spoofs DNS responses to
+force clients via the portal.  However, clients could manually configure
+their DNS settings to escape the portal.  To prevent this you will need to
+apply an ACL on the access router nearest the clients, permitting access
+only to the PF server and local DHCP broadcast traffic.
+
+For example, for the vlan 20 remote registration network:
+
+----
+ip access-list extended PF_REGISTRATION
+ permit ip any host 192.168.2.1
+ permit udp any any eq 67
+ deny ip any any log
+interface vlan 20
+ ip address 192.168.20.254 255.255.255.0
+ ip helper-address 192.168.2.1
+ ip access-group PF_REGISTRATION in
+----
+
+If your edge switches support 'vlan-isolation' you can also apply the ACL
+there.  This has the advantage of preventing machines in isolation from
+attempting to attack each other.
 
 FreeRADIUS Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~

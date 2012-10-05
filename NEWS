@@ -39,6 +39,9 @@ Version <stableRelease> released on <releaseDate>
 New Hardware
  * Support for Cisco Catalyst 2960G in 802.1X / MAC-Authentication
 
+Documentation
+ * Clarify routed VLAN requirements (Patch from Brian Candler)
+
 Enhancements
  * Debian packages improvements
  * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
@@ -55,6 +58,7 @@ Bug Fixes
  * Debian: SSH and Telnet based deauthentication (#1511)
  * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
  * Typo in Admin Guide (#1383, Thanks to Alberto Chavez)
+ * Additional fixes to pfdhcplistener process management
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05
