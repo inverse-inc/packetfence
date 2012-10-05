@@ -171,11 +171,11 @@ sub service_ctl {
                             return $return_value;
                         }
                     } else {
-                        if ( isenabled( $Config{'network'}{'dhcpdetector'} ) )
-                        {
-                            my @devices = @listen_ints;
-                            push @devices, @dhcplistener_ints;
-                            foreach my $dev (@devices) {
+                        if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
+                            # putting interfaces to run listener on in hash so that
+                            # only one listener per interface will ever run
+                            my %interfaces = map { $_ => $TRUE } @listen_ints, @dhcplistener_ints;
+                            foreach my $dev (keys %interfaces) {
                                 my $cmd_line = sprintf($service_launchers{$daemon}, $service, $dev);
                                 # FIXME lame taint-mode bypass
                                 if ($cmd_line =~ /^(.+)$/) {
@@ -249,7 +249,15 @@ sub service_ctl {
                         # -f: whole command line, -x: exact match (fixes #1545)
                         chomp($int_to_pid{$interface} = `pgrep -f -x "$binary: listening on $interface"`);
                         # if one check returned a false value ('' is false) then we failed the check
-                        $dead_flag = $TRUE if (!$int_to_pid{$interface});
+                        if (!$int_to_pid{$interface}) {
+                            $dead_flag = $TRUE;
+                            $logger->debug( "Missing $binary process on interface: $interface" );
+                        }
+                        # more than one running instance: fail
+                        elsif ($int_to_pid{$interface} =~ /\n/) {
+                            $logger->debug( "More than one $binary process running on interface: $interface" );
+                            $dead_flag = $TRUE;
+                        }
                     }
 
                     # outputs: a list of interface => pid, ... helpful for sysadmin and forensics
