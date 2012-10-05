@@ -21,7 +21,12 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Net::SNMP;
+
 use base ('pf::SNMP::Nortel');
+
+use pf::config;
+use pf::SNMP::constants;
+use pf::util;
 
 # special features
 # LLDP is not available on BPS2000

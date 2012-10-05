@@ -91,7 +91,7 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsFloatingDevice { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $TRUE; }
-
+sub supportsLldp { return $FALSE; }
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything
 
