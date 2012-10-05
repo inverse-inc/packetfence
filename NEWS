@@ -18,6 +18,9 @@ Version <stableRelease> released on <releaseDate>
 New Hardware
  * Support for Cisco Catalyst 2960G in 802.1X / MAC-Authentication
 
+Documentation
+ * Clarify routed VLAN requirements (Patch from Brian Candler)
+
 Enhancements
  * Debian packages improvements
  * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
