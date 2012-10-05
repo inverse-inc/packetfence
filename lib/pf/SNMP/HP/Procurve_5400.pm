@@ -56,7 +56,7 @@ sub supportsWiredDot1x { return $TRUE; }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # inline capabilities
-sub inlineCapabilities { return ("mac","port"); }
+sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
 
 #Insert your voice vlan name, not the ID.
 our $VOICEVLANAME = "voip";

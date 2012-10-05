@@ -53,7 +53,7 @@ use pf::util;
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # inline capabilities
-sub inlineCapabilities { return ("mac","ssid"); }
+sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::SSID); }
 
 =item getVersion
 

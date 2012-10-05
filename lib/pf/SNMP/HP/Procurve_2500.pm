@@ -34,7 +34,7 @@ use pf::config;
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 # inline capabilities
-sub inlineCapabilities { return ("mac","port"); }
+sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;

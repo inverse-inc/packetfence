@@ -49,7 +49,7 @@ sub supportsWiredMacAuth { return $TRUE; }
 # (instead of SNMP PAE reAuthenticate because the switch doesn't support writing to the IF-MIB)
 sub supportsWiredDot1x { return $FALSE; }
 # inline capabilities
-sub inlineCapabilities { return ("mac","port"); }
+sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
 
 =head1 SUBROUTINES
 

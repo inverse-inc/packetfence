@@ -75,7 +75,7 @@ use pf::util;
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 # inline capabilities
-sub inlineCapabilities { return ("mac","port"); }
+sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
 
 =head1 SUBROUTINES
 

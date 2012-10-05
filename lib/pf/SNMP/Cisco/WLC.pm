@@ -124,7 +124,7 @@ sub supportsRoleBasedEnforcement { return $TRUE; }
 # special features 
 sub supportsSaveConfig { return $FALSE; }
 # inline capabilities
-sub inlineCapabilities { return ("mac","ssid"); }
+sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::SSID); }
 
 =item deauthenticateMac
     
