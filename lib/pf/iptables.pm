@@ -218,16 +218,15 @@ sub generate_inline_rules {
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
 
     if ($google_enabled) {
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d accounts.google.com --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d accounts-cctld.l.google.com --jump ACCEPT\n";
+        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'google'}{'ips'} ) ) {
+            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d $ip --jump ACCEPT\n";
+        }
     }
 
     if ($facebook_enabled) {
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 69.171.234.21 --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 69.171.228.70 --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 66.220.149.93 --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 23.11.2.110 --jump ACCEPT\n";
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d 23.11.13.177 --jump ACCEPT\n";
+        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
+            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d $ip --jump ACCEPT\n";
+       	}
     }
 
     $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
@@ -255,23 +254,17 @@ sub generate_oauth_rules {
     my $reg_int = "";
 
     if ($google) {
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d accounts.google.com --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d accounts-cctld.l.google.com --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s accounts.google.com --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s accounts-cctld.l.google.com --jump ACCEPT\n";
+        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'google'}{'ips'} ) ) {
+            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d $ip --jump ACCEPT\n";
+            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s $ip --jump ACCEPT\n"
+        }
     }
 
     if ($facebook) {
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 69.171.234.21 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 69.171.228.70 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 66.220.149.93 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 23.11.2.110 --jump ACCEPT\n";
-       	$$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d 23.11.13.177 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 69.171.234.21 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 69.171.228.70 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 66.220.149.93 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 23.11.2.110 --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s 23.11.13.177 --jump ACCEPT\n";
+        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
+            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d $ip --jump ACCEPT\n";
+            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s $ip --jump ACCEPT\n"
+   	}
     }
 
     $logger->info("Adding NAT Masquerade statement.");
@@ -390,23 +383,17 @@ sub generate_nat_redirect_rules {
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
 
     if ($google_enabled) {
-         $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d accounts.google.com --destination-port 443 ".
+         foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'google'}{'ips'} ) ) {
+             $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d $ip --destination-port 443 ".
                    "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-         $rules	.= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d accounts-cctld.l.google.com --destination-port 443 ".
-       	       	   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+         }
     }
 
     if ($facebook_enabled) {
-        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 69.171.234.21 --destination-port 443 ".
-                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 69.171.228.70 --destination-port 443 ".
-                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 66.220.149.93 --destination-port 443 ".
-                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 23.11.2.110 --destination-port 443 ".
-                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n"; 
-        $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d 23.11.13.177 --destination-port 443 ".
+        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
+             $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d $ip --destination-port 443 ".
        	           "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+        } 
     }
     
     # Now, do your magic

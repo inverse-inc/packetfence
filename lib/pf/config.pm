@@ -17,7 +17,7 @@ have been warned.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>, 
-F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<floating_network_device.conf>.
+F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<floating_network_device.conf>, F<oauth2-ips.conf>.
 
 =cut
 
@@ -44,7 +44,7 @@ our (
     %guest_self_registration,
     $default_config_file, %Default_Config, 
     $config_file, %Config, 
-    $network_config_file, %ConfigNetworks,
+    $network_config_file, %ConfigNetworks, %ConfigOAuth, $oauth_ip_file, 
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
@@ -67,7 +67,7 @@ BEGIN {
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $default_config_file %Default_Config
         $config_file %Config
-        $network_config_file %ConfigNetworks
+        $network_config_file %ConfigNetworks %ConfigOAuth
         $dhcp_fingerprints_file $dhcp_fingerprints_url 
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
@@ -120,6 +120,7 @@ $network_config_file    = $conf_dir . "/networks.conf";
 $dhcp_fingerprints_file = $conf_dir . "/dhcp_fingerprints.conf";
 $oui_file               = $conf_dir . "/oui.txt";
 $floating_devices_file  = $conf_dir . "/floating_network_device.conf";
+$oauth_ip_file          = $conf_dir . "/oauth2-ips.conf";
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -267,6 +268,7 @@ sub load_config {
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
+    readOAuthFile();
 }
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
@@ -529,6 +531,24 @@ sub readFloatingNetworkDeviceFile {
         }
     }
 }
+
+=item readOAuthFile - oauth2-ips.conf
+
+=cut
+sub readOAuthFile {
+    tie %ConfigOAuth, 'Config::IniFiles', ( -file => $oauth_ip_file, -allowempty => 1 );
+    my @errors = @Config::IniFiles::errors;
+    if ( scalar(@errors) ) {
+        $logger->logcroak( join( "\n", @errors ) );
+    }
+    
+    #Remove Spaces
+    foreach my $section ( tied(%ConfigOAuth)->Sections ) {
+        foreach my $key ( keys %{ $ConfigOAuth{$section} } ) {
+            $ConfigOAuth{$section}{$key} =~ s/\s+$//;
+        }
+    }
+} 
 
 =item normalize_time - formats date
 
