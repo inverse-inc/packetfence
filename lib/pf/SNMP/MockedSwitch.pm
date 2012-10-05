@@ -90,6 +90,8 @@ sub supportsRadiusVoip { return $TRUE; }
 # special features supported
 sub supportsFloatingDevice { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
+# inline capabilities
+sub inlineCapabilities { return ("mac","port","ssid"); }
 
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything

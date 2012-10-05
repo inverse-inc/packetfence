@@ -156,6 +156,14 @@ sub supportsSaveConfig {
 =cut
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
+=item inlineCapabilities
+
+=cut
+
+# inline capabilities
+sub inlineCapabilities { return; }
+
+
 sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -169,6 +177,7 @@ sub new {
         '_mode'                     => undef,
         '_normalVlan'               => undef,
         '_registrationVlan'         => undef,
+        '_inlineVlan'               => undef,
         '_sessionRead'              => undef,
         '_sessionWrite'             => undef,
         '_sessionControllerWrite'   => undef,
@@ -207,7 +216,7 @@ sub new {
         '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
-        '_enforcement'              => undef,
+        '_triggerInline'            => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -303,9 +312,12 @@ sub new {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
-        } elsif (/^-?enforcement$/i) {
-            $this->{_enforcement} = $argv{$_};
+        } elsif (/^-?triggerInline$/i) {
+            $this->{_triggerInline} = $argv{$_};
+        } elsif (/^-?inlineVlan$/i) {
+            $this->{_inlineVlan} = $argv{$_};
         }
+
     }
     return $this;
 }
@@ -1005,10 +1017,6 @@ sub getManagedIfIndexes {
 sub isManagedVlan {
     my ($this, $vlan) = @_;
 
-    if ($this->isSwitchInlineMode) {
-        #In inline mode we didn´t have to check if the vlan is managed (We didn´t return vlan in radius answer)
-        return $TRUE;
-    }
     # can I find $vlan in _vlans ?
     if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
         #unmanaged VLAN
@@ -2721,10 +2729,6 @@ sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    if ($self->isSwitchInlineMode) {
-        $logger->info("Returning ACCEPT without VLAN because of inline mode");
-        return [$RADIUS::RLM_MODULE_OK];
-    }
     # VLAN enforcement
     my $radius_reply_ref = {
         'Tunnel-Medium-Type' => $RADIUS::ETHERNET,

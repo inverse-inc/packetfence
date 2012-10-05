@@ -113,6 +113,8 @@ sub supportsFloatingDevice { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $FALSE; }
 sub supportsRadiusVoip { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ("mac","port"); }
 
 sub getMinOSVersion {
     my $this   = shift;

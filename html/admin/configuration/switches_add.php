@@ -87,6 +87,7 @@
         printSelect( array('' => 'please choose', '1' => '1', '2c' => '2c', '3' => '3'), 'hash', $val, "name='$key'");
         break;
 
+      case 'triggerInline':
       case 'uplink':
       case 'vlans':
         print "<tr><td></td><td>$pretty_key:</td><td><textarea name='$key'>$val</textarea>";
@@ -206,11 +207,6 @@
       case 'VoIPEnabled':
         print "<tr><td></td><td>$pretty_key:</td><td>";
         printSelect( array('' => 'please choose', 'yes' => 'Yes', 'no' => 'No'), 'hash', $val, "name='$key'");
-        break;
-
-      case 'enforcement':
-        print "<tr><td></td><td>$pretty_key:</td><td>";
-        printSelect( array('' => 'please choose', 'Vlan' => 'vlan', 'Inline' => 'inline'), 'hash', $val, "name='$key'");
         break;
 
       default:

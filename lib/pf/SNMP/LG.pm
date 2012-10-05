@@ -66,6 +66,8 @@ use pf::util;
 sub supportsSnmpTraps { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ("mac","port"); }
 
 =head1 SUBROUTINES
 

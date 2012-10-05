@@ -135,6 +135,24 @@ sub instantiate {
         push @vlans, $_tmp;
     }
 
+    # transforming triggerInline to array
+    my @triggerInline = ();
+    if (   $SwitchConfig{$requestedSwitch}{'triggerInline'}
+        || $SwitchConfig{'default'}{'triggerInline'} )
+    {
+
+        my @_triggerInline_tmp = split(
+            /,/,
+            (          $SwitchConfig{$requestedSwitch}{'triggerInline'}
+                    || $SwitchConfig{'default'}{'triggerInline'}
+            )
+        );
+        foreach my $_tmp (@_triggerInline_tmp) {
+            $_tmp =~ s/ //g;
+            push @triggerInline, $_tmp;
+        }
+    }
+
     my $custom_vlan_assignments_ref = $this->_customVlanExpansion($requestedSwitch, %SwitchConfig);
 
     $logger->debug("creating new $type object");
@@ -142,6 +160,7 @@ sub instantiate {
         %$custom_vlan_assignments_ref,
         '-uplink'    => \@uplink,
         '-vlans'     => \@vlans,
+        '-triggerInline' => \@triggerInline,
         '-guestVlan' => (
                    $SwitchConfig{$requestedSwitch}{'guestVlan'}
                 || $SwitchConfig{'default'}{'guestVlan'}
@@ -197,6 +216,10 @@ sub instantiate {
         '-registrationVlan' => (
                    $SwitchConfig{$requestedSwitch}{'registrationVlan'}
                 || $SwitchConfig{'default'}{'registrationVlan'}
+        ),
+        '-inlineVlan' => (
+                   $SwitchConfig{$requestedSwitch}{'inlineVlan'}
+                || $SwitchConfig{'default'}{'inlineVlan'}
         ),
         '-SNMPAuthPasswordRead' => (
                    $SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordRead'}
