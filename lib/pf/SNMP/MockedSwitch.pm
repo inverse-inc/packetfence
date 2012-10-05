@@ -91,7 +91,7 @@ sub supportsRadiusVoip { return $TRUE; }
 sub supportsFloatingDevice { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $TRUE; }
-
+sub supportsLldp { return $FALSE; }
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything
 
@@ -1888,6 +1888,38 @@ sub getAllMacs {
         }
     }
     return $ifIndexVlanMacHashRef;
+}
+
+sub getPhonesDPAtIfIndex {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    if ( !$this->isVoIPEnabled() ) {
+        $logger->debug( "VoIP not enabled on network device $this->{_ip}: no phones returned" );
+        return;
+    }
+
+    my @phones = ();
+    # CDP
+    if ($this->supportsCdp()) {
+        push @phones, $this->getPhonesCDPAtIfIndex($ifIndex);
+    }
+
+    # LLDP
+    if ($this->supportsLldp()) {
+        push @phones, $this->getPhonesLLDPAtIfIndex($ifIndex);
+    }
+
+    # filtering duplicates w/ hashmap (key collisions handles it)
+    my %phones = map { $_ => $TRUE } @phones;
+
+    # Log
+    if (%phones) {
+        $logger->info("We found an IP phone through discovery protocols for ifIndex $ifIndex");
+    } else {
+        $logger->info("Could not find any IP phones through discovery protocols for ifIndex $ifIndex");
+    }
+    return keys %phones;
 }
 
 # FIXME not properly mocked
