@@ -164,12 +164,12 @@ sub authorize {
     }
 
     if ($this->isTriggerInline($switch,$port,$mac,$ssid)) {
-        $logger->info("Trigger match, the node is in inline mode, return access accept");
+        $logger->info("Trigger match, the node is in inline mode, returning Access-Accept");
         if (defined($switch->{_inlineVlan})) {
             my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($switch->{_inlineVlan}, $mac, $port, $connection_type, $user_name, $ssid);
             return $RAD_REPLY_REF;
         }
-        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Return Access Accept because trigger match for inline mode") ];
+        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Returning Access-Accept because trigger match for inline mode") ];
     }
 
     if (!$switch->isManagedVlan($vlan)) {
@@ -495,9 +495,8 @@ sub isTriggerInline {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers
             # at first, we are liberal in what we accept
-            $logger->warn("Invalid trigger id ($rigger)")
             if ($trigger !~ /^\w+::(.*)$/) {
-                $logger->warn("Invalid trigger id ($rigger)");
+                $logger->warn("Invalid trigger id ($trigger)");
                 return $FALSE;
             }
 
