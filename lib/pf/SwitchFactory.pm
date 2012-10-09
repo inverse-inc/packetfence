@@ -135,15 +135,15 @@ sub instantiate {
         push @vlans, $_tmp;
     }
 
-    # transforming triggerInline to array
-    my @triggerInline = ();
-    if ( $SwitchConfig{$requestedSwitch}{'triggerInline'} || $SwitchConfig{'default'}{'triggerInline'} ) {
-        my @_triggerInline_tmp = 
-            split(/,/,($SwitchConfig{$requestedSwitch}{'triggerInline'} || $SwitchConfig{'default'}{'triggerInline'}));
+    # transforming inlineTrigger to array
+    my @inlineTrigger = ();
+    if ( $SwitchConfig{$requestedSwitch}{'inlineTrigger'} || $SwitchConfig{'default'}{'inlineTrigger'} ) {
+        my @_inlineTrigger_tmp = 
+            split(/,/,($SwitchConfig{$requestedSwitch}{'inlineTrigger'} || $SwitchConfig{'default'}{'inlineTrigger'}));
 
-        foreach my $_tmp (@_triggerInline_tmp) {
+        foreach my $_tmp (@_inlineTrigger_tmp) {
             $_tmp =~ s/ //g;
-            push @triggerInline, $_tmp;
+            push @inlineTrigger, $_tmp;
         }
     }
 
@@ -154,7 +154,7 @@ sub instantiate {
         %$custom_vlan_assignments_ref,
         '-uplink'    => \@uplink,
         '-vlans'     => \@vlans,
-        '-triggerInline' => \@triggerInline,
+        '-inlineTrigger' => \@inlineTrigger,
         '-guestVlan' => (
                    $SwitchConfig{$requestedSwitch}{'guestVlan'}
                 || $SwitchConfig{'default'}{'guestVlan'}

@@ -216,7 +216,7 @@ sub new {
         '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
-        '_triggerInline'            => undef,
+        '_inlineTrigger'            => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -312,8 +312,8 @@ sub new {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
-        } elsif (/^-?triggerInline$/i) {
-            $this->{_triggerInline} = $argv{$_};
+        } elsif (/^-?inlineTrigger$/i) {
+            $this->{_inlineTrigger} = $argv{$_};
         } elsif (/^-?inlineVlan$/i) {
             $this->{_inlineVlan} = $argv{$_};
         }

@@ -163,8 +163,8 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
 
-    if ($this->isTriggerInline($switch,$port,$mac,$ssid)) {
-        $logger->info("Trigger match, the node is in inline mode, returning Access-Accept");
+    if ($this->isInlineTrigger($switch,$port,$mac,$ssid)) {
+        $logger->info("Inline trigger match, the node is in inline mode, returning Access-Accept");
         if (defined($switch->{_inlineVlan})) {
             my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($switch->{_inlineVlan}, $mac, $port, $connection_type, $user_name, $ssid);
             return $RAD_REPLY_REF;
@@ -482,16 +482,16 @@ sub _rewriteAccessAccept {
     return $RAD_REPLY_REF;
 }
 
-=item isTriggerInline
+=item isInlineTrigger
 
-Return true if a radius properties match with the trigger inline
+Return true if a radius properties match with the inline trigger
 
 =cut
-sub isTriggerInline {
+sub isInlineTrigger {
     my ($self, $switch, $port, $mac, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
-    if (defined($switch->{_triggerInline})) {
-        foreach my $trigger (@{$switch->{_triggerInline}})  {
+    if (defined($switch->{_inlineTrigger})) {
+        foreach my $trigger (@{$switch->{_inlineTrigger}})  {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers
             # at first, we are liberal in what we accept
