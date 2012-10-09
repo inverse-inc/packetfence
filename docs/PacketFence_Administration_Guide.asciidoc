@@ -54,7 +54,7 @@ PacketFence's operation is completely out of band when using VLAN enforcement wh
 In Band (Inline Enforcement)::
 PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
 
-Hybrid support (Inline Enforcement with radius support)::
+Hybrid support (Inline Enforcement with RADIUS support)::
 Packetfence can also be configured as hybrid, if you have a manageable device that support 802.1x and/or mac-auth you can enable inline mode by a radius attribute (mac address, ssid, port)
 
 Voice over IP (VoIP) support::

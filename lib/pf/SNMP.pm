@@ -2765,22 +2765,6 @@ sub returnRadiusAccessAccept {
     return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
 }
 
-=item isSwitchInlineMode
-
-Check if the switch is configured in inline mode.
-
-Default implementation.
-
-=cut
-sub isSwitchInlineMode {
-    my ($self) = @_;
-    if ($self->{'_enforcement'} eq $IF_ENFORCEMENT_INLINE) {
-        return $TRUE;
-    } else {
-        return $FALSE;
-    }
-}
-
 
 =back
 
