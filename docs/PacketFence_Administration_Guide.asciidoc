@@ -747,19 +747,17 @@ For dhcpd, make sure that the clients DHCP requests are correctly forwarded (IP 
 
 If we consider the network architecture illustrated in the above schema, `conf/pf.conf` will include the local registration and isolation interfaces only.
 
----
-[interface eth0.2]
-enforcement=vlan
-ip=192.168.2.1
-type=internal
-mask=255.255.255.0
+   [interface eth0.2]
+   enforcement=vlan
+   ip=192.168.2.1
+   type=internal
+   mask=255.255.255.0
 
-[interface eth0.3]
-enforcement=vlan
-ip=192.168.3.1
-type=internal
-mask=255.255.255.0
----
+   [interface eth0.3]
+   enforcement=vlan
+   ip=192.168.3.1
+   type=internal
+   mask=255.255.255.0
 
 NOTE: PacketFence will not start unless you have at least one 'internal' interface, so you need to create local registration and isolation VLANs even if you don't intend to use them.  Also, the 'internal' interfaces are the only ones on which dhcpd listens, so the remote registration and isolation subnets need to point their DHCP helper-address to those particular IPs.
 
@@ -767,63 +765,61 @@ Then you need to provide the routed networks information to PacketFence. You can
 
 `conf/networks.conf` will look like this:
 
-----
-[192.168.2.0]
-netmask=255.255.255.0
-gateway=192.168.2.1
-next_hop=
-domain-name=registration.example.com
-dns=192.168.2.1
-dhcp_start=192.168.2.10
-dhcp_end=192.168.2.200
-dhcp_default_lease_time=300
-dhcp_max_lease_time=600
-type=vlan-registration
-named=enabled
-dhcpd=enabled
+   [192.168.2.0]
+   netmask=255.255.255.0
+   gateway=192.168.2.1
+   next_hop=
+   domain-name=registration.example.com
+   dns=192.168.2.1
+   dhcp_start=192.168.2.10
+   dhcp_end=192.168.2.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-registration
+   named=enabled
+   dhcpd=enabled
 
-[192.168.3.0]
-netmask=255.255.255.0
-gateway=192.168.3.1
-next_hop=
-domain-name=isolation.example.com
-dns=192.168.3.1
-dhcp_start=192.168.3.10
-dhcp_end=192.168.3.200
-dhcp_default_lease_time=300
-dhcp_max_lease_time=600
-type=vlan-isolation
-named=enabled
-dhcpd=enabled
+   [192.168.3.0]
+   netmask=255.255.255.0
+   gateway=192.168.3.1
+   next_hop=
+   domain-name=isolation.example.com
+   dns=192.168.3.1
+   dhcp_start=192.168.3.10
+   dhcp_end=192.168.3.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-isolation
+   named=enabled
+   dhcpd=enabled
 
-[192.168.20.0]
-netmask=255.255.255.0
-gateway=192.168.20.254
-next_hop=192.168.2.254
-domain-name=registration.example.com
-dns=192.168.2.1
-dhcp_start=192.168.20.10
-dhcp_end=192.168.20.200
-dhcp_default_lease_time=300
-dhcp_max_lease_time=600
-type=vlan-registration
-named=enabled
-dhcpd=enabled
+   [192.168.20.0]
+   netmask=255.255.255.0
+   gateway=192.168.20.254
+   next_hop=192.168.2.254
+   domain-name=registration.example.com
+   dns=192.168.2.1
+   dhcp_start=192.168.20.10
+   dhcp_end=192.168.20.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-registration
+   named=enabled
+   dhcpd=enabled
 
-[192.168.30.0]
-netmask=255.255.255.0
-gateway=192.168.30.254
-next_hop=192.168.3.254
-domain-name=isolation.example.com
-dns=192.168.3.1
-dhcp_start=192.168.30.10
-dhcp_end=192.168.30.200
-dhcp_default_lease_time=300
-dhcp_max_lease_time=600
-type=vlan-isolation
-named=enabled
-dhcpd=enabled
-----
+   [192.168.30.0]
+   netmask=255.255.255.0
+   gateway=192.168.30.254
+   next_hop=192.168.3.254
+   domain-name=isolation.example.com
+   dns=192.168.3.1
+   dhcp_start=192.168.30.10
+   dhcp_end=192.168.30.200
+   dhcp_default_lease_time=300
+   dhcp_max_lease_time=600
+   type=vlan-isolation
+   named=enabled
+   dhcpd=enabled
 
 DHCP clients on the registration and isolation networks receive the PF
 server IP as their DNS server (dns=x.x.x.x), and PF spoofs DNS responses to
@@ -834,16 +830,14 @@ only to the PF server and local DHCP broadcast traffic.
 
 For example, for the vlan 20 remote registration network:
 
-----
-ip access-list extended PF_REGISTRATION
- permit ip any host 192.168.2.1
- permit udp any any eq 67
- deny ip any any log
-interface vlan 20
- ip address 192.168.20.254 255.255.255.0
- ip helper-address 192.168.2.1
- ip access-group PF_REGISTRATION in
-----
+   ip access-list extended PF_REGISTRATION
+    permit ip any host 192.168.2.1
+    permit udp any any eq 67
+    deny ip any any log
+   interface vlan 20
+    ip address 192.168.20.254 255.255.255.0
+    ip helper-address 192.168.2.1
+    ip access-group PF_REGISTRATION in
 
 If your edge switches support 'vlan-isolation' you can also apply the ACL
 there.  This has the advantage of preventing machines in isolation from
