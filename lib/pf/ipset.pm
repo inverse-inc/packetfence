@@ -231,7 +231,7 @@ sub get_mangle_mark_for_mac {
                     my $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac";
                     my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
-                    if (!($out[0] =~ m/NOT/i)) {
+                    if (defined($out[0]) && !($out[0] =~ m/NOT/i)) {
                         return $IPTABLES_MARK;
                     }
                 }
