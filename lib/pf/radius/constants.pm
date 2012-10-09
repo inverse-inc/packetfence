@@ -92,17 +92,6 @@ Readonly::Scalar our $IP => 1;
 Readonly::Scalar our $IPV4 => 1;
 Readonly::Scalar our $ETHERNET => 6;
 
-=item Trigger Inline
-
-Use for match radius attributes
-
-=cut
-
-Readonly::Scalar our $MAC => "mac";
-Readonly::Scalar our $PORT => "port";
-Readonly::Scalar our $SSID => "ssid";
-Readonly::Scalar our $ALWAYS => "always";
-
 =back
 
 =back

@@ -65,6 +65,7 @@ BEGIN {
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
+        $MAC $PORT $SSID $ALWAYS
         $default_config_file %Default_Config
         $config_file %Config
         $network_config_file %ConfigNetworks
@@ -213,6 +214,14 @@ Readonly::Scalar our $IPTABLES_MARK_REG => "1";
 Readonly::Scalar our $IPTABLES_MARK_ISOLATION => "2";
 Readonly::Scalar our $IPTABLES_MARK_UNREG => "3";
 
+# Use for match radius attributes
+
+Readonly::Scalar our $MAC => "mac";
+Readonly::Scalar our $PORT => "port";
+Readonly::Scalar our $SSID => "ssid";
+Readonly::Scalar our $ALWAYS => "always";
+
+
 Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
 
@@ -239,6 +248,7 @@ our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
+
 
 # constants are done, let's load the configuration
 try {

@@ -67,7 +67,7 @@ sub supportsSnmpTraps { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsWiredMacAuth { return $TRUE; }
 # inline capabilities
-sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head1 SUBROUTINES
 

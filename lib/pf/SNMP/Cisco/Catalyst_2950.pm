@@ -114,7 +114,7 @@ sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $FALSE; }
 sub supportsRadiusVoip { return $TRUE; }
 # inline capabilities
-sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMinOSVersion {
     my $this   = shift;

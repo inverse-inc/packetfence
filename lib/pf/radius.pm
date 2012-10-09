@@ -495,7 +495,11 @@ sub isTriggerInline {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers
             # at first, we are liberal in what we accept
-            $logger->warn("Invalid trigger id ($rigger)") if ($trigger !~ /^\w+::(.*)$/);
+            $logger->warn("Invalid trigger id ($rigger)")
+            if ($trigger !~ /^\w+::(.*)$/) {
+                $logger->warn("Invalid trigger id ($rigger)");
+                return $FALSE;
+            }
 
             my ( $type, $tid ) = split( /::/, $trigger );
             $type = lc($type);
@@ -508,22 +512,23 @@ sub isTriggerInline {
             # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
             if ( !grep( { lc($_) eq $type } $switch->inlineCapabilities ) ) {
                 $logger->warn("Invalid trigger type ($type), this is not supported by this switch");
+                return $FALSE;
             }
             switch ($type) {
-                case "$RADIUS::ALWAYS" {
+                case "$ALWAYS" {
                     return $TRUE;
                 }
-                case "$RADIUS::MAC" {
+                case "$MAC" {
                     if ($mac eq $tid) {
                         return $TRUE;
                     }
                 }
-                case "$RADIUS::PORT" {
+                case "$PORT" {
                     if ($port eq $tid) {
                         return $TRUE;
                     }
                 }
-                case "$RADIUS::SSID" {
+                case "$SSID" {
                     if ($ssid eq $tid) {
                         return $TRUE;
                     }

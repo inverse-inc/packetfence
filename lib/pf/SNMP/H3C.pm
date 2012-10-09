@@ -58,7 +58,7 @@ This switch module supports wired MAC authentication.
 sub supportsWiredMacAuth { return $TRUE; }
 
 # inline capabilities
-sub inlineCapabilities { return ($RADIUS::MAC,$RADIUS::PORT); }
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 =back
 
