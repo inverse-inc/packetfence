@@ -62,12 +62,6 @@ sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
-    # check if the switch is in inline mode
-    if ($switch->isSwitchInlineMode) {
-        $logger->info("MAC: $mac,  Returned inline mode VLAN: 0");
-        return "0";
-    }
-
     # violation handling
     my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
