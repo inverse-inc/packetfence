@@ -20,6 +20,7 @@ New Hardware
 
 Documentation
  * Clarify routed VLAN requirements (Patch from Brian Candler)
+ * Adding a quick install guide for Cisco Catalyst 2960
 
 Enhancements
  * Debian packages improvements
