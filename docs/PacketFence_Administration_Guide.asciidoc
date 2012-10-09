@@ -55,7 +55,7 @@ In Band (Inline Enforcement)::
 PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
 
 Hybrid support (Inline Enforcement with RADIUS support)::
-Packetfence can also be configured as hybrid, if you have a manageable device that support 802.1x and/or mac-auth you can enable inline mode by a radius attribute (mac address, ssid, port)
+PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1x and/or mac-auth. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
 
 Voice over IP (VoIP) support::
 Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
@@ -625,7 +625,7 @@ Hybrid mode
 
 This section applies for hybrid support for the manageable devices that support 802.1x or mac-auth.
 
-Introduced in PacketFence 3.6, hybrid enforcement is mix method that permit to use inline mode with vlan enforcement on the same device.
+Introduced in PacketFence 3.6, hybrid enforcement is a mix method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
 This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
 
 DHCP and DNS Server Configuration (networks.conf)
@@ -2586,27 +2586,24 @@ Technical introduction to Hybrid enforcement
 Introduction
 ~~~~~~~~~~~
 
-Before the version 3.6 of PacketFence, it was not possible to have radius enabled for inline mode. Now with the new hybrid mode, all the devices that support 802.1x or mac-auth can work with this mode. Let see how it works.
+Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1x or mac-auth can work with this mode. Let's see how it works.
 
 Device configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-You have to configure PacketFence as inline and your switch or access point to use the VLAN assignement techniques (802.1x, mac-auth), but now in the switch configuration, a new configuration parameter appear "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to
-define different sort of trigger:
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1x, mac-auth). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
 
   ALWAYS::
   PORT::
   MAC::
   SSID::
 
-where ALWAYS mean that the device is always in inline mode, PORT specify the ifIndex of the port, MAC an mac address, SSID a ssid name.
+where ALWAYS means that the device is always in inline mode, PORT specify the ifIndex of the port which will use inline enforcement, MAC a mac address that will be put in inline enforcement technique rather than VLAN enforcement and SSID an ssid name.
 An example:
 
   SSID::GuestAccess,MAC::00:11:22:33:44:55
 
-This will trigger all the nodes that connect on the SSID GuestAccess as Inline (PacketFence will return an empty vlan or the inlineVlan) and the mac address 00:11:22:33:44:55 if it connect on another SSID.
-
-
+This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return an empty vlan or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
   
 More on VoIP Integration
 ------------------------
