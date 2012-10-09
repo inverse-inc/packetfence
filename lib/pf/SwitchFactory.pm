@@ -137,16 +137,10 @@ sub instantiate {
 
     # transforming triggerInline to array
     my @triggerInline = ();
-    if (   $SwitchConfig{$requestedSwitch}{'triggerInline'}
-        || $SwitchConfig{'default'}{'triggerInline'} )
-    {
+    if ( $SwitchConfig{$requestedSwitch}{'triggerInline'} || $SwitchConfig{'default'}{'triggerInline'} ) {
+        my @_triggerInline_tmp = 
+            split(/,/,($SwitchConfig{$requestedSwitch}{'triggerInline'} || $SwitchConfig{'default'}{'triggerInline'}));
 
-        my @_triggerInline_tmp = split(
-            /,/,
-            (          $SwitchConfig{$requestedSwitch}{'triggerInline'}
-                    || $SwitchConfig{'default'}{'triggerInline'}
-            )
-        );
         foreach my $_tmp (@_triggerInline_tmp) {
             $_tmp =~ s/ //g;
             push @triggerInline, $_tmp;
