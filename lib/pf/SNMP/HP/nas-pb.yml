@@ -1,0 +1,20 @@
+0000default : {}
+
+HP :
+    prompt            : '/[\/a-zA-Z0-9._-]+(\([0-9]+\))? ?(?:\(config[^)]*\))? ?[#>] ?$/'
+    basic_prompt      : '/CLI> ?$/'
+    privileged_prompt : '/CLI# ?$/'
+    configure_prompt  : '/CLI\(config[^)]*\)# ?$/'
+    user_prompt       : '/(?:[Ll]ogin|[Uu]sername)/'
+    userpass_prompt   : '/(?:[Ll]ogin|[Uu]sername|[Pp]assword): ?$/'
+    pass_prompt       : '/[Pp]assword: ?$/'
+    begin_configure_cmd            : 'config'
+    end_configure_cmd		   : 'end'
+    begin_privileged_cmd           : 'enable'
+    begin_privileged_with_user_cmd : 'login'
+    end_privileged_cmd             : 'end'
+    disconnect                     : 'quit'
+    completion                     :  '?'
+    err_string : '/ ?(The entry)/'
+    paging_cmd			   : 'terminal length'
+

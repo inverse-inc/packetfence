@@ -82,12 +82,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     # IMPLEMENT!
 }
 

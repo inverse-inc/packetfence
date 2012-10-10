@@ -57,7 +57,7 @@ use pf::util;
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_wsAssociatedClientDisassociateAction = '1.3.6.1.4.1.171.10.73.30.9.1.1.9';
@@ -151,11 +151,29 @@ sub isVoIPEnabled {
     return 0;
 }
 
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::SNMP;
+    my %tech = (
+        $SNMP::SNMP => \&deauthenticateMacDefault,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

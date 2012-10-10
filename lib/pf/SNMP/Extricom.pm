@@ -174,10 +174,10 @@ sub connectWrite {
     return 1;
 }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_clearDot11Client = '1.3.6.1.4.1.23937.9.12.0'; # EXTRICOM-SNMP-MIB::clearDot11Client
@@ -213,6 +213,27 @@ sub deauthenticateMac {
     }
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::SNMP;
+    my %tech = (
+        $SNMP::SNMP => \&deauthenticateMacDefault,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -220,6 +241,8 @@ sub deauthenticateMac {
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

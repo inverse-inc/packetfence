@@ -126,14 +126,14 @@ sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $FALSE; }
 sub supportsLldp { return $FALSE; }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
     
 De-authenticate a MAC address from wireless network (including 802.1x).
     
 New implementation using RADIUS Disconnect-Request.
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
     
@@ -307,6 +307,28 @@ sub returnRoleAttribute {
     return 'Airespace-ACL-Name';
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::RADIUS;
+    my %tech = (
+        $SNMP::RADIUS => \&deauthenticateMacDefault,
+        $SNMP::SNMP  => \&_deauthenticateMacSNMP,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -314,6 +336,8 @@ sub returnRoleAttribute {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

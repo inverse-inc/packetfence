@@ -74,7 +74,7 @@ sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $FALSE; }
 sub supportsLldp { return $FALSE; }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
 safe: 
@@ -82,7 +82,7 @@ safe:
 L<http://www.cpanforum.com/threads/6909/>
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -214,6 +214,27 @@ sub extractSsid {
     return;
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::TELNET;
+    my %tech = (
+        $SNMP::TELNET => \&deauthenticateMacDefault,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
 
 =back
 
@@ -222,6 +243,8 @@ sub extractSsid {
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

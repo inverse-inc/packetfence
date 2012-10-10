@@ -2813,6 +2813,43 @@ sub getVoipVsa {
     return ('Cisco-AVPair' => "device-traffic-class=voice");
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $TRUE;
+}
+
+=item supporteddeauthTechniques
+
+return Default Deauthentication Method
+
+=cut
+sub supporteddeauthTechniques {
+    my ( $this ) = @_;
+
+    return $TRUE;
+}
+
+=item deauthenticateMacDefault
+
+return Default Deauthentication Default technique
+
+=cut
+sub deauthenticateMacDefault {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->warn("Unimplemented! First, make sure your configuration is ok. "
+        . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR

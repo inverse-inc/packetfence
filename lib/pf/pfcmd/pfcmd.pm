@@ -168,7 +168,7 @@ $grammar = q {
 
    networkconfig_view_field : 'type' | 'netmask' | 'named' | 'dhcpd' | 'gateway' | 'domain-name' | 'dns' | 'dhcp_start' | 'dhcp_end' | 'dhcp_default_lease_time' | 'dhcp_max_lease_time' | 'pf_gateway' | 'next_hop'
 
-   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPVersion' | 'cliTransport' | 'cliUser' | 'wsTransport' | 'wsUser' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | /customVlan\d\d?/ | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPPrivProtocolRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPPrivProtocolWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPPrivProtocolTrap' | 'controllerIp' | 'roles'
+   switchconfig_view_field : 'type' | 'mode' | 'uplink' | 'SNMPVersionTrap' | 'SNMPVersion' | 'cliTransport' | 'cliUser' | 'wsTransport' | 'wsUser' | 'vlans' | 'normalVlan' | 'registrationVlan' | 'isolationVlan' | 'macDetectionVlan' | 'guestVlan' | /customVlan\d\d?/ | 'macSearchesMaxNb' | 'macSearchesSleepInterval' | 'VoIPEnabled' | 'voiceVlan' | 'SNMPEngineID' | 'SNMPUserNameRead' | 'SNMPAuthProtocolRead' | 'SNMPPrivProtocolRead' | 'SNMPUserNameWrite' | 'SNMPAuthProtocolWrite' | 'SNMPPrivProtocolWrite' | 'SNMPUserNameTrap' | 'SNMPAuthProtocolTrap' | 'SNMPPrivProtocolTrap' | 'controllerIp' | 'roles' | 'deauthMethod'
 
    switchconfig_password_field : 'SNMPCommunityRead' | 'SNMPCommunityWrite' | 'SNMPCommunityTrap' | 'cliPwd' | 'cliEnablePwd' | 'wsPwd' | 'SNMPAuthPasswordRead' | 'SNMPPrivPasswordRead' | 'SNMPAuthPasswordWrite' | 'SNMPPrivPasswordWrite' | 'SNMPAuthPasswordTrap' | 'SNMPPrivPasswordTrap' | 'radiusSecret'
 

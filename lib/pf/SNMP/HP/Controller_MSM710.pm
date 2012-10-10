@@ -34,6 +34,7 @@ use pf::config;
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
+use Net::Appliance::Session;
 
 =head1 SUBROUTINES
 
@@ -93,11 +94,11 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac - deauthenticate a MAC address from wireless network (including 802.1x) through SNMP
+=item deauthenticateMacDefault - deauthenticate a MAC address from wireless network (including 802.1x) through SNMP
 
 =cut
 
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_coDevWirCliStaMACAddress = '1.3.6.1.4.1.8744.5.25.1.7.1.1.2'; # from COLUBRIS-DEVICE-WIRELESS-MIB
@@ -169,6 +170,65 @@ sub extractSsid {
     return;
 }
 
+=item _deauthenticateMacWithSSH
+
+Method to deauthenticate a node with SSH
+
+=cut
+
+sub _deauthenticateMacWithSSH {
+    my ( $this, $mac ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    $logger->warn(Dumper $this);
+    my $session;
+    eval {
+        $session = Net::Appliance::Session->new(
+            Host      => $this->{_controllerIp},
+            Timeout   => 20,
+            Transport => $this->{_cliTransport},
+            Platform => 'HP',
+            Source   => $lib_dir.'/pf/SNMP/HP/nas-pb.yml',
+        );
+        $session->connect(
+            Name     => $this->{_cliUser},
+            Password => $this->{_cliPwd}
+        );
+    };
+
+    if ($@) {
+        $logger->error( "ERROR: Can not connect to controller $this->{'_controllerIp'} using "
+                . $this->{_cliTransport} );
+        return 1;
+    }
+    $session->cmd("enable");
+    $session->cmd("disassociate controlled-ap wireless client $mac");
+    $session->close();
+
+    return 1;
+}
+
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::SNMP;
+    my %tech = (
+        $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::SSH  => \&_deauthenticateMacWithSSH,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -176,6 +236,8 @@ sub extractSsid {
 Regis Balzard <rbalzard@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

@@ -91,12 +91,12 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     my $OID_stationDeauthMacAddress = '1.3.6.1.4.1.21013.1.2.22.3.0'; # from XIRRUS-MIB
@@ -124,6 +124,27 @@ sub deauthenticateMac {
 
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::SNMP;
+    my %tech = (
+        $SNMP::SNMP => \&deauthenticateMacDefault,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
 =back
 
 =head1 AUTHOR
@@ -131,6 +152,8 @@ sub deauthenticateMac {
 Regis Balzard <rbalzard@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

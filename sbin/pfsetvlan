@@ -1572,19 +1572,21 @@ sub handleTrap {
 
         # trapType eq 'desAssociate' {{{2
     } elsif ( $trapType eq 'desAssociate' ) {
-        my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
+        my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type 
+        my $command = "deauthenticate";
+        $command = "deauthenticateDot1x" if ($connection_type == $WIRELESS_802_1X);
+     
         $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
-        #$switch->deauthenticateMac($trapMac);
         my $switchIp = $switch->{_ip};
-        if ($connection_type == $WIRELESS_802_1X) {
+        my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{_deauthMethod});
+        if (($switchdeauthMethod eq $SNMP::SSH) || ($switchdeauthMethod eq $SNMP::TELNET)) {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
-            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switchIp -mac $trapMac");
-        } else {
-            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
-            # http://www.cpanforum.com/threads/6909
-            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticate -switch $switchIp -mac $trapMac");
-        }
+            pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchIp -mac $trapMac");
+        }    
+        else {
+           $deauthTechniques->($switch,$trapMac);
+        }    
 
         # }}}2
 
