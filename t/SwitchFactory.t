@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 41;
+use Test::More tests => 35;
 use lib '/usr/local/pf/lib';
 
 BEGIN { use_ok('pf::SwitchFactory') }
@@ -12,15 +12,6 @@ BEGIN { use_ok('pf::SwitchFactory') }
 my $switchFactory = pf::SwitchFactory->getInstance( -configFile => './data/switches.conf' );
 
 my $switch;
-$switch = $switchFactory->instantiate('127.0.0.1');
-isa_ok( $switch, 'pf::SNMP::PacketFence' );
-is( $switch->{_ip}, '127.0.0.1', 'IP Address of 127.0.0.1' );
-is_deeply( $switch->{_uplink}, [qw(dynamic)], 'Uplink of 127.0.0.1' );
-is( $switch->{_SNMPVersion}, '2c', 'SNMP version of 127.0.0.1' );
-is( $switch->{_SNMPCommunityTrap},
-    'public', 'SNMP trap community of 127.0.0.1' );
-is( $switch->{_SNMPVersionTrap}, '2c', 'SNMP trap version of 127.0.0.1' );
-
 $switch = $switchFactory->instantiate('192.168.0.1');
 isa_ok( $switch, 'pf::SNMP::Cisco::Catalyst_2900XL' );
 is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1' );
