@@ -94,8 +94,9 @@ Requires: perl(IPTables::Parse)
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
 # CentOS 5 (iptables 1.3.5)
-%{?el5:Requires: perl(IPTables::libiptc) = 0.14}
-%{?el6:Requires: perl(IPTables::libiptc), perl-File-Which, perl-NetAddr-IP, ipset, sudo}
+%{?el5:Requires: perl(IPTables::libiptc) = 0.14 }
+%{?el6:Requires: perl(IPTables::libiptc), ipset, sudo }
+Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl

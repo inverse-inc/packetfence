@@ -62,7 +62,7 @@ sub instantiate {
     my $node_info = node_view($mac);
     my $last_ssid = $node_info->{'last_ssid'};
     my $last_vlan = $node_info->{'last_vlan'};
-    return pf::Portal::Profile->new(_default_profile()) if (!(defined($last_ssid) || defined($last_vlan) );
+    return pf::Portal::Profile->new(_default_profile()) if (!(defined($last_ssid)) || defined($last_vlan) );
 
     foreach my $last_info ("last_ssid","last_vlan") {
         foreach my $filter ( keys %filters ) {
