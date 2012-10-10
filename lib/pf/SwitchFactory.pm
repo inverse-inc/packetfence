@@ -358,6 +358,11 @@ sub readConfig {
             $SwitchConfig{$section}{$key} =~ s/\s+$//;
         }
     }
+    #Prevent the presence of 127.0.0.1 in switches.conf
+    if (defined($SwitchConfig{'127.0.0.1'})) {
+        delete $SwitchConfig{'127.0.0.1'};
+    }
+
     #Instanciate 127.0.0.1 switch
     $SwitchConfig{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
 
