@@ -482,7 +482,7 @@ sub _rewriteAccessAccept {
     return $RAD_REPLY_REF;
 }
 
-=item isInlineTrigger
+=item * isInlineTrigger
 
 Return true if a radius properties match with the inline trigger
 
