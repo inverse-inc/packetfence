@@ -27,7 +27,6 @@ use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
-use Switch;
 # constants used by this module are provided by
 use pf::radius::constants;
 
@@ -504,35 +503,17 @@ sub isInlineTrigger {
             $type = lc($type);
             $tid =~ s/\s+$//; # trim trailing whitespace
 
-            if ($type eq "always") {
-                return $TRUE;
-            }
+            return $TRUE if ($type eq $ALWAYS);
+
             # make sure trigger is a valid trigger type
             # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
             if ( !grep( { lc($_) eq $type } $switch->inlineCapabilities ) ) {
                 $logger->warn("Invalid trigger type ($type), this is not supported by this switch");
                 return $FALSE;
             }
-            switch ($type) {
-                case "$ALWAYS" {
-                    return $TRUE;
-                }
-                case "$MAC" {
-                    if ($mac eq $tid) {
-                        return $TRUE;
-                    }
-                }
-                case "$PORT" {
-                    if ($port eq $tid) {
-                        return $TRUE;
-                    }
-                }
-                case "$SSID" {
-                    if ($ssid eq $tid) {
-                        return $TRUE;
-                    }
-                }
-            }
+            return $TRUE if (($type eq $MAC) && ($mac eq $tid));
+            return $TRUE if (($type eq $PORT) && ($port eq $tid));
+            return $TRUE if (($type eq $SSID) && ($ssid eq $tid));
         }
     }
 }

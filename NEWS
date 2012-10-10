@@ -16,6 +16,7 @@ For a list of compatibility related changes see the UPGRADE file.
 Version <stableRelease> released on <releaseDate>
 
 Enhancements
+ * Radius Inline feature
 
 Bug Fixes
 * Adding radius.log into the logrotate script (#1526)
