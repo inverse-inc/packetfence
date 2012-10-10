@@ -43,7 +43,7 @@ foreach my $wireless_object (@wireless_devices) {
 
     # test its interface
     can_ok($wireless_object, qw(
-        parseTrap getVersion extractSsid deauthenticateMac
+        parseTrap getVersion extractSsid deauthenticateMacDefault
     ));
 
     # bogusly calling methods trying to generate warnings
@@ -76,7 +76,7 @@ $networkdevice_object = pf::SNMP::Aruba->new(
     '-ip' => '127.0.0.1',
 );
 # bogusly calling methods trying to generate warnings
-$networkdevice_object->deauthenticateMac("aa:bb:cc:dd:ee:ff");
+$networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
 # putting back old die handler
 $SIG{__DIE__} = $die_handler;
 

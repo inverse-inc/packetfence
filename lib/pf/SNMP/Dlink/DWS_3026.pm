@@ -165,12 +165,6 @@ sub isVoIPEnabled {
     return 0;
 }
 
-=item deauthTechniques
-
-Return the reference to the deauth technique or the default deauth technique.
-
-=cut
-
 sub deauthTechniques {
     my ($this, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
