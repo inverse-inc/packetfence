@@ -27,12 +27,14 @@ Enhancements
  * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
  * Minor refactoring in the RADIUS perl modules
  * Removed 127.0.0.1 switch from the config and added in the code
+ * Inline Mode now using ipset instead of just iptables
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
  * Translation of captive portal error messages
  * Side effect fixes of captive portal rework (#1366)
  * No more domain in our gettext po resources files (#1433)
+ * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
 
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
