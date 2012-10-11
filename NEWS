@@ -46,6 +46,7 @@ New Hardware
 
 Documentation
  * Clarify routed VLAN requirements (Patch from Brian Candler)
+ * Adding a quick install guide for Cisco Catalyst 2960
 
 Enhancements
  * Debian packages improvements
@@ -53,6 +54,7 @@ Enhancements
  * Improved the relevance of exit status in pfcmd_vlan (#1493)
  * LLDP support for Cisco switches
  * New report for the Top 25 Sponsors
+ * Make sure DHCP listenes on configured interfaces for routed reg/isol VLANs
 
 New Features
  * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
