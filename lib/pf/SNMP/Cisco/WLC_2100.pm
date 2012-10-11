@@ -60,7 +60,8 @@ sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 # special features 
 sub supportsSaveConfig { return $FALSE; }
-
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item _deauthenticateMacSnmp
 

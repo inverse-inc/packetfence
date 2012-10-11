@@ -54,6 +54,9 @@ PacketFence's operation is completely out of band when using VLAN enforcement wh
 In Band (Inline Enforcement)::
 PacketFence can also be configured to be in-band, especially when you have non-manageable network switches or access points. PacketFence can also work with both VLAN and Inline enforcement activated for maximum scalability and security while allowing older hardware to still be secured using Inline enforcement.
 
+Hybrid support (Inline Enforcement with RADIUS support)::
+PacketFence can also be configured as hybrid, if you have a manageable device that supports 802.1x and/or mac-auth. This feature can be enabled using a RADIUS attribute (MAC address, SSID, port) or using full inline mode on the equipment.
+
 Voice over IP (VoIP) support::
 Also called IP Telephony (IPT), VoIP is fully supported (even in heterogeneous environments) for multiple switch vendors (Cisco, Edge-Core, HP, LinkSys, Nortel Networks and many more).
 
@@ -635,6 +638,14 @@ It is also possible to enable inline.should_reauth_on_vlan_change to force user 
 ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
+
+Hybrid mode
+~~~~~~~~~~
+
+This section applies for hybrid support for the manageable devices that support 802.1x or mac-auth.
+
+Introduced in PacketFence 3.6, hybrid enforcement is a mix method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
+This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
 
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2636,6 +2647,31 @@ Inline enforcement because of it's nature has several limitations that one must 
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 
+Technical introduction to Hybrid enforcement
+--------------------------------------------
+
+Introduction
+~~~~~~~~~~~
+
+Before version 3.6 of PacketFence, it was not possible to have RADIUS enabled for inline enforcement mode. Now with the new hybrid mode, all the devices that supports 802.1x or mac-auth can work with this mode. Let's see how it works.
+
+Device configuration
+~~~~~~~~~~~~~~~~~~~~
+
+You need to configure inline enforcement mode in PacketFence and configure your switch(es) / access point(s) to use the VLAN assignement techniques (802.1x, mac-auth). You also need to take care of a specific parameter in the switch configuration window, "Trigger to enable inline mode". This parameter is working like a trigger and you have the possibility to define different sort of trigger:
+
+  ALWAYS::
+  PORT::
+  MAC::
+  SSID::
+
+where ALWAYS means that the device is always in inline mode, PORT specify the ifIndex of the port which will use inline enforcement, MAC a mac address that will be put in inline enforcement technique rather than VLAN enforcement and SSID an ssid name.
+An example:
+
+  SSID::GuestAccess,MAC::00:11:22:33:44:55
+
+This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return an empty vlan or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
+  
 More on VoIP Integration
 ------------------------
 

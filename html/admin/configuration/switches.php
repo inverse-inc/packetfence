@@ -47,7 +47,7 @@
       'SNMPUserNameWrite', 'SNMPAuthProtocolWrite', 'SNMPAuthPasswordWrite', 
       'SNMPPrivProtocolWrite', 'SNMPPrivPasswordWrite', 'SNMPUserNameTrap', 
       'SNMPAuthProtocolTrap', 'SNMPAuthPasswordTrap', 'SNMPPrivProtocolTrap', 
-      'SNMPPrivPasswordTrap', 
+      'SNMPPrivPasswordTrap','inlineTrigger', 
   );
   # adding customVlan1 to 99 to the hidden list
   for ($i = 1; $i <= 99; $i++) {

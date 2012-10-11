@@ -125,6 +125,8 @@ sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $FALSE; }
 sub supportsLldp { return $FALSE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item deauthenticateMac
     

@@ -92,6 +92,8 @@ sub supportsFloatingDevice { return $TRUE; }
 sub supportsSaveConfig { return $FALSE; }
 sub supportsCdp { return $TRUE; }
 sub supportsLldp { return $FALSE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT,$SSID); }
 
 # first, we are re-implementing all of pf::SNMP that has effects on switches to make sure it doesn't do anything
 

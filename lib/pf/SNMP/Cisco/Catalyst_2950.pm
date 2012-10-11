@@ -115,6 +115,8 @@ sub supportsRadiusDynamicVlanAssignment { return $FALSE; }
 sub supportsRadiusVoip { return $TRUE; }
 # special features
 sub supportsLldp { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMinOSVersion {
     my $this   = shift;

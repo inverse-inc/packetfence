@@ -297,7 +297,7 @@ sub service_list {
                 if (isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $service);
         } elsif ( $service eq "radiusd" ) {
             push @finalServiceList, $service 
-                if ( is_vlan_enforcement_enabled() && isenabled($Config{'services'}{'radiusd'}) );
+                if ( isenabled($Config{'services'}{'radiusd'}) );
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );

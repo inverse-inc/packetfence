@@ -87,6 +87,7 @@
         printSelect( array('' => 'please choose', '1' => '1', '2c' => '2c', '3' => '3'), 'hash', $val, "name='$key'");
         break;
 
+      case 'inlineTrigger':
       case 'uplink':
       case 'vlans':
         print "<tr><td></td><td>$pretty_key:</td><td><textarea name='$key'>$val</textarea>";

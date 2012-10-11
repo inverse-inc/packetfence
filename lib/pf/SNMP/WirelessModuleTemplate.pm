@@ -57,6 +57,8 @@ use pf::config;
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$SSID); }
 
 =item getVersion
 

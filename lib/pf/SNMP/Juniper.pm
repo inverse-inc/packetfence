@@ -48,6 +48,8 @@ sub supportsWiredMacAuth { return $TRUE; }
 # TODO to support Wired dot1x, we'll need to refactor pfsetvlan to send control over here to do a clear dot1x
 # (instead of SNMP PAE reAuthenticate because the switch doesn't support writing to the IF-MIB)
 sub supportsWiredDot1x { return $FALSE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head1 SUBROUTINES
 

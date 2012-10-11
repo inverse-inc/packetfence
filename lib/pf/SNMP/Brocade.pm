@@ -80,6 +80,8 @@ sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 sub supportsRadiusVoip { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 
 =item getVersion

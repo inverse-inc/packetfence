@@ -162,6 +162,15 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
 
+    if ($this->isInlineTrigger($switch,$port,$mac,$ssid)) {
+        $logger->info("Inline trigger match, the node is in inline mode, returning Access-Accept");
+        if (defined($switch->{_inlineVlan})) {
+            my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($switch->{_inlineVlan}, $mac, $port, $connection_type, $user_name, $ssid);
+            return $RAD_REPLY_REF;
+        }
+        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Returning Access-Accept because trigger match for inline mode") ];
+    }
+
     if (!$switch->isManagedVlan($vlan)) {
         $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
                      ."Is the target vlan in the vlans=... list?");
@@ -472,6 +481,43 @@ sub _rewriteAccessAccept {
     return $RAD_REPLY_REF;
 }
 
+=item * isInlineTrigger
+
+Return true if a radius properties match with the inline trigger
+
+=cut
+sub isInlineTrigger {
+    my ($self, $switch, $port, $mac, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($self));
+    if (defined($switch->{_inlineTrigger})) {
+        foreach my $trigger (@{$switch->{_inlineTrigger}})  {
+
+            # TODO we should refactor this into objects where trigger types provide their own matchers
+            # at first, we are liberal in what we accept
+            if ($trigger !~ /^\w+::(.*)$/) {
+                $logger->warn("Invalid trigger id ($trigger)");
+                return $FALSE;
+            }
+
+            my ( $type, $tid ) = split( /::/, $trigger );
+            $type = lc($type);
+            $tid =~ s/\s+$//; # trim trailing whitespace
+
+            return $TRUE if ($type eq $ALWAYS);
+
+            # make sure trigger is a valid trigger type
+            # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
+            if ( !grep( { lc($_) eq $type } $switch->inlineCapabilities ) ) {
+                $logger->warn("Invalid trigger type ($type), this is not supported by this switch");
+                return $FALSE;
+            }
+            return $TRUE if (($type eq $MAC) && ($mac eq $tid));
+            return $TRUE if (($type eq $PORT) && ($port eq $tid));
+            return $TRUE if (($type eq $SSID) && ($ssid eq $tid));
+        }
+    }
+}
+
 =back
 
 =head1 BUGS AND LIMITATIONS
@@ -481,6 +527,8 @@ None reported yet ;)
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

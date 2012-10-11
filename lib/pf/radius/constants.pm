@@ -100,6 +100,8 @@ Readonly::Scalar our $ETHERNET => 6;
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Fabrice Durand <fdurand@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2010, 2012 Inverse inc.

@@ -33,6 +33,8 @@ use pf::config;
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
+# inline capabilities
+sub inlineCapabilities { return ($MAC,$PORT); }
 
 sub getMaxMacAddresses {
     my ( $this, $ifIndex ) = @_;
