@@ -71,7 +71,6 @@
 /usr/local/pf/html/captive-portal/templates/footer.html
 /usr/local/pf/html/captive-portal/templates/pending.html
 /usr/local/pf/html/captive-portal/templates/billing/billing.html
-/usr/local/pf/html/captive-portal/templates/guest/registration_confirmation.html
 /usr/local/pf/html/captive-portal/templates/guest/footer.html
 /usr/local/pf/html/captive-portal/templates/guest/preregistration_confirmation.html
 /usr/local/pf/html/captive-portal/templates/guest/sms_confirmation.html
