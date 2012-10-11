@@ -27,6 +27,7 @@ Enhancements
  * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
  * LLDP support for Cisco switches
  * New report for the Top 25 Sponsors
+ * Make sure DHCP listenes on configured interfaces for routed reg/isol VLANs
 
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
