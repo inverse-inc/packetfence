@@ -63,6 +63,14 @@ case "$1" in
             service $service stop  > /dev/null 2>&1
             update-rc.d $service remove > /dev/null 2>&1
         done
+        # add sudo entry
+        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+        fi
+        if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
+            echo 'Defaults:pf !requiretty' >> /etc/sudoers
+        fi
+
         update-rc.d packetfence defaults . || exit 0
         update-rc.d pfappserver defaults . || exit 0
         invoke-rc.d pfappserver start

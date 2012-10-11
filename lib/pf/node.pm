@@ -68,6 +68,7 @@ BEGIN {
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
+        $STATUS_REGISTERED
     );
 }
 

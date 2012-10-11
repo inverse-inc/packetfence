@@ -119,8 +119,9 @@ Requires: perl(IPTables::Parse)
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
 # CentOS 5 (iptables 1.3.5)
-%{?el5:Requires: perl(IPTables::libiptc) = 0.14}
-%{?el6:Requires: perl(IPTables::libiptc)}
+%{?el5:Requires: perl(IPTables::libiptc) = 0.14 }
+%{?el6:Requires: perl(IPTables::libiptc), ipset, sudo }
+Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
 # TODO: we depend on perl modules not perl-libwww-perl
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
@@ -480,6 +481,17 @@ if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
   make dh
 else
   echo "DH already exists, won't touch it!"
+fi
+
+#Add for sudo 
+if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
+  sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
+fi
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+fi
+if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
+  echo 'Defaults:pf !requiretty' >> /etc/sudoers
 fi
 
 #Start pfappserver

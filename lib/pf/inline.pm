@@ -17,9 +17,9 @@ use warnings;
 use Log::Log4perl;
 
 use pf::config;
-use pf::iptables;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_trap);
+use Try::Tiny;
 
 our $VERSION = 1.01;
 
@@ -38,18 +38,48 @@ sub new {
     $logger->debug("instantiating new pf::inline object");
     my ( $class, %argv ) = @_;
     my $this = bless {}, $class;
+    $this->{_technique} = get_technique();
     return $this;
 }
+
+=item get_technique
+
+Instantiate the correct iptables modification method between iptables and ipset
+
+=cut
+sub get_technique {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $type;
+    if ($IPSET_VERSION > 0) {
+        $type = "pf::ipset";
+    } else {
+        $type = "pf::iptables";
+    }
+
+    $logger->info("Instantiate a new iptables modification method. ". $type);
+    try {
+        # try to import module and re-throw the error to catch if there's one
+        eval "use $type";
+        die($@) if ($@);
+
+    } catch {
+        chomp($_);
+        $logger->error("Initialization of iptables modification method failed: $_");
+    };
+
+    return $type->new();
+}
+
 
 =item performInlineEnforcement
 
 =cut
-sub performInlineEnforcement { 
+sub performInlineEnforcement {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # What is the MAC's current state?
-    my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
+    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
     my $should_be_mark = $this->fetchMarkForNode($mac);
 
     if ($current_mark == $should_be_mark) {
@@ -58,7 +88,7 @@ sub performInlineEnforcement {
     }
 
     $logger->info("MAC: $mac stated changed, adapting firewall rules for proper enforcement");
-    return pf::iptables::update_mark($mac, $current_mark, $should_be_mark);
+    return $this->{_technique}->update_mark($mac, $current_mark, $should_be_mark);
 }
 
 =item isInlineEnforcementRequired
@@ -70,7 +100,7 @@ sub isInlineEnforcementRequired {
     my ($this, $mac) = @_;
 
     # What is the MAC's current state?
-    my $current_mark = pf::iptables::get_mangle_mark_for_mac($mac);
+    my $current_mark = $this->{_technique}->get_mangle_mark_for_mac($mac);
     my $should_be_mark = $this->fetchMarkForNode($mac);
     if ($current_mark == $should_be_mark) {
         return $FALSE;
@@ -120,6 +150,8 @@ sub fetchMarkForNode {
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Fabrice Durand <fdurand@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2011 Inverse inc.
@@ -133,12 +165,12 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 USA.
 
 =cut

@@ -315,6 +315,11 @@ server, DHCP server, RADIUS server) using:
   sudo apt-get update
   sudo apt-get install packetfence
 
+In order to use ipset in inline mode, you must install two news dependencies and compile kernel modules:
+
+  sudo apt-get install xtables-addons-source xtables-addons-common
+  sudo module-assistant auto-install xtables-addons
+
 Configuration
 -------------
 
@@ -622,6 +627,12 @@ Introduced in PacketFence 3.0, inline enforcement is a very convenient method of
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
 
 Introduced in PacketFence 3.3, inline enforcement now use DNS DNAT for unregistered or isolated users. Long story short, DNS is now working almost the same way as in VLAN enforcement mode. The only difference is that you need to make sure, as previously stated, to set a valid production DNS server for the inline configuration in `conf/networks.conf` and that the `named` statement is set to enabled.
+
+Introduced in PacketFence 3.6, under debian squeeze and RHEL6/Centos 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
+It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try
+to register on an other inline interface PacketFence detect that the node is already registered on the first vlan.
+It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change vlan.
+ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
@@ -2621,6 +2632,7 @@ Inline enforcement because of it's nature has several limitations that one must 
 * Every packet of authorized users goes through the PacketFence server increasing the servers' load considerably: Plan ahead for capacity
 * Every packet of authorized users goes through the PacketFence server: it is a single point of failure for Internet access
 * Does not handle routed networks
+* Ipset can store up to 65536 entries, so it is not possible to have a inline network class upper than B
 
 This is why it is considered a poor man's way of doing access control. We have avoided it for a long time because of the above mentioned limitations. That said, being able to perform both inline and VLAN enforcement on the same server at the same time is a real advantage: it allows users to maintain maximum security while they deploy new and more capable network hardware providing a clean migration path to VLAN enforcement.
 

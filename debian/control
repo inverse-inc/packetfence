@@ -22,6 +22,8 @@ Depends: ${misc:Depends}, vlan, make,
  apache2-mpm-prefork,
 # php web admin
  libapache2-mod-php5, php-pear, php5-mysql, php5-gd, make, php-log,
+# ipset (ipset must be installed by hand  apt-get install xtables-addons-common  xtables-addons-source)
+ sudo,
 # process management
  procps,
 # perl basic components
@@ -56,6 +58,8 @@ Depends: ${misc:Depends}, vlan, make,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
  libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
  libnet-nessus-xmlrpc-perl (>= 0.4),
+# required for ipset
+ libnetaddr-ip-perl, libfile-which-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl,
