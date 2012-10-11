@@ -964,6 +964,7 @@ sub switchconfig {
         #sort the switches (http://www.sysarch.com/Perl/sort_paper.html)
         my %switches_conf_tmp = %switches_conf;
         delete $switches_conf_tmp{'default'};
+        delete $switches_conf_tmp{'127.0.0.1'};
         my @sections_tmp = keys(%switches_conf_tmp);
         my @sections
             = map substr( $_, 4 ) => sort
@@ -991,7 +992,7 @@ sub switchconfig {
         }
     } elsif ( $mode eq 'delete' ) {
         my $section = $cmd{'command'}[2];
-        if ( $section =~ /^(default|all|127.0.0.1)$/ ) {
+        if ( $section =~ /^(default|all)$/ ) {
             print "This switch can't be deleted (Error at line ".__LINE__." in pfcmd)\n";
             exit;
         } else {

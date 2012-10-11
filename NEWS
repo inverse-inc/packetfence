@@ -26,6 +26,7 @@ Enhancements
  * New parameter to control captive portal interception: secure_redirect
  * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
  * Minor refactoring in the RADIUS perl modules
+ * Removed 127.0.0.1 switch from the config and added in the code
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)

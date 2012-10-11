@@ -854,6 +854,9 @@ sub switches {
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
         next if ( $section =~ /^default$/i ); 
+        if ( $section eq '127.0.0.1' ) {
+            add_problem( $WARN, "switches.conf | Switch 127.0.0.1 is defined but it had to be removed" );
+        }
         
         # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
         if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {

@@ -124,6 +124,8 @@ Upgrading from a version prior to 3.5.0
 
 ----
 
+    - Switch 127.0.0.1 must be removed from the switches.conf
+
     - Database schema update
     New accounting violations and other violation related stuff needed some modifications
     to the current database schema. Make sur you run the following to update
