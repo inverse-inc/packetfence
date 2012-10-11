@@ -175,7 +175,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
 
   # Rules that reduce server load by blocking undesired requests
   Include %%varconf_dir%%/block-unwanted.conf
-  
+
 %%passthrough-https-proxies%%
 
 %%remediation-proxies%%
