@@ -22,6 +22,7 @@ use warnings;
 use Log::Log4perl;
 use POSIX;
 use Readonly;
+use Net::Netmask;
 
 use pf::config;
 use pf::util;
@@ -48,14 +49,24 @@ sub generate_dhcpd_conf {
     my $logger = Log::Log4perl::get_logger('pf::services::dhcpd');
 
     my %tags;
+    my %direct_subnets;
     $tags{'template'} = "$conf_dir/dhcpd.conf";
     $tags{'networks'} = '';
+
+    foreach my $interface ( @listen_ints ) {
+        my $cfg = $Config{"interface $interface"};
+        next unless $cfg;
+        my $net = new Net::Netmask($cfg->{'ip'}, $cfg->{'mask'});
+        my ($base,$mask) = ($net->base(), $net->mask());
+        $direct_subnets{"subnet $base netmask $mask"} = $TRUE;
+    }
 
     foreach my $network ( keys %ConfigNetworks ) {
         # shorter, more convenient local accessor
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
+            delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};
 
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
@@ -70,6 +81,16 @@ subnet $network netmask $net{'netmask'} {
 
 EOT
         }
+    }
+
+    # Generate empty subnets for every interface where we want dhcpd to
+    # listen but no direct DHCP service is provided
+    foreach my $network ( keys %direct_subnets ) {
+            $tags{'networks'} .= <<"EOT";
+$network {
+}
+
+EOT
     }
 
     parse_template( \%tags, "$conf_dir/dhcpd.conf", "$generated_conf_dir/dhcpd.conf" );
