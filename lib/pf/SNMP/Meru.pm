@@ -141,7 +141,7 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMac
+=item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network
 
@@ -150,7 +150,7 @@ Right now te only way to do it is from the CLi (through Telnet or SSH).
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
-sub deauthenticateMac {
+sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -227,6 +227,28 @@ sub returnRoleAttribute {
     return 'Filter-Id';
 }
 
+=item deauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub deauthTechniques {
+    my ($this, $method) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    my $default = $SNMP::TELNET;
+    my %tech = (
+        $SNMP::TELNET => \&deauthenticateMacDefault,
+    );
+
+    if (!exists($tech{$method})) {
+        $method = $default;
+    }
+    return $method,$tech{$method};
+}
+
+
+
 =back
 
 =head1 AUTHOR
@@ -236,6 +258,8 @@ Olivier Bilodeau <obilodeau@inverse.ca>
 Francois Gaudreault <fgaudreault@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

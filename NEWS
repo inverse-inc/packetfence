@@ -29,6 +29,7 @@ Enhancements
  * Removed 127.0.0.1 switch from the config and added in the code
  * Inline Mode now using ipset instead of just iptables
  * Radius Inline feature
+ * Selection of a preferred deauthentication method for a switch
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
