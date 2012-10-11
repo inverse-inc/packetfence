@@ -151,6 +151,17 @@ detection=disabled
 #
 detection_engine=snort
 
+#
+# trapping.wireless_ips
+#
+# Enable wids trapping detection
+wireless_ips=disabled
+
+#
+# Set the threshold for wids
+#
+wireless_ips_threshold=90
+
 [registration]
 #
 # registration.range
