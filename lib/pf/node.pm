@@ -68,6 +68,7 @@ BEGIN {
         is_node_voip
         is_node_registered
         is_max_reg_nodes_reached
+        node_search
         $STATUS_REGISTERED
     );
 }
@@ -311,6 +312,8 @@ sub node_db_prepare {
         qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,n.dhcp_fingerprint,i.ip,i.start_time,i.end_time,n.last_arp from node n, iplog i where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $node_statements->{'node_update_lastarp_sql'} = get_db_handle()->prepare(qq [ update node set last_arp=now() where mac=? ]);
+
+    $node_statements->{'node_search_sql'} = get_db_handle()->prepare(qq [ select mac from node where mac LIKE CONCAT(?,'%') ]);
 
     $node_db_prepared = 1;
     return 1;
@@ -998,6 +1001,15 @@ sub node_mac_wakeup {
     my $dec_mac = mac2nb($mac);
     $logger->debug( "sending MAC::$dec_mac trigger" );
     pf::violation::violation_trigger( $mac, $dec_mac, "MAC" );
+}
+
+sub node_search {
+    my ($mac) = @_;
+    my $query =  db_query_execute(NODE, $node_statements, 'node_search_sql', $mac) || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+
 }
 
 =item * is_node_voip

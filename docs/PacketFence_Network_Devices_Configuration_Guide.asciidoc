@@ -2222,6 +2222,13 @@ Roles
 Since PacketFence 3.3.0, we now support roles for the Aruba hardware.  To add roles, go in *Configuration -> Access Control -> User Roles -> Add*.  You don't need to force a VLAN usage in the Role
 since we send also the VLAN ID along with the Aruba User Role in the RADIUS request.  Refer to the Aruba User Guide for more information about the Role creation.
 
+WIPS
+++++
+
+In order to use the WIPS feature in PacketFence, please follow those simple steps to send the traps to PacketFence.
+
+First, configure PacketFence to be a trap receiver.  Under *Configuration > SNMP > Trap Receivers*, add an entry for the PF management IP.  By default, all traps will be enabled.  If you want to disable some, you will need
+to connect via CLI, and run the *snmp-server trap disable <trapname>* command.
 
 Aruba Controller 200
 ^^^^^^^^^^^^^^^^^^^^
@@ -2765,6 +2772,70 @@ Finally, don't forget to configure the appropriate firewall rules for your Roles
 
 NOTE: You need to have an *Advanced Security* license to enable the Per-User Firewall feature.
 
+WIPS
+++++
+
+In order to enable the WIPS functionality on the Motorola, you need to follow this procedure.  The steps have been done using the CLI.
+
+First, Create a wips-policy:
+
+   wips-policy Rogue-AP
+   history-throttle-duration 86400
+   event ap-anomaly airjack
+   event ap-anomaly null-probe-response
+   event ap-anomaly asleap
+   event ap-anomaly ad-hoc-violation
+   event ap-anomaly ap-ssid-broadcast-in-beacon
+   event ap-anomaly impersonation-attack
+   ap-detection
+
+Next, create an event policy:
+
+   event-system-policy PF-WIDS
+   event wips wips-event syslog off snmp on forward-to-switch off email off
+
+Next, create or adjust your management policy to configure the SNMP traps.  Here is an example policy, please note the two last lines:
+
+   management-policy default
+   no http server
+   https server
+   ssh
+   user admin password 1 e4c93663e3356787d451312eeb8d4704ef09f2331a20133764c3dc3121f13a5b role superuser access all
+   user operator password 1 7c9b1fbb2ed7d5bb50dba0b563eac722b0676b45fed726d3e4e563b0c87d236d role monitor access all
+   no snmp-server manager v3
+   snmp-server community public ro
+   snmp-server community private rw
+   snmp-server user snmpoperator v3 encrypted des auth md5 0 operator
+   snmp-server user snmptrap v3 encrypted des auth md5 0 motorola
+   snmp-server user snmpmanager v3 encrypted des auth md5 0 motorola
+   snmp-server enable traps
+   snmp-server host 10.0.0.100 v2c 162
+
+You then need to tell your controller to use the event policy:
+
+   rfs6000 5C-0E-8B-17-F2-E3
+   ...
+   use event-system-policy PF-WIDS
+
+Finally, you need to configure a radio interface on your AP to act as a sensor.  Here is an example configuration for a dual-radio AP650:
+
+   ap650 00-23-68-86-EB-BC
+   use profile default-ap650
+   use rf-domain default
+   hostname ap650-86EBBC
+   country-code ca
+   use wips-policy Rogue-AP
+   interface radio1
+   rf-mode sensor
+   channel smart
+   power smart
+   data-rates default
+   no preamble-short
+   radio-share-mode off
+   interface radio2
+   ...
+
+
 Older Firmwares (< 5.0)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -2832,6 +2903,26 @@ NOTE: The Open SSID does *NOT* support dynamic VLAN assignments (Firmware 9.3.0.
 * Select the proper RADIUS server as the accounting server
 * Check the *Enable Dynamic VLAN* checkbox
 
+WIPS
+++++
+
+To enable the WIPS feature of the Ruckus in order to send SNMP traps to PacketFence, the setup is fairly simple.  
+
+First, configure the controller to send the traps to PacketFence.  Under *Configure > System > Network Management > SNMP Trap*:
+
+*Select "Enable SNMP Trap"
+*Put the PacketFence Management IP in the Trap Server IP field
+
+NOTE: The traps will arrive with the "public" community string
+
+Next, you need to configure the Alarm Settings.  Under *Configure > Alarm Settings*, make sure the following are selected:
+
+*Rogue AP Detected
+*SSID-Spoofing AP Detected
+*MAC-Spoofing AP Detected
+*LAN Rogue AP Detected
+
+Finally, enable the WIPS feature on the controller.  Under *Configure > WIPS > Intrusion Detection and Prevention*, make sure both box are selected, click Apply. 
 
 Trapeze
 ~~~~~~~

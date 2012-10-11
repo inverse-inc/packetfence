@@ -54,6 +54,9 @@ Enhancements
  * LLDP support for Cisco switches
  * New report for the Top 25 Sponsors
 
+New Features
+ * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
+
 Bug Fixes
  * Adding radius.log into the logrotate script (#1526)
  * Tweaking some accounting queries for performance (#1534)

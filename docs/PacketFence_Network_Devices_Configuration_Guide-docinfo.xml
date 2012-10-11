@@ -4,6 +4,12 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.5</revnumber>
+    <date>2012-09-12</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>Adding documentation for WIPS feature</revremark>
+   </revision>
+   <revision>
     <revnumber>2.4.1</revnumber>
     <date>2012-09-05</date>
     <authorinitials>FG, OB</authorinitials>

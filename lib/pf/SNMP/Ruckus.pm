@@ -94,9 +94,14 @@ sub parseTrap {
     my $trapHashRef;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    $logger->debug("trap ignored, not useful for wireless controller");
-    $trapHashRef->{'trapType'} = 'unknown';
-
+    # Handle WIPS Trap
+    if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.25053\.2\.2\.2\.20 = STRING: \"([a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2}:[a-f0-9]{2})/ ) {
+        $trapHashRef->{'trapType'}    = 'wirelessIPS';
+        $trapHashRef->{'trapMac'} = clean_mac($1);
+    } else {
+        $logger->debug("trap currently not handled.  TrapString was: $trapString");
+        $trapHashRef->{'trapType'} = 'unknown';
+    }
     return $trapHashRef;
 }
 
