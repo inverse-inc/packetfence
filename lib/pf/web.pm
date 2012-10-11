@@ -31,6 +31,7 @@ use Date::Parse;
 use File::Basename;
 use HTML::Entities;
 use JSON;
+use Locale::gettext qw(gettext ngettext);
 use Log::Log4perl;
 use Readonly;
 use Template;
@@ -55,7 +56,6 @@ use pf::violation qw(violation_count);
 use pf::web::auth; 
 use pf::web::constants; 
 
-Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 Readonly our $LOGIN_TEMPLATE => 'login.html';
 
 =head1 SUBROUTINES
@@ -91,38 +91,6 @@ sub i18n_format {
     my ($msgid, @args) = @_;
 
     return sprintf(gettext($msgid), @args);
-}
-
-=item web_get_locale
-
-Deprecated: Functionality has been migrated into pf::Portal::Session.
-This is still here because admin-related functions still use it but it
-will disappear soon.
-
-=cut
-use Locale::gettext;
-use POSIX;
-sub web_get_locale {
-    my ($cgi,$session) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    my $authorized_locale_txt = $Config{'general'}{'locale'};
-    my @authorized_locale_array = split(/\s*,\s*/, $authorized_locale_txt);
-    if ( defined($cgi->url_param('lang')) ) {
-        $logger->info("url_param('lang') is " . $cgi->url_param('lang'));
-        my $user_chosen_language = $cgi->url_param('lang');
-        if (grep(/^$user_chosen_language$/, @authorized_locale_array) == 1) {
-            $logger->info("setting language to user chosen language "
-                 . $user_chosen_language);
-            $session->param("lang", $user_chosen_language);
-            return $user_chosen_language;
-        }
-    }
-    if ( defined($session->param("lang")) ) {
-        $logger->info("returning language " . $session->param("lang")
-            . " from session");
-        return $session->param("lang");
-    }
-    return $authorized_locale_array[0];
 }
 
 =item render_template
@@ -352,45 +320,6 @@ sub generate_error_page {
     render_template($portalSession, 'error.html', $r);
 }
 
-=item generate_admin_error_page
-
-Same behavior of pf::web::generate_error_page but consume old cgi/session paramaters rather than the new portalSession
-object since this one is used in the admin portion of the web management and we didn't implement the portalSession
-object in this part.
-
-=cut
-# TODO this will disappear inside the new Web Admin
-sub generate_admin_error_page {
-    my ( $cgi, $session, $error_msg, $r ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    setlocale( LC_MESSAGES, web_get_locale($cgi, $session) );
-    bindtextdomain( "packetfence", "$conf_dir/locale" );
-    textdomain("packetfence");
-
-    my $vars = {
-        logo => $Config{'general'}{'logo'},
-        i18n => \&i18n,
-        i18n_format => \&i18n_format,
-        txt_message => $error_msg,
-    };
-
-    my $ip = get_client_ip($cgi);
-    my $mac = ip2mac($ip);
-    push @{ $vars->{list_help_info} }, { name => i18n('IP'), value => $ip };
-    if ($mac) {
-        push @{ $vars->{list_help_info} }, { name => i18n('MAC'), value => $mac };
-    }
-
-    my $cookie = $cgi->cookie( CGISESSID => $session->id );
-    print $cgi->header( -cookie => $cookie );
-
-    my $template = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
-    $template->process( "error.html", $vars, $r ) || $logger->error($template->error());
-}
-
 =item web_node_register
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.
@@ -579,46 +508,6 @@ sub generate_pending_page {
     }
 
     render_template($portalSession, 'pending.html');
-}
-
-=item get_client_ip
-
-Returns IP address of the client reaching the captive portal. 
-Either directly connected or through a proxy.
-
-=cut
-sub get_client_ip {
-    my ($cgi) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    $logger->trace("request for client IP");
-
-    # we fetch CGI's remote address
-    # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
-    my $directly_connected_ip = $cgi->remote_addr();
-
-    # every source IP in this table are considered to be from a proxied source
-    my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first
-    $proxied_lookup{$LOOPBACK_IPV4} = 1; # loopback (proxy-bypass)
-    # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
-    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
-
-    # if this is NOT from one of the expected proxy IPs return the IP
-    if (!$proxied_lookup{$directly_connected_ip}) {
-        return $directly_connected_ip;
-    }
-
-    # behind a proxy?
-    if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
-        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
-        $logger->debug(
-            "Remote Address is $directly_connected_ip. Client is behind proxy? "
-            . "Returning: $proxied_ip according to HTTP Headers"
-        );
-        return $proxied_ip;
-    }
-
-    $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
-    return $directly_connected_ip;
 }
 
 =item end_portal_session

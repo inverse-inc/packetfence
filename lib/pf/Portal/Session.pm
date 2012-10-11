@@ -23,17 +23,18 @@ use HTML::Entities;
 use Locale::gettext qw(bindtextdomain textdomain);
 use Log::Log4perl;
 use POSIX qw(setlocale);
+use Readonly;
 use URI::Escape qw(uri_escape uri_unescape);
 
 use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
 use pf::util;
-# TODO we should aim to get rid of these deps (see other TODO tasks in _initialize)
-use pf::web;
-# Commented as a quick fix for #1507. 
-# A better fix will be done in our devel series.
-#use pf::web::custom;
+
+=head1 CONSTANTS
+
+=cut
+Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
 =head1 METHODS
 
@@ -49,7 +50,7 @@ sub new {
 
     my $self = bless {}, $class;
     
-    $self->_initialize();
+    $self->_initialize() unless ($argv{'testing'});
     return $self;
 }
 
@@ -67,11 +68,10 @@ sub _initialize {
 
     $self->{'_session'} = new CGI::Session(undef, $self->getCgi, {Directory=>'/tmp'});
 
-    # TODO inline this work here once there's no other pf::web::get_client_ip callers
-    $self->{'_client_ip'} = pf::web::get_client_ip($self->getCgi);
+    $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
 
-    $self->{'_destination_url'} = $self->_getDestinationUrl($self->getCgi);
+    $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->{'_guest_node_mac'} = undef;
 
@@ -136,12 +136,52 @@ Returns destination_url properly parsed, defended against XSS and with configure
 
 =cut
 sub _getDestinationUrl {
-    my ($self, $cgi) = @_;
+    my ($self) = @_;
 
     # set default if destination_url not set
-    return $Config{'trapping'}{'redirecturl'} if (!defined($cgi->param("destination_url")));
+    return $Config{'trapping'}{'redirecturl'} if (!defined($self->cgi->param("destination_url")));
 
-    return decode_entities(uri_unescape($cgi->param("destination_url")));
+    return decode_entities(uri_unescape($self->cgi->param("destination_url")));
+}
+
+=item _resolveIp
+
+Returns the IP address of the client reaching the captive portal. 
+Either directly connected or through a proxy.
+
+=cut
+sub _resolveIp {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->trace("resolving client IP");
+
+    # we fetch CGI's remote address
+    # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
+    my $directly_connected_ip = $self->cgi->remote_addr();
+
+    # every source IP in this table are considered to be from a proxied source
+    my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first
+    $proxied_lookup{$LOOPBACK_IPV4} = 1; # loopback (proxy-bypass)
+    # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
+    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
+
+    # if this is NOT from one of the expected proxy IPs return the IP
+    if (!$proxied_lookup{$directly_connected_ip}) {
+        return $directly_connected_ip;
+    }
+
+    # behind a proxy?
+    if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
+        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
+        $logger->debug(
+            "Remote Address is $directly_connected_ip. Client is behind proxy? "
+            . "Returning: $proxied_ip according to HTTP Headers"
+        );
+        return $proxied_ip;
+    }
+
+    $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
+    return $directly_connected_ip;
 }
 
 =item stash

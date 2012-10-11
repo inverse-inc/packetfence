@@ -8,6 +8,15 @@ Notes on upgrading from an older release.
 Upgrading from a version prior to <develRelease>
 ------------------------------------------------
 
+Template files movement
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Some templates were moved. Any custom changes should be re-made on the new
+file locations.
+
+* `html/captive-portal/templates/guest/register_guest.html` -> `html/admin/templates/register_guest.html`
+* `html/captive-portal/templates/guest/mgmt_login.html` -> `html/admin/templates/login.html`
+
 Changes to Web API
 ~~~~~~~~~~~~~~~~~~
 
@@ -17,10 +26,13 @@ you don't have to worry about anything below.
 Deprecations
 ^^^^^^^^^^^^
 
-`pf::web::web_get_locale` will disappear soon. See <_i18n,I18N> below for
-details.
+`pf::web::web_get_locale` moved into `pf::web::admin`. See <_i18n,I18N>
+below for details.
 
 `pf::web::_render_template` no longer exists. See below for details.
+
+`pf::web::get_client_ip` was migrated into `pf::Portal::Session` and is
+no longer available for public consumption.
 
 All CGI style URLs (ex: `/cgi-bin/redir.cgi`) are now no longer supported.
 They were first marked as deprecated in 3.0.
@@ -47,6 +59,9 @@ need to make sure to update it to use the stash mentionned above.
 `_render_template` is now `render_template` and it no longer needs the
 template vars hashref. It uses $portalSession's stash automatically.
 
+All admin-related subs were moved out of `pf::web` and `pf::web::guest`
+into `pf::web::admin`.
+
 I18N
 ^^^^
 
@@ -60,6 +75,9 @@ can get rid of the following lines from your custom code:
 Changes to Guest API
 ~~~~~~~~~~~~~~~~~~~~
 
+NOTE: Remember, if you don't have custom extensions or customized templates
+you don't have to worry about anything below.
+
 pf::web::guest::generate_selfregistration_page no longer takes a $post_uri
 parameter. If you want to customize it, change post_uri in the guest.html
 template.
@@ -67,8 +85,34 @@ template.
 $pf::web::guest::LOGIN_TEMPLATE was moved to $pf::web::LOGIN_TEMPLATE.
 References should be updated.
 
+`pf::web::guest`'s `generate_registration_page` was moved in `pf::web::admin`,
+no longer takes a $post_uri parameter and was renamed generate_guestcreation_page.
+
+`pf::web::guest`'s `validate_sponsor` now takes an instance of
+pf::Portal::Session instead of $cgi and $session.
+
+`pf::web::guest`'s `$REGISTRATION_CONFIRMATION_TEMPLATE` was dropped.
+
+Several subroutines moved from `pf::web::guest` into `pf::web::admin`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* `valid_access_duration`
+* `valid_arrival_date`
+* `validate_registration` -> `validate_guest_creation`
+* `validate_registration_multiple` -> `validate_guest_creation_multiple`
+* `validate_registration_import` -> `validate_guest_import`
+* `preregister` -> `create_guest`
+* `preregister_multiple` -> `create_guest_multiple`
+* `generate_registration_confirmation_page` -> `generate_guestcreation_confirmation_page`
+* `import_csv`
+* `generate_admin_login_page` -> `generate_login_page`
+* `manager_authenticate` -> `authenticate`
+* `generate_registration_page` -> `generate_guestcreation_page`
+
 Switch configuration
 ~~~~~~~~~~~~~~~~~~~~
+
+Switch 127.0.0.1 must be removed from the switches.conf
 
 3750 vs 3750G
 ^^^^^^^^^^^^^
@@ -101,6 +145,7 @@ are symlinks of files in sites-available. This way, modifications to files are l
 Make sure to copy files from sites-enabled to sites-available before updating to avoid losing any changes made to 
 theses files. After the update, files that differs from originals will be saved as .rpmsave.
 
+
 Upgrading from a version prior to 3.5.1
 ---------------------------------------
 
@@ -123,8 +168,6 @@ Upgrading from a version prior to 3.5.0
 ---------------------------------------
 
 ----
-
-    - Switch 127.0.0.1 must be removed from the switches.conf
 
     - Database schema update
     New accounting violations and other violation related stuff needed some modifications

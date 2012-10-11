@@ -26,7 +26,8 @@ use pf::node;
 use pf::util;
 use pf::violation;
 use pf::web;
-use pf::web::guest 1.20;
+use pf::web::admin 1.00;
+use pf::web::guest 1.40;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -72,7 +73,7 @@ if (defined($session->param("username"))) {
           print $cgi->redirect("/login.php?logout=true");
         }
         else {
-          pf::web::guest::generate_admin_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+          pf::web::admin::generate_login_page($cgi, $session);
         }
 
     }
@@ -81,15 +82,15 @@ if (defined($session->param("username"))) {
         # Single user registration
         #
 
-        my ($success, $error) = pf::web::guest::validate_registration($cgi, $session);
+        my ($success, $error) = pf::web::admin::validate_guest_creation($cgi, $session);
         if (!$success) {
             $logger->debug("guest registration form didn't pass validation");
-            pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage", $error, 'single' );
+            pf::web::admin::generate_guestcreation_page( $cgi, $session, $error, 'single' );
         }
         else {
             $logger->debug("guest registration form passed validation");
 
-            my $password = pf::web::guest::preregister( $cgi, $session );
+            my $password = pf::web::admin::create_guest( $cgi, $session );
 
             my $info = {
                 'firstname' => $session->param("firstname"),
@@ -98,7 +99,7 @@ if (defined($session->param("username"))) {
                 'username' => $session->param("pid"),
                 'password' => $password,
                 'valid_from' => $session->param("arrival_date"),
-                'duration' => pf::web::guest::valid_access_duration($session->param("access_duration")),
+                'duration' => pf::web::admin::valid_access_duration($session->param("access_duration")),
                 'notes' => $session->param("notes"),
             };
 
@@ -107,7 +108,7 @@ if (defined($session->param("username"))) {
 
             if (defined($cgi->param("action_print"))) {
                 # Print page
-                pf::web::guest::generate_registration_confirmation_page($cgi, $session, $info);
+                pf::web::admin::generate_guestcreation_confirmation_page($cgi, $session, $info);
             }
             else {
                 # Otherwise send email
@@ -122,8 +123,8 @@ if (defined($session->param("username"))) {
                 );
                         
                 # Return user to the guest registration page
-                pf::web::guest::generate_registration_page($cgi, $session,"/guests/manage",
-                                                           $pf::web::guest::REGISTRATION_CONTINUE, 'single');
+                pf::web::admin::generate_guestcreation_page($cgi, $session,
+                                                           $pf::web::admin::REGISTRATION_CONTINUE, 'single');
             }
         }
     }
@@ -131,18 +132,18 @@ if (defined($session->param("username"))) {
         #
         # Multiple user registration
         #
-        my ($success, $error) = pf::web::guest::validate_registration_multiple($cgi, $session);
+        my ($success, $error) = pf::web::admin::validate_guest_creation_multiple($cgi, $session);
         if (!$success) {
           $logger->debug("multiple guest creation form didn't pass validation");
-          pf::web::guest::generate_registration_page($cgi, $session, "/guests/manage", $error, 'multiple');
+          pf::web::admin::generate_guestcreation_page($cgi, $session, $error, 'multiple');
         }
         else {
           $logger->debug("multiple guest creation form passed validation");
-          my $info = pf::web::guest::preregister_multiple($cgi, $session);
+          my $info = pf::web::admin::create_guest_multiple($cgi, $session);
 
           if ($info) {
             # Print page
-            pf::web::guest::generate_registration_confirmation_page($cgi, $session, $info);
+            pf::web::admin::generate_guestcreation_confirmation_page($cgi, $session, $info);
           }
         }
     }
@@ -150,10 +151,10 @@ if (defined($session->param("username"))) {
         #
         # CSV import
         #
-        my ($success, $error) = pf::web::guest::validate_registration_import($cgi, $session);
+        my ($success, $error) = pf::web::admin::validate_guest_import($cgi, $session);
         if (!$success) {
           $logger->debug("guest import form didn't pass validation");
-          pf::web::guest::generate_registration_page($cgi, $session, "/guests/manage", $error, 'import');
+          pf::web::admin::generate_guestcreation_page($cgi, $session, $error, 'import');
         }
         else {
           $logger->debug("guest import form passed validation");
@@ -161,7 +162,7 @@ if (defined($session->param("username"))) {
           my $file = $cgi->upload('users_file');
           if (!$file && $cgi->cgi_error) {
             $logger->error("Import: Received corrupted file: " . $cgi->cgi_error);
-            pf::web::generate_admin_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
+            pf::web::admin::generate_error_page( $cgi, $session, i18n("error: something went wrong creating the guest"));
           }
           else {
             my $filename = $cgi->param('users_file');
@@ -169,7 +170,7 @@ if (defined($session->param("username"))) {
             my $delimiter = $cgi->param('delimiter');
             my $columns = $cgi->param('columns');
             $logger->info("CSV file import users from $tmpfilename ($filename, \"$delimiter\", \"$columns\")");
-            ($success, $error) = pf::web::guest::import_csv($tmpfilename, $delimiter, $columns, $session);
+            ($success, $error) = pf::web::admin::import_csv($tmpfilename, $delimiter, $columns, $session);
             if ($success) {
               my ($count, $skipped) = split(',',$error);
               $logger->info("CSV file import $count users, skip $skipped users");
@@ -178,24 +179,24 @@ if (defined($session->param("username"))) {
               # Tear down session information
               $session->clear([ "delimiter", "columns", "arrival_date", "access_duration" ]);
             }
-            pf::web::guest::generate_registration_page($cgi, $session, "/guests/manage", $error, 'import');
+            pf::web::admin::generate_guestcreation_page($cgi, $session, $error, 'import');
           }
         }
       }
     else {
       # No specific action, show guest registration page
-      pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
+      pf::web::admin::generate_guestcreation_page( $cgi, $session );
     }
 }
 else {
     # User is not logged and didn't provide username or password: show login form
     if (!($cgi->param("username") && $cgi->param("password"))) {
-        pf::web::guest::generate_admin_login_page($cgi, $session, undef, "guest/mgmt_login.html");
+        pf::web::admin::generate_login_page($cgi, $session);
         exit(0);
     }
 
     # User provided username and password: authenticate
-    my ($auth_return, $authenticator) = pf::web::guest::manager_authenticate($cgi, $session, "guest_managers");
+    my ($auth_return, $authenticator) = pf::web::admin::authenticate($cgi, $session, "guest_managers");
     if ($auth_return != 1) {
         $logger->info("authentication failed for user ".$cgi->param("username"));
         my $error;
@@ -204,12 +205,12 @@ else {
         } else {
             $error = $authenticator->getLastError();
         }
-        pf::web::guest::generate_admin_login_page($cgi, $session, $error, "guest/mgmt_login.html");
+        pf::web::admin::generate_login_page($cgi, $session, $error);
         exit(0);
     }
 
     # auth succeeded: redirect to guest registration page
-    pf::web::guest::generate_registration_page( $cgi, $session, "/guests/manage" );
+    pf::web::admin::generate_guestcreation_page( $cgi, $session );
 }
 
 =head1 AUTHOR

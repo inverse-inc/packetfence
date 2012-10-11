@@ -55,6 +55,8 @@
 /usr/local/pf/conf/ui.conf.es_ES
 /usr/local/pf/conf/ui-global.conf
 /usr/local/pf/conf/violations.conf
+/usr/local/pf/html/admin/templates/login.html
+/usr/local/pf/html/admin/templates/register_guest.html
 /usr/local/pf/html/admin/templates/soh.html
 /usr/local/pf/html/captive-portal/content/responsive.css
 /usr/local/pf/html/captive-portal/content/styles.css
@@ -75,8 +77,6 @@
 /usr/local/pf/html/captive-portal/templates/guest/sms_confirmation.html
 /usr/local/pf/html/captive-portal/templates/guest/preregistration.html
 /usr/local/pf/html/captive-portal/templates/guest/sponsor_accepted.html
-/usr/local/pf/html/captive-portal/templates/guest/mgmt_login.html
-/usr/local/pf/html/captive-portal/templates/guest/register_guest.html
 /usr/local/pf/html/captive-portal/templates/guest/sponsor_login.html
 /usr/local/pf/html/captive-portal/templates/scan.html
 /usr/local/pf/html/captive-portal/templates/scan-in-progress.html

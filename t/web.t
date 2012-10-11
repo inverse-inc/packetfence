@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 26;
+use Test::More tests => 24;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -22,6 +22,7 @@ use CGI;
 use pf::config;
 
 BEGIN { use_ok('pf::web') }
+BEGIN { use_ok('pf::web::admin') }
 BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::dispatcher') }
@@ -30,28 +31,6 @@ BEGIN { use_ok('pf::web::release') }
 BEGIN { use_ok('pf::web::util') }
 
 =head1 TESTS
-
-=item pf::web::get_client_ip()
-
-=cut
-my $remote_ip = '192.168.1.1';
-my $cgi = new CGI;
-my $mocked_cgi = Test::MockObject::Extends->new( $cgi );
-# emulate the source IP
-$mocked_cgi->mock('remote_addr', sub { return ($remote_ip); });
-is(pf::web::get_client_ip($mocked_cgi), $remote_ip, 'fetch a conventional remote IP');
-
-# emulate a loopback source
-$mocked_cgi->mock('remote_addr', sub { return ($pf::web::LOOPBACK_IPV4); });
-$ENV{'HTTP_X_FORWARDED_FOR'} = $remote_ip;
-is(pf::web::get_client_ip($mocked_cgi), $remote_ip, 'fetch IP through HTTP_X_FORWARDED_FOR for loopback source');
-
-# emulate a virtual IP source
-my $fake_virtual_ip = '10.10.10.100';
-$management_network->tag("vip", $fake_virtual_ip);
-$mocked_cgi->mock('remote_addr', sub { return ($fake_virtual_ip); });
-$ENV{'HTTP_X_FORWARDED_FOR'} = $remote_ip;
-is(pf::web::get_client_ip($mocked_cgi), $remote_ip, 'fetch IP through HTTP_X_FORWARDED_FOR for virtual IP source');
 
 =item pf::web::util's subroutines
 

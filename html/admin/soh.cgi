@@ -26,6 +26,7 @@ use JSON;
 
 use pf::config;
 use pf::web;
+use pf::web::admin 1.00;
 use pf::web::custom;
 
 # If we can find an existing PHP session, we allow the user to proceed.
@@ -64,7 +65,7 @@ my $dbh = DBI->connect(
     { RaiseError => 0, PrintError => 0 }
 );
 
-setlocale(LC_MESSAGES, pf::web::web_get_locale($q, $csession));
+setlocale(LC_MESSAGES, pf::web::admin::web_get_locale($q, $csession));
 bindtextdomain("packetfence", "$conf_dir/locale");
 bind_textdomain_codeset("packetfence", "UTF-8");
 textdomain("packetfence");
@@ -336,12 +337,14 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
 # Anything else is an error
 
 else {
-    pf::web::generate_admin_error_page($q, $csession, i18n("Unrecognised request"));
+    pf::web::admin::generate_error_page($q, $csession, i18n("Unrecognised request"));
 }
 
 =head1 AUTHOR
 
 Abhijit Menon-Sen <amenonsen@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

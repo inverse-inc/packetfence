@@ -19,7 +19,7 @@ New Hardware
  * New module for Cisco Catalyst 3750G to fix offset issues
 
 Enhancements
- * Code cleanups (#1380, #1484)
+ * Code cleanups (#1380,#1484,#1485)
  * Important simplification of the Captive Portal code to make it harder to introduce problems
  * Adding default OCSP/CRL Proxies (#1329)
  * Better WISPR support

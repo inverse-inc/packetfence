@@ -799,6 +799,7 @@ sub _load_captive_portal {
         "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
         "NET_DETECT_PENDING_RETRY_DELAY" => 30,
         "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
+        "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
     );
 
     # passthrough proxy is enabled, we need to inject proper 'allow through' for pf::web::dispatcher

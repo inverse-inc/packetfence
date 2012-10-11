@@ -5,7 +5,7 @@ Portal.t
 
 =head1 DESCRIPTION
 
-pf::Portal... subsystem testing
+Tests for our pf::Portal... and friends modules.
 
 =cut
 use strict;
@@ -14,8 +14,9 @@ use warnings;
 use lib '/usr/local/pf/lib';
 
 use File::Basename qw(basename);
-use Test::More tests => 4;
+use Test::More tests => 10;
 use Test::NoWarnings;
+use Test::MockObject::Extends;
 
 Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
@@ -24,9 +25,20 @@ Log::Log4perl::MDC->put( 'tid',  0 );
 
 BEGIN { 
     use_ok('pf::Portal::ProfileFactory');
+    use_ok('pf::Portal::Session');
 }
 
+use pf::config;
 use pf::util;
+
+=head1 SETUP
+
+Creating stub portalSession for tests with a mockable CGI component.
+
+=cut
+my $portalSession = pf::Portal::Session->new('testing' => 1);
+my $mocked_cgi = Test::MockObject::Extends->new( CGI->new );
+$portalSession->{'_cgi'} = $mocked_cgi;
 
 =head1 SETUP
 
@@ -70,8 +82,33 @@ ok(
     'default billing engine should be set and disabled. regression bug 1525'
 );
 
+=item valid type
 
-=back
+=cut
+isa_ok($portalSession, "pf::Portal::Session");
+can_ok($portalSession, qw(_resolveIp cgi stash));
+
+
+
+=item _resolveIp
+
+=cut
+my $remote_ip = '192.168.1.1';
+# emulate the source IP
+$mocked_cgi->mock('remote_addr', sub { return ($remote_ip); });
+is($portalSession->_resolveIp(), $remote_ip, 'fetch a conventional remote IP');
+
+# emulate a loopback source
+$mocked_cgi->mock('remote_addr', sub { return ($pf::Portal::Session::LOOPBACK_IPV4); });
+$ENV{'HTTP_X_FORWARDED_FOR'} = $remote_ip;
+is($portalSession->_resolveIp(), $remote_ip, 'fetch IP through HTTP_X_FORWARDED_FOR for loopback source');
+
+# emulate a virtual IP source
+my $fake_virtual_ip = '10.10.10.100';
+$management_network->tag("vip", $fake_virtual_ip);
+$mocked_cgi->mock('remote_addr', sub { return ($fake_virtual_ip); });
+$ENV{'HTTP_X_FORWARDED_FOR'} = $remote_ip;
+is($portalSession->_resolveIp(), $remote_ip, 'fetch IP through HTTP_X_FORWARDED_FOR for virtual IP source');
 
 =head1 AUTHOR
 

@@ -35,6 +35,7 @@ pod_coverage_ok("pf::util::dhcp");
 pod_coverage_ok("pf::util::radius");
 pod_coverage_ok("pf::vlan");
 pod_coverage_ok("pf::web");
+pod_coverage_ok("pf::web::admin");
 pod_coverage_ok("pf::web::dispatcher");
 pod_coverage_ok("pf::web::guest");
 pod_coverage_ok("pf::web::util");
