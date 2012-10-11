@@ -267,8 +267,8 @@ sub generate_login_page {
     $portalSession->stash->{'selected_auth'} = encode_entities($portalSession->cgi->param("auth"))
         || $portalSession->getProfile->getDefaultAuth;
     $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
-    $portalSession->stash->{'oauth_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    $portalSession->stash->{'oauth_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+    $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
 
     render_template($portalSession, $LOGIN_TEMPLATE);
 }
@@ -322,22 +322,22 @@ sub generate_error_page {
     render_template($portalSession, 'error.html', $r);
 }
 
-=item generate_o2_page
+=item generate_oauth2_page
 
 Handle the redirect to the proper OAuth2 Provider
 
 =cut
-sub generate_o2_page {
+sub generate_oauth2_page {
    my ( $portalSession, $err ) = @_;
    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
    # Generate the proper Client
-   my $provider = $portalSession->getCgi()->url_param('o2');
+   my $provider = $portalSession->getCgi()->url_param('provider');
 
    print $portalSession->cgi->redirect(oauth2_client($provider)->authorize_url);
 }
 
-=item generate_o2_result
+=item generate_oauth2_result
 
 Handle the redirect to the proper OAuth2 Provider
 

@@ -52,12 +52,12 @@ $info{'pid'} = 1;
 # Pull browser user-agent string
 $info{'user_agent'} = $cgi->user_agent;
 
-if (defined($cgi->url_param('o2'))) {
-    $logger->info("Sending " . $portalSession->getClientMac() . "to OAuth2 - Provider:" . $cgi->url_param('o2') );
-    pf::web::generate_o2_page( $portalSession );
+if (defined($cgi->url_param('provider'))) {
+    $logger->info("Sending " . $portalSession->getClientMac() . "to OAuth2 - Provider:" . $cgi->url_param('provider') );
+    pf::web::generate_oauth2_page( $portalSession );
     exit(0);
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "google") {
-    my ($code,$email,$err) = pf::web::generate_o2_result( $portalSession, "google" );
+    my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "google" );
 
     if ($code) {
       my $pid = $email;
@@ -68,7 +68,7 @@ if (defined($cgi->url_param('o2'))) {
     }
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "facebook") {
 #Handle OAuth2 response from Facebook
-    my ($code,$username,$err) = pf::web::generate_o2_result( $portalSession, "facebook" );
+    my ($code,$username,$err) = pf::web::generate_oauth2_result( $portalSession, "facebook" );
 
     if ($code) {
       my $pid = $username . "\@facebook.com";
