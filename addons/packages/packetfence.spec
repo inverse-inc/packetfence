@@ -133,6 +133,7 @@ Requires: perl(Log::Log4perl) >= 1.11
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
 Requires: perl(Net::Appliance::Session) = 1.36
+Requires: perl(Net::OAuth2)
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
 Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
@@ -788,6 +789,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Mon Oct 01 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Adding Net::Oauth2 as a required package.
+
 * Mon Sep 17 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - Made packetfence a a noarch subpackage of a new virtual packetfence-source
   so we can build -pfcmd-suid as arch-specific.

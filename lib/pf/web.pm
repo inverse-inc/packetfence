@@ -267,6 +267,8 @@ sub generate_login_page {
     $portalSession->stash->{'selected_auth'} = encode_entities($portalSession->cgi->param("auth"))
         || $portalSession->getProfile->getDefaultAuth;
     $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
+    $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
 
     render_template($portalSession, $LOGIN_TEMPLATE);
 }
@@ -318,6 +320,70 @@ sub generate_error_page {
     $portalSession->stash->{'txt_message'} = $error_msg;
 
     render_template($portalSession, 'error.html', $r);
+}
+
+=item generate_oauth2_page
+
+Handle the redirect to the proper OAuth2 Provider
+
+=cut
+sub generate_oauth2_page {
+   my ( $portalSession, $err ) = @_;
+   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+   # Generate the proper Client
+   my $provider = $portalSession->getCgi()->url_param('provider');
+
+   print $portalSession->cgi->redirect(oauth2_client($provider)->authorize_url);
+}
+
+=item generate_oauth2_result
+
+Handle the redirect to the proper OAuth2 Provider
+
+=cut
+sub generate_oauth2_result {
+   my ( $portalSession, $provider ) = @_;
+   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+   my $code = $portalSession->getCgi()->url_param('code');
+
+   $logger->debug("API CODE: $code");
+
+   #Get the token
+   my $token;
+
+   eval {
+      $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+   };
+   
+   if ($@) {
+       $logger->info("OAuth2: failed to receive the token from the provider, redireting to login page");
+       generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to get the token") );
+       return 0;
+   }
+
+   my $response;
+
+   # Validate the token
+   $response = $token->get($Config{"oauth2 $provider"}{'protected_resource_url'});
+   
+   if ($response->is_success) {
+        # Grab JSON content
+        my $json = new JSON;
+        my $json_text = $json->decode($response->content());
+        if ($provider eq 'google') {
+            $logger->info("OAuth2 successfull, register and release for email $json_text->{email}");
+            return ($TRUE,$json_text->{email});
+        } elsif ($provider eq 'facebook') {
+            $logger->info("OAuth2 successfull, register and release for username $json_text->{username}");
+            return ($TRUE,$json_text->{username});
+        }
+   } else {
+        $logger->info("OAuth2: failed to validate the token, redireting to login page");
+        generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to validate the token, please retry") );
+        return 0;
+   }
 }
 
 =item web_node_register
@@ -567,6 +633,23 @@ sub generate_generic_page {
 
     $portalSession->stash( $template_args );
     render_template($portalSession, $template);
+}
+
+sub oauth2_client {
+      my $provider = shift;
+      
+      
+
+      Net::OAuth2::Client->new(
+                $Config{"oauth2 $provider"}{'client_id'},
+                $Config{"oauth2 $provider"}{'client_secret'},
+                site => $Config{"oauth2 $provider"}{'site'},
+                authorize_path => $Config{"oauth2 $provider"}{'authorize_path'},
+		access_token_path => $Config{"oauth2 $provider"}{'access_token_path'},
+		access_token_method => $Config{"oauth2 $provider"}{'access_token_method'},
+		access_token_param => $Config{"oauth2 $provider"}{'access_token_param'},
+		scope => $Config{"oauth2 $provider"}{'scope'}
+       )->web_server(redirect_uri => $Config{"oauth2 $provider"}{'redirect_uri'} );
 }
 
 =back
