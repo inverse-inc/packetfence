@@ -342,7 +342,7 @@ sub generate_oauth2_page {
 Handle the redirect to the proper OAuth2 Provider
 
 =cut
-sub generate_o2_result {
+sub generate_oauth2_result {
    my ( $portalSession, $provider ) = @_;
    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 

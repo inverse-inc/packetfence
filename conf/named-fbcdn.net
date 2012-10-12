@@ -15,5 +15,5 @@ $TTL 1
 	IN NS s-static.ak.fbcdn.net.
         IN A %%A_blackhole%%
 
-s-static.ak IN  A       23.11.13.177
+s-static.ak IN  A       23.62.205.177
 *	     IN	     A 	     %%A_blackhole%%

@@ -61,7 +61,7 @@ Readonly::Scalar our $URL_AUP => '/aup';
 Readonly::Scalar our $URL_AUTHENTICATE => '/authenticate';
 Readonly::Scalar our $URL_ACCESS => '/access';
 Readonly::Scalar our $URL_RELEASE => '/release';
-Readonly::Scalar our $URL_OAUTH2_AUTH => '/oauth2';
+Readonly::Scalar our $URL_OAUTH2_AUTH => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE => '/oauth2/google';
 Readonly::Scalar our $URL_OAUTH2_FCBK => '/oauth2/facebook';
 
