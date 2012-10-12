@@ -121,6 +121,7 @@ sub sanity_check {
     switches();
     portal_profiles();
     unsupported();
+    oauth2();
 
     return @problems;
 }
@@ -1002,6 +1003,25 @@ sub portal_profiles {
         }
     }
 }
+
+=item oauth2
+
+Make sure that if you enable OAuth2 for Google/Facebook that you have the provider information defined in pf.conf
+
+=cut
+sub oauth2 {
+
+    if ($guest_self_registration{$SELFREG_MODE_GOOGLE}) {
+          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Google" )
+            if ( !defined($Config{"oauth2 google"}) );
+    }
+
+    if ($guest_self_registration{$SELFREG_MODE_FACEBOOK}) {
+         add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Facebook" )
+       	    if ( !defined($Config{"oauth2 facebook"}) );
+    }
+}
+
 
 =back
 
