@@ -3,6 +3,37 @@
     body_attributes = 'onload="$(\'username\').focus();"';
 %]
 
+<script type="text/javascript">
+document.observe("dom:loaded", function() {
+
+        // Don't propagate mouse clicks on disabled buttons and links
+        $$(".btn").each(function(e) {
+                e.on("click", function(event) {
+                        if (Event.element(event).hasClassName('disabled')) {
+                                Event.stop(event);
+                                return false;
+                        }
+                        return true;
+                });
+        });
+
+        // Toggle the disable state of the buttons and links when the user
+        // accepts or refuses the AUP
+        $$("input[name='aup_signed']").each(function(e) {
+                e.on("change", function(event) {
+                        var accepted = e.checked;
+                        $$(".btn").each(function(btn) {
+                                if (accepted)
+                                        btn.removeClassName('disabled');
+                                else
+                                        btn.addClassName('disabled');
+                        });
+                });
+        });
+
+});
+</script>
+
         [%# Welcome text %]
         <div id="about">
           <img src="/content/images/lock.png" alt="You are not authorized" />
@@ -17,15 +48,26 @@
         <form name="login" method="post" action="/authenticate">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
 
+          [%# AUP %]
+          <div class="input">
+            <div>[% i18n("Acceptable Use Policy") %]</div>
+            <div id="aup" class="notmobile">
+              [% INCLUDE aup_text.html %]
+            </div>
+            [%# The space below is intententionnal %]
+            <div class="notmobile"><label><input name="aup_signed" type="checkbox" /> [% i18n("I accept the terms") %]</label></div>
+            <div class="mobile"><input name="aup_signed" type="checkbox" />[% i18n("I have read and accept the terms") %]</div>
+          </div>
+
           [%# Authentication choice %]
-          [% IF list_authentications.size == 1 %]
+          [% IF list_authentications.size <= 1 %]
 	    [% FOREACH authentication_info IN list_authentications.pairs %]
               <input type='hidden' name='auth' value='[% authentication_info.key %]' />
             [% END %]
           [% ELSE %]
             <div class="input">
                 <span>[% i18n("Authentication") %]</span>
-        <select name='auth'>
+                <select name='auth'>
                 [% FOREACH authentication_info IN list_authentications.pairs %]
                   <option [% IF authentication_info.key == selected_auth %]selected='selected' [% END %]
                     value='[% authentication_info.key %]'>[% authentication_info.value %]</option>
@@ -42,25 +84,31 @@
           <div class="input">
             <span>[% i18n("Password") %]</span><input class="field" name="password" type="password" />
           </div>
-
-          [%# AUP %]
-          <div class="input">
-            <div>[% i18n("Acceptable Use Policy") %]</div>
-            <div id="aup" class="notmobile">
-              [% INCLUDE aup_text.html %]
-            </div>
-            [%# The space below is intententionnal %]
-            <div class="notmobile"><input name="aup_signed" type="checkbox" /> [% i18n("I accept the terms") %]</div>
-            <div class="mobile"><input name="aup_signed" type="checkbox" />[% i18n("I have read and accept the terms") %]</div>
-          </div>
-
+          
           [%# submit %]
           <div class="input">
-            <input type="submit" class="button" name="submit" value="[% i18n("Login") %]" /> 
-            [% IF guest_allowed %]
-              [% i18n("or") %] <a href="[% URL_SIGNUP %]">[% i18n("Sign up") %]</a>
-            [% END %]
+            <input type="submit" class="btn disabled" name="submit" value="[% i18n("Login") %]" />
           </div>
+
+          [% IF oauth2_google || oauth2_facebook %]
+          <div class="input">
+            [% IF oauth2_google -%]
+            <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+            <a class="btn disabled" href="/oauth2/auth?provider=google">Login with Google account <img src="/content/images/google.icon.png"></a>
+            [% END -%]
+            [% IF oauth2_facebook -%]
+            <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
+            <a class="btn disabled" href="/oauth2/auth?provider=facebook">Login with Facebook account <img src="/content/images/facebook.icon.png"></a>
+[% END %]
+          </div>
+          [% END %]
+
+            [% IF guest_allowed -%]
+          <div class="input">
+            <div class="separator"><div class="or_separator">or</div></div>
+              <a href="[% URL_SIGNUP %]">[% i18n("Sign up") %]</a>
+          </div>
+            [% END -%]
         </form>
 
 [% INCLUDE footer.html %]

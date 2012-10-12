@@ -5,6 +5,7 @@ options {
 	pid-file "%%install_dir%%/var/run/named.pid";
 	statistics-file "%%install_dir%%/logs/named_stats.txt";
     session-keyfile "%%install_dir%%/var/named/session.key";
+
 };
 
 key pf {
@@ -22,6 +23,9 @@ acl pf {
 
 view "inline" {
   match-clients { %%inline_clients%% };
+
+  %%oauth_zones_inline%%
+
   zone "." IN {
     type master;
     file "named-inline.ca";
@@ -40,9 +44,13 @@ view "isolation" {
 
 view "registration" {
   match-clients { %%registration_clients%% };
+
+  %%oauth_zones_vlan%%
+
   zone "." IN {
     type master;
     file "named-registration.ca";
     allow-update { none; };
   };
+
 };

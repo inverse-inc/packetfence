@@ -4,6 +4,14 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.7</revnumber>
+    <date>2012-10-01</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>
+    Adding documentation for OAuth2 Providers
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.6</revnumber>
     <date>2012-09-05</date>
     <authorinitials>OB, DW, FD</authorinitials>
