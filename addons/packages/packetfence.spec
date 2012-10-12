@@ -649,12 +649,17 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
+%config(noreplace)      /usr/local/pf/conf/named-facebook.com
+%config(noreplace)      /usr/local/pf/conf/named-fbcdn.net
+%config(noreplace)      /usr/local/pf/conf/named-google.ca
+%config(noreplace)      /usr/local/pf/conf/named-google.com
 %config(noreplace)      /usr/local/pf/conf/named-inline.ca
 %config(noreplace)      /usr/local/pf/conf/named-isolation.ca
 %config(noreplace)      /usr/local/pf/conf/named-registration.ca
 %config                 /usr/local/pf/conf/named.conf
 %config                 /usr/local/pf/conf/named.conf.pre_bind97
 %config                 /usr/local/pf/conf/named.conf.bind97
+%config(noreplace)      /usr/local/pf/conf/oauth2-ips.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
@@ -790,7 +795,7 @@ fi
 
 %changelog
 * Mon Oct 01 2012 Francois Gaudreault <fgaudreault@inverse.ca>
-- Adding Net::Oauth2 as a required package.
+- Adding Net::Oauth2 as a required package.  Also adding the proper files.
 
 * Mon Sep 17 2012 Olivier Bilodeau <obilodeau@inverse.ca>
 - Made packetfence a a noarch subpackage of a new virtual packetfence-source
