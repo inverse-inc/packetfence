@@ -244,7 +244,7 @@ sub generate_inline_rules {
     if ($facebook_enabled) {
         foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
             $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d $ip --jump ACCEPT\n";
-       	}
+        }
     }
 
     $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
@@ -282,7 +282,7 @@ sub generate_oauth_rules {
         foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
             $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d $ip --jump ACCEPT\n";
             $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s $ip --jump ACCEPT\n"
-   	}
+        }
     }
 
     $logger->info("Adding NAT Masquerade statement.");
@@ -412,7 +412,7 @@ sub generate_nat_redirect_rules {
     if ($facebook_enabled) {
         foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
              $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d $ip --destination-port 443 ".
-       	           "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
+                       "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
         } 
     }
     

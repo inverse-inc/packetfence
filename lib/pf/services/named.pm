@@ -117,7 +117,7 @@ sub generate_named_conf {
 
     if ($facebook_enabled) {
         $tags{'oauth_zones_vlan'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-facebook.com\";\n    allow-update { none; };\n};\n\n";
-       	$tags{'oauth_zones_vlan'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_vlan'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
         $tags{'oauth_zones_inline'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-inline-facebook.com\";\n    allow-update { none; };\n};\n\n";
         $tags{'oauth_zones_inline'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-inline-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
     }

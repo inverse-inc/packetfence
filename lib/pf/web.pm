@@ -645,10 +645,10 @@ sub oauth2_client {
                 $Config{"oauth2 $provider"}{'client_secret'},
                 site => $Config{"oauth2 $provider"}{'site'},
                 authorize_path => $Config{"oauth2 $provider"}{'authorize_path'},
-		access_token_path => $Config{"oauth2 $provider"}{'access_token_path'},
-		access_token_method => $Config{"oauth2 $provider"}{'access_token_method'},
-		access_token_param => $Config{"oauth2 $provider"}{'access_token_param'},
-		scope => $Config{"oauth2 $provider"}{'scope'}
+                access_token_path => $Config{"oauth2 $provider"}{'access_token_path'},
+                access_token_method => $Config{"oauth2 $provider"}{'access_token_method'},
+                access_token_param => $Config{"oauth2 $provider"}{'access_token_param'},
+                scope => $Config{"oauth2 $provider"}{'scope'}
        )->web_server(redirect_uri => $Config{"oauth2 $provider"}{'redirect_uri'} );
 }
 
