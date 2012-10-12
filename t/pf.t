@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 76;
+use Test::More tests => 77;
 
 # pf core libs
 use lib '/usr/local/pf/lib';
