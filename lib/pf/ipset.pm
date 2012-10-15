@@ -48,7 +48,7 @@ TODO: This list is incomplete
 =cut
 sub iptables_generate {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     # init ipset tables
     $logger->warn("We are using IPSET");
     #Flush mangle table to permit ipset destroy
@@ -81,7 +81,7 @@ The last mark will be the one having an effect.
 =cut
 sub generate_mangle_rules {
     my ($self) =@_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $mangle_rules = '';
 
     # pfdhcplistener in most cases will be enforcing access
@@ -160,7 +160,7 @@ sub generate_mangle_rules {
 
 sub iptables_mark_node {
     my ( $self, $mac, $mark, $newip ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     foreach my $network ( keys %ConfigNetworks ) {
 
@@ -188,7 +188,7 @@ sub iptables_mark_node {
 
 sub iptables_unmark_node {
     my ( $self, $mac, $mark ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $ipset = $self->get_ip_from_ipset_by_mac($mac, $mark);
     while ( my ($network, $iplist) = each(%$ipset) ) {
         if (defined($iplist)) {
@@ -213,7 +213,7 @@ Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $_EXIT_CODE_EXISTS = 1;
 
     foreach my $network ( keys %ConfigNetworks ) {
@@ -253,7 +253,7 @@ Remove ip from ipset session
 
 sub ipset_remove_ip {
     my ( $self, $ip, $mark, $network) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($cmd, $out);
     if ($IPSET_VERSION > 4) {
         $cmd = "LANG=C sudo ipset --list pfsession_$mark_type_to_str{$mark}\_$network";
@@ -287,7 +287,7 @@ Fetches all the ip address from ipset by mac address
 
 sub get_ip_from_ipset_by_mac {
     my ( $self, $mac, $mark) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $session = {};
     my ($cmd, $out);
     foreach my $network ( keys %ConfigNetworks ) {
@@ -335,7 +335,7 @@ Update session when the ip address change
 
 sub update_node {
     my ( $self, $oldip, $srcip, $srcmac ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $view_mac = node_view($srcmac);
     my $src_ip = new NetAddr::IP::Lite clean_ip($srcip);
     my $old_ip = new NetAddr::IP::Lite clean_ip($oldip);
@@ -383,7 +383,7 @@ Flush mangle table
 
 sub iptables_flush_mangle {
     my ($self, $restore_file) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::ipset');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->info( "flushing iptables" );
     pf_run("/sbin/iptables -t mangle -F");
 }
