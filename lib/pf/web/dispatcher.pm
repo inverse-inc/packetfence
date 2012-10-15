@@ -105,7 +105,7 @@ L<pf::Portal::Session>.
 sub handler {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->warn('hitting redirector');
+    $logger->trace('hitting redirector');
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
     my $stash = {
