@@ -15,8 +15,9 @@
    <AccessProcedure>1.0</AccessProcedure>
    <AccessLocation>CDATA[[isocc=,cc=,ac=,network=PacketFence,]]</AccessLocation>
    <LocationName>CDATA[[PacketFence]]</LocationName>
-   <LoginURL>[% login_url %]</LoginURL>
+   <LoginURL>[% login_url_wispr %]</LoginURL>
  </Redirect>
 </WISPAccessGatewayParam>
 -->
 </body></html>
+

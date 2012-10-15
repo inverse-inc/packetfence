@@ -86,6 +86,9 @@ Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
 Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $ACL_SIGNUP_CGI => '/cgi-perl/guest-selfregistration.cgi';
 
+# wispr mod_perl engine
+Readonly::Scalar our $MOD_PERL_WISPR => '/wispr';
+
 =head2 Apache Config related
 
 =over
@@ -121,6 +124,23 @@ foreach (@components) { s{([^/])$}{$1\$} };
 my $allow = join('|', @components);
 Readonly::Scalar our $ALLOWED_RESOURCES => qr/ ^(?: $allow ) /xo; # eXtended pattern, compile Once
 
+=item ALLOWED_RESOURCES_MOD_PERL
+
+Build a regex that will decide what is considered as a mod_perl ressource
+(allowed to Apache's further processing).
+
+URL ending with / will only be anchored at the beginning (^/path/) otherwise
+an ending anchor is also installed (^/file$).
+
+Anything else should be redirected. This happens in L<pf::web::dispatcher>.
+
+=cut
+
+my @components_mod_perl =  _clean_urls_match_mod_perl();
+foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
+my $allow_mod_perl = join('|', @components_mod_perl);
+Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
+
 =item _clean_urls_match
 
 Return a regex that would match all the captive portal allowed clean URLs
@@ -136,11 +156,28 @@ sub _clean_urls_match {
     return (@urls);
 }
 
+=item _clean_urls_match_mod_perl
+
+Return a regex that would match all the captive portal allowed clean URLs
+
+=cut
+sub _clean_urls_match_mod_perl {
+    my %consts = pf::web::constants::to_hash();
+    my @urls;
+    foreach (keys %consts) {
+        # keep only constants matching ^URL
+        push @urls, $consts{$_} if (/^MOD_PERL/);
+    }
+    return (@urls);
+}
+
 =back
 
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 

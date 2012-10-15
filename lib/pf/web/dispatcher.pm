@@ -12,6 +12,7 @@ use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use Apache2::RequestIO ();
 use Apache2::RequestRec ();
 use Apache2::Response ();
+
 use APR::Table;
 use Log::Log4perl;
 use Template;
@@ -48,6 +49,12 @@ sub translate {
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
         # DECLINED tells Apache to continue further mod_rewrite / alias processing
         return Apache2::Const::DECLINED;
+    }
+    if ($r->uri =~ /$WEB::ALLOWED_RESOURCES_MOD_PERL/o) {
+        $r->handler('modperl');
+        $r->pnotes->{session_id} = $1;
+        $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
+        return Apache2::Const::OK;
     }
 
     # passthrough
@@ -98,11 +105,12 @@ L<pf::Portal::Session>.
 sub handler {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace('hitting redirector');
+    $logger->warn('hitting redirector');
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
     my $stash = {
-        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
+        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/authenticate",
+        'login_url_wispr' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/wispr",
     };
 
     # prepare custom REDIRECT response
@@ -151,3 +159,4 @@ USA.
                 
 =cut
 1;
+
