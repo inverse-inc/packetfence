@@ -272,7 +272,7 @@ sub ipset_remove_ip {
 
         # skip comment lines from ipset list
         next if $line =~ m/:\s|:\Z/;
-        if ($line =~ m/^\s* $ip , .* \s* $/x) {
+        if ($line =~ m/^\s* $ip , .* \s* $/ix) {
             $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip";
             $out = pf_run($cmd);
         }
@@ -314,7 +314,7 @@ sub get_ip_from_ipset_by_mac {
             # skip comment lines from ipset list
             next if $line =~ m/:\s|:\Z/;
 
-            if ($line =~ m/^\s* ($ip_quad_dec_rx) , $mac \s* $/x) {
+            if ($line =~ m/^\s* ($ip_quad_dec_rx) , $mac \s* $/ix) {
                 $ip  .= $1.",";
                 unless ( $ip && $mac ) {
                     $logger->warn("Couldn't parse line: $line");
