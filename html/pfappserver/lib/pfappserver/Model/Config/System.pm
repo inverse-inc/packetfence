@@ -23,7 +23,7 @@ extends 'Catalyst::Model';
 
 =over
 
-=item checkMysqldStatus
+=item check_mysqld_status
 
 =cut
 sub check_mysqld_status {

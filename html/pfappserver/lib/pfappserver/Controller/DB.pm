@@ -113,6 +113,26 @@ sub create :Path('create') :Args(1) {
     }
 }
 
+=item start
+
+Start a MySQLd instance.
+
+Usage: /db/start
+
+=cut
+sub start :Path('start') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ( $status, $message ) = ( HTTP_OK );
+    ( $status, $message ) = $c->model('Config::System')->start_mysqld_service();
+
+    if ( is_error($status) ) {
+        $c->response->status($status);
+    }
+
+    $c->stash->{status_msg} = $message;
+}
+
 =item test
 
 Test the connection to the database server with the provided root user / password.
