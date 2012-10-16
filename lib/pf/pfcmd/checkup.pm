@@ -160,7 +160,7 @@ sub interfaces_defined {
         if (defined($int_conf{'type'}) && $int_conf{'type'} !~ /$int_types/) {
             add_problem( $FATAL, "invalid network type $int_conf{'type'} for $interface" );
         }
- 
+
         $nb_management_interface++ if (defined($int_conf{'type'}) && $int_conf{'type'} =~ /management|managed/);
     }
 
@@ -858,7 +858,7 @@ sub switches {
         if ( $section eq '127.0.0.1' ) {
             add_problem( $WARN, "switches.conf | Switch 127.0.0.1 is defined but it had to be removed" );
         }
-        
+
         # validate that switches are not duplicated (we check for type and mode specifically) fixes #766
         if ( ref($switches_conf{$section}{'type'}) eq 'ARRAY' || ref($switches_conf{$section}{'mode'}) eq 'ARRAY' ) {
             add_problem( $WARN, "switches.conf | Error around $section Did you define the same switch twice?" );
@@ -955,7 +955,7 @@ sub billing {
 
         if (!defined($gw->VERSION())) { 
             add_problem($FATAL, "Payment gateway module $payment_gw is enabled and its VERSION is not defined.");
-        } 
+        }
         elsif ($BILLING_API_LEVEL > $gw->VERSION()) { 
             add_problem( $FATAL,
                 "Payment gateway module $payment_gw is enabled and is not at the correct API level. " .
@@ -1018,7 +1018,7 @@ sub oauth2 {
 
     if ($guest_self_registration{$SELFREG_MODE_FACEBOOK}) {
          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Facebook" )
-       	    if ( !defined($Config{"oauth2 facebook"}) );
+        if ( !defined($Config{"oauth2 facebook"}) );
     }
 }
 
