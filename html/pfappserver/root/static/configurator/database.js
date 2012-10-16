@@ -83,6 +83,22 @@ function initStep() {
         return false;
     });
 
+    $('#startMySQL').click(function(event) {
+        valid = true;
+
+        if (valid) {
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('href')
+            }).done({
+                resetAlert();
+                showSuccess(form, data.status_msg);
+            }).fail({
+                showError(form, obj.status_msg);
+            });
+        }
+    });
+
     $('#createDatabase').click(function(event) {
         var btn = $(this),
         root_user = $('#root_user'),
