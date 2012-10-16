@@ -23,7 +23,7 @@ use NetAddr::IP;
 
 use pf::class qw(class_view_all class_trappable);
 use pf::config;
-use pf::node qw(nodes_registered_not_violators node_view $STATUS_REGISTERED);
+use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS_REGISTERED);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
