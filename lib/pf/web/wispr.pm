@@ -52,8 +52,6 @@ sub handler {
 
     my $portalSession = pf::Portal::Session->new();
     
-    $logger->warn($req->param("username"));
-
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
 
     my @auth_types = split( /\s*,\s*/, $portalSession->getProfile->getAuth );    
@@ -73,13 +71,15 @@ sub handler {
         'result' => "Authentication Failure",
     };
 
+    # Trace the user in the apache log
+    $r->user($req->param("username"));
 
     foreach my $auth_type (@auth_types) {
         my $authenticator = pf::web::auth::instantiate($auth_type);
         return (0, undef) if (!defined($authenticator));
         $return = $authenticator->authenticate( $req->param("username"), $req->param("password") );
         if ($return) {
-             $logger->warn("Authentification success");
+             $logger->info("Authentification success for wispr client");
              $stash = {
                  'code_result' => "50",
                  'result' => "Authentication Success",

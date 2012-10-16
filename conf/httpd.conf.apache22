@@ -99,6 +99,9 @@ DirectoryIndex index.html index.cgi index.php
 <IfModule !mod_perl.c>
   LoadModule perl_module modules/mod_perl.so
 </IfModule>
+<IfModule !mod_apreq2.c>
+  LoadModule apreq_module modules/mod_apreq2.so
+</IfModule>
 
 # -- GLOBAL OPTIONS --
 PerlSwitches -I%%install_dir%%/lib
