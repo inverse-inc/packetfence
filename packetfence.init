@@ -6,7 +6,7 @@
 # Adapted from script by Dag Wieers <dag@wieers.com>
 # Last changes: Dominik Gehl <dgehl@inverse.ca> 2009-04-06
 #
-# chkconfig: - 90 10
+# chkconfig: 345 90 10
 # description: PacketFence network registration / worm mitigation system
 #
 # processname: 
