@@ -107,6 +107,9 @@ sub generate_named_conf {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};    
 
+    $tags{'oauth_zones_vlan'} = "";
+    $tags{'oauth_zones_inline'} ="";
+
     #If we have Google/Facebook enabled
     if ($google_enabled) {
         $tags{'oauth_zones_vlan'} .= "zone \"google.com\" IN {\n    type master;\n    file \"named-google.com\";\n    allow-update { none; };\n};\n\n";
