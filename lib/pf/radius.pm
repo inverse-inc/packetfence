@@ -164,7 +164,7 @@ sub authorize {
 
     if ($this->isInlineTrigger($switch,$port,$mac,$ssid)) {
         $logger->info("Inline trigger match, the node is in inline mode, returning Access-Accept");
-        if (defined($switch->{_inlineVlan})) {
+        if (defined($switch->{_inlineVlan}) && ($switch->{_inlineVlan} != "")) {
             my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($switch->{_inlineVlan}, $mac, $port, $connection_type, $user_name, $ssid);
             return $RAD_REPLY_REF;
         }
