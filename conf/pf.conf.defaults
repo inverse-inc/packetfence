@@ -272,7 +272,7 @@ billing_engine = disabled
 # 
 # Self-registration is the signup button where a guest can register by
 # email, SMS or sponsored by someone. You can also select "google" and 
-# "facebook" to authenticate users. Several modes can be enabled at the same time. 
+# "facebook", or "github" to authenticate users. Several modes can be enabled at the same time. 
 # To disable guest self-registration entirely see the 
 # guests_self_registration parameter under [registration].
 modes=sms,email,sponsor

@@ -269,6 +269,7 @@ sub generate_login_page {
     $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
     $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+    $portalSession->stash->{'oauth2_github'} = $guest_self_registration{$SELFREG_MODE_GITHUB};
 
     render_template($portalSession, $LOGIN_TEMPLATE);
 }
@@ -372,7 +373,7 @@ sub generate_oauth2_result {
         # Grab JSON content
         my $json = new JSON;
         my $json_text = $json->decode($response->content());
-        if ($provider eq 'google') {
+        if ($provider eq 'google' || $provider eq 'github' ) {
             $logger->info("OAuth2 successfull, register and release for email $json_text->{email}");
             return ($TRUE,$json_text->{email});
         } elsif ($provider eq 'facebook') {

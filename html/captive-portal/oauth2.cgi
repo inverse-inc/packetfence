@@ -52,10 +52,6 @@ $info{'pid'} = 1;
 # Pull browser user-agent string
 $info{'user_agent'} = $cgi->user_agent;
 
-my $bleh = $cgi->url_param('result');
-
-$logger->info("I have RESULT $bleh");
-
 if (defined($cgi->url_param('provider'))) {
     $logger->info("Sending " . $portalSession->getClientMac() . "to OAuth2 - Provider:" . $cgi->url_param('provider') );
     pf::web::generate_oauth2_page( $portalSession );
@@ -76,6 +72,17 @@ if (defined($cgi->url_param('provider'))) {
 
     if ($code) {
       my $pid = $username . "\@facebook.com";
+      pf::web::web_node_register($portalSession, $pid, %info);
+      pf::web::end_portal_session($portalSession);
+    } else {
+       exit(0);
+    }
+} elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "github") {
+#Handle OAuth2 response from Github
+    my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "github" );
+
+    if ($code) {
+      my $pid = $email;
       pf::web::web_node_register($portalSession, $pid, %info);
       pf::web::end_portal_session($portalSession);
     } else {

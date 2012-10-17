@@ -64,6 +64,7 @@ Readonly::Scalar our $URL_RELEASE => '/release';
 Readonly::Scalar our $URL_OAUTH2_AUTH => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE => '/oauth2/google';
 Readonly::Scalar our $URL_OAUTH2_FCBK => '/oauth2/facebook';
+Readonly::Scalar our $URL_OAUTH2_GITHUB => '/oauth2/github';
 
 # violation-related
 Readonly::Scalar our $URL_ENABLER => '/enabler';

@@ -105,7 +105,8 @@ sub generate_named_conf {
 
     #OAuth
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};    
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
 
     $tags{'oauth_zones_vlan'} = "";
     $tags{'oauth_zones_inline'} ="";
@@ -123,6 +124,13 @@ sub generate_named_conf {
         $tags{'oauth_zones_vlan'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
         $tags{'oauth_zones_inline'} .= "zone \"facebook.com\" IN {\n    type master;\n    file \"named-inline-facebook.com\";\n    allow-update { none; };\n};\n\n";
         $tags{'oauth_zones_inline'} .= "zone \"fbcdn.net\" IN {\n    type master;\n    file \"named-inline-fbcdn.net\";\n    allow-update { none; };\n};\n\n";
+    }
+
+    if ($github_enabled) {
+        $tags{'oauth_zones_vlan'} .= "zone \"github.com\" IN {\n    type master;\n    file \"named-github.com\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_inline'} .= "zone \"github.com\" IN {\n    type master;\n    file \"named-inline-github.com\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_vlan'} .= "zone \"akamai.net\" IN {\n    type master;\n    file \"named-akamai.net\";\n    allow-update { none; };\n};\n\n";
+        $tags{'oauth_zones_inline'} .= "zone \"akamai.net\" IN {\n    type master;\n    file \"named-inline-akamai.net\";\n    allow-update { none; };\n};\n\n";
     }
 
     parse_template( \%tags, "$conf_dir/named.conf", "$generated_conf_dir/named.conf" );
@@ -148,6 +156,13 @@ sub generate_named_conf {
             parse_template(\%tags_inline, "$conf_dir/named-facebook.com", "$var_dir/named/named-inline-facebook.com",
                     ";");
             parse_template(\%tags_inline, "$conf_dir/named-fbcdn.net", "$var_dir/named/named-inline-fbcdn.net",
+                    ";");
+        }
+
+        if ($github_enabled) {
+            parse_template(\%tags_inline, "$conf_dir/named-github.com", "$var_dir/named/named-inline-github.com",
+                    ";");
+            parse_template(\%tags_inline, "$conf_dir/named-akamai.net", "$var_dir/named/named-inline-akamai.net",
                     ";");
         }
     }
@@ -184,6 +199,13 @@ sub generate_named_conf {
             parse_template(\%tags_registration, "$conf_dir/named-facebook.com", "$var_dir/named/named-facebook.com",
                     ";");
             parse_template(\%tags_registration, "$conf_dir/named-fbcdn.net", "$var_dir/named/named-fbcdn.net",
+                    ";");
+        }
+
+        if ($github_enabled) {
+            parse_template(\%tags_registration, "$conf_dir/named-github.com", "$var_dir/named/named-github.com",
+                    ";");
+            parse_template(\%tags_registration, "$conf_dir/named-akamai.net", "$var_dir/named/named-akamai.net",
                     ";");
         }
     }
