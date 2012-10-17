@@ -650,8 +650,10 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
+%config(noreplace)	/usr/local/pf/conf/named-akamai.net
 %config(noreplace)      /usr/local/pf/conf/named-facebook.com
 %config(noreplace)      /usr/local/pf/conf/named-fbcdn.net
+%config(noreplace)	/usr/local/pf/conf/named-github.com
 %config(noreplace)      /usr/local/pf/conf/named-google.ca
 %config(noreplace)      /usr/local/pf/conf/named-google.com
 %config(noreplace)      /usr/local/pf/conf/named-inline.ca
