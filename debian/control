@@ -19,7 +19,7 @@ Depends: ${misc:Depends}, vlan, make,
  snmp, snmptrapfmt,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
- apache2-mpm-prefork,
+ apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
 # php web admin
  libapache2-mod-php5, php-pear, php5-mysql, php5-gd, make, php-log,
 # ipset (ipset must be installed by hand  apt-get install xtables-addons-common  xtables-addons-source)
