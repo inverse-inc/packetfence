@@ -20,7 +20,7 @@ has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 # Form select options
 has 'categories' => ( is => 'ro' );
-has 'status' => (is => 'ro');
+has 'status' => ( is => 'ro' );
 
 # Form fields
 has_field 'pid' =>
@@ -148,10 +148,6 @@ sub field_errors {
 
     return \%errors;
 }
-
-=head1 AUTHOR
-
-Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
