@@ -67,6 +67,7 @@ Readonly::Scalar our $URL_OAUTH2_FCBK => '/oauth2/facebook';
 
 # violation-related
 Readonly::Scalar our $URL_ENABLER => '/enabler';
+Readonly::Scalar our $URL_REMEDIATION => '/remediation.php(.*)';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP => '/signup';

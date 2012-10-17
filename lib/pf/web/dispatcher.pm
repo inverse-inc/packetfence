@@ -109,7 +109,7 @@ sub handler {
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
     my $stash = {
-        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/authenticate",
+        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
         'login_url_wispr' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/wispr",
     };
 
