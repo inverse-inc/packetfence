@@ -89,6 +89,7 @@ Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
+requires: libapreq2
 Requires: dhcp, bind
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
 %{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
