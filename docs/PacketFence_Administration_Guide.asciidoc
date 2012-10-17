@@ -2060,7 +2060,7 @@ Once you have your client id, and API key, you need to configure the OAuth2 prov
    scope = https://www.googleapis.com/auth/userinfo.email
    protected_resource_url = https://www.googleapis.com/oauth2/v2/userinfo
    access_token_param = oauth_token
-   redirect_uri = https://YOUR_PORTAL_HOSTNAME/o2/google
+   redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/google
 
 Also, enable the Google authentication in the `guests_self_registration.modes` field.
 
@@ -2081,7 +2081,7 @@ Once you have your information, configure the OAuth2 provider in pf.conf that wa
    scope = email
    access_token_param = access_token
    protected_resource_url = https://graph.facebook.com/me
-   redirect_uri = https://YOUR_PORTAL_HOSTNAME/o2/facebook
+   redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
 Also, enable the Facebook authentication in the `guests_self_registration.modes` field.
 
@@ -2104,7 +2104,7 @@ Once you have your information, configure the OAuth2 provider in pf.conf that wa
    access_token_path = /login/oauth/access_token
    access_token_param = access_token
    protected_resource_url = https://api.github.com/user
-   redirect_uri = https://o2.packetfence.org/oauth2/github
+   redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/github
 
 Like other providers, enable the GitHub authentication in the `guests_self_registration.modes` field.
 
