@@ -1,12 +1,24 @@
 package pfappserver::Form::Field::Duration;
  
+=head1 NAME
+
+pfappserver::Form::Field::Duration - duration compound
+
+=head1 DESCRIPTION
+
+This is a compound field that requires only one value of the form
+  \d[smhDWMY]
+
+The time unit is rendered using the ButtonGroup widget.
+
+=cut
+
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler::Field::Compound';
 use namespace::autoclean;
 
 use pf::config;
 
-#has '+wrapper_class' => ['interval' ];
 has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
 has '+inflate_default_method'=> ( default => sub { \&duration_inflate } );
@@ -16,10 +28,7 @@ has_field 'interval' =>
   (
    type => 'PosInteger',
    do_label => 0,
-   #do_wrapper => 0,
-   #tags => { no_errors => 1 },
    widget_wrapper => 'None',
-   element_class => ['input'],
    apply => [ { check => qr/^[0-9]+$/ } ],
   );
 has_field 'unit' =>
@@ -46,8 +55,6 @@ has_field 'unit' =>
 sub duration_inflate {
     my ($self, $value) = @_;
 
-    #use Data::Dumper;
-    #$self->form->ctx->log->debug('initial window = ' . Dumper $self->form->init_object->{window});
     return {} unless ($value =~ m/(\d+)($TIME_MODIFIER_RE)/);
     my $hash = {interval => $1,
                 unit => $2};
@@ -58,28 +65,34 @@ sub duration_inflate {
 sub duration_deflate {
     my ($self, $value) = @_;
 
-#    if ($self->form->value->{'window_dynamic'} eq 'dynamic') {
-#        return 'dynamic';
-#    }
-    
     my $interval = $value->{interval};
     my $unit = $value->{unit};
 
     return $interval.$unit;
 }
 
-#sub clear_errors {
-#    
-#}
+=head1 COPYRIGHT
 
-#sub build_update_subfields {{
-#    all => { wrapper_class => ['interval'] }
-#}}
+Copyright (C) 2012 Inverse inc.
 
-#sub html_attributes {
-#    my ( $self, $field, $type, $attr ) = @_;
-#    $attr->{class} = 'interval' if $type eq 'duration';
-#    return $attr;
-#}
+=head1 LICENSE
 
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+__PACKAGE__->meta->make_immutable;
 1;
