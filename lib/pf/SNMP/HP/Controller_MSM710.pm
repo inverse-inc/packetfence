@@ -181,7 +181,6 @@ Method to deauthenticate a node with SSH
 sub _deauthenticateMacWithSSH {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->warn(Dumper $this);
     my $session;
     eval {
         $session = Net::Appliance::Session->new(

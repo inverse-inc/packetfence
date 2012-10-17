@@ -20,7 +20,6 @@ use Apache2::RequestRec ();
 use Apache2::Request;
 use Apache2::Access;
 use Apache2::Connection;
-use Data::Dumper;
 use Log::Log4perl;
 use pf::config;
 use pf::iplog qw(ip2mac);
