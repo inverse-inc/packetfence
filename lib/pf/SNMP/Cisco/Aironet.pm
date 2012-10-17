@@ -230,7 +230,7 @@ sub deauthTechniques {
         $SNMP::TELNET => \&deauthenticateMacDefault,
     );
 
-    if (!exists($tech{$method})) {
+    if (!defined($method) || !defined($tech{$method})) {
         $method = $default;
     }
     return $method,$tech{$method};

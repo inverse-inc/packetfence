@@ -324,7 +324,7 @@ sub deauthTechniques {
         $SNMP::SNMP  => \&_deauthenticateMacSNMP,
     );
 
-    if (!exists($tech{$method})) {
+    if (!defined($method) || !defined($tech{$method})) {
         $method = $default;
     }
     return $method,$tech{$method};

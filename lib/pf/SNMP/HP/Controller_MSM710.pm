@@ -223,7 +223,7 @@ sub deauthTechniques {
         $SNMP::SSH  => \&_deauthenticateMacWithSSH,
     );
 
-    if (!exists($tech{$method})) {
+    if (!defined($method) || !defined($tech{$method})) {
         $method = $default;
     }
     return $method,$tech{$method};
