@@ -1020,6 +1020,11 @@ sub oauth2 {
          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Facebook" )
         if ( !defined($Config{"oauth2 facebook"}) );
     }
+
+    if ($guest_self_registration{$SELFREG_MODE_GITHUB}) {
+         add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to GitHub" )
+        if ( !defined($Config{"oauth2 github"}) );
+    }
 }
 
 

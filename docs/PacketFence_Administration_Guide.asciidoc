@@ -2028,7 +2028,7 @@ Here are the different configuration parameters that can be set for each portal 
   logo = the logo to be displayed on the various captive portal pages
   auth = available options are the same as the default auth options. In case the field is empty, guest self-registration will be the only way to login
   guest_self_reg = either enabled or disabled
-  guest_modes = the availables guest self-registration modes (sms|email|sponsor|google|facebook)
+  guest_modes = the availables guest self-registration modes (sms|email|sponsor|google|facebook|github)
   guest_category = the category that will be assigned to the self-registered guests
   template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
   billing_engine = either enabled or disabled
@@ -2040,12 +2040,14 @@ CAUTION: If you set a custom template_path, make sure to copy over all of the de
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
 
-The captive portal of PacketFence allows a guest/user to register using his Google or Facebook account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook or Github account.
+
+For each providers, we maintain an allowed IP list to punch holes into the firewall so the user can hit the provider login page.  This file is located in `conf/oauth2-ips`.  You might need to maintain it quite often, as well as the different DNS zones also located in `conf`.
 
 Google
 ^^^^^^
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
-field : https://YOUR_PORTAL_HOSTNAME/o2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
 Once you have your client id, and API key, you need to configure the OAuth2 provider in pf.conf.  The example below shows you how to do it:
 
@@ -2065,7 +2067,7 @@ Also, enable the Google authentication in the `guests_self_registration.modes` f
 Facebook
 ^^^^^^^^
 To use Facebook, you also need an API code and a secret key.  To get one, go here: https://developers.facebook.com/apps.  When you create your App, make sure you input the following as the Website URL:
-https://YOUR_PORTAL_HOSTNAME/o2/facebook
+https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`. 
 
@@ -2084,6 +2086,27 @@ Once you have your information, configure the OAuth2 provider in pf.conf that wa
 Also, enable the Facebook authentication in the `guests_self_registration.modes` field.
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
+
+GitHub
+^^^^^^
+To use GitHub, you also need an API code and a secret key.  To get one, you need to create an App here: https://github.com/settings/applications.  When you create your App, make sure you input the following as the Callback URL
+https://YOUR_PORTAL_HOSTNAME/oauth2/github
+
+Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
+
+Once you have your information, configure the OAuth2 provider in pf.conf that way:
+
+   [oauth2 github]
+   client_id = YOUR_APP_ID
+   client_secret = YOUR_APP_SECRET
+   site = https://github.com
+   authorize_path = /login/oauth/authorize
+   access_token_path = /login/oauth/access_token
+   access_token_param = access_token
+   protected_resource_url = https://api.github.com/user
+   redirect_uri = https://o2.packetfence.org/oauth2/github
+
+Like other providers, enable the GitHub authentication in the `guests_self_registration.modes` field.
 
 Operating System Best Practices
 -------------------------------

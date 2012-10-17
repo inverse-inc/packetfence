@@ -30,7 +30,7 @@ Enhancements
  * Inline Mode now using ipset instead of just iptables
  * Radius Inline feature
  * Selection of a preferred deauthentication method for a switch
- * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook)
+ * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
