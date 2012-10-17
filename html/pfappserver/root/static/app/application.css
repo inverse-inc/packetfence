@@ -23,6 +23,18 @@ a.active {
     font-weight: normal;
     font-style: normal;
 }
+/* bootstrap.css extension to forms */
+.form-condensed .control-group {
+    margin-bottom: 0px;
+}
+/* mixing noneditable fields in forms, inspired from .uneditable-input */
+form .uneditable {
+    display: inline-block;
+    n0height: 18px;
+    line-height: 18px;
+    padding-top: 5px;
+    margin-bottom: 5px;
+}
 /* datepicker + timepicker fix to limit the bottom margin */
 .modal .datepicker,
 .modal .timepicker-default {
