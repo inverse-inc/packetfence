@@ -230,7 +230,7 @@ as
 
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
-Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay)
+Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
 Requires: perl(SOAP::Lite)
 Conflicts: %{real_name}
 AutoReqProv: 0
