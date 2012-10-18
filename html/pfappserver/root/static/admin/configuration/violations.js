@@ -10,6 +10,7 @@ function initViolations() {
                 modal.append(data);
                 modal.on('shown', function() {
                     $('.chzn-select').chosen();
+                    $('.chzn-deselect').chosen({allow_single_deselect: true});
                 });
             })
             .fail(function(jqXHR) {
@@ -38,6 +39,7 @@ function initViolations() {
                 modal.append(data);
                 modal.on('shown', function() {
                     $('.chzn-select').chosen();
+                    $('.chzn-deselect').chosen({allow_single_deselect: true});
                 });
             })
             .fail(function(jqXHR) {
@@ -100,80 +102,17 @@ function initViolations() {
 
     /* Modal Editor: create or modify a violation */
     $('body').on('submit', 'form[name="violation"]', function(event) {
-        var form = $(this);
-        var modal = $('#modalViolation');
-        var valid = true;
-        var data = {};
-        var tab;
-
-        // Validate the form sequentialy, tab by tab, and stop as soon as a
-        // field is invalid
-        $.each(['Definition', 'Triggers', 'Remediation', 'Advanced'], function(index, value) {
-            var tab = '#violation' + value;
-            form.find(tab + ' input[name], ' + tab + ' select, ' + tab + ' .btn-group').each(function() {
-                var input = $(this);
-                if (input.attr('type') == 'checkbox') {
-                    data[input.attr('name')] = input.is(':checked');
-                }
-                else if (input.attr('name') == 'priority') {
-                    if (isFormInputEmpty(input) || isInvalidNumber(input, 1, 10)) {
-                        valid = false;
-                        return false;
-                    }
-                    else {
-                        data['priority'] = input.val();
-                    }
-                }
-                else if (input.attr('name') == 'max_enable') {
-                    if (isFormInputEmpty(input) || isInvalidNumber(input, 0, 10)) {
-                        valid = false;
-                        return false;
-                    }
-                    else {
-                        data['max_enable'] = input.val();
-                    }
-                }
-                else if (input.hasClass('btn-group')) {
-                    if (isFormInputEmpty(input))
-                        valid = false;
-                    else {
-                        // Append time unit
-                        var btn = input.find('a.active');
-                        var matches = btn.attr('name').match(/(.+?)_unit/);
-                        if (matches) {
-                            data[matches[1]] += btn.attr('value');
-                        }
-                    }
-                }
-                else if (input.hasClass('onoffswitch-checkbox')) {
-                    var isOn = switchIsOn(input);
-                    data[input.attr('name')] = isOn;
-                }
-                else {
-                    if (isFormInputEmpty(input))
-                        valid = false;
-                    else
-                        data[input.attr('name')] = input.val();
-                }
-                if (!valid)
-                    return false;
-            });
-            if (!valid)
-                return false;
-
-        });
-        if (!valid)
-            return false;
+        var form = $(this),
+        modal = $('#modalViolation'),
+        modal_body = modal.find('.modal-body'),
+        valid = isFormValid(form);
 
         if (valid) {
-            var violation_id = form.find('input[name="id"]');
-            if (violation_id.length) {
-                data['id'] = violation_id.val();
-            }
+            resetAlert(form.find('.modal-body'));
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'),
-                data: {json: $.toJSON(data)}
+                data: form.serialize()
             }).done(function() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
@@ -182,8 +121,8 @@ function initViolations() {
                 });
             }).fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
-                showError(form.find('.modal-body'), obj.status_msg);
-                $("body,html").animate({scrollTop:0}, 'fast');
+                resetAlert(modal_body);
+                showPermanentError(modal_body.children().first(), obj.status_msg);
             });
         }
 

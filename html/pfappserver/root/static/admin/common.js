@@ -1,6 +1,4 @@
 $(function () {
-    $('.dropdown-toggle').dropdown();
-
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
     $('.datepicker input[name="start"]').on('changeDate', function(event) {

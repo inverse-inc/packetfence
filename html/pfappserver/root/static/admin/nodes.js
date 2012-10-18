@@ -105,18 +105,16 @@ function init() {
         modal = $('#modalNode'),
         form = modal.find('form').first(),
         modal_body = modal.find('.modal-body'),
-        url = $(this).attr('href');
+        url = $(this).attr('href'),
+        valid = false;
 
         btn.button('loading');
+        valid = isFormValid(form);
+        if (valid) {
         $.ajax({
             type: 'POST',
             url: url,
-            data: { category_id: form.find('[name="category_id"]').val(),
-                    status: form.find('[name="status"]').val(),
-                    reg_date: form.find('[name="reg_date"]').val(),
-                    reg_time: form.find('[name="reg_time"]').val(),
-                    unreg_date: form.find('[name="unreg_date"]').val(),
-                    unreg_time: form.find('[name="unreg_time"]').val() }
+            data: form.serialize()
         }).done(function(data) {
             // TODO : refresh search results
             modal.modal('hide');
@@ -129,9 +127,10 @@ function init() {
                 btn.button('reset');
                 var obj = $.parseJSON(jqXHR.responseText);
                 resetAlert(modal_body);
-                showError(modal_body.children().first(), obj.status_msg);
+                showPermanentError(modal_body.children().first(), obj.status_msg);
             }
         });
+        }
 
         return false;
     });

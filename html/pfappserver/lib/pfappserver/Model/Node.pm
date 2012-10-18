@@ -123,23 +123,21 @@ sub get {
 
     my $node = {};
     eval {
-        $node->{info} = node_view($mac);
-        $node->{info}->{vendor} = oui_to_vendor($mac);
-        if ($node->{info}->{regdate_timestamp}) {
-            my @regdate = CORE::localtime($node->{info}->{regdate_timestamp});
-            $node->{info}->{reg_date} = POSIX::strftime("%Y-%m-%d", @regdate);
-            $node->{info}->{reg_time} = POSIX::strftime("%H:%M", @regdate);
+        $node = node_view($mac);
+        $node->{vendor} = oui_to_vendor($mac);
+        if ($node->{regdate_timestamp}) {
+            my @regdate = CORE::localtime($node->{regdate_timestamp});
+            $node->{regdate} = POSIX::strftime("%Y-%m-%d %H:%M", @regdate);
         }
-        if ($node->{info}->{unregdate_timestamp}) {
-            my @unregdate = CORE::localtime($node->{info}->{unregdate_timestamp});
-            $node->{info}->{unreg_date} = POSIX::strftime("%Y-%m-%d", @unregdate);
-            $node->{info}->{unreg_time} = POSIX::strftime("%H:%M", @unregdate);
+        if ($node->{unregdate_timestamp}) {
+            my @unregdate = CORE::localtime($node->{unregdate_timestamp});
+            $node->{unregdate} = POSIX::strftime("%Y-%m-%d %H:%M", @unregdate);
         }
 
         # Show 802.1X username only if connection is of type EAP
-        my $connection_type = str_to_connection_type($node->{info}->{last_connection_type}) if ($node->{info}->{last_connection_type});
+        my $connection_type = str_to_connection_type($node->{last_connection_type}) if ($node->{last_connection_type});
         unless ($connection_type && ($connection_type & $EAP) == $EAP) {
-            delete $node->{info}->{last_dot1x_username};
+            delete $node->{last_dot1x_username};
         }
 
         # Fetch IP information
@@ -165,13 +163,13 @@ sub get {
         #                                                  (start_time => $start_time, end_time => $end_time));
 
         # Fetch user-agent information
-        if ($node->{info}->{user_agent}) {
+        if ($node->{user_agent}) {
             $node->{useragent} = node_useragent_view($mac);
         }
 
         # Fetch DHCP fingerprint information
-        if ($node->{info}->{'dhcp_fingerprint'}) {
-            my @fingerprint_info = dhcp_fingerprint_view( $node->{info}->{'dhcp_fingerprint'} );
+        if ($node->{'dhcp_fingerprint'}) {
+            my @fingerprint_info = dhcp_fingerprint_view( $node->{'dhcp_fingerprint'} );
             $node->{dhcp} = pop @fingerprint_info;
         }
 

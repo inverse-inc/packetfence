@@ -7,7 +7,14 @@
     padding-top: 0px;
     padding-left: 0px;
 }
-
+/* bootstrap.css error class extension for button groups */
+.control-group.error .btn {
+  color: #b94a48;
+  border-color: #b94a48;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
 .table-search {
     width: 100%;
 }
