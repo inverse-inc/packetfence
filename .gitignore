@@ -37,3 +37,4 @@ lib/pf/pfcmd/pfcmd_pregrammar.pm
 # directories that can be ignored
 logs/
 var/
+raddb/sites-enabled/
