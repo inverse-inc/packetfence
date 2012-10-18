@@ -1,10 +1,10 @@
       <div class="modal fade hide" id="modalNode">
 
-        <form action="[% c.uri_for(c.controller('Node').action_for('update'), [node.info.mac]) %]">
+        <form action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac]) %]" class="form-horizontal form-condensed" >
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">×</a>
-          <h3><i>MAC</i> [% node.info.mac %]</h3>
+          <h3><i>MAC</i> [% node.mac %]</h3>
         </div>
 
         <div class="modal-body">
@@ -16,87 +16,105 @@
           </ul>
 
           <div class="tab-content">
-
             <div class="tab-pane fade in active" id="nodeInfo">
-              <dl class="dl-horizontal dl-expanded">
-                <dt></dt><dd><h6>[% l('Profile') %]</h6></dd>
-                <dt>[% l('Identifer') %]</dt><dd>[% node.info.pid %]</dd>
-                <dt>[% l('Category') %]</dt><dd>
-                  <select name="category_id" data-placeholder="[% l('No category') %]" class="chzn-deselect">
-                    <option value=""></option>
-                    [%- FOREACH category IN categories -%]
-                    <option value="[% category.category_id %]"
-                            [%- IF category.category_id == node.info.category_id %] selected=""[% END -%]
-                            >[% category.name %]</option>
-                    [%- END -%]
-                  </select>
-                </dd>
-                <dt>[% l('Status') %]</dt><dd>
-                  <select name="status" class="span2 chzn-select">
-                    [% FOREACH s IN status -%]
-                    <option value="[% s %]" [% IF node.info.status == s %] selected=""[% END %]>[% l(s) %]</option>
-                    [% END -%]
-                </select></dd>
-                <dt>[% l('Registration') %]</dt>
-                <dd>
-                  <input type="text" name="reg_date" class="datepicker input-small" value="[% node.info.reg_date %]" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd">
-                    <input type="text" name="reg_time" class="timepicker-default input-small" value="[% node.info.reg_time %]" placeholder="MM:HH">
-                </dd>
-                <dt>[% l('Unregistration') %]</dt>
-                <dd>
-                  <input type="text" name="unreg_date" class="datepicker input-small" value="[% node.info.unreg_date %]" data-date-format="yyyy-mm-dd" placeholder="yyyy-mm-dd">
-                    <input type="text" name="unreg_time" class="timepicker-default input-small" value="[% node.info.unreg_time %]" placeholder="MM:HH">
-                </dd>
-                <dt>[% l('IP Address') %]</dt><dd>[% node.iplog.ip %] <span
+
+            <div class="control-group">
+              <div class="controls">
+                <h6>[% l('Profile') %]</h6>
+              </div>
+            </div>
+
+            [% form.field('pid').render %]
+
+            [% form.field('status').render %]
+
+            [% form.field('category_id').render %]
+
+            [% form.field('regdate').render %]
+
+            [% form.field('unregdate').render %]
+
+            <div class="control-group">
+              <label class="control-label">[% l('IP Address') %]</label>
+              <div class="controls"><span class="uneditable">[% node.iplog.ip %] <span
                                                                          [% IF node.iplog.active -%]
                                                                          class="label label-success">Since [% node.iplog.start_time %]
                     [% ELSE -%]
                     class="label label-important">Inactive[% IF node.iplog.end_time %] since [% node.iplog.end_time %][% END %]
                     [% END -%]
-                </span></dd>
-                [% IF node.info.vendor %]<dt>[% l('MAC Vendor') %]</dt><dd>[% node.info.vendor %]</dd>[% END %]
-                <dt>OS</dt><dd>[% node.dhcp.os %]</dd>
-                [% IF node.info.computername %]<dt>[% l('Name') %]</dt><dd>[% node.info.computername %]</dd>[% END %]
-                <dt></dt><dd><input type="checkbox" [% IF node.info.voip != "no" %] checked="checked"[% END %]> [% l('Is VoIP') %]</dd>
-                <!--<dt>Owner</dt><dd></dd>
-                    <dt>Category</dt><dd></dd>
-                    <dt>Status</dt><dd></dd>
-                    <dt>VoIP</dt><dd></dd>-->
-              </dl>
-              [% IF node.info.last_switch OR node.info.last_ssid -%]
-              <dl class="dl-horizontal dl-expanded">
-                <dt></dt><dd><h6>[% l('Location') %]</h6></dd>
-                [% IF node.info.last_switch -%]
-                <dt>[% l('Switch') %]</dt><dd><a href="#" rel="tooltip" title="[% l('Edit switch') %]">[% node.info.last_switch %]</a>
-                  [%- IF node.info.last_port.length %] <span class="badge badge-info">port [% node.info.last_port %]</span>[% END %]
-                  [%- IF node.info.last_vlan.length %] <span class="badge badge-info">vlan [% node.info.last_vlan %]</span>[% END %]
-                  <span class="label">On [% node.info.last_start_time %]</span></dd>
-                [%- END %]
-                [% IF node.info.last_ssid -%]
-                <dt>Wireless SSID</dt><dd><i class="icon-signal"></i> [% node.info.last_ssid %]</dd>
-                [% END -%]
-                [% IF node.info.last_dot1x_username -%]
-                <dt>802.1X Username</dt><dd>[% node.info.last_dot1x_username %]</dd>
-                [% END -%]
-              </dl>
-              [% END %]
-              [% IF node.info.user_agent -%]
-              <dl class="dl-horizontal dl-expanded">
-                <dt></dt><dd><h6>USER-AGENT INFORMATION</h6></dd>
-                <dt>User-Agent</dt><dd>[% node.info.user_agent %]</dd>
-                <dt>Browser</dt><dd><a href="#" rel="tooltip" title="See browsers statistics">[% node.useragent.browser %]</a></dd>
-                <dt>OS</dt><dd><a href="#" rel="tooltip" title="See operating systems statistics">[% node.useragent.os %]</a></dd>
-                <dt></dt><dd><input type="checkbox" disabled[% IF node.useragent.device != "no" %] checked="checked"[% END %]> Is a device</dd>
-                <dt></dt><dd><input type="checkbox" disabled[% IF node.useragent.mobile != "no" %] checked="checked"[% END %]> Is a mobile</dd>
-              </dl>
-              [%- END %]
-              <!--<dl class="dl-horizontal">
-                  <dt></dt><dd><h6>DHCP INFORMATION</h6></dd>
-                  <dt>OS</dt><dd>[% node.dhcp.os %]</dd>
-                  <dt>DHCP Info</dt><dd></dd>
-              </dl>-->
+                </span></span></div>
+            </div>
+
+            [% form.field('vendor').render %]
+
+            [% IF node.dhcp -%]
+            <div class="control-group">
+              <label class="control-label">[% l('OS') %]</label>
+              <div class="controls"><span class="uneditable">[% node.dhcp.os %]</span></div>
+            </div>
+            [%- END %]
+
+            [% form.field('computername').render IF node.computername -%]
+
+            [% form.field('voip').render %]
+
+            [% IF node.last_switch OR node.last_ssid -%]
+
+            <div class="control-group">
+              <div class="controls">
+                <h6>[% l('Location') %]</h6>
+              </div>
+            </div>
+
+            [% IF node.last_switch -%]
+            <div class="control-group">
+              <label class="control-label">[% l('Switch') %]</label>
+              <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="[% l('Edit switch') %]">[% node.last_switch %]</a></span>
+                  [%- IF node.last_port.length %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
+                  [%- IF node.last_vlan.length %] <span class="badge badge-info">vlan [% node.last_vlan %]</span>[% END %]
+                  <span class="label">On [% node.last_start_time %]</span></div>
+            </div>
+            [%- END %]
+
+            [% IF node.last_ssid -%]
+            <div class="control-group">
+              <label class="control-label">[% l('Wireless SSID') %]</label>
+              <div class="controls"><span class="uneditable"><i class="icon-signal"></i> [% node.last_ssid %]</span></div>
+            </div>
+            [% END -%]
+
+            [% form.field('last_dot1x_username').render IF node.last_dot1x_username -%]
+
+            [% END %]
+
+            [% IF node.user_agent -%]
+            <div class="control-group">
+              <div class="controls">
+                <h6>[% l('User-Agent Information') %]</h6>
+              </div>
+            </div>
+
+            [% form.field('user_agent').render %]
+
+            <div class="control-group">
+              <label class="control-label">[% l('Browser') %]</label>
+              <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="See browsers statistics">[% node.useragent.browser %]</a></span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">[% l('OS') %]</label>
+              <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="See operating systems statistics">[% node.useragent.os %]</a></span></div>
+            </div>
+
+            [% form.field('useragent.device').render %]
+
+            [% form.field('useragent.mobile').render %]
+
+            [%- END # user_agent %]
+
             </div><!--tab-pane-->
             <div class="tab-pane fade" id="nodeHistory">
+
               <h6>Last 2 weeks</h6>
               [%- IF node.iplog.series %]
               <div id="iplog" class="chart"></div>
@@ -128,8 +146,8 @@ graphs['iplog'] = {
         </div><!--modal-body-->
 
         <div class="modal-footer">
-          <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [ node.info.mac ]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
-          <a href="[% c.uri_for(c.controller('Node').action_for('update'), [ node.info.mac ]) %]" id="updateNode" class="btn btn-primary pull-left" data-loading-text="Saving">[% l('Save') %]</a>
+          <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [ node.mac ]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          <a href="[% c.uri_for(c.controller('Node').action_for('update'), [ node.mac ]) %]" id="updateNode" class="btn btn-primary pull-left" data-loading-text="Saving">[% l('Save') %]</a>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div><!--modal-footer-->
         </form>

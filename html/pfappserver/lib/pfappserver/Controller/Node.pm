@@ -18,6 +18,8 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pfappserver::Form::Node;
+
 BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 SUBROUTINES
@@ -125,21 +127,33 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
 
 =cut
 sub get :Chained('object') :PathPart('get') :Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    my ($status, $result);
+    my ($nodeStatus, $result);
+    my ($form, $status, $categories);
+
+    # Form initialization :
+    # Retrieve node details, categories and status
 
     ($status, $result) = $c->model('Node')->get($c->stash->{mac});
-    $c->stash->{node} = $result;
-
+    if (is_success($status)) {
+        $c->stash->{node} = $result;
+    }
     ($status, $result) = $c->model('NodeCategory')->list();
-    $c->stash->{categories} = $result;
+    if (is_success($result)) {
+        $categories = $result;
+    }
+    $nodeStatus = $c->model('Node')->availableStatus();
+    $form = pfappserver::Form::Node->new(ctx => $c,
+                                         init_object => $c->stash->{node},
+                                         status => $nodeStatus,
+                                         categories => $categories);
+    $form->process();
+    $c->stash->{form} = $form;
 
-    $c->stash->{status} = $c->model('Node')->availableStatus();
-
-    my @now = localtime;
-    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
-                         time => POSIX::strftime("%H:%M", @now) };
+#    my @now = localtime;
+#    $c->stash->{now} = { date => POSIX::strftime("%Y-%m-%d", @now),
+#                         time => POSIX::strftime("%H:%M", @now) };
 }
 
 =head2 update
@@ -149,30 +163,23 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
     my ($status, $message);
+    my ($form, $nodeStatus);
 
-    my $node_ref = {};
-
-    $node_ref->{category_id} = $c->request->params->{category_id} || undef;
-    $node_ref->{status} = $c->request->params->{status} if ($c->request->params->{status});
-    if ($c->request->params->{reg_date} && $c->request->params->{reg_time}) {
-        $node_ref->{regdate} = $c->request->params->{reg_date} . ' ' . $c->request->params->{reg_time};
+    $nodeStatus = $c->model('Node')->availableStatus();
+    $form = pfappserver::Form::Node->new(ctx => $c,
+                                         status => $nodeStatus);
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $message = $form->field_errors;
     }
     else {
-        $node_ref->{regdate} = undef;
+        ($status, $message) = $c->model('Node')->update($c->stash->{mac}, $form->value);
     }
-    if ($c->request->params->{unreg_date} && $c->request->params->{unreg_time}) {
-        $node_ref->{unregdate} = $c->request->params->{unreg_date} . ' ' . $c->request->params->{unreg_time};
-    }
-    else {
-        $node_ref->{unregdate} = undef;
-    }
-
-    ($status, $message) = $c->model('Node')->update($c->stash->{mac}, $node_ref);
-    if ( is_error($status) ) {
+    if (is_error($status)) {
         $c->response->status($status);
+        $c->stash->{status_msg} = $message; # TODO: localize error message
     }
-
-    $c->stash->{status_msg} = $message;
     $c->stash->{current_view} = 'JSON';
 }
 

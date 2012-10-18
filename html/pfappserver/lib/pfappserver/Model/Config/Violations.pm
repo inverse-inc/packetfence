@@ -196,24 +196,12 @@ sub read_violation {
                         my @items = split(',', $violations_conf->{$section}->{$column});
                         $values{$column} = \@items;
                     }
-                    elsif ($column eq 'grace' || $column eq 'window') {
-                        if (length($violations_conf->{$section}->{$column}) > 0) {
-                            if ($violations_conf->{$section}->{$column} =~ m/(\d+)($TIME_MODIFIER_RE)/) {
-                                my ($interval, $unit) = ($1, $2);
-                                $values{$column} = { interval => $interval,
-                                                     unit => $unit };
-                            }
-                            else {
-                                $values{$column} = $violations_conf->{$section}->{$column};
-                            }
-                        }
-                    }
                     else {
                         $values{$column} = $violations_conf->{$section}->{$column};
                     }
-                }
-                else {
-                    $values{$column} = '';
+                    if ($column eq 'window') {
+                        $values{'window_dynamic'} = $violations_conf->{$section}->{$column};
+                    }
                 }
             }
             push @resultset, \%values;

@@ -19,6 +19,8 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pfappserver::Form::Violation;
+
 BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 SUBROUTINES
@@ -64,16 +66,14 @@ sub create :Local {
     my ($status, $result);
 
     if ($c->request->method eq 'POST') {
-        my $data = decode_json($c->request->params->{json});
-        my $id = $data->{id};
-
+        my $id = $c->req->params->{id};
         $c->stash->{action_uri} = $c->uri_for($c->action);
         $c->forward('update', [$id]);
     }
     else {
         $c->stash->{action_uri} = $c->uri_for($c->action);
-        $c->stash->{template} = 'violation/get.tt';
-        $c->forward('get');
+        $c->stash->{template} = 'violation/read.tt';
+        $c->forward('read');
     }
 }
 
@@ -105,17 +105,28 @@ sub object :Chained('/') :PathPart('violation') :CaptureArgs(1) {
 sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
-    my $configViolationsModel = $c->model('Config::Violations');
-    my ($status, $result) = $configViolationsModel->read_violation('all');
-    if (is_success($status)) {
-        $c->stash->{violations} = $result;
-    }
+    my ($configViolationsModel, $status, $result);
+    my ($form, $actions, $violations, $triggers);
 
-    $c->stash->{actions} = $configViolationsModel->availableActions();
-    $c->stash->{triggers} = $configViolationsModel->list_triggers();
+    $configViolationsModel = $c->model('Config::Violations');
+    ($status, $result) = $configViolationsModel->read_violation('all');
+    if (is_success($status)) {
+        $violations = $result;
+    }
+    $actions = $configViolationsModel->availableActions();
+    $triggers = $configViolationsModel->list_triggers();
+
     if ($c->stash->{violation} && !$c->stash->{action_uri}) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->{stash}->{violation}->{id}]);
     }
+
+    $form = pfappserver::Form::Violation->new(ctx => $c,
+                                              init_object => $c->stash->{violation},
+                                              actions => $actions,
+                                              violations => $violations,
+                                              triggers => $triggers);
+    $form->process();
+    $c->stash->{form} = $form;
 }
 
 =head2 update
@@ -128,22 +139,35 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($status, $result);
 
     if ($c->request->method eq 'POST') {
-        my $data = decode_json($c->request->params->{json});
-        # Validate close violation id
-        if (grep { $_ eq 'close' } @{$data->{actions}}
-            && !$c->model('Config::Violations')->exists($data->{vclose})) {
+        my ($form, $configViolationsModel, $actions, $violations, $triggers);
+
+        $configViolationsModel = $c->model('Config::Violations');
+        ($status, $result) = $configViolationsModel->read_violation('all');
+        if (is_success($status)) {
+            $violations = $result;
+        }
+        $actions = $configViolationsModel->availableActions();
+        $triggers = $configViolationsModel->list_triggers();
+        $form = pfappserver::Form::Violation->new(ctx => $c,
+                                                  actions => $actions,
+                                                  violations => $violations,
+                                                  triggers => $triggers);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
-            $result = "The specified violation to close doesn't exist.";
+            $result = $form->field_errors;
         }
         else {
+            my $data = $form->value;
+
             # Flatten arrays
             $data->{actions} = join(',', @{$data->{actions}}) if ($data->{actions});
             $data->{trigger} = join(',', @{$data->{trigger}}) if ($data->{trigger});
-            ($status, $result) = $c->model('Config::Violations')->update({ $data->{id} => $data });
+            ($status, $result) = $c->model('Config::Violations')->update({ $c->{stash}->{violation}->{id} => $data });
         }
         if (is_error($status)) {
             $c->response->status($status);
-            $c->stash->{status_msg} = $c->loc($result);
+            $c->stash->{status_msg} = $result; # TODO: localize error message
         }
         $c->stash->{current_view} = 'JSON';
     }

@@ -77,6 +77,22 @@ has_field 'user_agent' =>
    type => 'Uneditable',
    label => 'User Agent',
   );
+has_field 'useragent' =>
+  (
+   type => 'Compound', # virtual field to access the 'useragent' hash
+  );
+has_field 'useragent.mobile' =>
+  (
+   type => 'Toggle',
+   label => 'Is a mobile',
+   element_attr => {disabled => 1},
+  );
+has_field 'useragent.device' =>
+  (
+   type => 'Toggle',
+   label => 'Is a device',
+   element_attr => {disabled => 1},
+  );
 
 =head2 get_language_handle_from_ctx
 
