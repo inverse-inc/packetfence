@@ -175,8 +175,7 @@ div.input.aup {
 div.input.center {
   text-align: center;
 }
-select,
-input.button {
+select {
   font-size: medium;
 }
 div#PBouter {
