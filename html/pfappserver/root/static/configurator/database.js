@@ -84,19 +84,18 @@ function initStep() {
     });
 
     $('#startMySQL').click(function(event) {
-        valid = true;
+        var btn = $(this);
 
-        if (valid) {
-            $.ajax({
-                type: 'POST',
-                url: $(this).attr('href')
-            }).done({
-                resetAlert();
-                showSuccess(form, data.status_msg);
-            }).fail({
-                showError(form, obj.status_msg);
-            });
-        }
+        $.ajax({
+            url: $(this).attr('href')
+        }).done(function(data) {
+            showSuccess(btn.parent(), data.status_msg);
+            resetAlert(btn.closest('form'));
+        }).fail(function(jqXHR) {
+            showError(btn.parent(), obj.status_msg);
+        });
+
+        return false;
     });
 
     $('#createDatabase').click(function(event) {

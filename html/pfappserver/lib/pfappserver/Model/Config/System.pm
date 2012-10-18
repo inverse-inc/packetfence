@@ -129,12 +129,12 @@ sub _inject_default_route {
 =cut
 sub start_mysqld_service {
     my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGER__);
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
 
     # Check to make sure that MySQLd is not already running
-    if ( check_mysqld_status ) {
+    if ( $self->check_mysqld_status ) {
         $status_msg = "MySQL server seems to be already running, did not started it";
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
@@ -146,7 +146,7 @@ sub start_mysqld_service {
     $status = pf_run($cmd);
 
     # Everything goes as expected
-    if ( defined($status) && $status eq "" ) {
+    if ( defined($status) ) {
         $status_msg = "MySQL server successfully started";
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);

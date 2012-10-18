@@ -398,7 +398,7 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
     $c->session->{root_user} = 'root' if (!defined($c->session->{root_user}));
 
     # Check MySQLd status by fetching pid
-    $c->session->{mysqld_running} = 1 if ($c->model('Config::System')->check_mysqld_status() ne 0);
+    $c->stash->{mysqld_running} = 1 if ($c->model('Config::System')->check_mysqld_status() ne 0);
 
     if ($c->request->method eq 'GET') {
         # Check if the database and user exist
