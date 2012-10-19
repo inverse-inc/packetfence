@@ -195,9 +195,11 @@ Install your distribution with minimal installation and no additional packages. 
 * Enable Firewall
 * Disable SELinux
 
-Make sure your system is up to date and your yum or apt-get database is updated:
+Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
 
   yum update
+
+On a Debian-based system, do:
 
   apt-get update
   apt-get upgrade
@@ -272,7 +274,7 @@ Software Download
 
 Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / CentOS instead of a single RPM file.
 
-For Debian squeeze, starting with 3.4.0, PacketFence is now providing an deb repository.
+For Debian squeeze, starting with 3.4.0, PacketFence is now providing a Debian package repository.
 
 This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
 
@@ -295,7 +297,7 @@ In order to use the repository, just create a file named `/etc/yum.repos.d/Packe
   enabled=0
 
 Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (DNS server, Database
+dependencies, and the required external services (DNS server, database
 server, DHCP server, RADIUS server) using:
 
   yum groupinstall --enablerepo=PacketFence,epel,rpmforge,of Packetfence-complete
@@ -336,7 +338,7 @@ The first step after installing the necessary packages is the configuration step
 Like mentioned at the end of the packages installation, fire up a web browser and go to http://@ip_packetfence:3000/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
 
 [options="compact"]
-* Step 1: Enforcement technique. You'll choose either vlan enforcement, inline enforcement or both;
+* Step 1: Enforcement technique. You'll choose either VLAN enforcement, inline enforcement or both;
 * Step 2: Network configuration. You'll be able to configure the network interfaces of the system as well as assigning the correct interfaces for each of the required types of the chosen enforcement technique(s);
 * Step 3: Database configuration. This step will create the PacketFence database and populate it with the correct structure. A MySQL user will also be created and assigned to the newly created database;
 * Step 4: General configuration. You will need to configure some of the basic PacketFence configuration parameters;
@@ -453,7 +455,7 @@ To configure authentication set the `[registration].auth` option in `/usr/local/
 
   auth=local,ldap,radius
 
-If more than one method are specified, PF will display a pull-down list to allow users to select the preferred authentication method.
+If more than one method are specified, PacketFence will display a pull-down list to allow users to select the preferred authentication method.
 
 The authentication method name displayed in the drop-down is controlled by the `$name` variable in the authentication module (located in `conf/authentication/`). Feel free to modify the names to fit your organization's need.
 
@@ -482,7 +484,7 @@ and a switch section for each switch (managed by PacketFence) including:
 * Switch IP
 * Switch vendor/type
 * Switch uplink ports (trunks and non-managed ports)
-* per-switch re-definition of the vlans (if required)
+* per-switch re-definition of the VLANs (if required)
 
 NOTE: `switches.conf` is loaded at startup. A restart is required when changes 
 are made to this file.
@@ -629,12 +631,10 @@ Introduced in PacketFence 3.0, inline enforcement is a very convenient method of
 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
 
-Introduced in PacketFence 3.3, inline enforcement now use DNS DNAT for unregistered or isolated users. Long story short, DNS is now working almost the same way as in VLAN enforcement mode. The only difference is that you need to make sure, as previously stated, to set a valid production DNS server for the inline configuration in `conf/networks.conf` and that the `named` statement is set to enabled.
-
 Introduced in PacketFence 3.6, under debian squeeze and RHEL6/Centos 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
 It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try
-to register on an other inline interface PacketFence detect that the node is already registered on the first vlan.
-It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change vlan.
+to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
+It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
 ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
@@ -850,7 +850,7 @@ their DNS settings to escape the portal.  To prevent this you will need to
 apply an ACL on the access router nearest the clients, permitting access
 only to the PF server and local DHCP broadcast traffic.
 
-For example, for the vlan 20 remote registration network:
+For example, for the VLAN 20 remote registration network:
 
    ip access-list extended PF_REGISTRATION
     permit ip any host 192.168.2.1
@@ -1099,7 +1099,7 @@ Throughout this configuration example we use the following assumptions for our n
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
 * VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
 * VLANs 2 and 3 are spanned throughout the network
-* VLAN 4 is the MAC detection VLAN (empty VLAN)
+* VLAN 4 is the MAC detection VLAN (void VLAN)
 * VLAN 4 must be defined on all the switches that do not support port-security (in our example Catalyst 2900XL do not support port-security with static MAC address). No need to put it in the trunk port.
 * VLAN 5 is the inline VLAN (In-Band, for unmanageable devices)
 * We want to isolate computers using Limewire (peer-to-peer software)
@@ -2032,7 +2032,7 @@ Here are the different configuration parameters that can be set for each portal 
   guest_category = the category that will be assigned to the self-registered guests
   template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
   billing_engine = either enabled or disabled
-  default_auth = the default authentication method that will be selectionned on the captive portal
+  default_auth = the default authentication method that will be selected on the captive portal
   category = the default category that will be assigned to users when they registerer
 
 CAUTION: If you set a custom template_path, make sure to copy over all of the default template files in the new custom folder. PacketFence will only render templates from the files in that custom folder if the value is setted. If files are missing, you'll be facing some error in templates generation. 
@@ -2667,7 +2667,7 @@ You need to create a registration VLAN (with a DHCP server, but no routing to ot
 linkUp/linkDown traps
 ^^^^^^^^^^^^^^^^^^^^^
 
-This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an empty VLAN.
+This is the most basic setup and it needs a third VLAN: the MAC detection VLAN. There should be nothing in this VLAN (no DHCP server) and it should not be routed anywhere; it is just an void VLAN.
 
 When a host connects to a switch port, the switch sends a linkUp trap to PacketFence. Since it takes some time before the switch learns the MAC address of the newly connected device, PacketFence immediately puts the port in the MAC detection VLAN in which the device will send DHCP requests (with no answer) in order for the switch to learn its MAC address. Then pfsetvlan will send periodical SNMP queries to the switch until the switch learns the MAC of the device. When the MAC address is known, pfsetvlan checks its status (existing ? registered ? any violations ?) in the database and puts the port in the appropriate VLAN. When a device is unplugged, the switch sends a 'linkDown' trap to PacketFence which puts the port into the MAC detection VLAN.
 
@@ -2741,7 +2741,7 @@ An example:
 
   SSID::GuestAccess,MAC::00:11:22:33:44:55
 
-This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return an empty vlan or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
+This will trigger all the nodes that connects to the "GuestAccess" SSID to use inline enforcement mode (PacketFence will return a void VLAN or the inlineVlan if defined in switch configuration) and the mac address 00:11:22:33:44:55 client if it connects on another SSID.
   
 More on VoIP Integration
 ------------------------
@@ -2751,9 +2751,9 @@ VoIP has been growing in popularity on enterprise networks.  At first sight, the
 CDP and LLDP are your friend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice vlan on the switchport.
+For those of you who are unaware of the existence of CDP or LLDP (or LLDP-MED), I suggest you start reading on this topic.  Cisco Discovery Protocol (CDP) is device-discovery protocol that runs on all Cisco-manufactured equipment including routers, access servers, bridges, and switches. Using CDP, a device can advertise its existence to other devices and receive information about other devices on the same LAN or on the remote side of a WAN.  In the world of VoIP, CDP is able to determine if the connecting device is an IP Phone or not, and tell the IP Phone to tag its ethernet frame using the configured voice VLAN on the switchport.
 
-On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice vlan.
+On many other vendors, you are likely to find LLDP or LLDP-MED support.  Link Layer Discovery Protocol (LLDP) is a vendor-neutral Link Layer protocol in the Internet Protocol Suite used by network devices for advertising their identity, capabilities, and neighbors.  Same as CDP, LLDP can tell an IP Phone which VLAN id is the voice VLAN.
 
 VoIP and VLAN assignment techniques
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2763,7 +2763,7 @@ As you already know, PacketFence supports many VLAN assignment techniques such a
 Port-security
 ^^^^^^^^^^^^^
 
-Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice vlan on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
+Using port-security, the VoIP device rely on CDP/LLDP to tag its ethernet frame using the configured voice VLAN on the switch port.  After that, we ensure that a security trap is sent from the voice VLAN so that PacketFence can authorize the mac address on the port.  When the PC connects, another security trap will be sent, but from the data VLAN.  That way, we will have 1 mac address authorized on the voice VLAN, and 1 on the access VLAN.
 
 NOTE: Not all vendors support VoIP on port-security, please refer to the Network Configuration Guide.
 
