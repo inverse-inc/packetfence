@@ -496,6 +496,11 @@ if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
 fi
 
+#Getting rid of SELinux
+echo "Disabling SELinux..."
+setenforce 0
+sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+
 #Start pfappserver
 service pfappserver start
 
@@ -797,6 +802,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Fri Oct 19 2012 Francois Gaudreault <fgaudreault@inverse.ca>
+- Disable SELinux in the post install section.
+
 * Mon Oct 01 2012 Francois Gaudreault <fgaudreault@inverse.ca>
 - Adding Net::Oauth2 as a required package.  Also adding the proper files.
 
