@@ -87,7 +87,7 @@ function initStep() {
         var btn = $(this);
 
         $.ajax({
-            url: $(this).attr('href')
+            url: btn.attr('href')
         }).done(function(data) {
             showSuccess(btn.parent(), data.status_msg);
             resetAlert(btn.closest('form'));
