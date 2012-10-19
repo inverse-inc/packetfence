@@ -39,6 +39,7 @@ Bug Fixes
  * Side effect fixes of captive portal rework (#1366)
  * No more domain in our gettext po resources files (#1433)
  * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
+ * Better POD for Nortel ERS5500 switches (#1450)
 
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
