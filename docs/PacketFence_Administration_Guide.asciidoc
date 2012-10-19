@@ -1434,39 +1434,28 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
   vlan=isolationVlan
   whitelisted_categories=
 
-`[1234]`:: 
-The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
+[horizontal]
+`[1234]`:: The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
 `desc`:: single line description of violation
-`priority`:: 
-Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
-`url`:: 
-HTML URL the host will be redirected to while in violation. This is usually a local URL of the form /content/index.php?template=... where ... is the name of the remediation template to show to the user. Full URLs like http://myportal.com/violation1234/ are also supported if passthrough=proxy is set under [trapping]. In that case, the Captive Portal will do reverse proxying to the specified URL. 
+`priority`:: Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
+`url`:: HTML URL the host will be redirected to while in violation. This is usually a local URL of the form /content/index.php?template=... where ... is the name of the remediation template to show to the user. Full URLs like http://myportal.com/violation1234/ are also supported if passthrough=proxy is set under [trapping]. In that case, the Captive Portal will do reverse proxying to the specified URL. 
 +
 CAUTION: Great care should be taken when using this feature because any resource outside the specified path will fail to load.
 +
-`redirect_url`:: 
-The user is redirected to this URL after he re-enabled his network access on the remediation page.
-`enable`:: 
-If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
-`trigger`:: 
-`Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
-`actions`:: 
-This is the list of actions that will be executed on a violation addition. The actions can be:
-  `log`;; Log a message to the file specified in `[alerting].log`
-  `email`;; 
-    Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
-  `trap`;; 
-    Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
-  `winpopup`;; send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
-  `external`;; execute an external command, specified in `[paths].externalapi`.
-  `close`;; close the violation ID specified in the vclose field.
-`vlan`:: 
-  Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
-  `isolationVlan`;;
-    Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
-  `registrationVlan`;; Registration VLAN as specified in `switches.conf`.
-  `normalVlan`;;
-    Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
+`redirect_url`:: The user is redirected to this URL after he re-enabled his network access on the remediation page.
+`enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
+`trigger`:: Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
+`log`::: Log a message to the file specified in `[alerting].log`
+`email`::: Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
+`trap`::: Isolate the host and place them in violation. It opens a violation and leaves it open. If trap is not there, a violation is opened and then automatically closed.
+`winpopup`::: send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
+`external`::: execute an external command, specified in `[paths].externalapi`.
+`close`::: close the violation ID specified in the vclose field.
+`vlan`:: Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
+`isolationVlan`::: Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
+`registrationVlan`::: Registration VLAN as specified in `switches.conf`.
+`normalVlan`::: Normal VLAN as specified in `switches.conf`. Note: It is preferable not to trap than to trap and put in normal VLAN. Make sure you understand what you are doing.
 `whitelisted_categories`:: Nodes in a category listed in `whitelisted_categories` won't be affected by a violation of this type. Format is a comma separated list of category names.
 
 Also included in `violation.conf` is the defaults section. The defaults section will set a default value for every violation in the configuration. If a configuration value is not specified in the specific ID, the default will be used:
