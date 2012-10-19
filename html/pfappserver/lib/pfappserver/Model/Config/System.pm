@@ -23,6 +23,22 @@ extends 'Catalyst::Model';
 
 =over
 
+=item check_mysqld_status
+
+=cut
+sub check_mysqld_status {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # -x: this causes the program to also return process id's of shells running the named scripts.
+    my $pid;
+    chomp($pid = `pidof -x mysqld`);
+    $pid = 0 if ( !$pid );
+    $logger->info("pidof -x mysqld returned $pid");
+
+    return ($pid);
+}
+
 =item getDefaultGateway
 
 =cut
@@ -103,6 +119,41 @@ sub _inject_default_route {
     # Something wen't wrong
     else {
         $status_msg = "Something wen't wrong while injecting default gateway";
+        $logger->warn($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+}
+
+=item start_mysqld_service
+
+=cut
+sub start_mysqld_service {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+
+    # Check to make sure that MySQLd is not already running
+    if ( $self->check_mysqld_status ) {
+        $status_msg = "MySQL server seems to be already running, did not started it";
+        $logger->info($status_msg);
+        return ($STATUS::OK, $status_msg);
+    }
+
+    # please keep LANG=C in case we need to fetch the output of the command
+    my $cmd = "LANG=C service mysqld start 2>&1";
+    $logger->debug("Starting mysqld service: $cmd");
+    $status = pf_run($cmd);
+
+    # Everything goes as expected
+    if ( defined($status) ) {
+        $status_msg = "MySQL server successfully started";
+        $logger->info($status_msg);
+        return ($STATUS::OK, $status_msg);
+    } 
+    # Something wen't wrong
+    else {
+        $status_msg = "Something wen't wrong while starting MySQL server";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }

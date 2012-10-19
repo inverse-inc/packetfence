@@ -397,6 +397,9 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
     # Default username if nothing else have already been entered (provide a pre-filled field)
     $c->session->{root_user} = 'root' if (!defined($c->session->{root_user}));
 
+    # Check MySQLd status by fetching pid
+    $c->stash->{mysqld_running} = 1 if ($c->model('Config::System')->check_mysqld_status() ne 0);
+
     if ($c->request->method eq 'GET') {
         # Check if the database and user exist
         my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
