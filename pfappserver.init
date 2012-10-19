@@ -16,8 +16,8 @@ source /etc/rc.d/init.d/functions
 
 start() {
 	echo -n $"Starting pfappserver..."
- 	iptables -I INPUT -p tcp --dport 3000 -j ACCEPT
-	$PFAPPSERVER_DIR$PFAPPSERVER 1>/dev/null 2>&1 &
+ 	iptables -I INPUT -p tcp --dport 1444 -j ACCEPT
+	$PFAPPSERVER_DIR$PFAPPSERVER -p 1444 1>/dev/null 2>&1 &
 	RETVAL=$?
 	echo
 	return $RETVAL
