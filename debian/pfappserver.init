@@ -58,10 +58,10 @@ check_compile() {
 }
 
 _start() {
-  iptables -I INPUT -p tcp --dport 3000 -j ACCEPT
+  iptables -I INPUT -p tcp --dport 1444 -j ACCEPT
   start-stop-daemon --start --quiet --pidfile $PIDFILE -m --chdir $APPDIR \
     ${USER:+"--chuid"} $USER ${GROUP:+"--group"} $GROUP --background \
-    --startas $APPDIR/script/${UNIXNAME}_server.pl
+    --startas $APPDIR/script/${UNIXNAME}_server.pl -- -p 1444
 
 
   for i in 1 2 3 4 5 ; do
