@@ -505,7 +505,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 service pfappserver start
 
 echo Installation complete
-echo "  * Please fire up your Web browser and go to http://@ip_packetfence:3000/configurator to complete your PacketFence configuration."
+echo "  * Please fire up your Web browser and go to http://@ip_packetfence:1444/configurator to complete your PacketFence configuration."
 
 %post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
