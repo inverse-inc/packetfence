@@ -22,13 +22,25 @@ This field returns Y if true, N if false.
 =cut
 
 has '+checkbox_value' => ( default => 'Y' );
+has 'unchecked_value' => ( is => 'ro', default => 'N' );
 has '+inflate_default_method'=> ( default => sub { \&toggle_inflate } );
+has '+deflate_value_method'=> ( default => sub { \&toggle_deflate } );
 
 sub toggle_inflate {
     my ($self, $value) = @_;
 
-    return 'N' unless ($value =~ m/^(y|yes|true|enabled|1)$/i);
-    return 'Y';
+    return $self->{unchecked_value} if ($value ne $self->{checkbox_value});
+    return lc $value;
+}
+
+sub toggle_deflate {
+    my ($self, $value) = @_;
+
+    if ($value ne $self->{checkbox_value}) {
+        return $self->{unchecked_value};
+    }
+
+    return $value;
 }
 
 =head1 COPYRIGHT
