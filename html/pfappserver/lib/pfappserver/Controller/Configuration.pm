@@ -22,6 +22,7 @@ use POSIX;
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be 
 # imported but it's better than duplicating regex all over the place.
 use pf::config;
+use pfappserver::Form::Config::Pf;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -65,31 +66,12 @@ sub _format_section :Private {
         # Value should always be defined for toggles (checkbox and select)
         elsif ($entry_ref->{type} eq "toggle") {
             $entry_ref->{value} = $entry_ref->{default_value} unless ($entry_ref->{value});
-
-            # Switch to a popup list (select) when the toggle has no enabled/disabled options
-            if ($entry_ref->{options}->[0] ne "enabled") {
-                $entry_ref->{type} = "select";
-            }
         }
 
         elsif ($entry_ref->{type} eq "date") {
             my $time = str2time($entry_ref->{value} || $entry_ref->{default_value});
-            $entry_ref->{value} = POSIX::strftime("%m/%d/%Y", localtime($time));
-        }
-        
-        # Extract unit from time
-        elsif ($entry_ref->{type} eq "time") {
-            my $value = $entry_ref->{value} || $entry_ref->{default_value};
-            if ($value =~ m/(\d+)($TIME_MODIFIER_RE)/) {
-                my ($interval, $unit) = ($1, $2);
-                $entry_ref->{unit} = $unit;
-                if (defined $entry_ref->{value}) {
-                    $entry_ref->{value} = $interval;
-                } elsif ($entry_ref->{default_value} =~ m/(\d+)($TIME_MODIFIER_RE)/) {
-                    my ($interval, $unit) = ($1, $2);
-                    $entry_ref->{default_value} = $interval;
-                }
-            }
+            # Match date format of Form::Widget::Theme::Pf
+            $entry_ref->{value} = POSIX::strftime("%Y-%m-%d", localtime($time));
         }
 
         # Limited formatting from text to html
@@ -108,31 +90,58 @@ sub _format_section :Private {
 
 =cut
 sub _update_section :Private {
-    my ($self, $c) = @_;
+    my ($self, $c, $form) = @_;
 
     my $entries_ref = $c->model('Config::Pf')->read($c->action->name);
     my $data = {};
 
-    foreach my $config (@{$entries_ref}) {
-        if (exists($c->request->params->{$config->{parameter}})) {
-            $data->{$config->{parameter}} = $c->request->params->{$config->{parameter}};
-            if ($data->{$config->{parameter}} && $config->{type} eq 'time') {
-                my $unit = $c->request->params->{$config->{parameter} . '_unit'};
-                $data->{$config->{parameter}} .= $unit if ($unit);
-            }
-            elsif (exists($data->{$config->{parameter}}) && $config->{type} eq 'toggle') {
-                $data->{$config->{parameter}} = 'disabled' unless ($data->{$config->{parameter}});
-            }
+    foreach my $section (keys %$form) {
+        foreach my $field (keys %{$form->{$section}}) {
+            $data->{$section.'.'.$field} = $form->{$section}->{$field};
         }
     }
 
-    my ( $status, $message ) = $c->model('Config::Pf')->update($data);
+    my ($status, $message) = $c->model('Config::Pf')->update($data);
 
     if (is_error($status)) {
         $c->response->status($status);
     }
     $c->stash->{status_msg} = $message;
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 _process_section
+
+=cut
+sub _process_section :Private {
+    my ($self, $c) = @_;
+
+    my ($params, $form);
+
+    $c->stash->{section} = $c->action->name;
+    $c->stash->{template} = 'configuration/section.tt';
+
+    $params = $c->model('Config::Pf')->read($c->action->name);
+    $self->_format_section($params);
+
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::Config::Pf->new(ctx => $c,
+                                                   section => $params);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $c->response->status(HTTP_BAD_REQUEST);
+            $c->stash->{status_msg} = $form->field_errors; # TODO: localize error message
+        }
+        else {
+            $self->_update_section($c, $form->value);
+        }
+    }
+    else {
+        $form = pfappserver::Form::Config::Pf->new(ctx => $c,
+                                                   section => $params);
+        $form->process;
+        $c->stash->{form} = $form;
+    }
 }
 
 =head2 index
@@ -149,90 +158,45 @@ sub index :Path :Args(0) {
 
 =cut
 sub general :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{section} = $c->action->name;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    if ($c->request->method eq 'POST') {
-        $self->_update_section($c);
-    }
-    else {
-        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
-        $self->_format_section($c->stash->{params});
-    }
+    $self->_process_section($c);
 }
 
 =head2 network
 
 =cut
 sub network :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{section} = $c->action->name;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    if ($c->request->method eq 'POST') {
-        $self->_update_section($c);
-    }
-    else {
-        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
-        $self->_format_section($c->stash->{params});
-    }
+    $self->_process_section($c);
 }
 
 =head2 proxies
 
 =cut
 sub proxies :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{section} = $c->action->name;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    if ($c->request->method eq 'POST') {
-        $self->_update_section($c);
-    }
-    else {
-        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
-        $self->_format_section($c->stash->{params});
-    }
+    $self->_process_section($c);
 }
 
 =head2 trapping
 
 =cut
 sub trapping :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{section} = $c->action->name;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    if ($c->request->method eq 'POST') {
-        $self->_update_section($c);
-    }
-    else {
-        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
-        $self->_format_section($c->stash->{params});
-    }
+    $self->_process_section($c);
 }
 
 =head2 registration
 
 =cut
 sub registration :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{section} = $c->action->name;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    if ($c->request->method eq 'POST') {
-        $self->_update_section($c);
-    }
-    else {
-        $c->stash->{params} = $c->model('Config::Pf')->read($c->action->name);
-        $self->_format_section($c->stash->{params});
-    }
+    $self->_process_section($c);
 }
 
 =head2 violations
