@@ -18,6 +18,45 @@ the fields:
 use Moose::Role;
 with 'HTML::FormHandler::Widget::Theme::Bootstrap';
 
+=head2 get_language_handle_from_ctx
+
+=cut
+
+sub get_language_handle_from_ctx {
+    my $self = shift;
+
+    return pfappserver::I18N->get_handle(
+        @{ $self->ctx->languages } );
+}
+
+=head2 help
+
+=cut
+
+sub help {
+    my $self = shift;
+    my $help = undef;
+
+    if ($self->get_tag('help')) {
+        return sprintf('<p class="help-block">%s</p>', $self->_localize($self->get_tag('help')));
+    }
+}
+
+=head2 html_attributes
+
+Translate placeholders if defined
+
+=cut
+
+sub html_attributes {
+    my ( $self, $obj, $type, $attr, $result ) = @_;
+    # obj is either form or field
+    if (exists $attr->{'data-placeholder'}) {
+        $attr->{'data-placeholder'} = $self->_localize($attr->{'data-placeholder'});
+    }
+    return $attr;
+}
+
 sub build_update_subfields {{
     by_type =>
       {
@@ -34,9 +73,19 @@ sub build_update_subfields {{
        {
         wrapper_class => ['interval'],
        },
+       'TextArea' =>
+       {
+        element_class => ['input-xlarge'],
+       },
        'Uneditable' =>
        {
         element_class => ['uneditable'],
+       },
+       'DatePicker' =>
+       {
+        element_class =>  ['datepicker', 'input-small'],
+        element_attr => { 'data-date-format' => 'yyyy-mm-dd',
+                          placeholder => 'yyyy-mm-dd' },
        },
       },
 }}
@@ -49,18 +98,37 @@ sub update_fields {
             $field->element_attr({'data-required' => 'required'});
         }
         if ($field->type eq 'PosInteger') {
-            $field->element_attr({'data-type' => 'number'});
             $field->type_attr($field->html5_type_attr);
+            $field->{element_attr}->{'data-type'} = 'number';
         }
-        if ($field->type eq '+Duration') {
+        elsif ($field->type eq '+Duration') {
             foreach my $subfield (@{$field->fields}) {
                 if ($subfield->type eq 'PosInteger') {
-                    $subfield->element_attr({'data-type' => 'number'});
                     $subfield->type_attr($subfield->html5_type_attr);
+                    $subfield->{element_attr}->{'data-type'} = 'number';
                 }
             }
         }
     }
+}
+
+=head2 field_errors
+
+Return a hashref of field errors. Can be called once the form has been processed.
+
+=cut
+
+sub field_errors {
+    my $self = shift;
+
+    my %errors = ();
+    if ($self->has_errors) {
+        foreach my $field ($self->error_fields) {
+            $errors{$field->name} = join(' ', @{$field->errors});
+        }
+    }
+
+    return \%errors;
 }
 
 =head1 COPYRIGHT
