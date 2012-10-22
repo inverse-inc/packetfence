@@ -97,6 +97,10 @@ sub _update {
     my $config_entry = "$section.$param";
     my $violations_conf = $self->_load_conf();
 
+    # flatten array references
+    if (ref($value)) {
+        $value = join(',', @$value);
+    }
     if ( defined($violations_conf->{$section}->{$param}) ) {
         # a violations.conf parameter is unset: delete it
         if (!length($value)) {
