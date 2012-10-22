@@ -22,7 +22,12 @@ table .action {
       </div>
 
       <h2>[% l('Filters')  %]</h2>
+      [% IF error %]<div class="alert alert-error">
+        <button class="close" data-dismiss="alert">×</button>
+        <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
+      </div>[% END %]
       <p>[% l('Define the filters which will apply to all NAP-capable clients that produce a statement of health (SoH).') %]</p>
+
       [% IF filters.size -%]
       <table class="table">
         <thead>
@@ -42,7 +47,7 @@ table .action {
       </table>
       [% END -%]
 
-      <div id="noFilter" class="unwell[% ' hidden' IF filters.size > 0 %]">
+      <div id="noFilter" class="unwell[% ' hidden' IF filters.size %]">
         <i class="icon-filter icon-large"></i><p>[% l('No filter defined') %]</p>
       </div>
 
