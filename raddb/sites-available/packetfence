@@ -32,7 +32,6 @@ accounting {
 }
 
 session {
-        radutmp
 }
 
 post-auth {
