@@ -32,6 +32,7 @@ Enhancements
  * Selection of a preferred deauthentication method for a switch
  * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
  * Handling the MySQL startup in the web configurator
+ * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)

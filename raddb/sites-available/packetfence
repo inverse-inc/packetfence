@@ -28,7 +28,6 @@ preacct {
 
 accounting {
         sql
-        radutmp
         attr_filter.accounting_response
 }
 
