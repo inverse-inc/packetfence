@@ -30,6 +30,7 @@ BEGIN {
         class_trappable  class_view_actions 
         class_add        class_delete 
         class_merge
+        class_flush
     );
 }
 
@@ -57,6 +58,8 @@ sub class_db_prepare {
     $class_statements->{'class_exist_sql'} = get_db_handle()->prepare(qq [ select vid from class where vid=? ]);
 
     $class_statements->{'class_delete_sql'} = get_db_handle()->prepare(qq [ delete from class where vid=? ]);
+ 
+    $class_statements->{'class_flush_sql'} = get_db_handle()->prepare(qq [ delete from class ]);
 
     $class_statements->{'class_add_sql'} = get_db_handle()->prepare(
         qq [ insert into class(vid,description,auto_enable,max_enables,grace_period,window,vclose,priority,url,max_enable_url,redirect_url,button_text,enabled,vlan) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
@@ -121,6 +124,14 @@ sub class_delete {
     my $logger = Log::Log4perl::get_logger('pf::class');
     db_query_execute(CLASS, $class_statements, 'class_delete_sql', $id) || return (0);
     $logger->debug("class $id deleted");
+    return (1);
+}
+
+sub class_flush {
+    my ($id) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::class');
+    db_query_execute(CLASS, $class_statements, 'class_flush_sql') || return (0);
+    $logger->debug("classes flushed");
     return (1);
 }
 
