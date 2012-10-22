@@ -94,17 +94,6 @@ has_field 'useragent.device' =>
    element_attr => {disabled => 1},
   );
 
-=head2 get_language_handle_from_ctx
-
-=cut
-
-sub get_language_handle_from_ctx {
-    my $self = shift;
-
-    return pfappserver::I18N->get_handle(
-        @{ $self->ctx->languages } );
-}
-
 =head2 options_status
 
 =cut
@@ -129,40 +118,6 @@ sub options_category_id {
     my @categories = map { $_->{category_id} => $_->{name} } @{$self->categories} if ($self->categories);
 
     return ('' => '', @categories);
-}
-
-=head2 html_attributes
-
-Translate placeholders if defined
-
-=cut
-
-sub html_attributes {
-    my ( $self, $obj, $type, $attr, $result ) = @_;
-    # obj is either form or field
-    if (exists $attr->{'data-placeholder'}) {
-        $attr->{'data-placeholder'} = $self->_localize($attr->{'data-placeholder'});
-    }
-    return $attr;
-}
-
-=head2 field_errors
-
-Return a hashref of field errors. Can be called once the form has been processed.
-
-=cut
-
-sub field_errors {
-    my ($self) = @_;
-
-    my %errors = ();
-    if ($self->has_errors) {
-        foreach my $field ($self->error_fields) {
-            $errors{$field->name} = join(' ', @{$field->errors});
-        }
-    }
-
-    return \%errors;
 }
 
 =head1 COPYRIGHT

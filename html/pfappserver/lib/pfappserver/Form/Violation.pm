@@ -145,30 +145,6 @@ has_field 'vlan' =>
              help => 'Destination VLAN where PacketFence should put the client when a violation of this type is open.' }
   );
 
-=head2 get_language_handle_from_ctx
-
-=cut
-
-sub get_language_handle_from_ctx {
-    my $self = shift;
-
-    return pfappserver::I18N->get_handle(
-        @{ $self->ctx->languages } );
-}
-
-=head2 help
-
-=cut
-
-sub help {
-    my $self = shift;
-    my $help = undef;
-
-    if ($self->get_tag('help')) {
-        return sprintf('<p class="help-inline">%s</p>', $self->_localize($self->get_tag('help')));
-    }
-}
-
 =head2 options_actions
 
 =cut
@@ -223,23 +199,6 @@ sub validate {
             $self->field('vclose')->add_error('Specify a violation to close.');
         }
     }
-}
-
-=head2 field_errors
-
-=cut
-
-sub field_errors {
-    my $self = shift;
-
-    my %errors = ();
-    if ($self->has_errors) {
-        foreach my $field ($self->error_fields) {
-            $errors{$field->name} = join(' ', @{$field->errors});
-        }
-    }
-
-    return \%errors;
 }
 
 =head1 COPYRIGHT
