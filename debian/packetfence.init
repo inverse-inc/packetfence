@@ -119,8 +119,17 @@ case "$1" in
         /usr/local/pf/bin/pfcmd service pf status
         if [ ! -f /usr/local/pf/var/run/pfmon.pid ]; then
           exit 3
-       fi
-       ;;
+        fi
+        ;;
+ condrestart)
+        if [ -f /usr/local/pf/var/run/pfmon.pid ]; then
+            do_reload
+        else
+            if [ -f /usr/local/pf/var/run/pfsetvlan.pid ]; then
+                do_reload
+            fi
+        fi
+        ;;
   #reload|force-reload)
 	#
 	# If do_reload() is not implemented then leave this commented out
