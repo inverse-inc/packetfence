@@ -27,6 +27,9 @@ case "$1" in
     
     upgrade)
         invoke-rc.d pfappserver stop
+        if [ -d "/usr/local/pf/html/captive-portal/wispr" ] ; then
+                rm -fr /usr/local/pf/html/captive-portal/wispr
+        fi
         exit 0
     ;;
     abort-upgrade)
