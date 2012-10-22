@@ -109,6 +109,11 @@ sub service_ctl {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my $service = ( $Config{'services'}{"${daemon}_binary"} || "$install_dir/sbin/$daemon" );
     my $binary = basename($service);
+
+    #Untaint Daemon
+    $daemon =~ /^(.*)$/;
+    $daemon = $1;
+
     $logger->info("$service $action");
     if ( $binary =~ /^($ALL_BINARIES_RE)$/ ) {
         $binary = $1;
