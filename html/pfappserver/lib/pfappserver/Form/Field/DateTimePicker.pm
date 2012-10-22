@@ -26,12 +26,9 @@ has '+deflate_value_method'=> ( default => sub { \&datetime_deflate } );
 
 has_field 'date' =>
   (
-   type => 'Text',
+   type => 'DatePicker',
    do_label => 0,
    widget_wrapper => 'None',
-   element_class => ['datepicker', 'input-small'],
-   element_attr => { 'data-date-format' => 'yyyy-mm-dd',
-                     placeholder => 'yyyy-mm-dd' },
   );
 has_field 'time' => 
   (
