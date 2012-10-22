@@ -108,6 +108,7 @@ PerlSwitches -I%%install_dir%%/lib
 # Initialize random seed per child (avoid random clashes)
 # Setting child process id in Log4perl
 PerlChildInitHandler "sub { srand; Log::Log4perl::MDC->put('tid', $$) }";
+PerlOptions +GlobalRequest
 php_value date.timezone "%%timezone%%"
  
 AddType application/x-httpd-php .php
