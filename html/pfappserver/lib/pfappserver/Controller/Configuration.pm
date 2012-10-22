@@ -274,9 +274,7 @@ sub soh :Local {
         }
     }
     if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
+        $c->stash->{error} = $result;
     }
 }
 
