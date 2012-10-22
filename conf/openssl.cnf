@@ -1,10 +1,10 @@
 HOME            = ./ 
 RANDFILE        = $ENV::HOME/.rnd 
 
-############################################################################
-# These fields will be used to create the Vulture X509 Digital Certificate #
-#       Default Values are good for default VultureNG configuration        #
-############################################################################
+################################################################################
+# These fields will be used to create the PacketFence X509 Digital Certificate #
+#       Default Values are good for default PacketFence configuration          #
+################################################################################
 
 [ req_distinguished_name ] 
 
