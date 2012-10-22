@@ -311,6 +311,10 @@ sub _update {
     return ($STATUS::NOT_FOUND, "Unknown configuration parameter $config_entry!")
         if ( !defined($pf_conf->{$section}->{$param}) && !defined($defaults_conf->{$section}->{$param}) );
 
+    # flatten array references
+    if (ref($value)) {
+        $value = join(',', @$value);
+    }
     if ( defined($pf_conf->{$section}->{$param}) ) {
         # a pf.conf parameter is unset: delete it
         if (!length($value)) {
@@ -327,7 +331,7 @@ sub _update {
         }
     }
     # pf.conf parameter isn't set and new value is not the default: add to pf.conf
-    elsif ( $defaults_conf->{$section}->{$param} ne $value ) {
+    elsif ( length($value) && $defaults_conf->{$section}->{$param} ne $value ) {
         tied(%$pf_conf)->newval( $section, $param, $value );
     }
 
