@@ -105,6 +105,7 @@ Requires: perl >= 5.8.8
 Requires: %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
+Requires: perl(Apache2::Request)
 Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
