@@ -33,6 +33,7 @@ Enhancements
  * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
  * Handling the MySQL startup in the web configurator
  * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
+ * Changing port of the configuration from 3000 to 1444 (#1506)
 
 Bug Fixes
  * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
