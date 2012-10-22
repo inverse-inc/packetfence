@@ -159,10 +159,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         else {
             my $data = $form->value;
-
-            # Flatten arrays
-            $data->{actions} = join(',', @{$data->{actions}}) if ($data->{actions});
-            $data->{trigger} = join(',', @{$data->{trigger}}) if ($data->{trigger});
             ($status, $result) = $c->model('Config::Violations')->update({ $c->{stash}->{violation}->{id} => $data });
         }
         if (is_error($status)) {
