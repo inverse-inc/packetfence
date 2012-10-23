@@ -72,7 +72,8 @@ $mock->mock('violation_count_trap', sub { return (1); });
 $mock->mock('violation_view_top', sub { return $FALSE; });
 
 my $vlan;
-$vlan = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
+my $wasInline;
+($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('bb:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 2, "determine vlan for node with violation");
 
 # violation_count_trap will return 0
@@ -88,7 +89,7 @@ $mock->mock('node_attributes', sub {
 
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = $switchFactory->instantiate('10.0.0.2');
-$vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
+($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
 is($vlan, 15, "determine vlan for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
@@ -98,13 +99,13 @@ $mock->mock('node_attributes', sub {
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
 });
 
-$vlan = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
+($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
 
-$vlan = $vlan_obj->getNormalVlan($switch);
+($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
 is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-$vlan = $vlan_obj->getNormalVlan($switch_vlan_override);
+($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch_vlan_override);
 is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
 
 # doWeActOnThisTrap tests
