@@ -62,6 +62,12 @@ my $switch = $switchFactory->instantiate('192.168.0.1');
 my $mock = new Test::MockModule('pf::vlan');
 # emulate the presence of a violation
 # TODO this is a cheap test, the false in view_top is to avoid the cascade of vid, class, etc. checking
+# mocked node_attributes returns violation node
+$mock->mock('node_attributes', sub {
+    return { mac => 'bb:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '',
+        lastskip => '', status => 'unreg', user_agent => '', computername => '', notes => '', last_arp => '',
+        last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => '1'}
+});
 $mock->mock('violation_count_trap', sub { return (1); });
 $mock->mock('violation_view_top', sub { return $FALSE; });
 

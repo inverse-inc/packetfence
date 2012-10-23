@@ -62,10 +62,12 @@ sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
+    my $node_info = node_attributes($mac);
+
     if ($this->isInlineTrigger($switch,$ifIndex,$mac,$ssid)) {
         $logger->info("Inline trigger match, the node is in inline mode");
         my $inline = $this->getInlineVlan(
-          $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
+          $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
         $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         return ( $inline , 1 );
     }
@@ -79,7 +81,6 @@ sub fetchVlanForNode {
     }
 
     # there were no violation, now onto registration handling
-    my $node_info = node_attributes($mac);
     my $registration = $this->getRegistrationVlan(
         $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid
     );
@@ -357,10 +358,11 @@ sub getInlineVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
+    #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     return $switch->getVlanByName('inlineVlan');
