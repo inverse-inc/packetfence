@@ -50,6 +50,7 @@ sub _load_conf {
             tie %conf, 'Config::IniFiles';
             tied(%conf)->SetFileName($config_file)
                 or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
+            tied(%conf)->SetWriteMode("0644");
         }
 
         foreach my $section ( tied(%conf)->Sections ) {
