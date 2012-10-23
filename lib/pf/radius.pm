@@ -30,7 +30,7 @@ use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 =head1 SUBROUTINES
 
@@ -152,7 +152,7 @@ sub authorize {
     }
 
     # grab vlan
-    my $vlan = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -162,16 +162,9 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => "This node is not allowed to use this service") ];
     }
 
-    if ($this->isInlineTrigger($switch,$port,$mac,$ssid)) {
-        $logger->info("Inline trigger match, the node is in inline mode, returning Access-Accept");
-        if (defined($switch->{_inlineVlan}) && ($switch->{_inlineVlan} != "")) {
-            my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($switch->{_inlineVlan}, $mac, $port, $connection_type, $user_name, $ssid);
-            return $RAD_REPLY_REF;
-        }
-        return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Returning Access-Accept because trigger match for inline mode") ];
-    }
-
-    if (!$switch->isManagedVlan($vlan)) {
+    #TODO: Get rid of this
+    #Bypass for Inline
+    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
         $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
                      ."Is the target vlan in the vlans=... list?");
         $switch->disconnectRead();
@@ -181,11 +174,11 @@ sub authorize {
 
     #closes old locationlog entries and create a new one if required
     locationlog_synchronize($switch_ip, $port, $vlan, $mac, 
-        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
+        $isPhone ? $VOIP : $NO_VOIP, $wasInline ? $INLINE : $connection_type, $user_name, $ssid
     );
 
-    # does the switch support Dynamic VLAN Assignment
-    if (!$switch->supportsRadiusDynamicVlanAssignment()) {
+    # does the switch support Dynamic VLAN Assignment, bypass if using Inline
+    if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
             "Switch doesn't support Dynamic VLAN assignment. " . 
             "Setting VLAN with SNMP on " . $switch->{_ip} . " ifIndex $port to $vlan"
@@ -195,7 +188,7 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
-    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid);
+    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline);
 
     if ($this->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
         $RAD_REPLY_REF = $this->_rewriteAccessAccept(
@@ -479,43 +472,6 @@ sub _rewriteAccessAccept {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     return $RAD_REPLY_REF;
-}
-
-=item * isInlineTrigger
-
-Return true if a radius properties match with the inline trigger
-
-=cut
-sub isInlineTrigger {
-    my ($self, $switch, $port, $mac, $ssid) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($self));
-    if (defined($switch->{_inlineTrigger})) {
-        foreach my $trigger (@{$switch->{_inlineTrigger}})  {
-
-            # TODO we should refactor this into objects where trigger types provide their own matchers
-            # at first, we are liberal in what we accept
-            if ($trigger !~ /^\w+::(.*)$/) {
-                $logger->warn("Invalid trigger id ($trigger)");
-                return $FALSE;
-            }
-
-            my ( $type, $tid ) = split( /::/, $trigger );
-            $type = lc($type);
-            $tid =~ s/\s+$//; # trim trailing whitespace
-
-            return $TRUE if ($type eq $ALWAYS);
-
-            # make sure trigger is a valid trigger type
-            # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
-            if ( !grep( { lc($_) eq $type } $switch->inlineCapabilities ) ) {
-                $logger->warn("Invalid trigger type ($type), this is not supported by this switch");
-                return $FALSE;
-            }
-            return $TRUE if (($type eq $MAC) && ($mac eq $tid));
-            return $TRUE if (($type eq $PORT) && ($port eq $tid));
-            return $TRUE if (($type eq $SSID) && ($ssid eq $tid));
-        }
-    }
 }
 
 =back

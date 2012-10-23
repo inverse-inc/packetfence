@@ -8,6 +8,12 @@ Notes on upgrading from an older release.
 Upgrading from a version prior to <develRelease>
 ------------------------------------------------
 
+Changes to VLAN assignement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The fetchVlanForNode (vlan.pm) has been changed to add the new Inline VLAN dynamic VLAN assignment code.
+Same thing for the authorize (radius.pm).  You should review your custom code to reflect the changes.
+
 Template files movement
 ^^^^^^^^^^^^^^^^^^^^^^^
 

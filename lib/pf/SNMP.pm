@@ -774,6 +774,12 @@ sub getVlanByName {
         $logger->warn("VLAN $vlanName is not a valid VLAN identifier (something wrong in conf/switches.conf?)");
         return;
     }
+
+    if ($vlanName eq "inlineVlan" && $this->{"_".$vlanName} eq "") {
+        # VLAN empty, return 0 for Inline
+        $logger->warn("VLAN $vlanName is empty in switches.conf.  Please ignore if your intentions were to use the native VLAN");
+        return 0;
+    }
     
     if ($this->{"_".$vlanName} !~ /^\d+$/) {
         # is not resolved to a valid VLAN number
@@ -2737,15 +2743,19 @@ Default implementation.
 
 =cut
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
-    # VLAN enforcement
-    my $radius_reply_ref = {
-        'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
-        'Tunnel-Type' => $RADIUS::VLAN,
-        'Tunnel-Private-Group-ID' => $vlan,
-    };
+    # Inline Vs. VLAN enforcement
+    my $radius_reply_ref = {};
+
+    if (!$wasInline || ($wasInline && $vlan != 0)) {
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+    }
 
     # TODO this is experimental
     try {

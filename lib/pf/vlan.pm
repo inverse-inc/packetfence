@@ -24,7 +24,7 @@ use pf::SNMP::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 
-our $VERSION = 1.01;
+our $VERSION = 1.03;
 
 =head1 SUBROUTINES
 
@@ -62,21 +62,30 @@ sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
+    my $node_info = node_attributes($mac);
+
+    if ($this->isInlineTrigger($switch,$ifIndex,$mac,$ssid)) {
+        $logger->info("Inline trigger match, the node is in inline mode");
+        my $inline = $this->getInlineVlan(
+          $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+        $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
+        return ( $inline , 1 );
+    }
+
     # violation handling
     my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
-        return $violation;
+        return ( $violation, 0 );
     } elsif (!defined($violation)) {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
 
     # there were no violation, now onto registration handling
-    my $node_info = node_attributes($mac);
     my $registration = $this->getRegistrationVlan(
         $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid
     );
     if (defined($registration) && $registration != 0) {
-        return $registration;
+        return ( $registration , 0 );
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
@@ -86,7 +95,7 @@ sub fetchVlanForNode {
         $vlan = $switch->getVlanByName('macDetectionVlan');
     }
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
-    return $vlan;
+    return ( $vlan, 0 );
 }
 
 =item doWeActOnThisTrap  
@@ -332,6 +341,34 @@ sub getNormalVlan {
     return $switch->getVlanByName('normalVlan');
 }
 
+=item getInlineVlan
+
+Handling the Inline VLAN Assignment
+
+=item * -1 means kick-out the node (not always supported)
+
+=item * 0 means use native vlan
+
+=item * undef means there was an error
+
+=item * anything else is either a VLAN name string or a VLAN number
+
+=cut
+sub getInlineVlan {
+    #$switch is the switch object (pf::SNMP)
+    #$ifIndex is the ifIndex of the computer connected to
+    #$mac is the mac connected
+    #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
+    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl->get_logger();
+
+    return $switch->getVlanByName('inlineVlan');
+
+}
+
 =item getNodeInfoForAutoReg
 
 Basic information returned for an auto-registered node
@@ -430,6 +467,44 @@ sub shouldAutoRegister {
     # otherwise don't autoreg
     return 0;
 }
+
+=item * isInlineTrigger
+
+Return true if a radius properties match with the inline trigger
+
+=cut
+sub isInlineTrigger {
+    my ($self, $switch, $port, $mac, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($self));
+    if (defined($switch->{_inlineTrigger})) {
+        foreach my $trigger (@{$switch->{_inlineTrigger}})  {
+
+            # TODO we should refactor this into objects where trigger types provide their own matchers
+            # at first, we are liberal in what we accept
+            if ($trigger !~ /^\w+::(.*)$/) {
+                $logger->warn("Invalid trigger id ($trigger)");
+                return $FALSE;
+            }
+
+            my ( $type, $tid ) = split( /::/, $trigger );
+            $type = lc($type);
+            $tid =~ s/\s+$//; # trim trailing whitespace
+
+            return $TRUE if ($type eq $ALWAYS);
+
+            # make sure trigger is a valid trigger type
+            # TODO refactor into an ListUtil test or an hash lookup (see Perl Best Practices)
+            if ( !grep( { lc($_) eq $type } $switch->inlineCapabilities ) ) {
+                $logger->warn("Invalid trigger type ($type), this is not supported by this switch");
+                return $FALSE;
+            }
+            return $TRUE if (($type eq $MAC) && ($mac eq $tid));
+            return $TRUE if (($type eq $PORT) && ($port eq $tid));
+            return $TRUE if (($type eq $SSID) && ($ssid eq $tid));
+        }
+    }
+}
+
 =back
 
 =head1 AUTHOR
