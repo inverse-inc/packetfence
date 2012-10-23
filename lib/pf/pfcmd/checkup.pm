@@ -21,6 +21,7 @@ use pf::config;
 use pf::util;
 use pf::services;
 use pf::trigger;
+use NetAddr::IP;
 
 use lib $conf_dir;
 
@@ -211,6 +212,19 @@ sub interfaces {
                     "You should use the 'management' keyword instead. " .
                     "Seen on interface $interface."
                 );
+            }
+        }
+        my $ip = new NetAddr::IP::Lite clean_ip($Config{$device}{'ip'});
+        if (defined($Config{$device}{'enforcement'}) && ($Config{$device}{'enforcement'} eq $IF_ENFORCEMENT_INLINE)) {
+            foreach my $network (keys %ConfigNetworks) {
+                my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+                if ($net_addr->contains($ip)) {
+                    if ($Config{$device}{'enforcement'} ne $ConfigNetworks{$network}{'type'}) {
+                        add_problem( $WARN,
+                            "You defined an inline interface ($Config{$device}{'ip'}) but no inline network"
+                        );
+                    }
+                }
             }
         }
     }
@@ -424,6 +438,18 @@ sub network_inline {
             "networks.conf $network gateway ($net{'gateway'}) is not bound to an internal interface. " .
             "Assume your configuration is wrong unless you know what you are doing."
         );
+    }
+    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+    foreach my $int (@internal_nets) {
+        my $ip = new NetAddr::IP::Lite clean_ip($Config{ 'interface ' . $int->tag('int') }{'ip'});
+        if ($net_addr->contains($ip)) {
+            if ($Config{ 'interface ' . $int->tag('int') }{'enforcement'} ne $ConfigNetworks{$network}{'type'}) {
+                add_problem( $WARN,
+                    "You defined a inline network ($int) but no inline interface."
+                );
+            }
+         next;
+        }
     }
 }
 
