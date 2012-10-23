@@ -227,6 +227,7 @@ sub generate_inline_rules {
                 . "--jump REDIRECT\n";
         $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
                 . "--jump REDIRECT\n";
+        last;
     }
     
     $logger->info("Adding NAT Masquarade statement (PAT)");
