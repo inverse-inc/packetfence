@@ -7,6 +7,6 @@
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">[% l('Save changes') %]</button>
-      <button class="btn">[% l('Cancel') %]</button>
+      <a class="btn" href="[% c.uri_for(c.controller('Admin').action_for('configuration'), c.action.name) %]">[% l('Reset') %]</a>
     </div>
   </form>
