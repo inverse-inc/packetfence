@@ -23,7 +23,7 @@ use pf::node qw(node_attributes node_add_simple node_exist);
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 
-our $VERSION = 1.01;
+our $VERSION = 1.03;
 
 =head1 SUBROUTINES
 

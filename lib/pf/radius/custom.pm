@@ -31,7 +31,7 @@ use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 =head1 AUTHOR
 
