@@ -44,6 +44,7 @@ Bug Fixes
  * Better POD for Nortel ERS5500 switches (#1450)
  * Issue with violations reload (#1555)
  * Allow dash in Role mappings (#1442)
+ * Enforce inline network if you define an inline interface in pf.conf (#1584)
 
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
