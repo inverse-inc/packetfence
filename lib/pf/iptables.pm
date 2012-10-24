@@ -549,19 +549,8 @@ This sub lives under the guarantee that there is a change, that if old_mark == n
 sub update_mark {
     my ($self , $mac, $old_mark, $new_mark) = @_;
 
-    # if we come from registration, we are only adding a rule
-    if ($old_mark == $IPTABLES_MARK_UNREG) {
-        $self->iptables_mark_node($mac, $new_mark);
-
-    # if we go to registration, we are only deleting a rule
-    } elsif ($new_mark == $IPTABLES_MARK_UNREG) {
-        $self->iptables_unmark_node($mac, $old_mark);
-
-    # otherwise we delete and then add
-    } else {
-        $self->iptables_unmark_node($mac, $old_mark);
-        $self->iptables_mark_node($mac, $new_mark);
-    }
+    $self->iptables_unmark_node($mac, $old_mark);
+    $self->iptables_mark_node($mac, $new_mark);
     return 1;
 }
 
