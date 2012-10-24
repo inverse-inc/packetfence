@@ -42,7 +42,6 @@ Bug Fixes
  * No more domain in our gettext po resources files (#1433)
  * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
  * Better POD for Nortel ERS5500 switches (#1450)
- * Issue with violations reload (#1555)
  * Allow dash in Role mappings (#1442)
  * Enforce inline network if you define an inline interface in pf.conf (#1584)
 

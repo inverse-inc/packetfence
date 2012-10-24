@@ -37,7 +37,7 @@ use pf::config;
 use pf::util;
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all parse_triggers);
-use pf::class qw(class_view_all class_merge class_flush);
+use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
 use pf::services::named qw(generate_named_conf);
@@ -372,8 +372,7 @@ sub read_violations_conf {
     }
     my %violations = class_set_defaults(%violations_conf);
 
-    #clear all triggers and classes at startup
-    class_flush();
+    #clear all triggers at startup
     trigger_delete_all();
     foreach my $violation ( keys %violations ) {
 
