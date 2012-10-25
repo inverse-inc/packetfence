@@ -228,6 +228,7 @@ sub recoverSwitch {
         foreach my $currentIfIndex ( sort { $a <=> $b } @managedIfIndexes ) {
             my $currentVlan = $vlanHashRef->{$currentIfIndex};
             my $correctVlan = 0;
+            my $wasInline;
             my $locationLog = '';
             my $status      = '';
             my $ifOperStatus
@@ -294,7 +295,7 @@ sub recoverSwitch {
                 if ( scalar(@currentPcs) > 1 ) {
                     $correctVlan = $switch->{_isolationVlan};
                 } elsif ( scalar(@currentPcs) == 1 ) {
-                    $correctVlan = $vlan_obj->fetchVlanForNode( $currentPcs[0], $switch, $currentIfIndex );
+                    ($correctVlan,$wasInline) = $vlan_obj->fetchVlanForNode( $currentPcs[0], $switch, $currentIfIndex );
                     my $locationlog_entry
                         = locationlog_view_open_mac( $currentPcs[0] );
                     if ( !$locationlog_entry ) {

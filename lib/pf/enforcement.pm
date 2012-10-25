@@ -195,7 +195,7 @@ sub _should_we_reassign_vlan {
         return $FALSE;
     }
 
-    my $newCorrectVlan = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type, $user_name, $ssid);
+    my ($newCorrectVlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $ifIndex, $connection_type, $user_name, $ssid);
     if ( $newCorrectVlan == -1 ) {
         $logger->info(
             "VLAN reassignment required for $mac (current VLAN = $currentVlan but should be in VLAN $newCorrectVlan)"

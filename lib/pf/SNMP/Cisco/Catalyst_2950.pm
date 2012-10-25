@@ -1001,9 +1001,11 @@ sub dot1xPortReauthenticate {
 
     my $mac = $locationlog[0]->{'mac'};
     my $vlan_obj = new pf::vlan::custom();
+    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X);
+
     $this->_setVlan(
         $ifIndex, 
-        $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X), 
+        $vlan,
         undef, 
         # TODO passing an empty switchlocker is not the best thing to do...
         {}
