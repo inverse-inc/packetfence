@@ -85,12 +85,13 @@ function initStep() {
 
     $('#startMySQL').click(function(event) {
         var btn = $(this);
+        var parent = btn.parent();
 
         $.ajax({
             url: btn.attr('href')
         }).done(function(data) {
-            showSuccess(btn.parent(), data.status_msg);
             resetAlert(btn.closest('form'));
+            showSuccess(parent, data.status_msg);
         }).fail(function(jqXHR) {
             showError(btn.parent(), obj.status_msg);
         });
