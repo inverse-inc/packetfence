@@ -13,7 +13,12 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
+Version <develRelease> released on <releaseDate>
+
+
+--------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
+
 
 --------------------------------------------------------------------------------
 Version 3.6.0 released on 2012-10-25
