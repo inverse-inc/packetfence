@@ -44,6 +44,7 @@ sub _load_conf {
         if ( -e $config_file ) {
             tie %conf, 'Config::IniFiles', ( -file => $config_file )
                 or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
+            tied(%conf)->SetWriteMode("0644");
         }
         # start with an empty file
         else {
