@@ -5,7 +5,7 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
-Upgrading from a version prior to <develRelease>
+Upgrading from a version prior to 3.6.0
 ------------------------------------------------
 
 Changes to VLAN assignement
@@ -133,10 +133,6 @@ Changes to pf::SNMP API
 
 After a few years marked as deprecated. `pf::SNMP.pm`'s `setIsolationVlan`,
 `setRegistrationVlan` and `setNormalVlan` were removed.
-
-
-Upgrading from a version prior to <stableRelease>
--------------------------------------------------
 
 .LLDP Support
 

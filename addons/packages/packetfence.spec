@@ -803,6 +803,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Thu Oct 25 2012 Francois Gaudreault <fgaudreault@inverse.ca> - 3.6.0-1
+- New release 3.6.0
+
 * Fri Oct 19 2012 Francois Gaudreault <fgaudreault@inverse.ca>
 - Disable SELinux in the post install section.
 

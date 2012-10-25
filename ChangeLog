@@ -1,3 +1,2708 @@
+commit 27692862c6545ef48afe4994e63019ae436a1c35
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 25 14:41:14 2012 -0400
+
+    Pre-Release Tasks. Version Bumps in Doc.
+
+A	db/pf-schema-3.6.0.sql
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit d319756308c14249e2841fe37d98ba2380ea2153
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 25 14:08:57 2012 -0400
+
+    Locationlog issue with Inline RADIUS
+
+M	lib/pf/radius.pm
+
+commit 963f0a028e631b45e43a31cd993e70c2f9f09128
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 25 11:54:14 2012 -0400
+
+    Other changes for the new fetchVlanForNode output
+
+M	addons/recovery.pl
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/enforcement.pm
+M	sbin/pfsetvlan
+
+commit e95e9b00274d4bbedbbdd07767855f41d5cc088a
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Oct 25 11:13:44 2012 -0300
+
+    Fixing 1578 - Part 2
+    
+    Need to apply the same permissions (0644) even when the file exists
+
+M	html/pfappserver/lib/pfappserver/Model/Config/Pf.pm
+
+commit 6d2b18e06fad5338cec1ccb9b3fc2e802981a391
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 24 16:27:37 2012 -0400
+
+    pfdhcplistener crash Issue ID 1585
+
+M	sbin/pfdhcplistener
+
+commit cc3edf1198cbcd1068229027516c362fc0c37826
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 24 14:53:11 2012 -0400
+
+    Fix update_mark
+
+M	lib/pf/iptables.pm
+
+commit ea99a5ea7bf7b3987406b3401a961c81d6e88ed6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 24 12:20:24 2012 -0400
+
+    Fix PacketFence_Network_Devices_configuration_Guide
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 579ae659252b60bb9efd671b12dfa9078e721194
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 24 12:03:34 2012 -0400
+
+    Fix permissions in packetfence-pfcmd-suid debian package
+
+M	debian/rules
+
+commit e81eb0135e1b8d28079e375a2076f616e397af2c
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 24 11:58:42 2012 -0400
+
+    Revert "Fixing bug 1555"
+    
+    This reverts commit 0fa41aae771a1e655f92515ed641c2ccc76f5a0a.
+    
+    Conflicts:
+    
+    	NEWS
+
+M	NEWS
+M	lib/pf/class.pm
+M	lib/pf/services.pm
+
+commit c97532fefb62b4b602729b6797726482c4560de8
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 24 10:58:26 2012 -0400
+
+    Pump API versions of the custom extension files
+
+M	lib/pf/radius/custom.pm
+M	lib/pf/vlan/custom.pm
+
+commit 9a028b5f0383cd1f35dca3682ebd2a42cf04a78b
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 24 09:57:09 2012 -0400
+
+    NEWS entry for fix 1584
+
+M	NEWS
+
+commit c7505cd27ad5d81eed8dc227dc0d274b45aa1f2a
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Wed Oct 24 10:36:12 2012 -0300
+
+    Fixing 1574
+
+M	html/pfappserver/root/static/configurator/database.js
+
+commit 51afba3057e3b01c55f33f16f915249e74410ed3
+Author: root <root@poulicheFencer.dMacBookPro>
+Date:   Tue Oct 23 14:45:08 2012 -0400
+
+    Fixing 1578 by setting new pf.conf file permissions to 0644
+
+M	html/pfappserver/lib/pfappserver/Model/Config/Pf.pm
+
+commit 99922982bed054b648105eb2b91ad370065fd00e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 23 13:44:54 2012 -0400
+
+    Fix the vlan test once and for all (I hope!)
+
+M	t/vlan.t
+
+commit 8d3ae3d6a54ae7824b95a9981021908e1496cc72
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 23 13:32:27 2012 -0400
+
+    Final VLAN + adjusted tests
+
+M	lib/pf/vlan.pm
+M	t/vlan.t
+
+commit ceaa7aaa67b32b656328ca1ef05cdd3a10d959f9
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 23 13:19:03 2012 -0400
+
+    Oups! small fix to vlan.pm
+
+M	lib/pf/vlan.pm
+
+commit 37a4a3d4ad4f01c751b6299bae877ba31c6808fd
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 23 13:11:28 2012 -0400
+
+    Moving back the node_attribute call where it was
+
+M	lib/pf/vlan.pm
+
+commit fc6e7265f5b1ed2fb7908920af20dc1f33d1d061
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 23 12:35:43 2012 -0400
+
+    Added checkup fir inline interfaces and networks
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit a79da72129b9d68b7cb8028680db6606ec0783c8
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 23 11:15:24 2012 -0400
+
+    Small rework for Inline VLAN assignments (RADIUS)
+
+M	UPGRADE
+M	lib/pf/SNMP.pm
+M	lib/pf/radius.pm
+M	lib/pf/vlan.pm
+
+commit 055fb506353edac9107578bb5df5ebf35182e8da
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 23 10:45:41 2012 -0400
+
+    Fix duplicate iptables entries
+
+M	lib/pf/iptables.pm
+
+commit 186e54a34c922005c4c9eca57e2046e57f76b7ed
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 23 10:41:57 2012 -0400
+
+    Wispr template modification
+
+M	html/captive-portal/templates/response_wispr.tt
+
+commit b71743c3e8e54960ad72a48ff6aabe9a2bb9023e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 23 08:27:54 2012 -0400
+
+    Fix permissions in debian rules
+
+M	debian/rules
+
+commit 1644ef2ea94f4138b045c8c95051e440eba7da77
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 22 15:40:07 2012 -0400
+
+    Permitting dashes in the role names (#1442)
+
+M	NEWS
+M	lib/pf/pfcmd/checkup.pm
+
+commit 0fa41aae771a1e655f92515ed641c2ccc76f5a0a
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 22 15:17:25 2012 -0400
+
+    Fixing bug 1555
+
+M	NEWS
+M	lib/pf/class.pm
+M	lib/pf/services.pm
+
+commit d7a5263358df56b455760577a7fda5660b0377fc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 22 14:54:52 2012 -0400
+
+    condrestart in packetfence init script
+
+M	debian/packetfence.init
+
+commit a3155d23912124cc3cef55d596054d55f18047d5
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 22 14:23:57 2012 -0400
+
+    Fix debian upgrade
+
+M	debian/control
+M	debian/packetfence.preinst
+
+commit 7f805f9342782946d9f48db5a04a1dbfc0064d43
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 22 13:03:27 2012 -0400
+
+    NEWS entry for the configurator port change
+
+M	NEWS
+
+commit 786e1e7e36f50f3882c9c9ca057614706315c95d
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 22 13:02:40 2012 -0400
+
+    Fix string
+
+M	conf/openssl.cnf
+
+commit 9e37f571806b235373263983cb85f80c432eb5a2
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 22 12:49:30 2012 -0400
+
+    Added a missing PerlOptions in httpd.conf.apache22
+
+M	conf/httpd.conf.apache22
+
+commit 195ebe4644cb5437b2be9cfffd949d59eae2621a
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 22 12:32:17 2012 -0400
+
+    Fixing RADIUS sites config
+
+M	raddb/sites-available/packetfence
+M	raddb/sites-available/packetfence-tunnel
+
+commit 0561093bd166138ce62419afafa7f9676f7a0050
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 22 12:00:07 2012 -0400
+
+    Removing radutmp
+
+M	NEWS
+M	raddb/sites-available/packetfence
+
+commit f0a808cd39a2238edcc8e9d969e64ad5018a3185
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 22 11:39:43 2012 -0400
+
+    Untaint daemon in services.pm
+
+M	lib/pf/services.pm
+
+commit 805655a9aa80d94066a9832daa264f16ca1f1a79
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 22 11:13:05 2012 -0400
+
+    Added missing deps
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit 0e899d73adb39942e185412c83432ca9729805a3
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 19 16:20:22 2012 -0400
+
+    Fixing doc layout
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 3a3c827a835f183126f9582255ad0d08b67543b4
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 19 15:52:14 2012 -0400
+
+    Adding bugs and limitations for weird regressions
+
+M	NEWS
+M	lib/pf/SNMP/Nortel/ERS5000_6x.pm
+
+commit 5083b422602f08e103dcb152db1d5f845525a5f5
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 19 10:12:56 2012 -0400
+
+    Changed the default port 3000 to 1444 for configurator
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.postinst
+M	docs/PacketFenceZEN_Installation_Guide.asciidoc
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	pfappserver.init
+
+commit 8ef28f98b979c5539d1d2866eedee391271208f3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 19 09:51:01 2012 -0400
+
+    Change pfappserver port in debian (1444)
+
+M	debian/pfappserver.init
+
+commit 7a45f09364f8b77c333f9731598a45bcb6c5a7ad
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 19 09:47:28 2012 -0400
+
+    Disable SELinux in the SPEC post-install section
+
+M	addons/packages/packetfence.spec
+
+commit bca8e228667f828b9eb2e3c97eda2042f08f9ce9
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 19 09:12:33 2012 -0400
+
+    NEWS entry for merge feature/configurator-mysql-handling
+
+M	NEWS
+
+commit 850f9b4ded7d0369925aa1b024521cb78f1e5ec8
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 19 08:56:01 2012 -0400
+
+    Fix debian/control
+
+M	debian/control
+
+commit 8191ec758b4d797b96fff346babc50d6d2e0e83d
+Author: Ludovic Marcotte <lmarcotte@inverse.ca>
+Date:   Fri Oct 19 01:22:15 2012 -0400
+
+    Slightly updated the documentation
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit b62736d4607b31b5523d64b04664b9620de77aec
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Fri Oct 19 01:42:06 2012 -0300
+
+    Changed $(this) by btn
+
+M	html/pfappserver/root/static/configurator/database.js
+
+commit 25f48c7db309b6cd6e104a54850bc21ef2e3db74
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Oct 18 11:22:36 2012 -0400
+
+    Improved buttons of templates
+    
+    - Added github icon
+    - Propagated the new buttons layout
+
+M	html/admin/templates/guestcreation_confirmation.html
+M	html/admin/templates/login.html
+M	html/admin/templates/register_guest.html
+M	html/captive-portal/content/images/facebook.icon.png
+A	html/captive-portal/content/images/github.icon.png
+M	html/captive-portal/content/images/google.icon.png
+M	html/captive-portal/content/styles.css
+M	html/captive-portal/templates/billing/billing.html
+M	html/captive-portal/templates/enabler.html
+M	html/captive-portal/templates/guest.html
+M	html/captive-portal/templates/guest/sms_confirmation.html
+M	html/captive-portal/templates/guest/sponsor_login.html
+M	html/captive-portal/templates/login.html
+M	html/captive-portal/templates/register.html
+
+commit 2eb8c395e0d642a2b7bd6a976efea1dc9bc9ead9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Oct 18 11:14:45 2012 -0400
+
+    guest.pm: Set default values in anonymous hash
+    
+    To avoid Perl warnings
+
+M	lib/pf/web/guest.pm
+
+commit 39d668c2336ece4edd28d0c0bd4a716ec2541c32
+Author: root <root@poulicheFencer.dMacBookPro>
+Date:   Thu Oct 18 06:11:02 2012 -0400
+
+    Web implementation
+
+M	html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/System.pm
+M	html/pfappserver/root/configurator/database.tt
+M	html/pfappserver/root/static/configurator/database.js
+
+commit ae42c7ac39c1d41e50f8720649a5e73bec6275c2
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 17 16:09:26 2012 -0400
+
+    Other small fixes to the doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 1e66d838b36e0d0a07d1ce5796acc191b1713979
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 17 16:06:15 2012 -0400
+
+    Adding the two new files for github in the spec
+
+M	addons/packages/packetfence.spec
+
+commit 5292cbae25ad7135fd84c61454d53d00e6584e00
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 17 16:04:13 2012 -0400
+
+    Adjust doc/news for new OAuth2 Provider + adding the checkup lines for it.
+
+M	NEWS
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	lib/pf/pfcmd/checkup.pm
+
+commit 04d58dae3832efada24427346a04f6ee885d56b1
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 17 16:02:26 2012 -0400
+
+    Added dependencies
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit 31626a2cfc200e2d919ed13dc1539081c0339adb
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 17 15:57:33 2012 -0400
+
+    Fix init script
+
+M	packetfence.init
+
+commit 960cbd52018c8f31ddc59050b194ba10f58a1e9f
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 17 15:52:36 2012 -0400
+
+    GitHub as a OAuth2 Provider!
+
+M	conf/documentation.conf
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+A	conf/named-akamai.net
+A	conf/named-github.com
+M	conf/oauth2-ips.conf
+M	conf/pf.conf.defaults
+M	html/captive-portal/oauth2.cgi
+M	html/captive-portal/templates/login.html
+M	lib/pf/config.pm
+M	lib/pf/iptables.pm
+M	lib/pf/services/named.pm
+M	lib/pf/web.pm
+M	lib/pf/web/constants.pm
+
+commit 28b96df76cbcd7657bf34d7db3a58fe077da8118
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 17 15:49:39 2012 -0400
+
+    Fix a test
+
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Aironet_WDS.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/Xirrus.pm
+
+commit 9dff9e7b13c1d1fb0c0a8b693a4c02fce2d18f5c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 17 15:04:06 2012 -0400
+
+    Removed useless debug
+
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/web/wispr.pm
+
+commit a1f1ba8a820cfe37728b919249bdef2c2777134c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 17 12:27:52 2012 -0400
+
+    Fix violation, redirection and ipset
+
+M	lib/pf/ipset.pm
+M	lib/pf/web/constants.pm
+M	lib/pf/web/dispatcher.pm
+
+commit 7a8b7293461d8d65a621206f4058c7e17ea79e10
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 17 08:35:08 2012 -0400
+
+    Missing dep with packetfence-remote-snort
+
+M	addons/packages/packetfence.spec
+
+commit 09e5a39c6919e767ffec65280c450be4b5286ff5
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Oct 16 16:02:11 2012 -0400
+
+    Web handling
+
+M	html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+M	html/pfappserver/lib/pfappserver/Controller/DB.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/System.pm
+M	html/pfappserver/root/configurator/database.tt
+M	html/pfappserver/root/static/configurator/database.js
+
+commit a01ed266435d529dd3e2f269749a7ac04c3805ae
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 16 15:04:46 2012 -0400
+
+    Wispr fix
+
+M	conf/httpd.conf.apache22
+M	lib/pf/web/wispr.pm
+
+commit 977748fc4fffc9b6224981ccc2710fb762d08573
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 16 14:35:15 2012 -0400
+
+    import node_deregister in ipset.pm
+
+M	lib/pf/ipset.pm
+
+commit 0ea3fe75527135d07ee4eedc7b6ad56acc5a3d5b
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Oct 16 14:30:27 2012 -0400
+
+    Revert "First blast at adding js for MySQL server status modals"
+    
+    This reverts commit 28e5982394008e7407f3fac6893cd6538c78619f.
+
+M	html/pfappserver/root/static/configurator/database.js
+
+commit a1781bb9f31e821d0ec71def35a385bee419e425
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 16 14:24:01 2012 -0400
+
+    Start MySQL if not running
+
+M	packetfence.init
+
+commit 2ed1b889ab4459aefecd99a1e5b36647e949f8aa
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 16 14:13:18 2012 -0400
+
+    Force PF to start on boot
+
+M	packetfence.init
+
+commit aa763d64758aff240638b6b058efc3d5f3e886fa
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 16 12:28:20 2012 -0400
+
+    Fix search of mac address in ipset
+
+M	lib/pf/ipset.pm
+
+commit 4fd15a361ec01e1c6581a4988d681f6f2b521e78
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 16 11:39:50 2012 -0400
+
+    Fix radius inline
+
+M	lib/pf/radius.pm
+
+commit 1011ab96f792aba0a5a1e76cf88b22e3abe70f36
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 16 10:52:27 2012 -0400
+
+    Fix named for oauth2
+
+M	lib/pf/services/named.pm
+
+commit df2ce02bf6892a4dee5f5eed246e010bef7c0394
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 16 08:19:24 2012 -0400
+
+    Removed tab and added pod in wispr.pm
+
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/web/wispr.pm
+
+commit 4abb789ef0dd85a010cbc5b6405b7b49cd900b4d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Oct 15 13:24:06 2012 -0400
+
+    Wrong logger declarations
+
+M	lib/pf/ipset.pm
+
+commit c497c7a50cdcdef7aa7cd83e42c78db60d7db218
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 15 13:12:19 2012 -0400
+
+    Change log type
+
+M	lib/pf/web/dispatcher.pm
+
+commit 1e6fba4e57d6a0557f41cfc2fd52e7cbb071d456
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Oct 15 13:02:13 2012 -0400
+
+    Wispr client improvment
+
+M	html/captive-portal/templates/redirection.tt
+A	html/captive-portal/templates/response_wispr.tt
+M	lib/pf/web/constants.pm
+M	lib/pf/web/dispatcher.pm
+A	lib/pf/web/wispr.pm
+
+commit 47565d6a68441d3ac4578c85c224fa6e46cc91fa
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 12 15:20:57 2012 -0400
+
+    Modify docs to add Google/Facebook to guest_modes of Portal Profiles
+    Also adding a checkup to make sure oauth2 provider is configured if google/facebook is selected
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	lib/pf/pfcmd/checkup.pm
+
+commit ee7e91d5e9b6b4c8731136feade58bb105b27ced
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Oct 12 14:19:02 2012 -0400
+
+    Typo in symlink
+
+M	addons/packages/packetfence.spec
+
+commit 04387ec940ca3198f4eb8e86ae6679e4d72faa1e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Oct 12 14:06:06 2012 -0400
+
+    Wrong symlinks creation (was creating invalid symlinks)
+    - Also added raddb/sites-enabled to .gitignore file ;)
+
+M	.gitignore
+M	addons/packages/packetfence.spec
+
+commit 1c215382495dd5cd6d4ef0c10dfa8ca39552bb30
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 12 09:28:54 2012 -0400
+
+    POD fix and remove tabs
+
+M	html/captive-portal/oauth2.cgi
+M	lib/pf/iptables.pm
+M	lib/pf/services/named.pm
+M	lib/pf/web.pm
+
+commit 56a922952c7d2d12cd00e431571974f0ed5c263d
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 12 09:03:55 2012 -0400
+
+    Fixing the SPEC for OAuth2 files
+
+M	addons/packages/packetfence.spec
+
+commit 944e737b9b2068b0bc54b4766f8445ea17bab89a
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 12 08:56:50 2012 -0400
+
+    NEWS for merge feature/oauth2
+
+M	NEWS
+
+commit 0b09b886521e69e30287376c818452b8cb15c949
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 12 08:50:42 2012 -0400
+
+    Working OAuth2, ready to merge
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	conf/named-fbcdn.net
+M	conf/oauth2-ips.conf
+M	html/captive-portal/oauth2.cgi
+M	lib/pf/web.pm
+M	lib/pf/web/constants.pm
+
+commit b41d470ac6049aefa7c2a471d841b2a67d59bb9d
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 12 08:42:23 2012 -0400
+
+    Fixing Tests
+
+M	t/network-devices/wireless.t
+M	t/pf.t
+
+commit daa3e2d088f56f2e34176d7c564fb99fed68ae81
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 11 15:26:33 2012 -0400
+
+    Adding new CleanURLS + put everything under oauth2 instead of o2/oauth
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	html/captive-portal/oauth2.cgi
+M	html/captive-portal/templates/login.html
+M	lib/pf/web.pm
+M	lib/pf/web/constants.pm
+
+commit a8a8fc343487c75e017ce94847270b8a50434d81
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 11 15:05:47 2012 -0400
+
+    Oops...Merge crap
+
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit 1e829c6c1a395e703033b32470eafb7bb8cd76e4
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 11 11:59:43 2012 -0400
+
+    NEWS entry for merge fix/1565-dhcpd-only-remote-subnets
+
+M	NEWS
+
+commit f3b3d8024856be4c6d1e5b19aefaae383a168f12
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 11 11:28:50 2012 -0400
+
+    Small fix to Cisco Documentation
+
+M	docs/PacketFence_Cisco_Quick_Install_Guide.asciidoc
+
+commit fe9f46918f4dc1b3f6c50e46cdf1d33d607398fd
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Oct 11 11:17:21 2012 -0400
+
+    Debian and init script modif
+
+M	debian/control
+M	debian/packetfence.conffiles
+M	packetfence.init
+
+commit 5c8b44ae82c6e7ca298db9fe0857a9976e4ef35a
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Oct 11 10:16:15 2012 -0400
+
+    Added default values in pf.conf.defaults
+
+M	conf/pf.conf.defaults
+
+commit 5b2ed0ba40c3cab89b53487b0cd5f53b518176cc
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 11 08:55:11 2012 -0400
+
+    NEWS entry for merge feature/ipset-obj
+
+M	NEWS
+
+commit 84e791b0eed70fe2d6f5df3e3203dd7492e2a1f7
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 14:55:22 2012 -0400
+
+    Removed 127.0.0.1 from the test
+
+M	t/SwitchFactory.t
+
+commit 1875d5d01d7b47a63632bfaa6986d9a0985152bc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 14:32:12 2012 -0400
+
+    Prevent the presence of 127.0.0.1 in switches.conf
+
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/pfcmd/checkup.pm
+
+commit 506e05f95e4148dd43c29a2c231ae0d3a08c2d80
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 14:13:51 2012 -0400
+
+    Changed Switch with if in radius.pm (RHEL/CentOS5 pb)
+
+M	NEWS
+M	lib/pf/radius.pm
+
+commit daa32ce1ef70e5713a9b134d563373d19837ecfe
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Oct 10 13:31:53 2012 -0400
+
+    Adapted documentation in pf.conf.defaults
+
+M	conf/pf.conf.defaults
+
+commit 4a73ac1a77442b19c36c92eadbd58731cd167e17
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 11:57:32 2012 -0400
+
+    Fix pod in radius.pm
+
+M	lib/pf/radius.pm
+
+commit 9952dc72320d48f1bebfdc07f44ce59e0b89ec04
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 11:35:33 2012 -0400
+
+    Fix MockedSwitch
+
+M	lib/pf/SNMP/MockedSwitch.pm
+
+commit b2102b6a8564ea3852138fdc5f801955d86932e6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 10:52:25 2012 -0400
+
+    Minor fixes
+
+M	addons/packages/packetfence.spec
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 732723a3c24616d038f5f2e845f4133b7d52666f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 10 09:14:54 2012 -0400
+
+    Fix for test
+
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	t/network-devices/wireless.t
+
+commit 1bcb3cbf50ab011550c90454693513f078d1cf38
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Oct 9 16:27:20 2012 -0400
+
+    Reviewed doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 5e7804131396a2bb5bc3fc769c178685b37bd899
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 9 16:10:49 2012 -0400
+
+    Adding a quick guide for Cisco Catalyst 2960s
+
+M	NEWS
+A	docs/PacketFence_Cisco_Quick_Install_Guide-docinfo.xml
+A	docs/PacketFence_Cisco_Quick_Install_Guide.asciidoc
+
+commit 3eb41980423fb137c1e45d6244aebc2a9ff8fce2
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Oct 9 16:04:24 2012 -0400
+
+    Modified triggerInline for inlineTrigger
+
+M	conf/ui.conf
+M	html/admin/configuration/switches.php
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP.pm
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/pfcmd/pfcmd.pm
+M	lib/pf/radius.pm
+
+commit f3de1171469dd4bb7a6f34dd96c94f60cc238bce
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Oct 9 15:43:13 2012 -0400
+
+    Typos correction + minor fixes
+
+M	lib/pf/radius.pm
+
+commit 92cd7294f97d5e2cb0a663d5fb36423aeef7aa74
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 9 15:31:27 2012 -0400
+
+    Moved constant in pf::config, always start radius and code fix
+
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/AlliedTelesis.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Cisco/WLC_2100.pm
+M	lib/pf/SNMP/Dlink/DGS_3100.pm
+M	lib/pf/SNMP/Dlink/DGS_3200.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extreme.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/H3C.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/HP/Procurve_2500.pm
+M	lib/pf/SNMP/HP/Procurve_2600.pm
+M	lib/pf/SNMP/HP/Procurve_5400.pm
+M	lib/pf/SNMP/Juniper.pm
+M	lib/pf/SNMP/LG.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/WirelessModuleTemplate.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	lib/pf/config.pm
+M	lib/pf/radius.pm
+M	lib/pf/radius/constants.pm
+M	lib/pf/services.pm
+
+commit 001e3ae167ea52e2f63d3ec02f4fcbffa2d78197
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 9 14:33:55 2012 -0400
+
+    Removed old code
+
+M	lib/pf/vlan.pm
+
+commit e55e391917f05e5facfc450f4beeb65b420618d2
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Oct 9 14:19:09 2012 -0400
+
+    Indentation modification
+
+M	lib/pf/SwitchFactory.pm
+
+commit 5ec975d0381f4db4a1134645cac19e48b90a816f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 9 13:42:45 2012 -0400
+
+    Fix for pull request
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	lib/pf/SNMP.pm
+
+commit 82927043fc3b6b7aafe8fde2759dd01cef90da99
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 9 13:26:09 2012 -0400
+
+    Added a test
+
+M	lib/pf/ipset.pm
+
+commit 5e2f29662ac4198ca5ef629b8db5252f772ea1ad
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 9 11:46:03 2012 -0400
+
+    Missing ; in pfcmd
+
+M	bin/pfcmd
+
+commit c55c89d1ec4e44bffc9f02deb10fca83d12e9edb
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 9 08:48:56 2012 -0400
+
+    Doc small fixes
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 171c9e61b15bb5ef714e3827f5114de238f4b3f1
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 5 16:04:41 2012 -0400
+
+    use radius constant
+
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/AlliedTelesis.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Cisco/WLC_2100.pm
+M	lib/pf/SNMP/Dlink/DGS_3100.pm
+M	lib/pf/SNMP/Dlink/DGS_3200.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extreme.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/H3C.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/HP/Procurve_2500.pm
+M	lib/pf/SNMP/HP/Procurve_2600.pm
+M	lib/pf/SNMP/HP/Procurve_5400.pm
+M	lib/pf/SNMP/Juniper.pm
+M	lib/pf/SNMP/LG.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/WirelessModuleTemplate.pm
+M	lib/pf/SNMP/Xirrus.pm
+
+commit 4fbd0b59cda764e9ecf23e8c8101deb7c1ce9f66
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 5 15:20:45 2012 -0400
+
+    pfcmd.pm fix
+
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit d1b42153ebc21b95a7fbfc7aa8034c317d32ae92
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 5 15:15:59 2012 -0400
+
+    Rewrite a new way to perform inline radius enforcement
+
+M	conf/switches.conf
+M	conf/ui.conf
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	html/admin/configuration/switches.php
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/AlliedTelesis.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Cisco/WLC_2100.pm
+M	lib/pf/SNMP/Dlink/DGS_3100.pm
+M	lib/pf/SNMP/Dlink/DGS_3200.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extreme.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/H3C.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/HP/Procurve_2500.pm
+M	lib/pf/SNMP/HP/Procurve_2600.pm
+M	lib/pf/SNMP/HP/Procurve_5400.pm
+M	lib/pf/SNMP/Juniper.pm
+M	lib/pf/SNMP/LG.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/WirelessModuleTemplate.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/pfcmd/pfcmd.pm
+M	lib/pf/radius.pm
+M	lib/pf/radius/constants.pm
+
+commit d4813d3ec55f1c4e4270521cbeefae1ea2c31b1e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 5 13:33:08 2012 -0400
+
+    NEWS entry for merge candlerb:doc/routed-networks
+
+M	NEWS
+
+commit a88b18945e094b4ec30e0f754b70f2c6e540a8c3
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 5 13:30:28 2012 -0400
+
+    NEWS entry for merge fix/pfdhcplistener-process-management-part2
+
+M	NEWS
+
+commit 445b61a8bf74227f4f7b8ea76326dafe0f462c0e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 5 09:33:27 2012 -0400
+
+    OAuth2 Ips in a flat file + added some facebook ips
+
+M	conf/named-facebook.com
+A	conf/oauth2-ips.conf
+M	lib/pf/config.pm
+M	lib/pf/iptables.pm
+
+commit 53b2479d607a8feaa0f9286b2092b59e3695799e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 5 07:52:31 2012 -0400
+
+    Adding another missing sub in the MockedSwitch
+
+M	lib/pf/SNMP/MockedSwitch.pm
+
+commit 75dbb74758fda3d710d2db721132f12f390f8755
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 5 07:32:15 2012 -0400
+
+    Minor fix to pass tests
+
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/Nortel/BPS2000.pm
+
+commit 53b4a35ceb8bef6a46c5687f45a55132e0a36e2a
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 16:10:07 2012 -0400
+
+    NEWS entry for merge cleanup/radius-avoid-duplication
+
+M	NEWS
+
+commit 66935d0960681d1f755e773b369806a2ac58e676
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 15:24:10 2012 -0400
+
+    NEWS entry for merge of fix/1433-i18n-gettext-remove-domain
+
+M	NEWS
+
+commit bb3065c1d19cff9926e0810b9a00162901a34090
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 14:54:28 2012 -0400
+
+    NEWS for feature/report_sponsor merge
+
+M	NEWS
+
+commit 44dff0338319a49388c4cdb8763bff1bdf824525
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 14:45:54 2012 -0400
+
+    Renamed sponsoruser to topsponsor + Typo Fixes
+
+M	conf/ui.conf
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
+
+commit bb9faa4ce9b72865ce8e5ed770251ea0c3f00f1b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Oct 4 12:24:22 2012 -0400
+
+    use of pf_run and flush mangle table before ipset destroy
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	lib/pf/ipset.pm
+
+commit 55a529c5eb1459c063ea3ca20ef7761f3ba7f531
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 11:52:08 2012 -0400
+
+    OAuth and Inline Mode
+
+M	conf/named.conf.bind97
+M	lib/pf/iptables.pm
+M	lib/pf/services/named.pm
+
+commit 073d5e824af96b135fadb62386cb7d87f53780d1
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 09:36:23 2012 -0400
+
+    Modify the doc a little for the redirect URI
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 2f4f4acce5dac2d7df2bd1f71215cf4acac7683d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Oct 4 09:31:27 2012 -0400
+
+    We no longer need those.
+    - They create log files that fills up disk space on certain installations
+
+M	raddb/sites-available/packetfence
+
+commit 2d43ee3b511916f8f80aab517d8c286ecbfeb0f7
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 4 09:31:01 2012 -0400
+
+    Couple minor fixes
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	lib/pf/web.pm
+
+commit d47fd422d61b98ed40d9c720999f39b0f1249d8e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Oct 4 09:30:11 2012 -0400
+
+    Missing empty directory creation
+
+M	addons/packages/packetfence.spec
+M	debian/rules
+
+commit f3dde3ff5911a2c083d06908a697a8d1b8c3ad2d
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Oct 4 08:38:18 2012 -0400
+
+    Typo error
+
+M	lib/pf/SNMP/Cisco/WLC_2100.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+
+commit bf5091d4113f4a23d7d5d4cf61972c4293c7e059
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Oct 3 15:39:36 2012 -0400
+
+    Some changes to previous commit (fd400f8c5f)
+    - Removed important files from packetfence.spec that should stays there
+    - Modification of Debian packaging
+    - Typos
+
+M	UPGRADE
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+
+commit fd400f8c5fe8f418f51867e472467ea3444b41d0
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Wed Oct 3 15:15:02 2012 -0400
+
+    Standardized FreeRADIUS raddb/sites-available / sites-enabled directories
+
+M	UPGRADE
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+M	debian/rules
+M	raddb/sites-available/control-socket
+M	raddb/sites-available/packetfence-tunnel
+D	raddb/sites-enabled/control-socket
+D	raddb/sites-enabled/default
+D	raddb/sites-enabled/inner-tunnel
+D	raddb/sites-enabled/packetfence
+D	raddb/sites-enabled/packetfence-soh
+D	raddb/sites-enabled/packetfence-tunnel
+
+commit 4d9ebca66975802cf37aed72f5b4572dcc946d03
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 3 11:43:52 2012 -0400
+
+    NEWS for lldp-enhancements merge
+
+M	NEWS
+
+commit 58228a1d03fd31d45bad7686c896bfe2762b591b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 3 08:48:34 2012 -0400
+
+    Rename deAuthMethod as deauthMethod and DeauthTechniques as deauthTechniques
+
+M	conf/ui.conf
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Aironet_WDS.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/pfcmd/pfcmd.pm
+M	sbin/pfsetvlan
+
+commit a1d4ac9881db20c42b1f6affb47807e7652d7b36
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 2 16:37:19 2012 -0400
+
+    Typo error
+
+M	sbin/pfdhcplistener
+
+commit 019674e8524b9db8b50b182571ad0de3c745692e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 2 16:31:36 2012 -0400
+
+    Removed ipset entries if the node´s vlan change or if his ip change.
+    Added new configuration parameter if the to deauthenticate the node if his vlan change.
+    Also added portal profiles by vlan.
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	lib/pf/Portal/ProfileFactory.pm
+M	lib/pf/config.pm
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+M	lib/pf/node.pm
+M	sbin/pfdhcplistener
+
+commit 8b4a05e5b5a69c7cba313f48ff4f8fffcc76ad6b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Oct 2 15:35:50 2012 -0400
+
+    Improved HTML layout & CSS style
+
+A	html/captive-portal/content/images/facebook.icon.png
+A	html/captive-portal/content/images/google.icon.png
+M	html/captive-portal/content/styles.css
+M	html/captive-portal/oauth2.cgi
+M	html/captive-portal/templates/login.html
+D	html/common/sign_in_facebook.png
+D	html/common/sign_in_google.png
+
+commit 5c4ed48c910cb0a5208d027b016a8994102d7200
+Author: Brian Candler <b.candler@pobox.com>
+Date:   Tue Oct 2 08:58:38 2012 +0100
+
+    Clarify the configuration requirements for routed enforcement
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 28e5982394008e7407f3fac6893cd6538c78619f
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Oct 1 15:18:47 2012 -0400
+
+    First blast at adding js for MySQL server status modals
+
+M	html/pfappserver/root/static/configurator/database.js
+
+commit 7195be23f6f74958cf87e6ad9f324499975bd1e4
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Oct 1 15:18:13 2012 -0400
+
+    Added method to check the status and start the MySQL server
+
+M	html/pfappserver/lib/pfappserver/Model/Config/System.pm
+
+commit fa3cc65976789c1ef172da9cd9c548ea6a71383f
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 1 12:53:09 2012 -0400
+
+    Fixing Doc + oauth2 typo
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	html/captive-portal/oauth2.cgi
+
+commit e275c5e6ab4fccbe388b13486320cbd1c183938e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 1 11:39:07 2012 -0400
+
+    Correction to the doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 7ee30fb56e634baf405b5122bd88f0b7a5f2d9a4
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 1 11:05:29 2012 -0400
+
+    Adding Perl-Net-OAuth2 in the spec file.
+
+M	addons/packages/packetfence.spec
+
+commit 55a2128f845a1d7c112885a4317391ad744c3859
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 1 10:59:22 2012 -0400
+
+    Adding INFO logs for LLDP/CDP discoveries
+
+M	lib/pf/SNMP.pm
+
+commit eeb29b69d08405af4cd45832d3effe404a618668
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 1 09:01:08 2012 -0400
+
+    Documentation
+
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 5bc14011d24f46059da70e29316e45ccc5dd1290
+Author: Brian Candler <b.candler@pobox.com>
+Date:   Sun Sep 30 09:27:12 2012 +0100
+
+    dhcpd startup if all isolation/registration networks are remote #1565
+    
+    If dhcpd is answering remote requests only, i.e. there is no directly-
+    connected isolation/registration network, then add an empty subnet { }
+    declaration so that dhcpd will still listen on the interface.
+
+M	lib/pf/services/dhcpd.pm
+
+commit 411f6e3ccdae7bbd44cb6bdfd0a3ec8aed08ef20
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 28 15:59:36 2012 -0400
+
+    Commit for the pull request
+
+M	bin/pfcmd
+M	debian/control
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	lib/pf/config.pm
+M	lib/pf/inline.pm
+
+commit f27b48972ac3c4d1813193d3cc334fcb3567b599
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Sep 28 15:21:02 2012 -0400
+
+    Logos
+
+A	html/common/sign_in_facebook.png
+A	html/common/sign_in_google.png
+
+commit 41caefad6038aadbda6f6a33814995c4ccb292d4
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Sep 28 15:00:07 2012 -0400
+
+    Working integration of OAuth2 Providers (Google/Facebook)
+    Still need to test if using inline at the same time
+
+M	conf/documentation.conf
+M	conf/httpd.conf.apache22
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	conf/iptables.conf
+M	conf/named-facebook.com
+M	conf/named-fbcdn.net
+M	conf/named-google.ca
+M	conf/named-google.com
+M	conf/named.conf.bind97
+M	html/captive-portal/templates/login.html
+M	lib/pf/config.pm
+M	lib/pf/iptables.pm
+M	lib/pf/services/named.pm
+M	lib/pf/web.pm
+
+commit 47a6625cfa600b7b7495c81f1849ac862baad693
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Sep 25 14:06:10 2012 -0400
+
+    Removed the handling of radius config files in configurator
+    - No longer needed with managed radius
+    (cherry picked from commit f4e7c8dc66b52799104df2120d994f811d68e5dd)
+
+M	html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+M	html/pfappserver/lib/pfappserver/Model/Config/System.pm
+
+commit 7752d7997d432918cd631a1fcb6ea5afbe9628d0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Sep 28 10:34:30 2012 -0400
+
+    fixing the tests
+
+M	t/binaries.t
+M	t/pfcmd.t
+
+commit 8c59b263ad5f0ecf22ea01db57978a290df3f1c3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 28 10:25:23 2012 -0400
+
+    Syntax error
+
+M	lib/pf/iptables.pm
+
+commit ec94b550f3c4b8c5bcf7ed89d2248feecc1c74b7
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Fri Sep 28 11:23:45 2012 -0300
+
+    Typo fix probably introduced in the "to asciidoc" switch.
+
+M	docs/PacketFence_Developers_Guide.asciidoc
+
+commit 8e6ccedf944ca8e8cf22e6448ee3afd94772d113
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Sep 28 10:02:19 2012 -0400
+
+    buildfix: added 'use lib' in billing-engine like the other CGIs
+    
+    This should fix compile tests problems. It was unable to import core
+    libraries.
+    (cherry picked from commit 8dc7745d6e01bccad2e8421f42d9b006287bbd81)
+
+M	html/captive-portal/billing-engine.cgi
+
+commit 8dc7745d6e01bccad2e8421f42d9b006287bbd81
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Sep 28 10:02:19 2012 -0400
+
+    buildfix: added 'use lib' in billing-engine like the other CGIs
+    
+    This should fix compile tests problems. It was unable to import core
+    libraries.
+
+M	html/captive-portal/billing-engine.cgi
+
+commit ab7d4ea5189c02a64bfa7637e0156bb1359932f4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 28 09:23:50 2012 -0400
+
+    Wrong call to fetchMarkForNode
+
+M	lib/pf/inline.pm
+
+commit b2e36e8c879c1ed235ddf2f437181b76a96f8d8a
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 28 09:03:05 2012 -0400
+
+    Fixed call to jQuery 'trim' function
+
+M	html/pfappserver/root/static/app/application.js
+M	html/pfappserver/root/static/configurator/configuration.js
+M	html/pfappserver/root/static/configurator/networks.js
+
+commit 5ff8cca0ede668c842c2a52c795d0b686117d73f
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 27 13:39:14 2012 -0400
+
+    LLDP support for the Cisco Catalyst series
+
+M	UPGRADE
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/constants.pm
+
+commit e4341eb550c15e1cdf38a9946239fc0c44eeb02a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Sep 24 16:19:57 2012 -0400
+
+    introduced supportsCdp / supportsLldp network device capabilities
+    
+    pf::SNMP's getPhonesDPAtIfIndex is now actually doing the work based on
+    switch capability. Eliminated a lot of duplicate code.
+    
+    I migrated all switches that currently support CDP / LLDP.
+
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/Cisco.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/Nortel.pm
+M	lib/pf/SNMP/Nortel/BPS2000.pm
+
+commit 1e8aecd5933ecf702df5b2ac07d2511be7b02902
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 26 14:05:38 2012 -0400
+
+    Openfusion repo update and exclude section more clear
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 880b432fac8f8ca373b75106b98fb484780eaa3c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 26 17:06:00 2012 -0400
+
+    another admin guide typo fix on top of b01e29e
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 5147571fa0b887ef26e78157dcf36216269a9815
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 26 14:14:53 2012 -0400
+
+    storing the diff of the package we modified to work-around #1556
+    
+    http://packetfence.org/bugs/view.php?id=1556
+
+A	addons/packages/perl-Net-Appliance-Session.spec.diff
+
+commit 3c0b7ec42dac85baa2d64b8ac7625483bcc09a00
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 26 14:16:17 2012 -0400
+
+    Another small fix to RADIUS packetfence-tunnel
+
+M	NEWS
+M	raddb/sites-enabled/packetfence-tunnel
+
+commit 54c2f3a2020e5887c236bae0814dbb2c25e25962
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 26 14:11:46 2012 -0400
+
+    Forgot to toggle the auth login with RADIUS
+
+M	conf/radiusd/radiusd.conf
+
+commit 95c28c1010cc947ca41983cc5b2e391d1ea942df
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 26 11:51:00 2012 -0400
+
+    Adding a line to explain the 'close' action
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit b01e29eea0a3af81caa2ce087446d47801da026f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 26 11:32:26 2012 -0400
+
+    Fix typo in the doc and added a radtest example for mschap
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit cd3c73763b5b9bdde3cdd305bf12ae0e3384b0e3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 26 09:44:13 2012 -0400
+
+    debian package fix: updated templates as conffiles
+    (cherry picked from commit 92b5b552150a736a56ba7763f5c32fb31fcf12af)
+
+M	debian/packetfence.conffiles
+
+commit 35a58df678be2673677b76a49d8ea0fa9fa2a063
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 26 09:38:59 2012 -0400
+
+    NEWS entry for a bug closed because of fixes in a merged branch
+
+M	NEWS
+
+commit ba296144c1c7c714d251006f5b8b674bf60373a4
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 25 22:15:43 2012 -0400
+
+    cleanup: removed deprecated functions (#1380)
+    
+    The bugfix is actually a side effect of removing the code that was badly
+    documented.
+    
+    http://packetfence.org/bugs/view.php?id=1380
+
+M	NEWS
+M	UPGRADE
+M	lib/pf/SNMP.pm
+M	t/hardware-snmp-objects.t
+
+commit b5548f168bf7284266f6d19873b1fe267073f6a4
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 25 21:57:46 2012 -0400
+
+    Fixed typo in Admin Guide (#1383)
+    
+    Thanks to Alberto Chavez for reporting it
+    
+    http://packetfence.org/bugs/view.php?id=1383
+
+M	NEWS
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 4e38026d9e9530b948d85763338a98389d085e5e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 25 11:41:46 2012 -0400
+
+    NEWS / UPGRADE changes after feature/wispr-improvements merge
+
+M	NEWS
+M	UPGRADE
+
+commit 510a635916ee096bd0bd0caf92b8d3f6a79b55a7
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 25 10:48:34 2012 -0400
+
+    avoiding Apache config for captive portal catch-all redirection
+    
+    Dynamically injecting the dispatcher handler in our translate handler.
+    Also documented the OK vs DECLINED behavior in the code.
+
+M	conf/httpd.conf.d/captive-portal-common.conf
+M	lib/pf/web/dispatcher.pm
+
+commit af4f253ce6f759abe215004842bf2120482fb286
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Sep 24 16:22:50 2012 -0400
+
+    misc maintenance: copyright bumps, license header added
+
+M	lib/pf/SNMP/Cisco.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+
+commit 7a61cedb658ee3bb099e44ff5c6eb063d67062d3
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 24 15:32:07 2012 -0400
+
+    Forgot that one
+
+M	conf/named-fbcdn.net
+
+commit 7f4187a8321c69cb9382c7e685e273100c51c33b
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 24 15:29:35 2012 -0400
+
+    Some other minor fixes
+
+M	conf/httpd.conf.apache22
+M	conf/iptables.conf
+M	conf/named-facebook.com
+M	conf/named-google.ca
+M	conf/named-google.com
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/web.pm
+
+commit 5809245765e6fd319043e475638f1af9d73861d7
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Sep 24 16:28:13 2012 -0300
+
+    hardcoded strings to constants
+
+M	lib/pf/web/dispatcher.pm
+
+commit faeeab1ac9acc54963c0a1a5821869a322065975
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 24 15:19:00 2012 -0400
+
+    Google Auth/Facebook Auth.  Some tweaks needed
+
+M	conf/iptables.conf
+A	conf/named-facebook.com
+A	conf/named-fbcdn.net
+A	conf/named-google.ca
+A	conf/named-google.com
+M	conf/named.conf.bind97
+M	html/captive-portal/oauth2.cgi
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/web.pm
+
+commit 0b578fddedbbbb07b245d9338fe13e349eb58e36
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Sep 24 14:28:17 2012 -0400
+
+    configuration parameter to control if captive portal https or http
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	lib/pf/web/dispatcher.pm
+
+commit 06df64f4517d5d52a43d046fe7c2b1ccae6a73b0
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Sep 24 14:05:34 2012 -0400
+
+    WISPR XML in Captive portal redirection (w/ refactoring)
+    
+    A rather intrusive change due to the nature of Apache redirection w/ content.
+    
+    Some related changes:
+    * pf::web::dispatcher takes care of captive portal redirection first (then mod_rewrite)
+    * Simplified Apache configuration
+    * deprecated old CGI style URLs
+    * independent wispr subsytem eliminated (part of dispatcher now)
+    * no longer rely on mod_rewrite for capturing clients (see pf::web::dispatcher)
+    * several things were constantified
+    * URL parsing pushed into a new pf::util::apache module
+    * More automation around Apache configuration from constants and configuration
+    * Using mod_perl's path conventions (/cgi-perl/, /perl/)
+    * logger improvements (process ids and mod_perl vs non-mod_perl)
+
+M	UPGRADE
+M	addons/packages/packetfence.spec
+M	conf/httpd.conf.apache22
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	conf/httpd.conf.d/captive-portal-common.conf
+A	html/captive-portal/templates/redirection.tt
+D	html/captive-portal/wispr.cgi
+D	html/captive-portal/wispr/redirect.tt
+M	lib/pf/config.pm
+M	lib/pf/services/apache.pm
+M	lib/pf/util.pm
+A	lib/pf/util/apache.pm
+M	lib/pf/web/captiveportal_modperl_require.pl
+M	lib/pf/web/constants.pm
+A	lib/pf/web/dispatcher.pm
+D	lib/pf/web/wispr.pm
+M	t/pf.t
+M	t/podCoverage.t
+M	t/services.t
+M	t/util.t
+M	t/web.t
+
+commit 11d77e0ef2f30590083fe4bc74377f4f525c1dc7
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 24 09:13:17 2012 -0400
+
+    Got rid of the tmp table in the acct_view SQL query.
+    As proposed by Rich Graves.
+
+M	lib/pf/accounting.pm
+
+commit 1ae67ff23f51e29014f4dfe5acf3b0144db25fc3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 21 14:14:07 2012 -0400
+
+    Typo fix
+
+M	lib/pf/SNMP.pm
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit 8a9e5cf4744d38ac6d2a4e0b68d36cf2d652ded8
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 20 14:31:29 2012 -0400
+
+    fixed tests and added UPGRADE note related to the 3750G changes
+
+M	UPGRADE
+M	t/data/switches.conf
+M	t/network-devices/cisco.t
+
+commit 7f053ef5a0bd4cd79a4e5866e6bd4ccbf8427a31
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 20 11:44:14 2012 -0400
+
+    increased DNS TTL to 15 seconds
+    
+    Less performance impact, still sensible considering our default
+    redirection time and recommended by Rich which I respect a lot :)
+
+M	conf/named-inline.ca
+M	conf/named-isolation.ca
+M	conf/named-registration.ca
+
+commit 0356f266d84f7ced6612965bf491433747fc8fc5
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 19 14:16:55 2012 -0400
+
+    Adding Catalyst 3750G module to fight ifIndex offset issues
+
+M	NEWS
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+A	lib/pf/SNMP/Cisco/Catalyst_3750G.pm
+M	lib/pf/SNMP/constants.pm
+
+commit 99abb0f7cdf1b4913413553ac43c822517a1cfb3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 19 12:20:07 2012 -0400
+
+    added new status check: more than one process per interface means failure
+    
+    added some debug-level logging also
+
+M	lib/pf/services.pm
+
+commit e6a1d727af621517050cb7f64b6d29efe2da4675
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 19 12:12:20 2012 -0400
+
+    never start more than one listener per interface
+
+M	lib/pf/services.pm
+
+commit 7361a6e174783462d38619efcb2f88bcb9477454
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 19 12:09:08 2012 -0400
+
+    ignoring raddb/certs
+    
+    It's for private stuff and it's a lot of noise when running from the git tree
+
+M	.gitignore
+
+commit b4ca43d0f27d2028968e2f85aace51ba1a232a1c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 19 10:52:00 2012 -0400
+
+    NEWS entry for something we fixed w/o knowing
+    
+    Merging fix/apache-acl-generation-for-guests fixed problems with
+    translations where i18n calls were made before the gettext subsystem was
+    initialized. Putting gettext setup in Portal::Session fixed it.
+
+M	NEWS
+
+commit b1a5e3ee25850da1a72a7b452e853de1b56c009b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 17:24:20 2012 -0400
+
+    NEWS entry for previous commit
+
+M	NEWS
+
+commit cff23df95067572e89ca0666087b8718aec22fbf
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 17:21:40 2012 -0400
+
+    Specifying source charset for translations in SoH (#1531)
+    
+    Partial fix for #1531 the PHP remains unfixed.
+    
+    http://packetfence.org/bugs/view.php?id=1531
+
+M	html/admin/soh.cgi
+
+commit 89029d0cb6ce6946370dbd0841221930f64f5186
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 16:00:51 2012 -0400
+
+    additional minor fixes
+    (cherry picked from commit 29732a3f501065a372a2f8660d3ba64178f6fa2a)
+
+M	debian/rules
+
+commit f1703d256b6005e4250618f5ef2d23bc531c9eeb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 12:27:17 2012 -0400
+
+    updated NEWS based on fix/debian-package merge
+
+M	NEWS
+
+commit bf433ea5df5068c725ba2a6b39adeac18ddc70cb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 11:57:01 2012 -0400
+
+    fixed Net::Appliance::Session pinned version
+    
+    and added a comment about why it's pinned
+
+M	debian/control
+
+commit 0718933936011b1d32ed21c4ad01dd62eff26cf8
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 11:53:34 2012 -0400
+
+    missing comma
+
+M	debian/control
+
+commit 29014451d5fea03403a64c9889b01b3dde9b9a23
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 18 11:00:58 2012 -0400
+
+    Moving AutoReqProv from empty virtual into noarch subpackage
+
+M	addons/packages/packetfence.spec
+
+commit 7ba9a5ff39f74a6261038b9de29c5d71e8fe9b5e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 18 08:54:12 2012 -0400
+
+    Correction
+
+M	conf/switches.conf
+M	conf/ui.conf
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP.pm
+
+commit 1704525f8f29247bd00306df79ba2ec47b3c9d63
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Sep 10 12:53:02 2012 -0400
+
+    packaging changes regarding virtual package upgrade path
+    
+    Trying to avoid -core name change by introducing a new name for the
+    virtual package instead. We will see how that goes.
+
+M	addons/packages/packetfence.spec
+
+commit f0d2630f0ce005cc4594b43caabe7fae577feeb0
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 17 13:03:35 2012 -0400
+
+    Initial commit to get basic stuff on
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+A	html/captive-portal/oauth2.cgi
+M	lib/pf/web.pm
+
+commit d9ec43b1b9f90be0823b28024d79b60c658744e6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 17 11:26:47 2012 -0400
+
+    Added Enforcement = VLAN in default switch configuration
+
+M	conf/switches.conf
+
+commit 7c4de0ad991f1ce0531b91067316f07ea2fa14bf
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 17 10:16:03 2012 -0400
+
+    Update NEWS and UPGRADE files
+
+M	NEWS
+M	UPGRADE
+
+commit d2462d1bba25f1d812288e18a1a355a0fdc64156
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 17 09:59:41 2012 -0400
+
+    Remove 127.0.0.1 from pfcmd line 995
+
+M	bin/pfcmd
+
+commit 5ce95cdee40a4aea604ccd1c9480840ea8207353
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 14 16:21:43 2012 -0400
+
+    Removed 127.0.0.1 in switches.conf. Instantiate the switch 127.0.0.1 directly in the code
+
+M	conf/switches.conf
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/configfile.pm
+
+commit f6b211d64c952fc1579c3d66d200fde0fa48f074
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 14 15:04:14 2012 -0400
+
+    Catalyst: redirect root (/) to configurator
+
+M	html/pfappserver/lib/pfappserver/Controller/Root.pm
+D	html/pfappserver/root/static/images/btn_120x50_built.png
+D	html/pfappserver/root/static/images/btn_120x50_built_shadow.png
+D	html/pfappserver/root/static/images/btn_120x50_powered.png
+D	html/pfappserver/root/static/images/btn_120x50_powered_shadow.png
+D	html/pfappserver/root/static/images/btn_88x31_built.png
+D	html/pfappserver/root/static/images/btn_88x31_built_shadow.png
+D	html/pfappserver/root/static/images/btn_88x31_powered.png
+D	html/pfappserver/root/static/images/btn_88x31_powered_shadow.png
+D	html/pfappserver/root/static/images/catalyst_logo.png
+
+commit dd58af321ed9335f7019ceceb67cbb6643b7efb4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 14 14:59:55 2012 -0400
+
+    Insert the 127.0.0.1 as a static config (hide in GUI and switches.conf)
+
+M	bin/pfcmd
+M	lib/pf/configfile.pm
+
+commit 97300fb9b00b52dbb8899aed25755e447483c588
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 14 12:07:35 2012 -0400
+
+    Change the supportedDeauthMethod by DeauthMethod that return the ref of the Method to deauth or the ref of default method
+
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Aironet_WDS.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	sbin/pfsetvlan
+
+commit 717ce885a1d52acd5a0ecc313a6d054aba7d8ecf
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 14 11:16:03 2012 -0400
+
+    Fixed typo in violations.conf (action => actions)
+
+M	conf/violations.conf
+
+commit bdf133779a17b945a08ff96787827993adcbc121
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Sep 13 13:28:14 2012 -0400
+
+    Check if the switch is in inline enforcement, and return accept by radius
+
+M	lib/pf/SNMP.pm
+M	lib/pf/pfcmd/pfcmd.pm
+M	lib/pf/vlan.pm
+
+commit 927ea1da396e158bba00aca5645c5f86b3acd775
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Sep 13 12:09:08 2012 -0400
+
+    Adding some default OCSP/CRL proxies to the Apache conf (#1329)
+    We will probably add more soon, but those should be OK for a bit.
+
+M	NEWS
+M	conf/httpd.conf.apache22
+A	conf/httpd.conf.d/ocsp-crl.conf
+M	lib/pf/services/apache.pm
+
+commit 986f432a2dc277819e76c8556b0e91d392e78169
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Sep 13 10:55:58 2012 -0400
+
+    Reducing the TTL for reg/isolation zones (1535)
+
+M	conf/named-isolation.ca
+M	conf/named-registration.ca
+
+commit a309a1a6f109e278d0243c0c862fd2ef7b4bcd11
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 13 09:09:32 2012 -0400
+
+    NEWS entry for rev 88dfd6f4
+
+M	NEWS
+
+commit 32074381b3689834abd2fa20333059cc81d9616e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Sep 7 15:21:42 2012 -0400
+
+    added more supported WISPR clients
+    
+    User-Agents: WISPR!... and ...Skype WISPr... are now recognized as valid
+    WISPr clients.
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+
+commit 086e120fd1adf402d7390f5aebce3ecd8a4a2532
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 16:05:14 2012 -0400
+
+    Pin the version of libnet-appliance-session-perl to 1.36
+    
+    Will avoid problems if debian ever ships a more recent version and we haven't
+    yet updated to the new API.
+
+M	debian/control
+
+commit ee29dc6977ee1ba4e351fa92f2ef19fb71b01d1b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 16:01:02 2012 -0400
+
+    added TODO task on Pre-Depend
+
+M	debian/control
+
+commit 0462b6043fbf915c94fee20c5ed881f11958ecc9
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 15:59:43 2012 -0400
+
+    removed all modules that were already pulled by packetfence
+    
+    since we already depend on packetfence
+
+M	debian/control
+
+commit da68547fc1867aca3bebc09b00ec310f7119086a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 15:58:46 2012 -0400
+
+    added modules that might be used by the captive portal
+    
+    It's user controlled. If a user would have enabled radius auth he would
+    have seen failures because the module is not installed.
+
+M	debian/control
+
+commit 7d53327bd79342d1ff57ed619e45f2fe1760618b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 15:54:50 2012 -0400
+
+    dependency cleanup
+    
+    - there were a LOT of duplicated entries
+    - also tried to quickly organize / document things but it's not complete yet
+
+M	debian/control
+
+commit 02a830a6bfe7b390f167d8656658069d109a8c96
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 15:37:01 2012 -0400
+
+    compiling grammar at build stage
+    
+    - Just like RHEL
+    - Why wasting client-side CPU cycles?
+
+M	debian/control
+M	debian/packetfence.postinst
+M	debian/rules
+
+commit 7c664f129fd131ee97bc6331efaaedf7b2d4af7c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 15:31:15 2012 -0400
+
+    generating gettext .mo files at build step on debian packaging
+    
+    Could be related to #1465 but unsure at this point.
+    
+    http://packetfence.org/bugs/view.php?id=1465
+
+M	addons/packages/packetfence.spec
+M	debian/control
+M	debian/rules
+
+commit 9d7a1bcc1b44bb62d158fdea15cebe0be0bb996d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 14:33:41 2012 -0400
+
+    getting rid of domain from our gettext po resources (#1433)
+    
+    http://packetfence.org/bugs/view.php?id=1433
+
+M	addons/packages/packetfence.spec
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/es/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	conf/locale/he_IL/LC_MESSAGES/packetfence.po
+M	conf/locale/it/LC_MESSAGES/packetfence.po
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+M	conf/locale/pt_BR/LC_MESSAGES/packetfence.po
+
+commit 2014e37dae68989ebc0fe270b1c9ddfa273a94ec
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Wed Sep 12 12:13:03 2012 -0300
+
+    Added accounting configuration for Motorola RFS
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 88dfd6f48664e94a6c9d8121aee9d2a2f8ddcd37
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 12 11:08:33 2012 -0400
+
+    Fix guests management interface for IE7
+
+M	html/captive-portal/content/guest-management.js
+
+commit 8b0860d6abac10428d2151667688d45b99f01672
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 10:51:58 2012 -0400
+
+    mention that RFC3576 needs to be enabled in WLC config
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 4fafc42fc8559acdcf18f0165bf7add2a5e85369
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 12 10:49:33 2012 -0400
+
+    Unmess documentation
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit d43a88259c998a6d69caa767cbfa880a61724d29
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 12 10:45:02 2012 -0400
+
+    Revert "Adding some documentation for Ruckus/Moto/Aruba"
+    
+    This reverts commit efa42a4b76f1c04f7105313bec36886f332c4f07.
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit efa42a4b76f1c04f7105313bec36886f332c4f07
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 12 10:38:39 2012 -0400
+
+    Adding some documentation for Ruckus/Moto/Aruba
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 7ee80ba6d9e76d9a0332c6723e24f7eb1f523cf7
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 10:35:50 2012 -0400
+
+    post-review changes: reduced scope of $override_lang
+    
+    also added per block comments to clarify intent
+
+M	lib/pf/Portal/Session.pm
+
+commit ea26c159a9f168f36f3465d4ad19a2101ce7d6fb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 12 10:02:24 2012 -0400
+
+    Support for Cisco 2960G
+    
+    It's only a different NAS-Port to ifIndex conversion like for the 3560G
+
+M	NEWS
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+A	lib/pf/SNMP/Cisco/Catalyst_2960G.pm
+
+commit 99962f312d58a65d4009470c52f6cab0ec807db3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 11 16:36:21 2012 -0400
+
+    Feature inline with radius auth
+
+M	conf/ui.conf
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+
+commit 6f48840e2c93338d21ca79ab71a6602e6ccc6c28
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 11 15:06:43 2012 -0400
+
+    Changed deauthenticateMac as deauthenticateMacDefault and correct pf::SNMP::constants
+
+M	bin/pfcmd_vlan
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Aironet_WDS.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/WirelessModuleTemplate.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	lib/pf/SNMP/constants.pm
+M	sbin/pfsetvlan
+
+commit d043eac3b837a726577bd797d0c773820e1ee658
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Aug 28 15:00:29 2012 -0400
+
+    Removed unnecessary logger
+
+M	bin/pfcmd_vlan
+M	lib/pf/SNMP.pm
+
+commit 44a922129f0552c5e15da73c671b8d0a6c5ebe85
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Aug 27 12:10:08 2012 -0400
+
+    Added constant
+
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Aironet_WDS.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	lib/pf/SNMP/constants.pm
+M	sbin/pfsetvlan
+
+commit e7653060031cf903bebab2c185e3798ac52121ca
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Aug 13 13:38:25 2012 -0400
+
+    Added supportedDeauthTechniques and deauthenticateMacDefault in wireless modules
+
+M	bin/pfcmd_vlan
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Aironet_WDS.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Dlink/DWS_3026.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+A	lib/pf/SNMP/HP/nas-pb.yml
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	sbin/pfsetvlan
+
+commit dd04aac80d2a4a4a49ed9164dab3d5db8e9e9787
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 10 14:55:44 2012 -0400
+
+    Removed debug
+
+M	bin/pfcmd_vlan
+
+commit 58f6a25ff1bf801dc643b54dd22e607ec5fceea6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 10 14:49:55 2012 -0400
+
+    Added supportedDeauthTechniques deauthenticateMacDefault method
+    (thread safe) Exception for Telnet and SSH deAuth
+
+M	bin/pfcmd_vlan
+M	lib/pf/SNMP.pm
+M	lib/pf/SNMP/HP/Controller_MSM710.pm
+M	sbin/pfsetvlan
+
+commit 5755b7e4a08beae287eb52dcdb3bf7322a5b2be7
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Aug 8 14:36:31 2012 -0400
+
+    Initial release
+
+M	conf/ui.conf
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+M	lib/pf/SNMP.pm
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit 3229f3d615b3f3e58b94ef9a7b396495b7a563d5
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 11 14:52:59 2012 -0400
+
+    concatenation instead of list
+    
+    Intent clearer and removes uncertainty about what will Log4perl do with
+    a list instead of a string.
+
+M	lib/pf/services.pm
+
+commit 3a4dbc79a65bc81fa82c90d2346554788fee8f3e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 11 14:52:41 2012 -0400
+
+    single quotes around string where no interpolation is required
+
+M	lib/pf/services.pm
+
+commit 20b7b6f8da2f469ae1988488a2db575e022e97e3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 11 14:49:36 2012 -0400
+
+    format fix in NEWS
+
+M	NEWS
+
+commit 4e7e8a8123ef2fab1ba3a4bca348d4083d683d40
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 11 14:28:51 2012 -0400
+
+    matching exact line with pgrep instead of partial match (#1545)
+    
+    Fixes regression when you have VLAN interface on a top interface also
+    managed (ex: eth0 vs eth0.100) and on Debian no matter the case.
+    
+    http://packetfence.org/bugs/view.php?id=1545
+
+M	NEWS
+M	lib/pf/services.pm
+
+commit b770fd2e04f63969b3a97d4a8534fe70960f5418
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Sep 11 09:27:31 2012 -0400
+
+    Fix for 1535
+
+M	NEWS
+M	conf/named-inline.ca
+
+commit c49873873d5a057dd71484fdf191f99e3e34de65
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 10 15:10:43 2012 -0400
+
+    Small change, huge performance gain in accounting_view (#1534)
+
+M	NEWS
+M	lib/pf/accounting.pm
+
+commit 43b9906535a74c45cfc32dd3b4f1a852d56b366f
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 10 14:22:49 2012 -0400
+
+    NEWS entry for 1526
+
+M	NEWS
+
+commit 1cae66aca835d439865f95eefd887e6217323054
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Sep 10 14:21:28 2012 -0400
+
+    Adding radius.log to our logrotate script (#1526)
+
+M	addons/logrotate
+
+commit 8e639ca1ad0c13220b1262d09808de37aa420b8a
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 10 12:53:50 2012 -0400
+
+    Added doc
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 6d830fae60b756d565fca0261757a421e72793d6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 10 12:19:57 2012 -0400
+
+    Changed object reference
+
+M	lib/pf/inline.pm
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+
+commit da50bc01cc33586cfd97689121edacdb2028a020
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 10 09:29:04 2012 -0400
+
+    Change call to pf::inline::custom as object style
+
+M	bin/pfcmd
+M	lib/pf/config.pm
+M	lib/pf/inline.pm
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+
+commit b62eacf52aef64efa398e19bd10bc50a325b2728
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 6 16:13:50 2012 -0400
+
+    ugprade path to virtual package w/ subpackages
+
+M	addons/packages/packetfence.spec
+
+commit fd5d8110be9eb5c48c93416e28b6c1a71d04504d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Sep 4 11:41:04 2012 -0400
+
+    RPM: packetfence now virtual, -core noarch and -pfcmd-suid arch-specific
+    
+    This allows us to build packetfence-pfcmd-suid (setuid C wrapper) as
+    arch-specific and our core to stay arch-independent. We should be
+    cautious with this, I'm concerned about upgrade paths.
+
+M	addons/packages/packetfence.spec
+
+commit 3380e3a452c82986a901a213899babd4ce14e89e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Aug 29 09:25:29 2012 -0400
+
+    Missing commas in debian control file
+
+M	debian/control
+
+commit fd1c00eb28615158adf406c97d8ee4ec1e312239
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 14:37:09 2012 -0400
+
+    NEWS entry for the change
+
+M	NEWS
+
+commit aa572dd3acb3848f8a7bd24361bab92a62171b06
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 14:31:26 2012 -0400
+
+    require version bump for next devel release
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit e885f9e13cec005552d8ee86871eb0bd3bdb68ad
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 14:31:04 2012 -0400
+
+    simple note to explain debug flag
+
+M	addons/packages/packetfence.spec
+
+commit 6371bddb2c45852cdcf8d09aa999827e0fe6eaf2
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Jun 6 09:12:49 2012 -0400
+
+    suidperl fixes for RPM
+    
+    - naming inconsistency
+    - requires PacketFence 3.4.0
+
+M	addons/packages/packetfence.spec
+
+commit e342a91c6eb60e69f05f0ce6307790b4f0766220
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu May 10 08:19:19 2012 -0400
+
+    add packetfence (>=3.4.0) dependencie to packetfence-perl-suid
+
+M	debian/control
+
+commit ef387110592a0dadb4ea194b9e90d034dda82c32
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue May 8 12:13:18 2012 -0400
+
+    Move setuid on pfcmd.pl , add -T to pfcmd.pl and remove pfcmd from test
+
+M	addons/packages/packetfence.spec
+M	bin/pfcmd.pl
+M	t/TestUtils.pm
+
+commit 46145a21d90d7a2723dd3c912972f228d5c48a11
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri May 4 14:28:02 2012 -0400
+
+    Forget dependencie
+
+M	addons/packages/packetfence.spec
+
+commit ef2042d56655a74ff240f2942e1505630026fcb3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri May 4 14:23:12 2012 -0400
+
+    Add C wrapper to replace perl-suid
+
+M	addons/packages/packetfence.spec
+
+commit b66800957ea4d901412cfd78f44e1b99e6111c53
+Author: Durand Fabrice <fdurand@oeufdure.(none)>
+Date:   Tue May 1 16:18:03 2012 -0400
+
+    iMove Build-depends
+
+M	debian/control
+
+commit 4422ce105bac315b76de2717e5b514fd7a86d3c9
+Author: Durand Fabrice <fdurand@oeufdure.(none)>
+Date:   Tue May 1 16:11:15 2012 -0400
+
+    Remove perl-suid dependency
+
+M	debian/control
+
+commit e04809ef38d5cb188cadd54b2e7f1a0cc00fa850
+Author: Durand Fabrice <fdurand@oeufdure.(none)>
+Date:   Tue May 1 16:08:30 2012 -0400
+
+    Replace perl-suid dependency by a C wrapper
+
+D	bin/pfcmd
+A	bin/pfcmd.pl
+M	debian/control
+M	debian/rules
+A	src/pfcmd.c
+
+commit e4a617d1318d5c4cdfd26f7e2f0d1f1a0440a03c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 6 12:47:25 2012 -0400
+
+    refactoring: introduced pf::util::freeradius
+    
+    Code duplicated in our FreeRADIUS module was regrouped there.
+
+A	lib/pf/util/freeradius.pm
+M	raddb/packetfence-soh.pm
+M	raddb/packetfence.pm
+
+commit f45b7f1399c073e6b3e2abe60a10e7c910eb8651
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 6 12:43:21 2012 -0400
+
+    cleanup
+
+M	raddb/packetfence-soh.pm
+M	raddb/packetfence.pm
+
+commit 2c633f691c27f8723d835d4d4e4fd550116e5922
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Sep 6 10:37:40 2012 -0400
+
+    post-release bump and NEWS prep
+
+M	NEWS
+M	conf/pf-release
+
+commit 56583ff7d180bfae7dabce394f7adde3a9267f41
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 5 14:56:41 2012 -0400
+
+    path fix
+
+M	UPGRADE
+
+commit 612d8c5baf923717df8521da30783f428a90af3e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Sep 5 14:19:38 2012 -0400
+
+    Rewrite feature/ipset in object
+
+M	addons/packages/packetfence.spec
+M	debian/control
+M	debian/packetfence.init
+M	debian/packetfence.postinst
+M	lib/pf/config.pm
+M	lib/pf/inline.pm
+A	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+
+commit 38731863f80b769bda73b3099752431200d7c50c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 5 13:56:19 2012 -0400
+
+    updated ChangeLog
+
+M	ChangeLog
+
 commit 16e0f49ccc912b74ac7698970a09805ea40d647f
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Wed Sep 5 13:53:30 2012 -0400
@@ -61,6 +2766,48 @@ Date:   Wed Sep 5 13:10:06 2012 -0400
 
 M	docs/README.asciidoc
 
+commit 0e512e36cc7a597df17d015699a6f6543483df27
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 5 12:33:06 2012 -0400
+
+    News entry
+
+M	NEWS
+
+commit fcbfd90b3a1c5587e60751eab3de92b8ebbbd0c8
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 5 12:27:31 2012 -0400
+
+    WIDS -> WIPS
+
+M	conf/documentation.conf
+M	conf/violations.conf
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/config.pm
+M	sbin/pfsetvlan
+
+commit f426899f561c431335215287df81303ba6691caa
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Sep 5 12:26:09 2012 -0400
+
+    802.1X / SoH duplicated code cleanup
+
+D	addons/802.1X/packetfence.pm
+M	addons/packages/packetfence.spec
+D	addons/soh/packetfence-soh.pm
+M	debian/rules
+
+commit 003686d21268795dbcc19ad08437598378537fc6
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 5 12:20:57 2012 -0400
+
+    Adding wirelessIDS trap support in Aruba, small fixes in pfsetvlan
+
+M	lib/pf/SNMP/Aruba.pm
+M	sbin/pfsetvlan
+
 commit 8c78823ebef1dc1dfbdf583e5227f7955e5d3f33
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Wed Sep 5 12:20:11 2012 -0400
@@ -102,6 +2849,26 @@ Date:   Wed Sep 5 09:45:15 2012 -0400
 
 M	raddb/packetfence-soh.pm
 M	raddb/packetfence.pm
+
+commit 2557f7425a58da384423596f903b15c41648c85a
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 5 08:55:23 2012 -0400
+
+    Adding the internal violation for WIDS
+
+M	conf/violations.conf
+M	lib/pf/config.pm
+M	sbin/pfsetvlan
+
+commit c44698feb77ef8d5d9d0d4c780d019068ef95b5b
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Sep 5 08:22:39 2012 -0400
+
+    Adding wirelessIDS trap support for Ruckus + Adding configuration fields for wireless ids stuff
+
+M	conf/documentation.conf
+M	lib/pf/SNMP/Ruckus.pm
+M	sbin/pfsetvlan
 
 commit ad17ecb3b3d14114a49bbfdfaf562339182585c4
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
@@ -204,6 +2971,193 @@ Date:   Thu Aug 30 09:52:57 2012 -0400
 
 M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
 
+commit 4d39591f31391054718998bd5d64b3378ba09c26
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 16:34:34 2012 -0400
+
+    added a mention of #1485 in cleanup entry
+
+M	NEWS
+
+commit 0cb8af6bad73f208c40d11f66d6d67f5cb3a0a54
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 16:33:42 2012 -0400
+
+    conffiles changes regarding template movement
+
+M	debian/packetfence.conffiles
+
+commit ed77f640da35b5ee947ee637bd5944433c9f7516
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 16:31:19 2012 -0400
+
+    added two new notices to UPGRADE
+
+M	UPGRADE
+
+commit d099722e9edba4312aa4705aff21d97a1bf953cb
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 16:29:21 2012 -0400
+
+    API bump for pf::web::guest
+
+M	html/admin/guest-management.cgi
+M	lib/pf/web/guest.pm
+
+commit e4d158416029be460407e59dd23a71aa4f2ec089
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 16:22:03 2012 -0400
+
+    pf::web::admin's generate_registration_page renamed generate_guestcreation_page
+
+M	UPGRADE
+M	html/admin/guest-management.cgi
+M	lib/pf/web/admin.pm
+
+commit 7b3aa501edd087352d723e5c5f7d4dac969d1284
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 15:57:53 2012 -0400
+
+    migrated some more subs from pf::web::guest to pf::web::admin
+    
+    * generate_admin_login_page -> generate_login_page
+    * manager_authenticate -> authenticate
+
+M	UPGRADE
+M	html/admin/guest-management.cgi
+A	html/admin/templates/login.html
+D	html/captive-portal/templates/guest/mgmt_login.html
+M	lib/pf/web/admin.pm
+M	lib/pf/web/guest.pm
+
+commit ac676fffaf1002caaa75934aafd7e796213ca4ec
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Aug 16 13:28:51 2012 -0400
+
+    quick fixes for the guest management login and auth issues (#1518)
+    
+    Avoided API changes by splitting subs into admin specific subs at the
+    cost of code duplication.
+    
+    http://packetfence.org/bugs/view.php?id=1518
+    (cherry picked from commit 5200af3f5279a53e45e7180c71aea2beac953092)
+    
+    Conflicts:
+    
+    	lib/pf/web/guest.pm
+
+M	NEWS
+M	html/admin/guest-management.cgi
+M	lib/pf/web/guest.pm
+
+commit 3e99daf2ee06b6c999a9093e7020eb45889c112c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 15:24:08 2012 -0400
+
+    pf::web::guest to pf::web::admin sub migration
+    
+    * valid_access_duration
+    * valid_arrival_date
+    * validate_registration -> validate_guest_creation
+    * validate_registration_multiple -> validate_guest_creation_multiple
+    * validate_registration_import -> validate_guest_import
+    * preregister -> create_guest
+    * preregister_multiple -> create_guest_multiple
+    * generate_registration_confirmation_page -> generate_guestcreation_confirmation_page
+    * import_csv
+
+M	UPGRADE
+M	html/admin/guest-management.cgi
+A	html/admin/templates/guestcreation_confirmation.html
+D	html/captive-portal/templates/guest/registration_confirmation.html
+M	lib/pf/web/admin.pm
+M	lib/pf/web/guest.pm
+
+commit 30c6d17e353c6c89b09461fe3ced79cc1f02adac
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 14:23:47 2012 -0400
+
+    moved guest creation validation calls to pf::web::admin
+
+M	UPGRADE
+M	html/admin/guest-management.cgi
+M	lib/pf/web/admin.pm
+M	lib/pf/web/guest.pm
+
+commit b24453a3ff558e9ecb309239d0423bcebbaa8654
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 13:52:44 2012 -0400
+
+    validate_sponsor parameters simplified
+
+M	UPGRADE
+M	lib/pf/web/guest.pm
+
+commit d10ac6cc9f0a67754b3d46feac303a5465d3bb0d
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 29 13:22:57 2012 -0400
+
+    generate_registration_page() migrated to pf::web::admin
+    
+    Additionally
+    * generate_registration_page no longer requires a redundant $post_uri parameter that was pushed as a URL constant instead
+    * introduced _init_i18n that regroups the i18n stuff done in every generate... method (will be used as we migrate subs)
+    * pf::web::admin's render_template insert pf::web::constants for template consumption
+
+M	UPGRADE
+M	html/admin/guest-management.cgi
+A	html/admin/templates/register_guest.html
+D	html/captive-portal/templates/guest/register_guest.html
+M	lib/pf/web/admin.pm
+M	lib/pf/web/constants.pm
+M	lib/pf/web/guest.pm
+
+commit 91408f2f61c74cfe8dde916da4d0311797082f4c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 15:53:01 2012 -0400
+
+    Migrated pf::web::get_client_ip into Portal::Session
+    
+    - tests were migrated also
+    - special variable for P::S object to avoid initialization (simplifies testing)
+    
+    Another change in the vein of pf::web vs pf::web::admin split. ~#1485
+
+M	UPGRADE
+M	lib/pf/Portal/Session.pm
+M	lib/pf/web.pm
+A	t/Portal.t
+M	t/TestUtils.pm
+M	t/web.t
+
+commit e861184a07ebd5a10c4827f7e6e21de00dc43975
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 15:11:26 2012 -0400
+
+    refactoring: avoiding useless parameter passing
+
+M	lib/pf/Portal/Session.pm
+
+commit 37774ea1ecd729443ddb4c26a8730fd85154fbb3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 15:05:10 2012 -0400
+
+    hardcoded string to __PACKAGE__ in logger call
+
+M	lib/pf/web/admin.pm
+
+commit fc94ef7938c7e0b0cd61ca91ae25417e6ffcbb90
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 28 15:03:47 2012 -0400
+
+    web_get_locale moved from pf::web into pf::web::admin
+
+M	UPGRADE
+M	html/admin/soh.cgi
+M	lib/pf/web.pm
+M	lib/pf/web/admin.pm
+M	lib/pf/web/guest.pm
+
 commit 40ef7cf626f388cf546386640791db9c12aea384
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Tue Aug 28 14:50:12 2012 -0400
@@ -211,6 +3165,27 @@ Date:   Tue Aug 28 14:50:12 2012 -0400
     Change doc for radtest (localhost:18120)
 
 M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 9ad1839188691168c09665d37e0e9995111821c3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Aug 27 16:52:36 2012 -0400
+
+    introduced pf::web::admin (#1485, #1507)
+    
+    Moved pf::web::generate_admin_error_page to pf::web::admin::generate_error_page.
+    Reduced code duplication. Introduced admin templates path. More to come!
+
+M	html/admin/guest-management.cgi
+M	html/admin/scan_fetch_report.cgi
+M	html/admin/soh.cgi
+A	html/admin/templates/footer.html
+M	lib/pf/config.pm
+M	lib/pf/web.pm
+A	lib/pf/web/admin.pm
+M	lib/pf/web/guest.pm
+M	t/pf.t
+M	t/podCoverage.t
+M	t/web.t
 
 commit 6a7cdadb63d8461ce47cde96ea36ad1f2bc87674
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
@@ -261,6 +3236,14 @@ Date:   Fri Aug 24 11:22:37 2012 -0400
 
 M	addons/packages/packetfence.spec
 
+commit b0e08a634606ef771e94a1e0735902012a2c2025
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 24 10:35:43 2012 -0400
+
+    removed two devel bugfix entries as they were cherry-picked in stable
+
+M	NEWS
+
 commit bd15effc15af9daf425e6e308b0858f4e1003c4e
 Author: Francois Gaudreault <fgaudreault@inverse.ca>
 Date:   Fri Aug 3 16:58:09 2012 -0400
@@ -283,6 +3266,17 @@ Date:   Fri Aug 3 15:57:06 2012 -0400
 
 M	NEWS
 M	lib/pf/node.pm
+
+commit b9fa60d1d9d2b3920a728a8c36e1c9af4cef6255
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Aug 8 10:13:29 2012 -0400
+
+    Initial release
+
+M	conf/ui.conf
+M	html/admin/status/reports.php
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/pfcmd/report.pm
 
 commit 52641ad01438b024e01bd6b0d6d8b700dffe6bba
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
@@ -382,6 +3376,33 @@ Date:   Tue Aug 21 11:27:29 2012 -0400
 
 M	UPGRADE
 
+commit 15f1c5abd76fee32a2e0a039800be6ce7957039e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Aug 20 16:35:17 2012 -0400
+
+    updated NEWS: targeting this branch for devel instead
+
+M	NEWS
+
+commit 3204f551c6e20cb2ef72c1c82bfca2d058e31bf1
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Mon Aug 20 16:31:14 2012 -0400
+
+    Reduced duplicated strings in Apache config
+    
+    Rewrite URLs come from pf::web::constants:
+    - making it a single location change
+    - easier maintenance (no unrelated scattered around changes required)
+    - accessible from templates
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	conf/httpd.conf.d/captive-portal-common.conf
+M	html/captive-portal/templates/login.html
+M	lib/pf/email_activation.pm
+M	lib/pf/services/apache.pm
+M	lib/pf/web/constants.pm
+M	lib/pf/web/guest.pm
+
 commit 29d207c4ae6fd3274f6ebea287313f57f26702bf
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Mon Aug 20 16:18:36 2012 -0400
@@ -392,6 +3413,135 @@ Date:   Mon Aug 20 16:18:36 2012 -0400
     part of the core feature set since 3.0.0.
 
 D	addons/guest-management/README
+
+commit caa15441b5d54908d217db39f56ce3118eef9f88
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 17 18:21:14 2012 -0400
+
+    pushing duplicated stash items in render_template
+    
+    - made a few little migration to portalSession->session too
+
+M	lib/pf/web.pm
+M	lib/pf/web/billing.pm
+M	lib/pf/web/guest.pm
+
+commit 793a5fcef955d1b7b2ba736d5593fb8468c9d11b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 17 17:54:35 2012 -0400
+
+    added a little useful reminder regarding Web API changes
+
+M	UPGRADE
+
+commit fafa3d7958ec52090966548a5d47d1e4deeb9b15
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 17 17:53:52 2012 -0400
+
+    moved LOGIN_TEMPLATE from guest to web
+
+M	UPGRADE
+M	lib/pf/web.pm
+M	lib/pf/web/guest.pm
+
+commit 3676edc9ff12c009d7a2197bf75ff4489a0826de
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 17 17:50:57 2012 -0400
+
+    migrated all outstanding callers to render_template
+    
+    - duplicate code removal: migrated every captive portal facing user behind render_template
+    - refactored _render_template into render_template and uses directly the portalSession stash now
+    - added a stash_template_vars meant to be customized to inject template variables globally
+
+M	UPGRADE
+M	lib/pf/web.pm
+M	lib/pf/web/billing.pm
+M	lib/pf/web/custom.pm
+M	lib/pf/web/guest.pm
+
+commit cdb551c8f894d3ef0ab0f9796816bf52becc5a87
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 17 15:04:06 2012 -0400
+
+    reformated UPGRADE note for post_uri deprecation in self_...
+
+M	UPGRADE
+
+commit 7fb5f4c650186d9bcff09b762099639ff586ba20
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Fri Aug 17 15:00:21 2012 -0400
+
+    i18n was centralized in Portal::Session
+    
+    For all captive portal facing users. Also added ->cgi and ->session accessors
+    in Portal::Session to eliminate some redundant lines $cgi = $portalSession->getCgi..
+    and I think it's more perlish.
+
+M	NEWS
+M	UPGRADE
+M	lib/pf/Portal/Session.pm
+M	lib/pf/web.pm
+M	lib/pf/web/billing.pm
+M	lib/pf/web/guest.pm
+M	lib/pf/web/util.pm
+
+commit 7c328e736d795e8ee3ef3147df75e1384330f8c5
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Aug 16 16:19:36 2012 -0400
+
+    migration to the Portal::Session stash
+    
+    Includes a new way to assign to it also.
+
+M	UPGRADE
+M	lib/pf/Portal/Session.pm
+M	lib/pf/web.pm
+M	lib/pf/web/billing.pm
+M	lib/pf/web/guest.pm
+M	t/web.t
+
+commit 9d636e46efc386b983e4baa84e6d757d5f93362a
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Thu Aug 16 14:38:23 2012 -0400
+
+    introduced the Portal::Session stash
+
+M	lib/pf/Portal/Session.pm
+M	lib/pf/web.pm
+
+commit 51af30eb8cb3c844a557779ec235c8e168727d08
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 15 14:33:52 2012 -0400
+
+    introduced web constants
+    
+    They work like pf::SNMP::constants, etc. but also they are automatically
+    injectable into the Template toolkit $vars hashref through
+    pf::web's _initialize_template_variables().
+
+M	lib/pf/web.pm
+A	lib/pf/web/constants.pm
+M	t/web.t
+
+commit 5af944c75a0dac03d29ac5fe36c6c93ed093885e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 15 11:08:58 2012 -0400
+
+    API cleanup in generate_selfregistration_page (#1484)
+
+M	NEWS
+M	UPGRADE
+M	html/captive-portal/guest-selfregistration.cgi
+M	lib/pf/web/guest.pm
+
+commit 4db55b3ebf843db52c3a8003d6f647615675948e
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 15 11:01:33 2012 -0400
+
+    cleanup: removed unreferenced constant
+
+M	html/admin/guest-management.cgi
 
 commit 2ac65663676178ef2ba5ca0cdf3311eda1953317
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
@@ -732,6 +3882,54 @@ Date:   Wed Aug 8 11:46:28 2012 -0400
 
 M	UPGRADE
 
+commit 4981aed22cca2d0de8f4536c5d94911012f8f37b
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Wed Aug 8 10:58:32 2012 -0400
+
+    added a missing ;
+
+M	bin/pfcmd_vlan
+
+commit 04701182a1f7e7a609c56221d2d5c0138f757291
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 7 14:32:20 2012 -0400
+
+    Exit status of deauthenticateMac (wireless dot1x) improved (#1493)
+    
+    Warning: several (if not all) implementations of deauthenticateMac are
+    *not* trying to have coherent return codes. An extensive review was *not*
+    performed. Please test before relying on that behavior.
+    
+    Patches to fix relevant implementations will be merged in priority and
+    should be contributed back.
+    
+    Partially fixes http://packetfence.org/bugs/view.php?id=1493
+
+M	bin/pfcmd_vlan
+
+commit f42f034b73b94ba0937a87f2f36a48879c7e09a2
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 7 14:18:36 2012 -0400
+
+    exit code 1 in pfcmd_vlan on wrong arguments (#1493)
+    
+    I would have preferred full refactoring of the argument validation but
+    unfortunately I don't have time for this.
+    
+    Partially fixes http://packetfence.org/bugs/view.php?id=1493
+
+M	NEWS
+M	bin/pfcmd_vlan
+
+commit a5027773e9ea5ab52d2d00cf089b01027619238c
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 7 13:25:39 2012 -0400
+
+    post-release bumps on devel branch
+
+M	NEWS
+M	conf/pf-release
+
 commit 531121253c9157568c9f705bed8a1e0b843dc58c
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
 Date:   Tue Aug 7 13:21:38 2012 -0400
@@ -740,6 +3938,28 @@ Date:   Tue Aug 7 13:21:38 2012 -0400
 
 M	NEWS
 M	conf/pf-release
+
+commit 85d6e94bbf45b02ecaab3421c7c7e662b2445db3
+Author: Olivier Bilodeau <olivier@bottomlesspit.org>
+Date:   Tue Aug 7 12:11:05 2012 -0400
+
+    Revert "Fixing #749, now checking for dupe violation ID"
+    
+    This reverts commit b78251653ec9f535f9e1cf3fa898b75350357d5e.
+
+M	NEWS
+M	bin/pfcmd
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/services.pm
+
+commit f3a8422696502915ff9e9fc8aeb823869b5d47f9
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Aug 6 15:31:58 2012 -0400
+
+    Adding the node_search.
+    I made the algorithm to find the nodes.  It will be added soon.
+
+M	lib/pf/node.pm
 
 commit bf2096fd7d5e93013a804e5eeb2ee324a66a5dbd
 Author: Olivier Bilodeau <olivier@bottomlesspit.org>
@@ -757,12 +3977,66 @@ Date:   Mon Aug 6 14:36:14 2012 -0400
 
 M	docs/README.asciidoc
 
+commit 787438a5ac5723cba5a023ebc10f7608fabda7db
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Jul 19 10:45:46 2012 -0400
+
+    pfsetvlan changes
+
+M	sbin/pfsetvlan
+
+commit fa48b8e6590d5bfed4078ea08d2321e21cf5c149
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Jul 16 14:22:02 2012 -0400
+
+    Adding basic trap parsing for Motorola, and basic handling in pfsetvlan
+
+M	lib/pf/SNMP/Motorola.pm
+M	sbin/pfsetvlan
+
+commit b78251653ec9f535f9e1cf3fa898b75350357d5e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Aug 6 12:15:03 2012 -0400
+
+    Fixing #749, now checking for dupe violation ID
+
+M	NEWS
+M	bin/pfcmd
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/services.pm
+
+commit fc8320925c43602e6614d341c574a533934d169c
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Aug 3 16:58:09 2012 -0400
+
+    Handling the empty release date on a violation modify
+
+M	NEWS
+M	lib/pf/violation.pm
+
+commit 586df835c012f8100a97c53865bdc61dbbb69e7f
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Aug 3 15:57:06 2012 -0400
+
+    Fix 1501 - Keeping the node PID when calling deregister
+
+M	NEWS
+M	lib/pf/node.pm
+
 commit f4ae8965bac4296558fcaff671ff9cc10e4639a5
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
 Date:   Fri Aug 3 12:47:55 2012 -0400
 
     Added missing epel repository in yum install command
     Thanks to Enrico for the feedback
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 6d2e6e343c1ca0a86ccdfe267685acf67acfac72
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Aug 2 12:54:07 2012 -0400
+
+    Forgotten epel in the enablerepo flag
 
 M	docs/PacketFence_Administration_Guide.asciidoc
 

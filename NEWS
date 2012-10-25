@@ -13,69 +13,60 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
-Version <develRelease> released on <releaseDate>
+Version 3.6.0 released on 2012-10-25
 
 New Hardware
- * New module for Cisco Catalyst 3750G to fix offset issues
-
-Enhancements
- * Code cleanups (#1380,#1484,#1485)
- * Important simplification of the Captive Portal code to make it harder to introduce problems
- * Adding default OCSP/CRL Proxies (#1329)
- * Better WISPR support
- * New parameter to control captive portal interception: secure_redirect
- * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
- * Minor refactoring in the RADIUS perl modules
- * Removed 127.0.0.1 switch from the config and added in the code
- * Inline Mode now using ipset instead of just iptables
- * Radius Inline feature
- * Selection of a preferred deauthentication method for a switch
- * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
- * Handling the MySQL startup in the web configurator
- * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
- * Changing port of the configuration from 3000 to 1444 (#1506)
-
-Bug Fixes
- * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
- * Translation of captive portal error messages
- * Side effect fixes of captive portal rework (#1366)
- * No more domain in our gettext po resources files (#1433)
- * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
- * Better POD for Nortel ERS5500 switches (#1450)
- * Allow dash in Role mappings (#1442)
- * Enforce inline network if you define an inline interface in pf.conf (#1584)
-
---------------------------------------------------------------------------------
-Version <stableRelease> released on <releaseDate>
-
-New Hardware
+ * New module for Cisco Catalyst 3750G to fix offset issues
  * Support for Cisco Catalyst 2960G in 802.1X / MAC-Authentication
 
 Documentation
- * Clarify routed VLAN requirements (Patch from Brian Candler)
- * Adding a quick install guide for Cisco Catalyst 2960
-
-Enhancements
- * Debian packages improvements
- * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
- * Improved the relevance of exit status in pfcmd_vlan (#1493)
- * LLDP support for Cisco switches
- * New report for the Top 25 Sponsors
- * Make sure DHCP listenes on configured interfaces for routed reg/isol VLANs
+ * Clarify routed VLAN requirements (Patch from Brian Candler)
+ * Adding a quick install guide for Cisco Catalyst 2960
 
 New Features
- * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
+ * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
+ * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
+ * Radius Inline feature
+ * LLDP support for Cisco switches
+ * Better WISPR support (Integrating with Accuris Networks' AccuROAM WISPr Client)
+
+Enhancements
+ * Code cleanups (#1380,#1484,#1485)
+ * Important simplification of the Captive Portal code to make it harder to introduce problems
+ * Adding default OCSP/CRL Proxies (#1329)
+ * New parameter to control captive portal interception: secure_redirect
+ * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
+ * Minor refactoring in the RADIUS perl modules
+ * Removed 127.0.0.1 switch from the config and added in the code
+ * Inline Mode now using ipset instead of just iptables
+ * Selection of a preferred deauthentication method for a switch
+ * Handling the MySQL startup in the web configurator
+ * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
+ * Changing port of the configuration from 3000 to 1444 (#1506)
+ * Debian packages improvements
+ * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
+ * Improved the relevance of exit status in pfcmd_vlan (#1493)
+ * New report for the Top 25 Sponsors
+ * Make sure DHCP listenes on configured interfaces for routed reg/isol VLANs
 
 Bug Fixes
- * Adding radius.log into the logrotate script (#1526)
- * Tweaking some accounting queries for performance (#1534)
- * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
- * Guest management page doesn't load on Internet Explorer 7 (#1404)
- * Debian: issues with translations (#1465)
- * Debian: SSH and Telnet based deauthentication (#1511)
- * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
- * Typo in Admin Guide (#1383, Thanks to Alberto Chavez)
- * Additional fixes to pfdhcplistener process management
+ * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
+ * Translation of captive portal error messages
+ * Side effect fixes of captive portal rework (#1366)
+ * No more domain in our gettext po resources files (#1433)
+ * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
+ * Better POD for Nortel ERS5500 switches (#1450)
+ * Allow dash in Role mappings (#1442)
+ * Enforce inline network if you define an inline interface in pf.conf (#1584)
+ * Adding radius.log into the logrotate script (#1526)
+ * Tweaking some accounting queries for performance (#1534)
+ * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
+ * Guest management page doesn't load on Internet Explorer 7 (#1404)
+ * Debian: issues with translations (#1465)
+ * Debian: SSH and Telnet based deauthentication (#1511)
+ * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
+ * Typo in Admin Guide (#1383, Thanks to Alberto Chavez)
+ * Additional fixes to pfdhcplistener process management
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05
