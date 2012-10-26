@@ -77,6 +77,7 @@ PacketFence supports the following devices:
 |Aruba            |All Controllers             |Aruba
 |Avaya            |Wireless Controllers        |Avaya::WC
 |                 |See Nortel Below            |
+|Belair           |Belair AP                   |Belair
 |Brocade          |Brocade 6400 Series         |Brocade
 |                 |Brocade RF Switches         |Brocade::RFS
 |Cisco            |Aironet 1130 AG             |Cisco::Aironet_1130
@@ -2290,6 +2291,52 @@ WLAN SSIDs: profiles and virtual AP
      virtual-ap "Inverse-Guest"
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
+
+Belair Networks (now Ericsson)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+BE20
+^^^^
+
+The Belair Networks BE20s are fairly easy to configure.
+
+Add VLANs
++++++++++
+
+On the BE20 Web Interface, click on *Eth-1-1*.  By default, there will be nothing in there.  You need to first create an untagged VLAN (VLAN 0). In order to do that, you need to set
+the PVID, Reverse PVID, and the VLAN field to 0.  Then click add.
+
+Repeat that step for each of your VLANs by entering the proper VLAN ID in the VLAN field.
+   
+AAA Servers
++++++++++++
+
+Once you have the VLANs setup, you need to add PacketFence into the AAA Server list.  Go to *System -> Radius Servers*.  Click on *Add server*, and fill out the proper information.
+
+* Ensure the Enabled checkbox is selected
+* IP Address: Insert the IP Address of the PacketFence Management Interface
+* Shared Secret: Insert the shared secret for RADIUS communication
+
+When done, click on the *Apply* button.
+
+Secure SSID
++++++++++++
+Since the BE20 doesn't support Open SSID with Mac Authentication, we will only describe how to configure a WPA2-Enterprise SSID.  First, we will configure the 5GHz antenna.
+
+Click on *Wifi-1-1 -> Access SSID Config*.  From the *Configuration for SSID* dropdown, select the 1 entry.  Modify the fields like the following:
+
+* SSID: Put your SSID Name you would like
+* Type: Broadcast
+* Use Privacy Mode: WPA2(AES) with EAP/DOT1x
+* RADIUS NAS Identifier: You can put a string to identify your AP
+* Radius Accounting Enabled: Checkbox Selected
+* Radius Station ID Delimiter: dash
+* Radius StationId Append Ssid: Checkbox Selected
+* RADIUS Server 1: Select the AAA Server you created earlier
+
+When done click *Apply*.  Repeat the same configuration for the 2.4GHz Antenna (Wifi-1-2).
+
+That should conclude the configuration.  You can now save the configs to the flash by hitting the *Config Save* button on top of the Interface.
 
 Brocade
 ~~~~~~~
