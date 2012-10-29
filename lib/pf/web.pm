@@ -258,7 +258,14 @@ sub generate_scan_start_page {
 sub generate_login_page {
     my ( $portalSession, $err ) = @_;
 
-    $portalSession->stash->{'guest_allowed'} = isenabled($portalSession->getProfile->getGuestSelfReg);
+    #Signup link activated if self_reg is enabled AND we have at least 1 proper mode activated
+    if (isenabled($portalSession->getProfile->getGuestSelfReg) && 
+       ( $guest_self_registration{$SELFREG_MODE_EMAIL} || $guest_self_registration{$SELFREG_MODE_SMS} || $guest_self_registration{$SELFREG_MODE_SPONSOR}) ) {
+        $portalSession->stash->{'guest_allowed'} = 1;
+    } else {
+        $portalSession->stash->{'guest_allowed'} = 0;
+    }
+
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
     # return login
