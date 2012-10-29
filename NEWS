@@ -21,6 +21,7 @@ New Hardware
 Enchancements
  * Minimal RADIUS logging in the GUI (#1342)
  * Accounting Time Modifier is now mandatory (#1538)
+ * Changing the location of ssl-certificates.conf file (#1550)
 
 Bug Fixes
  * SMS confirmation page is now giving error on invalid PIN (#1579)
