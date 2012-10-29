@@ -18,6 +18,9 @@ Version <develRelease> released on <releaseDate>
 New Hardware
  * Support Belair Networks AP
 
+Enchancements
+ * Minimal RADIUS logging in the GUI (#1342)
+
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
 

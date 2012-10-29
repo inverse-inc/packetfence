@@ -49,6 +49,7 @@
   $logs_pages['admin_access_log'] = "Web Admin Access Log";
   $logs_pages['admin_debug_log'] = "Web Admin Debug Log";
   $logs_pages['admin_error_log'] = "Web Admin Error Log";
+  $logs_pages['radius.log'] = "RADIUS Log";
   #ksort($logs_pages);
 
   # if no file was clicked on, load the first file
