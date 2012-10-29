@@ -25,6 +25,7 @@ Enchancements
 Bug Fixes
  * SMS confirmation page is now giving error on invalid PIN (#1579)
  * Signup link availability issues (#1591)
+ * Avoid using regdate to determine if node should be unreg (#1317)
 
 --------------------------------------------------------------------------------
 Version <stableRelease> released on <releaseDate>
