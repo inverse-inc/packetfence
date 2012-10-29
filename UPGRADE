@@ -10,7 +10,7 @@ Upgrading from a version prior to <develVersion>
 
 SSL certificate config file moved
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-File as moved into `conf/httpd.conf.d`. Your modifications WILL NOT follow automatically, please
+File has moved into `conf/httpd.conf.d`. Your modifications WILL NOT follow automatically, please
 manually fix it.
 
 Accounting modifier is now mandatory
