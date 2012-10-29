@@ -50,7 +50,7 @@ Enhancements
  * Removed 127.0.0.1 switch from the config and added in the code
  * Inline Mode now using ipset instead of just iptables
  * Selection of a preferred deauthentication method for a switch
- * Handling the MySQL startup in the web configurator
+ * Handling the MySQL startup in the web configurator (#1574)
  * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
  * Changing port of the configuration from 3000 to 1444 (#1506)
  * Debian packages improvements
