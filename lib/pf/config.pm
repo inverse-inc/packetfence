@@ -87,7 +87,7 @@ BEGIN {
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB
         %CAPTIVE_PORTAL
         $HTTP $HTTPS
-        normalize_time $TIME_MODIFIER_RE
+        normalize_time $TIME_MODIFIER_RE $ACCT_TIME_MODIFIER_RE
         $BANDWIDTH_DIRECTION_RE $BANDWIDTH_UNITS_RE
         is_vlan_enforcement_enabled is_inline_enforcement_enabled
         is_in_list
@@ -274,6 +274,7 @@ my $cache_inline_enforcement_enabled;
 # if you change these, make sure to change:
 # html/admin/common/helpers.inc's get_time_units_for_dropdown and get_time_regexp()
 our $TIME_MODIFIER_RE = qr/[smhDWMY]/;
+our $ACCT_TIME_MODIFIER_RE = qr/[DWMY]/;
 
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
