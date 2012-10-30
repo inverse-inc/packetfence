@@ -8,6 +8,11 @@ Notes on upgrading from an older release.
 Upgrading from a version prior to <develVersion>
 ------------------------------------------------
 
+SSL certificate config file moved
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File has moved into `conf/httpd.conf.d`. Your modifications WILL NOT follow automatically, please
+manually fix it.
+
 Accounting modifier is now mandatory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 When you create a bandwidth violation for accounting, the time modifier is now mandatory.  You need
