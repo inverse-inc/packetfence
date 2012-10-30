@@ -121,15 +121,6 @@ is_deeply(
     'validating bandwidth accounting trigger'
 );
 
-lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB") }
-    'parsing bandwidth accounting trigger without a time limit'
-;
-is_deeply(
-    $parsing_result_ref,
-    [ [ "TOT20GB", "TOT20GB", "accounting" ], ],
-    'validating bandwidth accounting trigger without a time limit'
-);
-
 throws_ok { parse_triggers("VENDORMAC::TOT20GB") }
     qr/Invalid trigger id/,
     'parsing a trigger with an invalid trigger id out of the accounting context expecting exception'
