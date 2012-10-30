@@ -50,8 +50,7 @@ our (
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
     %connection_type, %connection_type_to_str, %connection_type_explained,
-    %mark_type_to_str, %mark_type,
-    $blackholemac, $portscan_sid, $thread, $default_pid, $fqdn,
+    $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL
 );
 
@@ -75,7 +74,7 @@ BEGIN {
         $dhcp_fingerprints_file $dhcp_fingerprints_url 
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
-        $blackholemac $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -260,9 +259,6 @@ Readonly our $SELFREG_MODE_GOOGLE => 'google';
 Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 Readonly our $SELFREG_MODE_GITHUB => 'github';
 
-# this is broken NIC on Dave's desk - it better be unique!
-$blackholemac = "00:60:8c:83:d7:34";
-
 # Log Reload Timer in seconds
 Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 
@@ -302,7 +298,6 @@ multi-threaded daemons.
 
 =cut
 sub load_config {
-
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
