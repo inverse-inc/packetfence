@@ -18,7 +18,7 @@ use Catalyst qw/
     ConfigLoader
     Static::Simple
     I18N
-
+    +pfappserver::Authentication::Store::PacketFence
     Authentication
     Session
     Session::Store::File
@@ -69,8 +69,7 @@ __PACKAGE__->config(
              password_type => 'self_check',
            },
            store => {
-             class => 'Htpasswd',
-             file => '/usr/local/pf/conf/admin.conf', # must exist
+             class => '+pfappserver::Authentication::Store::PacketFence',
            }
          }
        }
