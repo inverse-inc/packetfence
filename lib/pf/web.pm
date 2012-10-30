@@ -45,6 +45,7 @@ BEGIN {
     @EXPORT = qw(i18n ni18n i18n_format render_template);
 }
 
+use pf::authentication;
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
@@ -53,7 +54,6 @@ use pf::os qw(dhcp_fingerprint_view);
 use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
-use pf::web::auth; 
 use pf::web::constants; 
 
 Readonly our $LOGIN_TEMPLATE => 'login.html';
@@ -286,7 +286,7 @@ sub generate_login_page {
     # authentication
     $portalSession->stash->{'selected_auth'} = encode_entities($portalSession->cgi->param("auth"))
         || $portalSession->getProfile->getDefaultAuth;
-    $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
+    #$portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
     $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     $portalSession->stash->{'oauth2_github'} = $guest_self_registration{$SELFREG_MODE_GITHUB};
@@ -493,18 +493,17 @@ sub validate_form {
 
     my $cgi = $portalSession->getCgi();
     if ( $cgi->param("username") && $cgi->param("password") && $cgi->param("auth") ) {
-
         # acceptable use pocliy accepted?
         if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
             return ( 0 , 'You need to accept the terms before proceeding any further.' );
         }
 
         # validates if supplied auth type is allowed by configuration
-        my $auth = $cgi->param("auth");
-        my @auth_choices = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
-        if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
-            return ( 0, 'Unable to validate credentials at the moment' );
-        }
+        #my $auth = $cgi->param("auth");
+        #my @auth_choices = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
+        #if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
+        #    return ( 0, 'Unable to validate credentials at the moment' );
+        #}
 
         return (1);
     }
@@ -523,21 +522,21 @@ sub web_user_authenticate {
     my $logger = Log::Log4perl::get_logger('pf::web');
     $logger->trace("authentication attempt");
 
-    my $authenticator = pf::web::auth::instantiate($auth_module);
-    return (0, undef) if (!defined($authenticator));
+    my $session = $portalSession->getSession();
+
+    #my $authenticator = pf::web::auth::instantiate($auth_module);
+    #return (0, undef) if (!defined($authenticator));
 
     # validate login and password
-    my $return = $authenticator->authenticate( 
-        $portalSession->cgi->param("username"),
-        $portalSession->cgi->param("password")
-    );
+    my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
+                                                               $portalSession->cgi->param("password"));
 
     if (defined($return) && $return == 1) {
         #save login into session
-        $portalSession->session->param( "username", $portalSession->cgi->param("username") );
-        $portalSession->session->param( "authType", $auth_module );
+        $portalSession->session->param( "username", $cgi->param("username") );
+        #$portalSession->session->param( "authType", $auth_module );
     }
-    return ($return, $authenticator);
+    return ($return, $message);
 }
 
 sub generate_registration_page {
@@ -715,3 +714,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

@@ -283,18 +283,19 @@ sub authenticate {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->trace("authentication attempt");
 
-    my $authenticator = pf::web::auth::instantiate($auth_module);
-    return (0, undef) if (!defined($authenticator));
-
-    # validate login and password
-    my $return = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
-
-    if (defined($return) && $return == 1) {
-        #save login into session
-        $session->param( "username", $cgi->param("username") );
-        $session->param( "authType", $auth_module );
-    }
-    return ($return, $authenticator);
+#    my $authenticator = pf::web::auth::instantiate($auth_module);
+#    return (0, undef) if (!defined($authenticator));
+#
+#    # validate login and password
+#    my $return = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
+#
+#    if (defined($return) && $return == 1) {
+#        #save login into session
+#        $session->param( "username", $cgi->param("username") );
+#        $session->param( "authType", $auth_module );
+#    }
+#    return ($return, $authenticator);
+    return (0, undef);
 }
 
 =item validate_guest_creation

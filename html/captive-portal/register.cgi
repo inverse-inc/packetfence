@@ -55,7 +55,7 @@ $info{'pid'} = $cgi->remote_user if (defined $cgi->remote_user);
 $info{'user_agent'} = $cgi->user_agent;
 
 if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
-
+  
   my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
     $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
@@ -63,23 +63,25 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
   if ($auth_return != 1) {
     $logger->trace("authentication failed for " . $portalSession->getClientMac());
-    my $error;
-    if (!defined($authenticator)) {
-        $error = 'Unable to validate credentials at the moment';
-    } else {
-        $error = $authenticator->getLastError();
-    }
+    #my $error;
+    #if (!defined($authenticator)) {
+    #    $error = 'Unable to validate credentials at the moment';
+    #} else {
+    #    $error = $authenticator->getLastError();
+    #}
     pf::web::generate_login_page($portalSession, $error);
     exit(0);
   }
 
   # obtain node information provided by authentication module
   # This appends the hashes to one another. values returned by authenticator wins on key collision
-  %info = (%info, $authenticator->getNodeAttributes());
- 
+  #%info = (%info, $authenticator->getNodeAttributes());
+  #FIXME - hook with fetch de roles
+  %info = (%info, ());
+
   my $pid = $portalSession->getSession->param("username");
   pf::web::web_node_register($portalSession, $pid, %info);
   pf::web::end_portal_session($portalSession);
@@ -100,15 +102,15 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  my ($auth_return, $authenticator) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
   if ($auth_return != 1) {
     $logger->trace("authentication failed for " . $portalSession->getClientMac());
-    my $error;
-    if (!defined($authenticator)) {
-        $error = 'Unable to validate credentials at the moment';
-    } else {
-        $error = $authenticator->getLastError();
-    }
+    #my $error;
+    #if (!defined($authenticator)) {
+    #    $error = 'Unable to validate credentials at the moment';
+    #} else {
+    #    $error = $authenticator->getLastError();
+    #}
     pf::web::generate_login_page($portalSession, $error);
     exit(0);
   }
@@ -118,7 +120,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   if ($portalSession->getSession->param("username") eq $pid) {
     my $cmd = $bin_dir."/pfcmd manage deregister " . $portalSession->getClientMac();
     my $output = qx/$cmd/;
-    $logger->info("calling $bin_dir/pfcmd  manage deregister " . $portalSession->getClientMac());
+    $logger->info("calling $bin_dir/pfcmd manage deregister " . $portalSession->getClientMac());
     print $cgi->redirect("/authenticate");
   } else {
     pf::web::generate_error_page($portalSession, i18n("error: access denied not owner"));
@@ -144,16 +146,6 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 } else {
   pf::web::generate_login_page($portalSession);
 }
-
-=head1 AUTHOR
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
-Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
         

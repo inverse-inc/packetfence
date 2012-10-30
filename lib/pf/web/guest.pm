@@ -45,7 +45,6 @@ use pf::config;
 use pf::temporary_password 1.10;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
-use pf::web::auth;
 use pf::web::constants;
 use pf::web::util;
 use pf::sms_activation;
@@ -218,12 +217,12 @@ sub validate_sponsor {
         }
     }
 
-    my $authenticator = pf::web::auth::instantiate($Config{'guests_self_registration'}{'sponsor_authentication'});
-    return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
+    #my $authenticator = pf::web::auth::instantiate($Config{'guests_self_registration'}{'sponsor_authentication'});
+    #return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
 
     # validate that this email can sponsor network accesses
-    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( lc($portalSession->cgi->param('sponsor_email')) );
-    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $portalSession->cgi->param('sponsor_email') ] ) if (!$can_sponsor);
+    #my $can_sponsor = $authenticator->isAllowedToSponsorGuests( lc($cgi->param('sponsor_email')) );
+    #return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] ) if (!$can_sponsor);
 
     # all sponsor checks passed
     return ($TRUE, 0);
