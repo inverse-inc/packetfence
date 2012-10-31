@@ -35,57 +35,32 @@ sub authenticate {
 
 =item
 
-This will first try to match "standard" attributes with conditions of rules.
-
 The first rule for which its conditions are matched wins, and stops everything.
 
-params is a hash or things to match. "username" is a mandatory attribute, but it
+Subclasses will implement this method.
+
+params is a hash of things to match. "username" is a mandatory attribute, but it
 might also contain the "SSID", etc..
 
-The logic here is simple. If the match is ANY, the first condition matched stops everything.
-If the match is ALL, we run through all conditions of all rules but ONLY for the attributes
-that are "generic" (SSID, etc.).
-
-RETURNS the matched rules, empty array if someone forgot to define the catchall!
+Returns the actions of the first matched rule.
 
 =cut
 sub match {
   my ($self, $params) = @_;
 
-  my $common_attributes = $self->common_attributes();
-  my @matching_rules = ();
+  return [];
+}
 
-  foreach my $rule ( @{$self->{'rules'}} ) {
-    my $result = 0;
-    
-    foreach my $condition ( @{$rule->{'conditions'}} ) {
-      print "Got attribute: " . $condition->attribute . "\n";
-      print "Value from params: " . $params->{$condition->attribute} . "\n";
-      if (grep {$_ eq $condition->attribute } @$common_attributes) {
-	
-	my $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
-
-	if ($rule->match eq Rule->ANY) {
-	  $result = $result | $r;
-
-	  # If a condition matches and we are matching ANY, let's stop evaluating all conditions
-	  if ($result == 1) {
-	    last;
-	  }
-	} else {
-	  $result = $result & $r;
-       	}
-      }
-    }
-    
-    # If we ran all conditions and we have matched them sucessfully, let's return the rule
-    if ($result == 1) {
-      push(@matching_rules, $rule);
-    }
-  }
+sub match_condition {
+  my ($self, $condition, $params) = @_;
   
-  print "Returning $#matching_rules rules\n";
-  return \@matching_rules;
+  my $r = 0;
+  
+  if (grep {$_ eq $condition->attribute } @{$self->common_attributes()}) {
+    $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
+  }
+
+  return $r;
 }
 
 =back

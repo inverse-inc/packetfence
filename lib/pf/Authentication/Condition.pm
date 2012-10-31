@@ -18,10 +18,14 @@ sub matches {
 
   if ($self->{'attribute'} eq $attr) {
     if ($self->{'operator'} eq $self->EQUALS) {
-      return $self->{'value'} eq $v;
+      if ($self->{'value'} eq $v) {
+	return 1;
+      }
     }
-
-    return index($v, $self->{'value'}) < 0;
+    
+    if (index($v, $self->{'value'}) < 0) {
+      return 1;
+    }
   }
   
   return 0;
