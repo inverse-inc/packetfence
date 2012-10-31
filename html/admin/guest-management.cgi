@@ -33,7 +33,6 @@ use pf::web::custom;
 
 # for guest_managers authentication module
 use lib "/usr/local/pf/conf";
-use authentication::guest_managers;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('guest-management.cgi');
