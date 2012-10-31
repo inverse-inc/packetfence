@@ -189,7 +189,7 @@ sub supports_mobileconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if ((!defined($fingerprint[0]->{'os'})) ||  ($fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad / && $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/)); 
+    return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/); 
 
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
@@ -211,6 +211,45 @@ sub generate_mobileconfig_provisioning_page {
     my ( $portalSession ) = @_;
     render_template($portalSession, 'release_with_xmlconfig.html');
 }
+
+=item supports_windowsconfig_provisioning
+
+Validating that the node supports mobile configuration provisioning, that it's configured
+and that the node's category matches the configuration.
+
+=cut
+sub supports_windowsconfig_provisioning {
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
+
+    # is this an iDevice?
+    # TODO get rid of hardcoded targets like that
+    my $node_attributes = node_attributes($portalSession->getClientMac);
+    my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
+    return $FALSE if ((!defined($fingerprint[0]->{'os'})) ||   $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/);
+    # do we perform provisioning for this category?
+    my $config_category = $Config{'provisioning'}{'category'};
+    my $node_cat = $node_attributes->{'category'};
+
+    # validating that the node is under the proper category for mobile config provioning
+    return $TRUE if ( $config_category eq 'any' || (defined($node_cat) && $node_cat eq $config_category));
+
+    # otherwise
+    return $FALSE;
+}
+
+=item generate_windowsconfig_provisioning_page
+
+Offers a page that links to the proper provisioning XML.
+
+=cut
+sub generate_windowsconfig_provisioning_page {
+    my ( $portalSession ) = @_;
+    render_template($portalSession, 'release_with_execonfig.html');
+}
+
 
 =item generate_apple_mobileconfig_provisioning_xml
 
@@ -246,44 +285,58 @@ Generate the proper XML config to automatically configure Wireless for windows d
 
 =cut
 sub generate_windows_provisioning_xml {
-    my ( $portalSession ) = @_;
+    my ( $portalSession) =@_;
     my $logger = Log::Log4perl::get_logger('pf::web');
 
-    # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
+    my $response;
 
-    # if not logged in, disallow access
-    #return if (!defined($session->param('username')));
     my $ssid_hex = $Config{'provisioning'}{'ssid'};
     $ssid_hex =~ s/(.)/sprintf("%x",ord($1))/eg;
     my $vars = {
-        username => $session->param('username'),
         ssid => $Config{'provisioning'}{'ssid'},
         ssid_hex => $ssid_hex,
     };
 
-# Some required headers
-    print $cgi->header( 'Content-type: application/xml; charset=utf-8' );
-    print $cgi->header( 'Content-Disposition: attachment; filename="windows-wireless-profile"' );
-
     # Using TT to render the XML with correct variables populated
     my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath],
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
     if (defined($Config{'provisioning'}{'certificate'})) {
         my $x509 = Crypt::OpenSSL::X509->new_from_file($Config{'provisioning'}{'certificate'});
         my $key = $x509->fingerprint_sha1();
         $key =~ s/:/ /g;
         $vars->{ 'key' } = $key;
-        $template->process( "windows-wireless-profile-cert.xml", $vars ) || $logger->error($template->error());
+        $template->process( "windows-wireless-profile-cert.xml", $vars, \$response ) || $logger->error($template->error());
+        return $response;
     }
     else {
         $vars->{ 'key' } = "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
-        $template->process( "windows-wireless-profile.xml", $vars ) || $logger->error($template->error());
+        $template->process( "windows-wireless-profile.xml", $vars, \$response ) || $logger->error($template->error());
+        return $response;
     }
 
 }
+
+=item generate_windows_soh_xml
+
+Send soh profile
+
+=cut
+
+sub generate_windows_soh_xml {
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $response;
+
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process( "windows-soh-profile.xml", undef, \$response ) || $logger->error($template->error());
+    return $response;
+}
+
+
+
 
 =item send radius certificate
 
@@ -293,28 +346,24 @@ Send the radius certificate (ca.der) for windows.
 sub send_radius_certificate {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-
-    # First blast at consuming portalSession object
-    my $cgi     = $portalSession->getCgi();
-    my $session = $portalSession->getSession();
-
-    # if not logged in, disallow access
-    #return if (!defined($session->param('username')));
+    my $response;
+    my $type;
 
     if (defined($Config{'provisioning'}{'certificate'})) {
 
         # Some required headers
-        print $cgi->header( 'Content-type: application/x-x509-ca-cert, charset=utf-8' );
-        print $cgi->header( 'Content-Disposition: attachment; filename="cacert.pem"' );
         open( FILE, "<$Config{'provisioning'}{'certificate'}" );
         while(read(FILE, my $buffer, 100) )
         {
-           print("$buffer");
+           $response .= $buffer;
         }
+        $type = "application/x-x509-ca-cert";
     }
     else {
-        print $cgi->header(-status=>'404',-type=>'text/html'),$cgi->start_html(-title=>'404 Page Not Found'),'<hi>you did not configure a certificate in your config</h1>';
+        $response = "you did not configure a certificate in your config";
+        $type = "text/html";
     }
+    return ($response,$type);
 }
 
 sub generate_scan_start_page {
@@ -684,6 +733,10 @@ sub end_portal_session {
     # handle mobile provisioning if relevant
     if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
         pf::web::generate_mobileconfig_provisioning_page($portalSession);
+        exit(0);
+    }
+    if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
+        pf::web::generate_windowsconfig_provisioning_page($portalSession);
         exit(0);
     }
 

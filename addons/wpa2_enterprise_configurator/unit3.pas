@@ -15,7 +15,7 @@ type
   TForm3 = class(TForm)
     Fermer: TButton;
     Image1: TImage;
-    Label1: TLabel;
+    StaticText1: TStaticText;
     procedure FermerClick(Sender: TObject);
   private
     { private declarations }

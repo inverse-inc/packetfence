@@ -20,7 +20,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls,
-  FileUtil, LResources, md5, Process, Registry, ExtCtrls, MaskEdit, Maskutils, Unit2, Unit3;
+  FileUtil, LResources, md5, Process, Registry, ExtCtrls, MaskEdit, Maskutils, Unit2,
+  Unit3, httpSend, ssl_openssl, ssl_openssl_lib;
 
 type
 
@@ -31,11 +32,13 @@ type
 
   TForm1 = class(TForm)
     Button1: TButton;
-    Label2: TLabel;
-    Label5: TLabel;
-    Label3: TLabel;
+    Button2: TButton;
     Image1: TImage;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { private declarations }
   public
@@ -104,7 +107,7 @@ var
   controlFile: TextFile;
   nactenoZeSouboru: String;
   certificat2: String;
-  //httpClient: THTTPSend;
+  httpClient: THTTPSend;
   result: String;
   user: String;
   mdp: String;
@@ -181,57 +184,91 @@ begin
   rep_temp := temp + tempAdresar + '\';
 
   // Generate files to create the wifi, certificate and soh profil
-
-  r := LazarusResources.Find('wifi_profil');
-
-  if r = nil then
-    wifi_client := False
+  httpClient:= THTTPSend.Create;
+  if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/xml') then
+    begin
+      httpClient.Document.SaveToFile(rep_temp + 'profil_wifi.xml');
+      wifi_client := True;
+    end
   else
-  begin
-    profil_wifi := LazarusResources.Find('wifi_profil').Value;
-    wifi_client := True;
-    Stream := TLazarusResourceStream.Create('profil_wifi', nil);
-    try
-      if Stream.Size > 0 then
-        Stream.SaveToFile(rep_temp + 'profil_wifi.xml');
-    finally
-      Stream.Free;
+    begin
+      wifi_client := False;
     end;
-  end;
-
-  r := LazarusResources.Find('certificat');
-
-  if r = nil then
-    certificate_client := False
+  httpClient.Free;
+  httpClient:= THTTPSend.Create;
+  if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/ca') then
+    begin
+      httpClient.Document.SaveToFile(rep_temp + 'certificat.crt');
+      certificate_client := True;
+    end
   else
-  begin
-    certificat := LazarusResources.Find('certificat').Value;
-    certificate_client := True;
-    Stream := TLazarusResourceStream.Create('certificat', nil);
-    try
-      if Stream.Size > 0 then
-        Stream.SaveToFile(rep_temp + 'certificat.crt');
-    finally
-      Stream.Free;
+    begin
+      certificate_client := False;
     end;
-  end;
-
-
-  r :=  LazarusResources.Find('soh_profil');
-  if r = nil then
-    soh_client := False
+  httpClient.Free;
+  httpClient:= THTTPSend.Create;
+  if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/soh') then
+    begin
+      httpClient.Document.SaveToFile(rep_temp + 'profil_soh.xml');
+      soh_client := True;
+    end
   else
-  begin
-    profil_soh :=  LazarusResources.Find('soh_profil').Value;
-    soh_client := True;
-    Stream := TLazarusResourceStream.Create('profil_soh', nil);
-    try
-      if Stream.Size > 0 then
-        Stream.SaveToFile(rep_temp + 'profil_soh.xml');
-    finally
-      Stream.Free;
+    begin
+      soh_client := False;
     end;
-  end;
+  httpClient.Free;
+
+
+  //r := LazarusResources.Find('wifi_profil');
+
+  //if r = nil then
+  //  wifi_client := False
+  //else
+  //begin
+  //  profil_wifi := LazarusResources.Find('wifi_profil').Value;
+  //  wifi_client := True;
+  //  Stream := TLazarusResourceStream.Create('profil_wifi', nil);
+  //  try
+  //    if Stream.Size > 0 then
+  //      Stream.SaveToFile(rep_temp + 'profil_wifi.xml');
+  //  finally
+  //    Stream.Free;
+  //  end;
+  //end;
+
+  //r := LazarusResources.Find('certificat');
+
+  //if r = nil then
+  //  certificate_client := False
+  //else
+  //begin
+  //  certificat := LazarusResources.Find('certificat').Value;
+  //  certificate_client := True;
+  //  Stream := TLazarusResourceStream.Create('certificat', nil);
+  //  try
+  //    if Stream.Size > 0 then
+  //      Stream.SaveToFile(rep_temp + 'certificat.crt');
+  //  finally
+  //    Stream.Free;
+  //  end;
+  //end;
+
+
+  //r :=  LazarusResources.Find('soh_profil');
+  //if r = nil then
+  //  soh_client := False
+  //else
+  //begin
+  //  profil_soh :=  LazarusResources.Find('soh_profil').Value;
+  //  soh_client := True;
+  //  Stream := TLazarusResourceStream.Create('profil_soh', nil);
+  //  try
+  //    if Stream.Size > 0 then
+  //      Stream.SaveToFile(rep_temp + 'profil_soh.xml');
+  //  finally
+  //  Stream.Free;
+  //  end;
+  //end;
 
   //if ( result = '1') then
   //begin
@@ -258,7 +295,7 @@ begin
         app.Execute;
         Form1.Visible := True;
 
-        app.CommandLine := 'net start NAPAgent';
+        app.CommandLine := 'sc start NAPAgent';
         app.Options := app.Options + [poWaitOnExit];
         Form1.Visible := False;
         app.Execute;
@@ -270,7 +307,7 @@ begin
         app.Execute;
         Form1.Visible := True;
 
-        app.CommandLine := 'net start Dot3Svc';
+        app.CommandLine := 'sc start Dot3Svc';
         app.Options := app.Options + [poWaitOnExit];
         Form1.Visible := False;
         app.Execute;
@@ -316,7 +353,7 @@ begin
         app.Execute;
         Form1.Visible := True;
 
-        app.CommandLine := 'net start NAPAgent';
+        app.CommandLine := 'sc start NAPAgent';
         app.Options := app.Options + [poWaitOnExit];
         Form1.Visible := False;
         app.Execute;
@@ -328,7 +365,7 @@ begin
         app.Execute;
         Form1.Visible := True;
 
-        app.CommandLine := 'net start Dot3Svc';
+        app.CommandLine := 'sc start Dot3Svc';
         app.Options := app.Options + [poWaitOnExit];
         Form1.Visible := False;
         app.Execute;
@@ -379,6 +416,12 @@ begin
 
 
 end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  Application.terminate;
+end;
+
 
 
 
