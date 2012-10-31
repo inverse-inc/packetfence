@@ -27,7 +27,7 @@ has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 sub available_attributes {
   my $self = shift;
   my $super_attributes = $self->SUPER::available_attributes;
-  my $ldap_attributes = ["cn", "department", "displayName", "distinguishedName", "memberOf", "sn"];
+  my $ldap_attributes = ["cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn"];
   
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_ eq $self->{'usernameattribute'}} @$ldap_attributes ) {
@@ -79,39 +79,51 @@ sub authenticate {
   return ($TRUE, 'Successful authentication using LDAP.');
 }
 
+
+
 sub match {
-  my ($self, $params) = @_;
+  my ( $self, $params ) = @_;
+  my $common_attributes = $self->SUPER::common_attributes();
 
-  print "Matching in LDAP source...\n";
-
-  my $rules = $self->SUPER::match($params);
   my $logger = Log::Log4perl->get_logger('pf::authentication');
-
-  # FIXME: SUPPORT PORT, TLS/SSL
-  my $connection = Net::LDAP->new($self->{'host'});
-  if (! defined($connection)) {
-    print "Unable to connect to '$self->{'host'}'\n";
-    $logger->error("Unable to connect to '$self->{'host'}'");
-    return $rules;
-  }
-  
-  my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-  
-  if ($result->is_error) {
-    print "Unable to bind with '$self->{'binddn'}'\n";
-    $logger->error("Unable to bind with '$self->{'binddn'}'");
-    return $rules;
-  }
   
   my @matching_rules = ();
-
-  print "About to match rules...\n";
-
-  foreach my $rule ( @$rules ) {
-    print "Checking rule\n";
-    my $filter = ldap_filter_for_rule($rule, $self->{'usernameattribute'}, $params);
+  
+  foreach my $rule ( @{$self->{'rules'}} ) {
+    
+    my @matching_conditions = ();
+    my @own_conditions = ();
+    
+    foreach my $condition ( @{$rule->{'conditions'}} ) {
+      
+      if (grep {$_ eq $condition->attribute } @$common_attributes) {
+	my $r = $self->SUPER::match_condition($condition, $params);
 	
-    print "Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}\n";
+	if ($r == 1) {
+	  push(@matching_conditions, $condition);
+	}
+      } elsif (grep {$_ eq $condition->attribute } @{$self->available_attributes()}) {
+	push(@own_conditions, $condition);
+      }
+    } # foreach my $condition (...)
+    
+    # We're done looping, let's match the LDAP conditions alltogether
+    my $filter = ldap_filter_for_conditions(\@own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    
+    my $connection = Net::LDAP->new($self->{'host'});
+    if (! defined($connection)) {
+      $logger->error("Unable to connect to '$self->{'host'}'");
+      return [];
+    }
+    
+    my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    
+    if ($result->is_error) {
+      $logger->error("Unable to bind with '$self->{'binddn'}'");
+      return [];
+    }
+    
+    $logger->info("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
     $result = $connection->search(
 				  base => $self->{'basedn'},
 				  filter => $filter,
@@ -120,50 +132,67 @@ sub match {
 				 );
     
     if ($result->is_error) {
-      $logger->error("Unable to execute search");
+      $logger->error("Unable to execute search, we skip the rule.");
       next;
     }
     
     if ($result->count == 1) {
       my $dn = $result->entry(0)->dn;
       $connection->unbind;
+      $logger->info("Found a match ($dn)! pushing LDAP conditions");
+      push @matching_conditions, @own_conditions;
+    }
+
+    # We compare the matched conditions with how many we had
+    if ($rule->match eq pf::Authentication::Rule->ANY &&
+	scalar @matching_conditions > 0) {
       push(@matching_rules, $rule);
+    } elsif ($rule->match eq pf::Authentication::Rule->ALL &&
+	     scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
+      push(@matching_rules, $rule);
+    }
+
+    # For now, we return the first matching rule. We might change this in the future
+    # so let's keep the @matching_rules array for now.
+    if (scalar @matching_rules == 1) {
+      $logger->info("Matched rule ($rule->{'description'}), returning actions.");
       return $rule->{'actions'};
     }
-  }
+	
+  } # foreach my $rule ( @{$self->{'rules'}} ) {
   
-  return @matching_rules;
+  return [];
 }
 
-=item ldap_filter_for_rule
+=item ldap_filter_for_conditions
 
-This function is used to generate an LDAP filter based on condition
+This function is used to generate an LDAP filter based on conditions
 from a rule.
 
 =cut
-sub ldap_filter_for_rule {
-  my ($rule, $usernameattribute, $params) = @_;
+sub ldap_filter_for_conditions {
+  my ($conditions, $match, $usernameattribute, $params) = @_;
 
   my $expression = '(';
-  
-  if ($rule->match eq pf::Rule->ANY) {
+    
+  if ($match eq pf::Authentication::Rule->ANY) {
     $expression .= '|';
   }
   else {
     $expression .= '&';
   }
-  
-  foreach my $condition (@{$rule->{'conditions'}})  {
-    my $str;
+
+  foreach my $condition (@{$conditions})  {
+    my $str = "";
     
     # FIXME - we should escape things properly
-    if ($condition->{'operator'} eq Condition->EQUALS) {
+    if ($condition->{'operator'} eq pf::Authentication::Condition->EQUALS) {
       $str = "$condition->{'attribute'}=$condition->{'value'}";
-    } elsif ($condition->{'operator'} eq Condition->CONTAINS) {
+    } elsif ($condition->{'operator'} eq pf::Authentication::Condition->CONTAINS) {
       $str = "$condition->{'attribute'}=*$condition->{'value'}*";
     }
     
-    if (scalar @{$rule->{'conditions'}} == 1) {
+    if (scalar @{$conditions}  == 1) {
       $expression = '(' . $str;
     }
     else {
@@ -173,10 +202,8 @@ sub ldap_filter_for_rule {
 
   $expression .= ')';
  
-  $expression = "(&($usernameattribute=$params->{'username'})$expression)";
+  $expression = '(&(' . $usernameattribute . '=' . $params->{'username'} . ')' . $expression .')';
   
-  print "Expression: $expression\n";
-
   return $expression;
 } 
 

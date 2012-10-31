@@ -25,6 +25,18 @@ sub add_condition {
   push(@{$self->{'conditions'}}, $condition);
 }
 
+sub is_fallback {
+  my $self = shift;
+
+  if (scalar @{$self->{'conditions'}} == 0 &&
+      scalar @{$self->{'actions'}} > 0)
+    {
+      return 1;
+    }
+
+  return 0;
+}
+
 =back
 
 =head1 COPYRIGHT
