@@ -95,8 +95,14 @@ sub handler {
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES_MOD_PERL/o) {
         $r->handler('modperl');
-        $r->pnotes->{session_id} = $1;
-        $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
+        if ($r->uri =~ /$WEB::MOD_PERL_WISPR/o) {
+            $r->pnotes->{session_id} = $1;
+            $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
+        }
+        if ($r->uri =~ /$WEB::MOD_PERL_WINPROFIL/o) {
+            $r->pnotes->{uri_winprofil} = $1;
+            $r->set_handlers( PerlResponseHandler => ['pf::web::winprofil'] );
+        }
         return Apache2::Const::OK;
     }
 
