@@ -10,6 +10,7 @@ use Apache::Htpasswd;
 
 extends 'pf::Authentication::Source';
 
+has '+type' => ( default => 'Htpasswd' );
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
 
 sub available_attributes {

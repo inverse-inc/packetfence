@@ -10,6 +10,7 @@ use Authen::Krb5::Simple;
 
 extends 'pf::Authentication::Source';
 
+has '+type' => ( default => 'Kerberos' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
 has 'realm' => (isa => 'Str', is => 'rw', required => 1);
 

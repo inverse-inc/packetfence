@@ -11,7 +11,7 @@ use constant {
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
-has 'match' => (isa => 'Str', is => 'rw', required => 1);
+has 'match' => (isa => 'Str', is => 'rw', required => 1, default => ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 has 'conditions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 
