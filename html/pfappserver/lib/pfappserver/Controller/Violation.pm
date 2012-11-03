@@ -65,13 +65,12 @@ sub create :Local {
 
     my ($status, $result);
 
+    $c->stash->{action_uri} = $c->uri_for($c->action);
     if ($c->request->method eq 'POST') {
         my $id = $c->req->params->{id};
-        $c->stash->{action_uri} = $c->uri_for($c->action);
         $c->forward('update', [$id]);
     }
     else {
-        $c->stash->{action_uri} = $c->uri_for($c->action);
         $c->stash->{template} = 'violation/read.tt';
         $c->forward('read');
     }
