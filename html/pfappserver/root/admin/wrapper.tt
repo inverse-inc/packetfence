@@ -20,6 +20,9 @@
     <!--[if lt IE 9]>
       <script src="[% c.uri_for('/static/app/html5.js') %]"></script>
     <![endif]-->
+    <!--[if IE 7]>
+      <link rel="stylesheet" href="[% c.uri_for('/static/css/font-awesome-ie7.css') %]">
+    <![endif]-->
   </head>
 
   <body>
