@@ -53,12 +53,15 @@ sub field_list {
         {
             $type eq 'text' && do {
                 $field->{type} = 'Text';
+                last;
             };
             $type eq 'text-large' && do {
                 $field->{type} = 'TextArea';
+                last;
             };
             $type eq 'numeric' && do {
                 $field->{type} = 'PosInteger';
+                last;
             };
             $type eq 'multi' && do {
                 $field->{type} = 'Select';
@@ -67,6 +70,7 @@ sub field_list {
                 $field->{element_attr} = {'data-placeholder' => 'Click to add'};
                 my @options = map { { value => $_, label => $_ } } @{$param->{options}};
                 $field->{options} = \@options;
+                last;
             };
             $type eq 'toggle' && do {
                 if ($param->{options}->[0] eq 'enabled' ||
@@ -82,12 +86,15 @@ sub field_list {
                     my @options = map { { value => $_, label => $_ } } @{$param->{options}};
                     $field->{options} = \@options;
                 }
+                last;
             };
             $type eq 'date' && do {
                 $field->{type} = 'DatePicker';
+                last;
             };
             $type eq 'time' && do {
                 $field->{type} = '+Duration';
+                last;
             };
         }
 
