@@ -1,9 +1,3 @@
-<style type="text/css">
-table .action {
-    text-align: right;
-}
-</style>
-
       <div class="modal fade hide" id="modalFilter">
       </div>
 

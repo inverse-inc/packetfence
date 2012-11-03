@@ -1,7 +1,9 @@
 [%  jsFiles = [
+        'app/jquery-ui',
         'app/bootstrap-datepicker',
         'app/chosen.jquery.min',
         'admin/configuration',
+        'admin/configuration/authentication',
         'admin/configuration/violations',
         'admin/configuration/soh'
         ]

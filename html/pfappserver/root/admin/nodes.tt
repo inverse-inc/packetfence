@@ -23,6 +23,9 @@ form {
 .bootstrap-timepicker table {
     width: 160px;
 }
+.table-dynamic .action {
+    width: 32px;
+}
 </style>
 
       <div class="modal fade hide" id="saveSearch">
@@ -97,12 +100,12 @@ form {
                     <input type="text" class="input-small" name="end">
                     <a href="#last0day">Today</a> | <a href="#last7days">7 days</a> | <a href="#last30days">30 days</a> | <a href="#last60days">60 days</a>
                   </div>
-                  <table class="table-search">
+                  <table class="table-dynamic">
                     <tbody>
                       <tr>
-                        <td colspan="2">
+                        <td>
                           Match
-                          <select class="span1">
+                          <select class="input-mini">
                             <option>all</option>
                             <option>any</option>
                           </select>
@@ -111,13 +114,7 @@ form {
                       </tr>
                       <tr class="hidden">
                         <td>
-                          <span class="btn-group">
-                            <a class="btn btn-mini" href="#add"><i class="icon-plus-sign"></i></a>
-                            <a class="btn btn-mini" href="#delete"><i class="icon-minus-sign"></i></a>
-                          </span>
-                        </td>
-                        <td>
-                          <select>
+                          <select class="span4">
                             <option>Node MAC</option>
                             <option>Node category</option>
                             <option>Person name</option>
@@ -132,18 +129,16 @@ form {
                             <option>ends with</option>
                             <option>matches</option>
                           </select>
-                          <input type="text" placeholder="String...">
+                          <input type="text" class="span6" placeholder="String...">
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
                         </td>
                       </tr>
                       <tr>
                         <td>
-                          <span class="btn-group">
-                            <a class="btn btn-mini" href="#add"><i class="icon-plus-sign"></i></a>
-                            <a class="btn btn-mini disabled" href="#delete"><i class="icon-minus-sign"></i></a>
-                          </span>
-                        </td>
-                        <td>
-                          <select>
+                          <select class="span4">
                             <option>Node MAC</option>
                             <option>Node category</option>
                             <option>Person name</option>
@@ -158,12 +153,15 @@ form {
                             <option>ends with</option>
                             <option>matches</option>
                           </select>
-                          <input type="text" placeholder="String..." value="bittorrent">
+                          <input type="text" class="span6" placeholder="String..." value="bittorrent"/>
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <!-- first condition cannot be deleted -->
                         </td>
                       </tr>
                       <tr>
-                        <td></td>
-                        <td>
+                        <td style="padding-top: 1em">
                           <div class="btn-group pull-right">
                             <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> Search</a>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>

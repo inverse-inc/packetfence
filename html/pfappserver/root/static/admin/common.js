@@ -33,17 +33,123 @@ $(function () {
         dp.updateDates();
     });
     
-    /* Advanced search tables */
-    $('.table-search').on('click', '[href="#add"]', function(event) {
-        var rows = $(this).closest('tbody').children();
-        var row_model = rows.filter('.hidden').first();
-        var row = row_model.clone();
-        row.removeClass('hidden');
-        row.insertBefore(rows.last());
+    /* Activate sortable tables and lists (rows/items can be re-ordered) */
+    $('body').on('mousemove',
+                 '.table-sortable tr:not(.ui-draggable), .list-sortable li:not(.ui-draggable)',
+                 function() {
+        var row = $(this);
+        var id = row.closest('table, ul').attr('id');
+        row.draggable({
+            scope: id,
+            handle: '.sort-handle',
+            appendTo: 'body',
+            cursor: 'move',
+            helper: function(event) {
+                var txt = new Array();
+                if (event.target.tagName == 'TD') {
+                    var row = $(event.target).closest('tr').first();
+                    row.find('td').each(function () {
+                        $(this).find('a[class!="btn-icon"], :selected').map(function() {
+                            txt.push($(this).text());
+                        });
+                        $(this).find('input').map(function() {
+                            txt.push($(this).val());
+                        });
+                    });
+                }
+                else {
+                    var a = $(event.target).closest('li').find('a').first().clone();
+                    // Remove the sort-handle
+                    a.find('span').remove();
+                    txt.push(a.text());
+                }
+                return $('<div class="drag-row">' + txt.join(' ') + '</div>');
+            },
+        });
+        row.siblings().droppable({
+            scope: id,
+            accept: function(obj) {
+                var delta = 0;
+                if (obj.context.tagName == 'TR') {
+                    var dragIndex = obj.context.rowIndex;
+                    var dropIndex = this.rowIndex;
+                    delta = dropIndex - dragIndex;
+                }
+                else {
+                    var items = $(this).closest('ul').children();
+                    var dragIndex = items.index(obj);
+                    var dropIndex = items.index(this);
+                    delta = dropIndex - dragIndex;
+                }
+                return (delta < 0 || delta > 1);
+            },
+            hoverClass: 'drop-row',
+            drop: function(event, ui) {
+                var src = ui.draggable.detach();
+                var dst = $(this);
+                src.insertBefore(dst);
+
+                // Update indexes
+                var rows = dst.siblings(':not(.hidden)').andSelf();
+                rows.each(function(index, element) {
+                    $(this).find('.sort-handle').first().text(index +1);
+                    $(this).find(':input').each(function() {
+                        var input = $(this);
+                        var name = input.attr('name');
+                        var id = input.attr('id');
+                        input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+                        input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                        if (this.tagName == 'SELECT') {
+                            $(this).find('option').each(function() {
+                                var option = $(this);
+                                var id = option.attr('id');
+                                option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                            });
+                        }
+                    });
+                });
+            }
+        });
     });
-    $('.table-search').on('click', '[href="#delete"]', function(event) {
-        if (!$(this).hasClass('disabled'))
-            $(this).closest('tr').remove();
+
+    /* Activate dynamic tables (rows can be added and removed) */
+    $('body').on('click', '.table-dynamic [href="#add"]', function(event) {
+        var tbody = $(this).closest('tbody');
+        var row = $(this).closest('tr');
+        var row_model = tbody.children('.hidden').first();
+        if (row_model) {
+            var row_new = row_model.clone();
+            row_new.removeClass('hidden');
+            row_new.insertAfter(row);
+        }
+        // Update sort handle if the table is sortable
+        tbody.children(':not(.hidden)').each(function(index, element) {
+            $(this).find('.sort-handle').first().text(index + 1);
+        });
+    });
+    $('body').on('click', '.table-dynamic [href="#delete"]', function(event) {
+        var tbody = $(this).closest('tbody');
+        $(this).closest('tr').fadeOut('fast', function() {
+            $(this).remove();
+            // Update sort handle if the table is sortable
+            var empty = true;
+            tbody.children(':not(.hidden)').each(function(index, element) {
+                $(this).find('.sort-handle').each(function() {
+                    $(this).text(index + 1);
+                    empty = false;
+                });
+            });
+            if (empty) {
+                // No more rows
+                var table = tbody.closest('table');
+                var id = '#' + table.attr('id') + 'Empty';
+                if ($(id).length) {
+                    if (tbody.prev('thead').length)
+                        table.remove();
+                    $(id).removeClass('hidden');
+                }
+            }
+        });
     });
 
     /* Pagination */
@@ -65,3 +171,23 @@ $(function () {
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();
 });
+
+function updateSortableTable(rows) {
+    rows.each(function(index, element) {
+        $(this).find('.sort-handle').first().text(index +1);
+        $(this).find(':input').each(function() {
+            var input = $(this);
+            var name = input.attr('name');
+            var id = input.attr('id');
+            input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+            input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+            if (this.tagName == 'SELECT') {
+                $(this).find('option').each(function() {
+                    var option = $(this);
+                    var id = option.attr('id');
+                    option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                });
+            }
+        });
+    });
+}

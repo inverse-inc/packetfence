@@ -24,7 +24,7 @@
           <dl>
             <dt>[% l('Conditions') %]</dt>
             <dd>
-              <table class="table table-condensed">
+              <table class="table table-dynamic table-condensed">
                 <tbody>
                   <tr class="filterRule hidden">
                     <td>
@@ -49,7 +49,8 @@
                       </select>
                       </td>
                     <td class="action">
-                      <a class="btn btn-danger btn-small" href="#deleteRule">[% l('Delete') %]</a>
+                      <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                      <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
                     </td>
                   </tr>
                   [% FOREACH rule IN filter.rules -%]
@@ -76,16 +77,11 @@
                       </select>
                       </td>
                     <td class="action">
-                      <a class="btn btn-danger btn-small[% ' disabled' IF loop.first %]" href="#deleteRule">[% l('Delete') %]</a>
+                      <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                      [% IF !loop.first %]<a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>[% END %]
                     </td>
                   </tr>
                   [% END -%]
-                  <tr>
-                    <td></td>
-                    <td class="action">
-                      <a class="btn btn-success btn-small" href="#addRule">[% l('Add condition') %]</a>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </dd>

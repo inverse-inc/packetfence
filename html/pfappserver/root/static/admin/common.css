@@ -15,8 +15,12 @@
      -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
           box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
-.table-search {
+.table-dynamic {
     width: 100%;
+}
+table .action {
+    text-align: right;
+    vertical-align: middle;
 }
 .page-header h1 form {
     display: inline;
@@ -38,4 +42,56 @@
     line-height: 48px;
     display: block;
     margin-bottom: 10px;
+}
+.unwell-horizontal {
+    padding: 0;
+    text-align: left;
+}
+.unwell-horizontal i {
+    float: left;
+    padding: 0 15px;
+}
+.unwell-horizontal p {
+    font-size: 16px;
+    line-height: 24px;
+}
+/* sortable tables and lists */
+.sort-handle {
+    color: #ccc;
+    text-align: center;
+    font-weight: bold;
+    width: 20px;
+}
+span.sort-handle {
+    display: inline-block;
+}
+td.sort-handle {
+    text-align: center;
+    vertical-align: middle;
+}
+li:hover .sort-handle,
+tr:hover .sort-handle {
+    background-image: url('/static/app/grab.png');
+    background-repeat: no-repeat;
+    n0background-color: #eee;
+    background-position: center center;
+    text-indent: -99999px;
+    cursor: move;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+.drag-row {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #000;
+    font-size: 12px;
+    padding: 4px 30px;
+    opacity: 0.7;
+    filter: alpha(opacity=70);
+    z-index: 1200;
+}
+li.drop-row,
+.drop-row td {
+    border-top: 1px solid #333;
 }
