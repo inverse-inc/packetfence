@@ -14,6 +14,15 @@ use constant {
 has 'type' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 0);
 
+sub availableActions {
+    return [
+            MARK_AS_SPONSOR,
+            SET_ACCESS_LEVEL,
+            SET_ROLE,
+            SET_UNREG_DATE,
+           ];
+}
+
 =back
 
 =head1 COPYRIGHT

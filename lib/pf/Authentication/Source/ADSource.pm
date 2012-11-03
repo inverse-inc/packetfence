@@ -8,6 +8,8 @@ use Moose;
 
 extends 'pf::Authentication::Source::LDAPSource';
 
+has '+type' => ( default => 'AD' );
+
 sub available_attributes {
   my $self = shift;
   my $super_attributes = $self->SUPER::available_attributes;

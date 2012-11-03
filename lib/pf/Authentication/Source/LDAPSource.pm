@@ -15,6 +15,7 @@ use constant {
 	TLS => "tls",
       };
 
+has '+type' => ( default => 'LDAP' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
 has 'port' => (isa => 'Int', is => 'rw', required => 1);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);

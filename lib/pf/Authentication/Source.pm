@@ -9,6 +9,7 @@ use Moose;
 use pf::config qw($TRUE $FALSE);
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
+has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0);
 
@@ -31,6 +32,24 @@ sub authenticate {
   my $self = shift;
 
   return 0;
+}
+
+sub getRule {
+    my ($self, $id) = @_;
+
+    my $result;
+    if ($id) {
+        foreach my $rule (@{$self->{rules}}) {
+            if ($rule->{id} eq $id) {
+                $result = $rule;
+            }
+        }
+    }
+    else {
+        $result = $self->{rules};
+    }
+
+    return $result;
 }
 
 =item

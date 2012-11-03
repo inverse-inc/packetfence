@@ -10,6 +10,8 @@ use pf::temporary_password;
 
 extends 'pf::Authentication::Source';
 
+has '+type' => ( default => 'SQL' );
+
 sub available_attributes {
   my $self = shift;
   my $super_attributes = $self->SUPER::available_attributes; 

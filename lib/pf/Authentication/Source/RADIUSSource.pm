@@ -10,6 +10,7 @@ use Authen::Radius;
 
 extends 'pf::Authentication::Source';
 
+has '+type' => ( default => 'RADIUS' );
 has 'host' => (isa => 'Str', is => 'rw', required => 1);
 has 'port' => (isa => 'Int', is => 'rw', required => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
