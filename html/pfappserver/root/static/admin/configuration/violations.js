@@ -100,7 +100,7 @@ function initViolations() {
         return false;    
     });
 
-    /* Modal Editor: create or modify a violation */
+    /* Modal Editor: save a violation */
     $('body').on('submit', 'form[name="violation"]', function(event) {
         var form = $(this),
         modal = $('#modalViolation'),
@@ -108,7 +108,7 @@ function initViolations() {
         valid = isFormValid(form);
 
         if (valid) {
-            resetAlert(form.find('.modal-body'));
+            resetAlert(modal_body);
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'),
