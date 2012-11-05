@@ -100,6 +100,9 @@ Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 
+# windows profil engine
+Readonly::Scalar our $MOD_PERL_WINPROFIL        => '/winprofil/(.*)';
+
 =head2 Apache Config related
 
 =over

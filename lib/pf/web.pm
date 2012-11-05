@@ -230,21 +230,19 @@ and that the node's category matches the configuration.
 sub supports_windowsconfig_provisioning {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-
     return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
 
     # is this an iDevice?
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if ((!defined($fingerprint[0]->{'os'})) ||   $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/);
+    return $FALSE if ((!defined($fingerprint[0]->{'os'})) || $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/ || isdisabled($portalSession->getProfile->getProvisioning));
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
     my $node_cat = $node_attributes->{'category'};
 
     # validating that the node is under the proper category for mobile config provioning
     return $TRUE if ( $config_category eq 'any' || (defined($node_cat) && $node_cat eq $config_category));
-
     # otherwise
     return $FALSE;
 }
