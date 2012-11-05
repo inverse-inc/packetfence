@@ -32,7 +32,7 @@
         <tbody>
           [% FOREACH filter IN filters %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('SoH').action_for('get'), [ filter.filter_id ]) %]#modalFilter">[% filter.name %]</a></td>
+            <td><a href="[% c.uri_for(c.controller('SoH').action_for('read'), [ filter.filter_id ]) %]#modalFilter">[% filter.name %]</a></td>
             <td>[% l(filter.action) %]</td>
             <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('SoH').action_for('delete'), [ filter.filter_id ]) %]#deleteFilter">[% l('Delete') %]</a></td>
           </tr>

@@ -81,12 +81,13 @@ sub create :Local {
             $c->stash->{status_msg} = $result;
             $c->stash->{current_view} = 'JSON';
         }
+
+        $c->stash->{template} = 'soh/read.tt';
     }
     else {
-        my ($status, $result) = $c->model('Config::Violations')->read_violation('all');
-        if (is_success($status)) {
-            $c->stash->{violations} = $result;
-        }
+        $c->stash->{action_uri} = $c->req->uri;
+        $c->stash->{filter} = { rules => [ {} ] }; # initialize template with a single empty rule
+        $c->forward('read');
     }
 }
 
@@ -100,34 +101,38 @@ sub object :Chained('/') :PathPart('soh') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
 
     my ($status, $result) = $c->model('SoH')->read($id);
-    if ( is_error($status) ) {
+    if (is_success($status)) {
+        $c->stash->{filter} = $result;
+    }
+    else {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
-    else {
-        $c->stash->{filter} = $result;
-    }
 }
 
-=head2 get
+=head2 read
 
 =cut
 
-sub get :Chained('object') :PathPart('get') :Args(0) {
+sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($status, $result);
 
-    if ($c->stash->{filter}) {
-        ($status, $result) = $c->model('Config::Violations')->read_violation('all');
-        if (is_success($status)) {
-            $c->stash->{violations} = $result;
-        }
+    $c->stash->{template} = 'soh/read.tt';
+
+    if ($c->stash->{filter}->{filter_id}) {
+        # Update an existing filter
+        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{filter}->{filter_id}]);
     }
 
-    if (is_error($status)) {
+    ($status, $result) = $c->model('Config::Violations')->read_violation('all');
+    if (is_success($status)) {
+        $c->stash->{violations} = $result;
+    }
+    else {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
