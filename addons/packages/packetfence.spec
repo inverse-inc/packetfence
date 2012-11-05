@@ -207,6 +207,8 @@ Requires: perl(MooseX::Types::LoadableClass)
 # configuration-wizard
 Requires: perl(IO::Interface::Simple)
 Requires: vconfig
+# for windows profil
+Requires: perl(Cache::Memcached), memcached
 #
 # TESTING related
 #
