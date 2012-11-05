@@ -45,6 +45,8 @@ Bug Fixes
  * Apple XML provisioning profile displays payload rather than the profile itself (#1616)
 
 
+Bug Fixes
+ * Portal Profile fix (#1595)
 --------------------------------------------------------------------------------
 Version 3.6.0 released on 2012-10-25
 
