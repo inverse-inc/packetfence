@@ -1,7 +1,13 @@
-=item
+package pf::Authentication::Condition;
+
+=head1 NAME
+
+pf::Authentication::Condition
+
+=head1 DESCRIPTION
 
 =cut
-package pf::Authentication::Condition;
+
 use Moose;
 
 use constant {
@@ -56,6 +62,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:

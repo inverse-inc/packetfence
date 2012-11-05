@@ -1,7 +1,13 @@
-=item
+package pf::Authentication::Rule;
+
+=head1 NAME
+
+pf::Authentication::Rule
+
+=head1 DESCRIPTION
 
 =cut
-package pf::Authentication::Rule;
+
 use Moose;
 
 use constant {
@@ -11,7 +17,7 @@ use constant {
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
-has 'match' => (isa => 'Str', is => 'rw', required => 1, default => ANY);
+has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 has 'conditions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 
@@ -62,6 +68,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:

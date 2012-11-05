@@ -1,4 +1,13 @@
 package pf::Authentication::Source::LDAPSource;
+
+=head1 NAME
+
+pf::Authentication::Source::LDAPSource
+
+=head1 DESCRIPTION
+
+=cut
+
 use pf::Authentication::Source;
 use Moose;
 
@@ -16,8 +25,8 @@ use constant {
       };
 
 has '+type' => ( default => 'LDAP' );
-has 'host' => (isa => 'Str', is => 'rw', required => 1);
-has 'port' => (isa => 'Int', is => 'rw', required => 1);
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
 has 'binddn' => (isa => 'Str', is => 'rw', required => 1);
 has 'password' => (isa => 'Str', is => 'rw', required => 1);
@@ -233,6 +242,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:

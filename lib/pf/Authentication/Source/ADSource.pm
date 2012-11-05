@@ -1,7 +1,13 @@
-=item
+package pf::Authentication::Source::ADSource;
+
+=head1 NAME
+
+pf::Authentication::Source::ADSource
+
+=head1 DESCRIPTION
 
 =cut
-package pf::Authentication::Source::ADSource;
+
 use pf::Authentication::Source;
 use pf::Authentication::Source::LDAPSource;
 use Moose;
@@ -43,6 +49,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:
