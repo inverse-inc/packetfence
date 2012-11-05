@@ -1,12 +1,20 @@
-        <form name="filter" action="[% c.uri_for(c.controller('SoH').action_for('update'), [ filter.filter_id ]) %]">
+        <form name="filter" action="[% action_uri %]">
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">×</a>
-          <h3><i>[% l('Filter') %]</i> [% filter.name %]</h3>
+          <h3>[% IF filter.filter_id %]<i>[% l('Filter') %]</i> [% filter.name %][% ELSE %][% l('New Filter') %][% END %]</h3>
         </div>
 
         <div class="modal-body">
           <dl>
+            [% UNLESS filter.filter_id %]<dt>[% l('Name') %]</dt>
+            <dd>
+              <div class="control-group">
+                <div class="controls">
+                  <input id="filterName" name="name" class="input" type="text">
+                </div>
+              </div>
+            </dd>[% END %]
             <dt>[% l('Action') %]</dt>
             <dd>
               <select name="action" class="span4">

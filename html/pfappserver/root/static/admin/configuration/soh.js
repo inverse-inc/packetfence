@@ -99,17 +99,13 @@ function initSoH() {
         return true;
     });
 
-    /* Modal Editor: add or delete a rule */
+    /* Modal Editor: add a condition */
     $('body').on('click', '[href="#addRule"]', function(event) {
         var rows = $(this).closest('tbody').children();
         var row_model = rows.filter('.hidden').first();
         var row = row_model.clone();
         row.removeClass('hidden');
         row.insertBefore(rows.last());
-    });
-    $('body').on('click', '[href="#deleteRule"]', function(event) {
-        if (!$(this).hasClass('disabled'))
-            $(this).closest('tr').fadeOut('fast', function() { $(this).remove() });
     });
 
     /* Modal Editor: create or modify a filter */
