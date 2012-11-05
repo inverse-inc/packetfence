@@ -147,7 +147,7 @@ detection=disabled
 #
 # trapping.detection_engine
 #
-# Let you choose from our supported IDS: snort or suricata
+# Let you choose from our supported IDS: snort or suricata or tipping_point
 #
 detection_engine=snort
 

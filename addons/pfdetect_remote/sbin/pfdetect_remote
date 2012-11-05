@@ -93,6 +93,16 @@ while (defined($currentLine=$fh->read)) {
     $descr = $3;
     $srcip = $4;
     $dstip = $6;
+  } elsif ( $currentLine =~ /^(.+?)\s+\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\sALT\;v\d\;/) {
+    #TippingPoint Syslog
+    my @hpValues = split(';',$currentLine);
+    
+    $date  = $1;
+    $hpValues[10] =~ /(\d+)\:\s(.*)\"$/;
+    ($sid,$descr) = ($1,$2);
+    $srcip = $hpValues[13];
+    $dstip = $hpValues[15];
+        
   } elsif ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
     $date   = $1;
     $sid    = $portscan_sid;

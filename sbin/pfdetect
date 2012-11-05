@@ -101,11 +101,24 @@ while (<$snortpipe_fh>) {
         =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/
         )
     {
+        #SNORT/Suricata
         $date  = $1;
         $sid   = $2;
         $descr = $3;
         $srcip = $4;
         $dstip = $6;
+    } elsif ( $_ 
+        =~ /^(.+?)\s+\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\sALT\;v\d\;/
+        )
+    {
+        #TippingPoint Syslog
+        my @hpValues = split(';',$_);
+
+        $date  = $1;
+        $hpValues[10] =~ /(\d+)\:\s(.*)\"$/;
+        ($sid,$descr) = ($1,$2);
+        $srcip = $hpValues[13];
+        $dstip = $hpValues[15];
     } elsif ( $_
         =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/
         )
