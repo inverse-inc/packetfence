@@ -21,6 +21,7 @@ use warnings;
 use pf::config;
 use pf::util;
 use pf::web;
+use Cache::Memcached;
 
 BEGIN {
     use Exporter ();
@@ -181,6 +182,77 @@ sub get_translated_time_hash {
     }
     return \%time;
 }
+
+=item get_memcached_conf
+
+Return memcached server list
+
+=cut
+sub get_memcached_conf {
+    my @serv = ();
+    for my $x ( split( ",", $Config{'general'}{'memcached'})) {
+        $x =~ s/^\s+//;
+        $x =~ s/\s+$//;
+        push( @serv, $x );
+    }
+    return \@serv;
+}
+
+=item get_memcached
+
+get information stored in memcached
+
+=cut
+sub get_memcached {
+    my ( $key, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers            => $mc,
+        debug              => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    return $memd->get($key);
+}
+
+=item set_memcached
+
+set information into memcached
+
+=cut
+sub set_memcached {
+    my ( $key, $value, $exptime, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers            => $mc,
+        debug              => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+
+    #limit expiration time to 6000
+    $exptime = $exptime || 6_000;
+    if ( $exptime > 6_000 ) {
+        $exptime = 6_000;
+    }
+
+    return $memd->set( $key, $value, $exptime );
+}
+
+=item
+
+get information stored in memcached
+
+=cut
+sub del_memcached {
+    my ( $key, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers            => $mc,
+        debug              => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    $memd->delete($key);
+}
+
 
 =back
 

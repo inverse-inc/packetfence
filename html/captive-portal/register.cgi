@@ -25,6 +25,7 @@ use pf::Portal::Session;
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::web::util;
 # called last to allow redefinitions
 use pf::web::custom;
 
@@ -81,6 +82,13 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   %info = (%info, $authenticator->getNodeAttributes());
  
   my $pid = $portalSession->getSession->param("username");
+  my $nodeattributes = node_attributes($portalSession->getClientMac);
+  if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
+      $cgi->param("do_not_deauth", $TRUE);
+      $nodeattributes->{'status'} = 'reg';
+      pf::web::util::set_memcached($portalSession->getClientMac(), $nodeattributes, undef, pf::web::util::get_memcached_conf());
+  }
+
   pf::web::web_node_register($portalSession, $pid, %info);
   pf::web::end_portal_session($portalSession);
 

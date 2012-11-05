@@ -3,13 +3,13 @@ package pf::web::winprofil;
 
 =head1 NAME
 
-pf::web::winprofil - windows profil implementation in mod_perl
+pf::web::winprofil - handle the windows client request
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::web::winprofil return xml profil cert file and soh profil to the windows client. 
+pf::web::winprofil return wifi profil, soh profil and certificate to the windows client. 
 
 =cut
 
@@ -25,11 +25,11 @@ use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::node;
 use pf::web;
+use pf::web::util;
 use Apache2::Const;
 use pf::Portal::Session;
 use Template;
 use pf::util;
-
 
 =head1 SUBROUTINES
 
@@ -37,8 +37,8 @@ use pf::util;
 
 =item handler
 
-The handler check in all authentication sources if the username and password are correct
-and return an xml file to the wispr client
+The handler get the session from memcached and if the node is reg it answer for the wifi xml profile
+for the soh profil and the certificate.
 
 =cut
 
@@ -60,31 +60,41 @@ sub handler {
     });    
 
     my $return;
-    my %info;
-    my $pid;
     my $mac;
-    my $type;
 
-    $logger->warn($r->pnotes->{uri_winprofil});
-    if ($r->pnotes->{uri_winprofil} =~ /xml/) {
-        $response = pf::web::generate_windows_provisioning_xml($portalSession);
-        $r->content_type('text/xml');
-        $r->no_cache(1);
-        $r->print($response);
+    if (defined($portalSession->getGuestNodeMac)) {
+        $mac = $portalSession->getGuestNodeMac;
     }
-    if ($r->pnotes->{uri_winprofil} =~ /soh/) {
-        $response = pf::web::generate_windows_soh_xml($portalSession);
-        $r->content_type('text/xml');
-        $r->no_cache(1);
-        $r->print($response);
+    else {
+        $mac = $portalSession->getClientMac;
     }
-    if ($r->pnotes->{uri_winprofil} =~ /cert/) {
-        ($response,$type) = pf::web::send_radius_certificate($portalSession);
-        $r->content_type($type);
-        $r->no_cache(1);
-        $r->print($response);
+    my $result = pf::web::util::get_memcached($mac,pf::web::util::get_memcached_conf());
+    if (defined($result->{status}) && $result->{status} eq "reg") {
+        if ($r->pnotes->{uri_winprofil} =~ /xml/) {
+            $response = pf::web::generate_windows_provisioning_xml($portalSession);
+            $r->content_type('text/xml');
+            $r->no_cache(1);
+            $r->print($response);
+        }
+        if ($r->pnotes->{uri_winprofil} =~ /soh/) {
+            $response = pf::web::generate_windows_soh_xml($portalSession);
+            $r->content_type('text/xml');
+            $r->no_cache(1);
+            $r->print($response);
+            #It is the last request from the windows client
+            pf::web::util::del_memcached($mac,pf::web::util::get_memcached_conf());
+        }
+        if ($r->pnotes->{uri_winprofil} =~ /cert/) {
+            ($response,$type) = pf::web::send_radius_certificate($portalSession);
+            $r->content_type($type);
+            $r->no_cache(1);
+            $r->print($response);
+        }
+        return Apache2::Const::OK;
     }
-    return Apache2::Const::OK;
+    else {
+        return Apache2::Const::FORBIDDEN;
+    }
 
 }
 
@@ -118,3 +128,4 @@ USA.
 =cut
 
 1;
+

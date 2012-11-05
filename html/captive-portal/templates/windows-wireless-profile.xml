@@ -50,7 +50,7 @@
                                                                                         <UseWinLogonCredentials>false</UseWinLogonCredentials>
                                                                                 </EapType>
                                                                          </Eap>
-                                                                         <EnableQuarantineChecks>false</EnableQuarantineChecks>
+                                                                         <EnableQuarantineChecks>true</EnableQuarantineChecks>
                                                                          <RequireCryptoBinding>false</RequireCryptoBinding>
                                                                          <PeapExtensions>
                                                                                  <PerformServerValidation xmlns="http://www.microsoft.com/provisioning/MsPeapConnectionPropertiesV2">false</PerformServerValidation>
@@ -65,4 +65,3 @@
                 </security>
         </MSM>
 </WLANProfile>
-

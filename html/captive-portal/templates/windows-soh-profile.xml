@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NAPClientConfig xmlns="http://www.microsoft.com/networking/quarantine/napclient">
+  <NAPClientConfigVersion>1</NAPClientConfigVersion>
+  <tracingOn>false</tracingOn>
+  <tracingLevel>0</tracingLevel>
+  <PKAConfig PKAName="1.2.840.113549.1.1.1" KeyLength="2048"/>
+    <HKAConfig HKAName="1.3.14.3.2.29"/>
+      <CSPConfig CSPName="Microsoft RSA SChannel Cryptographic Provider"/>
+        <TitleText>I regret to inform you that you have been NAP'd</TitleText>
+        <TitleDescription>Please update your computeur</TitleDescription>
+        <ImageName></ImageName>
+        <ImageBlobBase64Encoded></ImageBlobBase64Encoded>
+        <enfClient componentID="79617" friendlyName="Client de contrainte de quarantaine DHCP" description="Fournit la mise en œuvre du protocole DHCP pour le protocole NAP" version="1.0" vendorname="Microsoft Corporation" enabled="false"/>
+        <enfClient componentID="79621" friendlyName="Client de contrainte de quarantaine de la passerelle Bureau à distance" description="Fournit un service de contrainte de quarantaine de la passerelle Bureau à distance pour la protection d’accès réseau (NAP)" version="1.0" vendorname="Microsoft Corporation" enabled="false"/>
+        <enfClient componentID="79623" friendlyName="Client de contrainte de quarantaine EAP" description="Permet la mise en œuvre de la protection d’accès réseau pour les connexions réseau authentifiées par le protocole EAP, comme celles utilisées avec les technologies 802.1X et VPN." version="1.0" vendorname="Microsoft Corporation" enabled="true"/>
+        <ipsecEnfClient>
+          <useLocalPolicy>false</useLocalPolicy>
+          <enfClient componentID="79619" friendlyName="Partie de confiance IPsec" description="Permet la mise en œuvre IPsec pour la protection d’accès réseau" version="1.0" vendorname="Microsoft Corporation" enabled="false"/>
+        </ipsecEnfClient>
+</NAPClientConfig>

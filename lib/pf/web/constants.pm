@@ -90,7 +90,8 @@ Readonly::Scalar our $ACL_SIGNUP_CGI => '/cgi-perl/guest-selfregistration.cgi';
 
 # wispr mod_perl engine
 Readonly::Scalar our $MOD_PERL_WISPR => '/wispr';
-
+# windows profil engine
+Readonly::Scalar our $MOD_PERL_WINPROFIL => '/winprofil/(.*)';
 =head2 Apache Config related
 
 =over
