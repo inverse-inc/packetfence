@@ -187,30 +187,59 @@ begin
   httpClient:= THTTPSend.Create;
   if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/xml') then
     begin
-      httpClient.Document.SaveToFile(rep_temp + 'profil_wifi.xml');
-      wifi_client := True;
+      case httpClient.ResultCode of
+        100..299:
+          begin
+            httpClient.Document.SaveToFile(rep_temp + 'profil_wifi.xml');
+            wifi_client := True;
+          end;
+        300..399: wifi_client:=false; //redirection. Not implemented, but could be.
+        400..499: wifi_client:=false; //client error; 404 not found etc
+        500..599: wifi_client:=false; //internal server error
+        else wifi_client:=false; //unknown code
+      end
     end
   else
     begin
       wifi_client := False;
     end;
   httpClient.Free;
+
   httpClient:= THTTPSend.Create;
   if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/ca') then
     begin
-      httpClient.Document.SaveToFile(rep_temp + 'certificat.crt');
-      certificate_client := True;
+      case httpClient.ResultCode of
+        100..299:
+          begin
+            httpClient.Document.SaveToFile(rep_temp + 'certificat.crt');
+            certificate_client := True;
+          end;
+        300..399: certificate_client:=false; //redirection. Not implemented, but could be.
+        400..499: certificate_client:=false; //client error; 404 not found etc
+        500..599: certificate_client:=false; //internal server error
+        else certificate_client:=false; //unknown code
+      end
     end
   else
     begin
       certificate_client := False;
     end;
   httpClient.Free;
+
   httpClient:= THTTPSend.Create;
   if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/soh') then
     begin
-      httpClient.Document.SaveToFile(rep_temp + 'profil_soh.xml');
-      soh_client := True;
+      case httpClient.ResultCode of
+        100..299:
+          begin
+            httpClient.Document.SaveToFile(rep_temp + 'profil_soh.xml');
+            soh_client := True;
+          end;
+        300..399: soh_client:=false; //redirection. Not implemented, but could be.
+        400..499: soh_client:=false; //client error; 404 not found etc
+        500..599: soh_client:=false; //internal server error
+        else soh_client:=false; //unknown code
+      end
     end
   else
     begin

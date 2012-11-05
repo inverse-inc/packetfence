@@ -1,7 +1,7 @@
 object Form3: TForm3
-  Left = 634
+  Left = 641
   Height = 147
-  Top = 344
+  Top = 321
   Width = 422
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
@@ -555,7 +555,7 @@ object Form3: TForm3
     Height = 63
     Top = 25
     Width = 296
-    Caption = 'Unable to get the Wi-Fi profile from the PacketFence'#13#10'server. Contact your network administrator for more'#13#10'information.'
+    Caption = 'Unable to get the Wi-Fi profile from the PacketFence server.'#13#10'Contact your network administrator for more information.'
     Font.CharSet = ANSI_CHARSET
     Font.Height = -13
     Font.Name = 'Arial'
