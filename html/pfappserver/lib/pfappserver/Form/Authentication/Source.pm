@@ -60,7 +60,7 @@ has_field 'rules.description' =>
 sub validate {
     my $self = shift;
 
-    unless ($self->{id} eq $self->value->{id}) {
+    if ($self->{id} && $self->{id} ne $self->value->{id}) {
         # Make sure the id is unique
         my $source = getAuthenticationSource($self->value->{id});
         if (defined $source) {

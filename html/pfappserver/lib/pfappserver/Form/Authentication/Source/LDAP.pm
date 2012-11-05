@@ -38,6 +38,7 @@ has_field 'encryption' =>
     { value => 'ssl', label => 'SSL' },
     { value => 'starttls', label => 'Start TLS' },
    ],
+   required => 1,
    element_class => ['input-small'],
   );
 has_field 'basedn' =>
@@ -51,6 +52,7 @@ has_field 'scope' =>
   (
    type => 'Select',
    label => 'Scope',
+   required => 1,
    options =>
    [
     { value => 'base', label => 'Base Object' },
@@ -66,34 +68,18 @@ has_field 'usernameattribute' =>
    label => 'Username Attribute',
    required => 1,
   );
-has_field 'anonymousbind' =>
-  (
-   type => 'Checkbox',
-   label => 'Anonymous Bind',
-  );
 has_field 'binddn' =>
   (
    type => 'Text',
    label => 'Bind DN',
+   required => 1,
    element_class => ['span10'],
   );
 has_field 'password' =>
   (
    type => 'Password',
    label => 'Password',
-  );
-has_field 'rules' =>
-  (
-   type => 'Repeatable',
-  );
-has_field 'rules.id' =>
-  (
-   type => 'Hidden',
-   widget_wrapper => 'None',
-  );
-has_field 'rules.description' =>
-  (
-   type => 'Text',
+   required => 1,
   );
 
 =head1 COPYRIGHT

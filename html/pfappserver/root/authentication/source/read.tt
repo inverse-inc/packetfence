@@ -20,6 +20,7 @@
           <label class="control-label">Rules</label>
 
           <div class="controls">
+            [% IF form.field('rules').num_fields -%]
             <table id="sourceRules" class="table table-dynamic table-sortable table-condensed">
               <thead>
                 <tr>
@@ -42,6 +43,7 @@
                 [% END %]
               </tbody>
             </table>
+            [% END %]
             <div id="sourceRulesEmpty" class="unwell[% ' hidden' IF form.field('rules').num_fields %]">
               <i class="icon-cogs icon-large"></i><p>[% l('No rule defined') %]</p>
             </div>
@@ -52,5 +54,6 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
           [% IF source.id %]<a class="btn" href="[% c.uri_for(c.controller('Authentication::Source').action_for('read'), [source.id]) %]#readSource">[% l('Reset') %]</a>[% END %]
+          <a class="btn pull-right" href="[% c.uri_for(c.controller('Admin').action_for('configuration'), 'authentication') %]">[% l('Cancel') %]</a>
         </div>
       </form>
