@@ -1,0 +1,56 @@
+<div class="modal fade hide" id="modalRule"></div>
+
+<ul class="breadcrumb">
+  <li><a href="[% c.uri_for(c.controller('Admin').action_for('configuration'), 'authentication') %]">[% l('User Sources') %]</a> <span class="divider">/</span></li>
+  <li class="active">[% IF source.id %][% source.id %][% ELSE %][% l('New Source') %][% END %]</li>
+</ul>
+
+<h3>[% IF source.id %][% source.id %][% ELSE %][% l('New Source') %][% END %] <small>[% source.type %]</small></h3>
+
+    [% IF message %]<div class="alert alert-success">
+      <button class="close" data-dismiss="alert">×</button>
+      <strong>[% l('Success!') %]</strong> [% message %]
+    </div>[% END -%]
+
+    <form name="source" class="form-horizontal" method="post" action="[% action_uri %]">
+        [% form.field('id').render %]
+        [% form.field('description').render %]
+        [% INCLUDE "authentication/source/type/${source.type}.tt" %]
+        [% IF source.id %]<div class="control-group">
+          <label class="control-label">Rules</label>
+
+          <div class="controls">
+            <table id="sourceRules" class="table table-dynamic table-sortable table-condensed">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>[% l('Name') %]</th>
+                  <th>[% l('Description') %]</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                [% FOREACH rule IN form.field('rules').fields %]
+                <tr class="sourceRule">
+                  <td class="sort-handle">[% loop.index + 1 %]</td>
+                  <td>[% rule.field('id').render %]<a href="[% c.uri_for(c.controller('Authentication::Source').action_for('rule_read'), [ source.id, rule.field('id').value ]) %]">[% rule.field('id').value %]</a></td>
+                  <td>[% rule.field('description').value %]</td>
+                  <td class="action">
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                  </td>
+                </tr>
+                [% END %]
+              </tbody>
+            </table>
+            <div id="sourceRulesEmpty" class="unwell[% ' hidden' IF form.field('rules').num_fields %]">
+              <i class="icon-cogs icon-large"></i><p>[% l('No rule defined') %]</p>
+            </div>
+            <div class="pull-right"><a id="createRule" class="btn btn-success btn-small" href="[% c.uri_for(c.controller('Authentication::Source').action_for('rule_create'), [ source.id ]) %]" data-toggle="modal" data-target="#modalRule">[% l('Add rule') %]</a></div>
+          </div>
+        </div>[% END %]
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
+          [% IF source.id %]<a class="btn" href="[% c.uri_for(c.controller('Authentication::Source').action_for('read'), [source.id]) %]#readSource">[% l('Reset') %]</a>[% END %]
+        </div>
+      </form>

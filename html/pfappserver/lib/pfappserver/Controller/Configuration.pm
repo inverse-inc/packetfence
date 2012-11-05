@@ -19,6 +19,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pf::authentication;
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be 
 # imported but it's better than duplicating regex all over the place.
 use pf::config;
@@ -35,6 +36,7 @@ BEGIN {extends 'Catalyst::Controller'; }
 Allow only authenticated users
 
 =cut
+
 sub auto :Private {
     my ($self, $c) = @_;
 
@@ -52,6 +54,7 @@ sub auto :Private {
 =head2 _format_section
 
 =cut
+
 sub _format_section :Private {
     my ($self, $entries_ref) = @_;
 
@@ -89,6 +92,7 @@ sub _format_section :Private {
 =head2 _update_section
 
 =cut
+
 sub _update_section :Private {
     my ($self, $c, $form) = @_;
 
@@ -113,6 +117,7 @@ sub _update_section :Private {
 =head2 _process_section
 
 =cut
+
 sub _process_section :Private {
     my ($self, $c) = @_;
 
@@ -147,6 +152,7 @@ sub _process_section :Private {
 =head2 index
 
 =cut
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -157,6 +163,7 @@ sub index :Path :Args(0) {
 =head2 general
 
 =cut
+
 sub general :Local {
     my ($self, $c) = @_;
 
@@ -166,6 +173,7 @@ sub general :Local {
 =head2 network
 
 =cut
+
 sub network :Local {
     my ($self, $c) = @_;
 
@@ -175,6 +183,7 @@ sub network :Local {
 =head2 proxies
 
 =cut
+
 sub proxies :Local {
     my ($self, $c) = @_;
 
@@ -184,6 +193,7 @@ sub proxies :Local {
 =head2 trapping
 
 =cut
+
 sub trapping :Local {
     my ($self, $c) = @_;
 
@@ -193,11 +203,25 @@ sub trapping :Local {
 =head2 registration
 
 =cut
+
 sub registration :Local {
     my ($self, $c) = @_;
 
     $self->_process_section($c);
 }
+
+=head2 authentication
+
+=cut
+
+sub authentication :Local {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = 'configuration/authentication.tt';
+    $c->stash->{types} = availableAuthenticationSourceTypes();
+    $c->stash->{sources} = getAuthenticationSource(undef);
+}
+
 
 =head2 violations
 
