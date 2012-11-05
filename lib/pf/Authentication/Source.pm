@@ -1,9 +1,15 @@
-=item
+package pf::Authentication::Source;
+
+=head1 NAME
+
+pf::Authentication::Source
+
+=head1 DESCRIPTION
 
 We must at least always have one rule defined, the fallback one.
 
 =cut
-package pf::Authentication::Source;
+
 use Moose;
 
 use pf::config qw($TRUE $FALSE);
@@ -52,7 +58,7 @@ sub getRule {
     return $result;
 }
 
-=item
+=head2 match
 
 The first rule for which its conditions are matched wins, and stops everything.
 
@@ -64,6 +70,7 @@ might also contain the "SSID", etc..
 Returns the actions of the first matched rule.
 
 =cut
+
 sub match {
   my ($self, $params) = @_;
 
@@ -107,6 +114,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:

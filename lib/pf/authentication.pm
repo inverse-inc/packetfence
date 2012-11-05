@@ -1,5 +1,13 @@
 package pf::authentication;
 
+=head1 NAME
+
+pf::authentication
+
+=head1 DESCRIPTION
+
+=cut
+
 use Config::IniFiles;
 use Data::Dumper;
 use strict;
@@ -179,6 +187,7 @@ sub readAuthenticationConfigFile {
         my $type = tied(%cfg)->val($source_id, "type");
         my $current_source = newAuthenticationSource($type, $source_id, $cfg{$source_id});
 
+        # Parse rules
         foreach my $rule_id ( tied(%cfg)->GroupMembers($source_id) ) {
 
             my ($id) = $rule_id =~ m/$source_id rule (\w+)/;

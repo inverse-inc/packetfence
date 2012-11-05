@@ -1,7 +1,13 @@
-=item
-
-=cut 
 package pf::Authentication::Source::HTTPPasswordSource;
+
+=head1 NAME
+
+pf::Authentication::Source::HTTPPassswordSource
+
+=head1 DESCRIPTION
+
+=cut
+
 use pf::Authentication::Source;
 use Moose;
 
@@ -69,6 +75,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:

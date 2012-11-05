@@ -1,7 +1,13 @@
-=item
+package pf::Authentication::Action;
+
+=head1 NAME
+
+pf::Authentication::Action
+
+=head1 DESCRIPTION
 
 =cut
-package pf::Authentication::Action;
+
 use Moose;
 
 use constant {
@@ -48,6 +54,7 @@ USA.
 
 =cut
 
+__PACKAGE__->meta->make_immutable;
 1;
 
 # vim: set shiftwidth=4:
