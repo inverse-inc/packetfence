@@ -92,8 +92,9 @@ function showError(sibling, msg, permanent) {
             alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
     }
     else {
+        var form = sibling.closest('form');
         $.each(msg, function(name, error) {
-            var input = $('[name="' + name + '"]');
+            var input = form.find('[name="' + name + '"]');
             var control = input.closest('.control-group');
             control.addClass('error');
             showTab(control, input);
