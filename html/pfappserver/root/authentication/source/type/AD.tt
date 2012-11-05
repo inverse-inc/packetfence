@@ -7,6 +7,5 @@
 [% form.field('basedn').render %]
 [% form.field('scope').render %]
 [% form.field('usernameattribute').render %]
-[% form.field('anonymousbind').render %]
 [% form.field('binddn').render %]
 [% form.field('password').render %]
