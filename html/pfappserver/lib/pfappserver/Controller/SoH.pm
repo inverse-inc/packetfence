@@ -79,10 +79,9 @@ sub create :Local {
         if (is_error($status)) {
             $c->response->status($status);
             $c->stash->{status_msg} = $result;
-            $c->stash->{current_view} = 'JSON';
         }
 
-        $c->stash->{template} = 'soh/read.tt';
+        $c->stash->{current_view} = 'JSON';
     }
     else {
         $c->stash->{action_uri} = $c->req->uri;
