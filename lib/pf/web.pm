@@ -415,7 +415,7 @@ sub web_node_register {
     }
 
     # we are good, push the registration
-    return _sanitize_and_register($portalSession, $mac, $pid, %info);
+    return _sanitize_and_register($portalSession->session, $mac, $pid, %info);
 }
 
 sub _sanitize_and_register {
@@ -425,7 +425,7 @@ sub _sanitize_and_register {
     $logger->info("performing node registration MAC: $mac pid: $pid");
     node_register( $mac, $pid, %info );
 
-     unless ( defined($session->getCgi->param("do_not_deauth")) && $session->getCgi->param("do_not_deauth") == $TRUE ) {
+     unless ( defined($session->param("do_not_deauth")) && $session->param("do_not_deauth") == $TRUE ) {
         reevaluate_access( $mac, 'manage_register' );
     }
 
