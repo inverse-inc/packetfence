@@ -4,6 +4,14 @@
 </copyright>
 <revhistory>
   <revision>
+    <revnumber>2.8</revnumber>
+    <date>2012-11-05</date>
+    <authorinitials>FG</authorinitials>
+    <revremark>
+    Adding documentation for TippingPoint Integration
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.7</revnumber>
     <date>2012-10-01</date>
     <authorinitials>FG</authorinitials>

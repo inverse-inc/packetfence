@@ -1384,7 +1384,7 @@ Blocking malicious activities with violations
 
 Policy violations allow you to restrict client system access based on violations of certain policies. For example, if you do not allow P2P type traffic on your network, and you are running the appropriate software to detect it and trigger a violation for a given client, PacketFence will give that client a "blocked" page which can be customized to your wishes.
 
-In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence.
+In order to be able to block malicious activities, you need to install and configure the SNORT or Suricata IDS to talk with PacketFence. We also support the syslog output of the HP TippingPoint devices.
 
 Snort
 ^^^^^
@@ -1415,6 +1415,26 @@ Configuration
 +++++++++++++
 
 PacketFence will provide you with a basic `suricata.yaml` that you can modify to suit you own needs.  The file is located in `/usr/local/pf/conf`.
+
+HP TippingPoint
+^^^^^^^^^^^^^^^
+
+Configuration
++++++++++++++
+We won't get into deep details about how to configure your HP TippingPoint appliance here.  However, the mandatory requirement is that you configure an IDS profile with syslog notifications, and make sure to use semicolon has the separator.  Use the management IP of your PacketFence as the syslog receiver.
+
+On the PacketFence side, the syslog handler is fairly easy to implement.  In fact, we will tell rsyslog to send any syslog entries coming from your IDS device to `pf/var/alert`.  Here is an example configuration snippet of `/etc/rsyslog.conf`:
+
+   # Provides UDP syslog reception
+   $ModLoad imudp.so
+   $UDPServerRun 514
+   # Provides TCP syslog reception
+   #$ModLoad imtcp.so  
+   #$InputTCPServerRun 514
+   #TippingPoint
+   :FROMHOST,startswith,"YOUR_IDS_IP"                                             /usr/local/pf/var/alert
+
+Of course, replace YOUR_IDS_IP with the proper IP address of your HP TippingPoint.  If you have multiple appliances, you can combine the output to the alert file without problems.
 
 Violations
 ^^^^^^^^^^
