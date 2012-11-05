@@ -17,9 +17,6 @@ with 'pfappserver::Form::Widget::Theme::Pf';
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
-#has '+dependency' => ( default => sub {
-#                           [['grace.interval', 'grace.unit']]
-#                       } );
 
 # Form select options
 has 'actions' => ( is => 'ro' );
@@ -179,7 +176,7 @@ sub options_trigger {
     my $self = shift;
 
     # $self->triggers comes from pfappserver::Model::Config::Violations->list_triggers
-    my @triggers = @{$self->triggers} if ($self->triggers);
+    my @triggers = map { $_ => $_ } @{$self->triggers} if ($self->triggers);
 
     return @triggers;
 }
