@@ -1,0 +1,63 @@
+<div class="modal fade hide" id="deleteSource">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3><i>[% l('Delete Source') %]</i> <span></span></h3>
+  </div>
+  <div class="modal-body">
+    <p>[% l('Really delete this users source?') %]</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+    <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+  </div>
+</div><!-- deleteSource -->
+
+<h2>[% l('Users Sources')  %]</h2>
+[% IF error %]<div class="alert alert-error">
+  <button class="close" data-dismiss="alert">×</button>
+  <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
+</div>[% END %]
+<p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
+
+[% IF message %]<div class="alert alert-success">
+  <button class="close" data-dismiss="alert">×</button>
+  <strong>[% l('Success!') %]</strong> [% message %]
+</div>[% END -%]
+
+[% IF sources.size -%]
+<table class="table table-sortable">
+  <thead>
+    <tr>
+      <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    [% FOREACH source IN sources %]
+    <tr>
+      <td class="sort-handle">[% loop.index + 1 %]</td>
+      <td><a href="[% c.uri_for(c.controller('Authentication::Source').action_for('read'), [ source.id ]) %]#readSource">[% source.id %]</a></td>
+      <td>[% source.description %]</td>
+      <td>[% l(source.type) %]</td>
+      <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.id ]) %]#deleteSource">[% l('Delete') %]</a></td>
+    </tr>
+    [% END -%]
+    <tr><td colspan="5"></td></tr>
+  </tbody>
+</table>
+[% END -%]
+
+<div id="noSource" class="unwell[% ' hidden' IF sources.size %]">
+  <i class="icon-group icon-large"></i><p>[% l('No source defined') %]</p>
+</div>
+
+<div class="form-actions">
+  <div class="btn-group">
+    <a class="btn" href="#">[% l('Add source') %]</a>
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+    <ul id="createSource" class="dropdown-menu">
+      [% FOREACH type IN types -%]
+      <li><a href="[% c.uri_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+      [% END -%]
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+        <div class="control-group">
+          <label class="control-label">[% l('Host') %]</label>
+          <div class="controls">
+            [% form.field('host').render_element %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %]
+          </div>
+        </div>
+[% form.field('basedn').render %]
+[% form.field('scope').render %]
+[% form.field('usernameattribute').render %]
+[% form.field('anonymousbind').render %]
+[% form.field('binddn').render %]
+[% form.field('password').render %]

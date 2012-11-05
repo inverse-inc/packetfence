@@ -1,0 +1,70 @@
+<form name="rule" class="form form-horizontal" method="post" action="[% action_uri %]">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>[% IF rule %]<i>[% l('Rule') %]</i> [% form.field('id').value %][% ELSE %][% l('New Rule') %][% END %]</h3>
+  </div>
+  <div class="modal-body">
+    [% form.field('id').render %]
+    [% form.field('description').render %]
+    <dl>
+      <dt>[% l('If [_1] of the following conditions are met:', [ form.field('match').render_element ]) %]</dt>
+      <dd>
+        <table id="ruleConditions" class="table table-dynamic table-sortable table-condensed">
+          <tbody>
+            [% FOREACH condition IN form.field('conditions').fields -%]
+            <tr[% ' class="hidden"' IF loop.last %]>
+              <td class="sort-handle">
+                <span>[% loop.index + 1 %]</span>
+              </td>
+              <td>
+                [% condition.field('attribute').render_element %]
+                [% condition.field('operator').render_element %]
+                [% condition.field('value').render_element %]
+              </td>
+              <td class="action">
+                <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+              </td>
+            </tr>
+            [% END -%]
+          </tbody>
+        </table>
+        <div id="ruleConditionsEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('conditions').index > 1 %]">
+          <p><i class="icon-filter icon-large"></i>[% l('Without condition, this rule will act as a catch-all.') %]<br/>
+          <a id="createCondition" href="#add">[% l('Add a condition.') %]</a></p>
+        </div>
+      </dd>
+    </dl>
+    <dl>
+      <dt></dt>
+    </dl>
+    <dl>
+      <dt>[% l('Perform the following actions:') %]</dt>
+      <dd>
+        <table id="ruleActions" class="table table-dynamic table-sortable table-condensed">
+          <tbody>
+            [% FOREACH action IN form.field('actions').fields -%]
+            <tr[% ' class="hidden"' IF loop.last %]>
+              <td class="sort-handle">
+                <span>[% loop.index + 1 %]</span>
+              </td>
+              <td>
+                [% action.field('type').render_element %]
+                [% action.field('value').render_element %]
+              </td>
+              <td class="action">
+                <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                [% IF loop.index > 0 %]<a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>[% END -%]
+              </td>
+            </tr>
+            [% END -%]
+          </tbody>
+        </table>              
+      </dd>
+    </dl>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="Saving">[% l('Save') %]</button>
+  </div>
+</form>

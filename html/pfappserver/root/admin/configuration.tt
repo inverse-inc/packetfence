@@ -28,10 +28,14 @@
 .modal form, .modal select {
     margin-bottom: 0px;
 }
-/* enlarge modal of violation */
-#modalViolation {
+/* enlarge modal of violation and user source rule */
+#modalViolation, #modalRule {
     margin-left: -390px;
     width: 780px;
+}
+/* fix inputs in tables */
+table input[type="text"] {
+    margin-bottom: 0px;
 }
 </style>
 
@@ -63,9 +67,11 @@
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>
               <li class="nav-header"><i class="icon-user"></i> Users</li>
-              <li><a href="#">Sources</a></li>
-              <li[% IF section == 'guests' %] class="active"[% END %]>
-                <a href="[% c.uri_for(c.controller('Configuration').action_for('guests'))%]">[% l('Guests') %]</a>
+              <li[% ' class="active"' IF section == 'authentication' %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('authentication')) %]">[% l('Sources') %]</a>
+              </li>
+              <li[% ' class="active"' IF section == 'import' %]>
+                <a href="[% c.uri_for(c.controller('Authentication').action_for('import'))%]">[% l('Create') %]</a>
               </li>
               <li class="nav-header"><i class="icon-check"></i> Compliance</li>
               <li[% IF section == 'violations' %] class="active"[% END %]>
@@ -86,3 +92,4 @@
         </div><!--/span-->
       </div><!--/row-->
     </div><!--/.fluid-container-->
+
