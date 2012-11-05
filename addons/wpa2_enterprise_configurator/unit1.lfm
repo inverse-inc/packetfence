@@ -1,13 +1,13 @@
 object Form1: TForm1
-  Left = 641
+  Left = 668
   Height = 147
-  Top = 145
-  Width = 422
+  Top = 139
+  Width = 423
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Wi-Fi Configuration'
   ClientHeight = 147
-  ClientWidth = 422
+  ClientWidth = 423
   Icon.Data = {
     4E1C00000000010001000000000001002000381C00001600000089504E470D0A
     1A0A0000000D49484452000001000000010008060000005C72A86600001BFF49
@@ -249,9 +249,9 @@ object Form1: TForm1
     TabOrder = 0
   end
   object Label3: TLabel
-    Left = 96
+    Left = 17
     Height = 1
-    Top = 320
+    Top = 127
     Width = 1
     Color = clDefault
     Font.CharSet = ANSI_CHARSET
