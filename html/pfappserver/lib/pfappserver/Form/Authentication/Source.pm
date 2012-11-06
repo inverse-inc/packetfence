@@ -16,7 +16,6 @@ extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
 
 use pf::authentication;
-use HTML::FormHandler::Types qw/NoSpaces/;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
@@ -55,13 +54,14 @@ has_field 'rules.description' =>
 
 =head2 validate
 
+Make sure the source ID (name) is unique
+
 =cut
 
 sub validate {
     my $self = shift;
 
     if ($self->{id} && $self->{id} ne $self->value->{id}) {
-        # Make sure the id is unique
         my $source = getAuthenticationSource($self->value->{id});
         if (defined $source) {
             $self->field('id')->add_error('This name is already taken.');
