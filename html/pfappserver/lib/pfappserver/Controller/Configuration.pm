@@ -217,9 +217,7 @@ sub registration :Local {
 sub authentication :Local {
     my ($self, $c) = @_;
 
-    $c->stash->{template} = 'configuration/authentication.tt';
-    $c->stash->{types} = availableAuthenticationSourceTypes();
-    $c->stash->{sources} = getAuthenticationSource(undef);
+    $c->forward('Controller::Authentication', 'index');
 }
 
 

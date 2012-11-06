@@ -58,8 +58,7 @@ sub auto :Private {
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('sources')));
-    $c->detach();
+    $c->forward('Controller::Authentication', 'index');
 }
 
 =head2 create
@@ -154,7 +153,9 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         $message = $form->field_errors;
     }
     else {
-        ($status, $message) = $c->model('Authentication::Source')->update($c->stash->{source}, $form->value);
+        ($status, $message) = $c->model('Authentication::Source')->update($c->stash->{source_id},
+                                                                          $c->stash->{source},
+                                                                          $form->value);
     }
 
     if (is_error($status)) {
@@ -171,7 +172,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         else {
             # Existing source; return to the list of sources
-            $c->forward('Configuration', 'authentication');
+            $c->forward('Authentication', 'index');
         }
         $c->stash->{message} = $message;
     }

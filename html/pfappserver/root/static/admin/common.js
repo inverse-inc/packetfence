@@ -50,9 +50,10 @@ $(function () {
                     var row = $(event.target).closest('tr').first();
                     row.find('td').each(function () {
                         $(this).find('a[class!="btn-icon"], :selected').map(function() {
-                            txt.push($(this).text());
+                            if (!$(this).hasClass('btn'))
+                                txt.push($(this).text());
                         });
-                        $(this).find('input').map(function() {
+                        $(this).find('input[type!="hidden"]').map(function() {
                             txt.push($(this).val());
                         });
                     });
@@ -108,6 +109,8 @@ $(function () {
                         }
                     });
                 });
+
+                dst.closest('table').trigger('admin.ordered');
             }
         });
     });
