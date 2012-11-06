@@ -74,7 +74,7 @@ Returns the actions of the first matched rule.
 sub match {
   my ($self, $params) = @_;
 
-  return [];
+  return undef;
 }
 
 sub match_condition {

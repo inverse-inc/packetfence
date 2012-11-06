@@ -196,15 +196,9 @@ else {
     }
 
     # User provided username and password: authenticate
-    my ($auth_return, $authenticator) = pf::web::admin::authenticate($cgi, $session, "guest_managers");
+    my ($auth_return, $error) = pf::web::admin::authenticate($cgi, $session);
     if ($auth_return != 1) {
         $logger->info("authentication failed for user ".$cgi->param("username"));
-        my $error;
-        if (!defined($authenticator)) {
-            $error = 'Unable to validate credentials at the moment';
-        } else {
-            $error = $authenticator->getLastError();
-        }
         pf::web::admin::generate_login_page($cgi, $session, $error);
         exit(0);
     }
@@ -213,10 +207,6 @@ else {
     pf::web::admin::generate_guestcreation_page( $cgi, $session );
 }
 
-=head1 AUTHOR
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
 =head1 COPYRIGHT
         
 Copyright (C) 2011, 2012 Inverse inc.

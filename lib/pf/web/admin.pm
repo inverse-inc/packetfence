@@ -273,29 +273,33 @@ sub generate_login_page {
 
 =item authenticate
 
-    return (1, pf::web::auth subclass) for successfull authentication
-    return (0, undef) for inability to check credentials
-    return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
+    return (1, undef) for successfull authentication
+    return (0, "error message") for inability to check credentials
 
 =cut
 sub authenticate {
-    my ( $cgi, $session, $auth_module ) = @_;
+    my ( $cgi, $session ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->trace("authentication attempt");
 
-#    my $authenticator = pf::web::auth::instantiate($auth_module);
-#    return (0, undef) if (!defined($authenticator));
-#
-#    # validate login and password
-#    my $return = $authenticator->authenticate( $cgi->param("username"), $cgi->param("password") );
-#
-#    if (defined($return) && $return == 1) {
-#        #save login into session
-#        $session->param( "username", $cgi->param("username") );
-#        $session->param( "authType", $auth_module );
-#    }
-#    return ($return, $authenticator);
-    return (0, undef);
+    # validate login and password
+    my ($return, $message, $source_id) = &pf::authentication::authenticate($cgi->param("username"), $cgi->param("password") );
+
+    if (defined($return) && $return == 1) {
+        my $value = &pf::authentication::match($source_id,
+                                               {username => $cgi->param("username")},
+                                               pf::Authentication::Action->SET_ACCESS_LEVEL);
+        if (defined $value && $value == $WEB_ADMIN_ALL) {
+            # save login into session
+            $session->param( "username", $cgi->param("username") );
+            #$session->param( "authType", $auth_module );
+        }
+        else {
+            return (0, "Not authorized to use this module.");
+        }
+    }
+
+    return ($return, $message);
 }
 
 =item validate_guest_creation
@@ -628,10 +632,6 @@ sub import_csv {
 }
 
 =back
-
-=head1 AUTHOR
-
-Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

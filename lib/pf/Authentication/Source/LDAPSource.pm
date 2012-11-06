@@ -123,14 +123,14 @@ sub match {
     my $connection = Net::LDAP->new($self->{'host'});
     if (! defined($connection)) {
       $logger->error("Unable to connect to '$self->{'host'}'");
-      return [];
+      return undef;
     }
     
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
     
     if ($result->is_error) {
       $logger->error("Unable to bind with '$self->{'binddn'}'");
-      return [];
+      return undef;
     }
     
     $logger->info("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
@@ -171,7 +171,7 @@ sub match {
 	
   } # foreach my $rule ( @{$self->{'rules'}} ) {
   
-  return [];
+  return undef;
 }
 
 =item ldap_filter_for_conditions
