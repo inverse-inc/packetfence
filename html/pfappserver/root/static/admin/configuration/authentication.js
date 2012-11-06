@@ -34,7 +34,7 @@ function initAuthentication() {
                     section.html(data);
                     section.fadeIn('fast', function() {
                         $('.chzn-select').chosen();
-                        //$('.chzn-deselect').chosen({allow_single_deselect: true});
+                        $('#id').focus();
                     });
                 })
                 .fail(function(jqXHR) {
@@ -122,11 +122,18 @@ function initAuthentication() {
                     $(this).html(data);
                     $(this).fadeIn('fast', function() {
                         $('.chzn-select').chosen();
+                        $('#id').focus();
                     });
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(form, obj.status_msg);
+                if (jqXHR.status == 401) {
+                    // Unauthorized; redirect to URL specified in the location header
+                    window.location.href = jqXHR.getResponseHeader('Location');
+                }
+                else {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showPermanentError(form, obj.status_msg);
+                }
             });
         }
 
@@ -154,6 +161,9 @@ function initAuthentication() {
         $.ajax(url)
             .done(function(data) {
                 modal.append(data);
+                modal.on('shown', function() {
+                    $('#id').focus();
+                });
             })
             .fail(function(jqXHR) {
                 if (jqXHR.status == 401) {
@@ -204,7 +214,7 @@ function initAuthentication() {
 
         if (valid) {
             resetAlert(modal_body);
-            // Don't submit hidden/template rows
+            // Don't submit hidden/template rows -- serialize will ignore disabled inputs
             form.find('tr.hidden :input').attr('disabled', 'disabled');
             $.ajax({
                 type: 'POST',
@@ -223,10 +233,16 @@ function initAuthentication() {
                     });
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
-                // Restore hidden/template rows
-                form.find('tr.hidden :input').removeAttr('disabled');
+                if (jqXHR.status == 401) {
+                    // Unauthorized; redirect to URL specified in the location header
+                    window.location.href = jqXHR.getResponseHeader('Location');
+                }
+                else {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showPermanentError(modal_body.children().first(), obj.status_msg);
+                    // Restore hidden/template rows
+                    form.find('tr.hidden :input').removeAttr('disabled');
+                }
             });
         }
 
