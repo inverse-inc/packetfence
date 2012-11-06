@@ -31,4 +31,6 @@ function init() {
             
         return false;
     });
+
+    $('#username').focus();
 }

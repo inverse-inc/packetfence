@@ -143,9 +143,15 @@ function initSoH() {
                     $('.sidebar-nav .nav-list .active a').trigger('click');
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError(form.find('.modal-body'), obj.status_msg);
-                $("body,html").animate({scrollTop:0}, 'fast');
+                if (jqXHR.status == 401) {
+                    // Unauthorized; redirect to URL specified in the location header
+                    window.location.href = jqXHR.getResponseHeader('Location');
+                }
+                else {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError(form.find('.modal-body'), obj.status_msg);
+                    $("body,html").animate({scrollTop:0}, 'fast');
+                }
             });
         }
 

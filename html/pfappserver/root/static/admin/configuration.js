@@ -16,6 +16,7 @@ function init() {
                         $('.datepicker').datepicker();
                         $('.chzn-select').chosen();
                         $('.chzn-deselect').chosen({allow_single_deselect: true});
+                        $(':input:visible:enabled:first').focus();
                     });
                 })
                 .fail(function(jqXHR) {
