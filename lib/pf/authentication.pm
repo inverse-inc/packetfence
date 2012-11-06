@@ -413,7 +413,7 @@ sub authenticate {
     
         # First match wins!
         if ($result) {
-            return ($result, $message);
+            return ($result, $message, $current_source->id);
         }
     }
   
@@ -422,14 +422,41 @@ sub authenticate {
 
 =head2 match
 
+This method tries to match a set of params in a specific source. If source_id is
+undef, all sources will be tried. If action is undef, all actions will be returned.
+
 =cut
 
 sub match {
-    my $params = shift;
+  my ($source_id, $params, $action) = @_;
+  my $actions = undef;
 
-    foreach my $current_source ( @authentication_sources ) {
-        $current_source->match($params);
+  foreach my $current_source ( @authentication_sources ) {
+    
+    if (defined $source_id && $source_id eq $current_source->id) {
+      $actions = $current_source->match($params);
+      last;
+    } elsif (!defined $source_id) {
+      $actions = $current_source->match($params);
+      
+      # First match wins
+      if (defined $actions) {
+	last;
+      }
     }
+  }
+
+  if (defined $action && defined $actions) {
+    foreach my $current_action ( @{$actions} ) {
+      if ($current_action->type eq $action) {
+	return $current_action->value;
+      }
+    }
+    
+    return undef;
+  }
+
+  return $actions;
 }
 
 =back

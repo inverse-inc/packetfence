@@ -24,12 +24,12 @@ sub matches {
 
   if ($self->{'attribute'} eq $attr) {
     if ($self->{'operator'} eq $self->EQUALS) {
-      if ($self->{'value'} eq $v) {
+      if (defined $v && $self->{'value'} eq $v) {
 	return 1;
       }
     }
     
-    if (index($v, $self->{'value'}) < 0) {
+    if (defined $v && index($v, $self->{'value'}) < 0) {
       return 1;
     }
   }

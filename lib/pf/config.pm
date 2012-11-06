@@ -79,6 +79,7 @@ BEGIN {
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $WIRELESS $WIRED $EAP
+	$WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
@@ -163,6 +164,9 @@ Readonly our $UNKNOWN           => 0b000000000;
 Readonly our $WIRELESS => 0b100000000;
 Readonly our $WIRED    => 0b001000000;
 Readonly our $EAP      => 0b010000000;
+
+# Catalyst-based access level constants
+Readonly our $WEB_ADMIN_ALL => 4294967296;
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
