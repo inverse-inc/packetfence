@@ -25,11 +25,11 @@ use pf::error qw(is_error is_success);
 =cut
 
 sub update {
-    my ($self, $source_obj, $def_ref) = @_;
+    my ($self, $source_id, $source_obj, $def_ref) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    if (ref $source_obj eq 'HASH') {
+    unless ($source_id) {
         # Add a new source
         my $type = $source_obj->{type};
         $source_obj = newAuthenticationSource($type, $def_ref->{id}, $def_ref);
