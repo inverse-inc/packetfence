@@ -18,7 +18,6 @@ has_field 'host' =>
   (
    type => 'Text',
    label => 'Host',
-   required => 1,
    element_class => ['input-small'],
    element_attr => {'placeholder' => '127.0.0.1'},
   );
@@ -26,7 +25,6 @@ has_field 'port' =>
   (
    type => 'PosInteger',
    label => 'Port',
-   required => 1,
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '1812'},
   );
