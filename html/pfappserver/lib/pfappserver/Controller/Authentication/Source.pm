@@ -172,7 +172,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         else {
             # Existing source; return to the list of sources
-            $c->forward('Authentication', 'index');
+            $c->forward('Controller::Authentication', 'index');
         }
         $c->stash->{message} = $message;
     }
