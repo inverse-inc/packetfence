@@ -61,7 +61,7 @@ Make sure the source ID (name) is unique
 sub validate {
     my $self = shift;
 
-    if ($self->{id} && $self->{id} ne $self->value->{id}) {
+    if ($self->{id} && $self->{id} ne $self->value->{id} || !$self->{id}) {
         my $source = getAuthenticationSource($self->value->{id});
         if (defined $source) {
             $self->field('id')->add_error('This name is already taken.');
