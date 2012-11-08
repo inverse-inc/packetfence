@@ -104,7 +104,8 @@ $(function () {
                             $(this).find('option').each(function() {
                                 var option = $(this);
                                 var id = option.attr('id');
-                                option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                                if (id)
+                                    option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
                             });
                         }
                     });
@@ -124,10 +125,26 @@ $(function () {
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
             row_new.insertAfter(row);
+            row_new.trigger('admin.added');
         }
-        // Update sort handle if the table is sortable
+        // Update indexes
         tbody.children(':not(.hidden)').each(function(index, element) {
             $(this).find('.sort-handle').first().text(index + 1);
+            $(this).find(':input').each(function() {
+                var input = $(this);
+                var name = input.attr('name');
+                var id = input.attr('id');
+                input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+                input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                if (this.tagName == 'SELECT') {
+                    $(this).find('option').each(function() {
+                        var option = $(this);
+                        var id = option.attr('id');
+                        if (id)
+                            option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                    });
+                }
+            });
         });
     });
     $('body').on('click', '.table-dynamic [href="#delete"]', function(event) {
