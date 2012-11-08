@@ -79,6 +79,8 @@ Depends: ${misc:Depends}, vlan, make,
  liblocale-gettext-perl, 
 # logging framework
  liblog-log4perl-perl,
+#oauth2
+ libnet-oauth2-perl,
 # used by Captive Portal authentication modules
  libauthen-radius-perl, libauthen-krb5-simple-perl,
 # required for perl 5.12+ (made perl setuid optional) and most distros went without it
