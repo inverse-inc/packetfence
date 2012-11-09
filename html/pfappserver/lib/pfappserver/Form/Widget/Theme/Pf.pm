@@ -100,17 +100,17 @@ sub update_fields {
 
     foreach my $field (@{$self->fields}) {
         if ($field->required) {
-            $field->element_attr({'data-required' => 'required'});
+            $field->set_element_attr('data-required' => 'required');
         }
         if ($field->type eq 'PosInteger') {
             $field->type_attr($field->html5_type_attr);
-            $field->{element_attr}->{'data-type'} = 'number';
+            $field->set_element_attr('data-type' => 'number');
         }
         elsif ($field->type eq '+Duration') {
             foreach my $subfield (@{$field->fields}) {
                 if ($subfield->type eq 'PosInteger') {
                     $subfield->type_attr($subfield->html5_type_attr);
-                    $subfield->{element_attr}->{'data-type'} = 'number';
+                    $subfield->set_element_attr('data-type' => 'number');
                 }
             }
         }
