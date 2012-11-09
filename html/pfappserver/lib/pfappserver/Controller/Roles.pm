@@ -93,7 +93,7 @@ sub create :Local {
 
 =head2 object
 
-SoH controller dispatcher
+Roles controller dispatcher
 
 =cut
 
