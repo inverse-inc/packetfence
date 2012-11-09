@@ -87,6 +87,11 @@ sub build_update_subfields {{
         element_attr => { 'data-date-format' => 'yyyy-mm-dd',
                           placeholder => 'yyyy-mm-dd' },
        },
+       'TimePicker' =>
+       {
+        element_class => ['timepicker-default', 'input-small'],
+        element_attr => {placeholder => 'MM:HH'},
+       },
       },
 }}
 
