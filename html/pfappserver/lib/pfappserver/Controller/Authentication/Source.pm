@@ -259,11 +259,8 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) {
     $form = pfappserver::Form::Authentication::Rule->new(ctx => $c,
                                                          init_object => $c->stash->{rule},
                                                          attrs => $c->stash->{source}->available_attributes());
-    if ($c->stash->{rule}) {
-        # Update existing rule
-        $form->process;
-    }
-    else {
+    $form->process;
+    unless ($c->stash->{rule}) {
         # New rule
         $form->field('actions')->add_extra;
     }
