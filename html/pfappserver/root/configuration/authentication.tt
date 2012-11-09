@@ -26,7 +26,7 @@
 
 <form name="authentication" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Authentication').action_for('update')) %]">
 [% IF form.field('sources').num_fields -%]
-  <table class="table table-sortable">
+  <table id="sources" class="table table-sortable">
     <thead>
       <tr>
         <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th></th>
