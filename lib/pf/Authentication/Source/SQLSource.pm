@@ -8,20 +8,22 @@ pf::Authentication::Source::SQLSource
 
 =cut
 
-use pf::Authentication::Source;
-use Moose;
-
 use pf::config qw($TRUE $FALSE);
 use pf::temporary_password;
+use pf::Authentication::constants;
+use pf::Authentication::Source;
 
+use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SQL' );
 
 sub available_attributes {
   my $self = shift;
+
   my $super_attributes = $self->SUPER::available_attributes; 
-  my $own_attributes = ["username"];
+  my $own_attributes = [{ value => "username", type => $Conditions::STRING }];
+
   return [@$super_attributes, @$own_attributes];
 }
 

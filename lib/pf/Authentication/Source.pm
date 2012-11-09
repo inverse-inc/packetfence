@@ -11,8 +11,7 @@ We must at least always have one rule defined, the fallback one.
 =cut
 
 use Moose;
-
-use pf::config qw($TRUE $FALSE);
+use pf::Authentication::constants;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
@@ -31,7 +30,10 @@ sub available_attributes {
 
 sub common_attributes {
   my $self = shift;
-  return ["SSID"];
+  return [
+          { value => 'SSID', type => $Conditions::STRING },
+          { value => 'current_time', type => $Conditions::TIME },
+         ];
 }
 
 sub authenticate {

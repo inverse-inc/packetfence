@@ -8,10 +8,10 @@ pf::Authentication::Source::ADSource
 
 =cut
 
-use pf::Authentication::Source;
+use pf::Authentication::constants;
 use pf::Authentication::Source::LDAPSource;
-use Moose;
 
+use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
 has '+type' => ( default => 'AD' );
@@ -19,7 +19,12 @@ has '+type' => ( default => 'AD' );
 sub available_attributes {
   my $self = shift;
   my $super_attributes = $self->SUPER::available_attributes;
-  my $ad_attributes = ["sAMAccountName", "sAMAccountType", "userAccountControl"];
+  my $ad_attributes =
+    [
+     { value => "sAMAccountName", type => $Conditions::STRING },
+     { value => "sAMAccountType", type => $Conditions::STRING },
+     { value => "userAccountControl", type => $Conditions::STRING },
+    ];
   
   return [@$super_attributes, @$ad_attributes];
 }

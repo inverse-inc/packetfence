@@ -8,14 +8,15 @@ pf::authentication
 
 =cut
 
-use Config::IniFiles;
-use Data::Dumper;
 use strict;
 use warnings;
+
+use Config::IniFiles;
 use Log::Log4perl;
 
-use pf::config qw($TRUE $FALSE $conf_dir);
+use pf::config;
 
+use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Condition;
 use pf::Authentication::Rule;
@@ -43,19 +44,23 @@ our @authentication_sources = ();
 
 BEGIN {
     use Exporter ();
-    our ( @ISA, @EXPORT );
+    our ( @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS );
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
-    @EXPORT = qw(
-		  @authentication_sources
-                  availableAuthenticationSourceTypes
-                  newAuthenticationSource
-                  getAuthenticationSource
-                  deleteAuthenticationSource
-                  writeAuthenticationConfigFile
-		  authenticate
-		  match
-	       );
+    @EXPORT =
+      qw(
+            @authentication_sources
+            availableAuthenticationSourceTypes
+            newAuthenticationSource
+            getAuthenticationSource
+            deleteAuthenticationSource
+            writeAuthenticationConfigFile
+       );
+    @EXPORT_OK =
+      qw(
+            authenticate
+            match
+       );
 }
 
 my %cfg; tie %cfg, 'Config::IniFiles', ( -file => "$conf_dir/authentication.conf" );

@@ -8,21 +8,24 @@ pf::Authentication::Source::HTTPPassswordSource
 
 =cut
 
-use pf::Authentication::Source;
-use Moose;
-
 use pf::config qw($TRUE $FALSE);
+use pf::Authentication::constants;
+use pf::Authentication::Source;
+
 use Apache::Htpasswd;
 
+use Moose;
 extends 'pf::Authentication::Source';
 
-has '+type' => ( default => 'Htpasswd' );
+has '+type' => (default => 'Htpasswd');
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
 
 sub available_attributes {
   my $self = shift;
+
   my $super_attributes = $self->SUPER::available_attributes; 
-  my $own_attributes = ["username"];
+  my $own_attributes = [{ value => 'username', type => $Conditions::STRING }];
+
   return [@$super_attributes, @$own_attributes];
 }
 
