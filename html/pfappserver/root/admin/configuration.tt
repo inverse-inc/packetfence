@@ -6,7 +6,8 @@
         'admin/configuration',
         'admin/configuration/authentication',
         'admin/configuration/violations',
-        'admin/configuration/soh'
+        'admin/configuration/soh',
+	'admin/configuration/roles'
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
@@ -82,7 +83,9 @@ table input[type="text"] {
               <li[% IF section == 'soh' %] class="active"[% END %]>
                 <a href="[% c.uri_for(c.controller('Configuration').action_for('soh')) %]">[% l('SoH Filters') %]</a>
               </li>
-              <li><a href="#">Roles</a></li>
+              <li[% IF section == 'roles' %] class="active"[% END %]>
+                <a href="[% c.uri_for(c.controller('Configuration').action_for('roles')) %]">[% l('Roles') %]</a>
+              </li>
               <li><a href="#">Remediation Pages</a></li>
               <li class="nav-header"><i class="icon-eye-open"></i> Identification</li>
               <li><a href="#">Fingerprints</a></li>

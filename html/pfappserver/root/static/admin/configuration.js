@@ -75,4 +75,5 @@ function init() {
     initAuthentication();
     initViolations();
     initSoH();
+    initRoles();
 }

@@ -139,7 +139,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }
-    ($status, $result) = $c->model('NodeCategory')->list();
+    ($status, $result) = $c->model('Roles')->list();
     if (is_success($result)) {
         $categories = $result;
     }
