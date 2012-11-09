@@ -128,7 +128,9 @@ $(function () {
             row_new.trigger('admin.added');
         }
         // Update indexes
+        var count = 0;
         tbody.children(':not(.hidden)').each(function(index, element) {
+            count++;
             $(this).find('.sort-handle').first().text(index + 1);
             $(this).find(':input').each(function() {
                 var input = $(this);
@@ -145,6 +147,7 @@ $(function () {
                     });
                 }
             });
+            $(this).find('[href="#delete"]').removeClass('hidden')
         });
     });
     $('body').on('click', '.table-dynamic [href="#delete"]', function(event) {
@@ -152,21 +155,27 @@ $(function () {
         $(this).closest('tr').fadeOut('fast', function() {
             $(this).remove();
             // Update sort handle if the table is sortable
-            var empty = true;
+            //var empty = true;
+            var count = 0;
             tbody.children(':not(.hidden)').each(function(index, element) {
                 $(this).find('.sort-handle').each(function() {
                     $(this).text(index + 1);
-                    empty = false;
+                    //empty = false;
+                    count++;
                 });
             });
-            if (empty) {
-                // No more rows
+            if (count < 2) {
                 var table = tbody.closest('table');
                 var id = '#' + table.attr('id') + 'Empty';
                 if ($(id).length) {
-                    if (tbody.prev('thead').length)
-                        table.remove();
-                    $(id).removeClass('hidden');
+                    if (count == 0) {
+                        if (tbody.prev('thead').length)
+                            table.remove();
+                        $(id).removeClass('hidden');
+                    }
+                }
+                else if (count == 1) {
+                    tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
                 }
             }
         });

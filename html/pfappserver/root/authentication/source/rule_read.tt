@@ -1,3 +1,5 @@
+[% form.block('templates').render %]
+
 <form name="rule" class="form form-horizontal" method="post" action="[% action_uri %]">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
@@ -54,7 +56,7 @@
               </td>
               <td class="action">
                 <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                [% IF loop.index > 0 %]<a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>[% END -%]
+                <a class="btn-icon[% ' hidden' IF loop.first() %]" href="#delete"><i class="icon-minus-sign"></i></a>
               </td>
             </tr>
             [% END -%]
