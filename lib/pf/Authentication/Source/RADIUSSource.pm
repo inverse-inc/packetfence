@@ -8,23 +8,25 @@ pf::Authentication::Source::RADIUSSource
 
 =cut
 
-use pf::Authentication::Source;
-use Moose;
-
 use pf::config qw($TRUE $FALSE);
+use pf::Authentication::constants;
+
 use Authen::Radius;
 
+use Moose;
 extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'RADIUS' );
-has 'host' => (isa => 'Str', is => 'rw', required => 1);
-has 'port' => (isa => 'Int', is => 'rw', required => 1);
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 
 sub available_attributes {
   my $self = shift;
+
   my $super_attributes = $self->SUPER::available_attributes; 
-  my $own_attributes = ["username"];
+  my $own_attributes = [{ value => "username", type => $Conditions::STRING }];
+
   return [@$super_attributes, @$own_attributes];
 }
 

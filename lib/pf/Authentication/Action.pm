@@ -10,22 +10,17 @@ pf::Authentication::Action
 
 use Moose;
 
-use constant {
-        MARK_AS_SPONSOR => "mark_as_sponsor",
-	SET_ACCESS_LEVEL => "set_access_level",
-        SET_ROLE => "set_role",
-	SET_UNREG_DATE => "set_unreg_date",
-      };
+use pf::Authentication::constants;
 
 has 'type' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 0);
 
 sub availableActions {
     return [
-            MARK_AS_SPONSOR,
-            SET_ACCESS_LEVEL,
-            SET_ROLE,
-            SET_UNREG_DATE,
+            $Actions::MARK_AS_SPONSOR,
+            $Actions::SET_ACCESS_LEVEL,
+            $Actions::SET_ROLE,
+            $Actions::SET_UNREG_DATE,
            ];
 }
 

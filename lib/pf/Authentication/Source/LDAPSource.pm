@@ -8,13 +8,13 @@ pf::Authentication::Source::LDAPSource
 
 =cut
 
-use pf::Authentication::Source;
-use Moose;
-
 use pf::config qw($TRUE $FALSE);
+use pf::Authentication::constants;
 use pf::Authentication::Condition;
+
 use Net::LDAP;
 
+use Moose;
 extends 'pf::Authentication::Source';
 
 # available encryption
@@ -36,19 +36,20 @@ has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 
 sub available_attributes {
   my $self = shift;
+
   my $super_attributes = $self->SUPER::available_attributes;
-  my $ldap_attributes = ["cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn"];
-  
+  my @ldap_attributes = map { { value => $_, type => $Conditions::STRING } }
+    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn");
+
   # We check if our username attribute is present, if not we add it.
-  if (not grep {$_ eq $self->{'usernameattribute'}} @$ldap_attributes ) {
-    push (@$ldap_attributes, $self->{'usernameattribute'});
+  if (not grep {$_->{value} eq $self->usernameattribute} @ldap_attributes ) {
+    push (@ldap_attributes, { value => $self->{usernameattribute}, type => $Conditions::STRING });
   }
 
-  return [@$super_attributes, @$ldap_attributes];
+  return [@$super_attributes, @ldap_attributes];
 }
 
 sub authenticate {
-  
   my ( $self, $username, $password ) = @_;
   
   my $connection = Net::LDAP->new($self->{'host'});
