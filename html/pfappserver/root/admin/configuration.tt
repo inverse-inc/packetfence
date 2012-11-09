@@ -7,7 +7,7 @@
         'admin/configuration/authentication',
         'admin/configuration/violations',
         'admin/configuration/soh',
-	'admin/configuration/roles'
+        'admin/configuration/roles'
         ]
      cssFiles = [
         'app/bootstrap-datepicker',

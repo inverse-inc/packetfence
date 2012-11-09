@@ -9,9 +9,9 @@
 
   [% form.field('name').render %]
 
-  [% form.field('max_nodes_per_pid').render %]
-
   [% form.field('notes').render %]
+
+  [% form.field('max_nodes_per_pid').render %]
 
   </div><!--modal-body-->
 

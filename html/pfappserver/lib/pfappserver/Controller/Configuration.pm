@@ -19,10 +19,6 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
-use pf::authentication;
-# imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be 
-# imported but it's better than duplicating regex all over the place.
-use pf::config;
 use pfappserver::Form::Config::Pf;
 
 BEGIN {extends 'Catalyst::Controller'; }
@@ -234,7 +230,7 @@ sub violations :Local {
     if (is_success($status)) {
         $c->stash->{violations} = $result;
     }
-    if (is_error($status)) {
+    else {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
@@ -277,15 +273,11 @@ sub roles :Local {
     if (is_success($status)) {
         $c->stash->{roles} = $result;
     }
-    if (is_error($status)) {
+    else {
         $c->stash->{error} = $result;
     }
 }
 
-
-=head1 AUTHOR
-
-Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
