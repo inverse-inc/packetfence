@@ -61,34 +61,32 @@ sub index :Path :Args(0) {
 =cut
 
 sub create :Local {
-  my ($self, $c) = @_;
+    my ($self, $c) = @_;
   
-  my ($status, $result);
+    my ($status, $result, $form);
   
-  if ($c->request->method eq 'POST') {
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::Role->new(ctx => $c);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors;
+        }
+        else {
+            my $data = $form->value;
+            ($status, $result) = $c->model('Roles')->create($data->{name}, $data->{max_nodes_per_pid}, $data->{notes});
+        }
 
-    my $form = pfappserver::Form::Role->new(ctx => $c);
-  
-    $form->process(params => $c->req->params);
-    if ($form->has_errors) {
-      $status = HTTP_BAD_REQUEST;
-      $result = $form->field_errors;
+        if (is_error($status)) {
+            $c->response->status($status);
+            $c->stash->{status_msg} = $result; # TODO: localize error message
+        }
+        $c->stash->{current_view} = 'JSON';
     }
     else {
-      my $data = $form->value;
-      ($status, $result) = $c->model('Roles')->create($data->{name}, $data->{max_nodes_per_pid}, $data->{notes});
-      
-      if (is_error($status)) {
-	$c->response->status($status);
-	$c->stash->{status_msg} = $result; # TODO: localize error message
-      }
-      $c->stash->{current_view} = 'JSON';
+        $c->stash->{action_uri} = $c->req->uri;
+        $c->forward('read');
     }
-  } else {
-    $c->stash->{action_uri} = $c->req->uri;
-    $c->stash->{filter} = { rules => [ {} ] }; # initialize template with a single empty rule
-    $c->forward('read');
-  }
 }
 
 =head2 object
@@ -117,21 +115,20 @@ sub object :Chained('/') :PathPart('roles') :CaptureArgs(1) {
 =cut
 
 sub read :Chained('object') :PathPart('read') :Args(0) {
-  my ($self, $c) = @_;
+    my ($self, $c) = @_;
   
-  my ($status, $result);
+    my ($status, $result, $form);
   
-  $c->stash->{template} = 'roles/read.tt';
+    $c->stash->{template} = 'roles/read.tt';
   
-  if ($c->stash->{role}->{category_id}) {
-    # Update an existing role
-    $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{role}->{category_id}]);
-  }
+    if ($c->stash->{role}->{category_id}) {
+        # Update an existing role
+        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{role}->{category_id}]);
+    }
 
-  my $form = pfappserver::Form::Role->new(ctx => $c,
-					  init_object => $c->stash->{role});
-  $form->process();
-  $c->stash->{form} = $form;
+    $form = pfappserver::Form::Role->new(ctx => $c, init_object => $c->stash->{role});
+    $form->process();
+    $c->stash->{form} = $form;
 }
 
 =head2 update
@@ -139,36 +136,34 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 =cut
 
 sub update :Chained('object') :PathPart('update') :Args(0) {
-  my ($self, $c) = @_;
+    my ($self, $c) = @_;
   
-  my ($status, $result);
+    my ($status, $result, $form);
   
-  if ($c->request->method eq 'POST') {
-
-    my $form = pfappserver::Form::Role->new(ctx => $c);
-  
-    $form->process(params => $c->req->params);
-    if ($form->has_errors) {
-      $status = HTTP_BAD_REQUEST;
-      $result = $form->field_errors;
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::Role->new(ctx => $c, id => $c->stash->{role}->{name});
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors;
+        }
+        else {
+            my $data = $form->value;
+            ($status, $result) = $c->model('Roles')->update($c->stash->{role},
+                                                            $data->{name},
+                                                            $data->{max_nodes_per_pid},
+                                                            $data->{notes});
+        }
+        if (is_error($status)) {
+            $c->response->status($status);
+            $c->stash->{status_msg} = $result; # TODO: localize error message
+        }
+        $c->stash->{current_view} = 'JSON';
     }
     else {
-      my $data = $form->value;
-      ($status, $result) = $c->model('Roles')->update($c->stash->{role},
-						      $data->{name},
-						      $data->{max_nodes_per_pid},
-						      $data->{notes});
-      if (is_error($status)) {
-	$c->response->status($status);
-	$c->stash->{status_msg} = $result; # TODO: localize error message
-      }
-      $c->stash->{current_view} = 'JSON';
+        $c->stash->{template} = 'violation/get.tt';
+        $c->forward('get');
     }
-  }
-  else {
-    $c->stash->{template} = 'violation/get.tt';
-    $c->forward('get');
-  }
 }
 
 =head2 delete
