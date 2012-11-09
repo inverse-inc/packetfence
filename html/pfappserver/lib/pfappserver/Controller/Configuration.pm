@@ -264,6 +264,25 @@ sub soh :Local {
     }
 }
 
+=head2 roles
+
+=cut
+
+sub roles :Local {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{template} = 'configuration/roles.tt';
+
+    my ($status, $result) = $c->model('Roles')->list();
+    if (is_success($status)) {
+        $c->stash->{roles} = $result;
+    }
+    if (is_error($status)) {
+        $c->stash->{error} = $result;
+    }
+}
+
+
 =head1 AUTHOR
 
 Francis Lachapelle <flachapelle@inverse.ca>

@@ -1,0 +1,51 @@
+      <div class="modal fade hide" id="modalRole">
+      </div>
+
+      <div class="modal fade hide" id="deleteRole">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3><i>[% l('Delete Role') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this role?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Roles')  %]</h2>
+      [% IF error %]<div class="alert alert-error">
+        <button class="close" data-dismiss="alert">×</button>
+        <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
+      </div>[% END %]
+      <p>[% l('Define the roles which will apply to all devices on your network.') %]</p>
+
+      [% IF roles.size -%]
+      <table class="table">
+        <thead>
+          <tr>
+            <th>[% l('Name') %]</th><th>[% l('Max nodes per user') %]<th>[% l('Description') %]</th></th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH role IN roles %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller('Roles').action_for('read'), [ role.category_id ]) %]#modalRole">[% role.name %]</a></td>
+	     <td>[% l(role.max_nodes_per_pid) %]</td>
+	     <td>[% l(role.notes) %]</td>
+	     <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Roles').action_for('delete'), [ role.category_id ]) %]#deleteRole">[% l('Delete') %]</a></td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
+      [% END -%]
+
+      <div id="noRole" class="unwell[% ' hidden' IF roles.size %]">
+        <i class="icon-filter icon-large"></i><p>[% l('No role defined') %]</p>
+      </div>
+
+      <div class="form-actions">
+        <a id="createRole" class="btn" href="[% c.uri_for(c.controller('Roles').action_for('create')) %]">[% l('Add role') %]</a>
+      </div>

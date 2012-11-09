@@ -114,7 +114,7 @@ sub options_status {
 sub options_category_id {
     my $self = shift;
 
-    # $self->categories comes from pfappserver::Model::NodeCategory
+    # $self->categories comes from pfappserver::Model::Roles
     my @categories = map { $_->{category_id} => $_->{name} } @{$self->categories} if ($self->categories);
 
     return ('' => '', @categories);

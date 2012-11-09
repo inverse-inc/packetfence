@@ -1,0 +1,23 @@
+<form name="role" class="form-horizontal" action="[% action_uri %]">
+  [%- IF role %]<input type="hidden" name="id" value="[% role.category_id %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a> 
+    <h3>[% IF role %]<i>[% l('Role') %]</i> [% role.name || role.category_id %][% ELSE %][% l('New Role') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+
+  [% form.field('name').render %]
+
+  [% form.field('max_nodes_per_pid').render %]
+
+  [% form.field('notes').render %]
+
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="Saving">[% l('Save') %]</button>
+  </div>
+
+</form>
