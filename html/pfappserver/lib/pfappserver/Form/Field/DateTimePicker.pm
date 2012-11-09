@@ -32,11 +32,9 @@ has_field 'date' =>
   );
 has_field 'time' => 
   (
-   type => 'Text',
+   type => 'TimePicker',
    do_label => 0,
    widget_wrapper => 'None',
-   element_class => ['timepicker-default', 'input-small'],
-   element_attr => {placeholder => 'MM:HH'},
   );
 
 sub datetime_inflate {

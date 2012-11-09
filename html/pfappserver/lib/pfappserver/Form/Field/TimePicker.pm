@@ -1,8 +1,8 @@
-package pfappserver::Form::Field::DatePicker;
+package pfappserver::Form::Field::TimePicker;
 
 =head1 NAME
 
-pfappserver::Form::Field::DatePicker - to be used with the date picker
+pfappserver::Form::Field::TimePicker - to be used with the time picker
 JavaScript widget
 
 =head1 DESCRIPTION
