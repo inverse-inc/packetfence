@@ -1,6 +1,7 @@
 [%  jsFiles = [
         'app/jquery-ui',
         'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
         'app/chosen.jquery.min',
         'admin/configuration',
         'admin/configuration/authentication',
@@ -8,7 +9,8 @@
         'admin/configuration/soh'
         ]
      cssFiles = [
-        'app/bootstrap-datepicker'
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker'
         ] -%]
 
 <style type="text/css">
