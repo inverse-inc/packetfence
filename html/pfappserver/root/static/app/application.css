@@ -9,6 +9,10 @@ body {
 .sidebar-nav {
     padding: 9px 0;
 }
+/* bootstrap.css fix to show dropdown menus in modals */
+.dropdown-menu {
+    z-index: 2050;
+}
 /* bootstrap.css fix to restore 2.0.4 apparence */
 h6 {
   font-size: 11px;
