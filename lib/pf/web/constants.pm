@@ -56,40 +56,35 @@ CGI they map.
 
 =cut
 # normal flow
-Readonly::Scalar our $URL_CAPTIVE_PORTAL => '/captive-portal';
-Readonly::Scalar our $URL_AUP => '/aup';
-Readonly::Scalar our $URL_AUTHENTICATE => '/authenticate';
-Readonly::Scalar our $URL_ACCESS => '/access';
-Readonly::Scalar our $URL_RELEASE => '/release';
-Readonly::Scalar our $URL_OAUTH2_AUTH => '/oauth2/auth';
-Readonly::Scalar our $URL_OAUTH2_GOOGLE => '/oauth2/google';
-Readonly::Scalar our $URL_OAUTH2_FCBK => '/oauth2/facebook';
-Readonly::Scalar our $URL_OAUTH2_GITHUB => '/oauth2/github';
-
-# violation-related
-Readonly::Scalar our $URL_ENABLER => '/enabler';
-Readonly::Scalar our $URL_REMEDIATION => '/remediation.php(.*)';
+Readonly::Scalar our $URL_ACCESS                => '/access';
+Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
+Readonly::Scalar our $URL_AUP                   => '/aup';
+Readonly::Scalar our $URL_BILLING               => '/pay';
+Readonly::Scalar our $URL_CAPTIVE_PORTAL        => '/captive-portal';
+Readonly::Scalar our $URL_ENABLER               => '/enabler';
+Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
+Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
+Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
+Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
+Readonly::Scalar our $URL_RELEASE               => '/release';
+Readonly::Scalar our $URL_WIRELESS_PROFILE      => '/wireless-profile.mobileconfig';
 
 # guest related
-Readonly::Scalar our $URL_SIGNUP => '/signup';
-Readonly::Scalar our $URL_EMAIL_ACTIVATION => '/activate/email/';
-Readonly::Scalar our $URL_SMS_ACTIVATION => '/activate/sms';
-Readonly::Scalar our $URL_PREREGISTER => '/preregister';
-Readonly::Scalar our $URL_SIGNUP_UGLY => '/guest-selfregistration.cgi';
-Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS => '/guests/manage';
+Readonly::Scalar our $URL_SIGNUP                => '/signup';
+Readonly::Scalar our $CGI_SIGNUP                => '/cgi-perl/guest-selfregistration.cgi';
+Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email/';
+Readonly::Scalar our $CGI_EMAIL_ACTIVATION      => '/cgi-perl/email_activation.cgi';
+Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
+Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
+Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
-# billing engine
-Readonly::Scalar our $URL_BILLING => '/pay';
-
-# wireless auto-config
-Readonly::Scalar our $URL_WIRELESS_PROFILE => '/wireless-profile.mobileconfig';
-
-# required for specific Apache config ACL whitelisting
-Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI => '/cgi-perl/email_activation.cgi';
-Readonly::Scalar our $ACL_SIGNUP_CGI => '/cgi-perl/guest-selfregistration.cgi';
-
-# wispr mod_perl engine
-Readonly::Scalar our $MOD_PERL_WISPR => '/wispr';
+# TODO: Temp... migration process. Should be kept since it breaks the portal on removal
+# dwuelfrath@inverse.ca - 2012.11.12
+Readonly::Scalar our $URL_REMEDIATION           => '/remediation.php(.*)';
+Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi';
+Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
+Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
+Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
 
 =head2 Apache Config related
 
