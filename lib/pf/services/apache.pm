@@ -96,14 +96,14 @@ sub generate_httpd_conf {
     my $guest_regist_allowed = $guest_self_registration{'enabled'};
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
-        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::ACL_SIGNUP_CGI|$WEB::URL_PREREGISTER";
+        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
     }
     # /activate/email allowed if sponsor or email mode enabled
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
-        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::ACL_EMAIL_ACTIVATION_CGI";
+        $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::CGI_EMAIL_ACTIVATION";
     }
 
     my ($pt_http, $pt_https, $remediation);
