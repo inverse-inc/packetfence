@@ -15,6 +15,7 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
 
+use HTTP::Status qw(:constants is_success);
 use pf::config;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -187,7 +188,7 @@ has_field "${Actions::SET_ROLE}_action" =>
    type => 'Select',
    do_label => 0,
    wrapper => 0,
-#   options_method => \&options_roles,
+   options_method => \&options_roles,
   );
 has_field "${Actions::SET_UNREG_DATE}_action" =>
   (
@@ -281,6 +282,26 @@ sub options_access_level {
              value => $WEB_ADMIN_ALL,
             },
            );
+}
+
+=head2 options_roles
+
+Populate the select field for the roles template action.
+
+=cut
+
+sub options_roles {
+    my $self = shift;
+
+    my @roles;
+
+    # Build a list of existing roles
+    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    if (is_success($status)) {
+        @roles = map { $_->{name} => $_->{name} } @$result;
+    }
+
+    return @roles;
 }
 
 =head1 COPYRIGHT

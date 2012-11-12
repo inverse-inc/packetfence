@@ -19,7 +19,7 @@ has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 # Form select options
-has 'categories' => ( is => 'ro' );
+has 'roles' => ( is => 'ro' );
 has 'status' => ( is => 'ro' );
 
 # Form fields
@@ -37,9 +37,9 @@ has_field 'status' =>
 has_field 'category_id' =>
   (
    type => 'Select',
-   label => 'Category',
+   label => 'Role',
    element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'No category'},
+   element_attr => {'data-placeholder' => 'No role'},
   );
 has_field 'regdate' =>
   (
@@ -114,10 +114,10 @@ sub options_status {
 sub options_category_id {
     my $self = shift;
 
-    # $self->categories comes from pfappserver::Model::Roles
-    my @categories = map { $_->{category_id} => $_->{name} } @{$self->categories} if ($self->categories);
+    # $self->roles comes from pfappserver::Model::Roles
+    my @roles = map { $_->{category_id} => $_->{name} } @{$self->roles} if ($self->roles);
 
-    return ('' => '', @categories);
+    return ('' => '', @roles);
 }
 
 =head1 COPYRIGHT
