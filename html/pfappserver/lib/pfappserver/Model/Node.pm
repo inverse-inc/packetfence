@@ -15,7 +15,6 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
-#use Readonly;
 use Time::localtime;
 use Time::Local;
 
@@ -280,8 +279,9 @@ sub _graphIplogHistory {
 
                 unless ($last_hday) {
                     # Compute next half-day
-                    my $TIME = timelocal(0, 0, ($until - 12), $start_tm->mday, $start_tm->mon, $start_tm->year+1900);
-                    $TIME = $TIME + 12 * 60 * 60;
+                    # The time manipulation is required to not be affected by DST changes
+                    my $TIME = timelocal(0, 59, ($until - 1), $start_tm->mday, $start_tm->mon, $start_tm->year+1900);
+                    $TIME = $TIME + 60;
                     $start_tm = localtime($TIME);
                 }
             } while ($last_hday == 0);
