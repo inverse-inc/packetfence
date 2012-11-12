@@ -130,7 +130,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
-    my ($form, $status, $categories);
+    my ($form, $status, $roles);
 
     # Form initialization :
     # Retrieve node details, categories and status
@@ -140,14 +140,14 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
         $c->stash->{node} = $result;
     }
     ($status, $result) = $c->model('Roles')->list();
-    if (is_success($result)) {
-        $categories = $result;
+    if (is_success($status)) {
+        $roles = $result;
     }
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = pfappserver::Form::Node->new(ctx => $c,
                                          init_object => $c->stash->{node},
                                          status => $nodeStatus,
-                                         categories => $categories);
+                                         roles => $roles);
     $form->process();
     $c->stash->{form} = $form;
 

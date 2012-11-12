@@ -10,11 +10,11 @@ Form definition to create or update a role.
 
 =cut
 
-use HTTP::Status qw(:constants is_success);
-
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
+
+use HTTP::Status qw(:constants is_success);
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
