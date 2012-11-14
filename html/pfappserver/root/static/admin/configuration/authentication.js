@@ -212,7 +212,7 @@ function initAuthentication() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the complete section
-                    $('#section').fadeOut('fast', function() {
+                    $('#sourceRules').closest('.control-group').fadeOut('fast', function() {
                         $(this).empty();
                         $(this).html(data);
                         $(this).fadeIn('fast', function() {

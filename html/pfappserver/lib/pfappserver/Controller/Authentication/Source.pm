@@ -131,7 +131,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     $form = $form_type->new(ctx => $c, init_object => $c->stash->{source});
     $form->process();
     $c->stash->{form} = $form;
-    $c->stash->{template} = 'authentication/source/read.tt';
+    $c->stash->{template} = 'authentication/source/read.tt' unless ($c->stash->{template});
 }
 
 =head2 update
@@ -214,6 +214,19 @@ sub rule_create :Chained('object') :PathPart('rule/create') :Args(0) {
     else {
         $c->forward('rule_read');
     }
+}
+
+=head2 rules_read
+
+/authentication/*/rules
+
+=cut
+
+sub rules_read :Chained('object') :PathPart('rules/read') :Args(0) {
+    my ($self, $c) = @_;
+
+    $c->stash->{template} = 'authentication/source/rules_read.tt';
+    $c->forward('read');
 }
 
 =head2 rule_object
@@ -303,7 +316,7 @@ sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) {
     else {
         # Success -- reload the source
         $c->stash->{action_uri} = undef;
-        $c->forward('read');
+        $c->forward('rules_read');
     }
 }
 
