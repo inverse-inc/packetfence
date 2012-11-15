@@ -703,30 +703,39 @@ msgstr ""
 msgid "node_import.voip"
 msgstr ""
 
-#:
+# html/pfappserver/root/admin/configuration.tt
+
 msgid "fingerprints"
 msgstr "Fingerprints"
 
-#:
 msgid "authentication"
 msgstr "Sources"
 
-#:
-msgid "import"
+msgid "authentication_create"
 msgstr "Create"
 
-#:
 msgid "violations"
 msgstr "Violations"
 
-#:
 msgid "soh"
 msgstr "SoH Filters"
 
-#:
 msgid "useragents"
 msgstr "User Agents"
 
-#:
 msgid "roles"
 msgstr "Roles"
+
+# lib/pf/Authentication/constants.pm
+
+msgid "mark_as_sponsor"
+msgstr "Mark as sponsor"
+
+msgid "set_access_level"
+msgstr "Set access level"
+
+msgid "set_role"
+msgstr "Set role"
+
+msgid "set_unreg_date"
+msgstr "Set unregistration date"
