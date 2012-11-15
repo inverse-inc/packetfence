@@ -702,3 +702,31 @@ msgstr ""
 #: conf/pf.conf.defaults:772
 msgid "node_import.voip"
 msgstr ""
+
+#:
+msgid "fingerprints"
+msgstr "Fingerprints"
+
+#:
+msgid "authentication"
+msgstr "Sources"
+
+#:
+msgid "import"
+msgstr "Create"
+
+#:
+msgid "violations"
+msgstr "Violations"
+
+#:
+msgid "soh"
+msgstr "SoH Filters"
+
+#:
+msgid "useragents"
+msgstr "User Agents"
+
+#:
+msgid "roles"
+msgstr "Roles"
