@@ -188,6 +188,16 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 preview
+
+Load the associated remediation page in a iframe.
+
+=cut
+
+sub preview :Chained('object') :PathPart('preview') :Args(0) {
+    my ($self, $c) = @_;
+}
+
 =head1 AUTHOR
 
 Francis Lachapelle <flachapelle@inverse.ca>

@@ -128,4 +128,29 @@ function initViolations() {
 
         return false;
     });
+
+    /* Preview a violation's remediation page */
+    $('#section').on('click', '[href*="#previewPage"]', function(event) {
+        var modal = $('#modalViolation');
+        var url = $(this).attr('href');
+        modal.empty();
+        modal.modal({ shown: true });
+        $.ajax(url)
+            .done(function(data) {
+                modal.append(data);
+            })
+            .fail(function(jqXHR) {
+                if (jqXHR.status == 401) {
+                    // Unauthorized; redirect to URL specified in the location header
+                    window.location.href = jqXHR.getResponseHeader('Location');
+                }
+                else {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError($('#section h2'), obj.status_msg);
+                    $("body,html").animate({scrollTop:0}, 'fast');
+                }
+            });
+
+        return false;
+    });
 }
