@@ -1,5 +1,5 @@
         <div class="control-group">
-          <label class="control-label">Rules</label>
+          <label class="control-label">[% l('Rules') %]</label>
           <div class="controls">
             [% IF form.field('rules').num_fields -%]
             <table id="sourceRules" class="table table-dynamic table-sortable table-condensed">
