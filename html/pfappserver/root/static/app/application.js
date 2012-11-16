@@ -40,10 +40,13 @@ $(function () {
     $('body').on('click', '.onoffswitch', function(event) {
         var onoffswitch = $(this).find('.onoffswitch-switch');
         var cssRight = parseInt(onoffswitch.css('right'));
-        var isOn = (cssRight == 0);
+        var isOff = (cssRight == 0);
         var checkbox = $(this).find('input');
 
-        checkbox.checked = isOn;
+        if (isOff)
+            checkbox.removeAttr('checked');
+        else
+            checkbox.attr('checked', 'checked');
     });
 
     /* Activate button groups */

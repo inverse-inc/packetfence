@@ -30,7 +30,7 @@ sub toggle_inflate {
     my ($self, $value) = @_;
 
     return $self->{unchecked_value} if ($value ne $self->{checkbox_value});
-    return lc $value;
+    return $value;
 }
 
 sub toggle_deflate {

@@ -65,11 +65,6 @@ sub update {
 
     while (my ($violation_id, $violation_entry) = each %$violation_update_ref) {
         foreach my $param (@$params) {
-            if ($param eq 'enabled'
-                || $param eq 'auto_enable'
-                || $param eq 'window_dynamic') {
-                $violation_entry->{$param} = $violation_entry->{$param}? 'Y' : 'N';
-            }
             my ($status, $result_ref) = $self->_update($violation_id,
                                                        $param, $violation_entry->{$param});
             # return errors to caller
