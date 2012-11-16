@@ -97,7 +97,7 @@ sub object :Chained('/') :PathPart('violation') :CaptureArgs(1) {
     }
 }
 
-=head2 get
+=head2 read
 
 =cut
 
@@ -114,6 +114,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     }
     $actions = $configViolationsModel->availableActions();
     $triggers = $configViolationsModel->list_triggers();
+    $c->stash->{trigger_types} = $configViolationsModel->availableTriggerTypes();
 
     if ($c->stash->{violation} && !$c->stash->{action_uri}) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->{stash}->{violation}->{id}]);
@@ -167,8 +168,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $c->stash->{template} = 'violation/get.tt';
-        $c->forward('get');
+        $c->stash->{template} = 'violation/read.tt';
+        $c->forward('read');
     }
 }
 
