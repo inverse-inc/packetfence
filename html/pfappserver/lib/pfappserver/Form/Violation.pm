@@ -26,7 +26,7 @@ has 'triggers' => ( is => 'ro' );
 # Form fields
 has_field 'enabled' =>
   (
-   type => '+Toggle',
+   type => 'Toggle',
    widget => 'Switch',
    label => 'Enabled',
   );
@@ -79,9 +79,9 @@ has_field 'trigger' =>
    label => 'Triggers',
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a trigger',
-                    style => 'width: 561px'},
-   tags => { after_element => \&help,
-             help => 'Method to reference externbal detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.' },
+                    style => 'width: 556px'},
+#   tags => { after_element => \&help,
+#             help => 'Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.' },
   ),
 has_field 'auto_enable' =>
   (
@@ -99,7 +99,7 @@ has_field 'max_enable' =>
   );
 has_field 'grace' =>
   (
-   type => '+Duration',
+   type => 'Duration',
    label => 'Grace',
    tags => { after_element => \&help,
              help => 'Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.' },
@@ -114,7 +114,7 @@ has_field 'window_dynamic' =>
   );
 has_field 'window' =>
   (
-   type => '+Duration',
+   type => 'Duration',
    label => 'Window',
    tags => { after_element => \&help,
              help => 'Amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.' },

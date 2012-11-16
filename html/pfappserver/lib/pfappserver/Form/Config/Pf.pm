@@ -93,7 +93,7 @@ sub field_list {
                 last;
             };
             $type eq 'time' && do {
-                $field->{type} = '+Duration';
+                $field->{type} = 'Duration';
                 last;
             };
         }

@@ -69,7 +69,7 @@ sub build_update_subfields {{
         element_class => ['input-mini'],
         element_attr => {'min' => '0'},
        },
-       '+Duration' =>
+       'Duration' =>
        {
         wrapper_class => ['interval'],
        },
@@ -106,7 +106,7 @@ sub update_fields {
             $field->type_attr($field->html5_type_attr);
             $field->set_element_attr('data-type' => 'number');
         }
-        elsif ($field->type eq '+Duration') {
+        elsif ($field->type eq 'Duration') {
             foreach my $subfield (@{$field->fields}) {
                 if ($subfield->type eq 'PosInteger') {
                     $subfield->type_attr($subfield->html5_type_attr);
