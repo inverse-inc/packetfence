@@ -19,7 +19,7 @@
     display: inline-block;
 }
 /* position time selectors on the same row */
-.row-fluid .interval [class*="span"] {
+.row-fluid .interval input {
     float: left;
     margin-right: 4px;
 }
