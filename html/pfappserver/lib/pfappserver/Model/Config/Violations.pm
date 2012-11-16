@@ -25,12 +25,12 @@ use pf::trigger qw(parse_triggers);
 extends 'pfappserver::Model::Config::IniStyleBackend';
 
 Readonly::Scalar our $params => ["actions", "auto_enable", "button_text", "desc", "enabled", "grace", "max_enable", "priority", "redirect_url", "snort_rules", "trigger", "url", "vlan", "whitelisted_categories", "window", "vclose"];
-# window_dynamic?
 Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    close => 'Close',
                                    email => 'Email',
                                    log => 'Log',
                                    trap => 'Trap' };
+Readonly::Scalar our $triggers => [qw/Accounting Detect MAC Nessus OS OpenVAS USERAGENT VENDORMAC internal soh/];
 
 sub _myConfigFile { return $conf_dir . "/violations.conf" };
 
@@ -43,9 +43,19 @@ sub _myConfigFile { return $conf_dir . "/violations.conf" };
 =cut
 
 sub availableActions {
-    my ($self) = @_;
+    my $self = shift;
 
     return $actions;
+}
+
+=item availableTriggerTypes
+
+=cut
+
+sub availableTriggerTypes {
+    my $self = shift;
+
+    return $triggers;
 }
 
 =item update
@@ -65,6 +75,9 @@ sub update {
 
     while (my ($violation_id, $violation_entry) = each %$violation_update_ref) {
         foreach my $param (@$params) {
+            if ($param eq 'window' && $violation_entry->{'window_dynamic'}) {
+                $violation_entry->{$param} = 'dynamic';
+            }
             my ($status, $result_ref) = $self->_update($violation_id,
                                                        $param, $violation_entry->{$param});
             # return errors to caller

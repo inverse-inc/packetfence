@@ -100,6 +100,25 @@ function initViolations() {
         return false;    
     });
 
+    /* Modal Editor: add a trigger */
+    $('body').on('click', '[href="#addTrigger"]', function(event) {
+        var id = $(this).prev().val();
+        var type = $(this).prev().prev().val();
+        var name = type + "::" + id;
+        var select = $('#trigger');
+        var last = true;
+        select.find('option').each(function() {
+            if ($(this).val() > name) {
+                $('<option value="' + name + '" selected="selected">' + name + '</option>').insertBefore(this);
+                last = false;
+                return false;
+            }
+        });
+        if (last)
+            select.append('<option value="' + name + '" selected="selected">' + name + '</option>');
+        select.trigger("liszt:updated");
+    });
+
     /* Modal Editor: save a violation */
     $('body').on('submit', 'form[name="violation"]', function(event) {
         var form = $(this),
