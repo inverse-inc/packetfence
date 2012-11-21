@@ -80,7 +80,7 @@ table input[type="text"] {
               <li class="nav-header"><i class="icon-eye-open"></i> Identification</li>
               [% list_entry('Configuration','fingerprints') %]
               [% list_entry('Configuration','useragents') %]
-              <li><a href="#">MAC Addresses</a></li>
+              [% list_entry('Configuration','macaddress') %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

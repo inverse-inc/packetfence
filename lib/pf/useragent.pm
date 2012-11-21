@@ -17,6 +17,8 @@ use warnings;
 
 use HTTP::BrowserDetect;
 use Log::Log4perl;
+use Sort::Naturally;
+use List::Util qw(first);
 
 use constant USERAGENT => 'useragent';
 
@@ -249,6 +251,45 @@ sub view_all {
     return @useragent_data;
 }
 
+=item view_all_search
+
+View all useragent triggers
+
+=cut
+sub view_all_searchable {
+    my $logger = Log::Log4perl::get_logger('pf::useragent');
+    my ( %params ) = @_;
+    _init() if (!@useragent_data);
+    my $sorter = sub {ncmp ($a->{id}, $b->{id}) };
+    my $greper = sub {1};
+    if(exists $params{orderby}) {
+        my ($field,$order) = $params{orderby} =~ /ORDER BY\s+(.*)\s+(.*)/;
+        if($order eq 'desc') {
+            $sorter = sub {ncmp ($b->{$field}, $a->{$field}) };
+        }
+        else {
+            $sorter = sub {ncmp ($a->{$field}, $b->{$field}) };
+        }
+    }
+    if ( exists $params{where} ) {
+        my $where = $params{where};
+        if($where->{type} eq 'any' && $where->{like} ne '' ) {
+            my $like = $where->{like};
+            $greper = sub {my $obj = $_; first { my $data = $obj->{$_}; defined($data) && $data =~ /\Q$like\E/} qw(id property description) };
+        }
+    }
+    my @data  =
+        sort $sorter
+        grep {&$greper}
+        @useragent_data;
+    if(exists $params{limit}) {
+        my ($start,$per_page) = $params{limit} =~ /(\d+)\s*,\s*(\d+)/;
+        if( scalar @data >  $per_page ) {
+            @data = @data[$start .. ($start+$per_page - 1)];
+        }
+    }
+    return @data;
+}
 
 =item add
 

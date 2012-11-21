@@ -1,6 +1,7 @@
 $(function () {
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
+
     $('.datepicker input[name="start"]').on('changeDate', function(event) {
         var dp = $(this).parent().data('datepicker');
         // Limit the start date of the second datepicker to this new date
@@ -196,6 +197,34 @@ $(function () {
         });
         return false;
     });
+    //
+    //For simpleSearch
+    $('body').on('submit', 'form[name="simpleSearch"]', function(event) {
+        var form = $(this);
+        var results = $('#section');
+        results.fadeTo('fast', 0.5);
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: { filter: $('#simpleString').val() }
+        }).done(function(data) {
+            results.html(data);
+            results.stop();
+            results.fadeTo('fast', 1.0);
+        }).fail(function(jqXHR) {
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else {
+                var obj = $.parseJSON(jqXHR.responseText);
+                showPermanentError($('#section'), obj.status_msg);
+            }
+        });
+        
+        return false;
+    });
+
 
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();

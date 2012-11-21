@@ -1731,19 +1731,7 @@ sub update {
             print "$fp_total DHCP fingerprints reloaded\n";
         }
     } elsif ( $option eq "oui" ) {
-        my $response = $browser->get($oui_url);
-        if ( !$response->is_success ) {
-            $logger->logdie(
-                "Unable to update OUI prefixes: " . $response->status_line );
-        } else {
-            my ($oui_fh);
-            open( $oui_fh, '>', "$oui_file" )
-                || $logger->logdie("Unable to open $oui_file: $!");
-            print $oui_fh $response->content;
-            close($oui_fh);
-            $logger->info("OUI prefixes updated via $oui_url");
-            print "OUI prefixes updated via $oui_url\n";
-        }
+        download_oui();
     }
     exit;
 }

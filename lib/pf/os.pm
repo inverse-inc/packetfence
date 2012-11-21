@@ -36,6 +36,8 @@ BEGIN {
         dhcp_fingerprint_view_all
         dhcp_fingerprint_count
         import_dhcp_fingerprints
+        update_dhcp_fingerprints_conf
+        dhcp_fingerprint_count_searchable
     );
 }
 
@@ -107,6 +109,74 @@ sub dhcp_fingerprint_view {
 
 sub dhcp_fingerprint_view_all {
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql');
+}
+
+=item * dhcp_fingerprint_view_all - view all nodes based on several criterias
+
+=cut
+sub dhcp_fingerprint_view_all_searchable {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+
+    os_db_prepare() if (!$os_db_prepared);
+    my $sql = qq[
+        SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.class_id AS classid, c.description AS class
+        FROM dhcp_fingerprint d
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id
+            LEFT JOIN os_class c ON  m.os_class=c.class_id
+        ];
+
+    if ( defined( $params{'where'} ) ) {
+        my $where = $params{'where'};
+        if ( $where->{type} eq 'any' && $where->{like} ne '' ) {
+            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'); 
+            $sql .= " WHERE " . join (' or ',map { "$_ $like"  } qw(c.description o.description));
+        }
+    }
+    if ( defined( $params{'orderby'} ) ) {
+        $sql .= " " . $params{'orderby'};
+    }
+    if ( defined( $params{'limit'} ) ) {
+        $sql .= " " . $params{'limit'};
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $os_statements->{'dhcp_fingerprint_view_all_sql_custom'} = $sql;
+    $logger->info($sql);
+
+    return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql_custom');
+}
+
+sub dhcp_fingerprint_count_searchable {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+
+    os_db_prepare() if (!$os_db_prepared);
+    my $sql = qq[
+        SELECT count(*) FROM dhcp_fingerprint d
+            LEFT JOIN os_type o ON o.os_id=d.os_id 
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id 
+            LEFT JOIN os_class c ON  m.os_class=c.class_id 
+        ];
+
+    if ( defined( $params{'where'} ) ) {
+        my $where = $params{'where'};
+        if ( $where->{type} eq 'any' && $where->{like} ne '' ) {
+            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'); 
+            $sql .= " WHERE " . join (' or ',map { "$_ $like"  } qw(c.description o.description));
+        }
+    }
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $os_statements->{'dhcp_fingerprint_view_all_sql_custom'} = $sql;
+    $logger->info($sql);
+
+    my $query = db_query_execute(OS, $os_statements, 'dhcp_fingerprint_view_all_sql_custom');
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
 }
 
 sub dhcp_fingerprint_count {

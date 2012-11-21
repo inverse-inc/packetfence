@@ -200,6 +200,8 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
+Requires: perl(Sort::Naturally)
+Requires: perl(PHP::Serialization)
 # these are probably missing dependencies for the above. 
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)

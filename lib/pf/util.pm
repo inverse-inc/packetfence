@@ -49,7 +49,7 @@ BEGIN {
         pretty_bandwidth
         unpretty_bandwidth
         pf_run pfmailer 
-        generate_id
+        generate_id load_oui download_oui
     );
 }
 
@@ -613,13 +613,36 @@ sub mysql_date {
 
 sub oui_to_vendor {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    if ( scalar( keys( %${Net::MAC::Vendor::Cached} ) ) == 0 ) {
-        $logger->debug("loading Net::MAC::Vendor cache from $oui_file");
-        Net::MAC::Vendor::load_cache("file://$oui_file");
-    }
+    load_oui();
     my $oui_info = Net::MAC::Vendor::lookup($mac);
     return $$oui_info[0] || '';
+}
+
+sub load_oui {
+    my ($force) = @_;
+    if ( !%$Net::MAC::Vendor::Cached || $force  ) {
+        my $logger = Log::Log4perl::get_logger('pf::util');
+        $logger->info("loading Net::MAC::Vendor cache from $oui_file");
+        Net::MAC::Vendor::load_cache("file://$oui_file");
+    }
+}
+
+sub download_oui {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    require LWP::UserAgent;
+    my $browser = LWP::UserAgent->new;
+    my $response = $browser->get($oui_url);
+    if ( !$response->is_success ) {
+        $logger->info(
+            "Unable to update OUI prefixes: " . $response->status_line );
+    } else {
+        my ($oui_fh);
+        open( $oui_fh, '>', "$oui_file" )
+            || $logger->info("Unable to open $oui_file: $!");
+        print $oui_fh $response->content;
+        close($oui_fh);
+        $logger->info("OUI prefixes updated via $oui_url");
+    }
 }
 
 =item connection_type_to_str
