@@ -726,6 +726,9 @@ msgstr "User Agents"
 msgid "roles"
 msgstr "Roles"
 
+msgid "macaddress"
+msgstr "Mac Address"
+
 # lib/pf/Authentication/constants.pm
 
 msgid "mark_as_sponsor"

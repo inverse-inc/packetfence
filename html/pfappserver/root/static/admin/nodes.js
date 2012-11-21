@@ -3,33 +3,6 @@ function init() {
         endDate: new Date() // today
     });
 
-    /* Search */
-    $('form[name="simpleSearch"]').submit(function(event) {
-        var form = $(this);
-        var results = $('#results');
-        results.fadeTo('fast', 0.5);
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: { filter: $('#simpleString').val() }
-        }).done(function(data) {
-            results.html(data);
-            results.stop();
-            results.fadeTo('fast', 1.0);
-        }).fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError($('#results'), obj.status_msg);
-            }
-        });
-        
-        return false;
-    });
-
     /* Sort the search results */
     $('#results').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');

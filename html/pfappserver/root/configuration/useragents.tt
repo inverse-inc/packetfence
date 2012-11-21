@@ -1,0 +1,24 @@
+        <div name="section" class="pagination pagination-right">
+                <table align="center">
+                    <tbody>
+                        <tr>
+                            <td style="padding-right:20px;">
+                                <a href="[% c.uri_for(c.action.name, {action=>"upload"}) %]">
+                                    <img src="/static/img/up.png" alt="Share Unknown User Agents" title="Share Unknown User Agents">Share Unknown User Agents
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            <h2>UserAgents</h2>
+    [%- INCLUDE 'configuration/listing.inc' titles = {
+            id => 'ID',
+            property => 'Property',
+            description => 'Description' 
+        }
+     -%]
+      <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
+        <i class="icon-search icon-large"></i><p>[% l('No matching useragents') %]</p>
+      </div>
