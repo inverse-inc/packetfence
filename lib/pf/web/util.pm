@@ -22,6 +22,10 @@ use pf::config;
 use pf::util;
 use pf::web;
 
+use Apache::Session::Generate::MD5;
+use Apache::Session::Flex;
+use Cache::Memcached;
+
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -180,6 +184,124 @@ sub get_translated_time_hash {
         $time{$unix_timestamp} = $value . " " . ni18n($unit, $unit_plural, $value);
     }
     return \%time;
+}
+
+=item get_memcached_conf
+
+Return memcached server list
+
+=cut
+sub get_memcached_conf {
+    my @serv = ();
+    for my $x ( split( ",", $Config{'general'}{'memcached'})) {
+        $x =~ s/^\s+//;
+        $x =~ s/\s+$//;
+        push( @serv, $x );
+    }
+    return \@serv;
+}
+
+=item get_memcached
+
+get information stored in memcached
+
+=cut
+sub get_memcached {
+    my ( $key, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    return $memd->get($key);
+}
+
+=item set_memcached
+
+set information into memcached
+
+=cut
+sub set_memcached {
+    my ( $key, $value, $exptime, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+
+    #limit expiration time to 6000
+    $exptime = $exptime || 6_000;
+    if ( $exptime > 6_000 ) {
+        $exptime = 6_000;
+    }
+
+    return $memd->set( $key, $value, $exptime );
+}
+
+=item
+
+get information stored in memcached
+
+=cut
+sub del_memcached {
+    my ( $key, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    $memd->delete($key);
+}
+
+=item
+
+generate or retreive an apache session
+
+=cut
+
+sub session {
+    my ($session, $id) = @_;
+    eval {
+        tie %{$session}, 'Apache::Session::Flex', $id, {
+                          Store     => 'Memcached',
+                          Lock      => 'Null',
+                          Generate  => 'MD5',
+                          Serialize => 'Storable',
+                          Servers => get_memcached_conf(),
+                          };
+    } or session($session, undef);
+
+    return $session;
+}
+
+=item
+
+retreive packetfence cookie
+
+=cut
+
+sub getcookie {
+    my ($cookies) =@_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $cleaned_cookies = '';
+    if ( defined($cookies) ) {
+        foreach (split(';', $cookies)) {
+            if (/([^,; ]+)=([^,; ]+)/) {
+                if ($1 eq 'packetfence'){
+                    $cleaned_cookies .= $2;
+                }
+            }
+        }
+        if ($cleaned_cookies ne '') {
+            return $cleaned_cookies;
+        }
+    }
+    else {
+        return $FALSE;
+    }
 }
 
 =back

@@ -24,6 +24,7 @@ ServerName %%hostname%%.%%domain%%
 Listen 0.0.0.0:80
 Listen 0.0.0.0:443
 Listen 0.0.0.0:%%admin_port%%
+%%interception_port%%
 
 NameVirtualHost *:80
 NameVirtualHost *:443
@@ -86,6 +87,9 @@ DirectoryIndex index.html index.cgi index.php
 </IfModule>
 <IfModule !proxy_http.c>
   LoadModule proxy_http_module modules/mod_proxy_http.so
+</IfModule>
+<IfModule !mod_proxy_connect.c>
+  LoadModule proxy_connect_module modules/mod_proxy_connect.so
 </IfModule>
 <IfModule !mod_authz_host.c>
   LoadModule authz_host_module modules/mod_authz_host.so
@@ -190,6 +194,8 @@ SetEnvIf User-Agent ".*MSIE.*" \
 %%proxies%%                
 
 </VirtualHost>
+
+%%interception%%
 
 # Local Web Server created for OpenVAS callback
 <VirtualHost 127.0.0.1:80>
