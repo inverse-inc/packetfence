@@ -89,6 +89,58 @@ sub generate_httpd_conf {
         }
     }
     $tags{'proxies'} = join( "\n", @proxies );
+    
+    #Proxy interception configuration
+    my @intercept;
+    my @intercept_port;
+    if (defined($Config{'interception_proxy'}{'port'})) {
+        push @intercept_port, "Listen 127.0.0.1:444";
+        push @intercept_port, "NameVirtualHost *:444";
+        push @intercept, "#reverse proxy for terminate connect request";
+        push @intercept, "<VirtualHost *:444>";
+
+        push @intercept, "    ServerName $Config{'general'}{'hostname'}.$Config{'general'}{'domain'}:444";
+        push @intercept, "    PerlOptions +GlobalRequest";
+        push @intercept, "    SSLEngine on";
+        push @intercept, "    SSLProxyEngine on";
+        push @intercept, "    Include /usr/local/pf/var/conf/ssl-certificates.conf";
+
+        push @intercept, "    LogLevel debug";
+        push @intercept, "    CustomLog $install_dir/logs/reverse_proxy_access_log combined";
+        push @intercept, "    ErrorLog $install_dir/logs/reverse_reproxy_error_log";
+        push @intercept, "    ProxyPreserveHost On";
+        push @intercept, "    ProxyRequests Off";
+        push @intercept, "    ProxyVia Off";
+
+        push @intercept, "    PerlTransHandler +pf::web::interceptproxy::reverse";
+
+        push @intercept, "</VirtualHost>";
+
+        foreach my $intercept_port ( split( /\s*,\s*/, $Config{'interception_proxy'}{'port'} ) ) {
+            push @intercept_port, "Listen 0.0.0.0:$intercept_port";
+
+            push @intercept, "#Specific interface to intercept the proxy request";
+            push @intercept, "<VirtualHost *:$intercept_port>";
+
+            push @intercept, "    ServerName $Config{'general'}{'hostname'}.$Config{'general'}{'domain'}:$intercept_port";
+            push @intercept, "    PerlOptions +GlobalRequest";
+
+            push @intercept, "    LogLevel debug";
+            push @intercept, "    CustomLog $install_dir/logs/proxy_access_log combined";
+            push @intercept, "    ErrorLog $install_dir/logs/proxy_error_log";
+            push @intercept, "    PerlModule pf::web::interceptproxy";
+            push @intercept, "    PerlTransHandler +pf::web::interceptproxy::translate";
+
+            push @intercept, "    ProxyRequests On";
+            push @intercept, "    ProxyPreserveHost On";
+            push @intercept, "    AllowCONNECT 444 443";
+            push @intercept, "    ProxyVia full";
+
+            push @intercept, "</VirtualHost>";
+        }
+        $tags{'interception'} = join( "\n", @intercept );
+        $tags{'interception_port'} = join( "\n", @intercept_port );
+    }
 
     # Guest related URLs allowed through Apache ACL's
     $tags{'allowed_from_all_urls'} = '';
