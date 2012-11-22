@@ -16,7 +16,7 @@ Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra, snort,
  mysql-server,
- snmp, snmptrapfmt,
+ snmp, snmptrapfmt, memcached,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
@@ -81,6 +81,8 @@ Depends: ${misc:Depends}, vlan, make,
  liblog-log4perl-perl,
 # used by Captive Portal authentication modules
  libauthen-radius-perl, libauthen-krb5-simple-perl,
+# used by proxy interception
+ libapache-session-memcached, libapache-session, libcache-memcached-perl,
 # required for perl 5.12+ (made perl setuid optional) and most distros went without it
  packetfence-pfcmd-suid
 Description: PacketFence network registration / worm mitigation system
