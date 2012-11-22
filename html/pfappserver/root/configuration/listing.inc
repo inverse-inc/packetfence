@@ -6,10 +6,10 @@
                   <th><a href="[% c.uri_for(c.action.name, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
         <div>
-          <form name="simpleSearch" class="form-inline" action="[% c.uri_for(c.action.name) %]">
-              <div class="btn-group pull-right">
-                 <input id="simpleString" type="text" placeholder="Search...">
-                <button class="btn btn-primary"><i class="icon-search icon-white"></i> Search</button>
+          <form name="simpleSearch" class="form-search" action="[% c.uri_for(c.action.name) %]">
+              <div class="pull-right">
+                 <input id="simpleString" class="search-query" type="text" placeholder="Search...">
+                 <button class="btn btn-primary"><i class="icon-search icon-white"></i></button>
               </div>
           </form>
         </div>
