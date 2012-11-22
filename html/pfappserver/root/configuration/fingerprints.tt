@@ -1,24 +1,8 @@
-        <div name="section" class="pagination pagination-right">
-                <table align="center">
-                    <tbody>
-                        <tr>
-                            <td style="padding-right:20px;">
-                                <a href="[% c.uri_for(c.action.name, {action=>"upload"}) %]">
-                                    <img src="/static/img/up.png" alt="Share Unknown Fingerprints" title="Share Unknown Fingerprints">Share Unknown Fingerprints
-                                </a>
-                            </td>
-                            <td>
-                                <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]">
-                                    <img src="/static/img/update.png" alt="Update Fingerprints &amp; OUI Prefixes" title="Update Fingerprints &amp; OUI Prefixes">Update Fingerprints
-                                </a>
-
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
             <h2>Fingerprints</h2>
+            <div class="options">
+              <a href="[% c.uri_for(c.action.name, {action=>"upload"}) %]"><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
+              | <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]"><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>
+            </div>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             id => 'ID',
             classid => 'OS Class ID',
@@ -28,5 +12,5 @@
         }
      -%]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
-        <i class="icon-search icon-large"></i><p>[% l('No matching fingerprints') %]</p>
+        <i class="icon-search icon-large"></i><p>[% l('No fingerprint found') %]</p>
       </div>
