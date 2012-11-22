@@ -17,7 +17,7 @@
             </dd>[% END %]
             <dt>[% l('Action') %]</dt>
             <dd>
-              <select name="action" class="span4">
+              <select name="action" class="input-medium">
                 <option value="accept"[% ' selected' IF filter.action == 'accept' %]>[% l('Accept') %]</option>
                 <option value="reject"[% ' selected' IF filter.action == 'reject' %]>[% l('Reject') %]</option>
                 <option value="violation"[% ' selected' IF filter.action == 'violation' %]>[% l('Trigger violation') %]</option>
@@ -36,18 +36,18 @@
                 <tbody>
                   <tr class="filterRule hidden">
                     <td>
-                      <select name="rule" class="span4">
+                      <select name="rule" class="input-medium">
                         <option value="firewall">[% l('Firewall') %]</option>
                         <option value="antivirus">[% l('Anti-virus') %]</option>
                         <option value="antispyware">[% l('Anti-spyware') %]</option>
                         <option value="auto-updates">[% l('Auto-updates') %]</option>
                         <option value="security-updates">[% l('Security updates') %]</option>
                       </select>
-                      <select name="op" class="span3">
+                      <select name="op" class="input-small">
                         <option value="is">[% l('is') %]</option>
                         <option value="isnot">[% l('is not') %]</option>
                       </select>
-                      <select name="status" class="span4">
+                      <select name="status" class="input-medium">
                         <option value="ok">ok</option>
                         <option value="installed">[% l('installed') %]</option>
                         <option value="enabled">[% l('enabled') %]</option>
