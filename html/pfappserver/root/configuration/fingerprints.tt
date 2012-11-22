@@ -1,7 +1,7 @@
             <h2>Fingerprints</h2>
             <div class="options">
-              <a href="[% c.uri_for(c.action.name, {action=>"upload"}) %]"><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
-              | <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]"><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>
+              <a class="refresh-section" href="[% c.uri_for(c.action.name, {action=>"upload"}) %]"><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
+              | <a class="refresh-section" href="[% c.uri_for(c.action.name, {action=>"update"}) %]"><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>
             </div>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             id => 'ID',

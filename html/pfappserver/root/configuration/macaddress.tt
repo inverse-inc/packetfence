@@ -1,27 +1,5 @@
-
-[% MACRO header(column, title) BLOCK -%]
-[% params = { by => column, filter => filter };
-    IF by == column && direction == 'asc';
-      params.direction = 'desc';
-    END %]
-                  <th><a href="[% c.uri_for(c.action.name, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
-[% END -%]
-        <div name="section" class="pagination pagination-right">
-                <table align="center">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]">
-                                    <img src="/static/img/update.png" alt="Update Fingerprints &amp; OUI Prefixes" title="Update Fingerprints &amp; OUI Prefixes">Update OUI Prefixes
-                                </a>
-
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
             <h2>Mac Addresses</h2>
+            <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]"> <i class="icon-share"></i> Update OUI Prefixes </a>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             oui => 'OUI',
             vendor_info => 'Vendor',

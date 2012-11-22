@@ -8,7 +8,7 @@
         <div>
           <form name="simpleSearch" class="form-search" action="[% c.uri_for(c.action.name) %]">
               <div class="pull-right">
-                 <input id="simpleString" class="search-query" type="text" placeholder="Search...">
+                 <input id="simpleString" class="search-query" type="text" placeholder="Search..." value="[% filter | html  %]"</input>
                  <button class="btn btn-primary"><i class="icon-search icon-white"></i></button>
               </div>
           </form>
