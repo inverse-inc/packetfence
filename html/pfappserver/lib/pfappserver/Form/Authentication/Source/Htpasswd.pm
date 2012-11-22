@@ -19,7 +19,7 @@ has_field 'path' =>
    type => 'Text',
    label => 'File Path',
    required => 1,
-   element_class => ['span10'],
+   element_class => ['input-xxlarge'],
   );
 
 =head1 COPYRIGHT

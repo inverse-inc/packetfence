@@ -274,7 +274,7 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) {
                                                          attrs => $c->stash->{source}->available_attributes());
     $form->process;
     unless ($c->stash->{rule}) {
-        # New rule
+        # New rule; add a default action
         $form->field('actions')->add_extra;
     }
 

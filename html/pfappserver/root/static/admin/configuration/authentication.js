@@ -26,12 +26,15 @@ function initAuthentication() {
     function readSource(event, url) {
         var section = $('#section');
         var href = url || $(this).attr('href');
+        var loader = section.prev('.loader');
         section.fadeOut('fast', function() {
             $("body,html").animate({scrollTop:0}, 'fast');
+            loader.show();
             $(this).empty();
             $.ajax(href)
                 .done(function(data) {
                     section.html(data);
+                    loader.hide();
                     section.fadeIn('fast', function() {
                         $('.chzn-select').chosen();
                         $('#id').focus();
@@ -44,6 +47,7 @@ function initAuthentication() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
+                        loader.hide();
                         section.append('<div></div>').fadeIn();
                         showError(section.children().first(), obj.status_msg);
                     }
@@ -212,7 +216,7 @@ function initAuthentication() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the complete section
-                    $('#sourceRules').closest('.control-group').fadeOut('fast', function() {
+                    $('#sourceRulesEmpty').closest('.control-group').fadeOut('fast', function() {
                         $(this).empty();
                         $(this).html(data);
                         $(this).fadeIn('fast', function() {
