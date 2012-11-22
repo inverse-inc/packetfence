@@ -44,12 +44,31 @@ sub field_names {
 
 sub countAll {
     my ( $self, %params ) = @_;
-    load_oui();
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ( $status, $status_msg );
+    my ( $status_msg, $count );
+    eval {
+        my $greper = sub {1};
+        if ( exists $params{where} ) {
+            my $where = $params{where};
+            if($where->{type} eq 'any' && $where->{like} ne '' ) {
+                my $like = $where->{like};
+                my $fields = $self->field_names();
+                $greper = sub { my $obj = $_; first { $obj->{$_} =~ /\Q$like\E/} @$fields };
+            }
+        }
+        $count =
+            grep {&$greper }
+            map  +{ oui => $_ ,vendor_info => join(' ',@{$Net::MAC::Vendor::Cached->{$_}}) } , 
+            keys %$Net::MAC::Vendor::Cached;
+    };
+    if ($@) {
+        $status_msg = "Can't count mac addresses from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
 
-    return ( $STATUS::OK, scalar keys %$Net::MAC::Vendor::Cached );
+    return ( $STATUS::OK, $count);
 }
 
 =head2 search
@@ -80,10 +99,8 @@ sub search {
             }
         }
         if ( exists $params{where} ) {
-            use Data::Dumper;
             my $where = $params{where};
             if($where->{type} eq 'any' && $where->{like} ne '' ) {
-                $logger->info(Dumper($where));
                 my $like = $where->{like};
                 my $fields = $self->field_names();
                 $greper = sub { my $obj = $_; first { $obj->{$_} =~ /\Q$like\E/} @$fields };
@@ -96,8 +113,12 @@ sub search {
             keys %$Net::MAC::Vendor::Cached;
         if ( exists $params{limit} ) {
             if(my ( $start, $per_page ) = $params{limit} =~ /(\d+)\s*,\s*(\d+)/) {
-                if( scalar @items >  $per_page ) {
-                    @items = @items[ $start .. ( $start + $per_page - 1 ) ];
+                if(@items > $per_page) {
+                    my $end = ($start+$per_page - 1);
+                    if ($end > $#items) {
+                        $end = $#items;
+                    }
+                    @items = @items[$start ..  $end];
                 }
             }
         }

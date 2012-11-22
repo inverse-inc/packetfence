@@ -378,7 +378,7 @@ sub _list_items {
     ( $status, $result ) = $model->search(%params);
     if ( is_success($status) ) {
         $items_ref = $result;
-       ( $status, $count ) = $model->countAll($result,%params);
+       ( $status, $count ) = $model->countAll(%params);
     }
     if ( is_success($status) ) {
         $items_ref = $result;
