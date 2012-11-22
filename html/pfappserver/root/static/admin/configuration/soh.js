@@ -55,11 +55,11 @@ function initSoH() {
         var row = $(this).closest('tr');
         var name = row.find('td a[href*="#modalFilter"]').html();
         var modal = $('#deleteFilter');
-        var confirm_link = modal.find('a.btn-primary').first();
+        var confirm_btn = modal.find('.btn-primary').first();
         modal.find('h3 span').html(name);
         modal.modal({ show: true });
-        confirm_link.off('click');
-        confirm_link.click(function() {
+        confirm_btn.off('click');
+        confirm_btn.click(function() {
             $.ajax(url)
                 .done(function(data) {
                     row.remove();
