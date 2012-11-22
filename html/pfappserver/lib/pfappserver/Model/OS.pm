@@ -40,7 +40,7 @@ sub field_names {
 
 =cut
 sub countAll {
-    my ( $self,$result, %params ) = @_;
+    my ( $self, %params ) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg);

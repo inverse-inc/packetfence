@@ -21,7 +21,7 @@ use Time::Local;
 
 use pf::config;
 use pf::error qw(is_error is_success);
-use pf::useragent qw(count view_all_searchable);
+use pf::useragent qw(node_useragent_count_searchable node_useragent_view_all_searchable);
 use pf::util;
 
 =head1 METHODS
@@ -40,22 +40,21 @@ sub field_names {
 
 =cut
 sub countAll {
-    my ( $self, %params ) = @_;
+    my ( $self,  %params ) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($status, $status_msg);
-
+    my ( $status, $status_msg );
     my $count;
     eval {
-        $count = count( %params);
+        $count = node_useragent_count_searchable(%params);
     };
     if ($@) {
-        $status_msg = "Can't count useragents from database.";
+        $status_msg = "Can't count fingerprints from database.";
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, $count);
+    return ( $STATUS::OK, $count);
 }
 
 =head2 search
@@ -69,7 +68,7 @@ sub search {
 
     my @items;
     eval {
-        @items = view_all_searchable( %params);
+        @items = node_useragent_view_all_searchable( %params);
     };
     if ($@) {
         $status_msg = "Can't fetch useragents from database. $@";
