@@ -1,10 +1,5 @@
 /usr/local/pf/conf/admin.perm
 /usr/local/pf/conf/admin_ldap.conf
-/usr/local/pf/conf/authentication/kerberos.pm
-/usr/local/pf/conf/authentication/local.pm
-/usr/local/pf/conf/authentication/ldap.pm
-/usr/local/pf/conf/authentication/preregistered_guests.pm
-/usr/local/pf/conf/authentication/radius.pm
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/documentation.conf
 /usr/local/pf/conf/floating_network_device.conf
