@@ -19,7 +19,7 @@ use namespace::autoclean;
 use pf::authentication;
 use pf::error qw(is_error is_success);
 
-=head2
+=head2 update
 
 =cut
 

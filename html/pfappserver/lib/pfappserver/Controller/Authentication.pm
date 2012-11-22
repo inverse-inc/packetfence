@@ -95,7 +95,7 @@ sub update :Path('update') :Args(0) {
     $c->stash->{status_msg} = $message; # TODO: localize error message
 
     $c->stash->{current_view} = 'JSON';
- }
+}
 
 =head1 COPYRIGHT
 
