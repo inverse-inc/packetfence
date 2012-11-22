@@ -2130,6 +2130,23 @@ The following can be configured by editing the pf.conf file:
 
 Make sure the category you set in the pf.conf file actually exists in PacketFence otherwise you will encounter registration errors. 
 
+Proxy Interception
+~~~~~~~~~~~~~~~~~~
+
+To access to the captive portal if a proxy is configured on the pc, you have the possibility to intercept the traffic to the proxy server.
+To enable this feature, you have to configure pf.conf in that way:
+
+   [interception_proxy]
+   port=8080,3128
+
+And add in /etc/hosts:
+
+  127.0.0.1  server
+
+Where server is the fqdn name of the captive portal.
+
+So all the request to a proxy on the port 8080 and 3128 will be intercept by PacketFence and iredirect to the captive portal.
+
 Operating System Best Practices
 -------------------------------
 
