@@ -1,6 +1,5 @@
 /usr/local/pf/conf/admin.perm
 /usr/local/pf/conf/admin_ldap.conf
-/usr/local/pf/conf/authentication/guest_managers.pm
 /usr/local/pf/conf/authentication/kerberos.pm
 /usr/local/pf/conf/authentication/local.pm
 /usr/local/pf/conf/authentication/ldap.pm
