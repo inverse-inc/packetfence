@@ -182,10 +182,10 @@ $(function () {
         });
     });
 
-    /* Pagination */
-    $('#results').on('click', '.pagination a', function(event) {
-        var results = $('#results');
-        results.fadeTo('fast', 0.5);
+    /* Page refresh */
+    $('#section').on('click', 'a.refresh-section', function(event) {
+        var section = $('#section');
+        section.fadeTo('fast', 0.5);
         $.ajax($(this).attr('href'))
         .done(function(data) {
             results.html(data).fadeTo('fast', 1.0);

@@ -1,18 +1,5 @@
-        <div name="section" class="pagination pagination-right">
-                <table align="center">
-                    <tbody>
-                        <tr>
-                            <td style="padding-right:20px;">
-                                <a href="[% c.uri_for(c.action.name, {action=>"upload"}) %]">
-                                    <img src="/static/img/up.png" alt="Share Unknown User Agents" title="Share Unknown User Agents">Share Unknown User Agents
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-            <h2>UserAgents</h2>
+    <h2>UserAgents</h2>
+    <a class="refresh-section" href="[% c.uri_for(c.action.name, {action=>"upload"}) %]"> <i class="icon-share"></i> Share Unknown User Agents </a>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             id => 'ID',
             property => 'Property',
