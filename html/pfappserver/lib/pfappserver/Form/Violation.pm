@@ -42,7 +42,7 @@ has_field 'desc' =>
    type => 'Text',
    label => 'Description',
    required => 1,
-   element_class => ['span12'],
+   element_class => ['input-large'],
    messages => { required => 'Please specify a brief description of the violation.' },
   );
 has_field 'actions' =>
@@ -50,9 +50,8 @@ has_field 'actions' =>
    type => 'Select',
    multiple => 1,
    label => 'Actions',
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add an action',
-                    style => 'width: 561px'},
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add an action' }
   );
 has_field 'vclose' =>
   (
@@ -77,9 +76,8 @@ has_field 'trigger' =>
    type => 'Select',
    multiple => 1,
    label => 'Triggers',
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to add a trigger',
-                    style => 'width: 556px'},
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a trigger' },
 #   tags => { after_element => \&help,
 #             help => 'Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.' },
   ),
@@ -123,7 +121,7 @@ has_field 'url' =>
   (
    type => 'Text',
    label => 'URL',
-   element_class => ['span12'],
+   element_class => ['input-xxlarge'],
    tags => { after_element => \&help,
              help => 'HTML URL the host will be redirected to while in violation. This is usually a local URL of the form <code>/content/index.php?template=...</code> where <code>...</code> is the name of the remediation template to show to the user. Full URLs like <code>http://myportal.com/violation1234/</code> are also supported if <code>passthrough=proxy</code> is set under <code>trapping</code>. In that case, the Captive Portal will do reverse proxying to the specified URL.' }
   );

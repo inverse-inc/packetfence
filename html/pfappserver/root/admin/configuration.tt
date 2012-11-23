@@ -5,6 +5,7 @@
         'app/chosen.jquery.min',
         'admin/configuration',
         'admin/configuration/authentication',
+        'admin/configuration/users',
         'admin/configuration/violations',
         'admin/configuration/soh',
         'admin/configuration/roles'
@@ -60,12 +61,8 @@ table input[type="text"] {
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>
               <li class="nav-header"><i class="icon-user"></i> Users</li>
-              <li[% ' class="active"' IF section == 'authentication' %]>
-                <a href="[% c.uri_for(c.controller('Configuration').action_for('authentication')) %]">[% l('Sources') %]</a>
-              </li>
-              <li[% ' class="active"' IF section == 'import' %]>
-                <a href="[% c.uri_for(c.controller('Authentication').action_for('import'))%]">[% l('Create') %]</a>
-              </li>
+              [% list_entry('Configuration','authentication') %]
+              [% list_entry('Configuration','users') %]
               <li class="nav-header"><i class="icon-check"></i> Compliance</li>
               <li[% IF section == 'violations' %] class="active"[% END %]>
                 <a href="[% c.uri_for(c.controller('Configuration').action_for('violations')) %]">[% l('Violations') %]</a>
@@ -84,6 +81,7 @@ table input[type="text"] {
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
+        <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
         <div id="section" class="span10">
         </div><!--/span-->
       </div><!--/row-->

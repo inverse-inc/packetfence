@@ -27,7 +27,6 @@ has_field 'name' =>
    type => 'Text',
    label => 'Name',
    required => 1,
-   element_class => ['span12'],
    messages => { required => 'Please specify a name for the category.' },
   );
 has_field 'notes' =>
@@ -35,7 +34,6 @@ has_field 'notes' =>
    type => 'Text',
    label => 'Description',
    required => 0,
-   element_class => ['span12'],
   );
 has_field 'max_nodes_per_pid' =>
   (
