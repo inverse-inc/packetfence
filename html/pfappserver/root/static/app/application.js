@@ -77,11 +77,18 @@ function resetAlert(parent) {
     parent.children('.error').removeClass('error');
 }
 
-function showSuccess(sibling, msg) {
+function showSuccess(sibling, msg, permanent) {
     var alert = $('.alert-success').first().clone();
     alert.find('span').first().html(msg);
     sibling.before(alert);
-    alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
+    if (permanent)
+        alert.fadeIn('fast');
+    else
+        alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
+}
+
+function showPermanentSuccess(sibbling, msg, permanent) {
+    showSuccess(sibbling, msg, true);
 }
 
 function showError(sibling, msg, permanent) {
@@ -178,7 +185,7 @@ function isInvalidNumber(input, min, max) {
 
 function isFormValid(form) {
     var valid = true;
-    form.find('input[data-required], input[type="number"]').each(function() {
+    form.find('input[data-required]:not(:disabled), input[type="number"]:not(:disabled)').each(function() {
         var input = $(this);
         var control = input.closest('.control-group');
         input.trigger('blur');

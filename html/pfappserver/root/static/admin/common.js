@@ -50,11 +50,13 @@ $(function () {
                 if (event.target.tagName == 'TD') {
                     var row = $(event.target).closest('tr').first();
                     row.find('td').each(function () {
-                        $(this).find('a[class!="btn-icon"], :selected').map(function() {
+                        // Extract text from links, selects and static fields
+                        $(this).find('a[class!="btn-icon"], :selected, .uneditable').map(function() {
                             if (!$(this).hasClass('btn'))
                                 txt.push($(this).text());
                         });
-                        $(this).find('input[type!="hidden"]').map(function() {
+                        // Extract text from input fields, except hidden and checkbox
+                        $(this).find('input[type!="hidden"]:not(:checkbox)').map(function() {
                             txt.push($(this).val());
                         });
                     });
@@ -169,6 +171,7 @@ $(function () {
                 var table = tbody.closest('table');
                 var id = '#' + table.attr('id') + 'Empty';
                 if ($(id).length) {
+                    // The table can be empty
                     if (count == 0) {
                         if (tbody.prev('thead').length)
                             table.remove();
@@ -176,6 +179,7 @@ $(function () {
                     }
                 }
                 else if (count == 1) {
+                    // The table can't be empty
                     tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
                 }
             }

@@ -4,19 +4,23 @@ function init() {
         var href = $(this).attr('href');
         var item = $(this).parent();
         var section = $('#section');
+        var loader = section.prev('.loader');
         $('.sidebar-nav .nav-list .active').removeClass('active');
         item.addClass('active');
         section.fadeOut('fast', function() {
             $("body,html").animate({scrollTop:0}, 'fast');
+            loader.show();
             $(this).empty();
             $.ajax(href)
                 .done(function(data) {
                     section.html(data);
+                    loader.hide();
                     section.fadeIn('fast', function() {
-                        $('.datepicker').datepicker();
+                        $('.datepicker').datepicker({ autoclose: true });
                         $('.chzn-select').chosen();
                         $('.chzn-deselect').chosen({allow_single_deselect: true});
                         $(':input:visible:enabled:first').focus();
+                        section.trigger('section.loaded');
                     });
                 })
                 .fail(function(jqXHR) {
@@ -26,6 +30,7 @@ function init() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
+                        loader.hide();
                         section.append('<div></div>').fadeIn();
                         showError(section.children().first(), obj.status_msg);
                     }

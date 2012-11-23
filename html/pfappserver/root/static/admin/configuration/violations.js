@@ -4,14 +4,12 @@ function initViolations() {
         var modal = $('#modalViolation');
         var url = $(this).attr('href');
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
             .done(function(data) {
                 modal.append(data);
-                modal.on('shown', function() {
-                    $('.chzn-select').chosen();
-                    $('.chzn-deselect').chosen({allow_single_deselect: true});
-                });
+                $('.chzn-select').chosen();
+                $('.chzn-deselect').chosen({allow_single_deselect: true});
+                modal.modal('show');
             })
             .fail(function(jqXHR) {
                 if (jqXHR.status == 401) {
@@ -33,14 +31,12 @@ function initViolations() {
         var modal = $('#modalViolation');
         var url = $(this).attr('href');
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
             .done(function(data) {
                 modal.append(data);
-                modal.on('shown', function() {
-                    $('.chzn-select').chosen();
-                    $('.chzn-deselect').chosen({allow_single_deselect: true});
-                });
+                $('.chzn-select').chosen();
+                $('.chzn-deselect').chosen({allow_single_deselect: true});
+                modal.modal('show');
             })
             .fail(function(jqXHR) {
                 if (jqXHR.status == 401) {
@@ -69,7 +65,7 @@ function initViolations() {
         var modal = $('#deleteViolation');
         var confirm_link = modal.find('a.btn-primary').first();
         modal.find('h3 span').html(name);
-        modal.modal({ show: true });
+        modal.modal('show');
         confirm_link.off('click');
         confirm_link.click(function() {
             $.ajax(url)
@@ -153,7 +149,7 @@ function initViolations() {
         var modal = $('#modalViolation');
         var url = $(this).attr('href');
         modal.empty();
-        modal.modal({ shown: true });
+        modal.modal('show');
         $.ajax(url)
             .done(function(data) {
                 modal.append(data);
