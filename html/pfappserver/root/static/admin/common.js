@@ -186,22 +186,31 @@ $(function () {
         });
     });
 
+    function updateSection(href) {
+        var section = $('#section');
+        if(section) {
+            section.fadeTo('fast', 0.5);
+            $.ajax(href)
+            .done(function(data) {
+                section.html(data).fadeTo('fast', 1.0);
+            })
+            .fail(function(jqXHR) {
+                var obj = $.parseJSON(jqXHR.responseText);
+                var status_msg = obj ? ( obj.status_msg || "Error Loading Content"  ) : "Error Loading Content";
+                showError(section, status_msg);
+                section.fadeTo('fast', 1.0);
+            });
+        }
+    }
+
     /* Page refresh */
     $('#section').on('click', 'a.refresh-section', function(event) {
-        var section = $('#section');
-        section.fadeTo('fast', 0.5);
-        $.ajax($(this).attr('href'))
-        .done(function(data) {
-            results.html(data).fadeTo('fast', 1.0);
-        })
-        .fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showError(results, obj.status_msg);
-            results.fadeTo('fast', 1.0);
-        });
+        updateSection($(this).attr('href'));
         return false;
     });
     //
+    //
+/*
     //For simpleSearch
     $('body').on('submit', 'form[name="simpleSearch"]', function(event) {
         var form = $(this);
@@ -228,11 +237,24 @@ $(function () {
         
         return false;
     });
+*/
 
-
+    /* Page refresh */
+    $(window).hashchange(function(event) {
+        var hash = location.hash;
+        if(hash == '') {
+            hash = '#/configuration/general';
+        }
+        var href =  hash.replace(/^#/,'') + location.search ;
+        updateSection(href);
+        return true;
+    });
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();
+    $(window).hashchange();
 });
+
+
 
 function updateSortableTable(rows) {
     rows.each(function(index, element) {

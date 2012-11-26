@@ -1,8 +1,8 @@
-package pfappserver::Controller::Configuration;
+package pfappserver::Controller::Configuration::Fingerprints;
 
 =head1 NAME
 
-pfappserver::Controller::Configuration - Catalyst Controller
+pfappserver::Controller::Fingerprints - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -117,38 +117,46 @@ sub _update_section :Private {
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 _process_section
+=head2 update
 
 =cut
+sub update : Local : Args(0) {
+    my ( $self, $c ) = @_;
+    my ( $status, $version_msg, $total ) =
+        update_dhcp_fingerprints_conf();
+    $c->stash->{status_message} =
+        "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
+        . "$total DHCP fingerprints reloaded\n";
+}
 
-sub _process_section :Private {
-    my ($self, $c) = @_;
+=head2 upload
 
-    my ($params, $form);
-
-    $c->stash->{section} = $c->action->name;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    $params = $c->model('Config::Pf')->read($c->action->name);
-    $self->_format_section($params);
-
-    if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Config::Pf->new(ctx => $c,
-                                                   section => $params);
-        $form->process(params => $c->req->params);
-        if ($form->has_errors) {
-            $c->response->status(HTTP_BAD_REQUEST);
-            $c->stash->{status_msg} = $form->field_errors; # TODO: localize error message
-        }
-        else {
-            $self->_update_section($c, $form->value);
-        }
-    }
-    else {
-        $form = pfappserver::Form::Config::Pf->new(ctx => $c,
-                                                   section => $params);
-        $form->process;
-        $c->stash->{form} = $form;
+=cut
+sub upload : Local : Args(0) {
+    my ( $self, $c ) = @_;
+    require pf::pfcmd::report;
+    import pf::pfcmd::report qw(report_unknownprints_all);
+    my $content = join(
+        "\n",
+        (   map {
+                join(
+                    ":",
+                    @{$_}{
+                        qw(dhcp_fingerprint vendor computername user_agent)
+                        }
+                    )
+                } report_unknownprints_all()
+        ),
+        ""
+    );
+    if ($content) {
+        require LWP::UserAgent;
+        my $browser  = LWP::UserAgent->new;
+        my $response = $browser->post(
+            'http://www.packetfence.org/fingerprintsv2.php?ref='
+                . uri_escape($c->uri_for($c->action->name)),
+            { fingerprints => $content }
+        );
     }
 }
 
@@ -156,121 +164,7 @@ sub _process_section :Private {
 
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('general')));
-    $c->detach();
-}
-
-=head2 general
-
-=cut
-
-sub general :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 network
-
-=cut
-
-sub network :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 proxies
-
-=cut
-
-sub proxies :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 trapping
-
-=cut
-
-sub trapping :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 registration
-
-=cut
-
-sub registration :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 authentication
-
-=cut
-
-sub authentication :Local {
-    my ($self, $c) = @_;
-
-    $c->forward('Controller::Authentication', 'index');
-}
-
-
-=head2 violations
-
-=cut
-
-sub violations :Local {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{template} = 'configuration/violations.tt';
-
-    my ($status, $result) = $c->model('Config::Violations')->read_violation('all');
-    if (is_success($status)) {
-        $c->stash->{violations} = $result;
-    }
-    else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
-    }
-}
-
-=head2 soh
-
-=cut
-
-sub soh :Local {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{template} = 'configuration/soh.tt';
-
-    my ($status, $result) = $c->model('SoH')->filters();
-    if (is_success($status)) {
-        $c->stash->{filters} = $result;
-
-        ($status, $result) = $c->model('Config::Violations')->read_violation('all');
-        if (is_success($status)) {
-            $c->stash->{violations} = $result;
-        }
-    }
-    if (is_error($status)) {
-        $c->stash->{error} = $result;
-    }
-}
-
-=head2 fingerprints
-
-
-sub fingerprints : Local : Args(0) {
+sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $action = $c->request->params->{'action'} || "";
     if ( $action eq 'update' ) {
@@ -308,43 +202,10 @@ sub fingerprints : Local : Args(0) {
     }
     $self->_list_items( $c, 'OS' );
 }
-=cut
 
 =head2 useragents
 
 =cut
-
-sub useragents : Local : Args(0) {
-    my ( $self, $c ) = @_;
-    my $action = $c->request->params->{'action'} || "";
-    if ( $action eq 'upload' ) {
-        require PHP::Serialization;
-        require pf::pfcmd::report;
-        import pf::pfcmd::report qw(report_unknownuseragents_all);
-        my @fields = qw(browser os computername dhcp_fingerprint description);
-        my %data   = map {
-            my %ua;
-            @ua{@fields} = @{$_}{@fields};
-            $_->{user_agent} => \%ua
-        } report_unknownuseragents_all();
-        if (%data) {
-            require IO::Compress::Gzip;
-            import IO::Compress::Gzip qw(gzip);
-            require MIME::Base64;
-            import MIME::Base64 qw(encode_base64);
-            my $content =
-                encode_base64(
-                gzip( PHP::Serialization::serialize( \%data ) ) );
-            require LWP::UserAgent;
-            my $browser  = LWP::UserAgent->new;
-            my $response = $browser->post(
-                'http://www.packetfence.org/useragents.php?ref=' . $c.uri_for($c->action->name),
-                { useragent_fingerprints => $content }
-            );
-        }
-    }
-    $self->_list_items( $c, 'UserAgent' );
-}
 
 sub _list_items {
     my ( $self, $c, $model_name ) = @_;
@@ -398,6 +259,7 @@ sub _list_items {
     }
 }
 
+
 sub macaddress : Local {
     my ( $self, $c ) = @_;
     my $action = $c->request->params->{'action'} || "";
@@ -408,6 +270,7 @@ sub macaddress : Local {
     $self->_list_items( $c, 'MacAddress' );
 }
 
+=head1 AUTHOR
 =head2 roles
 
 =cut
