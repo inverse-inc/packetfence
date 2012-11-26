@@ -3,6 +3,7 @@
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
         'admin/configuration',
         'admin/configuration/authentication',
         'admin/configuration/users',
@@ -43,6 +44,12 @@ table input[type="text"] {
 }
 </style>
 
+[% MACRO list_entry(controller,name) BLOCK %]
+              <li[% IF section == name %] class="active"[% END %]>
+                <a href="#[% c.uri_for(c.controller(controller).action_for(name)).path_query() %]">[% l(name) %]</a>
+              </li>
+[% END -%]
+
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span2">
@@ -63,6 +70,7 @@ table input[type="text"] {
               <li class="nav-header"><i class="icon-user"></i> Users</li>
               [% list_entry('Configuration','authentication') %]
               [% list_entry('Configuration','users') %]
+              [% list_entry('Authentication','import') %]
               <li class="nav-header"><i class="icon-check"></i> Compliance</li>
               <li[% IF section == 'violations' %] class="active"[% END %]>
                 <a href="[% c.uri_for(c.controller('Configuration').action_for('violations')) %]">[% l('Violations') %]</a>
