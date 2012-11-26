@@ -1,5 +1,6 @@
 function init() {
     /* Register links in the sidebar list */
+/*
     $('.sidebar-nav .nav-list a').click(function(event) {
         var href = $(this).attr('href');
         var item = $(this).parent();
@@ -39,6 +40,7 @@ function init() {
 
         return false;
     });
+*/
 
     /* Save a section */
     $('#section').on('submit', 'form[name="section"]', function(event) {
