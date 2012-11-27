@@ -112,7 +112,7 @@ if (defined($session->param("username"))) {
             }
             else {
                 # Otherwise send email
-                # translate 3d into 3 days with proper plural form handling
+                # translate 3D into 3 days with proper plural form handling
                 my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
                 $info->{'duration'} = "$value " . ni18n($singular, $plural, $value);
 
