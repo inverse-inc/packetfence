@@ -223,6 +223,15 @@ sub authentication :Local {
     $c->forward('Controller::Authentication', 'index');
 }
 
+=head2 users
+
+=cut
+
+sub users :Local {
+    my ($self, $c) = @_;
+
+    $c->forward('Controller::User', 'create');
+}
 
 =head2 violations
 

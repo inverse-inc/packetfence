@@ -711,7 +711,7 @@ msgstr "Fingerprints"
 msgid "authentication"
 msgstr "Sources"
 
-msgid "authentication_create"
+msgid "users"
 msgstr "Create"
 
 msgid "violations"
@@ -727,7 +727,7 @@ msgid "roles"
 msgstr "Roles"
 
 msgid "macaddress"
-msgstr "Mac Address"
+msgstr "MAC Addresses"
 
 # lib/pf/Authentication/constants.pm
 
@@ -742,3 +742,11 @@ msgstr "Set role"
 
 msgid "set_unreg_date"
 msgstr "Set unregistration date"
+
+# html/pfappserver/root/user/list_password.tt
+
+msgid "mail"
+msgstr "Send Email"
+
+msgid "mail_loading"
+msgstr "Sending .."
