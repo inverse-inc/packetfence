@@ -45,7 +45,7 @@ BEGIN {
         get_total_system_memory
         parse_mac_from_trap
         get_vlan_from_int
-        get_translatable_time
+        get_abbr_time get_translatable_time
         pretty_bandwidth
         unpretty_bandwidth
         pf_run pfmailer 
@@ -751,12 +751,43 @@ sub parse_mac_from_trap {
     return $mac;
 }
 
+=item get_abbr_time
+
+Return the abbreviated time representation given a number of seconds.
+
+ex:
+  7200 will return '2h'
+  70 will return '70s'
+
+See pf::config::normalize_time
+
+=cut
+sub get_abbr_time {
+    my $time = int shift;
+
+    if ($time < 60) {
+        return $time . 's';
+    } elsif ($time < 3600 || $time % 3600 > 0) {
+        return int($time/60) . 'm';
+    } elsif ($time < 86400 || $time % 86400 > 0) {
+        return int($time/3600) . 'h';
+    } elsif ($time < 604800 || $time % 604800 > 0) {
+        return int($time/86400) . 'D';
+    } elsif ($time < 2592000 || $time % 2592000 > 0) { # 30 days
+        return int($time/604800) . 'W';
+    } elsif ($time < 31536000 || $time % 31536000 > 0) { # 365 days
+        return int($time/2592000) . 'M';
+    } else {
+        return int($time/31536000) . 'Y';
+    }
+}
+
 =item get_translatable_time
 
 Returns a triplet with singular and plural english string representation plus integer of a time string 
 as defined in pf.conf.
 
-ex: 7d will return ("day", "days", 7)
+ex: 7D will return ("day", "days", 7)
 
 Returns undef on failure
 
@@ -766,6 +797,11 @@ sub get_translatable_time {
 
    # grab time unit
    my ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+
+   unless ($unit) {
+       $time = get_abbr_time($time);
+       ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+   }
 
    if ($unit eq "s") { return ("second", "seconds", $value);
    } elsif ($unit eq "m") { return ("minute", "minutes", $value);
