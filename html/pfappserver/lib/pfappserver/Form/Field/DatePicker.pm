@@ -16,6 +16,9 @@ use Moose;
 extends 'HTML::FormHandler::Field::Text';
 use namespace::autoclean;
 
+has 'start' => ( is => 'rw', default => undef );
+has 'end' => ( is => 'rw', default => undef );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.

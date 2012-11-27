@@ -115,6 +115,14 @@ sub update_fields {
                 }
             }
         }
+        elsif ($field->type eq 'DatePicker') {
+            if ($field->start) {
+                $field->set_element_attr('data-date-startdate' => $field->start);
+            }
+            if ($field->end) {
+                $field->set_element_attr('data-date-enddate' => $field->end);
+            }
+        }
     }
 }
 
