@@ -49,17 +49,27 @@
           [% IF c.user_exists -%]
           <div class="nav-collapse">
             <ul class="nav">
-              <li[% IF c.action.name == 'status' %] class="active"[% END %]><a href="[% c.uri_for('status') %]">[% l('Status') %]</a></li>
-              <li[% IF c.action.name == 'reports' %] class="active"[% END %]><a href="[% c.uri_for('reports') %]">[% l('Reports') %]</a></li>
-              <li[% IF c.action.name == 'nodes' %] class="active"[% END %]><a href="[% c.uri_for('nodes') %]">[% l('Nodes') %]</a></li>
-              <li[% IF c.action.name == 'users' %] class="active"[% END %]><a href="[% c.uri_for('users') %]">[% l('Users') %]</a></li>
-              <li[% IF c.action.name == 'configuration' %] class="active"[% END %]><a href="[% c.uri_for('configuration') %]">[% l('Configuration') %]</a></li>
+              <li[% ' class="active"' IF c.action.name == 'status' %]>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('status')) %]">[% l('Status') %]</a>
+              </li>
+              <li[% ' class="active"' IF c.action.name == 'reports' %]>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('reports')) %]">[% l('Reports') %]</a>
+              </li>
+              <li[% ' class="active"' IF c.action.name == 'nodes' %]>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('nodes')) %]">[% l('Nodes') %]</a>
+              </li>
+              <li[% ' class="active"' IF c.action.name == 'users' %]>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('users')) %]">[% l('Users') %]</a>
+              </li>
+              <li[% ' class="active"' IF c.action.name == 'configuration' %]>
+                <a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]">[% l('Configuration') %]</a>
+              </li>
             </ul>
             <ul class="nav pull-right">
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user icon-white"></i> [% c.user %]<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                  <li><a href="[% c.uri_for('logout') %]"><i class="icon-off"></i> [% l('Log out') %]</a></li>
+                  <li><a href="[% c.uri_for(c.controller('Admin').action_for('logout')) %]"><i class="icon-off"></i> [% l('Log out') %]</a></li>
                 </ul>
               </li>
               <li>
