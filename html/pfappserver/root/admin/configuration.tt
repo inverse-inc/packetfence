@@ -55,34 +55,27 @@ table input[type="text"] {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="nav-header"><i class="icon-home"></i> Main</li>
+              <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
               [% list_entry('Configuration','general') %]
               [% list_entry('Configuration','network') %]
               [% list_entry('Configuration','proxies') %]
               [% list_entry('Configuration','trapping') %]
               [% list_entry('Configuration','registration') %]
               <li><a href="#">Portal Profiles and Pages</a></li>
-              <li class="nav-header"><i class="icon-random"></i> Network<li>
+              <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               <li><a href="#">Interfaces</a></li>
               <li><a href="#">Networks</a></li>
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>
-              <li class="nav-header"><i class="icon-user"></i> Users</li>
+              <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
               [% list_entry('Configuration','authentication') %]
               [% list_entry('Configuration','users') %]
-              [% list_entry('Authentication','import') %]
-              <li class="nav-header"><i class="icon-check"></i> Compliance</li>
-              <li[% IF section == 'violations' %] class="active"[% END %]>
-                <a href="[% c.uri_for(c.controller('Configuration').action_for('violations')) %]">[% l('Violations') %]</a>
-              </li>
-              <li[% IF section == 'soh' %] class="active"[% END %]>
-                <a href="[% c.uri_for(c.controller('Configuration').action_for('soh')) %]">[% l('SoH Filters') %]</a>
-              </li>
-              <li[% IF section == 'roles' %] class="active"[% END %]>
-                <a href="[% c.uri_for(c.controller('Configuration').action_for('roles')) %]">[% l('Roles') %]</a>
-              </li>
+              <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
+              [% list_entry('Configuration','violations') %]
+              [% list_entry('Configuration','soh') %]
+              [% list_entry('Configuration','roles') %]
               <li><a href="#">Remediation Pages</a></li>
-              <li class="nav-header"><i class="icon-eye-open"></i> Identification</li>
+              <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
               [% list_entry('Configuration','fingerprints') %]
               [% list_entry('Configuration','useragents') %]
               [% list_entry('Configuration','macaddress') %]
