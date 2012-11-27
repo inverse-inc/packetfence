@@ -94,9 +94,11 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, valid_from, expiration, access_duration, category
-        FROM temporary_password 
-        WHERE pid = ?
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.category,
+            p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
+        FROM temporary_password t
+        LEFT JOIN person p ON t.pid = p.pid
+        WHERE t.pid = ?
     ]);
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
@@ -130,7 +132,7 @@ sub view {
     my ($pid) = @_;
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $pid
-    );
+    ) || return;
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
