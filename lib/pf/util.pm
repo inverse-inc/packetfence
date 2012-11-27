@@ -987,6 +987,21 @@ sub generate_id {
     return $id;
 }
 
+sub ordinal_suffix(_) {
+    my ($num) = @_;
+    my $last_digit = $num % 10;
+    if ($last_digit == 1) {
+        return "${num}st";
+    }
+    elsif ($last_digit == 2) {
+        return "${num}nd";
+    }
+    elsif ($last_digit == 3) {
+        return "${num}rd";
+    }
+    return "${num}th";
+}
+
 =back
 
 =head1 AUTHOR
