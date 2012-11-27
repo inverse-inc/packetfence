@@ -290,9 +290,27 @@ sub generate_custom_login_page {
 
     # return login
     $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
-
     render_template($portalSession, $html_template);
     exit;
+}
+
+=item aup
+
+Return the Acceptable User Policy (AUP) defined in the template file
+/usr/local/pf/html/captive-portal/templates/aup_text.html
+
+=cut
+
+sub aup {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $html;
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process( 'aup_text.html', undef, \$html ) || $logger->error($template->error());
+
+    return $html;
 }
 
 =item send_template_email
