@@ -188,61 +188,29 @@ foreach my $switch_ip ( sort keys %{ $switchFactory->{_config} } ) {
     }
 }
 
-for ( my $i = 1; $i <= $Config{'vlan'}{'nbtraphandlerthreads'}; $i++ ) {
-    my $t = threads->new("signalHandlerThreadListQueued");
-    if ( !defined($t) ) {
-        $logger->error(
-                  "could not create " 
-                . $i
-                . (
-                ( $i == 1 )
-                ? "st"
-                : ( ( $i == 2 ) ? "nd" : ( ( $i == 3 ) ? "rd" : "th" ) )
-                )
-                . " signalHandlerThreadListQueued thread"
-        );
-        exit -1;
-    } else {
-        push @completeThreadList, $t;
-        $logger->debug(
-                  "created " 
-                . $i
-                . (
-                ( $i == 1 )
-                ? "st"
-                : ( ( $i == 2 ) ? "nd" : ( ( $i == 3 ) ? "rd" : "th" ) )
-                )
-                . " signalHandlerThreadListQueued thread"
-        );
-    }
-}
+add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtraphandlerthreads'} );
+add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'vlan'}{'nbtrapparserthreads'}  );
 
-for ( my $i = 1; $i <= $Config{'vlan'}{'nbtrapparserthreads'}; $i++ ) {
-    my $t = threads->new("signalHandlerTrapListQueued");
-    if ( !defined($t) ) {
-        $logger->error(
-                  "could not create " 
-                . $i
-                . (
-                ( $i == 1 )
-                ? "st"
-                : ( ( $i == 2 ) ? "nd" : ( ( $i == 3 ) ? "rd" : "th" ) )
-                )
-                . " signalHandlerTrapListQueued thread"
-        );
-        exit -1;
-    } else {
-        push @completeThreadList, $t;
-        $logger->debug(
-                  "created " 
-                . $i
-                . (
-                ( $i == 1 )
-                ? "st"
-                : ( ( $i == 2 ) ? "nd" : ( ( $i == 3 ) ? "rd" : "th" ) )
-                )
-                . " signalHandlerTrapListQueued thread"
-        );
+sub add_new_threads_to_list {
+    my ($thread_function,$count);
+    
+    for ( my $i = 1; $i <= $count; $i++ ) {
+        my $t = threads->new($thread_function);
+        if ( !defined($t) ) {
+            $logger->error(
+                      "could not create " 
+                    . ordinal_suffix($i)
+                    . " $thread_function thread"
+            );
+            exit -1;
+        } else {
+            push @completeThreadList, $t;
+            $logger->debug(
+                      "created " 
+                    . ordinal_suffix($i)
+                    . " $thread_function thread"
+            );
+        }
     }
 }
 

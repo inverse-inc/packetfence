@@ -114,20 +114,14 @@ function init() {
         return false;
     });
 
-    /* Initial search */
-    $.ajax('/node/search')
-    .done(function(data) {
-        var results = $('#results');
-        results.html(data);
-    })
-    .fail(function(jqXHR) {
-        if (jqXHR.status == 401) {
-            // Unauthorized; redirect to URL specified in the location header
-            window.location.href = jqXHR.getResponseHeader('Location');
+    $(window).hashchange(function(event) {
+        var hash = location.hash;
+        if(hash == '') {
+            hash = '#/node/search';
         }
-        else {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showError($('#results'), obj.status_msg);
-        }
+        var href =  hash.replace(/^#/,'') + location.search ;
+        updateSection(href);
+        return true;
     });
+    $(window).hashchange();
 }

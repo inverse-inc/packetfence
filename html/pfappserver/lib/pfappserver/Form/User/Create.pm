@@ -118,7 +118,7 @@ sub options_durations {
         [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
         $self->form->ctx->languages()->[0]
     );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys $durations;
+    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
 
     return \@options;
 }
