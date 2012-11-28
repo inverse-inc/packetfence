@@ -926,6 +926,7 @@ yum install ./samba*.rpm ./libwbclient0*.rpm --nogpgcheck
 
 For Debian:
 apt-get install samba winbind krb5-user
+
 ----
 
 NOTE: If you have Windows 7 PCs in your network, you need to use SAMBA version 3.5.0 (or greater)
