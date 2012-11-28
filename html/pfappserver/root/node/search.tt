@@ -6,6 +6,7 @@
                   <th><a href="[% c.uri_for(c.action.name, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>Results</h2>
+[% INCLUDE pagination.inc IF nodes.size > 0 %]
             <table class="table table-condensed table-striped">
               <thead>
                 <tr>

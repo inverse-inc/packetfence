@@ -2,6 +2,7 @@
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
         'app/raphael/raphael-min',
         'app/raphael/g.raphael-min',
         'app/raphael/g.bar-min',
@@ -75,14 +76,14 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form name="simpleSearch" class="form-inline" action="[% c.uri_for('/node/search') %]">
+                  <form name="simpleSearch" class="form-inline" action="/node/search">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>
                     <input type="text" class="input-small" name="end">
                     <a href="#last0day">Today</a> | <a href="#last7days">7 days</a> | <a href="#last30days">30 days</a> | <a href="#last60days">60 days</a>
                   </div>
-                  <input id="simpleString" type="text" placeholder="Search...">
+                  <input type="text" name="filter" placeholder="Search...">
                   <div class="btn-group pull-right">
                     <button class="btn btn-primary"><i class="icon-search icon-white"></i> Search</button>
                     <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>

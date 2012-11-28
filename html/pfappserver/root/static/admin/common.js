@@ -1,3 +1,24 @@
+function updateSection(href) {
+    var section = $('#section');
+    if(section) {
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
+        $.ajax(href)
+        .done(function(data) {
+            loader.hide();
+            section.html(data).fadeTo('fast', 1.0);
+        })
+        .fail(function(jqXHR) {
+            loader.hide();
+            var obj = $.parseJSON(jqXHR.responseText);
+            var status_msg = obj ? ( obj.status_msg || "Error Loading Content"  ) : "Error Loading Content";
+            showError(section, status_msg);
+            section.fadeTo('fast', 1.0);
+        });
+    }
+}
+
 $(function () {
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
@@ -32,6 +53,7 @@ $(function () {
         dp.pickers[1].setStartDate(before);
 
         dp.updateDates();
+        return false;
     });
     
     /* Activate sortable tables and lists (rows/items can be re-ordered) */
@@ -186,23 +208,6 @@ $(function () {
         });
     });
 
-    function updateSection(href) {
-        var section = $('#section');
-        if(section) {
-            section.fadeTo('fast', 0.5);
-            $.ajax(href)
-            .done(function(data) {
-                section.html(data).fadeTo('fast', 1.0);
-            })
-            .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                var status_msg = obj ? ( obj.status_msg || "Error Loading Content"  ) : "Error Loading Content";
-                showError(section, status_msg);
-                section.fadeTo('fast', 1.0);
-            });
-        }
-    }
-
     /* Page refresh */
     $('#section').on('click', 'a.refresh-section', function(event) {
         updateSection($(this).attr('href'));
@@ -210,48 +215,17 @@ $(function () {
     });
     //
     //
-/*
     //For simpleSearch
     $('body').on('submit', 'form[name="simpleSearch"]', function(event) {
         var form = $(this);
         var results = $('#section');
         results.fadeTo('fast', 0.5);
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: { filter: $('#simpleString').val() }
-        }).done(function(data) {
-            results.html(data);
-            results.stop();
-            results.fadeTo('fast', 1.0);
-        }).fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError($('#section'), obj.status_msg);
-            }
-        });
-        
+        location.hash = "#" + form.attr('action') +"?"+ form.serialize();
         return false;
     });
-*/
 
-    /* Page refresh */
-    $(window).hashchange(function(event) {
-        var hash = location.hash;
-        if(hash == '') {
-            hash = '#/configuration/general';
-        }
-        var href =  hash.replace(/^#/,'') + location.search ;
-        updateSection(href);
-        return true;
-    });
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();
-    $(window).hashchange();
 });
 
 

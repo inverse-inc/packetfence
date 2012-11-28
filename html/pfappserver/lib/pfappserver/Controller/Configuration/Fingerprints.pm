@@ -92,31 +92,6 @@ sub _format_section :Private {
     }
 }
 
-=head2 _update_section
-
-=cut
-
-sub _update_section :Private {
-    my ($self, $c, $form) = @_;
-
-    my $entries_ref = $c->model('Config::Pf')->read($c->action->name);
-    my $data = {};
-
-    foreach my $section (keys %$form) {
-        foreach my $field (keys %{$form->{$section}}) {
-            $data->{$section.'.'.$field} = $form->{$section}->{$field};
-        }
-    }
-
-    my ($status, $message) = $c->model('Config::Pf')->update($data);
-
-    if (is_error($status)) {
-        $c->response->status($status);
-    }
-    $c->stash->{status_msg} = $message;
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head2 update
 
 =cut
