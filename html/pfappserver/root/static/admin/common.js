@@ -2,15 +2,17 @@ function updateSection(href) {
     var section = $('#section');
     if(section) {
         var loader = section.prev('.loader');
-        loader.show();
+        if(loader) {
+            loader.show();
+        }
         section.fadeTo('fast', 0.5);
         $.ajax(href)
         .done(function(data) {
-            loader.hide();
+            if(loader) loader.hide();
             section.html(data).fadeTo('fast', 1.0);
         })
         .fail(function(jqXHR) {
-            loader.hide();
+            if(loader) loader.hide();
             var obj = $.parseJSON(jqXHR.responseText);
             var status_msg = obj ? ( obj.status_msg || "Error Loading Content"  ) : "Error Loading Content";
             showError(section, status_msg);
@@ -208,11 +210,11 @@ $(function () {
         });
     });
 
-    /* Page refresh */
+    /* Page refresh 
     $('#section').on('click', 'a.refresh-section', function(event) {
         updateSection($(this).attr('href'));
         return false;
-    });
+    });*/
     //
     //
     //For simpleSearch

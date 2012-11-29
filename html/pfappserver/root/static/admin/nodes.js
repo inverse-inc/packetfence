@@ -52,9 +52,6 @@ function init() {
                 // an input field (See bootstrap-timepicker.js)
                 if (eventObject.target.tagName != 'INPUT') {
                     $(this).remove();
-                    // Remove the 'pickers' appended to the body
-                    $('.datepicker').remove();
-                    $('.bootstrap-timepicker').remove();
                 }
             });
         })
@@ -80,29 +77,28 @@ function init() {
         modal_body = modal.find('.modal-body'),
         url = $(this).attr('href'),
         valid = false;
-
         btn.button('loading');
         valid = isFormValid(form);
         if (valid) {
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: form.serialize()
-        }).done(function(data) {
-            // TODO : refresh search results
-            modal.modal('hide');
-        }).fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                btn.button('reset');
-                var obj = $.parseJSON(jqXHR.responseText);
-                resetAlert(modal_body);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
-            }
-        });
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: form.serialize()
+            }).done(function(data) {
+                // TODO : refresh search results
+                modal.modal('hide');
+            }).fail(function(jqXHR) {
+                if (jqXHR.status == 401) {
+                    // Unauthorized; redirect to URL specified in the location header
+                    window.location.href = jqXHR.getResponseHeader('Location');
+                }
+                else {
+                    btn.button('reset');
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    resetAlert(modal_body);
+                    showPermanentError(modal_body.children().first(), obj.status_msg);
+                }
+            });
         }
 
         return false;
@@ -123,5 +119,6 @@ function init() {
         updateSection(href);
         return true;
     });
+
     $(window).hashchange();
 }
