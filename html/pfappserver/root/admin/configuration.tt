@@ -56,11 +56,28 @@ table input[type="text"] {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
-              [% list_entry('Configuration','general') %]
-              [% list_entry('Configuration','network') %]
-              [% list_entry('Configuration','proxies') %]
-              [% list_entry('Configuration','trapping') %]
-              [% list_entry('Configuration','registration') %]
+              [% list_entry('Configuration', 'general') %]
+              [% list_entry('Configuration', 'database') %]
+              [% list_entry('Configuration', 'network') %]
+              [% list_entry('Configuration', 'proxies') %]
+              [% list_entry('Configuration', 'trapping') %]
+              [% list_entry('Configuration', 'registration') %]
+              [% list_entry('Configuration', 'guests_self_registration') %]
+              [% list_entry('Configuration', 'guests_admin_registration') %]
+              [% list_entry('Configuration', 'billing') %]
+              <!--[% list_entry('Configuration', 'passthroughs') %]-->
+              [% list_entry('Configuration', 'alerting') %]
+              [% list_entry('Configuration', 'ports') %]
+              [% list_entry('Configuration', 'scan') %]
+              [% list_entry('Configuration', 'expire') %]
+              [% list_entry('Configuration', 'services') %]
+              [% list_entry('Configuration', 'vlan') %]
+              [% list_entry('Configuration', 'inline') %]
+              [% list_entry('Configuration', 'servicewatch') %]
+              [% list_entry('Configuration', 'captive_portal') %]
+              [% list_entry('Configuration', 'advanced') %]
+              [% list_entry('Configuration', 'provisioning') %]
+              <!--[% list_entry('Configuration', 'node_import') %]-->
               <li><a href="#">Portal Profiles and Pages</a></li>
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               <li><a href="#">Interfaces</a></li>

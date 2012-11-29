@@ -88,7 +88,8 @@ sub _format_section :Private {
         $entry_ref->{description} =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
         $entry_ref->{description} =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
         $entry_ref->{description} =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
-        $entry_ref->{description} =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g;
+        $entry_ref->{description} =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
+        $entry_ref->{description} =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
     }
 }
 
@@ -208,6 +209,176 @@ sub trapping :Local {
 =cut
 
 sub registration :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 guests_self_registration
+
+=cut
+
+sub guests_self_registration :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 guests_admin_registration
+
+=cut
+
+sub guests_admin_registration :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 passthroughs
+
+=cut
+
+sub passthroughs :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 alerting
+
+=cut
+
+sub alerting :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 ports
+
+=cut
+
+sub ports :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 scan
+
+=cut
+
+sub scan :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 database
+
+=cut
+
+sub database :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 expire
+
+=cut
+
+sub expire :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 services
+
+=cut
+
+sub services :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 vlan
+
+=cut
+
+sub vlan :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 inline
+
+=cut
+
+sub inline :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 servicewatch
+
+=cut
+
+sub servicewatch :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 captive_portal
+
+=cut
+
+sub captive_portal :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 advanced
+
+=cut
+
+sub advanced :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 provisioning
+
+=cut
+
+sub provisioning :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 billing
+
+=cut
+
+sub billing :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
+=head2 node_import
+
+=cut
+
+sub node_import :Local {
     my ($self, $c) = @_;
 
     $self->_process_section($c);

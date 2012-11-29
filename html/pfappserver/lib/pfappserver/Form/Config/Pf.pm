@@ -57,6 +57,7 @@ sub field_list {
             };
             $type eq 'text-large' && do {
                 $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
                 last;
             };
             $type eq 'numeric' && do {
@@ -66,7 +67,7 @@ sub field_list {
             $type eq 'multi' && do {
                 $field->{type} = 'Select';
                 $field->{multiple} = 1;
-                $field->{element_class} = ['chzn-select'];
+                $field->{element_class} = ['chzn-select', 'input-xxlarge'];
                 $field->{element_attr} = {'data-placeholder' => 'Click to add'};
                 my @options = map { { value => $_, label => $_ } } @{$param->{options}};
                 $field->{options} = \@options;
@@ -83,6 +84,7 @@ sub field_list {
                     $field->{type} = 'Select';
                     $field->{element_class} = ['chzn-deselect'];
                     $field->{element_attr} = {'data-placeholder' => 'No selection'};
+                    $field->{localize_labels} = 1;
                     my @options = map { { value => $_, label => $_ } } @{$param->{options}};
                     $field->{options} = \@options;
                 }
