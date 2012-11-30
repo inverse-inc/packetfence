@@ -45,14 +45,14 @@ form {
             </div>
             <div class="control-group">
               <div class="controls">
-                <label class="checkbox"><input type="checkbox"> Show in dashboard</label>
+                <label class="checkbox"><input type="checkbox"> [% l('Show in dashboard') %]</label>
               </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">Close</a>
-          <a href="#" class="btn btn-primary">Save</a>
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+          <a href="#" class="btn btn-primary">[% l('Save') %]</a>
         </div>
       </div>
       
@@ -61,10 +61,11 @@ form {
         <div class="span2">
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
-              <li class="nav-header">Nodes</li>
-              <li class="active"><a href="#">Search</a></li>
-              <li><a href="#">Create</a></li>
-              <li class="nav-header">Saved Searches</li>
+              <li class="nav-header">[% l('Nodes') %]</li>
+              <li class="active"><a href="#">[% l('Search') %]</a></li>
+              <li><a href="#">[% l('Create') %]</a></li>
+              <li><a href="#">[% l('Import') %]</a></li>
+              <li class="nav-header">[% l('Saved Searches') %]</li>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
