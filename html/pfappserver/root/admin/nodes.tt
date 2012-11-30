@@ -82,14 +82,14 @@ form {
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>
                     <input type="text" class="input-small" name="end">
-                    <a href="#last0day">Today</a> | <a href="#last7days">7 days</a> | <a href="#last30days">30 days</a> | <a href="#last60days">60 days</a>
+                    <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
                   <input type="text" name="filter" placeholder="Search...">
                   <div class="btn-group pull-right">
-                    <button class="btn btn-primary"><i class="icon-search icon-white"></i> Search</button>
+                    <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                     <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                      <li><a href="#" data-toggle="modal" data-target="#saveSearch">Save as...</a></li>
+                      <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
                     </ul>
                   </div>
                   </form>
@@ -98,20 +98,21 @@ form {
                   <form name="advancedSearch" class="form-inline" action="[% c.uri_for('/node/search') %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
-                    <span class="add-on">to</span>
+                    <span class="add-on">[% l('to') %]</span>
                     <input type="text" class="input-small" name="end">
-                    <a href="#last0day">Today</a> | <a href="#last7days">7 days</a> | <a href="#last30days">30 days</a> | <a href="#last60days">60 days</a>
+                    <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
                   <table class="table-dynamic">
                     <tbody>
                       <tr>
                         <td>
-                          Match
+                          [% match_options = BLOCK %]
                           <select class="input-mini">
                             <option>all</option>
                             <option>any</option>
                           </select>
-                          of the following conditions :
+                          [% END %]
+                          [% l('Match [_1] of the following conditions:', [match_options]) %]
                         </td>
                       </tr>
                       <tr class="hidden">
@@ -163,12 +164,12 @@ form {
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding-top: 1em">
+                        <td colspan="2" style="padding-top: 1em">
                           <div class="btn-group pull-right">
-                            <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> Search</a>
+                            <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> [% l('Search') %]</a>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                              <li><a href="#" data-toggle="modal" data-target="#saveSearch">Save as...</a></li>
+                              <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
                             </ul>
                           </div>
                         </td>
