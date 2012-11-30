@@ -85,17 +85,17 @@ table input[type="text"] {
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>
               <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
-              [% list_entry('Configuration','authentication') %]
-              [% list_entry('Configuration','users') %]
+              [% list_entry('Configuration', 'authentication') %]
+              [% list_entry('Configuration', 'users') %]
               <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
-              [% list_entry('Configuration','violations') %]
-              [% list_entry('Configuration','soh') %]
-              [% list_entry('Configuration','roles') %]
+              [% list_entry('Configuration', 'violations') %]
+              [% list_entry('Configuration', 'soh') %]
+              [% list_entry('Configuration', 'roles') %]
               <li><a href="#">Remediation Pages</a></li>
               <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
-              [% list_entry('Configuration','fingerprints') %]
-              [% list_entry('Configuration','useragents') %]
-              [% list_entry('Configuration','macaddress') %]
+              [% list_entry('Configuration', 'fingerprints') %]
+              [% list_entry('Configuration', 'useragents') %]
+              [% list_entry('Configuration', 'macaddress') %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
