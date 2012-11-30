@@ -83,10 +83,10 @@
                         <option value="up2date" [% ' selected' IF rule.status == 'up2date' %]>[% l('up-to-date') %]</option>
                         <option value="microsoft" [% ' selected' IF rule.status == 'microsoft' %]>[% l('from Microsoft') %]</option>
                       </select>
-                      </td>
+                    </td>
                     <td class="action">
                       <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                      [% IF !loop.first %]<a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>[% END %]
+                      <a class="btn-icon[% ' hidden' IF loop.first %]" href="#delete"><i class="icon-minus-sign"></i></a>
                     </td>
                   </tr>
                   [% END -%]
