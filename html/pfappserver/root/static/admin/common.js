@@ -1,6 +1,7 @@
 function updateSection(href) {
     var section = $('#section');
     if(section) {
+        $("body,html").animate({scrollTop:0}, 'fast');
         var loader = section.prev('.loader');
         if(loader) {
             loader.show();
@@ -125,8 +126,10 @@ $(function () {
                         var input = $(this);
                         var name = input.attr('name');
                         var id = input.attr('id');
-                        input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
-                        input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                        if (name)
+                            input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+                        if (id)
+                            input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
                         if (this.tagName == 'SELECT') {
                             $(this).find('option').each(function() {
                                 var option = $(this);
@@ -163,8 +166,10 @@ $(function () {
                 var input = $(this);
                 var name = input.attr('name');
                 var id = input.attr('id');
-                input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
-                input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                if (name)
+                    input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+                if (id)
+                    input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
                 if (this.tagName == 'SELECT') {
                     $(this).find('option').each(function() {
                         var option = $(this);
@@ -174,8 +179,9 @@ $(function () {
                     });
                 }
             });
-            $(this).find('[href="#delete"]').removeClass('hidden')
+            $(this).find('[href="#delete"]').removeClass('hidden');
         });
+        return false;
     });
     $('body').on('click', '.table-dynamic [href="#delete"]', function(event) {
         var tbody = $(this).closest('tbody');
@@ -185,11 +191,16 @@ $(function () {
             //var empty = true;
             var count = 0;
             tbody.children(':not(.hidden)').each(function(index, element) {
-                $(this).find('.sort-handle').each(function() {
-                    $(this).text(index + 1);
-                    //empty = false;
+                if ($(this).hasClass('ui-draggable'))
+                    // This is sortable table; don't count rows without a sort handle
+                   $(this).find('.sort-handle').each(function() {
+                        $(this).text(index + 1);
+                        //empty = false;
+                        count++;
+                    });
+                else
+                    // This is not a sortable table; count all visible rows
                     count++;
-                });
             });
             if (count < 2) {
                 var table = tbody.closest('table');
@@ -208,6 +219,7 @@ $(function () {
                 }
             }
         });
+        return false;
     });
 
     /* Page refresh 

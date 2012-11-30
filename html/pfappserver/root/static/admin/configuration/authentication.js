@@ -252,6 +252,7 @@ function initAuthentication() {
             row_new.insertBefore(row_model);
             row_new.trigger('admin.added');
         }
+        return false;
     });
 
     /* Initialize the rule condition and action fields when displaying a rule */
