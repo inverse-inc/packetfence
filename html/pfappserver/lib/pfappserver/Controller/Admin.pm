@@ -64,15 +64,20 @@ sub login :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     if (exists($c->req->params->{'username'}) && exists($c->req->params->{'password'})) {
-        if ($c->authenticate( {username => $c->req->params->{'username'},
-                               password => $c->req->params->{'password'}} )) {
-            $c->log->info("login: " . $c->req->params->{'username'});
-            $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
-            $c->detach();
-        }
-        else {
-            $c->response->status(HTTP_UNAUTHORIZED);
-            $c->stash->{status_msg} = $c->loc("Wrong username or password.");
+        eval {
+            if ($c->authenticate( {username => $c->req->params->{'username'},
+                                   password => $c->req->params->{'password'}} )) {
+                $c->log->info("login: " . $c->req->params->{'username'});
+                $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
+            }
+            else {
+                $c->response->status(HTTP_UNAUTHORIZED);
+                $c->stash->{status_msg} = $c->loc("Wrong username or password.");
+            }
+        };
+        if ($@) {
+            $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+            $c->stash->{status_msg} = $c->loc("Unexpected error. See server-side logs for details.");
         }
         $c->stash->{current_view} = 'JSON';
     }
