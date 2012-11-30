@@ -1,4 +1,4 @@
-<h2>Fingerprints</h2>
+<h2>[% l('Fingerprints') %]</h2>
 <div class="options">
   <a class="refresh-section" href="[% c.uri_for(c.action_for('/'), {action=>"upload" }).path_query() %]"><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
   | <a class="refresh-section" href="[% c.uri_for(c.action_for('/'), {action=>"update" }).path_query() %]"><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>
