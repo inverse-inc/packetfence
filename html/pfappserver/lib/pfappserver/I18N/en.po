@@ -261,6 +261,9 @@ msgstr "Force redirect URL"
 msgid "trapping.detection"
 msgstr "Detection"
 
+msgid "trapping.detection_engine"
+msgstr "Detection engine"
+
 #: conf/pf.conf.defaults:146
 msgid "registration"
 msgstr "Registration"
@@ -331,361 +334,377 @@ msgstr "Billing engine"
 
 #: conf/pf.conf.defaults:250
 msgid "guests_self_registration"
-msgstr ""
+msgstr "Self registration"
 
 #: conf/pf.conf.defaults:258
 msgid "guests_self_registration.modes"
-msgstr ""
+msgstr "Modes"
 
 #: conf/pf.conf.defaults:263
 msgid "guests_self_registration.category"
-msgstr ""
+msgstr "Category"
 
 #: conf/pf.conf.defaults:269
 msgid "guests_self_registration.access_duration"
-msgstr ""
+msgstr "Access duration"
 
 #: conf/pf.conf.defaults:277
 msgid "guests_self_registration.email_activation_timeout"
-msgstr ""
+msgstr "Email activation timeout"
 
 #: conf/pf.conf.defaults:282
 msgid "guests_self_registration.allow_localdomain"
-msgstr ""
+msgstr "Allow local domain"
 
 #: conf/pf.conf.defaults:290
 msgid "guests_self_registration.mandatory_fields"
-msgstr ""
+msgstr "Mandatory fields"
 
 #: conf/pf.conf.defaults:295
 msgid "guests_self_registration.guest_pid"
-msgstr ""
+msgstr "PID"
 
 #: conf/pf.conf.defaults:301
 msgid "guests_self_registration.sponsors_only_from_localdomain"
-msgstr ""
+msgstr "Sponsors from local domain"
 
 #: conf/pf.conf.defaults:312
 msgid "guests_self_registration.sponsor_authentication"
-msgstr ""
+msgstr "Sponsor authentication"
 
 #: conf/pf.conf.defaults:320
 msgid "guests_self_registration.preregistration"
-msgstr ""
+msgstr "Preregistration"
+
+msgid "guests_self_registration.sponsorship_cc"
+msgstr "Sponsorship CC"
 
 #: conf/pf.conf.defaults:323
 msgid "guests_admin_registration"
-msgstr ""
+msgstr "Admin Registration"
 
 #: conf/pf.conf.defaults:329
 msgid "guests_admin_registration.access_duration_choices"
-msgstr ""
+msgstr "Access duration choices"
 
 #: conf/pf.conf.defaults:335
 msgid "guests_admin_registration.default_access_duration"
-msgstr ""
+msgstr "Default access duration"
 
 #: conf/pf.conf.defaults:341
 msgid "guests_admin_registration.category"
-msgstr ""
+msgstr "Category"
 
 #: conf/pf.conf.defaults:357
 msgid "passthroughs"
-msgstr ""
+msgstr "Passthroughs"
 
 #: conf/pf.conf.defaults:359
 msgid "alerting"
-msgstr ""
+msgstr "Alerting"
 
 #: conf/pf.conf.defaults:365
 msgid "alerting.emailaddr"
-msgstr ""
+msgstr "Recipient"
 
 #: conf/pf.conf.defaults:370
 msgid "alerting.fromaddr"
-msgstr ""
+msgstr "Sender"
 
 #: conf/pf.conf.defaults:376
 msgid "alerting.smtpserver"
-msgstr ""
+msgstr "SMTP server"
 
 #: conf/pf.conf.defaults:382
 msgid "alerting.subjectprefix"
-msgstr ""
+msgstr "Subject prefix"
 
 #: conf/pf.conf.defaults:387
 msgid "alerting.log"
-msgstr ""
+msgstr "Log"
 
 #: conf/pf.conf.defaults:392
 msgid "alerting.wins_server"
-msgstr ""
+msgstr "WINS server"
 
 #: conf/pf.conf.defaults:397
 msgid "alerting.admin_netbiosname"
-msgstr ""
+msgstr "Admin NetBIOS name"
 
 #: conf/pf.conf.defaults:399
 msgid "ports"
-msgstr ""
+msgstr "Ports"
 
 #: conf/pf.conf.defaults:406
 msgid "ports.listeners"
-msgstr ""
+msgstr "Listeners"
 
 #: conf/pf.conf.defaults:411
 msgid "ports.admin"
-msgstr ""
+msgstr "Admin"
 
 #: conf/pf.conf.defaults:413
 msgid "scan"
-msgstr ""
+msgstr "Scan"
+
+msgid "none"
+msgstr "None"
+
+msgid "openvas"
+msgstr "OpenVAS"
+
+msgid "nessus"
+msgstr "Nessus"
 
 #: conf/pf.conf.defaults:418
 msgid "scan.engine"
-msgstr ""
+msgstr "Engine"
 
 #: conf/pf.conf.defaults:424
-#, fuzzy
 msgid "scan.registration"
 msgstr "Registration"
 
 #: conf/pf.conf.defaults:430
 msgid "scan.duration"
-msgstr ""
+msgstr "Duration"
 
 #: conf/pf.conf.defaults:437
 msgid "scan.host"
-msgstr ""
+msgstr "Host"
 
 #: conf/pf.conf.defaults:442
 msgid "scan.user"
-msgstr ""
+msgstr "User"
 
 #: conf/pf.conf.defaults:447
 msgid "scan.pass"
-msgstr ""
+msgstr "Password"
 
 #: conf/pf.conf.defaults:453
 msgid "scan.nessus_port"
-msgstr ""
+msgstr "Nessus port"
 
 #: conf/pf.conf.defaults:460
 msgid "scan.nessus_clientfile"
-msgstr ""
+msgstr "Nessus client file"
 
 #: conf/pf.conf.defaults:465
 msgid "scan.nessus_clientpolicy"
-msgstr ""
+msgstr "Nessus client policy"
 
 #: conf/pf.conf.defaults:471
 msgid "scan.openvas_port"
-msgstr ""
+msgstr "OpenVAS port"
 
 #: conf/pf.conf.defaults:476
 msgid "scan.openvas_configid"
-msgstr ""
+msgstr "OpenVAS config ID"
 
 #: conf/pf.conf.defaults:481
 msgid "scan.openvas_reportformatid"
-msgstr ""
+msgstr "OpenVAS "
 
 #: conf/pf.conf.defaults:483
 msgid "database"
-msgstr ""
+msgstr "Database"
 
 #: conf/pf.conf.defaults:488
 msgid "database.pass"
-msgstr ""
+msgstr "Password"
 
 #: conf/pf.conf.defaults:493
 msgid "database.db"
-msgstr ""
+msgstr "Database name"
 
 #: conf/pf.conf.defaults:498
 msgid "database.user"
-msgstr ""
+msgstr "User"
 
 #: conf/pf.conf.defaults:503
 msgid "database.port"
-msgstr ""
+msgstr "Port"
 
 #: conf/pf.conf.defaults:508
 msgid "database.host"
-msgstr ""
+msgstr "Hostname"
 
 #: conf/pf.conf.defaults:510
 msgid "expire"
-msgstr ""
+msgstr "Expiration"
 
 #: conf/pf.conf.defaults:518
 msgid "expire.node"
-msgstr ""
+msgstr "Node"
 
 #: conf/pf.conf.defaults:526
 msgid "expire.iplog"
-msgstr ""
+msgstr "IP/MAC logs"
 
 #: conf/pf.conf.defaults:534
 msgid "expire.traplog"
-msgstr ""
+msgstr "Trap logs"
 
 #: conf/pf.conf.defaults:544
 msgid "expire.locationlog"
-msgstr ""
+msgstr "Location logs"
 
 #: conf/pf.conf.defaults:546
 msgid "services"
-msgstr ""
+msgstr "Services"
 
 #: conf/pf.conf.defaults:551
 msgid "services.dhcpd"
-msgstr ""
+msgstr "dhcpd"
 
 #: conf/pf.conf.defaults:556
 msgid "services.named"
-msgstr ""
+msgstr "named"
 
 #: conf/pf.conf.defaults:561
 msgid "services.radiusd"
-msgstr ""
+msgstr "radiusd"
 
 #: conf/pf.conf.defaults:566
 msgid "services.snort_binary"
-msgstr ""
+msgstr "snort path"
+
+msgid "services.suricata_binary"
+msgstr "suricata path"
 
 #: conf/pf.conf.defaults:571
 msgid "services.httpd_binary"
-msgstr ""
+msgstr "httpd path"
 
 #: conf/pf.conf.defaults:576
 msgid "services.dhcpd_binary"
-msgstr ""
+msgstr "dhcpd path"
 
 #: conf/pf.conf.defaults:581
 msgid "services.named_binary"
-msgstr ""
+msgstr "named path"
 
 #: conf/pf.conf.defaults:586
 msgid "services.snmptrapd_binary"
-msgstr ""
+msgstr "smtptrapd path"
 
 #: conf/pf.conf.defaults:591
 msgid "services.radiusd_binary"
-msgstr ""
+msgstr "radiusd path"
 
 #: conf/pf.conf.defaults:596
 msgid "services.arp_binary"
-msgstr ""
+msgstr "arp path"
 
 #: conf/pf.conf.defaults:598
 msgid "vlan"
-msgstr ""
+msgstr "VLAN"
 
 #: conf/pf.conf.defaults:604
 msgid "vlan.closelocationlogonstop"
-msgstr ""
+msgstr "Close on stop"
 
 #: conf/pf.conf.defaults:610
 msgid "vlan.nbtraphandlerthreads"
-msgstr ""
+msgstr "Handler threads count"
 
 #: conf/pf.conf.defaults:615
 msgid "vlan.nbtrapparserthreads"
-msgstr ""
+msgstr "Parser threads count"
 
 #: conf/pf.conf.defaults:621
 msgid "vlan.bounce_duration"
-msgstr ""
+msgstr "Bounce duration"
 
 #: conf/pf.conf.defaults:630
 msgid "vlan.trap_limit"
-msgstr ""
+msgstr "Trap limiting"
 
 #: conf/pf.conf.defaults:636
 msgid "vlan.trap_limit_threshold"
-msgstr ""
+msgstr "Trap limiting threshold"
 
 #: conf/pf.conf.defaults:644
-#, fuzzy
 msgid "vlan.trap_limit_action"
-msgstr "Registration"
+msgstr "Trap limit action"
 
 #: conf/pf.conf.defaults:656
 msgid "inline.ports_redirect"
-msgstr ""
+msgstr "Ports redirect"
 
 #: conf/pf.conf.defaults:658
 msgid "servicewatch"
-msgstr ""
+msgstr "Service watch"
 
 #: conf/pf.conf.defaults:666
 msgid "servicewatch.email"
-msgstr ""
+msgstr "Send email"
 
 #: conf/pf.conf.defaults:674
 msgid "servicewatch.restart"
-msgstr ""
+msgstr "Restart"
 
 #: conf/pf.conf.defaults:676
 msgid "captive_portal"
-msgstr ""
+msgstr "Captive portal"
 
 #: conf/pf.conf.defaults:681
 msgid "captive_portal.network_detection"
-msgstr ""
+msgstr "Network detection"
 
 #: conf/pf.conf.defaults:691
 msgid "captive_portal.network_detection_ip"
-msgstr ""
+msgstr "IP"
 
 #: conf/pf.conf.defaults:707
 msgid "captive_portal.loadbalancers_ip"
-msgstr ""
+msgstr "Load balancers IP"
 
 #: conf/pf.conf.defaults:709
 msgid "advanced"
-msgstr ""
+msgstr "Advanced"
 
 #: conf/pf.conf.defaults:714
 msgid "advanced.reevaluate_access_reasons"
-msgstr ""
+msgstr "Reevaluate access reasons"
 
 #: conf/pf.conf.defaults:716
 msgid "provisioning"
-msgstr ""
+msgstr "Provisioning"
 
 #: conf/pf.conf.defaults:721
 msgid "provisioning.autoconfig"
-msgstr ""
+msgstr "Auto-configure"
 
 #: conf/pf.conf.defaults:727
 msgid "provisioning.ssid"
-msgstr ""
+msgstr "SSID"
 
 #: conf/pf.conf.defaults:733
 msgid "provisioning.category"
-msgstr ""
+msgstr "Category"
 
 #: conf/pf.conf.defaults:735
 msgid "billing"
-msgstr ""
+msgstr "Billing"
 
 #: conf/pf.conf.defaults:740
 msgid "billing.gateway"
-msgstr ""
+msgstr "Gateway"
+
+msgid "authorize_net"
+msgstr "Authorize.net"
 
 #: conf/pf.conf.defaults:745
 msgid "billing.authorizenet_posturl"
-msgstr ""
+msgstr "Authorize.net URL"
 
 #: conf/pf.conf.defaults:750
 msgid "billing.authorizenet_login"
-msgstr ""
+msgstr "Authorize.net login"
 
 #: conf/pf.conf.defaults:755
 msgid "billing.authorizenet_trankey"
-msgstr ""
+msgstr "Authorize.net key"
 
 #: conf/pf.conf.defaults:757
 msgid "node_import"
