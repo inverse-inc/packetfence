@@ -1,5 +1,5 @@
-            <h2>Mac Addresses</h2>
-            <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]"> <i class="icon-share"></i> Update OUI Prefixes </a>
+            <h2>[% l('MAC Addresses') %]</h2>
+            <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]"> <i class="icon-share"></i> [% l('Update OUI Prefixes') %] </a>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             oui => 'OUI',
             vendor_info => 'Vendor',
