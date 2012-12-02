@@ -81,10 +81,7 @@ function init() {
     /* Page refresh */
     $(window).hashchange(function(event) {
         var hash = location.hash;
-        if(hash == '') {
-            hash = '#/configuration/general';
-        }
-        var href =  hash.replace(/^#/,'') + location.search ;
+        var href = '/configuration/' + hash.replace(/^#/,'') + location.search ;
         updateSection(href);
         return true;
     });
