@@ -43,10 +43,9 @@ table input[type="text"] {
     margin-bottom: 0px;
 }
 </style>
-
-[% MACRO list_entry(controller,name) BLOCK %]
-              <li[% IF section == name %] class="active"[% END %]>
-                <a href="#[% c.uri_for(c.controller(controller).action_for(name)).path_query() %]">[% l(name) %]</a>
+[% MACRO list_entry(action) BLOCK %]
+              <li[% IF section == action %] class="active"[% END %]>
+                <a href="#[% action %]">[% l(action) %]</a>
               </li>
 [% END -%]
 
@@ -56,28 +55,28 @@ table input[type="text"] {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
-              [% list_entry('Configuration', 'general') %]
-              [% list_entry('Configuration', 'database') %]
-              [% list_entry('Configuration', 'network') %]
-              [% list_entry('Configuration', 'proxies') %]
-              [% list_entry('Configuration', 'trapping') %]
-              [% list_entry('Configuration', 'registration') %]
-              [% list_entry('Configuration', 'guests_self_registration') %]
-              [% list_entry('Configuration', 'guests_admin_registration') %]
-              [% list_entry('Configuration', 'billing') %]
-              <!--[% list_entry('Configuration', 'passthroughs') %]-->
-              [% list_entry('Configuration', 'alerting') %]
-              [% list_entry('Configuration', 'ports') %]
-              [% list_entry('Configuration', 'scan') %]
-              [% list_entry('Configuration', 'expire') %]
-              [% list_entry('Configuration', 'services') %]
-              [% list_entry('Configuration', 'vlan') %]
-              [% list_entry('Configuration', 'inline') %]
-              [% list_entry('Configuration', 'servicewatch') %]
-              [% list_entry('Configuration', 'captive_portal') %]
-              [% list_entry('Configuration', 'advanced') %]
-              [% list_entry('Configuration', 'provisioning') %]
-              <!--[% list_entry('Configuration', 'node_import') %]-->
+              [% list_entry( 'general') %]
+              [% list_entry( 'database') %]
+              [% list_entry( 'network') %]
+              [% list_entry( 'proxies') %]
+              [% list_entry( 'trapping') %]
+              [% list_entry( 'registration') %]
+              [% list_entry( 'guests_self_registration') %]
+              [% list_entry( 'guests_admin_registration') %]
+              [% list_entry( 'billing') %]
+              <!--[% list_entry( 'passthroughs') %]-->
+              [% list_entry( 'alerting') %]
+              [% list_entry( 'ports') %]
+              [% list_entry( 'scan') %]
+              [% list_entry( 'expire') %]
+              [% list_entry( 'services') %]
+              [% list_entry( 'vlan') %]
+              [% list_entry( 'inline') %]
+              [% list_entry( 'servicewatch') %]
+              [% list_entry( 'captive_portal') %]
+              [% list_entry( 'advanced') %]
+              [% list_entry( 'provisioning') %]
+              <!--[% list_entry( 'node_import') %]-->
               <li><a href="#">Portal Profiles and Pages</a></li>
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               <li><a href="#">Interfaces</a></li>
@@ -85,17 +84,17 @@ table input[type="text"] {
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>
               <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
-              [% list_entry('Configuration', 'authentication') %]
-              [% list_entry('Configuration', 'users') %]
+              [% list_entry('authentication') %]
+              [% list_entry('users') %]
               <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
-              [% list_entry('Configuration', 'violations') %]
-              [% list_entry('Configuration', 'soh') %]
-              [% list_entry('Configuration', 'roles') %]
+              [% list_entry('violations') %]
+              [% list_entry('soh') %]
+              [% list_entry('roles') %]
               <li><a href="#">Remediation Pages</a></li>
               <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
-              [% list_entry('Configuration', 'fingerprints') %]
-              [% list_entry('Configuration', 'useragents') %]
-              [% list_entry('Configuration', 'macaddress') %]
+              [% list_entry('fingerprints') %]
+              [% list_entry('useragents') %]
+              [% list_entry('macaddress') %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

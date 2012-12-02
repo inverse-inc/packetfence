@@ -159,10 +159,11 @@ sub _process_section :Private {
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('general')));
+    $c->response->redirect($c->uri_for($c->controller('Configuration')->action_for('general')));
     $c->detach();
 }
+
+
 
 =head2 general
 
