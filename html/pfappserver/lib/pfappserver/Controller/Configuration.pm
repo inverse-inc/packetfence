@@ -124,13 +124,13 @@ sub _update_section :Private {
 
 sub _process_section :Private {
     my ($self, $c) = @_;
-
+    my $section = $c->action->name;
     my ($params, $form);
 
-    $c->stash->{section} = $c->action->name;
+    $c->stash->{section} = $section;
     $c->stash->{template} = 'configuration/section.tt';
 
-    $params = $c->model('Config::Pf')->read($c->action->name);
+    $params = $c->model('Config::Pf')->read($section);
     $self->_format_section($params);
 
     if ($c->request->method eq 'POST') {
@@ -162,8 +162,6 @@ sub index :Path :Args(0) {
     $c->response->redirect($c->uri_for($c->controller('Configuration')->action_for('general')));
     $c->detach();
 }
-
-
 
 =head2 general
 
@@ -446,147 +444,6 @@ sub soh :Local {
     if (is_error($status)) {
         $c->stash->{error} = $result;
     }
-}
-
-=head2 fingerprints
-
-
-sub fingerprints : Local : Args(0) {
-    my ( $self, $c ) = @_;
-    my $action = $c->request->params->{'action'} || "";
-    if ( $action eq 'update' ) {
-        my ( $status, $version_msg, $total ) =
-            update_dhcp_fingerprints_conf();
-        $c->stash->{status_message} =
-            "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
-            . "$total DHCP fingerprints reloaded\n";
-    }
-    elsif ( $action eq 'upload' ) {
-        require pf::pfcmd::report;
-        import pf::pfcmd::report qw(report_unknownprints_all);
-        my $content = join(
-            "\n",
-            (   map {
-                    join(
-                        ":",
-                        @{$_}{
-                            qw(dhcp_fingerprint vendor computername user_agent)
-                            }
-                        )
-                    } report_unknownprints_all()
-            ),
-            ""
-        );
-        if ($content) {
-            require LWP::UserAgent;
-            my $browser  = LWP::UserAgent->new;
-            my $response = $browser->post(
-                'http://www.packetfence.org/fingerprintsv2.php?ref='
-                    . uri_escape($c->uri_for($c->action->name)),
-                { fingerprints => $content }
-            );
-        }
-    }
-    $self->_list_items( $c, 'OS' );
-}
-=cut
-
-=head2 useragents
-
-=cut
-
-sub useragents : Local : Args(0) {
-    my ( $self, $c ) = @_;
-    my $action = $c->request->params->{'action'} || "";
-    if ( $action eq 'upload' ) {
-        require PHP::Serialization;
-        require pf::pfcmd::report;
-        import pf::pfcmd::report qw(report_unknownuseragents_all);
-        my @fields = qw(browser os computername dhcp_fingerprint description);
-        my %data   = map {
-            my %ua;
-            @ua{@fields} = @{$_}{@fields};
-            $_->{user_agent} => \%ua
-        } report_unknownuseragents_all();
-        if (%data) {
-            require IO::Compress::Gzip;
-            import IO::Compress::Gzip qw(gzip);
-            require MIME::Base64;
-            import MIME::Base64 qw(encode_base64);
-            my $content =
-                encode_base64(
-                gzip( PHP::Serialization::serialize( \%data ) ) );
-            require LWP::UserAgent;
-            my $browser  = LWP::UserAgent->new;
-            my $response = $browser->post(
-                'http://www.packetfence.org/useragents.php?ref=' . $c.uri_for($c->action->name),
-                { useragent_fingerprints => $content }
-            );
-        }
-    }
-    $self->_list_items( $c, 'UserAgent' );
-}
-
-sub _list_items {
-    my ( $self, $c, $model_name ) = @_;
-    my ( $filter, $orderby, $orderdirection, $status, $result, $items_ref );
-    my $model       = $c->model($model_name);
-    my $field_names = $model->field_names();
-    my $page_num    = $c->request->params->{'page_num'} || 1;
-    my $per_page    = $c->request->params->{'per_page'} || 25;
-    my $limit_clause =
-        "LIMIT " . ( ( $page_num - 1 ) * $per_page ) . "," . $per_page;
-    my %params = ( limit => $limit_clause );
-
-    if ( exists( $c->req->params->{'filter'} ) ) {
-        $filter = $c->req->params->{'filter'};
-        $params{'where'} = { type => 'any', like => $filter };
-        $c->stash->{filter} = $filter;
-    }
-    if ( exists( $c->request->params->{'by'} ) ) {
-        $orderby = $c->request->params->{'by'};
-        if ( grep { $_ eq $orderby } (@$field_names) ) {
-            $orderdirection = $c->request->params->{'direction'};
-            unless ( grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {
-                $orderdirection = 'asc';
-            }
-            $params{'orderby'}     = "ORDER BY $orderby $orderdirection";
-            $c->stash->{by}        = $orderby;
-            $c->stash->{direction} = $orderdirection;
-        }
-    }
-    my $count;
-    ( $status, $result ) = $model->search(%params);
-    if ( is_success($status) ) {
-        $items_ref = $result;
-       ( $status, $count ) = $model->countAll(%params);
-    }
-    if ( is_success($status) ) {
-        $items_ref = $result;
-        $c->stash->{count}       = $count;
-        $c->stash->{page_num}    = $page_num;
-        $c->stash->{per_page}    = $per_page;
-        $c->stash->{by}          = $orderby || $field_names->[0];
-        $c->stash->{direction}   = $orderdirection || 'asc';
-        $c->stash->{items}       = $items_ref;
-        $c->stash->{field_names} = $field_names;
-        $c->stash->{pages_count} = ceil( $count / $per_page );
-    }
-    else {
-        $c->response->status($status);
-        $c->stash->{status_msg}   = $result;
-        $c->stash->{current_view} = 'JSON';
-    }
-}
-
-sub macaddress : Local {
-    my ( $self, $c ) = @_;
-    my $action = $c->request->params->{'action'} || "";
-    if ( $action eq 'update' ) {
-        download_oui();
-        load_oui(1);
-    }
-    $self->_list_items( $c, 'MacAddress' );
 }
 
 =head2 roles

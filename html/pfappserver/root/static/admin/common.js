@@ -253,7 +253,8 @@ $(function () {
         var form = $(this);
         var results = $('#section');
         results.fadeTo('fast', 0.5);
-        location.hash = "#" + form.attr('action') +"?"+ form.serialize();
+        var hash = "#" +  form.attr('action') + '/' +  form.serialize().replace(/[&=]/,"/"  )  ;
+        location.hash = hash;
         return false;
     });
 

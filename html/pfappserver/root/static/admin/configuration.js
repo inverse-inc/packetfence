@@ -30,10 +30,17 @@ function init() {
                     window.location.href = jqXHR.getResponseHeader('Location');
                 }
                 else {
-                    var obj = $.parseJSON(jqXHR.responseText);
                     $("body,html").animate({scrollTop:0}, 'fast');
                     resetAlert($('#section'));
-                    showPermanentError($('form'), obj.status_msg);
+                    var status_msg;
+                    try {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        status_msg = obj.status_msg;
+                    }
+                    catch(e) {
+                        status_msg = "Cannot submit form";
+                    }
+                    showPermanentError($('form'), status_msg);
                 }
             });
         }
@@ -46,7 +53,7 @@ function init() {
     /* Page refresh */
     $(window).hashchange(function(event) {
         var hash = location.hash;
-        var href = '/configuration/' + hash.replace(/^#/,'') + location.search ;
+        var href = '/configuration/' + hash.replace(/^#/,'');
         updateSection(href);
         return true;
     });

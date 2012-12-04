@@ -1,7 +1,7 @@
 <h2>[% l('Fingerprints') %]</h2>
 <div class="options">
-  <a class="refresh-section" href="[% c.uri_for(c.action_for('/'), {action=>"upload" }).path_query() %]"><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
-  | <a class="refresh-section" href="[% c.uri_for(c.action_for('/'), {action=>"update" }).path_query() %]"><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>
+  <a class="refresh-section" href="upload" ><i class="icon-share"></i> [% l('Share Unknown Fingerprints') %]</a>
+  | <a class="refresh-section" href="update" ><i class="icon-refresh"></i> [% l('Update Fingerprints') %]</a>
 </div>
 
 [%- INCLUDE 'configuration/listing.inc' titles = {
@@ -10,7 +10,8 @@
     class => 'OS Class',
     os => 'Operating System',
     fingerprint => 'Fingerprint' 
-}
+} 
+section='fingerprints'
 -%]
 
 <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
