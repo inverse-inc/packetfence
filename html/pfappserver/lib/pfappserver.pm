@@ -47,14 +47,19 @@ __PACKAGE__->config(
     name => 'pfappserver',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
+    static => {
+        mime_types => {
+            woff => 'font/woff'
+        },
+    },
 
     'Plugin::Session' => {
         storage => '/usr/local/pf/var/session'
     },
 
     'View::JSON' => {
-       allow_callback  => 1,    # defaults to 0
-       callback_param  => 'cb', # defaults to 'callback'
+       allow_callback  => 0,    # defaults to 0
+       #callback_param  => 'cb', # defaults to 'callback'
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
        expose_stash    => [ qw(status status_msg error interfaces networks switches config services) ], # defaults to everything
     },
@@ -74,6 +79,7 @@ __PACKAGE__->config(
          }
        }
      },
+
 );
 
 # Logging
