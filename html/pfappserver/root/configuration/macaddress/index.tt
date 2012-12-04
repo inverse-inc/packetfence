@@ -1,9 +1,10 @@
             <h2>[% l('MAC Addresses') %]</h2>
-            <a href="[% c.uri_for(c.action.name, {action=>"update"}) %]"> <i class="icon-share"></i> [% l('Update OUI Prefixes') %] </a>
+            <a href="update"> <i class="icon-share"></i> [% l('Update OUI Prefixes') %] </a>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             oui => 'OUI',
             vendor_info => 'Vendor',
         }
+        section = 'macaddress'
      -%]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No matching mac addresses') %]</p>

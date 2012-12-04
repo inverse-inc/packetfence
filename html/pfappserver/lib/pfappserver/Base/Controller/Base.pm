@@ -63,19 +63,19 @@ sub _list_items {
     my ( $filter, $orderby, $orderdirection, $status, $result, $items_ref );
     my $model       = $c->model($model_name);
     my $field_names = $model->field_names();
-    my $page_num    = $c->request->params->{'page_num'} || 1;
-    my $per_page    = $c->request->params->{'per_page'} || 25;
+    my $page_num    = $c->stash->{'page_num'} || 1;
+    my $per_page    = $c->stash->{'per_page'} || 25;
     my $limit_clause =
         "LIMIT " . ( ( $page_num - 1 ) * $per_page ) . "," . $per_page;
     my %params = ( limit => $limit_clause );
 
-    if ( exists( $c->req->params->{'filter'} ) ) {
-        $filter = $c->req->params->{'filter'};
+    if ( exists( $c->stash->{'filter'} ) ) {
+        $filter = $c->stash->{'filter'};
         $params{'where'} = { type => 'any', like => $filter };
         $c->stash->{filter} = $filter;
     }
-    if ( exists( $c->request->params->{'by'} ) ) {
-        $orderby = $c->request->params->{'by'};
+    if ( exists( $c->stash->{'by'} ) ) {
+        $orderby = $c->stash->{'by'};
         if ( grep { $_ eq $orderby } (@$field_names) ) {
             $orderdirection = $c->request->params->{'direction'};
             unless ( grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {

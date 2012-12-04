@@ -39,7 +39,7 @@ sub update : Local : Args(0) {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $version_msg, $total ) =
         update_dhcp_fingerprints_conf();
-    $c->stash->{status_message} =
+    $c->stash->{status_msg} =
         "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
         . "$total DHCP fingerprints reloaded\n";
 }
@@ -82,14 +82,14 @@ sub upload : Local : Args(0) {
             Content => $content 
         );
         if($response->content =~ /Thank you for submitting the following fingerprints/) {
-            $c->stash->{status_message} = "Thank you for submitting your fingerprints";
+            $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
         }
         else {
-            $c->stash->{status_message} = "No unknown fingerprints found";
+            $c->stash->{status_msg} = "No unknown fingerprints found";
         }
     }
     else {
-        $c->stash->{status_message} = "No unknown fingerprints found";
+        $c->stash->{status_msg} = "No unknown fingerprints found";
     }
 }
 
@@ -97,41 +97,24 @@ sub upload : Local : Args(0) {
 
 =cut
 
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
+my %VALID_PARAMS = (
+    page_num => 1,
+    by => 1,
+    direction => 1,
+    filter => 1
+);
+
+sub index : Path :Args() {
+    my ( $self, $c,%args ) = @_;
+    %args = map { $_ => $args{$_}  } grep { exists $VALID_PARAMS{$_}  } keys %args;
+    $c->stash(%args);
     my $action = $c->request->params->{'action'} || "";
     if ( $action eq 'update' ) {
         my ( $status, $version_msg, $total ) =
             update_dhcp_fingerprints_conf();
-        $c->stash->{status_message} =
+        $c->stash->{status_msg} =
             "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
             . "$total DHCP fingerprints reloaded\n";
-    }
-    elsif ( $action eq 'upload' ) {
-        require pf::pfcmd::report;
-        import pf::pfcmd::report qw(report_unknownprints_all);
-        my $content = join(
-            "\n",
-            (   map {
-                    join(
-                        ":",
-                        @{$_}{
-                            qw(dhcp_fingerprint vendor computername user_agent)
-                            }
-                        )
-                    } report_unknownprints_all()
-            ),
-            ""
-        );
-        if ($content) {
-            require LWP::UserAgent;
-            my $browser  = LWP::UserAgent->new;
-            my $response = $browser->post(
-                'http://www.packetfence.org/fingerprintsv2.php?ref='
-                    . uri_escape($c->uri_for($c->action->name)),
-                { fingerprints => $content }
-            );
-        }
     }
     $self->_list_items( $c, 'OS' );
 }

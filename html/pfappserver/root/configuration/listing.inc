@@ -2,17 +2,18 @@
     params = { by => column, filter => filter };
     IF by == column && direction == 'asc';
       params.direction = 'desc';
-END %]
-    <th><a href="[% c.uri_for(c.action, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+    END %]
+    <th> <a href="#[% pagination_path(section,params)  %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
-        <form name="simpleSearch" class="form-search" action="[% c.uri_for(c.action.name) %]">
+      <div>
+        <form name="simpleSearch" class="form-search" action="[% section %]">
             <div class="pull-right">
-               <input id="simpleString" class="search-query" type="text" placeholder="Search...">
+               <input name="filter" id="simpleString" class="search-query" type="text" placeholder="Search..." value="[%filter | html%]">
                <button class="btn btn-primary"><i class="icon-search icon-white"></i></button>
             </div>
         </form>
         <br/>
-      [% INCLUDE 'configuration/pagination.inc' IF items.size > 0 %]
+      [% INCLUDE 'pagination.inc' section = section  IF items.size > 0 %]
         <table class="table table-condensed table-striped">
           <thead>
             <tr>
@@ -31,4 +32,4 @@ END %]
             [%- END -%]
           </tbody>
         </table>
-      [% INCLUDE 'configuration/pagination.inc' IF items.size > 0 %]
+      [% INCLUDE 'pagination.inc' section = section IF items.size > 0 %]
