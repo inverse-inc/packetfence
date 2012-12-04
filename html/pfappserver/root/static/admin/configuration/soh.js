@@ -61,6 +61,9 @@ function initSoH() {
         confirm_btn.off('click');
         confirm_btn.click(function() {
             $.ajax(url)
+                .always(function() {
+                    modal.modal('hide');
+                })
                 .done(function(data) {
                     row.remove();
                     var table = $('#section table');
@@ -69,7 +72,6 @@ function initSoH() {
                         table.remove();
                         $('#noFilter').removeClass('hidden');
                     }
-                    modal.modal('hide');
                 })
                 .fail(function(jqXHR) {
                     if (jqXHR.status == 401) {
@@ -78,7 +80,6 @@ function initSoH() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
-                        modal.modal('hide');
                         showError($('#section h2'), obj.status_msg);
                         $("body,html").animate({scrollTop:0}, 'fast');
                     }

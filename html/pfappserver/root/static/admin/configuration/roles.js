@@ -65,6 +65,9 @@ function initRoles() {
         confirm_link.off('click');
         confirm_link.click(function() {
             $.ajax(url)
+                .always(function() {
+                    modal.modal('hide');
+                })
                 .done(function(data) {
                     row.remove();
                     var table = $('#section table');
@@ -73,7 +76,6 @@ function initRoles() {
                         table.remove();
                         $('#noRole').removeClass('hidden');
                     }
-                    modal.modal('hide');
                 })
                 .fail(function(jqXHR) {
                     if (jqXHR.status == 401) {
@@ -82,7 +84,6 @@ function initRoles() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
-                        modal.modal('hide');
                         showError($('#section h2'), obj.status_msg);
                         $("body,html").animate({scrollTop:0}, 'fast');
                     }

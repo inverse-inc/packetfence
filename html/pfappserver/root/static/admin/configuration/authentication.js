@@ -32,9 +32,11 @@ function initAuthentication() {
             loader.show();
             $(this).empty();
             $.ajax(href)
+                .always(function() {
+                    loader.hide();
+                })
                 .done(function(data) {
                     section.html(data);
-                    loader.hide();
                     section.fadeIn('fast', function() {
                         $('.chzn-select').chosen();
                         $('#id').focus();
@@ -47,7 +49,6 @@ function initAuthentication() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
-                        loader.hide();
                         section.append('<div></div>').fadeIn();
                         showError(section.children().first(), obj.status_msg);
                     }
@@ -77,6 +78,9 @@ function initAuthentication() {
         confirm_link.off('click');
         confirm_link.click(function() {
             $.ajax(url)
+                .always(function() {
+                    modal.modal('hide');
+                })
                 .done(function(data) {
                     row.remove();
                     var table = $('#section table');
@@ -89,7 +93,6 @@ function initAuthentication() {
                     else {
                         updateSortableTable(rows);
                     }
-                    modal.modal('hide');
                 })
                 .fail(function(jqXHR) {
                     if (jqXHR.status == 401) {
@@ -98,7 +101,6 @@ function initAuthentication() {
                     }
                     else {
                         var obj = $.parseJSON(jqXHR.responseText);
-                        modal.modal('hide');
                         showError($('#section h2'), obj.status_msg);
                         $("body,html").animate({scrollTop:0}, 'fast');
                     }

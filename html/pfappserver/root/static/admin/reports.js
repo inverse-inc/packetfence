@@ -12,8 +12,10 @@ function init() {
             graphs = {};
             loader.show();
             $.ajax(href)
-                .done(function(data) {
+                .always(function() {
                     loader.hide();
+                })
+                .done(function(data) {
                     graph.html(data);
                     graph.show();
                     graph.find('.counter [rel="tooltip"]').tooltip({ placement: 'left' });
@@ -26,7 +28,6 @@ function init() {
                         window.location.href = jqXHR.getResponseHeader('Location');
                     }
                     else {
-                        loader.hide();
                         var obj = $.parseJSON(jqXHR.responseText);
                         showError(graph, obj.status_msg);
                     }
@@ -42,9 +43,11 @@ function init() {
         var graph = $('#section .graph');
         graph.fadeTo('fast', 0.5);
         $.ajax($(this).attr('href'))
+            .always(function() {
+                graph.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 graph.html(data);
-                graph.fadeTo('fast', 1.0);
                 graph.find('.counter [rel="tooltip"]').tooltip({ placement: 'left' });
                 graph.find('.options [rel="tooltip"]').tooltip({ placement: 'right' });
                 drawGraphs();
@@ -57,7 +60,6 @@ function init() {
                 else {
                     var obj = $.parseJSON(jqXHR.responseText);
                     showError(graph, obj.status_msg);
-                    graph.fadeTo('fast', 1.0);
                 }
             });
 

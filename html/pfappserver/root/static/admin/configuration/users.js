@@ -81,10 +81,12 @@ function initUsers() {
             url: btn.attr('href'),
             data: form.serialize()
         })
-        .done(function(data) {
+        .always(function() {
             $("body,html").animate({scrollTop:0}, 'fast');
             btn.button('reset');
             resetAlert(modal_body);
+        })
+        .done(function(data) {
             showSuccess(modal_body.children().first(), data.status_msg);
         })
         .fail(function(jqXHR) {
@@ -94,9 +96,6 @@ function initUsers() {
             }
             else {
                 var obj = $.parseJSON(jqXHR.responseText);
-                btn.button('reset');
-                $("body,html").animate({scrollTop:0}, 'fast');
-                resetAlert(modal_body);
                 showPermanentError(modal_body.children().first(), obj.status_msg);
             }
         });
