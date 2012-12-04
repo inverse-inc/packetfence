@@ -10,14 +10,33 @@ function updateSection(href) {
         $.ajax(href)
         .done(function(data) {
             if(loader) loader.hide();
-            section.html(data).fadeTo('fast', 1.0);
+            section.fadeTo('fast',1.0);
+            section.html(data);
+            $('.datepicker').datepicker({ autoclose: true });
+            $('.chzn-select').chosen();
+            $('.chzn-deselect').chosen({allow_single_deselect: true});
+            $(':input:visible:enabled:first').focus();
+            section.trigger('section.loaded');
         })
         .fail(function(jqXHR) {
             if(loader) loader.hide();
-            var obj = $.parseJSON(jqXHR.responseText);
-            var status_msg = obj ? ( obj.status_msg || "Error Loading Content"  ) : "Error Loading Content";
-            showError(section, status_msg);
             section.fadeTo('fast', 1.0);
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else {
+                var status_msg;
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {
+                    status_msg = "Cannot Load Content";
+                    section.html('<div></div>');
+                }
+                showPermanentError(section, status_msg);
+            }
         });
     }
 }
