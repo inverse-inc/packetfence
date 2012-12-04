@@ -19,9 +19,11 @@ function init() {
                 url: url,
                 data: form.serialize()
             })
-            .done(function(data) {
+            .always(function() {
                 $("body,html").animate({scrollTop:0}, 'fast');
                 resetAlert($('#section'));
+            })
+            .done(function(data) {
                 showSuccess($('form'), data.status_msg);
             })
             .fail(function(jqXHR) {
@@ -30,8 +32,6 @@ function init() {
                     window.location.href = jqXHR.getResponseHeader('Location');
                 }
                 else {
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                    resetAlert($('#section'));
                     var status_msg;
                     try {
                         var obj = $.parseJSON(jqXHR.responseText);

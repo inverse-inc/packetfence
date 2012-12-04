@@ -3,14 +3,14 @@ function updateSection(href) {
     if(section) {
         $("body,html").animate({scrollTop:0}, 'fast');
         var loader = section.prev('.loader');
-        if(loader) {
-            loader.show();
-        }
+        if(loader) loader.show(); 
         section.fadeTo('fast', 0.5);
         $.ajax(href)
-        .done(function(data) {
+        .always(function() {
             if(loader) loader.hide();
             section.fadeTo('fast',1.0);
+        })
+        .done(function(data) {
             section.html(data);
             $('.datepicker').datepicker({ autoclose: true });
             $('.chzn-select').chosen();
@@ -19,8 +19,6 @@ function updateSection(href) {
             section.trigger('section.loaded');
         })
         .fail(function(jqXHR) {
-            if(loader) loader.hide();
-            section.fadeTo('fast', 1.0);
             if (jqXHR.status == 401) {
                 // Unauthorized; redirect to URL specified in the location header
                 window.location.href = jqXHR.getResponseHeader('Location');

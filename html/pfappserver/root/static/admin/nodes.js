@@ -6,13 +6,15 @@ function init() {
     /* Sort the search results */
     $('#results').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');
-        var results = $('#results');
-        results.fadeTo('fast', 0.5);
+        var section = $('#section');
+        section.fadeTo('fast', 0.5);
         $.ajax(url)
+        .always(function() {
+            section.stop();
+            section.fadeTo('fast', 1.0);
+        })
         .done(function(data) {
-            results.html(data);
-            results.stop();
-            results.fadeTo('fast', 1.0);
+            section.html(data);
         })
         .fail(function(jqXHR) {
             if (jqXHR.status == 401) {
@@ -21,7 +23,7 @@ function init() {
             }
             else {
                 var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError($('#results'), obj.status_msg);
+                showPermanentError(#section, obj.status_msg);
             }
         });
 
