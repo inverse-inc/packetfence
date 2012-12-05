@@ -48,16 +48,21 @@ function init() {
         return false;
     });
 
-    /* Load initial section */
-    $('.sidebar-nav .nav-list .active a').trigger('click');
-    /* Page refresh */
     $(window).hashchange(function(event) {
         var hash = location.hash;
         var href = '/configuration/' + hash.replace(/^#/,'');
         updateSection(href);
         return true;
     });
+
     $(window).hashchange();
+    var link_query = '.sidebar-nav .nav-list .active a';
+    var hash = location.hash.replace(/\/.*$/,'');
+    if(hash && hash != '#') {
+       link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
+    }
+    
+    $(link_query).trigger('click');
 
     initAuthentication();
     initUsers();
