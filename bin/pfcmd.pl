@@ -77,6 +77,7 @@ use pf::config::ui;
 use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
+use HTTP::Status qw(HTTP_OK);
 
 # Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
@@ -1705,10 +1706,11 @@ sub update {
     require LWP::UserAgent;
     my $browser = LWP::UserAgent->new;
     if ( $option eq "fingerprints" ) {
-        my $response = $browser->get($dhcp_fingerprints_url);
-        if ( !$response->is_success ) {
-            $logger->logdie( "Unable to update DHCP fingerprints: "
-                    . $response->status_line );
+        require pf::os;
+        my ($status,$version_msg,$total) = pf::os::update_dhcp_fingerprints_conf();
+        if ( $status == HTTP_OK ) {
+            print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n";
+            print "$total DHCP fingerprints reloaded\n";
         } else {
             my ($fingerprints_fh);
             open( $fingerprints_fh, '>', "$dhcp_fingerprints_file" )
