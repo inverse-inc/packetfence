@@ -39,9 +39,10 @@ sub update : Local : Args(0) {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $version_msg, $total ) =
         update_dhcp_fingerprints_conf();
-    $c->stash->{status_msg} =
-        "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
-        . "$total DHCP fingerprints reloaded\n";
+    $c->stash->{status_msg} = ($status == HTTP_OK) ? (
+        " $status DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
+        . "$total DHCP fingerprints reloaded\n") : $version_msg;
+    $c->response->status($status);
 }
 
 =head2 upload
@@ -61,6 +62,7 @@ sub upload : Local : Args(0) {
     require pf::pfcmd::report;
     import pf::pfcmd::report qw(report_unknownprints_all);
     my @field_name = qw(dhcp_fingerprint vendor computername user_agent);
+    my $status = HTTP_OK;
     my $content = join(
         "&",
         (   map {
@@ -85,12 +87,15 @@ sub upload : Local : Args(0) {
             $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
         }
         else {
-            $c->stash->{status_msg} = "No unknown fingerprints found";
+            $c->stash->{status_msg} = "Error uploading fingerprints";
+            $status = HTTP_INTERNAL_SERVER_ERROR;
         }
     }
     else {
         $c->stash->{status_msg} = "No unknown fingerprints found";
+        $status = HTTP_NOT_FOUND;
     }
+    $c->response->status($status);
 }
 
 =head2 index
@@ -113,7 +118,7 @@ sub index : Path :Args() {
         my ( $status, $version_msg, $total ) =
             update_dhcp_fingerprints_conf();
         $c->stash->{status_msg} =
-            "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
+            "$status DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
             . "$total DHCP fingerprints reloaded\n";
     }
     $self->_list_items( $c, 'OS' );

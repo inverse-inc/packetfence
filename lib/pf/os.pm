@@ -102,6 +102,37 @@ sub os_db_prepare {
     $os_db_prepared = 1;
 }
 
+sub update_dhcp_fingerprints_conf {
+    require LWP::UserAgent;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+    my $browser = LWP::UserAgent->new;
+    my $response = $browser->get($dhcp_fingerprints_url);
+    my ($status,$version_or_msg,$total) = ($response->code,undef,undef);
+    if ( !$response->is_success ) {
+        $version_or_msg = "Unable to update DHCP fingerprints: " . $response->status_line;
+    } else {
+        my ($fingerprints_fh);
+        if( open( $fingerprints_fh, '>', "$dhcp_fingerprints_file" ) ) {
+            my $fingerprints = $response->content;
+            ($version_or_msg)
+                = $fingerprints
+                =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
+            print $fingerprints_fh $fingerprints;
+            close($fingerprints_fh);
+            $logger->info(
+                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_or_msg"
+            );
+            $total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
+            $logger->info("$total DHCP fingerprints reloaded");
+        }
+        else {
+           $version_or_msg = "Unable to open $dhcp_fingerprints_file: $!";
+        }
+    }
+    return ($status,$version_or_msg,$total);
+
+}
+
 sub dhcp_fingerprint_view {
     my ($fingerprint) = @_;
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_sql', $fingerprint );

@@ -249,10 +249,48 @@ $(function () {
     //For simpleSearch
     $('body').on('submit', 'form[name="simpleSearch"]', function(event) {
         var form = $(this);
-        var results = $('#section');
-        results.fadeTo('fast', 0.5);
+        var section = $('#section');
+        section.fadeTo('fast', 0.5);
         var hash = "#" +  form.attr('action') + '/' +  form.serialize().replace(/[&=]/,"/"  )  ;
         location.hash = hash;
+        return false;
+    });
+
+    $('#section').on('click','a.updates_section_status_msg',function() {
+        var that = $(this);
+        var href = that.attr('href');
+        var section = $('#section');
+        section.fadeTo('fast', 0.5);
+        var loader = section.prev('.loader');
+        if(loader) loader.show(); 
+        $.ajax(href)
+        .always(function(){
+            section.fadeTo('fast', 1.0);
+            if(loader) loader.hide(); 
+        })
+        .done(function(data) {
+            showSuccess(section,data.status_msg);
+        })
+        .fail(function(jqXHR) {
+            var status_msg;
+            try {
+                var obj = $.parseJSON(jqXHR.responseText);
+                status_msg = obj.status_msg;
+            }
+            catch(e) {
+                status_msg = "Cannot Load Content";
+            }
+            if (jqXHR.status == 401) {
+                // Unauthorized; redirect to URL specified in the location header
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+            else if (jqXHR.status == 404) {
+                showSuccess(section,status_msg);
+            }
+            else {
+                showPermanentError(section, status_msg);
+            }
+        });
         return false;
     });
 
