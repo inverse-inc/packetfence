@@ -632,17 +632,18 @@ sub download_oui {
     require LWP::UserAgent;
     my $browser = LWP::UserAgent->new;
     my $response = $browser->get($oui_url);
+    my ($status,$msg) = $response->code;
     if ( !$response->is_success ) {
-        $logger->info(
-            "Unable to update OUI prefixes: " . $response->status_line );
+        $msg = "Unable to update OUI prefixes: " . $response->status_line;
     } else {
         my ($oui_fh);
         open( $oui_fh, '>', "$oui_file" )
             || $logger->info("Unable to open $oui_file: $!");
         print $oui_fh $response->content;
         close($oui_fh);
-        $logger->info("OUI prefixes updated via $oui_url");
+        $msg = "OUI prefixes updated via $oui_url";
     }
+    return ($status,$msg);
 }
 
 =item connection_type_to_str

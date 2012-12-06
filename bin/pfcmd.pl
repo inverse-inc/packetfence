@@ -1711,29 +1711,20 @@ sub update {
         if ( $status == HTTP_OK ) {
             print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n";
             print "$total DHCP fingerprints reloaded\n";
-        } else {
-            my ($fingerprints_fh);
-            open( $fingerprints_fh, '>', "$dhcp_fingerprints_file" )
-                || $logger->logdie(
-                "Unable to open $dhcp_fingerprints_file: $!");
-            my $fingerprints = $response->content;
-            my ($version)
-                = $fingerprints
-                =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
-            print $fingerprints_fh $fingerprints;
-            close($fingerprints_fh);
-            $logger->info(
-                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version"
-            );
-            print
-                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
-            require pf::os;
-            my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
-            $logger->info("$fp_total DHCP fingerprints reloaded");
-            print "$fp_total DHCP fingerprints reloaded\n";
         }
-    } elsif ( $option eq "oui" ) {
-        download_oui();
+        else {
+            $logger->logdie( $version_msg);
+        }
+    }
+    elsif ( $option eq "oui" ) {
+        my ($status,$msg) = download_oui();
+        if ( $status == HTTP_OK ) {
+            load_oui(1);
+            print "$msg\n";
+        }
+         else {
+            $logger->logdie( $msg);
+        }
     }
     exit;
 }

@@ -49,33 +49,13 @@ sub index : Path :Args() {
     $self->_list_items( $c, 'MacAddress' );
 }
 
-sub upload : Local : Args(0) {
+sub update : Local : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
-    require PHP::Serialization;
-    require pf::pfcmd::report;
-    import pf::pfcmd::report qw(report_unknownuseragents_all);
-    my @fields = qw(browser os computername dhcp_fingerprint description);
-    my %data   = map {
-        my %ua;
-        @ua{@fields} = @{$_}{@fields};
-        $_->{user_agent} => \%ua
-    } report_unknownuseragents_all();
-    if (%data) {
-        require IO::Compress::Gzip;
-        import IO::Compress::Gzip qw(gzip);
-        require MIME::Base64;
-        import MIME::Base64 qw(encode_base64);
-        my $content =
-            encode_base64(
-            gzip( PHP::Serialization::serialize( \%data ) ) );
-        require LWP::UserAgent;
-        my $browser  = LWP::UserAgent->new;
-        my $response = $browser->post(
-            'http://www.packetfence.org/useragents.php?ref=' . $c->uri_for($c->action->name),
-            { useragent_fingerprints => $content }
-        );
-    }
+    my ($status,$status_msg) = download_oui();
+    load_oui(1);
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head1 COPYRIGHT
