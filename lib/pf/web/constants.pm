@@ -72,7 +72,7 @@ Readonly::Scalar our $URL_WIRELESS_PROFILE      => '/wireless-profile.mobileconf
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
 Readonly::Scalar our $CGI_SIGNUP                => '/cgi-perl/guest-selfregistration.cgi';
-Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email/';
+Readonly::Scalar our $URL_EMAIL_ACTIVATION      => '/activate/email';
 Readonly::Scalar our $CGI_EMAIL_ACTIVATION      => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
