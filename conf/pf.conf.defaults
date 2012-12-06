@@ -226,6 +226,12 @@ expire_mode=disabled
 # nodes revert to an unregistered state.  This would typically be the end of a semester.
 expire_deadline=Mon Nov 12 12:00:00 EST 2012
 #
+# registration.advance_expire_deadline
+#
+# If expire_mode is set to "advance_deadline", this is the time use to calculate the unregdate of the current regdate
+# but at midnight
+advance_expire_deadline=1D 
+#
 # registration.expire_window
 #
 # If expire_mode is set to "window", this is length of time after

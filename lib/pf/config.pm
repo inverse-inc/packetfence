@@ -383,6 +383,7 @@ sub readPfConfigFiles {
         "trapping.redirtimer",
         "registration.skip_window",   "registration.skip_reminder",
         "registration.expire_window", "registration.expire_session",
+        "registration.advance_expire_deadline",
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
         "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
