@@ -730,6 +730,15 @@ sub node_modify {
         {
             $existing->{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
                 localtime( $Config{'registration'}{'expire_deadline'} ) );
+        } elsif (  ( lc($expire_mode) eq 'advance_deadline' )
+            && ( $Config{'registration'}{'advance_expire_deadline'} > 0 ) )
+        {
+            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+            my $today_sec = ($hour * 3600) + ($min * 60) + $sec;
+            $existing->{'unregdate'} = POSIX::strftime(
+                "%Y-%m-%d %H:%M:%S",
+                localtime( (time + $Config{'registration'}{'advance_expire_deadline'}) - $today_sec )
+            );
         }
     }
 
