@@ -174,6 +174,26 @@ sub listen_dhcp {
 
     my ($l2, $l3, $l4, $dhcp);
 
+    # Skip frames that aren't ETH_TYPE_IP to avoid processing frames more than
+    # once when pfdhcplistener listens on both a vlan interface and its parent
+    #
+    # On post-2008 kernels, with network devices supporting VLAN acceleration
+    # (HW tagging/stripping), ethernet frames always appear untagged to libpcap.
+    # The library reconstructs the original frame by looking at the PACKET_AUXDATA
+    # (pcap-linux.c: pcap_read_packet) *after* the frame has passed the bpf filters.
+    # In other words, we cannot use bpf filters to ignore VLAN packets.
+    #
+    # Also, NetPacket::Ethernet::decode will skip the VLAN header from
+    # a tagged frame and return the 'inner' ether_type of the frame.
+    #
+    # For these reasons, we must peek directly at the data.
+    # skip the first 12 bytes of the frame (src + dst eth addr)
+    # grab the ether_type field and discard the rest:
+    my ($ether_type, undef) = unpack("x[12]nC*", $packet);
+    if ($ether_type != NetPacket::Ethernet::ETH_TYPE_IP) {
+      return;
+    } 
+
     # we need success flag here because we can't next inside try catch
     my $success;
     try {
@@ -612,6 +632,10 @@ Kevin Amorin <kev@amorin.org>
 Dominik Gehl <dgehl@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
+Jean Raby <jraby@inverse.ca>
 
 =head1 COPYRIGHT
 
