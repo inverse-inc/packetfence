@@ -39,7 +39,7 @@ sub update : Local : Args(0) {
     $c->stash->{current_view} = 'JSON';
     my ( $status, $version_msg, $total ) =
         update_dhcp_fingerprints_conf();
-    $c->stash->{status_msg} = ($status == HTTP_OK) ? (
+    $c->stash->{status_msg} = (is_success($status) ) ? (
         " $status DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
         . "$total DHCP fingerprints reloaded\n") : $version_msg;
     $c->response->status($status);

@@ -77,7 +77,7 @@ use pf::config::ui;
 use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
-use HTTP::Status qw(HTTP_OK);
+use HTTP::Status qw(is_success);
 
 # Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
@@ -1708,7 +1708,7 @@ sub update {
     if ( $option eq "fingerprints" ) {
         require pf::os;
         my ($status,$version_msg,$total) = pf::os::update_dhcp_fingerprints_conf();
-        if ( $status == HTTP_OK ) {
+        if ( is_success($status) ) {
             print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n";
             print "$total DHCP fingerprints reloaded\n";
         }
@@ -1718,12 +1718,12 @@ sub update {
     }
     elsif ( $option eq "oui" ) {
         my ($status,$msg) = download_oui();
-        if ( $status == HTTP_OK ) {
+        if ( is_success($status) ) {
             load_oui(1);
             print "$msg\n";
         }
          else {
-            $logger->logdie( $msg);
+            $logger->logdie($msg);
         }
     }
     exit;
