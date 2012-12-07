@@ -48,6 +48,11 @@ function init() {
         return false;
     });
 
+    /* Set the focus on the first editable and visible field */
+    $('#section').on('section.loaded', function(event) {
+        $(':input:visible:enabled:first').focus();
+    });
+
     $(window).hashchange(function(event) {
         var hash = location.hash;
         var href = '/configuration/' + hash.replace(/^#/,'');
