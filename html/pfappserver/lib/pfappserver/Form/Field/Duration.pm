@@ -55,7 +55,7 @@ has_field 'unit' =>
 sub duration_inflate {
     my ($self, $value) = @_;
 
-    return {} unless ($value =~ m/(\d+)($TIME_MODIFIER_RE)/);
+    return {} unless (defined $value && $value =~ m/(\d+)($TIME_MODIFIER_RE)/);
     my $hash = {interval => $1,
                 unit => $2};
 
