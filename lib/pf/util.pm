@@ -988,7 +988,7 @@ sub generate_id {
     return $id;
 }
 
-sub ordinal_suffix(_) {
+sub ordinal_suffix {
     my ($num) = @_;
     my $last_digit = $num % 10;
     if ($last_digit == 1) {
