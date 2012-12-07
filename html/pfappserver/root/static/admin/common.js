@@ -9,6 +9,7 @@ function updateSection(href) {
         .always(function() {
             if(loader) loader.hide();
             section.fadeTo('fast',1.0);
+            resetAlert(section);
         })
         .done(function(data) {
             section.html(data);
@@ -32,7 +33,7 @@ function updateSection(href) {
                     status_msg = "Cannot Load Content";
                     section.html('<div></div>');
                 }
-                showPermanentError(section, status_msg);
+                showPermanentError(section.children().first(), status_msg);
             }
         });
     }
