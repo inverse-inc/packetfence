@@ -23,7 +23,7 @@ function init() {
             }
             else {
                 var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(#section, obj.status_msg);
+                showPermanentError(section, obj.status_msg);
             }
         });
 
