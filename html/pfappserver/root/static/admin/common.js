@@ -19,27 +19,29 @@ function updateSection(href) {
             section.trigger('section.loaded');
         })
         .fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
+            var status_msg;
+            try {
+                var obj = $.parseJSON(jqXHR.responseText);
+                status_msg = obj.status_msg;
             }
-            else {
-                var status_msg;
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                    section.html('<div></div>');
-                }
-                showPermanentError(section.children().first(), status_msg);
+            catch(e) {
+                status_msg = "Cannot Load Content";
+                section.html('<div></div>');
             }
+            showPermanentError(section, status_msg);
         });
     }
 }
 
 $(function () {
+
+    $.ajaxSetup({
+        statusCode : {
+            401: function(jqXHR) {
+                window.location.href = jqXHR.getResponseHeader('Location');
+            }
+        }
+    });
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
 
@@ -110,7 +112,7 @@ $(function () {
                     txt.push(a.text());
                 }
                 return $('<div class="drag-row">' + txt.join(' ') + '</div>');
-            },
+            }
         });
         row.siblings().droppable({
             scope: id,
@@ -280,11 +282,7 @@ $(function () {
             catch(e) {
                 status_msg = "Cannot Load Content";
             }
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else if (jqXHR.status == 404) {
+            if (jqXHR.status == 404) {
                 showSuccess(section,status_msg);
             }
             else {

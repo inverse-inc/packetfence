@@ -90,14 +90,8 @@ function initUsers() {
             showSuccess(modal_body.children().first(), data.status_msg);
         })
         .fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
-            }
+            var obj = $.parseJSON(jqXHR.responseText);
+            showPermanentError(modal_body.children().first(), obj.status_msg);
         });
     
         return false;

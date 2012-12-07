@@ -17,14 +17,8 @@ function init() {
             section.html(data);
         })
         .fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(section, obj.status_msg);
-            }
+            var obj = $.parseJSON(jqXHR.responseText);
+            showPermanentError(section, obj.status_msg);
         });
 
         return false;
@@ -58,14 +52,8 @@ function init() {
             });
         })
         .fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#results'), obj.status_msg);
-            }
+            var obj = $.parseJSON(jqXHR.responseText);
+            showError($('#section'), obj.status_msg);
         });
 
         return false;
@@ -90,16 +78,10 @@ function init() {
                 // TODO : refresh search results
                 modal.modal('hide');
             }).fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    btn.button('reset');
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    resetAlert(modal_body);
-                    showPermanentError(modal_body.children().first(), obj.status_msg);
-                }
+                btn.button('reset');
+                var obj = $.parseJSON(jqXHR.responseText);
+                resetAlert(modal_body);
+                showPermanentError(modal_body.children().first(), obj.status_msg);
             });
         }
 

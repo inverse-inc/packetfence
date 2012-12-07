@@ -11,14 +11,8 @@ function initAuthentication() {
             resetAlert($('#section'));
             showSuccess(form, data.status_msg);
         }).fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(form, obj.status_msg);
-            }
+            var obj = $.parseJSON(jqXHR.responseText);
+            showPermanentError(form, obj.status_msg);
         });
     });
 
@@ -43,15 +37,9 @@ function initAuthentication() {
                     });
                 })
                 .fail(function(jqXHR) {
-                    if (jqXHR.status == 401) {
-                        // Unauthorized; redirect to URL specified in the location header
-                        window.location.href = jqXHR.getResponseHeader('Location');
-                    }
-                    else {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        section.append('<div></div>').fadeIn();
-                        showError(section.children().first(), obj.status_msg);
-                    }
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    section.append('<div></div>').fadeIn();
+                    showError(section.children().first(), obj.status_msg);
                 });
         });
 
@@ -95,15 +83,9 @@ function initAuthentication() {
                     }
                 })
                 .fail(function(jqXHR) {
-                    if (jqXHR.status == 401) {
-                        // Unauthorized; redirect to URL specified in the location header
-                        window.location.href = jqXHR.getResponseHeader('Location');
-                    }
-                    else {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        showError($('#section h2'), obj.status_msg);
-                        $("body,html").animate({scrollTop:0}, 'fast');
-                    }
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError($('#section h2'), obj.status_msg);
+                    $("body,html").animate({scrollTop:0}, 'fast');
                 });
         });
 
@@ -132,14 +114,8 @@ function initAuthentication() {
                     });
                 });
             }).fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showPermanentError(form, obj.status_msg);
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showPermanentError(form, obj.status_msg);
             });
         }
 
@@ -160,15 +136,9 @@ function initAuthentication() {
                 });
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError($('#section h2'), obj.status_msg);
+                $("body,html").animate({scrollTop:0}, 'fast');
             });
 
         return false;
@@ -185,15 +155,9 @@ function initAuthentication() {
                 modal.append(data);
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError($('#section h2'), obj.status_msg);
+                $("body,html").animate({scrollTop:0}, 'fast');
             });
 
         return false;    
@@ -227,16 +191,10 @@ function initAuthentication() {
                     });
                 });
             }).fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showPermanentError(modal_body.children().first(), obj.status_msg);
-                    // Restore hidden/template rows
-                    form.find('tr.hidden :input').removeAttr('disabled');
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showPermanentError(modal_body.children().first(), obj.status_msg);
+                // Restore hidden/template rows
+                form.find('tr.hidden :input').removeAttr('disabled');
             });
         }
 
