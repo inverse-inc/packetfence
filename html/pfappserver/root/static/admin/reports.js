@@ -23,14 +23,8 @@ function init() {
                     drawGraphs();
                 })
                 .fail(function(jqXHR) {
-                    if (jqXHR.status == 401) {
-                        // Unauthorized; redirect to URL specified in the location header
-                        window.location.href = jqXHR.getResponseHeader('Location');
-                    }
-                    else {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        showError(graph, obj.status_msg);
-                    }
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError(graph, obj.status_msg);
                 });
         });
 
@@ -53,14 +47,8 @@ function init() {
                 drawGraphs();
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError(graph, obj.status_msg);
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError(graph, obj.status_msg);
             });
 
         return false;
@@ -83,14 +71,8 @@ function init() {
                 
         })
         .fail(function(jqXHR) {
-            if (jqXHR.status == 401) {
-                // Unauthorized; redirect to URL specified in the location header
-                window.location.href = jqXHR.getResponseHeader('Location');
-            }
-            else {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section .graph'), obj.status_msg);
-            }
+            var obj = $.parseJSON(jqXHR.responseText);
+            showError($('#section .graph'), obj.status_msg);
         });
 
         return false;

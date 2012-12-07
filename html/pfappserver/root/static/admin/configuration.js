@@ -24,24 +24,18 @@ function init() {
                 resetAlert($('#section'));
             })
             .done(function(data) {
-                showSuccess($('form'), data.status_msg);
+                showSuccess(form, data.status_msg);
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
+                var status_msg;
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
                 }
-                else {
-                    var status_msg;
-                    try {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        status_msg = obj.status_msg;
-                    }
-                    catch(e) {
-                        status_msg = "Cannot submit form";
-                    }
-                    showPermanentError($('form'), status_msg);
+                catch(e) {
+                    status_msg = "Cannot submit form";
                 }
+                showPermanentError(form, status_msg);
             });
         }
 

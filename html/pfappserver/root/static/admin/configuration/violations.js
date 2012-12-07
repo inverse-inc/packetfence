@@ -12,15 +12,9 @@ function initViolations() {
                 modal.modal('show');
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError($('#section h2'), obj.status_msg);
+                $("body,html").animate({scrollTop:0}, 'fast');
             });
 
         return false;
@@ -39,15 +33,9 @@ function initViolations() {
                 modal.modal('show');
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError($('#section h2'), obj.status_msg);
+                $("body,html").animate({scrollTop:0}, 'fast');
             });
 
         return false;    
@@ -82,15 +70,9 @@ function initViolations() {
                     }
                 })
                 .fail(function(jqXHR) {
-                    if (jqXHR.status == 401) {
-                        // Unauthorized; redirect to URL specified in the location header
-                        window.location.href = jqXHR.getResponseHeader('Location');
-                    }
-                    else {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        showError($('#section h2'), obj.status_msg);
-                        $("body,html").animate({scrollTop:0}, 'fast');
-                    }
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    showError($('#section h2'), obj.status_msg);
+                    $("body,html").animate({scrollTop:0}, 'fast');
                 });
         });
 
@@ -156,15 +138,9 @@ function initViolations() {
                 modal.append(data);
             })
             .fail(function(jqXHR) {
-                if (jqXHR.status == 401) {
-                    // Unauthorized; redirect to URL specified in the location header
-                    window.location.href = jqXHR.getResponseHeader('Location');
-                }
-                else {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                }
+                var obj = $.parseJSON(jqXHR.responseText);
+                showError($('#section h2'), obj.status_msg);
+                $("body,html").animate({scrollTop:0}, 'fast');
             });
 
         return false;
