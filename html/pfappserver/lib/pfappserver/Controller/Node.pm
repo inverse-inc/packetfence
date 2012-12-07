@@ -73,7 +73,7 @@ sub search :Path('search') :Args(0) {
         $orderby = $c->request->params->{'by'};
         if (grep {$_ eq $orderby} ('mac', 'pid', 'dhcp_fingerprint')) {
             $orderdirection = $c->request->params->{'direction'};
-            unless (grep {$_ eq $orderdirection} ('asc', 'desc')) {
+            unless (defined($orderdirection) && grep {$_ eq $orderdirection} ('asc', 'desc')) {
                 $orderdirection = 'asc';
             }
             $params{'orderby'} = "ORDER BY $orderby $orderdirection";
