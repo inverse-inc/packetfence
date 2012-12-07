@@ -15,7 +15,6 @@ function updateSection(href) {
             $('.datepicker').datepicker({ autoclose: true });
             $('.chzn-select').chosen();
             $('.chzn-deselect').chosen({allow_single_deselect: true});
-            $(':input:visible:enabled:first').focus();
             section.trigger('section.loaded');
         })
         .fail(function(jqXHR) {
