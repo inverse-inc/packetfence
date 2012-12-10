@@ -532,8 +532,8 @@ sub web_user_authenticate {
                                                                $portalSession->cgi->param("password"));
 
     if (defined($return) && $return == 1) {
-        #save login into session
-        $portalSession->session->param( "username", $cgi->param("username") );
+        # save login into session
+        $portalSession->session->param( "username", $portalSession->cgi->param("username") );
         #$portalSession->session->param( "authType", $auth_module );
     }
     return ($return, $message);
