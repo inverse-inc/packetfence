@@ -69,8 +69,9 @@ sub _format_section :Private {
             $entry_ref->{type} = 'text-large';
         }
 
-        # Value should always be defined for toggles (checkbox and select)
-        elsif ($entry_ref->{type} eq "toggle") {
+        # Value should always be defined for toggles (checkbox and select) and times (duration)
+        elsif ($entry_ref->{type} eq "toggle" ||
+               $entry_ref->{type} eq "time") {
             $entry_ref->{value} = $entry_ref->{default_value} unless ($entry_ref->{value});
         }
 
