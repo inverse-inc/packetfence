@@ -217,20 +217,34 @@ default_auth=
 # the window is used to determine the length of time after registration
 # that a node remains registered.  If set to "session", it specifies
 # that a client should be unregistered as soon as its iplog entry closes
-# (or with a bit of latency - check regitration.expire_session).
+# (or with a bit of latency - check regitration.expire_session).  If set
+# to "window_midnight", the expire_window_midnight option defines the
+# length of time minus the current time after registration that a node
+# remains registered. If set to 'floating_window_midnight', the
+# expire_floating_window_midnight define the end of the used time unity.
 expire_mode=disabled
+
 #
 # registration.expire_deadline
 #
 # If expire_mode is set to "deadline", this is the date (formatted as returned by the "date" command) at which 
 # nodes revert to an unregistered state.  This would typically be the end of a semester.
 expire_deadline=Mon Nov 12 12:00:00 EST 2012
+
 #
-# registration.advance_expire_deadline
+# registration.expire_window_midnight
 #
-# If expire_mode is set to "advance_deadline", this is the time use to calculate the unregdate of the current regdate
-# but at midnight
-advance_expire_deadline=1D 
+# If expire_mode is set to "window_midnight", this is the time minus the current time after a registration node
+#reverts to an unregistered state.
+expire_window_midnight=1D 
+
+#
+# registration.expire_floating_window.midnight
+#
+# If expire_mode is set to "floating_windo_midnight", this represent the unregdate of the current unit used
+# 2M mean that the node will be unregistered on the last day of the next month.
+expire.floating_window_midnight=1D
+
 #
 # registration.expire_window
 #
