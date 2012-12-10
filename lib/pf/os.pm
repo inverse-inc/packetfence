@@ -34,6 +34,7 @@ BEGIN {
         read_dhcp_fingerprints_conf
         dhcp_fingerprint_view
         dhcp_fingerprint_view_all
+        dhcp_fingerprint_view_all_searchable
         dhcp_fingerprint_count
         import_dhcp_fingerprints
         update_dhcp_fingerprints_conf

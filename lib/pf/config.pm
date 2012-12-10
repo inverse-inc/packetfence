@@ -52,6 +52,7 @@ our (
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
     %connection_type, %connection_type_to_str, %connection_type_explained,
+    %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL
 );
