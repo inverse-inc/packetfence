@@ -581,7 +581,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
                 $c->log->info("successfully listed services");
                 $c->stash->{'services'} = $services_status;
                 # a service has failed to start if its status is 0
-                my $start_failed = scalar(grep {$_ == 0} values %{$services_status}) > 0;
+                my $start_failed = scalar(grep {int $_ == 0} values %{$services_status}) > 0;
                 if ($start_failed) {
                     $c->log->warn("some services were not started");
                 }
