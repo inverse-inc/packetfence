@@ -77,7 +77,7 @@ BEGIN {
         $dhcp_fingerprints_file $dhcp_fingerprints_url 
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
-        $portscan_sid @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
