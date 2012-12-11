@@ -38,7 +38,9 @@ $(function () {
     $.ajaxSetup({
         statusCode : {
             401: function(jqXHR) {
-                window.location.href = jqXHR.getResponseHeader('Location');
+                var location = jqXHR.getResponseHeader('Location');
+                if (location)
+                    window.location.href = location;
             }
         }
     });
