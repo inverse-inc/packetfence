@@ -47,14 +47,10 @@ function init() {
         $(':input:visible:enabled:first').focus();
     });
 
-    $(window).hashchange(function(event) {
-        var hash = location.hash;
-        var href = '/configuration/' + hash.replace(/^#/,'');
-        updateSection(href);
-        return true;
-    });
+    $(window).hashchange(pfOnHashChange('/configuration/',updateSection));
 
     $(window).hashchange();
+
     var link_query = '.sidebar-nav .nav-list .active a';
     var hash = location.hash.replace(/\/.*$/,'');
     if(hash && hash != '#') {

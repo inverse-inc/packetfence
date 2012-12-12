@@ -94,15 +94,7 @@ function init() {
         return false;
     });
 
-    $(window).hashchange(function(event) {
-        var hash = location.hash;
-        if(hash == '') {
-            hash = '#/node/search';
-        }
-        var href =  hash.replace(/^#/,'') + location.search ;
-        updateSection(href);
-        return true;
-    });
+    $(window).hashchange(pfOnHashChange('/node/',updateSection));
 
     $(window).hashchange();
 }
