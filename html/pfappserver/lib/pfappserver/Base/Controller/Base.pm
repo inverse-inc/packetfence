@@ -112,7 +112,7 @@ sub _list_items {
     if ( exists( $c->stash->{'by'} ) ) {
         $orderby = $c->stash->{'by'};
         if ( grep { $_ eq $orderby } (@$field_names) ) {
-            $orderdirection = $c->request->params->{'direction'};
+            $orderdirection = $c->stash->{'direction'};
             unless ( defined $orderdirection && grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {
                 $orderdirection = 'asc';
             }

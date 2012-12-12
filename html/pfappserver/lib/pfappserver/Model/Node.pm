@@ -63,6 +63,14 @@ sub exists {
     return ($status, $result);
 }
 
+=head2 field_names
+
+=cut
+
+sub field_names {
+    return [qw(mac computer_name pid status dhcp_fingerprint)];
+}
+
 =head2 countAll
 
 =cut
