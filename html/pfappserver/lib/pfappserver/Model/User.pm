@@ -22,7 +22,7 @@ use Text::CSV;
 use pf::config;
 use pf::temporary_password;
 use pf::error qw(is_error is_success);
-use pf::person qw(person_modify $PID_RE);
+use pf::person;
 use pf::util qw(get_translatable_time);
 
 =head2 read
@@ -35,8 +35,8 @@ sub read {
     my @users;
     
     # Fetch user information
-    foreach my $p (@$pids) {
-        my $user = pf::temporary_password::view($p);
+    foreach my $pid (@$pids) {
+        my $user = person_view($pid);
         if ($user) {
             if ($user->{valid_from}) {
                 # Formulate activation date
@@ -63,6 +63,96 @@ sub read {
     else {
         return ($STATUS::NOT_FOUND);
     }
+}
+
+=head2 countAll
+
+=cut
+
+sub countAll {
+    my ( $self, %params ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg);
+
+    my $count;
+    eval {
+        my @result = person_count_all(%params);
+        $count = pop @result;
+    };
+    if ($@) {
+        $status_msg = "Can't count users from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return ($STATUS::OK, $count->{nb});
+}
+
+=head2 search
+
+=cut
+
+sub search {
+    my ( $self, %params ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg);
+
+    my @users;
+    eval {
+        @users = person_view_all(%params);
+    };
+    if ($@) {
+        $status_msg = "Can't fetch users from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return ($STATUS::OK, \@users);
+}
+
+=head2 nodes
+
+Return the nodes associated to the person ID.
+
+=cut
+
+sub nodes {
+    my ( $self, $pid ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg);
+
+    my @nodes;
+    eval {
+        @nodes = person_nodes($pid);
+    };
+    if ($@) {
+        $status_msg = "Can't fetch nodes from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return ($STATUS::OK, \@nodes);
+}
+
+=head2 update
+
+=cut
+
+sub update {
+    my ( $self, $pid, $user_ref ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    unless (person_modify($pid, %{$user_ref})) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = 'An error occurred while updating the user.';
+    }
+
+    return ($status, $status_msg);
 }
 
 =head2 mail
@@ -104,6 +194,32 @@ sub mail {
         $status_msg = 'Unexpected error. See server-side logs for details.';
     }
 
+    return ($status, $status_msg);
+}
+
+=head2 delete
+
+=cut
+
+sub delete {
+    my ($self, $pid) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg) = ($STATUS::OK, 'The user was successfully deleted.');
+
+    eval {
+        my $result = person_delete($pid); # entry from temporary_password will be automatically deleted
+        unless ($result) {
+            ($status, $status_msg) = ($STATUS::INTERNAL_SERVER_ERROR, "The user still has registered nodes and can't be deleted.");
+        }
+    };
+    if ($@) {
+        $logger->error($@);
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "Can't delete person from the database.";
+    }
+
+    $logger->info("$pid: $status_msg");
     return ($status, $status_msg);
 }
 
@@ -270,7 +386,7 @@ sub importCSV {
         my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
         while (my $row = $csv->getline($import_fh)) {
             my $pid = $row->[$index{'c_username'}];
-            if ($pid !~ /$PID_RE/) {
+            if ($pid !~ /$pf::person::PID_RE/) {
                 $skipped++;
                 next;
             }

@@ -146,6 +146,14 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 
 }
 
+=head2 users
+
+=cut
+sub users :Chained('object') :PathPart('users') :Args(0) {
+    my ( $self, $c ) = @_;
+
+}
+
 =head2 configuration
 
 =cut

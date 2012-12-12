@@ -1,0 +1,68 @@
+      <form action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
+
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">×</a>
+          <h3><i>[% l('User') %]</i> [% user.pid %]</h3>
+        </div>
+
+        <div class="modal-body">
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
+            <li><a href="#userHistory" data-toggle="tab">[% l('History') %]</a></li>
+            <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade in active" id="userInfo">
+
+              <div class="control-group">
+                <div class="controls">
+                  <h6>[% l('Profile') %]</h6>
+                </div>
+              </div>
+  
+              [% form.field('pid').render %]
+  
+              [% form.field('firstname').render %]
+  
+              [% form.field('lastname').render %]
+  
+              [% form.field('email').render %]
+  
+              [% form.field('sponsor').render %]
+
+            </div><!--tab-pane-->
+            <div class="tab-pane fade" id="userHistory">
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="userDevices">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>[% l('MAC') %]</th>
+                    <th>[% l('Computer Name') %]</th>
+                    <th>[% l('OS (DHCP)') %]</th>
+                </thead>
+                <tbody>
+                [% FOR node IN nodes %]
+                <tr>
+                  <td><a href="#">[% node.mac %]</a></td>
+                  <td>[% node.computer_name %]</td>
+                  <td>[% node.dhcp_fingerprint %]</td>
+                </tr>
+                [% END %]
+                </tbody>
+              </table>
+            </div><!--tab-pane-->
+
+          </div><!--tab-content-->
+
+        </div><!--modal-body-->
+
+        <div class="modal-footer">
+          <a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF nodes.count > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          <a href="[% c.uri_for(c.controller('User').action_for('update'), [ user.pid ]) %]" id="updateUser" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</a>
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+        </div><!--modal-footer-->
+      </form>

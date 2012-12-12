@@ -1,0 +1,172 @@
+[%  jsFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
+        'app/raphael/raphael-min',
+        'app/raphael/g.raphael-min',
+        'app/raphael/g.bar-min',
+        'app/raphael/g.dot-min',
+        'app/raphael/g.line-min',
+        'app/raphael/g.pie-min',
+        'app/graphs',
+        'admin/users'
+        ]
+     cssFiles = [
+        ] -%]
+
+<style type="text/css">
+form {
+    margin-bottom: 0px;
+}
+.bootstrap-timepicker table {
+    width: 160px;
+}
+.table-dynamic .action {
+    width: 32px;
+}
+</style>
+
+    <div class="modal fade hide" id="saveSearch">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>[% l('Save Search') %]</h3>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal">
+          <div class="control-group">
+            <label class="control-label">[% l('Name') %]</label>
+            <div class="controls">
+              <input type="text">
+              <p class="help-block">Your saved search will appear in the menu on the left side of your screen.</p>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox"><input type="checkbox"> [% l('Show in dashboard') %]</label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+        <a href="#" class="btn btn-primary">[% l('Save') %]</a>
+      </div>
+    </div>
+
+    <div class="modal fade hide" id="modalUser">
+    </div>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="sidebar-nav well">
+            <ul class="nav nav-list">
+              <li class="nav-header">[% l('Users') %]</li>
+              <li class="active"><a href="#">[% l('Search') %]</a></li>
+              <li class="nav-header">[% l('Saved Searches') %]</li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span10">
+            <div class="tabbable">
+              <div class="tab-content">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
+                  <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
+                </ul>
+                <div class="tab-pane active well" id="simple">
+                  <form name="simpleSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('search')) %]">
+                  <input type="text" name="filter" placeholder="Search...">
+                  <div class="btn-group pull-right">
+                    <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
+                    </ul>
+                  </div>
+                  </form>
+                </div><!--#simple-->
+                <div class="tab-pane well" id="advanced">
+                  <form name="advancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('search')) %]">
+                  <table class="table-dynamic">
+                    <tbody>
+                      <tr>
+                        <td>
+                          [% match_options = BLOCK %]
+                          <select class="input-mini">
+                            <option>all</option>
+                            <option>any</option>
+                          </select>
+                          [% END %]
+                          [% l('Match [_1] of the following conditions:', [match_options]) %]
+                        </td>
+                      </tr>
+                      <tr class="hidden">
+                        <td>
+                          <select class="span4">
+                            <option>Name</option>
+                            <option>Email</option>
+                            <option>Sponsor</option>
+                            <option>IP address</option>
+                            <option>MAC address</option>
+                          </select>
+                          <select class="span2">
+                            <option>is</option>
+                            <option>is not</option>
+                            <option>starts with</option>
+                            <option>ends with</option>
+                            <option>matches</option>
+                          </select>
+                          <input type="text" class="span6" placeholder="String...">
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <select class="span4">
+                            <option>Name</option>
+                            <option>Email</option>
+                            <option>Sponsor</option>
+                            <option>IP address</option>
+                            <option>MAC address</option>
+                          </select>
+                          <select class="span2">
+                            <option>is</option>
+                            <option>is not</option>
+                            <option>starts with</option>
+                            <option>ends with</option>
+                            <option>matches</option>
+                          </select>
+                          <input type="text" class="span6" placeholder="String..."/>
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <!-- first condition cannot be deleted -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top: 1em">
+                          <div class="btn-group pull-right">
+                            <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> [% l('Search') %]</a>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                              <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  </form>
+                </div><!--#advanced-->
+              </div><!--/.tab-content-->
+            </div>
+          <div class="row-fluid" id="section">
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->

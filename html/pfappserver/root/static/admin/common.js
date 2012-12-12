@@ -1,13 +1,14 @@
+/* Update #section using an Ajax request */
 function updateSection(href) {
     var section = $('#section');
-    if(section) {
+    if (section) {
         $("body,html").animate({scrollTop:0}, 'fast');
         var loader = section.prev('.loader');
-        if(loader) loader.show(); 
+        if (loader) loader.show();
         section.fadeTo('fast', 0.5);
         $.ajax(href)
         .always(function() {
-            if(loader) loader.hide();
+            if (loader) loader.hide();
             section.fadeTo('fast',1.0);
             resetAlert(section);
         })
@@ -35,15 +36,18 @@ function updateSection(href) {
 
 $(function () {
 
+    /* Default values for Ajax requests */
     $.ajaxSetup({
         statusCode : {
             401: function(jqXHR) {
+                // Unauthorized; redirect to URL specified in the location header
                 var location = jqXHR.getResponseHeader('Location');
                 if (location)
                     window.location.href = location;
             }
         }
     });
+
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
 
@@ -285,7 +289,7 @@ $(function () {
                 status_msg = "Cannot Load Content";
             }
             if (jqXHR.status == 404) {
-                showSuccess(section,status_msg);
+                showSuccess(section, status_msg);
             }
             else {
                 showPermanentError(section, status_msg);

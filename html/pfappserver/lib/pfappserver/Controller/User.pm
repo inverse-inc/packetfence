@@ -18,6 +18,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pfappserver::Form::User;
 use pfappserver::Form::User::Create;
 use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
@@ -45,6 +46,153 @@ sub auto :Private {
     }
 
     return 1;
+}
+
+=head2 index
+
+=cut
+
+sub index :Path :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->response->redirect($c->uri_for($self->action_for('search')));
+}
+
+=head2 object
+
+User controller dispatcher
+
+=cut
+sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
+    my ( $self, $c, $pid ) = @_;
+
+    my ($status, $result);
+
+    ($status, $result) = $c->model('User')->read($c, [$pid]);
+    if (is_success($status)) {
+        $c->stash->{user} = pop @{$result};
+
+        # Fetch associated nodes
+        ($status, $result) = $c->model('User')->nodes($pid);
+        if (is_success($status)) {
+            $c->stash->{nodes} = $result;
+        }
+    }
+    else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+    }
+}
+
+=head2 read
+
+=cut
+sub read :Chained('object') :PathPart('read') :Args(0) {
+    my ($self, $c) = @_;
+
+    my ($form);
+
+    $form = pfappserver::Form::User->new(ctx => $c,
+                                         init_object => $c->stash->{user});
+    $form->process();
+    $c->stash->{form} = $form;
+}
+
+=head2 delete
+
+=cut
+
+sub delete :Chained('object') :PathPart('delete') :Args(0) {
+    my ($self, $c) = @_;
+
+    my ($status, $result) = $c->model('User')->delete($c->stash->{user}->{pid});
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+    }
+
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 update
+
+=cut
+
+sub update :Chained('object') :PathPart('update') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ($form, $status, $message);
+
+    $form = pfappserver::Form::User->new(ctx => $c);
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $message = $form->field_errors;
+    }
+    else {
+        ($status, $message) = $c->model('User')->update($c->stash->{user}->{pid}, $form->value);
+    }
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message; # TODO: localize error message
+    }
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 search
+
+=cut
+sub search :Path('search') :Args(0) {
+    my ( $self, $c ) = @_;
+    my ($filter, $orderby, $orderdirection, $status, $result, $users_ref, $count);
+
+    my $page_num = $c->request->params->{'page_num'} || 1;
+    my $per_page = $c->request->params->{'per_page'} || 25;
+    my $limit_clause = "LIMIT " . (($page_num-1)*$per_page) . "," . $per_page;
+    my %params = ( limit => $limit_clause );
+
+    if (exists($c->request->params->{'filter'})) {
+        $filter = $c->request->params->{'filter'};
+        if ($filter) {
+            $params{'where'} = { type => 'any', like => $filter };
+            $c->stash->{filter} = $filter;
+        }
+    }
+    if (exists($c->request->params->{'by'})) {
+        $orderby = $c->request->params->{'by'};
+        if (grep {$_ eq $orderby} ('pid', 'firstname', 'lastname', 'email', 'sponsor')) {
+            $orderdirection = $c->request->params->{'direction'};
+            unless (defined($orderdirection) && grep {$_ eq $orderdirection} ('asc', 'desc')) {
+                $orderdirection = 'asc';
+            }
+            $params{'orderby'} = "ORDER BY $orderby $orderdirection";
+            $c->stash->{by} = $orderby;
+            $c->stash->{direction} = $orderdirection;
+        }
+    }
+
+    ($status, $result) = $c->model('User')->search(%params);
+    if (is_success($status)) {
+        $users_ref = $result;
+        ($status, $result) = $c->model('User')->countAll(%params);
+    }
+    if (is_success($status)) {
+        $count = $result;
+        $c->stash->{page_num} = $page_num;
+        $c->stash->{per_page} = $per_page;
+        $c->stash->{by} = $orderby || 'pid';
+        $c->stash->{direction} = $orderdirection || 'asc';
+        $c->stash->{users} = $users_ref;
+        $c->stash->{count} = $count;
+        $c->stash->{pages_count} = ceil($count/$per_page);
+    }
+    else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
 }
 
 =head2 create
