@@ -34,6 +34,15 @@ function updateSection(href) {
     }
 }
 
+function pfOnHashChange(baseUrl,updater) {
+    return function(event) {
+        var hash = location.hash;
+        var href = baseUrl + hash.replace(/^#/,'');
+        updater(href);
+        return true;
+    };
+}
+
 $(function () {
 
     /* Default values for Ajax requests */
