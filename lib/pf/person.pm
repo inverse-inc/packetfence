@@ -31,6 +31,7 @@ BEGIN {
         person_delete
         person_add
         person_view
+        person_count_all
         person_view_all
         person_modify
         person_nodes
@@ -74,10 +75,24 @@ sub person_db_prepare {
         qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes,sponsor) values(?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
-        qq[ select pid,firstname,lastname,email,telephone,company,address,notes,sponsor from person where pid=? ]);
+        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
+                   count(n.mac) as nodes,
+                   t.password, t.valid_from, t.expiration, t.access_duration, t.category
+            FROM person p
+            LEFT JOIN node n ON p.pid = n.pid
+            LEFT JOIN temporary_password t ON p.pid = t.pid
+            WHERE p.pid = ? ]);
 
-    $person_statements->{'person_view_all_sql'} = get_db_handle()->prepare(
-        qq[ select pid,firstname,lastname,email,telephone,company,address,notes,sponsor from person ]);
+    $person_statements->{'person_view_all_sql'} =
+        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
+                   count(n.mac) as nodes,
+                   t.password, t.valid_from, t.expiration, t.access_duration, t.category
+            FROM person p
+            LEFT JOIN node n ON p.pid = n.pid
+            LEFT JOIN temporary_password t ON p.pid = t.pid
+            GROUP BY pid ];
+
+    $person_statements->{'person_count_all_sql'} = qq[ SELECT count(*) as nb FROM person ];
 
     $person_statements->{'person_delete_sql'} = get_db_handle()->prepare(qq[ delete from person where pid=? ]);
 
@@ -160,9 +175,72 @@ sub person_view {
     return ($ref);
 }
 
-sub person_view_all {
+sub person_count_all {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::person');
 
-    return db_data(PERSON, $person_statements, 'person_view_all_sql');
+    # Hack! we prepare the statement here so that $person_count_all_sql is pre-filled
+    person_db_prepare() if (!$person_db_prepared);
+    my $person_count_all_sql = $person_statements->{'person_count_all_sql'};
+
+    if ( defined( $params{'where'} ) ) {
+        if ( $params{'where'}{'type'} eq 'pid' ) {
+            $person_count_all_sql
+                .= " WHERE pid='" . $params{'where'}{'value'} . "'";
+        }
+        elsif ( $params{'where'}{'type'} eq 'any' ) {
+            if (exists($params{'where'}{'like'})) {
+                $person_count_all_sql .= " WHERE"
+                  . " pid LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+                  . " OR firstname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+                  . " OR lastname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+                  . " OR email LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+            }
+        }
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $person_statements->{'person_count_all_sql_custom'} = $person_count_all_sql;
+    $logger->debug($person_count_all_sql);
+
+    return db_data(PERSON, $person_statements, 'person_count_all_sql_custom');
+}
+
+sub person_view_all {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::person');
+
+    # Hack! we prepare the statement here so that $person_view_all_sql is pre-filled
+    person_db_prepare() if (!$person_db_prepared);
+    my $person_view_all_sql = $person_statements->{'person_view_all_sql'};
+
+    if ( defined( $params{'where'} ) ) {
+        if ( $params{'where'}{'type'} eq 'pid' ) {
+            $person_view_all_sql
+                .= " HAVING p.pid='" . $params{'where'}{'value'} . "'";
+        }
+        elsif ( $params{'where'}{'type'} eq 'any' ) {
+            $person_view_all_sql .= " HAVING"
+              . " pid LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+              . " OR p.firstname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+              . " OR p.lastname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+              . " OR p.email LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+        }
+    }
+    if ( defined( $params{'orderby'} ) ) {
+        $person_view_all_sql .= " " . $params{'orderby'};
+    }
+    if ( defined( $params{'limit'} ) ) {
+        $person_view_all_sql .= " " . $params{'limit'};
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $person_statements->{'person_view_all_sql_custom'} = $person_view_all_sql;
+    $logger->debug($person_view_all_sql);
+
+    return db_data(PERSON, $person_statements, 'person_view_all_sql_custom');
 }
 
 sub person_modify {
@@ -213,25 +291,15 @@ sub person_nodes {
     return db_data(PERSON, $person_statements, 'person_nodes_sql', $pid);
 }
 
-=head1 AUTHOR
-
-David LaPorte <david@davidlaporte.org>
-
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
 Copyright (C) 2005 David LaPorte
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009, 2010 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
