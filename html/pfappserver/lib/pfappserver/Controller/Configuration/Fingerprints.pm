@@ -102,27 +102,7 @@ sub upload : Local : Args(0) {
 
 =cut
 
-my %VALID_PARAMS = (
-    page_num => 1,
-    by => 1,
-    direction => 1,
-    filter => 1
-);
-
-sub index : Path :Args() {
-    my ( $self, $c,%args ) = @_;
-    %args = map { $_ => $args{$_}  } grep { exists $VALID_PARAMS{$_}  } keys %args;
-    $c->stash(%args);
-    my $action = $c->request->params->{'action'} || "";
-    if ( $action eq 'update' ) {
-        my ( $status, $version_msg, $total ) =
-            update_dhcp_fingerprints_conf();
-        $c->stash->{status_msg} =
-            "$status DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n"
-            . "$total DHCP fingerprints reloaded\n";
-    }
-    $self->_list_items( $c, 'OS' );
-}
+sub index : SimpleSearch('OS') Path :Args() { }
 
 =head1 COPYRIGHT
 
