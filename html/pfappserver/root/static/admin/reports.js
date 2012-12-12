@@ -1,12 +1,15 @@
 function init() {
     /* Register graph links in the sidebar list */
     $('.sidebar-nav .nav-list a').click(function(event) {
-        var href = $(this).attr('href');
-        var graph = $('#section .graph');
-        var loader = $('#section .loader');
         var item = $(this).parent();
         $('.sidebar-nav .nav-list .active').removeClass('active');
         item.addClass('active');
+        return true;
+    });
+
+    function updateGraphSection(href) {
+        var graph = $('#section .graph');
+        var loader = $('#section .loader');
         $('#section .graph').fadeOut('fast', function() {
             $(this).empty();
             graphs = {};
@@ -29,7 +32,7 @@ function init() {
         });
 
         return false;
-    });
+    }
 
     /* Register graph options links */
     $('#section').on('click', '.options a[class!="favorite"]', function(event) {
@@ -78,6 +81,15 @@ function init() {
         return false;
     });
 
+    $(window).hashchange(pfOnHashChange('/graph/',updateGraphSection));
+
     /* Load initial graph */
-    $('.sidebar-nav .nav-list a').first().trigger('click');
+    $(window).hashchange();
+    var link_query = '.sidebar-nav .nav-list .active a';
+    var hash = location.hash.replace(/\/.*$/,'');
+    if(hash && hash != '#') {
+       link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
+    }
+    
+    $(link_query).trigger('click');
 }
