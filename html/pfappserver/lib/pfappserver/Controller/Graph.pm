@@ -114,6 +114,13 @@ sub _graphPie :Private {
     }
 }
 
+
+sub index :Path : Args(0) {
+    my ( $self, $c ) = @_;
+    $c->response->redirect($c->uri_for($self->action_for('nodes')));
+    $c->detach();
+}
+
 =head2 nodes
 
 =cut

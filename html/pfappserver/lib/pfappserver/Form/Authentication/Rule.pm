@@ -175,6 +175,7 @@ has_field "${Conditions::TIME}_value" =>
 has_field "${Actions::MARK_AS_SPONSOR}_action" =>
   (
    type => 'Hidden',
+   default => '1',
   );
 has_field "${Actions::SET_ACCESS_LEVEL}_action" =>
   (
