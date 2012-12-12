@@ -77,7 +77,7 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form name="simpleSearch" class="form-inline" action="/node/search">
+                  <form name="simpleSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('search')) %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>
@@ -95,7 +95,7 @@ form {
                   </form>
                 </div>
                 <div class="tab-pane well" id="advanced">
-                  <form name="advancedSearch" class="form-inline" action="[% c.uri_for('/node/search') %]">
+                  <form name="advancedSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('search')) %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">[% l('to') %]</span>
@@ -180,7 +180,7 @@ form {
               </div>
             </div>
           </form>
-          <div class="row-fluid" id="results">
+          <div class="row-fluid" id="section">
           </div>
         </div><!--/span-->
       </div><!--/row-->
