@@ -19,6 +19,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 use URI::Escape;
+use pfappserver::Base::Action::SimpleSearch;
 
 use pf::authentication;
 use pf::os;
@@ -27,6 +28,13 @@ use pf::util qw(load_oui download_oui);
 # # imported but it's better than duplicating regex all over the place.
 use pf::config;
 use pfappserver::Form::Config::Pf;
+use Moose;
+use Class::MOP;
+use Catalyst::Utils;
+use Moose::Meta::Class;
+use String::RewritePrefix 0.004;
+use MooseX::Types::Moose qw/ArrayRef Str RoleName/;
+use List::Util qw(first);
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -53,6 +61,33 @@ sub auto :Private {
 
     return 1;
 }
+
+our %VALID_PARAMS = (
+    page_num => 1,
+    by => 1,
+    direction => 1,
+    filter => 1,
+    start => 1,
+    end => 1,
+);
+
+sub valid_param {
+    my ($self,$key) = @_;
+    return exists $VALID_PARAMS{$key};
+}
+sub _parse_SimpleSearch_attr {
+    my ( $self, $c, $name, $value ) = @_;
+    return SimpleSearch => $value;
+}
+
+around create_action => sub {
+    my ($orig, $self, %args) = @_;
+    return $self->$orig(%args)
+        if $args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/;
+    my ($model) = @{$args{attributes}->{SimpleSearch}|| []};
+    return $self->$orig(%args) unless $model;
+    return Base::Action::SimpleSearch->new( \%args  );
+};
 
 =head2 _list_items
 
