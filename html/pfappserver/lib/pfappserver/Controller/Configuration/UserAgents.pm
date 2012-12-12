@@ -35,19 +35,8 @@ BEGIN {extends 'pfappserver::Base::Controller::Base'; }
 
 =cut
 
-my %VALID_PARAMS = (
-    page_num => 1,
-    by => 1,
-    direction => 1,
-    filter => 1
-);
+sub index : SimpleSearch('UserAgent') Path :Args() { }
 
-sub index : Path :Args() {
-    my ( $self, $c,%args ) = @_;
-    %args = map { $_ => $args{$_}  } grep { exists $VALID_PARAMS{$_}  } keys %args;
-    $c->stash(%args);
-    $self->_list_items( $c, 'UserAgent' );
-}
 
 sub upload : Local : Args(0) {
     my ( $self, $c ) = @_;
