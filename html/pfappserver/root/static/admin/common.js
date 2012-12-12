@@ -268,7 +268,17 @@ $(function () {
         var form = $(this);
         var section = $('#section');
         section.fadeTo('fast', 0.5);
-        var hash = "#" +  form.attr('action') + '/' +  form.serialize().replace(/[&=]/,"/"  )  ;
+        var hash = "#" +  form.attr('action');
+        var inputs = form.serializeArray();
+        var length = inputs.length;
+        if(length > 0) {
+            for(var i =0;i<length;i++) {
+                var input = inputs[i];
+                if(input.value) {
+                    hash+= "/" + encodeURIComponent(input.name)   + "/" + encodeURIComponent(input.value);
+                }
+            }
+        }
         location.hash = hash;
         return false;
     });
