@@ -47,17 +47,12 @@ function init() {
         $(':input:visible:enabled:first').focus();
     });
 
-    $(window).hashchange(pfOnHashChange('/configuration/',updateSection));
+    $(window).hashchange(pfOnHashChange('/',updateSection,'/configuration'));
 
     $(window).hashchange();
 
-    var link_query = '.sidebar-nav .nav-list .active a';
-    var hash = location.hash.replace(/\/.*$/,'');
-    if(hash && hash != '#') {
-       link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
-    }
-    
-    $(link_query).trigger('click');
+    activate_nav_link();
+
 
     initAuthentication();
     initUsers();
