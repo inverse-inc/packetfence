@@ -1,3 +1,13 @@
+/* using the  */
+function activate_nav_link() {
+    var link_query = '.sidebar-nav .nav-list .active a';
+    var hash = location.hash.replace(/\/.*$/,'');
+    if(hash && hash != '#') {
+       link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
+    }
+    $(link_query).trigger('click');
+}
+    
 /* Update #section using an Ajax request */
 function updateSection(href) {
     var section = $('#section');
@@ -34,10 +44,13 @@ function updateSection(href) {
     }
 }
 
-function pfOnHashChange(baseUrl,updater) {
+function pfOnHashChange(baseUrl,updater,default_url) {
     return function(event) {
         var hash = location.hash;
         var href = baseUrl + hash.replace(/^#/,'');
+        if(default_url !== undefined && ( href == '' || href == '/') ) {
+            href = default_url;
+        }
         updater(href);
         return true;
     };
