@@ -33,6 +33,7 @@ sub common_attributes {
   return [
           { value => 'SSID', type => $Conditions::STRING },
           { value => 'current_time', type => $Conditions::TIME },
+          { value => 'connection_type', type => $Conditions::CONNECTION },
          ];
 }
 

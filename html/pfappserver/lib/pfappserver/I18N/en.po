@@ -762,6 +762,17 @@ msgstr "Set role"
 msgid "set_unreg_date"
 msgstr "Set unregistration date"
 
+# lib/pf/Authentication/Source.pm
+
+msgid "SSID"
+msgstr "SSID"
+
+msgid "current_time"
+msgstr "Current time"
+
+msgid "connection_type"
+msgstr "Connection type"
+
 # html/pfappserver/root/user/list_password.tt
 
 msgid "mail"

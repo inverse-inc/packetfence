@@ -46,6 +46,7 @@ has_field 'match' =>
   (
    type => 'Select',
    widget_wrapper => 'None',
+   localize_labels => 1,
    options => 
    [
     { value => 'any', label => 'any' },
@@ -61,6 +62,7 @@ has_field 'conditions' =>
 has_field 'conditions.attribute' =>
   (
    type => 'Select',
+   localize_labels => 1,
    options_method => \&options_attributes,
    widget_wrapper => 'None',
    element_class => ['span3'],
@@ -68,6 +70,7 @@ has_field 'conditions.attribute' =>
 has_field 'conditions.operator' =>
   (
    type => 'Select',
+   localize_labels => 1,
    options_method => \&options_operators,
    widget_wrapper => 'None',
    element_class => ['span3'],
@@ -85,6 +88,7 @@ has_field 'actions.type' =>
   (
    type => 'Select',
    widget_wrapper => 'None',
+   localize_labels => 1,
    options_method => \&options_actions,
    element_class => ['span3'],
   );
@@ -118,6 +122,7 @@ has_field "${Conditions::STRING}_operator" =>
    type => 'Select',
    do_label => 0,
    wrapper => 0,
+   localize_labels => 1,
    options_method => \&operators,
    element_class => ['span3'],
   );
@@ -133,6 +138,7 @@ has_field "${Conditions::NUMBER}_operator" =>
    type => 'Select',
    do_label => 0,
    wrapper => 0,
+   localize_labels => 1,
    options_method => \&operators,
    element_class => ['span3'],
  );
@@ -148,6 +154,7 @@ has_field "${Conditions::DATE}_operator" =>
    type => 'Select',
    do_label => 0,
    wrapper => 0,
+   localize_labels => 1,
    options_method => \&operators,
    element_class => ['span3'],
   );
@@ -162,6 +169,7 @@ has_field "${Conditions::TIME}_operator" =>
    type => 'Select',
    do_label => 0,
    wrapper => 0,
+   localize_labels => 1,
    options_method => \&operators,
    element_class => ['span3'],
   );
@@ -170,6 +178,24 @@ has_field "${Conditions::TIME}_value" =>
    type => 'TimePicker',
    do_label => 0,
    wrapper => 0,
+   element_class => ['span5'],
+  );
+has_field "${Conditions::CONNECTION}_operator" =>
+  (
+   type => 'Select',
+   do_label => 0,
+   wrapper => 0,
+   localize_labels => 1,
+   options_method => \&operators,
+   element_class => ['span3'],
+  );
+has_field "${Conditions::CONNECTION}_value" =>
+  (
+   type => 'Select',
+   do_label => 0,
+   wrapper => 0,
+   localize_labels => 1,
+   options_method => \&options_connection,
    element_class => ['span5'],
   );
 has_field "${Actions::MARK_AS_SPONSOR}_action" =>
@@ -229,9 +255,35 @@ sub options_operators {
     my $self = shift;
 
     my %all_operators = map { map { $_ => 1 } @{$_} } values %Conditions::OPERATORS;
-    my @options = map { $_ => $self->_localize($_) } keys %all_operators;
+    my @options = map { $_ => $_ } keys %all_operators;
 
     return @options;
+}
+
+=head2 options_connection
+
+Populate the connection types and connection groups field for the
+'connection type' condition.
+
+=cut
+
+sub options_connection {
+    my $self = shift;
+
+    my @types = map { { value => $_, label => $_ } } sort keys %connection_type;
+    my @groups = map { { value => $_, label => $_ } } sort keys %connection_group;
+
+    return
+      [
+       {
+        group => 'Types',
+        options => \@types,
+       },
+       {
+        group => 'Groups',
+        options => \@groups,
+       },
+      ];
 }
 
 =head2 options_actions
@@ -245,7 +297,7 @@ sub options_actions {
     my $self = shift;
 
     my $actions_ref = pf::Authentication::Action::availableActions();
-    my @actions = map { $_ => $self->_localize($_) } @{$actions_ref};
+    my @actions = map { $_ => $_ } @{$actions_ref};
 
     return @actions;
 }
