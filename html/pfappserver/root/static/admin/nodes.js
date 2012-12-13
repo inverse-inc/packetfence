@@ -4,7 +4,7 @@ function init() {
     });
 
     /* Sort the search results */
-    $('#results').on('click', 'thead a', function(event) {
+    $('#section').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');
         var section = $('#section');
         section.fadeTo('fast', 0.5);
@@ -25,7 +25,7 @@ function init() {
     });
 
     /* View a node (show the modal editor) */
-    $('#results').on('click', '[href*="#modalNode"]', function(event) {
+    $('#section').on('click', '[href*="#modalNode"]', function(event) {
         var url = $(this).attr('href');
         $.ajax(url)
         .done(function(data) {
@@ -75,8 +75,10 @@ function init() {
                 url: url,
                 data: form.serialize()
             }).done(function(data) {
-                // TODO : refresh search results
                 modal.modal('hide');
+                modal.on('hidden', function() {
+                    $(window).hashchange();
+                });
             }).fail(function(jqXHR) {
                 btn.button('reset');
                 var obj = $.parseJSON(jqXHR.responseText);
