@@ -36,6 +36,7 @@ Readonly::Scalar our $STRING => 'string';
 Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
 Readonly::Scalar our $TIME => 'time';
+Readonly::Scalar our $CONNECTION => 'connection';
 
 =item OPERATORS
 
@@ -49,6 +50,7 @@ Readonly::Hash our %OPERATORS =>
    $NUMBER => ['lower', 'lower or equals', 'equals', 'higher', 'higher or equals'],
    $DATE => ['is before', 'is', 'is after'],
    $TIME => ['is before', 'is after'],
+   $CONNECTION => ['is'],
   );
 
 =back
