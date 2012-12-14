@@ -69,6 +69,10 @@ slowly disappear.
 
 * No tab characters
 
+* Stay consistent with surrounding white spaces
+
+* Document each subroutine in POD format (`perldoc perlpod`)
+
 * Use constants instead of hardcoded strings or numbers (use `constant` or `Readonly` modules)
 
 * in object-oriented modules we use CamelCase footnote:[http://en.wikipedia.org/wiki/CamelCase]
