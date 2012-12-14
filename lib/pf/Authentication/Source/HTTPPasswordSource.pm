@@ -69,22 +69,15 @@ sub match {
         my @matching_conditions = ();
         my @own_conditions = ();
     
-        $logger->info("A");
         foreach my $condition ( @{$rule->{'conditions'}} ) {
-      
-            $logger->info("B");
-        
+              
             if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
                 my $r = $self->SUPER::match_condition($condition, $params);
 	
                 if ($r == 1) {
-                    $logger->info("C");
-
                     push(@matching_conditions, $condition);
                 }
             } elsif (grep {$_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
-                $logger->info("D");
-
                 push(@own_conditions, $condition);
             }
         }                       # foreach my $condition (...)
