@@ -1,9 +1,8 @@
 package Base::Action::SimpleSearch;
+
 =head1 NAME
 
 /usr/local/pf/html/pfappserver/lib/pfappserver/Base/Action add documentation
-
-=cut
 
 =head1 DESCRIPTION
 
@@ -13,29 +12,17 @@ SimpleSearch
 
 use strict;
 use warnings;
-use HTTP::Status qw(:constants is_error is_success); 
-use Moose; 
-use namespace::autoclean; 
-use POSIX; 
+use Moose;
+use namespace::autoclean;
  
-use pfappserver::Form::Node; 
- 
-BEGIN {extends 'Catalyst::Action'; }
-use Data::Dumper;
+BEGIN { extends 'Catalyst::Action'; }
 
 after execute => sub {
-    my ( $self,$controller, $c, %args ) = @_;
-    %args = map { $_ => $args{$_}  } grep { $controller->valid_param($_)} keys %args;
+    my ( $self, $controller, $c, %args ) = @_;
+    %args = map { $_ => $args{$_}  } grep { $controller->valid_param($_) } keys %args;
     $c->stash(%args);
-    $controller->_list_items( $c, $self->attributes->{SimpleSearch}[0]  );
-}; 
-
- 
-=back
-
-=head1 AUTHOR
-
-YOUR NAME <flachapelle@inverse.ca>
+    $controller->_list_items( $c, $self->attributes->{SimpleSearch}[0] );
+};
 
 =head1 COPYRIGHT
 

@@ -1,5 +1,7 @@
-    <h2>UserAgents</h2>
-    <a class="refresh-section" href="upload"> <i class="icon-share"></i> Share Unknown User Agents </a>
+    <h2>[% l('User Agents') %]</h2>
+    <div class="options">
+      <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Configuration::UserAgents').action_for('upload') )%]"><i class="icon-share"></i> [% l('Share Unknown User Agents') %]</a>
+    </div>
     [%- INCLUDE 'configuration/listing.inc' titles = {
             id => 'ID',
             property => 'Property',

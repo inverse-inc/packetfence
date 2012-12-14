@@ -51,8 +51,7 @@ function init() {
 
     $(window).hashchange();
 
-    activate_nav_link();
-
+    activateNavLink();
 
     initAuthentication();
     initUsers();

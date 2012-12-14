@@ -1,9 +1,8 @@
 package pfappserver::Base::Controller::Base;
+
 =head1 NAME
 
 /usr/local/pf/html/pfappserver/lib/pfappserver/Base/Controller add documentation
-
-=cut
 
 =head1 DESCRIPTION
 
@@ -36,11 +35,18 @@ use String::RewritePrefix 0.004;
 use MooseX::Types::Moose qw/ArrayRef Str RoleName/;
 use List::Util qw(first);
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'Catalyst::Controller'; }
+
+our %VALID_PARAMS = (
+    page_num => 1,
+    by => 1,
+    direction => 1,
+    filter => 1,
+    start => 1,
+    end => 1,
+);
 
 =head1 METHODS
-
-=cut
 
 =head2 auto
 
@@ -62,31 +68,35 @@ sub auto :Private {
     return 1;
 }
 
-our %VALID_PARAMS = (
-    page_num => 1,
-    by => 1,
-    direction => 1,
-    filter => 1,
-    start => 1,
-    end => 1,
-);
+=head2 valid_param
+
+=cut
 
 sub valid_param {
     my ($self,$key) = @_;
     return exists $VALID_PARAMS{$key};
 }
+
 sub _parse_SimpleSearch_attr {
     my ( $self, $c, $name, $value ) = @_;
     return SimpleSearch => $value;
 }
 
+=head2 around create_action
+
+=cut
+
 around create_action => sub {
     my ($orig, $self, %args) = @_;
+
     return $self->$orig(%args)
         if $args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/;
-    my ($model) = @{$args{attributes}->{SimpleSearch}|| []};
+
+    my ($model) = @{ $args{attributes}->{SimpleSearch} || [] };
+
     return $self->$orig(%args) unless $model;
-    return Base::Action::SimpleSearch->new( \%args  );
+
+    return Base::Action::SimpleSearch->new(\%args);
 };
 
 =head2 _list_items
@@ -144,12 +154,6 @@ sub _list_items {
         $c->stash->{current_view} = 'JSON';
     }
 }
- 
-=back
-
-=head1 AUTHOR
-
-YOUR NAME <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 

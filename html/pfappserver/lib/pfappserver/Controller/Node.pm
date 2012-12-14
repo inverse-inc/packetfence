@@ -20,7 +20,7 @@ use POSIX;
 
 use pfappserver::Form::Node;
 
-BEGIN {extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 SUBROUTINES
 
