@@ -28,9 +28,10 @@ sub matches {
 	return 1;
       }
     }
-    
-    if (defined $v && index($v, $self->{'value'}) < 0) {
-      return 1;
+    elsif ($self->{'operator'} eq $self->CONTAINS) {
+        if (defined $v && index($v, $self->{'value'}) < 0) {
+            return 1;
+        }
     }
   }
   

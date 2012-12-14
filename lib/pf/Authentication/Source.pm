@@ -85,7 +85,7 @@ sub match_condition {
   
   my $r = 0;
   
-  if (grep {$_ eq $condition->attribute } @{$self->common_attributes()}) {
+  if (grep {$_->{value} eq $condition->attribute } @{$self->common_attributes()}) {
     $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
   }
 

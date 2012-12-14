@@ -69,6 +69,11 @@ sub match {
         my @matching_conditions = ();
         my @own_conditions = ();
     
+        if (scalar @{$rule->{'conditions'}} == 0) {
+            push(@matching_rules, $rule);
+            goto done;
+        }
+
         foreach my $condition ( @{$rule->{'conditions'}} ) {
               
             if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
@@ -85,17 +90,21 @@ sub match {
         # We're done looping, let's match the htpasswd conditions alltogether. Normally, we
         # should only have a condition based on the username attribute.
         if (scalar @own_conditions == 1) {
-
-            if ($own_conditions[0]->{'attribute'} eq "username") {
-    
-                my $password_file = $self->{'path'};
             
-                if (-r $password_file) {
-
-                    my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
+            if ($own_conditions[0]->{'attribute'} eq "username") {
                 
-                    if ( defined($htpasswd->fetchPass($own_conditions[0]->{'value'}))) {
-                        push @matching_conditions, @own_conditions;
+                # Let's check if our matching username is found in our htpasswd file
+                my $password_file = $self->{'path'};
+                if (-r $password_file) {
+                    
+                    my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
+
+                    if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
+                        
+                        # Now let's see if the condition actually matches
+                        if ( $own_conditions[0]->matches("username", $params->{'username'}) ) {
+                            push @matching_conditions, @own_conditions;
+                        }
                     }
                 }
             }
@@ -112,6 +121,7 @@ sub match {
 
         # For now, we return the first matching rule. We might change this in the future
         # so let's keep the @matching_rules array for now.
+        done:
         if (scalar @matching_rules == 1) {
             $logger->info("Matched rule ($rule->{'description'}), returning actions.");
             return $rule->{'actions'};
