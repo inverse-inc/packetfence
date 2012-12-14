@@ -81,6 +81,7 @@ function init() {
         return false;
     });
 
+    /* Hash change halder */
     $(window).hashchange(pfOnHashChange('/graph/',updateGraphSection));
 
     /* Load initial graph */

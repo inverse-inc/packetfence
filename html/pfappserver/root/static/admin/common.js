@@ -1,14 +1,14 @@
-/* using the  */
-function activate_nav_link() {
+/* Trigger a mouse click on the active sidebar navigation link */
+function activateNavLink() {
     var link_query = '.sidebar-nav .nav-list .active a';
     var hash = location.hash.replace(/\/.*$/,'');
-    if(hash && hash != '#') {
+    if (hash && hash != '#') {
        link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
     }
     $(link_query).trigger('click');
 }
     
-/* Update #section using an Ajax request */
+/* Update #section using an ajax request */
 function updateSection(href) {
     var section = $('#section');
     if (section) {
@@ -39,11 +39,12 @@ function updateSection(href) {
                 status_msg = "Cannot Load Content";
                 section.html('<div></div>');
             }
-            showPermanentError(section, status_msg);
+            showPermanentError(section.children().first(), status_msg);
         });
     }
 }
 
+/* Return a function to be called when the hash changes */
 function pfOnHashChange(baseUrl,updater,default_url) {
     return function(event) {
         var hash = location.hash;
@@ -54,6 +55,27 @@ function pfOnHashChange(baseUrl,updater,default_url) {
         updater(href);
         return true;
     };
+}
+
+/* Update sort handles and inputs indexes of sortable table */
+function updateSortableTable(rows) {
+    rows.each(function(index, element) {
+        $(this).find('.sort-handle').first().text(index +1);
+        $(this).find(':input').each(function() {
+            var input = $(this);
+            var name = input.attr('name');
+            var id = input.attr('id');
+            input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+            input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+            if (this.tagName == 'SELECT') {
+                $(this).find('option').each(function() {
+                    var option = $(this);
+                    var id = option.attr('id');
+                    option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                });
+            }
+        });
+    });
 }
 
 $(function () {
@@ -269,14 +291,7 @@ $(function () {
         return false;
     });
 
-    /* Page refresh 
-    $('#section').on('click', 'a.refresh-section', function(event) {
-        updateSection($(this).attr('href'));
-        return false;
-    });*/
-    //
-    //
-    //For simpleSearch
+    /* For simpleSearch */
     $('body').on('submit', 'form[name="simpleSearch"]', function(event) {
         var form = $(this);
         var section = $('#section');
@@ -296,20 +311,22 @@ $(function () {
         return false;
     });
 
-    $('#section').on('click','a.updates_section_status_msg',function() {
+    /* Activate links that trigger an ajax request and return a JSON status message */
+    $('#section').on('click','a.updates_section_status_msg', function() {
         var that = $(this);
         var href = that.attr('href');
         var section = $('#section');
+        var sibling = that.parent().next();
         section.fadeTo('fast', 0.5);
         var loader = section.prev('.loader');
-        if(loader) loader.show(); 
+        if (loader) loader.show();
         $.ajax(href)
         .always(function(){
             section.fadeTo('fast', 1.0);
-            if(loader) loader.hide(); 
+            if (loader) loader.hide();
         })
         .done(function(data) {
-            showSuccess(section,data.status_msg);
+            showSuccess(sibling, data.status_msg);
         })
         .fail(function(jqXHR) {
             var status_msg;
@@ -321,10 +338,10 @@ $(function () {
                 status_msg = "Cannot Load Content";
             }
             if (jqXHR.status == 404) {
-                showSuccess(section, status_msg);
+                showSuccess(sibling, status_msg);
             }
             else {
-                showPermanentError(section, status_msg);
+                showPermanentError(sibling, status_msg);
             }
         });
         return false;
@@ -333,25 +350,3 @@ $(function () {
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();
 });
-
-
-
-function updateSortableTable(rows) {
-    rows.each(function(index, element) {
-        $(this).find('.sort-handle').first().text(index +1);
-        $(this).find(':input').each(function() {
-            var input = $(this);
-            var name = input.attr('name');
-            var id = input.attr('id');
-            input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
-            input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
-            if (this.tagName == 'SELECT') {
-                $(this).find('option').each(function() {
-                    var option = $(this);
-                    var id = option.attr('id');
-                    option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
-                });
-            }
-        });
-    });
-}

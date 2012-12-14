@@ -1,6 +1,6 @@
 [% MACRO l(text, args) BLOCK;c.localize(text, args);END -%]
 
-[%- MACRO pagination_path(section,params)  BLOCK -%]
+[%- MACRO pagination_path(section, params)  BLOCK -%]
     [%- tags =  [ 'page_num'  'by'  'direction'  'per_page'  'filter'] -%]
     [%- "${section}/" -%]
     [%- IF params.page_num -%]

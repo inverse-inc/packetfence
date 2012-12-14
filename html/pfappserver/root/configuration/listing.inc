@@ -3,7 +3,7 @@
     IF by == column && direction == 'asc';
       params.direction = 'desc';
     END %]
-    <th class="listing_[%section%] [%section%]_[%column%]"> <a href="#[% pagination_path(section,params)  %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+    <th class="listing_[%section%] [%section%]_[%column%]"> <a href="#[% pagination_path(section, params)  %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
       <div>
         <form name="simpleSearch" class="form-search" action="[% section %]">
