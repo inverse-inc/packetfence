@@ -28,6 +28,9 @@ use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register.cgi');
 Log::Log4perl::MDC->put('proc', 'register.cgi');
@@ -76,13 +79,17 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  # obtain node information provided by authentication module
-  # This appends the hashes to one another. values returned by authenticator wins on key collision
-  #%info = (%info, $authenticator->getNodeAttributes());
-  #FIXME - hook with fetch de roles
-  %info = (%info, ());
-
   my $pid = $portalSession->getSession->param("username");
+
+  # obtain node information provided by authentication module - no need to get the role (category here)
+  # as we'll always get it when -getNormalVlan is called
+  # This appends the hashes to one another. values returned by authenticator wins on key collision
+  my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
+
+  if (defined $value) {
+      %info = (%info, (unregdate => $value));
+  }
+
   pf::web::web_node_register($portalSession, $pid, %info);
   pf::web::end_portal_session($portalSession);
 

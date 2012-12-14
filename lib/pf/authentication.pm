@@ -60,6 +60,7 @@ BEGIN {
       qw(
             authenticate
             match
+            username_from_email
        );
 }
 
@@ -397,6 +398,33 @@ sub deleteAuthenticationSource {
 #   return undef;
 # }
 
+=head2 username_from_email
+
+=cut
+sub username_from_email {
+
+    my ($email) = @_;
+
+    $logger->info("Looking up username for email: $email");
+    
+    foreach my $source ( @authentication_sources ) {
+        
+        my $classname = $source->meta->name;
+
+        if ($classname eq 'pf::Authentication::Source::ADSource' ||
+            $classname eq 'pf::Authentication::Source::LDAPSource') {
+            
+            my $username = $source->username_from_email($email);
+
+            if (defined $username) {
+                return $username;
+            }
+        }
+    }
+
+    return undef;
+}
+
 
 
 =head2 authenticate
@@ -430,6 +458,8 @@ sub authenticate {
 This method tries to match a set of params in a specific source. If source_id is
 undef, all sources will be tried. If action is undef, all actions will be returned.
 
+If action is set, it'll return the value of the action immediately.
+
 =cut
 
 sub match {
@@ -444,7 +474,7 @@ sub match {
     } elsif (!defined $source_id) {
       $actions = $current_source->match($params);
       
-      # First match wins
+      # First match in a source wins, and we stop looping
       if (defined $actions) {
 	last;
       }
