@@ -64,18 +64,16 @@ sub match {
     $logger->info("Matching rules in htpasswd file.");
 
     my @matching_rules = ();
-  
+
     foreach my $rule ( @{$self->{'rules'}} ) {
         my @matching_conditions = ();
         my @own_conditions = ();
-    
-        if (scalar @{$rule->{'conditions'}} == 0) {
+        if (!defined $rule->{'conditions'} || scalar @{$rule->{'conditions'}} == 0) {
             push(@matching_rules, $rule);
             goto done;
         }
 
         foreach my $condition ( @{$rule->{'conditions'}} ) {
-              
             if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
                 my $r = $self->SUPER::match_condition($condition, $params);
 	
@@ -89,10 +87,8 @@ sub match {
     
         # We're done looping, let's match the htpasswd conditions alltogether. Normally, we
         # should only have a condition based on the username attribute.
-        if (scalar @own_conditions == 1) {
-            
-            if ($own_conditions[0]->{'attribute'} eq "username") {
-                
+        foreach my $condition (@own_conditions) {
+            if ($condition->{'attribute'} eq "username") {
                 # Let's check if our matching username is found in our htpasswd file
                 my $password_file = $self->{'path'};
                 if (-r $password_file) {
@@ -102,8 +98,8 @@ sub match {
                     if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
                         
                         # Now let's see if the condition actually matches
-                        if ( $own_conditions[0]->matches("username", $params->{'username'}) ) {
-                            push @matching_conditions, @own_conditions;
+                        if ( $condition->matches("username", $params->{'username'}) ) {
+                            push(@matching_conditions, $condition);
                         }
                     }
                 }

@@ -32,16 +32,14 @@ sub available_attributes {
 =cut
 sub authenticate {  
    my ( $self, $username, $password ) = @_;
-   
+
    my $logger = Log::Log4perl->get_logger('pf::authentication');
    my $result = pf::temporary_password::validate_password($username, $password);
-   
+
    if ($result == $pf::temporary_password::AUTH_SUCCESS) {
      return ($TRUE, 'Successful authentication using SQL.');
    }
-   
-   $logger->error("Unable to perform SQL authentication.");
-   
+
    return ($FALSE, 'Unable to authenticate successfully using SQL.');
  }
 
