@@ -1,7 +1,7 @@
 <div class="modal fade hide" id="modalRule"></div>
 
 <ul class="breadcrumb">
-  <li><a href="[% c.uri_for(c.controller('Admin').action_for('configuration'), 'authentication') %]">[% l('User Sources') %]</a> <span class="divider">/</span></li>
+  <li><a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication#back">[% l('User Sources') %]</a> <span class="divider">/</span></li>
   <li class="active">[% IF source.id %][% source.id %][% ELSE %][% l('New Source') %][% END %]</li>
 </ul>
 
@@ -21,6 +21,6 @@
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
           [% IF source.id %]<a class="btn" href="[% c.uri_for(c.controller('Authentication::Source').action_for('read'), [source.id]) %]#readSource">[% l('Reset') %]</a>[% END %]
-          <a class="btn pull-right" href="[% c.uri_for(c.controller('Admin').action_for('configuration'), 'authentication') %]">[% l('Cancel') %]</a>
+          <a class="btn pull-right" href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication">[% l('Cancel') %]</a>
         </div>
       </form>

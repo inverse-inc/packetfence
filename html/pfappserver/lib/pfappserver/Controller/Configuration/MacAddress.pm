@@ -13,34 +13,28 @@ Catalyst Controller.
 use strict;
 use warnings;
 
-use Date::Parse;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
-use POSIX;
-use URI::Escape;
 
-use pf::authentication;
-use pf::os;
 use pf::util qw(load_oui download_oui);
-# imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be 
-# imported but it's better than duplicating regex all over the place.
-use pf::config;
-use Data::Dumper;
-use pfappserver::Form::Config::Pf;
 
-BEGIN {extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =head2 index
 
 =cut
 
-sub index : SimpleSearch('MacAddress') Path :Args() { }
+sub index :SimpleSearch('MacAddress') :Path :Args() { }
+
+=head2 update
+
+=cut
 
 sub update : Local : Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
-    my ($status,$status_msg) = download_oui();
+    my ($status, $status_msg) = download_oui();
     load_oui(1);
     $c->response->status($status);
     $c->stash->{status_msg} = $status_msg;

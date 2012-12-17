@@ -52,6 +52,7 @@ our (
     $oui_file, $oui_url,
     $floating_devices_file, %ConfigFloatingDevices,
     %connection_type, %connection_type_to_str, %connection_type_explained,
+    %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL
@@ -85,6 +86,7 @@ BEGIN {
 	$WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
+        %connection_group %connection_group_to_str
         $RADIUS_API_LEVEL $VLAN_API_LEVEL $INLINE_API_LEVEL $AUTHENTICATION_API_LEVEL $SOH_API_LEVEL $BILLING_API_LEVEL
         $ROLE_API_LEVEL
         $SELFREG_MODE_EMAIL $SELFREG_MODE_SMS $SELFREG_MODE_SPONSOR $SELFREG_MODE_GOOGLE $SELFREG_MODE_FACEBOOK $SELFREG_MODE_GITHUB
@@ -188,6 +190,11 @@ Readonly our $WEB_ADMIN_ALL => 4294967296;
     'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
     'Inline'                => $INLINE,
 );
+%connection_group = (
+    'Wireless'              => $WIRELESS,
+    'Ethernet'              => $WIRED,
+    'EAP'                   => $EAP,
+);
 
 # Their string equivalent for database storage
 %connection_type_to_str = (
@@ -198,6 +205,11 @@ Readonly our $WEB_ADMIN_ALL => 4294967296;
     $WIRED_SNMP_TRAPS => 'SNMP-Traps',
     $INLINE => 'Inline',
     $UNKNOWN => '',
+);
+%connection_group_to_str = (
+    $WIRELESS => 'Wireless',
+    $WIRED => 'Ethernet',
+    $EAP => 'EAP',
 );
 
 # String to constant hash

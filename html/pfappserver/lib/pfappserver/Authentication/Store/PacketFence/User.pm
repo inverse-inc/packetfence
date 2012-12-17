@@ -5,7 +5,10 @@ use base qw/Catalyst::Authentication::User Class::Accessor::Fast/;
 
 use strict;
 use warnings;
+
+use pf::config qw($TRUE $FALSE $WEB_ADMIN_ALL);
 use pf::authentication;
+use pf::Authentication::constants;
 
 BEGIN { __PACKAGE__->mk_accessors(qw/_user _store/) }
 
@@ -37,7 +40,15 @@ sub check_password {
 
   my ($result, $message) = &pf::authentication::authenticate($self->_user, $password);
 
-  return $result;
+  if ($result) {
+      my $value = &pf::authentication::match(undef, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
+      
+      if ($value == $WEB_ADMIN_ALL) {
+          return $TRUE;
+      }
+  }
+  
+  return $FALSE;
 }
 
 sub roles {

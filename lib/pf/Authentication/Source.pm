@@ -33,6 +33,7 @@ sub common_attributes {
   return [
           { value => 'SSID', type => $Conditions::STRING },
           { value => 'current_time', type => $Conditions::TIME },
+          { value => 'connection_type', type => $Conditions::CONNECTION },
          ];
 }
 
@@ -84,7 +85,7 @@ sub match_condition {
   
   my $r = 0;
   
-  if (grep {$_ eq $condition->attribute } @{$self->common_attributes()}) {
+  if (grep {$_->{value} eq $condition->attribute } @{$self->common_attributes()}) {
     $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
   }
 

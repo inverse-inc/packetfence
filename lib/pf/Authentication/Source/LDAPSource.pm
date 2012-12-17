@@ -90,13 +90,12 @@ sub authenticate {
   return ($TRUE, 'Successful authentication using LDAP.');
 }
 
-
-
 sub match {
   my ( $self, $params ) = @_;
   my $common_attributes = $self->SUPER::common_attributes();
 
   my $logger = Log::Log4perl->get_logger('pf::authentication');
+  $logger->info("Matching rules in LDAP source.");
   
   my @matching_rules = ();
   
@@ -105,15 +104,20 @@ sub match {
     my @matching_conditions = ();
     my @own_conditions = ();
     
+    if (scalar @{$rule->{'conditions'}} == 0) {
+        push(@matching_rules, $rule);
+        goto done;
+    }
+        
     foreach my $condition ( @{$rule->{'conditions'}} ) {
       
-      if (grep {$_ eq $condition->attribute } @$common_attributes) {
+      if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
 	my $r = $self->SUPER::match_condition($condition, $params);
 	
 	if ($r == 1) {
 	  push(@matching_conditions, $condition);
 	}
-      } elsif (grep {$_ eq $condition->attribute } @{$self->available_attributes()}) {
+      } elsif (grep {$_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
 	push(@own_conditions, $condition);
       }
     } # foreach my $condition (...)
@@ -165,6 +169,7 @@ sub match {
 
     # For now, we return the first matching rule. We might change this in the future
     # so let's keep the @matching_rules array for now.
+    done:
     if (scalar @matching_rules == 1) {
       $logger->info("Matched rule ($rule->{'description'}), returning actions.");
       return $rule->{'actions'};
@@ -217,6 +222,50 @@ sub ldap_filter_for_conditions {
   
   return $expression;
 } 
+
+sub username_from_email {
+    my ( $self, $email ) = @_;
+
+    my $logger = Log::Log4perl->get_logger('pf::authentication');
+
+    my $filter = "(mail=$email)";
+
+    my $connection = Net::LDAP->new($self->{'host'});
+    if (! defined($connection)) {
+      $logger->error("Unable to connect to '$self->{'host'}'");
+      return undef;
+    }
+    
+    my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    
+    if ($result->is_error) {
+      $logger->error("Unable to bind with '$self->{'binddn'}'");
+      return undef;
+    }
+    
+    $logger->info("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    $result = $connection->search(
+				  base => $self->{'basedn'},
+				  filter => $filter,
+				  scope => $self->{'scope'},
+				  attrs => $self->{'usernameattribute'}
+				 );
+    
+    if ($result->is_error) {
+      $logger->error("Unable to execute search, we skip the rule.");
+      next;
+    }
+    
+    if ($result->count == 1) {
+      my $username = $result->entry->get_value( $self->{'usernameattribute'} );
+      $connection->unbind;
+      $logger->info("Found a match ($username)");
+      return $username;
+    }
+    
+    $logger->info("No match found for filter: $filter");
+    return undef;
+}
 
 =back
 
