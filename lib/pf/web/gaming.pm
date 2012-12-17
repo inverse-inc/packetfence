@@ -17,7 +17,6 @@ use pf::web;
 use pf::config;
 use Readonly;
 use HTML::Entities;
-use Data::Dumper;
 use pf::enforcement qw(reevaluate_access);
 use pf::node qw(node_register is_max_reg_nodes_reached);
 
@@ -136,10 +135,6 @@ sub _sanitize_and_register {
 }
 
 =back
-
-=head1 AUTHOR
-
-YOUR NAME <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
