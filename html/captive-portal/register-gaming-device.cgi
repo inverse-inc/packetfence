@@ -2,7 +2,6 @@
 
 # CUSTOM: this page is all custom, started as a copy of register.cgi
 
-use CGI::Carp qw( fatalsToBrowser );
 use CGI;
 use Log::Log4perl;
 use strict;
@@ -11,12 +10,9 @@ use warnings;
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use pf::config;
-use pf::iplog;
-use pf::util;
 use pf::web::gaming;
 use pf::Portal::Session;
 use pf::web;
-use Data::Dumper;
 use Readonly;
 Readonly our $GAMING_CATEGORY  => "gaming_console";
 Readonly our $SCRIPT => 'register-gaming-device.cgi';
@@ -55,7 +51,7 @@ sub main {
     my $pid = $session->param("login");
     #See if user is try to login and is not already authenticated
     if(!$pid && $cgi->param('username') ne '' && $cgi->param('password') ne '') {
-      my ($auth_return,$err) = pf::web::gaming::web_student_authenticate($portalSession,$cgi, $session, \%info, $logger);
+      my ($auth_return,$err) = pf::web::gaming::authenticate($portalSession,$cgi, $session, \%info, $logger);
       if ($auth_return != 1) {
         pf::web::gaming::generate_login_page($portalSession);
       }
@@ -69,7 +65,7 @@ sub main {
     }
     elsif (exists $params{cancel} )  {
         $session->delete();
-        pf::web::gaming::generate_login_page($portalSession);
+        pf::web::gaming::generate_login_page($portalSession,'Registration canceled please try again');
     }
     #User is authenticated and requesting to register gaming device
     elsif (exists $params{'device_mac'}) {

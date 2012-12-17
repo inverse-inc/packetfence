@@ -54,7 +54,7 @@ Readonly our @GAMING_OUI => (
     '00:22:48:' ,  #          Microsoft-Xbox
 );
 
-sub web_student_authenticate {
+sub authenticate {
     my ($portalSession,$cgi, $session, $info,$logger) = @_;
     my ($auth_return,$err) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
     if ($auth_return == 1) {
@@ -120,7 +120,7 @@ sub is_gaming_mac {
 
 sub _sanitize_and_register {
     my ( $session, $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($result,$msg);
     if(valid_mac($mac)) {
         $logger->info("performing node registration Mac: $mac pid: $pid");
