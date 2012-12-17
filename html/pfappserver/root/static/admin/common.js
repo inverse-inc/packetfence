@@ -1,13 +1,21 @@
 /* Trigger a mouse click on the active sidebar navigation link */
 function activateNavLink() {
-    var link_query = '.sidebar-nav .nav-list .active a';
-    var hash = location.hash.replace(/\/.*$/,'');
+    var hash = location.hash;
     if (hash && hash != '#') {
-       link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
+        var found = false;
+        $('.sidebar-nav .nav-list a').sort(function(a,b){
+           return b.href.length - a.href.length ;
+        })
+        .filter(function(i) {
+            if(false === found && reverse[i].href.indexOf(hash) >= 0) {
+                found = true;
+                return true;
+            }
+            return false;
+        }).trigger('click');
     }
-    $(link_query).trigger('click');
 }
-    
+
 /* Update #section using an ajax request */
 function updateSection(href) {
     var section = $('#section');
@@ -113,7 +121,7 @@ $(function () {
         var before = new Date(now.getTime() - days*24*60*60*1000);
         var now_str = (now.getMonth() + 1) + '/' + now.getDate() + '/' + now.getFullYear();
         var before_str = (before.getMonth() + 1) + '/' + before.getDate() + '/' + before.getFullYear();
-        
+
         // Start date
         dp.pickers[0].element.val(before_str);
         dp.pickers[0].update();
@@ -127,7 +135,7 @@ $(function () {
         dp.updateDates();
         return false;
     });
-    
+
     /* Activate sortable tables and lists (rows/items can be re-ordered) */
     $('body').on('mousemove',
                  '.table-sortable tr:not(.ui-draggable), .list-sortable li:not(.ui-draggable)',
@@ -224,14 +232,22 @@ $(function () {
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
             row_new.insertAfter(row);
+            row_new.find(':input').each(function() {
+                var input = $(this);
+                var matches = input.attr('class').match(/\bname\:([A-Za-z0-9\.]+)/);
+                if(matches) {
+                    input.attr('name',matches[1]);
+                }
+            });
             row_new.trigger('admin.added');
         }
         // Update indexes
         var count = 0;
         tbody.children(':not(.hidden)').each(function(index, element) {
             count++;
-            $(this).find('.sort-handle').first().text(index + 1);
-            $(this).find(':input').each(function() {
+            var that = $(this);
+            that.find('.sort-handle').first().text(index + 1);
+            that.find(':input').each(function() {
                 var input = $(this);
                 var name = input.attr('name');
                 var id = input.attr('id');
