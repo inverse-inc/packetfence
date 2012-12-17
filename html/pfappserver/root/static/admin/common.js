@@ -2,12 +2,15 @@
 function activateNavLink() {
     var hash = location.hash;
     if (hash && hash != '#') {
+        /*Find the longest match*/
         var found = false;
-        $('.sidebar-nav .nav-list a').sort(function(a,b){
+        /*Sort links by descending order by string length*/
+        var sorted_list = $('.sidebar-nav .nav-list a').sort(function(a,b){
            return b.href.length - a.href.length ;
-        })
-        .filter(function(i) {
-            if(false === found && reverse[i].href.indexOf(hash) >= 0) {
+        });
+        /*Find first element that matches*/
+        sorted_list.filter(function(i) {
+            if(false === found && sorted_list[i].hash.indexOf(hash) === 0) {
                 found = true;
                 return true;
             }
