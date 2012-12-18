@@ -1,11 +1,4 @@
 function init() {
-    /* Register graph links in the sidebar list */
-    $('.sidebar-nav .nav-list a').click(function(event) {
-        var item = $(this).parent();
-        $('.sidebar-nav .nav-list .active').removeClass('active');
-        item.addClass('active');
-        return true;
-    });
 
     function updateGraphSection(href) {
         var graph = $('#section .graph');
@@ -71,7 +64,7 @@ function init() {
         // Send the action (add or remove)
         $.ajax(url.join('/'))
         .done(function(data) {
-                
+
         })
         .fail(function(jqXHR) {
             var obj = $.parseJSON(jqXHR.responseText);
@@ -91,6 +84,6 @@ function init() {
     if(hash && hash != '#') {
        link_query = '.sidebar-nav .nav-list a[href="' + hash + '"]';
     }
-    
+
     $(link_query).trigger('click');
 }
