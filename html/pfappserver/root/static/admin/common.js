@@ -92,7 +92,7 @@ function updateSortableTable(rows) {
     });
 }
 
-$(function () {
+$(function () { // DOM ready
 
     /* Default values for Ajax requests */
     $.ajaxSetup({
@@ -290,9 +290,9 @@ $(function () {
             //var empty = true;
             var count = 0;
             tbody.children(':not(.hidden)').each(function(index, element) {
-                if ($(this).hasClass('ui-draggable'))
+                if ($(this).hasClass('ui-droppable') || $(this).hasClass('ui-draggable'))
                     // This is sortable table; don't count rows without a sort handle
-                   $(this).find('.sort-handle').each(function() {
+                    $(this).find('.sort-handle').each(function() {
                         $(this).text(index + 1);
                         //empty = false;
                         count++;
