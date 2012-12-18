@@ -7,6 +7,7 @@
     compress
     delaycompress
     sharedscripts
+    create 644 pf pf
     postrotate
         # uncomment the crm statements if you are running packetfence in a corosync cluster
         #/usr/sbin/crm resource unmanage PacketFence
