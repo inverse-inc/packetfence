@@ -90,52 +90,28 @@ sub authenticate {
   return ($TRUE, 'Successful authentication using LDAP.');
 }
 
-sub match {
-  my ( $self, $params ) = @_;
-  my $common_attributes = $self->SUPER::common_attributes();
+=item match_in_subclass
 
-  my $logger = Log::Log4perl->get_logger('pf::authentication');
-  $logger->info("Matching rules in LDAP source.");
-  
-  my @matching_rules = ();
-  
-  foreach my $rule ( @{$self->{'rules'}} ) {
+=cut
+sub match_in_subclass {
     
-    my @matching_conditions = ();
-    my @own_conditions = ();
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     
-    if (scalar @{$rule->{'conditions'}} == 0) {
-        push(@matching_rules, $rule);
-        goto done;
-    }
-        
-    foreach my $condition ( @{$rule->{'conditions'}} ) {
-      
-      if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
-	my $r = $self->SUPER::match_condition($condition, $params);
-	
-	if ($r == 1) {
-	  push(@matching_conditions, $condition);
-	}
-      } elsif (grep {$_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
-	push(@own_conditions, $condition);
-      }
-    } # foreach my $condition (...)
-    
-    # We're done looping, let's match the LDAP conditions alltogether
-    my $filter = ldap_filter_for_conditions(\@own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+
+    my $filter = ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
     
     my $connection = Net::LDAP->new($self->{'host'});
     if (! defined($connection)) {
-      $logger->error("Unable to connect to '$self->{'host'}'");
-      return undef;
+        $logger->error("Unable to connect to '$self->{'host'}'");
+        return undef;
     }
     
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
     
     if ($result->is_error) {
-      $logger->error("Unable to bind with '$self->{'binddn'}'");
-      return undef;
+        $logger->error("Unable to bind with '$self->{'binddn'}'");
+        return undef;
     }
     
     $logger->info("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
@@ -147,37 +123,18 @@ sub match {
 				 );
     
     if ($result->is_error) {
-      $logger->error("Unable to execute search, we skip the rule.");
-      next;
+        $logger->error("Unable to execute search, we skip the rule.");
+        next;
     }
     
     if ($result->count == 1) {
-      my $dn = $result->entry(0)->dn;
-      $connection->unbind;
-      $logger->info("Found a match ($dn)! pushing LDAP conditions");
-      push @matching_conditions, @own_conditions;
+        my $dn = $result->entry(0)->dn;
+        $connection->unbind;
+        $logger->info("Found a match ($dn)! pushing LDAP conditions");
+        push @{ $matching_conditions }, @{ $own_conditions };
     }
-
-    # We compare the matched conditions with how many we had
-    if ($rule->match eq pf::Authentication::Rule->ANY &&
-	scalar @matching_conditions > 0) {
-      push(@matching_rules, $rule);
-    } elsif ($rule->match eq pf::Authentication::Rule->ALL &&
-	     scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
-      push(@matching_rules, $rule);
-    }
-
-    # For now, we return the first matching rule. We might change this in the future
-    # so let's keep the @matching_rules array for now.
-    done:
-    if (scalar @matching_rules == 1) {
-      $logger->info("Matched rule ($rule->{'description'}), returning actions.");
-      return $rule->{'actions'};
-    }
-	
-  } # foreach my $rule ( @{$self->{'rules'}} ) {
-  
-  return undef;
+    
+    return undef;
 }
 
 =item ldap_filter_for_conditions
