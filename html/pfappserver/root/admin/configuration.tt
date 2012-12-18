@@ -44,7 +44,7 @@ table input[type="text"] {
 }
 </style>
 [% MACRO list_entry(controller_name,action,description) BLOCK %]
-              <li[% IF section == action %] class="active"[% END %]>
+              <li>
                 <a href="#[%c.uri_for(c.controller(controller_name).action_for(action)).path.remove('^/')  %]">[% l(description || action || controller_name) %]</a>
               </li>
 [% END -%]

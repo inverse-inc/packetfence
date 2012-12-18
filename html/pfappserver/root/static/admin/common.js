@@ -1,21 +1,24 @@
 /* Trigger a mouse click on the active sidebar navigation link */
 function activateNavLink() {
     var hash = location.hash;
+    var found = false;
     if (hash && hash != '#') {
         /*Find the longest match*/
-        var found = false;
         /*Sort links by descending order by string length*/
-        var sorted_list = $('.sidebar-nav .nav-list a').sort(function(a,b){
+        $('.sidebar-nav .nav-list a').sort(function(a,b){
            return b.href.length - a.href.length ;
-        });
-        /*Find first element that matches*/
-        sorted_list.filter(function(i) {
-            if(false === found && sorted_list[i].hash.indexOf(hash) === 0) {
+        })
+        /*Find the first link */
+        .filter(function(i,link) {
+            if(false === found && hash.indexOf(link.hash) === 0) {
                 found = true;
                 return true;
             }
             return false;
         }).trigger('click');
+    }
+    else if(false === found) {
+        $('.sidebar-nav .nav-list a').first().trigger('click');
     }
 }
 
