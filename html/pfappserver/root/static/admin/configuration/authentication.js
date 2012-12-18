@@ -295,13 +295,13 @@ function initAuthentication() {
         var action = type.val();
         var value = type.next();
 
-        // Replace value field
+        // Replace value field with the one from the templates
         var value_new = $('#' + action + '_action').clone();
         value_new.attr('id', value.attr('id'));
         value_new.attr('name', value.attr('name'));
         value_new.insertBefore(value);
 
-        if (value.is('[type="hidden"]')) {
+        if (value.is('[type="hidden"]') && value.val().length) {
             value_new.val(value.val());
         }
 
@@ -315,5 +315,11 @@ function initAuthentication() {
     /* Update the rule action fields when changing an action type */
     $('#section').on('change', '#ruleActions select[name$=type]', function(event) {
         updateAction($(this));
+    });
+
+    /* Update the rule action fields when adding a new action */
+    $('#section').on('admin.added', '#ruleActions tr', function(event) {
+        var type = $(this).find('select[name$=type]').first();
+        updateAction(type);
     });
 }
