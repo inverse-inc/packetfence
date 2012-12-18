@@ -1,11 +1,4 @@
 function init() {
-    /* Register links in the sidebar list */
-    $('.sidebar-nav .nav-list a').click(function(event) {
-        var item = $(this).parent();
-        $('.sidebar-nav .nav-list .active').removeClass('active');
-        item.addClass('active');
-        return true;
-    });
 
     /* Save a section */
     $('#section').on('submit', 'form[name="section"]', function(event) {

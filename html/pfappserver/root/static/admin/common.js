@@ -17,7 +17,7 @@ function activateNavLink() {
             return false;
         }).trigger('click');
     }
-    else if(false === found) {
+    else if(false === found && $('.sidebar-nav .nav-list .active').size() === 0) {
         $('.sidebar-nav .nav-list a').first().trigger('click');
     }
 }
@@ -104,6 +104,14 @@ $(function () {
                     window.location.href = location;
             }
         }
+    });
+
+    /* Register links in the sidebar list */
+    $('.sidebar-nav .nav-list a').click(function(event) {
+        var item = $(this).parent();
+        $('.sidebar-nav .nav-list .active').removeClass('active');
+        item.addClass('active');
+        return true;
     });
 
     /* Range datepickers
