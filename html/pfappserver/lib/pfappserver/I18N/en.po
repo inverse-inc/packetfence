@@ -773,6 +773,9 @@ msgstr "Current time"
 msgid "connection_type"
 msgstr "Connection type"
 
+msgid "computer_name"
+msgstr "Computer name"
+
 # html/pfappserver/root/user/list_password.tt
 
 msgid "mail"

@@ -34,6 +34,7 @@ sub common_attributes {
           { value => 'SSID', type => $Conditions::STRING },
           { value => 'current_time', type => $Conditions::TIME },
           { value => 'connection_type', type => $Conditions::CONNECTION },
+          { value => 'computer_name', type => $Conditions::STRING },
          ];
 }
 
