@@ -10,32 +10,39 @@ pf::Authentication::Condition
 
 use Moose;
 
-use constant {
-        EQUALS => "equals",
-        CONTAINS => "contains",
-      };
+use pf::Authentication::constants;
 
 has 'attribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'operator' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 1);
 
 sub matches {
-  my ($self, $attr, $v) = @_;
+    my ($self, $attr, $v) = @_;
 
-  if ($self->{'attribute'} eq $attr) {
-    if ($self->{'operator'} eq $self->EQUALS) {
-      if (defined $v && $self->{'value'} eq $v) {
-	return 1;
-      }
-    }
-    elsif ($self->{'operator'} eq $self->CONTAINS) {
-        if (defined $v && index($v, $self->{'value'}) < 0) {
-            return 1;
+    if ($self->{'attribute'} eq $attr) {
+        if ($self->{'operator'} eq $Conditions::EQUALS) {
+            if (defined $v && $self->{'value'} eq $v) {
+                return 1;
+            }
+        }
+        elsif ($self->{'operator'} eq $Conditions::CONTAINS) {
+            if (defined $v && index($v, $self->{'value'}) >= 0) {
+                return 1;
+            }
+        }
+        elsif ($self->{'operator'} eq $Conditions::STARTS) {
+            if (defined $v && index($v, $self->{'value'}) == 0) {
+                return 1;
+            }
+        }
+        elsif ($self->{'operator'} eq $Conditions::ENDS) {
+            if (defined $v && ($v =~ m/\Q${$self}{value}\E$/)) {
+                return 1;
+            }
         }
     }
-  }
-  
-  return 0;
+
+    return 0;
 }
 
 =back

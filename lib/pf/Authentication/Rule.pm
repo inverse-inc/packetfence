@@ -10,14 +10,11 @@ pf::Authentication::Rule
 
 use Moose;
 
-use constant {
-        ANY => "any",
-        ALL => "all",
-      };
+use pf::Authentication::constants;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
-has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => ANY);
+has 'match' => (isa => 'Maybe[Str]', is => 'rw', default => $Rules::ANY);
 has 'actions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 has 'conditions' => (isa => 'ArrayRef', is => 'rw', required => 0);
 

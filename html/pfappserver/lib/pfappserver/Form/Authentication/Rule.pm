@@ -133,6 +133,22 @@ has_field "${Conditions::STRING}_value" =>
    wrapper => 0,
    element_class => ['span5'],
   );
+has_field "${Conditions::SUBSTRING}_operator" =>
+  (
+   type => 'Select',
+   do_label => 0,
+   wrapper => 0,
+   localize_labels => 1,
+   options_method => \&operators,
+   element_class => ['span3'],
+  );
+has_field "${Conditions::SUBSTRING}_value" =>
+  (
+   type => 'Text',
+   do_label => 0,
+   wrapper => 0,
+   element_class => ['span5'],
+  );
 has_field "${Conditions::NUMBER}_operator" =>
   (
    type => 'Select',
