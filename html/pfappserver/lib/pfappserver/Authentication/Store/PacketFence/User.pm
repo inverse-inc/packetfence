@@ -43,7 +43,7 @@ sub check_password {
   if ($result) {
       my $value = &pf::authentication::match(undef, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
       
-      if ($value == $WEB_ADMIN_ALL) {
+      if (defined $value && $value == $WEB_ADMIN_ALL) {
           return $TRUE;
       }
   }

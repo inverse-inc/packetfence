@@ -197,7 +197,7 @@ sub readAuthenticationConfigFile {
         foreach my $rule_id ( tied(%cfg)->GroupMembers($source_id) ) {
 
             my ($id) = $rule_id =~ m/$source_id rule (\w+)/;
-            my $current_rule = pf::Authentication::Rule->new({match => pf::Authentication::Rule->ANY, id => $id});
+            my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
 
             foreach my $parameter ( tied(%cfg)->Parameters($rule_id) ) {
                 if ($parameter =~ m/condition(\d+)/) {

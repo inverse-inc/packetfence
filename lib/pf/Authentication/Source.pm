@@ -31,10 +31,10 @@ sub available_attributes {
 sub common_attributes {
   my $self = shift;
   return [
-          { value => 'SSID', type => $Conditions::STRING },
+          { value => 'SSID', type => $Conditions::SUBSTRING },
           { value => 'current_time', type => $Conditions::TIME },
           { value => 'connection_type', type => $Conditions::CONNECTION },
-          { value => 'computer_name', type => $Conditions::STRING },
+          { value => 'computer_name', type => $Conditions::SUBSTRING },
          ];
 }
 
@@ -106,10 +106,10 @@ sub match {
         $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions);
   
         # We compare the matched conditions with how many we had
-        if ($rule->match eq pf::Authentication::Rule->ANY &&
+        if ($rule->match eq $Rules::ANY &&
             scalar @matching_conditions > 0) {
             push(@matching_rules, $rule);
-        } elsif ($rule->match eq pf::Authentication::Rule->ALL &&
+        } elsif ($rule->match eq $Rules::ALL &&
                  scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
             push(@matching_rules, $rule);
         }

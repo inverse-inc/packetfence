@@ -24,7 +24,7 @@ sub available_attributes {
     my $self = shift;
 
     my $super_attributes = $self->SUPER::available_attributes; 
-    my $own_attributes = [{ value => 'username', type => $Conditions::STRING }];
+    my $own_attributes = [{ value => 'username', type => $Conditions::SUBSTRING }];
 
     return [@$super_attributes, @$own_attributes];
 }
@@ -70,11 +70,9 @@ sub match_in_subclass {
             # Let's check if our matching username is found in our htpasswd file
             my $password_file = $self->{'path'};
             if (-r $password_file) {
-                
                 my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
-                
                 if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
-                    
+                    # Username is defined in the htpasswd file
                     # Now let's see if the condition actually matches
                     if ( $condition->matches("username", $params->{'username'}) ) {
                         push(@{ $matching_conditions }, $condition);
