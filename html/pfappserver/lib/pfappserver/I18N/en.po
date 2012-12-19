@@ -374,10 +374,6 @@ msgstr "PID"
 msgid "guests_self_registration.sponsors_only_from_localdomain"
 msgstr "Sponsors from local domain"
 
-#: conf/pf.conf.defaults:312
-msgid "guests_self_registration.sponsor_authentication"
-msgstr "Sponsor authentication"
-
 #: conf/pf.conf.defaults:320
 msgid "guests_self_registration.preregistration"
 msgstr "Preregistration"
