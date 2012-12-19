@@ -34,10 +34,10 @@ foreach my $currentFile (@files) {
 }
 
 # PacketFence module POD
-# for now NAME, AUTHOR, COPYRIGHT
+# for now NAME, COPYRIGHT
 # TODO expect NAME, SYNOPSIS, DESCRIPTION, AUTHOR, COPYRIGHT, LICENSE
 # TODO port to perl module: http://search.cpan.org/~mkutter/Test-Pod-Content-0.0.5/
-my @pf_general_pod = qw(NAME AUTHOR COPYRIGHT);
+my @pf_general_pod = qw(NAME COPYRIGHT);
 foreach my $currentFile (@files) {
     my $shortname = $1 if ($currentFile =~ m'^/usr/local/pf/(.+)$');
 
