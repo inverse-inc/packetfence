@@ -235,7 +235,6 @@ sub createSingle {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $result) = ($STATUS::CREATED);
     my $pid = $data->{pid};
-    my (@actions, $access_duration, $expiration);
     my @users = ();
 
     # Adding person (using modify in case person already exists)
@@ -254,21 +253,10 @@ sub createSingle {
     if ($result) {
         $logger->info("Created user account $pid. Sponsored by $user");
 
-        @actions = grep { $_->{type} eq 'access_duration' } @{$data->{actions}};
-        if (scalar @actions > 0) {
-            # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-            $access_duration = $actions[0]->{value};
-            $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S",
-                                          localtime(str2time($data->{arrival_date}) +
-                                                    normalize_time($access_duration) +
-                                                    24*60*60));
-        }
-
         # We create temporary password with the expiration and a 'not valid before' value
         $result = pf::temporary_password::generate($pid,
-                                                   $expiration,
                                                    $data->{arrival_date},
-                                                   $access_duration);
+                                                   $data->{actions});
         if ($result) {
             push(@users, { pid => $pid, email => $data->{email}, password => $result });
         }
@@ -295,19 +283,8 @@ sub createMultiple {
     my $pid;
     my $prefix = $data->{prefix};
     my $quantity = int($data->{quantity});
-    my (@actions, $access_duration, $expiration);
     my @users = ();
     my $count = 0;
-
-    @actions = grep { $_->{type} eq 'access_duration' } @{$data->{actions}};
-    if (scalar @actions > 0) {
-        # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-        $access_duration = $actions[0]->{value};
-        $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S",
-                                      localtime(str2time($data->{arrival_date}) +
-                                                normalize_time($access_duration) +
-                                                24*60*60));
-    }
 
     for (my $i = 1; $i <= $quantity; $i++) {
         $pid = "$prefix$i";
@@ -326,9 +303,8 @@ sub createMultiple {
         if ($result) {
             # Create/update password
             $result = pf::temporary_password::generate($pid,
-                                                       $expiration,
                                                        $data->{arrival_date}, 
-                                                       $access_duration);
+                                                       $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
                 $count++;
@@ -355,21 +331,10 @@ sub importCSV {
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $message);
-    my (@actions, $access_duration, $expiration);
     my @users = ();
     my $filename = $data->{users_file}->filename;
     my $tmpfilename = $data->{users_file}->tempname;
     my $delimiter = $data->{delimiter};
-
-    @actions = grep { $_->{type} eq 'access_duration' } @{$data->{actions}};
-    if (scalar @actions > 0) {
-        # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-        $access_duration = $actions[0]->{value};
-        $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S",
-                                      localtime(str2time($data->{arrival_date}) +
-                                                normalize_time($access_duration) +
-                                                24*60*60));
-    }
 
     $logger->debug("CSV file import users from $tmpfilename ($filename, \"$delimiter\")");
 
@@ -423,9 +388,8 @@ sub importCSV {
             if ($result) {
                 # Create/update password
                 $result = pf::temporary_password::generate($pid,
-                                                           $expiration,
                                                            $data->{arrival_date}, 
-                                                           $access_duration,
+                                                           $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });
                 $count++;
