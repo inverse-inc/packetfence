@@ -363,10 +363,10 @@ sub send_email {
     my ($hash_version, $hash) = _unpack_activation_code($activation_code);
 
     if (defined($info{'activation_domain'})) {
-        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION/$hash";
+        $info{'activation_uri'} = "https://". $info{'activation_domain'} . "$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
     } else {
         $info{'activation_uri'} = "https://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-            ."$WEB::URL_EMAIL_ACTIVATION/$hash";
+            ."$WEB::URL_EMAIL_ACTIVATION_LINK/$hash";
     }
 
     # Hash merge. Note that on key collisions the result of view_by_code() will win
