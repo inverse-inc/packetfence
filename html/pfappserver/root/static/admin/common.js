@@ -29,31 +29,33 @@ function updateSection(href) {
         $("body,html").animate({scrollTop:0}, 'fast');
         var loader = section.prev('.loader');
         if (loader) loader.show();
-        section.fadeTo('fast', 0.5);
-        $.ajax(href)
-        .always(function() {
-            if (loader) loader.hide();
-            section.fadeTo('fast',1.0);
-            resetAlert(section);
-        })
-        .done(function(data) {
-            section.html(data);
-            $('.datepicker').datepicker({ autoclose: true });
-            $('.chzn-select').chosen();
-            $('.chzn-deselect').chosen({allow_single_deselect: true});
-            section.trigger('section.loaded');
-        })
-        .fail(function(jqXHR) {
-            var status_msg;
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {
-                status_msg = "Cannot Load Content";
-                section.html('<div></div>');
-            }
-            showPermanentError(section.children().first(), status_msg);
+        section.fadeTo('fast', 0.5, function() {
+            $.ajax(href)
+                .always(function() {
+                    if (loader) loader.hide();
+                    section.fadeTo('fast', 1.0);
+                    resetAlert(section);
+                })
+                .done(function(data) {
+                    section.html(data);
+                    $('.datepicker').datepicker({ autoclose: true });
+                    $('.chzn-select').chosen();
+                    $('.chzn-deselect').chosen({allow_single_deselect: true});
+                    section.trigger('section.loaded');
+                })
+                .fail(function(jqXHR) {
+                    var status_msg;
+                    try {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        status_msg = obj.status_msg;
+                    }
+                    catch(e) {
+                        status_msg = "Cannot Load Content";
+                    }
+                    if (section.children().length == 0)
+                        section.html('<h2></h2><div></div>');
+                    showPermanentError(section.children('h1, h2, h3').next(), status_msg);
+                });
         });
     }
 }
@@ -246,13 +248,6 @@ $(function () { // DOM ready
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
             row_new.insertAfter(row);
-            row_new.find(':input').each(function() {
-                var input = $(this);
-                var matches = input.attr('class').match(/\bname\:([A-Za-z0-9\.]+)/);
-                if(matches) {
-                    input.attr('name',matches[1]);
-                }
-            });
             row_new.trigger('admin.added');
         }
         // Update indexes
