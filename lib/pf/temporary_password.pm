@@ -41,13 +41,14 @@ use Log::Log4perl;
 use POSIX;
 use Readonly;
 
+use pf::nodecategory;
+use pf::Authentication::constants;
+
 our $VERSION = 1.10;
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';
 
-# Node category
-use pf::nodecategory;
 
 # Authenticatation return codes
 Readonly our $AUTH_SUCCESS => 0;
@@ -250,7 +251,7 @@ sub generate {
     # we check for all actions
     my @values;
 
-    @values = grep { $_->{type} eq 'set_access_duration' } @{$actions};
+    @values = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$actions};
     if (scalar @values > 0 && defined $data{'valid_from'}) {
         # Expiration is arrival date + access duration + a tolerance window of 24 hrs
         # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
@@ -264,27 +265,27 @@ sub generate {
     }
 
 
-    @values = grep { $_->{type} eq 'mark_as_sponsor' } @{$actions};
+    @values = grep { $_->{type} eq $Actions::MARK_AS_SPONSOR } @{$actions};
     if (scalar @values > 0) {
         $data{'sponsor'} = 1;
     } else {
         $data{'sponsor'} = 0;
     }
 
-    @values = grep { $_->{type} eq 'set_access_level' } @{$actions};
+    @values = grep { $_->{type} eq $Actions::SET_ACCESS_LEVEL } @{$actions};
     if (scalar @values > 0) {
         $data{'access_level'} = $values[0]->{value};
     } else {
         $data{'access_level'} = 0;
     }
 
-    @values = grep { $_->{type} eq 'set_role' } @{$actions};
+    @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
         $data{'category'} = $role_id;
     }
 
-    @values = grep { $_->{type} eq 'set_unreg_date' } @{$actions};
+    @values = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$actions};
     if (scalar @values > 0) {
         $data{'unregdate'} = $values[0]->{value};
     } else {
@@ -297,13 +298,13 @@ sub generate {
         _delete($pid);
     }
 
-    my $result = create(%data);
-    if (defined($result)) {
-        $logger->info("new temporary account successfully generated");
-        return $data{'password'};
-    } else {
+    my @result = create(%data);
+    if (scalar @result == 1 && $result[0] == 0) {
         $logger->warn("something went wrong creating a new temporary password for $pid");
         return;
+    } else {
+        $logger->info("new temporary account successfully generated");
+        return $data{'password'};
     }
 }
 
