@@ -16,42 +16,6 @@ function initAuthentication() {
         });
     });
 
-    /* View a user source */
-    function readSource(event, url) {
-        var section = $('#section');
-        var href = url || $(this).attr('href');
-        var loader = section.prev('.loader');
-        section.fadeOut('fast', function() {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            loader.show();
-            $(this).empty();
-            $.ajax(href)
-                .always(function() {
-                    loader.hide();
-                })
-                .done(function(data) {
-                    section.html(data);
-                    section.fadeIn('fast', function() {
-                        $('.chzn-select').chosen();
-                        $('#id').focus();
-                    });
-                })
-                .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    section.append('<div></div>').fadeIn();
-                    showError(section.children().first(), obj.status_msg);
-                });
-        });
-
-        return false;
-    }
-
-    /* Reset and create button */
-    $('#section').on('click', '[href*="#readSource"], #createSource a', function(event) {
-        var _readSource = $.proxy(readSource, this);
-        return _readSource(event);
-    });
-
     /* Delete a source */
     $('#section').on('click', '[href*="#deleteSource"]', function(event) {
         if ($(this).hasClass('disabled'))

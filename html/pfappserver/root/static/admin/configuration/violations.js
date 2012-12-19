@@ -115,7 +115,7 @@ function initViolations() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the section
-                    $('.sidebar-nav .nav-list .active a').trigger('click');
+                    $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
