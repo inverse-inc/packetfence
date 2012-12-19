@@ -759,6 +759,9 @@ msgstr "Set access level"
 msgid "set_role"
 msgstr "Set role"
 
+msgid "access_duration"
+msgstr "Set access duration"
+
 msgid "set_unreg_date"
 msgstr "Set unregistration date"
 

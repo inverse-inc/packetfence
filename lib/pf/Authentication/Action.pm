@@ -20,6 +20,7 @@ sub availableActions {
             $Actions::MARK_AS_SPONSOR,
             $Actions::SET_ACCESS_LEVEL,
             $Actions::SET_ROLE,
+            $Actions::SET_ACCESS_DURATION,
             $Actions::SET_UNREG_DATE,
            ];
 }
