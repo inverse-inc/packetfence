@@ -17,6 +17,7 @@ with 'pfappserver::Form::Widget::Theme::Pf';
 
 use HTTP::Status qw(:constants is_success);
 use pf::config;
+use pf::util qw(get_abbr_time get_translatable_time);
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 
@@ -233,6 +234,14 @@ has_field "${Actions::SET_ROLE}_action" =>
    wrapper => 0,
    options_method => \&options_roles,
   );
+has_field "${Actions::SET_ACCESS_DURATION}_action" =>
+  (
+   type => 'Select',
+   do_label => 0,
+   wrapper => 0,
+   options_method => \&options_durations,
+   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
+  );
 has_field "${Actions::SET_UNREG_DATE}_action" =>
   (
    type => 'DatePicker',
@@ -371,6 +380,25 @@ sub options_roles {
     }
 
     return @roles;
+}
+
+=head2 options_durations
+
+Populate the access duration select field with the available values defined
+in the pf.conf configuration file.
+
+=cut
+
+sub options_durations {
+    my $self = shift;
+
+    my $durations = pf::web::util::get_translated_time_hash(
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
+        $self->form->ctx->languages()->[0]
+    );
+    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
+
+    return \@options;
 }
 
 =head1 COPYRIGHT

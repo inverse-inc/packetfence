@@ -4,11 +4,12 @@ function initUsers() {
     $('#section').on('submit', 'form[name="users"]', function(event) {
         var form = $(this),
         btn = form.find('[type="submit"]'),
+        disabled_inputs = form.find('.hidden :input, .tab-pane:not(.active) :input'),
         valid;
 
         // Don't submit inputs from hidden rows and tabs.
         // The functions isFormValid and serialize will ignore disabled inputs.
-        form.find('tr.hidden :input, .tab-pane:not(.active) :input').attr('disabled', 'disabled');
+        disabled_inputs.attr('disabled', 'disabled');
 
         // Identify the type of creation (single, multiple or import) from the selected tab
         form.find('input[name="type"]').val($('.nav-tabs .active a').attr('href').substring(1));
@@ -23,7 +24,7 @@ function initUsers() {
             var iform = $("#iframe_form");
             iform.one('load', function(event) {
                 // Restore disabled inputs
-                form.find('tr.hidden :input, .tab-pane:not(.active) :input').removeAttr('disabled');
+                disabled_inputs.removeAttr('disabled');
                 
                 $("body,html").animate({scrollTop:0}, 'fast');
                 btn.button('reset');
@@ -47,7 +48,7 @@ function initUsers() {
         }
         else {
             // Restore disabled inputs
-            form.find('tr.hidden :input, .tab-pane:not(.active) :input').removeAttr('disabled');
+            disabled_inputs.removeAttr('disabled');
         }
 
         return valid;

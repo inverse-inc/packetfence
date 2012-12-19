@@ -71,7 +71,6 @@
   <hr/>
 
   [% form.field('arrival_date').render %]
-  [% form.field('access_duration').render %]
 
   <div class="control-group">
     <label class="control-label">[% l('Actions') %]</label>

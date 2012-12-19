@@ -101,6 +101,7 @@ Available actions
 Readonly::Scalar our $MARK_AS_SPONSOR => "mark_as_sponsor";
 Readonly::Scalar our $SET_ACCESS_LEVEL => "set_access_level";
 Readonly::Scalar our $SET_ROLE => "set_role";
+Readonly::Scalar our $SET_ACCESS_DURATION => "access_duration";
 Readonly::Scalar our $SET_UNREG_DATE => "set_unreg_date";
 
 =item ACTIONS
@@ -114,6 +115,7 @@ Readonly::Array our @ACTIONS =>
    $MARK_AS_SPONSOR,
    $SET_ACCESS_LEVEL,
    $SET_ROLE,
+   $SET_ACCESS_DURATION,
    $SET_UNREG_DATE,
   );
 

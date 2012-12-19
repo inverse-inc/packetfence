@@ -36,14 +36,6 @@ has_field 'arrival_date' =>
    required => 1,
    start => &now,
   );
-has_field 'access_duration' =>
-  (
-   type => 'Select',
-   label => 'Access Duration',
-   required => 1,
-   options_method => \&options_durations,
-   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
-  );
 has_field 'actions' =>
   (
    type => 'Repeatable',
@@ -97,31 +89,20 @@ has_field "${Actions::SET_ROLE}_action" =>
    wrapper => 0,
    options_method => \&options_roles,
   );
+has_field "${Actions::SET_ACCESS_DURATION}_action" =>
+  (
+   type => 'Select',
+   do_label => 0,
+   wrapper => 0,
+   options_method => \&options_durations,
+   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
+  );
 has_field "${Actions::SET_UNREG_DATE}_action" =>
   (
    type => 'DatePicker',
    do_label => 0,
    wrapper => 0,
   );
-
-=head2 options_actions
-
-Populate the access duration select field with the available values defined
-in the pf.conf configuration file.
-
-=cut
-
-sub options_durations {
-    my $self = shift;
-
-    my $durations = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
-        $self->form->ctx->languages()->[0]
-    );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
-
-    return \@options;
-}
 
 =head2 options_actions
 
@@ -179,6 +160,25 @@ sub options_roles {
     }
 
     return @roles;
+}
+
+=head2 options_durations
+
+Populate the access duration select field with the available values defined
+in the pf.conf configuration file.
+
+=cut
+
+sub options_durations {
+    my $self = shift;
+
+    my $durations = pf::web::util::get_translated_time_hash(
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
+        $self->form->ctx->languages()->[0]
+    );
+    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
+
+    return \@options;
 }
 
 =head2 now
