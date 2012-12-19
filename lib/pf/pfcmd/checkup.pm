@@ -694,45 +694,6 @@ sub extensions {
     #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
     #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
     #}
-
-    # # Authentication modules
-    # my @activated_auth_modules = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
-    # # if sponsored guest authentication is enabled test the module
-    # if ($guest_self_registration{$SELFREG_MODE_SPONSOR}) {
-    #     push @activated_auth_modules, $Config{'guests_self_registration'}{'sponsor_authentication'};
-    # }
-    # foreach my $auth (@activated_auth_modules) {
-    #     my ($authenticator, $authReturn, $err);
-    #     try {
-    #         # try to import module and re-throw the error to catch if there's one
-    #         eval "use authentication::$auth";
-    #         die($@) if ($@);
-
-    #         $authenticator = new {"authentication::$auth"}();
-    #         if (!$authenticator->isa('pf::web::auth')) {
-    #             add_problem( $FATAL,
-    #                 "Authentication module authentication::$auth is enabled and is not of the correct object type. " .
-    #                 "Did you read the UPGRADE document?"
-    #             );
-    #         }
-
-    #         if (!defined($authenticator->VERSION())) { 
-    #             add_problem( $FATAL,
-    #                 "Authentication module authentication::$auth is enabled and its VERSION is not defined. " . 
-    #                 "Did you read the UPGRADE document?"
-    #             );
-    #         } elsif ($AUTHENTICATION_API_LEVEL > $authenticator->VERSION()) { 
-    #             add_problem( $FATAL,
-    #                 "Authentication module authentication::$auth is enabled and is not at the correct API level. " .
-    #                 "Did you read the UPGRADE document?"
-    #             );
-    #         }
-
-
-    #     } catch {
-    #         add_problem($FATAL, "Uncaught exception while trying to identify authentication::$auth module version: $_");
-    #     }
-    # }
 }
 
 =item permissions

@@ -121,9 +121,7 @@ if (defined($cgi->url_param('code'))) {
             }
 
             # User provided username and password: authenticate
-            my ($auth_return, $authenticator) = pf::web::web_user_authenticate(
-                $portalSession, $Config{'guests_self_registration'}{'sponsor_authentication'}
-            );
+            my ($auth_return, $authenticator) = pf::web::web_user_authenticate($portalSession);
 
             if ($auth_return != $TRUE) {
                 $logger->info("authentication failed for user ".$cgi->param("username"));

@@ -1819,7 +1819,6 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   mandatory_fields=firstname,lastname,phone,email
   guest_pid=email
   sponsors_only_from_localdomain=yes
-  sponsor_authentication=local
   preregistration=disabled
 
 To disable the self-registration feature, you can do so in the Web Administration interface or by modify the following line in `/usr/local/pf/conf/pf.conf`:
