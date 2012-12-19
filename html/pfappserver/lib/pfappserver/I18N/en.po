@@ -264,6 +264,12 @@ msgstr "Detection"
 msgid "trapping.detection_engine"
 msgstr "Detection engine"
 
+msgid "trapping.wireless_ips"
+msgstr "Wireless IPS"
+
+msgid "trapping.wireless_ips_threshold"
+msgstr "Wireless IPS threshold"
+
 #: conf/pf.conf.defaults:146
 msgid "registration"
 msgstr "Registration"
@@ -630,6 +636,9 @@ msgstr "Trap limit action"
 #: conf/pf.conf.defaults:656
 msgid "inline.ports_redirect"
 msgstr "Ports redirect"
+
+msgid "inline.should_reauth_on_vlan_change"
+msgstr "Reauthenticate node"
 
 #: conf/pf.conf.defaults:658
 msgid "servicewatch"
