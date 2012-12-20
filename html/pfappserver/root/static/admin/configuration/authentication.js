@@ -1,5 +1,3 @@
-function initAuthentication() {
-
     /* Save the sources list order */
     $('#section').on('admin.ordered', '#sources', function(event) {
         var form = $(this).closest('form');
@@ -11,8 +9,15 @@ function initAuthentication() {
             resetAlert($('#section'));
             showSuccess(form, data.status_msg);
         }).fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showPermanentError(form, obj.status_msg);
+            var status_msg;
+            try {
+                var obj = $.parseJSON(jqXHR.responseText);
+                status_msg = obj.status_msg;
+            }
+            catch(e) {
+                status_msg = "Cannot Load Content";
+            }
+            showPermanentError(form, status_msg);
         });
     });
 
@@ -47,9 +52,16 @@ function initAuthentication() {
                     }
                 })
                 .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
+                    var status_msg;
                     $("body,html").animate({scrollTop:0}, 'fast');
+                    try {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        status_msg = obj.status_msg;
+                    }
+                    catch(e) {
+                        status_msg = "Cannot Load Content";
+                    }
+                    showError($('#section h2'), status_msg);
                 });
         });
 
@@ -78,8 +90,16 @@ function initAuthentication() {
                     });
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(form, obj.status_msg);
+                var status_msg;
+                $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {
+                    status_msg = "Cannot Load Content";
+                }
+                showPermanentError(form, status_msg);
             });
         }
 
@@ -100,9 +120,17 @@ function initAuthentication() {
                 });
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
+                var status_msg;
+                modal.modal('hide');
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {
+                    status_msg = "Cannot Load Content";
+                }
+                showError($('#section h2'), status_msg);
             });
 
         return false;
@@ -119,9 +147,17 @@ function initAuthentication() {
                 modal.append(data);
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
+                var status_msg;
+                modal.modal('hide');
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {
+                    status_msg = "Cannot Load Content";
+                }
+                showError($('#section h2'), status_msg);
             });
 
         return false;    
@@ -155,8 +191,15 @@ function initAuthentication() {
                     });
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
+                var status_msg;
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {
+                    status_msg = "Cannot Load Content";
+                }
+                showPermanentError(modal_body.children().first(), status_msg);
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');
             });
@@ -189,18 +232,6 @@ function initAuthentication() {
             updateAction($(this));
         });
     });
-
-    /* Initialize the rendering widgets of some elements */
-    function initWidgets(elements) {
-        elements.filter('.chzn-select').chosen();
-        elements.filter('.chzn-deselect').chosen({allow_single_deselect: true});
-        elements.filter('.timepicker-default').each(function() {
-            // Keep the placeholder visible if the input has no value
-            var defaultTime = $(this).val().length? 'value' : false;
-            $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
-        });
-        elements.filter('.datepicker').datepicker({ autoclose: true });
-    }
 
     /* Update a rule condition input field depending on the type of the selected attribute */
     function updateCondition(attribute) {
@@ -254,36 +285,13 @@ function initAuthentication() {
         updateCondition($(this));
     });
 
-    /* Update a rule action input field depending on the selected action type */
-    function updateAction(type) {
-        var action = type.val();
-        var value = type.next();
-
-        // Replace value field with the one from the templates
-        var value_new = $('#' + action + '_action').clone();
-        value_new.attr('id', value.attr('id'));
-        value_new.attr('name', value.attr('name'));
-        value_new.insertBefore(value);
-
-        if (value.is('[type="hidden"]') && value.val().length) {
-            value_new.val(value.val());
-        }
-
-        // Remove previous field
-        value.remove();
-
-        // Initialize rendering widgets
-        initWidgets(value_new);
-    }
-
     /* Update the rule action fields when changing an action type */
     $('#section').on('change', '#ruleActions select[name$=type]', function(event) {
         updateAction($(this));
     });
 
     /* Update the rule action fields when adding a new action */
-    $('#section').on('admin.added', '#ruleActions tr', function(event) {
+    $('#section').on('admin.added', '#ruleActions tr:not(.hidden)', function(event) {
         var type = $(this).find('select[name$=type]').first();
         updateAction(type);
     });
-}
