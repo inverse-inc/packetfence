@@ -1826,7 +1826,6 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   [guests_admin_registration]
   access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
-  category=guest
 
 To allow the guest created by the guest management interface to login through the captive-portal, `preregistered_guests` must be selected as a valid authentication mechanism. For example with the following line in `/usr/local/pf/conf/pf.conf`:
 
@@ -2019,7 +2018,6 @@ Here are the different configuration parameters that can be set for each portal 
   guest_category = the category that will be assigned to the self-registered guests
   template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
   billing_engine = either enabled or disabled
-  category = the default category that will be assigned to users when they registerer
 
 CAUTION: If you set a custom template_path, make sure to copy over all of the default template files in the new custom folder. PacketFence will only render templates from the files in that custom folder if the value is setted. If files are missing, you'll be facing some error in templates generation. 
 
