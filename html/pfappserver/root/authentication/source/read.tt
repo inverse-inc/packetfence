@@ -20,7 +20,7 @@
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
-          [% IF source.id %]<a class="btn" href="#[% c.uri_for(c.controller('Authentication::Source').action_for('read'), [source.id]).path.remove('^/') %]#reset">[% l('Reset') %]</a>[% END %]
+          [% IF source.id %]<button type="reset" class="btn">[% l('Reset') %]</button>[% END %]
           <a class="btn pull-right" href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication">[% l('Cancel') %]</a>
         </div>
       </form>

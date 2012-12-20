@@ -36,7 +36,7 @@
       [% FOREACH source IN form.field('sources').fields %]
       <tr>
         <td class="sort-handle">[% loop.index + 1 %]</td>
-        <td>[% source.field('id').render_element %]<a href="#[% c.uri_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]).path.remove('^/') %]">[% source.field('id').value %]</a></td>
+        <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
         <td>[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
         <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]#deleteSource">[% l('Delete') %]</a></td>
@@ -58,7 +58,7 @@
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
       [% FOREACH type IN types -%]
-      <li><a href="#[% c.uri_for(c.controller('Authentication::Source').action_for('create'), type).path.remove('^/') %]">[% l(type) %]</a></li>
+      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
       [% END -%]
     </ul>
   </div>
