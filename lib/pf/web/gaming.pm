@@ -1,27 +1,28 @@
 package pf::web::gaming;
+
 =head1 NAME
 
-pf::web::gaming add documentation
+pf::web::gaming
 
 =cut
 
 =head1 DESCRIPTION
 
-gaming_registration
+Library for the gaming-device registration page
 
 =cut
 
 use strict;
 use warnings;
-use pf::web;
-use pf::config;
-use Readonly;
+
 use HTML::Entities;
-use pf::enforcement qw(reevaluate_access);
-use pf::node qw(node_register is_max_reg_nodes_reached);
+use Readonly;
 
 use pf::config;
+use pf::enforcement qw(reevaluate_access);
+use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
+use pf::web;
 
 Readonly our $GAMING_LOGIN_TEMPLATE   => 'gaming-login.html';
 Readonly our $GAMING_LANDING_TEMPLATE => 'gaming-landing.html';
@@ -53,6 +54,13 @@ Readonly our @GAMING_OUI => (
     '00:1B:7A:' ,  #          Ninetndo-Wii
     '00:22:48:' ,  #          Microsoft-Xbox
 );
+
+=head1 SUBROUTINES
+
+=over
+
+=cut
+
 
 sub authenticate {
     my ($portalSession,$cgi, $session, $info,$logger) = @_;
@@ -134,6 +142,7 @@ sub _sanitize_and_register {
     return ($result,$msg);
 }
 
+
 =back
 
 =head1 COPYRIGHT
@@ -160,4 +169,3 @@ USA.
 =cut
 
 1;
-
