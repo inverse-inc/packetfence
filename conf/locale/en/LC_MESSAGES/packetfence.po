@@ -891,3 +891,14 @@ msgstr "Registration canceled please try again"
 
 msgid "Please verify MAC address provided"
 msgstr "Please verify MAC address provided"
+
+msgid "You are not authorized"
+msgstr "You are not authorized"
+
+msgid "The MAC address %s has been successfully registered."
+msgstr "The MAC address %s has been successfully registered."
+
+msgid "The MAC address %s provided is invalid please try again"
+msgstr "The MAC address %s provided is invalid please try again"
+
+

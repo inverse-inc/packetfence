@@ -134,11 +134,12 @@ sub _sanitize_and_register {
         $logger->info("performing node registration MAC: $mac pid: $pid");
         node_register( $mac, $pid, %info );
         $result = $TRUE;
-        $msg = "The MAC address $mac has been successfully registered.";
+        $msg = "The MAC address %s has been successfully registered.";
     }
     else {
-        $msg = "The MAC address $mac provided is invalid please try agian";
+        $msg = "The MAC address %s provided is invalid please try again";
     }
+    $msg = i18n_format($msg,$mac);
     return ($result,$msg);
 }
 
