@@ -24,9 +24,10 @@ my @files;
 push(@files, TestUtils::get_all_perl_binaries());
 push(@files, TestUtils::get_all_perl_cgi());
 push(@files, TestUtils::get_all_perl_modules());
+my @pf_general_pod = qw(NAME COPYRIGHT);
 
 # all files + no warnings
-plan tests => scalar @files * 4 + 1;
+plan tests => scalar @files * ((scalar @pf_general_pod) + 1  )  + 1;
 
 foreach my $currentFile (@files) {
     my $shortname = $1 if ($currentFile =~ m'^/usr/local/pf/(.+)$');
@@ -37,7 +38,6 @@ foreach my $currentFile (@files) {
 # for now NAME, COPYRIGHT
 # TODO expect NAME, SYNOPSIS, DESCRIPTION, AUTHOR, COPYRIGHT, LICENSE
 # TODO port to perl module: http://search.cpan.org/~mkutter/Test-Pod-Content-0.0.5/
-my @pf_general_pod = qw(NAME COPYRIGHT);
 foreach my $currentFile (@files) {
     my $shortname = $1 if ($currentFile =~ m'^/usr/local/pf/(.+)$');
 
@@ -73,27 +73,27 @@ Dominik Ghel <dghel@inverse.ca>
 Olivier Bilodeau <obilodeau@inverse.ca>
 
 Regis Balzard <rbalzard@inverse.ca>
-        
+
 =head1 COPYRIGHT
-        
+
 Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

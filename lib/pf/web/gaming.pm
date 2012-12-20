@@ -107,7 +107,7 @@ sub register_node {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($result,$msg);
     if(!valid_mac($mac) || !is_gaming_mac($mac)) {
-        $msg = "Please verify Mac address provided";
+        $msg = "Please verify MAC address provided";
     }
     elsif ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         $msg = "You have reached the maximum number of devices you are able to register with this username.";
@@ -131,13 +131,13 @@ sub _sanitize_and_register {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($result,$msg);
     if(valid_mac($mac)) {
-        $logger->info("performing node registration Mac: $mac pid: $pid");
+        $logger->info("performing node registration MAC: $mac pid: $pid");
         node_register( $mac, $pid, %info );
         $result = $TRUE;
-        $msg = "The Mac address $mac has been successfully registered.";
+        $msg = "The MAC address $mac has been successfully registered.";
     }
     else {
-        $msg = "The Mac address $mac provided is invalid please try agian";
+        $msg = "The MAC address $mac provided is invalid please try agian";
     }
     return ($result,$msg);
 }
