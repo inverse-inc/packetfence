@@ -66,6 +66,8 @@ Validate the following constraints :
 sub validate {
     my $self = shift;
 
+    $self->SUPER::validate();
+
     my @actions;
     @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$self->value->{actions}};
     if (scalar @actions > 0) {
