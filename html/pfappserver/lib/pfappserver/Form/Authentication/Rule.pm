@@ -401,6 +401,27 @@ sub options_durations {
     return \@options;
 }
 
+=head2 validate
+
+Validate the following constraints :
+
+ - an access duration and an unregistration date cannot be set at the same time
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    my @actions;
+    @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$self->value->{actions}};
+    if (scalar @actions > 0) {
+        @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
+        if (scalar @actions > 0) {
+            $self->field('actions')->add_error("You can't define an access duration and a unregistration date at the same time.");
+        }
+    }
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.

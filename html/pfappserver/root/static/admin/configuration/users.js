@@ -1,4 +1,12 @@
-function initUsers() {
+    /* Section ready */
+    $('#section').on('section.loaded', function(event) {
+        /* Initialize the action field */
+        $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
+            updateAction($(this));
+        });
+        /* Disable checked columns from import tab since they are required */
+        $('#columns :checked').attr('disabled', 'disabled');
+    });
 
     /* Create user(s) */
     $('#section').on('submit', 'form[name="users"]', function(event) {
@@ -54,11 +62,6 @@ function initUsers() {
         return valid;
     });
 
-    /* Disable checked columns from import tab since they are required */
-    $('#section').on('section.loaded', function(event) {
-        $('#columns :checked').attr('disabled', 'disabled');
-    });
-
     /* Print passwords */
     $('#section').on('click', '#modalPasswords a[href$="print"]', function(event) {
         var btn = $(this);
@@ -97,4 +100,3 @@ function initUsers() {
     
         return false;
     });
-}

@@ -1,4 +1,3 @@
-function initViolations() {
     /* Show a violation */
     $('#section').on('click', '[href*="#modalViolation"]', function(event) {
         var modal = $('#modalViolation');
@@ -145,4 +144,3 @@ function initViolations() {
 
         return false;
     });
-}

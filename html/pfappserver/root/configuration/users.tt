@@ -88,7 +88,7 @@
             </td>
             <td class="action">
               <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-              <a class="btn-icon[% ' hidden' IF loop.first() %]" href="#delete"><i class="icon-minus-sign"></i></a>
+              <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
             </td>
           </tr>
           [% END -%]
