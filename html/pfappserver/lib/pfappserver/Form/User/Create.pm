@@ -45,6 +45,7 @@ has_field 'actions.type' =>
   (
    type => 'Select',
    widget_wrapper => 'None',
+   localize_labels => 1,
    options_method => \&options_actions,
   );
 has_field 'actions.value' =>
@@ -74,6 +75,7 @@ has_block 'templates' =>
 has_field "${Actions::MARK_AS_SPONSOR}_action" =>
   (
    type => 'Hidden',
+   default => '1',
   );
 has_field "${Actions::SET_ACCESS_LEVEL}_action" =>
   (
@@ -190,6 +192,35 @@ Return the current day, used as the minimal date of the arrival date.
 sub now {
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
     return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
+}
+
+=head2 validate
+
+Validate the following constraints :
+
+ - an access duration and an unregistration date cannot be set at the same time
+ - at least a role, an access duration, or an unregistration date is set
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    my @actions;
+    @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$self->value->{actions}};
+    if (scalar @actions > 0) {
+        @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
+        if (scalar @actions > 0) {
+            $self->field('actions')->add_error("You can't define an access duration and a unregistration date at the same time.");
+        }
+    }
+    else {
+        @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE || $_->{type} eq $Actions::SET_ROLE }
+          @{$self->value->{actions}};
+        if (scalar @actions == 0) {
+            $self->field('actions')->add_error("The actions must at least define a role, an access duration, or an unregistration date.");
+        }
+    }
 }
 
 =head1 COPYRIGHT

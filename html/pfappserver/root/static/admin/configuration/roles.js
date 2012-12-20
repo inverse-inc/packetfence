@@ -1,4 +1,3 @@
-function initRoles() {
     /* Show a Role */
     $('#section').on('click', '[href*="#modalRole"]', function(event) {
         var modal = $('#modalRole');
@@ -72,7 +71,7 @@ function initRoles() {
                 });
         });
 
-        return false;    
+        return false;
     });
 
     /* Modal Editor: save a role */
@@ -103,4 +102,3 @@ function initRoles() {
 
         return false;
     });
-}
