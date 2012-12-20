@@ -96,7 +96,7 @@ function init() {
         return false;
     });
 
-    $(window).hashchange(pfOnHashChange('/node/',updateSection));
+    $(window).hashchange(pfOnHashChange(updateSection,'/node/'));
 
     $(window).hashchange();
 }

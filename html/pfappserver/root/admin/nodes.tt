@@ -95,7 +95,7 @@ form {
                   </form>
                 </div>
                 <div class="tab-pane well" id="advanced">
-                  <form name="advancedSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('search')) %]">
+                  <form name="advancedSearch" class="form-inline" method="POST" action="[% c.uri_for('/node/advanced_search') %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">[% l('to') %]</span>
@@ -117,22 +117,22 @@ form {
                       </tr>
                       <tr class="hidden">
                         <td>
-                          <select class="span4">
-                            <option>Node MAC</option>
-                            <option>Node category</option>
-                            <option>Person name</option>
-                            <option>Violation name</option>
-                            <option>User agent</option>
-                            <option>Source switch IP</option>
+                          <select class="span4 name:search.0.name">
+                            <option value="mac">Node MAC</option>
+                            <option value="node_category">Node category</option>
+                            <option value="person_name">Person name</option>
+                            <option value="violation">Violation name</option>
+                            <option value="user_agent">User agent</option>
+                            <option value="switch_ip">Source switch IP</option>
                           </select>
-                          <select class="span2">
-                            <option>is</option>
-                            <option>is not</option>
-                            <option>starts with</option>
-                            <option>ends with</option>
-                            <option>matches</option>
+                          <select  class="span2 name:search.0.op">
+                            <option value="equal">is</option>
+                            <option value="not_equal">is not</option>
+                            <option value="starts_with">starts with</option>
+                            <option value="ends_with">ends with</option>
+                            <option value="like">matches</option>
                           </select>
-                          <input type="text" class="span6" placeholder="String...">
+                          <input type="text" class="span6 name:search.0.value" placeholder="String...">
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -141,22 +141,22 @@ form {
                       </tr>
                       <tr>
                         <td>
-                          <select class="span4">
-                            <option>Node MAC</option>
-                            <option>Node category</option>
-                            <option>Person name</option>
-                            <option selected="selected">Violation name</option>
-                            <option>User agent</option>
-                            <option>Switch IP</option>
+                          <select name="search.0.name" class="span4">
+                            <option value="mac">Node MAC</option>
+                            <option value="node_category">Node category</option>
+                            <option value="person_name">Person name</option>
+                            <option selected="selected" value="violation">Violation name</option>
+                            <option value="user_agent">User agent</option>
+                            <option value="switch_ip">Source switch IP</option>
                           </select>
-                          <select class="span2">
-                            <option>is</option>
-                            <option>is not</option>
-                            <option>starts with</option>
-                            <option>ends with</option>
-                            <option>matches</option>
+                          <select name="search.0.op" class="span2">
+                            <option value="equal">is</option>
+                            <option value="not_equal">is not</option>
+                            <option value="starts_with">starts with</option>
+                            <option value="ends_with">ends with</option>
+                            <option value="like">matches</option>
                           </select>
-                          <input type="text" class="span6" placeholder="String..." value="bittorrent"/>
+                          <input name="search.0.value" type="text" class="span6" placeholder="String..." value="bittorrent"/>
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -166,8 +166,8 @@ form {
                       <tr>
                         <td colspan="2" style="padding-top: 1em">
                           <div class="btn-group pull-right">
-                            <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> [% l('Search') %]</a>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                            <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></>
                             <ul class="dropdown-menu">
                               <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
                             </ul>

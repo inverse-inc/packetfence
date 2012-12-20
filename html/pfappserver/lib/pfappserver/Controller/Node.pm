@@ -56,6 +56,37 @@ sub index :Path :Args(0) {
 =cut
 sub simple_search : SimpleSearch('Node')  : Local :Args() { }
 
+sub advanced_search :  Local :Args() {
+    my ( $self, $c) = @_;
+    my $params = $c->request->params;
+    $c->log->info(Dumper(_build_search_data($params))); 
+}
+
+sub _build_search_data {
+    my ($params) = @_;
+    my %search_data;
+    foreach my $key ( grep { /^search\.[0-9]+/} keys %$params) {
+        my (undef,$index,$name) = split(/\./,$key);
+        if (exists ($search_data{$index}{$name})) {
+            my $value = $search_data{$index}{$name};
+            if(ref ($value) eq 'ARRAY') {
+                push @$value,$params->{$key};
+            }
+            else {
+                $search_data{$index}{$name} = [$params->{$key}];
+            }
+        }
+        else {
+            $search_data{$index}{$name} = $params->{$key};
+        }
+    }
+    return map { $search_data{$_}} sort {$a <=> $b} keys %search_data;
+}
+
+sub save_search : Local :Args(0) { }
+
+sub get_searches : Local :Args(0) { }
+
 =head2 object
 
 Node controller dispatcher

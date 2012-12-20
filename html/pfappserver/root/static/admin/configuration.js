@@ -40,7 +40,7 @@ function init() {
         $(':input:visible:enabled:first').focus();
     });
 
-    $(window).hashchange(pfOnHashChange('/',updateSection,'/configuration'));
+    $(window).hashchange(pfOnHashChange(updateSection,'/configuration'));
 
     $(window).hashchange();
 
@@ -67,7 +67,6 @@ function updateAction(type, keep_value) {
 
     // Remove previous field
     value.remove();
-
     // Initialize rendering widgets
     initWidgets(value_new);
 }

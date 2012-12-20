@@ -17,13 +17,14 @@ function activateNavLink() {
             return false;
         }).trigger('click');
     }
-    else if(false === found && $('.sidebar-nav .nav-list .active').size() === 0) {
+    else if(false === found ) {
         $('.sidebar-nav .nav-list a').first().trigger('click');
     }
 }
 
 /* Update #section using an ajax request */
 function updateSection(href) {
+    activateNavLink();
     var section = $('#section');
     if (section) {
         $("body,html").animate({scrollTop:0}, 'fast');
@@ -61,10 +62,10 @@ function updateSection(href) {
 }
 
 /* Return a function to be called when the hash changes */
-function pfOnHashChange(baseUrl,updater,default_url) {
+function pfOnHashChange(updater,default_url) {
     return function(event) {
         var hash = location.hash;
-        var href = baseUrl + hash.replace(/^#/,'');
+        var href = '/'+ hash.replace(/^#\/*/,'');
         if(default_url !== undefined && ( href == '' || href == '/') ) {
             href = default_url;
         }

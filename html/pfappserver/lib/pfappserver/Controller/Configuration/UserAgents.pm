@@ -53,9 +53,13 @@ sub upload :Local :Args(0) {
         require LWP::UserAgent;
         my $browser  = LWP::UserAgent->new;
         my $response = $browser->post(
-            'http://www.packetfence.org/useragents.php?ref=' . $c->uri_for($c->action->name),
-            { useragent_fingerprints => $content }
+            'http://www.packetfence.org/useragents.php',
+            {
+                useragent_fingerprints => $content,
+                'ref' => $c->uri_for($c->action)
+            }
         );
+        $c->log->info(Dumper($response));
     }
 }
 

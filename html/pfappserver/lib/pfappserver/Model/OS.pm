@@ -83,10 +83,6 @@ sub search {
 
 =back
 
-=head1 AUTHOR
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
 Copyright 2012 Inverse inc.

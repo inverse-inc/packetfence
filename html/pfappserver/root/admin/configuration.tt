@@ -77,7 +77,7 @@ table input[type="text"] {
               [% list_entry('Configuration', 'advanced', 'Advanced') %]
               [% list_entry('Configuration', 'provisioning', 'Provisioning') %]
               <!--[% list_entry( 'node_import') %]-->
-              [% list_entry('PortalProfile', 'index', 'Portal Profiles and Pages') %]
+              [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               <li><a href="#">Interfaces</a></li>
               <li><a href="#">Networks</a></li>
