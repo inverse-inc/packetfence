@@ -82,8 +82,16 @@ __PACKAGE__->config(
 
 );
 
+sub pf_hash_for {
+    my ($self,@args) = @_;
+    my $uri = $self->uri_for(@args);
+    my $path =$uri->path();
+    $path =~ s!^/!!/
+    return "#$path";
+}
+
 # Logging
-# TODO define a logging strategy that would fit both catalyst and our core 
+# TODO define a logging strategy that would fit both catalyst and our core
 # application. For now, it's all basic and it logs to logs/packetfence.log.
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
 # Handle warnings from Perl as error log messages
