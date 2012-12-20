@@ -12,21 +12,7 @@ to be used along the other forms (Create::Singe, Create::Multiple, Create:;Impor
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
-
-use HTTP::Status qw(:constants is_success);
-use pf::config;
-use pf::util qw(get_abbr_time get_translatable_time);
-use pf::web::guest;
-use pf::web::util;
-use pf::Authentication::constants;
-use pf::Authentication::Action;
-
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
-has 'roles' => ( is => 'ro' );
+extends 'pfappserver::Base::Form::Authentication::Action';
 
 # Form fields
 has_field 'arrival_date' =>
@@ -35,22 +21,6 @@ has_field 'arrival_date' =>
    label => 'Arrival Date',
    required => 1,
    start => &now,
-  );
-has_field 'actions' =>
-  (
-   type => 'Repeatable',
-   num_extra => 1, # add extra row that serves as a template
-  );
-has_field 'actions.type' =>
-  (
-   type => 'Select',
-   widget_wrapper => 'None',
-   localize_labels => 1,
-   options_method => \&options_actions,
-  );
-has_field 'actions.value' =>
-  (
-   type => 'Hidden',
   );
 
 # The templates block contains the dynamic fields of the rule definition.
@@ -67,121 +37,11 @@ has_block 'templates' =>
   (
    tag => 'div',
    render_list => [
-                   map( { "${_}_action" } @Actions::ACTIONS),
+                   map( { "${_}_action" } @Actions::ACTIONS), # the field are defined in the super class
                   ],
    attr => { id => 'templates' },
    class => [ 'hidden' ],
   );
-has_field "${Actions::MARK_AS_SPONSOR}_action" =>
-  (
-   type => 'Hidden',
-   default => '1',
-  );
-has_field "${Actions::SET_ACCESS_LEVEL}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_access_level,
-  );
-has_field "${Actions::SET_ROLE}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_roles,
-  );
-has_field "${Actions::SET_ACCESS_DURATION}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_durations,
-   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
-  );
-has_field "${Actions::SET_UNREG_DATE}_action" =>
-  (
-   type => 'DatePicker',
-   do_label => 0,
-   wrapper => 0,
-  );
-
-=head2 options_actions
-
-Populate the actions select field with the available actions of the
-authentication source.
-
-=cut
-
-sub options_actions {
-    my $self = shift;
-
-    my $actions_ref = pf::Authentication::Action::availableActions();
-    my @actions = map { $_ => $self->_localize($_) } @{$actions_ref};
-
-    return @actions;
-}
-
-=head2 options_access_level
-
-Populate the select field for the 'access level' template action.
-
-=cut
-
-sub options_access_level {
-    my $self = shift;
-
-    return
-      (
-       {
-        label => $self->_localize('None'),
-        value => $WEB_ADMIN_NONE,
-       },
-       {
-        label => $self->_localize('All'),
-        value => $WEB_ADMIN_ALL,
-       },
-      );
-}
-
-=head2 options_roles
-
-Populate the select field for the roles template action.
-
-=cut
-
-sub options_roles {
-    my $self = shift;
-
-    my @roles;
-
-    # Build a list of existing roles
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
-    if (is_success($status)) {
-        @roles = map { $_->{name} => $_->{name} } @$result;
-    }
-
-    return @roles;
-}
-
-=head2 options_durations
-
-Populate the access duration select field with the available values defined
-in the pf.conf configuration file.
-
-=cut
-
-sub options_durations {
-    my $self = shift;
-
-    my $durations = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
-        $self->form->ctx->languages()->[0]
-    );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
-
-    return \@options;
-}
 
 =head2 now
 
