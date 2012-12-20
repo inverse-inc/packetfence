@@ -211,14 +211,6 @@ Performs sponsor validation.
 sub validate_sponsor {
     my ($portalSession) = @_;
 
-    # sponsors should be from the local network
-    if (isenabled($Config{'guests_self_registration'}{'sponsors_only_from_localdomain'})) {
-        my $localdomain = $Config{'general'}{'domain'};
-        if ($portalSession->cgi->param('sponsor_email') !~ /[@.]$localdomain$/i) {
-            return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN, [ $localdomain ]);
-        }
-    }
-
     my $cgi = $portalSession->getCgi();
 
     # validate that this email can sponsor network accesses

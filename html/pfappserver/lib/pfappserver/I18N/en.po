@@ -358,10 +358,6 @@ msgstr "Mandatory fields"
 msgid "guests_self_registration.guest_pid"
 msgstr "PID"
 
-#: conf/pf.conf.defaults:301
-msgid "guests_self_registration.sponsors_only_from_localdomain"
-msgstr "Sponsors from local domain"
-
 #: conf/pf.conf.defaults:320
 msgid "guests_self_registration.preregistration"
 msgstr "Preregistration"
