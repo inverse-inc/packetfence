@@ -66,15 +66,9 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
   if ($auth_return != 1) {
     $logger->trace("authentication failed for " . $portalSession->getClientMac());
-    #my $error;
-    #if (!defined($authenticator)) {
-    #    $error = 'Unable to validate credentials at the moment';
-    #} else {
-    #    $error = $authenticator->getLastError();
-    #}
     pf::web::generate_login_page($portalSession, $error);
     exit(0);
   }
@@ -109,15 +103,9 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
   if ($auth_return != 1) {
     $logger->trace("authentication failed for " . $portalSession->getClientMac());
-    #my $error;
-    #if (!defined($authenticator)) {
-    #    $error = 'Unable to validate credentials at the moment';
-    #} else {
-    #    $error = $authenticator->getLastError();
-    #}
     pf::web::generate_login_page($portalSession, $error);
     exit(0);
   }

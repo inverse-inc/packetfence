@@ -294,14 +294,6 @@ msgstr "Skip window"
 msgid "registration.skip_reminder"
 msgstr "Skip reminder"
 
-#: conf/pf.conf.defaults:184
-msgid "registration.auth"
-msgstr "Registration methods"
-
-#: conf/pf.conf.defaults:191
-msgid "registration.default_auth"
-msgstr "Default authentication"
-
 #: conf/pf.conf.defaults:202
 msgid "registration.expire_mode"
 msgstr "Expire mode"

@@ -260,14 +260,6 @@ msgstr ""
 msgid "registration.skip_reminder"
 msgstr ""
 
-#: conf/pf.conf.defaults:184
-msgid "registration.auth"
-msgstr ""
-
-#: conf/pf.conf.defaults:191
-msgid "registration.default_auth"
-msgstr ""
-
 #: conf/pf.conf.defaults:202
 msgid "registration.expire_mode"
 msgstr ""
