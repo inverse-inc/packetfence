@@ -2028,7 +2028,6 @@ Here are the different configuration parameters that can be set for each portal 
   [portal-profile name1]
   filter = the name of the SSID for which you'd like to apply the profile
   logo = the logo to be displayed on the various captive portal pages
-  auth = available options are the same as the default auth options. In case the field is empty, guest self-registration will be the only way to login
   guest_self_reg = either enabled or disabled
   guest_modes = the availables guest self-registration modes (sms|email|sponsor|google|facebook|github)
   guest_category = the category that will be assigned to the self-registered guests
