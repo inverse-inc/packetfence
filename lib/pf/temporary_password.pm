@@ -35,15 +35,20 @@ in your apache config.
 use strict;
 use warnings;
 
+use Date::Parse;
 use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
 use POSIX;
 use Readonly;
 
+use pf::nodecategory;
+use pf::Authentication::constants;
+
 our $VERSION = 1.10;
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';
+
 
 # Authenticatation return codes
 Readonly our $AUTH_SUCCESS => 0;
@@ -103,8 +108,8 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
-            (pid, password, valid_from, expiration, access_duration, category)
-        VALUES (?, ?, ?, ?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
@@ -177,7 +182,7 @@ sub create {
 
     return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
         'temporary_password_add_sql',
-        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'category'}
+        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}
     ));
 }
 
@@ -228,26 +233,64 @@ Defaults to 0 (no per user limit)
 
 =cut
 sub generate {
-    my ($pid, $expiration, $valid_from, $access_duration, $category, $password) = @_;
+    my ($pid, $valid_from, $actions, $password) = @_;
     my $logger = Log::Log4perl::get_logger('pf::temporary_password');
 
     my %data;
     $data{'pid'} = $pid;
 
-    # if $expiration is set we use it, otherwise we use the module default
-    $data{'expiration'} = $expiration || POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
-
     # if $valid_from is set we use it, otherwise set to null which means valid from the begining of time
     $data{'valid_from'} = $valid_from || undef;
 
-    # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
-    $data{'access_duration'} = $access_duration || undef;
-
     # generate password 
     $data{'password'} = $password || _generate_password();
+    
+    # default expiration
+    $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
 
-    # category
-    $data{'category'} = $category || undef;
+    # we check for all actions
+    my @values;
+
+    @values = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$actions};
+    if (scalar @values > 0 && defined $data{'valid_from'}) {
+        # Expiration is arrival date + access duration + a tolerance window of 24 hrs
+        # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
+        $data{'access_duration'} = $values[0]->{value} || undef;
+        
+        # if $expiration is set we use it, otherwise we use the module default defined earlier
+        $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S",
+                                      localtime(str2time($data{'valid_from'}) +
+                                                normalize_time($data{'access_duration'}) +
+                                                24*60*60));
+    }
+
+
+    @values = grep { $_->{type} eq $Actions::MARK_AS_SPONSOR } @{$actions};
+    if (scalar @values > 0) {
+        $data{'sponsor'} = 1;
+    } else {
+        $data{'sponsor'} = 0;
+    }
+
+    @values = grep { $_->{type} eq $Actions::SET_ACCESS_LEVEL } @{$actions};
+    if (scalar @values > 0) {
+        $data{'access_level'} = $values[0]->{value};
+    } else {
+        $data{'access_level'} = 0;
+    }
+
+    @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
+    if (scalar @values > 0) {
+        my $role_id = nodecategory_lookup( $values[0]->{value} );
+        $data{'category'} = $role_id;
+    }
+
+    @values = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$actions};
+    if (scalar @values > 0) {
+        $data{'unregdate'} = $values[0]->{value};
+    } else {
+        $data{'unregdate'} = "0000-00-00 00:00:00";
+    }
 
     # if an entry of the same pid already exist, delete it
     if (defined(view($pid))) {
@@ -255,13 +298,13 @@ sub generate {
         _delete($pid);
     }
 
-    my $result = create(%data);
-    if (defined($result)) {
-        $logger->info("new temporary account successfully generated");
-        return $data{'password'};
-    } else {
+    my @result = create(%data);
+    if (scalar @result == 1 && $result[0] == 0) {
         $logger->warn("something went wrong creating a new temporary password for $pid");
         return;
+    } else {
+        $logger->info("new temporary account successfully generated");
+        return $data{'password'};
     }
 }
 

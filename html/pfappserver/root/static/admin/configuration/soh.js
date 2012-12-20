@@ -1,4 +1,3 @@
-function initSoH() {
     /* Show a SoH filter */
     $('#section').on('click', '[href*="#modalFilter"]', function(event) {
         var modal = $('#modalFilter');
@@ -123,7 +122,7 @@ function initSoH() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the section
-                    $('.sidebar-nav .nav-list .active a').trigger('click');
+                    $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
@@ -134,4 +133,3 @@ function initSoH() {
 
         return false;
     });
-}

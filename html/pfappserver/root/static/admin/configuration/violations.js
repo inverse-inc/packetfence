@@ -1,4 +1,3 @@
-function initViolations() {
     /* Show a violation */
     $('#section').on('click', '[href*="#modalViolation"]', function(event) {
         var modal = $('#modalViolation');
@@ -115,7 +114,7 @@ function initViolations() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the section
-                    $('.sidebar-nav .nav-list .active a').trigger('click');
+                    $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
                 var obj = $.parseJSON(jqXHR.responseText);
@@ -145,4 +144,3 @@ function initViolations() {
 
         return false;
     });
-}

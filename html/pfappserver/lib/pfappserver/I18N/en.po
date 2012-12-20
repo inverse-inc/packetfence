@@ -264,6 +264,12 @@ msgstr "Detection"
 msgid "trapping.detection_engine"
 msgstr "Detection engine"
 
+msgid "trapping.wireless_ips"
+msgstr "Wireless IPS"
+
+msgid "trapping.wireless_ips_threshold"
+msgstr "Wireless IPS threshold"
+
 #: conf/pf.conf.defaults:146
 msgid "registration"
 msgstr "Registration"
@@ -367,10 +373,6 @@ msgstr "PID"
 #: conf/pf.conf.defaults:301
 msgid "guests_self_registration.sponsors_only_from_localdomain"
 msgstr "Sponsors from local domain"
-
-#: conf/pf.conf.defaults:312
-msgid "guests_self_registration.sponsor_authentication"
-msgstr "Sponsor authentication"
 
 #: conf/pf.conf.defaults:320
 msgid "guests_self_registration.preregistration"
@@ -631,6 +633,9 @@ msgstr "Trap limit action"
 msgid "inline.ports_redirect"
 msgstr "Ports redirect"
 
+msgid "inline.should_reauth_on_vlan_change"
+msgstr "Reauthenticate node"
+
 #: conf/pf.conf.defaults:658
 msgid "servicewatch"
 msgstr "Service watch"
@@ -759,7 +764,7 @@ msgstr "Set access level"
 msgid "set_role"
 msgstr "Set role"
 
-msgid "access_duration"
+msgid "set_access_duration"
 msgstr "Set access duration"
 
 msgid "set_unreg_date"
