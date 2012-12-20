@@ -229,7 +229,7 @@
             updateCondition($(this));
         });
         $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
-            updateAction($(this));
+            updateAction($(this), true);
         });
     });
 

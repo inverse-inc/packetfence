@@ -53,7 +53,7 @@ function init() {
  * - configuration/authentication.js
  * - configuration/users.js
  */
-function updateAction(type) {
+function updateAction(type, keep_value) {
     var action = type.val();
     var value = type.next();
 
@@ -61,6 +61,8 @@ function updateAction(type) {
     var value_new = $('#' + action + '_action').clone();
     value_new.attr('id', value.attr('id'));
     value_new.attr('name', value.attr('name'));
+    value_new.attr('data-required', 1);
+    if (keep_value) value_new.val(value.val());
     value_new.insertBefore(value);
 
     // Remove previous field
