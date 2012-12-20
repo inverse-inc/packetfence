@@ -224,11 +224,6 @@ expire_window=52W
 # Warning: Does not work in vlan isolation mode!
 expire_session=5m
 #
-# registration.maxnodes
-#
-# If defined, the maximum number of nodes that can be registered to a single PID.
-maxnodes=0
-#
 # registration.button_text
 #
 #

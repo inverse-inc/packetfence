@@ -75,10 +75,16 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 
   my $pid = $portalSession->getSession->param("username");
 
-  # obtain node information provided by authentication module - no need to get the role (category here)
-  # as we'll always get it when -getNormalVlan is called
+  # obtain node information provided by authentication module. We need to get the role (category here)
+  # as web_node_register() might not work if we've reached the limit
+  my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
+
+  if (defined $value) {
+      %info = (%info, (category => $value));
+  }
+
   # This appends the hashes to one another. values returned by authenticator wins on key collision
-  my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
+  $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
 
   if (defined $value) {
       %info = (%info, (unregdate => $value));

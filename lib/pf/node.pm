@@ -1090,13 +1090,7 @@ sub is_max_reg_nodes_reached {
     # default_pid is a special case: no limit for this user
     return $FALSE if ($pid eq $default_pid);
 
-    # global max nodes per pid limit
     my $nb_nodes_for_pid = node_pid($pid);
-    my $maxnodes = $Config{'registration'}{'maxnodes'};
-    if ( $maxnodes != 0 && $nb_nodes_for_pid >= $maxnodes ) {
-        $logger->info("global max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid");
-        return $TRUE;
-    }
 
     # per-category max node per pid limit
     if ( defined($category) ) {
@@ -1105,17 +1099,17 @@ sub is_max_reg_nodes_reached {
         if ( defined($category_info->{'max_nodes_per_pid'}) ) {
 
             my $max_nodes_for_category = $category_info->{'max_nodes_per_pid'};
-            if ( $max_nodes_for_category != 0 && $nb_nodes_for_pid >= $max_nodes_for_category ) {
-                $logger->info(
-                    "per-category max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid"
-                );
-                return $TRUE;
+            if ( $max_nodes_for_category == 0 || $nb_nodes_for_pid < $max_nodes_for_category ) {
+                return $FALSE;
             }
         }
     }
 
-    # fallback to maximum not reached
-    return $FALSE;
+    # fallback to maximum reached
+    $logger->info(
+                  "per-category max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid"
+                 );
+    return $TRUE;
 }
 
 =back
