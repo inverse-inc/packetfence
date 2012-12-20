@@ -310,10 +310,6 @@ msgstr "Expire window"
 msgid "registration.expire_session"
 msgstr "Expire session"
 
-#: conf/pf.conf.defaults:226
-msgid "registration.maxnodes"
-msgstr "Maximum number of nodes"
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr "Button text"
@@ -384,10 +380,6 @@ msgstr "Access duration choices"
 #: conf/pf.conf.defaults:335
 msgid "guests_admin_registration.default_access_duration"
 msgstr "Default access duration"
-
-#: conf/pf.conf.defaults:341
-msgid "guests_admin_registration.category"
-msgstr "Category"
 
 #: conf/pf.conf.defaults:357
 msgid "passthroughs"

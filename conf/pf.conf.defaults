@@ -224,11 +224,6 @@ expire_window=52W
 # Warning: Does not work in vlan isolation mode!
 expire_session=5m
 #
-# registration.maxnodes
-#
-# If defined, the maximum number of nodes that can be registered to a single PID.
-maxnodes=0
-#
 # registration.button_text
 #
 #
@@ -333,13 +328,6 @@ access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 # This is the default access duration value selected in the dropdown on the 
 # guest management interface.
 default_access_duration=12h
-#
-# guests_admin_registration.category
-#
-# The node category that will be assigned to guests' nodes registered by an
-# admin by default.
-category=guest
-
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.

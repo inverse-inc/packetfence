@@ -276,10 +276,6 @@ msgstr ""
 msgid "registration.expire_session"
 msgstr ""
 
-#: conf/pf.conf.defaults:226
-msgid "registration.maxnodes"
-msgstr ""
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr ""
@@ -346,10 +342,6 @@ msgstr ""
 
 #: conf/pf.conf.defaults:335
 msgid "guests_admin_registration.default_access_duration"
-msgstr ""
-
-#: conf/pf.conf.defaults:341
-msgid "guests_admin_registration.category"
 msgstr ""
 
 #: conf/pf.conf.defaults:357

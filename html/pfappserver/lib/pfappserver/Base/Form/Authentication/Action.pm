@@ -169,6 +169,25 @@ sub options_durations {
     return \@options;
 }
 
+=head2 validate
+
+Validate that each action is defined only once.
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    my %actions;
+    foreach my $action (@{$self->value->{actions}}) {
+        $actions{$action->{type}}++;
+    }
+    my @duplicates = grep { $actions{$_} > 1 } keys %actions;
+    if (scalar @duplicates > 0) {
+        $self->field('actions')->add_error("You can't have more than one action of the same type.");
+    }
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.
