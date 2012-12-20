@@ -2034,7 +2034,6 @@ Here are the different configuration parameters that can be set for each portal 
   guest_category = the category that will be assigned to the self-registered guests
   template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
   billing_engine = either enabled or disabled
-  default_auth = the default authentication method that will be selected on the captive portal
   category = the default category that will be assigned to users when they registerer
 
 CAUTION: If you set a custom template_path, make sure to copy over all of the default template files in the new custom folder. PacketFence will only render templates from the files in that custom folder if the value is setted. If files are missing, you'll be facing some error in templates generation. 

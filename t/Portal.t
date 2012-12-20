@@ -67,9 +67,7 @@ is_deeply(
         'template_path' => '/',
         'guest_modes' => 'sms,email,sponsor',
         'name' => 'default',
-        'default_auth' => '',
         'logo' => '/common/packetfence-cp.png',
-        'auth' => 'local',
         'guest_category' => 'guest',
         'guest_self_reg' => 'enabled'
     },

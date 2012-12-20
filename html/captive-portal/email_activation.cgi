@@ -121,16 +121,10 @@ if (defined($cgi->url_param('code'))) {
             }
 
             # User provided username and password: authenticate
-            my ($auth_return, $authenticator) = pf::web::web_user_authenticate($portalSession);
+            my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
 
             if ($auth_return != $TRUE) {
                 $logger->info("authentication failed for user ".$cgi->param("username"));
-                my $error;
-                if (!defined($authenticator)) {
-                    $error = 'Unable to validate credentials at the moment';
-                } else {
-                    $error = $authenticator->getLastError();
-                }
                 pf::web::guest::generate_custom_login_page($portalSession, $error, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
                 exit(0);
             }

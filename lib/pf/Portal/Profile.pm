@@ -128,16 +128,6 @@ sub getBillingEngine {
     return $self->{'_billing_engine'};
 }
 
-=item getDefaultAuth
-
-Returns the default authentication for the current captive portal profile.
-
-=cut
-sub getDefaultAuth {
-    my ($self) = @_;
-    return $self->{'_default_auth'};
-}
-
 =item getCategory
 
 Returns the default category for the current captive portal profile.

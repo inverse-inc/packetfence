@@ -284,9 +284,6 @@ sub generate_login_page {
     # return login
     $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
     # authentication
-    $portalSession->stash->{'selected_auth'} = encode_entities($portalSession->cgi->param("auth"))
-        || $portalSession->getProfile->getDefaultAuth;
-    #$portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
     $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     $portalSession->stash->{'oauth2_github'} = $guest_self_registration{$SELFREG_MODE_GITHUB};
@@ -518,14 +515,11 @@ sub validate_form {
 
 =cut
 sub web_user_authenticate {
-    my ( $portalSession, $auth_module ) = @_;
+    my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     $logger->trace("authentication attempt");
 
     my $session = $portalSession->getSession();
-
-    #my $authenticator = pf::web::auth::instantiate($auth_module);
-    #return (0, undef) if (!defined($authenticator));
 
     # validate login and password
     my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
@@ -534,7 +528,6 @@ sub web_user_authenticate {
     if (defined($return) && $return == 1) {
         # save login into session
         $portalSession->session->param( "username", $portalSession->cgi->param("username") );
-        #$portalSession->session->param( "authType", $auth_module );
     }
     return ($return, $message);
 }
