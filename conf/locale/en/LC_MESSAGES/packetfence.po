@@ -889,8 +889,5 @@ msgstr ""
 msgid "Registration canceled please try again"
 msgstr "Registration canceled please try again"
 
-msgid "You have reached the maximum number of devices you are able to register with this username."
-msgstr "You have reached the maximum number of devices you are able to register with this username."
-
 msgid "Please verify MAC address provided"
 msgstr "Please verify MAC address provided"
