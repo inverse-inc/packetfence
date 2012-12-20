@@ -1059,36 +1059,11 @@ DGS3100/3200
 
 Global config settings 
 
-radius configuration:
-
-Enable mac notification :
-enable mac_notification
-config mac_notification interval 1 historysize 1
-config mac_notification ports 1:1-1:24 enable
-
-Enable linkup/linkdown notification :
-enable snmp traps 
-enable snmp linkchange_traps
-
-Add snmp host:
-create snmp host 192.168.1.4 v2c  public
-
-Enable Mac base access control:
-enable mac_based_access_control
-config mac_based_access_control authorization attributes radius enable local disable
-config mac_based_access_control method radius
-config mac_based_access_control password [password]
-config mac_based_access_control password_type manual_string
-config mac_based_access_control max_users no_limit
-config mac_based_access_control trap state enable
-config mac_based_access_control log state enable
+  To be contributed... 
 
 On each interface: 
-config mac_based_access_control ports [ID-SW:port] state enable
-config mac_based_access_control ports [ID-SW:port] max_users 128
-config mac_based_access_control ports [ID-SW:port] aging_time 1440
-config mac_based_access_control ports [ID-SW:port] block_time 300
-config mac_based_access_control ports [ID-SW:port] mode host_based
+
+  To be contributed... 
 
 Dell 
 ~~~~
@@ -2315,43 +2290,6 @@ WLAN SSIDs: profiles and virtual AP
      virtual-ap "Inverse-Guest"
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
-
-All Aruba Instant OS
-^^^^^^^^^^^^^^^^^^^^
-
-Add your packetfence instance to your configuration:
-wlan auth-server packetfence
- ip [IP of my packetfence]
- port 1812
- acctport 1813
- timeout 10
- retry-count 5
- key [your radius key]
- nas-ip [IP of my Aruba Virtual Controller]
- rfc3576
-
-
-Add dynamic vlan rules and mac auth to your ssid profile:
-wlan ssid-profile [my SSID Name]
- index 0 
- type employee
- essid [my ESSID Name]
- wpa-passphrase [my wpa-passphrase]
- opmode wpa2-psk-aes
- max-authentication-failures 0
- vlan 1
- auth-server packetfence
- set-vlan Tunnel-Private-Group-Id contains 1 1
- set-vlan Tunnel-Private-Group-Id contains 4 4
- rf-band all
- captive-portal disable
- mac-authentication
- dtim-period 1
- inactivity-timeout 1000
- broadcast-filter none
- radius-reauth-interval 5
- dmo-channel-utilization-threshold 90
-
 
 Brocade
 ~~~~~~~
