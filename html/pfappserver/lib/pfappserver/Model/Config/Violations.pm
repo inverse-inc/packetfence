@@ -6,15 +6,11 @@ pfappserver::Model::Config::Violations - Catalyst Model
 
 =head1 DESCRIPTION
 
-Catalyst Model.
+Configuration module for operations involving conf/violations.conf.
 
 =cut
 
-use strict;
-use warnings;
-
-use Config::IniFiles;
-use Moose;
+use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 use Readonly;
 
@@ -24,6 +20,8 @@ use pf::trigger qw(parse_triggers);
 
 extends 'pfappserver::Model::Config::IniStyleBackend';
 
+Readonly::Scalar our $NAME => 'Violations';
+
 Readonly::Scalar our $params => ["actions", "auto_enable", "button_text", "desc", "enabled", "grace", "max_enable", "priority", "redirect_url", "snort_rules", "trigger", "url", "vlan", "whitelisted_categories", "window", "vclose"];
 Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    close => 'Close',
@@ -32,7 +30,9 @@ Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    trap => 'Trap' };
 Readonly::Scalar our $triggers => [qw/Accounting Detect MAC Nessus OS OpenVAS USERAGENT VENDORMAC internal soh/];
 
-sub _myConfigFile { return $conf_dir . "/violations.conf" };
+sub _getName        { return $NAME };
+sub _myConfigFile   { return $pf::config::violations_config_file };
+
 
 =head1 METHODS
 
@@ -368,11 +368,14 @@ sub exists {
     return $FALSE;
 }
 
+
 =back
 
 =head1 AUTHORS
 
 Francis Lachapelle <flachapelle@inverse.ca>
+
+Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

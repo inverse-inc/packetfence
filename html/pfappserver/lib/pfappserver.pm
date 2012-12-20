@@ -26,6 +26,8 @@ use Catalyst qw/
     StackTrace
 /;
 
+use Try::Tiny;
+
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
@@ -96,6 +98,20 @@ sub pf_hash_for {
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
+
+# pfappserver::Model::Config::IniStyleBackend initialization
+#after setup_finalize => sub {
+#    foreach my $module (pfappserver::Model::Config::IniStyleBackend->getConfigurationModules) {
+#        my $module_path = 'pfappserver::Model::Config::' . $module;
+#        try {
+#            my $module_handler = new $module_path;
+#            $module_handler->readConfig;
+#        } catch {
+#            chomp($_);
+#            __PACKAGE__->log->error("Told to load module $module but this one does not seems to exist. Passing by...");
+#        };
+#    }
+#};
 
 # Start the application
 __PACKAGE__->setup();

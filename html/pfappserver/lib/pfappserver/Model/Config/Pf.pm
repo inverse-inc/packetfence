@@ -1,14 +1,4 @@
 package pfappserver::Model::Config::Pf;
-use Moose;
-use namespace::autoclean;
-
-use Config::IniFiles;
-
-use pf::config;
-use pf::config::ui;
-use pf::error qw(is_error);
-
-extends 'Catalyst::Model';
 
 =head1 NAME
 
@@ -16,54 +6,35 @@ pfappserver::Model::Config::Pf - Catalyst Model
 
 =head1 DESCRIPTION
 
-Catalyst Model.
+Configuration module for operations involving conf/pf.conf.
+
+=cut
+
+use Moose;  # automatically turns on strict and warnings
+use namespace::autoclean;
+use Readonly;
+
+use pf::config;
+use pf::config::ui;
+use pf::error qw(is_error is_success);
+
+extends 'pfappserver::Model::Config::IniStyleBackend';
+
+Readonly::Scalar our $NAME => 'Pf';
+
+sub _getName        { return $NAME };
+sub _myConfigFile   { return $pf::config::pf_config_file };
+sub _myDefaultFile  { return $pf::config::pf_default_file };
+sub _myDocFile      { return $pf::config::pf_doc_file };
+
+my $_pf_conf;           # TODO: Meant to be removed... (dwuelfrath@inverse.ca 2012.12.20)
+my $_defaults_conf;     # TODO: Meant to be removed... (dwuelfrath@inverse.ca 2012.12.20)
+my $_doc_conf;          # TODO: Meant to be removed... (dwuelfrath@inverse.ca 2012.12.20)
+
 
 =head1 METHODS
 
 =cut
-
-my $_pf_conf;
-my $_defaults_conf;
-my $_doc_conf;
-
-=item _load_conf
-
-Load pf.conf into a Config::IniFiles tied hashref.
-
-Performs caching.
-
-=cut
-sub _load_conf {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    unless (defined $_pf_conf) {
-        my %conf;
-
-        # load config if it exists
-        if ( -e $config_file ) {
-            tie %conf, 'Config::IniFiles', ( -file => $config_file )
-                or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
-            tied(%conf)->SetWriteMode("0644");
-        }
-        # start with an empty file
-        else {
-            tie %conf, 'Config::IniFiles';
-            tied(%conf)->SetFileName($config_file)
-                or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
-            tied(%conf)->SetWriteMode("0644");
-        }
-
-        foreach my $section ( tied(%conf)->Sections ) {
-            foreach my $key ( keys %{ $conf{$section} } ) {
-                $conf{$section}{$key} =~ s/\s+$//;
-            }
-        }
-        $_pf_conf = \%conf;
-    }
-
-    return $_pf_conf;
-}
 
 =item _load_defaults
 
@@ -507,28 +478,6 @@ sub exist_interface {
     return $FALSE;
 }
 
-=item _write_pf_conf
-
-Performs the write of the pf.conf.
-
-=cut
-sub _write_pf_conf {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $pf_conf = $self->_load_conf();
-    tied(%$pf_conf)->WriteConfig($conf_dir . "/pf.conf")
-        or $logger->logdie(
-            "Unable to write config to $conf_dir/pf.conf. "
-            ."You might want to check the file's permissions."
-        );
-
-    # The following snippet updates the database
-#    require pf::configfile;
-#    import pf::configfile;
-#    configfile_import( $conf_dir . "/pf.conf" );
-}
-
 =head2 Class helpers
 
 =item _extract_config_options
@@ -573,25 +522,87 @@ sub _extract_config_desc {
     }
 }
 
-=back
 
-=head2 SUBROUTINES
-
-Stateless small helper functions.
+=head1 METHODS TO GET RID OF
 
 =over
 
+
+=item _load_conf
+
+Load pf.conf into a Config::IniFiles tied hashref.
+
+Performs caching.
+
+=cut
+sub _load_conf {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    unless (defined $_pf_conf) {
+        my %conf;
+
+        # load config if it exists
+        if ( -e $config_file ) {
+            tie %conf, 'Config::IniFiles', ( -file => $config_file )
+                or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
+            tied(%conf)->SetWriteMode("0644");
+        }
+        # start with an empty file
+        else {
+            tie %conf, 'Config::IniFiles';
+            tied(%conf)->SetFileName($config_file)
+                or $logger->logdie("Unable to open config file $config_file: ", join("\n", @Config::IniFiles::errors));
+            tied(%conf)->SetWriteMode("0644");
+        }
+
+        foreach my $section ( tied(%conf)->Sections ) {
+            foreach my $key ( keys %{ $conf{$section} } ) {
+                $conf{$section}{$key} =~ s/\s+$//;
+            }
+        }
+        $_pf_conf = \%conf;
+    }
+
+    return $_pf_conf;
+}
+
+=item _write_pf_conf
+
+Performs the write of the pf.conf.
+
+=cut
+sub _write_pf_conf {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $pf_conf = $self->_load_conf();
+    tied(%$pf_conf)->WriteConfig($conf_dir . "/pf.conf")
+        or $logger->logdie(
+            "Unable to write config to $conf_dir/pf.conf. "
+            ."You might want to check the file's permissions."
+        );
+
+    # The following snippet updates the database
+#    require pf::configfile;
+#    import pf::configfile;
+#    configfile_import( $conf_dir . "/pf.conf" );
+}
+
+
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Francis Lachapelle <flachapelle@inverse.ca>
 
 Olivier Bilodeau <obilodeau@inverse.ca>
 
+Derek Wuelfrath <dwuelfrath@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2012 Inverse inc.
 
 =head1 LICENSE
 

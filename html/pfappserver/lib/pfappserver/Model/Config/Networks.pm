@@ -6,16 +6,13 @@ pfappserver::Model::Config::Networks - Catalyst Model
 
 =head1 DESCRIPTION
 
-Catalyst Model.
+Configuration module for operations involving conf/networks.conf.
 
 =cut
 
-use strict;
-use warnings;
-
-use Config::IniFiles;
-use Moose;
+use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use Readonly;
 
 use pf::config;
 use pf::config::ui;
@@ -23,7 +20,11 @@ use pf::error qw(is_error is_success);
 
 extends 'pfappserver::Model::Config::IniStyleBackend';
 
-sub _myConfigFile { return $network_config_file };
+Readonly::Scalar our $NAME => 'Networks';
+
+sub _getName        { return $NAME };
+sub _myConfigFile   { return $pf::config::network_config_file };
+
 
 =head1 METHODS
 
@@ -260,21 +261,6 @@ sub update_network {
     return ($STATUS::OK, $status_msg);
 }
 
-=item _write_networks_conf
-
-=cut
-sub _write_networks_conf {
-    my ( $self ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $networks_conf = $self->_load_conf();
-    tied(%$networks_conf)->WriteConfig($network_config_file)
-        or $logger->logdie(
-            "Unable to write configs to $network_config_file. You might want to check the file's permissions."
-        );
-    $logger->info("Successfully write configs to $network_config_file");
-}
-
 =item exist
 
 =cut
@@ -288,6 +274,29 @@ sub exist {
     return $TRUE if ( $tied_conf->SectionExists($network) );
     return $FALSE;
 }
+
+
+=head1 METHODS TO GET RID OF
+
+=over
+
+
+=item _write_networks_conf
+
+=cut
+# TODO: Meant to be removed... (dwuelfrath@inverse.ca 2012.12.20)
+sub _write_networks_conf {
+    my ( $self ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $networks_conf = $self->_load_conf();
+    tied(%$networks_conf)->WriteConfig($network_config_file)
+        or $logger->logdie(
+            "Unable to write configs to $network_config_file. You might want to check the file's permissions."
+        );
+    $logger->info("Successfully write configs to $network_config_file");
+}
+
 
 =back
 
