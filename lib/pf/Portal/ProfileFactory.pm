@@ -104,7 +104,6 @@ sub _custom_profile {
         'guest_category'    => $Config{"portal-profile $name"}{'guest_category'}    || $defaults->{'guest_category'},
         'template_path'     => $Config{"portal-profile $name"}{'template_path'}     || $defaults->{'template_path'},
         'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}    || $defaults->{'billing_engine'},
-        'category'          => $Config{"portal-profile $name"}{'category'},
     };
 }
 

@@ -385,10 +385,6 @@ msgstr "Access duration choices"
 msgid "guests_admin_registration.default_access_duration"
 msgstr "Default access duration"
 
-#: conf/pf.conf.defaults:341
-msgid "guests_admin_registration.category"
-msgstr "Category"
-
 #: conf/pf.conf.defaults:357
 msgid "passthroughs"
 msgstr "Passthroughs"

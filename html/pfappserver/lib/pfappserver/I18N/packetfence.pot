@@ -348,10 +348,6 @@ msgstr ""
 msgid "guests_admin_registration.default_access_duration"
 msgstr ""
 
-#: conf/pf.conf.defaults:341
-msgid "guests_admin_registration.category"
-msgstr ""
-
 #: conf/pf.conf.defaults:357
 msgid "passthroughs"
 msgstr ""
