@@ -276,10 +276,6 @@ msgstr ""
 msgid "registration.expire_session"
 msgstr ""
 
-#: conf/pf.conf.defaults:226
-msgid "registration.maxnodes"
-msgstr ""
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr ""

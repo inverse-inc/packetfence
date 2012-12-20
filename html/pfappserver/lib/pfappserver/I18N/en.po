@@ -310,10 +310,6 @@ msgstr "Expire window"
 msgid "registration.expire_session"
 msgstr "Expire session"
 
-#: conf/pf.conf.defaults:226
-msgid "registration.maxnodes"
-msgstr "Maximum number of nodes"
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr "Button text"
