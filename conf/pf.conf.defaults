@@ -729,6 +729,11 @@ loadbalancers_ip=
 # captured clients. This is the default behavior.
 secure_redirect=enabled
 
+#
+# captive_portal.multiple_profiles
+#
+# Allows the captive portal to have multiple profile
+multiple_profiles=disabled
 
 [advanced]
 #

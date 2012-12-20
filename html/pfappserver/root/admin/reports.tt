@@ -25,16 +25,16 @@
           <div class="sidebar-nav well">
             <ul class="nav nav-list">
               <li class="nav-header">Nodes</li>
-              [% list_entry('nodes','Nodes States')%]
-              [% list_entry('os','Operating Systems')%]
-              [% list_entry('violations','Violations')%]
+              [% list_entry('graph/nodes','Nodes States')%]
+              [% list_entry('graph/os','Operating Systems')%]
+              [% list_entry('graph/violations','Violations')%]
               <li class="nav-header">Connections</li>
-              [% list_entry('connectiontype','Types')%]
-              [% list_entry('connectiontypereg','Types (Registered)')%]
-              [% list_entry('ssid','SSIDs')%]
+              [% list_entry('graph/connectiontype','Types')%]
+              [% list_entry('graph/connectiontypereg','Types (Registered)')%]
+              [% list_entry('graph/ssid','SSIDs')%]
               <li class="nav-header">Accounting</li>
-              [% list_entry('nodebandwidth/all','Top 25 Bandwith Consumers')%]
-              [% list_entry('osclassbandwidth/all','Bandwith per Operating System')%]
+              [% list_entry('graph/nodebandwidth/all','Top 25 Bandwith Consumers')%]
+              [% list_entry('graph/osclassbandwidth/all','Bandwith per Operating System')%]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

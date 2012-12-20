@@ -75,7 +75,7 @@ function init() {
     });
 
     /* Hash change halder */
-    $(window).hashchange(pfOnHashChange('/graph/',updateGraphSection));
+    $(window).hashchange(pfOnHashChange(updateGraphSection,'/graph/'));
 
     /* Load initial graph */
     $(window).hashchange();

@@ -77,12 +77,12 @@ sub os_db_prepare {
 
     $os_statements->{'dhcp_fingerprint_view_sql'} = get_db_handle()->prepare(qq[
          SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.class_id AS classid, c.description AS class
-         FROM dhcp_fingerprint d 
-            LEFT JOIN os_type o ON o.os_id=d.os_id 
-            LEFT JOIN os_mapping m ON m.os_type=o.os_id 
-            LEFT JOIN os_class c ON  m.os_class=c.class_id 
-         WHERE d.fingerprint=? 
-         GROUP BY c.class_id 
+         FROM dhcp_fingerprint d
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id
+            LEFT JOIN os_class c ON  m.os_class=c.class_id
+         WHERE d.fingerprint=?
+         GROUP BY c.class_id
          ORDER BY class_id
     ]);
 
@@ -162,7 +162,7 @@ sub dhcp_fingerprint_view_all_searchable {
     if ( defined( $params{'where'} ) ) {
         my $where = $params{'where'};
         if ( $where->{type} eq 'any' && $where->{like} ne '' ) {
-            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'); 
+            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%');
             $sql .= " WHERE " . join (' or ',map { "$_ $like"  } qw(c.description o.description));
         }
     }
@@ -188,15 +188,15 @@ sub dhcp_fingerprint_count_searchable {
     os_db_prepare() if (!$os_db_prepared);
     my $sql = qq[
         SELECT count(*) FROM dhcp_fingerprint d
-            LEFT JOIN os_type o ON o.os_id=d.os_id 
-            LEFT JOIN os_mapping m ON m.os_type=o.os_id 
-            LEFT JOIN os_class c ON  m.os_class=c.class_id 
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id
+            LEFT JOIN os_class c ON  m.os_class=c.class_id
         ];
 
     if ( defined( $params{'where'} ) ) {
         my $where = $params{'where'};
         if ( $where->{type} eq 'any' && $where->{like} ne '' ) {
-            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'); 
+            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%');
             $sql .= " WHERE " . join (' or ',map { "$_ $like"  } qw(c.description o.description));
         }
     }
@@ -280,7 +280,7 @@ sub read_dhcp_fingerprints_conf {
 
             my $os_class = $class;
             $os_class =~ s/^class\s+//;
-            db_query_execute(OS, $os_statements, 'os_class_add_sql', 
+            db_query_execute(OS, $os_statements, 'os_class_add_sql',
                 $os_class, $dhcp_fingerprints{$class}{"description"}) if ( !$seen_class{$os_class} );
             $seen_class{$os_class} = 1;
 
@@ -315,14 +315,6 @@ sub _class_member_in_range {
 }
 
 =back
-
-=head1 AUTHOR
-
-David LaPorte <david@davidlaporte.org>
-
-Kevin Amorin <kev@amorin.org>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
 
 =head1 COPYRIGHT
 

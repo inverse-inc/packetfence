@@ -59,7 +59,7 @@ sub countAll {
         }
         $count =
             grep {&$greper }
-            map  +{ oui => $_ ,vendor_info => join(' ',@{$Net::MAC::Vendor::Cached->{$_}}) } , 
+            map  +{ oui => $_ ,vendor_info => join(' ',@{$Net::MAC::Vendor::Cached->{$_}}) } ,
             keys %$Net::MAC::Vendor::Cached;
     };
     if ($@) {
@@ -84,10 +84,10 @@ sub search {
     eval {
         my $sorter = sub {$a->{oui} cmp $b->{oui}};
         my $greper = sub {1};
-        
+
         if ( exists $params{orderby} )
         {
-            
+
             my ( $field, $order ) =
                 $params{orderby} =~ /ORDER BY\s+(.*)\s+(.*)/;
             $logger->info("$field, $order");
@@ -109,7 +109,7 @@ sub search {
         my @items =
             sort $sorter
             grep {&$greper }
-            map  +{ oui => $_ ,vendor_info => join(' ',@{$Net::MAC::Vendor::Cached->{$_}}) } , 
+            map  +{ oui => $_ ,vendor_info => join(' ',@{$Net::MAC::Vendor::Cached->{$_}}) } ,
             keys %$Net::MAC::Vendor::Cached;
         if ( exists $params{limit} ) {
             if(my ( $start, $per_page ) = $params{limit} =~ /(\d+)\s*,\s*(\d+)/) {
@@ -134,10 +134,6 @@ sub search {
 }
 
 =back
-
-=head1 AUTHOR
-
-Francis Lachapelle <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
