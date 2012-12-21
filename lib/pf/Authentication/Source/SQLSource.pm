@@ -11,6 +11,7 @@ pf::Authentication::Source::SQLSource
 use pf::config qw($TRUE $FALSE);
 use pf::temporary_password;
 use pf::Authentication::constants;
+use pf::Authentication::Action;
 use pf::Authentication::Source;
 
 use Moose;
@@ -40,8 +41,62 @@ sub authenticate {
      return ($TRUE, 'Successful authentication using SQL.');
    }
 
+   $logger->info("Auth failed: $result");
+
    return ($FALSE, 'Unable to authenticate successfully using SQL.');
  }
+
+=item match
+
+=cut
+sub match {
+    my ( $self, $params ) = @_;
+    my $common_attributes = $self->common_attributes();
+
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    $logger->info("Matching rules in local SQL source.");
+
+    my $result = pf::temporary_password::view($params->{'username'});
+    
+    # User is defined in SQL source, let's build the actions and return that
+    if (defined $result) {
+
+        my @actions = ();
+        my $action;
+
+        my $access_duration = $result->{'access_duration'};
+        if (defined $access_duration) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_DURATION,
+                                                        value => $access_duration});
+            push(@actions, $action);
+        }
+
+        my $access_level = $result->{'access_level'};
+        if ($access_level > 0) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL,
+                                                        value => $access_level});
+            push(@actions, $action);
+        }
+        
+        my $sponsor = $result->{'sponsor'};
+        if ($sponsor == 1) {
+            $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
+                                                        value => 1});
+            push(@actions, $action);
+        }
+        
+        my $unregdate = $result->{'unregdate'};
+        if (defined $unregdate) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
+                                                        value => $unregdate});
+            push(@actions, $action);
+        }
+        
+        return \@actions;
+    }
+    
+    return undef;
+}
 
 =back
 

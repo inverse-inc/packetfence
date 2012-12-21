@@ -178,7 +178,7 @@ Readonly our $EAP      => 0b010000000;
 
 # Catalyst-based access level constants
 Readonly our $WEB_ADMIN_NONE => 0;
-Readonly our $WEB_ADMIN_ALL => 4294967296;
+Readonly our $WEB_ADMIN_ALL => 4294967295;
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash
