@@ -71,8 +71,6 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
     
-    $return = $authenticator->authenticate( $req->param("username"), $req->param("password") );
-    
     my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
                                                                $portalSession->cgi->param("password"));
     if ($return) {
