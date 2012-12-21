@@ -28,7 +28,7 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw($useragent_db_prepared useragent_db_prepare);
     @EXPORT_OK = qw(
-        view view_all add 
+        view view_all add
         property_to_tid
         process_useragent
         node_useragent_view
@@ -63,6 +63,7 @@ our $useragent_statements = {};
 Initialize database prepared statements
 
 =cut
+
 sub useragent_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::useragent');
     $logger->debug("Preparing pf::useragent database queries");
@@ -72,12 +73,12 @@ sub useragent_db_prepare {
     ]);
 
     $useragent_statements->{'node_useragent_insert_sql'} = get_db_handle()->prepare(qq[
-        INSERT INTO node_useragent (mac, os, browser, device, device_name, mobile) 
+        INSERT INTO node_useragent (mac, os, browser, device, device_name, mobile)
         VALUES (?, ?, ?, ?, ?, ?)
     ]);
 
     $useragent_statements->{'node_useragent_update_sql'} = get_db_handle()->prepare(qq[
-        UPDATE node_useragent 
+        UPDATE node_useragent
         SET os = ?, browser = ?, device = ?, device_name = ?, mobile = ?
         WHERE mac = ?
     ]);
@@ -102,6 +103,7 @@ sub useragent_db_prepare {
 Returns true if node_useragent record exists undef or 0 otherwise.
 
 =cut
+
 sub node_useragent_exist {
     my ($mac) = @_;
     my $query = db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_exist_sql', $mac) || return (0);
@@ -113,6 +115,7 @@ sub node_useragent_exist {
 =item node_useragent_add
 
 =cut
+
 sub node_useragent_add {
     my ( $mac, $data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::useragent');
@@ -122,7 +125,7 @@ sub node_useragent_add {
         return (2);
     }
 
-    db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_insert_sql', 
+    db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_insert_sql',
         $mac, $data->{'os'}, $data->{'browser'}, $data->{'device'}, $data->{'device_name'}, $data->{'mobile'}
     ) || return (0);
 
@@ -133,11 +136,12 @@ sub node_useragent_add {
 =item node_useragent_update
 
 =cut
+
 sub node_useragent_update {
     my ( $mac, $data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::useragent');
 
-    db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_update_sql', 
+    db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_update_sql',
         $data->{'os'}, $data->{'browser'}, $data->{'device'}, $data->{'device_name'}, $data->{'mobile'}, $mac
     ) || return (0);
 
@@ -148,6 +152,7 @@ sub node_useragent_update {
 =item update_node_useragent_record
 
 =cut
+
 sub update_node_useragent_record {
     my ($mac, $browserDetect) = @_;
     my $logger = Log::Log4perl::get_logger('pf::useragent');
@@ -183,6 +188,7 @@ sub update_node_useragent_record {
 =item node_useragent_view_all - view all node_useragent entries, returns an array of hashrefs
 
 =cut
+
 sub node_useragent_view_all {
     return db_data(USERAGENT, $useragent_statements, 'node_useragent_view_all_sql');
 }
@@ -190,6 +196,7 @@ sub node_useragent_view_all {
 =item node_useragent_view - view a node_useragent entry, returns an hashref
 
 =cut
+
 sub node_useragent_view {
     my ($mac) = @_;
     my $query = db_query_execute(USERAGENT, $useragent_statements, 'node_useragent_view_sql', $mac);
@@ -210,6 +217,7 @@ Return values:
   false otherwise
 
 =cut
+
 sub is_mobile {
     my ($mac) = @_;
 
@@ -227,6 +235,7 @@ sub is_mobile {
 View a single useragent trigger
 
 =cut
+
 sub node_useragent_count_searchable {
     my ( %params ) = @_;
     _init() if (!@useragent_data);
@@ -246,7 +255,7 @@ sub _make_greper {
         my $where = $params->{where};
         if($where->{type} eq 'any' && $where->{like} ne '' ) {
             my $like = $where->{like};
-            $greper = sub {my $obj = $_; first { my $data = $obj->{$_}; defined($data) && $data =~ /\Q$like\E/} qw(id property description) };
+            $greper = sub {my $obj = $_; first { my $data = $obj->{$_}; defined($data) && $data =~ /\Q$like\E/i} qw(id property description) };
         }
     }
     return $greper;
@@ -257,6 +266,7 @@ sub _make_greper {
 View a single useragent trigger
 
 =cut
+
 sub view {
     my ($tid) = @_;
 
@@ -276,6 +286,7 @@ sub view {
 View all useragent triggers
 
 =cut
+
 sub view_all {
     my $logger = Log::Log4perl::get_logger('pf::useragent');
 
@@ -289,12 +300,13 @@ sub view_all {
 View all useragent triggers
 
 =cut
+
 sub node_useragent_view_all_searchable {
     my $logger = Log::Log4perl::get_logger('pf::useragent');
     my ( %params ) = @_;
     _init() if (!@useragent_data);
     my $greper = _make_greper(\%params);
-    my $sorter = _make_sorter(\%params); 
+    my $sorter = _make_sorter(\%params);
     my @data  =
         sort $sorter
         grep {&$greper}
@@ -332,6 +344,7 @@ sub _make_sorter {
 Add a useragent trigger along with it's metadata
 
 =cut
+
 sub add {
     my ($trigger_id, $property, $description) = @_;
 
@@ -353,6 +366,7 @@ sub add {
 Lookup the trigger ID for a given browser property
 
 =cut
+
 sub property_to_tid {
     my ($property) = @_;
 
@@ -360,7 +374,7 @@ sub property_to_tid {
 
     _init() if (!@useragent_data);
 
-    return if (!defined($property_to_tid->{$property})); 
+    return if (!defined($property_to_tid->{$property}));
 
     return $property_to_tid->{$property};
 }
@@ -383,6 +397,7 @@ Be _really_ careful modifying this method so that the trigger IDs will stay the 
 We don't want our users to keep updating their conf/violations.conf file to track changing trigger IDs.
 
 =cut
+
 sub _init {
     my $logger = Log::Log4perl::get_logger('pf::useragent');
 
@@ -441,6 +456,7 @@ Updates the node_useragent information according to User-Agent string and fires 
 based on User-Agent properties.
 
 =cut
+
 sub process_useragent {
     my ($mac, $useragent) = @_;
     my $logger = Log::Log4perl::get_logger('pf::useragent');
