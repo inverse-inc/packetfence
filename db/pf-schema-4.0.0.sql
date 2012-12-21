@@ -211,13 +211,6 @@ CREATE TABLE os_mapping (
   CONSTRAINT `0_67` FOREIGN KEY (`os_class`) REFERENCES `os_class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
---
--- Insert 'default' user
---
-
-INSERT INTO `person` (pid,notes) VALUES ("1","Default User - do not delete");
-
-
 CREATE TABLE `locationlog` (
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
@@ -318,12 +311,19 @@ CREATE TABLE temporary_password (
   `valid_from` DATETIME DEFAULT NULL,
   `expiration` DATETIME NOT NULL,
   `access_duration` varchar(255) DEFAULT NULL,
-  `access_level` int NOT NULL DEFAULT 0,
+  `access_level` int unsigned NOT NULL DEFAULT 0,
   `category` int NOT NULL,
   `sponsor` tinyint(1) NOT NULL DEFAULT 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
+
+--
+-- Insert 'default' admin user
+--
+
+INSERT INTO `person` (pid,notes) VALUES ("admin","Default Admin User - do not delete");
+INSERT INTO temporary_password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2199-01-01', '9999D', 4294967295, 1);
 
 --
 -- Trigger to delete the temp password from 'temporary_password' when deleting the pid associated with

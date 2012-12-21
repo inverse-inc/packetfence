@@ -99,7 +99,7 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.category,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, t.category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM temporary_password t
         LEFT JOIN person p ON t.pid = p.pid
@@ -350,7 +350,7 @@ sub validate_password {
 
     # password match success
     if ($temppass_record->{'password'} eq $password) {
-        return ( $AUTH_SUCCESS, $temppass_record->{'access_duration'}, $temppass_record->{'category'});
+        return $AUTH_SUCCESS;
     }
 
     # otherwise failure
