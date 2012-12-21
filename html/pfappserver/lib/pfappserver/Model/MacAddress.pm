@@ -54,7 +54,7 @@ sub countAll {
             if($where->{type} eq 'any' && $where->{like} ne '' ) {
                 my $like = $where->{like};
                 my $fields = $self->field_names();
-                $greper = sub { my $obj = $_; first { $obj->{$_} =~ /\Q$like\E/} @$fields };
+                $greper = sub { my $obj = $_; first { $obj->{$_} =~ /\Q$like\E/i} @$fields };
             }
         }
         $count =
@@ -103,7 +103,7 @@ sub search {
             if($where->{type} eq 'any' && $where->{like} ne '' ) {
                 my $like = $where->{like};
                 my $fields = $self->field_names();
-                $greper = sub { my $obj = $_; first { $obj->{$_} =~ /\Q$like\E/} @$fields };
+                $greper = sub { my $obj = $_; first { $obj->{$_} =~ /\Q$like\E/i} @$fields };
             }
         }
         my @items =
