@@ -2,7 +2,7 @@ package pf::Authentication::Source::HTTPPasswordSource;
 
 =head1 NAME
 
-pf::Authentication::Source::HTTPPassswordSource
+pf::Authentication::Source::HTTPPasswordSource
 
 =head1 DESCRIPTION
 

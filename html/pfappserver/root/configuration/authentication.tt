@@ -39,7 +39,7 @@
         <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
         <td>[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
-        <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]#deleteSource">[% l('Delete') %]</a></td>
+        <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
       </tr>
       [% END -%]
       <tr><td colspan="5"></td></tr>
@@ -54,8 +54,7 @@
 
 <div class="form-actions">
   <div class="btn-group">
-    <a class="btn" href="#">[% l('Add source') %]</a>
-    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
       [% FOREACH type IN types -%]
       <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
