@@ -42,7 +42,7 @@ sub update {
     # Update attributes
     foreach my $attr ($source_obj->meta->get_all_attributes()) {
         $attr = $attr->name;
-        unless ($attr eq 'rules' || $attr eq 'type') {
+        unless ($attr eq 'rules' || $attr eq 'type' || $attr eq 'unique') {
             $source_obj->$attr($def_ref->{$attr});
         }
     }

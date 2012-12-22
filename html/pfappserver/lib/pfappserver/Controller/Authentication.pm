@@ -56,15 +56,23 @@ Show list of authentication sources. Allow user to order the list.
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    my ($sources, $form);
+    my ($sources, $types, $form);
 
     $sources = getAuthenticationSource(undef);
+    $types = availableAuthenticationSourceTypes();
     $form = pfappserver::Form::Authentication->new(ctx => $c,
                                                    init_object => {sources => $sources});
     $form->process();
 
+    # Remove sources that must be unique and that are already defined
+    $c->stash->{types} = [];
+    foreach my $type (@$types) {
+        unless (grep { $_->{unique} && $_->{type} eq $type } @$sources) {
+            push(@{$c->stash->{types}}, $type);
+        }
+    }
+
     $c->stash->{form} = $form;
-    $c->stash->{types} = availableAuthenticationSourceTypes();
     $c->stash->{template} = 'configuration/authentication.tt';
 }
 

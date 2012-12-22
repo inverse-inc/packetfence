@@ -20,11 +20,6 @@ use POSIX;
 
 use pf::authentication;
 use pfappserver::Form::Authentication::Source;
-use pfappserver::Form::Authentication::Source::AD;
-use pfappserver::Form::Authentication::Source::LDAP;
-use pfappserver::Form::Authentication::Source::RADIUS;
-use pfappserver::Form::Authentication::Source::Kerberos;
-use pfappserver::Form::Authentication::Source::Htpasswd;
 use pfappserver::Form::Authentication::Rule;
 
 BEGIN {extends 'Catalyst::Controller'; }
@@ -127,11 +122,21 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->{stash}->{source}->{id}]);
     }
 
+    # Load the appropriate source module
     $form_type = 'pfappserver::Form::Authentication::Source::' . $c->stash->{source}->{type};
-    $form = $form_type->new(ctx => $c, init_object => $c->stash->{source});
-    $form->process();
-    $c->stash->{form} = $form;
-    $c->stash->{template} = 'authentication/source/read.tt' unless ($c->stash->{template});
+    eval "require $form_type";
+    if ($@) {
+        $c->log->error($@);
+        $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+        $c->stash->{status_msg} = $c->loc('Unexpected error. See server-side logs for details.');
+        $c->stash->{current_view} = 'JSON';
+    }
+    else {
+        $form = $form_type->new(ctx => $c, init_object => $c->stash->{source});
+        $form->process();
+        $c->stash->{form} = $form;
+        $c->stash->{template} = 'authentication/source/read.tt' unless ($c->stash->{template});
+    }
 }
 
 =head2 update
@@ -145,7 +150,15 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
     my ($form_type, $form, $status, $message);
 
+    # Load the appropriate source module
     $form_type = 'pfappserver::Form::Authentication::Source::' . $c->stash->{source}->{type};
+    eval "require $form_type";
+    if ($@) {
+        $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
+        $c->stash->{status_msg} = $c->loc('Unexpected error. See server-side logs for details.');
+        $c->detach();
+        return;
+    }
     $form = $form_type->new(ctx => $c, id => $c->stash->{source_id});
     $form->process(params => $c->request->params);
     if ($form->has_errors) {

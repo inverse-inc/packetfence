@@ -22,12 +22,12 @@
     });
 
     /* Delete a source */
-    $('#section').on('click', '[href*="#deleteSource"]', function(event) {
+    $('#section').on('click', '[href*="/delete"]', function(event) {
         if ($(this).hasClass('disabled'))
             return false;
         var url = $(this).attr('href');
         var row = $(this).closest('tr');
-        var name = row.find('[href*="readSource"]').first().text();
+        var name = row.find('[href*="/read"]').first().text();
         var modal = $('#deleteSource');
         var confirm_link = modal.find('a.btn-primary').first();
         modal.find('h3 span').html(name);
@@ -39,17 +39,7 @@
                     modal.modal('hide');
                 })
                 .done(function(data) {
-                    row.remove();
-                    var table = $('#section table');
-                    var rows = table.find('tbody tr:not(.hidden)');
-                    if (rows.find('.sort-handle').length == 0) {
-                        // No more user sources
-                        table.remove();
-                        $('#noSource').removeClass('hidden');
-                    }
-                    else {
-                        updateSortableTable(rows);
-                    }
+                    $(window).hashchange();
                 })
                 .fail(function(jqXHR) {
                     var status_msg;
@@ -63,6 +53,7 @@
                     }
                     showError($('#section h2'), status_msg);
                 });
+            return false;
         });
 
         return false;    

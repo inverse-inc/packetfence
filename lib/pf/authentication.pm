@@ -28,6 +28,9 @@ use pf::Authentication::Source::KerberosSource;
 use pf::Authentication::Source::LDAPSource;
 use pf::Authentication::Source::RADIUSSource;
 use pf::Authentication::Source::SQLSource;
+use pf::Authentication::Source::FacebookSource;
+use pf::Authentication::Source::GoogleSource;
+use pf::Authentication::Source::GithubSource;
 
 # The results...
 # 
@@ -82,7 +85,10 @@ sub availableAuthenticationSourceTypes {
             #'SQL', -- don't offer sql for the moment
             'RADIUS',
             'Kerberos',
-            'Htpasswd'
+            'Htpasswd',
+            'Google',
+            'Facebook',
+            'Github'
            ];
 }
 
@@ -94,82 +100,61 @@ Returns an instance of pf::Authentication::Source::* for the given type
 
 sub newAuthenticationSource {
     my ($type, $source_id, $attrs) = @_;
+
     my $source;
     {
         # Microsoft Active Directory sources
         lc($type) eq 'ad' && do {
             $source = pf::Authentication::Source::ADSource->new(
-                {
-                 id => $source_id,
-                 description => $attrs->{description},
-                 host => $attrs->{host},
-                 port => $attrs->{port},
-                 basedn => $attrs->{basedn},
-                 binddn => $attrs->{binddn},
-                 password => $attrs->{password},
-                 encryption => $attrs->{encryption},
-                 scope => $attrs->{scope},
-                 usernameattribute => $attrs->{usernameattribute}
-                });
+                { id => $source_id, %{$attrs} });
         };
 
         # Apache password style sources
         lc($type) eq 'htpasswd' && do {
             $source = pf::Authentication::Source::HTTPPasswordSource->new(
-                {
-                 id => $source_id,
-                 description => $attrs->{description},
-                 path => $attrs->{path}
-                });
+                { id => $source_id, %{$attrs} });
         };
 
         # Kerberos sources
         lc($type) eq 'kerberos' && do {
             $source = pf::Authentication::Source::KerberosSource->new(
-                {
-                 id => $source_id,
-                 description => $attrs->{description},
-                 host => $attrs->{host},
-                 realm => $attrs->{realm}
-                });
+                { id => $source_id,  %{$attrs} });
         };
 
         # LDAP sources
         lc($type) eq 'ldap' && do {
             $source = pf::Authentication::Source::LDAPSource->new(
-                {
-                 id => $source_id,
-                 description => $attrs->{description},
-                 host => $attrs->{host},
-                 port => $attrs->{port},
-                 basedn => $attrs->{basedn},
-                 binddn => $attrs->{binddn},
-                 password => $attrs->{password},
-                 encryption => $attrs->{encryption},
-                 scope => $attrs->{scope},
-                 usernameattribute => $attrs->{usernameattribute}
-                });
+                { id => $source_id, %{$attrs} });
         };
 
         # RADIUS sources
         lc($type) eq 'radius' && do {
             $source = pf::Authentication::Source::RADIUSSource->new(
-                {
-                 id => $source_id,
-                 description => $attrs->{description},
-                 host => $attrs->{host},
-                 port => $attrs->{port},
-                 secret => $attrs->{secret}
-                });
+                { id => $source_id, %{$attrs} });
         };
 
         # SQL sources
         lc($type) eq 'sql' && do {
             $source = pf::Authentication::Source::SQLSource->new(
-                {
-                 id => $source_id,
-                 description => $attrs->{description}
-                });
+                { id => $source_id, %{$attrs} });
+        };
+
+        # Facebook source
+        lc($type) eq 'facebook' && do {
+            $source = pf::Authentication::Source::FacebookSource->new(
+                { id => $source_id, %{$attrs} });
+        };
+
+        # Google source
+        lc($type) eq 'google' && do {
+            $source = pf::Authentication::Source::GoogleSource->new(
+                { id => $source_id, %{$attrs} });
+        };
+
+        # Github source
+        lc($type) eq 'github' && do {
+            $source = pf::Authentication::Source::GithubSource->new(
+                { id => $source_id, %{$attrs} });
         };
     }
 
@@ -191,6 +176,7 @@ sub readAuthenticationConfigFile {
         }
 
         my $type = tied(%cfg)->val($source_id, "type");
+
         my $current_source = newAuthenticationSource($type, $source_id, $cfg{$source_id});
 
         # Parse rules
@@ -261,37 +247,33 @@ sub writeAuthenticationConfigFile {
 
         my $classname = $source->meta->name;
 
-        if ($classname eq 'pf::Authentication::Source::ADSource' ||
-            $classname eq 'pf::Authentication::Source::LDAPSource') {
-            if ($classname eq 'pf::Authentication::Source::LDAPSource') {
-                $ini{$source->{id}}{type} = 'ldap';
-            } else {
-                $ini{$source->{id}}{type} = 'ad';
-            }
-            $ini{$source->{id}}{host} = $source->{'host'};
-            $ini{$source->{id}}{port} = $source->{'port'};
-            $ini{$source->{id}}{binddn} = $source->{'binddn'};
-            $ini{$source->{id}}{basedn} = $source->{'basedn'};
-            $ini{$source->{id}}{password} = $source->{'password'};
-            $ini{$source->{id}}{encryption} = $source->{'encryption'};
-            $ini{$source->{id}}{scope} = $source->{'scope'};
-            $ini{$source->{id}}{usernameattribute} = $source->{'usernameattribute'};
+        if ($classname eq 'pf::Authentication::Source::ADSource') {
+            $ini{$source->{id}}{type} = 'ldap';
+        } elsif ($classname eq 'pf::Authentication::Source::LDAPSource') {
+            $ini{$source->{id}}{type} = 'ad';
         } elsif ($classname eq 'pf::Authentication::Source::HTTPPasswordSource') {
             $ini{$source->{id}}{type} = 'htpasswd';
-            $ini{$source->{id}}{path} = $source->{'path'};
         } elsif ($classname eq 'pf::Authentication::Source::KerberosSource') {
             $ini{$source->{id}}{type} = 'kerberos';
-            $ini{$source->{id}}{realm} = $source->{'realm'};
-            $ini{$source->{id}}{host} = $source->{'host'};
         } elsif ($classname eq 'pf::Authentication::Source::RADIUSSource') {
             $ini{$source->{id}}{type} = 'radius';
-            $ini{$source->{id}}{host} = $source->{'host'};
-            $ini{$source->{id}}{port} = $source->{'port'};
-            $ini{$source->{id}}{secret} = $source->{'secret'};
         } elsif ($classname eq 'pf::Authentication::Source::SQLSource') {
             $ini{$source->{id}}{type} = 'sql';
+        } elsif ($classname eq 'pf::Authentication::Source::FacebookSource') {
+            $ini{$source->{id}}{type} = 'facebook';
+        } elsif ($classname eq 'pf::Authentication::Source::GoogleSource') {
+            $ini{$source->{id}}{type} = 'google';
+        } elsif ($classname eq 'pf::Authentication::Source::GithubSource') {
+            $ini{$source->{id}}{type} = 'github';
         }
     
+        for my $attr ( $source->meta->get_all_attributes ) {
+            $attr = $attr->name;
+            next if ($attr eq 'id' || $attr eq 'rules');
+            next unless ($source->{$attr});
+            $ini{$source->{id}}{$attr} = $source->{$attr};
+        }
+
         # We flush rules, including conditions and actions.
         foreach my $rule ( @{$source->{'rules'}} ) {
             my $rule_id = $source->{'id'} . " rule " . $rule->{'id'};
