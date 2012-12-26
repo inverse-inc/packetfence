@@ -538,7 +538,6 @@ sub generate_registration_page {
     $pagenumber = 1 if (!defined($pagenumber));
 
     $portalSession->stash({
-        deadline        => $Config{'registration'}{'skip_deadline'},
         reg_page_content_file => "register_$pagenumber.html",
     });
 

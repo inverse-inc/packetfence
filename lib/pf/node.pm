@@ -244,21 +244,8 @@ sub node_db_prepare {
     # This guy here is special, have a look in node_count_all to see why
     $node_statements->{'node_count_all_sql'} = "select count(*) as nb from node";
 
-    $node_statements->{'node_ungrace_sql'} = get_db_handle()->prepare(
-        qq [ select mac from node where status="grace" and unix_timestamp(now())-unix_timestamp(lastskip) > ]
-            . $Config{'registration'}{'skip_reminder'});
-
     $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="reg" and unregdate != 0 and unregdate < now() ]);
-
-    $node_statements->{'node_expire_session_sql'} = get_db_handle()->prepare(qq[
-        UPDATE node n SET n.status="unreg" 
-        WHERE n.status="reg" 
-            AND n.mac NOT IN (SELECT i.mac FROM iplog i WHERE (i.end_time=0 OR i.end_time > now()))
-            AND n.mac NOT IN (
-                SELECT i.mac FROM iplog i WHERE end_time!=0 AND unix_timestamp(now()) - unix_timestamp(i.end_time) < ?
-            )
-    ]);
 
     $node_statements->{'node_expire_lastarp_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where unix_timestamp(last_arp) < (unix_timestamp(now()) - ?) and last_arp!=0 ]);
@@ -723,32 +710,6 @@ sub node_modify {
         $existing->{regdate} = mysql_date();
     }
 
-    # set unregdate if status changed to registered, is not an auto-registration and old unregdate is unset or 0
-    if ( !$auto_registered &&  ( $new_status eq 'reg' )
-        && ( $old_status ne 'reg' )
-        && (   $existing->{unregdate} eq '0000-00-00 00:00:00'
-            || $existing->{unregdate} eq '' )
-        )
-    {
-        $logger->debug(
-            "changed registration status for mac $new_mac from $old_status to $new_status; unregdate has not been specified -> calculating it now"
-        );
-        my $expire_mode = $Config{'registration'}{'expire_mode'};
-        if (   ( lc($expire_mode) eq 'window' )
-            && ( $Config{'registration'}{'expire_window'} > 0 ) )
-        {
-            $existing->{'unregdate'} = POSIX::strftime(
-                "%Y-%m-%d %H:%M:%S",
-                localtime( time + $Config{'registration'}{'expire_window'} )
-            );
-        } elsif (  ( lc($expire_mode) eq 'deadline' )
-            && ( $Config{'registration'}{'expire_deadline'} - time > 0 ) )
-        {
-            $existing->{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-                localtime( $Config{'registration'}{'expire_deadline'} ) );
-        }
-    }
-
     db_query_execute(NODE, $node_statements, 'node_modify_sql',
         $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip}, 
         $existing->{bypass_vlan},
@@ -803,24 +764,6 @@ sub node_register {
     $info{'status'}  = 'reg';
     $info{'regdate'} = mysql_date();
 
-    # note: we ignore expire modes on auto-registration
-    if ( ( !$info{'unregdate'} ) || ( !valid_date( $info{'unregdate'} ) ) ) {
-        my $expire_mode = $Config{'registration'}{'expire_mode'};
-        if ( !$auto_registered && ( lc($expire_mode) eq 'window' )
-            && ( $Config{'registration'}{'expire_window'} > 0 ) )
-        {
-            $info{'unregdate'} = POSIX::strftime(
-                "%Y-%m-%d %H:%M:%S",
-                localtime( time + $Config{'registration'}{'expire_window'} )
-            );
-        } elsif ( !$auto_registered && ( lc($expire_mode) eq 'deadline' )
-            && ( $Config{'registration'}{'expire_deadline'} - time > 0 ) )
-        {
-            $info{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
-                localtime( $Config{'registration'}{'expire_deadline'} ) );
-        }
-    }
-
     if ( !node_modify( $mac, %info ) ) {
         $logger->error("modify of node $mac failed");
         return (0);
@@ -861,16 +804,7 @@ called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
 sub nodes_maintenance {
     my $logger = Log::Log4perl::get_logger('pf::node');
 
-    my $expire_mode = $Config{'registration'}{'expire_mode'};
-
-    $logger->debug("nodes_maintenance called (expire_mode=$expire_mode)");
-
-    my $ungrace_query = db_query_execute(NODE, $node_statements, 'node_ungrace_sql') || return (0);
-    while (my $row = $ungrace_query->fetchrow_hashref()) {
-        my $currentMac = $row->{mac};
-        pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
-        $logger->info("modified $currentMac from status 'grace' to 'unreg'" );
-    };
+    $logger->debug("nodes_maintenance called");
 
     my $expire_unreg_query = db_query_execute(NODE, $node_statements, 'node_expire_unreg_field_sql') || return (0);
     while (my $row = $expire_unreg_query->fetchrow_hashref()) {
@@ -879,21 +813,6 @@ sub nodes_maintenance {
         $logger->info("modified $currentMac from status 'reg' to 'unreg' based on unregdate colum" );
     }
 
-    if ( isdisabled($expire_mode) ) {
-        return (1);
-    } else {
-        #TODO: Are we still using that?
-        if ( lc($expire_mode) eq 'session' ) {
-            my $expire_session_query = db_query_execute(
-                NODE, $node_statements, 'node_expire_session_sql', $Config{'registration'}{'expire_session'}
-            ) || return (0);
-            my $rows = $expire_session_query->rows;
-            $logger->log(
-                ( ( $rows > 0 ) ? $INFO : $DEBUG ),
-                "modified $rows nodes from status 'reg' to 'unreg' based on session expiration"
-            );
-        }
-    }
     return (1);
 }
 

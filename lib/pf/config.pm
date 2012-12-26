@@ -403,8 +403,6 @@ sub readPfConfigFiles {
         "expire.iplog",               "expire.traplog",
         "expire.locationlog",         "expire.node",
         "trapping.redirtimer",
-        "registration.skip_window",   "registration.skip_reminder",
-        "registration.expire_window", "registration.expire_session",
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
         "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
@@ -412,11 +410,6 @@ sub readPfConfigFiles {
     ) {
         my ( $group, $item ) = split( /\./, $val );
         $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
-    }
-    foreach my $val ( "registration.skip_deadline", "registration.expire_deadline" )
-    {
-        my ( $group, $item ) = split( /\./, $val );
-        $Config{$group}{$item} = str2time( $Config{$group}{$item} );
     }
 
     #determine absolute paths

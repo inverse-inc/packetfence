@@ -244,38 +244,6 @@ msgstr ""
 msgid "registration.range"
 msgstr ""
 
-#: conf/pf.conf.defaults:158
-msgid "registration.skip_mode"
-msgstr ""
-
-#: conf/pf.conf.defaults:164
-msgid "registration.skip_deadline"
-msgstr ""
-
-#: conf/pf.conf.defaults:170
-msgid "registration.skip_window"
-msgstr ""
-
-#: conf/pf.conf.defaults:176
-msgid "registration.skip_reminder"
-msgstr ""
-
-#: conf/pf.conf.defaults:202
-msgid "registration.expire_mode"
-msgstr ""
-
-#: conf/pf.conf.defaults:208
-msgid "registration.expire_deadline"
-msgstr ""
-
-#: conf/pf.conf.defaults:214
-msgid "registration.expire_window"
-msgstr ""
-
-#: conf/pf.conf.defaults:221
-msgid "registration.expire_session"
-msgstr ""
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr ""
