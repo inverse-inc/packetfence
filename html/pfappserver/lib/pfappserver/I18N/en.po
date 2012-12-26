@@ -278,38 +278,6 @@ msgstr "Registration"
 msgid "registration.range"
 msgstr "Addresses ranges"
 
-#: conf/pf.conf.defaults:158
-msgid "registration.skip_mode"
-msgstr "Skip mode"
-
-#: conf/pf.conf.defaults:164
-msgid "registration.skip_deadline"
-msgstr "Deadline"
-
-#: conf/pf.conf.defaults:170
-msgid "registration.skip_window"
-msgstr "Skip window"
-
-#: conf/pf.conf.defaults:176
-msgid "registration.skip_reminder"
-msgstr "Skip reminder"
-
-#: conf/pf.conf.defaults:202
-msgid "registration.expire_mode"
-msgstr "Expire mode"
-
-#: conf/pf.conf.defaults:208
-msgid "registration.expire_deadline"
-msgstr "Expire deadline"
-
-#: conf/pf.conf.defaults:214
-msgid "registration.expire_window"
-msgstr "Expire window"
-
-#: conf/pf.conf.defaults:221
-msgid "registration.expire_session"
-msgstr "Expire session"
-
 #: conf/pf.conf.defaults:231
 msgid "registration.button_text"
 msgstr "Button text"
