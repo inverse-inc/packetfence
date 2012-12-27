@@ -7,7 +7,7 @@
               <li class="active"><a href="#">Dashboard</a></li>
               <li class="nav-header">Services</li>
               <li><a href="#">pfdhcplistener</a></li>
-              <li><a href="#">pfredirect</a></li>
+              <li><a href="#">pfmon</a></li>
               <li><a href="#">named</a></li>
               <li class="nav-header">System</li>
               <li><a href="#">Server</a></li>

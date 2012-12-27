@@ -413,7 +413,7 @@ sub node_add_simple {
     my ($mac) = @_;
     my $date  = mysql_date();
     my %tmp   = (
-        'pid'         => 1,
+        'pid'         => 'admin',
         'detect_date' => $date,
         'regdate'     => 0,
         'unregdate'   => 0,

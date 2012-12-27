@@ -52,7 +52,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %endif
 
 # Log related globals
-%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
+%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
@@ -749,7 +749,6 @@ fi
 %ghost                  %logdir/admin_debug_log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon
-%ghost                  %logdir/pfredirect
 %doc                    /usr/local/pf/NEWS
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
@@ -757,7 +756,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE
 %dir                    /usr/local/pf/var

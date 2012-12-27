@@ -325,13 +325,6 @@ admin_netbiosname=EXAMPLE
 
 [ports]
 #
-# ports.listeners
-#
-# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to
-# inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
-# <conf_dir>/listener.msg
-listeners=
-#
 # ports.admin
 #
 # Port the administrative interface listens on.

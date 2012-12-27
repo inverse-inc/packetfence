@@ -486,10 +486,10 @@ sub database {
 
     try {
 
-        # make sure pid 1 exists
+        # make sure pid "admin" exists
         require pf::person;
         if ( !pf::person::person_exist("admin") ) {
-            add_problem( $FATAL, "person user id 1 must exist - please reinitialize your database" );
+            add_problem( $FATAL, "person user id \"admin\" must exist - please reinitialize your database" );
         }
 
     } catch {

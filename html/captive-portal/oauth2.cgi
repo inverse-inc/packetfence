@@ -47,7 +47,7 @@ if ( !valid_mac($portalSession->getClientMac()) ) {
 my %info;
 
 # Pull username
-$info{'pid'} = 1;
+$info{'pid'} = "admin";
 
 # Pull browser user-agent string
 $info{'user_agent'} = $cgi->user_agent;

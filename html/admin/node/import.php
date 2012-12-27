@@ -69,7 +69,7 @@
     </tr>
     <tr>
        <td>
-         Importing automatically registers the nodes with pid 1<br/>
+         Importing automatically registers the nodes with pid "admin"<br/>
          unless you are configured otherwise in <tt>pf.conf</tt>.
        </td>
     </tr>

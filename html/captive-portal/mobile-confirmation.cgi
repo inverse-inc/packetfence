@@ -68,7 +68,7 @@ if ( $portalSession->getCgi->param("pin") ) { # && $portalSession->getSession->p
     $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
     $info{'category'} = $portalSession->getProfile->getGuestCategory;
 
-    my $pid = $portalSession->getSession->param("guest_pid") || 1;
+    my $pid = $portalSession->getSession->param("guest_pid") || "admin";
     pf::web::web_node_register($portalSession, $pid, %info);
     # clear state that redirects to the Enter PIN page
     $portalSession->getSession->clear(["guest_pid"]);
