@@ -532,34 +532,6 @@ sub registration {
         add_problem( $WARN, "scan.registration is enabled but trapping.registration is not ... this is strange!" );
     }
 
-    # registration.skip_mode validation
-    if ( $Config{'registration'}{'skip_mode'} eq "deadline" && !$Config{'registration'}{'skip_deadline'} ) {
-        add_problem( $FATAL,
-            "pf.conf value registration.skip_deadline is mal-formed or null! " . 
-            "(format should be that of the 'date' command)"
-        );
-    } elsif ( $Config{'registration'}{'skip_mode'} eq "windows" && !$Config{'registration'}{'skip_window'} ) {
-        add_problem( $FATAL, "pf.conf value registration.skip_window is not defined!" );
-    }
-
-    # registration.expire_mode validation
-    if ( $Config{'registration'}{'expire_mode'} eq "deadline" && !$Config{'registration'}{'expire_deadline'} ) {
-        add_problem( $FATAL,
-            "pf.conf value registration.expire_deadline is mal-formed or null! " . 
-            "(format should be that of the 'date' command)"
-        );
-    } elsif ( $Config{'registration'}{'expire_mode'} eq "window" && !$Config{'registration'}{'expire_window'} ) {
-        add_problem( $FATAL, "pf.conf value registration.expire_window is not defined!" );
-    }
-
-    # make sure that expire_mode session is disabled in VLAN isolation
-    if (lc($Config{'registration'}{'expire_mode'}) eq 'session') {
-        add_problem( $FATAL, 
-            "automatic node expiration mode ".$Config{'registration'}{'expire_mode'} . " " .
-            "is incompatible with current PacketFence release. Please file a ticket if you need this feature."
-        );
-    }
-
 }
 
 # TODO Consider moving to a test
@@ -977,7 +949,7 @@ Make sure that portal profiles, if defined, have a filter and no unsupported par
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|auth|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
+    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
 
     foreach my $portal_profile ( tied(%Config)->GroupMembers("portal-profile") ) {
 

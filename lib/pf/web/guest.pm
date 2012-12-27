@@ -95,7 +95,6 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     $portalSession->stash({
-        deadline => $Config{'registration'}{'skip_deadline'},
         post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
 
         firstname => $portalSession->cgi->param("firstname") || '',
