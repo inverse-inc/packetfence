@@ -155,7 +155,7 @@ $(function () { // DOM ready
 
     /* Activate sortable tables and lists (rows/items can be re-ordered) */
     $('body').on('mousemove',
-                 '.table-sortable tr:not(.ui-draggable), .list-sortable li:not(.ui-draggable)',
+                 '.table-sortable tbody tr:not(.ui-draggable), .list-sortable li:not(.ui-draggable)',
                  function() {
         var row = $(this);
         var id = row.closest('table, ul').attr('id');
