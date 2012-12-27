@@ -348,10 +348,6 @@ msgstr ""
 msgid "ports"
 msgstr ""
 
-#: conf/pf.conf.defaults:406
-msgid "ports.listeners"
-msgstr ""
-
 #: conf/pf.conf.defaults:411
 msgid "ports.admin"
 msgstr ""

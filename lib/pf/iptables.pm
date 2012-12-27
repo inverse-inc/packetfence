@@ -622,25 +622,6 @@ of the inline mode because of time constraints.
 
 =over
 
-=item generate_filter_input_listeners
-
-=cut
-sub generate_filter_input_listeners {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules = '';
-
-    # TODO to integrate and might need to adjust other tables too (NAT's dnat)
-    my @listeners = split( /\s*,\s*/, $Config{'ports'}{'listeners'} );
-    foreach my $listener (@listeners) {
-        my $port = getservbyname( $listener, "tcp" );
-        $rules .= "--protocol tcp --destination-port $port --jump ACCEPT\n";
-    }
-
-    return $rules;
-}
-
-
 =item generate_filter_forward_scanhost
 
 =cut

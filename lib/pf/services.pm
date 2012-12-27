@@ -50,7 +50,7 @@ use pf::SwitchFactory;
 Readonly our @ALL_SERVICES => (
     'named', 'dhcpd', 'snort', 'suricata', 'radiusd', 
     'httpd', 'snmptrapd', 
-    'pfdetect', 'pfredirect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
 my $services = join("|", @ALL_SERVICES);
@@ -75,7 +75,6 @@ $service_launchers{'httpd'} = "%1\$s -f $generated_conf_dir/httpd.conf";
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
 $service_launchers{'pfmon'} = '%1$s -d &';
 $service_launchers{'pfdhcplistener'} = '%1$s -i %2$s -d &';
-$service_launchers{'pfredirect'} = '%1$s -d &';
 $service_launchers{'pfsetvlan'} = '%1$s -d &';
 # TODO the following join on @listen_ints will cause problems with dynamic config reloading
 $service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
@@ -306,9 +305,6 @@ sub service_list {
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
                 if ( isenabled( $Config{'trapping'}{'detection'} ) );
-        } elsif ( $service eq "pfredirect" ) {
-            push @finalServiceList, $service
-                if ( $Config{'ports'}{'listeners'} );
         } elsif ( $service eq "dhcpd" ) {
             push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
