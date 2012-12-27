@@ -123,7 +123,7 @@ sub person_delete {
     my ($pid) = @_;
 
     my $logger = Log::Log4perl::get_logger('pf::person');
-    return (0) if ( $pid eq "1" );
+    return (0) if ( $pid eq "admin" );
 
     if ( !person_exist($pid) ) {
         $logger->error("delete of non-existent person '$pid' failed");

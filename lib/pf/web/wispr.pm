@@ -86,7 +86,8 @@ sub handler {
         else {
             $mac = $portalSession->getClientMac;
         }
-             $info{'pid'} = 1;
+ 
+        $info{'pid'} = 'admin';
         $pid = $req->param("username") if (defined $req->param("username"));
         $r->pnotes->{pid}=$pid;
         $r->pnotes->{user_agent}=$r->headers_in->{"User-Agent"};
