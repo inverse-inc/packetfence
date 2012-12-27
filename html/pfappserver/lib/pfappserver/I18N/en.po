@@ -385,10 +385,6 @@ msgstr "Admin NetBIOS name"
 msgid "ports"
 msgstr "Ports"
 
-#: conf/pf.conf.defaults:406
-msgid "ports.listeners"
-msgstr "Listeners"
-
 #: conf/pf.conf.defaults:411
 msgid "ports.admin"
 msgstr "Admin"

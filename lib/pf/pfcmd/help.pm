@@ -119,12 +119,11 @@ Services managed by PacketFence:
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
   pfmon            | PF ARP monitoring daemon
-  pfredirect       | bogus POP3/SMTP servers
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
   snmptrapd        | SNMP trap receiver daemon
-  snort            | if stopped or restarted, pfredirect must also be restarted
-  suricata         | Suricata IDS.  if stopped or restarted, pfredirect must also be restarted
+  snort            | Sourcefire Snort IDS
+  suricata         | Suricata IDS
 
 watch
 Watch performs services checks to make sure that everything is fine. It's 
