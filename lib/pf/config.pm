@@ -8,15 +8,15 @@ pf::config - PacketFence configuration
 
 =head1 DESCRIPTION
 
-pf::config contains the code necessary to read and manipulate the 
+pf::config contains the code necessary to read and manipulate the
 PacketFence configuration files.
 
-It automatically imports gazillions of globals into your namespace. You 
+It automatically imports gazillions of globals into your namespace. You
 have been warned.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the following configuration files: F<log.conf>, F<pf.conf>, 
+Read the following configuration files: F<log.conf>, F<pf.conf>,
 F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<floating_network_device.conf>, F<oauth2-ips.conf>.
 
 =cut
@@ -41,12 +41,12 @@ our (
     $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
-    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network, 
+    @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
     %guest_self_registration,
-    $default_config_file, %Default_Config, 
-    $config_file, %Config, 
-    $network_config_file, %ConfigNetworks, %ConfigOAuth, $oauth_ip_file, 
-    $pf_config_file, $pf_default_file, $pf_doc_file, 
+    $default_config_file, %Default_Config,
+    $config_file, %Config,
+    $network_config_file, %ConfigNetworks, %ConfigOAuth, $oauth_ip_file,
+    $pf_config_file, $pf_default_file, $pf_doc_file,
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     $oui_file, $oui_url,
@@ -65,7 +65,7 @@ BEGIN {
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
         $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
-        @listen_ints @dhcplistener_ints @ha_ints $monitor_int 
+        @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
@@ -75,7 +75,7 @@ BEGIN {
         $default_config_file %Default_Config
         $config_file %Config
         $network_config_file %ConfigNetworks %ConfigOAuth
-        $dhcp_fingerprints_file $dhcp_fingerprints_url 
+        $dhcp_fingerprints_file $dhcp_fingerprints_url
         $oui_file $oui_url
         $floating_devices_file %ConfigFloatingDevices
         $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
@@ -143,7 +143,7 @@ $oauth_ip_file              = $conf_dir . "/oauth2-ips.conf";
 $oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url      = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-Readonly our @VALID_TRIGGER_TYPES => ( "accounting", "detect", "internal", "mac", "nessus", "openvas", "os", "soh", "useragent", 
+Readonly our @VALID_TRIGGER_TYPES => ( "accounting", "detect", "internal", "mac", "nessus", "openvas", "os", "soh", "useragent",
         "vendormac" );
 
 $portscan_sid = 1200003;
@@ -319,7 +319,7 @@ try {
 
 Load configuration. Can be used to reload it too.
 
-WARNING: This has been recently introduced and was not tested with our 
+WARNING: This has been recently introduced and was not tested with our
 multi-threaded daemons.
 
 =cut
@@ -404,7 +404,7 @@ sub readPfConfigFiles {
         "expire.locationlog",         "expire.node",
         "trapping.redirtimer",
         "general.maintenance_interval", "scan.duration",
-        "vlan.bounce_duration",   
+        "vlan.bounce_duration",
         "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
         "guests_admin_registration.default_access_duration",
     ) {
@@ -476,41 +476,18 @@ sub readPfConfigFiles {
         }
     }
 
+    my $modes = $Config{'guests_self_registration'}{'modes'};
+
     # GUEST RELATED
     # explode self-registration status and modes for easier and cached boolean tests for different services
     $guest_self_registration{'enabled'} = $TRUE
-        if ( $Config{'registration'}{'guests_self_registration'} =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i );
-
-    $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE if is_in_list(
-        $SELFREG_MODE_EMAIL,
-        $Config{'guests_self_registration'}{'modes'}
-    );
-    $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE if is_in_list(
-        $SELFREG_MODE_SMS,
-        $Config{'guests_self_registration'}{'modes'}
-    );
-    $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE if is_in_list(
-        $SELFREG_MODE_SPONSOR,
-        $Config{'guests_self_registration'}{'modes'}
-    );
-    $guest_self_registration{$SELFREG_MODE_GOOGLE} = $TRUE if is_in_list(
-        $SELFREG_MODE_GOOGLE,
-        $Config{'guests_self_registration'}{'modes'}
-    );
-    $guest_self_registration{$SELFREG_MODE_FACEBOOK} = $TRUE if is_in_list(
-        $SELFREG_MODE_FACEBOOK,
-        $Config{'guests_self_registration'}{'modes'}
-    );
-    $guest_self_registration{$SELFREG_MODE_GITHUB} = $TRUE if is_in_list(
-        $SELFREG_MODE_GITHUB,
-        $Config{'guests_self_registration'}{'modes'}
-    );
+        if ( isenabled($Config{'registration'}{'guests_self_registration'}));
+    _set_guest_self_registration($modes);
 
     # check for portal profile guest self registration options in case they're disabled in default profile
     foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
         # marking guest_self_registration as globally enabled if needed by one of the portal profiles
-        if ( (defined($Config{$portalprofile}{'guest_self_reg'})) && 
-             ($Config{$portalprofile}{'guest_self_reg'} =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i) ) {
+        if ( isenabled($Config{$portalprofile}{'guest_self_reg'}) ) {
             $guest_self_registration{'enabled'} = $TRUE;
         }
 
@@ -521,23 +498,25 @@ sub readPfConfigFiles {
         }
 
         # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
-        if ( defined($Config{$portalprofile}{'guest_modes'}) ) {
-            $guest_self_registration{$SELFREG_MODE_EMAIL} = $TRUE
-                if is_in_list($SELFREG_MODE_EMAIL, $Config{$portalprofile}{'guest_modes'});
-            $guest_self_registration{$SELFREG_MODE_SMS} = $TRUE
-                if is_in_list($SELFREG_MODE_SMS, $Config{$portalprofile}{'guest_modes'});
-            $guest_self_registration{$SELFREG_MODE_SPONSOR} = $TRUE
-                if is_in_list($SELFREG_MODE_SPONSOR, $Config{$portalprofile}{'guest_modes'});
-            $guest_self_registration{$SELFREG_MODE_GOOGLE} = $TRUE
-                if is_in_list($SELFREG_MODE_GOOGLE, $Config{$portalprofile}{'guest_modes'});
-            $guest_self_registration{$SELFREG_MODE_FACEBOOK} = $TRUE
-                if is_in_list($SELFREG_MODE_FACEBOOK, $Config{$portalprofile}{'guest_modes'});
-            $guest_self_registration{$SELFREG_MODE_GITHUB} = $TRUE
-                if is_in_list($SELFREG_MODE_GITHUB, $Config{$portalprofile}{'guest_modes'});
-        }
+        my $guest_modes = $Config{$portalprofile}{'guest_modes'};
+        _set_guest_self_registration($guest_modes) if ( defined $guest_modes );
     }
 
     _load_captive_portal();
+}
+
+sub _set_guest_self_registration {
+    my ($modes) = @_;
+    for my $mode (
+        $SELFREG_MODE_EMAIL,
+        $SELFREG_MODE_SMS,
+        $SELFREG_MODE_SPONSOR,
+        $SELFREG_MODE_GOOGLE,
+        $SELFREG_MODE_FACEBOOK,
+        $SELFREG_MODE_GITHUB,) {
+        $guest_self_registration{$mode} = $TRUE
+            if is_in_list( $mode,$modes);
+    }
 }
 
 =item readNetworkConfigFiles - networks.conf
@@ -549,7 +528,7 @@ sub readNetworkConfigFile {
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
-    }   
+    }
 
     #remove trailing spaces..
     foreach my $section ( tied(%ConfigNetworks)->Sections ) {
@@ -594,7 +573,7 @@ sub readFloatingNetworkDeviceFile {
     }
 
     #remove trailing spaces..
-    foreach my $section ( tied(%ConfigFloatingDevices)->Sections ) {   
+    foreach my $section ( tied(%ConfigFloatingDevices)->Sections ) {
         foreach my $key ( keys %{ $ConfigFloatingDevices{$section} } ) {
             if ($key eq 'trunkPort') {
                 if ($ConfigFloatingDevices{$section}{$key} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
@@ -618,14 +597,14 @@ sub readOAuthFile {
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
     }
-    
+
     #Remove Spaces
     foreach my $section ( tied(%ConfigOAuth)->Sections ) {
         foreach my $key ( keys %{ $ConfigOAuth{$section} } ) {
             $ConfigOAuth{$section}{$key} =~ s/\s+$//;
         }
     }
-} 
+}
 
 =item normalize_time - formats date
 
@@ -714,7 +693,7 @@ Returns undef on unrecognized types.
 sub get_network_type {
     my ($network) = @_;
 
-    
+
     if (!defined($ConfigNetworks{$network}{'type'})) {
         # not defined
         return;
@@ -873,9 +852,24 @@ sub _load_captive_portal {
     }
 
     # process pf.conf's parameter into an IP => 1 hash
-    %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} = 
+    %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =
         map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})
     ;
+}
+
+=item * isenabled
+
+Is the given configuration parameter considered enabled? y, yes, true, enable
+and enabled are all positive values for PacketFence.
+
+=cut
+sub isenabled {
+    my ($enabled) = @_;
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+        return (1);
+    } else {
+        return (0);
+    }
 }
 
 =back
