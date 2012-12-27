@@ -51,7 +51,7 @@ $logger->info($portalSession->getClientIp() . " - " . $portalSession->getClientM
 my %info;
 
 # Pull username
-$info{'pid'} = 1;
+$info{'pid'} = "admin";
 $info{'pid'} = $cgi->remote_user if (defined $cgi->remote_user);
 
 # Pull browser user-agent string
