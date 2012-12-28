@@ -834,6 +834,7 @@ sub _load_captive_portal {
         "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
         "NET_DETECT_PENDING_RETRY_DELAY" => 30,
         "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
+        "PROFILE_TEMPLATES_DIR" => "$install_dir/html/captive-portal/profile-templates",
         "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
     );
 
