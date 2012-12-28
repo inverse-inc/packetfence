@@ -2,7 +2,7 @@ package pf::util;
 
 =head1 NAME
 
-pf::util - module for generic functions and utilities used by all the 
+pf::util - module for generic functions and utilities used by all the
 modules.
 
 =cut
@@ -10,7 +10,7 @@ modules.
 =head1 DESCRIPTION
 
 pf::util contains many functions and utilities used by the other different
-modules. 
+modules.
 
 =cut
 
@@ -24,6 +24,7 @@ use Log::Log4perl;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
+use File::Spec::Functions;
 
 our ( %local_mac );
 
@@ -32,15 +33,15 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip reverse_ip clean_ip 
+        valid_date valid_ip reverse_ip clean_ip
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
-        ip2interface ip2device ip2int int2ip 
+        ip2interface ip2device ip2int int2ip
         isenabled isdisabled isempty
         getlocalmac
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info createpid readpid deletepid
-        parse_template mysql_date oui_to_vendor mac2oid oid2mac 
+        parse_template mysql_date oui_to_vendor mac2oid oid2mac
         str_to_connection_type connection_type_to_str
         get_total_system_memory
         parse_mac_from_trap
@@ -48,8 +49,9 @@ BEGIN {
         get_abbr_time get_translatable_time
         pretty_bandwidth
         unpretty_bandwidth
-        pf_run pfmailer 
+        pf_run pfmailer
         generate_id load_oui download_oui
+        trim_path
     );
 }
 
@@ -126,7 +128,7 @@ sub clean_ip {
 }
 
 
-=item clean_mac 
+=item clean_mac
 
 Clean a MAC address accepting xxxxxxxxxxxx, xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 
@@ -144,7 +146,7 @@ sub clean_mac {
     # inject :
     $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
     # Untaint MAC (see perldoc perlsec if you don't know what Taint mode is)
-    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {   
+    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
         return $1;
     }
 
@@ -178,7 +180,7 @@ Returning format aabb.ccdd.eeff
 sub format_mac_as_cisco {
     my ($mac) = @_;
 
-    if (defined($mac) && 
+    if (defined($mac) &&
         $mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/
         ) {
             return "$1$2.$3$4.$5$6";
@@ -188,7 +190,7 @@ sub format_mac_as_cisco {
     return;
 }
 
-=item valid_mac 
+=item valid_mac
 
 Validates MAC addresses. Returns 1 or 0 (true or false)
 
@@ -310,7 +312,7 @@ sub ip2device {
     return (0);
 }
 
-=item * oid2mac - convert a MAC in oid format to a MAC in usual format 
+=item * oid2mac - convert a MAC in oid format to a MAC in usual format
 
 in: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
@@ -322,7 +324,7 @@ sub oid2mac {
     my $logger = Log::Log4perl::get_logger('pf::util');
     if ($oid =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/) {
         return lc(sprintf( "%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6));
-    } else { 
+    } else {
         $logger->warn("$oid is not a MAC in oid format");
         return;
     }
@@ -384,7 +386,7 @@ and enabled are all positive values for PacketFence.
 =cut
 sub isenabled {
     my ($enabled) = @_;
-    if ( $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
         return (1);
     } else {
         return (0);
@@ -393,7 +395,7 @@ sub isenabled {
 
 =item * isdisabled
 
-Is the given configuration parameter considered disabled? n, no, false, 
+Is the given configuration parameter considered disabled? n, no, false,
 disable and disabled are all negative values for PacketFence.
 
 =cut
@@ -408,7 +410,7 @@ sub isdisabled {
 
 =item * isempty
 
-Is the given configuration parameter considered empty? Whitespace is 
+Is the given configuration parameter considered empty? Whitespace is
 considered empty.
 
 =cut
@@ -588,7 +590,7 @@ sub parse_template {
 
     # add generated file header (inserting in front of array)
     $comment_char = "#" if (!defined($comment_char));
-    unshift @parsed, 
+    unshift @parsed,
         "$comment_char This file is generated from a template at $template\n"
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
@@ -648,12 +650,12 @@ sub download_oui {
 
 =item connection_type_to_str
 
-In the database we store the connection type as a string but we use a constant binary value internally. 
+In the database we store the connection type as a string but we use a constant binary value internally.
 This converts from the constant binary value to the string.
 
 return connection_type string (as defined in pf::config) or an empty string if connection type not found
 
-=cut 
+=cut
 sub connection_type_to_str {
     my ($conn_type) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -671,7 +673,7 @@ sub connection_type_to_str {
 
 =item str_to_connection_type
 
-In the database we store the connection type as a string but we use a constant binary value internally. 
+In the database we store the connection type as a string but we use a constant binary value internally.
 This parses the string from the database into the the constant binary value.
 
 return connection_type constant (as defined in pf::config) or undef if connection type not found
@@ -724,7 +726,7 @@ sub get_total_system_memory {
     return $total_mem;
 }
 
-=item parse_mac_from_trap 
+=item parse_mac_from_trap
 
 snmptrapd sometimes converts an Hex-STRING into STRING if all of the values are valid "printable" ascii.
 
@@ -785,7 +787,7 @@ sub get_abbr_time {
 
 =item get_translatable_time
 
-Returns a triplet with singular and plural english string representation plus integer of a time string 
+Returns a triplet with singular and plural english string representation plus integer of a time string
 as defined in pf.conf.
 
 ex: 7D will return ("day", "days", 7)
@@ -806,7 +808,7 @@ sub get_translatable_time {
 
    if ($unit eq "s") { return ("second", "seconds", $value);
    } elsif ($unit eq "m") { return ("minute", "minutes", $value);
-   } elsif ($unit eq "h") { return ("hour", "hours", $value); 
+   } elsif ($unit eq "h") { return ("hour", "hours", $value);
    } elsif ($unit eq "D") { return ("day", "days", $value);
    } elsif ($unit eq "W") { return ("week", "weeks", $value);
    } elsif ($unit eq "M") { return ("month", "months", $value);
@@ -866,7 +868,7 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 sub unpretty_bandwidth {
     my ($bw,$unit) = @_;
-    
+
     # Check what units we have, and multiple by 1024 exponent something
     if ($unit eq 'PB') {
         return $bw * 1024**5;
@@ -879,7 +881,7 @@ sub unpretty_bandwidth {
     } elsif ($unit eq 'KB') {
         return $bw * 1024;
     }
-    
+
     # Not matching, We assume we have bytes then
     return $bw;
 }
@@ -888,14 +890,14 @@ sub unpretty_bandwidth {
 
 Execute a system command but check the return status and log anything not normal.
 
-Returns output in list or string based on context (like backticks does ``) 
+Returns output in list or string based on context (like backticks does ``)
 but returns undef on a failure. Non-zero exit codes are considered failures.
 
 Does not enforce any security. Callers should take care of string sanitization.
 
-Takes an optional hash that offers additional options. For now, 
+Takes an optional hash that offers additional options. For now,
 accepted_exit_status => arrayref allows the command to succeed and a proper
-value being returned if the exit status is mentionned in the arrayref. For 
+value being returned if the exit status is mentionned in the arrayref. For
 example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
 with code 1, 2 or 3 without reporting it as an error.
 
@@ -913,7 +915,7 @@ sub pf_run {
         `$command`;
         return if ($CHILD_ERROR == 0);
 
-    } elsif (wantarray) { 
+    } elsif (wantarray) {
         # list context
         @result = `$command`;
         return @result if ($CHILD_ERROR == 0);
@@ -939,7 +941,7 @@ sub pf_run {
         my $signal = ($CHILD_ERROR & 127);
         my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
         $logger->warn(
-            "Problem trying to run command: $command called from $caller. " 
+            "Problem trying to run command: $command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
     # Non-zero exit code received
@@ -953,7 +955,7 @@ sub pf_run {
             return $result; # scalar context
         }
         $logger->warn(
-            "Problem trying to run command: $command called from $caller. " 
+            "Problem trying to run command: $command called from $caller. "
             . "Child exited with non-zero value $exit_status"
         );
     }
@@ -1001,6 +1003,22 @@ sub ordinal_suffix {
         return "${num}rd";
     }
     return "${num}th";
+}
+
+sub trim_path {
+    my ($path) = @_;
+    my @parts = ();
+    foreach my $part (File::Spec->splitdir($path)) {
+        if ($part eq '..') {
+            # Note that if there are no directory parts, this will effectively
+            #         # swallow any excess ".." components.
+             pop(@parts);
+        }
+        elsif ($part ne '.') {
+            push(@parts, $part);
+        }
+    }
+   return ((@parts == 0) ? '' : catdir(@parts));
 }
 
 =back
