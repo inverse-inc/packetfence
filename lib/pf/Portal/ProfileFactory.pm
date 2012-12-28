@@ -45,7 +45,7 @@ sub instantiate {
     #     reload in there in the future
     # XXX also take the given mac and lookup the SSID on it and return proper
     #     portal object
-    if ( isenabled($Config{'captive_portal'}{'multiple_profiles'}) && defined(tied(%Config)->GroupMembers("portal-profile"))) {
+    if (defined(tied(%Config)->GroupMembers("portal-profile"))) {
         # Fetch filter for every configured portal-profiles
         # Structure: FILTER => NAME OF PROFILE
         my %filters;
