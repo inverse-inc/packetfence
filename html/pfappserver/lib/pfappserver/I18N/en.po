@@ -608,9 +608,6 @@ msgstr "IP"
 msgid "captive_portal.loadbalancers_ip"
 msgstr "Load balancers IP"
 
-msgid "captive_portal.multiple_profiles"
-msgstr "Allow Multiple Profiles"
-
 #: conf/pf.conf.defaults:709
 msgid "advanced"
 msgstr "Advanced"
