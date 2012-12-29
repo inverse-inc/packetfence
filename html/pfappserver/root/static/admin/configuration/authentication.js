@@ -1,25 +1,3 @@
-    /* Save the sources list order */
-    $('#section').on('admin.ordered', '#sources', function(event) {
-        var form = $(this).closest('form');
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: form.serialize()
-        }).done(function(data) {
-            resetAlert($('#section'));
-            showSuccess(form, data.status_msg);
-        }).fail(function(jqXHR) {
-            var status_msg;
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {
-                status_msg = "Cannot Load Content";
-            }
-            showPermanentError(form, status_msg);
-        });
-    });
 
     /* Delete a source */
     $('#section').on('click', '[href*="/delete"]', function(event) {
@@ -56,7 +34,7 @@
             return false;
         });
 
-        return false;    
+        return false;
     });
 
     /* Save a source */
@@ -151,7 +129,7 @@
                 showError($('#section h2'), status_msg);
             });
 
-        return false;    
+        return false;
     });
 
     /* Save a rule */
