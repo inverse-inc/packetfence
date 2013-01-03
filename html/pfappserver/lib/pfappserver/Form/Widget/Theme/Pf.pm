@@ -69,10 +69,6 @@ sub build_update_subfields {{
         element_class => ['input-mini'],
         element_attr => {'min' => '0'},
        },
-       'Duration' =>
-       {
-        wrapper_class => ['interval'],
-       },
        'TextArea' =>
        {
         element_class => ['input-xlarge'],
