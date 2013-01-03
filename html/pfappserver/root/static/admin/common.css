@@ -25,6 +25,22 @@ table .action {
 .page-header h1 form {
     display: inline;
 }
+
+/* position text input and button group on the same row */
+.row-fluid .compound-input-btn-group input {
+    float: left;
+    margin-right: 4px;
+}
+
+.row-fluid .compound-input-btn-group input {
+    float: left;
+    margin-right: 4px;
+}
+
+.compound-input-btn-group .btn-group {
+    display: inline;
+}
+
 .loader {
     position: absolute;
     width: 100%;

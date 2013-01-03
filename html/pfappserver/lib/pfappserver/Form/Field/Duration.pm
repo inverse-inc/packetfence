@@ -1,5 +1,5 @@
 package pfappserver::Form::Field::Duration;
- 
+
 =head1 NAME
 
 pfappserver::Form::Field::Duration - duration compound
@@ -23,6 +23,9 @@ has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
 has '+inflate_default_method'=> ( default => sub { \&duration_inflate } );
 has '+deflate_value_method'=> ( default => sub { \&duration_deflate } );
+has '+wrapper_class' => (builder => '_wrapper_class');
+
+sub _wrapper_class {[qw(compound-input-btn-group)] }
 
 has_field 'interval' =>
   (

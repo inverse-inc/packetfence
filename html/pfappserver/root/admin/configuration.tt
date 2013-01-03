@@ -20,15 +20,6 @@
 .row-fluid [class*="span"] {
     display: inline-block;
 }
-/* position time selectors on the same row */
-.row-fluid .interval input {
-    float: left;
-    margin-right: 4px;
-}
-/* fix for time units position */
-.interval .btn-group {
-    display: inline;
-}
 /* bootstrap fix for modals */
 .modal form, .modal select {
     margin-bottom: 0px;
