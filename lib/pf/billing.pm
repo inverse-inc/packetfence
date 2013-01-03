@@ -17,7 +17,6 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
-use Net::MAC;
 use POSIX;
 use Try::Tiny;
 

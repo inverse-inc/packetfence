@@ -19,7 +19,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Net::MAC;
+
 use Net::Netmask;
 use Net::Ping;
 use Date::Parse;
@@ -140,9 +140,7 @@ sub iplog_history_ip {
 
 sub iplog_history_mac {
     my ( $mac, %params ) = @_;
-
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {

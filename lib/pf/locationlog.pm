@@ -17,7 +17,6 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
-use Net::MAC;
 
 use constant LOCATIONLOG => 'locationlog';
 
@@ -230,11 +229,11 @@ sub locationlog_db_prepare {
 # think about web ui and pfcmd
 sub locationlog_history_mac {
     my ( $mac, %params ) = @_;
+    $mac = clean_mac($mac);
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+
     if ( defined( $params{'date'} ) ) {
         return translate_connection_type(
             db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
@@ -269,9 +268,7 @@ sub locationlog_view_all {
 
 sub locationlog_view_all_open_mac {
     my ($mac) = @_;
-
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
 
     return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac);
 }
@@ -306,9 +303,7 @@ sub locationlog_view_open_switchport_only_VoIP {
 
 sub locationlog_view_open_mac {
     my ($mac) = @_;
-
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
 
     my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac)
         || return (0);

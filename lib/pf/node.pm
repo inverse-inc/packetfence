@@ -21,7 +21,6 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
-use Net::MAC;
 use Readonly;
 
 use constant NODE => 'node';
@@ -339,8 +338,8 @@ sub node_pid {
 sub node_delete {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::node');
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+
+    $mac = clean_mac($mac);
 
     if ( !node_exist($mac) ) {
         $logger->error("delete of non-existent node '$mac' failed");
@@ -364,13 +363,10 @@ sub node_delete {
 #
 sub node_add {
     my ( $mac, %data ) = @_;
-
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->trace("node add called");
 
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
-    $mac = lc($mac);
+    $mac = clean_mac($mac);
     return (0) if ( !valid_mac($mac) );
 
     if ( node_exist($mac) ) {
@@ -447,10 +443,7 @@ It's a simpler and faster version of node_view with fewer fields returned.
 sub node_attributes {
     my ($mac) = @_;
 
-    # commented for performance reason and because the calling code is already defensive enough
-    # remove comments if necessary (regressions)
-    #my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    #$mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
     my $query = db_query_execute(NODE, $node_statements, 'node_attributes_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
@@ -489,16 +482,13 @@ This code will disappear in 2013.
 =cut
 sub _node_view_old {
     my ($mac) = @_;
+    $mac = clean_mac($mac);
 
     # Uncomment to log callers
     #my $logger = Log::Log4perl::get_logger('pf::node');
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
-    # commented for performance reason and because the calling code is already defensive enough
-    # remove comments if necessary (regressions)
-    #my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    #$mac = $tmpMAC->as_IEEE();
     my $query = db_query_execute(NODE, $node_statements, 'node_view_old_sql', $mac) || return (0);
     my $ref = $query->fetchrow_hashref();
 
@@ -642,16 +632,14 @@ sub node_view_with_fingerprint {
 
 sub node_modify {
     my ( $mac, %data ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
-    my $logger = Log::Log4perl::get_logger('pf::node');
-    my $auto_registered = 0;
-
-    $mac = lc($mac);
+    # validation
+    $mac = clean_mac($mac);
     return (0) if ( !valid_mac($mac) );
 
     # hack to support an additional autoreg param to the sub without changing the hash to a reference everywhere
+    my $auto_registered = 0;
     if (defined($data{'auto_registered'})) {
         $auto_registered = 1;
         delete($data{'auto_registered'});

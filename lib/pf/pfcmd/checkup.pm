@@ -121,6 +121,7 @@ sub sanity_check {
     violations();
     switches();
     portal_profiles();
+    guests();
     unsupported();
     oauth2();
 
@@ -289,6 +290,7 @@ Validation related to the vulnerability scanning engine option.
 
 =cut
 sub scan {
+
     # Check if the configuration provided scan engine is instanciable
     my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
 
@@ -393,9 +395,9 @@ sub network {
                 defined($net{'dhcp_end'}) && $net{'dhcp_end'} !~ /^\s*$/
             );
             my $default_lease_valid = (
-                defined($net{'dhcp_default_lease_time'}) && $net{'dhcp_default_lease_time'} =~ /^\d+$/
+                !defined($net{'dhcp_default_lease_time'}) || $net{'dhcp_default_lease_time'} =~ /^\d+$/
             );
-            my $max_lease_valid = ( defined($net{'dhcp_max_lease_time'}) && $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
+            my $max_lease_valid = ( !defined($net{'dhcp_max_lease_time'}) || $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
             if (!($netmask_valid && $gw_valid && $domainname_valid && $range_valid && $default_lease_valid && $max_lease_valid)) {
                 add_problem( $FATAL, "networks.conf: Incomplete DHCP information for network $network" );
             }
@@ -742,14 +744,14 @@ Checking some important permissions
 =cut
 sub permissions {
 
-    # pfcmd needs to be setuid / setgid and 
     my (undef, undef, $pfcmd_mode, undef, $pfcmd_owner, $pfcmd_group) = stat($bin_dir . "/pfcmd");
-    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
-        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
-    }
-    # pfcmd needs to be owned by root (owner id 0 / group id 0) 
+    # pfcmd needs to be owned by root (owner id 0 / group id 0)
     if ($pfcmd_owner || $pfcmd_group) {
         add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
+    }
+    # and pfcmd needs to be setuid / setgid
+    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
+        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
     }
 
     # Disabled because it was causing too many false positives 
@@ -992,6 +994,27 @@ sub billing {
         chomp($_);
         add_problem( $FATAL, "Billing: Incorrect payment gateway declared in pf.conf: $_" );
     };
+}
+
+=item guests
+
+Guest-related Checks
+
+=cut
+sub guests {
+
+    # if we are going to send emails we must warn that MIME::Lite::TT must be installed
+    my $guests_enabled = isenabled($Config{'registration'}{'guests_self_registration'});
+    my $guest_require_email = ($guest_self_registration{$SELFREG_MODE_SMS} || $guest_self_registration{$SELFREG_MODE_SPONSOR});
+    if ($guests_enabled && $guest_require_email) {
+        my $import_succesfull = try { require MIME::Lite::TT; };
+        if (!$import_succesfull) {
+            add_problem( $WARN, 
+                "Can't load MIME::Lite::TT. Emails to guests won't work. " . 
+                "Make sure to install it or disable the self-registered guest feature."
+            );
+        }
+    }
 }
 
 =item unsupported

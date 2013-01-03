@@ -125,9 +125,10 @@ Requires: perl(Time::HiRes)
 %{?el6:Requires: perl(IPTables::libiptc), ipset, sudo }
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
-# TODO: we depend on perl modules not perl-libwww-perl
+# TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
-Requires: perl-libwww-perl, perl(LWP::Protocol::https)
+# LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
+Requires: perl-libwww-perl, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.11
@@ -138,7 +139,6 @@ Requires: perl(Net::Appliance::Session) = 1.36
 Requires: perl(Net::OAuth2)
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
 Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
 Requires: perl(Net::Pcap) >= 0.16
@@ -151,7 +151,7 @@ Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
-Requires: perl(Parse::Nessus::NBE)
+Requires: perl(Net::Write)
 Requires: perl(Parse::RecDescent)
 # for nessus scan, this version add the NBE download (inverse patch)
 Requires: perl(Net::Nessus::XMLRPC) >= 0.40

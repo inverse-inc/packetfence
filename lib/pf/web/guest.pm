@@ -29,9 +29,12 @@ use Encode;
 use File::Basename;
 use HTML::Entities;
 use Log::Log4perl;
-use MIME::Lite::TT;
+use Net::LDAP;
+use POSIX;
 use Readonly;
 use Template;
+use Text::CSV;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -306,6 +309,14 @@ sub send_template_email {
     # local override (EMAIL_FROM) or pf.conf's value or root@domain
     my $from = $pf::web::guest::EMAIL_FROM || $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
 
+    my $import_succesfull = try { require MIME::Lite::TT; };
+    if (!$import_succesfull) {
+        $logger->error(
+            "Could not send email because I couldn't load a module. ".
+            "Are you sure you have MIME::Lite::TT installed?"
+        );
+        return $FALSE;
+    }
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},

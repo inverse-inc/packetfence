@@ -21,7 +21,6 @@ use strict;
 use warnings;
 use Date::Parse;
 use Log::Log4perl;
-use Net::MAC;
 
 use constant IFOCTETSLOG => 'ifoctetslog';
 
@@ -46,6 +45,7 @@ BEGIN {
 }
 
 use pf::db;
+use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $ifoctetslog_db_prepared = 0;
@@ -84,8 +84,9 @@ sub ifoctetslog_db_prepare {
 sub ifoctetslog_history_mac {
     my ( $mac, %params ) = @_;
 
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    # sanitize
+    $mac = clean_mac($mac);
+
     my @raw_data;
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
