@@ -14,7 +14,7 @@ Architecture: all
 Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5
 Depends: ${misc:Depends}, vlan, make,
- openssl, openssl-blacklist, openssl-blacklist-extra, snort,
+ openssl, openssl-blacklist, openssl-blacklist-extra, snort | suricata,
  mysql-server,
  snmp, snmptrapfmt,
 # apache related
@@ -103,7 +103,7 @@ Description: documentation for packetfence
 
 Package: packetfence-remote-snort-sensor
 Architecture: all
-Depends: ${misc:Depends}, snort, libfile-tail-perl, libconfig-inifiles-perl,
+Depends: ${misc:Depends}, snort | suricata, libfile-tail-perl, libconfig-inifiles-perl,
  libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
