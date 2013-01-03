@@ -175,8 +175,11 @@ sub readAuthenticationConfigFile {
           next;
         }
 
+        # Keep aside the source type
         my $type = tied(%cfg)->val($source_id, "type");
+        delete $cfg{$source_id}{type};
 
+        # Instantiate the source object
         my $current_source = newAuthenticationSource($type, $source_id, $cfg{$source_id});
 
         # Parse rules
@@ -245,28 +248,6 @@ sub writeAuthenticationConfigFile {
         $ini{$source->{id}} = {};
         $ini{$source->{id}}{description} = $source->{'description'};
 
-        my $classname = $source->meta->name;
-
-        if ($classname eq 'pf::Authentication::Source::ADSource') {
-            $ini{$source->{id}}{type} = 'ldap';
-        } elsif ($classname eq 'pf::Authentication::Source::LDAPSource') {
-            $ini{$source->{id}}{type} = 'ad';
-        } elsif ($classname eq 'pf::Authentication::Source::HTTPPasswordSource') {
-            $ini{$source->{id}}{type} = 'htpasswd';
-        } elsif ($classname eq 'pf::Authentication::Source::KerberosSource') {
-            $ini{$source->{id}}{type} = 'kerberos';
-        } elsif ($classname eq 'pf::Authentication::Source::RADIUSSource') {
-            $ini{$source->{id}}{type} = 'radius';
-        } elsif ($classname eq 'pf::Authentication::Source::SQLSource') {
-            $ini{$source->{id}}{type} = 'sql';
-        } elsif ($classname eq 'pf::Authentication::Source::FacebookSource') {
-            $ini{$source->{id}}{type} = 'facebook';
-        } elsif ($classname eq 'pf::Authentication::Source::GoogleSource') {
-            $ini{$source->{id}}{type} = 'google';
-        } elsif ($classname eq 'pf::Authentication::Source::GithubSource') {
-            $ini{$source->{id}}{type} = 'github';
-        }
-    
         for my $attr ( $source->meta->get_all_attributes ) {
             $attr = $attr->name;
             next if ($attr eq 'id' || $attr eq 'rules');
