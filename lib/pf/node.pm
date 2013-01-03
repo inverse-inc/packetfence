@@ -730,6 +730,23 @@ sub node_modify {
         {
             $existing->{'unregdate'} = POSIX::strftime( "%Y-%m-%d %H:%M:%S",
                 localtime( $Config{'registration'}{'expire_deadline'} ) );
+        } elsif (  ( lc($expire_mode) eq 'window_midnight' )
+
+            && ( $Config{'registration'}{'expire_window_midnight'} > 0 ) )
+        {
+            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+            my $today_sec = ($hour * 3600) + ($min * 60) + $sec;
+            $existing->{'unregdate'} = POSIX::strftime(
+                "%Y-%m-%d %H:%M:%S",
+                localtime( (time + $Config{'registration'}{'expire_window_midnight'}) - $today_sec )
+            );
+        } elsif ( ( lc($expire_mode) eq 'floating_window_midnight' )
+            && ( defined($Config{'registration'}{'expire_floating_window_midnight'}) ) )
+        {
+            $existing->{'unregdate'} = POSIX::strftime(
+                "%Y-%m-%d %H:%M:%S",
+                localtime( pf::config::start_date($Config{'registration'}{'expire_floating_window_midnight'}) + pf::config::end_date($Config{'registration'}{'expire_floating_window_midnight'}) )
+            );
         }
     }
 

@@ -35,6 +35,7 @@ use Readonly;
 use threads;
 use Try::Tiny;
 use File::Which;
+use Time::Local;
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -384,6 +385,7 @@ sub readPfConfigFiles {
         "trapping.redirtimer",
         "registration.skip_window",   "registration.skip_reminder",
         "registration.expire_window", "registration.expire_session",
+        "registration.expire_window_midnight",
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",   
         "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
@@ -634,6 +636,79 @@ sub normalize_time {
         } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
         } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
         }
+    }
+}
+
+=item start_date
+
+Function that calculate the starting date in second of the current day (at midnight),
+week (on monday midnight), month (first of the month at midnight), year (first january at midnight).
+
+=cut
+sub start_date {
+    my ($date) = @_;
+
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+    my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+    if ( $modifier eq "D" ) {
+        return (time - (($hour * 3600) + ($min * 60) + $sec));
+    } elsif ( $modifier eq "W" ) {
+        if ($wday eq '0') {
+           $wday = 6;
+        } else {
+           $wday = ($wday -1);
+        }
+        return (time - (($wday * 86400) + ($hour * 3600) + ($min * 60) + $sec));
+    } elsif ( $modifier eq "M" ) {
+        return ( mktime (0,0,0,1,$mon,$year));
+    } elsif ( $modifier eq "Y" ) {
+        return ( mktime (0,0,0,0,0,$year));
+    }
+}
+
+=item end_date
+
+Function that calculate the ending timestamp of the current day,week,month,year
+(exemple 15 Jan 2012 will calculate the 31 Jan 2012 if the arg of the function is 1M)
+
+=cut
+sub end_date {
+    my ($date) =@_;
+    my $logger = Log::Log4perl::get_logger('pf::config');
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+    my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+    if ( $modifier eq "D" ) {
+        return ( $num * 86400 );
+    } elsif ( $modifier eq "W" ) {
+        return ($num * 604800);
+    } elsif ( $modifier eq "M" ) {
+# We have to calculate the number of days in the next month(s)
+        my $days_month = 0;
+        while ($num != 0) {
+            if ($mon eq 11) {
+                $mon = 0;
+                $year ++;
+            }
+            my $next_month = timelocal(0, 0, 0, 1, $mon + 1 , $year);
+            $days_month += (localtime($next_month - 86_400))[3];
+            $mon ++;
+            $num --;
+        }
+        return (($days_month  + 1) * 86400);
+    } elsif ( $modifier eq "Y" ) {
+# We have to calculate the number of days in the next year(s)
+        my $days_year = 0;
+        $year = $year + 1900;
+        while ($num != 0) {
+            if ((($year & 3) == 0) && (($year % 100 != 0) || ($year % 400 == 0))) {
+                $days_year +=  366;
+            } else {
+                $days_year += 365;
+            }
+            $num --;
+            $year ++;
+        }
+        return (($days_year + 1 ) * 86400);
     }
 }
 

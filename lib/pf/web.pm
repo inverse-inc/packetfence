@@ -445,7 +445,7 @@ sub _sanitize_and_register {
     $logger->info("performing node registration MAC: $mac pid: $pid");
     node_register( $mac, $pid, %info );
 
-    unless ( defined($session->param("do_not_deauth")) && $session->param("do_not_deauth") == $TRUE ) {
+     unless ( defined($session->param("do_not_deauth")) && $session->param("do_not_deauth") == $TRUE ) {
         reevaluate_access( $mac, 'manage_register' );
     }
 
