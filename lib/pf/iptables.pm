@@ -201,7 +201,7 @@ sub generate_filter_if_src_to_chain {
 
     # Allow the NAT back inside through the forwarding table if inline is enabled
     if (is_inline_enforcement_enabled()) {
-        my @values = split(',', get_snat_interface()});
+        my @values = split(',', get_snat_interface());
         foreach my $val (@values) {
             foreach my $network ( keys %ConfigNetworks ) {
                 next if ( !pf::config::is_network_type_inline($network) );
