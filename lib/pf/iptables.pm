@@ -52,7 +52,7 @@ Readonly my $FW_FILTER_FORWARD_INT_INLINE => 'forward-internal-inline-if';
 Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
-Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-int-inline-routed';
+Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
 
 =head1 SUBROUTINES
 
