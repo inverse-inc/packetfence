@@ -25,7 +25,6 @@ use pf::web;
 use pf::web::gaming;
 use pf::web::custom;    # called last to allow redefinitions
 
-
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register-gaming-device.cgi');
 Log::Log4perl::MDC->put('proc', 'register-gaming-device.cgi');
