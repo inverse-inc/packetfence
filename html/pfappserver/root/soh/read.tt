@@ -98,7 +98,7 @@
 
         <div class="modal-footer">
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          <button class="btn btn-primary" data-loading-text="Saving">[% l('Save') %]</button>
+          <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
         </div>
 
         </form>
