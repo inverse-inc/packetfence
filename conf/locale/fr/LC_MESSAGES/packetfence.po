@@ -1001,3 +1001,6 @@ msgstr "OAuth2: Impossible d'obtenir un jeton"
 
 msgid "OAuth2 Error: Failed to validate the token, please retry"
 msgstr "OAuth2: Impossible de valider le jeton, SVP ressayez de nouveau"
+
+msgid "This module is not enabled"
+msgstr "Ce module n'est pas activé"
