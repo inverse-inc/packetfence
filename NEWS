@@ -52,6 +52,8 @@ Version <stableRelease> released on <releaseDate>
 Bug Fixes
  * Portal Profile fix (#1595)
 
+New Features
+ * Proxy interception for the captive portal
 --------------------------------------------------------------------------------
 Version 3.6.0 released on 2012-10-25
 

@@ -53,6 +53,7 @@ Readonly my $FW_FILTER_FORWARD_INT_VLAN => 'forward-internal-vlan-if';
 Readonly my $FW_PREROUTING_INT_INLINE => 'prerouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE => 'postrouting-int-inline-if';
 Readonly my $FW_POSTROUTING_INT_INLINE_ROUTED => 'postrouting-inline-routed';
+Readonly my $FW_PREROUTING_INT_VLAN => 'prerouting-int-vlan-if';
 
 =head1 SUBROUTINES
 
@@ -80,13 +81,14 @@ sub new {
 sub iptables_generate {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my %tags = ( 
+    my %tags = (
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
-        'filter_forward_vlan' => '', 
-        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
+        'filter_forward_vlan' => '',
+        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
-        'routed_postrouting_inline' => '',
+        'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
+        'input_inter_vlan_if' => '', 'routed_postrouting_inline' => '',
     );
 
     # global substitution variables
@@ -98,7 +100,7 @@ sub iptables_generate {
     if (is_inline_enforcement_enabled()) {
         # Note: I'm giving references to this guy here so he can directly mess with the tables
         $self->generate_inline_rules(
-            \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'},\$tags{'routed_postrouting_inline'}
+            \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'},\$tags{'routed_postrouting_inline'}, \$tags{'input_inter_inline_rules'}
         );
     
         # MANGLE
@@ -108,6 +110,8 @@ sub iptables_generate {
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
         $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
+        #NAT Intercept Proxy
+        $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
     }
 
     # OAuth
@@ -227,22 +231,34 @@ Handling both FILTER and NAT tables at the same time.
 
 =cut
 sub generate_inline_rules {
-    my ($self,$filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref, $routed_postrouting_inline) = @_;
+    my ($self,$filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref, $routed_postrouting_inline, $input_filtering_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
     $logger->info("Adding DNS DNAT rules for unregistered and isolated inline clients.");
-    foreach my $network ( keys %ConfigNetworks ) {
-        # skip non-inline interfaces
-        next if ( !pf::config::is_network_type_inline($network) );
 
-        my $rule = "--protocol udp --destination-port 53";
-        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
-                . "--jump REDIRECT\n";
-        $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
-                . "--jump REDIRECT\n";
-        last;
-    }
-    
+    my $rule = "--protocol udp --destination-port 53";
+    $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
+            . "--jump REDIRECT\n";
+    $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
+            . "--jump REDIRECT\n";
+
+    if (defined($Config{'interception_proxy'}{'port'})) {
+        $logger->info("Adding Proxy interception rules");
+        foreach my $intercept_port ( split( /\s*,\s*/, $Config{'interception_proxy'}{'port'} ) ) {
+            my $rule = "--protocol tcp --destination-port $intercept_port";
+            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
+                    . "--jump REDIRECT\n";
+            $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
+                    . "--jump REDIRECT\n";
+            $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
+                    . " --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT\n";
+            $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
+                    . " --match mark --mark 0x$IPTABLES_MARK_UNREG  --jump ACCEPT\n";
+            $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
+                    . " --match mark --mark 0x$IPTABLES_MARK_REG  --jump DROP\n";
+            }
+        }
+
     $logger->info("Adding NAT Masquarade statement (PAT)");
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
     
@@ -378,6 +394,36 @@ sub generate_inline_if_src_to_chain {
     return $rules;
 }
 
+=item generate_interception_rules
+
+Creating porper source interface matches to jump to the right chains for vlan enforcement method.
+
+=cut
+sub generate_interception_rules {
+    my ($self, $nat_if_src_to_chain,$nat_prerouting_vlan, $input_inter_vlan_if) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::iptables');
+
+    # internal interfaces handling
+    foreach my $interface (@internal_nets) {
+        my $dev = $interface->tag("int");
+        my $enforcement_type = $Config{"interface $dev"}{'enforcement'};
+
+        # vlan enforcement
+        if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
+            # send everything from vlan interfaces to the vlan chain
+            $$nat_if_src_to_chain .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN\n";
+        }
+    }
+    if (defined($Config{'interception_proxy'}{'port'})) {
+        foreach my $intercept_port ( split( /\s*,\s*/, $Config{'interception_proxy'}{'port'} ) ) {
+            my $rule = "--protocol tcp --destination-port $intercept_port";
+            $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump REDIRECT\n";
+            $$input_inter_vlan_if .= "-A $FW_FILTER_INPUT_INT_VLAN $rule --jump ACCEPT\n";
+            }
+    }
+
+}
+
 =item generate_mangle_rules
 
 Packet marking will traverse all the rules so the order in which packets are marked is rather important.
@@ -490,6 +536,7 @@ sub generate_nat_redirect_rules {
             "--match mark --mark 0x$IPTABLES_MARK_ISOLATION --jump REDIRECT\n"
         ;
     }
+
     return $rules;
 }
 
