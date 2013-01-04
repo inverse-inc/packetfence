@@ -63,7 +63,7 @@ __PACKAGE__->config(
        allow_callback  => 0,    # defaults to 0
        #callback_param  => 'cb', # defaults to 'callback'
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
-       expose_stash    => [ qw(status status_msg error interfaces networks switches config services) ], # defaults to everything
+       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success) ], # defaults to everything
     },
 
     'Plugin::Authentication' => {
@@ -87,8 +87,14 @@ __PACKAGE__->config(
 sub pf_hash_for {
     my ($self,@args) = @_;
     my $uri = $self->uri_for(@args);
-    my $path =$uri->path();
-    $path =~ s!^/!!/
+    my $path = "";
+    if($uri) {
+        $path =$uri->path();
+        $path =~ s!^/!!;
+    }
+    else {
+        $self->log->error("Invalid args to pf_hash_for");
+    }
     return "#$path";
 }
 
