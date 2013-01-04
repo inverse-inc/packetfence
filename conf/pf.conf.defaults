@@ -670,6 +670,12 @@ ssid = SSID-Hidden
 # Accessible to node that are member of this category
 category = any
 
+#
+# provisioning.certificate
+#
+# Certificate to send to the node
+provisioning.certificate = 
+
 [billing]
 #
 # billing.gateway
