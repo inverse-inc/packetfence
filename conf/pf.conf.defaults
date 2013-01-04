@@ -41,6 +41,11 @@ timezone=America/Montreal
 #
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
+#
+# general.memcached
+#
+# Server list of the memcached server
+memcached=127.0.0.1:11211
 
 
 [network]
@@ -805,3 +810,11 @@ category=default
 #
 # By default is an imported node a Voice over IP device or not?
 voip=no
+
+[interception_proxy]
+#
+# interception_proxy.port
+#
+# Define the proxy port to intercept in vlan and in inline enforcement
+port=
+

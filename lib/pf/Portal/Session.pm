@@ -165,19 +165,19 @@ sub _resolveIp {
     # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
     $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
 
-    # if this is NOT from one of the expected proxy IPs return the IP
-    if (!$proxied_lookup{$directly_connected_ip}) {
+    # if this is NOT from one of the expected proxy IPs return the IP or it´s different than localhost
+    if ( (!$proxied_lookup{$directly_connected_ip}) && !($directly_connected_ip ne '127.0.0.1') ) {
         return $directly_connected_ip;
     }
 
     # behind a proxy?
     if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
-        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
+        my @proxied_ip = split(',',$ENV{'HTTP_X_FORWARDED_FOR'});
         $logger->debug(
             "Remote Address is $directly_connected_ip. Client is behind proxy? "
-            . "Returning: $proxied_ip according to HTTP Headers"
+            . "Returning: $proxied_ip[0] according to HTTP Headers"
         );
-        return $proxied_ip;
+        return $proxied_ip[0];
     }
 
     $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
