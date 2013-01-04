@@ -208,7 +208,7 @@ Requires: perl(MooseX::Types::LoadableClass)
 Requires: perl(IO::Interface::Simple)
 Requires: vconfig
 # for windows profil
-Requires: perl(Cache::Memcached), perl(Apache::Session::Memcached), perl(Apache::Session), memcached
+Requires: perl(Cache::Memcached), perl(Apache::Session::Memcached), perl(Apache::Session), memcached, perl(Crypt::OpenSSL::X509)
 #
 # TESTING related
 #
