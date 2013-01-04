@@ -239,11 +239,11 @@ expire_deadline=Mon Nov 12 12:00:00 EST 2012
 expire_window_midnight=1D 
 
 #
-# registration.expire_floating_window.midnight
+# registration.expire_floating_window_midnight
 #
 # If expire_mode is set to "floating_windo_midnight", this represent the unregdate of the current unit used
 # 2M mean that the node will be unregistered on the last day of the next month.
-expire.floating_window_midnight=1D
+expire_floating_window_midnight=1D
 
 #
 # registration.expire_window
