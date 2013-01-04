@@ -840,9 +840,10 @@ category=default
 #
 # By default is an imported node a Voice over IP device or not?
 voip=no
+
 [interception_proxy]
 #
-# intercept_proxy.port
+# interception_proxy.port
 #
 # Define the proxy port to intercept in vlan and in inline enforcement
 port=
