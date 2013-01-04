@@ -50,12 +50,11 @@ function updateSection(href) {
                         var obj = $.parseJSON(jqXHR.responseText);
                         status_msg = obj.status_msg;
                     }
-                    catch(e) {
-                        status_msg = "Cannot Load Content";
-                    }
+                    catch(e) {}
+                    if (!status_msg) status_msg = "Cannot Load Content";
                     if (section.children().length == 0)
                         section.html('<h2></h2><div></div>');
-                    showPermanentError(section.children('h1, h2, h3').next(), status_msg);
+                    showPermanentError(section.children('h1, h2, h3').first().next(), status_msg);
                 });
         });
     }
@@ -99,7 +98,8 @@ $(function () { // DOM ready
 
     /* Default values for Ajax requests */
     $.ajaxSetup({
-        statusCode : {
+        timeout: 30000,
+        statusCode: {
             401: function(jqXHR) {
                 // Unauthorized; redirect to URL specified in the location header
                 var location = jqXHR.getResponseHeader('Location');
@@ -365,13 +365,14 @@ $(function () { // DOM ready
         var href = that.attr('href');
         var section = $('#section');
         var sibling = that.parent().next();
-        section.fadeTo('fast', 0.5);
         var loader = section.prev('.loader');
         if (loader) loader.show();
+        section.fadeTo('fast', 0.5);
         $.ajax(href)
         .always(function(){
-            section.fadeTo('fast', 1.0);
             if (loader) loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
         })
         .done(function(data) {
             showSuccess(sibling, data.status_msg);
@@ -382,9 +383,8 @@ $(function () { // DOM ready
                 var obj = $.parseJSON(jqXHR.responseText);
                 status_msg = obj.status_msg;
             }
-            catch(e) {
-                status_msg = "Cannot Load Content";
-            }
+            catch(e) {}
+            if (!status_msg) status_msg = "Cannot Load Content";
             if (jqXHR.status == 404) {
                 showSuccess(sibling, status_msg);
             }

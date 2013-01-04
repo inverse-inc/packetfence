@@ -79,27 +79,34 @@
     $('#section').on('click', '#sourceRules a:not(.btn-icon)', function(event) {
         var modal = $('#modalRule');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
-                modal.on('shown', function() {
+                modal.modal({ shown: true });
+                modal.one('shown', function() {
                     $('#id').focus();
                 });
             })
             .fail(function(jqXHR) {
                 var status_msg;
-                modal.modal('hide');
                 $("body,html").animate({scrollTop:0}, 'fast');
                 try {
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
-                showError($('#section h2'), status_msg);
+                catch(e) {}
+                if (!status_msg) status_msg = "Cannot Load Content";
+                showError($('#section h3'), status_msg);
             });
 
         return false;
@@ -109,24 +116,34 @@
     $('#section').on('click', '#createRule', function(event) {
         var modal = $('#modalRule');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
+                modal.modal({ shown: true });
+                modal.one('shown', function() {
+                    $('#id').focus();
+                });
             })
             .fail(function(jqXHR) {
                 var status_msg;
-                modal.modal('hide');
                 $("body,html").animate({scrollTop:0}, 'fast');
                 try {
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
-                showError($('#section h2'), status_msg);
+                catch(e) {}
+                if (!status_msg) status_msg = "Cannot Load Content";
+                showError($('#section h3'), status_msg);
             });
 
         return false;

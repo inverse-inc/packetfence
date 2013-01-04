@@ -2,16 +2,34 @@
     $('#section').on('click', '[href*="#modalRole"]', function(event) {
         var modal = $('#modalRole');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
+                modal.modal({ shown: true });
+                modal.one('shown', function() {
+                    $('#name').focus();
+                });
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
+                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = "Cannot Load Content";
+                showError($('#section h2'), status_msg);
             });
 
         return false;
@@ -21,20 +39,36 @@
     $('#section').on('click', '#createRole', function(event) {
         var modal = $('#modalRole');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
-                modal.on('shown', function() {
+                modal.modal({ shown: true });
+                modal.one('shown', function() {
+                    $('#name').focus();
                     $('.chzn-select').chosen();
                     $('.chzn-deselect').chosen({allow_single_deselect: true});
                 });
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
+                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = "Cannot Load Content";
+                showError($('#section h2'), status_msg);
             });
 
         return false;    
