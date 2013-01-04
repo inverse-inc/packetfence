@@ -766,7 +766,7 @@ Return the list of network interface to enable SNAT.
 sub get_snat_interface {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    if (defined ($Config{'inline'}{'interfaceSNAT'})) {
+    if (defined ($Config{'inline'}{'interfaceSNAT'}) && $Config{'inline'}{'interfaceSNAT'} ne '') {
         return $Config{'inline'}{'interfaceSNAT'};
     } else {
         return  $management_network->tag("int");
