@@ -2,13 +2,18 @@ function init() {
     /* Sort the search results */
     $('#section').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');
-        var results = $('#section');
-        results.fadeTo('fast', 0.5);
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         $.ajax(url)
+        .always(function() {
+            loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
+        })
         .done(function(data) {
-            results.html(data);
-            results.stop();
-            results.fadeTo('fast', 1.0);
+            section.html(data);
         })
         .fail(function(jqXHR) {
             var status_msg;
@@ -16,10 +21,9 @@ function init() {
                 var obj = $.parseJSON(jqXHR.responseText);
                 status_msg = obj.status_msg;
             }
-            catch(e) {
-                status_msg = "Cannot Load Content";
-            }
-            showPermanentError($('#section'), status_msg);
+            catch(e) {}
+            if (!status_msg) status_msg = "Cannot Load Content";
+            showPermanentError(section, status_msg);
         });
 
         return false;
@@ -29,12 +33,21 @@ function init() {
     $('#section').on('click', '[href*="#modalUser"]', function(event) {
         var modal = $('#modalUser');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
-        modal.modal({ shown: true });
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
-                modal.on('shown', function() {
+                modal.modal({ shown: true });
+                modal.one('shown', function() {
                     $('#pid').focus();
                 });
             })
@@ -51,11 +64,9 @@ function init() {
                         status_msg = obj.status_msg;
                     }
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
-                if (status_msg)
-                    showError($('#section'), status_msg);
+                catch(e) {}
+                if (!status_msg) status_msg = "Cannot Load Content";
+                showError($('#section h2'), status_msg);
             });
 
         return false;

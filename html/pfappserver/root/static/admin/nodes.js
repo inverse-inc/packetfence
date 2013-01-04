@@ -7,9 +7,12 @@ function init() {
     $('#section').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');
         var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
         section.fadeTo('fast', 0.5);
         $.ajax(url)
         .always(function() {
+            loader.hide();
             section.stop();
             section.fadeTo('fast', 1.0);
         })
@@ -17,8 +20,15 @@ function init() {
             section.html(data);
         })
         .fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showPermanentError(section, obj.status_msg);
+            var status_msg;
+            $("body,html").animate({scrollTop:0}, 'fast');
+            try {
+                var obj = $.parseJSON(jqXHR.responseText);
+                status_msg = obj.status_msg;
+            }
+            catch(e) {}
+            if (!status_msg) status_msg = "Cannot Load Content";
+            showError(section, status_msg);
         });
 
         return false;
@@ -27,33 +37,51 @@ function init() {
     /* View a node (show the modal editor) */
     $('#section').on('click', '[href*="#modalNode"]', function(event) {
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         $.ajax(url)
+        .always(function() {
+            loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
+        })
         .done(function(data) {
             $('body').append(data);
             $('#modalNode').modal({show: true});
-            $('#modalNode .chzn-select').chosen();
-            $('#modalNode .chzn-deselect').chosen({allow_single_deselect: true});
-            $('#modalNode .timepicker-default').each(function() {
-                // Keep the placeholder visible if the input has no value
-                var defaultTime = $(this).val().length? 'value' : false;
-                $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
-            });
-            $('#modalNode .datepicker').datepicker();
-            $('#modalNode a[href="#nodeHistory"]').on('shown', function () {
-                if ($('#nodeHistory .chart').children().length == 0)
-                    drawGraphs();
-            });
-            $('#modalNode').on('hidden', function (eventObject) {
-                // Destroy the modal unless the event is coming from
-                // an input field (See bootstrap-timepicker.js)
-                if (eventObject.target.tagName != 'INPUT') {
-                    $(this).remove();
-                }
+            $('#modalNode').one('shown', function(event) {
+                var modal = $(this);
+                modal.find('.chzn-select').chosen();
+                modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                modal.find('.timepicker-default').each(function() {
+                    // Keep the placeholder visible if the input has no value
+                    var defaultTime = $(this).val().length? 'value' : false;
+                    $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
+                });
+                modal.find('.datepicker').datepicker();
+                modal.find('a[href="#nodeHistory"]').on('shown', function () {
+                    if ($('#nodeHistory .chart').children().length == 0)
+                        drawGraphs();
+                });
+                $('#modalNode').one('hidden', function (eventObject) {
+                    // Destroy the modal unless the event is coming from
+                    // an input field (See bootstrap-timepicker.js)
+                    if (eventObject.target.tagName != 'INPUT') {
+                        $(this).remove();
+                    }
+                });
             });
         })
         .fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showError($('#section'), obj.status_msg);
+            var status_msg;
+            try {
+                var obj = $.parseJSON(jqXHR.responseText);
+                status_msg = obj.status_msg;
+            }
+            catch(e) {}
+            if (!status_msg) status_msg = "Cannot Load Content";
+            showPermanentError(section, status_msg);
         });
 
         return false;
