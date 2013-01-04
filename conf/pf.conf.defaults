@@ -567,9 +567,13 @@ trap_limit_action =
 # Enable them via the ports.listeners parameter and add the IMAP (143/tcp) and POP3 (110/tcp) here.
 ports_redirect=80/tcp,443/tcp
 #
-# should_reauth_on_vlan_change
+# inline.should_reauth_on_vlan_change
 # Should have to reauthenticate the node if it change vlan
 should_reauth_on_vlan_change = disabled
+#
+# inline.interfaceSNAT
+# Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
+interfaceSNAT=
 
 [servicewatch]
 #
