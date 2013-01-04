@@ -289,6 +289,11 @@ guests_self_registration=enabled
 #
 # Enable or Disable the billing engine that allow registering to the network by buying access
 billing_engine = disabled
+#
+# registration.gaming_devices_registration
+#
+# Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
+gaming_devices_registration = disabled
 
 [guests_self_registration]
 #
@@ -390,6 +395,12 @@ default_access_duration=12h
 # admin by default.
 category=guest
 
+[gaming_devices_registration]
+#
+# gaming_devices_registration.category
+#
+# The node category that will be assigned to gaming devices registered through the interface.
+category=gaming
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.
