@@ -39,10 +39,11 @@ function init() {
         /* Set the focus on the first editable and visible field */
         $(':input:visible:enabled:first').focus();
         /* Set the default value for compound controls*/
-        var input = $('.compound-input-btn-group .btn-group input');
-        var value = input.attr('value');
-        var a = $(input).siblings('a[value="' + value  +  '"]');
-        a.attr('default-value','yes');
+        $('.compound-input-btn-group .btn-group input').each(function (i,input) {
+            var value = $(input).attr('value');
+            var a = $(input).siblings('a[value="' + value  +  '"]');
+            a.attr('default-value','yes');
+        });
 
     });
     $('#section').on('reset', function(event) {
