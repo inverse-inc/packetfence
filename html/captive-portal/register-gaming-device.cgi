@@ -36,6 +36,8 @@ my $portalSession   = new pf::Portal::Session();
 my $cgi             = $portalSession->cgi;
 my $session         = $portalSession->session;
 
+my %info;
+
 # This module is not enabled so return an error accordingly
 if ( isdisabled($Config{'registration'}{'gaming_devices_registration'}) ) {
     pf::web::generate_error_page($portalSession, i18n("This module is not enabled"));
