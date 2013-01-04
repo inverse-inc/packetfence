@@ -901,4 +901,5 @@ msgstr "The MAC address %s has been successfully registered."
 msgid "The MAC address %s provided is invalid please try again"
 msgstr "The MAC address %s provided is invalid please try again"
 
-
+msgid "This module is not enabled"
+msgstr "This module is not enabled"
