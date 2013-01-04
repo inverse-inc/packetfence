@@ -47,7 +47,6 @@ maintenance_interval=60s
 # Server list of the memcached server
 memcached=127.0.0.1:11211
 
-
 [network]
 #
 # network.dhcpdetector

@@ -593,6 +593,7 @@ sub is_config_documented {
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
+        next if ( ( $group eq 'provisioning' ) && ( $item eq 'certificate') );
 
         if ( defined( $Config{$group}{$item} ) ) {
             if ( $type eq "toggle" ) {
@@ -1039,7 +1040,7 @@ Make sure that portal profiles, if defined, have a filter and no unsupported par
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|auth|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
+    my $profile_params = qr/(?:filter|logo|auth|guest_self_reg|guest_modes|guest_category|template_path|billing_engine|provisioning)/;
 
     foreach my $portal_profile ( tied(%Config)->GroupMembers("portal-profile") ) {
 

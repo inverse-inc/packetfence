@@ -107,6 +107,7 @@ sub _custom_profile {
         'billing_engine'    => $Config{"portal-profile $name"}{'billing_engine'}    || $defaults->{'billing_engine'},
         'default_auth'      => $Config{"portal-profile $name"}{'default_auth'}      || $defaults->{'default_auth'},
         'category'          => $Config{"portal-profile $name"}{'category'},
+        'provisioning'      => $Config{"portal-profile $name"}{'provisioning'}      || undef,
     };
 }
 

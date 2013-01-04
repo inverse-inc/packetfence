@@ -21,6 +21,7 @@ use warnings;
 use pf::config;
 use pf::util;
 use pf::web;
+use Cache::Memcached;
 
 use Apache::Session::Generate::MD5;
 use Apache::Session::Flex;
@@ -210,8 +211,8 @@ sub get_memcached {
     my ( $key, $mc ) = @_;
     my $memd;
     $memd = Cache::Memcached->new(
-        servers => $mc,
-        debug => 0,
+        servers            => $mc,
+        debug              => 0,
         compress_threshold => 10_000,
     ) unless defined $memd;
     return $memd->get($key);
@@ -226,8 +227,8 @@ sub set_memcached {
     my ( $key, $value, $exptime, $mc ) = @_;
     my $memd;
     $memd = Cache::Memcached->new(
-        servers => $mc,
-        debug => 0,
+        servers            => $mc,
+        debug              => 0,
         compress_threshold => 10_000,
     ) unless defined $memd;
 
@@ -249,8 +250,8 @@ sub del_memcached {
     my ( $key, $mc ) = @_;
     my $memd;
     $memd = Cache::Memcached->new(
-        servers => $mc,
-        debug => 0,
+        servers            => $mc,
+        debug              => 0,
         compress_threshold => 10_000,
     ) unless defined $memd;
     $memd->delete($key);
