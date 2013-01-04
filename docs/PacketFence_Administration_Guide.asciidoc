@@ -912,6 +912,10 @@ wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/samba3-winbind-3.5.14-44.
 wget ftp://ftp.sernet.de/pub/samba/3.5/centos/5/x86_64/libwbclient0-3.5.14-44.el5.x86_64.rpm
 
 yum install ./samba*.rpm ./libwbclient0*.rpm --nogpgcheck
+
+Under Debian:
+apt-get install samba winbing krb5-user
+
 ----
 
 NOTE: If you have Windows 7 PCs in your network, you need to use SAMBA version 3.5.0 (or greater)
