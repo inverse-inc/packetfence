@@ -228,6 +228,7 @@
 
     /* Initialize the rule condition and action fields when displaying a rule */
     $('#section').on('show', '#modalRule', function(event) {
+        if (event.target.id == 'modalRule') {
         $('#templates').find('option').removeAttr('id');
         $('#ruleConditions tr:not(.hidden) select[name$=attribute]').each(function() {
             updateCondition($(this));
@@ -235,6 +236,7 @@
         $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
             updateAction($(this), true);
         });
+        }
     });
 
     /* Update a rule condition input field depending on the type of the selected attribute */
