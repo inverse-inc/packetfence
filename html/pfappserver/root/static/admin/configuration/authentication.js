@@ -15,7 +15,7 @@
                 status_msg = obj.status_msg;
             }
             catch(e) {}
-            if (!status_msg) = status_msg = _("Cannot Load Content");
+            if (!status_msg) status_msg = _("Cannot Load Content");
             showPermanentError(form, status_msg);
         });
     });
