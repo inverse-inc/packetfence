@@ -14,9 +14,8 @@
                 var obj = $.parseJSON(jqXHR.responseText);
                 status_msg = obj.status_msg;
             }
-            catch(e) {
-                status_msg = "Cannot Load Content";
-            }
+            catch(e) {}
+            if (!status_msg) = status_msg = _("Cannot Load Content");
             showPermanentError(form, status_msg);
         });
     });
@@ -48,9 +47,8 @@
                         var obj = $.parseJSON(jqXHR.responseText);
                         status_msg = obj.status_msg;
                     }
-                    catch(e) {
-                        status_msg = "Cannot Load Content";
-                    }
+                    catch(e) {}
+                    if (!status_msg) status_msg = _("Cannot Load Content");
                     showError($('#section h2'), status_msg);
                 });
             return false;
@@ -87,9 +85,8 @@
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showPermanentError(form, status_msg);
             });
         }
@@ -127,7 +124,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h3'), status_msg);
             });
 
@@ -164,7 +161,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h3'), status_msg);
             });
 
@@ -205,7 +202,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showPermanentError(modal_body.children().first(), status_msg);
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');
@@ -230,7 +227,7 @@
     });
 
     /* Initialize the rule condition and action fields when displaying a rule */
-    $('#section').on('shown', '#modalRule', function(event) {
+    $('#section').on('show', '#modalRule', function(event) {
         $('#templates').find('option').removeAttr('id');
         $('#ruleConditions tr:not(.hidden) select[name$=attribute]').each(function() {
             updateCondition($(this));

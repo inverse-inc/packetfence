@@ -51,7 +51,7 @@ function updateSection(href) {
                         status_msg = obj.status_msg;
                     }
                     catch(e) {}
-                    if (!status_msg) status_msg = "Cannot Load Content";
+                    if (!status_msg) status_msg = _("Cannot Load Content");
                     if (section.children().length == 0)
                         section.html('<h2></h2><div></div>');
                     showPermanentError(section.children('h1, h2, h3').first().next(), status_msg);
@@ -362,7 +362,7 @@ $(function () { // DOM ready
                 status_msg = obj.status_msg;
             }
             catch(e) {}
-            if (!status_msg) status_msg = "Cannot Load Content";
+            if (!status_msg) status_msg = _("Cannot Load Content");
             if (jqXHR.status == 404) {
                 showSuccess(sibling, status_msg);
             }

@@ -27,7 +27,7 @@ function init() {
                 status_msg = obj.status_msg;
             }
             catch(e) {}
-            if (!status_msg) status_msg = "Cannot Load Content";
+            if (!status_msg) status_msg = _("Cannot Load Content");
             showError(section, status_msg);
         });
 
@@ -80,7 +80,7 @@ function init() {
                 status_msg = obj.status_msg;
             }
             catch(e) {}
-            if (!status_msg) status_msg = "Cannot Load Content";
+            if (!status_msg) status_msg = _("Cannot Load Content");
             showPermanentError(section, status_msg);
         });
 
@@ -108,10 +108,17 @@ function init() {
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
+                var status_msg;
                 btn.button('reset');
-                var obj = $.parseJSON(jqXHR.responseText);
+                $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 resetAlert(modal_body);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
+                showPermanentError(modal_body.children().first(), status_msg);
             });
         }
 

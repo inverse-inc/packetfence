@@ -25,7 +25,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h2'), status_msg);
             });
 
@@ -62,7 +62,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h2'), status_msg);
             });
 
@@ -94,9 +94,15 @@
                     }
                 })
                 .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
+                    var status_msg;
                     $("body,html").animate({scrollTop:0}, 'fast');
+                    try {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        status_msg = obj.status_msg;
+                    }
+                    catch(e) {}
+                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    showError($('#section h2'), status_msg);
                 });
         });
 
@@ -158,9 +164,15 @@
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError(form.find('.modal-body'), obj.status_msg);
+                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
+                showError(form.find('.modal-body'), status_msg);
             });
         }
 
