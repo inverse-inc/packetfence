@@ -188,8 +188,8 @@
                 data: form.serialize()
             }).done(function(data) {
                 modal.modal('hide');
-                modal.on('hidden', function() {
-                    // Refresh the complete section
+                modal.one('hidden', function() {
+                    // Refresh the rules list
                     $('#sourceRulesEmpty').closest('.control-group').fadeOut('fast', function() {
                         $(this).empty();
                         $(this).html(data);
@@ -204,9 +204,8 @@
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
+                catch(e) {}
+                if (!status_msg) status_msg = "Cannot Load Content";
                 showPermanentError(modal_body.children().first(), status_msg);
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');

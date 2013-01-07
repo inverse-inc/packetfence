@@ -26,7 +26,7 @@ use pf::Authentication::Action;
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
-#has 'roles' => ( is => 'ro' );
+has 'source_type' => ( is => 'ro' );
 
 # Form fields
 has_field 'actions' =>
@@ -102,8 +102,17 @@ authentication source.
 sub options_actions {
     my $self = shift;
 
-    my $actions_ref = pf::Authentication::Action::availableActions();
-    my @actions = map { $_ => $self->_localize($_) } @{$actions_ref};
+    my ($classname, $actions_ref, @actions);
+
+    $classname = 'pf::Authentication::Source::' . $self->form->source_type . 'Source';
+    eval "require $classname";
+    if ($@) {
+        $self->form->ctx->log->error($@);
+    }
+    else {
+        $actions_ref = $classname->available_actions();
+        @actions = map { $_ => $self->_localize($_) } @{$actions_ref};
+    }
 
     return @actions;
 }
@@ -190,7 +199,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

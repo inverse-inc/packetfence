@@ -284,6 +284,7 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) {
 
     $form = pfappserver::Form::Authentication::Rule->new(ctx => $c,
                                                          init_object => $c->stash->{rule},
+                                                         source_type => $c->stash->{source}->{type},
                                                          attrs => $c->stash->{source}->available_attributes());
     $form->process;
     unless ($c->stash->{rule}) {
@@ -308,6 +309,7 @@ sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) {
     my ($form, $status, $message);
 
     $form = pfappserver::Form::Authentication::Rule->new(ctx => $c,
+                                                         source_type => $c->stash->{source}->{type},
                                                          attrs => $c->stash->{source}->available_attributes());
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
@@ -335,7 +337,7 @@ sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
