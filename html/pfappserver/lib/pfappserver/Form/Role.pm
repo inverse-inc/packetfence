@@ -20,7 +20,6 @@ has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 has 'id' => ( is => 'ro' );
-has 'roles' => ( is => 'ro' );
 
 has_field 'name' =>
   (
@@ -67,7 +66,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

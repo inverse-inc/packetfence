@@ -10,26 +10,14 @@ pf::Authentication::Action
 
 use Moose;
 
-use pf::Authentication::constants;
-
 has 'type' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 0);
-
-sub availableActions {
-    return [
-            $Actions::MARK_AS_SPONSOR,
-            $Actions::SET_ACCESS_LEVEL,
-            $Actions::SET_ROLE,
-            $Actions::SET_ACCESS_DURATION,
-            $Actions::SET_UNREG_DATE,
-           ];
-}
 
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE 
 

@@ -272,7 +272,8 @@ sub operators {
 
 Validate the following constraints :
 
- - an access duration and an unregistration date cannot be set at the same time
+ - an access duration and an unregistration date cannot be both defined
+ - oauth2 sources must have a set role action
 
 =cut
 
@@ -289,11 +290,18 @@ sub validate {
             $self->field('actions')->add_error("You can't define an access duration and a unregistration date at the same time.");
         }
     }
+
+    if ($self->source_type eq 'Facebook' || $self->source_type eq 'Google' || $self->source_type eq 'Github') {
+        @actions = grep { $_->{type} eq $Actions::SET_ROLE } @{$self->value->{actions}};
+        unless (scalar @actions > 0) {
+            $self->field('actions')->add_error("For this authentication source type, the rule must set a role as one of its actions.");
+        }
+    }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

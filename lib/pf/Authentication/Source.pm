@@ -12,6 +12,7 @@ We must at least always have one rule defined, the fallback one.
 
 use Moose;
 use pf::Authentication::constants;
+use pf::Authentication::Action;
 
 has 'id' => (isa => 'Str', is => 'rw', required => 1);
 has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
@@ -27,6 +28,16 @@ sub add_rule {
 sub available_attributes {
   my $self = shift;
   return $self->common_attributes();
+}
+
+=head2 available_actions
+
+Return all possible actions for a source. This method can be overloaded in a subclass to limit the available actions.
+
+=cut
+
+sub available_actions {
+    return \@Actions::ACTIONS;
 }
 
 sub common_attributes {
@@ -150,7 +161,7 @@ sub match_condition {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE 
 
