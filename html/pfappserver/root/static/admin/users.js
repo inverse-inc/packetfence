@@ -16,13 +16,7 @@ function init() {
             section.html(data);
         })
         .fail(function(jqXHR) {
-            var status_msg;
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {}
-            if (!status_msg) status_msg = _("Cannot Load Content");
+            var status_msg = getStatusMsg(jqXHR);
             showPermanentError(section, status_msg);
         });
 
@@ -52,20 +46,12 @@ function init() {
                 });
             })
             .fail(function(jqXHR) {
-                var status_msg;
                 modal.modal('hide');
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    if (jqXHR.status == 404) {
-                        $(window).hashchange();
-                    }
-                    else {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        status_msg = obj.status_msg;
-                    }
+                if (jqXHR.status == 404) {
+                    $(window).hashchange();
                 }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h2'), status_msg);
             });
 
@@ -93,16 +79,10 @@ function init() {
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var status_msg;
+                var status_msg = getStatusMsg(jqXHR);
                 btn.button('reset');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
                 resetAlert(modal_body);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
+                showPermanentError(modal_body.children().first(), status_msg);
             });
         }
 
@@ -121,18 +101,12 @@ function init() {
                 });
             })
             .fail(function(jqXHR) {
-                var status_msg;
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h2'), status_msg);
                 $("body,html").animate({scrollTop:0}, 'fast');
             });
 
-        return false;    
+        return false;
     });
 
     /* Hash change handler */

@@ -33,7 +33,7 @@
             iform.one('load', function(event) {
                 // Restore disabled inputs
                 disabled_inputs.removeAttr('disabled');
-                
+
                 $("body,html").animate({scrollTop:0}, 'fast');
                 btn.button('reset');
                 var body = $(this).contents().find('body');
@@ -94,9 +94,9 @@
             showSuccess(modal_body.children().first(), data.status_msg);
         })
         .fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showPermanentError(modal_body.children().first(), obj.status_msg);
+            var status_msg = getStatusMsg(jqXHR);
+            showPermanentError(modal_body.children().first(), status_msg);
         });
-    
+
         return false;
     });

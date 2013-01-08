@@ -20,14 +20,7 @@ function init() {
                 showSuccess(form, data.status_msg);
             })
             .fail(function(jqXHR) {
-                var status_msg;
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {
-                    status_msg = "Cannot submit form";
-                }
+                var status_msg = getStatusMsg(jqXHR);
                 showPermanentError(form, status_msg);
             });
         }
@@ -46,6 +39,7 @@ function init() {
         });
 
     });
+
     $('#section').on('reset', function(event) {
         $('.compound-input-btn-group .btn-group a[default-value="yes"]').click();
         return true;

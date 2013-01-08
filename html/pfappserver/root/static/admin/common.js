@@ -1,4 +1,16 @@
 /* Trigger a mouse click on the active sidebar navigation link */
+
+function getStatusMsg(jqXHR) {
+    var status_msg;
+    try {
+        var obj = $.parseJSON(jqXHR.responseText);
+        status_msg = obj.status_msg;
+    }
+    catch(e) {}
+    if (!status_msg) status_msg = _("Cannot Load Content");
+    return status_msg;
+}
+
 function activateNavLink() {
     var hash = location.hash;
     var found = false;
@@ -45,13 +57,7 @@ function updateSection(href) {
                     section.trigger('section.loaded');
                 })
                 .fail(function(jqXHR) {
-                    var status_msg;
-                    try {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        status_msg = obj.status_msg;
-                    }
-                    catch(e) {}
-                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    var status_msg = getStatusMsg(jqXHR);
                     if (section.children().length == 0)
                         section.html('<h2></h2><div></div>');
                     showPermanentError(section.children('h1, h2, h3').first().next(), status_msg);
@@ -164,14 +170,7 @@ $(function () { // DOM ready
             resetAlert($('#section'));
             showSuccess(form, data.status_msg);
         }).fail(function(jqXHR) {
-            var status_msg;
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {
-                status_msg = "Cannot Load Content";
-            }
+            var status_msg = getStatusMsg(jqXHR);
             showPermanentError(form, status_msg);
         });
     });
@@ -378,13 +377,7 @@ $(function () { // DOM ready
             showSuccess(sibling, data.status_msg);
         })
         .fail(function(jqXHR) {
-            var status_msg;
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {}
-            if (!status_msg) status_msg = _("Cannot Load Content");
+            var status_msg = getStatusMsg(jqXHR);
             if (jqXHR.status == 404) {
                 showSuccess(sibling, status_msg);
             }

@@ -20,14 +20,8 @@
                 modal.modal('show');
             })
             .fail(function(jqXHR) {
-                var status_msg;
+                var status_msg = getStatusMsg(jqXHR);
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h2'), status_msg);
             });
 
@@ -56,18 +50,12 @@
                 modal.modal('show');
             })
             .fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h2'), status_msg);
             });
 
-        return false;    
+        return false;
     });
 
     /* Delete a violation */
@@ -99,18 +87,12 @@
                     }
                 })
                 .fail(function(jqXHR) {
-                    var status_msg;
-                    try {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        status_msg = obj.status_msg;
-                    }
-                    catch(e) {}
-                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    var status_msg = getStatusMsg(jqXHR);
                     showError($('#section h2'), status_msg);
                 });
         });
 
-        return false;    
+        return false;
     });
 
     /* Modal Editor: add a trigger */
@@ -152,13 +134,7 @@
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var status_msg;
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 resetAlert(modal_body);
                 showPermanentError(modal_body.children().first(), status_msg);
             });
@@ -178,13 +154,7 @@
                 modal.append(data);
             })
             .fail(function(jqXHR) {
-                var status_msg;
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h2'), status_msg);
             });
 
