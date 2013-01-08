@@ -19,8 +19,8 @@ function init() {
                     drawGraphs();
                 })
                 .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError(graph, obj.status_msg);
+                    var status_msg = getStatusMsg(jqXHR);
+                    showError(graph, status_msg);
                 });
         });
 
@@ -43,8 +43,8 @@ function init() {
                 drawGraphs();
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError(graph, obj.status_msg);
+                var status_msg = getStatusMsg(jqXHR);
+                showError(graph, status_msg);
             });
 
         return false;
@@ -67,8 +67,8 @@ function init() {
 
         })
         .fail(function(jqXHR) {
-            var obj = $.parseJSON(jqXHR.responseText);
-            showError($('#section .graph'), obj.status_msg);
+            var status_msg = getStatusMsg(jqXHR);
+            showError($('#section .graph'), status_msg);
         });
 
         return false;

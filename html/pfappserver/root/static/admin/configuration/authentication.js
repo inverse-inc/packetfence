@@ -41,14 +41,8 @@
                     $(window).hashchange();
                 })
                 .fail(function(jqXHR) {
-                    var status_msg;
                     $("body,html").animate({scrollTop:0}, 'fast');
-                    try {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        status_msg = obj.status_msg;
-                    }
-                    catch(e) {}
-                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    var status_msg = getStatusMsg(jqXHR);
                     showError($('#section h2'), status_msg);
                 });
             return false;
@@ -79,14 +73,8 @@
                     });
                 });
             }).fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showPermanentError(form, status_msg);
             });
         }
@@ -117,14 +105,8 @@
                 });
             })
             .fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h3'), status_msg);
             });
 
@@ -154,14 +136,8 @@
                 });
             })
             .fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h3'), status_msg);
             });
 
@@ -196,13 +172,7 @@
                     });
                 });
             }).fail(function(jqXHR) {
-                var status_msg;
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showPermanentError(modal_body.children().first(), status_msg);
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');

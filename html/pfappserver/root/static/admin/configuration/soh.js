@@ -18,14 +18,8 @@
                 modal.modal({ shown: true });
             })
             .fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h2'), status_msg);
             });
 
@@ -55,18 +49,12 @@
                 });
             })
             .fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError($('#section h2'), status_msg);
             });
 
-        return false;    
+        return false;
     });
 
     /* Delete a SoH filter */
@@ -94,19 +82,13 @@
                     }
                 })
                 .fail(function(jqXHR) {
-                    var status_msg;
                     $("body,html").animate({scrollTop:0}, 'fast');
-                    try {
-                        var obj = $.parseJSON(jqXHR.responseText);
-                        status_msg = obj.status_msg;
-                    }
-                    catch(e) {}
-                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    var status_msg = getStatusMsg(jqXHR);
                     showError($('#section h2'), status_msg);
                 });
         });
 
-        return false;    
+        return false;
     });
 
     /* Modal Editor: display or hide the violation pull down menu */
@@ -116,7 +98,7 @@
             $('select[name="vid"]').fadeIn('fast');
         else
             $('select[name="vid"]').fadeOut('fast');
-        
+
         return true;
     });
 
@@ -164,14 +146,8 @@
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
+                var status_msg = getStatusMsg(jqXHR);
                 showError(form.find('.modal-body'), status_msg);
             });
         }
