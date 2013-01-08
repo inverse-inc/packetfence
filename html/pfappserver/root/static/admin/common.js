@@ -51,9 +51,9 @@ function updateSection(href) {
                 })
                 .done(function(data) {
                     section.html(data);
-                    $('.datepicker').datepicker({ autoclose: true });
-                    $('.chzn-select').chosen();
-                    $('.chzn-deselect').chosen({allow_single_deselect: true});
+                    section.find('.datepicker').datepicker({ autoclose: true });
+                    section.find('.chzn-select').chosen();
+                    section.find('.chzn-deselect').chosen({allow_single_deselect: true});
                     section.trigger('section.loaded');
                 })
                 .fail(function(jqXHR) {

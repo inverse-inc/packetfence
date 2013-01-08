@@ -62,6 +62,10 @@ form .uneditable {
     margin-top: 1px;
     margin-bottom: 0px;
 }
+.bootstrap-timepicker a {
+    color: #000;
+    text-decoration: none;
+}
 .dl-expanded dt, .dl-expanded dd {
     line-height: 27px;
 }

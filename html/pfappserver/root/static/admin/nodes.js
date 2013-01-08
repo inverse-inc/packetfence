@@ -1,6 +1,7 @@
 function init() {
     $('.datepicker').datepicker({
-        endDate: new Date() // today
+        endDate: new Date(), // today
+        autoclose: true
     });
 
     /* Sort the search results */
@@ -53,7 +54,7 @@ function init() {
                     var defaultTime = $(this).val().length? 'value' : false;
                     $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                 });
-                modal.find('.datepicker').datepicker();
+                modal.find('.datepicker').datepicker({ autoclose: true });
                 modal.find('a[href="#nodeHistory"]').on('shown', function () {
                     if ($('#nodeHistory .chart').children().length == 0)
                         drawGraphs();
