@@ -735,3 +735,8 @@ msgstr "Send Email"
 
 msgid "mail_loading"
 msgstr "Sending .."
+
+# html/pfappserver/root/admin/wrapper.tt
+
+msgid "Cannot Load Content"
+msgstr "An error occured while contacting the server. Please try again later."

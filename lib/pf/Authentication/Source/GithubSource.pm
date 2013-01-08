@@ -22,11 +22,25 @@ has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token'
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.github.com/user');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/github');
 
+=head2 available_actions
+
+For an oauth2 source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
+
+=cut
+
+sub available_actions {
+    return [
+            $Actions::SET_ROLE,
+            $Actions::SET_ACCESS_DURATION,
+            $Actions::SET_UNREG_DATE,
+           ];
+}
+
 =back
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE 
 

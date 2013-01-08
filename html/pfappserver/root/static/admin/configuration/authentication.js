@@ -1,4 +1,3 @@
-
     /* Delete a source */
     $('#section').on('click', '[href*="/delete"]', function(event) {
         if ($(this).hasClass('disabled'))
@@ -26,9 +25,8 @@
                         var obj = $.parseJSON(jqXHR.responseText);
                         status_msg = obj.status_msg;
                     }
-                    catch(e) {
-                        status_msg = "Cannot Load Content";
-                    }
+                    catch(e) {}
+                    if (!status_msg) status_msg = _("Cannot Load Content");
                     showError($('#section h2'), status_msg);
                 });
             return false;
@@ -65,9 +63,8 @@
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showPermanentError(form, status_msg);
             });
         }
@@ -105,7 +102,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h3'), status_msg);
             });
 
@@ -142,7 +139,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h3'), status_msg);
             });
 
@@ -166,8 +163,8 @@
                 data: form.serialize()
             }).done(function(data) {
                 modal.modal('hide');
-                modal.on('hidden', function() {
-                    // Refresh the complete section
+                modal.one('hidden', function() {
+                    // Refresh the rules list
                     $('#sourceRulesEmpty').closest('.control-group').fadeOut('fast', function() {
                         $(this).empty();
                         $(this).html(data);
@@ -182,9 +179,8 @@
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
                 }
-                catch(e) {
-                    status_msg = "Cannot Load Content";
-                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showPermanentError(modal_body.children().first(), status_msg);
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');
@@ -209,7 +205,8 @@
     });
 
     /* Initialize the rule condition and action fields when displaying a rule */
-    $('#section').on('shown', '#modalRule', function(event) {
+    $('#section').on('show', '#modalRule', function(event) {
+        if (event.target.id == 'modalRule') {
         $('#templates').find('option').removeAttr('id');
         $('#ruleConditions tr:not(.hidden) select[name$=attribute]').each(function() {
             updateCondition($(this));
@@ -217,6 +214,7 @@
         $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
             updateAction($(this), true);
         });
+        }
     });
 
     /* Update a rule condition input field depending on the type of the selected attribute */

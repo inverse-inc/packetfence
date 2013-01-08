@@ -2,8 +2,17 @@
     $('#section').on('click', '[href*="#modalViolation"]', function(event) {
         var modal = $('#modalViolation');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
                 $('.chzn-select').chosen();
@@ -11,9 +20,15 @@
                 modal.modal('show');
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
+                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
+                showError($('#section h2'), status_msg);
             });
 
         return false;
@@ -23,8 +38,17 @@
     $('#section').on('click', '#createViolation', function(event) {
         var modal = $('#modalViolation');
         var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
         modal.empty();
         $.ajax(url)
+            .always(function(){
+                loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
                 modal.append(data);
                 $('.chzn-select').chosen();
@@ -32,9 +56,15 @@
                 modal.modal('show');
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
+                var status_msg;
                 $("body,html").animate({scrollTop:0}, 'fast');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
+                showError($('#section h2'), status_msg);
             });
 
         return false;    
@@ -69,9 +99,14 @@
                     }
                 })
                 .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
-                    $("body,html").animate({scrollTop:0}, 'fast');
+                    var status_msg;
+                    try {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        status_msg = obj.status_msg;
+                    }
+                    catch(e) {}
+                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    showError($('#section h2'), status_msg);
                 });
         });
 
@@ -117,9 +152,15 @@
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
+                var status_msg;
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 resetAlert(modal_body);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
+                showPermanentError(modal_body.children().first(), status_msg);
             });
         }
 
@@ -137,9 +178,14 @@
                 modal.append(data);
             })
             .fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
-                showError($('#section h2'), obj.status_msg);
-                $("body,html").animate({scrollTop:0}, 'fast');
+                var status_msg;
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
+                showError($('#section h2'), status_msg);
             });
 
         return false;

@@ -215,3 +215,13 @@ function showTab(control, input) {
 //        container.animate({scrollTop: input.position().top}, 'fast');
     }
 }
+
+/* Translate a string using the general "labels" array defined in the wrapper.tt template */
+function _(key) {
+    var value = key;
+    if (labels[key]) {
+        value = labels[key];
+    }
+
+    return value;
+}

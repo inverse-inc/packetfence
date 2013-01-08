@@ -28,7 +28,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h2'), status_msg);
             });
 
@@ -67,7 +67,7 @@
                     status_msg = obj.status_msg;
                 }
                 catch(e) {}
-                if (!status_msg) status_msg = "Cannot Load Content";
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 showError($('#section h2'), status_msg);
             });
 
@@ -99,9 +99,15 @@
                     }
                 })
                 .fail(function(jqXHR) {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    showError($('#section h2'), obj.status_msg);
+                    var status_msg;
                     $("body,html").animate({scrollTop:0}, 'fast');
+                    try {
+                        var obj = $.parseJSON(jqXHR.responseText);
+                        status_msg = obj.status_msg;
+                    }
+                    catch(e) {}
+                    if (!status_msg) status_msg = _("Cannot Load Content");
+                    showError($('#section h2'), status_msg);
                 });
         });
 
@@ -128,9 +134,15 @@
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var obj = $.parseJSON(jqXHR.responseText);
+                var status_msg;
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
                 resetAlert(modal_body);
-                showPermanentError(modal_body.children().first(), obj.status_msg);
+                showPermanentError(modal_body.children().first(), status_msg);
             });
         }
 
