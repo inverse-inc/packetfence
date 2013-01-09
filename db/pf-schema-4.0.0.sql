@@ -11,7 +11,7 @@ CREATE TABLE class (
   window varchar(255) NOT NULL default 0,
   vclose int(11),
   priority int(11) NOT NULL,
-  url varchar(255),
+  template varchar(255),
   max_enable_url varchar(255),
   redirect_url varchar(255),
   button_text varchar(255),

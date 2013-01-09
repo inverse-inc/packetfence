@@ -117,13 +117,13 @@ has_field 'window' =>
    tags => { after_element => \&help,
              help => 'Amount of time before a violation will be closed automatically. Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.' },
   );
-has_field 'url' =>
+has_field 'template' =>
   (
    type => 'Text',
-   label => 'URL',
+   label => 'Template',
    element_class => ['input-xxlarge'],
    tags => { after_element => \&help,
-             help => 'HTML URL the host will be redirected to while in violation. This is usually a local URL of the form <code>/content/index.php?template=...</code> where <code>...</code> is the name of the remediation template to show to the user. Full URLs like <code>http://myportal.com/violation1234/</code> are also supported if <code>passthrough=proxy</code> is set under <code>trapping</code>. In that case, the Captive Portal will do reverse proxying to the specified URL.' }
+             help => 'HTML template the host will be redirected to while in violation. This is usually the name of the remediation template to show to the user. Full URLs like <code>http://myportal.com/violation1234/</code> are also supported if <code>passthrough=proxy</code> is set under <code>trapping</code>. In that case, the Captive Portal will do reverse proxying to the specified URL.' }
   );
 has_field 'button_text' =>
   (

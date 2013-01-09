@@ -204,6 +204,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   # Allows previewing captive-portal remediation pages
   SetEnv VHOST ADMIN
   Alias /remediation.php %%install_dir%%/html/captive-portal/remediation.php
+  Alias /remediation.cgi %%install_dir%%/html/captive-portal/remediation.cgi
   Alias /content/ %%install_dir%%/html/captive-portal/content/
 
   #LogLevel debug
@@ -261,6 +262,7 @@ SetEnvIf User-Agent ".*MSIE.*" \
   # Allows previewing captive-portal remediation pages
   SetEnv VHOST ADMIN
   Alias /remediation.php %%install_dir%%/html/captive-portal/remediation.php
+  Alias /remediation.cgi %%install_dir%%/html/captive-portal/remediation.cgi
   Alias /content/ %%install_dir%%/html/captive-portal/content/
 
   #LogLevel debug
