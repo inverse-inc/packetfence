@@ -84,7 +84,7 @@ sub handler
   my ($class_violation_url, $class_redirect_url, $class_max_enable_url);
   my $class=class_view($vid);
   if (defined($class) && ref($class) eq 'HASH') {   
-    $class_violation_url = $class->{'url'} if defined($class->{'url'});
+    $class_violation_url = "/remediation.cgi" if defined($class->{'template'});
     $class_redirect_url = $class->{'redirect_url'} if defined($class->{'redirect_url'});
     $class_max_enable_url = $class->{'max_enable_url'} if defined($class->{'max_enable_url'});
   }

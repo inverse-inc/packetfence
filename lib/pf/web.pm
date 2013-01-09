@@ -57,6 +57,7 @@ use pf::violation qw(violation_count);
 use pf::web::constants; 
 
 Readonly our $LOGIN_TEMPLATE => 'login.html';
+Readonly our $VIOLATION_TEMPLATE => 'remediation.html';
 
 =head1 SUBROUTINES
 
@@ -393,6 +394,29 @@ sub generate_oauth2_result {
    }
 }
 
+=item generate_violation_page
+
+=cut
+sub generate_violation_page {
+    my ( $portalSession ) = @_;
+
+    my $mac = $portalSession->getClientMac();
+
+    my $node_info = node_view($mac);
+    
+    # We stash stuff we want to expose to all templates, for better
+    # customizations by PacketFence administrators
+    $portalSession->stash->{'dhcp_fingerprint'} = $node_info->{'dhcp_fingerprint'};
+    $portalSession->stash->{'last_switch'} = $node_info->{'last_switch'};
+    $portalSession->stash->{'last_port'} = $node_info->{'last_port'};
+    $portalSession->stash->{'last_vlan'} =$node_info->{'last_vlan'};
+    $portalSession->stash->{'last_connection_type'} = $node_info->{'last_connection_type'};
+    $portalSession->stash->{'last_ssid'} =  $node_info->{'last_ssid'};
+    $portalSession->stash->{'username'} = $node_info->{'pid'};
+
+    render_template($portalSession, $VIOLATION_TEMPLATE);
+}
+
 =item web_node_register
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.
@@ -638,8 +662,6 @@ sub generate_generic_page {
 
 sub oauth2_client {
       my $provider = shift;
-      
-      
 
       Net::OAuth2::Client->new(
                 $Config{"oauth2 $provider"}{'client_id'},
