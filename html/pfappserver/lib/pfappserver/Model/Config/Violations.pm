@@ -22,7 +22,7 @@ extends 'pfappserver::Model::Config::IniStyleBackend';
 
 Readonly::Scalar our $NAME => 'Violations';
 
-Readonly::Scalar our $params => ["actions", "auto_enable", "button_text", "desc", "enabled", "grace", "max_enable", "priority", "redirect_url", "snort_rules", "trigger", "url", "vlan", "whitelisted_categories", "window", "vclose"];
+Readonly::Scalar our $params => ["actions", "auto_enable", "button_text", "desc", "enabled", "grace", "max_enable", "priority", "redirect_url", "snort_rules", "trigger", "template", "vlan", "whitelisted_categories", "window", "vclose"];
 Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    close => 'Close',
                                    email => 'Email',

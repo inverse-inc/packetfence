@@ -71,7 +71,7 @@
 
         [% form.field('window').render %]
 
-        [% form.field('url').render %]
+        [% form.field('template').render %]
 
         [% form.field('button_text').render %]
 

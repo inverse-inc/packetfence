@@ -402,7 +402,7 @@ sub read_violations_conf {
             $violations{$violation}{'window'},
             $violations{$violation}{'vclose'},
             $violations{$violation}{'priority'},
-            $violations{$violation}{'url'},
+            $violations{$violation}{'template'},
             $violations{$violation}{'max_enable_url'},
             $violations{$violation}{'redirect_url'},
             $violations{$violation}{'button_text'},
