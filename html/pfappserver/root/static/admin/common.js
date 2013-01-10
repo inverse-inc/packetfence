@@ -322,7 +322,7 @@ $(function () { // DOM ready
         var form = $(this);
         var section = $('#section');
         section.fadeTo('fast', 0.5);
-        var hash = "#" +  form.attr('action');
+        var hash = form.attr('action');
         var inputs = form.serializeArray();
         var length = inputs.length;
         if(length > 0) {
