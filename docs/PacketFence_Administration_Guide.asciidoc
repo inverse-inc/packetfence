@@ -88,7 +88,7 @@ Guest Access::
   PacketFence supports a special guest VLAN out of the box. You configure your network so that the guest VLAN only goes out to the Internet and the registration VLAN and the captive portal are the components used to explain to the guest how to register for access and how his access works. This is usually branded by the organization offering the access. Several means of registering guests are possible. PacketFence does also support guest access bulk creations and imports.
 
 Gaming devices registration::
-  A registered user can access a special portal-page from within the network to allow him to register a gaming device of his own. This registration will require login from the user and then will register gaming devices with pre-approved MAC OUI into a configurable category.
+  A registered user can access a special Web page to register a gaming device of his own. This registration process will require login from the user and then will register gaming devices with pre-approved MAC OUI into a configurable category.
 
 PacketFence is developed by a community of developers located mainly in North America. More information can be found at http://www.packetfence.org.
 
@@ -2114,11 +2114,11 @@ Like other providers, enable the GitHub authentication in the `guests_self_regis
 Gaming devices registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Users have the possibility to register gaming devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. By accessing this page, users will be prompted to login as if they were registering themselves. Once they log in, the portal will ask them to enter the gaming device MAC address that will then be matched against a predefined list of authorized MAC OUI. Once done, the gaming device will be registered with the user's id and can be assigned into a specific category for easier management.
+Users have the possibility to register gaming devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the gaming device MAC address that will then be matched against a predefined list of authorized MAC OUI. The gaming device will be registered with the user's id and can be assigned into a specific category for easier management.
 
 Here's how to configure the whole thing.
 The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/gaming-registration
-This URL is accessible from within the network, in any VLAN that can actually reach the PacketFence server.
+This URL is accessible from within the network, in any VLAN that can reach the PacketFence server.
 
 The following can be configured by editing the pf.conf file:
 
