@@ -218,6 +218,24 @@ sub update {
     return ($status, $status_msg);
 }
 
+=head2 delete
+
+=cut
+
+sub delete {
+    my ($self, $mac) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg) = ($STATUS::OK);
+
+    unless (node_delete($mac)) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = "The node can't be deleted.";
+    }
+
+    return ($status, $status_msg);
+}
+
 =head2 availableStatus
 
 =cut
