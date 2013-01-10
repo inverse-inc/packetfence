@@ -94,7 +94,7 @@ function init() {
         modal = $('#modalNode'),
         form = modal.find('form').first(),
         modal_body = modal.find('.modal-body'),
-        url = $(this).attr('href'),
+        url = btn.attr('href'),
         valid = false;
         btn.button('loading');
         valid = isFormValid(form);
@@ -111,7 +111,6 @@ function init() {
             }).fail(function(jqXHR) {
                 var status_msg;
                 btn.button('reset');
-                $("body,html").animate({scrollTop:0}, 'fast');
                 try {
                     var obj = $.parseJSON(jqXHR.responseText);
                     status_msg = obj.status_msg;
@@ -128,7 +127,29 @@ function init() {
 
     /* Delete a node (from the modal editor) */
     $('body').on('click', '#deleteNode', function(event) {
-        alert("delete node");
+        var btn = $(this),
+        modal = $('#modalNode'),
+        modal_body = modal.find('.modal-body'),
+        url = btn.attr('href');
+        $.ajax(url)
+            .done(function(data) {
+                modal.modal('hide');
+                modal.on('hidden', function() {
+                    $(window).hashchange();
+                });
+            }).fail(function(jqXHR) {
+                var status_msg;
+                btn.button('reset');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
+                resetAlert(modal_body);
+                showPermanentError(modal_body.children().first(), status_msg);
+            });
+
         return false;
     });
 
