@@ -159,7 +159,7 @@ RFC3576 aka CoA) is better and also it no longer worked with firmware 7.2 and up
 See L<BUGS AND LIMITATIONS> for details.
 
 =cut
-sub _deauthenticateMacSnmp {
+sub _deauthenticateMacSNMP {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';

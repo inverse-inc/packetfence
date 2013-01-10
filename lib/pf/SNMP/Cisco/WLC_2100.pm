@@ -63,7 +63,7 @@ sub supportsSaveConfig { return $FALSE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-=item _deauthenticateMacSnmp
+=item _deauthenticateMacSNMP
 
 Deprecated: This is no longer required since IOS 5.x+. New implementation is
 in pf::SNMP::Cisco::WLC and relies on Disconnect-Message (RFC3576).
@@ -76,7 +76,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
-sub _deauthenticateMacSnmp {
+sub _deauthenticateMacSNMP {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
