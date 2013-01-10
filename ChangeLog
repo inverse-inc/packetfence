@@ -1,3 +1,576 @@
+commit 31c8f295f6897b7656990208135111243e326470
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jan 10 11:47:29 2013 -0500
+
+    Change to gaming devices registration documentation
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 0720d68531770b5a9dfa5ba3d3f906cc16be04ee
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jan 10 11:25:24 2013 -0500
+
+    Version bump for 3.6.1 release
+
+M	NEWS
+M	UPGRADE
+M	addons/packages/packetfence.spec
+M	debian/changelog
+M	docs/docinfo.xml
+
+commit f9c4ad1d3252a5b495ab770b7d7013257bae8ab4
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jan 10 00:15:32 2013 -0500
+
+    Update doc for upcoming 3.6.1 version
+
+M	docs/PacketFenceZEN_Installation_Guide-docinfo.xml
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Brocade_Quick_Install_Guide-docinfo.xml
+M	docs/PacketFence_Cisco_Quick_Install_Guide-docinfo.xml
+M	docs/PacketFence_Developers_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/PacketFence_Ruckus_Quick_Install_Guide-docinfo.xml
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit d9c0b34c6764e88e425f79ea0b412bd3c5d193e3
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jan 10 00:09:22 2013 -0500
+
+    Updated documentation (Administration Guide)
+    - New gaming devices registration feature
+    - Updated epel repository
+    - New procedure regarding installation on CentOS5/RHEL5
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 0dbb8f4c5051976280a77d621a1a066a18f99316
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jan 7 14:55:55 2013 -0500
+
+    Update Dutch translation
+    
+    Imported from Transifex
+
+M	conf/locale/nl/LC_MESSAGES/packetfence.po
+
+commit 4df11f2d003b49b3b6ca95440e9292169c10c5ff
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jan 7 14:49:38 2013 -0500
+
+    Update French translation
+    
+    Imported from Transifex
+
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+
+commit 41c93b46060a9682bc421c3a3127510286093cc9
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jan 4 14:58:41 2013 -0500
+
+    Fix getinterfaceSNAT
+
+M	lib/pf/iptables.pm
+
+commit 0f8c7e1d97aaad85167e0ce7a60ba313499401c4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jan 4 14:03:37 2013 -0500
+
+    Missing EOT in documentation.conf
+
+M	conf/documentation.conf
+
+commit 513776d2e19a38c1df3695bc8469097a791af712
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jan 4 13:56:10 2013 -0500
+
+    Fix pf.conf.defaults
+
+M	conf/pf.conf.defaults
+
+commit 4186402dc346458714dc32820d160ba656c5317e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jan 4 13:42:08 2013 -0500
+
+    Added gui configuration
+
+M	html/admin/configuration/networks_add.php
+M	html/admin/configuration/networks_edit.php
+M	lib/pf/pfcmd/pfcmd.pm
+
+commit 09ad2f0a81717b0692c6f173e04dded35c7ac221
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jan 4 12:15:17 2013 -0500
+
+    Fix missing var
+
+M	html/captive-portal/register-gaming-device.cgi
+
+commit 2e62fe837c917f9753e922e662e2959d5fcf8655
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Fri Jan 4 10:09:32 2013 -0500
+
+    Improvements made to the gaming registration devices modules
+    - Ability to enable/disable the module
+    - Category assigned to the registered devices in pf.conf
+    - Review code structure a bit
+    
+    What's left to be done:
+    - Review most of the lib/pf/web/gaming.pm methods compared to lib/pf/web.pm and see
+    why there's duplicate and avoid theses.
+
+M	conf/documentation.conf
+M	conf/httpd.conf.d/captive-portal-common.conf
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	conf/locale/fr/LC_MESSAGES/packetfence.po
+M	conf/pf.conf.defaults
+A	db/pf-schema-3.6.1.sql
+A	db/upgrade-3.5.0-3.6.1.sql
+M	html/captive-portal/register-gaming-device.cgi
+
+commit 6c4c6381a0b3f1e9ff6bece451769f1f4a488b41
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Nov 27 11:20:37 2012 -0500
+
+    Missing libconfig-general-perl dependency
+
+M	debian/control
+
+commit 1f18efbbfa54623ce5b6dd447330409ec1835569
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 3 14:47:51 2013 -0500
+
+    Iptables chain name too long
+
+M	conf/iptables.conf
+M	lib/pf/iptables.pm
+
+commit ef2c9f9e3c270c714efa2e0b4bf8606bd20e0350
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 3 12:20:08 2013 -0500
+
+    Fix syntax
+
+M	lib/pf/iptables.pm
+
+commit f5099ac576c40ea6ee3ed4a7204e36f99b48dc9b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 3 12:06:05 2013 -0500
+
+    Fix http://www.packetfence.org/bugs/view.php?id=1612
+    Update doc for winbind
+    Add alternative between snort and suricata
+
+M	debian/control
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	html/pfappserver/root/configurator/networks.tt
+M	html/pfappserver/root/static/configurator/networks.js
+
+commit 905a8db3077d4ff47489ef66b36e6920c04a13a0
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 18 14:32:28 2012 -0400
+
+    Changed nonat by routed
+
+M	conf/iptables.conf
+M	lib/pf/iptables.pm
+
+commit 46386962b539c9a9e666f1cc02e9b6cf8829d111
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 18 14:00:00 2012 -0400
+
+    Changes for the pull request
+
+M	NEWS
+M	conf/documentation.conf
+M	conf/iptables.conf
+M	lib/pf/iptables.pm
+
+commit 32f5fbdc2e9c6c86694858001d41b80b7ab61392
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Sep 10 15:10:02 2012 -0400
+
+    Cleaned code
+
+M	lib/pf/iptables.pm
+
+commit c42678432a72655c4624c4a4f7e294894aed3a7e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 24 13:48:35 2012 -0400
+
+    Initial release
+
+M	NEWS
+M	conf/documentation.conf
+M	conf/iptables.conf
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	lib/pf/iptables.pm
+
+commit 0a4a1c18cf9e9eb63ad7e89024410408076c108a
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 3 09:58:38 2013 -0500
+
+    Portal Profile fix (#1595)
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 7cc00f304080489bbc73b4c9756d9928997cb9ee
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 3 09:34:09 2013 -0500
+
+    Fix email link
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+
+commit b62898bc793960bff4d9cab815f5eefc4a0c3718
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 3 08:20:12 2013 -0500
+
+    Logrotate fix
+
+M	addons/logrotate
+
+commit b0d15ac53423572f801dcf0a892324bf08222db4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Dec 20 15:07:22 2012 -0500
+
+    Fixed typo and added additional messages to packetfence.po
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	lib/pf/web/gaming.pm
+
+commit ceac5dddb99a63f5843d2297ab583ebc1917ff2f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Dec 20 14:06:25 2012 -0500
+
+    Fixed POD issues
+
+M	html/captive-portal/register-gaming-device.cgi
+
+commit fac0a13ca1c5dc66da94dcbaba3a2249a6498b0c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Dec 20 14:05:28 2012 -0500
+
+    Additional messages
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+
+commit c9348fb96f107585fd5de98623ea5b91d46f2409
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Dec 20 13:59:59 2012 -0500
+
+    Fixed POD formatting issue\nAdded additional messages in packetfence.po\nCorrected pod.t test count
+
+M	conf/locale/en/LC_MESSAGES/packetfence.po
+M	html/captive-portal/templates/gaming-registration.html
+M	lib/pf/web/gaming.pm
+M	t/pod.t
+
+commit 5e92bafd9dedfeff5b7b1be4ff609359d1b3467e
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Dec 20 12:41:23 2012 -0500
+
+    Test complying
+    - Some picky stuff
+
+M	lib/pf/web/gaming.pm
+
+commit 8406d202c9fb8777a97cb3c2f1e72fdb84ea029a
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 19 13:30:44 2012 -0500
+
+    Tests: remove requirement of AUTHOR in POD
+
+M	t/pod.t
+
+commit 07011cb35b9a85692e99f00c9cce1c4d1860e681
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Dec 19 13:04:16 2012 -0500
+
+    Fix guest link activation
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	lib/pf/email_activation.pm
+M	lib/pf/web/constants.pm
+
+commit 01af05f686470b0521a86f4bdc672dbe5d56b440
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 17 17:59:34 2012 -0500
+
+    Integrated feedback and code cleanup\nMade the registration button default
+
+M	html/captive-portal/register-gaming-device.cgi
+M	html/captive-portal/templates/gaming-landing.html
+M	html/captive-portal/templates/gaming-registration.html
+M	lib/pf/web/gaming.pm
+
+commit 5beefdd7eac3ab803d8321d7674a2f2f993fda9b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 17 14:51:02 2012 -0500
+
+    Code Cleanup
+
+M	lib/pf/web/gaming.pm
+
+commit e14cd092d634276b2fc2f0030c2e4a1b961abcb6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 17 10:40:37 2012 -0500
+
+    Added gaming registration page
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+A	html/captive-portal/register-gaming-device.cgi
+A	html/captive-portal/templates/gaming-landing.html
+A	html/captive-portal/templates/gaming-login.html
+A	html/captive-portal/templates/gaming-registration.html
+M	lib/pf/web/constants.pm
+A	lib/pf/web/gaming.pm
+
+commit 6651312273b6af1fb853beac164a5378e66f87b0
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Dec 13 09:50:51 2012 -0500
+
+    XML profile requires specific headers
+    Fix #1616
+
+M	lib/pf/web.pm
+
+commit 3ee7bdd96a1b01d2e6089f94d57009a7d379552d
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Dec 6 15:54:44 2012 -0500
+
+    Adjusting authors
+
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+
+commit 7d716c110843e4b38653bc14dcfb66f6b01ad33b
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Dec 6 15:41:47 2012 -0500
+
+    Modifying the way pfdhcplistener handles tagged trafic.
+    Special thanks to Jean Raby <jraby@inverse.ca>
+
+M	README
+M	sbin/pfdhcplistener
+
+commit 94d7e6a0be97cad00441a8368bc9e169afe118b1
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Dec 6 15:28:10 2012 -0500
+
+    Update NEWS
+
+M	NEWS
+
+commit 493be5f5426c0921503d9c26458c055bd134a8c5
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Dec 6 15:22:25 2012 -0500
+
+    Fixing #1608
+
+M	lib/pf/web/constants.pm
+
+commit ff5fca8aa5e2594aaa0173959eaa18b21616c03e
+Author: Derek Wuelfrath <derek@wuelfrath.ca>
+Date:   Thu Dec 6 15:19:01 2012 -0500
+
+    Update README
+
+M	README
+
+commit bfb6e0bbf98b52b00fb1f174e949047121a4ab3f
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Nov 12 10:54:52 2012 -0500
+
+    Fixing #1602
+    (cherry picked from commit 480663772a400fe61e79c7f007245fc09ad6a3db)
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	lib/pf/services/apache.pm
+M	lib/pf/web/constants.pm
+
+commit daefdc9b0fb441dfad2cd1ca03445b44e94799cc
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Nov 8 11:21:46 2012 -0500
+
+    Missing OAuth2 perl module in debian spec
+
+M	debian/control
+
+commit ba8b0b39bca52c5745b97b34081f02dbd1e11016
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Wed Oct 31 11:04:49 2012 -0400
+
+    Now doing 24 tests, not 26
+
+M	t/trigger.t
+
+commit db6495c1b7b5d4906f247cec810de9aed8d72bb3
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Tue Oct 30 08:40:51 2012 -0400
+
+    Removing the tests for acct trigger.
+
+M	t/trigger.t
+
+commit ce7d22995f15ebdf82e6e13582bfeb4c22aa7b42
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 15:59:50 2012 -0400
+
+    Small typo
+
+M	UPGRADE
+
+commit 7f6335b14c7a5d90999eec0d4d6b3ee1c29e3c6a
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 15:56:41 2012 -0400
+
+    Fix for 1550
+
+M	NEWS
+M	UPGRADE
+M	addons/packages/packetfence.spec
+A	conf/httpd.conf.d/ssl-certificates.conf
+D	conf/ssl-certificates.conf
+M	debian/packetfence.conffiles
+M	lib/pf/services/apache.pm
+
+commit ad54619a893500d7d6febeb08094357048caa7ba
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 15:00:35 2012 -0400
+
+    Fix for #1317
+
+M	NEWS
+M	lib/pf/node.pm
+
+commit 86d056b7c13e57ecd901913a6a29a3a6b112a819
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 14:46:37 2012 -0400
+
+    Adjusting the fix 1591 to support Portal Profiles
+
+M	lib/pf/web.pm
+
+commit 2dc9f94baf271b0fc6d5301e9f20e73e630f8f8c
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 14:03:55 2012 -0400
+
+    Fix #1591
+
+M	NEWS
+M	lib/pf/web.pm
+
+commit be472568ac42e129c3916d34162de3885685174c
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 13:46:31 2012 -0400
+
+    Fix #1579
+
+M	NEWS
+M	lib/pf/web/guest.pm
+
+commit b1bb435fdeab1c52e6c736ca891a69ba143cf41e
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 12:38:51 2012 -0400
+
+    UPGRADE entry for fix 1538
+
+M	UPGRADE
+
+commit cc5719ccb34980bb335bfb31d6b33d0a3050ccc0
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 12:36:27 2012 -0400
+
+    Fix #1538 part 2
+
+M	lib/pf/accounting.pm
+
+commit 64917c8e711b0aed05bc4b4e800224f138c9f3ea
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 12:35:23 2012 -0400
+
+    Fix #1538
+
+M	NEWS
+M	lib/pf/accounting.pm
+M	lib/pf/config.pm
+
+commit b4bc7f2e56bc1c77eb6c638639e51b0d8ee8ece7
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Mon Oct 29 11:28:43 2012 -0400
+
+    Fix of #1342
+
+M	NEWS
+M	html/admin/administration/logs.php
+
+commit 4cc19dd8a5ec76a0cf20b15d0fb3ee0ff3df9ad5
+Author: Francis Lachapelle <francis@sophos.ca>
+Date:   Mon Oct 29 10:25:37 2012 -0300
+
+    Update NEWS
+
+M	NEWS
+
+commit 3dcd7a3c6311ad34ac215bb49daaa22bdf06a163
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 26 14:42:38 2012 -0400
+
+    Documentation for Belair AP
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide-docinfo.xml
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 1a0ae49cdf2e52bb3c418e94b013eed652d649f6
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 26 14:23:55 2012 -0400
+
+    Belair module
+
+A	lib/pf/SNMP/Belair.pm
+
+commit 006ac4b9d8dd76b67118bd4a109ce3dccc82dca8
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Fri Oct 26 11:50:18 2012 -0400
+
+    Supporting Belair Networks AP
+
+M	NEWS
+M	README.network-devices
+M	html/admin/configuration/switches_add.php
+M	html/admin/configuration/switches_edit.php
+
+commit 2603f4b5f1ac894e8e119306e6ff58c53b31e47d
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 25 16:46:16 2012 -0400
+
+    NEWS prep
+
+M	NEWS
+
+commit 9483c9eb0e97a7cb12938aab317874c88dbba149
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 25 16:43:43 2012 -0400
+
+    Post-release Bump
+
+M	NEWS
+M	conf/pf-release
+
+commit 1a43b7dd95af986a7ea583a3f3c08ffc2d3c1168
+Author: Francois Gaudreault <fgaudreault@inverse.ca>
+Date:   Thu Oct 25 15:03:27 2012 -0400
+
+    Version Bump.
+
+M	ChangeLog
+M	NEWS
+M	UPGRADE
+M	addons/packages/packetfence.spec
+M	debian/changelog
+
 commit 27692862c6545ef48afe4994e63019ae436a1c35
 Author: Francois Gaudreault <fgaudreault@inverse.ca>
 Date:   Thu Oct 25 14:41:14 2012 -0400
