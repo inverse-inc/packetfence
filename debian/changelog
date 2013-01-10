@@ -1,3 +1,9 @@
+packetfence (3.6.1) unstable; urgency=low
+
+  * Version 3.6.1
+
+ -- Derek Wuelfrath <dwuelfrath@inverse.ca> Thu, Jan 10 2013 01:28:00 -0500
+
 packetfence (3.6.0) unstable; urgency=low
 
   * Version 3.6.0

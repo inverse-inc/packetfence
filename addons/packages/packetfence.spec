@@ -798,6 +798,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Thu Jan 10 2013 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.6.1-1
+- New release 3.6.1
+
 * Mon Oct 29 2012 Francois Gaudreault <fgaudraeult@inverse.ca>
 - Changing the location of ssl-certificate.conf
 - Fixing file dupes
