@@ -169,6 +169,8 @@
 
     /* Preview a violation's remediation page */
     $('#section').on('click', '[href*="#previewPage"]', function(event) {
+        if ($(this).hasClass('disabled'))
+            return false;
         var modal = $('#modalViolation');
         var url = $(this).attr('href');
         modal.empty();
