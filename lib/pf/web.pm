@@ -124,6 +124,14 @@ sub render_template {
     my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
     print $portalSession->cgi->header( -cookie => $cookie );
 
+    # print custom headers if there's some
+    if ( $portalSession->stash->{headers} ) {
+        my @headers = $portalSession->stash->{headers};
+        foreach (@headers) {
+            print $portalSession->cgi->header($_);
+        }
+    }
+
     $logger->debug("rendering template named $template");
     my $tt = Template->new({ 
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath], 
@@ -233,8 +241,11 @@ sub generate_apple_mobileconfig_provisioning_xml {
 
     # Some required headers
     # http://www.rootmanager.com/iphone-ota-configuration/iphone-ota-setup-with-signed-mobileconfig.html
-    print $portalSession->cgi->header('Content-type: application/x-apple-aspen-config; chatset=utf-8');
-    print $portalSession->cgi->header('Content-Disposition: attachment; filename="wireless-profile.mobileconfig"');
+    my @headers = (
+        'Content-type: application/x-apple-aspen-config; chatset=utf-8',
+        'Content-Disposition: attachment; filename="wireless-profile.mobileconfig"',
+    );
+    $portalSession->stash->{'headers'} = @headers;
 
     render_template($portalSession, 'wireless-profile.xml');
 }
@@ -258,7 +269,16 @@ sub generate_scan_start_page {
 sub generate_login_page {
     my ( $portalSession, $err ) = @_;
 
-    $portalSession->stash->{'guest_allowed'} = isenabled($portalSession->getProfile->getGuestSelfReg);
+    #Signup link activated if self_reg is enabled AND we have at least 1 proper mode activated
+    if (isenabled($portalSession->getProfile->getGuestSelfReg) && 
+       ( is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) || 
+         is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ||
+         is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) ) {
+        $portalSession->stash->{'guest_allowed'} = 1;
+    } else {
+        $portalSession->stash->{'guest_allowed'} = 0;
+    }
+
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
     # return login

@@ -652,7 +652,11 @@ fi
 %config                 /usr/local/pf/conf/dhcpd.conf
 %config                 /usr/local/pf/conf/httpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
-%config                 /usr/local/pf/conf/httpd.conf.d/*
+%config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/ocsp-crl.conf
+%config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 %config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
@@ -673,7 +677,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
-%config(noreplace)      /usr/local/pf/conf/ssl-certificates.conf
 %config(noreplace)      /usr/local/pf/conf/suricata.yaml
 %dir                    /usr/local/pf/conf/templates
 %config(noreplace)      /usr/local/pf/conf/templates/*
@@ -762,26 +765,18 @@ fi
 %dir                    /usr/local/pf/raddb
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf
-%config                 /usr/local/pf/raddb/packetfence.pm
-%attr(0755, pf, pf)     /usr/local/pf/raddb/packetfence.pm
-%config                 /usr/local/pf/raddb/packetfence-soh.pm
-%attr(0755, pf, pf)     /usr/local/pf/raddb/packetfence-soh.pm
+%attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence.pm
+%attr(0755, pf, pf) %config    /usr/local/pf/raddb/packetfence-soh.pm
 %config                 /usr/local/pf/raddb/proxy.conf
 %config                 /usr/local/pf/raddb/users
 %config                 /usr/local/pf/raddb/modules/mschap
 %config                 /usr/local/pf/raddb/modules/perl
-%config                 /usr/local/pf/raddb/sites-available/packetfence
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-available/packetfence
-%config                 /usr/local/pf/raddb/sites-available/packetfence-soh
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-available/packetfence-soh
-%config                 /usr/local/pf/raddb/sites-available/packetfence-tunnel
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-available/packetfence-tunnel
-%config                 /usr/local/pf/raddb/sites-enabled/packetfence
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence
-%config                 /usr/local/pf/raddb/sites-enabled/packetfence-soh
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-soh
-%config                 /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
-%attr(0755, pf, pf)     /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
+%attr(0755, pf, pf) %config     /usr/local/pf/raddb/sites-available/packetfence
+%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-available/packetfence-soh
+%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-available/packetfence-tunnel
+%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence
+%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence-soh
+%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
@@ -803,6 +798,13 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Thu Jan 10 2013 Derek Wuelfrath <dwuelfrath@inverse.ca> - 3.6.1-1
+- New release 3.6.1
+
+* Mon Oct 29 2012 Francois Gaudreault <fgaudraeult@inverse.ca>
+- Changing the location of ssl-certificate.conf
+- Fixing file dupes
+
 * Thu Oct 25 2012 Francois Gaudreault <fgaudreault@inverse.ca> - 3.6.0-1
 - New release 3.6.0
 

@@ -246,14 +246,6 @@ sub node_db_prepare {
     $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="reg" and unregdate != 0 and unregdate < now() ]);
 
-    $node_statements->{'node_expire_window_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac FROM node WHERE status="reg" AND unix_timestamp(regdate) + ? < unix_timestamp(now()) ]
-    );
-
-    $node_statements->{'node_expire_deadline_sql'} = get_db_handle()->prepare(
-        qq [ SELECT mac FROM node WHERE status="reg" AND unix_timestamp(regdate) <  ? ]
-    );
-
     $node_statements->{'node_expire_session_sql'} = get_db_handle()->prepare(qq[
         UPDATE node n SET n.status="unreg" 
         WHERE n.status="reg" 
@@ -874,27 +866,8 @@ sub nodes_maintenance {
     if ( isdisabled($expire_mode) ) {
         return (1);
     } else {
-        if ( ( lc($expire_mode) eq 'window' ) && $Config{'registration'}{'expire_window'} > 0 ) {
-            my $expire_window_query = db_query_execute(
-                NODE, $node_statements, 'node_expire_window_sql', $Config{'registration'}{'expire_window'}
-            ) || return (0);
-            while (my $row = $expire_window_query->fetchrow_hashref()) {
-                my $currentMac = $row->{mac};
-                pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
-                $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration window" );
-            }
-
-        } elsif ((lc($expire_mode) eq 'deadline' ) && ( time - $Config{'registration'}{'expire_deadline'} > 0 )) {
-            my $expire_deadline_query = db_query_execute(
-                NODE, $node_statements, 'node_expire_deadline_sql', $Config{'registration'}{'expire_deadline'}
-            ) || return (0);
-            while (my $row = $expire_deadline_query->fetchrow_hashref()) {
-                my $currentMac = $row->{mac};
-                pf_run("/usr/local/pf/bin/pfcmd manage deregister $currentMac");
-                $logger->info("modified $currentMac from status 'reg' to 'unreg' based on expiration deadline" );
-            }
-
-        } elsif ( lc($expire_mode) eq 'session' ) {
+        #TODO: Are we still using that?
+        if ( lc($expire_mode) eq 'session' ) {
             my $expire_session_query = db_query_execute(
                 NODE, $node_statements, 'node_expire_session_sql', $Config{'registration'}{'expire_session'}
             ) || return (0);

@@ -14,7 +14,7 @@ use diagnostics;
 
 use lib '/usr/local/pf/lib';
 
-use Test::More tests => 26;
+use Test::More tests => 24;
 use Test::NoWarnings;
 use Test::Exception;
 use File::Basename qw(basename);
@@ -119,15 +119,6 @@ is_deeply(
     $parsing_result_ref,
     [ [ "TOT20GBM", "TOT20GBM", "accounting" ], ],
     'validating bandwidth accounting trigger'
-);
-
-lives_ok { $parsing_result_ref = parse_triggers("Accounting::TOT20GB") }
-    'parsing bandwidth accounting trigger without a time limit'
-;
-is_deeply(
-    $parsing_result_ref,
-    [ [ "TOT20GB", "TOT20GB", "accounting" ], ],
-    'validating bandwidth accounting trigger without a time limit'
 );
 
 throws_ok { parse_triggers("VENDORMAC::TOT20GB") }

@@ -13,7 +13,34 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
-Version <stableRelease> released on <releaseDate>
+Version 3.6.1 released on 2013-01-10
+
+New Features
+ * Adding routing support for the inline mode
+ * Adding support to choose multiples SNAT interfaces for inline mode
+ * Adding gaming devices registration through special portal page
+
+New Hardware
+ * Support Belair Networks AP
+
+Translations
+ * Update Dutch translation
+ * Update French translation
+
+Enchancements
+ * Minimal RADIUS logging in the GUI (#1342)
+ * Accounting Time Modifier is now mandatory (#1538)
+ * Changing the location of ssl-certificates.conf file (#1550)
+ * Modifying the way pfdhcplistener handles tagged trafic
+
+Bug Fixes
+ * SMS confirmation page is now giving error on invalid PIN (#1579)
+ * Signup link availability issues (#1591)
+ * Avoid using regdate to determine if node should be unreg (#1317)
+ * Guest self-activation issues (#1602, #1606, #1607, #1608)
+ * Portal profiles regression with VLAN filter (#1595)
+ * Apple XML provisioning profile displays payload rather than the profile itself (#1616)
+
 
 Bug Fixes
  * Portal Profile fix (#1595)
@@ -45,7 +72,7 @@ Enhancements
  * Removed 127.0.0.1 switch from the config and added in the code
  * Inline Mode now using ipset instead of just iptables
  * Selection of a preferred deauthentication method for a switch
- * Handling the MySQL startup in the web configurator
+ * Handling the MySQL startup in the web configurator (#1574)
  * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
  * Changing port of the configuration from 3000 to 1444 (#1506)
  * Debian packages improvements

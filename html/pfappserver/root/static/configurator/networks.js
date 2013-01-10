@@ -54,7 +54,7 @@ function initModals() {
     $('#modalCreateVlan button[type="submit"]').click(function(event) {
         var modal = $('#modalCreateVlan');
         var valid = true;
-        if (isInvalidNumber($('#vlanId'), 1, 4096) ||
+        if (isInvalidNumber($('#vlanId'), 1, 4095) ||
             isFormInputEmpty($('#vlanIp')))
             valid = false;
         if (valid) {

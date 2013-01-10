@@ -2,16 +2,15 @@
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
-# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
 # Derek Wuelfrath <dwuelfrath@inverse.ca>, 2012.
 # Dominique Couot <dcouot@hotmail.com>, 2012.
-# Inverse inc.  <info@inverse.ca>, 2012.
-#
+# Olivier Bilodeau <obilodeau@inverse.ca>, 2009-2012.
+# Francis Lachapelle <flachapelle@inverse.ca>, 2012-2013
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-08-01 18:35+0000\n"
+"PO-Revision-Date: 2013-01-07 20:29+0000\n"
 "Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -164,7 +163,7 @@ msgid "Guest Registration"
 msgstr "Inscription"
 
 msgid "guest network disclaimer"
-msgstr "Ce réseau public est fournis exclusivement pour la convenence des invités et des visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fournis pour donner un accés a Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
+msgstr "Ce réseau public est fourni exclusivement pour faciliter l'accès aux invités et aux visiteurs.  L'accès n'implique aucune garantie de fiabilité, de vitesse ou de confidentialité.  Ce réseau est strictement fourni pour donner un accès à l'Internet.  Son utilisation implique l'acceptation de tous les termes et conditions contenus dans notre <b>Politique d'accès réseau</b>."
 
 msgid ""
 "In the fields below please enter your name, phone number and a valid email "
@@ -717,7 +716,7 @@ msgid "Quantity"
 msgstr "Quantité"
 
 msgid "Print access codes"
-msgstr "Imprimer codes d'accés"
+msgstr "Imprimer codes d'accès"
 
 msgid "Logout"
 msgstr "Dèconnecter"
@@ -996,8 +995,29 @@ msgstr "Impossible de valider votre sponsor pour le moment"
 msgid "Email %s is not allowed to sponsor guest access"
 msgstr "Le courriel %s n'est pas autoriser pour sponsoriser les accès invité"
 
+msgid "You need to be authenticated to access this page."
+msgstr "Vous devez vous authentifier pour accéder à cette page. "
+
 msgid "OAuth2 Error: Failed to get the token"
 msgstr "OAuth2: Impossible d'obtenir un jeton"
 
 msgid "OAuth2 Error: Failed to validate the token, please retry"
-msgstr "OAuth2: Impossible de valider le jeton, SVP ressayez de nouveau"
+msgstr "OAuth2: Impossible de valider le jeton, SVP essayez de nouveau"
+
+msgid "Registration canceled please try again"
+msgstr "Echec de l'enregistrement. Veuillez réessayer."
+
+msgid "Please verify MAC address provided"
+msgstr "SVP vérifiez l'adresse MAC"
+
+msgid "You are not authorized"
+msgstr "Vous n'êtes pas autorisé."
+
+msgid "The MAC address %s has been successfully registered."
+msgstr "L'adresse MAC %s a été enregistrée avec succès."
+
+msgid "The MAC address %s provided is invalid please try again"
+msgstr "L'adresse MAC %s n'est pas valide. Veuillez réessayer."
+
+msgid "This module is not enabled"
+msgstr "Ce module n'est pas activé"

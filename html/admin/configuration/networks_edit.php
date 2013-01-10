@@ -96,6 +96,13 @@
                          'disabled' => 'disabled',
                     ),
                    'hash', $val, "name='$key'");
+    } elseif ($key == 'nat') {
+      print "<tr><td></td><td>$pretty_key:</td><td>";
+      printSelect( array('' => 'please choose',
+                         'yes' => 'yes',
+                         'no' => 'no',
+                    ),
+                   'hash', $val, "name='$key'");
     } else {
       print "<tr><td></td><td>$pretty_key:</td><td><input type='text' name='$key' value='$val'>";
     }

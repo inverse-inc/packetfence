@@ -10,7 +10,7 @@
   access control (NAC) system. Boasting an impressive feature set including a 
   captive-portal for registration and remediation, centralized wired and 
   wireless management, 802.1X support, layer-2 isolation of problematic 
-  devices, integration with the Snort IDS and the Nessus vulnerability scanner;
+  devices, integration with IDSs and vulnerability scanners;
   PacketFence can be used to effectively secure networks - from small to very 
   large heterogeneous networks. 
 
@@ -53,10 +53,9 @@
   ---------------
 
   Maintainers
-    Olivier Bilodeau
     Fabrice Durand
-    Francois Gaudreault
     Francis Lachapelle
+    James Rouzier
     Derek Wuelfrath
 
   Translators
@@ -78,6 +77,8 @@
     Dominik Gehl
     Kevin Amorin 
     Regis Balzard
+    Olivier Bilodeau
+    Francois Gaudreault
 
   Contributors
     Brivaldo Junior
@@ -95,4 +96,4 @@
     Tino Matysiak
     Treker Chen
     Vincent Blut
-
+    Jean Raby

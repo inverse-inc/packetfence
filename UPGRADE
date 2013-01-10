@@ -5,8 +5,29 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 3.6.1
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+New gaming devices registration add a default category. 
+Make sure you run the following to update your schema EVEN IF YOU DON'T USE THAT FEATURE
+
+mysql -u root -p pf -v < db/upgrade-3.5.0-3.6.1.sql
+
+SSL certificate config file moved
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File has moved into `conf/httpd.conf.d`. Your modifications WILL NOT follow automatically, please
+manually fix it.
+
+Accounting modifier is now mandatory
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When you create a bandwidth violation for accounting, the time modifier is now mandatory.  You need
+to either use D,W,M, or Y.
+
+
 Upgrading from a version prior to 3.6.0
-------------------------------------------------
+---------------------------------------
 
 Changes to VLAN assignement
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

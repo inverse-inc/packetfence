@@ -2,13 +2,14 @@
 # This file is distributed under the same license as the PacketFence project.
 # 
 # Translators:
-#
+#   <mvdroest@utelisys.com>, 2013.
+#   <tijdelijkeshit@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-06-03 01:09+0000\n"
-"Last-Translator: zappo <tijdelijkeshit@gmail.com>\n"
+"PO-Revision-Date: 2013-01-07 20:21+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/packetfence/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -48,7 +49,7 @@ msgid "error: invalid login or password"
 msgstr "ongeldige login of wachtwoord"
 
 msgid "Invalid login or password"
-msgstr ""
+msgstr "Verkeerde gebruikersnaam of wachtwoord"
 
 msgid "error: invalid page number"
 msgstr "ongeldig pagina nummer"
@@ -67,13 +68,13 @@ msgstr "Er mogen slechts een maximum van %s nodes geregistreerd worden!"
 
 # deprecated but kept for a couple of versions (until at least early 2013)
 msgid "error: unable to validate credentials at the moment"
-msgstr ""
+msgstr "Helaas kunnen uw gegevens nu niet gecontroleerd worden"
 
 msgid "Unable to validate credentials at the moment"
-msgstr ""
+msgstr "Helaas kunnen uw gegevens nu niet gecontroleerd worden"
 
 msgid "error: something went wrong creating the guest"
-msgstr ""
+msgstr "Helaas kan het gastaccount niet worden aangemaakt"
 
 msgid "help: provide info"
 msgstr "Mochten er vragen zijn over deze pagina, neem dan contact op met de helpdesk voor assistentie. Vermeld hierbij de volgende informatie: "
@@ -88,7 +89,7 @@ msgid "register: to complete"
 msgstr "Om het registratie proces te voltooien dient u uw gebruikersnaam en wachtwoord in te vullen."
 
 msgid "Authentication"
-msgstr ""
+msgstr "Authenticatie"
 
 msgid "or"
 msgstr "of"
@@ -106,7 +107,7 @@ msgid "release: reopen browser"
 msgstr "U dient wellicht uw browser opnieuw te openen"
 
 msgid "scan: scan in progress"
-msgstr ""
+msgstr "Uw systeem wordt gescanned"
 
 msgid "scan in progress contact support if too long"
 msgstr ""
@@ -124,7 +125,7 @@ msgid "De-register node"
 msgstr "Machine deregistreren"
 
 msgid "Scanning ..."
-msgstr ""
+msgstr "Scanning.."
 
 msgid "Gateway"
 msgstr "Gateway"
@@ -139,7 +140,7 @@ msgid "IP"
 msgstr "IP adres"
 
 msgid "Login"
-msgstr ""
+msgstr "Log in. "
 
 msgid "MAC"
 msgstr "MAC"
@@ -165,7 +166,7 @@ msgstr ""
 msgid ""
 "In the fields below please enter your name, phone number and a valid email "
 "address."
-msgstr ""
+msgstr "In het onderstaande veld dient u uw naam, telefoon nummer en geldig email adres in te vullen. "
 
 msgid ""
 "If you choose to receive your access code <strong>by email</strong>, you "
@@ -232,25 +233,25 @@ msgid "Quarantine Established!"
 msgstr ""
 
 msgid "Registration Notification"
-msgstr ""
+msgstr "Registratie melding"
 
 msgid "Additional Assistance"
-msgstr ""
+msgstr "Voor meer hulp"
 
 msgid ""
 "If your network connectivity becomes permanently disabled or you are unable "
 "to follow the instructions above, please contact your local IT support staff"
 " for assistance."
-msgstr ""
+msgstr "Als uw netwerk toegang compleet is uitgeschakeld en u geen gebruik kunt maken van de bovenstaande instructies, neemt u dan contact op met de helpdesk."
 
 msgid "The following information should be provided upon request:"
 msgstr ""
 
 msgid "IP Address"
-msgstr ""
+msgstr "IP adres"
 
 msgid "MAC Address"
-msgstr ""
+msgstr "Mac Adres"
 
 msgid "Banned Operating System"
 msgstr "Verbannen Besturingssysteem"
@@ -288,7 +289,7 @@ msgid ""
 msgstr ""
 
 msgid "Generic"
-msgstr ""
+msgstr "Algemeen"
 
 msgid "Network connectivity has been disabled."
 msgstr ""
@@ -347,31 +348,31 @@ msgid "guest registration instructions"
 msgstr ""
 
 msgid "Firstname"
-msgstr ""
+msgstr "Voornaam"
 
 msgid "firstname"
-msgstr ""
+msgstr "voornaam"
 
 msgid "Lastname"
-msgstr ""
+msgstr "Achternaam"
 
 msgid "lastname"
-msgstr ""
+msgstr "achternaam"
 
 msgid "Company"
-msgstr ""
+msgstr "Bedrijf"
 
 msgid "Company / Organization"
-msgstr ""
+msgstr "Bedrijf/Instelling"
 
 msgid "organization"
-msgstr ""
+msgstr "bedrijf/instelling"
 
 msgid "Phone number"
-msgstr ""
+msgstr "Telefoonummer"
 
 msgid "phone"
-msgstr ""
+msgstr "telefoonnummer"
 
 msgid "Phone Provider"
 msgstr ""
@@ -380,10 +381,10 @@ msgid "Select your provider"
 msgstr ""
 
 msgid "Email"
-msgstr ""
+msgstr "E-Mail"
 
 msgid "email"
-msgstr ""
+msgstr "e-mail adres"
 
 msgid "Sponsor's email"
 msgstr ""
@@ -392,41 +393,41 @@ msgid "sponsor_email"
 msgstr ""
 
 msgid "Address"
-msgstr ""
+msgstr "Adres"
 
 msgid "Arrival Date"
-msgstr ""
+msgstr "Aankomst datum"
 
 msgid "End Date"
-msgstr ""
+msgstr "Vertrek datum"
 
 msgid "Access Duration"
-msgstr ""
+msgstr "Toegangstijd"
 
 msgid "Notes"
-msgstr ""
+msgstr "Notities"
 
 msgid "Send access code by email"
-msgstr ""
+msgstr "Stuur code per e-mail"
 
 msgid "Print access code"
-msgstr ""
+msgstr "Print toegangscode"
 
 msgid "Print"
-msgstr ""
+msgstr "Print"
 
 msgid "Back"
-msgstr ""
+msgstr "Terug"
 
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "seconde"
+msgstr[1] "seconden"
 
 msgid "minute"
 msgid_plural "minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "minuut"
+msgstr[1] "minuten"
 
 msgid "hour"
 msgid_plural "hours"
@@ -435,23 +436,23 @@ msgstr[1] ""
 
 msgid "day"
 msgid_plural "days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "dag"
+msgstr[1] "dagen"
 
 msgid "week"
 msgid_plural "weeks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "week"
+msgstr[1] "weken"
 
 msgid "month"
 msgid_plural "months"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "maand"
+msgstr[1] "maanden"
 
 msgid "year"
 msgid_plural "years"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "jaar"
+msgstr[1] "jaren"
 
 msgid "Invalid access duration provided"
 msgstr ""
@@ -489,7 +490,7 @@ msgid "Can't open uploaded file."
 msgstr ""
 
 msgid "Confirm Mobile Phone Number"
-msgstr ""
+msgstr "Bevestig mobiel telefoonnummer"
 
 msgid ""
 "Please enter the PIN code received on your mobile phone in order to gain "
@@ -500,10 +501,10 @@ msgid "PIN"
 msgstr ""
 
 msgid "Confirm"
-msgstr ""
+msgstr "Bevestig"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Annuleer"
 
 msgid "Guest Access Code"
 msgstr ""
@@ -535,13 +536,13 @@ msgid "CSV file import"
 msgstr ""
 
 msgid "You are logged in as"
-msgstr ""
+msgstr "U bent ingelogd als"
 
 msgid "Sponsored by"
 msgstr ""
 
 msgid "Guest Network Access Information"
-msgstr ""
+msgstr "Gasten netwerk toegang informatie"
 
 msgid ""
 "If you have scripting turned off, you will not be automatically redirected. "
@@ -574,10 +575,10 @@ msgid ""
 msgstr ""
 
 msgid "I accept the terms"
-msgstr ""
+msgstr "Ik accepteer de voorwaarden"
 
 msgid "I have read and accept the terms"
-msgstr ""
+msgstr "Ik heb de <a href='/aup' target='_blank'>voorwaarden</a> gelezen en accepteer ze"
 
 msgid "You need to accept the terms before proceeding any further."
 msgstr ""
@@ -588,7 +589,7 @@ msgid ""
 msgstr ""
 
 msgid "Next page"
-msgstr ""
+msgstr "Volgende pagina"
 
 msgid ""
 "The activation code provided is invalid. Reasons could be: it never existed,"
@@ -662,7 +663,7 @@ msgid "Trojan Infection"
 msgstr ""
 
 msgid "Unauthorized device"
-msgstr ""
+msgstr "Ongeautoriseerd apparaat"
 
 msgid ""
 "Your system has been found to be infected with a Trojan IRC bot and is "
@@ -693,10 +694,10 @@ msgid "You must be authenticated to manage guests."
 msgstr ""
 
 msgid "This account is expired."
-msgstr ""
+msgstr "Uw account is verlopen."
 
 msgid "This account is not yet activated."
-msgstr ""
+msgstr "Uw account is nog niet geactiveerd. "
 
 msgid ""
 "Your network should be enabled within a minute or two. If it is not reboot "
@@ -710,13 +711,13 @@ msgid "Username Prefix"
 msgstr ""
 
 msgid "Quantity"
-msgstr ""
+msgstr "Aantal"
 
 msgid "Print access codes"
-msgstr ""
+msgstr "Print toegangscodes"
 
 msgid "Logout"
-msgstr ""
+msgstr "Uitloggen"
 
 msgid "Required columns: username, password."
 msgstr ""
@@ -728,10 +729,10 @@ msgid "Columns Order"
 msgstr ""
 
 msgid "comma (,)"
-msgstr ""
+msgstr "komma (,)"
 
 msgid "semicolon (;)"
-msgstr ""
+msgstr "punt komma (;)"
 
 msgid "tab"
 msgstr ""
@@ -775,7 +776,7 @@ msgid "Credit Card Verification Number"
 msgstr ""
 
 msgid "Continue"
-msgstr ""
+msgstr "Ga verder"
 
 msgid ""
 "An error occured while processing your payment. Incorrect credit card "
@@ -806,10 +807,10 @@ msgid "Do nothing"
 msgstr ""
 
 msgid "Accept"
-msgstr ""
+msgstr "Accepteer"
 
 msgid "Reject"
-msgstr ""
+msgstr "Verwerp"
 
 msgid "Trigger violation"
 msgstr ""
@@ -990,4 +991,31 @@ msgid "Unable to validate your sponsor at the moment"
 msgstr ""
 
 msgid "Email %s is not allowed to sponsor guest access"
+msgstr ""
+
+msgid "You need to be authenticated to access this page."
+msgstr ""
+
+msgid "OAuth2 Error: Failed to get the token"
+msgstr ""
+
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr ""
+
+msgid "Registration canceled please try again"
+msgstr ""
+
+msgid "Please verify MAC address provided"
+msgstr ""
+
+msgid "You are not authorized"
+msgstr ""
+
+msgid "The MAC address %s has been successfully registered."
+msgstr ""
+
+msgid "The MAC address %s provided is invalid please try again"
+msgstr ""
+
+msgid "This module is not enabled"
 msgstr ""
