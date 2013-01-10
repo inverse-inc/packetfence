@@ -1,7 +1,8 @@
 <copyright>
-  <year>2010-2012</year>
+  <year>2010-2013</year>
   <holder>Inverse inc.</holder>
 </copyright>
+
 <revhistory>
   <revision>
     <revnumber>2.6</revnumber>
@@ -58,6 +59,7 @@
     <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
+
 <authorgroup>
   <author>
     <firstname>Fabrice</firstname>
