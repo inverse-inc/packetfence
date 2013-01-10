@@ -87,6 +87,9 @@ Command-line and Web-based management::
 Guest Access::
   PacketFence supports a special guest VLAN out of the box. You configure your network so that the guest VLAN only goes out to the Internet and the registration VLAN and the captive portal are the components used to explain to the guest how to register for access and how his access works. This is usually branded by the organization offering the access. Several means of registering guests are possible. PacketFence does also support guest access bulk creations and imports.
 
+Gaming devices registration::
+  A registered user can access a special portal-page from within the network to allow him to register a gaming device of his own. This registration will require login from the user and then will register gaming devices with pre-approved MAC OUI into a configurable category.
+
 PacketFence is developed by a community of developers located mainly in North America. More information can be found at http://www.packetfence.org.
 
 Network Integration
@@ -228,7 +231,7 @@ Install the proper repositories in `yum` so it can directly lookup for packages:
 .For RHEL 6.x / CentOS 6.x
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
-  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-7.noarch.rpm
+  # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-8.noarch.rpm
   # rpm -Uvh http://repo.openfusion.net/centos6-`uname -i`/openfusion-release-0.6.2-1.of.el6.noarch.rpm
 
 Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
@@ -295,6 +298,10 @@ In order to use the repository, just create a file named `/etc/yum.repos.d/Packe
   baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
   gpgcheck=0
   enabled=0
+
+NOTE: Under RHEL 5.x / Centos 5.x, you must exclude packages from PacketFence repository edit /etc/yum.repos.d/PacketFence.repo and add on the section [PacketFence] the line:
+
+  exclude = perl-HTML-FormHandler*
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (DNS server, database
@@ -2097,6 +2104,25 @@ Once you have your information, configure the OAuth2 provider in pf.conf that wa
    redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/github
 
 Like other providers, enable the GitHub authentication in the `guests_self_registration.modes` field.
+
+Gaming devices registration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Users have the possibility to register gaming devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. By accessing this page, users will be prompted to login as if they were registering themselves. Once they log in, the portal will ask them to enter the gaming device MAC address that will then be matched against a predefined list of authorized MAC OUI. Once done, the gaming device will be registered with the user's id and can be assigned into a specific category for easier management.
+
+Here's how to configure the whole thing.
+The portal page can be accessed by the following URL: https://YOUR_PORTAL_HOSTNAME/gaming-registration
+This URL is accessible from within the network, in any VLAN that can actually reach the PacketFence server.
+
+The following can be configured by editing the pf.conf file:
+
+   [registration]
+   gaming_devices_registration = enabled
+
+   [gaming_devices_registration]
+   category = THE_CATEGORY_YOU_WANT_TO_ASSIGN
+
+Make sure the category you set in the pf.conf file actually exists in PacketFence otherwise you will encounter registration errors. 
 
 Operating System Best Practices
 -------------------------------
