@@ -106,7 +106,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($configViolationsModel, $status, $result);
-    my ($form, $actions, $violations, $triggers);
+    my ($form, $actions, $violations, $triggers, $templates);
 
     $configViolationsModel = $c->model('Config::Violations');
     ($status, $result) = $configViolationsModel->read_violation('all');
@@ -115,6 +115,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     }
     $actions = $configViolationsModel->availableActions();
     $triggers = $configViolationsModel->list_triggers();
+    $templates = $configViolationsModel->availableTemplates();
     $c->stash->{trigger_types} = $configViolationsModel->availableTriggerTypes();
 
     if ($c->stash->{violation} && !$c->stash->{action_uri}) {
@@ -125,7 +126,8 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
                                               init_object => $c->stash->{violation},
                                               actions => $actions,
                                               violations => $violations,
-                                              triggers => $triggers);
+                                              triggers => $triggers,
+                                              templates => $templates);
     $form->process();
     $c->stash->{form} = $form;
 }
@@ -140,7 +142,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($status, $result);
 
     if ($c->request->method eq 'POST') {
-        my ($form, $configViolationsModel, $actions, $violations, $triggers);
+        my ($form, $configViolationsModel, $actions, $violations, $triggers, $templates);
 
         $configViolationsModel = $c->model('Config::Violations');
         ($status, $result) = $configViolationsModel->read_violation('all');
@@ -149,10 +151,12 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         $actions = $configViolationsModel->availableActions();
         $triggers = $configViolationsModel->list_triggers();
+        $templates = $configViolationsModel->availableTemplates();
         $form = pfappserver::Form::Violation->new(ctx => $c,
                                                   actions => $actions,
                                                   violations => $violations,
-                                                  triggers => $triggers);
+                                                  triggers => $triggers,
+                                                  templates => $templates);
         $form->process(params => $c->req->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
