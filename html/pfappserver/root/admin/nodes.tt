@@ -77,14 +77,14 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form name="simpleSearch" class="form-inline" action="simple_search">
+                  <form name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('Node').action_for('simple_search')) %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>
                     <input type="text" class="input-small" name="end">
                     <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
-                  <input type="text" name="filter" placeholder="Search..." value="[%filter | html%]">
+                  <input type="text" name="filter" placeholder="Search..." value="[% filter | html %]">
                   <div class="btn-group pull-right">
                     <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                     <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
@@ -95,7 +95,7 @@ form {
                   </form>
                 </div>
                 <div class="tab-pane well" id="advanced">
-                  <form name="advancedSearch" class="form-inline" method="POST" action="[% c.uri_for('/node/advanced_search') %]">
+                  <form name="advancedSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('Node').action_for('advanced_search')) %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">[% l('to') %]</span>

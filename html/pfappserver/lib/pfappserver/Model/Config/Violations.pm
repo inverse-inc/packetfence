@@ -58,6 +58,21 @@ sub availableTriggerTypes {
     return $triggers;
 }
 
+=head2 availableTemplates
+
+Return the list of available remediation templates
+
+=cut
+
+sub availableTemplates {
+    opendir(DIR, $CAPTIVE_PORTAL{TEMPLATE_DIR} . '/violations');
+    my @templates = grep { /^[^\.]+\.html$/ } readdir(DIR);
+    s/\.html// for @templates;
+    closedir(DIR);
+
+    return \@templates;
+}
+
 =item update
 
 Update configuration. Supports batch updates.

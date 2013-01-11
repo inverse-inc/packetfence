@@ -19,6 +19,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pf::config;
 use pfappserver::Form::Violation;
 
 BEGIN {extends 'Catalyst::Controller'; }
@@ -105,7 +106,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($configViolationsModel, $status, $result);
-    my ($form, $actions, $violations, $triggers);
+    my ($form, $actions, $violations, $triggers, $templates);
 
     $configViolationsModel = $c->model('Config::Violations');
     ($status, $result) = $configViolationsModel->read_violation('all');
@@ -114,6 +115,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     }
     $actions = $configViolationsModel->availableActions();
     $triggers = $configViolationsModel->list_triggers();
+    $templates = $configViolationsModel->availableTemplates();
     $c->stash->{trigger_types} = $configViolationsModel->availableTriggerTypes();
 
     if ($c->stash->{violation} && !$c->stash->{action_uri}) {
@@ -124,7 +126,8 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
                                               init_object => $c->stash->{violation},
                                               actions => $actions,
                                               violations => $violations,
-                                              triggers => $triggers);
+                                              triggers => $triggers,
+                                              templates => $templates);
     $form->process();
     $c->stash->{form} = $form;
 }
@@ -139,7 +142,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($status, $result);
 
     if ($c->request->method eq 'POST') {
-        my ($form, $configViolationsModel, $actions, $violations, $triggers);
+        my ($form, $configViolationsModel, $actions, $violations, $triggers, $templates);
 
         $configViolationsModel = $c->model('Config::Violations');
         ($status, $result) = $configViolationsModel->read_violation('all');
@@ -148,10 +151,12 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         $actions = $configViolationsModel->availableActions();
         $triggers = $configViolationsModel->list_triggers();
+        $templates = $configViolationsModel->availableTemplates();
         $form = pfappserver::Form::Violation->new(ctx => $c,
                                                   actions => $actions,
                                                   violations => $violations,
-                                                  triggers => $triggers);
+                                                  triggers => $triggers,
+                                                  templates => $templates);
         $form->process(params => $c->req->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
@@ -191,17 +196,42 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =head2 preview
 
-Load the associated remediation page in a iframe.
+Load the associated remediation page in an iframe.
 
 =cut
 
 sub preview :Chained('object') :PathPart('preview') :Args(0) {
     my ($self, $c) = @_;
+
 }
 
-=head1 AUTHOR
+=head2 demo
 
-Francis Lachapelle <flachapelle@inverse.ca>
+=cut
+
+sub demo :Chained('object') :PathPart('demo') :Args(0) {
+    my ($self, $c) = @_;
+
+    # Create a fake session profile and render the template
+    # as in pf::web::generate_violation_page
+
+    my $url = sprintf('violations/%s.html', $c->stash->{violation}->{template});
+    $c->stash->{sub_template} = $url;
+    $c->stash->{logo} = $Config{'general'}{'logo'};
+
+    $c->stash->{dhcp_fingerprint} = '1,28,2,3,15,6,119,12,44,47,26,121,42';
+    $c->stash->{last_switch} = '10.0.0.4';
+    $c->stash->{last_port} = '4097';
+    $c->stash->{last_vlan} = '102';
+    $c->stash->{last_connection_type} = 'Wireless-802.11-EAP';
+    $c->stash->{last_ssid} = 'PacketFence-Secure';
+    $c->stash->{username} = 'mcrispin';
+    $c->stash->{list_help_info} = [{ name => $c->loc('IP'), value => '10.0.0.123' },
+                                   { name => $c->loc('MAC'), value => 'c8:bc:c8:ce:65:e1' }];
+
+    $c->stash->{additional_template_paths} = ['../captive-portal/templates/'];
+    $c->stash->{template} = 'remediation.html';
+}
 
 =head1 COPYRIGHT
 

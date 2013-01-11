@@ -22,6 +22,7 @@ has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 has 'actions' => ( is => 'ro' );
 has 'violations' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
+has 'templates' => ( is => 'ro' );
 
 # Form fields
 has_field 'enabled' =>
@@ -119,11 +120,10 @@ has_field 'window' =>
   );
 has_field 'template' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Template',
-   element_class => ['input-xxlarge'],
    tags => { after_element => \&help,
-             help => 'HTML template the host will be redirected to while in violation. This is usually the name of the remediation template to show to the user. Full URLs like <code>http://myportal.com/violation1234/</code> are also supported if <code>passthrough=proxy</code> is set under <code>trapping</code>. In that case, the Captive Portal will do reverse proxying to the specified URL.' }
+             help => 'HTML template the host will be redirected to while in violation. You can create new templates from the <em>Portal Profiles</em> configuration section.' }
   );
 has_field 'button_text' =>
   (
@@ -177,6 +177,18 @@ sub options_trigger {
     my @triggers = map { $_ => $_ } @{$self->triggers} if ($self->triggers);
 
     return @triggers;
+}
+
+=head2 options_template
+
+=cut
+
+sub options_template {
+    my $self = shift;
+
+    my @templates = map { $_ => "$_.html" } @{$self->templates} if ($self->templates);
+
+    return @templates;
 }
 
 =head2 validate

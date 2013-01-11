@@ -48,15 +48,19 @@ sub auto :Private {
 =cut
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-    $c->go("simple_search");
+
+    $c->go('simple_search');
 }
 
 =head2 simple_search
 
 =cut
-sub simple_search : SimpleSearch('Node')  : Local :Args() { }
+sub simple_search :SimpleSearch('Node') :Local :Args() { }
 
-sub advanced_search :  Local :Args() {
+=head2 advanced_search
+
+=cut
+sub advanced_search :Local :Args() {
     my ( $self, $c) = @_;
     my $params = $c->request->params;
     $c->log->info(Dumper(_build_search_data($params))); 
@@ -83,8 +87,14 @@ sub _build_search_data {
     return map { $search_data{$_}} sort {$a <=> $b} keys %search_data;
 }
 
+=head2 save_search
+
+=cut
 sub save_search : Local :Args(0) { }
 
+=head2 get_searches
+
+=cut
 sub get_searches : Local :Args(0) { }
 
 =head2 object
@@ -166,9 +176,20 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-=head1 AUTHOR
+=head2 delete
 
-Francis Lachapelle <flachapelle@inverse.ca>
+=cut
+
+sub delete :Chained('object') :PathPart('delete') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = $c->model('Node')->delete($c->stash->{mac});
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $message; # TODO: localize error message
+    }
+    $c->stash->{current_view} = 'JSON';
+}
 
 =head1 COPYRIGHT
 

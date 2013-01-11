@@ -24,7 +24,7 @@ use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 SUBROUTINES
 
@@ -55,8 +55,13 @@ sub auto :Private {
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->response->redirect($c->uri_for($self->action_for('search')));
+    $c->go('simple_search');
 }
+
+=head2 simple_search
+
+=cut
+sub simple_search :SimpleSearch('User') :Local :Args() { }
 
 =head2 object
 

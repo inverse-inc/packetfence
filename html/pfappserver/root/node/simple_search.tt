@@ -3,7 +3,7 @@
     IF by == column && direction == 'asc';
       params.direction = 'desc';
     END %]
-                  <th><a href="#[% pagination_path('simple_search', params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+                  <th><a href="#[% pagination_path('node/simple_search', params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>Results</h2>
 [% INCLUDE pagination.inc section = 'node/simple_search' IF items.size > 0 %]
@@ -11,7 +11,7 @@
               <thead>
                 <tr>
                   [% header('mac', 'MAC') %]
-                  [% header('computer_name', 'Computer Name') %]
+                  [% header('computername', 'Computer Name') %]
                   [% header('pid', 'Identifier') %]
                   [% header('status', 'Last AP/Controller') %]
                   [% header('dhcp_fingerprint', 'OS (DHCP)') %]
@@ -31,7 +31,7 @@
                 [%- END -%]
               </tbody>
             </table>
-[% INCLUDE pagination.inc section = 'simple_search' IF items.size > 0 %]
+[% INCLUDE pagination.inc section = 'node/simple_search' IF items.size > 0 %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
       </div>

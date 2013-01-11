@@ -4,6 +4,7 @@ function init() {
         autoclose: true
     });
 
+<<<<<<< HEAD
     /* Sort the search results */
     $('#section').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');
@@ -29,6 +30,8 @@ function init() {
         return false;
     });
 
+=======
+>>>>>>> c0b75fca2d074ffb54f82e2857a9e7b03259df9b
     /* View a node (show the modal editor) */
     $('#section').on('click', '[href*="#modalNode"]', function(event) {
         var url = $(this).attr('href');
@@ -82,7 +85,7 @@ function init() {
         modal = $('#modalNode'),
         form = modal.find('form').first(),
         modal_body = modal.find('.modal-body'),
-        url = $(this).attr('href'),
+        url = btn.attr('href'),
         valid = false;
         btn.button('loading');
         valid = isFormValid(form);
@@ -110,7 +113,29 @@ function init() {
 
     /* Delete a node (from the modal editor) */
     $('body').on('click', '#deleteNode', function(event) {
-        alert("delete node");
+        var btn = $(this),
+        modal = $('#modalNode'),
+        modal_body = modal.find('.modal-body'),
+        url = btn.attr('href');
+        $.ajax(url)
+            .done(function(data) {
+                modal.modal('hide');
+                modal.on('hidden', function() {
+                    $(window).hashchange();
+                });
+            }).fail(function(jqXHR) {
+                var status_msg;
+                btn.button('reset');
+                try {
+                    var obj = $.parseJSON(jqXHR.responseText);
+                    status_msg = obj.status_msg;
+                }
+                catch(e) {}
+                if (!status_msg) status_msg = _("Cannot Load Content");
+                resetAlert(modal_body);
+                showPermanentError(modal_body.children().first(), status_msg);
+            });
+
         return false;
     });
 

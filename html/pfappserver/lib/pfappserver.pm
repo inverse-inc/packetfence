@@ -53,6 +53,21 @@ __PACKAGE__->config(
         mime_types => {
             woff => 'font/woff'
         },
+        # Include static content from captive portal in order to render previews of
+        # remediation pages (see pfappserver::Controller::Violation)
+        include_path => [
+            pfappserver->config->{root},
+            INSTALL_DIR . '/html/captive-portal',
+            INSTALL_DIR . '/html',
+        ],
+        ignore_dirs => [
+            'captive-portal',
+            'admin',
+            'pfappserver',
+            'templates',
+            'violations',
+        ],
+        ignore_extensions => [ qw/cgi php inc tt html xml/ ],
     },
 
     'Plugin::Session' => {
