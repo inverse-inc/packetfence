@@ -3,10 +3,10 @@
     IF by == column && direction == 'asc';
       params.direction = 'desc';
     END %]
-                  <th><a href="[% c.uri_for(c.action.name, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+                  <th><a href="#[% pagination_path('user/simple_search', params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>[% l('Results') %]</h2>
-[% INCLUDE pagination.inc IF users.size > 0 %]
+[% INCLUDE pagination.inc section = 'user/simple_search' IF items.size > 0 %]
             <table class="table table-condensed table-striped">
               <thead>
                 <tr>
@@ -18,7 +18,7 @@
                 </tr>
               </thead>
               <tbody>
-                [%- FOREACH user IN users -%]
+                [%- FOREACH user IN items -%]
                 <tr>
                   <td><a href="[% c.uri_for(c.controller('User').action_for('read'), [ user.pid ]) %]#modalUser">[% user.pid %]</a></td>
                   <td>[% user.firstname %]</td>
@@ -29,7 +29,7 @@
                 [%- END -%]
               </tbody>
             </table>
-[% INCLUDE pagination.inc IF users.size > 0 %]
-      <div id="noResult" class="unwell[% ' hidden' IF users.size > 0 %]">
+[% INCLUDE pagination.inc section = 'user/simple_search' IF items.size > 0 %]
+      <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No user found') %]</p>
       </div>

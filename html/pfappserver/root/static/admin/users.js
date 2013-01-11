@@ -1,34 +1,4 @@
 function init() {
-    /* Sort the search results */
-    $('#section').on('click', 'thead a', function(event) {
-        var url = $(this).attr('href');
-        var section = $('#section');
-        var loader = section.prev('.loader');
-        loader.show();
-        section.fadeTo('fast', 0.5);
-        $.ajax(url)
-        .always(function() {
-            loader.hide();
-            section.stop();
-            section.fadeTo('fast', 1.0);
-        })
-        .done(function(data) {
-            section.html(data);
-        })
-        .fail(function(jqXHR) {
-            var status_msg;
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {}
-            if (!status_msg) status_msg = _("Cannot Load Content");
-            showPermanentError(section, status_msg);
-        });
-
-        return false;
-    });
-
     /* View a user (show the modal editor) */
     $('#section').on('click', '[href*="#modalUser"]', function(event) {
         var modal = $('#modalUser');
@@ -135,16 +105,7 @@ function init() {
         return false;    
     });
 
-    /* Hash change handler */
-    $(window).hashchange(function(event) {
-        var hash = location.hash;
-        if (hash == '') {
-            hash = '#/user/search';
-        }
-        var href =  hash.replace(/^#/,'') + location.search ;
-        updateSection(href);
-        return true;
-    });
+    $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
 
     $(window).hashchange();
 }

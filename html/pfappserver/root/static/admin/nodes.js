@@ -4,37 +4,6 @@ function init() {
         autoclose: true
     });
 
-    /* Sort the search results */
-    $('#section').on('click', 'thead a', function(event) {
-        var url = $(this).attr('href');
-        var section = $('#section');
-        var loader = section.prev('.loader');
-        loader.show();
-        section.fadeTo('fast', 0.5);
-        $.ajax(url)
-        .always(function() {
-            loader.hide();
-            section.stop();
-            section.fadeTo('fast', 1.0);
-        })
-        .done(function(data) {
-            section.html(data);
-        })
-        .fail(function(jqXHR) {
-            var status_msg;
-            $("body,html").animate({scrollTop:0}, 'fast');
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {}
-            if (!status_msg) status_msg = _("Cannot Load Content");
-            showError(section, status_msg);
-        });
-
-        return false;
-    });
-
     /* View a node (show the modal editor) */
     $('#section').on('click', '[href*="#modalNode"]', function(event) {
         var url = $(this).attr('href');
