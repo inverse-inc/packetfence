@@ -109,16 +109,7 @@ function init() {
         return false;
     });
 
-    /* Hash change handler */
-    $(window).hashchange(function(event) {
-        var hash = location.hash;
-        if (hash == '') {
-            hash = '#/user/search';
-        }
-        var href =  hash.replace(/^#/,'') + location.search ;
-        updateSection(href);
-        return true;
-    });
+    $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
 
     $(window).hashchange();
 }
