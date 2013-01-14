@@ -25,7 +25,7 @@ use Log::Log4perl;
 use POSIX qw(setlocale);
 use Readonly;
 use URI::Escape qw(uri_escape uri_unescape);
-
+use File::Spec::Functions;
 use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
@@ -49,7 +49,7 @@ sub new {
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
     my $self = bless {}, $class;
-    
+
     $self->_initialize() unless ($argv{'testing'});
     return $self;
 }
@@ -146,7 +146,7 @@ sub _getDestinationUrl {
 
 =item _resolveIp
 
-Returns the IP address of the client reaching the captive portal. 
+Returns the IP address of the client reaching the captive portal.
 Either directly connected or through a proxy.
 
 =cut
@@ -330,6 +330,17 @@ sub setGuestNodeMac {
     my ($self, $guest_node_mac) = @_;
 
     $self->{'_guest_node_mac'} = $guest_node_mac;
+}
+
+sub getTemplateIncludePath {
+    my ($self) = @_;
+    my $profile = $portalSession->getProfile;
+    if ($profile->getName eq 'default') {
+        return ($CAPTIVE_PORTAL{'TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)),
+    }
+    else {
+        return ($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)),
+    }
 }
 
 =back

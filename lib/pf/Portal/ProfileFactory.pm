@@ -59,8 +59,9 @@ sub instantiate {
         my $node_info = node_view($mac);
         my @filtered_profiles =
             map { $filters{$_}  }
-            grep { defined $_ && exists $filters{$_}  }
-            @{$node_info}{qw(last_ssid last_vlan)};
+              grep { defined $_ && exists $filters{$_}  }
+                (map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)),
+                @{$node_info}{'last_ssid','last_vlan'} ;
 
         return pf::Portal::Profile->new(_custom_profile($filtered_profiles[0])) if (@filtered_profiles);
     }
@@ -88,9 +89,25 @@ sub _custom_profile {
         'name' => $name,
         'description' => $profile->{'description'} || '',
         map { $_ =>  ($profile->{$_} || $defaults->{$_} ) }
-        qw ( logo guest_selfreg guest_modes guest_category template_path billing_engine)
+        qw (logo guest_selfreg guest_modes guest_category template_path billing_engine filter)
     );
     return \%results;
+}
+
+sub getCustomProfile {
+    my ($self,$name) = @_;
+    if (exists $Config{"portal-profile $name"}) {
+        return pf::Portal::Profile->new(_custom_profile($name));
+    }
+    return undef;
+}
+
+sub deleteCustomProfile {
+    my ($self,$name) = @_;
+    my $section = "portal-profile $name";
+    if (exists $Config{$section}) {
+        tied(%Config)->DeleteSection($section);
+    }
 }
 
 sub getAllCustomProfiles {

@@ -1,5 +1,3 @@
-/* Trigger a mouse click on the active sidebar navigation link */
-
 function getStatusMsg(jqXHR) {
     var status_msg;
     try {
@@ -10,6 +8,8 @@ function getStatusMsg(jqXHR) {
     if (!status_msg) status_msg = _("Cannot Load Content");
     return status_msg;
 }
+
+/* Trigger a mouse click on the active sidebar navigation link */
 
 function activateNavLink() {
     var hash = location.hash;
@@ -102,16 +102,18 @@ function updateSortableTable(rows) {
 
 $(function () { // DOM ready
 
+    /* redirect to URL specified in the location header */
+    var redirectCallback =  function(jqXHR) {
+        var location = jqXHR.getResponseHeader('Location');
+        if (location)
+            window.location.href = location;
+    };
     /* Default values for Ajax requests */
     $.ajaxSetup({
         timeout: 30000,
         statusCode: {
-            401: function(jqXHR) {
-                // Unauthorized; redirect to URL specified in the location header
-                var location = jqXHR.getResponseHeader('Location');
-                if (location)
-                    window.location.href = location;
-            }
+            401: redirectCallback,
+            302: redirectCallback
         }
     });
 
@@ -387,6 +389,102 @@ $(function () { // DOM ready
         });
         return false;
     });
+
+    $('#section').on('click', '.call-modal-confirm-link', function(event) {
+        var that = $(this);
+        if (that.hasClass('disabled'))
+            return false;
+        var url = that.attr('href');
+        var modal_id = that.attr('data-modal');
+        var content  = that.attr('data-modal-content');
+        var modal = $('#' + modal_id);
+        modal.find('#content').html(content);
+        var confirm_link = modal.find('a.btn-primary').first();
+        modal.modal({ show: true });
+        confirm_link.off('click');
+        confirm_link.attr('href',url);
+        confirm_link.click(function() {
+            modal.modal('hide');
+        });
+        return false;
+    });
+
+    $('#section').on('click', '.call-modal-confirm-form', function(event) {
+        var that = $(this);
+        if (that.hasClass('disabled'))
+            return false;
+        var form;
+        var modal_id = that.attr('data-modal');
+        var form_id = that.attr('data-modal-form');
+        var modal    = $('#' + modal_id);
+        var content  = that.attr('data-modal-content');
+        if(form_id) {
+            form = $('#' + form_id);
+        }
+        else {
+            form = that.closest('form');
+        }
+        if(content) {
+            modal.find('#content').html(content);
+        }
+        var confirm_link = modal.find('a.btn-primary').first();
+        modal.modal({ show: true });
+        confirm_link.off('click');
+        confirm_link.click(function() {
+            $.ajax({
+                'url'  : form.attr('action'),
+                'type' : form.attr('method') || "POST",
+                'data' : form.serialize()
+                })
+                .always(function() {
+                    modal.modal('hide');
+                })
+                .done(function(data) {
+                    $(window).hashchange();
+                })
+                .fail(function(jqXHR) {
+                    $("body,html").animate({scrollTop:0}, 'fast');
+                    var status_msg = getStatusMsg(jqXHR);
+                    showError($('#section h2'), status_msg);
+                });
+            return false;
+        });
+        return false;
+    });
+
+    $('#section').on('click', '.call-modal', function(event) {
+        var that = $(this);
+        if (that.hasClass('disabled'))
+            return false;
+        var url = that.attr('href');
+        var modal_id = that.attr('data-modal');
+        var content  = that.attr('data-modal-content');
+        var modal = $('#' + modal_id);
+        if(content) {
+            modal.find('#content').html(content);
+        }
+        var confirm_link = modal.find('a.btn-primary').first();
+        modal.modal({ show: true });
+        confirm_link.off('click');
+        confirm_link.click(function() {
+            $.ajax(url)
+                .always(function() {
+                    modal.modal('hide');
+                })
+                .done(function(data) {
+                    $(window).hashchange();
+                })
+                .fail(function(jqXHR) {
+                    $("body,html").animate({scrollTop:0}, 'fast');
+                    var status_msg = getStatusMsg(jqXHR);
+                    showError($('#section h2'), status_msg);
+                });
+            return false;
+        });
+
+        return false;
+    });
+
 
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();

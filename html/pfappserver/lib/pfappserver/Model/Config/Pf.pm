@@ -95,10 +95,10 @@ sub _load_doc {
 
 Read configuration value(s) with all it's metadata.
 
-$config_entry is something like general.hostname where general is the section and 
+$config_entry is something like general.hostname where general is the section and
 hostname the parameter.
 
-You can ask for both a single entry (pass a scalar) or a list of entries 
+You can ask for both a single entry (pass a scalar) or a list of entries
 (pass an arrayref).
 
 =cut
@@ -128,8 +128,8 @@ sub read {
     unless ( @sections ) {
         # lets build a list of the parameters to retrieve and send to the client
         my @to_retrieve;
-        push @to_retrieve, $config_entry if (!ref($config_entry)); 
-        push @to_retrieve, @$config_entry if (ref($config_entry) eq 'ARRAY'); 
+        push @to_retrieve, $config_entry if (!ref($config_entry));
+        push @to_retrieve, @$config_entry if (ref($config_entry) eq 'ARRAY');
 
         foreach my $config (@to_retrieve) {
 
@@ -155,10 +155,10 @@ sub read {
 Read a configuration value with automatic fallback to default. A convenient
 accessor to confiugration when you don't need all the configuration metadata.
 
-$config_entry is something like general.hostname where general is the section and 
+$config_entry is something like general.hostname where general is the section and
 hostname the parameter.
 
-You can ask for both a single entry (pass a scalar) or a list of entries 
+You can ask for both a single entry (pass a scalar) or a list of entries
 (pass an arrayref).
 
 =cut
@@ -240,10 +240,10 @@ sub help {
 
 Update configuration. Supports batch updates.
 
-$config_update_ref is an hashref with key section.param and the value as a 
+$config_update_ref is an hashref with key section.param and the value as a
 value, directly.
 
-One value will update one parameter and multiple key => value pairs will 
+One value will update one parameter and multiple key => value pairs will
 perform a batch update.
 
 =cut
@@ -266,7 +266,7 @@ sub update {
 
 =item _update
 
-Updates a single value of the configuration tied hash. Meant to be called 
+Updates a single value of the configuration tied hash. Meant to be called
 internally. Does not write the configuration to disk!
 
 =cut
@@ -321,9 +321,9 @@ Read the pf.conf configuration of an interface.
 
 Returns an arrayref that looks like:
 
-    [ 
+    [
         [ interface, ip, mask, type, enforcement],
-        [ eth0, 10.0.0.100, 255.255.255.0, 'dhcp-listener,management', undef ], 
+        [ eth0, 10.0.0.100, 255.255.255.0, 'dhcp-listener,management', undef ],
         [ eth1.100, 10.100.0.1, 255.255.0.0, 'internal', 'vlan' ],
     ]
 
@@ -335,7 +335,7 @@ sub read_interface {
     $logger->debug("interface $interface requested");
 
     my $pf_conf = $self->_load_conf();
-    my @columns = pf::config::ui->instance->field_order('interfaceconfig get'); 
+    my @columns = pf::config::ui->instance->field_order('interfaceconfig get');
     my @resultset = @columns;
     foreach my $s ( keys %$pf_conf ) {
         if ( $s =~ /^interface (.+)$/ ) {
@@ -397,11 +397,11 @@ sub delete_interface {
     if ( $tied_conf->SectionExists($interface_name) ) {
         $tied_conf->DeleteSection($interface_name);
         $self->_write_pf_conf();
-    } 
+    }
     else {
         return ($STATUS::NOT_FOUND, "Interface not found");
     }
-  
+
     return ($STATUS::OK, "Successfully deleted $interface");
 }
 
@@ -482,7 +482,7 @@ sub exist_interface {
 
 =item _extract_config_options
 
-Simple util wrapper to return an array of options based on a given option 
+Simple util wrapper to return an array of options based on a given option
 string. Meant to avoid copy/pasted code and encapsulate format of options.
 
 Returns undef if there's no options.
@@ -501,8 +501,8 @@ sub _extract_config_options {
 
 =item _extract_config_desc
 
-Simple util wrapper to return the description based on a given description 
-entry reference. Meant to avoid copy/pasted code and encapsulate format of 
+Simple util wrapper to return the description based on a given description
+entry reference. Meant to avoid copy/pasted code and encapsulate format of
 descriptions.
 
 Returns undef if there's no description.
@@ -512,7 +512,7 @@ sub _extract_config_desc {
     my ($self, $config_entry) = @_;
 
     my $doc_conf = $self->_load_doc();
-    return if (!defined($doc_conf->{$config_entry}->{'description'})); 
+    return if (!defined($doc_conf->{$config_entry}->{'description'}));
 
     if ( ref($doc_conf->{$config_entry}->{'description'}) eq 'ARRAY' ) {
         return join( "\n", @{ $doc_conf->{$config_entry}->{'description'} } );
@@ -565,6 +565,53 @@ sub _load_conf {
     }
 
     return $_pf_conf;
+}
+
+sub _get_all_section_group {
+    my ($self,$section) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $pf_conf = $self->_load_conf();
+    my @groups =
+        map {
+            my $id = $_;
+            $id =~ s/^\Q$section\E //;
+            { id => $id,%{$pf_conf->{$_}}}
+        }
+        tied(%$pf_conf)->GroupMembers($section);
+    return \@groups;
+}
+
+sub _update_section_group {
+    my ($self,$section_name,$id,$value) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $pf_conf = $self->_load_conf();
+    my $section = "$section_name $id";
+    $pf_conf->{$section} = $value;
+    $self->_write_pf_conf();
+    return 1;
+}
+
+sub _get_section_group {
+    my ($self,$section_name,$id) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $pf_conf = $self->_load_conf();
+    my $section = "$section_name $id";
+    if (exists $pf_conf->{$section}) {
+        my $section = $pf_conf->{$section};
+        return {id => $id,  %$section};
+    }
+    return undef;
+}
+
+sub _delete_section_group {
+    my ($self,$section_name,$name) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $pf_conf = $self->_load_conf();
+    my $section = "$section_name $name";
+    if (exists $pf_conf->{$section}) {
+        tied(%$pf_conf)->DeleteSection($section);
+        $self->_write_pf_conf();
+    }
 }
 
 =item _write_pf_conf

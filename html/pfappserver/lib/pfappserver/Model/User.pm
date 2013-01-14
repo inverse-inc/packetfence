@@ -25,6 +25,15 @@ use pf::error qw(is_error is_success);
 use pf::person;
 use pf::util qw(get_translatable_time);
 
+
+=head2 field_names
+
+=cut
+
+sub field_names {
+    return [qw(pid firstname lastname email nodes) ];
+}
+
 =head2 read
 
 =cut
@@ -33,7 +42,7 @@ sub read {
     my ($self, $c, $pids) = @_;
 
     my @users;
-    
+
     # Fetch user information
     foreach my $pid (@$pids) {
         my $user = person_view($pid);
@@ -173,7 +182,7 @@ sub mail {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
     my @users;
-    
+
     # Fetch user information
     ($status, $status_msg) = $self->read($c, $pids);
     if (is_success($status)) {
@@ -181,7 +190,7 @@ sub mail {
             eval {
                 if (length $user->{email} > 0) {
                     $user->{username} = $user->{pid};
-                    pf::web::guest::send_template_email($pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION, 
+                    pf::web::guest::send_template_email($pf::web::guest::TEMPLATE_EMAIL_GUEST_ADMIN_PREREGISTRATION,
                                                         $c->loc("[_1]: Guest Network Access Information", $Config{'general'}{'domain'}),
                                                         $user);
                     push(@users, $user);
@@ -311,7 +320,7 @@ sub createMultiple {
         if ($result) {
             # Create/update password
             $result = pf::temporary_password::generate($pid,
-                                                       $data->{arrival_date}, 
+                                                       $data->{arrival_date},
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -354,7 +363,7 @@ sub importCSV {
         $index{$column->{name}} = $count;
         $count++;
     }
-    
+
     # Map delimiter to its actual character
     if ($delimiter eq 'comma') {
         $delimiter = ',';
@@ -377,7 +386,7 @@ sub importCSV {
                 next;
             }
             # Create/modify person
-            my %person = 
+            my %person =
               (
                'firstname' => $index{'c_firstname'} ? $row->[$index{'c_firstname'}] : undef,
                'lastname'  => $index{'c_lastname'}  ? $row->[$index{'c_lastname'}]  : undef,
@@ -396,7 +405,7 @@ sub importCSV {
             if ($result) {
                 # Create/update password
                 $result = pf::temporary_password::generate($pid,
-                                                           $data->{arrival_date}, 
+                                                           $data->{arrival_date},
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });
