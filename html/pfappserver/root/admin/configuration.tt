@@ -4,15 +4,20 @@
         'app/bootstrap-timepicker',
         'app/chosen.jquery.min',
         'app/jquery.ba-hashchange',
+        'app/client/fine-uploader',
+        'app/client/jquery-plugin',
         'admin/configuration',
         'admin/configuration/authentication',
         'admin/configuration/users',
         'admin/configuration/violations',
         'admin/configuration/soh',
-        'admin/configuration/roles'
+        'admin/configuration/roles',
+        'admin/configuration/portal_profile',
+        'app/ace/ace'
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
+        'app/client/fineuploader',
         'app/bootstrap-timepicker'
         ] -%]
 

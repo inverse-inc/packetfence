@@ -75,8 +75,6 @@ __PACKAGE__->config(
     },
 
     'View::JSON' => {
-       allow_callback  => 0,    # defaults to 0
-       #callback_param  => 'cb', # defaults to 'callback'
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
        expose_stash    => [ qw(status status_msg error interfaces networks switches config services success) ], # defaults to everything
     },

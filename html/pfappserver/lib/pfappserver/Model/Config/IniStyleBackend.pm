@@ -45,6 +45,7 @@ my @configuration_modules = (
     "Networks",         # dhcp/dns/networks types configurations (networks.conf)
     "Switches",         # managed network equipements configurations (switches.conf)
     "Violations",       # violations/policies/isolation rules configurations (violations.conf)
+    "Profiles",         # custom portal profile configuration (profiles.conf)
 );
 
 # Set the permissions for the different config files
@@ -162,7 +163,7 @@ sub readDefault {
             return;
         }
     } else {
-        $logger->warn("Told to read default file but none is specified. That may be normal for some modules but " . 
+        $logger->warn("Told to read default file but none is specified. That may be normal for some modules but " .
             "just wanted to let you know.");
         return;
     }
@@ -215,6 +216,7 @@ sub writeConfig {
     my $status_msg;
 
     my ($config, $chi_timestamp)  = $self->loadConfig;
+    my $tied_config  = tied(%$config);
 
     # TODO
     # Check if the flat file has been modified since loaded into cache to avoid configuration overwrite
@@ -223,26 +225,27 @@ sub writeConfig {
     # When using default configs, remove parameter that are equals to their default value
     if ( $self->default_file ne "" ) {
         my $default = $self->readDefault;
-        foreach my $section ( tied(%$config)->Sections ) {
-            next if ( !tied(%$default)->SectionExists($section) );
-            foreach my $parameter ( tied(%$config)->Parameters($section) ) {
-                next if ( !tied(%$default)->exists($section, $parameter) );
-                my $config_val = tied(%$config)->val($section, $parameter);
-                my $default_val = tied(%$default)->val($section, $parameter);
+        my $tied_default = tied(%$default);
+        foreach my $section ( $tied_config->Sections ) {
+            next if ( !$tied_default->SectionExists($section) );
+            foreach my $parameter ( $tied_config->Parameters($section) ) {
+                next if ( !$tied_default->exists($section, $parameter) );
+                my $config_val = $tied_config->val($section, $parameter);
+                my $default_val = $tied_default->val($section, $parameter);
                 if ( $config_val eq $default_val  ) {
-                    tied(%$config)->delval($section, $parameter);
+                    $tied_config->delval($section, $parameter);
                 }
             }
         }
     }
 
     # Delete empty sections
-    foreach my $section ( tied(%$config)->Sections ) {
-        tied(%$config)->DeleteSection($section) if ( scalar(tied(%$config)->Parameters($section)) == 0 );
+    foreach my $section ( $tied_config->Sections ) {
+        $tied_config->DeleteSection($section) if ( scalar($tied_config->Parameters($section)) == 0 );
     }
 
-    tied(%$config)->SetWriteMode($WRITE_PERMISSIONS);
-    tied(%$config)->WriteConfig($self->config_file)
+    $tied_config->SetWriteMode($WRITE_PERMISSIONS);
+    $tied_config->WriteConfig($self->config_file)
         or $logger->logdie("Unable to write config to $self->{config_file}: ",
         join("\n", @Config::IniFiles::errors));
 
@@ -289,7 +292,7 @@ sub --> cache (CHI)
 =cut
 sub updateConfig {
     my ( $self, %config ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__); 
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Check to see latest modified timestamp on the file
     my $cache = CHI->new( _get_chi_cache_definition($self->_getName) );
@@ -353,7 +356,7 @@ sub _load_conf {
         # Load existing file
         if ( -e $self->config_file ) {
             tie %conf, 'Config::IniFiles', ( -file => $self->config_file, -allowempty => 1 )
-                or $logger->logdie("Unable to open config file $self->{config_file}: ", 
+                or $logger->logdie("Unable to open config file $self->{config_file}: ",
                 join("\n", @Config::IniFiles::errors));
             $logger->info("Loaded existing $self->{config_file} file");
         }

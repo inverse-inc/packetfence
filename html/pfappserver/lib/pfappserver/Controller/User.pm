@@ -149,56 +149,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 =head2 search
 
 =cut
-sub search :Path('search') :Args(0) {
-    my ( $self, $c ) = @_;
-    my ($filter, $orderby, $orderdirection, $status, $result, $users_ref, $count);
-
-    my $page_num = $c->request->params->{'page_num'} || 1;
-    my $per_page = $c->request->params->{'per_page'} || 25;
-    my $limit_clause = "LIMIT " . (($page_num-1)*$per_page) . "," . $per_page;
-    my %params = ( limit => $limit_clause );
-
-    if (exists($c->request->params->{'filter'})) {
-        $filter = $c->request->params->{'filter'};
-        if ($filter) {
-            $params{'where'} = { type => 'any', like => $filter };
-            $c->stash->{filter} = $filter;
-        }
-    }
-    if (exists($c->request->params->{'by'})) {
-        $orderby = $c->request->params->{'by'};
-        if (grep {$_ eq $orderby} ('pid', 'firstname', 'lastname', 'email', 'sponsor')) {
-            $orderdirection = $c->request->params->{'direction'};
-            unless (defined($orderdirection) && grep {$_ eq $orderdirection} ('asc', 'desc')) {
-                $orderdirection = 'asc';
-            }
-            $params{'orderby'} = "ORDER BY $orderby $orderdirection";
-            $c->stash->{by} = $orderby;
-            $c->stash->{direction} = $orderdirection;
-        }
-    }
-
-    ($status, $result) = $c->model('User')->search(%params);
-    if (is_success($status)) {
-        $users_ref = $result;
-        ($status, $result) = $c->model('User')->countAll(%params);
-    }
-    if (is_success($status)) {
-        $count = $result;
-        $c->stash->{page_num} = $page_num;
-        $c->stash->{per_page} = $per_page;
-        $c->stash->{by} = $orderby || 'pid';
-        $c->stash->{direction} = $orderdirection || 'asc';
-        $c->stash->{users} = $users_ref;
-        $c->stash->{count} = $count;
-        $c->stash->{pages_count} = ceil($count/$per_page);
-    }
-    else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
-    }
-}
+sub search : Local: SimpleSearch('User') :Args() {}
 
 =head2 create
 
@@ -226,8 +177,8 @@ sub create :Local {
     $form->process(params => $c->request->params);
     $form_single->process(params => $c->request->params);
     $form_multiple->process(params => $c->request->params);
-    
-    if ($c->request->method eq 'POST') {     
+
+    if ($c->request->method eq 'POST') {
         # Create new user accounts
         $type = $c->request->param('type');
         if ($form->has_errors) {
@@ -248,7 +199,7 @@ sub create :Local {
         elsif ($type eq 'multiple') {
             if ($form_multiple->has_errors) {
                 $status = HTTP_BAD_REQUEST;
-                $message = $form_multiple->field_errors;            
+                $message = $form_multiple->field_errors;
             }
             else {
                 %data = (%{$form->value}, %{$form_multiple->value});
@@ -261,7 +212,7 @@ sub create :Local {
             $form_import->process(params => $params);
             if ($form_import->has_errors) {
                 $status = HTTP_BAD_REQUEST;
-                $message = $form_import->field_errors;            
+                $message = $form_import->field_errors;
             }
             else {
                 %data = (%{$form->value}, %{$form_import->value});
@@ -293,7 +244,7 @@ sub create :Local {
         # Initial display of the page
         $form_import->process();
         $form->field('actions')->add_extra; # an action must be chosen
-        
+
         $c->stash->{form} = $form;
         $c->stash->{form_single} = $form_single;
         $c->stash->{form_multiple} = $form_multiple;

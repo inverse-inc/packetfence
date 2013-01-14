@@ -55,7 +55,7 @@ our (
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
-    %CAPTIVE_PORTAL
+    %CAPTIVE_PORTAL, $profiles_config_file
 );
 
 BEGIN {
@@ -98,6 +98,7 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
+        profiles_config_file
     );
 }
 
@@ -136,6 +137,7 @@ $switches_config_file       = $conf_dir . "/switches.conf";
 $violations_config_file     = $conf_dir . "/violations.conf";
 $authentication_config_file = $conf_dir . "/authentication.conf";
 $dhcp_fingerprints_file     = $conf_dir . "/dhcp_fingerprints.conf";
+$profiles_config_file       = $conf_dir . "/profiles.conf";
 $oui_file                   = $conf_dir . "/oui.txt";
 $floating_devices_file      = $conf_dir . "/floating_network_device.conf";
 $oauth_ip_file              = $conf_dir . "/oauth2-ips.conf";
@@ -834,7 +836,7 @@ sub _load_captive_portal {
         "NET_DETECT_PENDING_INITIAL_DELAY" => 2 * 60,
         "NET_DETECT_PENDING_RETRY_DELAY" => 30,
         "TEMPLATE_DIR" => "$install_dir/html/captive-portal/templates",
-        "PROFILE_TEMPLATES_DIR" => "$install_dir/html/captive-portal/profile-templates",
+        "PROFILE_TEMPLATE_DIR" => "$install_dir/html/captive-portal/profile-templates",
         "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
     );
 
