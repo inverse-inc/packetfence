@@ -585,7 +585,6 @@ sub enablePortSecurityByIfIndex {
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-
     # no switchport port-security
     if (! $this->setPortSecurityEnableByIfIndex($ifIndex, $FALSE)) {
         $logger->error("An error occured while disablling port-security on ifIndex $ifIndex");
@@ -602,12 +601,13 @@ sub disablePortSecurityByIfIndex {
     my $secureMacHashRef = $this->getSecureMacAddresses($ifIndex);
     my $valid = (ref($secureMacHashRef) eq 'HASH');
     my $mac_count = scalar(keys %{$secureMacHashRef});
-    if ($valid && $mac_count == 1) {
-        my $macToDeAuthorize = (keys %{$secureMacHashRef})[0];
-        my $vlan = $this->getVlan($ifIndex);
-        if (! $this->authorizeMAC( $ifIndex, $macToDeAuthorize, undef, $vlan, $vlan)) {
-            $logger->error("An error occured while de-authorizing $macToDeAuthorize on ifIndex $ifIndex");
-            return 0;
+    if ($valid && $mac_count >= 1) {
+        foreach my $macToDeAuthorize (keys %{$secureMacHashRef}) {
+            my $vlan = $this->getVlan($ifIndex);
+            if (! $this->authorizeMAC( $ifIndex, $macToDeAuthorize, undef, $vlan, $vlan)) {
+                $logger->error("An error occured while de-authorizing $macToDeAuthorize on ifIndex $ifIndex");
+                return 0;
+            }
         }
     }
 
