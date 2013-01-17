@@ -59,10 +59,28 @@ sub lookup_node {
                 $return .= "IP Address     : ".$latest_iplog->{'ip'}." (inactive)\n";
                 $return .= "IP Info        : IP was last seen active between " . $latest_iplog->{'start_time'} .
                            " and ". $latest_iplog->{'end_time'} . "\n";
-            } else {
-                $return .= "IP Address     : Unknown\n";
-                $return .= "IP Info        : No IP information available\n";
-            }
+            } else {#Fixed-IP Address case!
+              #Let's fetch port where MAC address was last seen:
+               my @last_locationlog_entry = locationlog_history_mac($mac);
+               my $port;
+               my $tipus;
+               my $ipaddr;
+               my $switch;
+               if ($last_locationlog_entry[0] && defined($last_locationlog_entry[0]->{'mac'})) {
+                   $port = $last_locationlog_entry[0]->{'port'};
+                   $tipus = $last_locationlog_entry[0]->{'connection_type'};
+                   $switch = $last_locationlog_entry[0]->{'switch'};
+               }
+               #Call pfcmd_vlan command (
+               if ( $tipus eq "Wired 802.1x" ){ #Computer Case (802.1x)
+                       $ipaddr = `/usr/local/pf/bin/pfcmd_vlan -switch $switch -ifIndex $port -getIpAddr  | cut -d \":\" -f2 | cut -d " " -f2`;
+               }else{ #Phone case (NoEAP)
+                       $ipaddr = `/usr/local/pf/bin/pfcmd_vlan -switch $switch -ifIndex $port -getVoIpAddr  | cut -d \":\" -f2 | cut -d " " -f2`;
+               }
+               chomp($ipaddr);
+               $return .= "IP Address     : $ipaddr\n";
+               $return .= "IP Info        : Fixed IP Address\n";
+             }
         }
 
 
