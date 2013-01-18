@@ -19,6 +19,8 @@ pfcmd_vlan command [options]
    -getLocation         show at which switch port the MAC is found
    -getSwitchLocation   show SNMP location of specified switch
    -getMAC              show all MACs on the specified switch port
+   -getIpAddr           show IP Address of computer connected on specified port (Only Cisco switches)
+   -getVoIpAddr         show IP Address of Voip device connected on specified port (Only Cisco switches)
    -getType             show switch type
    -getUpLinks          show the upLinks of the specified switch
    -getVersion          show switch OS version
@@ -115,6 +117,8 @@ my $cmd              = '';
 my $help;
 my $man;
 my $getMac;
+my $getIpAddr;
+my $getVoIpAddr;
 my $getAllMacs;
 my $getAlias;
 my $getSwitchLocation;
@@ -152,6 +156,8 @@ GetOptions(
     "getAlias"            => \$getAlias,
     "getSwitchLocation"   => \$getSwitchLocation,
     "getAllMacs"          => \$getAllMacs,
+    "getIpAddr"           => \$getIpAddr,
+    "getVoIpAddr"         => \$getVoIpAddr,
     "getHubs"             => \$getHubs,
     "getIfOperStatus"     => \$getIfOperStatus,
     "getIfType"           => \$getIfType,
@@ -518,6 +524,8 @@ if ($reevaluateAccess) {
     }
 
 } elsif ( $getMac
+    || $getIpAddr
+    || $getVoIpAddr
     || $getAlias
     || $setAlias
     || $getVlan
@@ -574,6 +582,14 @@ if ($reevaluateAccess) {
             $logger->debug("start handling 'getIfOperStatus' command");
             print $switch->getIfOperStatus($ifIndex) . "\n";
             $logger->debug("finished handling 'getIfOperStatus' command");
+        } elsif ($getIpAddr) {
+                $logger->debug("start handling 'getIpAddr' command");
+                print $switch->getIpAddr($ifIndex) . "\n";
+                $logger->debug("finished handling 'getIpAddr' command");
+         } elsif ($getVoIpAddr) {
+                $logger->debug("start handling 'getVoIpAddr' command");
+                print $switch->getVoIpAddr($ifIndex) . "\n";
+                $logger->debug("finished handling 'getVoIpAddr' command");
         } elsif ($getIfType) {
             $logger->debug("start handling 'getIfType' command");
             print $switch->getIfType($ifIndex) . "\n";
