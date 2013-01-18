@@ -402,6 +402,56 @@ sub getVlan {
         return $result->{"$OID_vlanTrunkPortNativeVlan.$ifIndex"};
     }
 }
+#Retrieve VoIP IP address device
+sub getIpAddr {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    my $OID_IpAddr = '1.3.6.1.4.1.9.9.220.1.11.1.6'; #IP addr's computers (802.1x)
+    $logger->trace("SNMP get_request for Computer Ip Addr: $OID_IpAddr.$ifIndex");
+    #Get hash from cisco, extract and convert:
+
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_IpAddr.$ifIndex.1"]);
+    if ( exists( $result->{"$OID_IpAddr.$ifIndex.1"} ) && ( $result->{"$OID_IpAddr.$ifIndex.1"} ne 'noSuchInstance' ) ) {
+            my $dmp = Dumper($result);
+            $dmp =~ s{\A\$VAR\d+\s*=\s*}{};
+            my $out = eval($dmp);
+            my $ip = $out->{"$OID_IpAddr.$ifIndex.1"};
+            my $ret = inet_ntoa( pack( "N", hex( $ip ) ) );
+            $ret = "Computer IP Address: $ret";
+            return $ret;
+     }else{
+            return "No computer found!";
+     }
+}
+#Retrieve VoIP IP address device
+sub getVoIpAddr {
+    my ( $this, $ifIndex ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+    my $OID_VoIpAddr = '1.3.6.1.4.1.9.9.23.1.2.1.1.4'; #IP addr's VoIP devices (MAB)
+    $logger->trace("SNMP get_request for VoIP Phone Ip Addr: $OID_VoIpAddr.$ifIndex");
+    #Get hash from cisco, extract and convert:
+
+    my $result = $this->{_sessionRead}->get_table("$OID_VoIpAddr.$ifIndex");
+    if ( defined $result){
+        my $dmp = Dumper($result);
+        $dmp =~ s{\A\$VAR\d+\s*=\s*}{};
+        my $out = eval($dmp);
+        while( my ($k) = each %$out ) {
+                my $ip = $out->{"$k"};
+                my $ret = inet_ntoa( pack( "N", hex( $ip ) ) );
+                $ret = "VoIP Phone IP Address: $ret";
+                return $ret;
+        }
+    }else{
+        return "No VoIP Phone found!";
+    }
+}
 
 sub isLearntTrapsEnabled {
     my ( $this, $ifIndex ) = @_;
