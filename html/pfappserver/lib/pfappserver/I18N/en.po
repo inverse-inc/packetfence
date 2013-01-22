@@ -745,4 +745,4 @@ msgid "portal_profile_revert"
 msgstr "Revert To Default"
 
 msgid "portal_profile_delete"
-msgstr "Delete"
+msgstr "Delete File"
