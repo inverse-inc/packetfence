@@ -36,19 +36,6 @@ $(function () {
     /* Activate button dropdowns */
     $('.dropdown-toggle').dropdown();
 
-    /* Activate on/off switches */
-    $('body').on('click', '.onoffswitch', function(event) {
-        var onoffswitch = $(this).find('.onoffswitch-switch');
-        var cssRight = parseInt(onoffswitch.css('right'));
-        var isOff = (cssRight == 0);
-        var checkbox = $(this).find('input');
-
-        if (isOff)
-            checkbox.removeAttr('checked');
-        else
-            checkbox.attr('checked', 'checked');
-    });
-
     /* Activate button groups */
     $('body').on('click', '.btn-group .btn', function(event) {
         var btn = $(this);
@@ -194,13 +181,6 @@ function isFormValid(form) {
         return valid;
     });
     return valid;
-}
-
-function switchIsOn(input) {
-    var onoffswitch = input.closest('.onoffswitch').find('.onoffswitch-switch');
-    var cssRight = parseInt(onoffswitch.css('right'));
-
-    return cssRight == 0;
 }
 
 function showTab(control, input) {

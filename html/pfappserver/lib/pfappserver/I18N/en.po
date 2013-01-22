@@ -543,7 +543,7 @@ msgstr "arp path"
 
 #: conf/pf.conf.defaults:598
 msgid "vlan"
-msgstr "VLAN"
+msgstr "SNMP"
 
 #: conf/pf.conf.defaults:604
 msgid "vlan.closelocationlogonstop"

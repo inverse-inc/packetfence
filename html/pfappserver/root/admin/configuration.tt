@@ -2,6 +2,7 @@
         'app/jquery-ui',
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
+        'app/jquery.toggle.buttons',
         'app/chosen.jquery.min',
         'app/jquery.ba-hashchange',
         'app/client/fine-uploader',
@@ -18,7 +19,8 @@
      cssFiles = [
         'app/bootstrap-datepicker',
         'app/client/fineuploader',
-        'app/bootstrap-timepicker'
+        'app/bootstrap-timepicker',
+        'app/bootstrap-toggle-buttons'
         ] -%]
 
 <style type="text/css">
@@ -52,9 +54,9 @@ table input[type="text"] {
             <ul class="nav nav-list">
               <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
               [% list_entry('Configuration', 'general', 'General') %]
-              [% list_entry('Configuration', 'database', 'Database') %]
+              <!--[% list_entry('Configuration', 'database', 'Database') %]-->
               [% list_entry('Configuration', 'network', 'Network') %]
-              [% list_entry('Configuration', 'proxies', 'Proxy') %]
+              <!--[% list_entry('Configuration', 'proxies', 'Proxy') %]-->
               [% list_entry('Configuration', 'trapping', 'Trappings') %]
               [% list_entry('Configuration', 'registration', 'registration') %]
               [% list_entry('Configuration', 'guests_self_registration','Self Registration') %]
@@ -62,11 +64,11 @@ table input[type="text"] {
               [% list_entry('Configuration', 'billing', 'Billing') %]
               <!--[% list_entry( 'passthroughs') %]-->
               [% list_entry('Configuration', 'alerting','Alerting') %]
-              [% list_entry('Configuration', 'ports', 'Ports') %]
+              <!--[% list_entry('Configuration', 'ports', 'Ports') %]-->
               [% list_entry('Configuration', 'scan', 'Scan') %]
               [% list_entry('Configuration', 'expire', 'Expiration') %]
               [% list_entry('Configuration', 'services', 'Services') %]
-              [% list_entry('Configuration', 'vlan', 'VLAN') %]
+              [% list_entry('Configuration', 'vlan', 'SNMP') %]
               [% list_entry('Configuration', 'inline', 'Inline') %]
               [% list_entry('Configuration', 'servicewatch', 'Service watch') %]
               [% list_entry('Configuration', 'captive_portal', 'Captive portal') %]
@@ -86,7 +88,6 @@ table input[type="text"] {
               [% list_entry('Configuration', 'violations', 'Violations') %]
               [% list_entry('Configuration', 'soh', 'SoH Filters') %]
               [% list_entry('Configuration', 'roles', 'Roles') %]
-              <li><a href="#">Remediation Pages</a></li>
               <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
               [% list_entry('Configuration::FingerPrints', 'index','Fingerprints') %]
               [% list_entry('Configuration::UserAgents', 'index','User Agents') %]

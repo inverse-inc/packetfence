@@ -218,10 +218,10 @@ $('#section').on('section.loaded',function(event) {
         {id : "#portal_profile_files", initializer: initTemplatesPage },
         {id : "#portal_profile_index", initializer: initIndexPage },
     ];
-    for(var i =0; i< initializers.length;i++) {
+    for (var i = 0; i < initializers.length; i++) {
         var initializer = initializers[i];
         var element = $(initializer.id);
-        if(element.length > 0) {
+        if (element.length > 0) {
             initializer.initializer(element);
         }
     }

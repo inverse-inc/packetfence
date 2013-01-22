@@ -15,6 +15,7 @@
             })
             .done(function(data) {
                 modal.append(data);
+                $('.toggle-button').toggleButtons();
                 $('.chzn-select').chosen();
                 $('.chzn-deselect').chosen({allow_single_deselect: true});
                 modal.modal('show');
