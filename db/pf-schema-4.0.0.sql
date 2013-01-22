@@ -323,7 +323,7 @@ CREATE TABLE temporary_password (
 --
 
 INSERT INTO `person` (pid,notes) VALUES ("admin","Default Admin User - do not delete");
-INSERT INTO temporary_password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2199-01-01', '9999D', 4294967295, 1);
+INSERT INTO temporary_password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2038-01-01', '9999D', 4294967295, 1);
 
 --
 -- Trigger to delete the temp password from 'temporary_password' when deleting the pid associated with
