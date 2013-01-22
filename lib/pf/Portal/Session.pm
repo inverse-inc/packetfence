@@ -334,7 +334,7 @@ sub setGuestNodeMac {
 
 sub getTemplateIncludePath {
     my ($self) = @_;
-    my $profile = $portalSession->getProfile;
+    my $profile = $self->getProfile;
     if ($profile->getName eq 'default') {
         return ($CAPTIVE_PORTAL{'TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)),
     }

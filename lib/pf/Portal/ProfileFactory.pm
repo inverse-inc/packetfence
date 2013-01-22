@@ -87,9 +87,10 @@ sub _custom_profile {
     my $profile = $Config{"portal-profile $name"};
     my %results = (
         'name' => $name,
+        'template_path' => $name,
         'description' => $profile->{'description'} || '',
         map { $_ =>  ($profile->{$_} || $defaults->{$_} ) }
-        qw (logo guest_selfreg guest_modes template_path billing_engine filter)
+        qw (logo guest_selfreg guest_modes billing_engine filter)
     );
     return \%results;
 }
