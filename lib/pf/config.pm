@@ -407,7 +407,7 @@ sub readPfConfigFiles {
         "trapping.redirtimer",
         "general.maintenance_interval", "scan.duration",
         "vlan.bounce_duration",
-        "guests_self_registration.email_activation_timeout", "guests_self_registration.access_duration",
+        "guests_self_registration.email_activation_timeout",
         "guests_admin_registration.default_access_duration",
     ) {
         my ( $group, $item ) = split( /\./, $val );
