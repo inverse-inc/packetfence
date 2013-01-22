@@ -2,6 +2,7 @@
         'app/jquery-ui',
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
+        'app/jquery.toggle.buttons',
         'app/chosen.jquery.min',
         'app/jquery.ba-hashchange',
         'app/client/fine-uploader',
@@ -18,7 +19,8 @@
      cssFiles = [
         'app/bootstrap-datepicker',
         'app/client/fineuploader',
-        'app/bootstrap-timepicker'
+        'app/bootstrap-timepicker',
+        'app/bootstrap-toggle-buttons'
         ] -%]
 
 <style type="text/css">
