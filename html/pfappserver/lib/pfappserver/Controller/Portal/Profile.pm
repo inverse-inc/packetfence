@@ -262,7 +262,7 @@ sub view :Chained('object') :PathPart('') :Args(0) {
 sub files :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
     $c->stash(
-        $self->_get_files_info($c)
+        root => $self->_get_files_info($c)
     );
 }
 
@@ -273,12 +273,18 @@ sub _get_files_info {
     my %default_files =
         map { catfile($root_path,$_) => 1 }
         _read_dir_recursive($self->_make_default_file_path($c));
-    my @files =
+    my %root = (
+        'type'   => 'dir',
+        'name' => $profile,
+        'entries' => [
             map {$self->_make_file_info( $root_path, $_, \%default_files)}
-            sort grep { !exists $FILTER_FILES{$_}  } read_dir($root_path);
+            sort grep { !exists $FILTER_FILES{$_}  } read_dir($root_path)],
+        'hidden' => 0,
+        'size'   => 0,
+    );
 
 
-    return (files => \@files);
+    return \%root;
 }
 
 sub path_exists :Private {
