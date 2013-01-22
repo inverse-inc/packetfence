@@ -156,6 +156,14 @@ sub _list_items {
     }
 }
 
+sub bad_request : Private {
+    my ($self,$c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    $c->response->status(HTTP_BAD_REQUEST);
+    $c->stash->{status_msg} ||= "";
+    $c->detach();
+}
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.
