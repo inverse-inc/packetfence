@@ -1,5 +1,4 @@
 function init() {
-<<<<<<< HEAD
     /* Sort the search results */
     $('#section').on('click', 'thead a', function(event) {
         var url = $(this).attr('href');
@@ -24,8 +23,6 @@ function init() {
         return false;
     });
 
-=======
->>>>>>> c0b75fca2d074ffb54f82e2857a9e7b03259df9b
     /* View a user (show the modal editor) */
     $('#section').on('click', '[href*="#modalUser"]', function(event) {
         var modal = $('#modalUser');
