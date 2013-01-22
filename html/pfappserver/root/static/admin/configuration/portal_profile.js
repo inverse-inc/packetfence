@@ -198,13 +198,13 @@ function initTemplatesPage(element) {
 
 $('#section').on('section.loaded',function(event) {
     var initializers = [
-        {id : "#file_editor", initializer: initEditorPage},
-        {id : "#portal_profile_files", initializer: initTemplatesPage },
+        { id: "#file_editor", initializer: initEditorPage },
+        { id: "#portal_profile_files", initializer: initTemplatesPage }
     ];
-    for(var i =0; i< initializers.length;i++) {
+    for (var i = 0; i < initializers.length; i++) {
         var initializer = initializers[i];
         var element = $(initializer.id);
-        if(element.length > 0) {
+        if (element.length > 0) {
             initializer.initializer(element);
         }
     }
