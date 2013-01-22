@@ -47,7 +47,7 @@ function initSaveModal(editor,file_content) {
     save_button.off('click');
 
     save_modal.click(function(event) {
-        var form     = $('#file_editor');
+        var form     = $('#file_editor_form');
         file_content.val(editor.getValue());
         submitFormHideModal(save_modal,form);
     });

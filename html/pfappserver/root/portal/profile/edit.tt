@@ -43,7 +43,7 @@
         <a href="#" class="btn" data-dismiss="modal"><i class="icon-edit"></i>[% l('Keep Editing') %]</a>
         <a  class="btn btn-primary" ><i class="icon-save"></i> [% l('Save file') %]</a>
       </div>
-    </div><!-- cancelEdit -->
+    </div><!-- saveFile -->
     <div class="span10">
         <ul class="breadcrumb">
             <li>
@@ -71,7 +71,7 @@
         <label class="checkbox">
           <input id="file-editor-show-lines" type="checkbox" /> Show Line Numbers 
         </label>
-        <form id="file_editor"  method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('save'),[profile_name], file_name ) %]" >
+        <form id="file_editor_form"  method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('save'),[profile_name], file_name ) %]" >
             <textarea rows="1" cols="1" name="file_content" style="display:none" id="file_content">[%file_content | html%]</textarea>
             <div class="pull-right">
                 <h5>&nbsp;Available Variables</h5>
