@@ -59,7 +59,7 @@
         <a class="btn btn-primary" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i>  [% l('Copy')  %]</a>
       </td>
       <td class="pull-left">
-        <a class="btn btn-danger call-modal [% IF entry.delete_or_revert_disabled %]disabled[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert)  %]</a>
+        <a class="btn btn-danger call-modal [% IF entry.delete_or_revert_disabled %]hidden[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert)  %]</a>
       </td>
   </tr>
 [%- END -%]
@@ -125,7 +125,7 @@
     </div>
     <div class="modal-footer">
       <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert All Files To Default') %]</a>
+      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert All Files') %]</a>
     </div>
   </div><!-- revertAll -->
   
@@ -180,7 +180,7 @@
            <thead>
             <tr>
                 <td colspan="4">
-            <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]disabled[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All to Default')  %]</a>
+            <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]hidden[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
                 </td>
             </tr>
            </thead>

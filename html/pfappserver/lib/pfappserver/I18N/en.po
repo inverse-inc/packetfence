@@ -734,7 +734,7 @@ msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
 
 msgid "portal_profile_revert"
-msgstr "Revert To Default"
+msgstr "Revert File"
 
 msgid "portal_profile_delete"
 msgstr "Delete File"
