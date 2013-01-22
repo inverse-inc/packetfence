@@ -25,7 +25,6 @@
 </div>[% END -%]
 
 <form name="portal" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Portal::Profile').action_for('sort')) %]">
-[% IF profiles.num_fields -%]
   <table id="profiles" class="table table-sortable admin_ordered">
     <thead>
       <tr class="disabled">
@@ -57,12 +56,7 @@
       <tr><td colspan="5"></td></tr>
     </tbody>
   </table>
-[% END -%]
 </form>
-
-<div id="noSource" class="unwell[% ' hidden' IF form.field('profiles').num_fields %]">
-  <i class="icon-group icon-large"></i><p>[% l('No Profiles defined') %]</p>
-</div>
 
       <div class="form-actions">
         <a id="createProfile" class="btn" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('create')) %]">[% l('Add profile') %]</a>
