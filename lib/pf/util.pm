@@ -51,7 +51,7 @@ BEGIN {
         unpretty_bandwidth
         pf_run pfmailer
         generate_id load_oui download_oui
-        trim_path
+        trim_path format_bytes log_of
     );
 }
 
@@ -840,6 +840,27 @@ sub get_vlan_from_int {
     }
 
     return;
+}
+
+
+sub log_of {
+    my ($n,$base) = @_;
+    return log($n)/log($base);
+}
+
+sub format_bytes {
+    my ($n,@args) = @_;
+    my @DEFAULT_UNITS = ("","KB", "MB", "GB", "TB", "PB");
+    my $unit = 1024;
+    my $i = 0;
+    my $format = "%.2f";
+    if($n >= $unit) {
+        $i = int(log_of($n,$unit));
+        $i = $#DEFAULT_UNITS if $i >= @DEFAULT_UNITS;
+        $n /= $unit ** $i;
+        $n = sprintf($format,$n);
+    }
+    return "$n $DEFAULT_UNITS[$i]";
 }
 
 =item pretty_bandwidth
