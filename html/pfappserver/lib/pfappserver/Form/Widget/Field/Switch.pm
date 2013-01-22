@@ -19,24 +19,14 @@ sub render_element {
     $result ||= $self->result;
 
     my $checkbox_value = $self->checkbox_value;
-    my $output = qq[<div class="onoffswitch">\n]
-        . '<input type="checkbox" class="onoffswitch-checkbox" name="'
+    my $output = qq[<div class="toggle-button">\n]
+        . '<input type="checkbox" name="'
         . $self->html_name . '" id="' . $self->id . '" value="'
         . $self->html_filter($checkbox_value) . '"';
     $output .= ' checked="checked"'
         if $result->fif eq $checkbox_value;
     $output .= process_attrs($self->element_attributes($result));
-    $output .= ' />';
-    $output .=  qq[  
-  <label class="onoffswitch-label" for="enabled">
-    <div class="onoffswitch-inner">
-      <div class="onoffswitch-active">ON</div>
-      <div class="onoffswitch-inactive">OFF</div>
-    </div>
-    <div class="onoffswitch-switch"></div>
-  </label>
-</div>
-];
+    $output .= ' /></div>';
 
     return $output;
 }
