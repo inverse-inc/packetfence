@@ -1,0 +1,4 @@
+
+  <form id="copyModalForm" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], from ) %]">
+    <span>Copy [% from %] to [% path %] <input type="text" name="to" /></span>
+  </form>

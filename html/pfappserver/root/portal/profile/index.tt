@@ -1,0 +1,69 @@
+[% profiles = form.field('profiles') %]
+<div class="modal fade hide" id="deleteProfile">
+  <div class="modal-header">
+    <h3><i>[% l('Delete Profile') %]</i> <span id="content"></span></h3>
+  </div>
+  <div class="modal-body">
+    <p>[% l('Really delete this profile?') %]</p>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+    <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+  </div>
+</div><!-- deleteProfile -->
+
+<h2>[% l('Portal Profiles and Pages')  %]</h2>
+[% IF error %]<div class="alert alert-error">
+  <button class="close" data-dismiss="alert">×</button>
+  <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
+</div>[% END %]
+<p>[% l('Describe portal profiles') %]</p>
+
+[% IF message %]<div class="alert alert-success">
+  <button class="close" data-dismiss="alert">×</button>
+  <strong>[% l('Success!') %]</strong> [% message %]
+</div>[% END -%]
+
+<form name="portal" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Portal::Profile').action_for('sort')) %]">
+[% IF profiles.num_fields -%]
+  <table id="profiles" class="table table-sortable admin_ordered">
+    <thead>
+      <tr class="disabled">
+        <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th></th>
+      </tr>
+      <tr style="font-weight:normal">
+        <td></td>
+        <td><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), ['default']) %]">default</a></td>
+        <td>The Default Profile</td>
+        <td></td>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH profile IN profiles.fields %]
+      [% 
+          id_field = profile.field('id')
+          profile_id = id_field.value
+      %]
+      <tr>
+        <td class="sort-handle">[% loop.index + 1 %]</td>
+        <td>
+           [% id_field.render_element %] 
+            <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id %]</a>
+        </td>
+        <td>[% profile.field('description').value %]</td>
+        <td><a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id  %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('delete_profile'), [ profile_id ]) %]">[% l('Delete') %]</a></td>
+      </tr>
+      [% END -%]
+      <tr><td colspan="5"></td></tr>
+    </tbody>
+  </table>
+[% END -%]
+</form>
+
+<div id="noSource" class="unwell[% ' hidden' IF form.field('profiles').num_fields %]">
+  <i class="icon-group icon-large"></i><p>[% l('No Profiles defined') %]</p>
+</div>
+
+      <div class="form-actions">
+        <a id="createProfile" class="btn" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('create')) %]">[% l('Add profile') %]</a>
+      </div>

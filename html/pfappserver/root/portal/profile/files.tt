@@ -1,0 +1,222 @@
+[%- MACRO display_file_table(entries,dirs)  BLOCK -%]
+  <table class="table table-condensed table-striped">
+    <thead>
+      <tr>
+        <th>File Name</th>
+        <th>Size</th>
+        <th/>
+        <th/>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH entry IN entries%]
+        [% name = entry.name %]
+        [% IF entry.type == 'dir'  %]
+        [% 
+           array = ["dir",loop.count]
+           array = array.merge(dirs);
+           dir_id = array.join("_");
+        %]
+        <tr>
+          <td>
+            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id %]" class="swap_class"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder-[%IF entry.hidden %]close[%ELSE%]open[% END %]"></i> [% name %]</a>
+          </td>
+          <td/>
+          <td class="pull-left">
+            <a class="btn btn-primary" data-toggle="modal" data-target="#newFileModal"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New File')  %]</a>
+          </td>
+          <td class="pull-left"> 
+            [% uploader_id = "uploader_" _ dir_id %]
+            <div id="[% uploader_id %]"/>
+            <script>
+            <!--
+                    $('#[% uploader_id %]').fineUploader({
+                         request: {
+                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[profile_name],dirs.join('/'))  %]',
+                           paramsInBody : true
+                         },
+                         text: {
+                           uploadButton: '<i class="icon-upload icon-white"/> Upload'
+                         },
+                        multiple: false,
+                        debug: false
+                    }).on('complete', function(id, fileName, responseJSON) {
+                              $(window).hashchange();
+                       });
+            
+            -->
+            </script>
+          </td>
+        </tr>
+        <tr class="[%IF entry.hidden %]hidden[% END %]" data-swap="[%IF !entry.hidden %]hidden[% END %]">
+            <td colspan="4">
+                <div id="[%dir_id%]" class="collapse fade [%IF !entry.hidden %]in[% END %]">
+                [% display_file_table(entry.entries,dirs.merge([name])) %]
+                </div>
+            </td>
+        </tr>
+        <tr class="hidden"> <td colspan="4"/> </tr>
+        [% ELSE %]
+            [% 
+                delete_or_revert = entry.delete_or_revert 
+            %]
+        <tr>
+              <td>
+                [% IF entry.editable %]
+                  <a  href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[profile_name], name ) %]" ><i class="icon-edit"></i> [% name %]</a>
+                [% ELSE %]
+                    <i class="icon-file"></i> [% name %]
+                [% END %]
+              </td>
+              <td>[% entry.size %]</td>
+              <td class="pull-left">
+                <a class="btn btn-primary" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i>  [% l('Copy')  %]</a>
+              </td>
+              <td class="pull-left">
+                <a class="btn btn-danger call-modal [% IF entry.delete_or_revert_disabled %]disabled[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert)  %]</a>
+              </td>
+          </tr>
+        [% END %]
+      [% END %]
+    </tbody>
+  </table>
+[%- END -%]
+<h2></h2>
+<div id="portal_profile_files">
+  <div class="modal fade hide" id="newFileModal">
+    <div class="modal-header">
+      <h3><i>[% l('New File') %]</i></h3>
+    </div>
+    <div class="modal-body">
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel New File') %]</a>
+      <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Create New File') %]</a>
+    </div>
+  </div>
+
+  <div class="modal fade hide" id="copyModal">
+    <div class="modal-header">
+      <h3><i>[% l('Copy File') %]</i></h3>
+    </div>
+    <div class="modal-body">
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel Copy') %]</a>
+      <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Copy File') %]</a>
+    </div>
+  </div>
+
+  <div class="modal fade hide" id="revertAll">
+    <div class="modal-header">
+      <h3><i>[% l('Revert All Files') %]</i></h3>
+    </div>
+    <div class="modal-body">
+      <p>[% l('Really revert all files?') %]</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert All Files To Default') %]</a>
+    </div>
+  </div><!-- revertAll -->
+  
+  
+  <div class="modal fade hide" id="revertModal">
+    <div class="modal-header">
+      <h3><i>[% l('Revert File') %] <span id="content"></span></i></h3>
+    </div>
+    <div class="modal-body">
+      <p>[% l('Really revert this file?') %]</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel Revert') %]</a>
+      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert To Default') %]</a>
+    </div>
+  </div><!-- revertModal -->
+  
+  <div class="modal fade hide" id="deleteModal">
+    <div class="modal-header">
+      <h3><i>[% l('Delete File') %]</i> <span id="content"></span></h3>
+    </div>
+    <div class="modal-body">
+      <p>[% l('Really delete this file?') %]</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Delete') %]</a>
+    </div>
+  </div><!-- deleteFile -->
+  
+  <div class="span10">
+    <ul class="breadcrumb">
+        <li>
+            <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
+            <span class="divider"><i class="icon-chevron-right"></i></span>
+        </li>
+        <li>
+            <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [profile_name]) %]" >[% profile_name %]</a>
+            <span class="divider"><i class="icon-chevron-right"></i></span>
+        </li>
+        <li class="active">Files</li>
+    </ul>
+    <div class="tab-content">
+      <ul class="nav nav-tabs">
+        <li><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [profile_name]) %]">[% l('Settings') %]</a></li>
+        <li class="active"><a href="" data-toggle="tab">[% l('Files') %]</a></li>
+      </ul>
+      <div class="tab-pane well" id="settings">
+      </div>
+      <div class="tab-pane fade in active" id="files">
+        <table class="table table-condensed table-striped">
+           <thead>
+            <tr>
+                <td colspan="4">
+            <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]disabled[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All to Default')  %]</a>
+                </td>
+            </tr>
+           </thead>
+           <tbody>
+            <tr>
+              <td>
+            <a data-toggle="collapse" data-parent="false" data-target="#[% profile_name %]_root_dir" class="swap_class"><i data-swap="icon-folder-close" class="icon-folder-open"></i> [% profile_name %]</a>
+              </td>
+              <td/>
+              <td class="pull-left">
+                <a class="btn btn-primary" data-toggle="modal" data-target="#newFileModal"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name]) %]" ><i class="icon-plus"></i> [% l('New File')  %]</a>
+              </td>
+              <td class="pull-left"> 
+                [% uploader_id = "uploader_" _ profile_name + "_root_dir" %]
+                <div id="[% uploader_id %]"/>
+                <script>
+                <!--
+                        $('#[% uploader_id %]').fineUploader({
+                             request: {
+                               endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[profile_name],dirs.join('/'))  %]',
+                               paramsInBody : true
+                             },
+                             text: {
+                               uploadButton: '<i class="icon-upload icon-white"/> Upload'
+                             },
+                            multiple: false,
+                            debug: false
+                        }).on('complete', function(id, fileName, responseJSON) {
+                                  $(window).hashchange();
+                           });
+                
+                -->
+                </script>
+              </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div id="[% profile_name %]_root_dir" class="collapse fade in">
+                    [% display_file_table(files,[]) %]
+                    </div>
+                </td>
+            </tr>
+           </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
