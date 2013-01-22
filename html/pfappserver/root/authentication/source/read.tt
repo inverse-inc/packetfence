@@ -1,7 +1,7 @@
 <div class="modal fade hide" id="modalRule"></div>
 
 <ul class="breadcrumb">
-  <li><a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication">[% l('User Sources') %]</a> <span class="divider">/</span></li>
+  <li><a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication">[% l('User Sources') %]</a> <span class="divider"><i class="icon-chevron-right"></i></span></li>
   <li class="active">[% IF source.id %][% source.id %][% ELSE %][% l('New Source') %][% END %]</li>
 </ul>
 
