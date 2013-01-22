@@ -46,13 +46,11 @@ our %PF_CONFIG_NAME_MAP = (
     'general.logo'                          => 'logo',
     'registration.guests_self_registration' => 'guest_self_reg',
     'guests_self_registration.modes'        => 'guest_modes',
-#    'guests_self_registration.category'     => 'category',
     'registration.billing_engine'           => 'billing_engine',
 
     'logo'           => 'general.logo',
     'guest_self_reg' => 'registration.guests_self_registration',
     'guest_modes'    => 'guests_self_registration.modes',
-#    'category'       => 'guests_self_registration.category',
     'billing_engine' => 'registration.billing_engine',
 );
 

@@ -75,7 +75,6 @@ sub _default_profile {
         'logo'              => $Config{'general'}{'logo'},
         'guest_self_reg'    => $Config{'registration'}{'guests_self_registration'},
         'guest_modes'       => $Config{'guests_self_registration'}{'modes'},
-        'guest_category'    => $Config{'guests_self_registration'}{'category'},
         'template_path'     => '/',
         'billing_engine'    => $Config{'registration'}{'billing_engine'},
     };
@@ -89,7 +88,7 @@ sub _custom_profile {
         'name' => $name,
         'description' => $profile->{'description'} || '',
         map { $_ =>  ($profile->{$_} || $defaults->{$_} ) }
-        qw (logo guest_selfreg guest_modes guest_category template_path billing_engine filter)
+        qw (logo guest_selfreg guest_modes template_path billing_engine filter)
     );
     return \%results;
 }

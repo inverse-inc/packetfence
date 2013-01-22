@@ -268,14 +268,6 @@ msgstr ""
 msgid "guests_self_registration.modes"
 msgstr ""
 
-#: conf/pf.conf.defaults:263
-msgid "guests_self_registration.category"
-msgstr ""
-
-#: conf/pf.conf.defaults:269
-msgid "guests_self_registration.access_duration"
-msgstr ""
-
 #: conf/pf.conf.defaults:277
 msgid "guests_self_registration.email_activation_timeout"
 msgstr ""
