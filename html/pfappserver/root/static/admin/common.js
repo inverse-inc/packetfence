@@ -395,9 +395,9 @@ $(function () { // DOM ready
         if (that.hasClass('disabled'))
             return false;
         var url = that.attr('href');
-        var modal_id = that.attr('data-modal');
-        var content  = that.attr('data-modal-content');
-        var modal = $('#' + modal_id);
+        var modal_id = that.attr('data-target');
+        var content  = that.attr('data-content');
+        var modal = $(modal_id);
         modal.find('#content').html(content);
         var confirm_link = modal.find('a.btn-primary').first();
         modal.modal({ show: true });
@@ -417,7 +417,7 @@ $(function () { // DOM ready
         var modal_id = that.attr('data-modal');
         var form_id = that.attr('data-modal-form');
         var modal    = $('#' + modal_id);
-        var content  = that.attr('data-modal-content');
+        var content  = that.attr('data-content');
         if(form_id) {
             form = $('#' + form_id);
         }
