@@ -401,14 +401,14 @@ sub create : Local: Args(0) {
         $c->forward('update');
         $c->forward('revert_all');
         my $uri = $c->uri_for($c->controller('Admin')->action_for('configuration'));
-        my $redirect = "$uri" . $c->pf_hash_for($c->controller('Portal::Profile')->action_for('read'),[$id]);
+        my $redirect = "$uri" . $c->pf_hash_for($c->controller('Portal::Profile')->action_for('view'),[$id]);
         $c->log->info("redirect : $redirect");
         $c->response->redirect($redirect);
     }
     else {
         # Show an empty form
         $c->stash->{profile} = {};
-        $c->forward('read');
+        $c->forward('view');
     }
 }
 
