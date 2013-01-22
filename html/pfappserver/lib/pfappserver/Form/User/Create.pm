@@ -13,6 +13,7 @@ to be used along the other forms (Create::Singe, Create::Multiple, Create:;Impor
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Authentication::Action';
+has '+source_type' => ( default => 'SQL' );
 
 # Form fields
 has_field 'arrival_date' =>
@@ -87,7 +88,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
