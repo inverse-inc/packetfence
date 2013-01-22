@@ -159,9 +159,34 @@ function initCopyModal(element) {
         var form = modal.find("#copyModalForm");
         submitFormHideModal(modal,form);
     });
+
+    element.on('submit',"#copyModalForm",function () {
+        submitFormHideModal(modal,$(this));
+        return false;
+    });
 }
 
-function initNewFileModal() {
+function submitFormHideModalGoToLocation(modal,form) {
+    $.ajax({
+        'async' : false,
+        'url'   : form.attr('action'),
+        'type'  : form.attr('method') || "POST",
+        'data'  : form.serialize()
+        })
+        .always(function()  {
+            modal.modal('hide');
+        })
+        .done(function(data, textStatus, jqXHR) {
+            location.hash = jqXHR.getResponseHeader('Location');
+        })
+        .fail(function(jqXHR) {
+            $("body,html").animate({scrollTop:0}, 'fast');
+            var status_msg = getStatusMsg(jqXHR);
+            showError($('#section h2'), status_msg);
+        });
+}
+
+function initNewFileModal(element) {
     var modal = $('#newFileModal');
     var button = modal.find('.btn-primary').first();
     modal.on('hidden',function() {
@@ -170,24 +195,15 @@ function initNewFileModal() {
     button.off("click");
     button.click(function(event) {
         var form = modal.find("#newFileModalForm");
-        $.ajax({
-            'async' : false,
-            'url'   : form.attr('action'),
-            'type'  : form.attr('method') || "POST",
-            'data'  : form.serialize()
-            })
-            .always(function()  {
-                modal.modal('hide');
-            })
-            .done(function(data, textStatus, jqXHR) {
-                location.hash = jqXHR.getResponseHeader('Location');
-            })
-            .fail(function(jqXHR) {
-                $("body,html").animate({scrollTop:0}, 'fast');
-                var status_msg = getStatusMsg(jqXHR);
-                showError($('#section h2'), status_msg);
-            });
+        submitFormHideModalGoToLocation(modal,form);
     });
+    element.on('submit',"#newFileModalForm",function () {
+        submitFormHideModalGoToLocation(modal,$(this));
+        return false;
+    });
+}
+
+function initIndexPage(element) {
 }
 
 function initTemplatesPage(element) {
@@ -198,8 +214,9 @@ function initTemplatesPage(element) {
 
 $('#section').on('section.loaded',function(event) {
     var initializers = [
-        { id: "#file_editor", initializer: initEditorPage },
-        { id: "#portal_profile_files", initializer: initTemplatesPage }
+        {id : "#file_editor", initializer: initEditorPage},
+        {id : "#portal_profile_files", initializer: initTemplatesPage },
+        {id : "#portal_profile_index", initializer: initIndexPage }
     ];
     for (var i = 0; i < initializers.length; i++) {
         var initializer = initializers[i];
