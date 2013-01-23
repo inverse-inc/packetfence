@@ -14,11 +14,8 @@ Caches are initialized at pfappserver runtime using the 'after setup_finalize' m
 
 use CHI;
 use Config::IniFiles;
-use File::stat;
-use FileHandle;
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
-use Time::localtime;
 
 use pf::config;
 use pf::config::ui;
@@ -41,11 +38,12 @@ sub _myDocFile      { return "" };
 # See getConfigurationModules
 my @configuration_modules = (
     "Pf",               # global PacketFence configurations (pf.conf)
-    "Authentication",   # authentication sources and rights ()
+#    "Authentication",   # authentication sources and rights ()
     "Networks",         # dhcp/dns/networks types configurations (networks.conf)
     "Switches",         # managed network equipements configurations (switches.conf)
     "Violations",       # violations/policies/isolation rules configurations (violations.conf)
-    "Profiles",         # custom portal profile configuration (profiles.conf)
+    "FloatingDevices",  # floating devices equipments configurations (floating_devices.conf)
+#    "PortalProfiles",   # custom portal profile configuration (portal_profiles.conf)
 );
 
 # Set the permissions for the different config files
@@ -124,7 +122,8 @@ sub readConfig {
         tie %config, 'Config::IniFiles', (
             -import => $default,
         );
-        $logger->info("No existing config file was found for $self->{config_file}. We will proceed with defaults.")
+        $logger->info("No existing config file was found for $self->{config_file}. " . 
+            "Will proceed with defaults if exists.")
     }
 
     # Remove trailing spaces of config parameters
@@ -137,7 +136,7 @@ sub readConfig {
     # Put the config tied hash into CHI cache
     $cache->set('timestamp', time);
     $cache->set_multi(\%config);
-    $logger->info("Loaded config file in cache: " . $self->_getName);
+    $logger->info("Config file $self->{config_file} has been read and put into " . $self->_getName . " cache.");
 }
 
 =item readDefault
@@ -215,7 +214,7 @@ sub writeConfig {
 
     my $status_msg;
 
-    my ($config, $chi_timestamp)  = $self->loadConfig;
+    my ( $chi_timestamp, $config ) = $self->loadConfig;
     my $tied_config  = tied(%$config);
 
     # TODO
@@ -226,8 +225,10 @@ sub writeConfig {
     if ( $self->default_file ne "" ) {
         my $default = $self->readDefault;
         my $tied_default = tied(%$default);
+
         foreach my $section ( $tied_config->Sections ) {
             next if ( !$tied_default->SectionExists($section) );
+
             foreach my $parameter ( $tied_config->Parameters($section) ) {
                 next if ( !$tied_default->exists($section, $parameter) );
                 my $config_val = $tied_config->val($section, $parameter);
@@ -236,7 +237,9 @@ sub writeConfig {
                     $tied_config->delval($section, $parameter);
                 }
             }
+
         }
+
     }
 
     # Delete empty sections
@@ -294,7 +297,7 @@ sub updateConfig {
     my ( $self, %config ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # Check to see latest modified timestamp on the file
+    # TODO: Check to see latest modified timestamp on the file
     my $cache = CHI->new( _get_chi_cache_definition($self->_getName) );
     $cache->set('timestamp', time);
     $cache->set_multi(\%config);
@@ -317,18 +320,15 @@ sub checkTimestamp {
     }
 
     # Get config file latest modified timestamp
-    my $file_timestamp;
-    my $fh = FileHandle->new($self->{config_file}, "r");
-    if ( defined $fh ) {
-        $file_timestamp = ctime(stat($fh)->mtime);
-        undef $fh;  # closing the file since we are done with it
-    } else {
-        $logger->warn("Unable to determine config file $self->{config_file} last modification timestamp. ".
-            "Maybe the file just does not exist. We will write the cache to the file.");
-    }
+    if ( -e $self->config_file ) {
+        my $file_timestamp = (stat $self->config_file)[9];
 
-    if ( $file_timestamp > $chi_timestamp ) {
-        $logger->warn("Config file $self->{config_file} seems to has been modified since last loaded into cache.")
+        if ( $file_timestamp > $chi_timestamp ) {
+            $logger->warn("Config file $self->{config_file} seems to has been modified since last loaded into cache.");
+        }
+    } else {
+        $logger->warn("Unable to determine config file $self->{config_file} last modification timestamp. ". 
+            "Maybe the file just does not exist. We will write the cache to the file.");
     }
 }
 
