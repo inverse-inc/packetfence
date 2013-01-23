@@ -84,7 +84,7 @@ sub read {
         if ( ($floating_device eq 'all') || ($floating_device eq $section) ) {
             my @values;
             foreach my $column (@columns) {
-                push @values, ( $floating_device_conf->{$section}->{$column} || '' );
+                push @values, ( $floating_devices_conf->{$section}->{$column} || '' );
             }
             push @resultset, [@values];
         }
@@ -178,7 +178,7 @@ Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
