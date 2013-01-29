@@ -52,7 +52,7 @@ sub create {
         while ( my ($param, $value) = each %$assignments ) {
             $tied_conf->newval( $switch, $param, $value );
         }
-        $self->updateConfig(%$switches_conf);
+        $self->updateConfig(\%$switches_conf);
     } else {
         $status_msg = "Switch \"$switch\" already exists";
         $logger->warn("$status_msg");
@@ -125,7 +125,7 @@ sub update {
                 $tied_conf->newval( $switch, $param, $value );
             }
         }
-        $self->updateConfig(%$switches_conf);
+        $self->updateConfig(\%$switches_conf);
     } else {
         $status_msg = "Switch \"$switch\" does not exists";
         $logger->warn("$status_msg");
@@ -156,7 +156,7 @@ sub delete {
 
     if ( $tied_conf->SectionExists($switch) ) {
         $tied_conf->DeleteSection($switch);
-        $self->updateConfig(%$switches_conf);
+        $self->updateConfig(\%$switches_conf);
     } else {
         $status_msg = "Switch \"$switch\" does not exists";
         $logger->warn("$status_msg");
