@@ -53,7 +53,7 @@ sub create {
         while ( my ($param, $value) = each %$assignments ) {
             $tied_conf->newval( $floating_device, $param, $value );
         }
-        $self->updateConfig(%$floating_devices_conf);
+        $self->updateConfig(\%$floating_devices_conf);
     } else {
         $status_msg = "Floating device \"$floating_device\" already exists";
         $logger->warn("$status_msg");
@@ -126,7 +126,7 @@ sub update {
                 $tied_conf->newval( $floating_device, $param, $value );
             }
         }
-        $self->updateConfig(%$floating_devices_conf);
+        $self->updateConfig(\%$floating_devices_conf);
     } else {
         $status_msg = "Floating device \"$floating_device\" does not exists";
         $logger->warn("$status_msg");
@@ -157,7 +157,7 @@ sub delete {
 
     if ( $tied_conf->SectionExists($floating_device) ) {
         $tied_conf->DeleteSection($floating_device);
-        $self->updateConfig(%$floating_devices_conf);
+        $self->updateConfig(\%$floating_devices_conf);
     } else {
         $status_msg = "Floating device \"$floating_device\" does not exists";
         $logger->warn("$status_msg");
