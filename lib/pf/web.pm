@@ -515,7 +515,10 @@ sub web_node_register {
 
     # FIXME quick and hackish fix for #1505. A proper, more intrusive, API changing, fix should hit devel.
     my $mac;
-    if (defined($portalSession->getGuestNodeMac)) {
+    if(exists $info{'mac'} && defined $info{'mac'})  {
+        $mac = $info{'mac'};
+    }
+    elsif (defined($portalSession->getGuestNodeMac)) {
         $mac = $portalSession->getGuestNodeMac;
     }
     else {
