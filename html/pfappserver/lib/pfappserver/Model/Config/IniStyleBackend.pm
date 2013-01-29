@@ -142,6 +142,8 @@ sub readConfig {
 
 =item readDefault
 
+Read default configurations for module and returns an hashref.
+
 =cut
 sub readDefault {
     my ( $self ) = @_;
@@ -172,6 +174,8 @@ sub readDefault {
 }
 
 =item readDoc
+
+Read documentation file and returns an hashref.
 
 =cut
 sub readDoc {
