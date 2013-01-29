@@ -47,6 +47,7 @@ my @configuration_modules = (
 );
 
 # Set the permissions for the different config files
+# TODO: Should probably go into pf::config....
 Readonly::Scalar our $WRITE_PERMISSIONS => '0644';
 
 # TODO: Meant to be removed... (dwuelfrath@inverse.ca 2012.12.20)
@@ -141,6 +142,8 @@ sub readConfig {
 
 =item readDefault
 
+Read default configurations for module and returns an hashref.
+
 =cut
 sub readDefault {
     my ( $self ) = @_;
@@ -171,6 +174,8 @@ sub readDefault {
 }
 
 =item readDoc
+
+Read documentation file and returns an hashref.
 
 =cut
 sub readDoc {
@@ -315,8 +320,7 @@ sub checkTimestamp {
     # Get CHI timestamp to check if we have the latest version / the file has not been modified
     if ( !$chi_timestamp ) {
         my $cache = CHI->new( _get_chi_cache_definition($self->_getName) );
-        my $config = $cache->dump_as_hash;
-        my $chi_timestamp = $config->{'timestamp'};
+        my $chi_timestamp = $cache->get('timestamp');
     }
 
     # Get config file latest modified timestamp
@@ -327,11 +331,13 @@ sub checkTimestamp {
             $logger->warn("Config file $self->{config_file} seems to has been modified since last loaded into cache.");
         }
     } else {
-        $logger->warn("Unable to determine config file $self->{config_file} last modification timestamp. ". 
+        $logger->info("Unable to determine config file $self->{config_file} last modification timestamp. ". 
             "Maybe the file just does not exist. We will write the cache to the file.");
     }
 }
 
+
+=back
 
 =head1 METHODS TO GET RID OF
 
@@ -392,7 +398,7 @@ Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
