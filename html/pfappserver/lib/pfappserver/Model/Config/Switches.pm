@@ -28,6 +28,8 @@ sub _myConfigFile   { return $pf::config::switches_config_file };
 
 =head1 METHODS
 
+=head2 MODEL CRUD OPERATORS
+
 =over
 
 =item create

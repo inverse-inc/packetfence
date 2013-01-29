@@ -23,13 +23,14 @@ extends 'pfappserver::Model::Config::IniStyleBackend';
 Readonly::Scalar our $NAME => 'FloatingDevices';
 
 sub _getName        { return $NAME };
-#sub _myConfigFile   { return "/usr/local/pf/cong/floating_devices_file.conf" };
 sub _myConfigFile   { return $pf::config::floating_devices_config_file };
 
 
 =head1 METHODS
 
-=cut
+=head2 MODEL CRUD OPERATORS
+
+=over
 
 =item create
 
