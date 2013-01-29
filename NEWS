@@ -18,6 +18,8 @@ Version <releaseVersion> released on <releaseDate>
 Bug Fixes
  * Modified the SQL upgrade script from 3.5.0 to 3.6.1 (#1624)
 
+Version <develVersion> released on <develVersionReleaseDate>
+
 --------------------------------------------------------------------------------
 Version 3.6.1 released on 2013-01-10
 
