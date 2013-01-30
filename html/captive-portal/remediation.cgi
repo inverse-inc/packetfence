@@ -54,7 +54,7 @@ if ($violation) {
     
     $portalSession->stash->{'sub_template'} = $url;
 
-    pf::web::generate_violation_page($portalSession);
+    pf::web::generate_violation_page($portalSession, $class->{'template'});
 } else {
     $logger->info("No open violation for " . $mac);
     # TODO - rework to not show "Your computer was not found in the PacketFence database. Please reboot to solve this issue."

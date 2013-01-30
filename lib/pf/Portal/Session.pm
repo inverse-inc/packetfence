@@ -332,15 +332,37 @@ sub setGuestNodeMac {
     $self->{'_guest_node_mac'} = $guest_node_mac;
 }
 
+=item getTemplateIncludePath
+
+=cut
 sub getTemplateIncludePath {
     my ($self) = @_;
     my $profile = $self->getProfile;
     if ($profile->getName eq 'default') {
-        return ($CAPTIVE_PORTAL{'TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)),
+        return [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)],
     }
     else {
-        return ($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)),
+        return [$CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'} . trim_path($profile->getTemplatePath),
+                $CAPTIVE_PORTAL{'TEMPLATE_DIR'}];
     }
+}
+
+=item getRequestLanguages
+
+Extract the preferred languages from the HTTP request.
+Ex: Accept-Language: en-US,en;q=0.8,fr;q=0.6,fr-CA;q=0.4,no;q=0.2,es;q=0.2
+will return qw(en_US en fr fr_CA no es)
+
+=cut
+sub getRequestLanguages {
+    my ($self) = @_;
+    my $s = $self->getCgi->http('Accept-language');
+    my @l = split(/,/, $s);
+    map { s/;.+// } @l;
+    map {  s/-/_/g } @l;
+    @l = map { m/^en(_US)?/? ():$_ } @l;
+
+    return \@l;
 }
 
 =back

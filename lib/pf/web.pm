@@ -400,9 +400,12 @@ sub generate_oauth2_result {
 
 =cut
 sub generate_violation_page {
-    my ( $portalSession ) = @_;
+    my ( $portalSession, $template ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
+    my $langs = $portalSession->getRequestLanguages();
     my $mac = $portalSession->getClientMac();
+    my $paths = $portalSession->getTemplateIncludePath();
 
     my $node_info = node_view($mac);
 
@@ -416,7 +419,18 @@ sub generate_violation_page {
     $portalSession->stash->{'last_ssid'} =  $node_info->{'last_ssid'};
     $portalSession->stash->{'username'} = $node_info->{'pid'};
 
-    render_template($portalSession, $VIOLATION_TEMPLATE);
+    push(@$langs, ''); # default template
+    foreach my $lang (@$langs) {
+        my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
+        foreach my $dir (@$paths) {
+            if ( -f "$dir/$file" ) {
+                $portalSession->stash->{'sub_template'} = $file;
+                return render_template($portalSession, $VIOLATION_TEMPLATE);
+            }
+        }
+    }
+
+    $logger->error("Template $template not found");
 }
 
 =item web_node_register
