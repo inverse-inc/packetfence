@@ -216,10 +216,6 @@ msgstr ""
 msgid "trapping.passthrough"
 msgstr ""
 
-#: conf/pf.conf.defaults:117
-msgid "trapping.blacklist"
-msgstr ""
-
 #: conf/pf.conf.defaults:124
 msgid "trapping.whitelist"
 msgstr ""

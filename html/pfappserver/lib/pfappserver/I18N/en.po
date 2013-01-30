@@ -241,10 +241,6 @@ msgstr "Redirection delay"
 msgid "trapping.passthrough"
 msgstr "Passthrough"
 
-#: conf/pf.conf.defaults:117
-msgid "trapping.blacklist"
-msgstr "Blacklist"
-
 #: conf/pf.conf.defaults:124
 msgid "trapping.whitelist"
 msgstr "Whitelist"
