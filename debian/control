@@ -58,7 +58,8 @@ Depends: ${misc:Depends}, vlan, make,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
  libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
- libnet-nessus-xmlrpc-perl (>= 0.4),
+ libnet-nessus-xmlrpc-perl (>= 0.4),libfile-slurp-perl
+ 
 # required for ipset
  libnetaddr-ip-perl, libfile-which-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.

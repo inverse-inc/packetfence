@@ -122,6 +122,7 @@ sub upload :Chained('object') :PathPart('upload') :Args() {
     my ($self,$c,@pathparts) = @_;
 
     $c->stash->{current_view} = 'JSON';
+    $self->validate_path_parts($c,@pathparts);
     $c->stash->{success} = 'true';
     my $upload = $c->request->upload('qqfile');
     my $file_name = $upload->filename;
@@ -133,6 +134,10 @@ sub upload :Chained('object') :PathPart('upload') :Args() {
 
 sub validate_path_parts {
     my ($self,$c,@pathparts) = @_;
+    if ( grep { /(\.\.)|[\/\0\?\*\+\%]/} @pathparts   ) {
+        $c->stash->{status_msg} = 'Invalid file name';
+        $c->detach('bad_request');
+    }
 }
 
 sub edit :Chained('object') :PathPart :Args() {
@@ -148,6 +153,7 @@ sub edit :Chained('object') :PathPart :Args() {
 
 sub edit_new :Chained('object') :PathPart :Args() {
     my ($self,$c,@pathparts) = @_;
+    $self->validate_path_parts($c,@pathparts);
     my $file_name = catfile(@pathparts);
     my $file_path = $self->_make_file_path($c,$file_name);
     my $file_content = '';
@@ -172,18 +178,19 @@ HTML
 
 sub rename :Chained('object') :PathPart :Args() {
     my ($self,$c,@pathparts) = @_;
-    my $from = catfile(@pathparts);
     my $request = $c->request;
-    my $new_file_name = $request->param('to');
+    my $to = $request->param('to');
+    $self->validate_path_parts($c,$to,@pathparts);
+    my $from = catfile(@pathparts);
     my $from_path = $self->_make_file_path($c,$from);
     my(undef, $directories, undef) = fileparse($from_path);
-    my $to_path = catfile($directories,$new_file_name);
+    my $to_path = catfile($directories,$to);
     $c->stash->{path} = $to_path;
     $c->forward('path_exists');
     move($from_path,$to_path);
     $c->stash->{current_view} = 'JSON';
     #verify file exists if it does set error
-    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{profile_name} ], $new_file_name ));
+    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{profile_name} ], $to ));
 }
 
 sub new_file :Chained('object') :PathPart :Args() {
@@ -293,8 +300,7 @@ sub path_exists :Private {
         $c->stash(
             status_msg => 'File already exist'
         );
-        $c->go('bad_request');
-        $c->detach();
+        $c->detach('bad_request');
     }
 }
 
@@ -304,6 +310,7 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() {
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my $to = $request->param('to');
+        $self->validate_path_parts($c,$to,@pathparts);
         my $from_path = $self->_make_file_path($c,$from);
         my(undef, $directories, undef) = fileparse($from_path);
         my $to_path = catfile($directories,$to);
@@ -406,10 +413,7 @@ sub create : Local: Args(0) {
         $c->stash->{profile_name} = $id;
         $c->forward('update');
         $c->forward('revert_all');
-        my $uri = $c->uri_for($c->controller('Admin')->action_for('configuration'));
-        my $redirect = "$uri" . $c->pf_hash_for($c->controller('Portal::Profile')->action_for('view'),[$id]);
-        $c->log->info("redirect : $redirect");
-        $c->response->redirect($redirect);
+        $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('view'), [$id]));
     }
     else {
         # Show an empty form
