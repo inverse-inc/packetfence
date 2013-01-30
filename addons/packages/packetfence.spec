@@ -202,6 +202,7 @@ Requires: perl(Params::Validate) >= 0.97
 Requires: perl(Catalyst::Devel)
 Requires: perl(Sort::Naturally)
 Requires: perl(PHP::Serialization)
+Requires: perl(File::Slurp)
 # these are probably missing dependencies for the above. 
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
