@@ -427,14 +427,6 @@ sub generate_mangle_rules {
         ;
     }
 
-    # mark blacklisted users
-    # TODO blacklist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
-        $mangle_rules .=
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
-        ;
-    }
-
     return $mangle_rules;
 }
 

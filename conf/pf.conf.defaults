@@ -207,17 +207,6 @@ gaming_devices_registration = disabled
 # guests_self_registration parameter under [registration].
 modes=sms,email,sponsor
 #
-# guests_self_registration.category
-#
-# The node category that will be assigned to guests' nodes.
-category=guest
-#
-# guests_self_registration.access_duration
-#
-# The length of network access a confirmed guest will have. On successful
-# confirmation a guest node's unregdate is set to now + access_duration.
-access_duration=7D
-#
 # guests_self_registration.email_activation_timeout
 #
 # This is the delay given to a guest who registered by email confirmation
