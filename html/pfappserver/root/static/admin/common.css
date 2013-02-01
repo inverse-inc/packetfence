@@ -121,3 +121,10 @@ li.drop-row,
 .qq-uploader {
     text-align: right; /* for right-floating uploader */
 }
+.qq-upload-drop-area, .qq-upload-extra-drop-area {
+    min-height: 24px;
+}
+.qq-upload-list li, .qq-upload-drop-area span,
+.qq-upload-file, .qq-upload-spinner, .qq-upload-size, .qq-upload-cancel, .qq-upload-retry, .qq-upload-failed-text, .qq-upload-finished  {
+    font-size: inherit;
+}

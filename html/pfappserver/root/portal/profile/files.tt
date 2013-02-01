@@ -7,7 +7,7 @@
           </td>
           <td></td>
           <td>
-            <a class="btn btn-small btn-primary pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New File') %]</a>
+            <a class="btn btn-small btn-primary pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id %]" class="pull-right"></div>
             <script>
@@ -18,17 +18,23 @@
                            paramsInBody : true
                          },
                          text: {
-                           uploadButton: '<i class="icon-upload icon-white"></i> [% l('Upload') %]'
+                           uploadButton: '[% l('Upload') %]',
+                           dragZone: '[% l('Drop') %]',
+                           cancelButton: '[% l('Cancel') %]',
+                           retry: '[% l('Retry') %]',
+                           failUpload: '[% l('Upload failed') %]',
+                           dropProcessing: '[% l('Processing dropped files...') %]',
+                           formatProgress: '[% l('{percent}% of {total_size}') %]',
+                           waitingForResponse: '[% l('Processing...') %]'
                          },
                          template:
                            '<div class="qq-uploader">' +
-                           '<pre class="qq-upload-drop-area"><span>{dragZoneText}</span></pre>' +
-                           '<div class="qq-upload-button btn btn-small btn-success">{uploadButtonText}</div><br/>' +
+                           '<span class="qq-upload-drop-area"><span><i class=" icon-upload"></i> {dragZoneText}</span></span>' +
+                           '<div class="qq-upload-button btn btn-small btn-success"><i class="icon-upload icon-white"></i> {uploadButtonText}</div><br/>' +
                            '<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
                            '<ul class="qq-upload-list pull-right"></ul>' +
                            '</div>',
-                           multiple: false,
-                           debug: true
+                           multiple: false
                     }).on('complete', function(id, fileName, responseJSON) {
                               $(window).hashchange();
                        });
