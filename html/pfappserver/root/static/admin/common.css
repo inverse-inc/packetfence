@@ -111,3 +111,13 @@ li.drop-row,
 .drop-row td {
     border-top: 1px solid #333;
 }
+/* fineuploader */
+.qq-upload-button {
+    width: auto;
+}
+.qq-upload-list li {
+    margin-top: 10px;
+}
+.qq-uploader {
+    text-align: right; /* for right-floating uploader */
+}

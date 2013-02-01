@@ -1,29 +1,34 @@
-[%- MACRO display_directory(entry,dirs)  BLOCK -%]
+[%- MACRO display_directory(entry,dirs) BLOCK -%]
     [% name = entry.name %]
-    [% dir_id = "profile_" _  name   _ dirs.join("_") %]
+    [% dir_id = "profile_" _ name  _ dirs.join("_") %]
         <tr>
           <td>
             <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id %]" class="swap_class"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder-[%IF entry.hidden %]close[%ELSE%]open[% END %]"></i> [% name %]</a>
           </td>
-          <td/>
-          <td class="pull-left">
-            <a class="btn btn-primary" data-toggle="modal" data-target="#newFileModal"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New File')  %]</a>
-          </td>
-          <td class="pull-left"> 
+          <td></td>
+          <td>
+            <a class="btn btn-small btn-primary pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New File') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
-            <div id="[% uploader_id %]"/>
+            <div id="[% uploader_id %]" class="pull-right"></div>
             <script>
             <!--
                     $('#[% uploader_id %]').fineUploader({
                          request: {
-                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[profile_name],dirs.join('/'))  %]',
+                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[profile_name],dirs.join('/')) %]',
                            paramsInBody : true
                          },
                          text: {
-                           uploadButton: '<i class="icon-upload icon-white"/> Upload'
+                           uploadButton: '<i class="icon-upload icon-white"></i> [% l('Upload') %]'
                          },
-                        multiple: false,
-                        debug: false
+                         template:
+                           '<div class="qq-uploader">' +
+                           '<pre class="qq-upload-drop-area"><span>{dragZoneText}</span></pre>' +
+                           '<div class="qq-upload-button btn btn-small btn-success">{uploadButtonText}</div><br/>' +
+                           '<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
+                           '<ul class="qq-upload-list pull-right"></ul>' +
+                           '</div>',
+                           multiple: false,
+                           debug: true
                     }).on('complete', function(id, fileName, responseJSON) {
                               $(window).hashchange();
                        });
@@ -33,15 +38,15 @@
           </td>
         </tr>
         <tr class="[%IF entry.hidden %]hidden[% END %]" data-swap="[%IF !entry.hidden %]hidden[% END %]">
-            <td colspan="4">
+            <td colspan="3">
                 <div id="[%dir_id%]" class="collapse fade [%IF !entry.hidden %]in[% END %]">
                 [% display_file_table(entry.entries,dirs.merge([name])) %]
                 </div>
             </td>
         </tr>
-        <tr class="hidden"> <td colspan="4"/> </tr>
+        <tr class="hidden"><td colspan="3"></tr>
 [%- END -%]
-[%- MACRO display_file(entry,dirs)  BLOCK -%]
+[%- MACRO display_file(entry,dirs) BLOCK -%]
     [% 
         name = entry.name
         delete_or_revert = entry.delete_or_revert 
@@ -49,34 +54,31 @@
     <tr>
       <td>
         [% IF entry.editable %]
-          <a  href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[profile_name], name ) %]" ><i class="icon-edit"></i> [% name %]</a>
+          <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[profile_name], name ) %]" ><i class="icon-edit"></i> [% name %]</a>
         [% ELSE %]
             <i class="icon-file"></i> [% name %]
         [% END %]
       </td>
       <td>[% entry.size %]</td>
-      <td class="pull-left">
-        <a class="btn btn-primary" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i>  [% l('Copy')  %]</a>
-      </td>
-      <td class="pull-left">
-        <a class="btn btn-danger call-modal [% IF entry.delete_or_revert_disabled %]hidden[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert)  %]</a>
+      <td>
+        <a class="btn btn-small btn-primary pull-right" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
+        <a class="btn btn-danger call-modal [% IF entry.delete_or_revert_disabled %]hidden[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]" href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert) %]</a>
       </td>
   </tr>
 [%- END -%]
-[%- MACRO display_file_table(entries,dirs)  BLOCK -%]
+[%- MACRO display_file_table(entries,dirs) BLOCK -%]
   <table class="table table-condensed table-striped">
     <thead>
       <tr>
-        <th>File Name</th>
-        <th>Size</th>
-        <th/>
-        <th/>
+        <th>[% l('File Name') %]</th>
+        <th>[% l('Size') %]</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       [% FOREACH entry IN entries%]
         [% name = entry.name %]
-        [% IF entry.type == 'dir'  %]
+        [% IF entry.type == 'dir' %]
         [% 
            array = ["dir",loop.count]
            array = array.merge(dirs);
@@ -90,6 +92,7 @@
     </tbody>
   </table>
 [%- END -%]
+
 <h2></h2>
 <div id="portal_profile_files">
   <div class="modal fade hide" id="newFileModal">
@@ -99,7 +102,7 @@
     <div class="modal-body">
     </div>
     <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel New File') %]</a>
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
       <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Create New File') %]</a>
     </div>
   </div>
@@ -111,7 +114,7 @@
     <div class="modal-body">
     </div>
     <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel Copy') %]</a>
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
       <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Copy File') %]</a>
     </div>
   </div>
@@ -138,7 +141,7 @@
       <p>[% l('Really revert this file?') %]</p>
     </div>
     <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel Revert') %]</a>
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
       <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert To Default') %]</a>
     </div>
   </div><!-- revertModal -->
@@ -179,7 +182,7 @@
         <table class="table table-condensed table-striped">
            <thead>
             <tr>
-                <td colspan="4">
+                <td colspan="3">
             <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]hidden[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
                 </td>
             </tr>
