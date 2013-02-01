@@ -47,7 +47,7 @@ has_field 'guest_modes' =>
     'type' => 'Select',
     'label' => 'Modes',
     'multiple'=> 1,
-    'element_class' => ['chzn-select', 'input-xxlarge'],
+    'element_class' => ['chzn-select', 'input-xlarge'],
     'element_attr' => {'data-placeholder' => 'Click to add'},
     'options' => [map { { value => $_, label => $_ } } qw(email sms sponser google facebook github) ],
   );

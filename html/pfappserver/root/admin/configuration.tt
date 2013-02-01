@@ -1,26 +1,26 @@
 [%  jsFiles = [
         'app/jquery-ui',
+        'app/ace/ace'
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
-        'app/jquery.toggle.buttons',
-        'app/chosen.jquery.min',
-        'app/jquery.ba-hashchange',
         'app/client/fine-uploader',
         'app/client/jquery-plugin',
+        'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
+        'app/jquery.toggle.buttons',
         'admin/configuration',
         'admin/configuration/authentication',
+        'admin/configuration/portal_profile',
         'admin/configuration/users',
         'admin/configuration/violations',
         'admin/configuration/soh',
         'admin/configuration/roles',
-        'admin/configuration/portal_profile',
-        'app/ace/ace'
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
-        'app/client/fineuploader',
         'app/bootstrap-timepicker',
         'app/bootstrap-toggle-buttons'
+        'app/client/fineuploader',
         ] -%]
 
 <style type="text/css">
@@ -39,6 +39,15 @@
 /* fix inputs in tables */
 table input[type="text"] {
     margin-bottom: 0px;
+}
+tr[data-swap] {
+    background-color: #fff;
+}
+tr[data-swap] > td {
+    border-left: 4px solid #ddd;
+    padding-left: 10px;
+    padding-right: 0;
+    margin-right: 0;
 }
 </style>
 [% MACRO list_entry(controller_name,action,description) BLOCK %]

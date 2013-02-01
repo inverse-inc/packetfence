@@ -30,10 +30,10 @@
       <tr class="disabled">
         <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th></th>
       </tr>
-      <tr style="font-weight:normal">
+      <tr style="font-weight: normal">
         <td></td>
-        <td><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), ['default']) %]">default</a></td>
-        <td>The Default Profile</td>
+        <td><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
+        <td>[% l('Default Profile') %]</td>
         <td></td>
       </tr>
     </thead>
