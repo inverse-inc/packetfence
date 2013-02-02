@@ -3,7 +3,7 @@
         'app/ace/ace'
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
-        'app/client/fine-uploader',
+        'app/client/fineuploader',
         'app/client/jquery-plugin',
         'app/chosen.jquery.min',
         'app/jquery.ba-hashchange',
