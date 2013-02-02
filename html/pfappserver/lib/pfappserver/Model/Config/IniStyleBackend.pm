@@ -43,7 +43,7 @@ my @configuration_modules = (
     "Switches",         # managed network equipements configurations (switches.conf)
     "Violations",       # violations/policies/isolation rules configurations (violations.conf)
     "FloatingDevices",  # floating devices equipments configurations (floating_devices.conf)
-#    "PortalProfiles",   # custom portal profile configuration (portal_profiles.conf)
+    "Profiles",   # custom portal profile configuration (profiles.conf)
 );
 
 # Set the permissions for the different config files
@@ -86,6 +86,98 @@ sub _get_chi_cache_definition {
     return %chi_cache_definition;
 }
 
+sub _uiFieldOrderType {
+    return undef;
+}
+
+=item readArray
+
+Return an array of configurations (and their configurations) or only one if specified.
+
+=cut
+sub readArray {
+    my ( $self, $id ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status,$result,@sections);
+    my $field_order_type = $self->_uiFieldOrderType();
+    if($field_order_type) {
+        my $conf = $self->loadConfig;
+        my @columns = pf::config::ui->instance->field_order('$field_order_type get');
+        my @resultset= ([@columns]);
+
+        if($id eq 'all') {
+            @sections = keys %$conf;
+        } elsif(exists $conf->{$id}) {
+            @sections = ($id);
+        }
+
+        foreach my $section ( @sections) {
+            my @values = map { $_ || ''} @{$conf->{$section}}{@columns};
+            push @resultset, \@values;
+        }
+
+        if ( $#resultset > 0 ) {
+            ($status,$result) = ($STATUS::OK, [@resultset]);
+        } else {
+            ($status,$result) = ($STATUS::NOT_FOUND, "\"$id\" does not exists");
+            $logger->warn("$result");
+        }
+    }
+    else {
+        ($status,$result) = ($STATUS::PRECONDITION_FAILED,"No UI field order defined");
+    }
+    return ($status,$result);
+}
+
+=item readHash
+
+Return a single hash
+
+=cut
+sub readHash {
+    my ($self, $id ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status,$result_or_msg) = ($STATUS::OK,undef);
+    my $conf = $self->loadConfig;
+
+    if(exists $conf->{$id}) {
+        my %values = ( id => $id, %{$conf->{$id}});
+        $result_or_msg = \%values;
+    }
+    else {
+        $status = $STATUS::NOT_FOUND;
+        $result_or_msg = "\"$id\" does not exists";
+    }
+    return ($status,$result_or_msg);
+}
+
+=item deleteItem
+
+Delete an existing item
+
+=cut
+sub deleteItem {
+    my ( $self, $id ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status,$status_msg);
+
+    my $conf = $self->loadConfig;
+    my $tied_conf = tied(%$conf);
+
+    if ( $tied_conf->SectionExists($id) ) {
+        $tied_conf->DeleteSection($id);
+        $self->updateConfig($conf);
+    } else {
+        $status_msg = "\"$id\" does not exists";
+        $logger->warn("$status_msg");
+        return ($STATUS::NOT_FOUND, $status_msg);
+    }
+
+    $status_msg = "\"$id\" successfully deleted";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
+
 =item readConfig
 
 Read the config file and cache the content using CHI.
@@ -123,7 +215,7 @@ sub readConfig {
         tie %config, 'Config::IniFiles', (
             -import => $default,
         );
-        $logger->info("No existing config file was found for $self->{config_file}. " . 
+        $logger->info("No existing config file was found for $self->{config_file}. " .
             "Will proceed with defaults if exists.")
     }
 
@@ -140,6 +232,76 @@ sub readConfig {
     $logger->info("Config file $self->{config_file} has been read and put into " . $self->_getName . " cache.");
 }
 
+=item createItem
+
+=cut
+
+sub createItem {
+    my ( $self, $id, $assignments ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status,$status_msg);
+    if($self->valid_id($id)) {
+        my $conf = $self->loadConfig;
+        my $tied_conf = tied(%$conf);
+
+        if ( !$tied_conf->SectionExists($id) ) {
+            $tied_conf->AddSection($id);
+            while ( my ($param, $value) = each %$assignments ) {
+                $tied_conf->newval( $id, $param, defined $value ? $value : '' );
+            }
+            $self->updateConfig($conf);
+            ($status,$status_msg) = ($STATUS::OK,"\"$id\" successfully created");
+        } else {
+            ($status,$status_msg) = ($STATUS::PRECONDITION_FAILED,"\"$id\" already exists");
+            $logger->warn("$status_msg");
+        }
+
+        $logger->info("$status_msg");
+    }
+    else {
+        ($status,$status_msg) = ($STATUS::FORBIDDEN, "This method does not handle \"$id\"");
+    }
+    return ($status, $status_msg);
+}
+
+=item updateItem
+
+Update/edit/modify an existing floating network device.
+
+=cut
+
+sub updateItem {
+    my ( $self, $id, $assignments ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status,$status_msg) = ($STATUS::OK,"");
+    if($id eq 'all') {
+        $status = $STATUS::FORBIDDEN;
+        $status_msg = "This method does not handle \"$id\"";
+    }
+    else {
+        my $conf = $self->loadConfig;
+        my $tied_conf = tied(%$conf);
+        if ( $tied_conf->SectionExists($id) ) {
+            while ( my ($param, $value) = each %$assignments ) {
+                if ( defined( $conf->{$id}->{$param} ) ) {
+                    $tied_conf->setval( $id, $param, $value );
+                } else {
+                    $tied_conf->newval( $id, $param, $value );
+                }
+            }
+            $self->writeConfig;
+        } else {
+            $status_msg = "\"$id\" does not exists";
+            $status =  $STATUS::NOT_FOUND;
+            $logger->warn("$status_msg");
+        }
+        $status_msg = "\"$id\" successfully modified";
+        $logger->info("$status_msg");
+    }
+    return ($status, $status_msg);
+}
 =item readDefault
 
 Read default configurations for module and returns an hashref.
@@ -331,7 +493,7 @@ sub checkTimestamp {
             $logger->warn("Config file $self->{config_file} seems to has been modified since last loaded into cache.");
         }
     } else {
-        $logger->info("Unable to determine config file $self->{config_file} last modification timestamp. ". 
+        $logger->info("Unable to determine config file $self->{config_file} last modification timestamp. ".
             "Maybe the file just does not exist. We will write the cache to the file.");
     }
 }
