@@ -47,57 +47,57 @@ our %PF_CONFIG_NAME_MAP = (
     'registration.guests_self_registration' => 'guest_self_reg',
     'guests_self_registration.modes'        => 'guest_modes',
     'registration.billing_engine'           => 'billing_engine',
-
-    'logo'           => 'general.logo',
-    'guest_self_reg' => 'registration.guests_self_registration',
-    'guest_modes'    => 'guests_self_registration.modes',
-    'billing_engine' => 'registration.billing_engine',
 );
 
-our @PF_CONFIG_ENTRIES = qw(
-    general.logo
-    registration.guests_self_registration
-    guests_self_registration.modes
-    registration.billing_engine
-);
+=item isDeleteOrRevertDisabled
 
-our @PROFILE_ENTRIES = @PF_CONFIG_NAME_MAP{@PF_CONFIG_ENTRIES};
+=cut
 
-sub is_delete_or_revert_disabled {return 1};
-sub object :Chained('/') :PathPart('portal/profile/default') :CaptureArgs(0) {
-    my ($self, $c) = @_;
-    my $pf_config = $c->model('Config::Pf');
-    my ($status,$config_ref) = $pf_config->read_value(\@PF_CONFIG_ENTRIES);
-    $c->stash->{profile_name} = 'default';
-    my %profile;
-    @profile{'id','description',@PF_CONFIG_NAME_MAP{@PF_CONFIG_ENTRIES}} = (
-        'default',
-        'The Default Profile',
-        @{$config_ref}{@PF_CONFIG_ENTRIES}
-    );
-    $c->stash->{profile} = \%profile;
+sub isDeleteOrRevertDisabled {return 1};
+
+=item getConfigModel
+
+=cut
+
+sub getConfigModel {
+    return pfappserver::Model::Config::MappedPf->new(\%PF_CONFIG_NAME_MAP);
 }
 
-sub _get_form {
+=item object
+
+=cut
+
+sub object :Chained('/') :PathPart('portal/profile/default') :CaptureArgs(0) {
+    my ($self, $c) = @_;
+    my $result = $self->SUPER::object($c,'default');
+    my $profile = $c->stash->{profile};
+    if ($profile) {
+        @{$profile}{'id','description'} = ( 'default', 'The Default Profile');
+    }
+    return $result;
+}
+
+=item get_form
+
+=cut
+
+sub getForm {
     my ($self,$c,@args) = @_;
     return pfappserver::Form::Portal::Profile::Default->new(ctx => $c,@args);
 }
 
-sub _update_profile {
-    my ($self,$c,$form) = @_;
-    my $pf_config = $c->model('Config::Pf');
-    my $profile = $form->value;
-    my %new_profile;
-    @new_profile{@PF_CONFIG_NAME_MAP{@PROFILE_ENTRIES}} = @{$profile}{@PROFILE_ENTRIES};
-    use Data::Dumper;
-    $c->log->info(Dumper(\%new_profile));
-    return $pf_config->update(\%new_profile);
+=item _make_file_path
+
+=cut
+
+sub _makeFilePath {
+    my ($self,@args) = @_;
+    return $self->_makeDefaultFilePath(@args);
 }
 
-sub _make_file_path {
-    my ($self,@args) = @_;
-    return $self->_make_default_file_path(@args);
-}
+=item delete_file
+
+=cut
 
 sub delete_file :Chained('object') :PathPart('delete') :Args() {
     my ($self,$c,@pathparts) = @_;
@@ -105,15 +105,19 @@ sub delete_file :Chained('object') :PathPart('delete') :Args() {
     $c->go('bad_request');
 }
 
+=item revert_file
+
+=cut
+
 sub revert_file :Chained('object') :PathPart :Args() {
     my ($self,$c,@pathparts) = @_;
     $c->stash->{status_msg} = "Cannot revert a file in the default profile";
     $c->go('bad_request');
 }
 
-sub filter_entries {
-    my ($regex,@entries);
-}
+=item revert_all
+
+=cut
 
 sub revert_all :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
@@ -121,11 +125,19 @@ sub revert_all :Chained('object') :PathPart :Args(0) {
     $c->go('bad_request');
 }
 
+=item delete_profile
+
+=cut
+
 sub delete_profile :Chained('object') :PathPart('delete') :Args(0) {
     my ($self,$c) = @_;
     $c->stash->{status_msg} = "Cannot delete the default profile";
     $c->go('bad_request');
 }
+
+=item end
+
+=cut
 
 sub end : ActionClass('RenderView') {
     my ($self,$c) = @_;
