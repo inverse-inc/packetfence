@@ -112,11 +112,6 @@ redirtimer=20s
 # When set to "disabled" passthrough is disabled.
 passthrough=disabled
 #
-# trapping.blacklist
-#
-# Comma-delimited list of MAC addresses that are not allowed to pass through the PacketFence system.
-blacklist=
-#
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
