@@ -6,7 +6,7 @@
    <li><a href="#" class="insert-into-file" data-content="[% stag %] [% var_name | html%] [%etag %]">[% var_name | html%]</a></li> 
 [%END%]
 <h2></h2>
-<div id="file_editor" >
+<div id="portal_profile_file_editor" >
     <div class="modal fade hide" id="cancelEdit">
       <div class="modal-header">
         <h3><i>[% l('Dismiss Changes for ') %]</i> <span id="content"></span></h3>
@@ -32,6 +32,16 @@
         <a href="#" class="btn btn-primary btn-danger" data-dismiss="modal"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
       </div>
     </div><!-- resetContent -->
+    <div class="modal fade hide" id="previewFile"> 
+      <div class="modal-header">
+        <h3>
+            <i>[% l('Preview File ') %]</i>
+            <span >[% file_name%]</span>
+            <a class="close" data-dismiss="modal">×</a>
+        </h3>
+      </div>
+      <div class="modal-body"/>
+    </div><!-- previewFile -->
     <div class="modal fade hide" id="saveFile">
       <div class="modal-header">
         <h3><i>[% l('Saving File ') %]</i> <span id="content"></span></h3>
@@ -61,11 +71,14 @@
             <li class="active"> [% file_name %] </li>
         </ul>
       <div>
-          <form  class="inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('rename'),[profile_name], file_name ) %]" >
-            <span title="Double click to rename" id="file_name" class="file_name"><h3> [% file_name %]</h3></span>
-            <span class="hidden nooutline"><input class="nooutline" type="text" value="[% file_name %]" id="new_file_name" name="to"/></span>
-            <span class="invisible" id="width">[% file_name %]</span>
-          </form>
+        <form  class="inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('rename'),[profile_name], file_name ) %]" >
+          <span class="pull-left">
+              <a id="file-editor-preview" class="btn btn-small btn-success" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[profile_name],file_name)  %]" ><i class="icon-eye-open"></i> </a> &nbsp;
+          </span>
+          <span title="Double click to rename" id="file_name" class="file_name"><h3> [% file_name %]</h3></span>
+          <span class="hidden"><input type="text" value="[% file_name %]" id="new_file_name" name="to"/></span>
+          <span class="invisible" id="width">[% file_name %]</span>
+        </form>
       </div>
       <div>
         <label class="checkbox">

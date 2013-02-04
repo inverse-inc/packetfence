@@ -1,9 +1,9 @@
 [%- MACRO display_directory(entry,dirs) BLOCK -%]
     [% name = entry.name %]
-    [% dir_id = "profile_" _ name  _ dirs.join("_") %]
+    [% dir_id = "profile_dir_" _ dirs.join("_") _ "_" _ loop.count %]
         <tr>
           <td>
-            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id %]" class="swap_class"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder-[%IF entry.hidden %]close[%ELSE%]open[% END %]"></i> [% name %]</a>
+            <a data-toggle="collapse" data-parent="false" data-target="#[% dir_id %]"><i data-swap="icon-folder-[%IF entry.hidden %]open[%ELSE%]close[% END %]" class="icon-folder-[%IF entry.hidden %]close[%ELSE%]open[% END %]"></i> [% name %]</a>
           </td>
           <td></td>
           <td>
@@ -67,8 +67,17 @@
       </td>
       <td>[% entry.size %]</td>
       <td>
-        <a class="btn btn-small pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
-        <a class="btn btn-small pull-right call-modal [% IF entry.delete_or_revert_disabled %]hidden[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]" href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]"> <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert) %]</a>
+        [% IF entry.previewable %]
+        <a class="btn btn-small btn-success" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ profile_name ], entry.name ) %]" > <i class="icon-eye-open"></i> </a>
+        [% ELSE %]
+            <button class="btn btn-small btn-success disabled"><i class="icon-eye-close"></i></button>
+        [% END %]
+        [%IF entry.delete_or_revert == 'revert' %]
+            <a class="btn btn-small btn-danger[% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i> [% l("Revert File") %]</a>
+        [% ELSE %]
+            <a class="btn btn-small btn-danger[% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ profile_name ], name ) %]" > <i class="icon-trash"></i> [% l("Delete File") %]</a>
+        [% END %]
+        <a class="btn btn-small btn-primary pull-right" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
       </td>
   </tr>
 [%- END -%]
@@ -86,9 +95,6 @@
         [% name = entry.name %]
         [% IF entry.type == 'dir' %]
         [% 
-           array = ["dir",loop.count]
-           array = array.merge(dirs);
-           dir_id = array.join("_");
            display_directory(entry,dirs)
         %]
         [% ELSE %]
@@ -117,8 +123,7 @@
     <div class="modal-header">
       <h3><i>[% l('Copy File') %]</i></h3>
     </div>
-    <div class="modal-body">
-    </div>
+    <div class="modal-body"></div>
     <div class="modal-footer">
       <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
       <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Copy File') %]</a>
@@ -134,34 +139,34 @@
     </div>
     <div class="modal-footer">
       <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert All Files') %]</a>
+      <a href="#" class="btn btn-primary btn-danger" data-dismiss="modal"><i class="icon-refresh"></i> [% l('Revert All Files') %]</a>
     </div>
   </div><!-- revertAll -->
   
   
   <div class="modal fade hide" id="revertModal">
     <div class="modal-header">
-      <h3><i>[% l('Revert File') %] <span id="content"></span></i></h3>
+      <h3><i>[% l('Revert File') %] <span class="content"></span></i></h3>
     </div>
     <div class="modal-body">
       <p>[% l('Really revert this file?') %]</p>
     </div>
     <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Revert To Default') %]</a>
+      <a href="#" class="btn" data-dismiss="modal">[% l('Cancel Revert') %]</a>
+      <a href="#" class="btn btn-primary btn-danger" data-dismiss="modal"><i class="icon-refresh"></i> [% l('Revert File') %]</a>
     </div>
   </div><!-- revertModal -->
   
   <div class="modal fade hide" id="deleteModal">
     <div class="modal-header">
-      <h3><i>[% l('Delete File') %]</i> <span id="content"></span></h3>
+      <h3><i>[% l('Delete File') %]</i> <span class="content"></span></h3>
     </div>
     <div class="modal-body">
       <p>[% l('Really delete this file?') %]</p>
     </div>
     <div class="modal-footer">
       <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-      <a href="#" class="btn btn-primary btn-danger"><i class="icon-refresh"></i> [% l('Delete') %]</a>
+      <a href="#" class="btn btn-primary btn-danger" data-dismiss="modal"><i class="icon-trash"></i> [% l('Delete') %]</a>
     </div>
   </div><!-- deleteFile -->
   

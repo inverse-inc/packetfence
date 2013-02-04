@@ -22,7 +22,7 @@ use POSIX;
 use pf::config;
 use pfappserver::Form::Violation;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN {extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 SUBROUTINES
 
