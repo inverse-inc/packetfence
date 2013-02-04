@@ -7,7 +7,7 @@
           </td>
           <td></td>
           <td>
-            <a class="btn btn-small btn-primary pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
+            <a class="btn btn-small pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[profile_name], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id %]" class="pull-right"></div>
             <script>
@@ -30,7 +30,7 @@
                          template:
                            '<div class="qq-uploader">' +
                            '<span class="qq-upload-drop-area"><span><i class=" icon-upload"></i> {dragZoneText}</span></span>' +
-                           '<div class="qq-upload-button btn btn-small btn-success"><i class="icon-upload icon-white"></i> {uploadButtonText}</div><br/>' +
+                           '<div class="qq-upload-button btn btn-small"><i class="icon-upload icon-white"></i> {uploadButtonText}</div><br/>' +
                            '<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
                            '<ul class="qq-upload-list pull-right"></ul>' +
                            '</div>',
@@ -67,8 +67,8 @@
       </td>
       <td>[% entry.size %]</td>
       <td>
-        <a class="btn btn-small btn-primary pull-right" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
-        <a class="btn btn-danger call-modal [% IF entry.delete_or_revert_disabled %]hidden[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]" href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert) %]</a>
+        <a class="btn btn-small pull-right" style="margin-left: 5px" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
+        <a class="btn btn-small pull-right call-modal [% IF entry.delete_or_revert_disabled %]hidden[% END %]" data-modal="[% delete_or_revert %]Modal" data-modal-content="[% name | html %]" href="[% c.uri_for(c.controller('Portal::Profile').action_for(delete_or_revert _ "_file"), [ profile_name ], name ) %]"> <i class="icon-refresh"></i>  [% l("portal_profile_" _ delete_or_revert) %]</a>
       </td>
   </tr>
 [%- END -%]
@@ -186,18 +186,16 @@
       </div>
       <div class="tab-pane fade in active" id="files">
         <table class="table table-condensed table-striped">
-           <thead>
-            <tr>
-                <td colspan="3">
-            <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]hidden[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
-                </td>
-            </tr>
-           </thead>
            <tbody>
            [% display_directory(root,[])%]
            </tbody>
         </table>
-      </div>
-    </div>
+
+        <div class="form-actions">
+          <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]hidden[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
+        </div>
+
+      </div><!-- #files pane -->
+    </div><!-- .tab-content -->
   </div>
-</div>
+</div><!-- #portal_profile_files -->
