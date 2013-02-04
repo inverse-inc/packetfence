@@ -15,6 +15,7 @@
         'admin/configuration/violations',
         'admin/configuration/soh',
         'admin/configuration/roles',
+        'app/pf-bootstrap-swap-class'
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
