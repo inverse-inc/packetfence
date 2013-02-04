@@ -729,8 +729,15 @@ msgstr "Sending .."
 msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
 
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+
+msgid "Please specify an identifier for the violation."
+msgstr "Please specify an identifier for the violation."
+
+# html/pfappserver/root/portal/profile/files.tt
+
 msgid "portal_profile_revert"
-msgstr "Revert File"
+msgstr "Revert"
 
 msgid "portal_profile_delete"
-msgstr "Delete File"
+msgstr "Delete"
