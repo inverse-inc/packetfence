@@ -361,7 +361,6 @@ sub service_ctl {
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
                     }
-                    $logger->warn($pid);
                     return ($pid);
                 }
             }
