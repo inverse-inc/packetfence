@@ -1,3 +1,4 @@
+<div id="portal_profile_index">
 [% profiles = form.field('profiles') %]
 <div class="modal fade hide" id="deleteProfile">
   <div class="modal-header">
@@ -8,7 +9,7 @@
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-    <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+    <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete Profile') %]</a>
   </div>
 </div><!-- deleteProfile -->
 
@@ -58,6 +59,7 @@
   </table>
 </form>
 
-      <div class="form-actions">
-        <a id="createProfile" class="btn" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('create')) %]">[% l('Add profile') %]</a>
-      </div>
+  <div class="form-actions">
+    <a id="createProfile" class="btn" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('create')) %]">[% l('Add profile') %]</a>
+  </div>
+</div>
