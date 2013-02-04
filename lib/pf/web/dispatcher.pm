@@ -12,6 +12,7 @@ use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use Apache2::RequestIO ();
 use Apache2::RequestRec ();
 use Apache2::Response ();
+use Apache2::RequestUtil ();
 
 use APR::Table;
 use Log::Log4perl;
