@@ -1,0 +1,197 @@
+#Captive portal configuration file
+
+
+<IfModule !mod_perl.c>
+  LoadModule perl_module modules/mod_perl.so
+</IfModule>
+<IfModule !mod_log_config.c>
+  LoadModule log_config_module modules/mod_log_config.so
+</IfModule>
+<IfModule !mod_ssl.c>
+  LoadModule ssl_module modules/mod_ssl.so
+</IfModule>
+<IfModule !mod_headers.c>
+  LoadModule headers_module modules/mod_headers.so
+</IfModule>
+<IfModule !mod_proxy.c>
+  LoadModule proxy_module modules/mod_proxy.so
+</IfModule>
+<IfModule !mod_authz_host.c>
+  LoadModule authz_host_module modules/mod_authz_host.so
+</IfModule>
+<IfModule !mod_setenvif.c>
+  LoadModule setenvif_module modules/mod_setenvif.so
+</IfModule>
+<IfModule !mod_rewrite.c>
+  LoadModule rewrite_module modules/mod_rewrite.so
+</IfModule>
+<IfModule !mod_alias.c>
+  LoadModule alias_module modules/mod_alias.so
+</IfModule>
+<IfModule !mod_mime.c>
+  LoadModule mime_module modules/mod_mime.so
+</IfModule>
+#<IfModule !mod_auth_basic.c>
+#  LoadModule auth_basic_module modules/mod_auth_basic.so
+#</IfModule>
+#<IfModule !mod_authn_file.c>
+#  LoadModule authn_file_module modules/mod_authn_file.so
+#</IfModule>
+#<IfModule !mod_authz_groupfile.c>
+#  Loadmodule authz_groupfile_module modules/mod_authz_groupfile.so
+#</IfModule>
+#<IfModule !mod_authz_user.c>
+#  LoadModule authz_user_module modules/mod_authz_user.so
+#</IfModule>
+#<IfModule !mod_authz_host.c>
+#  LoadModule authz_host_module modules/mod_authz_host.so
+#</IfModule>
+
+PerlSwitches -I/usr/local/pf/lib
+#AddHandler perl-script .cgi
+#Options +ExecCGI
+#PerlHandler ModPerl::PerlRun
+
+# Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
+Header always set X-DNS-Prefetch-Control off
+
+<Proxy *>
+  Order deny,allow
+  Allow from all
+</Proxy>
+
+<Files ~ "\.(cgi?)$">
+  SSLOptions +StdEnvVars
+</Files>
+
+SetEnvIf User-Agent ".*MSIE.*" \
+  nokeepalive ssl-unclean-shutdown \
+  downgrade-1.0 force-response-1.0
+
+TypesConfig /etc/mime.types
+
+<Perl>
+use pf::config qw();
+#use Data::Dumper;
+use Tie::DxHash;
+
+sub gen_conf {
+    my %conf;
+    tie %conf, 'Tie::DxHash';
+
+    %conf = @_;
+    return \%conf;
+} 
+
+my $PfConfig = \%pf::config::Config;
+my $management_network = $pf::config::management_network;
+my $install_dir = $pf::config::install_dir;
+my $var_dir = $pf::config::var_dir;
+my @internal_nets = @pf::config::internal_nets;
+
+
+$PidFile = $install_dir.'/var/run/httpd.captport.pid';
+
+$Include = $var_dir.'/conf/log.conf';
+
+$User = "pf";
+$Group = "pf";
+
+$PerlOptions = "+GlobalRequest";
+$ProxyRequests = "Off";
+
+if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
+    $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
+} else {
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.$PfConfig->{'general'}{'domain'};
+}
+
+$ServerTokens = "Prod";
+$ServerSignature = "Off";
+$UseCanonicalName = "Off";
+$Timeout = "50";
+$KeepAliveTimeout = "10";
+
+$MaxClients = "3";
+$StartServers = "12";
+$MinSpareServers = "6";
+$HostnameLookups = "off";
+$MaxRequestsPerChild = "1000";
+
+
+$SSLPassPhraseDialog = "builtin";
+$SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
+$SSLSessionCacheTimeout = "300";
+$SSLMutex = "file:".$install_dir."/var/ssl_mutex";
+$SSLRandomSeed = "startup builtin";
+$SSLRandomSeed = "connect builtin";
+$SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL";
+
+@NameVirtualHost = ("*:80","*:443");
+
+foreach my $interface (@internal_nets) {
+    push (@Listen,$interface->{'Tip'}.":80");
+    push (@Listen,$interface->{'Tip'}.":443");
+    push @{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
+         DocumentRoot        => $install_dir.'/html/captive-portal',
+         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
+         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         Include             => $var_dir.'/conf/captive-portal-common.conf',
+         Include             => $var_dir.'/conf/block-unwanted.conf',
+         Include             => $var_dir.'/conf/ocsp-crl.conf',
+         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
+         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+    );
+    push @{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
+         DocumentRoot        => $install_dir.'/html/captive-portal',
+         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
+         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         SSLEngine           => 'on',
+         Include             => $var_dir.'/conf/ssl-certificates.conf',
+         Include             => $var_dir.'/conf/captive-portal-common.conf',
+         Include             => $var_dir.'/conf/block-unwanted.conf',
+         Include             => $var_dir.'/conf/ocsp-crl.conf',
+         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
+         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+    );
+}
+
+if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+    push (@Listen,$management_network->{'Tip'}.":80");
+    push (@Listen,$management_network->{'Tip'}.":443");
+
+    push @{ $VirtualHost{$management_network->{'Tip'}.":80"} }, gen_conf(
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
+         DocumentRoot        => $install_dir.'/html/pfappserver/lib',
+         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
+         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         Include             => $var_dir.'/conf/captive-portal-common.conf',
+         Include             => $var_dir.'/conf/block-unwanted.conf',
+         Include             => $var_dir.'/conf/ocsp-crl.conf',
+         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
+         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+    );
+    push @{ $VirtualHost{$management_network->{'Tip'}.":443"} }, gen_conf(
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
+         DocumentRoot        => $install_dir.'/html/pfappserver/lib',
+         ErrorLog            => $install_dir.'/logs/soap_error_log',
+         CustomLog           => $install_dir.'/logs/soap_access_log combined',
+         SSLEngine           => 'on',
+         Include             => $var_dir.'/conf/ssl-certificates.conf',
+         Include             => $var_dir.'/conf/captive-portal-common.conf',
+         Include             => $var_dir.'/conf/block-unwanted.conf',
+         Include             => $var_dir.'/conf/ocsp-crl.conf',
+         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
+         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+    );
+
+} 
+
+</Perl>
+

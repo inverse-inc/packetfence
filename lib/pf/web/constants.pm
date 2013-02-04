@@ -85,6 +85,7 @@ Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi'
 Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
 Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
+Readonly::Scalar our $SOAP_URI                  => '/webapi';
 
 =head2 Apache Config related
 

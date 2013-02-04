@@ -127,8 +127,9 @@ sub generate_httpd_conf {
     $tags{'passthrough-http-proxies'} = join("\n", @{$pt_http});
     $tags{'passthrough-https-proxies'} = join("\n", @{$pt_https});
 
-    $logger->info("generating $generated_conf_dir/httpd.conf");
-    parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf", "#" );
+    #unuse since httpd.conf has been rewrite in perl
+    #$logger->info("generating $generated_conf_dir/httpd.conf");
+    #parse_template( \%tags, "$conf_dir/httpd.conf", "$generated_conf_dir/httpd.conf", "#" );
 
     $logger->info("generating $generated_conf_dir/ssl-certificates.conf");
     parse_template( \%tags, "$conf_dir/httpd.conf.d/ssl-certificates.conf", "$generated_conf_dir/ssl-certificates.conf", "#" );

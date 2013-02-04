@@ -49,8 +49,12 @@ use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
     'named', 'dhcpd', 'snort', 'suricata', 'radiusd', 
-    'httpd', 'snmptrapd', 
+    'httpd', 'httpd.soap', 'httpd.admin', 'httpd.captport', 'snmptrapd', 
     'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+);
+
+Readonly our @APACHE_SERVICES => (
+    'httpd.soap', 'httpd.admin', 'httpd.captport'
 );
 
 my $services = join("|", @ALL_SERVICES);
@@ -71,7 +75,11 @@ sprintf-formatted strings that control how the services should be started.
 
 =cut
 my %service_launchers;
-$service_launchers{'httpd'} = "%1\$s -f $generated_conf_dir/httpd.conf";
+$service_launchers{'httpd'} = "%1\$s -f $conf_dir/httpd.conf";
+$service_launchers{'httpd.soap'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.soap";
+$service_launchers{'httpd.admin'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.admin";
+$service_launchers{'httpd.captport'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.captport";
+
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
 $service_launchers{'pfmon'} = '%1$s -d &';
 $service_launchers{'pfdhcplistener'} = '%1$s -i %2$s -d &';
@@ -107,6 +115,9 @@ sub service_ctl {
     my ( $daemon, $action, $quick ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
     my $service = ( $Config{'services'}{"${daemon}_binary"} || "$install_dir/sbin/$daemon" );
+    if ($daemon =~ /httpd\.(.*)/) {
+        $service = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$daemon" );
+    }
     my $binary = basename($service);
 
     #Untaint Daemon
@@ -136,6 +147,9 @@ sub service_ctl {
                         'snort' => \&generate_snort_conf,
                         'suricata' => \&generate_suricata_conf,
                         'httpd' => \&generate_httpd_conf,
+                        'httpd.soap' => \&generate_httpd_conf,
+                        'httpd.captport' => \&generate_httpd_conf,
+                        'httpd.admin' => \&generate_httpd_conf,
                         'radiusd' => \&generate_radiusd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
                     );
@@ -149,7 +163,7 @@ sub service_ctl {
                 # valid daemon and flags are set
                 if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($service_launchers{$daemon})) {
 
-                    if ( $daemon ne 'pfdhcplistener' ) {
+                    if ( !( ($daemon eq 'pfdhcplistener' ) || ($daemon eq 'httpd') || ($daemon eq 'httpd.soap') || ($daemon eq 'httpd.admin') || ($daemon eq 'httpd.captport') ) ) {
                         if ( $daemon eq 'dhcpd' ) {
 
                             # create var/dhcpd/dhcpd.leases if it doesn't exist
@@ -174,7 +188,7 @@ sub service_ctl {
                             $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
                             return $return_value;
                         }
-                    } else {
+                    } elsif ($daemon eq 'pfdhcplistener') {
                         if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
                             # putting interfaces to run listener on in hash so that
                             # only one listener per interface will ever run
@@ -193,35 +207,103 @@ sub service_ctl {
                             }
                             return 1;
                         }
+                    } elsif ($daemon eq 'httpd') {
+                        foreach my $serv (@APACHE_SERVICES) {
+                            my $cmd_line = sprintf($service_launchers{$serv}, $service);
+                            # FIXME lame taint-mode bypass
+                            if ($cmd_line =~ /^(.+)$/) {
+                                $cmd_line = $1;
+                                $logger->info( "Starting $daemon with '$cmd_line'" );
+                                my $t0 = Time::HiRes::time();
+                                system($cmd_line);
+                                my $elapsed = Time::HiRes::time() - $t0;
+                                $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
+                            }
+                        }
+                    } elsif ($daemon =~ /httpd\.(.*)/) {
+                        my $conf = $1;
+                        my $cmd_line =  sprintf($service_launchers{$daemon}, "httpd");
+                        if ($cmd_line =~ /^(.+)$/) {
+                            $cmd_line = $1;
+                            $logger->info( "Starting $daemon with '$cmd_line'" );
+                            my $t0 = Time::HiRes::time();
+                            system($cmd_line);
+                            my $elapsed = Time::HiRes::time() - $t0;
+                            $logger->info(sprintf("Daemon $daemon took %.3f seconds to start.", $elapsed));
+                        }
                     }
                 }
                 last CASE;
             };
             $action eq "stop" && do {
-                my $cmd = "/usr/bin/pkill $binary";
-                $logger->info("Stopping $daemon with '$cmd'");
-                eval { `$cmd`; };
-                if ($@) {
-                    $logger->logcroak("Can't stop $daemon with '$cmd': $@");
-                    return;
-                }
+                if ($daemon eq 'httpd') {
+                    foreach my $serv (@APACHE_SERVICES) {
+                        my $pid = service_ctl( $serv, "status" );
+                        if ($pid) {
+                            my $cmd = "/usr/bin/kill -TERM $pid";
 
-                if ( $service =~ /(dhcpd)/) {
-                    manage_Static_Route();
-                }
+                            #Untaint cmd
+                            $cmd =~ /^(.*)$/;
+                            $cmd = $1;
+                            $logger->info("Stopping $daemon with '$cmd'");
+                            eval { `$cmd`; };
+                            if ($@) {
+                                $logger->logcroak("Can't stop $daemon with '$cmd': $@");
+                                return;
+                            }
 
-                my $maxWait = 10;
-                my $curWait = 0;
-                while (( $curWait < $maxWait )
-                    && ( service_ctl( $daemon, "status" ) ne "0" ) )
-                {
-                    $logger->info("Waiting for $binary to stop");
-                    sleep(2);
-                    $curWait++;
-                }
-                if ( -e $install_dir . "/var/$binary.pid" ) {
-                    $logger->info("Removing $install_dir/var/$binary.pid");
-                    unlink( $install_dir . "/var/$binary.pid" );
+                            if ( $service =~ /(dhcpd)/) {
+                                manage_Static_Route();
+                            }
+
+                            my $maxWait = 10;
+                            my $curWait = 0;
+                            while (( $curWait < $maxWait )
+                                && ( service_ctl( $daemon, "status" ) ne "0" ) )
+                            {
+                                $logger->info("Waiting for $binary to stop");
+                                sleep(2);
+                                $curWait++;
+                            }
+                            if ( -e $install_dir . "/var/$binary.pid" ) {
+                                $logger->info("Removing $install_dir/var/$binary.pid");
+                                unlink( $install_dir . "/var/$binary.pid" );
+                            }
+                        }
+                    }
+                } else {
+                    my $pid = service_ctl( $daemon, "status" );
+                    if ($pid) {
+                        my $cmd = "/usr/bin/kill -TERM $pid";
+
+                        #Untaint cmd
+                        $cmd =~ /^(.*)$/;
+                        $cmd = $1;
+                        $logger->info("Stopping $daemon with '$cmd'");
+                        eval { `$cmd`; };
+                        if ($@) {
+                            $logger->logcroak("Can't stop $daemon with '$cmd': $@");
+                            return;
+                        }
+
+                        if ( $service =~ /(dhcpd)/) {
+                            manage_Static_Route();
+                        }
+
+                        my $maxWait = 10;
+                        my $curWait = 0;
+                        while (( $curWait < $maxWait )
+                            && ( service_ctl( $daemon, "status" ) ne "0" ) )
+                        {
+                            $logger->info("Waiting for $binary to stop");
+                            sleep(2);
+                            $curWait++;
+                        }
+                        if ( -e $install_dir . "/var/$binary.pid" ) {
+                            $logger->info("Removing $install_dir/var/$binary.pid");
+                            unlink( $install_dir . "/var/$binary.pid" );
+                        }
+                    }
                 }
                 last CASE;
             };
@@ -236,7 +318,7 @@ sub service_ctl {
             $action eq "status" && do {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                if ($binary ne "pfdhcplistener") {
+                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.soap") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.captport") ) ) {
                     chomp( $pid = `pidof -x $binary` );
                     $pid = 0 if ( !$pid );
                     $logger->info("pidof -x $binary returned $pid");
@@ -244,7 +326,7 @@ sub service_ctl {
                 }
                 # Handle the pfdhcplistener case. Grab exact interfaces where pfdhcplistner should run,
                 # explicitly check process names per interface then return 0 to force a restart if one is missing.
-                else {
+                elsif ($binary eq "pfdhcplistener") {
                     my %int_to_pid = map { $_ => $FALSE } @listen_ints, @dhcplistener_ints;
                     $logger->debug( "Expecting $binary on interfaces: " . join(", ", keys %int_to_pid) );
 
@@ -273,6 +355,14 @@ sub service_ctl {
                     return 0 if ($dead_flag);
                     # otherwise the list of pids
                     return join(" ", values %int_to_pid);
+                }
+                elsif ($binary eq "httpd") {
+                    $pid = 0;
+                    if (-e "$install_dir/var/run/$daemon.pid") {
+                        chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
+                    }
+                    $logger->warn($pid);
+                    return ($pid);
                 }
             }
         }

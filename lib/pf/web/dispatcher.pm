@@ -57,6 +57,11 @@ sub translate {
         $r->set_handlers( PerlResponseHandler => ['pf::web::wispr'] );
         return Apache2::Const::OK;
     }
+    if ($r->uri =~ /$WEB::SOAP_URI/o) {
+        $r->handler('modperl');
+        $r->set_handlers( PerlResponseHandler => ['pf::WebAPI'] );
+        return Apache2::Const::OK;
+    }
 
     # passthrough
     # if the regex is not defined, we skip, this allow us to skip an expensive Config test
