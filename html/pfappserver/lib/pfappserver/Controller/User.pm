@@ -149,7 +149,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 =head2 search
 
 =cut
-sub search : Local: SimpleSearch('User') :Args() {}
+sub simple_search : Local: SimpleSearch('User') :Args() {}
 
 =head2 create
 
