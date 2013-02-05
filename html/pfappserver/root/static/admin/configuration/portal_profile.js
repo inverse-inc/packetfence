@@ -196,7 +196,7 @@ function submitFormHideModalGoToLocation(modal,form) {
         .always(function()  {
             modal.modal('hide');
         })
-        .done(function(data, textStatus, jqXHR) {
+        .success(function(data, textStatus, jqXHR) {
             location.hash = jqXHR.getResponseHeader('Location');
         })
         .fail(function(jqXHR) {
@@ -216,6 +216,7 @@ function initNewFileModal(element) {
     button.click(function(event) {
         var form = modal.find("#newFileModalForm");
         submitFormHideModalGoToLocation(modal,form);
+        return false;
     });
     element.on('submit',"#newFileModalForm",function () {
         submitFormHideModalGoToLocation(modal,$(this));
@@ -237,6 +238,7 @@ function initCreatePage(element) {
     button.click(function(event) {
         var form = element.find("#create_profile");
         submitFormHideModalGoToLocation(modal,form);
+        return false;
     });
 }
 
