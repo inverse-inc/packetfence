@@ -222,7 +222,7 @@ sub service_ctl {
                         }
                     } elsif ($daemon =~ /httpd\.(.*)/) {
                         my $conf = $1;
-                        my $cmd_line =  sprintf($service_launchers{$daemon}, "httpd");
+                        my $cmd_line =  sprintf($service_launchers{$daemon}, $service);
                         if ($cmd_line =~ /^(.+)$/) {
                             $cmd_line = $1;
                             $logger->info( "Starting $daemon with '$cmd_line'" );
@@ -356,7 +356,7 @@ sub service_ctl {
                     # otherwise the list of pids
                     return join(" ", values %int_to_pid);
                 }
-                elsif ($binary eq "httpd") {
+                elsif ($binary =~ "httpd(.*)") {
                     $pid = 0;
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
