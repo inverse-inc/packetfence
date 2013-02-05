@@ -136,11 +136,11 @@ $network_config_file            = $conf_dir . "/networks.conf";
 $switches_config_file           = $conf_dir . "/switches.conf";
 $violations_config_file         = $conf_dir . "/violations.conf";
 $authentication_config_file     = $conf_dir . "/authentication.conf";
-$floating_devices_config_file   = $conf_dir . "/floating_devices.conf";
+$floating_devices_config_file   = $conf_dir . "/floating_network_device.conf"; # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
 $dhcp_fingerprints_file         = $conf_dir . "/dhcp_fingerprints.conf";
 $profiles_config_file           = $conf_dir . "/profiles.conf";
 $oui_file                       = $conf_dir . "/oui.txt";
-$floating_devices_file          = $conf_dir . "/floating_network_device.conf";  
+$floating_devices_file          = $conf_dir . "/floating_network_device.conf";  # TODO: To be deprecated. See $floating_devices_config_file
 $oauth_ip_file                  = $conf_dir . "/oauth2-ips.conf";
 
 $oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
