@@ -26,7 +26,7 @@ use constant {
     WS_USER        => 'webservice',
     WS_PASS        => 'password',
     # On Centos 5 we must use http instead of https (Net::SSleay pb) 
-    WEBADMIN_HOST  => 'localhost:80',
+    WEBADMIN_HOST  => 'localhost:9090',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
 #Prevent error from LWP : ensure it connects to servers that have a valid certificate matching the expected hostname
