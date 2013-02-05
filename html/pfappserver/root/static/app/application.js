@@ -1,6 +1,6 @@
 $(function () {
     /* Activate toggle buttons */
-    $('tbody').on(
+    $('body').on(
         {'mouseenter': function(event) {
             var btn = $(this);
             btn.text(btn.attr('toggle-hover'));
@@ -46,6 +46,9 @@ $(function () {
 
     /* Live validation for required fields */
     $('body').on('blur', 'input[data-required]', function() {
+        isFormInputEmpty($(this));
+    });
+    $('body').on('changeDate', 'input.datepicker[data-required]', function() {
         isFormInputEmpty($(this));
     });
 
