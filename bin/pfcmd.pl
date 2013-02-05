@@ -1155,7 +1155,7 @@ sub service {
     $logger->info("Executing pfcmd service $service $command");
 
     if ( lc($command) eq 'status' ) {
-        my @services, %diff;
+        my (@services, %diff);
         if ( $service eq 'pf' ) {
             @diff{ @pf::services::ALL_SERVICES } = @pf::services::ALL_SERVICES;
             delete @diff{@pf::services::APACHE_SERVICES};
@@ -1182,7 +1182,7 @@ sub service {
     }
 
     if ( lc($command) eq 'watch' ) {
-        my @services, %diff;
+        my (@services, %diff);
         if ( $service eq "pf" ) {
             @diff{ @pf::services::ALL_SERVICES } = @pf::services::ALL_SERVICES;
             delete @diff{@pf::services::APACHE_SERVICES};
@@ -1237,7 +1237,7 @@ sub service {
         }
     }
 
-    my @services, %diff;
+    my (@services, %diff);
     if ( $service ne 'pf' ) {
         # make sure that snort is not started without pfdetect
         if ($service eq 'snort') {

@@ -313,6 +313,11 @@ admin_netbiosname=EXAMPLE
 #
 # Port the administrative interface listens on.
 admin=1443
+#
+# ports.soap
+#
+# Port of the soap interface listens on.
+soap=9090
 
 [scan]
 #

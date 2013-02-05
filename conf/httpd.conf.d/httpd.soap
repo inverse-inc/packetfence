@@ -40,7 +40,7 @@ my $var_dir = $pf::config::var_dir;
 
 $PidFile = $install_dir.'/var/run/httpd.soap.pid';
 
-$Include = $var_dir.'/conf/log.conf';
+$Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
 $User = "pf";
 $Group = "pf";
