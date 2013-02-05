@@ -196,7 +196,7 @@ function submitFormHideModalGoToLocation(modal,form) {
         .always(function()  {
             modal.modal('hide');
         })
-        .success(function(data, textStatus, jqXHR) {
+        .done(function(data, textStatus, jqXHR) {
             location.hash = jqXHR.getResponseHeader('Location');
         })
         .fail(function(jqXHR) {
