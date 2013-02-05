@@ -23,7 +23,7 @@ use pf::Authentication::Rule;
 use pf::Authentication::Source;
 
 use pf::Authentication::Source::ADSource;
-use pf::Authentication::Source::HTTPPasswordSource;
+use pf::Authentication::Source::HtpasswdSource;
 use pf::Authentication::Source::KerberosSource;
 use pf::Authentication::Source::LDAPSource;
 use pf::Authentication::Source::RADIUSSource;
@@ -111,7 +111,7 @@ sub newAuthenticationSource {
 
         # Apache password style sources
         lc($type) eq 'htpasswd' && do {
-            $source = pf::Authentication::Source::HTTPPasswordSource->new(
+            $source = pf::Authentication::Source::HtpasswdSource->new(
                 { id => $source_id, %{$attrs} });
         };
 
