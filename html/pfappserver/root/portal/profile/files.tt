@@ -68,16 +68,16 @@
       <td>[% entry.size %]</td>
       <td>
         [% IF entry.previewable %]
-        <a class="btn btn-small btn-success" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ profile_name ], entry.name ) %]" > <i class="icon-eye-open"></i> </a>
+            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ profile_name ], entry.name ) %]" > <i class="icon-eye-open"></i> </a>
         [% ELSE %]
-            <button class="btn btn-small btn-success disabled"><i class="icon-eye-close"></i></button>
+            <button class="btn btn-small disabled"><i class="icon-eye-close"></i></button>
         [% END %]
         [%IF entry.delete_or_revert == 'revert' %]
-            <a class="btn btn-small btn-danger[% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i> [% l("Revert File") %]</a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ profile_name ], name ) %]" > <i class="icon-refresh"></i> [% l("Revert File") %]</a>
         [% ELSE %]
-            <a class="btn btn-small btn-danger[% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ profile_name ], name ) %]" > <i class="icon-trash"></i> [% l("Delete File") %]</a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ profile_name ], name ) %]" > <i class="icon-trash"></i> [% l("Delete File") %]</a>
         [% END %]
-        <a class="btn btn-small btn-primary pull-right" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
+        <a class="btn btn-small pull-right" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" > <i class="icon-copy"></i> [% l('Copy') %]</a>
       </td>
   </tr>
 [%- END -%]
