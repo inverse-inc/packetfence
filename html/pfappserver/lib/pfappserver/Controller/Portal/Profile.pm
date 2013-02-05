@@ -412,7 +412,7 @@ sub copyDefaultFiles {
 sub delete_profile :Chained('object') :PathPart('delete') :Args(0) {
     my ($self,$c) = @_;
     $c->stash->{current_view} = 'JSON';
-    my ($status,$status_msg) = $c->stash->{model}->removeItem(
+    my ($status,$status_msg) = $c->stash->{model}->deleteItem(
         $c->stash->{profile_name}
     );
     $c->stash(
@@ -451,6 +451,7 @@ sub create : Local: Args(0) {
             }
             $c->response->status($status);
         }
+        $c->stash->{status_msg} = $status_msg;
         # check if exists
         # Create the source from the update action
     }
