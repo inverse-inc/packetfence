@@ -92,7 +92,7 @@ my @internal_nets = @pf::config::internal_nets;
 
 $PidFile = $install_dir.'/var/run/httpd.captport.pid';
 
-$Include = $var_dir.'/conf/log.conf';
+$Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
 $User = "pf";
 $Group = "pf";

@@ -23,7 +23,7 @@ use constant {
     WS_USER        => 'webservice',
     WS_PASS        => 'password',
     # For centos 5 we must use http instead of https (Net::SSLeay pb) 
-    WEBADMIN_HOST  => 'localhost:80',
+    WEBADMIN_HOST  => 'localhost:9090',
     API_URI        => 'https://www.packetfence.org/PFAPI' #don't change this unless you know what you are doing
 };
 
