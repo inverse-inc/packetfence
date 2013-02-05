@@ -1,8 +1,8 @@
-package pf::Authentication::Source::HTTPPasswordSource;
+package pf::Authentication::Source::HtpasswdSource;
 
 =head1 NAME
 
-pf::Authentication::Source::HTTPPasswordSource
+pf::Authentication::Source::HtpasswdSource
 
 =head1 DESCRIPTION
 
