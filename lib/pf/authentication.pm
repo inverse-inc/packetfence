@@ -430,7 +430,7 @@ sub match {
   my $actions = undef;
 
   foreach my $current_source ( @authentication_sources ) {
-    
+    $logger->info("Matching in source $current_source");
     if (defined $source_id && $source_id eq $current_source->id) {
       $actions = $current_source->match($params);
       last;

@@ -1010,7 +1010,7 @@ sub is_max_reg_nodes_reached {
     return $FALSE if ($pid eq $default_pid);
 
     my $nb_nodes_for_pid = node_pid($pid);
-
+    
     # per-category max node per pid limit
     if ( defined($category) ) {
 
@@ -1026,7 +1026,7 @@ sub is_max_reg_nodes_reached {
 
     # fallback to maximum reached
     $logger->info(
-                  "per-category max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid"
+                  "per-category max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid for category $category"
                  );
     return $TRUE;
 }

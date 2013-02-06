@@ -99,10 +99,11 @@ sub temporary_password_db_prepare {
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, t.category, t.sponsor, t.unregdate,
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
             p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
         FROM temporary_password t
         LEFT JOIN person p ON t.pid = p.pid
+        LEFT JOIN node_category c ON t.category = c.category_id
         WHERE t.pid = ?
     ]);
 

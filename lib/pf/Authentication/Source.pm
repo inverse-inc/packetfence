@@ -130,7 +130,7 @@ sub match {
         # so let's keep the @matching_rules array for now.
         done:
         if (scalar @matching_rules == 1) {
-            $logger->info("Matched rule ($rule->{'description'}), returning actions.");
+            $logger->info("Matched rule ($rule->{'id'}), returning actions.");
             return $rule->{'actions'};
         }
 	
