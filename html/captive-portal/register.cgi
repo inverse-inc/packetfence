@@ -21,6 +21,7 @@ use URI::Escape qw(uri_escape);
 use pf::config;
 use pf::iplog;
 use pf::node;
+use pf::nodecategory;
 use pf::Portal::Session;
 use pf::util;
 use pf::violation;
@@ -79,12 +80,16 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   # as web_node_register() might not work if we've reached the limit
   my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
 
+  $logger->trace("Got role $value for username $pid");
+
   if (defined $value) {
       %info = (%info, (category => $value));
   }
 
   # This appends the hashes to one another. values returned by authenticator wins on key collision
   $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
+
+  $logger->trace("Got unregdate $value for username $pid");
 
   if (defined $value) {
       %info = (%info, (unregdate => $value));

@@ -529,18 +529,11 @@ sub validate_form {
     $logger->trace("form validation attempt");
 
     my $cgi = $portalSession->getCgi();
-    if ( $cgi->param("username") && $cgi->param("password") && $cgi->param("auth") ) {
+    if ( $cgi->param("username") && $cgi->param("password") ) {
         # acceptable use pocliy accepted?
         if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
             return ( 0 , 'You need to accept the terms before proceeding any further.' );
         }
-
-        # validates if supplied auth type is allowed by configuration
-        #my $auth = $cgi->param("auth");
-        #my @auth_choices = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
-        #if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
-        #    return ( 0, 'Unable to validate credentials at the moment' );
-        #}
 
         return (1);
     }
