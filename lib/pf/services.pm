@@ -61,6 +61,7 @@ my $services = join("|", @ALL_SERVICES);
 Readonly our $ALL_BINARIES_RE => qr/$services
     |apache2                                   # httpd on debian
     |freeradius                                # radiusd on debian
+    |httpd.worker                              # mpm_worker apache version
 $/x;
 
 =head1 Globals
