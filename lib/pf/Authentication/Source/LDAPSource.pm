@@ -156,7 +156,7 @@ sub ldap_filter_for_conditions {
 
   my $expression = '(';
     
-  if ($match eq pf::Authentication::Rule->ANY) {
+  if ($match eq $Rules::ANY) {
     $expression .= '|';
   }
   else {
@@ -167,9 +167,9 @@ sub ldap_filter_for_conditions {
     my $str = "";
     
     # FIXME - we should escape things properly
-    if ($condition->{'operator'} eq pf::Authentication::Condition->EQUALS) {
+    if ($condition->{'operator'} eq $Conditions::EQUALS) {
       $str = "$condition->{'attribute'}=$condition->{'value'}";
-    } elsif ($condition->{'operator'} eq pf::Authentication::Condition->CONTAINS) {
+    } elsif ($condition->{'operator'} eq $Conditions::CONTAINS) {
       $str = "$condition->{'attribute'}=*$condition->{'value'}*";
     }
     
@@ -224,7 +224,7 @@ sub username_from_email {
     if ($result->count == 1) {
       my $username = $result->entry->get_value( $self->{'usernameattribute'} );
       $connection->unbind;
-      $logger->info("Found a match ($username)");
+      $logger->info("LDAP:found a match in username_from_email ($username)");
       return $username;
     }
     

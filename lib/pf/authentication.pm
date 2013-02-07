@@ -23,10 +23,12 @@ use pf::Authentication::Rule;
 use pf::Authentication::Source;
 
 use pf::Authentication::Source::ADSource;
+use pf::Authentication::Source::EmailSource;
 use pf::Authentication::Source::HtpasswdSource;
 use pf::Authentication::Source::KerberosSource;
 use pf::Authentication::Source::LDAPSource;
 use pf::Authentication::Source::RADIUSSource;
+use pf::Authentication::Source::SMSSource;
 use pf::Authentication::Source::SQLSource;
 use pf::Authentication::Source::FacebookSource;
 use pf::Authentication::Source::GoogleSource;
@@ -82,7 +84,9 @@ sub availableAuthenticationSourceTypes {
     return [
             'LDAP',
             'AD',
+            #'Email', -- don't offer email for the moment
             #'SQL', -- don't offer sql for the moment
+            #'SMS', -- don't offer sms for the moment
             'RADIUS',
             'Kerberos',
             'Htpasswd',
@@ -109,6 +113,12 @@ sub newAuthenticationSource {
                 { id => $source_id, %{$attrs} });
         };
 
+        # Email sources
+        lc($type) eq 'email' && do {
+            $source = pf::Authentication::Source::EmailSource->new(
+                { id => $source_id, %{$attrs} });
+        };
+
         # Apache password style sources
         lc($type) eq 'htpasswd' && do {
             $source = pf::Authentication::Source::HtpasswdSource->new(
@@ -130,6 +140,12 @@ sub newAuthenticationSource {
         # RADIUS sources
         lc($type) eq 'radius' && do {
             $source = pf::Authentication::Source::RADIUSSource->new(
+                { id => $source_id, %{$attrs} });
+        };
+
+        # SMS sources
+        lc($type) eq 'sms' && do {
+            $source = pf::Authentication::Source::SMSSource->new(
                 { id => $source_id, %{$attrs} });
         };
 
