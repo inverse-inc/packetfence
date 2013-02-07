@@ -20,7 +20,7 @@ source /etc/rc.d/init.d/functions
 start() {
         #Check if MySQL is started
         if [ ! -f /var/run/mysqld/mysqld.pid ]; then
-            /etc/init.d/mysqld start
+            [ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
         fi
 	echo -n $"Starting PacketFence..."
 	IPSET=`command -v ipset`
@@ -44,7 +44,7 @@ stop() {
 restart() {
         #Check if MySQL is started
         if [ ! -f /var/run/mysqld/mysqld.pid ]; then
-            /etc/init.d/mysqld start
+            [ -d /var/lib/mysql/pf ] && /etc/init.d/mysqld start
         fi
         echo -n $"Restarting PacketFence..."
         /usr/local/pf/bin/pfcmd service pf restart
