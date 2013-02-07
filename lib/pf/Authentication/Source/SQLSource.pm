@@ -91,7 +91,14 @@ sub match {
                                                         value => $unregdate});
             push(@actions, $action);
         }
-        
+       
+        my $category = $result->{'category'};
+        if (defined $category) {
+            $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
+                                                        value => $category});
+            push(@actions, $action);
+        }
+ 
         return \@actions;
     }
     

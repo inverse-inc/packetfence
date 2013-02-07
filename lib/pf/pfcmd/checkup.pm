@@ -132,6 +132,9 @@ sub service_exists {
 
     foreach my $service (@services) {
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
+        if ($service =~ /httpd\.(.*)/) {
+            $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
+        }
         if ( !-e $exe ) {
             add_problem( $FATAL, "$exe for $service does not exist !" );
         }

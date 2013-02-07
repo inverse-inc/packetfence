@@ -51,16 +51,18 @@ sub available_attributes {
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
-  
+  my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
   my $connection = Net::LDAP->new($self->{'host'});
   
   if (! defined($connection)) {
+    $logger->info("Unable to establish LDAP connection.");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
   
   if ($result->is_error) {
+    $logger->info("Invalid LDAP credentials.");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
   
@@ -72,10 +74,12 @@ sub authenticate {
  				attrs => ['dn']
  			       );
   if ($result->is_error) {
+    $logger->info("Invalid LDAP search query ($filter).");      
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
   
   if ($result->count != 1) {
+    $logger->info("Invalid LDAP search response.");
     return ($FALSE, 'Invalid login or password');
   }
   
@@ -99,7 +103,11 @@ sub match_in_subclass {
     
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
+    $logger->info("Matching rules in LDAP source.");
+
     my $filter = ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+
+    $logger->info("LDAP filter: $filter");
     
     my $connection = Net::LDAP->new($self->{'host'});
     if (! defined($connection)) {
@@ -148,7 +156,7 @@ sub ldap_filter_for_conditions {
 
   my $expression = '(';
     
-  if ($match eq pf::Authentication::Rule->ANY) {
+  if ($match eq $Rules::ANY) {
     $expression .= '|';
   }
   else {
@@ -159,9 +167,9 @@ sub ldap_filter_for_conditions {
     my $str = "";
     
     # FIXME - we should escape things properly
-    if ($condition->{'operator'} eq pf::Authentication::Condition->EQUALS) {
+    if ($condition->{'operator'} eq $Conditions::EQUALS) {
       $str = "$condition->{'attribute'}=$condition->{'value'}";
-    } elsif ($condition->{'operator'} eq pf::Authentication::Condition->CONTAINS) {
+    } elsif ($condition->{'operator'} eq $Conditions::CONTAINS) {
       $str = "$condition->{'attribute'}=*$condition->{'value'}*";
     }
     
@@ -216,7 +224,7 @@ sub username_from_email {
     if ($result->count == 1) {
       my $username = $result->entry->get_value( $self->{'usernameattribute'} );
       $connection->unbind;
-      $logger->info("Found a match ($username)");
+      $logger->info("LDAP:found a match in username_from_email ($username)");
       return $username;
     }
     
