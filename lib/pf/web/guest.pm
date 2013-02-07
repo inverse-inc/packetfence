@@ -217,7 +217,7 @@ sub validate_sponsor {
     
     if (defined $username) {
 
-        my $value = &pf::authentication::match(undef, $username, $Actions::MARK_AS_SPONSOR);
+        my $value = &pf::authentication::match(undef, {username => $username}, $Actions::MARK_AS_SPONSOR);
         
         # all sponsor checks have passed
         if (defined $value) {

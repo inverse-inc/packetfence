@@ -31,6 +31,9 @@ use pf::web::guest 1.30;
 # called last to allow redefinitions
 use pf::web::custom;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('guest-selfregistration.cgi');
 Log::Log4perl::MDC->put('proc', 'guest-selfregistration.cgi');
@@ -96,12 +99,10 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # grab additional info about the node
       my %info;
-      $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $portalSession->getProfile->getGuestCategory;
-
-      # unreg in guests.email_activation_timeout seconds
-      my $timeout = $Config{'guests_self_registration'}{'email_activation_timeout'};
-      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
+      my $pid = $session->param('guest_pid');
+      $info{'pid'} = $pid;
+      $info{'category'} = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ROLE);
+      $info{'unregdate'} = &pf::authentication::match("email", {username => $pid}, $Actions::SET_UNREG_DATE);
 
       # if we are on-site: register the node
       if (!$session->param("preregistration")) {
@@ -185,8 +186,9 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # grab additional info about the node
       my %info;
-      $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $portalSession->getProfile->getGuestCategory;
+      my $pid = $session->param('guest_pid');
+      $info{'pid'} = $pid;
+      $info{'category'} = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ROLE);
       $info{'status'} = $pf::node::STATUS_PENDING;
 
       if (!$session->param("preregistration")) {
