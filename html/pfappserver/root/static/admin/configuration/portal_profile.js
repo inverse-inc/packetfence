@@ -155,12 +155,8 @@ function initEditorPage(element) {
 
 function initCollapse(element) {
     element.on('show hidden','.collapse',function(event) {
-        console.log(this);
-        console.log(event);
         var that = $(this);
-        console.log(that);
         var tr = that.closest('tr').first();
-        console.log(tr);
         tr.swap_class('toggle');
         var link = element.find('[data-target="#' + that.attr('id') + '"]');
         link.find('[data-swap]').swap_class('toggle');

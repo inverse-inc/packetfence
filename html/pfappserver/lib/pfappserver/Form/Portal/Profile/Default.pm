@@ -49,7 +49,7 @@ has_field 'guest_modes' =>
     'multiple'=> 1,
     'element_class' => ['chzn-select', 'input-xlarge'],
     'element_attr' => {'data-placeholder' => 'Click to add'},
-    'options' => [map { { value => $_, label => $_ } } qw(email sms sponser google facebook github) ],
+    'options' => [map { { value => $_, label => $_ } } qw(email sms sponsor google facebook github) ],
   );
 has_field 'billing_engine' =>
   (
