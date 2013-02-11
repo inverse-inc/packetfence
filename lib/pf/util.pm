@@ -51,7 +51,7 @@ BEGIN {
         unpretty_bandwidth
         pf_run pfmailer
         generate_id load_oui download_oui
-        trim_path format_bytes log_of
+        trim_path format_bytes log_of ordinal_suffix
     );
 }
 
