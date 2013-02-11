@@ -102,22 +102,20 @@ form {
                     <input type="text" class="input-small" name="end">
                     <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
-                  <table class="table-dynamic">
-                    <tbody>
-                      <tr>
-                        <td>
+                  <div>
                           [% match_options = BLOCK %]
-                          <select class="input-mini">
+                          <select name="all_or_any" class="input-mini">
                             <option>all</option>
                             <option>any</option>
                           </select>
                           [% END %]
                           [% l('Match [_1] of the following conditions:', [match_options]) %]
-                        </td>
-                      </tr>
+                  </div>
+                  <table class="table-dynamic">
+                    <tbody>
                       <tr class="hidden">
                         <td>
-                          <select class="span4 name:search.0.name">
+                          <select name="search.0.name" class="span4">
                             <option value="mac">Node MAC</option>
                             <option value="node_category">Node category</option>
                             <option value="person_name">Person name</option>
@@ -125,14 +123,14 @@ form {
                             <option value="user_agent">User agent</option>
                             <option value="switch_ip">Source switch IP</option>
                           </select>
-                          <select  class="span2 name:search.0.op">
+                          <select name="search.0.op" class="span2" >
                             <option value="equal">is</option>
                             <option value="not_equal">is not</option>
                             <option value="starts_with">starts with</option>
                             <option value="ends_with">ends with</option>
                             <option value="like">matches</option>
                           </select>
-                          <input type="text" class="span6 name:search.0.value" placeholder="String...">
+                          <input name="search.0.value" type="text" class="span6" placeholder="String...">
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
