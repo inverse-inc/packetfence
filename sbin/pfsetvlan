@@ -192,13 +192,13 @@ add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtra
 add_new_threads_to_list( "signalHandlerTrapListQueued"  , $Config{'vlan'}{'nbtrapparserthreads'}  );
 
 sub add_new_threads_to_list {
-    my ($thread_function,$count);
-    
+    my ($thread_function,$count) = @_;
+
     for ( my $i = 1; $i <= $count; $i++ ) {
         my $t = threads->new($thread_function);
         if ( !defined($t) ) {
             $logger->error(
-                      "could not create " 
+                      "could not create "
                     . ordinal_suffix($i)
                     . " $thread_function thread"
             );
@@ -206,7 +206,7 @@ sub add_new_threads_to_list {
         } else {
             push @completeThreadList, $t;
             $logger->debug(
-                      "created " 
+                      "created "
                     . ordinal_suffix($i)
                     . " $thread_function thread"
             );
@@ -480,12 +480,12 @@ sub signalHandlerTrapListQueued {
                             $logger->info(
                                 "$trapType trap already in the queue for $switch_ip ifIndex $switch_port. Won't add another one");
 
-                        # we had some side effects while testing the floating device thing. So we added this. 
+                        # we had some side effects while testing the floating device thing. So we added this.
                         # this is necessary as long as we have not fixed the ugly sleep(5) patch. See floatingdevice.pm
                         # and pf::SNMP::Cisco::Catalyst_2950
                         } elsif (( $trapType eq 'secureMacAddrViolation' )
                             && (! $switch->isPortSecurityEnabled($switch_port)) ) {
-                            $logger->info("$trapType trap on $switch_ip ifIndex $switch_port. Port Security is no " . 
+                            $logger->info("$trapType trap on $switch_ip ifIndex $switch_port. Port Security is no " .
                                           "longer configured on the port. Flush the trap");
 
                         } elsif (( $trapType eq 'mac' )
@@ -605,7 +605,7 @@ sub parseTrap {
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.2   # metadata
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"                       # mac
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)\                        # connection_type
-                    END\ VARIABLEBINDINGS/x) {   
+                    END\ VARIABLEBINDINGS/x) {
                     # WARNING: using trap operation for something it is not meant to
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
@@ -618,7 +618,7 @@ sub parseTrap {
                 } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.3   # metadata
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"\                      # mac
-                    END\ VARIABLEBINDINGS/x) {   
+                    END\ VARIABLEBINDINGS/x) {
                     # WARNING: using trap operation for something it is not meant to
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
                     $trapHashRef = {
@@ -663,7 +663,7 @@ sub parseTrap {
 
                 handle_wireless_ips(clean_mac($trapMac));
 
-                return;            
+                return;
 
             } elsif ( $trapType ne 'unknown' ) {
                 my $switch_ip     = $switch->{_ip};
@@ -1044,7 +1044,7 @@ sub handleTrap {
                 $logger->info(
                     "MAC $mac is a VoIP phone -> Do nothing besides updating locationlog"
                 );
-                locationlog_synchronize($switch_ip, $switch_port, 
+                locationlog_synchronize($switch_ip, $switch_port,
                     $switch->getVoiceVlan($switch_port), $mac, $VOIP, $WIRED_SNMP_TRAPS);
             } else {
 
@@ -1061,7 +1061,7 @@ sub handleTrap {
                 {
                     if ( $locationlog[0]->{'mac'} =~ /^$mac$/i ) {
                         my ($fetchedVlan,$wasInline) =  $vlan_obj->fetchVlanForNode($mac, $switch, $switch_port, $WIRED_SNMP_TRAPS);
-                        
+
                         if (( $locationlog[0]->{'vlan'} == $vlan )
                             && ($vlan == $fetchedVlan)
                            ) {
@@ -1341,7 +1341,7 @@ sub handleTrap {
         my $valid_locationlog_entry = (@locationlog_switchport && ref($locationlog_switchport[0]) eq 'HASH');
         if ($valid_locationlog_entry && (exists($ConfigFloatingDevices{$locationlog_switchport[0]->{mac}}))) {
             my $mac = $locationlog_switchport[0]->{mac};
-            $logger->info("The floating network device $mac has just unplugged from $switch_ip port $switch_port. " . 
+            $logger->info("The floating network device $mac has just unplugged from $switch_ip port $switch_port. " .
                           "Disabling floating network device configuration on the port.");
             my $floatingDeviceManager = new pf::floatingdevice::custom();
 
@@ -1406,18 +1406,18 @@ sub handleTrap {
                                " $switch_port. The port may not work!");
             }
 
-            # open the port            
+            # open the port
             $logger->debug("Re-opening port $switch_port");
             if (! $switch->setAdminStatus( $switch_port, $SNMP::UP )) {
                 $logger->error("An error occured while opening port $switch_port. The port may not work!");
             }
- 
+
             cleanupAfterThread( $switch_ip, $switch_port );
             $switch->disconnectRead();
-            $switch->disconnectWrite(); 
+            $switch->disconnectWrite();
             return;
-        }   
-        # }}}3  
+        }
+        # }}}3
 
         # set into MAC detection VLAN {{{3
         $logger->info(
@@ -1553,10 +1553,10 @@ sub handleTrap {
 
         # trapType eq 'desAssociate' {{{2
     } elsif ( $trapType eq 'desAssociate' ) {
-        my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type 
+        my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
         my $command = "deauthenticate";
         $command = "deauthenticateDot1x" if ($connection_type == $WIRELESS_802_1X);
-     
+
         $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
         my $switchIp = $switch->{_ip};
         my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{_deauthMethod});
@@ -1564,10 +1564,10 @@ sub handleTrap {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
             pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchIp -mac $trapMac");
-        }    
+        }
         else {
            $deauthTechniques->($switch,$trapMac);
-        }    
+        }
 
         # }}}2
 
@@ -1591,7 +1591,7 @@ sub handleTrap {
             if ((@locationlog) && ( scalar(@locationlog) > 0 ) && ( $locationlog[0]->{'mac'} ne '' )) {
 
                 my $mac = $locationlog[0]->{'mac'};
-    
+
                 if ( $switch->isPortSecurityEnabled($switch_port) ) {
                     $logger->info( "security traps are configured on " . $switch->{_ip}
                         . " ifIndex $switch_port. Re-assigning VLAN for $mac"
@@ -1623,7 +1623,7 @@ sub handleTrap {
                             $message{'message'} .= "Switch: " . $switch->{_ip} . "\n";
                             $message{'message'} .= "Port (ifIndex): " . $switch_port . "\n\n";
                             $message{'message'} .= "The violation details are\n";
-    
+
                             foreach my $violation (@violations) {
                                 $message{'message'} .= "Description: " . $violation->{'description'} . "\n";
                                 $message{'message'} .= "Start: " . $violation->{'start_date'} . "\n";
@@ -1637,12 +1637,12 @@ sub handleTrap {
                     }
                 } else {
                     $logger->info(
-                        "no security traps are configured on " . $switch->{_ip} . " ifIndex $switch_port. " . 
+                        "no security traps are configured on " . $switch->{_ip} . " ifIndex $switch_port. " .
                         "Flipping port admin status"
                     );
                     $switch->bouncePort( $switch_port );
                 }
-    
+
             } else {
                 $logger->warn(
                     "received reAssignVlan trap on $switch_ip ifIndex $switch_port but can't determine non VoIP MAC"
@@ -1671,7 +1671,7 @@ sub handleTrap {
         $inline->performInlineEnforcement($trapMac);
 
         # }}}2
-    } 
+    }
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );
@@ -1785,7 +1785,7 @@ sub node_update_PF {
     #should we auto-register?
     if ($vlan_obj->shouldAutoRegister($mac, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS)) {
         # auto-register
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port, 
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $switch_port,
             $mac, $vlan, $registrationMode, 0, $isPhone, $WIRED_SNMP_TRAPS);
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
@@ -1828,7 +1828,7 @@ sub perform_trap_limiting {
     return $FALSE if (isdisabled($Config{'vlan'}{'trap_limit'}));
 
     # skipping if trapIfIndex is undef
-    return $FALSE if (!defined($switchIfIndex)); 
+    return $FALSE if (!defined($switchIfIndex));
 
     # Poking tied config files here instead of declaring them globally is arguably discutable on terms of performances
     my $trapsLimitThreshold = $Config{'vlan'}{'trap_limit_threshold'};
@@ -1838,11 +1838,11 @@ sub perform_trap_limiting {
     my $cached_traps_switchIfIndex = $traps_switchIfIndex_cache->get($switchIp.$switchIfIndex);
 
     # TODO: Use CHI and the append method
-    # Using Cache::Cache with the set method may cause the cache to never expire. 
+    # Using Cache::Cache with the set method may cause the cache to never expire.
     # Each time the cache is set, the expire is renewed and the cache may never expire completly.
     # The new unified caching interface (CHI) provide an append method which solve the problem but CHI is
     # currently not packaged.
-    
+
     # FileCache is threads safe
     $traps_switchIfIndex_cache->set($switchIp.$switchIfIndex, ++$cached_traps_switchIfIndex, "1 minute");
 
@@ -1880,7 +1880,7 @@ sub perform_trap_limiting {
     # if there's no action configured then let's continue parsing the trap
     return $FALSE if ( isempty($trapsLimitAction) );
 
-    return $TRUE; 
+    return $TRUE;
 }
 # }}}1
 
@@ -1893,7 +1893,7 @@ sub do_port_security {
 
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
-    if ( defined($locationlog_mac) && 
+    if ( defined($locationlog_mac) &&
          ( exists($switchFactory->{_config}{$locationlog_mac->{'switch'}}) )
        ) {
         my $old_switch = $locationlog_mac->{'switch'};
@@ -1932,7 +1932,7 @@ sub do_port_security {
                     if (   ( $old_switch eq $switch->{_ip} )
                         && ( $old_port == $switch_port )
                         && ( $trapType eq 'secureMacAddrViolation' ) )
-                    {   
+                    {
                         return 'stopTrapHandling';
                     }
                     my $fakeMac = $oldSwitch->generateFakeMac( $is_old_voip, $old_port );
@@ -1980,7 +1980,7 @@ sub handle_wireless_ips {
 
    # Return if wireless IPS feature is disabled
    return if (isdisabled($Config{'trapping'}{'wireless_ips'}));
-   
+
    # Grab the OUI part
    $trapMac =~ /^([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}).*$/;
    my $mac = $1;
@@ -2005,21 +2005,21 @@ sub handle_wireless_ips {
                   $logger->info("WIPS: Found a valid MAC $_ , but the reliability is below the configured threshold, do nothing");
               }
               last;
-          } 
+          }
         }
     }
   } else {
        $logger->info("WIPS: Cannot find a valid match for $trapMac in the database, do nothing");
        return;
   }
-   
+
    #TODO
    #For each matching nodes, fire an internal WIDS violation
    foreach my $keys (keys %matchingNodes) {
        $logger->info("We will isolate $keys, threshold is $matchingNodes{$keys} percent");
        violation_trigger( $keys, $WIPS_VID, 'INTERNAL' );
    }
-   
+
    return;
 }
 
