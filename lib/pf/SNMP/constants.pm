@@ -471,31 +471,31 @@ ahTrapDesc
 
 =cut
 
-Readonly::Scalar our $ahConnectionChangeEvent = '.1.3.6.1.4.1.26928.1.1.1.1.1.4';
-Readonly::Scalar our $ahAPId = '.1.3.6.1.4.1.26928.1.1.1.1.2.1';
-Readonly::Scalar our $ahAPName = '.1.3.6.1.4.1.26928.1.1.1.1.2.2';
-Readonly::Scalar our $ahTrapDesc = '.1.3.6.1.4.1.26928.1.1.1.1.2.11';
-Readonly::Scalar our $ahCode = '.1.3.6.1.4.1.26928.1.1.1.1.2.12';
-Readonly::Scalar our $ahObjectName = '.1.3.6.1.4.1.26928.1.1.1.1.2.4';
-Readonly::Scalar our $ahIfIndex = '.1.3.6.1.4.1.26928.1.1.1.1.2.13';
-Readonly::Scalar our $ahObjectType = '.1.3.6.1.4.1.26928.1.1.1.1.2.14';
-Readonly::Scalar our $ahRemoteId = '.1.3.6.1.4.1.26928.1.1.1.1.2.15';
-Readonly::Scalar our $ahCurrentState = '.1.3.6.1.4.1.26928.1.1.1.1.2.10';
-Readonly::Scalar our $ahSSID = '.1.3.6.1.4.1.26928.1.1.1.1.2.20';
-Readonly::Scalar our $ahCLientIP = '.1.3.6.1.4.1.26928.1.1.1.1.2.25';
-Readonly::Scalar our $ahClientHostName = '.1.3.6.1.4.1.26928.1.1.1.1.2.26';
-Readonly::Scalar our $ahClientUserName = '.1.3.6.1.4.1.26928.1.1.1.1.2.27';
-Readonly::Scalar our $ahClientAuthMethod = '.1.3.6.1.4.1.26928.1.1.1.1.2.35';
-Readonly::Scalar our $ahClientEncryptionMethod = '.1.3.6.1.4.1.26928.1.1.1.1.2.36';
-Readonly::Scalar our $ahClientMACProtocol = '.1.3.6.1.4.1.26928.1.1.1.1.2.37';
-Readonly::Scalar our $ahClientVLAN = '.1.3.6.1.4.1.26928.1.1.1.1.2.38';
-Readonly::Scalar our $ahClientUserProfId = '.1.3.6.1.4.1.26928.1.1.1.1.2.39';
-Readonly::Scalar our $ahClientChannel = '.1.3.6.1.4.1.26928.1.1.1.1.2.40';
-Readonly::Scalar our $ahClientCWPUsed = '.1.3.6.1.4.1.26928.1.1.1.1.2.41';
-Readonly::Scalar our $ahBSSID = '.1.3.6.1.4.1.26928.1.1.1.1.2.42';
-Readonly::Scalar our $ahAssociationTime = '.1.3.6.1.4.1.26928.1.1.1.1.2.48';
-Readonly::Scalar our $ahIfName = '.1.3.6.1.4.1.26928.1.1.1.1.2.69';
-Readonly::Scalar our $ahIDPRSSI = '.1.3.6.1.4.1.26928.1.1.1.1.2.18';
+Readonly::Scalar our $ahConnectionChangeEvent => '.1.3.6.1.4.1.26928.1.1.1.1.1.4';
+Readonly::Scalar our $ahAPId => '.1.3.6.1.4.1.26928.1.1.1.1.2.1';
+Readonly::Scalar our $ahAPName => '.1.3.6.1.4.1.26928.1.1.1.1.2.2';
+Readonly::Scalar our $ahTrapDesc => '.1.3.6.1.4.1.26928.1.1.1.1.2.11';
+Readonly::Scalar our $ahCode => '.1.3.6.1.4.1.26928.1.1.1.1.2.12';
+Readonly::Scalar our $ahObjectName => '.1.3.6.1.4.1.26928.1.1.1.1.2.4';
+Readonly::Scalar our $ahIfIndex => '.1.3.6.1.4.1.26928.1.1.1.1.2.13';
+Readonly::Scalar our $ahObjectType => '.1.3.6.1.4.1.26928.1.1.1.1.2.14';
+Readonly::Scalar our $ahRemoteId => '.1.3.6.1.4.1.26928.1.1.1.1.2.15';
+Readonly::Scalar our $ahCurrentState => '.1.3.6.1.4.1.26928.1.1.1.1.2.10';
+Readonly::Scalar our $ahSSID => '.1.3.6.1.4.1.26928.1.1.1.1.2.20';
+Readonly::Scalar our $ahCLientIP => '.1.3.6.1.4.1.26928.1.1.1.1.2.25';
+Readonly::Scalar our $ahClientHostName => '.1.3.6.1.4.1.26928.1.1.1.1.2.26';
+Readonly::Scalar our $ahClientUserName => '.1.3.6.1.4.1.26928.1.1.1.1.2.27';
+Readonly::Scalar our $ahClientAuthMethod => '.1.3.6.1.4.1.26928.1.1.1.1.2.35';
+Readonly::Scalar our $ahClientEncryptionMethod => '.1.3.6.1.4.1.26928.1.1.1.1.2.36';
+Readonly::Scalar our $ahClientMACProtocol => '.1.3.6.1.4.1.26928.1.1.1.1.2.37';
+Readonly::Scalar our $ahClientVLAN => '.1.3.6.1.4.1.26928.1.1.1.1.2.38';
+Readonly::Scalar our $ahClientUserProfId => '.1.3.6.1.4.1.26928.1.1.1.1.2.39';
+Readonly::Scalar our $ahClientChannel => '.1.3.6.1.4.1.26928.1.1.1.1.2.40';
+Readonly::Scalar our $ahClientCWPUsed => '.1.3.6.1.4.1.26928.1.1.1.1.2.41';
+Readonly::Scalar our $ahBSSID => '.1.3.6.1.4.1.26928.1.1.1.1.2.42';
+Readonly::Scalar our $ahAssociationTime => '.1.3.6.1.4.1.26928.1.1.1.1.2.48';
+Readonly::Scalar our $ahIfName => '.1.3.6.1.4.1.26928.1.1.1.1.2.69';
+Readonly::Scalar our $ahIDPRSSI => '.1.3.6.1.4.1.26928.1.1.1.1.2.18';
 
 
 =back
