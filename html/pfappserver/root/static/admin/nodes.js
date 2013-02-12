@@ -121,14 +121,8 @@ function init() {
                     $(window).hashchange();
                 });
             }).fail(function(jqXHR) {
-                var status_msg;
+                var status_msg = getStatusMsg(jqXHR);
                 btn.button('reset');
-                try {
-                    var obj = $.parseJSON(jqXHR.responseText);
-                    status_msg = obj.status_msg;
-                }
-                catch(e) {}
-                if (!status_msg) status_msg = _("Cannot Load Content");
                 resetAlert(modal_body);
                 showPermanentError(modal_body.children().first(), status_msg);
             });
