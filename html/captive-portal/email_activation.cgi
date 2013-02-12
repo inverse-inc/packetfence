@@ -94,8 +94,14 @@ if (defined($cgi->url_param('code'))) {
             $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
             # we create temporary password with default expiration / arrival date and access duration from config
+            my $access_duration = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            
+            if (!defined $access_duration) {
+                $access_duration = 0;
+            }
+
             $info{'password'} = pf::temporary_password::generate(
-                $pid, undef, undef, $Config{'guests_self_registration'}{'access_duration'}
+                $pid, undef, undef, $access_duration
             );
     
             # send on-site guest credentials by email
@@ -211,9 +217,15 @@ if (defined($cgi->url_param('code'))) {
         $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
         # we create temporary password with default expiration / arrival date and access duration from config
         # TODO sponsor could control these (but current feature sponsor doesn't need the feature)
+        my $access_duration = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ACCESS_DURATION);
+        
+        if (!defined $access_duration) {
+            $access_duration = 0;
+        }
+        
         $info{'password'} = pf::temporary_password::generate(
             $pid, undef, undef,
-            $Config{'guests_self_registration'}{'access_duration'}
+            $access_duration
         );
         # prepare welcome email for a guest who registered locally
         $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );

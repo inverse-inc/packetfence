@@ -147,6 +147,7 @@ sub instantiate {
         }
     }
 
+    $logger->debug("expanding custom vlans for switch $type");
     my $custom_vlan_assignments_ref = $this->_customVlanExpansion($requestedSwitch, %SwitchConfig);
 
     $logger->debug("creating new $type object");
@@ -155,10 +156,6 @@ sub instantiate {
         '-uplink'    => \@uplink,
         '-vlans'     => \@vlans,
         '-inlineTrigger' => \@inlineTrigger,
-        '-guestVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'guestVlan'}
-                || $SwitchConfig{'default'}{'guestVlan'}
-        ),
         '-wsUser' => (
             $SwitchConfig{$requestedSwitch}{'wsUser'}
             || $SwitchConfig{$requestedSwitch}{'htaccessUser'}
@@ -395,22 +392,30 @@ sub readConfig {
 
 sub _customVlanExpansion {
     my ($this, $requestedSwitch, %SwitchConfig) = @_;
+    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
 
     my %custom_vlan_assignments;
-    for my $custom_nb (0 .. 99) {
-        my $vlan;
-        # switch specific VLAN first
-        if (defined($SwitchConfig{$requestedSwitch}{'customVlan'.$custom_nb})) {
-            $vlan = $SwitchConfig{$requestedSwitch}{'customVlan'.$custom_nb};
-        }
-        # then default section
-        elsif (defined($SwitchConfig{'default'}{'customVlan'.$custom_nb})) {
-            $vlan = $SwitchConfig{'default'}{'customVlan'.$custom_nb};
-        }
 
-        # we'll assign the customVlanXX value only if it exists
-        $custom_vlan_assignments{'-customVlan' . $custom_nb} = $vlan if (defined($vlan));
+    foreach my $key ( keys %{ $SwitchConfig{$requestedSwitch} } ) {
+        my ($role) = $key =~ m/(\w+)Vlan$/;
+        my $vlan;
+        
+        if (defined $role && $role ne "normal" && $role ne "registration" && $role ne "isolation" && $role ne "macDetection" && $role ne "inline") {
+            
+            # switch specific VLAN first
+            if (defined($SwitchConfig{$requestedSwitch}{$key})) {
+                $vlan = $SwitchConfig{$requestedSwitch}{$key};
+            }
+            # then default section
+            elsif (defined($SwitchConfig{'default'}{$key})) {
+                $vlan = $SwitchConfig{'default'}{$key};
+            }
+            
+            $custom_vlan_assignments{'-' . $key} = $vlan if (defined($vlan));
+            $logger->debug("Read custom role ($role) from key ($key) for vlan ($vlan).");
+        }
     }
+
     return \%custom_vlan_assignments;
 }
 
