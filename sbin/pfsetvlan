@@ -703,6 +703,10 @@ sub parseTrap {
                 my $trapVlan      = '';
                 my $trapOperation = '';
                 my $trapMac       = '';
+                my $trapSSID      = '';
+                my $trapClientUserName = '';
+                my $trapIfIndex   = '';
+                my $trapConnectionType = '';
 
                 if ( $trapType eq 'mac' ) {
                     $trapVlan      = $trapHashRef->{'trapVlan'};
@@ -733,9 +737,17 @@ sub parseTrap {
 
                 } elsif ($trapType eq 'reAssignVlan') {
                     $trapOperation = $trapHashRef->{'trapOperation'};
+                } elsif ($trapType eq 'roaming') {
+                    $trapMac = $trapHashRef->{'trapMac'};
+                    $trapMac =~ s/ /:/g;
+                    $trapVlan = $trapHashRef->{'trapVlan'};
+                    $trapSSID = $trapHashRef->{'trapSSID'};
+                    $trapClientUserName = $trapHashRef->{'trapClientUserName'};
+                    $trapIfIndex = $trapHashRef->{'trapIfIndex'};
+                    $trapConnectionType = $trapHashRef->{'trapConnectionType'};
                 }
 
-                return "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac";
+                return "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
             } else {
                 $logger->info("ignoring unknown trap: $trapLine");
             }
@@ -800,6 +812,10 @@ sub startTrapHandlers {
     my $trapVlan;
     my $trapOperation;
     my $trapMac;
+    my $trapSSID;
+    my $trapClientUserName;
+    my $trapIfIndex;
+    my $trapConnectionType;
 
     $lockLogger->trace(
         "locking - trying to lock threadList_queued, threadList_running and treadList_toBeKilled in startTrapHandlers"
@@ -839,13 +855,18 @@ sub startTrapHandlers {
 
             #extract information from trap line
             $trapLineWithAdditionalInfo
-                =~ /^(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)$/;
+                =~ /^(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)\|(.*)$/;
             my $tmpSwitch_ip     = $1;
             my $tmpSwitch_port   = $2;
             my $tmpTrapType      = $3;
             my $tmpTrapVlan      = $4;
             my $tmpTrapOperation = $5;
             my $tmpTrapMac       = $6;
+            my $tmpTrapSSID         = $7;
+            my $tmpTrapClientUserName = $8;
+            my $tmpTrapIfIndex   = $9;
+            my $tmpTrapConnectionType = $10;
+
             if (( !$mustDoSomeThing )
                 && (!exists(
                         $threadList_running{"$tmpSwitch_ip|$tmpSwitch_port"}
@@ -862,6 +883,10 @@ sub startTrapHandlers {
                 $trapVlan        = $tmpTrapVlan;
                 $trapOperation   = $tmpTrapOperation;
                 $trapMac         = $tmpTrapMac;
+                $trapSSID        = $tmpTrapSSID;
+                $trapClientUserName = $tmpTrapClientUserName;
+                $trapIfIndex     = $tmpTrapIfIndex;
+                $trapConnectionType = $tmpTrapConnectionType;
                 $mustDoSomeThing = 1;
                 $threadList_running{"$switch_ip|$switch_port"} = $trapType;
             } else {
@@ -901,7 +926,7 @@ sub startTrapHandlers {
     if ($mustDoSomeThing) {
         $logger->debug("calling handleTrap");
         handleTrap( $switch_ip, $switch_port, $trapType, $trapVlan,
-            $trapOperation, $trapMac );
+            $trapOperation, $trapMac, $trapSSID, $trapClientUserName, $trapIfIndex, $trapConnectionType );
     }
 }
 
@@ -911,7 +936,7 @@ sub startTrapHandlers {
 sub handleTrap {
 
     # initialize {{{2
-    my ( $switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac ) = @_;
+    my ( $switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac, $trapSSID , $trapClientUserName, $trapIfIndex, $trapConnectionType) = @_;
     my $logger     = Log::Log4perl->get_logger('pfsetvlan::handling');
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
@@ -1703,6 +1728,10 @@ sub handleTrap {
         $inline->performInlineEnforcement($trapMac);
 
         # }}}2
+    } elsif ( $trapType eq 'roaming' ) {
+        my $switchIp = $switch->{_ip};
+        locationlog_synchronize($switchIp, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID );
+     
     } 
 
     # cleanupAfterThread {{{2
