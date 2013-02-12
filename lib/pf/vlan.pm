@@ -24,6 +24,9 @@ use pf::SNMP::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 our $VERSION = 1.03;
 
 =head1 SUBROUTINES
@@ -312,6 +315,18 @@ sub getNormalVlan {
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
+    my $role = "";
+
+    $logger->debug("Trying to determine VLAN from role.");
+    if (defined $user_name && (($connection_type & $EAP) == $EAP)) {
+        $role = &pf::authentication::match(undef, {username => $user_name, ssid => $ssid}, $Actions::SET_ROLE);
+        $logger->debug("Username was defined ($user_name) - got role $role");
+    } else {
+        $role = $node_info->{'category'};
+        $logger->debug("Username was NOT defined - got role $role");
+    }
+
+    return $switch->getVlanByName($role . "Vlan");
 
     # custom example: admin category
     # return customVlan5 to nodes in the admin category
@@ -338,7 +353,9 @@ sub getNormalVlan {
     #    return $switch->getVlanByName('customVlan1');
     #}
 
-    return $switch->getVlanByName('normalVlan');
+    #return $switch->getVlanByName('normalVlan');
+
+    
 }
 
 =item getInlineVlan
