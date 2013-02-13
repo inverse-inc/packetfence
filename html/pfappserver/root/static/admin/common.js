@@ -65,6 +65,41 @@ function updateSection(href) {
         });
     }
 }
+/* Update #section using an ajax request to a form */
+function updateSectionFromForm(form) {
+    var section = $('#section');
+    if (section) {
+        $("body,html").animate({scrollTop:0}, 'fast');
+        var loader = section.prev('.loader');
+        if (loader) loader.show();
+        section.fadeTo('fast', 0.5, function() {
+            $.ajax({
+                'url'  : form.attr('action'),
+                'type' : form.attr('method') || "POST",
+                'data' : form.serialize()
+                })
+                .always(function() {
+                    if (loader) loader.hide();
+                    section.fadeTo('fast', 1.0);
+                    resetAlert(section);
+                })
+                .done(function(data) {
+                    section.html(data);
+                    section.find('.datepicker').datepicker({ autoclose: true });
+                    section.find('.chzn-select').chosen();
+                    section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                    section.trigger('section.loaded');
+                })
+                .fail(function(jqXHR) {
+                    var status_msg = getStatusMsg(jqXHR);
+                    if (section.children().length == 0)
+                        section.html('<h2></h2><div></div>');
+                    showPermanentError(section.children('h1, h2, h3').first().next(), status_msg);
+                });
+        });
+    }
+}
+
 
 /* Return a function to be called when the hash changes */
 function pfOnHashChange(updater,default_url) {
@@ -301,6 +336,7 @@ $(function () { // DOM ready
         });
         return false;
     });
+
     $('body').on('click', '.table-dynamic [href="#delete"]', function(event) {
         var tbody = $(this).closest('tbody');
         $(this).closest('tr').fadeOut('fast', function() {
