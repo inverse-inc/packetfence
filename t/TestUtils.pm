@@ -61,7 +61,7 @@ our @unit_tests = qw(
     config.t enforcement.t floatingdevice.t hardware-snmp-objects.t import.t inline.t linux.t network-devices/cisco.t 
     network-devices/roles.t network-devices/threecom.t network-devices/wireless.t nodecategory.t person.t pfsetvlan.t 
     Portal.t radius.t services.t SNMP.t soh.t SwitchFactory.t trigger.t useragent.t util.t util-dhcp.t util-radius.t
-    vlan.t web.t web-auth.t
+    vlan.t web.t
 );
 
 our @unit_failing_tests = qw(
@@ -166,7 +166,7 @@ sub get_all_perl_modules {
             && ! /^.*pfcmd_pregrammar\.pm\z/s 
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/conf/authentication', '/usr/local/pf/addons'
+        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
     );
 
     return @list;

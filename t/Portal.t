@@ -68,8 +68,8 @@ is_deeply(
         'guest_modes' => 'sms,email,sponsor',
         'name' => 'default',
         'logo' => '/common/packetfence-cp.png',
-        'guest_category' => 'guest',
-        'guest_self_reg' => 'enabled'
+        'guest_self_reg' => 'enabled',
+        'description' => 'The Default Profile'
     },
     'default profile match default configuration'
 );
