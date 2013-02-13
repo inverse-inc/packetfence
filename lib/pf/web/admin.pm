@@ -44,7 +44,6 @@ use pf::person qw(person_modify $PID_RE);
 use pf::temporary_password;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format);
-use pf::web::auth;
 use pf::web::constants;
 use pf::web::guest 1.30;
 use pf::web::util;
