@@ -646,7 +646,6 @@ fi
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
-%config                 /usr/local/pf/conf/httpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
