@@ -114,33 +114,6 @@ function initRenameForm(element) {
     });
 }
 
-function initPreviewFile(element) {
-    var previewFile = $('#previewFile');
-    previewFile.on('hidden',function() {
-        $(this).data('modal').$element.removeData();
-    });
-    previewFile.on('shown',function() {
-        var that = $(this);
-        var modal_body = that.find('.modal-body');
-        modal_body.on('ready',function(){
-/*
-            alert(modal_body.innerHtml);
-            var iframe = modal_body.find('iframe');
-            var doc =  iframe[0].contentDocument;
-            var html = doc.find("html");
-            var scrollWidth = html[0].scrollWidth;
-            var scrollHeight = html[0].scrollHeight;
-            previewFile.width((scrollWidth + 40 ) + "px");
-            previewFile.height((scrollHeight + 60 ) + "px");
-            modal_body.width((scrollWidth + 40 ) + "px");
-            modal_body.height((scrollHeight + 60 ) + "px");
-            iframe.width((scrollWidth + 40 ) + "px");
-            iframe.height((scrollHeight + 60 ) + "px");
-*/
-        });
-    });
-}
-
 function initEditorPage(element) {
     var file_content = $('#file_content');
     var editor = ace.edit("editor");
@@ -150,7 +123,6 @@ function initEditorPage(element) {
     initCancelModal();
     initEditor(editor,file_content);
     initRenameForm(element);
-    initPreviewFile(element);
 }
 
 function initCollapse(element) {
