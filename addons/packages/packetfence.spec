@@ -588,6 +588,7 @@ fi
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
+%config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
@@ -650,6 +651,10 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.captport
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.soap
+%config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/ocsp-crl.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
