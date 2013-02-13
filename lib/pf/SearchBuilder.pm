@@ -418,7 +418,7 @@ sub format_column {
 
 sub from_clause {
     my ($self,@args) = @_;
-    my $sql = 'FROM ' . $self->first_from_clause_element->{name};
+    my $sql = 'FROM ' . $self->first_from_clause_element->{table};
     return $sql;
 }
 
