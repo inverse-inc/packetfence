@@ -130,6 +130,16 @@ function init() {
         return false;
     });
 
+    $('#nodeAdvancedSearchBtn').on('click',function(event) {
+        updateSectionFromForm($('#nodeAdvancedSearch'));
+        return false;
+    });
+
+    $('#nodeAdvancedSearch').on('admin.added','tr', function(event) {
+        var that = $(this);
+        that.find(':input').removeAttr('disabled');
+    });
+
     $(window).hashchange(pfOnHashChange(updateSection,'/node/'));
 
     $(window).hashchange();
