@@ -190,7 +190,6 @@ sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
         '_error'                    => undef,
-        '_guestVlan'                => undef,
         '_ip'                       => undef,
         '_isolationVlan'            => undef,
         '_macDetectionVlan'         => undef,
@@ -249,12 +248,6 @@ sub new {
             $this->{_SNMPCommunityTrap} = $argv{$_};
         } elsif (/^-?SNMPCommunityWrite$/i) {
             $this->{_SNMPCommunityWrite} = $argv{$_};
-        }
-        # customVlan members are now dynamically generated. 0 to 99 supported.
-        elsif (/^-?customVlan(\d\d?)$/i) {
-            $this->{'_customVlan'.$1} = $argv{$_};
-        } elsif (/^-?guestVlan$/i) {
-            $this->{_guestVlan} = $argv{$_};
         } elsif (/^-?ip$/i) {
             $this->{_ip} = $argv{$_};
         } elsif (/^-?isolationVlan$/i) {
@@ -342,6 +335,10 @@ sub new {
         } elsif (/^-?deauthMethod$/i) {
             $this->{_deauthMethod} = $argv{$_};
         }
+        # customVlan members are now dynamically generated. 0 to 99 supported.
+        elsif (/^-?(\w+)Vlan$/i) {
+            $this->{'_'.$1.'Vlan'} = $argv{$_};
+        } 
 
     }
     return $this;
