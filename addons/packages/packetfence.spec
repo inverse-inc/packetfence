@@ -376,7 +376,7 @@ fi
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
 cd $RPM_BUILD_ROOT/usr/local/pf/conf
-ln -s httpd.conf.apache22 ./httpd.conf
+#ln -s httpd.conf.apache22 ./httpd.conf
 #if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 #then
 #  ln -s httpd.conf.apache22 ./httpd.conf
@@ -588,13 +588,7 @@ fi
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
-%dir                    /usr/local/pf/conf/authentication
-%config(noreplace)      /usr/local/pf/conf/authentication/guest_managers.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/kerberos.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/local.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/preregistered_guests.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
+%config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
@@ -653,14 +647,16 @@ fi
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
-%config                 /usr/local/pf/conf/httpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.captport
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.soap
+%config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/ocsp-crl.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
-%config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)	/usr/local/pf/conf/named-akamai.net
