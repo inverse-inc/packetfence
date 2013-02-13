@@ -19,29 +19,12 @@ use namespace::autoclean;
 use POSIX;
 
 use pfappserver::Form::Node;
+use pfappserver::Form::Search::Node;
 
 BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 SUBROUTINES
 
-=head2 auto
-
-Allow only authenticated users
-
-=cut
-sub auto :Private {
-    my ($self, $c) = @_;
-
-    unless ($c->user_exists()) {
-        $c->response->status(HTTP_UNAUTHORIZED);
-        $c->response->location($c->req->referer);
-        $c->stash->{template} = 'admin/unauthorized.tt';
-        $c->detach();
-        return 0;
-    }
-
-    return 1;
-}
 
 =head2 index
 
@@ -61,31 +44,24 @@ sub simple_search :SimpleSearch('Node') :Local :Args() { }
 
 =cut
 sub advanced_search :Local :Args() {
-    my ( $self, $c) = @_;
-    my $params = $c->request->params;
-    $c->log->info(Dumper(_build_search_data($params))); 
+    my ($self, $c) = @_;
+    my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
+    my $search_model = $c->model("Search::Node");
+    my $form = new pfappserver::Form::Search::Node;
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = $form->field_errors;
+    } else {
+        %search_results = $search_model->search($form->value);
+    }
+    $c->stash(
+        status_msg => $status_msg,
+        %search_results
+    );
+    $c->response->status($status);
 }
 
-sub _build_search_data {
-    my ($params) = @_;
-    my %search_data;
-    foreach my $key ( grep { /^search\.[0-9]+/} keys %$params) {
-        my (undef,$index,$name) = split(/\./,$key);
-        if (exists ($search_data{$index}{$name})) {
-            my $value = $search_data{$index}{$name};
-            if(ref ($value) eq 'ARRAY') {
-                push @$value,$params->{$key};
-            }
-            else {
-                $search_data{$index}{$name} = [$params->{$key}];
-            }
-        }
-        else {
-            $search_data{$index}{$name} = $params->{$key};
-        }
-    }
-    return map { $search_data{$_}} sort {$a <=> $b} keys %search_data;
-}
 
 =head2 save_search
 
