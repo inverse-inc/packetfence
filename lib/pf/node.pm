@@ -8,7 +8,7 @@ pf::node - module for node management.
 
 =head1 DESCRIPTION
 
-pf::node contains the functions necessary to manage node: creation, 
+pf::node contains the functions necessary to manage node: creation,
 deletion, registration, expiration, read info, ...
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -64,6 +64,7 @@ BEGIN {
         node_expire_lastarp
         node_cleanup
         node_update_lastarp
+        node_custom_search
         node_mac_wakeup
         is_node_voip
         is_node_registered
@@ -95,7 +96,7 @@ TODO: This list is incomlete
 =cut
 
 sub node_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("Preparing pf::node database queries");
 
     $node_statements->{'node_exist_sql'} = get_db_handle()->prepare(qq[ select mac from node where mac=? ]);
@@ -105,7 +106,7 @@ sub node_db_prepare {
     $node_statements->{'node_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO node (
             mac, pid, category_id, status, voip, bypass_vlan,
-            detect_date, regdate, unregdate, lastskip, 
+            detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
@@ -117,39 +118,39 @@ sub node_db_prepare {
     $node_statements->{'node_delete_sql'} = get_db_handle()->prepare(qq[ delete from node where mac=? ]);
 
     $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(qq[
-        UPDATE node SET 
+        UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?,
-            detect_date=?, regdate=?, unregdate=?, lastskip=?, 
-            user_agent=?, computername=?, dhcp_fingerprint=?, 
+            detect_date=?, regdate=?, unregdate=?, lastskip=?,
+            user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
             notes=?
         WHERE mac=?
     ]);
- 
+
     $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, status, bypass_vlan, 
-            IF(ISNULL(node_category.name), '', node_category.name) as category, 
-            detect_date, regdate, unregdate, lastskip, 
-            user_agent, computername, dhcp_fingerprint, 
+        SELECT mac, pid, voip, status, bypass_vlan,
+            IF(ISNULL(node_category.name), '', node_category.name) as category,
+            detect_date, regdate, unregdate, lastskip,
+            user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             node.notes
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
     ]);
- 
+
     $node_statements->{'node_attributes_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, pid, voip, status, bypass_vlan, 
-            IF(ISNULL(node_category.name), '', node_category.name) as category, 
-            detect_date, regdate, unregdate, lastskip, 
-            user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint, 
+        SELECT mac, pid, voip, status, bypass_vlan,
+            IF(ISNULL(node_category.name), '', node_category.name) as category,
+            detect_date, regdate, unregdate, lastskip,
+            user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
             last_arp, last_dhcp,
             node.notes
         FROM node
             LEFT JOIN node_category USING (category_id)
-            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint 
-            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type 
-            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id 
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
+            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
+            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
         WHERE mac = ?
     ]);
 
@@ -159,7 +160,7 @@ sub node_db_prepare {
             IF(ISNULL(node_category.name), '', node_category.name) as category,
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
-            node.last_arp, node.last_dhcp, 
+            node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
@@ -188,32 +189,32 @@ sub node_db_prepare {
     SQL
 
     $node_statements->{'node_last_locationlog_sql'} = get_db_handle()->prepare(<<'    SQL');
-       SELECT 
+       SELECT
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
            locationlog.start_time as last_start_time
-       FROM locationlog 
+       FROM locationlog
        WHERE mac = ? AND end_time IS NULL
     SQL
 
     # DEPRECATED see node_view_with_fingerprint()'s POD
     $node_statements->{'node_view_with_fingerprint_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, 
+        SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip, 
-            node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint, 
-            node.last_arp, node.last_dhcp, 
+            node.detect_date, node.regdate, node.unregdate, node.lastskip,
+            node.user_agent, node.computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
+            node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
-        FROM node 
-            LEFT JOIN node_category USING (category_id) 
-            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint 
-            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type 
-            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id 
+        FROM node
+            LEFT JOIN node_category USING (category_id)
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
+            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id=os_mapping.os_type
+            LEFT JOIN os_class ON os_mapping.os_class=os_class.class_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
         GROUP BY node.mac
@@ -255,8 +256,8 @@ sub node_db_prepare {
 
     $node_statements->{'node_unregistered_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, bypass_vlan, status,
-            detect_date, regdate, unregdate, lastskip, 
-            user_agent, computername, dhcp_fingerprint, 
+            detect_date, regdate, unregdate, lastskip,
+            user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
         FROM node
@@ -265,8 +266,8 @@ sub node_db_prepare {
 
     $node_statements->{'nodes_unregistered_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, bypass_vlan, status,
-            detect_date, regdate, unregdate, lastskip, 
-            user_agent, computername, dhcp_fingerprint, 
+            detect_date, regdate, unregdate, lastskip,
+            user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
         FROM node
@@ -275,8 +276,8 @@ sub node_db_prepare {
 
     $node_statements->{'nodes_registered_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, bypass_vlan, status,
-            detect_date, regdate, unregdate, lastskip, 
-            user_agent, computername, dhcp_fingerprint, 
+            detect_date, regdate, unregdate, lastskip,
+            user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             notes
         FROM node
@@ -284,8 +285,8 @@ sub node_db_prepare {
     ]);
 
     $node_statements->{'nodes_registered_not_violators_sql'} = get_db_handle()->prepare(qq[
-        SELECT node.mac FROM node 
-            LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open' 
+        SELECT node.mac FROM node
+            LEFT JOIN violation ON node.mac=violation.mac AND violation.status='open'
         WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
     ]);
 
@@ -330,7 +331,7 @@ sub node_pid {
 #
 sub node_delete {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
 
@@ -357,7 +358,7 @@ sub node_delete {
 sub node_add {
     my ( $mac, %data ) = @_;
 
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->trace("node add called");
 
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
@@ -374,12 +375,12 @@ sub node_add {
 
     #foreach my $row (node_desc()){
     #    $data{$row->{'Field'}}="" if (!defined $data{$row->{'Field'}});
-    #} 
+    #}
 
     foreach my $field (
-        'pid', 'voip', 'bypass_vlan', 'status', 
+        'pid', 'voip', 'bypass_vlan', 'status',
         'detect_date', 'regdate', 'unregdate', 'lastskip',
-        'user_agent', 'computername', 'dhcp_fingerprint', 
+        'user_agent', 'computername', 'dhcp_fingerprint',
         'last_arp', 'last_dhcp',
         'notes'
     ) {
@@ -399,7 +400,7 @@ sub node_add {
     db_query_execute(NODE, $node_statements, 'node_add_sql',
         $mac, $data{pid}, $data{category_id}, $data{status}, $data{voip}, $data{bypass_vlan},
         $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
-        $data{user_agent}, $data{computername}, $data{dhcp_fingerprint}, 
+        $data{user_agent}, $data{computername}, $data{dhcp_fingerprint},
         $data{last_arp}, $data{last_dhcp},
         $data{notes}
     ) || return (0);
@@ -456,7 +457,7 @@ sub node_attributes {
 Returns information about a given MAC address (node) with the DHCP
 fingerprint class as a string.
 
-It's a simpler and faster version of node_view_with_fingerprint with 
+It's a simpler and faster version of node_view_with_fingerprint with
 fewer fields returned.
 
 =cut
@@ -483,7 +484,7 @@ sub _node_view_old {
     my ($mac) = @_;
 
     # Uncomment to log callers
-    #my $logger = Log::Log4perl::get_logger('pf::node');
+    #my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
@@ -511,7 +512,7 @@ sub node_view {
     my ($mac) = @_;
 
     # Uncomment to log callers
-    #my $logger = Log::Log4perl::get_logger('pf::node');
+    #my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     #my $caller = ( caller(1) )[3] || basename($0);
     #$logger->trace("node_view called from $caller");
 
@@ -529,8 +530,8 @@ sub node_view {
     # merge hash references
     # set locationlog info to empty hashref in case result from query was nothing
     $locationlog_info_ref = {} if (!defined($locationlog_info_ref));
-    $node_info_ref = { 
-        %$node_info_ref, 
+    $node_info_ref = {
+        %$node_info_ref,
         %$locationlog_info_ref,
         'nbopenviolations' => violation_count($mac),
     };
@@ -540,7 +541,7 @@ sub node_view {
 
 sub node_count_all {
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
@@ -577,6 +578,14 @@ sub node_count_all {
     return db_data(NODE, $node_statements, 'node_count_all_sql_custom');
 }
 
+sub node_custom_search {
+    my ($sql) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->info($sql);
+    $node_statements->{'node_custom_search_sql_customer'} = $sql;
+    return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
+}
+
 =item * node_view_all - view all nodes based on several criterias
 
 Warning: The connection_type field is translated into its human form before return.
@@ -584,7 +593,7 @@ Warning: The connection_type field is translated into its human form before retu
 =cut
 sub node_view_all {
     my ( $id, %params ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Hack! we prepare the statement here so that $node_view_all_sql is pre-filled
     node_db_prepare() if (!$node_db_prepared);
@@ -626,7 +635,7 @@ sub node_view_all {
 
 =item node_view_with_fingerprint
 
-DEPRECATED: This has been kept in case of regressions in the new 
+DEPRECATED: This has been kept in case of regressions in the new
 node_attributes_with_fingerprint code.  This code will disappear in 2013.
 
 =cut
@@ -648,7 +657,7 @@ sub node_modify {
 
     my $tmpMAC = Net::MAC->new( 'mac' => $mac );
     $mac = $tmpMAC->as_IEEE();
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $auto_registered = 0;
 
     $mac = lc($mac);
@@ -681,14 +690,14 @@ sub node_modify {
         $existing->{$item} = $data{$item};
     }
 
-    # category handling 
+    # category handling
     # if category was updated, resolve it correctly
     if (defined($data{'category'}) || defined($data{'category_id'})) {
        $existing->{'category_id'} = _node_category_handling(%data);
        if (defined($existing->{'category_id'}) && $existing->{'category_id'} == 0) {
            $logger->error("Unable to modify node because specified category doesn't exist");
            return (0);
-       }   
+       }
        # once the category conversion is complete, I delete the category entry to avoid complicating things
        delete $existing->{'category'} if defined($existing->{'category'});
     }
@@ -711,12 +720,12 @@ sub node_modify {
     }
 
     db_query_execute(NODE, $node_statements, 'node_modify_sql',
-        $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip}, 
+        $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip},
         $existing->{bypass_vlan},
-        $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip}, 
-        $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint}, 
-        $existing->{last_arp}, $existing->{last_dhcp}, 
-        $existing->{notes}, 
+        $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip},
+        $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
+        $existing->{last_arp}, $existing->{last_dhcp},
+        $existing->{notes},
         $mac
     ) || return (0);
 
@@ -725,7 +734,7 @@ sub node_modify {
 
 sub node_register {
     my ( $mac, $pid, %info ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $mac = lc($mac);
     my $auto_registered = 0;
 
@@ -783,7 +792,7 @@ sub node_register {
 
 sub node_deregister {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %info;
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = 0;
@@ -796,13 +805,13 @@ sub node_deregister {
     }
 }
 
-=item * nodes_maintenance - handling deregistration on node expiration and node grace 
+=item * nodes_maintenance - handling deregistration on node expiration and node grace
 
 called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
 
 =cut
 sub nodes_maintenance {
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->debug("nodes_maintenance called");
 
@@ -861,7 +870,7 @@ sub node_expire_lastdhcp {
 
 sub node_cleanup {
     my ($time) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("calling node_cleanup with time=$time");
 
     foreach my $row ( node_expire_lastarp($time) ) {
@@ -899,7 +908,7 @@ out: void
 
 sub node_mac_wakeup {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # Is there a violation for the Vendor of this MAC?
     my $dec_oui = macoui2nb($mac);
@@ -929,10 +938,10 @@ in: mac address
 =cut
 sub is_node_voip {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->trace("Asked whether node $mac is a VoIP Device or not");
-    my $node_info = node_attributes($mac);   
+    my $node_info = node_attributes($mac);
     if ($node_info->{'voip'} eq $VOIP) {
         return $TRUE;
     } else {
@@ -949,10 +958,10 @@ in: mac address
 =cut
 sub is_node_registered {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     $logger->trace("Asked whether node $mac is registered or not");
-    my $node_info = node_attributes($mac);   
+    my $node_info = node_attributes($mac);
     if ($node_info->{'status'} eq $STATUS_REGISTERED) {
         return $TRUE;
     } else {
@@ -969,13 +978,13 @@ returns category_id, undef if no category was required or 0 if no category is fo
 =cut
 sub _node_category_handling {
     my (%data) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::node');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     if (defined($data{'category_id'})) {
         # category_id has priority over category
         if (!nodecategory_exist($data{'category_id'})) {
             $logger->debug("Unable to insert node because specified category doesn't exist: ".$data{'category_id'});
-            return 0; 
+            return 0;
         }
 
     # web node add will always push category="" so we need to explicitly ignore it
@@ -1010,7 +1019,7 @@ sub is_max_reg_nodes_reached {
     return $FALSE if ($pid eq $default_pid);
 
     my $nb_nodes_for_pid = node_pid($pid);
-    
+
     # per-category max node per pid limit
     if ( defined($category) ) {
 
