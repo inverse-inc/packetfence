@@ -29,6 +29,9 @@ Allow only authenticated users
 sub auto :Private {
     my ($self, $c, @args) = @_;
 
+    # Make sure the 'enforcements' session variable doesn't exist as it affects the Interface controller
+    delete $c->session->{'enforcements'};
+
     unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_exists()) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($c->action->name eq 'index') {
@@ -164,13 +167,9 @@ sub configuration :Local :PathPart('configuration') :Args() {
     $c->stash->{section} = $section;
 }
 
-=head1 AUTHOR
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

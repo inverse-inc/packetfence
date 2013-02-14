@@ -1,26 +1,14 @@
-function getStatusMsg(jqXHR) {
-    var status_msg;
-    try {
-        var obj = $.parseJSON(jqXHR.responseText);
-        status_msg = obj.status_msg;
-    }
-    catch(e) {}
-    if (!status_msg) status_msg = _("Cannot Load Content");
-    return status_msg;
-}
-
 /* Trigger a mouse click on the active sidebar navigation link */
-
 function activateNavLink() {
     var hash = location.hash;
     var found = false;
     if (hash && hash != '#') {
-        /*Find the longest match*/
-        /*Sort links by descending order by string length*/
+        // Find the longest match
+        // Sort links by descending order by string length
         $('.sidebar-nav .nav-list a').sort(function(a,b){
            return b.href.length - a.href.length ;
         })
-        /*Find the first link */
+        // Find the first link
         .filter(function(i,link) {
             if(false === found && hash.indexOf(link.hash) === 0) {
                 found = true;
@@ -29,7 +17,7 @@ function activateNavLink() {
             return false;
         }).trigger('click');
     }
-    else if(false === found ) {
+    else if (false === found) {
         $('.sidebar-nav .nav-list a').first().trigger('click');
     }
 }
@@ -54,6 +42,7 @@ function updateSection(ajax_data) {
                     section.find('.datepicker').datepicker({ autoclose: true });
                     section.find('.chzn-select').chosen();
                     section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                    section.find('.switch').bootstrapSwitch();
                     section.trigger('section.loaded');
                 })
                 .fail(function(jqXHR) {

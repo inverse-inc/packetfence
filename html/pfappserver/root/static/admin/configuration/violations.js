@@ -1,3 +1,4 @@
+$(function() { // DOM ready
     /* Show a violation */
     $('#section').on('click', '[href*="#modalViolation"]', function(event) {
         var modal = $('#modalViolation');
@@ -15,7 +16,7 @@
             })
             .done(function(data) {
                 modal.append(data);
-                $('.toggle-button').toggleButtons();
+                $('.switch').bootstrapSwitch();
                 $('.chzn-select').chosen();
                 $('.chzn-deselect').chosen({allow_single_deselect: true});
                 modal.modal('show');
@@ -163,3 +164,4 @@
 
         return false;
     });
+});

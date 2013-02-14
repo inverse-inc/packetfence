@@ -1,0 +1,17 @@
+<form name="modalCreateVlan" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('create'), [interface]) %]">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3><i>[% l('New VLAN for') %]</i> <span>[% interface %]</span></h3>
+  </div>
+  <div class="modal-body">
+    [% form.field('name').render_element %]
+    [% form.field('vlan').render %]
+    [% form.field('ipaddress').render %]
+    [% form.field('netmask').render %]
+    [% form.field('type').render %]
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Creating') %]">[% l('Create') %]</button>
+  </div>
+</form>

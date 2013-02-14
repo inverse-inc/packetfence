@@ -27,6 +27,10 @@ a.active {
     font-weight: normal;
     font-style: normal;
 }
+/* bootstrap fix for modals */
+.modal form, .modal select {
+    margin-bottom: 0px;
+}
 /* bootstrap.css extension to forms */
 .form-condensed .control-group {
     margin-bottom: 0px;
@@ -68,4 +72,8 @@ form .uneditable {
 }
 .dl-expanded dt, .dl-expanded dd {
     line-height: 27px;
+}
+/* specific to interfaces */
+#interfaces td span.label {
+    margin-left: 5px;
 }

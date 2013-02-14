@@ -367,17 +367,21 @@ sub read_interface_value {
     my ($self, $interface, $param) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    $logger->debug("interface $interface param $param requested");
+    my ($status, $result);
 
     my $pf_conf = $self->_load_conf();
     # Warning: autovivification causes interfaces to be created if the section
     # is not looked on her own first when the file is written later.
     if ( defined($pf_conf->{'interface '.$interface}) && defined($pf_conf->{'interface '.$interface}->{$param}) ) {
-        return ($STATUS::OK, $pf_conf->{'interface '.$interface}->{$param});
+        ($status, $result) = ($STATUS::OK, $pf_conf->{'interface '.$interface}->{$param});
+        $logger->debug("interface $interface param $param: $result");
     }
     else {
-        return ($STATUS::NOT_FOUND, "Unknown parameter $param under interface $interface");
+        ($status, $result) = ($STATUS::NOT_FOUND, "Unknown parameter $param under interface $interface");
+        $logger->debug($result);
     }
+
+    return ($status, $result);
 }
 
 =item delete_interface

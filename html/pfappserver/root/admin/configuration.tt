@@ -7,30 +7,28 @@
         'app/client/jquery-plugin',
         'app/chosen.jquery.min',
         'app/jquery.ba-hashchange',
-        'app/jquery.toggle.buttons',
+        'app/pf-bootstrap-swap-class',
         'admin/configuration',
+        'admin/configuration/interfaces',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
         'admin/configuration/users',
         'admin/configuration/violations',
         'admin/configuration/soh',
         'admin/configuration/roles',
-        'app/pf-bootstrap-swap-class'
+        'js/interface',
+        'js/bootstrapSwitch',
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
-        'app/bootstrap-toggle-buttons'
         'app/client/fineuploader',
+        'css/bootstrapSwitch',
         ] -%]
 
 <style type="text/css">
 .row-fluid [class*="span"] {
     display: inline-block;
-}
-/* bootstrap fix for modals */
-.modal form, .modal select {
-    margin-bottom: 0px;
 }
 /* enlarge modal of violation and user source rule */
 #modalViolation, #modalRule {
@@ -87,7 +85,7 @@ tr[data-swap] > td {
               <!--[% list_entry( 'node_import') %]-->
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
-              <li><a href="#">Interfaces</a></li>
+              [% list_entry('Configuration', 'interfaces', 'Interfaces') %]
               <li><a href="#">Networks</a></li>
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>

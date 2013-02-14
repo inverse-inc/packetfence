@@ -8,6 +8,9 @@
     <meta name="author" content="Inverse">
 
     <!-- Le styles -->
+[% FOREACH css = cssFiles -%]
+    <link rel="stylesheet" href="[% c.uri_for("/static/${css}.css") %]">
+[% END -%]
     <link href="[% c.uri_for('/static/css/bootstrap.css') %]" rel="stylesheet">
     <link href="[% c.uri_for('/static/app/application.css') %]" rel="stylesheet">
     <link href="[% c.uri_for('/static/configurator/common.css') %]" rel="stylesheet">
@@ -52,9 +55,11 @@
     <script src="[% c.uri_for('/static/app/jquery.js') %]"></script>
     <script src="[% c.uri_for('/static/app/jquery.json-2.3.min.js') %]"></script>
     <script src="[% c.uri_for('/static/js/bootstrap.js') %]"></script>
+[% FOREACH js = jsFiles -%]
+    <script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>
+[% END -%]
     <script src="[% c.uri_for('/static/app/application.js') %]"></script>
     <script src="[% c.uri_for('/static/configurator/common.js') %]"></script>
-    [% FOREACH js = jsFiles %]<script src="[% c.uri_for("/static/configurator/${js}.js") %]"></script>[% END %]
 
   </body>
 </html>

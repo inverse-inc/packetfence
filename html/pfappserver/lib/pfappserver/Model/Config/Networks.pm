@@ -93,7 +93,23 @@ sub delete {
     return ($STATUS::OK, $status_msg);
 }
 
-=item get_types
+=item getType
+
+=cut
+sub getType {
+    my ( $self, $network ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $type) = ($STATUS::NOT_FOUND);
+    # skip if we don't have a network address set
+    if (defined($network)) {
+        ($status, $type) = $self->read_value($network, 'type');
+    }
+
+    return ($status, $type);
+}
+
+=item getTypes
 
 Returns an hashref with
 
@@ -104,7 +120,7 @@ For example
     eth0 => vlan-isolation
 
 =cut
-sub get_types {
+sub getTypes {
     my ( $self, $interfaces_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
