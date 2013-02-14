@@ -20,8 +20,6 @@ use Readonly;
 
 General constants related to rules.
 
-=over
-
 =cut
 
 package Rules;
@@ -120,6 +118,10 @@ Readonly::Array our @ACTIONS =>
   );
 
 =back
+
+=head1 AUTHOR
+
+Ludovic Marcotte <lmarcotte@inverse.ca>
 
 =head1 COPYRIGHT
 

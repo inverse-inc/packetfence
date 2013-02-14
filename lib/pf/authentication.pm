@@ -6,6 +6,8 @@ pf::authentication
 
 =head1 DESCRIPTION
 
+=over
+
 =cut
 
 use strict;
@@ -74,7 +76,7 @@ my $logger = Log::Log4perl->get_logger('pf::authentication');
 
 readAuthenticationConfigFile();
 
-=head2 availableAuthenticationSourceTypes
+=item availableAuthenticationSourceTypes
 
 Return the list of source types, as defined in each of the class
 
@@ -96,7 +98,7 @@ sub availableAuthenticationSourceTypes {
            ];
 }
 
-=head2 newAuthenticationSource
+=item newAuthenticationSource
 
 Returns an instance of pf::Authentication::Source::* for the given type
 
@@ -177,7 +179,7 @@ sub newAuthenticationSource {
     return $source;
 }
 
-=head2 readAuthenticationConfigFile
+=item readAuthenticationConfigFile
 
 Populate @authentication_sources with object representations of the configuration file
 
@@ -237,7 +239,7 @@ sub readAuthenticationConfigFile {
     }
 }
 
-=head2 writeAuthenticationConfigFile
+=item writeAuthenticationConfigFile
 
 Write the configuration file to disk
 
@@ -303,7 +305,7 @@ sub writeAuthenticationConfigFile {
     tied(%ini)->WriteConfig( "$conf_dir/authentication.conf" );
 }
 
-=head2
+=item getAuthenticationSource
 
 Returns an instance of pf::Authentication::Source::* for the given id
 
@@ -326,7 +328,7 @@ sub getAuthenticationSource {
     return $result;
 }
 
-=head2 deleteAuthenticationSource
+=item deleteAuthenticationSource
 
 Delete an authentication source along its rules. Returns the number of source(s)
 deleted.
@@ -377,7 +379,7 @@ sub deleteAuthenticationSource {
 #   return undef;
 # }
 
-=head2 username_from_email
+=item username_from_email
 
 =cut
 sub username_from_email {
@@ -406,7 +408,7 @@ sub username_from_email {
 
 
 
-=head2 authenticate
+=item authenticate
 
 =cut
 
@@ -432,7 +434,7 @@ sub authenticate {
     return ($FALSE, 'Invalid username/password for all authentication sources.');
 }
 
-=head2 match
+=item match
 
 This method tries to match a set of params in a specific source. If source_id is
 undef, all sources will be tried. If action is undef, all actions will be returned.

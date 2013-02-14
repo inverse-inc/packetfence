@@ -42,6 +42,10 @@ sub is_fallback {
 
 =back
 
+=head1 AUTHOR
+
+Ludovic Marcotte <lmarcotte@inverse.ca>
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.
