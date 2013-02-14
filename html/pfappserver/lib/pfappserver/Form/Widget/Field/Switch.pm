@@ -19,7 +19,7 @@ sub render_element {
     $result ||= $self->result;
 
     my $checkbox_value = $self->checkbox_value;
-    my $output = qq[<div class="toggle-button">\n]
+    my $output = qq[<div class="switch">\n]
         . '<input type="checkbox" name="'
         . $self->html_name . '" id="' . $self->id . '" value="'
         . $self->html_filter($checkbox_value) . '"';
@@ -41,7 +41,7 @@ sub render {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -96,7 +96,7 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
 Set the next step with respect to the current action.
 
 =cut
-sub _next_step :Private {
+sub _next_step {
     my ( $self, $c ) = @_;
 
     my $i;
@@ -139,7 +139,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
     elsif (!exists($c->session->{enforcements})) {
         # Detect chosen mechanisms from networks.conf
         my $interfaces_ref = $c->model('Interface')->get('all');
-        my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($interfaces_ref);
+        my ($status, $interfaces_types) = $c->model('Config::Networks')->getTypes($interfaces_ref);
         if (is_success($status)) {
             # If some interfaces are associated to a type, find the corresponding mechanism
             my @active_types = values %{$interfaces_types};
@@ -177,24 +177,35 @@ Network interfaces (step 2)
 sub networks :Chained('object') :PathPart('networks') :Args(0) {
     my ( $self, $c ) = @_;
 
+    my $models =
+      {
+       'networks' => $c->model('Config::Networks'),
+       'pf' => $c->model('Config::Pf')
+      };
+
     if ($c->request->method eq 'POST') {
-        # Save parameters in user session
-        my $data = decode_json($c->request->params->{json});
-        $c->session(gateway => $data->{gateway},
-                    dns => $data->{dns});
-        $c->stash(interfaces_types => $data->{interfaces_types});
+        $c->stash->{current_view} = 'JSON';
+
+        # Gateway must be specified
+        my $gateway = $c->request->params->{gateway};
+        unless ($gateway) {
+            $c->response->status(HTTP_PRECONDITION_FAILED);
+            $c->stash->{status_msg} = $c->loc("You must specifiy a DNS address.");
+            delete $c->session->{completed}->{$c->action->name};
+            $c->detach();
+            return 0;
+        }
 
         # Make sure all types for each enforcement is assigned to an interface
         # TODO: Shall we ignore disabled interfaces?
-        my @selected_types = values %{$data->{interfaces_types}};
-        my %seen;
+        my $interfaces = $c->model('Interface')->get('all', $models);
+        my %selected_types = map { $interfaces->{$_}->{type} => 1 } keys %$interfaces;
         my @missing = ();
-        @seen{@selected_types} = ( ); # build lookup table
 
         foreach my $enforcement (keys %{$c->session->{enforcements}}) {
             my $types_ref = $c->model('Enforcement')->getAvailableTypes($enforcement);
             foreach my $type (@{$types_ref}) {
-                unless (exists $seen{$type} ||
+                unless (exists $selected_types{$type} ||
                         $type eq 'other' ||
                         grep {$_ eq $c->loc($type)} @missing) {
                     push(@missing, $c->loc($type));
@@ -208,180 +219,25 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
             delete $c->session->{completed}->{$c->action->name};
         }
         else {
-            # Step passed validation
-            $c->session->{completed}->{$c->action->name} = 1;
-        }
-        # TODO move IP validation to something provided by core (once in model I guess)
-# XXX needs to check each interfaces in a loop for inline
-#        elsif ($data->{interfaces_types}->{$interface} =~ /^inline$/i && $data->{dns} =~ /\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}/) {
-#            # DNS must be set if in inline enforcement
-#            $c->response->status(HTTP_PRECONDITION_FAILED);
-#            $c->stash->{status_msg} = $c->loc(
-#                "A valid DNS server must be provided for Inline enforcement. "
-#                . "If you are unsure you can always put in your ISP's DNS or a global DNS like 4.2.2.1."
-#            );
-#            delete $c->session->{completed}->{$c->action->name};
-#        }
-
-        # Update networks.conf and pf.conf
-        my $networksModel = $c->model('Config::Networks');
-        my $configModel = $c->model('Config::Pf');
-        foreach my $interface (keys %{$data->{interfaces_types}}) {
-            my $interface_ref = $c->model('Interface')->get($interface)->{$interface};
-
-            # we ignore interface type 'Other' (it basically means unsupported in configurator)
-            next if ( $data->{interfaces_types}->{$interface} =~ /^other$/i );
-
-            # we delete interface type 'None'
-            if ( $data->{interfaces_types}->{$interface} =~ /^none$/i ) {
-                $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
-                $configModel->delete_interface($interface) if ($configModel->exist_interface($interface));
-            }
-            # otherwise we update pf.conf and networks.conf
-            else {
-                # we willingly silently ignore errors if interface already exists
-                # TODO have a wrapper that does both?
-                $configModel->create_interface($interface);
-                $configModel->update_interface(
-                    $interface,
-                    $self->_prepare_interface_for_pfconf($interface, $interface_ref, $data->{interfaces_types}->{$interface})
-                );
-
-                # FIXME refactor that!
-                # and we must create a network portion for the following types
-                if ( $data->{interfaces_types}->{$interface} =~ /^vlan-isolation$|^vlan-registration$/i ) {
-                    $networksModel->create($interface_ref->{network});
-                    $networksModel->update(
-                        $interface_ref->{network}, {
-                            type => $data->{interfaces_types}->{$interface},
-                            netmask => $interface_ref->{'netmask'},
-                            # FIXME push these default values further down in the stack
-                            # (into pf::config, pf::services, etc.)
-                            gateway => $interface_ref->{'ipaddress'},
-                            dns => $interface_ref->{'ipaddress'},
-                            dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
-                            dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
-                            dhcp_default_lease_time => 30,
-                            dhcp_max_lease_time => 30,
-                            named => 'enabled',
-                            dhcpd => 'enabled',
-                        }
-                    );
-                }
-                elsif ( $data->{interfaces_types}->{$interface} =~ /^inline$/i ) {
-                    $networksModel->create($interface_ref->{network});
-                    $networksModel->update(
-                        $interface_ref->{network}, {
-                            type => $data->{interfaces_types}->{$interface},
-                            netmask => $interface_ref->{'netmask'},
-                            # FIXME push these default values further down in the stack 
-                            # (into pf::config, pf::services, etc.)
-                            gateway => $interface_ref->{'ipaddress'},
-                            dns => $data->{'dns'},
-                            dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
-                            dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
-                            dhcp_default_lease_time => 24 * 60 * 60,
-                            dhcp_max_lease_time => 24 * 60 * 60,
-                            named => 'enabled',
-                            dhcpd => 'enabled',
-                        }
-                    );
-                }
-                elsif ( $data->{interfaces_types}->{$interface} =~ /^management$/ ) {
-                    # management interfaces must not appear in networks.conf
-                    $networksModel->delete($interface_ref->{network}) if ($networksModel->exist($interface_ref->{network}));
-                }
-            }
-
             # Update the network interface configurations on system
-            $c->model('Config::System')->write_network_persistent($c->model('Interface')->get('all'),
-                                                                  $data->{'gateway'});
+            my ($status, $message) = $c->model('Config::System')->write_network_persistent($interfaces, $gateway);
+            if (is_error($status)) {
+                $c->response->status($status);
+                $c->stash->{status_msg} = $message;
+            }
+            else {
+                # Step passed validation
+                $c->session->{completed}->{$c->action->name} = 1;
+                $c->session->{gateway} = $gateway;
+            }
         }
-
-        $c->stash->{current_view} = 'JSON';
     }
     else {
         $c->session->{gateway} = $c->model('Config::System')->getDefaultGateway if (!defined($c->session->{gateway}));
 
-        my $interfaces_ref = $c->model('Interface')->get('all');
+        my $interfaces_ref = $c->model('Interface')->get('all', $models);
         $c->stash(interfaces => $interfaces_ref);
-        $c->stash(types => $c->model('Enforcement')->getAvailableTypes([ keys %{$c->session->{'enforcements'}} ]));
-        my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($interfaces_ref);
-        if (is_success($status)) {
-            $c->stash->{interfaces_types} = $self->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types);
-        }
-        # $c->stash(gateway => ?)
-        # $c->stash(dns => ?)
     }
-}
-
-=head2 _prepare_interface_for_pfconf
-
-Process parameters to build a proper pf.conf interface section.
-
-=cut
-# TODO push hardcoded strings as constants (or re-use core constants)
-# this might imply a rework of this out of the controller into the model
-sub _prepare_interface_for_pfconf :Private {
-    my ($self, $int, $int_model, $type) = @_;
-
-    my $int_config_ref = {
-        ip => $int_model->{'ipaddress'},
-        mask => $int_model->{'netmask'},
-    };
-
-    # logic to match our awkward relationship between pf.conf's type and 
-    # enforcement with networks.conf's type
-    if ($type =~ /^vlan/i) {
-        $int_config_ref->{'type'} = 'internal';
-        $int_config_ref->{'enforcement'} = 'vlan';
-    }
-    elsif ($type =~ /^inline$/i) {
-        $int_config_ref->{'type'} = 'internal';
-        $int_config_ref->{'enforcement'} = 'inline';
-    }
-    else {
-        # here we oversimplify a bit, type supports multivalues but it's 
-        # out of scope for now
-        $int_config_ref->{'type'} = $type;
-    }
-
-    return $int_config_ref;
-}
-
-=head2 _prepare_types_for_display
-
-Process pf.conf's interface type and enforcement and networks.conf's type 
-and present something that is friendly to the user.
-
-=cut
-# TODO push hardcoded strings as constants (or re-use core constants)
-# this might imply a rework of this out of the controller into the model
-sub _prepare_types_for_display :Private {
-    my ($self, $c, $interfaces_ref, $interfaces_types_ref) = @_;
-
-    my $display_int_types_ref;
-#$DB::single=1;
-    foreach my $interface (keys %$interfaces_ref) {
-        # if the interface is in interfaces_types then take that value
-        if (defined($interfaces_types_ref->{$interface})) {
-            $display_int_types_ref->{$interface} = $interfaces_types_ref->{$interface};
-        }
-        # if the interface is not defined in networks.conf
-        else {
-            my ($status, $type) = $c->model('Config::Pf')->read_interface_value($interface, 'type');
-            # if the interface is not defined in pf.conf
-            if ( is_error($status) ) {
-                $type = 'none';
-            }
-            # rely on pf.conf's info
-            else {
-                $type = ($type =~ /management|managed/i) ? 'management' : 'other';
-            }
-            $display_int_types_ref->{$interface} = $type;
-        }
-    }
-    return $display_int_types_ref;
 }
 
 =head2 database
@@ -625,15 +481,9 @@ sub reset_password :Path('reset_password') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -43,7 +43,7 @@ sub create {
     if ( is_success($status) ) {
         $status_msg = "Interface VLAN $interface already exists";
         $logger->warn($status_msg);
-        return ($STATUS::PRECONDITION_FAILED, $status_msg);
+        return ($STATUS::OK, $status_msg);
     }
 
     my ($physical_interface, $vlan_id) = split( /\./, $interface );
@@ -69,7 +69,7 @@ sub create {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::OK, "Interface VLAN $interface successfully created");
+    return ($STATUS::CREATED, "Interface VLAN $interface successfully created");
 }
 
 =item delete
@@ -179,14 +179,87 @@ sub down {
     return ($STATUS::OK, "Interface $interface successfully disabled");
 }
 
-=item edit
+=item exists
 
 =cut
-sub edit {
-    my ( $self, $networksModel, $interface, $ipaddress, $netmask ) = @_;
+sub exists {
+    my ( $self, $interface ) = @_;
+
+    return ($STATUS::OK, "Interface $interface exists") if grep( /$interface/, $self->_listInterfaces() );
+
+    return ($STATUS::NOT_FOUND, "Interface $interface does not exists");
+}
+
+=item get
+
+Returns an hashref with:
+
+    $interface => {
+        name       => physical int (eth0 even if in a VLAN int)
+        ipaddress  => ...
+        netmask    => ...
+        running    => true / false value
+        network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
+        hwaddress  => mac address
+        type       => enforcement type (see Enforcement model)
+    # and optionnally:
+        vlan       => vlan tag
+        dns        => network dns
+    }
+
+Where $interface is physical interface if there's no VLAN interface (eth0)
+and phy.vlan (eth0.100) if there's a vlan interface.
+
+=cut
+sub get {
+    my ( $self, $interface, $models ) = @_;
+
+    # Put requested interfaces into an array
+    my @interfaces;
+    if ( $interface eq 'all' ) {
+        @interfaces = $self->_listInterfaces();
+    } else {
+        @interfaces = (IO::Interface::Simple->new($interface));
+    }
+
+    my $result = {};
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    foreach $interface ( @interfaces ) {
+        next if ( "$interface" eq "lo" );
+
+        $result->{"$interface"} = {};
+        $result->{"$interface"}->{'name'}       = "$interface";
+        $result->{"$interface"}->{'ipaddress'}  = $interface->address;
+        $result->{"$interface"}->{'netmask'}    = $interface->netmask;
+        $result->{"$interface"}->{'running'}    = $interface->is_running;
+        if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
+          $result->{"$interface"}->{'name'}     = $physical_device;
+          $result->{"$interface"}->{'vlan'}     = $vlan_id;
+        }
+        $result->{"$interface"}->{'hwaddress'}  = $interface->hwaddr;
+        $result->{"$interface"}->{'network'}    = $self->_get_network_address($interface->address, $interface->netmask);
+        my ($status, $dns)                      = $models->{networks}->read_value($result->{"$interface"}->{'network'}, 'dns');
+        if (is_success($status)) {
+            $result->{"$interface"}->{'dns'}    = $dns;
+        }
+        $result->{"$interface"}->{'type'}       = $self->getType($interface, $result->{"$interface"}, $models);
+    }
+
+    return $result;
+}
+
+=item update
+
+=cut
+sub update {
+    my ( $self, $interface, $interface_ref, $models ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status, $status_msg);
+    my ($ipaddress, $netmask, $status, $status_msg);
+
+    $interface_ref->{netmask} = '255.255.255.0' unless ($interface_ref->{netmask});
+    $ipaddress = $interface_ref->{ipaddress};
+    $netmask = $interface_ref->{netmask};
 
     # This method does not handle the 'all' interface neither the 'lo' one
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
@@ -205,15 +278,16 @@ sub edit {
     # Check if the network has changed
     my $network = $self->_get_network_address($interface_object->address, $interface_object->netmask);
     my $new_network = $self->_get_network_address($ipaddress, $netmask);
-    if ($network ne $new_network) {
-        $networksModel->update_network($network, $new_network);
+    if ($network && $network ne $new_network) {
+        $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
+        $models->{networks}->update_network($network, $new_network);
     }
 
     # Edit IP address
     eval { $status = $interface_object->address($ipaddress) };
     if ( $@ || !$status ) {
         $status_msg = "Error in IP address $ipaddress while editing interface $interface";
-        $logger->error($status_msg);
+        $logger->error("$status_msg: $@");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
@@ -225,70 +299,139 @@ sub edit {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
+    # Set type
+    $interface_ref->{network} = $new_network;
+    $self->setType($interface_ref, $models);
+
     return ($STATUS::OK, "Interface $interface successfully edited");
 }
 
-=item exists
+=item isActive
 
 =cut
-sub exists {
+sub isActive {
     my ( $self, $interface ) = @_;
 
-    return ($STATUS::OK, "") if ( $interface eq 'all' );
-
-    return ($STATUS::OK, "Interface $interface exists") if grep( /$interface/, $self->_listInterfaces() );
-
-    return ($STATUS::NOT_FOUND, "Interface $interface does not exists");
-}
-
-=item get
-
-Returns an hashref with:
-
-    $interface => {
-        name       => physical int (eth0 even if in a VLAN int)
-        ipaddress  => ...
-        netmask    => ...
-        running    => true / false value
-        network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
-        hwaddress  => mac address
-    # and optionnally:
-        vlan       => vlan tag
-    }
-
-Where $interface is physical interface if there's no VLAN interface (eth0)
-and phy.vlan (eth0.100) if there's a vlan interface.
-
-=cut
-sub get {
-    my ( $self, $interface ) = @_;
-
-    # Put requested interfaces into an array
     my @interfaces;
     if ( $interface eq 'all' ) {
         @interfaces = $self->_listInterfaces();
     } else {
         @interfaces = (IO::Interface::Simple->new($interface));
     }
+    my %status = map { ($_->name eq 'lo') ? () : ($_->name => $_->is_running) } @interfaces;
 
-    my $result = {};
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    foreach $interface ( @interfaces ) {
-        next if ( "$interface" eq "lo" );
+    return \%status;
+}
 
-        $result->{"$interface"}->{'name'}       = "$interface";
-        $result->{"$interface"}->{'ipaddress'}  = $interface->address;
-        $result->{"$interface"}->{'netmask'}    = $interface->netmask;
-        $result->{"$interface"}->{'running'}    = $interface->is_running;
-        if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
-          $result->{"$interface"}->{'name'}     = $physical_device;
-          $result->{"$interface"}->{'vlan'}     = $vlan_id;
+=item getType
+
+=cut
+sub getType {
+    my ( $self, $interface, $interface_ref, $models ) = @_;
+
+    my ($status, $type);
+    if ($interface_ref->{'network'}) {
+        # Check in networks.conf
+        ($status, $type) = $models->{networks}->getType($interface_ref->{network});
+        if ( is_error($status) ) {
+            $type = undef;
         }
-        $result->{"$interface"}->{'network'}    = $self->_get_network_address($interface->address, $interface->netmask);
-        $result->{"$interface"}->{'hwaddress'}  = $interface->hwaddr;
+    }
+    unless ($type) {
+        # Check in pf.conf
+        ($status, $type) = $models->{pf}->read_interface_value($interface, 'type');
+
+        # if the interface is not defined in pf.conf
+        if ( is_error($status) ) {
+            $type = 'none';
+        }
+        # rely on pf.conf's info
+        else {
+            $type = ($type =~ /management|managed/i) ? 'management' : 'other';
+        }
     }
 
-    return $result;
+    return $type;
+}
+
+=item setType
+
+ Update networks.conf and pf.conf
+
+=cut
+sub setType {
+    my ( $self, $interface_ref, $models ) = @_;
+
+    my $interface = $interface_ref->{name};
+    my $type = $interface_ref->{type} || 'none';
+
+    # we ignore interface type 'Other' (it basically means unsupported in configurator)
+    return if ( $type =~ /^other$/i );
+
+    # we delete interface type 'None'
+    if ( $type =~ /^none$/i ) {
+        if ($models->{networks}->exist($interface_ref->{network})) {
+            $models->{networks}->delete($interface_ref->{network});
+        }
+        if ($models->{pf}->exist_interface($interface)) {
+            $models->{pf}->delete_interface($interface);
+        }
+    }
+    # otherwise we update pf.conf and networks.conf
+    else {
+        # we willingly silently ignore errors if interface already exists
+        # TODO have a wrapper that does both?
+        $models->{pf}->create_interface($interface);
+        $models->{pf}->update_interface($interface,
+                                        $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
+
+        # FIXME refactor that!
+        # and we must create a network portion for the following types
+        if ( $type =~ /^vlan-isolation$|^vlan-registration$/i ) {
+            $models->{networks}->create($interface_ref->{network});
+            $models->{networks}->update($interface_ref->{network},
+                                        {
+                                         type => $type,
+                                         netmask => $interface_ref->{'netmask'},
+                                         # FIXME push these default values further down in the stack
+                                         # (into pf::config, pf::services, etc.)
+                                         gateway => $interface_ref->{'ipaddress'},
+                                         dns => $interface_ref->{'ipaddress'},
+                                         dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                                         dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                                         dhcp_default_lease_time => 30,
+                                         dhcp_max_lease_time => 30,
+                                         named => 'enabled',
+                                         dhcpd => 'enabled',
+                                        }
+                                       );
+        }
+        elsif ( $type =~ /^inline$/i ) {
+            $models->{networks}->create($interface_ref->{network});
+            $models->{networks}->update($interface_ref->{network},
+                                        {
+                                         type => $type,
+                                         netmask => $interface_ref->{'netmask'},
+                                         # FIXME push these default values further down in the stack
+                                         # (into pf::config, pf::services, etc.)
+                                         gateway => $interface_ref->{'ipaddress'},
+                                         dns => $interface_ref->{'dns'},
+                                         dhcp_start => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10),
+                                         dhcp_end => Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10),
+                                         dhcp_default_lease_time => 24 * 60 * 60,
+                                         dhcp_max_lease_time => 24 * 60 * 60,
+                                         named => 'enabled',
+                                         dhcpd => 'enabled',
+                                        }
+                                       );
+        }
+        elsif ( $type =~ /^management$/ ) {
+            # management interfaces must not appear in networks.conf
+            if ($models->{networks}->exist($interface_ref->{network})) {
+                $models->{networks}->delete($interface_ref->{network});
+            }
+        }
+    }
 }
 
 =item _get_network_address
@@ -324,9 +467,9 @@ sub _interfaceActive {
 sub _interfaceCurrentlyInUse {
     my ( $self, $interface, $host ) = @_;
 
-    my $interface_ref = $self->get($interface);
+    my $interface_object = IO::Interface::Simple->new($interface);
 
-    if ( $interface_ref->{$interface}->{'ipaddress'} =~ $host ) {
+    if ( $interface_object->address =~ $host ) {
         return 1;
     }
 
@@ -358,6 +501,40 @@ sub _listInterfaces {
     my @interfaces_list = IO::Interface::Simple->interfaces;
 
     return @interfaces_list;
+}
+
+=head2 _prepare_interface_for_pfconf
+
+Process parameters to build a proper pf.conf interface section.
+
+=cut
+# TODO push hardcoded strings as constants (or re-use core constants)
+# this might imply a rework of this out of the controller into the model
+sub _prepare_interface_for_pfconf {
+    my ($self, $int, $int_model, $type) = @_;
+
+    my $int_config_ref = {
+        ip => $int_model->{'ipaddress'},
+        mask => $int_model->{'netmask'},
+    };
+
+    # logic to match our awkward relationship between pf.conf's type and
+    # enforcement with networks.conf's type
+    if ($type =~ /^vlan/i) {
+        $int_config_ref->{'type'} = 'internal';
+        $int_config_ref->{'enforcement'} = 'vlan';
+    }
+    elsif ($type =~ /^inline$/i) {
+        $int_config_ref->{'type'} = 'internal';
+        $int_config_ref->{'enforcement'} = 'inline';
+    }
+    else {
+        # here we oversimplify a bit, type supports multivalues but it's
+        # out of scope for now
+        $int_config_ref->{'type'} = $type;
+    }
+
+    return $int_config_ref;
 }
 
 =item up
@@ -415,15 +592,9 @@ sub up {
 
 =back
 
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -25,6 +25,9 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 
+use pfappserver::Form::Interface;
+use pfappserver::Form::Interface::Create;
+
 BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 METHODS
@@ -44,21 +47,55 @@ sub begin :Private {
 
 =item create
 
-Create a vlan interface
+Create an interface vlan
 
-Usage: /interface/create/<logical_name>
+Usage: /interface/<logical_name>/create
 
 =cut
-sub create :Path('create') :Args(1) {
-    my ( $self, $c, $interface ) = @_;
+sub create :Chained('object') :PathPart('create') :Args(0) {
+    my ( $self, $c ) = @_;
 
-    my ($status, $status_msg) = $c->model('Interface')->create($interface);
+    my $mechanism = 'all';
+    if ($c->session->{'enforcements'}) {
+        $mechanism = [ keys %{$c->session->{'enforcements'}} ];
+    }
+    my $types = $c->model('Enforcement')->getAvailableTypes($mechanism);
 
-    if ( is_success($status) ) {
-        $c->stash->{status_msg} = $status_msg;
-    } else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $status_msg;
+    my ($status, $result, $form);
+
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::Interface::Create->new(ctx => $c, types => $types);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors; # translated by the form
+        }
+        else {
+            my $data = $form->value;
+            my $interface = $c->stash->{interface} . "." . $data->{vlan};
+            ($status, $result) = $c->model('Interface')->create($interface);
+            if (is_success($status)) {
+                my $models =
+                  {
+                   'networks' => $c->model('Config::Networks'),
+                   'pf' => $c->model('Config::Pf')
+                  };
+                ($status, $result) = $c->model('Interface')->update($interface, $data, $models);
+            }
+
+            $c->response->status($status);
+            $c->stash->{status_msg} = $result;
+        }
+    }
+    else {
+        $form = pfappserver::Form::Interface::Create->new(ctx => $c,
+                                                          types => $types,
+                                                          init_object => { name => $c->stash->{interface} });
+        $form->process();
+        $c->stash->{form} = $form;
+
+        $c->stash->{template} = 'interface/create.tt';
+        $c->stash->{current_view} = 'HTML';
     }
 }
 
@@ -102,69 +139,117 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
     }
+
+    # Return the interfaces status in the response
+    my $interfaces = $c->model('Interface')->isActive('all');
+    $c->stash->{interfaces} = $interfaces;
 }
 
-=item edit
+sub read :Chained('object') :ParthPart('read') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    # Retrieve interface definition
+    my $models =
+      {
+       'networks' => $c->model('Config::Networks'),
+       'pf' => $c->model('Config::Pf')
+      };
+    my $interface = $c->stash->{interface};
+    my $interface_ref = $c->model('Interface')->get($interface, $models);
+    $interface_ref->{$interface}->{name} = $interface;
+
+    # Retrieve available enforcement types
+    my $mechanism = 'all';
+    if ($c->session->{'enforcements'}) {
+        $mechanism = [ keys %{$c->session->{'enforcements'}} ];
+    }
+    my $interfaces = $c->model('Interface')->get('all', $models);
+    my $types = $c->model('Enforcement')->getAvailableTypes($mechanism, $interface, $interfaces);
+
+    # Build form
+    my $form = pfappserver::Form::Interface->new(ctx => $c,
+                                                 types => $types,
+                                                 init_object => $interface_ref->{$interface});
+    $form->process();
+    $c->stash->{form} = $form;
+
+    $c->stash->{current_view} = 'HTML';
+}
+
+=item update
 
 Edit the configuration of the selected network interface
 
-Usage: /interface/<logical_name>/edit/<IP_address>/<netmask>
+Usage: /interface/<logical_name>/update/<IP_address>/<netmask>
 
 =cut
-sub edit :Chained('object') :PathPart('edit') :Args(2) {
-    my ( $self, $c, $ipaddress, $netmask ) = @_;
-
-    my $interface = $c->stash->{interface};
-    my ($status, $status_msg) = $c->model('Interface')->edit($c->model('Config::Networks'), $interface, $ipaddress, $netmask);
-
-    if ( is_success($status) ) {
-        $c->stash->{status_msg} = $status_msg;
-    } else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $status_msg;
-    }
-}
-
-=item get
-
-Retrieve the configuration of the selected network interface(s)
-
-Usage: /interface/<logical_name>/get
-
-=cut
-sub get :Chained('object') :PathPart('get') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $interface = $c->stash->{interface};
+    my ($status, $result, $form);
+    my $models =
+      {
+       'networks' => $c->model('Config::Networks'),
+       'pf' => $c->model('Config::Pf')
+      };
 
-    my $interfaces_ref = $c->model('Interface')->get($interface);
-    $c->stash->{interfaces} = $interfaces_ref;
-    $c->stash(types => $c->model('Enforcement')->getAvailableTypes([ keys %{$c->session->{'enforcements'}} ]));
-    my ($status, $interfaces_types) = $c->model('Config::Networks')->get_types($c->stash->{interfaces});
-    if (is_success($status)) {
-        my $configuratorController = $c->controller('Configurator');
-        $c->stash(interfaces_types => $configuratorController->_prepare_types_for_display($c, $interfaces_ref, $interfaces_types));
+    if ($c->request->method eq 'POST') {
+        # Fetch valid types for enforcement mechanism
+        my $mechanism = 'all';
+        if ($c->session->{'enforcements'}) {
+            $mechanism = [ keys %{$c->session->{'enforcements'}} ];
+        }
+        my $types = $c->model('Enforcement')->getAvailableTypes($mechanism);
+
+        # Validate form
+        $form = pfappserver::Form::Interface->new(ctx => $c, types => $types);
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors; # translated by the form
+        }
+        else {
+            # Update interface
+            my $data = $form->value;
+            ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data, $models);
+            $result = $c->loc($result);
+        }
+        if (is_error($status)) {
+            $c->response->status($status);
+        }
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
     }
-    $c->stash->{current_view} = 'HTML';
+    else {
+        $c->stash->{template} = 'interface/read.tt';
+        $c->forward('read');
+    }
 }
 
 =item index
 
 =cut
-sub index :Path :Args(0) {
+sub index :Local :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->response->redirect($c->uri_for($self->action_for('list')));
+    $c->stash->{template} = 'interface/index.tt';
+    $c->visit('list');
 }
 
 =item list
 
 =cut
-sub list :Path('list') Args(0) {
-#sub list :Chained('object') :PathPart('list') :Args(0) {
+sub list :Local :Args(0) {
     my ( $self, $c ) = @_;
 
-    $c->visit('get', ['all'], ['get']);
+    my $models =
+      {
+       'networks' => $c->model('Config::Networks'),
+       'pf' => $c->model('Config::Pf')
+      };
+    $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
+
+    $c->stash->{current_view} = 'HTML';
 }
 
 =item object
@@ -175,25 +260,20 @@ Interface controller dispatcher
 sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     my ( $self, $c, $interface ) = @_;
 
-    $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
-    if( $c->stash->{installation_type} eq 'configuration' ) {
-        my $admin_ip    = $c->model('PfConfigAdapter')->getWebAdminIp();
-        my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
-        $c->log->info("Redirecting to admin interface https://$admin_ip:$admin_port");
-        $c->response->redirect("https://$admin_ip:$admin_port");
-    }
-
     my ($status, $status_msg) = $c->model('Interface')->exists($interface);
-    unless ( is_success($status) ) {
+    if (is_error($status)) {
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
 
         $c->response->redirect($c->uri_for($self->action_for('list')));
-
         $c->detach();
     }
 
     $c->stash->{interface} = $interface;
+    if ((my ($name, $vlan) = split(/\./, $interface))) {
+        $c->stash->{name} = $name;
+        $c->stash->{vlan} = $vlan;
+    }
 }
 
 =item up
@@ -215,17 +295,17 @@ sub up :Chained('object') :PathPart('up') :Args(0) {
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
     }
+
+    # Return the interfaces status in the response
+    my $interfaces = $c->model('Interface')->isActive('all');
+    $c->stash->{interfaces} = $interfaces;
 }
 
 =back
 
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,17 @@
+<form name="modalEditInterface" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('update'), [interface]) %]">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a> 
+    <h3>[% interface %][% IF vlan %] <span class="label">vlan [% vlan %]</span>[% END %]</h3>
+  </div>
+  <div class="modal-body">
+    [% form.field('name').render_element %]
+    [% form.field('ipaddress').render %]
+    [% form.field('netmask').render %]
+    [% form.field('type').render %]
+    [% form.field('dns').render %]
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+  </div>
+</form>

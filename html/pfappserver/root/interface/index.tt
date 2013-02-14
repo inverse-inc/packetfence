@@ -1,0 +1,3 @@
+<h2>[% l('Interfaces') %]</h2>
+
+[% INCLUDE interface/list.tt %]

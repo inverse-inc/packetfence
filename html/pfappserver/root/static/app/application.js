@@ -62,8 +62,19 @@ $(function () {
     });
 });
 
+function getStatusMsg(jqXHR) {
+    var status_msg;
+    try {
+        var obj = $.parseJSON(jqXHR.responseText);
+        status_msg = obj.status_msg;
+    }
+    catch(e) {}
+    if (!status_msg) status_msg = _("Cannot Load Content");
+    return status_msg;
+}
+
 function resetAlert(parent) {
-    parent.children('.alert').hide('fast', function() { $(this).remove(); }); //slideUp('fast', function() { $(this).remove(); });
+    parent.children('.alert').clearQueue().remove();
     parent.children('.error').removeClass('error');
 }
 
