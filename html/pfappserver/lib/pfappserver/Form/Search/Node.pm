@@ -17,15 +17,19 @@ extends 'pfappserver::Base::Form::Base';
 # Form fields
 has_field 'start' =>
   (
-   type => 'Text',
+   type => 'DatePicker',
   );
 has_field 'end' =>
   (
-   type => 'Text',
+   type => 'DatePicker',
   );
 has_field 'all_or_any' =>
   (
-   type => 'Text',
+   type => 'Select',
+   options => [
+    { value => 'all', label => 'All' },
+    { value => 'any', label => 'Any' },
+   ]
   );
 
 has_field 'searches' =>
