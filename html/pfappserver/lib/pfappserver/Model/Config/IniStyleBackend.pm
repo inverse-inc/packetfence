@@ -229,7 +229,7 @@ sub readConfig {
     # Put the config tied hash into CHI cache
     $cache->set('timestamp', time);
     $cache->set_multi(\%config);
-    $logger->info("Config file $self->{config_file} has been read and put into " . $self->_getName . " cache.");
+    $logger->debug("Config file $self->{config_file} has been read and put into " . $self->_getName . " cache.");
 }
 
 =item createItem

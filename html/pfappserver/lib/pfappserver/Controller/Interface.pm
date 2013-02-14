@@ -45,6 +45,57 @@ sub begin :Private {
     $c->stash->{current_view} = 'JSON';
 }
 
+=item index
+
+=cut
+sub index :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{template} = 'interface/index.tt';
+    $c->visit('list');
+}
+
+=item list
+
+=cut
+sub list :Local :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $models =
+      {
+       'networks' => $c->model('Config::Networks'),
+       'pf' => $c->model('Config::Pf')
+      };
+    $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
+
+    $c->stash->{current_view} = 'HTML';
+}
+
+
+=item object
+
+Interface controller dispatcher
+
+=cut
+sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
+    my ( $self, $c, $interface ) = @_;
+
+    my ($status, $status_msg) = $c->model('Interface')->exists($interface);
+    if (is_error($status)) {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $status_msg;
+
+        $c->response->redirect($c->uri_for($self->action_for('list')));
+        $c->detach();
+    }
+
+    $c->stash->{interface} = $interface;
+    if ((my ($name, $vlan) = split(/\./, $interface))) {
+        $c->stash->{name} = $name;
+        $c->stash->{vlan} = $vlan;
+    }
+}
+
 =item create
 
 Create an interface vlan
@@ -84,7 +135,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
             }
 
             $c->response->status($status);
-            $c->stash->{status_msg} = $result;
+            $c->stash->{status_msg} = $c->loc($result);
         }
     }
     else {
@@ -223,56 +274,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     else {
         $c->stash->{template} = 'interface/read.tt';
         $c->forward('read');
-    }
-}
-
-=item index
-
-=cut
-sub index :Local :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->stash->{template} = 'interface/index.tt';
-    $c->visit('list');
-}
-
-=item list
-
-=cut
-sub list :Local :Args(0) {
-    my ( $self, $c ) = @_;
-
-    my $models =
-      {
-       'networks' => $c->model('Config::Networks'),
-       'pf' => $c->model('Config::Pf')
-      };
-    $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
-
-    $c->stash->{current_view} = 'HTML';
-}
-
-=item object
-
-Interface controller dispatcher
-
-=cut
-sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
-    my ( $self, $c, $interface ) = @_;
-
-    my ($status, $status_msg) = $c->model('Interface')->exists($interface);
-    if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $status_msg;
-
-        $c->response->redirect($c->uri_for($self->action_for('list')));
-        $c->detach();
-    }
-
-    $c->stash->{interface} = $interface;
-    if ((my ($name, $vlan) = split(/\./, $interface))) {
-        $c->stash->{name} = $name;
-        $c->stash->{vlan} = $vlan;
     }
 }
 
