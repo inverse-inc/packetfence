@@ -36,29 +36,29 @@ sub available_attributes {
 sub authenticate {
 
   my ( $self, $username, $password ) = @_;
-  
+
   my $logger = Log::Log4perl->get_logger('pf::authentication');
 
   my $radius = new Authen::Radius(
- 				  Host => "$self->{'host'}:$self->{'port'}", 
- 				  Secret => $self->{'secret'},
- 				 );
-  
+    Host => "$self->{'host'}:$self->{'port'}", 
+    Secret => $self->{'secret'},
+  );
+
   if (defined $radius) {
      my $result = $radius->check_pwd($username, $password);
-    
+
      if (Authen::Radius::get_error() eq 'ENONE') {
-      
+
        if ($result) {
- 	return ($TRUE, 'Successful authentication using RADIUS.');
+        return ($TRUE, 'Successful authentication using RADIUS.');
       } else {
- 	return ($FALSE, 'Invalid login or password');
+        return ($FALSE, 'Invalid login or password');
        }
      }
    }
 
    $logger->error("Unable to perform RADIUS authentication on any server: " . Authen::Radius::get_error() );
-  
+
    return ($FALSE, 'Unable to authenticate successfully using RADIUS.');
  }
 

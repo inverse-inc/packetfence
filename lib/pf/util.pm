@@ -281,7 +281,7 @@ sub trappable_mac {
     $mac = clean_mac($mac);
 
     if ( !valid_mac($mac)
-	 || grep( { $_ eq $mac } get_internal_macs() ) )
+        || grep( { $_ eq $mac } get_internal_macs() ) )
     {
         $logger->info("$mac is not trappable, skipping");
         return (0);

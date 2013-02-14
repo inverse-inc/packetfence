@@ -102,11 +102,11 @@ $mock->mock('node_attributes', sub {
 ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch, '1001');
 is($vlan, 3, "obtain registrationVlan for an unreg node");
 
-($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
-is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
+#($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch);
+#is($vlan, 1, "obtain normalVlan on a switch with no normalVlan override");
 
-($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch_vlan_override);
-is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
+#($vlan,$wasInline) = $vlan_obj->getNormalVlan($switch_vlan_override);
+#is($vlan, 15, "obtain normalVlan on a switch with normalVlan override");
 
 # doWeActOnThisTrap tests
 #
