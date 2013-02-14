@@ -184,16 +184,6 @@ sub network :Local {
     $self->_process_section($c);
 }
 
-=head2 proxies
-
-=cut
-
-sub proxies :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
 =head2 trapping
 
 =cut
@@ -224,21 +214,11 @@ sub guests_self_registration :Local {
     $self->_process_section($c);
 }
 
-=head2 guests_admin_registration
+=head2 billing
 
 =cut
 
-sub guests_admin_registration :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 passthroughs
-
-=cut
-
-sub passthroughs :Local {
+sub billing :Local {
     my ($self, $c) = @_;
 
     $self->_process_section($c);
@@ -254,31 +234,11 @@ sub alerting :Local {
     $self->_process_section($c);
 }
 
-=head2 ports
-
-=cut
-
-sub ports :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
 =head2 scan
 
 =cut
 
 sub scan :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 database
-
-=cut
-
-sub database :Local {
     my ($self, $c) = @_;
 
     $self->_process_section($c);
@@ -364,24 +324,14 @@ sub provisioning :Local {
     $self->_process_section($c);
 }
 
-=head2 billing
+=head2 interfaces
 
 =cut
 
-sub billing :Local {
+sub interfaces :Local {
     my ($self, $c) = @_;
 
-    $self->_process_section($c);
-}
-
-=head2 node_import
-
-=cut
-
-sub node_import :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
+    $c->forward('Controller::Interface', 'index');
 }
 
 =head2 authentication
@@ -468,7 +418,7 @@ sub roles :Local {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

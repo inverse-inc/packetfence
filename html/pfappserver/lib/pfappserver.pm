@@ -120,7 +120,7 @@ $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 
 # pfappserver::Model::Config::IniStyleBackend initialization
 after setup_finalize => sub {
-    __PACKAGE__->log->info("==== READING CONFIGURATION FILES ====");
+    __PACKAGE__->log->debug("==== READING CONFIGURATION FILES ====");
     foreach my $module (pfappserver::Model::Config::IniStyleBackend->getConfigurationModules) {
         my $module_path = 'pfappserver::Model::Config::' . $module;
         try {
@@ -131,7 +131,7 @@ after setup_finalize => sub {
             __PACKAGE__->log->error("Told to load module $module but this one does not seems to exist. Passing by...");
         };
     }
-    __PACKAGE__->log->info("==== FINISH READING CONFIGURATION FILES ====");
+    __PACKAGE__->log->debug("==== FINISH READING CONFIGURATION FILES ====");
 };
 
 # Start the application

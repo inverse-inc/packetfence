@@ -75,11 +75,12 @@ sub create :Local {
         else {
             my $data = $form->value;
             ($status, $result) = $c->model('Roles')->create($data->{name}, $data->{max_nodes_per_pid}, $data->{notes});
+            $result = $c->loc($result);
         }
 
         if (is_error($status)) {
             $c->response->status($status);
-            $c->stash->{status_msg} = $result; # TODO: localize error message
+            $c->stash->{status_msg} = $result;
         }
         $c->stash->{current_view} = 'JSON';
     }
@@ -104,7 +105,7 @@ sub object :Chained('/') :PathPart('roles') :CaptureArgs(1) {
     }
     else {
         $c->response->status($status);
-        $c->stash->{status_msg} = $result;
+        $c->stash->{status_msg} = $c->loc($result);
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
