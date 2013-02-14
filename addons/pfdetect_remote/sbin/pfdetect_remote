@@ -2,15 +2,17 @@
 
 =head1 NAME
 
-pfdetect-remote - listen to snort alerts and send them to PF server
+pfdetect-remote - listen to violations alerts and send them to PF server
 
 =head1 SYNOPSIS
 
-pfdetect -p <snortpipe> [options]
+pfdetect -p <file | named pipe> -i <IDS>  [options]
 
   Options:
     -d  Daemonize
     -h  Help
+
+  IDS is one of : snort, tippingp or trend
 
 =cut
 
@@ -27,177 +29,266 @@ use Pod::Usage;
 use strict;
 use warnings;
 
-POSIX::sigaction(&POSIX::SIGHUP,
-  POSIX::SigAction->new(
-                        'restart_handler',
-                        POSIX::SigSet->new(),
-                        &POSIX::SA_NODEFER
-                       )
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'restart_handler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
 ) or die "pfdetect_remote: could not set SIGHUP handler: $!\n";
 
-POSIX::sigaction(&POSIX::SIGTERM,
-  POSIX::SigAction->new(
-                        'normal_sighandler',
-                        POSIX::SigSet->new(),
-                        &POSIX::SA_NODEFER
-                       )
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
 ) or die "pfdetect_remote: could not set SIGTERM handler: $!\n";
 
-POSIX::sigaction(&POSIX::SIGINT,
-  POSIX::SigAction->new(
-                        'normal_sighandler',
-                        POSIX::SigSet->new(),
-                        &POSIX::SA_NODEFER
-                       )
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
 ) or die "pfdetect_remote: could not set SIGINT handler: $!\n";
-
 
 my $install_dir = '/usr/local/pf';
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts('dhvp:', \%args);
+getopts( 'dhvpi:', \%args );
 
-pod2usage( -verbose => 1 ) if ($args{h} || !$args{p});
+pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
 
 my $daemonize = $args{d};
-my $snortpipe = $args{p};
+my $input     = $args{p};    # input can be from either a logfile or a pipe
+my $IDS       = $args{i};  # one of snort, tippingp, trend etc.
 my $script    = File::Basename::basename($0);
-my $portscan_sid = 1200003;
 
-my ($sid, $descr, $date, $srcmac, $srcip, $dstip);
 
 daemonize() if ($daemonize);
 
-openlog("pfdetect_remote",'','auth');
-syslog("info", "initialized");
+openlog( "pfdetect_remote", '', 'auth' );
+syslog( "info", "initialized" );
 
-my $cfg = new Config::IniFiles( -file => "$install_dir/conf/pfdetect_remote.conf");
-my $ADMIN_USER = $cfg->val('server','user');
-my $ADMIN_PWD = $cfg->val('server','password');
-my $PF_HOST = $cfg->val('server','host');
+my $cfg =
+  new Config::IniFiles( -file => "$install_dir/conf/pfdetect_remote.conf" );
+my $ADMIN_USER = $cfg->val( 'server', 'user' );
+my $ADMIN_PWD  = $cfg->val( 'server', 'password' );
+my $PF_HOST    = $cfg->val( 'server', 'host' );
 
-my $fh = new File::Tail ('name' => $snortpipe,
-        'interval' => 2,
-        'reset_tail' => 0,
-        'maxinterval' => 2);
-syslog("info", "listening on $snortpipe");
+my $fh = new File::Tail(
+    'name'        => $input,
+    'interval'    => 2,
+    'reset_tail'  => 0,
+    'maxinterval' => 2
+);
+syslog( "info", "listening on $input" );
+
+
+# A dispatch table where the key is the type of event to parse 
+# and the value is a ref to the appropriate sub for the type.
+my $parse_alert_for = {
+    snort       => \&parse_snort_alert,
+    tippingp    => \&parse_tippingp_alert,
+    trend       => \&parse_trend_alert,
+};
 
 my $currentLine;
-while (defined($currentLine=$fh->read)) {
+while ( defined( $currentLine = $fh->read ) ) {
 
-  syslog("info", "alert received: $currentLine");
-  if ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/) {
-    $date  = $1;
-    $sid   = $2;
-    $descr = $3;
-    $srcip = $4;
-    $dstip = $6;
-  } elsif ( $currentLine =~ /^(.+?)\s+\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\sALT\;v\d\;/) {
-    #TippingPoint Syslog
-    my @hpValues = split(';',$currentLine);
-    
-    $date  = $1;
-    $hpValues[10] =~ /(\d+)\:\s(.*)\"$/;
-    ($sid,$descr) = ($1,$2);
-    $srcip = $hpValues[13];
-    $dstip = $hpValues[15];
-        
-  } elsif ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
-    $date   = $1;
-    $sid    = $portscan_sid;
-    $srcip  = $3;
-    $descr = "PORTSCAN";
-  } elsif ($currentLine =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
-    $date  = $1;
-    $sid   = $portscan_sid;
-    $srcip = $3;
-    $descr = "PORTSCAN";
-  } else {
-    syslog("warning", "unknown input: $currentLine ");
-    next;
-  }
+    syslog( "info", "alert received: $currentLine" );
 
-  eval {
-    my $soap = new SOAP::Lite(
-      uri => 'http://www.packetfence.org/PFAPI',
-      proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/webapi'
-    );
-    my $result = $soap->event_add($date, $srcip, "detect", $sid);
-    if ($result->fault) {
-      syslog("warning", "violation could not be added: " . $result->faultcode . " - " . $result->faultstring . " - " . $result->faultdetail);
-    } else {
-      syslog("info", "added violation $sid for $srcip");
+    my %event;
+    %event = $parse_alert_for->{$IDS}->($currentLine);
+    if ( !defined( $event{"event_id"} ) or $event{"event_id"} eq "unknown" ) {
+        syslog( "warning", "unknown input: $currentLine " );
     }
-  };
-  if ($@) {
-    syslog("warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@");
-    next;
-  }
 
+    eval {
+        my $soap = new SOAP::Lite(
+            uri   => 'http://www.packetfence.org/PFAPI',
+            proxy => 'https://'
+              . $ADMIN_USER . ':'
+              . $ADMIN_PWD . '@'
+              . $PF_HOST
+              . '/webapi'
+        );
+        my $result 
+          = $soap->event_add( $event{"date"}, $event{"srcip"}, "detect", $event{"event_id"} );
+        if ( $result->fault ) {
+            syslog( "warning",
+                    "violation could not be added: "
+                  . $result->faultcode . " - "
+                  . $result->faultstring . " - "
+                  . $result->faultdetail );
+        }
+        else {
+            syslog( "info",
+                qq(added violation $event{"event_id"} for $event{"srcip"}) );
+        }
+    };
+    if ($@) {
+        syslog( "warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@");
+        next;
+    }
 
 }
 
 END {
-  deletepid();
-  syslog("info", "stopping pfdetect_remote");
+    deletepid();
+    syslog( "info", "stopping pfdetect_remote" );
 }
 
 exit(0);
 
-sub daemonize {
-  chdir '/'               or die "Can't chdir to /: $!";
-  open STDIN, '<', '/dev/null' or die "Can't read /dev/null: $!";  
-  open STDOUT, '>', '/dev/null' or die "Can't write to /dev/null: $!";
+=pod
 
-  defined(my $pid = fork) or die "pfdetect_remote: could not fork: $!";
-  POSIX::_exit(0) if ($pid);
-  if (!POSIX::setsid()) {
-    syslog("warning", "could not start a new session: $!");
-  }
-  open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
-  createpid();
-  return 1;
+=head1 Subroutines:
+
+=cut 
+
+sub daemonize {
+    chdir '/' or die "Can't chdir to /: $!";
+    open STDIN,  '<', '/dev/null' or die "Can't read /dev/null: $!";
+    open STDOUT, '>', '/dev/null' or die "Can't write to /dev/null: $!";
+
+    defined( my $pid = fork ) or die "pfdetect_remote: could not fork: $!";
+    POSIX::_exit(0) if ($pid);
+    if ( !POSIX::setsid() ) {
+        syslog( "warning", "could not start a new session: $!" );
+    }
+    open STDERR, '>&STDOUT' or die "Can't dup stdout: $!";
+    createpid();
+    return 1;
 }
 
 sub normal_sighandler {
-  deletepid();
-  syslog("info", "caught SIG".$_[0]." - terminating pfdetect_remote");
-  die("pfdetect_remote: caught SIG".$_[0]." - terminating\n");
+    deletepid();
+    syslog( "info", "caught SIG" . $_[0] . " - terminating pfdetect_remote" );
+    die( "pfdetect_remote: caught SIG" . $_[0] . " - terminating\n" );
 }
 
 sub restart_handler {
-  deletepid();
-  syslog("info", "caught SIG".$_[0]." - restarting pfdetect_remote");
-  if (!exec($0, @ORIG_ARGV)) {
-    syslog("warning", "could not restart: #!");
-    die "pfdetect_remote: could not restart: $!\n";
-  }
+    deletepid();
+    syslog( "info", "caught SIG" . $_[0] . " - restarting pfdetect_remote" );
+    if ( !exec( $0, @ORIG_ARGV ) ) {
+        syslog( "warning", "could not restart: #!" );
+        die "pfdetect_remote: could not restart: $!\n";
+    }
 }
 
-
 sub createpid {
-  my $pname = basename($0);
-  my $pid = $$;
-  my $pidfile = $install_dir."/var/$pname.pid";
-  syslog("info", "$pname starting and writing $pid to $pidfile");
-  my $outfile = new FileHandle ">$pidfile";
-  if (defined($outfile)) {
-    print $outfile $pid;
-    $outfile->close;
-    return($pid);
-  } else {
-    syslog("warning", "$pname: unable to open $pidfile for writing: $!");
-    return(-1);
-  }
+    my $pname   = basename($0);
+    my $pid     = $$;
+    my $pidfile = $install_dir . "/var/$pname.pid";
+    syslog( "info", "$pname starting and writing $pid to $pidfile" );
+    my $outfile = new FileHandle ">$pidfile";
+    if ( defined($outfile) ) {
+        print $outfile $pid;
+        $outfile->close;
+        return ($pid);
+    }
+    else {
+        syslog( "warning", "$pname: unable to open $pidfile for writing: $!" );
+        return (-1);
+    }
 }
 
 sub deletepid {
-  my ($pname) = @_;
-  $pname = basename($0) if (!$pname);
-  my $pidfile = $install_dir."/var/$pname.pid";
-  unlink($pidfile) || return(-1);
-  return(1);
+    my ($pname) = @_;
+    $pname = basename($0) if ( !$pname );
+    my $pidfile = $install_dir . "/var/$pname.pid";
+    unlink($pidfile) || return (-1);
+    return (1);
+}
+
+=pod
+
+=head2 parse_snort_alert 
+This sub will parse a line from a snort event and fill in the %event hash;
+
+=cut 
+
+# a regex that matches any snort alert.
+my $snort_line = qr/
+    ^ 
+    (\S+)  \s+                                      # $1 is the date
+    \[\*\*\] \s+                                    # a litteral [**]
+    \[\d+: (\d+): \d+\] \s+                         # $2 is snort id :  [ gid : $2 : rev ] 
+    ( .+ ) $                                        # $3 is description, src and dst ips
+/x;
+
+# most snort alerts match this (except for portscans)
+my $snort_details = qr/
+    ^
+    .+?
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) \s+        # $1 is src ip 
+    \-\>   \s+                                      # ->
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $2 is dst ip
+/x;
+
+# snort portscans match this one.
+my $portscan = qr/
+    Portscan\s+detected\s+from\s+                   
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $1 is the $srcip
+/x;
+
+sub parse_snort_alert {
+    my $currentLine = shift;
+    my $portscan_sid = 1200003;  # portscan is a special case
+    my %event;
+
+    # we match the part of the snort line that is common to all snort alert and
+    # keep the remainder for the second step.
+    ( @event{qw( date event_id )}, my $remainder ) = $currentLine =~ /$snort_line/;
+
+    # then we match again on the remainder, trying in turn every type of alert.
+    if ( ( my $srcip ) = $remainder =~ $portscan ) {
+        @event{ qw( srcip event_id ) } = $srcip, $portscan_sid;
+    }
+    elsif ( @event{qw( srcip dstip )} = $remainder =~ $snort_details ) {
+    }
+    else {
+        syslog( "warning", "unknown input: $currentLine " );
+        $event{"event_id"} = "unknown";
+    }
+
+    return %event;    
+}
+
+=pod
+
+=head2 parse_tippingp_alert 
+This sub will parse a line from a Tipping Point event and fill in the %event hash;
+
+=cut 
+
+my $tippingp_alert = qr/
+    ^(.+?)\s+                               # $1 is date
+    \b \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}   # an ip 
+    \sALT\;v\d\;                            # ALT;v${VERSION};
+/x;
+
+sub parse_tippingp_alert {
+    my $currentLine = shift;
+    my %event;
+
+    ( $event{"date"} ) = $currentLine =~ $tippingp_alert;
+    my @hpValues = split( ';', $currentLine );
+
+    ( @event{qw(event_id  descr)} ) = $hpValues[10] =~ /(\d+)\:\s(.*)\"$/;
+    @event{qw( srcip dstip )} = @hpValues[ 13, 15 ];
+
+    return %event;
+}
+
+=pod
+
+=head2 parse_trend_alert 
+This sub will parse a line from a Trend Micro event and fill in the %event hash;
+
+=cut 
+
+sub parse_trend_alert {
 }
 
 =head1 AUTHOR
@@ -207,6 +298,8 @@ Dave Laporte <dave@laportestyle.org>
 Kevin Amorin <kev@amorin.org>
 
 Dominik Gehl <dgehl@inverse.ca>
+
+Louis Munro  <lmunro@inverse.ca>
 
 =head1 COPYRIGHT
 
