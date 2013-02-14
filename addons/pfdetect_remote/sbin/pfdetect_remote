@@ -26,6 +26,7 @@ use Sys::Syslog;
 use Config::IniFiles;
 use Data::Dumper;
 use Pod::Usage;
+use Text::CSV;
 use strict;
 use warnings;
 
@@ -60,9 +61,8 @@ pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
 
 my $daemonize = $args{d};
 my $input     = $args{p};    # input can be from either a logfile or a pipe
-my $IDS       = $args{i};  # one of snort, tippingp, trend etc.
-my $script    = File::Basename::basename($0);
-
+my $IDS       = $args{i};    # one of snort, tippingp, trend etc.
+my $script = File::Basename::basename($0);
 
 daemonize() if ($daemonize);
 
@@ -83,13 +83,12 @@ my $fh = new File::Tail(
 );
 syslog( "info", "listening on $input" );
 
-
-# A dispatch table where the key is the type of event to parse 
+# A dispatch table where the key is the type of event to parse
 # and the value is a ref to the appropriate sub for the type.
 my $parse_alert_for = {
-    snort       => \&parse_snort_alert,
-    tippingp    => \&parse_tippingp_alert,
-    trend       => \&parse_trend_alert,
+    snort    => \&parse_snort_alert,
+    tippingp => \&parse_tippingp_alert,
+    trend    => \&parse_trend_alert,
 };
 
 my $currentLine;
@@ -112,8 +111,9 @@ while ( defined( $currentLine = $fh->read ) ) {
               . $PF_HOST
               . '/webapi'
         );
-        my $result 
-          = $soap->event_add( $event{"date"}, $event{"srcip"}, "detect", $event{"event_id"} );
+        my $result =
+          $soap->event_add( $event{"date"}, $event{"srcip"}, "detect",
+            $event{"event_id"} );
         if ( $result->fault ) {
             syslog( "warning",
                     "violation could not be added: "
@@ -122,8 +122,7 @@ while ( defined( $currentLine = $fh->read ) ) {
                   . $result->faultdetail );
         }
         else {
-            syslog( "info",
-                qq(added violation $event{"event_id"} for $event{"srcip"}) );
+            syslog( "info", qq(added violation $event{"event_id"} for $event{"srcip"}) );
         }
     };
     if ($@) {
@@ -233,17 +232,18 @@ my $portscan = qr/
 /x;
 
 sub parse_snort_alert {
-    my $currentLine = shift;
-    my $portscan_sid = 1200003;  # portscan is a special case
+    my $currentLine  = shift;
+    my $portscan_sid = 1200003;    # portscan is a special case
     my %event;
 
     # we match the part of the snort line that is common to all snort alert and
     # keep the remainder for the second step.
-    ( @event{qw( date event_id )}, my $remainder ) = $currentLine =~ /$snort_line/;
+    ( @event{qw( date event_id )}, my $remainder ) =
+      $currentLine =~ /$snort_line/;
 
     # then we match again on the remainder, trying in turn every type of alert.
     if ( ( my $srcip ) = $remainder =~ $portscan ) {
-        @event{ qw( srcip event_id ) } = $srcip, $portscan_sid;
+        @event{qw( srcip event_id )} = $srcip, $portscan_sid;
     }
     elsif ( @event{qw( srcip dstip )} = $remainder =~ $snort_details ) {
     }
@@ -252,7 +252,7 @@ sub parse_snort_alert {
         $event{"event_id"} = "unknown";
     }
 
-    return %event;    
+    return %event;
 }
 
 =pod
@@ -287,8 +287,26 @@ sub parse_tippingp_alert {
 This sub will parse a line from a Trend Micro event and fill in the %event hash;
 
 =cut 
+# the following constants are the column index (starting at 0) fro trend's csv
+# input.
+use constant LOGTIME       => 0; 
+use constant EVENTID       => 3;
+use constant DESTINATIONIP => 144;
+use constant SOURCEIP      => 170;
 
 sub parse_trend_alert {
+    chomp( my $currentLine = shift );
+    my %event;
+    
+    # Trend alert logs is assumed to be a csv
+    my $csv = Text::CSV->new();
+    my $status = $csv->parse($currentLine);
+    my @columns = $csv->fields();
+
+    @event{ qw(   date     event_id dstip          srcip ) }
+      = @columns[ LOGTIME, EVENTID, DESTINATIONIP, SOURCEIP ];
+    
+    return %event;    
 }
 
 =head1 AUTHOR
