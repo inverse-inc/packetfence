@@ -143,7 +143,9 @@ sub dhcp_fingerprint_view_all {
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql');
 }
 
-=item * dhcp_fingerprint_view_all - view all nodes based on several criterias
+=item dhcp_fingerprint_view_all
+
+view all nodes based on several criterias
 
 =cut
 sub dhcp_fingerprint_view_all_searchable {
