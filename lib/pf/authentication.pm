@@ -274,12 +274,12 @@ sub writeAuthenticationConfigFile {
         # We flush rules, including conditions and actions.
         foreach my $rule ( @{$source->{'rules'}} ) {
             my $rule_id = $source->{'id'} . " rule " . $rule->{'id'};
-      
+
             # Since 'description' is defined in the parent section, set the paramater through the object
             # for proper initialization
             tied(%ini)->newval($rule_id, 'description', $rule->{'description'});
             $ini{$rule_id}{match} = $rule->{'match'};
-      
+
             my $index = 0;
             foreach my $action ( @{$rule->{'actions'}} ) {
                 my $action_id = 'action' . $index;
@@ -290,7 +290,7 @@ sub writeAuthenticationConfigFile {
                 }
                 $index++;
             }
-      
+
             $index = 0;
             foreach my $condition ( @{$rule->{'conditions'}} ) {
                 my $condition_id = 'condition' . $index;
@@ -362,15 +362,15 @@ sub deleteAuthenticationSource {
 #       my $result = match_in_ldap_source( $current_source, $username, 0 );
 
 #       if (defined $result) {
-# 	#print "Found user in $current_source->{'id'}\n";
-# 	return $current_source;
+#       #print "Found user in $current_source->{'id'}\n";
+#       return $current_source;
 #       }
 #     }
 #     # We must be careful here, to only check for users that can authenticate
 #     # using the local SQL backend. We don't want to look for "persons", coming
 #     # from other authentication sources.
 #     elsif ($type eq "sql") {
-      
+
 #     }
 #   }
 
@@ -385,14 +385,14 @@ sub username_from_email {
     my ($email) = @_;
 
     $logger->info("Looking up username for email: $email");
-    
+
     foreach my $source ( @authentication_sources ) {
-        
+
         my $classname = $source->meta->name;
 
         if ($classname eq 'pf::Authentication::Source::ADSource' ||
             $classname eq 'pf::Authentication::Source::LDAPSource') {
-            
+
             my $username = $source->username_from_email($email);
 
             if (defined $username) {
@@ -412,23 +412,23 @@ sub username_from_email {
 
 sub authenticate {
     my ( $username, $password, $auth_module ) = @_;
-  
+
     #print "Authenticating $username with $password\n";
     foreach my $current_source ( @authentication_sources ) {
-    
+
         # We skip sources we aren't interested in
         #if ( defined $auth_module && !($auth_module eq $current_source->{'type'}) ) {
         #  next;
         #}
-    
+
         my ($result, $message) = $current_source->authenticate($username, $password);
-    
+
         # First match wins!
         if ($result) {
             return ($result, $message, $current_source->id);
         }
     }
-  
+
     return ($FALSE, 'Invalid username/password for all authentication sources.');
 }
 
@@ -452,10 +452,10 @@ sub match {
       last;
     } elsif (!defined $source_id) {
       $actions = $current_source->match($params);
-      
+
       # First match in a source wins, and we stop looping
       if (defined $actions) {
-	last;
+        last;
       }
     }
   }
@@ -463,10 +463,10 @@ sub match {
   if (defined $action && defined $actions) {
     foreach my $current_action ( @{$actions} ) {
       if ($current_action->type eq $action) {
-	return $current_action->value;
+        return $current_action->value;
       }
     }
-    
+
     return undef;
   }
 

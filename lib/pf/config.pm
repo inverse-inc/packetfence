@@ -83,7 +83,7 @@ BEGIN {
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
         $WIRELESS $WIRED $EAP
-	$WEB_ADMIN_NONE $WEB_ADMIN_ALL
+        $WEB_ADMIN_NONE $WEB_ADMIN_ALL
         $VOIP $NO_VOIP $NO_PORT $NO_VLAN
         %connection_type %connection_type_to_str %connection_type_explained
         %connection_group %connection_group_to_str

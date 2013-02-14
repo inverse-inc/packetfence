@@ -106,7 +106,7 @@ sub match {
         foreach my $condition ( @{$rule->{'conditions'}} ) {
             if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
                 my $r = $self->match_condition($condition, $params);
-	
+
                 if ($r == 1) {
                     push(@matching_conditions, $condition);
                 }
@@ -114,9 +114,9 @@ sub match {
                 push(@own_conditions, $condition);
             }
         } # foreach my $condition (...)
-    
+
         $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions);
-  
+
         # We compare the matched conditions with how many we had
         if ($rule->match eq $Rules::ANY &&
             scalar @matching_conditions > 0) {
@@ -133,7 +133,7 @@ sub match {
             $logger->info("Matched rule ($rule->{'id'}), returning actions.");
             return $rule->{'actions'};
         }
-	
+
     } # foreach my $rule ( @{$self->{'rules'}} ) {
 
     return undef;
@@ -141,15 +141,15 @@ sub match {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    
+
     return undef;
 }
 
 sub match_condition {
   my ($self, $condition, $params) = @_;
-  
+
   my $r = 0;
-  
+
   if (grep {$_->{value} eq $condition->attribute } @{$self->common_attributes()}) {
     $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
   }
