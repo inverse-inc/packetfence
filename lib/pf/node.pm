@@ -581,7 +581,7 @@ sub node_count_all {
 sub node_custom_search {
     my ($sql) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->info($sql);
+    $logger->debug($sql);
     $node_statements->{'node_custom_search_sql_customer'} = $sql;
     return db_data(NODE, $node_statements, 'node_custom_search_sql_customer');
 }
