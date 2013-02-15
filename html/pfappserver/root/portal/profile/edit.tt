@@ -73,7 +73,7 @@
       <div>
         <form  class="inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('rename'),[profile_name], file_name ) %]" >
           <span class="pull-left">
-              <a id="file-editor-preview" class="btn btn-small btn-success" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[profile_name],file_name)  %]" ><i class="icon-eye-open"></i> </a> &nbsp;
+              <a id="file-editor-preview" class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[profile_name],file_name)  %]" ><i class="icon-eye-open"></i> </a> &nbsp;
           </span>
           <span title="Double click to rename" id="file_name" class="file_name"><h3> [% file_name %]</h3></span>
           <span class="hidden"><input type="text" value="[% file_name %]" id="new_file_name" name="to"/></span>
