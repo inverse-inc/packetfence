@@ -26,7 +26,6 @@ use Sys::Syslog;
 use Config::IniFiles;
 use Data::Dumper;
 use Pod::Usage;
-use Text::CSV;
 use strict;
 use warnings;
 
@@ -51,18 +50,19 @@ POSIX::sigaction(
     )
 ) or die "pfdetect_remote: could not set SIGINT handler: $!\n";
 
-my $install_dir = '/usr/local/pf';
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts( 'dhvpi:', \%args );
+getopts( 'c:dhvp:i:', \%args );
 
-pod2usage( -verbose => 1 ) if ( $args{h} || !$args{p} );
+pod2usage( -verbose => 1 ) if ( $args{h} or !$args{p} or !$args{i} );
 
 my $daemonize = $args{d};
 my $input     = $args{p};    # input can be from either a logfile or a pipe
 my $IDS       = $args{i};    # one of snort, tippingp, trend etc.
-my $script = File::Basename::basename($0);
+my $script    = File::Basename::basename($0);
+
+my $install_dir = defined $args{c} ? $args{c} : '/usr/local/pf';
 
 daemonize() if ($daemonize);
 
@@ -122,11 +122,13 @@ while ( defined( $currentLine = $fh->read ) ) {
                   . $result->faultdetail );
         }
         else {
-            syslog( "info", qq(added violation $event{"event_id"} for $event{"srcip"}) );
+            syslog( "info",
+                qq(added violation $event{"event_id"} for $event{"srcip"}) );
         }
     };
     if ($@) {
-        syslog( "warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@");
+        syslog( "warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@"
+        );
         next;
     }
 
@@ -207,34 +209,34 @@ This sub will parse a line from a snort event and fill in the %event hash;
 
 =cut 
 
-# a regex that matches any snort alert.
-my $snort_line = qr/
-    ^ 
-    (\S+)  \s+                                      # $1 is the date
-    \[\*\*\] \s+                                    # a litteral [**]
-    \[\d+: (\d+): \d+\] \s+                         # $2 is snort id :  [ gid : $2 : rev ] 
-    ( .+ ) $                                        # $3 is description, src and dst ips
-/x;
-
-# most snort alerts match this (except for portscans)
-my $snort_details = qr/
-    ^
-    .+?
-    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) \s+        # $1 is src ip 
-    \-\>   \s+                                      # ->
-    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $2 is dst ip
-/x;
-
-# snort portscans match this one.
-my $portscan = qr/
-    Portscan\s+detected\s+from\s+                   
-    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $1 is the $srcip
-/x;
-
 sub parse_snort_alert {
     my $currentLine  = shift;
     my $portscan_sid = 1200003;    # portscan is a special case
     my %event;
+
+    # a regex that matches any snort alert.
+    my $snort_line = qr/
+        ^ 
+        (\S+)  \s+                                      # $1 is the date
+        \[\*\*\] \s+                                    # a litteral [**]
+        \[\d+: (\d+): \d+\] \s+                         # $2 is snort id :  [ gid : $2 : rev ] 
+        ( .+ ) $                                        # $3 is description, src and dst ips
+    /x;
+
+    # most snort alerts match this (except for portscans)
+    my $snort_details = qr/
+        ^
+        .+?
+        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) \s+        # $1 is src ip 
+        \-\>   \s+                                      # ->
+        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $2 is dst ip
+    /x;
+
+    # snort portscans match this one.
+    my $portscan = qr/
+        Portscan\s+detected\s+from\s+                   
+        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $1 is the $srcip
+    /x;
 
     # we match the part of the snort line that is common to all snort alert and
     # keep the remainder for the second step.
@@ -243,7 +245,7 @@ sub parse_snort_alert {
 
     # then we match again on the remainder, trying in turn every type of alert.
     if ( ( my $srcip ) = $remainder =~ $portscan ) {
-        @event{qw( srcip event_id )} = $srcip, $portscan_sid;
+        @event{qw( srcip event_id )} = ( $srcip, $portscan_sid );
     }
     elsif ( @event{qw( srcip dstip )} = $remainder =~ $snort_details ) {
     }
@@ -262,15 +264,15 @@ This sub will parse a line from a Tipping Point event and fill in the %event has
 
 =cut 
 
-my $tippingp_alert = qr/
-    ^(.+?)\s+                               # $1 is date
-    \b \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}   # an ip 
-    \sALT\;v\d\;                            # ALT;v${VERSION};
-/x;
-
 sub parse_tippingp_alert {
     my $currentLine = shift;
     my %event;
+
+    my $tippingp_alert = qr/
+        ^(.+?)\s+                               # $1 is date
+        \b \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}   # an ip 
+        \sALT\;v\d\;                            # ALT;v${VERSION};
+    /x;
 
     ( $event{"date"} ) = $currentLine =~ $tippingp_alert;
     my @hpValues = split( ';', $currentLine );
@@ -287,26 +289,31 @@ sub parse_tippingp_alert {
 This sub will parse a line from a Trend Micro event and fill in the %event hash;
 
 =cut 
-# the following constants are the column index (starting at 0) fro trend's csv
-# input.
-use constant LOGTIME       => 0; 
-use constant EVENTID       => 3;
-use constant DESTINATIONIP => 144;
-use constant SOURCEIP      => 170;
 
 sub parse_trend_alert {
     chomp( my $currentLine = shift );
     my %event;
-    
-    # Trend alert logs is assumed to be a csv
-    my $csv = Text::CSV->new();
-    my $status = $csv->parse($currentLine);
-    my @columns = $csv->fields();
 
-    @event{ qw(   date     event_id dstip          srcip ) }
-      = @columns[ LOGTIME, EVENTID, DESTINATIONIP, SOURCEIP ];
-    
-    return %event;    
+    my $trend_date = qr/
+        ^ 
+        (\w+ \s+            # Month
+        \d+ \s+             # Day
+        \d+:\d+:\d+) \s     # HH:MM:SS  $1 is the whole date
+    /x;
+
+    my $trend_srcip = qr/
+        ^ 
+        \s+ malSrcIp= 
+        ( \d+\.\d+\.\d+\.\d+ ) \s   # $1 is an IP 
+    /x;
+
+    # trend alert is pipe separated
+    my @fields = ( split( /\|/, $currentLine ) )[ 0, 4, 7 ];  # we ignore irrelevant fields
+    ( $event{"date"} )  = ( $fields[0] =~ $trend_date ); 
+    $event{"event_id"}  = $fields[1];
+    ( $event{"srcip"} ) = ($fields[2] =~ $trend_srcip) ;
+
+    return %event;
 }
 
 =head1 AUTHOR
