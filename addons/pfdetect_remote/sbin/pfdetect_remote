@@ -94,6 +94,7 @@ my $parse_alert_for = {
 };
 
 my $currentLine;
+READALERT:
 while ( defined( $currentLine = $fh->read ) ) {
 
     syslog( "info", "alert received: $currentLine" );
@@ -131,7 +132,7 @@ while ( defined( $currentLine = $fh->read ) ) {
     if ($@) {
         syslog( "warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@"
         );
-        next;
+        next READALERT;
     }
 
 }
