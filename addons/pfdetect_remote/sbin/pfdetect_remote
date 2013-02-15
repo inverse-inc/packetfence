@@ -6,13 +6,13 @@ pfdetect-remote - listen to violations alerts and send them to PF server
 
 =head1 SYNOPSIS
 
-pfdetect -p <file | named pipe> -i <IDS>  [options]
+pfdetect -p <file | named pipe> -e <ENGINE>  [options]
 
   Options:
     -d  Daemonize
     -h  Help
 
-  IDS is one of : snort, tippingp or trend
+  ENGINE is one of : snort, tippingp or trend
 
 =cut
 
@@ -53,35 +53,37 @@ POSIX::sigaction(
 
 my @ORIG_ARGV = @ARGV;
 my %args;
-getopts( 'c:dhvp:i:', \%args );
-
-pod2usage( -verbose => 1 ) if ( $args{h} or !$args{p} or !$args{i} );
-
-my $daemonize = $args{d};
-my $input     = $args{p};    # input can be from either a logfile or a pipe
-my $IDS       = $args{i};    # one of snort, tippingp, trend etc.
-my $script    = File::Basename::basename($0);
-
-my $install_dir = defined $args{c} ? $args{c} : '/usr/local/pf';
-
-daemonize() if ($daemonize);
+getopts( 'c:dhvp:e:', \%args );
+pod2usage( -verbose => 1 ) if ( $args{h} );
 
 openlog( "pfdetect_remote", '', 'auth' );
 syslog( "info", "initialized" );
 
-my $cfg =
-  new Config::IniFiles( -file => "$install_dir/conf/pfdetect_remote.conf" );
-my $ADMIN_USER = $cfg->val( 'server', 'user' );
-my $ADMIN_PWD  = $cfg->val( 'server', 'password' );
-my $PF_HOST    = $cfg->val( 'server', 'host' );
+my $install_dir = defined $args{c} ? 
+                  $args{c} : 
+                  '/usr/local/pf';
+my $cfg         = new Config::IniFiles( -file => "$install_dir/conf/pfdetect_remote.conf" );
+my $daemonize   = $args{d};
+my $ADMIN_USER  = $cfg->val( 'server', 'user' );
+my $ADMIN_PWD   = $cfg->val( 'server', 'password' );
+my $PF_HOST     = $cfg->val( 'server', 'host' );
+my $ENGINE      = defined $args{e} ?
+                  $args{e} :
+                  $cfg->val( 'trapping', 'detection_engine' );
+my $SOURCE      = defined $args{p} ? 
+                  $args{p} : 
+                  $cfg->val( 'trapping', 'alert_source' );   # input can be from either a logfile or a pipe
+my $script      = File::Basename::basename($0);
+
+daemonize() if ($daemonize);
 
 my $fh = new File::Tail(
-    'name'        => $input,
+    'name'        => $SOURCE,
     'interval'    => 2,
     'reset_tail'  => 0,
     'maxinterval' => 2
 );
-syslog( "info", "listening on $input" );
+syslog( "info", "listening on $SOURCE" );
 
 # A dispatch table where the key is the type of event to parse
 # and the value is a ref to the appropriate sub for the type.
@@ -97,7 +99,7 @@ while ( defined( $currentLine = $fh->read ) ) {
     syslog( "info", "alert received: $currentLine" );
 
     my %event;
-    %event = $parse_alert_for->{$IDS}->($currentLine);
+    %event = $parse_alert_for->{$ENGINE}->($currentLine);
     if ( !defined( $event{"event_id"} ) or $event{"event_id"} eq "unknown" ) {
         syslog( "warning", "unknown input: $currentLine " );
     }
