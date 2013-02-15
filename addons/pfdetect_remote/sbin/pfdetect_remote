@@ -302,7 +302,6 @@ sub parse_trend_alert {
     /x;
 
     my $trend_srcip = qr/
-        ^ 
         \s+ malSrcIp= 
         ( \d+\.\d+\.\d+\.\d+ ) \s   # $1 is an IP 
     /x;
