@@ -200,9 +200,9 @@ td a.btn { margin-left: 5px; }
            </tbody>
         </table>
 
-        <div class="form-actions">
-          <a class="btn btn-danger call-modal [% IF profile_name == 'default' %]hidden[% END %]" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
-        </div>
+        [% IF profile_name != 'default' %]<div class="form-actions">
+          <a class="btn btn-danger call-modal" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[profile_name]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
+        </div>[% END %]
 
       </div><!-- #files pane -->
     </div><!-- .tab-content -->
