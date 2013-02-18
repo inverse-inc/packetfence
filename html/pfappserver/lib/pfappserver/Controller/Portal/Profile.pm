@@ -291,7 +291,7 @@ sub _getFilesInfo {
         'name' => $profile,
         'entries' => [
             map {$self->_makeFileInfo( $root_path, $_, \%default_files)}
-            sort grep { !exists $FILTER_FILES{$_}  } read_dir($root_path)],
+            sort grep { !exists $FILTER_FILES{$_} && !m/^\./ } read_dir($root_path)],
         'hidden' => 0,
         'size'   => 0,
     );
@@ -347,7 +347,7 @@ sub _makeFileInfo {
         $data{'entries'} = [
             grep { $_->{name} = catfile($file_name,$_->{name}) }
             map {$self->_makeFileInfo($full_path,$_,$default_files) }
-            sort  (read_dir($full_path))
+            sort grep { !m/^\./ } (read_dir($full_path))
         ];
     }
     else {
@@ -387,7 +387,7 @@ sub _readDirRecursive {
         if (-d $full_path) {
             push @files, map {catfile(@subdir,$entry,$_) } _readDirRecursive($path,@subdir,$entry);
         }
-        else {
+        elsif ($entry !~ m/^\./) {
             push @files, $entry;
         }
     }
@@ -466,7 +466,7 @@ sub create : Local: Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

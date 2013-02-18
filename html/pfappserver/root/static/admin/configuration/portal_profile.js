@@ -89,7 +89,7 @@ function initRenameForm(element) {
     var width_span = input_span.next().first();
     var input = input_span.children().first();
     var rename_form = $('#rename_file');
-    element.on('dblclick','#file_name',function(event){
+    element.on('click', '#file_name a',function(event){
         width_span.html(input.val());
         input.width(width_span.width() + 3);
         input_span.removeClass('hidden');
@@ -139,7 +139,10 @@ function initCollapse(element) {
 function initCopyModal(element) {
     var modal = $('#copyModal');
     var button = modal.find('.btn-primary').first();
-    modal.on('hidden',function() {
+    modal.on('shown', function() {
+        $(this).find(':input:first').focus();
+    });
+    modal.on('hidden', function() {
         $(this).data('modal').$element.removeData();
     });
     button.off("click");
@@ -179,6 +182,9 @@ function initNewFileModal(element) {
     var button = modal.find('.btn-primary').first();
     modal.on('hidden',function() {
         $(this).data('modal').$element.removeData();
+    });
+    modal.on('shown', function() {
+        $(this).find(':input:first').focus();
     });
     button.off("click");
     button.click(function(event) {
