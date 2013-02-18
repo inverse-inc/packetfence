@@ -42,7 +42,8 @@ function updateSection(ajax_data) {
                     section.find('.datepicker').datepicker({ autoclose: true });
                     section.find('.chzn-select').chosen();
                     section.find('.chzn-deselect').chosen({allow_single_deselect: true});
-                    section.find('.switch').bootstrapSwitch();
+                    if (section.bootstrapSwitch)
+                        section.find('.switch').bootstrapSwitch();
                     section.trigger('section.loaded');
                 })
                 .fail(function(jqXHR) {
