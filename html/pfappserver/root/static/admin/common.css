@@ -31,12 +31,6 @@ table .action {
     float: left;
     margin-right: 4px;
 }
-
-.row-fluid .compound-input-btn-group input {
-    float: left;
-    margin-right: 4px;
-}
-
 .compound-input-btn-group .btn-group {
     display: inline;
 }
