@@ -8,7 +8,7 @@ pf::person - module for person management.
 
 =head1 DESCRIPTION
 
-pf::person contains the functions necessary to manage a person: creation, 
+pf::person contains the functions necessary to manage a person: creation,
 deletion, read info, ...
 
 =cut
@@ -35,6 +35,7 @@ BEGIN {
         person_view_all
         person_modify
         person_nodes
+        person_violations
     );
     @EXPORT_OK = qw( $PID_RE );
 }
@@ -77,7 +78,7 @@ sub person_db_prepare {
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
-                   t.password, t.valid_from, t.expiration, t.access_duration, t.category
+                   t.password, t.valid_from, t.expiration, t.access_duration, t.category, t.unregdate
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
@@ -86,7 +87,7 @@ sub person_db_prepare {
     $person_statements->{'person_view_all_sql'} =
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
-                   t.password, t.valid_from, t.expiration, t.access_duration, t.category
+                   t.password, t.valid_from, t.expiration, t.access_duration, t.category,t.sponsor as is_sponsor
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
@@ -101,6 +102,9 @@ sub person_db_prepare {
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
         qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
+
+    $person_statements->{'person_violations_sql'} = get_db_handle()->prepare(
+        qq[ select violation.mac,vid,start_date,release_date,violation.status from violation LEFT JOIN node on violation.mac = node.mac where pid=? ]);
 
     $person_db_prepared = 1;
 }
@@ -166,7 +170,7 @@ sub person_add {
 sub person_view {
     my ($pid) = @_;
 
-    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid) 
+    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid)
         || return (0);
     my $ref = $query->fetchrow_hashref();
 
@@ -273,13 +277,13 @@ sub person_modify {
         return (0);
     }
 
-    db_query_execute(PERSON, $person_statements, 'person_modify_sql', 
+    db_query_execute(PERSON, $person_statements, 'person_modify_sql',
         $new_pid,                 $existing->{'firstname'},
         $existing->{'lastname'},  $existing->{'email'},
         $existing->{'telephone'}, $existing->{'company'},
-        $existing->{'address'},   $new_notes, 
+        $existing->{'address'},   $new_notes,
         $existing->{'sponsor'},
-        $pid 
+        $pid
     ) || return (0);
     $logger->info("person $pid modified to $new_pid");
     return (1);
@@ -289,6 +293,12 @@ sub person_nodes {
     my ($pid) = @_;
 
     return db_data(PERSON, $person_statements, 'person_nodes_sql', $pid);
+}
+
+sub person_violations {
+    my ($pid) = @_;
+
+    return db_data(PERSON, $person_statements, 'person_violations_sql', $pid);
 }
 
 =head1 COPYRIGHT
