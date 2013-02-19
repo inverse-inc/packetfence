@@ -63,7 +63,7 @@
       <div>
         <form class="form-inline" id="rename_file" autocomplete="off" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('rename'),[profile_name], file_name ) %]" >
           <span class="inline" id="file_name"><h3 class="inline">[% directory %]<a title="Click to rename">[% file_name %]</a></h3></span>
-          <span class="hidden pull-left inline"><input class="inline" type="text" value="[% file_name %]" id="new_file_name" name="to"/></span>
+          <span class="hidden inline"><input class="inline" type="text" value="[% file_name %]" id="new_file_name" name="to"/></span>
           <span class="invisible" id="width">[% file_name %]</span>
         </form>
       </div>
