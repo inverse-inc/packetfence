@@ -38,8 +38,8 @@
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
+        <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
         <div id="section" class="span10">
-          <div class="loader"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
           <div class="graph"></div>
         </div><!--/span -->
       </div><!--/row -->
