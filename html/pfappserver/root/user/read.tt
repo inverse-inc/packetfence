@@ -32,6 +32,15 @@
               [% form.field('email').render %]
   
               [% form.field('sponsor').render %]
+  
+              [% form.field('expiration').render %]
+  
+              [% form.field('access_duration').render %]
+  
+              [% form.field('is_sponsor').render %]
+  
+
+<!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
 
             </div><!--tab-pane-->
             <div class="tab-pane fade" id="userHistory">
@@ -48,7 +57,7 @@
                 <tbody>
                 [% FOR node IN nodes %]
                 <tr>
-                  <td><a href="#">[% node.mac %]</a></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('get'), [ node.mac ]) %]#modalNode">[% node.mac %]</a></td>
                   <td>[% node.computer_name %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                 </tr>
