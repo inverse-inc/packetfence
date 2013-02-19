@@ -12,7 +12,7 @@
     [% FOR item IN items %]
     <tr>
       <td>[% item.vid %]</td>
-      <td>[% item.mac %]</td>
+      <td><a href="[% c.uri_for(c.controller('Node').action_for('get'), [ item.mac ]) %]#modalNode">[% item.mac %]</a></td>
       <td>[% item.status %]</td>
       <td>[% item.start_date %]</td>
       <td>[% item.release_date %]</td>
