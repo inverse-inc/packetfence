@@ -72,15 +72,15 @@ td a.btn { margin-left: 5px; }
       <td>
         <div class="btn-group pull-right">
         [% IF entry.previewable %]
-            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ profile_name ], entry.name ) %]"  title="[% l('Preview') %]"> <i class="icon-eye-open"></i></a>
+            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ profile_name ], entry.name ) %]"  title="[% l('Preview') %]"> <i class="icon-eye-open icon-border"></i></a>
         [% ELSE %]
-            <a class="btn btn-small disabled"><i class="icon-eye-close"></i></a>
+            <a class="btn btn-small disabled"><i class="icon-eye-close icon-border"></i></a>
         [% END %]
-        <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" title="[% l('Copy') %]"> <i class="icon-copy"></i></a>
+        <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], entry.name ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
         [%IF entry.delete_or_revert == 'revert' %]
-            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ profile_name ], name ) %]" title="[% l('Revert') %]"> <i class="icon-refresh"></i></a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ profile_name ], name ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
         [% ELSE %]
-            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-confirm-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ profile_name ], name ) %]" title="[% l('Delete') %]"> <i class="icon-trash"></i></a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ profile_name ], name ) %]" title="[% l('Delete') %]"> <i class="icon-trash icon-border"></i></a>
         [% END %]
         </div>
       </td>

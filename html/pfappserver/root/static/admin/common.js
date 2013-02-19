@@ -29,11 +29,11 @@ function updateSection(ajax_data) {
     if (section) {
         $("body,html").animate({scrollTop:0}, 'fast');
         var loader = section.prev('.loader');
-        if (loader) loader.show();
+        loader.show();
         section.fadeTo('fast', 0.5, function() {
             $.ajax(ajax_data)
                 .always(function() {
-                    if (loader) loader.hide();
+                    loader.hide();
                     section.fadeTo('fast', 1.0);
                     resetAlert(section);
                 })
@@ -420,8 +420,7 @@ $(function () { // DOM ready
         var content  = that.attr('data-content');
         if(form_id) {
             form = $('#' + form_id);
-        }
-        else {
+        } else {
             form = that.closest('form');
         }
         if(content) {
@@ -483,6 +482,26 @@ $(function () { // DOM ready
         });
 
         return false;
+    });
+
+    $('#section').on('click',
+        '[data-toggle="modal"][data-target][data-href-background]',
+        function(event) {
+            var that  = $(this);
+            var href  = that.attr("data-href-background");
+            var modal = $(that.attr("data-target"));
+            var button = modal.find(".btn-primary").first();
+            button.click(function() {
+                $.ajax(href)
+                    .done(function(data) {
+                        $(window).hashchange();
+                    })
+                    .fail(function(jqXHR) {
+                        $("body,html").animate({scrollTop:0}, 'fast');
+                        var status_msg = getStatusMsg(jqXHR);
+                        showError($('#section h2'), status_msg);
+                    })
+            });
     });
 
 
