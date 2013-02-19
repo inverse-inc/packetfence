@@ -44,6 +44,18 @@
         <a  class="btn btn-primary" ><i class="icon-save"></i> [% l('Save file') %]</a>
       </div>
     </div><!-- saveFile -->
+    <div class="modal fade hide" id="renameModal">
+      <div class="modal-header">
+        <h3><i>[% l('Rename File ') %]</i> <span id="content"></span></h3>
+      </div>
+      <div class="modal-body">
+        <p>[% l('Are you sure want to rename file?') %]</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal"><i class="icon-edit"></i>[% l('Keep The Same') %]</a>
+        <a  class="btn btn-primary" ><i class="icon-save"></i> [% l('Rename File') %]</a>
+      </div>
+    </div><!-- saveFile -->
     <div class="span10">
         <ul class="breadcrumb">
             <li>

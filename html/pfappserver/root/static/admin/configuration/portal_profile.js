@@ -74,6 +74,10 @@ function initEditor(editor,file_content) {
     editor.on("change",enableButtonsOnChangeOnce);
     editor.focus();
 
+    $('#rename_file').on('submit',function () {
+        submitFormHideModalGoToLocation($("#renameModal"),$(this));
+        return false;
+    });
 
     $('#resetContent').find('a.btn-primary').first().click(function(event) {
         editor.setValue(file_content.val(),-1);
