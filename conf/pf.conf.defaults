@@ -241,9 +241,17 @@ expire_window_midnight=1D
 #
 # registration.expire_floating_window_midnight
 #
-# If expire_mode is set to "floating_windo_midnight", this represent the unregdate of the current unit used
+# If expire_mode is set to "floating_window_midnight", this represent the unregdate of the current unit used
 # 2M mean that the node will be unregistered on the last day of the next month.
 expire_floating_window_midnight=1D
+
+#
+# registration.expire_floating_window_midnight_delta
+#
+# If expire_mode is set to "floating_window_midnight", this represent the delta added to the caculated date.
+# 1D mean add one day to the calculated unregdate
+#
+expire_floating_window_midnight_delta=0D
 
 #
 # registration.expire_window

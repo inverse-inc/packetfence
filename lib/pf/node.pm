@@ -745,7 +745,7 @@ sub node_modify {
         {
             $existing->{'unregdate'} = POSIX::strftime(
                 "%Y-%m-%d %H:%M:%S",
-                localtime( pf::config::start_date($Config{'registration'}{'expire_floating_window_midnight'}) + pf::config::end_date($Config{'registration'}{'expire_floating_window_midnight'}) )
+                localtime( pf::config::start_date($Config{'registration'}{'expire_floating_window_midnight'}) + pf::config::end_date($Config{'registration'}{'expire_floating_window_midnight'}) + pf::config::normalize_time($Config{'registration'}{'expire_floating_window_midnight_delta'}))
             );
         }
     }
