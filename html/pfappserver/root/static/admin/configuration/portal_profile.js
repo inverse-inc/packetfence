@@ -74,6 +74,10 @@ function initEditor(editor,file_content) {
     editor.on("change",enableButtonsOnChangeOnce);
     editor.focus();
 
+    $('#rename_file').on('submit',function () {
+        submitFormHideModalGoToLocation($("#renameModal"),$(this));
+        return false;
+    });
 
     $('#resetContent').find('a.btn-primary').first().click(function(event) {
         editor.setValue(file_content.val(),-1);
@@ -86,14 +90,15 @@ function initEditor(editor,file_content) {
 function initRenameForm(element) {
     var file_name_span = $('#file_name');
     var input_span = file_name_span.next().first();
+    var link = file_name_span.find("a").first();
     var width_span = input_span.next().first();
     var input = input_span.children().first();
     var rename_form = $('#rename_file');
-    element.on('dblclick','#file_name',function(event){
+    element.on('click', '#file_name a',function(event){
         width_span.html(input.val());
-        input.width(width_span.width() + 3);
+        input.width(width_span.width() + 5);
         input_span.removeClass('hidden');
-        file_name_span.addClass('hidden');
+        link.addClass('hidden');
         input.focus();
     });
     $('#new_file_name').keyup(function(event){
@@ -102,14 +107,14 @@ function initRenameForm(element) {
             input.focusout();
         } else {
             width_span.html(input.val());
-            input.width(width_span.width() + 3);
+            input.width(width_span.width() + 5);
         }
     });
     $('#new_file_name').focusout(function(event){
         width_span.html(input.val());
-        input.width(width_span.width() + 2);
+        input.width(width_span.width() + 5);
         input_span.addClass('hidden');
-        file_name_span.removeClass('hidden');
+        link.removeClass('hidden');
         rename_form[0].reset();
     });
 }
@@ -139,7 +144,10 @@ function initCollapse(element) {
 function initCopyModal(element) {
     var modal = $('#copyModal');
     var button = modal.find('.btn-primary').first();
-    modal.on('hidden',function() {
+    modal.on('shown', function() {
+        $(this).find(':input:first').focus();
+    });
+    modal.on('hidden', function() {
         $(this).data('modal').$element.removeData();
     });
     button.off("click");
@@ -179,6 +187,9 @@ function initNewFileModal(element) {
     var button = modal.find('.btn-primary').first();
     modal.on('hidden',function() {
         $(this).data('modal').$element.removeData();
+    });
+    modal.on('shown', function() {
+        $(this).find(':input:first').focus();
     });
     button.off("click");
     button.click(function(event) {

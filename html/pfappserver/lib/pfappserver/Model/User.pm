@@ -154,6 +154,31 @@ sub nodes {
     return ($STATUS::OK, \@nodes);
 }
 
+=head2 violations
+
+Return the violations associated to the person ID.
+
+=cut
+
+sub violations {
+    my ( $self, $pid ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg);
+
+    my @violations;
+    eval {
+        @violations = person_violations($pid);
+    };
+    if ($@) {
+        $status_msg = "Can't fetch violations from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return ($STATUS::OK, \@violations);
+}
+
 =head2 update
 
 =cut

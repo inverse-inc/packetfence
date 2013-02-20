@@ -21,8 +21,9 @@ $builder
 )->from(
     'node',
     {
-        table => 'node_category',
-        using => 'category_id'
+        'join' => 'LEFT',
+        table  => 'node_category',
+        using  => 'category_id'
     },
 )->where(
     'mac','=','00:00:00:00:00:00:'
@@ -103,11 +104,7 @@ sub _process_select {
 
 sub _process_from {
     my ($self,@args) = @_;
-    my @tables;
-    for my $table (@args) {
-        push @tables,ref($table) ? $table : {table => $table};
-    }
-    return @tables;
+    return map { ref($_) ? $_ : {table => $_} } @args;
 }
 
 sub distinct {
@@ -243,7 +240,7 @@ sub _binary {
     my ($self,$lhs,$op,@rhs) = @_;
     my @clauses;
     if(@rhs == 1 ) {
-        my $formatted_lhs = $self->format_column({name => $lhs});
+        my $formatted_lhs = $self->format_column($lhs);
         #if rhs side value is undefined
         if ( !defined $rhs[0] && (exists $EQUALITY_OPS{$op} )) {
             @clauses = $self->_unary_postfix($lhs, ($op eq '=' ? 'IS NULL' : 'IS NOT NULL')  );
@@ -267,7 +264,7 @@ sub _like {
     my @clauses;
     if( 1 == @rhs || @rhs == 2  ) {
         #if rhs side value is undefined
-        my $formatted_lhs = $self->format_column({name => $lhs});
+        my $formatted_lhs = $self->format_column($lhs);
         if ( !defined $rhs[0]) {
 
         } else {
@@ -285,7 +282,7 @@ sub _between {
     my @clauses;
     if( @rhs == 2 ) {
         #if rhs side value is undefined
-        my $formatted_lhs = $self->format_column({name => $lhs});
+        my $formatted_lhs = $self->format_column($lhs);
         push @clauses,$formatted_lhs, $op,$self->_format_values($rhs[0]),'and',$rhs[1];
 
     } else {
@@ -299,7 +296,7 @@ sub _in {
     my @clauses;
     if( @rhs ) {
         #if rhs side value is undefined
-        my $formatted_lhs = $self->format_column({name => $lhs});
+        my $formatted_lhs = $self->format_column($lhs);
         push @clauses,$formatted_lhs, $op,'in','(',join(", ",$self->_format_values(@rhs)),')';
 
     } else {
@@ -422,8 +419,82 @@ sub format_column {
 
 sub from_clause {
     my ($self,@args) = @_;
-    my $sql = 'FROM ' . $self->first_from_clause_element->{table};
+    my $sql = '';
+    if($self->has_from_clause_elements){
+        $sql = join(' ','FROM', map {  $self->format_from($_) } $self->from_clause_elements);
+    }
     return $sql;
+}
+
+my %VALID_JOIN_TYPES = (
+    LEFT    => undef,
+    RIGHT   => undef,
+    CROSS   => undef,
+    INNER   => undef,
+    OUTER   => undef,
+    NATURAL => undef,
+    'FULL OUTER'  => undef,
+    'LEFT OUTER'  => undef,
+    'RIGHT OUTER' => undef,
+    'FULL INNER' => undef,
+);
+
+sub format_from {
+    my ($self,$from_clause) = @_;
+    my $type = ref($from_clause);
+    my $clause = '';
+    my @clause_parts;
+    my $dbh = $self->dbh;
+    if($type eq 'HASH') {
+        my ($table,$as,$join_type,$using,$on) = @{$from_clause}{qw(table as join using on)};
+        if(defined $table) {
+            $table = $dbh->quote_identifier($table);
+            if($join_type) {
+                $join_type = uc($join_type);
+                if(exists $VALID_JOIN_TYPES{$join_type}) {
+                    push @clause_parts,$join_type;
+                }
+                push @clause_parts,"JOIN",$table;
+                if ($using) {
+                    push @clause_parts,'using(',$dbh->quote_identifier($using),')';
+                } elsif ($on) {
+                    push @clause_parts,'on',$self->format_from_on(@$on);
+                }
+            } else {
+                @clause_parts = ($table);
+            }
+            $clause = join(' ',@clause_parts);
+        } else {
+            die "table not defined";
+        }
+    } elsif ($from_clause->isa('pf::SearchBuilder::Clause')) {
+        $clause = $from_clause->clause;
+    }
+    return $clause;
+}
+
+sub format_from_on {
+    my ($self,@args) = @_;
+    return
+        map {$self->_format_from_on($_)}
+        map {@$_} @args;
+}
+
+sub _format_from_on {
+    my ($self,$arg) = @_;
+    my $clause = '';
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $type = ref($arg);
+    if ($type eq 'HASH') {
+        $clause = $self->format_column($arg);
+    } elsif ($type eq 'SCALAR') {
+        $clause = $$arg;
+    } elsif (exists $OP_GROUP_MAP{$arg}) {
+        $clause = $arg;
+    } elsif ($arg->isa('pf::SearchBuilder::Clause')) {
+        $clause = $arg->clause;
+    }
+    return $clause;
 }
 
 sub where_clause {

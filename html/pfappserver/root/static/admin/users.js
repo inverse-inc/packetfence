@@ -41,7 +41,7 @@ function init() {
             .done(function(data) {
                 modal.append(data);
                 modal.modal({ shown: true });
-                modal.one('shown', function() {
+                modal.on('shown', function() {
                     $('#pid').focus();
                 });
             })
@@ -89,6 +89,7 @@ function init() {
         return false;
     });
 
+
     /* Delete a user (from the modal editor) */
     $('body').on('click', '#deleteUser', function(event) {
         var modal = $('#modalUser');
@@ -109,7 +110,62 @@ function init() {
         return false;
     });
 
+    $("#modalUser").on('show','[data-toggle="tab"][data-target][href]',function(event) {
+        var that = $(this);
+        var target = $(that.attr("data-target"));
+        target.load(that.attr("href"));
+        return true;
+    });
+    /* View a node (show the modal editor) */
+    $('body').on('click', '[href*="#modalNode"]', function(event) {
+        var url = $(this).attr('href');
+        var section = $('#section');
+        var loader = section.prev('.loader');
+        loader.show();
+        section.fadeTo('fast', 0.5);
+        $.ajax(url)
+        .always(function() {
+            loader.hide();
+            section.stop();
+            section.fadeTo('fast', 1.0);
+        })
+        .done(function(data) {
+            $('body').append(data);
+            $('#modalNode').one('shown', function(event) {
+                $('#modalUser').modal('hide');
+                var modal = $(this);
+                modal.find('.chzn-select').chosen();
+                modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                modal.find('.timepicker-default').each(function() {
+                    // Keep the placeholder visible if the input has no value
+                    var defaultTime = $(this).val().length? 'value' : false;
+                    $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
+                });
+                modal.find('.datepicker').datepicker({ autoclose: true });
+                modal.find('a[href="#nodeHistory"]').on('shown', function () {
+                    if ($('#nodeHistory .chart').children().length == 0)
+                        drawGraphs();
+                });
+                $('#modalNode').one('hidden', function (eventObject) {
+                    // Destroy the modal unless the event is coming from
+                    // an input field (See bootstrap-timepicker.js)
+                    if (eventObject.target.tagName != 'INPUT') {
+                        $(this).remove();
+                        $('#modalUser').modal('show');
+                    }
+                });
+            });
+            $('#modalNode').modal({show: true});
+        })
+        .fail(function(jqXHR) {
+            var status_msg = getStatusMsg(jqXHR);
+            showPermanentError(section, status_msg);
+        });
+        return false;
+    });
+
     $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
 
     $(window).hashchange();
 }
+

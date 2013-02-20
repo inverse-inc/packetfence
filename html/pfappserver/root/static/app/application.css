@@ -77,3 +77,11 @@ form .uneditable {
 #interfaces td span.label {
     margin-left: 5px;
 }
+
+.inline {
+    display:inline;
+}
+
+#modalUser {
+    width: 780px;
+}

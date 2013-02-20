@@ -1,9 +1,10 @@
 function init() {
 
     function updateGraphSection(href) {
-        var graph = $('#section .graph');
-        var loader = $('#section .loader');
-        $('#section .graph').fadeOut('fast', function() {
+        var section = $('#section');
+        var graph   = section.find('.graph');
+        var loader  = section.prev('.loader');
+        graph.fadeOut('fast', function() {
             $(this).empty();
             graphs = {};
             loader.show();

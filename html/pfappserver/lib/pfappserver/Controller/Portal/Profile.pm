@@ -141,25 +141,30 @@ sub validatePathParts {
 
 sub edit :Chained('object') :PathPart :Args() {
     my ($self,$c,@pathparts) = @_;
-    my $file_name = catfile(@pathparts);
-    my $file_path = $self->_makeFilePath($c,$file_name);
+    my $full_file_name = catfile(@pathparts);
+    my ($file_name,$directory) = fileparse($full_file_name);
+    my $file_path = $self->_makeFilePath($c,$full_file_name);
     my $file_content = read_file($file_path);
+    $directory = '' if $directory eq './';
+    $directory = catfile($c->stash->{profile_name},$directory);
     $c->stash(
         file_name => $file_name,
-        file_content => $file_content
+        file_content => $file_content,
+        directory => $directory,
+        full_file_name => $full_file_name,
     );
 }
 
 sub edit_new :Chained('object') :PathPart :Args() {
     my ($self,$c,@pathparts) = @_;
     $self->validatePathParts($c,@pathparts);
-    my $file_name = catfile(@pathparts);
-    my $file_path = $self->_makeFilePath($c,$file_name);
+    my $full_file_name = catfile(@pathparts);
+    my $file_path = $self->_makeFilePath($c,$full_file_name);
     my $file_content = '';
     if (-e $file_path) {
         $file_content = read_file($file_path);
     }
-    elsif($file_name =~ /\.html$/) {
+    elsif($full_file_name =~ /\.html$/) {
         $file_content = <<'HTML';
 [% title = i18n("New File Title") %]
 [% INCLUDE header.html %]
@@ -167,9 +172,13 @@ sub edit_new :Chained('object') :PathPart :Args() {
 [% INCLUDE footer.html %]
 HTML
     }
+    my ($file_name,$directory) = fileparse($full_file_name);
     $c->stash(
         template => 'portal/profile/edit.tt',
         file_name => $file_name,
+        directory => $directory,
+        full_file_name => $full_file_name,
+        parent_dir => $file_name,
         file_content => $file_content
     );
 }
@@ -291,7 +300,7 @@ sub _getFilesInfo {
         'name' => $profile,
         'entries' => [
             map {$self->_makeFileInfo( $root_path, $_, \%default_files)}
-            sort grep { !exists $FILTER_FILES{$_}  } read_dir($root_path)],
+            sort grep { !exists $FILTER_FILES{$_} && !m/^\./ } read_dir($root_path)],
         'hidden' => 0,
         'size'   => 0,
     );
@@ -347,7 +356,7 @@ sub _makeFileInfo {
         $data{'entries'} = [
             grep { $_->{name} = catfile($file_name,$_->{name}) }
             map {$self->_makeFileInfo($full_path,$_,$default_files) }
-            sort  (read_dir($full_path))
+            sort grep { !m/^\./ } (read_dir($full_path))
         ];
     }
     else {
@@ -387,7 +396,7 @@ sub _readDirRecursive {
         if (-d $full_path) {
             push @files, map {catfile(@subdir,$entry,$_) } _readDirRecursive($path,@subdir,$entry);
         }
-        else {
+        elsif ($entry !~ m/^\./) {
             push @files, $entry;
         }
     }
@@ -466,7 +475,7 @@ sub create : Local: Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
