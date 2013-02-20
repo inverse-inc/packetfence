@@ -223,6 +223,7 @@ sub get {
     }
 
     my $result = {};
+    my ($status, $return);
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     foreach $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
@@ -237,12 +238,19 @@ sub get {
           $result->{"$interface"}->{'vlan'}     = $vlan_id;
         }
         $result->{"$interface"}->{'hwaddress'}  = $interface->hwaddr;
-        $result->{"$interface"}->{'network'}    = $self->_get_network_address($interface->address, $interface->netmask);
-        my ($status, $dns)                      = $models->{networks}->read_value($result->{"$interface"}->{'network'}, 'dns');
-        if (is_success($status)) {
-            $result->{"$interface"}->{'dns'}    = $dns;
+        if (($result->{"$interface"}->{'network'} = $models->{networks}->getNetworkAddress($interface->address, $interface->netmask))) {
+            ($status, $return) = $models->{networks}->getRoutedNetworks($result->{"$interface"}->{'network'},
+                                                                           $interface->netmask);
+            if (is_success($status)) {
+                $result->{"$interface"}->{'networks'} = $return;
+            }
+            ($status, $return) = $models->{networks}->read_value($result->{"$interface"}->{'network'}, 'dns');
+            if (is_success($status)) {
+                $result->{"$interface"}->{'dns'} = $return;
+            }
+            $result->{"$interface"}->{'network_iseditable'} = $models->{networks}->exist($result->{"$interface"}->{'network'});
         }
-        $result->{"$interface"}->{'type'}       = $self->getType($interface, $result->{"$interface"}, $models);
+        $result->{"$interface"}->{'type'} = $self->getType($interface, $result->{"$interface"}, $models);
     }
 
     return $result;
@@ -276,8 +284,8 @@ sub update {
     my $interface_object = IO::Interface::Simple->new($interface);
 
     # Check if the network has changed
-    my $network = $self->_get_network_address($interface_object->address, $interface_object->netmask);
-    my $new_network = $self->_get_network_address($ipaddress, $netmask);
+    my $network = $models->{networks}->getNetworkAddress($interface_object->address, $interface_object->netmask);
+    my $new_network = $models->{networks}->getNetworkAddress($ipaddress, $netmask);
     if ($network && $network ne $new_network) {
         $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
         $models->{networks}->update_network($network, $new_network);
@@ -434,18 +442,23 @@ sub setType {
     }
 }
 
-=item _get_network_address
 
-Calculate the network address for the provided ipaddress/network combination
+sub interfaceForDestination {
+    my ( $self, $destination ) = @_;
 
-Returns undef on undef IP / Mask
+    my @interfaces = $self->_listInterfaces();
 
-=cut
-sub _get_network_address {
-    my ( $self, $ipaddress, $netmask ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    foreach my $interface ( @interfaces ) {
+        next if ( "$interface" eq "lo" );
 
-    return if ( !defined($ipaddress) || !defined($netmask) );
-    return Net::Netmask->new($ipaddress, $netmask)->base();
+        if ($interface->address && $interface->netmask) {
+            my $network = Net::Netmask->new($interface->address, $interface->netmask);
+            if ($network->match($destination)) {
+                return $interface;
+            }
+        }
+    }
 }
 
 =item _interfaceActive

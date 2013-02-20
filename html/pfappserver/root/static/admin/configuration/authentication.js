@@ -1,5 +1,5 @@
     /* Delete a source */
-    $('#section').on('click', '[href*="/delete"]', function(event) {
+    $('#section').on('click', '#sources [href*="/delete"]', function(event) {
         if ($(this).hasClass('disabled'))
             return false;
         var url = $(this).attr('href');

@@ -382,7 +382,7 @@ msgid "scan"
 msgstr "Scan"
 
 msgid "none"
-msgstr "None"
+msgstr "(None)"
 
 msgid "openvas"
 msgstr "OpenVAS"

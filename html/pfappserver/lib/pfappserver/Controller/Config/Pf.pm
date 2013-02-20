@@ -1,11 +1,4 @@
 package pfappserver::Controller::Config::Pf;
-use HTTP::Status qw(:constants is_error);
-use JSON;
-use Moose;
-use namespace::autoclean;
-use Try::Tiny;
-
-BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
 
@@ -14,6 +7,14 @@ pfappserver::Controller::Config::Pf - Catalyst Controller
 =head1 DESCRIPTION
 
 Catalyst Controller.
+
+=cut
+
+use HTTP::Status qw(:constants is_error);
+use Moose;
+use namespace::autoclean;
+
+BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 METHODS
 

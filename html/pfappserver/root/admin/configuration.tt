@@ -81,7 +81,6 @@ tr[data-swap] > td {
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               [% list_entry('Configuration', 'interfaces', 'Interfaces') %]
-              <li><a href="#">Networks</a></li>
               <li><a href="#">Switches</a></li>
               <li><a href="#">Floating devices</a></li>
               <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
