@@ -71,9 +71,7 @@ Depends: ${misc:Depends}, vlan, make,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
- libsort-naturally-perl, libphp-serialization-perl,
-# catalyst-server
- libcatalyst-engine-http-prefork-perl,
+ libsort-naturally-perl, libphp-serialization-perl, libhtml-formhandler-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
