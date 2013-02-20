@@ -78,6 +78,10 @@ form .uneditable {
     margin-left: 5px;
 }
 
+.inline {
+    display:inline;
+}
+
 #modalUser {
     width: 780px;
 }
