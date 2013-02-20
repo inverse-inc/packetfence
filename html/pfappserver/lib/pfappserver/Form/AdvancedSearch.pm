@@ -1,4 +1,4 @@
-package pfappserver::Form::Search::Node;
+package pfappserver::Form::AdvancedSearch;
 
 =head1 NAME
 

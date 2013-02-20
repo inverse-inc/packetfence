@@ -19,7 +19,7 @@ use namespace::autoclean;
 use POSIX;
 
 use pfappserver::Form::Node;
-use pfappserver::Form::Search::Node;
+use pfappserver::Form::AdvancedSearch;
 
 BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
@@ -47,7 +47,7 @@ sub advanced_search :Local :Args() {
     my ($self, $c) = @_;
     my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
     my $search_model = $c->model("Search::Node");
-    my $form = new pfappserver::Form::Search::Node;
+    my $form = new pfappserver::Form::AdvancedSearch;
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
