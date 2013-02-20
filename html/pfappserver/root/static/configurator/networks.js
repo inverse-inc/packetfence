@@ -13,7 +13,7 @@ function registerExits() {
 
 function saveStep(href) {
     var form = $('form[name="networks"]');
-    var errorSibling = form.find('.control-group');
+    var errorSibling = $('#section h3');
 
     resetAlert(form);
     var valid = isFormValid(form);

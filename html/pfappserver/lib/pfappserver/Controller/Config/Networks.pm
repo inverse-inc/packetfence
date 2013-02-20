@@ -11,73 +11,46 @@ Catalyst Controller.
 =cut
 
 use HTTP::Status qw(:constants is_error is_success);
-use JSON;
 use Moose;
+use pfappserver::Form::Config::Network;
+use pfappserver::Form::Config::Network::Routed;
 use namespace::autoclean;
-use Try::Tiny;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 METHODS
 
 =over
 
+=item begin
+
+This controller defaults view is JSON.
+
+=cut
+sub begin :Private {
+    my ( $self, $c ) = @_;
+
+    $c->stash->{current_view} = 'JSON';
+}
+
 =item create
 
-Create a new network section in PacketFence networks.conf configuration file
-
-Usage: /config/network/<network>/create
+Usage: /config/network/create
 
 =cut
-sub create :Chained('object') :PathPart('create') :Args(0) {
+
+sub create :Path('create') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $network = $c->stash->{network};
-    my $assignments_ref = $c->request->body_params;
-
-    if ( defined($assignments_ref) ) {
-        my ($status, $return) = $c->model('Config::Networks')->create_network($network, $assignments_ref);
-        if ( is_success($status) ) {
-            $c->response->status(HTTP_CREATED);
-            $c->stash->{status_msg} = $return;
-        } else {
-            $c->response->status($status);
-            $c->error($return);
-        }
-    } else {
-        $c->response->status(HTTP_BAD_REQUEST);
-        $c->stash->{status_msg} = 'Missing parameters';
+    $c->stash->{action_uri} = $c->uri_for($c->action);
+    if ($c->request->method eq 'POST') {
+        my $network = $c->req->params->{network};
+        $c->stash->{network} = $network;
+        $c->forward('update');
     }
-}
-
-=item delete
-
-Delete a network section in PacketFence networks.conf configuration file
-
-Usage: /config/network/<network>/delete
-
-=cut
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    my $network = $c->stash->{network};
-
-    my ($status, $return) = $c->model('Config::Networks')->delete_network($network);
-    if ( is_success($status) ) {
-        $c->stash->{status_msg} = $return;
-    } else {
-        $c->response->status($status);
-        $c->error($return);
+    else {
+        $c->forward('read');
     }
-}
-
-=item index
-
-=cut
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->visit('read', ['all'], ['read']);
 }
 
 =item object
@@ -88,7 +61,33 @@ Chained dispatch
 sub object :Chained('/') :PathPart('config/network') :CaptureArgs(1) {
     my ( $self, $c, $network ) = @_;
 
+    my ($status, $return )= $c->model('Config::Networks')->read($network);
+    if ( is_success($status) ) {
+        $c->stash->{network_ref} = shift @$return;
+    }
     $c->stash->{network} = $network;
+}
+
+=item delete
+
+Delete a network section in PacketFence networks.conf configuration file
+
+Usage: /config/network/<network>/delete
+
+=cut
+
+sub delete :Chained('object') :PathPart('delete') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my $network = $c->stash->{network};
+
+    my ($status, $return) = $c->model('Config::Networks')->delete($network);
+    if ( is_success($status) ) {
+        $c->stash->{status_msg} = $return;
+    } else {
+        $c->response->status($status);
+        $c->error($return);
+    }
 }
 
 =item read
@@ -100,14 +99,26 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $network = $c->stash->{network};
+    my $network_ref = $c->stash->{network_ref};
+    my $form;
 
-    my ($status, $return) = $c->model('Config::Networks')->read_network($network);
-    if ( is_success($status) ) {
-        $c->stash->{networks} = $return;
-    } else {
-        $c->response->status($status);
-        $c->error($return);
+    if (defined($network)) {
+        # Edit an existing network
+        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$network]);
     }
+
+    if (!defined($network) || $network_ref->{next_hop}) {
+        # Create or edit a routed network
+        $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c, network => $network, init_object => $network_ref);
+    }
+    else {
+        # Edit the default interface network
+        $form = pfappserver::Form::Config::Network->new(ctx => $c, network => $network, init_object => $network_ref);
+    }
+    $form->process();
+    $c->stash->{form} = $form;
+    $c->stash->{template} = 'config/network.tt';
+    $c->stash->{current_view} = 'HTML';
 }
 
 =item update
@@ -118,31 +129,54 @@ Usage: /config/network/<network>/update
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $network = $c->stash->{network};
-    my $assignments_ref = $c->request->body_params->{assignments};
+    if ($c->request->method eq 'POST') {
+        my ($status, $result);
+        my ($form, $network, $network_ref);
 
-    if ( $assignments_ref ) {
-        my $decoded_assignments_ref = try { return decode_json($assignments_ref); }
-        catch {
-            # Malformed JSON
-            chomp $_;
-            $c->response->status(HTTP_BAD_REQUEST);
-            $c->stash->{status_msg} = $_;
-            return;
-        };
-        if ( defined($decoded_assignments_ref) ) {
-            my ($status, $return) = $c->model('Config::Networks')->update_network($network, $assignments_ref);
-            if ( is_success($status) ) {
-                $c->response->status(HTTP_CREATED);
-                $c->stash->{status_msg} = $return;
-            } else {
-                $c->response->status($status);
-                $c->error($return);
-            }                
+        $network = $c->stash->{network};
+        $network_ref = $c->stash->{network_ref};
+
+        # Validate form
+        if (!defined($network_ref)) {
+            # Create a routed network
+            $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c);
+        } elsif ($network_ref->{next_hop}) {
+            # Edit a routed network
+            $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c, network => $network);
+        } else {
+            # Edit the default interface network
+            $form = pfappserver::Form::Config::Network->new(ctx => $c, network => $network);
         }
-    } else {
-        $c->response->status(HTTP_BAD_REQUEST);
-        $c->stash->{stash_msg} = "Missing parameters";
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors;
+        }
+        else {
+            # Write networks.conf
+            if ($form->value->{network} && $network ne $form->value->{network}) {
+                # Network address has changed
+                $c->model('Config::Networks')->update_network($network, $form->value->{network});
+                $network = $form->value->{network};
+                $network_ref = $form->value;
+            }
+            delete $form->value->{network};
+            if ($network_ref) {
+                # Update an existing network
+                ($status, $result) = $c->model('Config::Networks')->update($network, $form->value);
+            }
+            else {
+                # Create a new network
+                ($status, $result) = $c->model('Config::Networks')->create($network, $form->value);
+            }
+        }
+
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result; # TODO: localize error message
+    }
+    else {
+        $c->stash->{template} = 'config/network.tt';
+        $c->forward('read');
     }
 }
 
@@ -164,20 +198,13 @@ sub end :ActionClass('RenderView') {
         $c->forward('View::JSON');
         $c->error(0);
     }
-    $c->forward('View::JSON');
 }
 
 =back
 
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

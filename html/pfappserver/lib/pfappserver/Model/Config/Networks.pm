@@ -12,6 +12,7 @@ Configuration module for operations involving conf/networks.conf.
 
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use Net::Netmask;
 use Readonly;
 
 use pf::config;
@@ -158,6 +159,35 @@ sub list_networks {
     return ($STATUS::OK, \@networks);
 }
 
+=item getRoutedNetworks
+
+Return the routed networks for the specified network and mask.
+
+=cut
+
+sub getRoutedNetworks {
+    my ( $self, $network, $netmask ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $networks_conf = $self->_load_conf();
+    my @networks = ();
+    foreach my $section ( keys %$networks_conf ) {
+        next if ($section eq $network);
+        my $next_hop = $networks_conf->{$section}->{next_hop};
+        if ($next_hop && $self->getNetworkAddress($next_hop, $netmask) eq $network) {
+            push @networks, $section;
+        }
+    }
+
+    if (scalar @networks > 0) {
+        @networks = sort @networks;
+        return ($STATUS::OK, \@networks);
+    }
+    else {
+        return ($STATUS::NOT_FOUND);
+    }
+}
+
 =item read_value
 
 =cut
@@ -184,6 +214,9 @@ sub read_value {
 
 =item read_network
 
+Return a table representation of a network defined in networks.conf
+according to the field order defined in ui.conf
+
 =cut
 sub read_network {
     my ( $self, $network ) = @_;
@@ -204,6 +237,32 @@ sub read_network {
     }
 
     if ( $#resultset > 0 ) {
+        return ($STATUS::OK, \@resultset);
+    }
+    else {
+        return ($STATUS::NOT_FOUND, "Unknown network $network");
+    }
+}
+
+=item read
+
+Return the hash representation of a network defined in networks.conf
+
+=cut
+sub read {
+    my ( $self, $network ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $networks_conf = $self->_load_conf();
+    my @resultset = ();
+
+    foreach my $section ( keys %$networks_conf ) {
+        if ( ($network eq 'all') || ($network eq $section) ) {
+            push @resultset, $networks_conf->{$section};
+        }
+    }
+
+    if ( scalar @resultset > 0 ) {
         return ($STATUS::OK, \@resultset);
     }
     else {
@@ -292,6 +351,20 @@ sub exist {
 }
 
 
+=item getNetworkAddress
+
+Calculate the network address for the provided ipaddress/network combination
+
+Returns undef on undef IP / Mask
+
+=cut
+sub getNetworkAddress {
+    my ( $self, $ipaddress, $netmask ) = @_;
+
+    return if ( !defined($ipaddress) || !defined($netmask) );
+    return Net::Netmask->new($ipaddress, $netmask)->base();
+}
+
 =head1 METHODS TO GET RID OF
 
 =over
@@ -316,17 +389,9 @@ sub _write_networks_conf {
 
 =back
 
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

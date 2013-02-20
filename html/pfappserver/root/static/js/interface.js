@@ -60,14 +60,17 @@ var InterfaceView = function(options) {
     var update = $.proxy(this.updateInterface, this);
     options.parent.on('submit', 'form[name="modalEditInterface"], form[name="modalCreateVlan"]', update);
 
-    var delete_p = $.proxy(this.deleteInterface, this);
-    options.parent.on('click', '#interfaces [href$="/delete"]', delete_p);
+    var delete_i = $.proxy(this.deleteInterface, this);
+    options.parent.on('click', '#interfaces [href$="/delete"]', delete_i);
 
     var toggle = $.proxy(this.toggleInterface, this);
     options.parent.on('switch-change', '#interfaces .switch', toggle);
 
     var typeChanged = $.proxy(this.typeChanged, this);
     options.parent.on('change', '[name="type"]', typeChanged);
+
+    var delete_n = $.proxy(this.deleteNetwork, this);
+    options.parent.on('click', 'form[name="modalEditInterface"] [href$="/delete"]', delete_n);
 };
 
 InterfaceView.prototype.readInterface = function(e) {
@@ -190,5 +193,25 @@ InterfaceView.prototype.toggleInterface = function(e) {
             btn.bootstrapSwitch('setState', !status, true);
             that.disableToggle = false;
         }
+    });
+};
+
+InterfaceView.prototype.deleteNetwork = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var btn = $(e.target);
+    var url = btn.attr('href');
+    var modal = $('#modalEditInterface');
+    var modal_body = modal.find('.modal-body').first();
+    resetAlert(modal_body);
+    this.interfaces.action({
+        url: url,
+        success: function(data) {
+            showSuccess($('#interfaces table'), data.status_msg);
+            modal.modal('toggle');
+            that.list();
+        },
+        errorSibling: modal_body.children().first()
     });
 };
