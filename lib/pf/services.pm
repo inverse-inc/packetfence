@@ -357,7 +357,7 @@ sub service_ctl {
                     # otherwise the list of pids
                     return join(" ", values %int_to_pid);
                 }
-                elsif ($binary =~ "httpd(.*)") {
+                elsif ($daemon =~ "httpd(.*)") {
                     $pid = 0;
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
