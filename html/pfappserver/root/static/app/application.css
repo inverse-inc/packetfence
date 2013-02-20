@@ -81,7 +81,8 @@ form .uneditable {
 .inline {
     display:inline;
 }
-
-#modalUser {
+/* enlarge modal of violation, user and user source rule */
+#modalViolation, #modalRule, #modalUser {
+    margin-left: -390px;
     width: 780px;
 }
