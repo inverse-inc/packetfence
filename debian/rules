@@ -82,8 +82,6 @@ install: build
 	#Configurator integration
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
-	install -m0755 $(CURDIR)/debian/pfappserver.init $(CURDIR)/debian/packetfence/etc/init.d/pfappserver
-	install -m0644 $(CURDIR)/debian/pfappserver.default $(CURDIR)/debian/packetfence/etc/default/pfappserver
 	#PacketFence remote Snort sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var

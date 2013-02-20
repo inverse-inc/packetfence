@@ -72,9 +72,7 @@ case "$1" in
         fi
 
         update-rc.d packetfence defaults . || exit 0
-        update-rc.d pfappserver defaults . || exit 0
-        invoke-rc.d pfappserver start
-        echo "* Reboot your server and after please fire up your Web browser and go to http://@ip_packetfence:1444/configurator to complete your PacketFence configuration."
+        echo "* Reboot your server and after please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

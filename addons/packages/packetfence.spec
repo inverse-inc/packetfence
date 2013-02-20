@@ -298,7 +298,6 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
-%{__install} -D -m0755 pfappserver.init $RPM_BUILD_ROOT%{_initrddir}/pfappserver
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
@@ -446,8 +445,6 @@ fi
 %post -n %{real_name}
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
-echo "Adding pfappserver startup script"
-/sbin/chkconfig --add pfappserver
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
@@ -505,11 +502,8 @@ echo "Disabling SELinux..."
 setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
-#Start pfappserver
-service pfappserver start
-
 echo Installation complete
-echo "  * Please fire up your Web browser and go to http://@ip_packetfence:1444/configurator to complete your PacketFence configuration."
+echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 
 %post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
@@ -550,7 +544,6 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
-%attr(0755, root, root) %{_initrddir}/pfappserver
 %dir                    %{_sysconfdir}/logrotate.d
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
