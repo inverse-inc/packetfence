@@ -1257,8 +1257,20 @@ sub service {
     if ( lc($command) eq 'start' ) {
         require pf::pfcmd::checkup;
         import pf::pfcmd::checkup;
-        checkup(@services);
+        #Start httpd.admin anyway for the configurator
         my $nb_running_services = 0;
+        if ( pf::services::service_ctl( "httpd.admin", "status" ) ) {
+            $nb_running_services++;
+            push @alreadyRunningServices, "httpd.admin";
+        }
+        if ( grep( { $_ eq "httpd.admin" } @alreadyRunningServices ) == 1 )
+        {
+            print "httpd.admin|already running\n";
+        } else {
+            pf::services::service_ctl( "httpd.admin", $command );
+            print "httpd.admin|$command\n";
+        }
+        checkup(@services);
         foreach my $tmp (@pf::services::ALL_SERVICES) {
             if ( pf::services::service_ctl( $tmp, "status" ) ) {
                 $nb_running_services++;

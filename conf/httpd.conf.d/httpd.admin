@@ -53,6 +53,7 @@ $MinSpareServers = "6";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
+$ErrorLog = $install_dir.'/logs/apache2_admin_error_log';
 
 $NameVirtualHost => "*:$PfConfig->{'ports'}{'admin'}";
 push @{ $VirtualHost{"*:$PfConfig->{'ports'}{'admin'}"} },
