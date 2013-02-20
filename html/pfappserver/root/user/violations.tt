@@ -1,3 +1,4 @@
+[% IF items.size %]
 <table class="table table-condensed">
     <thead>
       <tr>
@@ -20,3 +21,8 @@
     [% END %]
     </tbody>
 </table>
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
+  </div>
+[% END %]
