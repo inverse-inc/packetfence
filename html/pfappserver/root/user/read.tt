@@ -44,9 +44,13 @@
 
             </div><!--tab-pane-->
             <div class="tab-pane fade" id="userHistory">
+              <div id="noResult" class="unwell">
+                <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
+              </div>
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="userDevices">
+              [%IF nodes.size%]
               <table class="table table-condensed">
                 <thead>
                   <tr>
@@ -64,6 +68,11 @@
                 [% END %]
                 </tbody>
               </table>
+              [%ELSE%]
+              <div id="noResult" class="unwell">
+                <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
+              </div>
+              [% END %]
             </div><!--tab-pane-->
             <div class="tab-pane fade" id="userViolations"/><!--tab-pane-->
 
