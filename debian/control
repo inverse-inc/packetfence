@@ -58,7 +58,7 @@ Depends: ${misc:Depends}, vlan, make,
  libnet-interface-perl, libnet-radius-perl,
  libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
  libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
- libnet-nessus-xmlrpc-perl (>= 0.4),libfile-slurp-perl
+ libnet-nessus-xmlrpc-perl (>= 0.4),libfile-slurp-perl,
  
 # required for ipset
  libnetaddr-ip-perl, libfile-which-perl,
