@@ -131,8 +131,12 @@ function init() {
         })
         .done(function(data) {
             $('body').append(data);
-            $('#modalNode').one('shown', function(event) {
-                $('#modalUser').modal('hide');
+            var modalNode = $("#modalNode");
+            var modalUser = $("#modalUser");
+            modalUser.one('hidden',function(event){
+                modalNode.modal('show');
+            });
+            modalUser.one('shown', function(event) {
                 var modal = $(this);
                 modal.find('.chzn-select').chosen();
                 modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
@@ -151,11 +155,12 @@ function init() {
                     // an input field (See bootstrap-timepicker.js)
                     if (eventObject.target.tagName != 'INPUT') {
                         $(this).remove();
-                        $('#modalUser').modal('show');
+                        modalUser.modal('show');
                     }
                 });
             });
-            $('#modalNode').modal({show: true});
+
+            modalUser.modal('hide');
         })
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
