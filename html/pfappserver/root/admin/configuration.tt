@@ -30,11 +30,6 @@
 .row-fluid [class*="span"] {
     display: inline-block;
 }
-/* enlarge modal of violation and user source rule */
-#modalViolation, #modalRule {
-    margin-left: -390px;
-    width: 780px;
-}
 /* fix inputs in tables */
 table input[type="text"] {
     margin-bottom: 0px;
