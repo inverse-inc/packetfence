@@ -137,28 +137,29 @@ function init() {
             modalUser.one('hidden',function(event){
                 modalNode.modal('show');
             });
-            modalUser.one('shown', function(event) {
+            modalNode.one('shown', function(event) {
                 var modal = $(this);
                 modal.find('.chzn-select').chosen();
                 modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
                 modal.find('.timepicker-default').each(function() {
                     // Keep the placeholder visible if the input has no value
-                    var defaultTime = $(this).val().length? 'value' : false;
-                    $(this).timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
+                    var that = $(this);
+                    var defaultTime = that.val().length? 'value' : false;
+                    that.timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
+                    that.on('hidden',function (e){
+                        //Stop the hidden event bubbling up to the modal
+                        e.stopPropagation();
+                    });
                 });
                 modal.find('.datepicker').datepicker({ autoclose: true });
                 modal.find('a[href="#nodeHistory"]').on('shown', function () {
                     if ($('#nodeHistory .chart').children().length == 0)
                         drawGraphs();
                 });
-                $('#modalNode').one('hidden', function (eventObject) {
-                    // Destroy the modal unless the event is coming from
-                    // an input field (See bootstrap-timepicker.js)
-                    if (eventObject.target.tagName != 'INPUT') {
-                        $(this).remove();
-                        modalUser.modal('show');
-                    }
-                });
+            });
+            modalNode.one('hidden', function (eventObject) {
+                $(this).remove();
+                modalUser.modal('show');
             });
 
             modalUser.modal('hide');
