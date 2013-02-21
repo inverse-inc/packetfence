@@ -513,8 +513,17 @@ sub order_by_clause {
 }
 
 sub group_by_clause {
-    my ($self,@args) = @_;
+    my ($self,$dbh) = @_;
     my $sql = '';
+    if($self->has_group_by_clause_elements) {
+        $sql = join(' ',
+            'GROUP BY',
+            (
+            map { $self->format_column($_,$dbh) }
+            $self->group_by_clause_elements()
+            )
+        );
+    }
     return $sql;
 }
 
