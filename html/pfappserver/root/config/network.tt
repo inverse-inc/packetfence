@@ -1,0 +1,38 @@
+<form name="modalEditInterface" class="form-horizontal form-condensed" action="[% action_uri %]">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a> 
+    <h3>[% IF network %]<i>[% l('Network') %]</i> [% network %][% ELSE %][% l('New Network') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+
+    [% form.field('network').render %]
+    <div class="control-group">
+      <div class="controls">
+        <h6>DHCP</h6>
+      </div>
+    </div>
+    [% form.field('dhcpd').render %]
+    [% form.field('dhcp_start').render %]
+    [% form.field('dhcp_end').render %]
+    [% form.field('dhcp_default_lease_time').render %]
+    [% form.field('dhcp_max_lease_time').render %]
+    [% IF form.field('gateway') -%]
+    <div class="control-group">
+      <div class="controls">
+        <h6>Routing</h6>
+      </div>
+    </div>
+    [% form.field('gateway').render %]
+    [% form.field('netmask').render %]
+    [% form.field('next_hop').render %]
+    [%- END %]
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    [% IF form.field('gateway') %]<a class="btn btn-danger pull-left" href="[% c.uri_for(c.controller('Config::Networks').action_for('delete'), [ network ]) %]" data-loading-text="[% l('Deleting') %]"><i class="icon-trash"></i> [% l('Delete') %]</a>[% END %]
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+  </div>
+
+</form>
