@@ -97,7 +97,7 @@
             <div class="form-actions">
               <a id="file-editor-save" href="#" class="btn btn-primary disabled" data-toggle="modal" data-target="#saveFile"><i class="icon-save"></i> [% l('Save') %]</a>
               <a id="file-editor-reset" href="#" class="btn btn-danger disabled" data-toggle="modal" data-target="#resetContent"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
-              <a id="file-editor-preview" class="btn" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[profile_name],file_name)  %]" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
+              <a id="file-editor-preview" class="btn" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[profile_name],full_file_name)  %]" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
               <a type="button" id="cancel-link" class="btn pull-right " data-target="#cancelEdit" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[profile_name])  %]">[% l('Cancel') %]</a>
             </div>
         </form>

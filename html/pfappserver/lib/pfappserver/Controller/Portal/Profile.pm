@@ -147,6 +147,7 @@ sub edit :Chained('object') :PathPart :Args() {
     my $file_content = read_file($file_path);
     $directory = '' if $directory eq './';
     $directory = catfile($c->stash->{profile_name},$directory);
+    $directory .= "/" unless $directory =~ /\/$/;
     $c->stash(
         file_name => $file_name,
         file_content => $file_content,
@@ -240,12 +241,23 @@ sub show_preview :Chained('object') :PathPart :Args() {
 sub preview :Chained('object') :PathPart :Args() {
     my ($self,$c,@pathparts) = @_;
     my $template_path = $self->_makeFilePath($c);
-    my $file_name = catfile(@pathparts);
-    $self->add_fake_profile_data($c);
+    my $new_template = $self->_makePreviewTemplate($c,@pathparts);
+    $self->add_fake_profile_data($c,$new_template,@pathparts);
     $c->stash(
         additional_template_paths => [$template_path],
-        template => $file_name
+        template => $new_template
     );
+}
+
+sub _makePreviewTemplate {
+    my ($self,$c,@pathparts) = @_;
+    my $file_name;
+    if($pathparts[0] eq 'violations') {
+        $file_name = 'remediation.html';
+    } else {
+        $file_name = catfile(@pathparts);
+    }
+    return $file_name;
 }
 
 sub _makeFilePath {
