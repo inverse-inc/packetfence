@@ -44,6 +44,7 @@ function init() {
                 modal.on('shown', function() {
                     $('#pid').focus();
                 });
+                modal.find('.datepicker').datepicker({ autoclose: true });
             })
             .fail(function(jqXHR) {
                 modal.modal('hide');
