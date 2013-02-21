@@ -62,10 +62,10 @@ function initCancelModal() {
 
 function initEditor(editor,file_content) {
     var cancel_link = $("#cancel-link");
-    var file_editor_buttons = $('.form-actions a.btn');
+    var file_editor_buttons = $('.form-actions a.btn.editorToggle');
     var enableButtonsOnChangeOnce = function(e) {
         cancel_link.attr('data-toggle','modal');
-        file_editor_buttons.removeClass('disabled');
+        file_editor_buttons.toggleClass('disabled');
         editor.removeEventListener("change",enableButtonsOnChangeOnce);
     };
 
@@ -82,7 +82,7 @@ function initEditor(editor,file_content) {
     $('#resetContent').find('a.btn-primary').first().click(function(event) {
         editor.setValue(file_content.val(),-1);
         cancel_link.removeAttr('data-modal');
-        file_editor_buttons.addClass('disabled');
+        file_editor_buttons.toggleClass('disabled');
         editor.on("change",enableButtonsOnChangeOnce);
     });
 }
