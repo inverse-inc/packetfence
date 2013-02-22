@@ -170,6 +170,10 @@ function init() {
         });
         return false;
     });
+    $('#userAdvancedSearch').on('admin.added','tr', function(event) {
+        var that = $(this);
+        that.find(':input').removeAttr('disabled');
+    });
 
     $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
 
