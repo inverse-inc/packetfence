@@ -198,7 +198,8 @@ sub rename :Chained('object') :PathPart :Args() {
     move($from_path,$to_path);
     $c->stash->{current_view} = 'JSON';
     #verify file exists if it does set error
-    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{profile_name} ], $to ));
+    pop @pathparts;
+    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{profile_name} ], catfile(@pathparts,$to) ));
 }
 
 sub new_file :Chained('object') :PathPart :Args() {
