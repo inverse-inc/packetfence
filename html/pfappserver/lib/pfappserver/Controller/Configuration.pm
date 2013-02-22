@@ -366,6 +366,10 @@ sub violations :Local {
     my ($status, $result) = $c->model('Config::Violations')->read_violation('all');
     if (is_success($status)) {
         $c->stash->{violations} = $result;
+        ($status, $result) = $c->model('Config::Profiles')->read_all_names();
+        if (is_success($status)) {
+            $c->stash->{profiles} = $result;
+        }
     }
     else {
         $c->response->status($status);
