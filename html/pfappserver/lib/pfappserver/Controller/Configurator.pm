@@ -10,14 +10,14 @@ Catalyst Controller.
 
 =cut
 
-use strict;
-use warnings;
+#use strict;
+#use warnings;
 
 use HTML::Entities;
 use HTTP::Status qw(:constants is_error is_success);
 use JSON;
 use Moose;
-use namespace::autoclean;
+#use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -138,8 +138,13 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
     }
     elsif (!exists($c->session->{enforcements})) {
         # Detect chosen mechanisms from networks.conf
-        my $interfaces_ref = $c->model('Interface')->get('all');
-        my ($status, $interfaces_types) = $c->model('Config::Networks')->getTypes($interfaces_ref);
+        my $models =
+          {
+           'networks' => $c->model('Config::Networks'),
+           'pf' => $c->model('Config::Pf')
+          };
+        my $interfaces_ref = $c->model('Interface')->get('all', $models);
+        my ($status, $interfaces_types) = $models->{'networks'}->getTypes($interfaces_ref);
         if (is_success($status)) {
             # If some interfaces are associated to a type, find the corresponding mechanism
             my @active_types = values %{$interfaces_types};
