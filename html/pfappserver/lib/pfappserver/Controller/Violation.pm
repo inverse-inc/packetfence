@@ -61,7 +61,7 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub create :Local {
+sub create :Path('create') :Args(0) {
     my ($self, $c) = @_;
 
     my ($status, $result);
@@ -69,6 +69,7 @@ sub create :Local {
     $c->stash->{action_uri} = $c->uri_for($c->action);
     if ($c->request->method eq 'POST') {
         my $id = $c->req->params->{id};
+        $c->{stash}->{violation} = { id => $id };
         $c->forward('update', [$id]);
     }
     else {
@@ -139,9 +140,8 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
 
-    my ($status, $result);
-
     if ($c->request->method eq 'POST') {
+        my ($status, $result);
         my ($form, $configViolationsModel, $actions, $violations, $triggers, $templates);
 
         $configViolationsModel = $c->model('Config::Violations');
