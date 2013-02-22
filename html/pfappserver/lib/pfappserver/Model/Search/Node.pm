@@ -166,14 +166,6 @@ sub add_joins {
     }
 }
 
-sub add_limit {
-    my ($self,$builder,$params) = @_;
-    my $page_num = $params->{page_num} || 1;
-    my $limit  = $params->{per_page} || 25;
-    my $offset = (( $page_num - 1 ) * $limit );
-    $builder->limit($limit,$offset);
-}
-
 __PACKAGE__->meta->make_immutable;
 
 =back

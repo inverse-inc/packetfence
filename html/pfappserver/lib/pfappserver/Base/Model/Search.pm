@@ -53,6 +53,15 @@ sub process_query {
     return \@where_args;
 }
 
+sub add_limit {
+    my ($self,$builder,$params) = @_;
+    my $page_num = $params->{page_num} || 1;
+    my $limit  = $params->{per_page} || 25;
+    my $offset = (( $page_num - 1 ) * $limit );
+    $builder->limit($limit,$offset);
+}
+
+sub add_joins {}
 
 __PACKAGE__->meta->make_immutable;
 
