@@ -33,10 +33,12 @@ has_field 'enabled' =>
   );
 has_field 'id' =>
   (
-   type => 'Text',
+   type => 'PosInteger',
    label => 'Identifier',
    required => 1,
    messages => { required => 'Please specify an identifier for the violation.' },
+   tags => { after_element => \&help,
+             help => 'Use an number above 150000 if you want to be able to delete this violation later.' },
   );
 has_field 'desc' =>
   (
