@@ -103,6 +103,7 @@ while ( defined( $currentLine = $fh->read ) ) {
     %event = $parse_alert_for->{$ENGINE}->($currentLine);
     if ( !defined( $event{"event_id"} ) or $event{"event_id"} eq "unknown" ) {
         syslog( "warning", "unknown input: $currentLine " );
+        next READALERT;
     }
 
     eval {
@@ -130,8 +131,7 @@ while ( defined( $currentLine = $fh->read ) ) {
         }
     };
     if ($@) {
-        syslog( "warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@"
-        );
+        syslog( "warning", "connection to $PF_HOST with username $ADMIN_USER was NOT successful: $@");
         next READALERT;
     }
 
@@ -217,11 +217,20 @@ sub parse_snort_alert {
     my $portscan_sid = 1200003;    # portscan is a special case
     my %event;
 
+    my $syslog_prefix = qr/              # used when reading from syslog
+        ( \S{2,3} \s+ \S+ \s \S+ ) \s+   # $1 is MM DD HH:MM:SS
+        \w+ \s snort\[ \d+ \] : \s+      # typically something like "centos6 snort[pid]:"
+    /x;
+
+    my $fifo_prefix = qr/                # used when reading from snort fifo
+        (\S+)  \s+                       # $1 is the date
+        \[\*\*\] \s+                     # a litteral [**]
+    /x;
+
     # a regex that matches any snort alert.
     my $snort_line = qr/
-        ^ 
-        (\S+)  \s+                                      # $1 is the date
-        \[\*\*\] \s+                                    # a litteral [**]
+        ^
+        (?: $syslog_prefix | $fifo_prefix )             # $1 matches the date based on the input type
         \[\d+: (\d+): \d+\] \s+                         # $2 is snort id :  [ gid : $2 : rev ] 
         ( .+ ) $                                        # $3 is description, src and dst ips
     /x;
@@ -243,8 +252,11 @@ sub parse_snort_alert {
 
     # we match the part of the snort line that is common to all snort alert and
     # keep the remainder for the second step.
-    ( @event{qw( date event_id )}, my $remainder ) =
-      $currentLine =~ /$snort_line/;
+    my ( $syslog_date, $fifo_date, $event_id, $remainder ) = $currentLine =~  /$snort_line/;
+
+    # date will be defined either in syslog_date or fifo_date depending on input type.
+    $event{"date"} = defined $syslog_date ? $syslog_date : $fifo_date;
+    $event{"event_id"} = $event_id;
 
     # then we match again on the remainder, trying in turn every type of alert.
     if ( ( my $srcip ) = $remainder =~ $portscan ) {
