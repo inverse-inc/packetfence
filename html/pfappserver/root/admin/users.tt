@@ -88,9 +88,9 @@ form {
                 </form>
               </div><!--#simple-->
               <div class="tab-pane well" id="advanced">
-                <form name="advancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('search')) %]">
+                <form id="userAdvancedSearch" name="userAdvancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('search')) %]">
                   <table class="table-dynamic">
-                    <tbody>
+                    <thead>
                       <tr>
                         <td>
                           [% match_options = BLOCK %]
@@ -102,23 +102,25 @@ form {
                           [% l('Match [_1] of the following conditions:', [match_options]) %]
                         </td>
                       </tr>
+                    </thead>
+                    <tbody>
                       <tr class="hidden">
                         <td>
-                          <select class="span4">
-                            <option>Name</option>
-                            <option>Email</option>
-                            <option>Sponsor</option>
-                            <option>IP address</option>
-                            <option>MAC address</option>
+                          <select name="searches.0.name" disabled="disabled" class="span4">
+                            <option value="name">Name</option>
+                            <option value="pid">Email</option>
+                            <option value="sponser">Sponsor</option>
+                            <option value="ip_address">IP address</option>
+                            <option value="mac">MAC address</option>
                           </select>
-                          <select class="span2">
-                            <option>is</option>
-                            <option>is not</option>
-                            <option>starts with</option>
-                            <option>ends with</option>
-                            <option>matches</option>
+                          <select name="searches.0.op" disabled="disabled" class="span2" >
+                            <option value="equal">is</option>
+                            <option value="not_equal">is not</option>
+                            <option value="starts_with">starts with</option>
+                            <option value="ends_with">ends with</option>
+                            <option value="like">matches</option>
                           </select>
-                          <input type="text" class="span6" placeholder="String...">
+                          <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="String...">
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
@@ -127,25 +129,25 @@ form {
                       </tr>
                       <tr>
                         <td>
-                          <select class="span4">
-                            <option>Name</option>
-                            <option>Email</option>
-                            <option>Sponsor</option>
-                            <option>IP address</option>
-                            <option>MAC address</option>
+                          <select name="searches.0.name" class="span4">
+                            <option value="name">Name</option>
+                            <option value="pid">Email</option>
+                            <option value="sponser">Sponsor</option>
+                            <option value="ip_address">IP address</option>
+                            <option value="mac">MAC address</option>
                           </select>
-                          <select class="span2">
-                            <option>is</option>
-                            <option>is not</option>
-                            <option>starts with</option>
-                            <option>ends with</option>
-                            <option>matches</option>
+                          <select name="searches.0.op" class="span2" >
+                            <option value="equal">is</option>
+                            <option value="not_equal">is not</option>
+                            <option value="starts_with">starts with</option>
+                            <option value="ends_with">ends with</option>
+                            <option value="like">matches</option>
                           </select>
-                          <input type="text" class="span6" placeholder="String..."/>
+                          <input name="searches.0.value" type="text" class="span6" placeholder="String...">
                         </td>
                         <td class="action">
                           <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                          <!-- first condition cannot be deleted -->
+                          <!--a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a-->
                         </td>
                       </tr>
                       <tr>
