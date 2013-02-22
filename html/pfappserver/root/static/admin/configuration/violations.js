@@ -47,6 +47,7 @@ $(function() { // DOM ready
             })
             .done(function(data) {
                 modal.append(data);
+                $('.switch').bootstrapSwitch();
                 $('.chzn-select').chosen();
                 $('.chzn-deselect').chosen({allow_single_deselect: true});
                 modal.modal('show');
