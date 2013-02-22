@@ -165,7 +165,7 @@ form {
                         <td colspan="2" style="padding-top: 1em">
                           <div class="btn-group pull-right">
                             <button id="nodeAdvancedSearchBtn" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
-                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                             <ul class="dropdown-menu">
                               <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
                             </ul>
