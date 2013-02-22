@@ -1,3 +1,4 @@
+$(function() { // DOM ready
     /* Delete a source */
     $('#section').on('click', '#sources [href*="/delete"]', function(event) {
         if ($(this).hasClass('disabled'))
@@ -249,3 +250,4 @@
         var type = $(this).find('select[name$=type]').first();
         updateAction(type);
     });
+});
