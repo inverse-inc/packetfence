@@ -194,39 +194,9 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 preview
-
-Load the associated remediation page in an iframe.
-
-=cut
-
-sub preview :Chained('object') :PathPart('preview') :Args(0) {
-    my ($self, $c) = @_;
-
-}
-
-=head2 demo
-
-=cut
-
-sub demo :Chained('object') :PathPart('demo') :Args(0) {
-    my ($self, $c) = @_;
-
-    # Create a fake session profile and render the template
-    # as in pf::web::generate_violation_page
-
-    my $url = sprintf('violations/%s.html', $c->stash->{violation}->{template});
-    $c->stash(
-        sub_template => $url,
-        additional_template_paths => [$CAPTIVE_PORTAL{TEMPLATE_DIR}],
-        template => 'remediation.html'
-    );
-    $self->add_fake_profile_data($c);
-}
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
