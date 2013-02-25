@@ -498,6 +498,7 @@ sub read_violations_conf {
             $violations{$violation}{'button_text'},
             $violations{$violation}{'enabled'},
             $violations{$violation}{'vlan'},
+            $violations{$violation}{'target_category'},
             $violations{$violation}{'whitelisted_categories'},
             $violations{$violation}{'actions'},
             $triggers_ref

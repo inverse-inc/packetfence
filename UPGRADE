@@ -5,6 +5,16 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 3.6.2
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+New action has been added in the category and a new column has been added in class table.
+Make sure you run the following to update your schema
+
+mysql -u root -p pf -v < db/upgrade-3.6.1-3.6.2.sql
+
 Upgrading from a version prior to 3.6.1
 ---------------------------------------
 

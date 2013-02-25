@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Readonly;
+use pf::node;
 
 use constant ACTION => 'action';
 
@@ -168,6 +169,10 @@ sub action_execute {
             action_autoregister($mac, $vid);
         } elsif ( $action =~ /^close$/i ) {
             action_close( $mac, $vid );
+        } elsif ( $action =~ /^change_cat$/i ) {
+            action_change_cat( $mac, $vid );
+        } elsif ( $action =~ /^unreg$/i ) {
+            action_unreg( $mac, $vid );
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
@@ -178,6 +183,22 @@ sub action_execute {
         pf::violation::violation_force_close( $mac, $vid );
     }
     return (1);
+}
+
+sub action_change_cat {
+    my ( $mac, $vid ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
+
+    my $class_info  = class_view($vid);
+    my %info;
+    $info{'category'} =  $class_info->{'target_categorie'};
+    node_modify($mac,%info);
+}
+
+sub action_unreg {
+    my ($mac, $vid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
+    node_deregister($mac);
 }
 
 sub action_email {
