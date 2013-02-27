@@ -223,7 +223,6 @@ sub _add_implict_and {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     if($self->has_where_clause_elements) {
         my $last_elem = $self->last_where_clause_element;
-        $logger->info("last_elem : $last_elem");
         if($last_elem eq ')' || ! exists $WHERE_SINGLE_OPS{$last_elem} ) {
            $self->add_to_where_clause_elements('and');
         }
@@ -399,7 +398,7 @@ sub format_column {
     my $dbh = $self->dbh();
     my $type = ref $column;
     if($type eq 'SCALAR') {
-        $column = _L($$column);
+        $column = L_($$column);
     } elsif ($type eq '') {
         $column = {name => $column};
     }
