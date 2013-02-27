@@ -92,22 +92,24 @@ sub _uiFieldOrderType {
 
 =item readArray
 
-Return an array of configurations (and their configurations) or only one if specified.
+Return an array of arrays. Each array respects the field order defined in ui.conf.
 
 =cut
 sub readArray {
     my ( $self, $id ) = @_;
+
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($status,$result,@sections);
+    my ($status, $result, @sections);
     my $field_order_type = $self->_uiFieldOrderType();
-    if($field_order_type) {
+
+    if ($field_order_type) {
         my $conf = $self->loadConfig;
         my @columns = pf::config::ui->instance->field_order('$field_order_type get');
         my @resultset= ([@columns]);
 
-        if($id eq 'all') {
+        if ($id eq 'all') {
             @sections = keys %$conf;
-        } elsif(exists $conf->{$id}) {
+        } elsif (exists $conf->{$id}) {
             @sections = ($id);
         }
 
@@ -116,7 +118,7 @@ sub readArray {
             push @resultset, \@values;
         }
 
-        if ( $#resultset > 0 ) {
+        if ($#resultset > 0) { # ignore first array with column names
             ($status,$result) = ($STATUS::OK, [@resultset]);
         } else {
             ($status,$result) = ($STATUS::NOT_FOUND, "\"$id\" does not exists");
@@ -124,31 +126,44 @@ sub readArray {
         }
     }
     else {
-        ($status,$result) = ($STATUS::PRECONDITION_FAILED,"No UI field order defined");
+        ($status, $result) = ($STATUS::PRECONDITION_FAILED, "No UI field order defined");
     }
-    return ($status,$result);
+
+    return ($status, $result);
 }
 
 =item readHash
 
-Return a single hash
+Return an array of hashes. Each hash corresponds to a configuration file section.
 
 =cut
 sub readHash {
     my ($self, $id ) = @_;
+
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($status,$result_or_msg) = ($STATUS::OK,undef);
+    my ($status, $result);
+    my (@sections, @resultset);
     my $conf = $self->loadConfig;
 
-    if(exists $conf->{$id}) {
-        my %values = ( id => $id, %{$conf->{$id}});
-        $result_or_msg = \%values;
+    if ($id eq 'all') {
+        @sections = keys %$conf;
+    } elsif (exists $conf->{$id}) {
+        @sections = ($id);
     }
-    else {
-        $status = $STATUS::NOT_FOUND;
-        $result_or_msg = "\"$id\" does not exists";
+
+    foreach my $section (@sections) {
+        my %values = (id => $section, %{$conf->{$section}});
+        push @resultset, \%values;
     }
-    return ($status,$result_or_msg);
+
+    if (scalar @resultset > 0) {
+        ($status, $result) = ($STATUS::OK, \@resultset);
+    } else {
+        ($status, $result) = ($STATUS::NOT_FOUND, "\"$id\" does not exists");
+        $logger->warn("$result");
+    }
+
+    return ($status,$result);
 }
 
 =item deleteItem
@@ -302,6 +317,7 @@ sub updateItem {
     }
     return ($status, $status_msg);
 }
+
 =item readDefault
 
 Read default configurations for module and returns an hashref.
@@ -551,12 +567,6 @@ sub _load_conf {
 
 
 =back
-
-=head1 AUTHORS
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 
