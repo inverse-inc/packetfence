@@ -491,6 +491,7 @@ $(function () { // DOM ready
             var href  = that.attr("data-href-background");
             var modal = $(that.attr("data-target"));
             var button = modal.find(".btn-primary").first();
+            button.off('click');
             button.click(function() {
                 $.ajax(href)
                     .done(function(data) {
