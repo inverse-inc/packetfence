@@ -74,14 +74,6 @@ sub read {
     }
 }
 
-=head2 field_names
-
-=cut
-
-sub field_names {
-    return [qw(pid firstname lastname email nodes)];
-}
-
 =head2 countAll
 
 =cut
