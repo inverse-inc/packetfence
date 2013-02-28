@@ -250,15 +250,28 @@ sub preview :Chained('object') :PathPart :Args() {
     );
 }
 
+sub add_fake_profile_data {
+    my ($self,$c,$template,@pathparts) = @_;
+    $self->SUPER::add_fake_profile_data($c);
+    if ($template eq 'remediation.html' && $pathparts[0] eq 'violations' ) {
+        $c->stash( sub_template => catfile(@pathparts) );
+    }
+}
+
 sub _makePreviewTemplate {
     my ($self,$c,@pathparts) = @_;
-    my $file_name;
+    my $template;
     if($pathparts[0] eq 'violations') {
-        $file_name = 'remediation.html';
+        $template = 'remediation.html';
     } else {
-        $file_name = catfile(@pathparts);
+        my $file_content = read_file($self->_makeFilePath($c,@pathparts));
+        $file_content =~ s/
+            \[%\s*INCLUDE\s+\$[a-zA-Z_][a-zA-Z0-9_]+\s*%\]/
+         <div>Your included template here<\/div>
+        /x;
+        $template = \$file_content;
     }
-    return $file_name;
+    return $template;
 }
 
 sub _makeFilePath {
