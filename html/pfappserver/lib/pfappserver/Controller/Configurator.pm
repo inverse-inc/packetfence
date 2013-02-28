@@ -254,7 +254,7 @@ Database setup (step 3)
 # the GET is expected to fail on first run, then the javascript calls it again and it should pass...
 sub database :Chained('object') :PathPart('database') :Args(0) {
     my ( $self, $c ) = @_;
-    
+
     # Default username if nothing else have already been entered (provide a pre-filled field)
     $c->session->{root_user} = 'root' if (!defined($c->session->{root_user}));
 
@@ -414,7 +414,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
         my ($status, $services_status) = $c->model('Services')->status();
         if ( is_success($status) ) {
             $c->log->info("successfully listed services");
-            $c->stash->{'services_status'} = $services_status;
+            $c->stash->{'services_status'} = $services_status->{services};
         }
         if ( is_error($status) ) {
             $c->log->error("an error trying to list the services");
