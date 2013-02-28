@@ -1,0 +1,37 @@
+<h2></h2>
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>[% l('Daemon') %]</th>
+        <th>[% l('Status') %]</th>
+        <th></th>
+      </tr>
+      </thead>
+    <tbody>
+      [%- FOREACH service IN services.keys %]
+      [% started = services.$service  %]
+      <tr>
+        <td>[% service %]</td>
+        <td>
+          <span id="service-[% service %]"
+          class="label[% IF started %] label-success[% END %]">
+          [%- IF started %]Started[%- ELSE -%]Stopped[% END -%]</span>
+        </td>
+        <td>
+          <a class="btn btn-small btn-danger [%IF !started %]disabled[%END%]" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop'),[service])%]">Stop</a>
+          <a class="btn btn-small btn-success [%IF started %]disabled[%END%]" data-href-background="[%c.uri_for(c.controller('Service').action_for('start'),[service])%]">Start</a>
+          <a class="btn btn-small btn-primary" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart'),[service])%]">Restart</a>
+        </td>
+      </tr>
+      [%- END %]
+    </tbody>
+  </table>
+    <div class="form-actions">
+      <div class="pull-right">
+        <button type="submit" class="btn btn-danger " data-href-background="[%c.uri_for(c.controller('Service').action_for('stop_all'))%]">Stop All</button>
+        <button type="submit" class="btn btn-success " data-href-background="[%c.uri_for(c.controller('Service').action_for('start_all'))%]">Start All</button>
+        <button type="submit" class="btn btn-primary " data-href-background="[%c.uri_for(c.controller('Service').action_for('restart_all'))%]">Restart All</button>
+      </div>
+    </div>
+</div>

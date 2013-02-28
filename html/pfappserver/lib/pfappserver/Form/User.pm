@@ -60,6 +60,33 @@ has_field 'sponsor' =>
    type => 'Text',
    label => 'Sponsor',
   );
+has_field 'expiration' =>
+  (
+   type => 'DatePicker',
+   label => 'Expiration',
+  );
+has_field 'valid_from' =>
+  (
+   type => 'DatePicker',
+   label => 'Valid From',
+  );
+has_field 'access_duration' =>
+  (
+   type => 'Duration',
+   label => 'Access Duration',
+  );
+has_field 'is_sponsor' =>
+  (
+   type => 'Toggle',
+   label => 'Is a Sponsor',
+   checkbox_value => 1,
+   uncheckbox_value => 0,
+  );
+has_field 'category' =>
+  (
+   type => 'Text',
+   label => 'Role'
+  );
 
 =head1 COPYRIGHT
 
