@@ -39,7 +39,10 @@
   
               [% form.field('is_sponsor').render %]
   
-
+              [% form.field('valid_from').render %]
+  
+              [% form.field('role').render %]
+  
 <!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
 
             </div><!--tab-pane-->

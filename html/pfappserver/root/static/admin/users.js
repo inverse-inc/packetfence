@@ -170,6 +170,11 @@ function init() {
         });
         return false;
     });
+    $('#userAdvancedSearchBtn').on('click',function(event) {
+        updateSectionFromForm($('#userAdvancedSearch'));
+        return false;
+    });
+
     $('#userAdvancedSearch').on('admin.added','tr', function(event) {
         var that = $(this);
         that.find(':input').removeAttr('disabled');

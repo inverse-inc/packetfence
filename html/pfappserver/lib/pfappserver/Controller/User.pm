@@ -23,6 +23,7 @@ use pfappserver::Form::User::Create;
 use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
+use pfappserver::Form::AdvancedSearch;
 
 BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
@@ -249,6 +250,27 @@ sub create :Local {
     }
 }
 
+=head2 advanced_search
+
+=cut
+sub advanced_search :Local :Args() {
+    my ($self, $c) = @_;
+    my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
+    my $search_model = $c->model("Search::User");
+    my $form = new pfappserver::Form::AdvancedSearch;
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = $form->field_errors;
+    } else {
+        %search_results = $search_model->search($form->value);
+    }
+    $c->stash(
+        status_msg => $status_msg,
+        %search_results
+    );
+    $c->response->status($status);
+}
 =head2 print
 
 Display a printable view of users credentials.
