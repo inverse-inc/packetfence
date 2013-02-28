@@ -143,11 +143,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 search
-
-=cut
-sub simple_search : Local: SimpleSearch('User') :Args() {}
-
 =head2 create
 
 /user/create
