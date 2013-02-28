@@ -88,13 +88,13 @@ form {
                 </form>
               </div><!--#simple-->
               <div class="tab-pane well" id="advanced">
-                <form id="userAdvancedSearch" name="userAdvancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('search')) %]">
+                <form id="userAdvancedSearch" name="userAdvancedSearch" class="form-inline" action="[% c.uri_for(c.controller('User').action_for('advanced_search')) %]">
                   <table class="table-dynamic">
                     <thead>
                       <tr>
                         <td>
                           [% match_options = BLOCK %]
-                          <select class="input-mini">
+                          <select name="all_or_any" class="input-mini">
                             <option>all</option>
                             <option>any</option>
                           </select>
@@ -108,7 +108,9 @@ form {
                         <td>
                           <select name="searches.0.name" disabled="disabled" class="span4">
                             <option value="name">Name</option>
-                            <option value="pid">Email</option>
+                            <option value="firstname">First Name</option>
+                            <option value="lastname">Last Name</option>
+                            <option value="email">Email</option>
                             <option value="sponser">Sponsor</option>
                             <option value="ip_address">IP address</option>
                             <option value="mac">MAC address</option>
@@ -131,6 +133,8 @@ form {
                         <td>
                           <select name="searches.0.name" class="span4">
                             <option value="name">Name</option>
+                            <option value="firstname">First Name</option>
+                            <option value="lastname">Last Name</option>
                             <option value="pid">Email</option>
                             <option value="sponser">Sponsor</option>
                             <option value="ip_address">IP address</option>
@@ -153,7 +157,7 @@ form {
                       <tr>
                         <td style="padding-top: 1em">
                           <div class="btn-group pull-right">
-                            <a class="btn btn-primary" href="#"><i class="icon-search icon-white"></i> [% l('Search') %]</a>
+                            <a class="btn btn-primary" id="userAdvancedSearchBtn"><i class="icon-search icon-white"></i> [% l('Search') %]</a>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                             <ul class="dropdown-menu">
                               <li><a href="#" data-toggle="modal" data-target="#saveSearch">[% l('Save as...') %]</a></li>
