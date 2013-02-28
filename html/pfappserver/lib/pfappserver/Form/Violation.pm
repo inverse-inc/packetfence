@@ -83,7 +83,7 @@ has_field 'trigger' =>
    element_attr => {'data-placeholder' => 'Click to add a trigger' },
 #   tags => { after_element => \&help,
 #             help => 'Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc.' },
-  ),
+  );
 has_field 'auto_enable' =>
   (
    type => 'Toggle',
