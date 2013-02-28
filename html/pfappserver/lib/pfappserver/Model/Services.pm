@@ -113,9 +113,6 @@ sub status {
         my ($service_name, $should_be_started, $pids) = split(/\|/, $service_status);
         $services_ref->{$service_name} = ($pids) if ($should_be_started);
     }
-    use Data::Dumper;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->info(Dumper($services_ref));
     return ($STATUS::OK, { services => $services_ref}) if ( %$services_ref );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
