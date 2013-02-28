@@ -203,7 +203,8 @@ sub _read_config_entry {
     };
     # Convert the value to an array when the parameter can have multiple values
     if ($entry_ref->{type} eq 'multi') {
-        my @values = split( /\s*,\s*/, $entry_ref->{value} );
+        my $value = $entry_ref->{value};
+        my @values = split( /\s*,\s*/, $entry_ref->{value} ) if $value;
         $entry_ref->{value} = \@values;
     }
 
