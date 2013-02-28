@@ -167,10 +167,7 @@ sub bad_request : Private {
 }
 
 sub add_fake_profile_data {
-    my ($self, $c,$new_template,@pathparts) = @_;
-    if ($new_template eq 'remediation.html' && $pathparts[0] eq 'violations' ) {
-        $c->stash( sub_template => catfile(@pathparts) );
-    }
+    my ($self, $c) = @_;
     $c->stash(
         logo        => $Config{'general'}{'logo'},
         username    => 'mcrispin',
