@@ -20,6 +20,8 @@ use POSIX;
 use base ('pf::SNMP');
 
 use pf::config;
+sub description { 'Trapeze Wireless Controller' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;

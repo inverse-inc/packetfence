@@ -49,6 +49,8 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { 'HP ProCurve 5400 Series' }
+
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }

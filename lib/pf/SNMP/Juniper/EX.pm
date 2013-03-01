@@ -18,6 +18,8 @@ use Log::Log4perl;
 use Net::Appliance::Session;
 
 use pf::config;
+sub description { 'Juniper EX Series' }
+
 # importing switch constants
 use pf::SNMP::constants;
 

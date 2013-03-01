@@ -86,6 +86,8 @@ use base ('pf::SNMP::ThreeCom::SS4500');
 use pf::config;
 use pf::SNMP::constants;
 
+sub description { '3COM 4200G' }
+
 =head1 SUBROUTINES
 
 =over

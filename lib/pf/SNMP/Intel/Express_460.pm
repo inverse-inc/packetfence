@@ -23,6 +23,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Intel');
 
+sub description { 'Intel Express 460' }
+
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

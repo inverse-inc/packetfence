@@ -19,6 +19,8 @@ use warnings;
 
 use base ('pf::SNMP::Motorola');
 
+sub description { 'Brocade RF Switches' }
+
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>

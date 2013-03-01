@@ -16,6 +16,8 @@ use warnings;
 use base ('pf::SNMP::H3C');
 
 
+sub description { 'H3C S5120 (HP/3Com)' }
+
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>

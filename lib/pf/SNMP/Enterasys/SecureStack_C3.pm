@@ -20,6 +20,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Enterasys');
 
+sub description { 'Enterasys SecureStack C3' }
+
 =head1 BUGS AND LIMITATIONS
 
 =over

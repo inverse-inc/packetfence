@@ -29,6 +29,8 @@ use pf::config;
 
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
+sub description { 'Cisco Catalyst 2960G' }
+
 # CAPABILITIES
 # inherited from 2960
 

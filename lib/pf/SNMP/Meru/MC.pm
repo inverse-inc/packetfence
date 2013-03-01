@@ -21,6 +21,8 @@ use Log::Log4perl;
 
 use base ('pf::SNMP::Meru');
 
+sub description { 'Meru MC' }
+
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>

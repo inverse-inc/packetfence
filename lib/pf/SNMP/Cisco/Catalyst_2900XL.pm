@@ -20,6 +20,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::Catalyst_3500XL');
 
+sub description { 'Cisco Catalyst 2900XL Series' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

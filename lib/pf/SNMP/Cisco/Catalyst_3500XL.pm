@@ -29,6 +29,8 @@ use Data::Dumper;
 
 use pf::SNMP::constants;
 
+sub description { 'Cisco Catalyst 3500XL Series' }
+
 sub getMinOSVersion {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );

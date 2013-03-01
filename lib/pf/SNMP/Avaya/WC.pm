@@ -40,6 +40,8 @@ use Log::Log4perl;
 use pf::config;
 use pf::util;
 
+sub description { 'Avaya Wireless Controller' }
+
 =back
 
 =head1 SUBROUTINES

@@ -44,6 +44,8 @@ use pf::SNMP::constants;
 
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
+sub description { 'Cisco Catalyst 3750G' }
+
 # CAPABILITIES
 # inherited from 2960
 

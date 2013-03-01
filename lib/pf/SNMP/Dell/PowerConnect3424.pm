@@ -24,6 +24,8 @@ use Net::Telnet;
 
 use base ('pf::SNMP::Dell');
 
+sub description { 'Dell PowerConnect 3424' }
+
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

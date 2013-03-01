@@ -23,6 +23,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
 
+sub description { 'Nortel BayStack 5500 Series' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

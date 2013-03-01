@@ -31,6 +31,8 @@ use POSIX;
 use base ('pf::SNMP::HP');
 
 use pf::config;
+sub description { 'HP ProCurve MSM710 Mobility Controller' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;

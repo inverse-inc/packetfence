@@ -66,6 +66,8 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { 'Aruba Networks' }
+
 =head1 SUBROUTINES
 
 TODO: this list is incomplete

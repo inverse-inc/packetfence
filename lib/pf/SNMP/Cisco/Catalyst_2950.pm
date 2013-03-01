@@ -94,6 +94,8 @@ use Data::Dumper;
 
 use pf::config;
 use pf::locationlog;
+sub description { 'Cisco Catalyst 2950' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;

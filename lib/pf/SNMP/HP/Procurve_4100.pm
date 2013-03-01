@@ -18,6 +18,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::HP::Procurve_2500');
 
+sub description { 'HP ProCurve 4100 Series' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

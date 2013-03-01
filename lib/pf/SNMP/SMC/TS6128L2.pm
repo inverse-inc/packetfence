@@ -35,6 +35,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::SMC');
 
+sub description { 'SMC TigerStack 6128L2' }
+
 # importing switch constants
 use pf::SNMP::constants;
 

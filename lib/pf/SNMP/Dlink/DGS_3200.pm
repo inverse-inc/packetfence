@@ -39,6 +39,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Dlink');
 
+sub description { 'D-Link DGS 3200' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;

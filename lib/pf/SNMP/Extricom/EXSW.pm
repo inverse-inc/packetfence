@@ -16,6 +16,8 @@ use Log::Log4perl;
 
 use base ('pf::SNMP::Extricom');
 
+sub description { 'Extricom EXSW Controllers' }
+
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>

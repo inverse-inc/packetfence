@@ -38,6 +38,8 @@ use pf::SNMP::constants;
 
 use base ('pf::SNMP::Netgear');
 
+sub description { 'Netgear GS110' }
+
 =head1 METHODS
 
 =over

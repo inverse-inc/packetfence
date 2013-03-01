@@ -28,6 +28,8 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { 'Nortel BPS 2000' }
+
 # special features
 # LLDP is not available on BPS2000
 sub supportsLldp { return $FALSE; }

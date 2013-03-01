@@ -20,6 +20,8 @@ use Net::SNMP;
 use Net::Telnet;
 use base ('pf::SNMP::Enterasys');
 
+sub description { 'Enterasys Matrix N3' }
+
 =head1 SUBROUTINES
 
 =over

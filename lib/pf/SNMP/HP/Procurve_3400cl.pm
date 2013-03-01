@@ -16,6 +16,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::HP');
 
+sub description { 'HP ProCurve 3400cl Series' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

@@ -70,6 +70,8 @@ use base ('pf::SNMP::ThreeCom');
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { '3COM SS4500' }
+
 =head1 SUBROUTINES
 
 =over
