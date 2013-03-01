@@ -38,6 +38,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
 
+sub description { 'Nortel ERS 2500 Series' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

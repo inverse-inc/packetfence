@@ -17,6 +17,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Linksys');
 
+sub description { 'Linksys SRW224G4' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

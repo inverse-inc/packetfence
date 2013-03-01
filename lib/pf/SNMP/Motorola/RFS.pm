@@ -20,6 +20,8 @@ use Log::Log4perl;
 
 use base ('pf::SNMP::Motorola');
 
+sub description { 'Motorola RF Switches' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

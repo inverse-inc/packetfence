@@ -26,6 +26,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Dlink::DWS_3026');
 
+sub description { 'D-Link DWL Access-Point' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

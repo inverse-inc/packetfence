@@ -25,6 +25,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::AlliedTelesis');
 
+sub description { 'AlliedTelesis AT8000GS' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;

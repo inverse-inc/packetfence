@@ -52,6 +52,8 @@ use base ('pf::SNMP::Dlink');
 use pf::config;
 use pf::util;
 
+sub description { 'D-Link DWS 3026' }
+
 # CAPABILITIES
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }

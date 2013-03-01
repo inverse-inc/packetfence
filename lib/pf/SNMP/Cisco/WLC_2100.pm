@@ -46,6 +46,8 @@ use base ('pf::SNMP::Cisco::WLC');
 use pf::config;
 use pf::util qw(format_mac_as_cisco);
 
+sub description { 'Cisco Wireless (WLC) 2100 Series' }
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete

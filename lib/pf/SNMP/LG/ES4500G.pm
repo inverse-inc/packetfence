@@ -23,6 +23,8 @@ use pf::util;
 
 use base ('pf::SNMP::LG');
 
+sub description { 'LG-Ericsson iPECS ES-4500G' }
+
 =head1 AUTHOR
 
 Derek Wuelfrath <dwuelfrath@inverse.ca>

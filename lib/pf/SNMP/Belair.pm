@@ -44,6 +44,8 @@ use Log::Log4perl;
 use pf::config;
 use pf::util;
 
+sub description { 'Belair Networks AP' }
+
 =head1 SUBROUTINES
 
 =over

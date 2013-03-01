@@ -20,6 +20,8 @@ use Net::SNMP;
 use Net::Telnet;
 use base ('pf::SNMP::Enterasys');
 
+sub description { 'Enterasys Standalone D2' }
+
 =head1 SUBROUTINES
 
 =over

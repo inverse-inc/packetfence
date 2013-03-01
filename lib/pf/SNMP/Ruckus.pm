@@ -45,6 +45,8 @@ use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config;
 use pf::util;
 
+sub description { 'Ruckus Wireless Controllers' }
+
 =head1 SUBROUTINES
 
 =over

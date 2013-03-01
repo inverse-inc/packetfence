@@ -19,6 +19,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::ThreeCom');
 
+sub description { '3COM SS4200' }
+
 sub getVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

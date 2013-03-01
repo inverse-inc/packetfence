@@ -38,6 +38,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::SMC');
 
+sub description { 'SMC TigerStack 8800 Series' }
+
 # importing switch constants
 use pf::SNMP::constants;
 

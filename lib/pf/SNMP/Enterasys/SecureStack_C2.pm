@@ -17,6 +17,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Enterasys');
 
+sub description { 'Enterasys SecureStack C2' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

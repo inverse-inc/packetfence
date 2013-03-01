@@ -52,6 +52,8 @@ use pf::util;
 
 use base ('pf::SNMP::Netgear');
 
+sub description { 'Netgear FSM726v1' }
+
 =head1 METHODS
 
 =over

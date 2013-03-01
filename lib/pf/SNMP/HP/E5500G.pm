@@ -98,6 +98,8 @@ use base ('pf::SNMP::ThreeCom::Switch_4200G');
 use pf::config;
 use pf::SNMP::constants;
 
+sub description { 'HP E5500G (3Com)' }
+
 =head1 SUBROUTINES
 
 =over

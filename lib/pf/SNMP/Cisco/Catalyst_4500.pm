@@ -28,6 +28,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::Catalyst_2960');
 
+sub description { 'Cisco Catalyst 4500 Series' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

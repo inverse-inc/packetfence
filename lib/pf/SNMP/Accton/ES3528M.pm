@@ -17,6 +17,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Accton');
 
+sub description { 'Accton ES3528M' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

@@ -24,6 +24,8 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 
+sub description { 'PacketFence' }
+
 sub connectWrite {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );

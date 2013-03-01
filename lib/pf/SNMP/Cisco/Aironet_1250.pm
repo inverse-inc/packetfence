@@ -20,6 +20,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::Aironet');
 
+sub description { 'Cisco Aironet 1250' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

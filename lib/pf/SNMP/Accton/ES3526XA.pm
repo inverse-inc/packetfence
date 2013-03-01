@@ -23,6 +23,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Accton');
 
+sub description { 'Accton ES3526XA' }
+
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

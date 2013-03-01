@@ -32,6 +32,8 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { 'Xirrus WiFi Arrays' }
+
 =head1 SUBROUTINES
 
 TODO: this list is incomplete

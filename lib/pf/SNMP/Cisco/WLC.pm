@@ -109,6 +109,8 @@ use base ('pf::SNMP::Cisco');
 
 use pf::config;
 
+sub description { 'Cisco Wireless Controller (WLC)' }
+
 =head1 SUBROUTINES
 
 =over

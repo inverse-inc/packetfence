@@ -21,6 +21,8 @@ use Log::Log4perl;
 
 use base ('pf::SNMP::AeroHIVE');
 
+sub description { 'AeroHIVE AP' }
+
 =head1 AUTHOR
 
 Francois Gaudreault <fgaudreault@inverse.ca>

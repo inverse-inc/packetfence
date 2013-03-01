@@ -25,6 +25,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Amer');
 
+sub description { 'Amer SS2R24i' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>

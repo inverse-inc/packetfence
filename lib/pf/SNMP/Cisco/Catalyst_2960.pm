@@ -137,6 +137,8 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { 'Cisco Catalyst 2960' }
+
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }

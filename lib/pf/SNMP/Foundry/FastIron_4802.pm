@@ -18,6 +18,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Foundry');
 
+sub description { 'Foundry FastIron 4802' }
+
 =head1 AUTHOR
 
 Dominik Gehl <dgehl@inverse.ca>

@@ -17,6 +17,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Extreme');
 
+sub description { 'ExtremeNet Summit series' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;

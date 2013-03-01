@@ -47,6 +47,8 @@ use Carp;
 use Net::SNMP;
 use Net::Appliance::Session;
 
+sub description { 'Cisco ISR 1800 Series' }
+
 #sub getMinOSVersion {
 #    my $this   = shift;
 #    my $logger = Log::Log4perl::get_logger( ref($this) );

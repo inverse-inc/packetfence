@@ -24,6 +24,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
 
+sub description { 'Nortel BayStack 5500 w/ firmware 6.x' }
+
 =head1 METHODS
 
 TODO: This list is incomplete

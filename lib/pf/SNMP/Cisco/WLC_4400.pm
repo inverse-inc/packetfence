@@ -18,6 +18,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Cisco::WLC');
 
+sub description { 'Cisco Wireless (WLC) 4400 Series' }
+
 =head1 AUTHOR
 
 Olivier Bilodeau <obilodeau@inverse.ca>
