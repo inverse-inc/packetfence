@@ -25,6 +25,21 @@ Defined by standards
 =cut
 package SNMP;
 
+=item VERSIONS
+
+Supported SNMP versions by PacketFence
+
+=cut
+
+Readonly::Scalar our $VERSION_1 => '1';
+Readonly::Scalar our $VERSION_2C => '2c';
+Readonly::Scalar our $VERSION_3 => '3';
+
+Readonly::Array our @VERSIONS =>
+  (
+   $VERSION_1, $VERSION_2C, $VERSION_3
+  );
+
 =item MAC_ADDRESS_FORMAT
 
 snmptrapd guesses the format of data in traps.
@@ -126,6 +141,21 @@ Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
 Readonly::Scalar our $ETHERNET_CSMACD => 6;
 Readonly::Scalar our $GIGABIT_ETHERNET => 117;
 
+=item Working modes
+
+Working modes of a switch
+
+=cut
+
+Readonly::Scalar our $TESTING_MODE => 'testing';
+Readonly::Scalar our $REGISTRATION_MODE => 'registration';
+Readonly::Scalar our $PRODUCTION_MODE => 'production';
+
+Readonly::Array our @MODES =>
+  (
+   $TESTING_MODE, $REGISTRATION_MODE, $PRODUCTION_MODE,
+  );
+
 =item Deauth type method
 
 Deauth type method constant
@@ -138,6 +168,17 @@ Readonly::Scalar our $SNMP => 'SNMP';
 Readonly::Scalar our $RADIUS => 'RADIUS';
 Readonly::Scalar our $HTTP => 'HTTP';
 Readonly::Scalar our $HTTPS => 'HTTPS';
+
+=item Deauth type method
+
+List of available deauth type methods
+
+=cut
+
+Readonly::Array our @METHODS =>
+  (
+   $TELNET, $SSH, $SNMP, $RADIUS, $HTTP, $HTTPS,
+  );
 
 =back
 
