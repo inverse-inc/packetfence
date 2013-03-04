@@ -63,7 +63,7 @@ td a.btn { margin-left: 5px; }
     <tr>
       <td>
         [% IF entry.editable %]
-          <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[profile_name], name ) %]" ><i class="icon-edit"></i> [% name %]</a>
+          <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[profile_name], name) %]" ><i class="icon-file"></i> [% name %]</a>
         [% ELSE %]
             <i class="icon-file"></i> [% name %]
         [% END %]
