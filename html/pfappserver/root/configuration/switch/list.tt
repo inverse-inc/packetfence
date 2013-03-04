@@ -1,0 +1,19 @@
+      <table id="switches" class="table">
+        <thead>
+          <tr>
+            <th>[% l('IP') %]</th><th>[% l('Type') %]</th><th>[% l('Mode') %]</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH switch IN switches %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller('Configuration::Switch').action_for('read'), [ switch.id ]) %]">[% switch.id %]</a></td>
+            <td>[% switch.type %]</td>
+            <td>[% switch.mode %]</td>
+            <td>
+              [% IF switch.id != 'default' %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('delete'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
