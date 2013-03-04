@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
-use JSON;
 use Moose;
 use namespace::autoclean;
 use POSIX;
