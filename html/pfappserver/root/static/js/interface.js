@@ -4,8 +4,10 @@
 var Interfaces = function() {
 };
 
-Interfaces.prototype.action = function(options) {
-    $.ajax({ url: options.url })
+Interfaces.prototype.get = function(options) {
+    $.ajax({
+        url: options.url
+    })
         .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
@@ -14,21 +16,12 @@ Interfaces.prototype.action = function(options) {
         });
 };
 
-Interfaces.prototype.update = function(options) {
+Interfaces.prototype.post = function(options) {
     $.ajax({
         url: options.url,
         type: 'POST',
         data: options.data
     })
-        .done(options.success)
-        .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
-        });
-};
-
-Interfaces.prototype.list = function(options) {
-    $.ajax({ url: '/interface/list' })
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
@@ -83,7 +76,7 @@ InterfaceView.prototype.readInterface = function(e) {
     loader.show();
     section.fadeTo('fast', 0.5);
     modal.empty();
-    this.interfaces.action({
+    this.interfaces.get({
         url: $(e.target).attr('href'),
         always: function() {
             loader.hide();
@@ -124,7 +117,7 @@ InterfaceView.prototype.updateInterface = function(e) {
         var modal_body = modal.find('.modal-body').first();
         resetAlert(modal_body);
 
-        this.interfaces.update({
+        this.interfaces.post({
             url: form.attr('action'),
             data: form.serialize(),
             success: function(data) {
@@ -138,7 +131,8 @@ InterfaceView.prototype.updateInterface = function(e) {
 };
 
 InterfaceView.prototype.list = function() {
-    this.interfaces.list({
+    this.interfaces.get({
+        url: '/interface/list',
         success: function(data) {
             var table = $('#interfaces table');
             table.html(data);
@@ -153,11 +147,13 @@ InterfaceView.prototype.deleteInterface = function(e) {
 
     var btn = $(e.target);
     var row = btn.closest('tr');
+    var row_network = row.next('.network');
     var url = btn.attr('href');
-    this.interfaces.action({
+    this.interfaces.get({
         url: url,
         success: function(data) {
             showSuccess($('#interfaces table'), data.status_msg);
+            row_network.fadeOut('slow', function() { $(this).remove(); });
             row.fadeOut('slow', function() { $(this).remove(); });
         },
         errorSibling: $('#interfaces table')
@@ -181,6 +177,7 @@ InterfaceView.prototype.toggleInterface = function(e) {
         status: status,
         success: function(data) {
             showSuccess($('#interfaces table'), data.status_msg);
+            // Update all interfaces status
             $.each(data.interfaces, function(i, status) {
                 if (i !== name)
                     $('input:checkbox[name="'+i+'"]').closest('.switch').bootstrapSwitch('setState', status === "1");
@@ -190,6 +187,7 @@ InterfaceView.prototype.toggleInterface = function(e) {
         error: function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
             showError($('#interfaces table'), status_msg);
+            // Restore switch state
             btn.bootstrapSwitch('setState', !status, true);
             that.disableToggle = false;
         }
@@ -205,7 +203,7 @@ InterfaceView.prototype.deleteNetwork = function(e) {
     var modal = $('#modalEditInterface');
     var modal_body = modal.find('.modal-body').first();
     resetAlert(modal_body);
-    this.interfaces.action({
+    this.interfaces.get({
         url: url,
         success: function(data) {
             showSuccess($('#interfaces table'), data.status_msg);
