@@ -34,7 +34,7 @@
           <div id="section">
             <h3>[% l('Network Interfaces') %]</h3>
             <p class="help-block">Enable all the physical interfaces you want to use for PacketFence. If you use VLAN enforcement, specify which VLAN is dedicated to your registration, isolation, and management subnets.</p><p></p>
-            [% INCLUDE interface/list.tt no_network = 1 %]
+            [% INCLUDE interface/list.tt %]
           </div>
           <form name="networks" class="form-horizontal">
             <h3>[% l('Default Gateway') %]</h3>
