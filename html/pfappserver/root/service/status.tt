@@ -1,4 +1,4 @@
-<h2></h2>
+<h2>[% l('Services') %]</h2>
 <div>
   <table class="table">
     <thead>
@@ -19,9 +19,12 @@
           [%- IF started %]Started[%- ELSE -%]Stopped[% END -%]</span>
         </td>
         <td>
-          <a class="btn btn-small btn-danger [%IF !started %]disabled[%END%]" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop'),[service])%]">Stop</a>
-          <a class="btn btn-small btn-success [%IF started %]disabled[%END%]" data-href-background="[%c.uri_for(c.controller('Service').action_for('start'),[service])%]">Start</a>
-          <a class="btn btn-small btn-primary" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart'),[service])%]">Restart</a>
+          [% IF started -%]
+          <a class="btn btn-small pull-right" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart'),[service])%]">Restart</a>
+          <a class="btn btn-small btn-danger pull-right" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop'),[service])%]">Stop</a>
+          [% ELSE -%]
+          <a class="btn btn-small btn-success pull-right" data-href-background="[%c.uri_for(c.controller('Service').action_for('start'),[service])%]">Start</a>
+          [% END -%]
         </td>
       </tr>
       [%- END %]
@@ -31,7 +34,7 @@
       <div class="pull-right">
         <button type="submit" class="btn btn-danger " data-href-background="[%c.uri_for(c.controller('Service').action_for('stop_all'))%]">Stop All</button>
         <button type="submit" class="btn btn-success " data-href-background="[%c.uri_for(c.controller('Service').action_for('start_all'))%]">Start All</button>
-        <button type="submit" class="btn btn-primary " data-href-background="[%c.uri_for(c.controller('Service').action_for('restart_all'))%]">Restart All</button>
+        <button type="submit" class="btn btn-warning " data-href-background="[%c.uri_for(c.controller('Service').action_for('restart_all'))%]">Restart All</button>
       </div>
     </div>
 </div>
