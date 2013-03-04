@@ -26,12 +26,13 @@
       <table class="table">
         <thead>
           <tr>
-            <th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Max nodes per user') %]</th><th></th>
+            <th>[% l('Id') %]</th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Max nodes per user') %]</th><th></th>
           </tr>
         </thead>
         <tbody>
           [% FOREACH role IN roles %]
           <tr>
+            <td>[% role.category_id %]</td>
             <td><a href="[% c.uri_for(c.controller('Roles').action_for('read'), [ role.category_id ]) %]#modalRole">[% role.name %]</a></td>
 	     <td>[% role.notes %]</td>
 	     <td>[% role.max_nodes_per_pid %]</td>
