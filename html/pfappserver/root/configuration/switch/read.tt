@@ -1,0 +1,65 @@
+<form name="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+  [%- IF switch %]<input type="hidden" name="ip" value="[% switch %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>[% IF switch %]<i>[% l('Switch') %]</i> [% switch %][% ELSE %][% l('New Switch') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#switchDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
+      <li><a href="#switchRoles" data-toggle="tab">[% l('Roles') %]</a></li>
+      <li><a href="#switchRADIUS" data-toggle="tab">[% l('RADIUS') %]</a></li>
+      <li><a href="#switchSNMP" data-toggle="tab">[% l('SNMP') %]</a></li>
+      <li><a href="#switchCLI" data-toggle="tab">[% l('CLI') %]</a></li>
+      <li><a href="#switchWS" data-toggle="tab">[% l('Web Services') %]</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+      <div class="tab-pane fade in active" id="switchDefinition">
+        [% form.field('ip').render UNLESS switch %]
+        [% form.field('type').render %]
+        [% form.field('mode').render %]
+        [% form.field('uplink_dynamic').render %]
+        [% form.field('uplink').render %]
+      </div><!-- tab-pane -->
+
+      <div class="tab-pane fade" id="switchRoles">
+
+        <div class="control-group">
+          <div class="controls">
+            <h6>[% l('VLAN') %]</h6>
+          </div>
+        </div>
+
+        [% form.block('roles').render %]
+
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchRADIUS">
+        [% form.block('radius').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchSNMP">
+        [% form.block('snmp').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchCLI">
+        [% form.block('cli').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchWS">
+        [% form.block('ws').render %]
+      </div><!--tab-pane-->
+
+    </div><!--tab-content-->
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+  </div>
+
+</form>

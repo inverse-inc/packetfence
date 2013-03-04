@@ -32,40 +32,6 @@ sub _myConfigFile   { return $pf::config::switches_config_file };
 
 =over
 
-=item create
-
-Create a new switch/network equipment.
-
-=cut
-sub create {
-    my ( $self, $switch, $assignments ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $status_msg;
-
-    return ($STATUS::FORBIDDEN, "This method does not handle switch \"$switch\"")
-        if ( ($switch eq 'all') || ($switch eq 'default') );
-
-    my $switches_conf = $self->loadConfig;
-    my $tied_conf = tied(%$switches_conf);
-
-    if ( !$tied_conf->SectionExists($switch) ) {
-        $tied_conf->AddSection($switch);
-        while ( my ($param, $value) = each %$assignments ) {
-            $tied_conf->newval( $switch, $param, $value );
-        }
-        $self->updateConfig(\%$switches_conf);
-    } else {
-        $status_msg = "Switch \"$switch\" already exists";
-        $logger->warn("$status_msg");
-        return ($STATUS::PRECONDITION_FAILED, $status_msg);
-    }
-
-    $status_msg = "Switch \"$switch\" successfully created";
-    $logger->info("$status_msg");
-    return ($STATUS::OK, $status_msg);
-}
-
 =item read
 
 Return an array of configured switches/network equipment (and their configurations) or only one if specified.
@@ -75,36 +41,25 @@ sub read {
     my ( $self, $switch ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $status_msg;
+    my ($status, $result) = $self->readHash($switch);
 
-    my $switches_conf = $self->loadConfig;
-    my @columns = pf::config::ui->instance->field_order('switchconfig get');
-    my @resultset = [@columns];
-
-    foreach my $section ( keys %$switches_conf ) {
-        if ( ($switch eq 'all') || ($switch eq $section) ) {
-            my @values;
-            foreach my $column (@columns) {
-                push @values, ( $switches_conf->{$section}->{$column} || '' );
+    if (is_success($status)) {
+        foreach my $switch (@$result) {
+            if ($switch->{uplink} && $switch->{uplink} eq 'dynamic') {
+                $switch->{uplink_dynamic} = 'dynamic';
+                $switch->{uplink} = undef;
             }
-            push @resultset, [@values];
         }
+        my @switches = sort { $b->{id} cmp $a->{id} } @$result;
+        $result = \@switches;
     }
 
-    if ( $#resultset > 0 ) {
-        return ($STATUS::OK, \@resultset);
-    }
-    else {
-        $status_msg = "Switch \"$switch\" does not exists";
-        $logger->warn("$status_msg");
-        return ($STATUS::NOT_FOUND, $status_msg);
-    }
-
+    return ($status, $result);
 }
 
 =item update
 
-Update/edit/modify an existing switch/network equipment.
+Create or update an existing switch/network equipment.
 
 =cut
 sub update {
@@ -119,63 +74,27 @@ sub update {
     my $switches_conf = $self->loadConfig;
     my $tied_conf = tied(%$switches_conf);
 
-    if ( $tied_conf->SectionExists($switch) ) {
-        while ( my ($param, $value) = each %$assignments ) {
-            if ( defined( $switches_conf->{$switch}->{$param} ) ) {
-                $tied_conf->setval( $switch, $param, $value );
-            } else {
-                $tied_conf->newval( $switch, $param, $value );
-            }
-        }
-        $self->updateConfig(\%$switches_conf);
-    } else {
-        $status_msg = "Switch \"$switch\" does not exists";
-        $logger->warn("$status_msg");
-        return ($STATUS::NOT_FOUND, $status_msg);
+    if ($assignments->{uplink_dynamic}) {
+        $assignments->{uplink} = 'dynamic';
+        $assignments->{uplink_dynamic} = undef;
     }
+
+    while ( my ($param, $value) = each %$assignments ) {
+        if ( defined( $switches_conf->{$switch}->{$param} ) ) {
+            $tied_conf->setval( $switch, $param, $value );
+        } else {
+            $tied_conf->newval( $switch, $param, $value );
+        }
+    }
+    $self->updateConfig(\%$switches_conf);
 
     $status_msg = "Switch \"$switch\" successfully modified";
     $logger->info("$status_msg");
+
     return ($STATUS::OK, $status_msg);
 }
-
-=item delete
-
-Delete an existing switch/network equipment.
-
-=cut
-sub delete {
-    my ( $self, $switch ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $status_msg;
-
-    return ($STATUS::FORBIDDEN, "This method does not handle switch \"$switch\"")
-        if ( ($switch eq 'all') || ($switch eq 'default') );
-
-    my $switches_conf = $self->loadConfig;
-    my $tied_conf = tied(%$switches_conf);
-
-    if ( $tied_conf->SectionExists($switch) ) {
-        $tied_conf->DeleteSection($switch);
-        $self->updateConfig(\%$switches_conf);
-    } else {
-        $status_msg = "Switch \"$switch\" does not exists";
-        $logger->warn("$status_msg");
-        return ($STATUS::NOT_FOUND, $status_msg);
-    }
-
-    $status_msg = "Switch \"$switch\" successfully deleted";
-    $logger->info("$status_msg");
-    return ($STATUS::OK, $status_msg);
-}
-
 
 =back
-
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
 
 =head1 COPYRIGHT
 

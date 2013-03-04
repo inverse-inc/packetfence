@@ -334,6 +334,16 @@ sub interfaces :Local {
     $c->forward('Controller::Interface', 'index');
 }
 
+=head2 switches
+
+=cut
+
+sub switches :Local {
+    my ($self, $c) = @_;
+
+    $c->forward('Controller::Configuration::Switch', 'index');
+}
+
 =head2 authentication
 
 =cut
