@@ -47,7 +47,7 @@ has_field 'mode' =>
    required => 1,
    element_class => ['chzn-select'],
    tags => { after_element => \&help_list,
-             help => '<dt>Testing</dt><dd>fsetvlan writes in the log files what it would normally do, but it
+             help => '<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it
 doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch
 ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>' },
   );
@@ -295,10 +295,11 @@ sub field_list {
           {
            type => 'Text',
            label => $role->{name},
-           required => 1,
-           messages => { required => 'Please specify the corresponding VLAN for each role.' }
+           #required => 1,
+           #messages => { required => 'Please specify the corresponding VLAN for each role.' }
           };
-        push(@$list, 'role'.$role->{category_id} => $field);
+        push(@$list, $role->{name}.'Vlan' => $field);
+        push(@$list, $role->{name}.'Role' => $field);
     }
 
     return $list;
@@ -313,15 +314,19 @@ Dynamically build the block list of the roles.
 sub build_block_list {
     my $self = shift;
 
-    my @fields;
+    my (@vlans, @roles);
     if ($self->form->roles) {
-        @fields = map { 'role'.$_->{category_id} } @{$self->form->roles};
+        @vlans = map { $_->{name}.'Vlan' } @{$self->form->roles};
+        @roles = map { $_->{name}.'Role' } @{$self->form->roles};
     }
 
     return
       [
+       { name => 'vlans',
+         render_list => \@vlans,
+       },
        { name => 'roles',
-         render_list => \@fields,
+         render_list => \@roles,
        }
       ];
 }
