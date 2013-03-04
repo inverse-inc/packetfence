@@ -480,10 +480,13 @@ sub updateConfig {
     my ( $self, $config ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # TODO: Check to see latest modified timestamp on the file
     my $cache = CHI->new( _get_chi_cache_definition($self->_getName) );
+    $cache->clear;
     $cache->set('timestamp', time);
     $cache->set_multi(\%$config);
+
+    # TODO: Check to see latest modified timestamp on the file
+    $self->writeConfig;
 }
 
 =item checkTimestamp
