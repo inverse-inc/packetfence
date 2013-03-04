@@ -42,6 +42,19 @@ sub help {
     }
 }
 
+=head2 help_list
+
+=cut
+
+sub help_list {
+    my $self = shift;
+    my $help = undef;
+
+    if ($self->get_tag('help')) {
+        return sprintf('<dl class="help-block">%s</dl>', $self->_localize($self->get_tag('help')));
+    }
+}
+
 =head2 html_attributes
 
 Translate placeholders if defined
