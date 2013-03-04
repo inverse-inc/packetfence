@@ -33,7 +33,7 @@ a.active {
 }
 /* bootstrap.css extension to forms */
 .form-condensed .control-group {
-    margin-bottom: 0px;
+    margin-bottom: 2px;
 }
 /* mixing noneditable fields in forms, inspired from .uneditable-input */
 form .uneditable {
