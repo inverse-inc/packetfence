@@ -56,8 +56,6 @@ my %args;
 getopts( 'c:dhvp:e:', \%args );
 pod2usage( -verbose => 1 ) if ( $args{h} );
 
-openlog( "pfdetect_remote", '', 'auth' );
-syslog( "info", "initialized" );
 
 my $install_dir = defined $args{c} ? 
                   $args{c} : 
@@ -74,6 +72,16 @@ my $SOURCE      = defined $args{p} ?
                   $args{p} : 
                   $cfg->val( 'trapping', 'alert_source' );   # input can be from either a logfile or a pipe
 my $script      = File::Basename::basename($0);
+my $log_level   = defined $cfg->val( 'logging', 'level') ?
+                  trim( $cfg->val( 'logging', 'level') ):
+                  "info";
+my $log_facility = defined $cfg->val( 'logging', 'facility') ?
+                  trim( $cfg->val( 'logging', 'facility') ):
+                  "auth";
+
+
+openlog( "pfdetect_remote", '', $log_facility );
+syslog( $log_level, "initialized" );
 
 daemonize() if ($daemonize);
 
@@ -99,10 +107,11 @@ while ( defined( $currentLine = $fh->read ) ) {
 
     syslog( "info", "alert received: $currentLine" );
 
-    my %event;
-    %event = $parse_alert_for->{$ENGINE}->($currentLine);
-    if ( !defined( $event{"event_id"} ) or $event{"event_id"} eq "unknown" ) {
-        syslog( "warning", "unknown input: $currentLine " );
+    my %event = $parse_alert_for->{$ENGINE}->($currentLine);
+    if ( !defined( $event{"event_id"} ) or 
+         !defined( $event{"date"}     ) or
+         !defined( $event{"srcip"}    ) ) {
+        syslog( "warning", "unparsed input: $currentLine " );
         next READALERT;
     }
 
@@ -116,8 +125,7 @@ while ( defined( $currentLine = $fh->read ) ) {
               . '/webapi'
         );
         my $result =
-          $soap->event_add( $event{"date"}, $event{"srcip"}, "detect",
-            $event{"event_id"} );
+          $soap->event_add( $event{"date"}, $event{"srcip"}, "detect", $event{"event_id"} );
         if ( $result->fault ) {
             syslog( "warning",
                     "violation could not be added: "
@@ -205,6 +213,14 @@ sub deletepid {
     return (1);
 }
 
+# we sometimes need to trim the end of configuration values
+sub trim {
+    my $string = shift;
+    $string =~ s/^\s+//;
+    $string =~ s/\s+$//;
+    return $string;
+}
+
 =pod
 
 =head2 parse_snort_alert 
@@ -219,7 +235,7 @@ sub parse_snort_alert {
 
     my $syslog_prefix = qr/              # used when reading from syslog
         ( \S{2,3} \s+ \S+ \s \S+ ) \s+   # $1 is MM DD HH:MM:SS
-        \w+ \s snort\[ \d+ \] : \s+      # typically something like "centos6 snort[pid]:"
+        [\w.]+ \s snort\[ \d+ \] : \s+   # typically something like "`hostname` snort[pid]:"
     /x;
 
     my $fifo_prefix = qr/                # used when reading from snort fifo
@@ -239,9 +255,9 @@ sub parse_snort_alert {
     my $snort_details = qr/
         ^
         .+?
-        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) \s+        # $1 is src ip 
-        \-\>   \s+                                      # ->
-        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})            # $2 is dst ip
+        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) (?: :\d+)? \s+         # $1 is src ip (with optional :port)
+        \-\>   \s+                                                  # ->
+        (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) (?: :\d+)?             # $2 is dst ip (with optional :port)
     /x;
 
     # snort portscans match this one.
@@ -265,7 +281,6 @@ sub parse_snort_alert {
     elsif ( @event{qw( srcip dstip )} = $remainder =~ $snort_details ) {
     }
     else {
-        syslog( "warning", "unknown input: $currentLine " );
         $event{"event_id"} = "unknown";
     }
 
