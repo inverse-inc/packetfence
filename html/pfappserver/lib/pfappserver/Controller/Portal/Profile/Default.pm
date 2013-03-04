@@ -32,7 +32,7 @@ BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 =head2 index
 
 =cut
-sub index :Local :Path :Private {}
+sub index :Path :Args(0) {}
 
 =head2 object
 
