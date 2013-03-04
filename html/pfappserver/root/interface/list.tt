@@ -22,8 +22,8 @@
                 [% END -%]
               </td>
             </tr>
-            [%- IF !no_network && interfaces.$i.network %]
-            <tr>
+            [%- IF show_network && interfaces.$i.network %]
+            <tr class="network">
               <td></td>
               <td colspan="5">
                   [% l('default network:') %] [% IF interfaces.$i.network_iseditable %]<a href="[% c.uri_for(c.controller('Config::Networks').action_for('read'), [interfaces.$i.network]) %]">[% interfaces.$i.network %]</a>[% ELSE %][% interfaces.$i.network %][% END %]

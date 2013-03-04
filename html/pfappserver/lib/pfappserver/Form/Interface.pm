@@ -27,14 +27,14 @@ has_field 'name' =>
   );
 has_field 'ipaddress' =>
   (
-   type => 'Text',
+   type => 'IPAddress',
    label => 'IP Address',
    required => 1,
    messages => { required => 'Please specify an IP address.' },
   );
 has_field 'netmask' =>
   (
-   type => 'Text',
+   type => 'IPAddress',
    label => 'Netmask',
    element_attr => { 'placeholder' => '255.255.255.0' },
   );
@@ -47,7 +47,7 @@ has_field 'type' =>
   );
 has_field 'dns' =>
   (
-   type => 'Text',
+   type => 'IPAddress',
    label => 'DNS',
    wrapper_attr => { 'style' => 'display: none' },
    tags => { after_element => \&help,

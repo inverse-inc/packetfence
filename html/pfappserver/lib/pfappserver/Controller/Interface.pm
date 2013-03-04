@@ -36,13 +36,21 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =item begin
 
-This controller defaults view is JSON.
+This controller defaults view is HTML.
 
 =cut
 sub begin :Private {
     my ( $self, $c ) = @_;
 
-    $c->stash->{current_view} = 'JSON';
+    $c->stash->{current_view} = 'HTML';
+
+    # Only show the interfaces networks when in the admin app.
+    # We know we're in the configurator when the 'enforcements' session variable is defined.
+    if ($c->session->{enforcements}) {
+        delete $c->stash->{show_network};
+    } else {
+        $c->stash->{show_network} = 1;
+    }
 }
 
 =item index
@@ -67,8 +75,6 @@ sub list :Local :Args(0) {
        'pf' => $c->model('Config::Pf')
       };
     $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
-
-    $c->stash->{current_view} = 'HTML';
 }
 
 
@@ -137,6 +143,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
             $c->response->status($status);
             $c->stash->{status_msg} = $c->loc($result);
         }
+        $c->stash->{current_view} = 'JSON';
     }
     else {
         $form = pfappserver::Form::Interface::Create->new(ctx => $c,
@@ -146,7 +153,6 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
         $c->stash->{form} = $form;
 
         $c->stash->{template} = 'interface/create.tt';
-        $c->stash->{current_view} = 'HTML';
     }
 }
 
@@ -194,6 +200,8 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
     # Return the interfaces status in the response
     my $interfaces = $c->model('Interface')->isActive('all');
     $c->stash->{interfaces} = $interfaces;
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 sub read :Chained('object') :ParthPart('read') :Args(0) {
@@ -223,8 +231,6 @@ sub read :Chained('object') :ParthPart('read') :Args(0) {
                                                  init_object => $interface_ref->{$interface});
     $form->process();
     $c->stash->{form} = $form;
-
-    $c->stash->{current_view} = 'HTML';
 }
 
 =item update
@@ -300,6 +306,8 @@ sub up :Chained('object') :PathPart('up') :Args(0) {
     # Return the interfaces status in the response
     my $interfaces = $c->model('Interface')->isActive('all');
     $c->stash->{interfaces} = $interfaces;
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 =back
