@@ -111,6 +111,73 @@ sub pf_hash_for {
     return "#$path";
 }
 
+=head2 $c->form($name)
+
+Gets a L<HTML::FormHandler> instance by name.
+
+    $c->form('Foo')->do_stuff;
+
+Any extra arguments are directly passed to ACCEPT_CONTEXT.
+
+If the name is omitted, it will look for
+ - a form object in $c->stash->{current_form_instance}, then
+ - a form name in $c->stash->{current_form}, then
+ - a config setting 'default_form', or
+ - check if there is only one form, and return it if that's the case.
+
+If you want to search for forms, pass in a regexp as the argument.
+
+    # find all forms that start with Foo
+    my @foo_forms = $c->form(qr{^Foo});
+
+=cut
+
+sub form {
+    my ( $c, $name, @args ) = @_;
+    my $appclass = ref($c) || $c;
+    if( $name ) {
+        unless ( ref($name) ) { # Direct component hash lookup to avoid costly regexps
+            my $comps = $c->components;
+            my $check = $appclass."::Form::".$name;
+            return $c->_filter_component( $comps->{$check}, @args ) if exists $comps->{$check};
+        }
+        my @result = $c->_comp_search_prefixes( $name, qw/Form F/ );
+        return map { $c->_filter_component( $_, @args ) } @result if ref $name;
+        return $c->_filter_component( $result[ 0 ], @args );
+    }
+
+    if (ref $c) {
+        return $c->stash->{current_form_instance}
+          if $c->stash->{current_form_instance};
+        return $c->form( $c->stash->{current_form} )
+          if $c->stash->{current_form};
+    }
+    return $c->form( $appclass->config->{default_form} )
+      if $appclass->config->{default_form};
+
+    my( $comp, $rest ) = $c->_comp_search_prefixes( undef, qw/Form F/);
+
+    if( $rest ) {
+        $c->log->warn( Carp::shortmess('Calling $c->form() will return a random form unless you specify one of:') );
+        $c->log->warn( '* $c->config(default_form => "the name of the default form to use")' );
+        $c->log->warn( '* $c->stash->{current_form} # the name of the form to use for this request' );
+        $c->log->warn( '* $c->stash->{current_form_instance} # the instance of the form to use for this request' );
+        $c->log->warn( 'NB: in version 5.81, the "random" behavior will not work at all.' );
+    }
+
+    return $c->_filter_component( $comp );
+}
+
+=head2 forms
+
+Returns the available names which can be passed to $c->forms
+
+=cut
+sub forms {
+    my ($c) = @_;
+    return $c->_comp_names(qw/Form F/);
+}
+
 # Logging
 # TODO define a logging strategy that would fit both catalyst and our core
 # application. For now, it's all basic and it logs to logs/packetfence.log.
