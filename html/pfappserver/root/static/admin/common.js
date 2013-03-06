@@ -1,3 +1,22 @@
+function submitFormHideModal(modal,form) {
+    $.ajax({
+        'async' : false,
+        'url'   : form.attr('action'),
+        'type'  : form.attr('method') || "POST",
+        'data'  : form.serialize()
+        })
+        .always(function()  {
+            modal.modal('hide');
+        })
+        .done(function(data) {
+            $(window).hashchange();
+        })
+        .fail(function(jqXHR) {
+            $("body,html").animate({scrollTop:0}, 'fast');
+            var status_msg = getStatusMsg(jqXHR);
+            showError($('#section h2'), status_msg);
+        });
+}
 /* Trigger a mouse click on the active sidebar navigation link */
 function activateNavLink() {
     var hash = location.hash;
@@ -504,6 +523,7 @@ $(function () { // DOM ready
                     })
             });
     });
+
 
 
     if (typeof init == 'function') init();
