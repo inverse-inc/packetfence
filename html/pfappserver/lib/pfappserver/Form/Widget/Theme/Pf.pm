@@ -15,7 +15,8 @@ the fields:
 
 =cut
 
-use Moose::Role;
+use HTML::FormHandler::Moose::Role;
+use namespace::autoclean;
 with 'HTML::FormHandler::Widget::Theme::Bootstrap';
 
 =head2 get_language_handle_from_ctx
@@ -153,6 +154,8 @@ sub field_errors {
 
     return \%errors;
 }
+
+no HTML::FormHandler::Moose::Role;
 
 =head1 COPYRIGHT
 
