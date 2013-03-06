@@ -1,24 +1,4 @@
 
-function submitFormHideModal(modal,form) {
-    $.ajax({
-        'async' : false,
-        'url'   : form.attr('action'),
-        'type'  : form.attr('method') || "POST",
-        'data'  : form.serialize()
-        })
-        .always(function()  {
-            modal.modal('hide');
-        })
-        .done(function(data) {
-            $(window).hashchange();
-        })
-        .fail(function(jqXHR) {
-            $("body,html").animate({scrollTop:0}, 'fast');
-            var status_msg = getStatusMsg(jqXHR);
-            showError($('#section h2'), status_msg);
-        });
-}
-
 function initVariableList(editor) {
     $('#variable_list').on('click', '.insert-into-file', function(event) {
         var that = $(this);
