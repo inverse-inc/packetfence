@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 
 use Catalyst::Runtime 5.80;
+use pfappserver::Form;
 use Log::Log4perl::Catalyst;
 
 # Set flags and add plugins for the application
@@ -47,6 +48,9 @@ $VERSION = eval $VERSION;
 
 __PACKAGE__->config(
     name => 'pfappserver',
+    setup_components => {
+        search_extra => [ qw(::Form ::F) ],
+    },
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     static => {
@@ -138,6 +142,8 @@ sub form {
     if( $name ) {
         unless ( ref($name) ) { # Direct component hash lookup to avoid costly regexps
             my $comps = $c->components;
+            use Data::Dumper;
+            $c->log->error(Dumper($comps));
             my $check = $appclass."::Form::".$name;
             return $c->_filter_component( $comps->{$check}, @args ) if exists $comps->{$check};
         }
