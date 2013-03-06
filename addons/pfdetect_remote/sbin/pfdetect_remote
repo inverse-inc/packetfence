@@ -29,6 +29,7 @@ use Pod::Usage;
 use strict;
 use warnings;
 
+
 POSIX::sigaction(
     &POSIX::SIGHUP,
     POSIX::SigAction->new(
@@ -79,9 +80,13 @@ my $log_facility = defined $cfg->val( 'logging', 'facility') ?
                   trim( $cfg->val( 'logging', 'facility') ):
                   "auth";
 
-
 openlog( "pfdetect_remote", '', $log_facility );
 syslog( $log_level, "initialized" );
+
+if (defined $cfg->val( 'server', 'insecure')) {
+    syslog( $log_level, "Insecure mode: ignoring SSL certs errors");
+    $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0; 
+}
 
 daemonize() if ($daemonize);
 
