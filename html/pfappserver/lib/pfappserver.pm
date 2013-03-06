@@ -142,8 +142,6 @@ sub form {
     if( $name ) {
         unless ( ref($name) ) { # Direct component hash lookup to avoid costly regexps
             my $comps = $c->components;
-            use Data::Dumper;
-            $c->log->error(Dumper($comps));
             my $check = $appclass."::Form::".$name;
             return $c->_filter_component( $comps->{$check}, @args ) if exists $comps->{$check};
         }
