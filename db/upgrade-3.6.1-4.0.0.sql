@@ -10,3 +10,13 @@ UPDATE person SET pid = 'admin' WHERE pid = '1';
 INSERT INTO temporary_password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2038-01-01', '9999D', 4294967295, 1);
 
 ALTER TABLE class CHANGE url template varchar(255);
+
+CREATE TABLE savedsearch (
+    id int NOT NULL AUTO_INCREMENT,
+    pid varchar(255) NOT NULL,
+    namespace varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    query TEXT,
+    in_dashboard TINYINT,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
