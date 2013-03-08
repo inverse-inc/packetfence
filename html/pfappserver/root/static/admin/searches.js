@@ -46,6 +46,26 @@ $(function() {
         return saveSearchFromForm('#simpleSearch');
     });
 
+    /* For simpleSearch */
+    $('#simpleSearch').on('submit', function(event) {
+        var form = $(this);
+        var section = $('#section');
+        section.fadeTo('fast', 0.5);
+        var url = form.attr('action');
+        var inputs = form.serializeArray();
+        var length = inputs.length;
+        if(length > 0) {
+            for(var i =0;i<length;i++) {
+                var input = inputs[i];
+                if(input.value) {
+                    url+= "/" + encodeURIComponent(input.name)   + "/" + encodeURIComponent(input.value);
+                }
+            }
+        }
+        updateSection(url);
+        return false;
+    });
+
     $('#advancedSearchBtn').on('click',function(event) {
         updateSectionFromForm($('#advancedSearch'));
         return false;
