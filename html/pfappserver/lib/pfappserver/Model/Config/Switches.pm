@@ -49,6 +49,16 @@ sub read {
                 $switch->{uplink_dynamic} = 'dynamic';
                 $switch->{uplink} = undef;
             }
+            if ($switch->{triggerInline}) {
+                # Decompose inline triggers (see pf::vlan::isInlineTrigger)
+                my @triggers = ();
+                foreach my $trigger (split(/,/, $switch->{triggerInline})) {
+                    my ( $type, $value ) = split( /::/, $trigger );
+                    $type = lc($type);
+                    push(@triggers, { type => $type, value => $value });
+                }
+                $switch->{triggerInline} = \@triggers;
+            }
         }
         my @switches = sort { $b->{id} cmp $a->{id} } @$result;
         $result = \@switches;
@@ -77,6 +87,11 @@ sub update {
     if ($assignments->{uplink_dynamic}) {
         $assignments->{uplink} = 'dynamic';
         $assignments->{uplink_dynamic} = undef;
+    }
+    if ($assignments->{triggerInline}) {
+        # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
+        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$assignments->{triggerInline}};
+        $assignments->{triggerInline} = join(',', @triggers);
     }
 
     while ( my ($param, $value) = each %$assignments ) {
