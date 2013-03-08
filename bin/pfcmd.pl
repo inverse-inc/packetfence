@@ -137,8 +137,8 @@ if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
     # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
-        'checkup' => sub { 
-            my $return = checkup(); 
+        'checkup' => sub {
+            my $return = checkup();
             print "Nothing to report.\n" if ($return == $FALSE);
             exit(1);
         },
@@ -162,7 +162,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'manage' => sub { exit(manage()); },
         'networkconfig' => sub { networkconfig(); exit(1); },
         'node' => sub {
-            require pf::node; 
+            require pf::node;
             import pf::node;
             command_param('node');
             exit(1);
@@ -170,8 +170,8 @@ if (! exists($cmd_tmp{'grammar'})) {
         'nodeaccounting' => sub { nodeaccounting(); exit(1) },
         'nodecategory' => sub { nodecategory(); exit(1); },
         'nodeuseragent' => sub { nodeuseragent(); exit(1); },
-        'person' => sub { 
-            require pf::person; 
+        'person' => sub {
+            require pf::person;
             import pf::person;
             command_param('person');
             exit(1);
@@ -189,7 +189,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'useragent' => sub { useragent(); exit(1); },
         'version' => sub { version(); exit(1); },
         'violation' => sub {
-            require pf::violation; 
+            require pf::violation;
             import pf::violation;
             command_param('violation');
             exit(1);
@@ -378,7 +378,7 @@ sub nodecategory {
             chomp($_);
             $logger->logcarp("$_");
         };
- 
+
     } elsif ($sub_cmd eq 'edit') {
 
         my %params = format_assignment(@{$cmd{'nodecategory_assignment'}});
@@ -388,7 +388,7 @@ sub nodecategory {
             chomp($_);
             $logger->logcarp("$_");
         };
- 
+
     } elsif ($sub_cmd eq 'delete') {
 
         try {
@@ -397,7 +397,7 @@ sub nodecategory {
             chomp($_);
             $logger->logcarp("$_");
         };
-    } 
+    }
     return 1;
 }
 
@@ -613,7 +613,7 @@ sub floatingnetworkdeviceconfig {
         }
 
         my @sections_tmp = keys %floatingnetworkdevice_conf;
-        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
+        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
             . $_ => @sections_tmp;
 
         my @fields = field_order();
@@ -714,7 +714,7 @@ sub networkconfig {
     if ( $mode eq 'get' ) {
 
         my @networks_tmp = keys %ConfigNetworks;
-        my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
+        my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
             . $_ => @networks_tmp;
 
         my @fields = field_order();
@@ -732,8 +732,8 @@ sub networkconfig {
                 foreach my $column (@fields) {
                     # pf_gateway to next_hop translation
                     # TODO remove code once pf_gateway is deprecated (somewhere in 2012)
-                    if ($column eq 'next_hop' 
-                        && !defined($ConfigNetworks{$network}{$column}) 
+                    if ($column eq 'next_hop'
+                        && !defined($ConfigNetworks{$network}{$column})
                         && defined($ConfigNetworks{$network}{'pf_gateway'})) {
                             $ConfigNetworks{$network}{$column} = $ConfigNetworks{$network}{'pf_gateway'};
                     }
@@ -1157,9 +1157,7 @@ sub service {
     if ( lc($command) eq 'status' ) {
         my (@services, %diff);
         if ( $service eq 'pf' ) {
-            @diff{ @pf::services::ALL_SERVICES } = @pf::services::ALL_SERVICES;
-            delete @diff{@pf::services::APACHE_SERVICES};
-            @services = (keys %diff);
+            @services =  @pf::services::ALL_SERVICES;
         } else {
             push( @services, $service );
         }
@@ -1325,7 +1323,7 @@ sub service {
         } else {
             if ( lc($service) eq 'pf' ) {
                 $logger->error(
-                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. " 
+                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. "
                      . "Can't restore iptables from var/iptables.bak"
                 );
             }
@@ -1445,7 +1443,7 @@ sub schedule {
 
     #scan now, no cron entry
     if ( $option && $option eq 'now' ) {
-        
+
         $logger->trace("pcmd schedule now called");
 
         require pf::scan;
@@ -1456,9 +1454,9 @@ sub schedule {
     # or modify cron
     } else {
         require pf::schedule;
-    
+
         my $date = $params{date} || 0;
-    
+
         my $cron = new pf::schedule();
         $cron->load_cron("pf");
         print join( $delimiter, ( "id", "date", "hosts" ) ) . "\n";
@@ -1503,7 +1501,7 @@ sub schedule {
             $logger->error("Schedule Failed");
             return (0);
         }
-    
+
         print $cron->get_indexes();
         $cron->write_cron("pf");
     }
@@ -2013,7 +2011,7 @@ sub command_param {
             }
 
             if (    ($function eq 'violation_add')
-                 || ( $function eq 'violation_delete' ) 
+                 || ( $function eq 'violation_delete' )
                  || ( $function eq 'violation_modify' ) ) {
                 pf::enforcement::reevaluate_access( $params{mac}, $function );
             } else {
