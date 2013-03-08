@@ -255,6 +255,7 @@ sub advanced_search :Local :Args() {
     my $form = new pfappserver::Form::AdvancedSearch;
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
+        $c->stash->{current_view} = 'JSON';
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
     } else {

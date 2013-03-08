@@ -97,6 +97,7 @@ BEGIN {
         *{$sub_name} = sub {
             my (@args) = @_;
             my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+            $logger->debug("Executing $statement_name with " . join(" ",@args));
             return db_data(USERPREF, $savedsearch_statements, $statement_name, @args);
         }
     }
@@ -115,7 +116,7 @@ BEGIN {
 }
 
 sub savedsearch_for_pid_and_namespace {
-    &_savedsearch_for_pid_and_namespace;
+    goto &_savedsearch_for_pid_and_namespace;
 }
 
 sub savedsearch_view {
