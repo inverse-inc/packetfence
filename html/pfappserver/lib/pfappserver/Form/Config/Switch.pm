@@ -12,25 +12,29 @@ Form definition to create or update a network switch.
 
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
+with 'pfappserver::Form::Widget::Theme::Pf' => { -alias => { update_fields => 'theme_update_fields' },
+                                                 -excludes => 'update_fields' };
 
 use File::Find qw(find);
 use File::Spec::Functions;
 
 use pf::config;
 use pf::SNMP::constants;
+use pf::util;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 has 'roles' => ( is => 'ro' );
+has 'placeholders' => ( is => 'ro' );
 
 ## Definition
-has_field 'ip' =>
+has_field 'id' =>
   (
    type => 'IPAddress',
    label => 'IP Address',
+   accept => ['default'],
    required => 1,
    messages => { required => 'Please specify the IP address of the switch.' },
   );
@@ -45,7 +49,6 @@ has_field 'mode' =>
    type => 'Select',
    label => 'Mode',
    required => 1,
-   element_class => ['chzn-select'],
    tags => { after_element => \&help_list,
              help => '<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it
 doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch
@@ -65,6 +68,59 @@ has_field 'uplink' =>
    label => 'Uplinks',
    tags => { after_element => \&help,
              help => 'Comma-separated list of the switch uplinks' },
+  );
+
+## Inline mode
+has_field 'triggerInline' =>
+  (
+   type => 'Repeatable',
+   num_extra => 1, # add extra row that serves as a template
+  );
+has_field 'triggerInline.type' =>
+  (
+   type => 'Select',
+   widget_wrapper => 'None',
+   localize_labels => 1,
+   options_method => \&options_triggerInline,
+  );
+has_field 'triggerInline.value' =>
+  (
+   type => 'Hidden',
+  );
+has_block 'triggers' =>
+  (
+   tag => 'div',
+   render_list => [
+                   map( { ("${_}_trigger") } ($ALWAYS, $PORT, $MAC, $SSID)),
+                  ],
+   attr => { id => 'templates' },
+   class => [ 'hidden' ],
+  );
+has_field "${ALWAYS}_trigger" =>
+  (
+   type => 'Hidden',
+   default => 1,
+  );
+has_field "${PORT}_trigger" =>
+  (
+   type => 'PosInteger',
+   do_label => 0,
+   wrapper => 0,
+   element_class => ['input-mini'],
+  );
+has_field "${MAC}_trigger" =>
+  (
+   type => 'MACAddress',
+   do_label => 0,
+   wrapper => 0,
+   #element_class => ['span5'],
+  );
+has_field "${SSID}_trigger" =>
+  (
+   type => 'Text',
+   do_label => 0,
+   wrapper => 0,
+   #element_class => ['span5'],
   );
 
 ## RADIUS
@@ -279,6 +335,18 @@ has_field 'wsPwd' =>
    label => 'Password',
   );
 
+=head2 options_triggerInline
+
+=cut
+
+sub options_triggerInline {
+    my $self = shift;
+
+    my @triggers = map { $_ => $self->_localize($_) } ($ALWAYS, $PORT, $MAC, $SSID);
+
+    return @triggers;
+}
+
 =head2 field_list
 
 Dynamically build text fields for the roles/vlans mapping.
@@ -290,24 +358,49 @@ sub field_list {
 
     my $list = [];
 
-    foreach my $role (@{$self->roles}) {
+    foreach my $role (@SNMP::ROLES, map { $_->{name} } @{$self->roles}) {
         my $field =
           {
            type => 'Text',
-           label => $role->{name},
-           #required => 1,
-           #messages => { required => 'Please specify the corresponding VLAN for each role.' }
+           label => $role,
           };
-        push(@$list, $role->{name}.'Vlan' => $field);
-        push(@$list, $role->{name}.'Role' => $field);
+        push(@$list, $role.'Vlan' => $field);
+        push(@$list, $role.'Role' => $field);
     }
 
     return $list;
 }
 
+=head2 update_fields
+
+When editing the default switch, set the VLANs mapping of the base roles required.
+
+=cut
+
+sub update_fields {
+    my $self = shift;
+
+    if ($self->field('id')->{init_value} && $self->field('id')->{init_value} eq 'default') {
+        foreach my $role (@SNMP::ROLES) {
+            $self->field($role.'Vlan')->required(1);
+            $self->field($role.'Vlan')->messages({ required => 'Please specify the corresponding VLAN for each role.' });
+        }
+    }
+    elsif ($self->placeholders) {
+        foreach my $field ($self->fields) {
+            if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
+                $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
+            }
+        }
+    }
+
+    # Call the theme implementation of the method
+    $self->theme_update_fields();
+}
+
 =head2 build_block_list
 
-Dynamically build the block list of the roles.
+Dynamically build the block list of the roles mapping.
 
 =cut
 
@@ -316,8 +409,8 @@ sub build_block_list {
 
     my (@vlans, @roles);
     if ($self->form->roles) {
-        @vlans = map { $_->{name}.'Vlan' } @{$self->form->roles};
-        @roles = map { $_->{name}.'Role' } @{$self->form->roles};
+        @vlans = map { $_.'Vlan' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
+        @roles = map { $_.'Role' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
     }
 
     return
@@ -349,7 +442,7 @@ sub options_type {
             my @p = split /::/, $switch;
             my $vendor = shift @p;
 
-            # Call the 'description' subroutine
+            # Only switch types with a 'description' subroutine are displayed
             require $module;
             if ($pack->can('description')) {
                 $paths{$vendor} = {} unless ($paths{$vendor});
@@ -406,6 +499,10 @@ sub options_SNMPVersion {
     return \@versions;
 }
 
+=head2 options_cliTransport
+
+=cut
+
 sub options_cliTransport {
     my $self = shift;
 
@@ -414,12 +511,78 @@ sub options_cliTransport {
     return ('' => '', @transports);
 }
 
+=head2 options_wsTransport
+
+=cut
+
 sub options_wsTransport {
     my $self = shift;
 
     my @transports = map { $_ => $_ } qw/HTTP HTTPS/;
 
     return ('' => '', @transports);
+}
+
+=head2 validate
+
+If one of the inline triggers is $ALWAYS, ignore any other trigger.
+
+Make sure the selected switch type supports the selected inline triggers.
+
+Valide the MAC address format of the inline triggers.
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    my @triggers;
+
+    @triggers = grep { $_->{type} eq $ALWAYS } @{$self->value->{triggerInline}};
+    if (scalar @triggers > 0) {
+        # If one of the inline triggers is $ALWAYS, ignore any other trigger.
+        $self->field('triggerInline')->value([{ type => $ALWAYS }]);
+    }
+
+    else {
+         my $type = 'pf::SNMP::'. $self->value->{type};
+         if ($type->require()) {
+             @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
+             if (scalar @triggers > 0) {
+                 # Make sure the selected switch type supports the selected inline triggers.
+                 my @capabilities = $type->new()->inlineCapabilities();
+                 if (scalar @capabilities > 0) {
+                     my %unsupported = ();
+                     foreach my $trigger (@triggers) {
+                         unless (grep { $_ eq $trigger } @capabilities) {
+                             $unsupported{$trigger} = 1;
+                         }
+                     }
+                     if (scalar %unsupported > 0) {
+                         $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
+                                                                  . join(', ', keys %unsupported));
+                     }
+                 }
+                 else {
+                     $self->field('type')->add_error("The chosen type doesn't support inline mode.");
+                 }
+             }
+         }
+         else {
+             $self->field('type')->add_error("The chosen type is not supported.");
+         }
+
+         unless ($self->has_errors) {
+             # Valide the MAC address format of the inline triggers.
+             @triggers = grep { $_->{type} eq $MAC } @{$self->value->{triggerInline}};
+             foreach my $trigger (@triggers) {
+                 unless (valid_mac($trigger->{value})) {
+                     $self->field('triggerInline')->add_error("Verify the format of the MAC address(es).");
+                     last;
+                 }
+             }
+         }
+    }
 }
 
 =head1 COPYRIGHT

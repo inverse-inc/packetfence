@@ -25,6 +25,22 @@ Defined by standards
 =cut
 package SNMP;
 
+=item ROLES
+
+Required roles for every switch. Those are reserved words for any additional custom role.
+
+=cut
+
+Readonly::Array our @ROLES =>
+  qw/
+        registration
+        isolation
+        macDetection
+        inline
+        voice
+    /;
+
+
 =item VERSIONS
 
 Supported SNMP versions by PacketFence

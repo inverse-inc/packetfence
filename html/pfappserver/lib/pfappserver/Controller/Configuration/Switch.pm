@@ -40,6 +40,11 @@ sub create :Local {
         $c->forward('update');
     }
     else {
+        my ($status, $result) = $c->model('Config::Switches')->read('default');
+        if (is_success($status)) {
+            $c->stash->{switch_default} = pop @$result;
+            delete $c->stash->{switch_default}->{id};
+        }
         $c->forward('read');
     }
 }
@@ -53,6 +58,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my ( $self, $c ) = @_;
     my $switch = $c->stash->{switch};
     my $switch_ref = $c->stash->{switch_ref};
+    my $switch_default = $c->stash->{switch_default};
 
     # Build form
     my $roles;
@@ -60,7 +66,8 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     if (is_success($status)) {
         $roles = $result;
     }
-    my $form = pfappserver::Form::Config::Switch->new(ctx => $c, init_object => $switch_ref, roles => $roles);
+    my $form = pfappserver::Form::Config::Switch->new(ctx => $c, init_object => $switch_ref,
+                                                      placeholders => $switch_default, roles => $roles);
     $form->process();
     $c->stash->{form} = $form;
 
@@ -68,7 +75,6 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$switch]);
     }
     $c->stash->{template} = 'configuration/switch/read.tt';
-    #$c->stash->{current_view} = 'HTML';
 }
 
 =item update
@@ -96,7 +102,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         }
         else {
             $data = $form->value;
-            ($status, $result) = $c->model('Config::Switches')->update($data->{ip}, $data);
+            ($status, $result) = $c->model('Config::Switches')->update($data->{id}, $data);
         }
 
         $c->response->status($status);
@@ -187,6 +193,14 @@ sub object :Chained('/') :PathPart('switch') :CaptureArgs(1) {
     else {
         $c->stash->{switch} = $id;
         $c->stash->{switch_ref} = pop @$result;
+
+        if ($id ne 'default') {
+            # Fetch the defaults to be used as the fields placeholders
+            ($status, $result) = $c->model('Config::Switches')->read('default');
+            if (is_success($status)) {
+                $c->stash->{switch_default} = pop @$result;
+            }
+        }
     }
 }
 

@@ -741,3 +741,17 @@ msgstr "Revert"
 
 msgid "portal_profile_delete"
 msgstr "Delete"
+
+# lib/pf/config.pm
+
+msgid "always"
+msgstr "Always"
+
+msgid "mac"
+msgstr "MAC Address"
+
+msgid "port"
+msgstr "Port"
+
+msgid "ssid"
+msgstr "Wifi Network SSID"

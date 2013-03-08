@@ -17,6 +17,10 @@ extends 'HTML::FormHandler::Field::Text';
 use pf::util;
 use namespace::autoclean;
 
+# If the field value matches one of the values defined in "accept", the field will pass validation.
+# Otherwise, the field value must be a valid IPv4 address.
+has 'accept' => ( is => 'rw', isa => 'ArrayRef' );
+
 our $class_messages = {
     'ipv4' => 'Value must be an IPv4 address',
 };
@@ -35,6 +39,7 @@ apply
     {
      check => sub {
          my ( $value, $field ) = @_;
+         return 1 if (grep { $_ eq $value } @{$field->accept});
          return valid_ip( $value );
      },
      message => sub {
