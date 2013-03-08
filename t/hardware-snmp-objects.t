@@ -43,7 +43,7 @@ my @whitelist = (
     'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode',
     'isProductionMode', 'isDiscoveryMode', 'getBitAtPosition', 'modifyBitmask', 'flipBits',
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
-    'isNotUpLink', 'setVlan', 'setVlanAllPort', 'resetVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
+    'isNotUpLink', 'setVlan', 'setVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
     'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
     'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid', 'supportsWirelessMacAuth', 
     'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan',

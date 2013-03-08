@@ -170,7 +170,7 @@ sub fetchVlanForNode {
     );
     if (!defined($vlan)) {
         $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
-        $vlan = $switch->getVlanByName('macDetectionVlan');
+        $vlan = $switch->getVlanByName('macDetection');
     }
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     return $vlan;
@@ -310,23 +310,23 @@ sub getRegistrationVlan {
     my $vlan_number;
     if (defined($called_station_id) && ref($switch) eq 'pf::SNMP::Cisco::WLC_4400') {
         $vlan_number = 
-            buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName('registrationVlan');
+            buildingnum_per_called_station_id($called_station_id) . $switch->getVlanByName('registration');
     }
     # Asking the switch to give us its configured vlan number for the vlan returned for the violation
     else {
-        $vlan_number = $switch->getVlanByName('registrationVlan');
+        $vlan_number = $switch->getVlanByName('registration');
     }
 
     if (!defined($node_info)) {
         $logger->info("MAC: $mac doesn't have a node entry; belongs into registration VLAN");
-        # CUSTOM: replaced $switch->getVlanByName('registrationVlan') with pre-computed VLAN above
+        # CUSTOM: replaced $switch->getVlanByName('registration') with pre-computed VLAN above
         return $vlan_number;
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->info("MAC: $mac is of status $n_status; belongs into registration VLAN");
-        # CUSTOM: replaced $switch->getVlanByName('registrationVlan') with pre-computed VLAN above
+        # CUSTOM: replaced $switch->getVlanByName('registration') with pre-computed VLAN above
         return $vlan_number;
     }
     return 0;

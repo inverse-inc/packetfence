@@ -95,7 +95,7 @@ sub fetchVlanForNode {
     my $vlan = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (!defined($vlan)) {
         $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
-        $vlan = $switch->getVlanByName('macDetectionVlan');
+        $vlan = $switch->getVlanByName('macDetection');
     }
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
     return ( $vlan, 0 );
@@ -187,8 +187,8 @@ sub getViolationVlan {
     $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
     
-    # By default we assume that we put the user in isolationVlan unless proven otherwise
-    my $vlan = "isolationVlan";
+    # By default we assume that we put the user in isolation vlan unless proven otherwise
+    my $vlan = "isolation";
 
     # fetch top violation
     $logger->trace("What is the highest priority violation for this host?");
@@ -269,13 +269,13 @@ sub getRegistrationVlan {
 
     if (!defined($node_info)) {
         $logger->info("MAC: $mac doesn't have a node entry; belongs into registration VLAN");
-        return $switch->getVlanByName('registrationVlan');
+        return $switch->getVlanByName('registration');
     }
 
     my $n_status = $node_info->{'status'};
     if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
         $logger->info("MAC: $mac is of status $n_status; belongs into registration VLAN");
-        return $switch->getVlanByName('registrationVlan');
+        return $switch->getVlanByName('registration');
     }
     return 0;
 }
@@ -326,18 +326,12 @@ sub getNormalVlan {
         $logger->debug("Username was NOT defined - got role $role");
     }
 
-    return $switch->getVlanByName($role . "Vlan");
-
-    # custom example: admin category
-    # return customVlan5 to nodes in the admin category
-    #if (defined($node_info->{'category'}) && lc($node_info->{'category'}) eq "admin") {
-    #    return $switch->getVlanByName('customVlan5');
-    #}
+    return $switch->getVlanByName($role);
 
     # custom example: simple guest user 
     # return guestVlan for pid=guest
     #if (defined($node_info->{pid}) && $node_info->{pid} =~ /^guest$/i) {
-    #    return $switch->getVlanByName('guestVlan');
+    #    return $switch->getVlanByName('guest');
     #}
 
     # custom example: enforce a node's bypass VLAN 
@@ -347,15 +341,7 @@ sub getNormalVlan {
     #    return $node_info->{'bypass_vlan'};
     #}
 
-    # custom example: VLAN by SSID
-    # return customVlan1 if SSID is 'PacketFenceRocks'
-    #if (defined($ssid) && $ssid eq 'PacketFenceRocks') {
-    #    return $switch->getVlanByName('customVlan1');
-    #}
-
-    #return $switch->getVlanByName('normalVlan');
-
-    
+    #return $switch->getVlanByName('normal');
 }
 
 =item getInlineVlan
@@ -382,8 +368,7 @@ sub getInlineVlan {
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
-    return $switch->getVlanByName('inlineVlan');
-
+    return $switch->getVlanByName('inline');
 }
 
 =item getNodeInfoForAutoReg

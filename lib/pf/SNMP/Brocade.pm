@@ -182,7 +182,7 @@ sub getVoipVsa {
         'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voiceVlan'),
+        'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voice'),
     );
 }
 
