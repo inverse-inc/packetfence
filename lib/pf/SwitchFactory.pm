@@ -122,17 +122,24 @@ sub instantiate {
         }
     }
 
-    # transforming vlans to array
-    my @vlans      = ();
-    my @_vlans_tmp = split(
-        /,/,
-        (          $SwitchConfig{$requestedSwitch}{'vlans'}
-                || $SwitchConfig{'default'}{'vlans'}
-        )
-    );
-    foreach my $_tmp (@_vlans_tmp) {
-        $_tmp =~ s/ //g;
-        push @vlans, $_tmp;
+    # transforming vlans and roles to hashes
+    my %vlans = ();
+    my %roles = ();
+    foreach my $key (keys %{$SwitchConfig{$requestedSwitch}}) {
+        if (my ($vlan) = $key =~ m/^(\w+)Vlan$/) {
+            $vlans{$vlan} = $SwitchConfig{$requestedSwitch}{$key};
+        }
+        elsif (my ($role) = $key =~ m/^(\w+)Role$/) {
+            $roles{$role} = $SwitchConfig{$requestedSwitch}{$key};
+        }
+    }
+    foreach my $key (keys %{$SwitchConfig{default}}) {
+        if (my ($vlan) = $key =~ m/^(\w+)Vlan$/) {
+            $vlans{$vlan} = $SwitchConfig{default}{$key} unless ($vlans{$vlan});
+        }
+        elsif (my ($role) = $key =~ m/^(\w+)Role$/) {
+            $roles{$role} = $SwitchConfig{default}{$key} unless ($roles{$role});
+        }
     }
 
     # transforming inlineTrigger to array
@@ -147,14 +154,11 @@ sub instantiate {
         }
     }
 
-    $logger->debug("expanding custom vlans for switch $type");
-    my $custom_vlan_assignments_ref = $this->_customVlanExpansion($requestedSwitch, %SwitchConfig);
-
     $logger->debug("creating new $type object");
     return $type->new(
-        %$custom_vlan_assignments_ref,
         '-uplink'    => \@uplink,
-        '-vlans'     => \@vlans,
+        '-vlans'     => \%vlans,
+        '-roles'     => \%roles,
         '-inlineTrigger' => \@inlineTrigger,
         '-wsUser' => (
             $SwitchConfig{$requestedSwitch}{'wsUser'}
@@ -183,14 +187,6 @@ sub instantiate {
             || $SwitchConfig{'default'}{'controllerIp'}
         ),
         '-ip'            => $requestedSwitch,
-        '-isolationVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'isolationVlan'}
-                || $SwitchConfig{'default'}{'isolationVlan'}
-        ),
-        '-macDetectionVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'macDetectionVlan'}
-                || $SwitchConfig{'default'}{'macDetectionVlan'}
-        ),
         '-macSearchesMaxNb' => (
                    $SwitchConfig{$requestedSwitch}{'macSearchesMaxNb'}
                 || $SwitchConfig{'default'}{'macSearchesMaxNb'}
@@ -200,18 +196,6 @@ sub instantiate {
                 || $SwitchConfig{'default'}{'macSearchesSleepInterval'}
         ),
         '-mode' => lc( ($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'}) ),
-        '-normalVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'normalVlan'}
-                || $SwitchConfig{'default'}{'normalVlan'}
-        ),
-        '-registrationVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'registrationVlan'}
-                || $SwitchConfig{'default'}{'registrationVlan'}
-        ),
-        '-inlineVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'inlineVlan'}
-                || $SwitchConfig{'default'}{'inlineVlan'}
-        ),
         '-SNMPAuthPasswordRead' => (
                    $SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordRead'}
                 || $SwitchConfig{'default'}{'SNMPAuthPasswordRead'}
@@ -327,18 +311,10 @@ sub instantiate {
                 || $SwitchConfig{'default'}{'cliTransport'}
                 || 'Telnet'
         ),
-        '-voiceVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'voiceVlan'}
-                || $SwitchConfig{'default'}{'voiceVlan'}
-        ),
         '-VoIPEnabled' => (
             (          $SwitchConfig{$requestedSwitch}{'VoIPEnabled'}
                     || $SwitchConfig{'default'}{'VoIPEnabled'}
             ) =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0
-        ),
-        '-roles' => (
-                   $SwitchConfig{$requestedSwitch}{'roles'}
-                || $SwitchConfig{'default'}{'roles'}
         ),
         '-deauthMethod' => (
                    $SwitchConfig{$requestedSwitch}{'deauthMethod'}
@@ -390,48 +366,11 @@ sub readConfig {
     return 1;
 }
 
-sub _customVlanExpansion {
-    my ($this, $requestedSwitch, %SwitchConfig) = @_;
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
-
-    my %custom_vlan_assignments;
-
-    foreach my $key ( keys %{ $SwitchConfig{$requestedSwitch} } ) {
-        my ($role) = $key =~ m/(\w+)Vlan$/;
-        my $vlan;
-        
-        if (defined $role && $role ne "normal" && $role ne "registration" && $role ne "isolation" && $role ne "macDetection" && $role ne "inline") {
-            
-            # switch specific VLAN first
-            if (defined($SwitchConfig{$requestedSwitch}{$key})) {
-                $vlan = $SwitchConfig{$requestedSwitch}{$key};
-            }
-            # then default section
-            elsif (defined($SwitchConfig{'default'}{$key})) {
-                $vlan = $SwitchConfig{'default'}{$key};
-            }
-            
-            $custom_vlan_assignments{'-' . $key} = $vlan if (defined($vlan));
-            $logger->debug("Read custom role ($role) from key ($key) for vlan ($vlan).");
-        }
-    }
-
-    return \%custom_vlan_assignments;
-}
-
 =back
-
-=head1 AUTHOR
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2012 Inverse inc.
+Copyright (C) 2006-2013 Inverse inc.
 
 =head1 LICENSE 
 

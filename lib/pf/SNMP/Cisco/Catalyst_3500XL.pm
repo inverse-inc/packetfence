@@ -79,7 +79,7 @@ sub getManagedPorts {
                         {                         # skip non static
 
                             if (grep(
-                                    { $_ == $portVlan } @{ $this->{_vlans} } )
+                                    { $_ == $portVlan } values %{ $this->{_vlans} } )
                                 != 0 )
                             {    # skip port in a non-managed VLAN
                                 $logger->trace(

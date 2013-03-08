@@ -242,7 +242,10 @@ sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    return ($this->{_voiceVlan}) if (defined($this->{_voiceVlan})); 
+    my $voiceVlan = $this->getVlanByName('voice');
+    if (defined($voiceVlan)) {
+        return $voiceVlan;
+    }
 
     # otherwise say it didn't work
     $logger->warn("Voice VLAN was requested but it's not configured!");
