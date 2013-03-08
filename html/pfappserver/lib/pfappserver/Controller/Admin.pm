@@ -14,10 +14,13 @@ use strict;
 use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
-use Moose;
 use namespace::autoclean;
+use Moose;
+use pfappserver::Form::SavedSearch;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'Catalyst::Controller';
+}
 
 =head1 SUBROUTINES
 
@@ -146,7 +149,11 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) {
 =cut
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
     my ( $self, $c ) = @_;
-
+    my $id = $c->user->id;
+    $c->stash(
+        saved_searches => [$c->model("SavedSearch::Node")->read_all($id)],
+        saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
+    );
 }
 
 =head2 users
@@ -154,7 +161,13 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 =cut
 sub users :Chained('object') :PathPart('users') :Args(0) {
     my ( $self, $c ) = @_;
-
+    my $id = $c->user->id;
+    use Data::Dumper;
+    $c->log->debug("User ID $id");
+    $c->stash(
+        saved_searches   => [$c->model("SavedSearch::User")->read_all($id)],
+        saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
+    );
 }
 
 =head2 configuration
