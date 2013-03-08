@@ -118,28 +118,14 @@ sub status {
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
-=item all_services
+=item service_status
 
-Calls and parse the output of `bin/pfcmd service pf status`.
-
-Returns a tuple status, hashref with servicename => true / false values.
-Returns only the list of services that should be started based on
-configuration.
 
 =cut
 
-sub all_services {
-    my ($self) = @_;
-    my (@services,%diff);
-    @diff{ @pf::services::ALL_SERVICES } = @pf::services::ALL_SERVICES;
-    delete @diff{@pf::services::APACHE_SERVICES};
-    @services = (keys %diff);
-    return ($STATUS::OK,{services => \@services});
-}
-
 sub service_status {
     my ($self,$service) = @_;
-    my (undef,@services) = all_services();
+    my @services = @pf::services::ALL_SERVICES;
     my @services_which_should_be_started = pf::services::service_list(@services);
     my %status = (
         pid => pf::services::service_ctl($service, 'status' ),
