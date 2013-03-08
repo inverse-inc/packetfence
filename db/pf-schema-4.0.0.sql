@@ -784,3 +784,17 @@ price varchar(255) NOT NULL,
 person varchar(255) NOT NULL,
 PRIMARY KEY (id)
 ) ENGINE=InnoDB;
+
+--
+-- Table structure for table `savedsearch`
+--
+
+CREATE TABLE savedsearch (
+    id int NOT NULL AUTO_INCREMENT,
+    pid varchar(255) NOT NULL,
+    namespace varchar(255) NOT NULL,
+    name varchar(255) NOT NULL,
+    query TEXT,
+    in_dashboard TINYINT,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
