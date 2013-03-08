@@ -11,9 +11,6 @@ Base
 
 =cut
 
-use strict;
-use warnings;
-
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
@@ -45,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
