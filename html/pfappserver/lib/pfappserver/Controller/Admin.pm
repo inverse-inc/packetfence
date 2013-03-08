@@ -162,8 +162,6 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 sub users :Chained('object') :PathPart('users') :Args(0) {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
-    use Data::Dumper;
-    $c->log->debug("User ID $id");
     $c->stash(
         saved_searches   => [$c->model("SavedSearch::User")->read_all($id)],
         saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
