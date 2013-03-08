@@ -106,7 +106,7 @@ sub create {
   my ($self, $name, $max_nodes_per_pid, $notes) = @_;
 
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-  my ($status, $status_msg) = ($STATUS::OK);
+  my ($status, $status_msg) = ($STATUS::OK, 'The role was succesfully created.');
 
   eval {
     nodecategory_add((name => $name, max_nodes_per_pid => $max_nodes_per_pid, notes => $notes));
