@@ -16,6 +16,8 @@ with 'pfappserver::Form::Widget::Theme::Pf';
 
 use HTTP::Status qw(:constants is_success);
 
+use pf::config;
+
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
@@ -45,14 +47,19 @@ has_field 'max_nodes_per_pid' =>
 
 =head2 validate
 
-Make sure the role name is unique
+Make sure none of the reserved names is used.
+
+Make sure the role name is unique.
 
 =cut
 
 sub validate {
     my $self = shift;
 
-    if ($self->{id} && $self->{id} ne $self->value->{name} || !$self->{id}) {
+    if (grep { $_ eq $self->value->{name} } @SNMP::ROLES) {
+        $self->field('name')->add_error('This is a reserved name.');
+    }
+    elsif ($self->{id} && $self->{id} ne $self->value->{name} || !$self->{id}) {
         # Build a list of existing roles
         my ($status, $result) = $self->ctx->model('Roles')->list();
         if (is_success($status)) {
