@@ -359,25 +359,6 @@ $(function () { // DOM ready
         return false;
     });
 
-    /* For simpleSearch */
-    $('body').on('submit', 'form[name="simpleSearch"]', function(event) {
-        var form = $(this);
-        var section = $('#section');
-        section.fadeTo('fast', 0.5);
-        var hash = form.attr('action');
-        var inputs = form.serializeArray();
-        var length = inputs.length;
-        if(length > 0) {
-            for(var i =0;i<length;i++) {
-                var input = inputs[i];
-                if(input.value) {
-                    hash+= "/" + encodeURIComponent(input.name)   + "/" + encodeURIComponent(input.value);
-                }
-            }
-        }
-        location.hash = hash;
-        return false;
-    });
 
     /* Activate links that trigger an ajax request and return a JSON status message */
     $('#section').on('click','a.updates_section_status_msg', function() {
