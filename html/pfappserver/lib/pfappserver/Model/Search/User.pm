@@ -72,8 +72,8 @@ sub search {
 
 }
 
-
 my %COLUMN_MAP = (
+    username => 'pid',
     mac => {
         table => 'node',
         name  => 'mac',
