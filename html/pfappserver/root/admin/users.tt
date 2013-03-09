@@ -101,6 +101,7 @@ form {
                       <tr class="hidden">
                         <td>
                           <select name="searches.0.name" disabled="disabled" class="span4">
+                            <option value="username">User Name</option>
                             <option value="name">Name</option>
                             <option value="firstname">First Name</option>
                             <option value="lastname">Last Name</option>
@@ -126,6 +127,7 @@ form {
                       <tr>
                         <td>
                           <select name="searches.0.name" class="span4">
+                            <option value="username">User Name</option>
                             <option value="name">Name</option>
                             <option value="firstname">First Name</option>
                             <option value="lastname">Last Name</option>
