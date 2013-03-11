@@ -6,17 +6,17 @@ pf::services - module to manage the PacketFence services and daemons.
 
 =head1 DESCRIPTION
 
-pf::services contains the functions necessary to control the different 
-PacketFence services and daemons. It also contains the functions used 
+pf::services contains the functions necessary to control the different
+PacketFence services and daemons. It also contains the functions used
 to generate or validate some configuration files.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the following configuration files: F<dhcpd_vlan.conf>, 
-F<named-vlan.conf>, F<named-isolation.ca>, F<named-registration.ca>, 
+Read the following configuration files: F<dhcpd_vlan.conf>,
+F<named-vlan.conf>, F<named-isolation.ca>, F<named-registration.ca>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
-Generate the following configuration files: F<dhcpd.conf>, F<named.conf>, 
+Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
 F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
 
 =cut
@@ -48,8 +48,8 @@ use pf::services::suricata qw(generate_suricata_conf);
 use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
-    'named', 'dhcpd', 'snort', 'suricata', 'radiusd', 
-    'httpd', 'httpd.soap', 'httpd.admin', 'httpd.captport', 'snmptrapd', 
+    'named', 'dhcpd', 'snort', 'suricata', 'radiusd',
+    'httpd.soap', 'httpd.admin', 'httpd.captport', 'snmptrapd',
     'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
@@ -70,7 +70,7 @@ $/x;
 
 =item service_launchers
 
-sprintf-formatted strings that control how the services should be started. 
+sprintf-formatted strings that control how the services should be started.
     %1$s: is the binary (w/ full path)
     %2$s: optional parameters
 
@@ -98,7 +98,7 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'t
         "-N -D -l $install_dir/var --pid-path $install_dir/var/run";
 } elsif ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'suricata' ) {
     $service_launchers{'suricata'} =
-        "%1\$s -D -c $install_dir/var/conf/suricata.yaml -i $monitor_int " . 
+        "%1\$s -D -c $install_dir/var/conf/suricata.yaml -i $monitor_int " .
         "-l $install_dir/var --pidfile $install_dir/var/run/suricata.pid";
 }
 =back
@@ -390,7 +390,7 @@ sub service_list {
             push @add_last, $service
                 if (isenabled($Config{'trapping'}{'detection'}) && $Config{'trapping'}{'detection_engine'} eq $service);
         } elsif ( $service eq "radiusd" ) {
-            push @finalServiceList, $service 
+            push @finalServiceList, $service
                 if ( isenabled($Config{'services'}{'radiusd'}) );
         } elsif ( $service eq "pfdetect" ) {
             push @finalServiceList, $service
@@ -400,7 +400,7 @@ sub service_list {
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'dhcpd'}) );
         } elsif ( $service eq "named" ) {
-            push @finalServiceList, $service 
+            push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'named'}) );
         }
@@ -429,7 +429,7 @@ sub manage_Static_Route {
 
         if ( defined($net{'next_hop'}) && ($net{'next_hop'} =~ /^(?:\d{1,3}\.){3}\d{1,3}$/) ) {
             my $add_del = $add_Route ? 'add' : 'del';
-            my $full_path = can_run('route') 
+            my $full_path = can_run('route')
                 or $logger->error("route is not installed! Can't add static routes to routed VLANs.");
 
             my $cmd = "$full_path $add_del -net $network netmask " . $net{'netmask'} . " gw " . $net{'next_hop'};
@@ -473,7 +473,7 @@ sub read_violations_conf {
             };
         }
 
-        # parse grace, try to understand trailing signs, and convert back to seconds 
+        # parse grace, try to understand trailing signs, and convert back to seconds
         if ( defined $violations{$violation}{'grace'} ) {
             $violations{$violation}{'grace'} = normalize_time($violations{$violation}{'grace'});
         }
