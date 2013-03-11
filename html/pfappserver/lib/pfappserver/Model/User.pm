@@ -180,10 +180,14 @@ sub update {
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
+    my $actions = delete $user_ref->{actions};
 
     unless (person_modify($pid, %{$user_ref})) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user.';
+    } elsif(!pf::temporary_password::modify_actions($pid,%$actions)) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $status_msg = 'An error occurred while updating the user actions.';
     }
 
     return ($status, $status_msg);

@@ -13,6 +13,9 @@ Form definition to update a user.
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
+use pf::config;
+use pf::util qw(get_abbr_time);
+use HTTP::Status qw(:constants is_success);
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
@@ -24,69 +27,165 @@ has_field 'pid' =>
    type => 'Uneditable',
    label => 'Username',
   );
+
 has_field 'firstname' =>
   (
    type => 'Text',
    label => 'Firstname',
   );
+
 has_field 'lastname' =>
   (
    type => 'Text',
    label => 'Lastname',
   );
+
 has_field 'company' =>
   (
    type => 'Text',
    label => 'Company',
   );
+
 has_field 'email' =>
   (
    type => 'Email',
    label => 'Email',
    required => 1,
   );
+
 has_field 'address' =>
   (
    type => 'TextArea',
    label => 'Address',
   );
+
 has_field 'notes' =>
   (
    type => 'TextArea',
    label => 'Notes',
   );
+
 has_field 'sponsor' =>
   (
    type => 'Text',
    label => 'Sponsor',
   );
-has_field 'expiration' =>
+
+has_field "actions" =>
   (
-   type => 'DatePicker',
-   label => 'Expiration',
+    type => 'Compound',
   );
-has_field 'valid_from' =>
+
+has_field "actions.pid" =>
   (
-   type => 'DatePicker',
-   label => 'Valid From',
+   type => 'Text',
+   widget => 'NoRender',
   );
-has_field 'access_duration' =>
-  (
-   type => 'Duration',
-   label => 'Access Duration',
-  );
-has_field 'is_sponsor' =>
+
+has_field "actions.sponsor" =>
   (
    type => 'Toggle',
    label => 'Is a Sponsor',
-   checkbox_value => 1,
-   uncheckbox_value => 0,
+   checkbox_value => '1',
+   uncheckbox_value => '0',
   );
-has_field 'category' =>
+
+has_field "actions.access_level" =>
   (
-   type => 'Text',
-   label => 'Role'
+   type => 'Select',
+   'label' => 'Access Level',
+   options_method => \&options_access_level,
   );
+
+has_field "actions.role" =>
+  (
+   type => 'Select',
+   label => 'Role',
+   options_method => \&options_roles,
+  );
+
+has_field "actions.access_duration" =>
+  (
+   type => 'Select',
+   label => 'Access Duration',
+   options_method => \&options_durations,
+   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
+  );
+
+has_field "actions.unreg_date" =>
+  (
+   type  => 'DatePicker',
+   label => 'Unregistration Date',
+  );
+
+has_field "actions.sponsor" =>
+  (
+   type => 'Toggle',
+   label => 'Is a Sponsor',
+   checkbox_value => '1',
+   uncheckbox_value => '0',
+  );
+
+=head2 options_access_level
+
+Populate the select field for the 'access level' template action.
+
+=cut
+
+sub options_access_level {
+    my $self = shift;
+
+    return
+      (
+       {
+        label => $self->_localize('None'),
+        value => $WEB_ADMIN_NONE,
+       },
+       {
+        label => $self->_localize('All'),
+        value => $WEB_ADMIN_ALL,
+       },
+      );
+}
+
+=head2 options_roles
+
+Populate the select field for the roles template action.
+
+=cut
+
+sub options_roles {
+    my $self = shift;
+
+    my @roles;
+
+    # Build a list of existing roles
+    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    if (is_success($status)) {
+        @roles = map { $_->{name} => $_->{name} } @$result;
+    }
+
+    return @roles;
+}
+
+=head2 options_durations
+
+Populate the access duration select field with the available values defined
+in the pf.conf configuration file.
+
+=cut
+
+sub options_durations {
+    my $self = shift;
+
+    my $durations = pf::web::util::get_translated_time_hash(
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
+        $self->form->ctx->languages()->[0]
+    );
+    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
+
+    return \@options;
+}
 
 =head1 COPYRIGHT
 

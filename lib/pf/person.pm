@@ -78,7 +78,9 @@ sub person_db_prepare {
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
-                   t.password, t.valid_from, t.expiration, t.access_duration, t.category, t.unregdate
+                   t.password, t.valid_from as 'actions.valid_from', t.expiration as 'actions.expiration',
+                   t.access_duration as 'actions.access_duration', t.category as 'actions.category',
+                   t.sponsor as 'actions.sponsor', t.pid as 'actions.pid'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
@@ -87,7 +89,9 @@ sub person_db_prepare {
     $person_statements->{'person_view_all_sql'} =
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
-                   t.password, t.valid_from, t.expiration, t.access_duration, t.category,t.sponsor as is_sponsor
+                   t.password, t.valid_from as 'actions.valid_from', t.expiration as 'actions.expiration',
+                   t.access_duration as 'actions.access_duration', t.category as 'actions.category',
+                   t.sponsor as 'actions.sponsor'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
