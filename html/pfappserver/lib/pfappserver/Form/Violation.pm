@@ -142,6 +142,26 @@ has_field 'vlan' =>
              help => 'Destination VLAN where PacketFence should put the client when a violation of this type is open.' }
   );
 
+=head2 around has_errors
+
+Ignore validation errors for the trigger select field. An error would occur if a new trigger is added from the Web
+interface. In this case, this new value is not in the initial options list and would cause the form to throw an error.
+
+=cut
+
+around 'has_errors'  => sub {
+    my ( $orig, $self ) = @_;
+
+    if ($self->$orig()) {
+        my @error_fields = $self->error_fields;
+        if (scalar @error_fields == 1 && $error_fields[0]->name eq 'trigger') {
+            return 0;
+        }
+    }
+
+    return $self->$orig;
+};
+
 =head2 options_actions
 
 =cut
@@ -212,7 +232,7 @@ sub validate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
