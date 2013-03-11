@@ -100,11 +100,14 @@ $(function() { // DOM ready
 
     /* Modal Editor: add a trigger */
     $('body').on('click', '[href="#addTrigger"]', function(event) {
+        event.preventDefault();
+
         var id = $(this).prev().val();
         var type = $(this).prev().prev().val();
         var name = type + "::" + id;
         var select = $('#trigger');
         var last = true;
+        $(this).prev().val('');
         select.find('option').each(function() {
             if ($(this).val() > name) {
                 $('<option value="' + name + '" selected="selected">' + name + '</option>').insertBefore(this);
