@@ -15,10 +15,10 @@ utility methods generate activation codes and validate them.
 =head1 DEVELOPER NOTES
 
 Notice that this module doesn't export all its subs like our other modules do.
-This is an attempt to shift our paradigm towards calling with package names 
-and avoid the double naming. 
+This is an attempt to shift our paradigm towards calling with package names
+and avoid the double naming.
 
-For ex: pf::temporary_password::view() instead of 
+For ex: pf::temporary_password::view() instead of
 pf::temporary_password::temporary_password_view()
 
 Remove this note when it will be no longer relevant. ;)
@@ -69,7 +69,7 @@ BEGIN {
     );
 
     @EXPORT_OK = qw(
-        view add modify 
+        view add modify
         create
         validate_password
         $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
@@ -95,7 +95,7 @@ TODO: This list is incomlete
 =cut
 
 sub temporary_password_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::temporary_password');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
@@ -117,7 +117,7 @@ sub temporary_password_db_prepare {
         qq [ DELETE FROM temporary_password WHERE pid = ? ]
     );
 
-    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[ 
+    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
         SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from, UNIX_TIMESTAMP(expiration) as expiration,
             access_duration, category
         FROM temporary_password
@@ -126,10 +126,15 @@ sub temporary_password_db_prepare {
         LIMIT 1
     ]);
 
+    $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
+        update temporary_password SET expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
+        WHERE pid = ?
+    ]);
+
     $temporary_password_db_prepared = 1;
 }
 
-=item view 
+=item view
 
 view a a temporary password record, returns an hashref
 
@@ -146,7 +151,7 @@ sub view {
     return ($ref);
 }
 
-=item add 
+=item add
 
 add a temporary password record to the database
 
@@ -154,8 +159,8 @@ add a temporary password record to the database
 #sub add {
 #    my (%data) = @_;
 #
-#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements, 
-#        'temporary_password_add_sql', 
+#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
+#        'temporary_password_add_sql',
 #        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
 #    ));
 #}
@@ -173,7 +178,7 @@ sub _delete {
     ));
 }
 
-=item create 
+=item create
 
 Creates a temporary password record for a given pid. Valid until given expiration.
 
@@ -208,7 +213,7 @@ Generates a temporary password and add it to the temporary password table.
 
 Returns the temporary password
 
-Optional arguments: 
+Optional arguments:
 
 =over
 
@@ -235,7 +240,7 @@ Defaults to 0 (no per user limit)
 =cut
 sub generate {
     my ($pid, $valid_from, $actions, $password) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::temporary_password');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %data;
     $data{'pid'} = $pid;
@@ -243,9 +248,9 @@ sub generate {
     # if $valid_from is set we use it, otherwise set to null which means valid from the begining of time
     $data{'valid_from'} = $valid_from || undef;
 
-    # generate password 
+    # generate password
     $data{'password'} = $password || _generate_password();
-    
+
     # default expiration
     $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
 
@@ -257,7 +262,7 @@ sub generate {
         # Expiration is arrival date + access duration + a tolerance window of 24 hrs
         # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
         $data{'access_duration'} = $values[0]->{value} || undef;
-        
+
         # if $expiration is set we use it, otherwise we use the module default defined earlier
         $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S",
                                       localtime(str2time($data{'valid_from'}) +
@@ -309,6 +314,17 @@ sub generate {
     }
 }
 
+sub modify_actions {
+    my ($pid, %data);
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $query = db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements,
+        'temporary_password_modify_actions_sql',@data{qw(expiration access_duration access_level category sponsor unregdate)}, $pid
+    ) || return (0);
+    $logger->info("temporarypassword $pid modified");
+    return (1);
+}
+
 
 =item validate_password
 
@@ -332,7 +348,7 @@ sub validate_password {
     my $temppass_record = $query->fetchrow_hashref();
     # just get one row
     $query->finish();
-    
+
     if (!defined($temppass_record) || ref($temppass_record) ne 'HASH') {
         return $AUTH_FAILED_INVALID;
     }
@@ -341,13 +357,13 @@ sub validate_password {
     # valid_from is in unix timestamp format so an int comparison is enough
     if ($temppass_record->{'password'} eq $password && $temppass_record->{'valid_from'} > time) {
         return $AUTH_FAILED_NOT_YET_VALID;
-    }   
+    }
 
     # password is valid but expired
     # expiration is in unix timestamp format so an int comparison is enough
     if ($temppass_record->{'password'} eq $password && $temppass_record->{'expiration'} < time) {
         return $AUTH_FAILED_EXPIRED;
-    }   
+    }
 
     # password match success
     if ($temppass_record->{'password'} eq $password) {

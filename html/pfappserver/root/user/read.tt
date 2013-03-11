@@ -33,15 +33,9 @@
   
               [% form.field('sponsor').render %]
   
-              [% form.field('expiration').render %]
+              [% form.field('actions').render %]
   
-              [% form.field('access_duration').render %]
   
-              [% form.field('is_sponsor').render %]
-  
-              [% form.field('valid_from').render %]
-  
-              [% form.field('role').render %]
   
 <!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
 
