@@ -254,49 +254,8 @@ sub generate {
     # default expiration
     $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
 
-    # we check for all actions
-    my @values;
+    _update_from_actions(\%data,$actions);
 
-    @values = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$actions};
-    if (scalar @values > 0 && defined $data{'valid_from'}) {
-        # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-        # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
-        $data{'access_duration'} = $values[0]->{value} || undef;
-
-        # if $expiration is set we use it, otherwise we use the module default defined earlier
-        $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S",
-                                      localtime(str2time($data{'valid_from'}) +
-                                                normalize_time($data{'access_duration'}) +
-                                                24*60*60));
-    }
-
-
-    @values = grep { $_->{type} eq $Actions::MARK_AS_SPONSOR } @{$actions};
-    if (scalar @values > 0) {
-        $data{'sponsor'} = 1;
-    } else {
-        $data{'sponsor'} = 0;
-    }
-
-    @values = grep { $_->{type} eq $Actions::SET_ACCESS_LEVEL } @{$actions};
-    if (scalar @values > 0) {
-        $data{'access_level'} = $values[0]->{value};
-    } else {
-        $data{'access_level'} = 0;
-    }
-
-    @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
-    if (scalar @values > 0) {
-        my $role_id = nodecategory_lookup( $values[0]->{value} );
-        $data{'category'} = $role_id;
-    }
-
-    @values = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$actions};
-    if (scalar @values > 0) {
-        $data{'unregdate'} = $values[0]->{value};
-    } else {
-        $data{'unregdate'} = "0000-00-00 00:00:00";
-    }
 
     # if an entry of the same pid already exist, delete it
     if (defined(view($pid))) {
@@ -314,12 +273,78 @@ sub generate {
     }
 }
 
+=item _update_from_actions
+    Updates temporary_password fields from an action list
+=cut
+
+sub _update_from_actions {
+    my ($data,$actions) = @_;
+
+    _update_field_for_action(
+        $data,$actions,$Actions::MARK_AS_SPONSOR,
+        'sponsor',0
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_ACCESS_LEVEL,
+        'access_level',0
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_UNREG_DATE,
+        'unregdate',"0000-00-00 00:00:00"
+    );
+
+    # we check for all actions
+    my @values;
+
+    @values = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$actions};
+    if (scalar @values > 0 && defined $data->{'valid_from'}) {
+        # Expiration is arrival date + access duration + a tolerance window of 24 hrs
+        # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
+        $data->{'access_duration'} = $values[0]->{value} || undef;
+
+        # if $expiration is set we use it, otherwise we use the module default defined earlier
+        $data->{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S",
+                                      localtime(str2time($data->{'valid_from'}) +
+                                                normalize_time($data->{'access_duration'}) +
+                                                24*60*60));
+    }
+
+    @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
+    if (scalar @values > 0) {
+        my $role_id = nodecategory_lookup( $values[0]->{value} );
+        $data->{'category'} = $role_id;
+    }
+
+}
+
+=item _update_field_for_action
+=cut
+sub _update_field_for_action {
+    my ($data,$actions,$action,$field,$default) = @_;
+    my @values = grep { $_->{type} eq $action } @{$actions};
+    if (scalar @values > 0) {
+        $data->{$field} = $values[0]->{value};
+    } else {
+        $data->{$field} = $default;
+    }
+}
+
+=item modify_actions
+=cut
 sub modify_actions {
-    my ($pid, %data);
+    my ($temporary_password, $actions) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my @ACTION_FIELDS = qw(
+        expiration access_duration access_level
+        category sponsor unregdate
+    );
+    delete @{$temporary_password}{@ACTION_FIELDS};
+    _update_from_actions($temporary_password, $actions);
+    my $pid = $temporary_password->{pid};
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements,
-        'temporary_password_modify_actions_sql',@data{qw(expiration access_duration access_level category sponsor unregdate)}, $pid
+        'temporary_password_modify_actions_sql',
+        @{$temporary_password}{@ACTION_FIELDS}, $pid
     ) || return (0);
     $logger->info("temporarypassword $pid modified");
     return (1);
@@ -353,20 +378,20 @@ sub validate_password {
         return $AUTH_FAILED_INVALID;
     }
 
-    # password is valid but not yet valid
-    # valid_from is in unix timestamp format so an int comparison is enough
-    if ($temppass_record->{'password'} eq $password && $temppass_record->{'valid_from'} > time) {
-        return $AUTH_FAILED_NOT_YET_VALID;
-    }
+    if($temppass_record->{'password'} eq $password) {
+        # password is valid but not yet valid
+        # valid_from is in unix timestamp format so an int comparison is enough
+        if ($temppass_record->{'valid_from'} > time) {
+            return $AUTH_FAILED_NOT_YET_VALID;
+        }
 
-    # password is valid but expired
-    # expiration is in unix timestamp format so an int comparison is enough
-    if ($temppass_record->{'password'} eq $password && $temppass_record->{'expiration'} < time) {
-        return $AUTH_FAILED_EXPIRED;
-    }
+        # password is valid but expired
+        # expiration is in unix timestamp format so an int comparison is enough
+        if ($temppass_record->{'expiration'} < time) {
+            return $AUTH_FAILED_EXPIRED;
+        }
 
-    # password match success
-    if ($temppass_record->{'password'} eq $password) {
+        # password match success
         return $AUTH_SUCCESS;
     }
 

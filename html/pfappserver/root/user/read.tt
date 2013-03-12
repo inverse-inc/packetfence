@@ -1,11 +1,11 @@
-      <form action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
-
+<form action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
         <div class="modal-header">
           <a class="close" data-dismiss="modal">×</a>
           <h3><i>[% l('User') %]</i> [% user.pid %]</h3>
         </div>
 
         <div class="modal-body">
+      [% form.block('templates').render %]
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
@@ -22,19 +22,52 @@
                   <h6>[% l('Profile') %]</h6>
                 </div>
               </div>
+
   
-              [% form.field('pid').render %]
+      [% form.block('form').render %]
+
+      <hr/>
+
+      [% form.field('valid_from').render %]
   
-              [% form.field('firstname').render %]
-  
-              [% form.field('lastname').render %]
-  
-              [% form.field('email').render %]
-  
-              [% form.field('sponsor').render %]
-  
-              [% form.field('actions').render %]
-  
+ 
+  <div class="control-group">
+    <label class="control-label">[% l('Actions') %]</label>
+    <div class="controls">
+      <table id="ruleActions" class="table table-dynamic table-sortable table-condensed">
+        <tbody>
+          [% FOREACH action IN form.field('actions').fields -%]
+          <tr[% ' class="hidden"' IF loop.last %]>
+            <td class="sort-handle">
+              <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
+            </td>
+            <td>
+              [%
+                field_type  = action.field('type')
+                field_value = action.field('value')
+              %]
+              [% IF loop.last %]
+              [%
+                  field_type.element_attr.disabled = "disabled"
+                  field_value.element_attr.disabled = "disabled"
+              %]
+              [% ELSE %]
+                  [%field_value.element_class = []%]
+              [% END %]
+              [% field_type.render_element %]
+              [% field_value.render_element %]
+            </td>
+            <td class="action">
+              <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+              <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
+            </td>
+          </tr>
+          [% END -%]
+          <tr><td colspan="3"><!-- allow dnd to the bottom of the table --></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
   
   
 <!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
@@ -82,4 +115,4 @@
           <a href="[% c.uri_for(c.controller('User').action_for('update'), [ user.pid ]) %]" id="updateUser" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</a>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div><!--modal-footer-->
-      </form>
+</form>

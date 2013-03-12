@@ -83,6 +83,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     $form = pfappserver::Form::User->new(ctx => $c,
                                          init_object => $c->stash->{user});
     $form->process();
+    $form->field('actions')->add_extra unless @{$c->stash->{user}{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
 }
 

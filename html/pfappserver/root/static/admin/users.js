@@ -46,6 +46,9 @@ function init() {
                     $('#pid').focus();
                 });
                 modal.find('.datepicker').datepicker({ autoclose: true });
+                modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
+                    updateAction($(this),true);
+                });
             })
             .fail(function(jqXHR) {
                 modal.modal('hide');
@@ -171,7 +174,16 @@ function init() {
         });
         return false;
     });
+        /* Initialize the action field */
+    /* Update the rule action fields when changing an action type */
+    $('#modalUser').on('change', '#ruleActions select[name$=type]', function(event) {
+        updateAction($(this));
+    });
 
+    $('#modalUser').on('admin.added','tr', function(event) {
+        var that = $(this);
+        that.find(':input').removeAttr('disabled');
+    });
 
     $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
 
