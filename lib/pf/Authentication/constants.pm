@@ -110,11 +110,11 @@ List of available actions
 
 Readonly::Array our @ACTIONS =>
   (
-   $MARK_AS_SPONSOR,
-   $SET_ACCESS_LEVEL,
    $SET_ROLE,
    $SET_ACCESS_DURATION,
    $SET_UNREG_DATE,
+   $SET_ACCESS_LEVEL,
+   $MARK_AS_SPONSOR,
   );
 
 =back
