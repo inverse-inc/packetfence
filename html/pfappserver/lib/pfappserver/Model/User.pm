@@ -20,6 +20,7 @@ use POSIX;
 use Text::CSV;
 
 use pf::config;
+use pf::Authentication::constants;
 use pf::temporary_password;
 use pf::error qw(is_error is_success);
 use pf::person;
@@ -61,6 +62,11 @@ sub read {
                                                 $value,
                                                 $c->loc(($value > 1)?$plural:$singular));
             }
+            if ($user->{unregdate}) {
+                # Formulate unregdate
+                $user->{unregdate} =~ s/ 00:00:00$//;
+            }
+            $self->_make_actions($user);
             push(@users, $user);
         }
     }
@@ -72,6 +78,22 @@ sub read {
     else {
         return ($STATUS::NOT_FOUND);
     }
+}
+
+=head2
+=cut
+sub _make_actions {
+    my ( $self, $user ) = @_;
+    my %FIELD_TO_ACTION = (
+        'can_sponsor'  => $Actions::MARK_AS_SPONSOR,
+        'access_level' => $Actions::SET_ACCESS_LEVEL ,
+        'category'     => $Actions::SET_ROLE ,
+        'unregdate'    => $Actions::SET_UNREG_DATE ,
+        'access_duration' => $Actions::SET_ACCESS_DURATION ,
+    );
+    my @actions = map +{  type=>$FIELD_TO_ACTION{$_}, value => $user->{$_} }   , grep {$user->{$_}} keys %FIELD_TO_ACTION;
+
+    $user->{actions} = \@actions;
 }
 
 =head2 countAll
@@ -177,7 +199,6 @@ sub violations {
 
 sub update {
     my ( $self, $pid, $user_ref ) = @_;
-
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
     my $actions = delete $user_ref->{actions};
@@ -185,7 +206,24 @@ sub update {
     unless (person_modify($pid, %{$user_ref})) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user.';
-    } elsif(!pf::temporary_password::modify_actions($pid,%$actions)) {
+    } elsif($actions) {
+        ($status, $status_msg) = $self->update_actions($pid, $actions);
+    }
+
+    return ($status, $status_msg);
+}
+
+=head2 update_actions
+
+=cut
+
+sub update_actions {
+    my ( $self, $pid, $actions ) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg) = ($STATUS::OK);
+    my $tp = pf::temporary_password::view($pid);
+    unless(pf::temporary_password::modify_actions($tp,$actions)) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user actions.';
     }
@@ -224,7 +262,7 @@ sub mail {
         }
     }
 
-    if (scalar @users > 0) {
+    if (@users) {
         $status_msg = \@users;
     }
     else {

@@ -10,17 +10,35 @@ Form definition to update a user.
 
 =cut
 
-use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
 use pf::config;
 use pf::util qw(get_abbr_time);
 use HTTP::Status qw(:constants is_success);
+use HTML::FormHandler::Moose;
+extends 'pfappserver::Base::Form::Authentication::Action';
+has '+source_type' => ( default => 'SQL' );
+# The templates block contains the dynamic fields of the rule definition.
+#
+# The following fields depend on the selected condition attribute :
+#  - the condition operators select fields
+#  - the condition value fields
+# The following fields depend on the selected action type :
+#  - the action value fields
+#
 
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
+# Form fields
+has_field 'valid_from' =>
+  (
+   type => 'DatePicker',
+   label => 'Arrival Date',
+   required => 1,
+   start => &now,
+  );
 
+
+has_block 'form' =>
+  (
+   render_list => [qw(pid firstname lastname company email sponsor address notes)],
+  );
 # Form fields
 has_field 'pid' =>
   (
@@ -53,6 +71,12 @@ has_field 'email' =>
    required => 1,
   );
 
+has_field 'sponsor' =>
+  (
+   type => 'Text',
+   label => 'Sponsor',
+  );
+
 has_field 'address' =>
   (
    type => 'TextArea',
@@ -65,65 +89,24 @@ has_field 'notes' =>
    label => 'Notes',
   );
 
-has_field 'sponsor' =>
+# Form fields
+has_field 'valid_from' =>
   (
-   type => 'Text',
-   label => 'Sponsor',
+   type => 'DatePicker',
+   label => 'Arrival Date',
+   required => 1,
+   start => &now,
   );
 
-has_field "actions" =>
-  (
-    type => 'Compound',
-  );
 
-has_field "actions.pid" =>
+has_block 'templates' =>
   (
-   type => 'Text',
-   widget => 'NoRender',
-  );
-
-has_field "actions.sponsor" =>
-  (
-   type => 'Toggle',
-   label => 'Is a Sponsor',
-   checkbox_value => '1',
-   uncheckbox_value => '0',
-  );
-
-has_field "actions.access_level" =>
-  (
-   type => 'Select',
-   'label' => 'Access Level',
-   options_method => \&options_access_level,
-  );
-
-has_field "actions.role" =>
-  (
-   type => 'Select',
-   label => 'Role',
-   options_method => \&options_roles,
-  );
-
-has_field "actions.access_duration" =>
-  (
-   type => 'Select',
-   label => 'Access Duration',
-   options_method => \&options_durations,
-   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
-  );
-
-has_field "actions.unreg_date" =>
-  (
-   type  => 'DatePicker',
-   label => 'Unregistration Date',
-  );
-
-has_field "actions.sponsor" =>
-  (
-   type => 'Toggle',
-   label => 'Is a Sponsor',
-   checkbox_value => '1',
-   uncheckbox_value => '0',
+   tag => 'div',
+   render_list => [
+                   map( { "${_}_action" } @Actions::ACTIONS), # the field are defined in the super class
+                  ],
+   attr => { id => 'templates' },
+   class => [ 'hidden' ],
   );
 
 =head2 options_access_level
@@ -185,6 +168,17 @@ sub options_durations {
     my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
 
     return \@options;
+}
+
+=head2 now
+
+Return the current day, used as the minimal date of the arrival date.
+
+=cut
+
+sub now {
+    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+    return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
 }
 
 =head1 COPYRIGHT

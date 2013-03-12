@@ -2,6 +2,7 @@
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/chosen.jquery.min',
+        'app/jquery-ui',
         'app/jquery.ba-hashchange',
         'app/raphael/raphael-min',
         'app/raphael/g.raphael-min',
