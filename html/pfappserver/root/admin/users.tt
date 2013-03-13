@@ -58,7 +58,21 @@ form {
               <li class="active"><a href="#">[% l('Search') %]</a></li>
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
-              <li><a href="#[%ss.query%]">[% ss.name %]</a></li>
+                [% form = ss.form %]
+                [% 
+                IF ss.path == 'user/advanced_search';
+                    tab = 'advanced';
+                   ELSE;
+                    tab ='simple';
+                END%]
+              <li>
+                <a data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %]</a>
+                <form class="inline">
+                  [%FOREACH input IN form.keys.sort%]
+                  <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+                  [%END%]
+                </form>
+              </li>
               [%END%]
             </ul>
           </div><!--/.well -->
@@ -99,7 +113,7 @@ form {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr class="hidden">
+                      <tr class="hidden dynamic-row">
                         <td>
                           <select name="searches.0.name" disabled="disabled" class="span4">
                             <option value="username">User Name</option>
@@ -125,7 +139,7 @@ form {
                           <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
                         </td>
                       </tr>
-                      <tr>
+                      <tr class="dynamic-row">
                         <td>
                           <select name="searches.0.name" class="span4">
                             <option value="username">User Name</option>
