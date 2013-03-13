@@ -16,35 +16,24 @@ use HTTP::Status qw(:constants is_success);
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Authentication::Action';
 has '+source_type' => ( default => 'SQL' );
-# The templates block contains the dynamic fields of the rule definition.
-#
-# The following fields depend on the selected condition attribute :
-#  - the condition operators select fields
-#  - the condition value fields
-# The following fields depend on the selected action type :
-#  - the action value fields
-#
 
-# Form fields
-has_field 'valid_from' =>
-  (
-   type => 'DatePicker',
-   label => 'Arrival Date',
-   required => 1,
-   start => &now,
-  );
+=head2 Fields
+=cut
+=over
+=cut
 
 
-has_block 'form' =>
-  (
-   render_list => [qw(pid firstname lastname company email sponsor address notes)],
-  );
-# Form fields
+=item pid
+=cut
+
 has_field 'pid' =>
   (
    type => 'Uneditable',
    label => 'Username',
   );
+
+=item firstname
+=cut
 
 has_field 'firstname' =>
   (
@@ -52,17 +41,26 @@ has_field 'firstname' =>
    label => 'Firstname',
   );
 
+=item lastname
+=cut
+
 has_field 'lastname' =>
   (
    type => 'Text',
    label => 'Lastname',
   );
 
+=item company
+=cut
+
 has_field 'company' =>
   (
    type => 'Text',
    label => 'Company',
   );
+
+=item email
+=cut
 
 has_field 'email' =>
   (
@@ -71,11 +69,17 @@ has_field 'email' =>
    required => 1,
   );
 
+=item sponsor
+=cut
+
 has_field 'sponsor' =>
   (
    type => 'Text',
    label => 'Sponsor',
   );
+
+=item address
+=cut
 
 has_field 'address' =>
   (
@@ -83,13 +87,18 @@ has_field 'address' =>
    label => 'Address',
   );
 
+=item notes
+=cut
+
 has_field 'notes' =>
   (
    type => 'TextArea',
    label => 'Notes',
   );
 
-# Form fields
+=item valid_from
+=cut
+
 has_field 'valid_from' =>
   (
    type => 'DatePicker',
@@ -98,7 +107,35 @@ has_field 'valid_from' =>
    start => &now,
   );
 
+=back
 
+=head2 Blocks
+=cut
+
+=over
+=cut
+
+
+=item user block
+  The user block contains the static fields of user
+=cut
+
+has_block 'user' =>
+  (
+   render_list => [qw(pid firstname lastname company email sponsor address notes)],
+  );
+
+=item templates block
+
+ The templates block contains the dynamic fields of the rule definition.
+
+ The following fields depend on the selected condition attribute :
+  - the condition operators select fields
+  - the condition value fields
+ The following fields depend on the selected action type :
+  - the action value fields
+
+=cut
 has_block 'templates' =>
   (
    tag => 'div',
@@ -109,7 +146,13 @@ has_block 'templates' =>
    class => [ 'hidden' ],
   );
 
-=head2 options_access_level
+=back
+
+=head2 Methods
+=cut
+=over
+
+=item options_access_level
 
 Populate the select field for the 'access level' template action.
 
@@ -131,7 +174,7 @@ sub options_access_level {
       );
 }
 
-=head2 options_roles
+=item options_roles
 
 Populate the select field for the roles template action.
 
@@ -151,7 +194,7 @@ sub options_roles {
     return @roles;
 }
 
-=head2 options_durations
+=item options_durations
 
 Populate the access duration select field with the available values defined
 in the pf.conf configuration file.
@@ -170,16 +213,15 @@ sub options_durations {
     return \@options;
 }
 
-=head2 now
-
+=item now
 Return the current day, used as the minimal date of the arrival date.
-
 =cut
 
 sub now {
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
     return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
 }
+=back
 
 =head1 COPYRIGHT
 
