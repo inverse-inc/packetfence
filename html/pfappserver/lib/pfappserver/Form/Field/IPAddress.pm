@@ -39,7 +39,7 @@ apply
     {
      check => sub {
          my ( $value, $field ) = @_;
-         return 1 if (grep { $_ eq $value } @{$field->accept});
+         return 1 if ($field->accept && grep { $_ eq $value } @{$field->accept});
          return valid_ip( $value );
      },
      message => sub {
