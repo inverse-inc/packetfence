@@ -18,10 +18,8 @@ extends 'pfappserver::Base::Form::Authentication::Action';
 has '+source_type' => ( default => 'SQL' );
 
 =head2 Fields
-=cut
-=over
-=cut
 
+=over
 
 =item pid
 =cut
@@ -136,6 +134,7 @@ has_block 'user' =>
   - the action value fields
 
 =cut
+
 has_block 'templates' =>
   (
    tag => 'div',
@@ -149,7 +148,7 @@ has_block 'templates' =>
 =back
 
 =head2 Methods
-=cut
+
 =over
 
 =item options_access_level
@@ -221,6 +220,7 @@ sub now {
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
     return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
 }
+
 =back
 
 =head1 COPYRIGHT
