@@ -64,8 +64,8 @@ case "$1" in
             update-rc.d $service remove > /dev/null 2>&1
         done
         # add sudo entry
-        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip" /etc/sudoers > /dev/null  ) ; then
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip" >> /etc/sudoers
         fi
         if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
             echo 'Defaults:pf !requiretty' >> /etc/sudoers

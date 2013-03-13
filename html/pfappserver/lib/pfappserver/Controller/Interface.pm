@@ -97,7 +97,7 @@ sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
 
     $c->stash->{interface} = $interface;
     if ((my ($name, $vlan) = split(/\./, $interface))) {
-        $c->stash->{name} = $name;
+        $c->stash->{ifname} = $name;
         $c->stash->{vlan} = $vlan;
     }
 }
@@ -175,6 +175,8 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
     }
+
+    $c->stash->{current_view} = 'JSON';
 }
 
 =item down

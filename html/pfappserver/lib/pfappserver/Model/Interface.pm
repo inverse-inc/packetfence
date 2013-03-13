@@ -12,7 +12,6 @@ Catalyst Model.
 
 use Moose;
 
-use IO::Interface::Simple;
 use namespace::autoclean;
 use Net::Netmask;
 
@@ -154,19 +153,14 @@ sub down {
         return ($STATUS::FORBIDDEN, $status_msg);
     }
 
-    my $interface_object = IO::Interface::Simple->new($interface);
-    my $flag = $interface_object->flags();
-
-    # Check if interface flags exists
-    if ( !$flag ) {
-        $status_msg = "Something wen't wrong while fetching the interface current flag";
-        $logger->warn($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR);
+    # Disable interface using "ip"
+    my $cmd = sprintf "ip link set %s down", $interface;
+    eval { $status = pf_run($cmd) };
+    if ( $@ ) {
+        $status_msg = "Can't disable interface $interface: $status";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-
-    # Flipping the 0x1 flag of the current network interface flags
-    # This way, the interface will no longer be UP neither RUNNING
-    $interface_object->flags($flag & ~0x1);
 
     # Check if interface is disabled
     # This check is necessary since the previous call (modification of the flag) does not return error or ok
@@ -185,7 +179,8 @@ sub down {
 sub exists {
     my ( $self, $interface ) = @_;
 
-    return ($STATUS::OK, "Interface $interface exists") if grep( /$interface/, $self->_listInterfaces() );
+    my @result = $self->_listInterfaces($interface);
+    return ($STATUS::OK, "Interface $interface exists") if (scalar @result > 0);
 
     return ($STATUS::NOT_FOUND, "Interface $interface does not exists");
 }
@@ -215,32 +210,23 @@ sub get {
     my ( $self, $interface, $models ) = @_;
 
     # Put requested interfaces into an array
-    my @interfaces;
-    if ( $interface eq 'all' ) {
-        @interfaces = $self->_listInterfaces();
-    } else {
-        @interfaces = (IO::Interface::Simple->new($interface));
-    }
+    my @interfaces = $self->_listInterfaces($interface);
 
     my $result = {};
     my ($status, $return);
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    foreach $interface ( @interfaces ) {
-        next if ( "$interface" eq "lo" );
+    foreach my $interface_ref ( @interfaces ) {
+        next if ( $interface_ref->{name} eq "lo" );
 
-        $result->{"$interface"} = {};
-        $result->{"$interface"}->{'name'}       = "$interface";
-        $result->{"$interface"}->{'ipaddress'}  = $interface->address;
-        $result->{"$interface"}->{'netmask'}    = $interface->netmask;
-        $result->{"$interface"}->{'running'}    = $interface->is_running;
+        $interface                              = $interface_ref->{name};
+        $result->{"$interface"}                 = $interface_ref;
         if ((my ($physical_device, $vlan_id)    = $self->_interfaceVirtual($interface))) {
           $result->{"$interface"}->{'name'}     = $physical_device;
           $result->{"$interface"}->{'vlan'}     = $vlan_id;
         }
-        $result->{"$interface"}->{'hwaddress'}  = $interface->hwaddr;
-        if (($result->{"$interface"}->{'network'} = $models->{networks}->getNetworkAddress($interface->address, $interface->netmask))) {
+        if (($result->{"$interface"}->{'network'} = $models->{networks}->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
             ($status, $return) = $models->{networks}->getRoutedNetworks($result->{"$interface"}->{'network'},
-                                                                           $interface->netmask);
+                                                                           $interface_ref->{netmask});
             if (is_success($status)) {
                 $result->{"$interface"}->{'networks'} = $return;
             }
@@ -250,7 +236,7 @@ sub get {
             }
             $result->{"$interface"}->{'network_iseditable'} = $models->{networks}->exist($result->{"$interface"}->{'network'});
         }
-        $result->{"$interface"}->{'type'} = $self->getType($interface, $result->{"$interface"}, $models);
+        $result->{"$interface"}->{'type'} = $self->getType($interface_ref, $models);
     }
 
     return $result;
@@ -273,7 +259,7 @@ sub update {
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
-    # Check if requested interface exists 
+    # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
         $status_msg = "Interface $interface does not exists";
@@ -281,29 +267,40 @@ sub update {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    my $interface_object = IO::Interface::Simple->new($interface);
+    my @result = $self->_listInterfaces($interface);
+    my $interface_before = pop @result;
 
     # Check if the network has changed
-    my $network = $models->{networks}->getNetworkAddress($interface_object->address, $interface_object->netmask);
+    my $network = $models->{networks}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
     my $new_network = $models->{networks}->getNetworkAddress($ipaddress, $netmask);
     if ($network && $network ne $new_network) {
         $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
         $models->{networks}->update_network($network, $new_network);
     }
 
-    # Edit IP address
-    eval { $status = $interface_object->address($ipaddress) };
-    if ( $@ || !$status ) {
-        $status_msg = "Error in IP address $ipaddress while editing interface $interface";
-        $logger->error("$status_msg: $@");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    # Delete previous IP address
+    my $cmd;
+    if ($interface_before->{address}) {
+        $cmd = sprintf "ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
+        $logger->debug($cmd);
+        eval { $status = pf_run($cmd) };
+        if ( $@ || $status ) {
+            $status_msg = "Can't delete previous IP address of interface $interface (".$interface_before->{address}.")";
+            $logger->error($status_msg);
+            $logger->error("$cmd: $status");
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
     }
 
-    # Edit netmask
-    eval { $status = $interface_object->netmask($netmask) };
-    if ( $@ || !$status ) {
-        $status_msg = "Error in netmask $netmask while editing interface $interface";
-        $logger->error($status_msg);
+    # Add new IP address and netmask
+    $netmask = Net::Netmask->new($ipaddress.':'.$netmask)->bits();
+    $cmd = sprintf "ip addr add %s/%i dev %s", $ipaddress, $netmask, $interface;
+    $logger->debug($cmd);
+    eval { $status = pf_run($cmd) };
+    if ( $@ || $status ) {
+        $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
+        $logger->error($status);
+        $logger->error("$cmd: $status");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
@@ -320,13 +317,9 @@ sub update {
 sub isActive {
     my ( $self, $interface ) = @_;
 
-    my @interfaces;
-    if ( $interface eq 'all' ) {
-        @interfaces = $self->_listInterfaces();
-    } else {
-        @interfaces = (IO::Interface::Simple->new($interface));
-    }
-    my %status = map { ($_->name eq 'lo') ? () : ($_->name => $_->is_running) } @interfaces;
+    my @interfaces = $self->_listInterfaces($interface);
+
+    my %status = map { ($_->{name} eq 'lo') ? () : ($_->{name} => $_->{is_running}) } @interfaces;
 
     return \%status;
 }
@@ -335,10 +328,10 @@ sub isActive {
 
 =cut
 sub getType {
-    my ( $self, $interface, $interface_ref, $models ) = @_;
+    my ( $self, $interface_ref, $models ) = @_;
 
     my ($status, $type);
-    if ($interface_ref->{'network'}) {
+    if ($interface_ref->{network}) {
         # Check in networks.conf
         ($status, $type) = $models->{networks}->getType($interface_ref->{network});
         if ( is_error($status) ) {
@@ -347,7 +340,7 @@ sub getType {
     }
     unless ($type) {
         # Check in pf.conf
-        ($status, $type) = $models->{pf}->read_interface_value($interface, 'type');
+        ($status, $type) = $models->{pf}->read_interface_value($interface_ref->{name}, 'type');
 
         # if the interface is not defined in pf.conf
         if ( is_error($status) ) {
@@ -452,8 +445,8 @@ sub interfaceForDestination {
     foreach my $interface ( @interfaces ) {
         next if ( "$interface" eq "lo" );
 
-        if ($interface->address && $interface->netmask) {
-            my $network = Net::Netmask->new($interface->address, $interface->netmask);
+        if ($interface->{ipaddress} && $interface->{netmask}) {
+            my $network = Net::Netmask->new($interface->{ipaddress}, $interface->{netmask});
             if ($network->match($destination)) {
                 return $interface;
             }
@@ -469,9 +462,9 @@ Check if the requested interface is active or not on the system.
 sub _interfaceActive {
     my ( $self, $interface ) = @_;
 
-    my $interface_object = IO::Interface::Simple->new($interface);
+    my @result = $self->_listInterfaces($interface);
 
-    return $interface_object->is_running;
+    return (scalar @result > 0 && $result[0]->{is_running});
 }
 
 =item _interfaceCurrentlyInUse
@@ -480,9 +473,9 @@ sub _interfaceActive {
 sub _interfaceCurrentlyInUse {
     my ( $self, $interface, $host ) = @_;
 
-    my $interface_object = IO::Interface::Simple->new($interface);
+    my @result = $self->_listInterfaces($interface);
 
-    if ( $interface_object->address =~ $host ) {
+    if ( scalar @result > 0 && $result[0]->{ipaddress} =~ $host ) {
         return 1;
     }
 
@@ -509,9 +502,49 @@ Return a list of all curently installed network interfaces.
 
 =cut
 sub _listInterfaces {
-    my ( $self ) = @_;
+    my ( $self, $ifname ) = @_;
 
-    my @interfaces_list = IO::Interface::Simple->interfaces;
+    my @interfaces_list = ();
+
+    $ifname = '' if ($ifname eq 'all');
+    my $cmd =
+      {
+       link => "ip -4 -o link show $ifname",
+       addr => "ip -4 -o addr show %s"
+      };
+    my ($link, $addr);
+    eval { $link = pf_run($cmd->{link}) };
+    if ($link) {
+        # Parse output of ip command
+        while ($link =~ m/^
+                          (\d):\s         # ifindex
+                          ([\w\.]+)       # interface name, including the VLAN
+                          (?:\@([^:]+))?  # master interface name
+                          .+
+                          \sstate\s(\S+)  # interface state (UP or DOWN)
+                          .+ether\s(\S+)  # netmask address
+                         /mgx) {
+            my ($ifindex, $name, $master, $state, $hwaddr, $ipaddress, $netmask) = ($1, $2, $3, $4, $5);
+            my $interface =
+              {
+               ifindex => $ifindex,
+               name => $name,
+               master => $master,
+               is_running => ($state eq 'UP'),
+               hwaddr => $hwaddr
+              };
+            eval { $addr = pf_run(sprintf $cmd->{addr}, $name) };
+            if ($addr) {
+                if ($addr =~ m/\binet (([^\/]+)\/\d+)/) {
+                    $interface->{address} = $1,
+                    ($ipaddress, $netmask) = ($2, Net::Netmask->new($1)->mask());
+                    $interface->{ipaddress} = $ipaddress;
+                    $interface->{netmask} = $netmask;
+                }
+            }
+            push(@interfaces_list, $interface);
+        }
+    }
 
     return @interfaces_list;
 }
@@ -578,19 +611,13 @@ sub up {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    my $interface_object = IO::Interface::Simple->new($interface);
-    my $flag = $interface_object->flags();
-
-    # Check if interface flags exists
-    if ( !$flag ) {
-        $status_msg = "Something wen't wrong while fetching the interface current flag";
-        $logger->warn($status_msg);
-        return ($STATUS::INTERNAL_SERVER_ERROR);
+    my $cmd = sprintf "ip link set %s up", $interface;
+    eval { $status = pf_run($cmd) };
+    if ( $@ ) {
+        $status_msg = "Can't enable interface $interface";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-
-    # Flipping the 0x1 flag of the current network interface flags
-    # This way, the interface will switch to UP and RUNNING
-    $interface_object->flags($flag | 0x1);
 
     # Check if interface is enabled
     # This check is necessary since the previous call (modification of the flag) does not return error or ok

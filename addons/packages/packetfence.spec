@@ -208,8 +208,7 @@ Requires: perl(File::Slurp)
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
 # configuration-wizard
-Requires: perl(IO::Interface::Simple)
-Requires: vconfig
+Requires: iproute, vconfig
 #
 # TESTING related
 #
@@ -490,8 +489,8 @@ fi
 if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
   sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
 fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip" >> /etc/sudoers
 fi
 if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
