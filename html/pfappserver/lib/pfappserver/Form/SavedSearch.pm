@@ -1,13 +1,13 @@
 package pfappserver::Form::SavedSearch;
 =head1 NAME
 
-pfappserver::Form::SavedSearch add documentation
+pfappserver::Form::SavedSearch
 
 =cut
 
 =head1 DESCRIPTION
 
-User
+Form for SavedSearch data
 
 =cut
 
@@ -18,7 +18,14 @@ use namespace::autoclean;
 extends 'pfappserver::Base::Form::Base';
 with 'pfappserver::Form::Widget::Theme::Pf';
 
+=head2 Fields
+=cut
 
+=over
+=cut
+
+=item name
+=cut
 has_field 'name'  => (
    type  => 'Text',
    label => 'Name',
@@ -27,30 +34,41 @@ has_field 'name'  => (
     },
 );
 
+=item name
+=cut
 has_field 'in_dashboard' => (
    type  => 'Toggle',
    label => 'Show in dashboard',
 );
 
+=item query
+=cut
 has_field 'query' => (
    type => 'Hidden',
 );
 
+=item pid
+=cut
 has_field 'pid' => (
    type => 'Text',
    widget => 'NoRender',
 );
 
+=item namespace
+=cut
 has_field 'namespace' => (
    type => 'Text',
    widget => 'NoRender',
 );
 
 
+=back
+
+=cut
+
 __PACKAGE__->meta->make_immutable;
 
 
-=back
 
 =head1 COPYRIGHT
 
