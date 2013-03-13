@@ -8,7 +8,7 @@
           <tbody>
            [% FOREACH i IN interfaces.keys.sort %]
             <tr>
-              <td><div class="switch switch-mini"><input type="checkbox" id="[% i %]" name="[% i %]"[% IF interfaces.$i.running %] checked="checked"[% END %]/></div></td>
+              <td><div class="switch switch-mini"><input type="checkbox" id="[% i %]" name="[% i %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
               <td><a href="[% c.uri_for(c.controller('Interface').action_for('read'), [i]) %]">[% interfaces.$i.name %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
               <td>[% interfaces.$i.ipaddress %]</td>
               <td>[% interfaces.$i.netmask %]</td>
