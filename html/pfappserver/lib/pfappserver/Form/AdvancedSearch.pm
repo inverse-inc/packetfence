@@ -14,15 +14,32 @@ Form definition to create or update a node.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Base';
 
-# Form fields
+=head2 Form Fields
+
+=over
+
+=item start
+
+=cut
+
 has_field 'start' =>
   (
    type => 'DatePicker',
   );
+
+=item end
+
+=cut
+
 has_field 'end' =>
   (
    type => 'DatePicker',
   );
+
+=item end
+
+=cut
+
 has_field 'all_or_any' =>
   (
    type => 'Select',
@@ -32,16 +49,30 @@ has_field 'all_or_any' =>
    ]
   );
 
+
+=item end
+
+=cut
+
 has_field 'searches' =>
   (
    type => 'Repeatable',
    num_when_empty => 0,
   );
+
+=item end
+
+=cut
+
 has_field 'searches.name' =>
   (
    type => 'Text',
    do_label => 0,
   );
+
+=item end
+
+=cut
 
 has_field 'searches.op' =>
   (
@@ -49,39 +80,17 @@ has_field 'searches.op' =>
    do_label => 0,
   );
 
+=item end
+
+=cut
+
 has_field 'searches.value' =>
   (
    type => 'Text',
    do_label => 0,
   );
 
-
-
-=head2 options_status
-
-=cut
-
-sub options_status {
-    my $self = shift;
-
-    # $self->status comes from pfappserver::Model::Node->availableStatus
-    my @status = map { $_ => $_ } @{$self->status} if ($self->status);
-
-    return @status;
-}
-
-=head2 options_category_id
-
-=cut
-
-sub options_category_id {
-    my $self = shift;
-
-    # $self->roles comes from pfappserver::Model::Roles
-    my @roles = map { $_->{category_id} => $_->{name} } @{$self->roles} if ($self->roles);
-
-    return ('' => '', @roles);
-}
+=back
 
 =head1 COPYRIGHT
 
