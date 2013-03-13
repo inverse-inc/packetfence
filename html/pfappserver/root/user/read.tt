@@ -24,7 +24,7 @@
               </div>
 
   
-      [% form.block('form').render %]
+      [% form.block('user').render %]
 
       <hr/>
 
