@@ -92,4 +92,21 @@ $(function() {
         });
         $('[data-toggle="tab"][href="#' + target  + '"]').tab('show');
     });
+
+
+    $('.saved_search_trash').on('click',function(event) {
+        event.stopPropagation();
+        var that = $(this);
+        $.ajax(that.attr('data-href'))
+            .always(function() {})
+            .done(function(data) {
+                that.closest('li').remove();
+            })
+            .fail(function(jqXHR) {
+                $("body,html").animate({scrollTop:0}, 'fast');
+                var status_msg = getStatusMsg(jqXHR);
+                showError($('#section h2'), status_msg);
+            });
+
+    });
 });

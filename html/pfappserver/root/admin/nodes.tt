@@ -66,8 +66,8 @@ form {
                     tab ='simple';
                 END%]
               <li>
-                <a data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %]</a>
-                <form class="inline">
+                <a data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash pull-right"></i></span> </a>
+                <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
                   [%END%]
