@@ -24,7 +24,7 @@ function saveSearchFromForm(form_id) {
                 saved_search_form[0].reset();
             })
             .done(function(data) {
-                $(window).hashchange();
+                location.reload();
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
