@@ -85,7 +85,7 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form id="simpleSearch" name="simpleSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
+                  <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>
@@ -172,7 +172,7 @@ form {
                       <tr>
                         <td colspan="2" style="padding-top: 1em">
                           <div class="btn-group pull-right">
-                            <button id="advancedSearchBtn" class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                            <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                             <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                             <ul class="dropdown-menu">
                               <li><a id="advancedSavedSearchBtn" >[% l('Save as...') %]</a></li>
