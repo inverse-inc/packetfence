@@ -9,15 +9,15 @@ pf::web::guest - module to handle guest portions of the captive portal
 =head1 DESCRIPTION
 
 pf::web::guest contains the functions necessary to generate different guest-related web pages:
-based on pre-defined templates: login, registration, release, error, status.  
+based on pre-defined templates: login, registration, release, error, status.
 
 It is possible to customize the behavior of this module by redefining its subs in pf::web::custom.
 See F<pf::web::custom> for details.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the following template files: F<release.html>, 
-F<login.html>, F<enabler.html>, F<error.html>, F<status.html>, 
+Read the following template files: F<release.html>,
+F<login.html>, F<enabler.html>, F<error.html>, F<status.html>,
 F<register.html>.
 
 =cut
@@ -81,13 +81,12 @@ Warning: The list of subroutine is incomplete
 
 =over
 
-=cut
-
 =item generate_selfregistration_page
 
 Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
+
 sub generate_selfregistration_page {
     my ( $portalSession, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -116,7 +115,7 @@ sub generate_selfregistration_page {
     # Error management
     if (defined($error_code) && $error_code != 0) {
         # ideally we'll set the array_ref always and won't need the following
-        $error_args_ref = [] if (!defined($error_args_ref)); 
+        $error_args_ref = [] if (!defined($error_args_ref));
         $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
@@ -129,6 +128,7 @@ sub generate_selfregistration_page {
 Sub to validate self-registering guests.
 
 =cut
+
 sub validate_selfregistration {
     my ($portalSession) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -193,10 +193,10 @@ sub validate_selfregistration {
     # auth accepted, save login information in session (we will use them to put the guest in the db)
     $session->param("firstname", $cgi->param("firstname"));
     $session->param("lastname", $cgi->param("lastname"));
-    $session->param("company", $cgi->param("organization")); 
+    $session->param("company", $cgi->param("organization"));
     $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
-    $session->param("email", lc($cgi->param("email"))); 
-    $session->param("sponsor", lc($cgi->param("sponsor_email"))); 
+    $session->param("email", lc($cgi->param("email")));
+    $session->param("sponsor", lc($cgi->param("sponsor_email")));
     # guest pid is configurable (defaults to email)
     $session->param("guest_pid", $session->param($Config{'guests_self_registration'}{'guest_pid'}));
     return ($TRUE, 0);
@@ -207,6 +207,7 @@ sub validate_selfregistration {
 Performs sponsor validation.
 
 =cut
+
 sub validate_sponsor {
     my ($portalSession) = @_;
 
@@ -214,17 +215,17 @@ sub validate_sponsor {
 
     # validate that this email can sponsor network accesses
     my $username = &pf::authentication::username_from_email( lc($cgi->param('sponsor_email')) );
-    
+
     if (defined $username) {
 
         my $value = &pf::authentication::match(undef, {username => $username}, $Actions::MARK_AS_SPONSOR);
-        
+
         # all sponsor checks have passed
         if (defined $value) {
             return ($TRUE, 0);
         }
     }
-    
+
     return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] );
 }
 
@@ -235,6 +236,7 @@ Provides basic information for the self registered guests by email template.
 This is meant to be overridden in L<pf::web::custom>.
 
 =cut
+
 sub prepare_email_guest_activation_info {
     my ( $portalSession, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -258,6 +260,7 @@ Provides basic information for the self registered sponsored guests template.
 This is meant to be overridden in L<pf::web::custom>.
 
 =cut
+
 sub prepare_sponsor_guest_activation_info {
     my ( $portalSession, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -282,6 +285,7 @@ sub prepare_sponsor_guest_activation_info {
 Sub to present a login form. Template is provided as a parameter.
 
 =cut
+
 sub generate_custom_login_page {
     my ( $portalSession, $err, $html_template ) = @_;
 
@@ -315,6 +319,7 @@ sub aup {
 =item send_template_email
 
 =cut
+
 sub send_template_email {
     my ($template, $subject, $info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -334,7 +339,7 @@ sub send_template_email {
         TmplUpgrade =>  1,
     );
 
-    $msg->send('smtp', $smtpserver, Timeout => 20) 
+    $msg->send('smtp', $smtpserver, Timeout => 20)
         or $logger->warn("problem sending guest registration email");
 }
 
@@ -377,13 +382,15 @@ sub web_sms_validation {
 =over
 
 =cut
+
 package GUEST;
 
-=item error_code 
+=item error_code
 
 PacketFence error codes regarding guests.
 
 =cut
+
 Readonly::Scalar our $ERROR_INVALID_FORM => 1;
 Readonly::Scalar our $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => 2;
 Readonly::Scalar our $ERROR_CONFIRMATION_EMAIL => 3;
@@ -398,11 +405,12 @@ Readonly::Scalar our $ERROR_SPONSOR_NOT_ALLOWED => 11;
 Readonly::Scalar our $ERROR_PREREG_NOT_ALLOWED => 12;
 Readonly::Scalar our $ERROR_INVALID_PIN => 13;
 
-=item errors 
+=item errors
 
 An hash mapping error codes to error messages.
 
 =cut
+
 Readonly::Hash our %ERRORS => (
     $ERROR_INVALID_FORM => 'Missing mandatory parameter or malformed entry',
     $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => q{You can't register as a guest with a %s email address. Please register as a regular user using your email address instead.},
