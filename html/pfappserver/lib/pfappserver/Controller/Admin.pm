@@ -29,6 +29,7 @@ BEGIN {
 Allow only authenticated users
 
 =cut
+
 sub auto :Private {
     my ($self, $c, @args) = @_;
 
@@ -53,6 +54,7 @@ sub auto :Private {
 Set the default view to pfappserver::View::Admin.
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
 
@@ -66,6 +68,7 @@ Perform authentication using Catalyst Authentication plugin.
 Upon successful authentication, redirect the user to the status page.
 
 =cut
+
 sub login :Local :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -99,6 +102,7 @@ sub login :Local :Args(0) {
 =head2 logout
 
 =cut
+
 sub logout :Local :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -112,6 +116,7 @@ sub logout :Local :Args(0) {
 Status
 
 =cut
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -123,6 +128,7 @@ sub index :Path :Args(0) {
 Administrator controller dispatcher
 
 =cut
+
 sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
@@ -131,6 +137,7 @@ sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
 =head2 status
 
 =cut
+
 sub status :Chained('object') :PathPart('status') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -139,6 +146,7 @@ sub status :Chained('object') :PathPart('status') :Args(0) {
 =head2 reports
 
 =cut
+
 sub reports :Chained('object') :PathPart('reports') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -147,11 +155,13 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) {
 =head2 nodes
 
 =cut
+
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
+    my ($status,$saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     $c->stash(
-        saved_searches => [$c->model("SavedSearch::Node")->read_all($id)],
+        saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
     );
 }
@@ -159,11 +169,13 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 =head2 users
 
 =cut
+
 sub users :Chained('object') :PathPart('users') :Args(0) {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
+    my ($status,$saved_searches) = $c->model("SavedSearch::User")->read_all($id);
     $c->stash(
-        saved_searches   => [$c->model("SavedSearch::User")->read_all($id)],
+        saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
     );
 }
@@ -171,6 +183,7 @@ sub users :Chained('object') :PathPart('users') :Args(0) {
 =head2 configuration
 
 =cut
+
 sub configuration :Local :PathPart('configuration') :Args() {
     my ( $self, $c, $section ) = @_;
 
