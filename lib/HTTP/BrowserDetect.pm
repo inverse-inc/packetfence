@@ -10,8 +10,8 @@ require Exporter;
 
 # Operating Systems
 our @OS_TESTS = qw(
-    windows mac   os2 
-    unix    linux vms 
+    windows mac   os2
+    unix    linux vms
     bsd     amiga
 );
 
@@ -20,7 +20,7 @@ our @WINDOWS_TESTS = qw(
     win16 win3x   win31
     win95 win98   winnt
     winme win32   win2k
-    winxp win2k3  winvista 
+    winxp win2k3  winvista
     win7  wince   winphone
 );
 
@@ -36,14 +36,14 @@ our @UNIX_TESTS = qw(
     suni86  irix     irix5
     irix6   hpux     hpux9
     hpux10  aix      aix1
-    aix2    aix3     aix4   
+    aix2    aix3     aix4
     sco     unixware mpras
     reliant dec      sinix
 );
 
 # More precise BSDs
 our @BSD_TESTS = qw(
-    freebsd 
+    freebsd
 );
 
 # Gaming devices
@@ -61,7 +61,7 @@ our %DEVICE_TESTS = (
     ipad => 'iPad',
     iphone => 'iPhone',
     ipod => 'iPod',
-    kindle => 'Amazon Kindle', 
+    kindle => 'Amazon Kindle',
     n3ds => 'Nintendo 3DS',
     palm => 'Palm',
     ps3  => 'Sony PlayStation 3',
@@ -76,7 +76,7 @@ our @BROWSER_TESTS = qw(
     chrome        safari      ie
     opera         lynx        links
     elinks        neoplanet   neoplanet2
-    avantgo       emacs       mozilla     
+    avantgo       emacs       mozilla
     konqueror     r1          netfront
     mobile_safari
 );
@@ -95,18 +95,18 @@ our @OPERA_TESTS = qw(
 
 our @AOL_TESTS = qw(
     aol         aol3        aol4
-    aol5        aol6        
+    aol5        aol6
 );
 
 our @NETSCAPE_TESTS = qw(
-    nav2   nav3   nav4  
+    nav2   nav3   nav4
     nav4up nav45  nav45up
     nav6   nav6up navgold
 );
 
 # Firefox variants
 our @FIREFOX_TESTS = qw(
-    firebird    iceweasel   phoenix 
+    firebird    iceweasel   phoenix
     namoroka
 );
 
@@ -120,7 +120,7 @@ our @ROBOT_TESTS = qw(
     altavista    lycos       infoseek
     lwp          webcrawler  linkexchange
     slurp        webtv       staroffice
-    lotusnotes   icab        google      
+    lotusnotes   icab        google
     googlemobile msn         msnmobile
     facebook
 );
@@ -133,8 +133,8 @@ our @MISC_TESTS = qw(
 push @ALL_TESTS, (
     @OS_TESTS,          @WINDOWS_TESTS, @MAC_TESTS,
     @UNIX_TESTS,        @BSD_TESTS,     @GAMING_TESTS,
-    keys %DEVICE_TESTS, @BROWSER_TESTS, @IE_TESTS, 
-    @OPERA_TESTS,       @AOL_TESTS,     @NETSCAPE_TESTS, 
+    keys %DEVICE_TESTS, @BROWSER_TESTS, @IE_TESTS,
+    @OPERA_TESTS,       @AOL_TESTS,     @NETSCAPE_TESTS,
     @FIREFOX_TESTS,     @ENGINE_TESTS,  @ROBOT_TESTS,
     @MISC_TESTS,
 );
@@ -1187,7 +1187,7 @@ sub browser_properties {
         push @browser_properties, lc($property) if (${$self->{tests}}{$property});
     }
 
-    # devices are a property too but it's not stored in %tests 
+    # devices are a property too but it's not stored in %tests
     # so I explicitly test for it and add it
     push @browser_properties, 'device' if ($self->device());
 
@@ -1273,19 +1273,19 @@ be in the form of an upper case 2 character code. ie: EN, DE, etc
 =head2 device()
 
 Returns the method name of the actual hardware, if it can be detected.
-Currently returns one of: android, audrey, blackberry, dsi, iopener, ipad, 
-iphone, ipod, kindle, n3ds, palm, ps3, psp, wap, webos. Returns C<undef> if 
+Currently returns one of: android, audrey, blackberry, dsi, iopener, ipad,
+iphone, ipod, kindle, n3ds, palm, ps3, psp, wap, webos. Returns C<undef> if
 no hardware can be detected
 
 =head2 device_name()
 
 Returns a human formatted version of the hardware device name.  These names
 are subject to change and are really meant for display purposes.  You should
-use the device() method in your logic.  Returns one of: Android, Audrey, 
+use the device() method in your logic.  Returns one of: Android, Audrey,
 BlackBerry, Nintendo DSi, iopener, iPad, iPhone, iPod, Amazon Kindle, Nintendo
-3DS, Palm, Sony PlayStation 3, Sony Playstation Portable, WAP capable phone, 
+3DS, Palm, Sony PlayStation 3, Sony Playstation Portable, WAP capable phone,
 webOS. Also Windows-based smartphones will output various different names like
-HTC T7575. Returns C<undef> if this is not a device or if no device name can 
+HTC T7575. Returns C<undef> if this is not a device or if no device name can
 be detected.
 
 =head2 browser_properties()
@@ -1488,9 +1488,9 @@ version separately.
 
 =head3 realplayer_browser
 The realplayer method above tests for the presence of either the RealPlayer
-plug-in "(r1 " or the browser "RealPlayer". To preserve 
+plug-in "(r1 " or the browser "RealPlayer". To preserve
 "bugwards compatibility" and prevent false reporting, browser_string calls
-this method which ignores the "(r1 " plug-in signature.   
+this method which ignores the "(r1 " plug-in signature.
 
 =head3 safari
 
@@ -1509,7 +1509,7 @@ Firebird).
 Returns undef on failure.  Otherwise returns one of the following:
 
 Netscape, Firefox, Safari, Chrome, MSIE, WebTV, AOL Browser, Opera, Mosaic,
-Lynx, Links, ELinks, RealPlayer, IceWeasel, curl, puf, NetFront, Mobile Safari, 
+Lynx, Links, ELinks, RealPlayer, IceWeasel, curl, puf, NetFront, Mobile Safari,
 BlackBerry
 
 =head2 gecko_version()
@@ -1695,8 +1695,6 @@ Safari "Historical User Agent strings", L<http://developer.apple.com/internet/sa
 "Safari Agent Strings", L<http://homepage.mac.com/jprince/designSandbox/web/safari-agents/>
 
 perl(1), L<HTTP::Headers>, L<HTTP::Headers::UserAgent>.
-
-=head1
 
 =head1 SUPPORT
 
