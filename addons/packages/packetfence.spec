@@ -489,6 +489,10 @@ fi
 if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
   sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
 fi
+if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+  # Comment out entry from a previous version of PF (< 4.0)
+  sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
+fi
 if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip" /etc/sudoers > /dev/null  ) ; then
   echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip" >> /etc/sudoers
 fi
