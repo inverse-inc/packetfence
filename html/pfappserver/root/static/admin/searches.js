@@ -66,7 +66,7 @@ $(function() {
         return false;
     });
 
-    $('#advancedSearchBtn').on('click',function(event) {
+    $('#advancedSearch').on('submit',function(event) {
         updateSectionFromForm($('#advancedSearch'));
         return false;
     });
@@ -91,6 +91,7 @@ $(function() {
             to_form.find('[name="' + this.name + '"]:not(:disabled)').val(this.value);
         });
         $('[data-toggle="tab"][href="#' + target  + '"]').tab('show');
+        to_form.submit();
     });
 
 
