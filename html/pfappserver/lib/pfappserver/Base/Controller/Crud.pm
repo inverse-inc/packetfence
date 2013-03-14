@@ -1,13 +1,11 @@
 package pfappserver::Base::Controller::Crud;
 =head1 NAME
 
-pfappserver::Base::Controller::Crud add documentation
-
-=cut
+pfappserver::Base::Controller::Crud
 
 =head1 DESCRIPTION
 
-Crud
+Basic Crud Controller Roles
 
 =cut
 
@@ -17,26 +15,32 @@ use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 
+=head1 Methods
 
-=head2 getForm
+=over
+
+=item getForm
 
 =cut
+
 sub getForm {
     my ($self,$c) = @_;
     return $c->form();
 }
 
-=head2 getModel
+=item getModel
 
 =cut
+
 sub getModel {
     my ($self,$c) = @_;
     return $c->model();
 }
 
-=head2 create
+=item create
 
 =cut
+
 sub create : Local: Args(0) {
     my ($self,$c) = @_;
     my $form = $self->getForm($c);
@@ -67,13 +71,14 @@ sub create : Local: Args(0) {
     }
 }
 
-=head2 _setup_object
+=item _setup_object
 
 =cut
+
 sub _setup_object {
     my ($self,$c,$item) = @_;
     my $status;
-    ($status, $item) = $c->model->read($item);
+    ($status, $item) = $self->getModel($c)->read($item);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $item;
@@ -85,9 +90,10 @@ sub _setup_object {
     );
 }
 
-=head2 update
+=item update
 
 =cut
+
 sub update :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
     my ($status,$status_msg,$form);
@@ -98,7 +104,7 @@ sub update :Chained('object') :PathPart :Args(0) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
     } else {
-        ($status,$status_msg) = $c->stash->{model}->update(
+        ($status,$status_msg) = $self->getModel($c)->update(
             $c->stash->{item},
             $form->value
         );
@@ -109,13 +115,14 @@ sub update :Chained('object') :PathPart :Args(0) {
 }
 
 
-=head2 remove
+=item remove
 
 =cut
 
+
 sub remove :Chained('object') :PathPart: Args(0) {
     my ($self,$c) = @_;
-    my ($status,$result) = $c->stash->{model}->remove($c->stash->{item});
+    my ($status,$result) = $self->getModel($c)->remove($c->stash->{item});
     $c->stash(
         status_msg   => $result,
         current_view => 'JSON',
@@ -123,9 +130,10 @@ sub remove :Chained('object') :PathPart: Args(0) {
     $c->response->status($status);
 }
 
-=head view
+=item view
 
 =cut
+
 sub view :Chained('object') :PathPart('') :Args(0) {
     my ($self,$c) = @_;
     my $item = $c->stash->{item};
