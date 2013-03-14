@@ -23,13 +23,13 @@ BEGIN {
     @EXPORT = qw(
         $savedsearch_db_prepared
         savedsearch_db_prepare
-        sub savedsearch_for_pid_and_namespace
-        sub savedsearch_view
-        sub savedsearch_view_all
-        sub savedsearch_update
-        sub savedsearch_delete
-        sub savedsearch_count
-        sub savedsearch_add
+        savedsearch_for_pid_and_namespace
+        savedsearch_view
+        savedsearch_view_all
+        savedsearch_update
+        savedsearch_delete
+        savedsearch_count
+        savedsearch_add
     );
 
 }
@@ -45,6 +45,8 @@ use pf::db;
 =over
 
 =item savedsearch_db_prepare
+
+Instantiate SQL statements to be prepared
 
 =cut
 
@@ -125,6 +127,8 @@ BEGIN {
 
 =item savedsearch_for_pid_and_namespace
 
+Find all saved search for a user with in a namespace
+
 =cut
 
 sub savedsearch_for_pid_and_namespace {
@@ -132,6 +136,8 @@ sub savedsearch_for_pid_and_namespace {
 }
 
 =item savedsearch_view
+
+find a saved search by id
 
 =cut
 
@@ -141,6 +147,8 @@ sub savedsearch_view {
 
 =item savedsearch_view_all
 
+find all saved searches
+
 =cut
 
 sub savedsearch_view_all {
@@ -148,6 +156,8 @@ sub savedsearch_view_all {
 }
 
 =item savedsearch_update
+
+updates saved searches
 
 =cut
 
@@ -158,6 +168,8 @@ sub savedsearch_update {
 
 =item savedsearch_delete
 
+deletes saved searche by id
+
 =cut
 
 sub savedsearch_delete {
@@ -165,6 +177,8 @@ sub savedsearch_delete {
 }
 
 =item savedsearch_count
+
+counts all saved searche
 
 =cut
 
@@ -175,6 +189,8 @@ sub savedsearch_count {
 
 =item savedsearch_add
 
+adds a saved searche
+
 =cut
 
 sub savedsearch_add {
@@ -183,8 +199,6 @@ sub savedsearch_add {
 }
 
 =back
-
-=head1 AUTHOR
 
 =head1 COPYRIGHT
 

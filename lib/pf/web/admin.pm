@@ -64,6 +64,7 @@ Warning: The list of subroutine is incomplete
 Admin-related i18n setup.
 
 =cut
+
 sub web_get_locale {
     my ($cgi,$session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -90,6 +91,7 @@ sub web_get_locale {
 =item _init_i18n
 
 =cut
+
 sub _init_i18n {
     my ($cgi, $session) = @_;
 
@@ -104,6 +106,7 @@ sub _init_i18n {
 Cuts in the session cookies and template rendering boiler plate.
 
 =cut
+
 sub render_template {
     my ($cgi, $session, $template, $stash, $r) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -122,8 +125,8 @@ sub render_template {
     print $cgi->header( -cookie => $cookie );
 
     $logger->debug("rendering template named $template");
-    my $tt = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'ADMIN_TEMPLATE_DIR'}, $CAPTIVE_PORTAL{'TEMPLATE_DIR'}], 
+    my $tt = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'ADMIN_TEMPLATE_DIR'}, $CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
     $tt->process( $template, { %$stash, %$default } , $r ) || do {
         $logger->error($tt->error());
@@ -137,6 +140,7 @@ sub render_template {
 Error page generator for the Web Admin interface.
 
 =cut
+
 sub generate_error_page {
     my ( $cgi, $session, $error_msg, $r ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -156,6 +160,7 @@ sub generate_error_page {
 Sub to present a guest registration form where we create the guest accounts.
 
 =cut
+
 sub generate_guestcreation_page {
     my ( $cgi, $session, $err, $section ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -177,7 +182,7 @@ sub generate_guestcreation_page {
         || $Config{'guests_admin_registration'}{'default_access_duration'};
 
     $vars->{'duration'} = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ], 
+        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
         pf::web::admin::web_get_locale($cgi, $session)
     );
 
@@ -188,7 +193,7 @@ sub generate_guestcreation_page {
 
     # import section
     $vars->{'delimiter'} = $cgi->param("delimiter");
-    $vars->{'columns'} = $cgi->param("columns"); 
+    $vars->{'columns'} = $cgi->param("columns");
 
     $vars->{'username'} = $session->param("username") || "unknown";
 
@@ -223,6 +228,7 @@ sub generate_guestcreation_page {
 =item generate_guestcreation_confirmation_page
 
 =cut
+
 sub generate_guestcreation_confirmation_page {
     my ( $cgi, $session, $info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -238,7 +244,7 @@ sub generate_guestcreation_confirmation_page {
     );
 
     # admin username
-    $vars->{'username'} = $session->param("username"); 
+    $vars->{'username'} = $session->param("username");
 
     my ($singular, $plural, $value) = get_translatable_time($info->{'duration'});
     $vars->{'txt_duration'} = sprintf(
@@ -255,6 +261,7 @@ sub generate_guestcreation_confirmation_page {
 Sub to present a admin login form.
 
 =cut
+
 sub generate_login_page {
     my ( $cgi, $session, $err ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -276,6 +283,7 @@ sub generate_login_page {
     return (0, "error message") for inability to check credentials
 
 =cut
+
 sub authenticate {
     my ( $cgi, $session ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -310,6 +318,7 @@ Validation of guest creation. Single guest.
   return (0,2) for invalid access duration
 
 =cut
+
 sub validate_guest_creation {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -332,7 +341,7 @@ sub validate_guest_creation {
     $session->param("firstname", $cgi->param("firstname"));
     $session->param("lastname", $cgi->param("lastname"));
     $session->param("company", $cgi->param("company"));
-    $session->param("email", lc($cgi->param("email"))); 
+    $session->param("email", lc($cgi->param("email")));
     $session->param("phone", $cgi->param("phone"));
     $session->param("address", $cgi->param("address"));
     $session->param("arrival_date", $cgi->param("arrival_date"));
@@ -352,6 +361,7 @@ Validation of guest creation. Multiple guests.
   return (0,6) for invalid username (prefix)
 
 =cut
+
 sub validate_guest_creation_multiple {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -384,7 +394,7 @@ sub validate_guest_creation_multiple {
     $session->param("arrival_date", $cgi->param("arrival_date"));
     $session->param("access_duration", $cgi->param("access_duration"));
     $session->param("notes", $cgi->param("notes"));
-   
+
     return (1, 0);
 }
 
@@ -399,6 +409,7 @@ Validation of mass guest imports.
   return (0,4) for corrupted input file
 
 =cut
+
 sub validate_guest_import {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -433,10 +444,11 @@ sub validate_guest_import {
 
 =item valid_access_duration
 
-Sub to validate that access duration provided is allowed by configuration. 
+Sub to validate that access duration provided is allowed by configuration.
 We are doing this because we can't trust what comes from the client.
 
 =cut
+
 sub valid_access_duration {
     my ($value) = @_;
     foreach my $allowed_duration (split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'})) {
@@ -450,6 +462,7 @@ sub valid_access_duration {
 Validate arrival date
 
 =cut
+
 sub valid_arrival_date {
     my ($value) = @_;
 
@@ -461,6 +474,7 @@ sub valid_arrival_date {
 =item create_guest
 
 =cut
+
 sub create_guest {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -484,13 +498,13 @@ sub create_guest {
     $logger->info("Adding guest person " . $pid);
 
     # expiration is arrival date + access duration + a tolerance window of 24 hrs
-    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
+    my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S",
         localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60)
     );
 
     # we create temporary password with the expiration and a 'not valid before' value
     my $password = pf::temporary_password::generate(
-        $pid, $expiration, $session->param("arrival_date"), 
+        $pid, $expiration, $session->param("arrival_date"),
         valid_access_duration($session->param("access_duration"))
     );
 
@@ -506,6 +520,7 @@ sub create_guest {
 =item create_guest_multiple
 
 =cut
+
 sub create_guest_multiple {
     my ($cgi, $session) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -514,7 +529,7 @@ sub create_guest_multiple {
     my $prefix = $cgi->param('prefix');
     my $quantity = int($cgi->param('quantity'));
     my $expiration = POSIX::strftime(
-      "%Y-%m-%d %H:%M:%S", 
+      "%Y-%m-%d %H:%M:%S",
       localtime( str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60 )
     );
     my %users = ();
@@ -536,7 +551,7 @@ sub create_guest_multiple {
         # Create/update password
         my $password = pf::temporary_password::generate($pid,
                                                         $expiration,
-                                                        $session->param("arrival_date"), 
+                                                        $session->param("arrival_date"),
                                                         valid_access_duration($session->param("access_duration")));
         if ($password) {
           $users{$pid} = $password;
@@ -563,7 +578,7 @@ sub import_csv {
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-  my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", 
+  my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S",
                                    localtime(str2time($session->param("arrival_date")) + $session->param("access_duration") + 24*60*60));
 
   # Build hash table for columns order
@@ -613,7 +628,7 @@ sub import_csv {
         # Create/update password
         my $success = pf::temporary_password::generate($pid,
                                                        $expiration,
-                                                       $session->param("arrival_date"), 
+                                                       $session->param("arrival_date"),
                                                        valid_access_duration($session->param("access_duration")),
                                                        $row->[$index{'c_password'}]);
         $count++ if ($success);

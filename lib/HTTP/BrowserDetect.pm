@@ -1395,7 +1395,9 @@ Some methods also test for the operating system version. The indentations
 below show the hierarchy of tests (for example, win2k is considered a type of
 winnt, which is a type of win32)
 
-=head2 windows()
+=over
+
+=item windows()
 
     win16 win3x win31
     win32
@@ -1405,33 +1407,33 @@ winnt, which is a type of win32)
     wince
     winphone
 
-=head2 dotnet()
+=item dotnet()
 
-=head2 mac()
+=item mac()
 
 mac68k macppc macosx ios
 
-=head2 os2()
+=item os2()
 
-=head2 unix()
+=item unix()
 
   sun sun4 sun5 suni86 irix irix5 irix6 hpux hpux9 hpux10
   aix aix1 aix2 aix3 aix4 linux sco unixware mpras reliant
   dec sinix freebsd bsd
 
-=head2 vms()
+=item vms()
 
-=head2 amiga()
+=item amiga()
 
-=head2 ps3gameos()
+=item ps3gameos()
 
-=head2 pspgameos()
+=item pspgameos()
 
 It may not be possibile to detect Win98 in Netscape 4.x and earlier. On Opera
 3.0, the userAgent string includes "Windows 95/NT4" on all Win32, so you can't
 distinguish between Win95 and WinNT.
 
-=head2 os_string()
+=item os_string()
 
 Returns one of the following strings, or undef. This method exists solely for
 compatibility with the L<HTTP::Headers::UserAgent> module.
@@ -1440,68 +1442,74 @@ compatibility with the L<HTTP::Headers::UserAgent> module.
   Mac, Mac OS X, iOS, Win3x, OS2, Unix, Linux, Playstation 3 GameOS,
   Playstation Portable GameOS
 
+=back
+
 =head1 Detecting Browser Vendor
 
 The following methods are available, each returning a true or false value.
 Some methods also test for the browser version, saving you from checking the
 version separately.
 
-=head3 aol aol3 aol4 aol5 aol6
+=over
 
-=head3 chrome
+=item aol aol3 aol4 aol5 aol6
 
-=head3 curl
+=item chrome
 
-=head3 emacs
+=item curl
 
-=head3 firefox
+=item emacs
 
-=head3 gecko
+=item firefox
 
-=head3 icab
+=item gecko
 
-=head3 ie ie3 ie4 ie4up ie5 ie55 ie6 ie7 ie8 ie9 ie10
+=item icab
 
-=head3 java
+=item ie ie3 ie4 ie4up ie5 ie55 ie6 ie7 ie8 ie9 ie10
 
-=head3 konqueror
+=item java
 
-=head3 lotusnotes
+=item konqueror
 
-=head3 lynx links elinks
+=item lotusnotes
 
-=head3 mobile_safari
+=item lynx links elinks
 
-=head3 mosaic
+=item mobile_safari
 
-=head3 mozilla
+=item mosaic
 
-=head3 neoplanet neoplanet2
+=item mozilla
 
-=head3 netfront
+=item neoplanet neoplanet2
 
-=head3 netscape nav2 nav3 nav4 nav4up nav45 nav45up navgold nav6 nav6up
+=item netfront
 
-=head3 opera opera3 opera4 opera5 opera6 opera7
+=item netscape nav2 nav3 nav4 nav4up nav45 nav45up navgold nav6 nav6up
 
-=head3 realplayer
+=item opera opera3 opera4 opera5 opera6 opera7
 
-=head3 realplayer_browser
+=item realplayer
+
+=item realplayer_browser
 The realplayer method above tests for the presence of either the RealPlayer
 plug-in "(r1 " or the browser "RealPlayer". To preserve
 "bugwards compatibility" and prevent false reporting, browser_string calls
 this method which ignores the "(r1 " plug-in signature.
 
-=head3 safari
+=item safari
 
-=head3 staroffice
+=item staroffice
 
-=head3 webtv
+=item webtv
 
 Netscape 6, even though its called six, in the User-Agent string has version
 number 5. The nav6 and nav6up methods correctly handle this quirk. The Firefox
 test correctly detects the older-named versions of the browser (Phoenix,
 Firebird).
+
+=back
 
 
 =head2 browser_string()
@@ -1524,37 +1532,41 @@ version number can't be detected, returns undef.
 
 The following methods are available, each returning a true or false value.
 
-=head3 android
+=over
 
-=head3 audrey
+=item android
 
-=head3 avantgo
+=item audrey
 
-=head3 blackberry
+=item avantgo
 
-=head3 dsi
+=item blackberry
 
-=head3 iopener
+=item dsi
 
-=head3 iphone
+=item iopener
 
-=head3 ipod
+=item iphone
 
-=head3 ipad
+=item ipod
 
-=head3 kindle
+=item ipad
 
-=head3 n3ds
+=item kindle
 
-=head3 palm
+=item n3ds
 
-=head3 webos
+=item palm
 
-=head3 wap
+=item webos
 
-=head3 psp
+=item wap
 
-=head3 ps3
+=item psp
+
+=item ps3
+
+=back
 
 =head2 mobile()
 
@@ -1568,36 +1580,39 @@ other automated Web client.
 The following additional methods are available, each returning a true or false
 value. This is by no means a complete list of robots that exist on the Web.
 
-=head3 altavista
+=over
 
-=head3 facebook
+=item altavista
 
-=head3 getright
+=item facebook
 
-=head3 google
+=item getright
 
-=head3 googlemobile
+=item google
 
-=head3 infoseek
+=item googlemobile
 
-=head3 linkexchange
+=item infoseek
 
-=head3 lwp
+=item linkexchange
 
-=head3 lycos
+=item lwp
 
-=head3 msn (same as bing)
+=item lycos
 
-=head3 puf
+=item msn (same as bing)
 
-=head3 slurp
+=item puf
 
-=head3 webcrawler
+=item slurp
 
-=head3 wget
+=item webcrawler
 
-=head3 yahoo
+=item wget
 
+=item yahoo
+
+=back
 
 =head1 CREDITS
 

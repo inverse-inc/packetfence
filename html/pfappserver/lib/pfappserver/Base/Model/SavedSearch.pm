@@ -33,6 +33,8 @@ use HTTP::Status qw(:constants is_error is_success);
 
 =item namespace
 
+Use the class name as the default namespace
+
 =cut
 
 sub namespace {
@@ -41,6 +43,8 @@ sub namespace {
 };
 
 =item create
+
+Create a new saved search
 
 =cut
 
@@ -57,6 +61,8 @@ sub create {
 
 =item read
 
+read a saved search
+
 =cut
 
 sub read {
@@ -71,6 +77,8 @@ sub read {
 
 =item read_all
 
+read all saved search
+
 =cut
 
 sub read_all {
@@ -80,6 +88,8 @@ sub read_all {
 
 =item update
 
+update a saved search
+
 =cut
 
 sub update {
@@ -88,6 +98,8 @@ sub update {
 }
 
 =item remove
+
+remove a saved search
 
 =cut
 
@@ -101,6 +113,8 @@ sub remove {
 }
 
 =item _expand_query
+
+a helper function to expand query parts
 
 =cut
 

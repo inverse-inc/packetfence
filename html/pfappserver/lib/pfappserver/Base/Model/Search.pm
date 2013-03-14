@@ -27,6 +27,17 @@ my %OP_MAP = (
     not_in      => 'NOT IN',
 );
 
+=head2 Methods
+
+=over
+
+=item process_query
+
+transform search queries from search form
+To create where arguements for the sql builder
+
+=cut
+
 sub process_query {
     my ($self,$query) = (@_);
     my $op = $query->{op};
@@ -53,6 +64,12 @@ sub process_query {
     return \@where_args;
 }
 
+=item add_limit
+
+add limits to the sql builder
+
+=cut
+
 sub add_limit {
     my ($self,$builder,$params) = @_;
     my $page_num = $params->{page_num} || 1;
@@ -60,6 +77,12 @@ sub add_limit {
     my $offset = (( $page_num - 1 ) * $limit );
     $builder->limit($limit,$offset);
 }
+
+=item add_joins
+
+add joins to the sql builder
+
+=cut
 
 sub add_joins {}
 

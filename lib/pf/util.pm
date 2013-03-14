@@ -66,6 +66,7 @@ TODO: This list is incomplete.
 =over
 
 =cut
+
 sub valid_date {
     my ($date) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -103,6 +104,7 @@ Returns the IP in reverse notation. ex: 1.2.3.4 will return 4.3.2.1
 Used for DNS configuration templates.
 
 =cut
+
 sub reverse_ip {
     my ($ip) = @_;
 
@@ -118,6 +120,7 @@ sub reverse_ip {
 Properly format an IPv4 address. Has the nice side-effect of untainting it also.
 
 =cut
+
 sub clean_ip {
     my ($ip) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -135,6 +138,7 @@ Clean a MAC address accepting xxxxxxxxxxxx, xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx
 Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 =cut
+
 sub clean_mac {
     my ($mac) = @_;
     return (0) if ( !$mac );
@@ -160,6 +164,7 @@ Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx:xx
 Returning format XXXXXXXXXXXX
 
 =cut
+
 sub format_mac_for_acct {
     my ($mac) = @_;
     return (0) if ( !$mac );
@@ -177,6 +182,7 @@ Put the mac address in the cisco format, accepting xx:xx:xx:xx:xx:xx
 Returning format aabb.ccdd.eeff
 
 =cut
+
 sub format_mac_as_cisco {
     my ($mac) = @_;
 
@@ -197,6 +203,7 @@ Validates MAC addresses. Returns 1 or 0 (true or false)
 Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx
 
 =cut
+
 sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -216,7 +223,7 @@ sub valid_mac {
     }
 }
 
-=item * macoui2nb
+=item  macoui2nb
 
 Extract the OUI (Organizational Unique Identifier) from a MAC address then
 converts it into a decimal value. To be used to generate vendormac violations.
@@ -226,6 +233,7 @@ in: MAC address (of xx:xx:xx:xx:xx format)
 Returns a number.
 
 =cut
+
 sub macoui2nb {
     my ($mac) = @_;
 
@@ -234,7 +242,7 @@ sub macoui2nb {
     return hex($oui);
 }
 
-=item * mac2nb
+=item  mac2nb
 
 Converts a MAC address into a decimal value. To be used to generate mac violations.
 
@@ -243,6 +251,7 @@ in: MAC address (of xx:xx:xx:xx:xx format)
 Returns a number.
 
 =cut
+
 sub mac2nb {
     my ($mac) = @_;
     my $nb;
@@ -312,13 +321,14 @@ sub ip2device {
     return (0);
 }
 
-=item * oid2mac - convert a MAC in oid format to a MAC in usual format
+=item  oid2mac - convert a MAC in oid format to a MAC in usual format
 
 in: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
 out: comma-separated MAC address (ex: 00:12:f0:13:32:ba)
 
 =cut
+
 sub oid2mac {
     my ($oid) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -330,13 +340,14 @@ sub oid2mac {
     }
 }
 
-=item * mac2oid - convert a MAC in usual pf format into a MAC in oid format
+=item  mac2oid - convert a MAC in usual pf format into a MAC in oid format
 
 in: comma-separated MAC address (ex: 00:12:f0:13:32:ba). Use clean_mac() if you need.
 
 out: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
 =cut
+
 sub mac2oid {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -378,12 +389,13 @@ sub pfmailer {
     return 1;
 }
 
-=item * isenabled
+=item  isenabled
 
 Is the given configuration parameter considered enabled? y, yes, true, enable
 and enabled are all positive values for PacketFence.
 
 =cut
+
 sub isenabled {
     my ($enabled) = @_;
     if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
@@ -393,12 +405,13 @@ sub isenabled {
     }
 }
 
-=item * isdisabled
+=item  isdisabled
 
 Is the given configuration parameter considered disabled? n, no, false,
 disable and disabled are all negative values for PacketFence.
 
 =cut
+
 sub isdisabled {
     my ($disabled) = @_;
     if ( $disabled =~ /^\s*(n|no|false|disable|disabled)\s*$/i ) {
@@ -408,12 +421,13 @@ sub isdisabled {
     }
 }
 
-=item * isempty
+=item  isempty
 
 Is the given configuration parameter considered empty? Whitespace is
 considered empty.
 
 =cut
+
 sub isempty {
     my ($parameter) = @_;
 
@@ -656,6 +670,7 @@ This converts from the constant binary value to the string.
 return connection_type string (as defined in pf::config) or an empty string if connection type not found
 
 =cut
+
 sub connection_type_to_str {
     my ($conn_type) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -679,6 +694,7 @@ This parses the string from the database into the the constant binary value.
 return connection_type constant (as defined in pf::config) or undef if connection type not found
 
 =cut
+
 sub str_to_connection_type {
     my ($conn_type_str) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -704,6 +720,7 @@ sub str_to_connection_type {
 Returns the total amount of memory in kilobytes. Undef if something went wrong or it can't determined.
 
 =cut
+
 sub get_total_system_memory {
     my $logger = Log::Log4perl::get_logger('pf::util');
 
@@ -735,6 +752,7 @@ This method handles both technique and return the MAC address in a format Packet
 Must be combined with new regular expression that handles both formats: $SNMP::MAC_ADDRESS_FORMAT
 
 =cut
+
 sub parse_mac_from_trap {
     my ($to_parse) = @_;
 
@@ -765,6 +783,7 @@ ex:
 See pf::config::normalize_time
 
 =cut
+
 sub get_abbr_time {
     my $time = int shift;
 
@@ -795,6 +814,7 @@ ex: 7D will return ("day", "days", 7)
 Returns undef on failure
 
 =cut
+
 sub get_translatable_time {
    my ($time) = @_;
 
@@ -822,6 +842,7 @@ sub get_translatable_time {
 Returns the VLAN id for a given interface
 
 =cut
+
 sub get_vlan_from_int {
     my ($eth) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -923,6 +944,7 @@ example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
 with code 1, 2 or 3 without reporting it as an error.
 
 =cut
+
 sub pf_run {
     my ($command, %options) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -990,6 +1012,7 @@ The id will be as follow: epochtime + 2 random numbers + last four characters of
 The epoch will be used in database entries so we use the same to make sure it is the same.
 
 =cut
+
 sub generate_id {
     my ( $epoch, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -1011,6 +1034,10 @@ sub generate_id {
     return $id;
 }
 
+=item ordinal_suffix
+
+=cut
+
 sub ordinal_suffix {
     my ($num) = @_;
     my $last_digit = $num % 10;
@@ -1025,6 +1052,10 @@ sub ordinal_suffix {
     }
     return "${num}th";
 }
+
+=item trim_path
+
+=cut
 
 sub trim_path {
     my ($path) = @_;

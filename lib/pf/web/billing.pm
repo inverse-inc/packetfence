@@ -55,6 +55,7 @@ Generate the template to present a billing page to users so that they can pay fo
 Will produce billing.html
 
 =cut
+
 sub generate_billing_page {
     my ( $portalSession, $error_code ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -86,6 +87,7 @@ sub generate_billing_page {
 =item validate_billing_infos
 
 =cut
+
 sub validate_billing_infos {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger();
@@ -99,11 +101,11 @@ sub validate_billing_infos {
     my %available_tiers = $billingObj->getAvailableTiers();
 
     # Check if every field are correctly filled
-    if ( $cgi->param("firstname") && $cgi->param("lastname") && $cgi->param("email") && 
+    if ( $cgi->param("firstname") && $cgi->param("lastname") && $cgi->param("email") &&
          $cgi->param("ccnumber") && $cgi->param("ccexpiration") && $cgi->param("ccverification") &&
          $cgi->param("tier") && $cgi->param("aup_signed") ) {
 
-        my $valid_name = ( pf::web::util::is_name_valid($cgi->param('firstname')) 
+        my $valid_name = ( pf::web::util::is_name_valid($cgi->param('firstname'))
                 && pf::web::util::is_name_valid($cgi->param('lastname')) );
         my $valid_email = pf::web::util::is_email_valid($cgi->param('email'));
         my $valid_tier = exists $available_tiers{$cgi->param("tier")};

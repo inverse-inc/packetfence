@@ -4,8 +4,6 @@ package pf::temporary_password;
 
 pf::temporary_password - module to view, query and manage temporary passwords
 
-=cut
-
 =head1 DESCRIPTION
 
 pf::temporary_password contains the functions necessary to manage all aspects
@@ -30,6 +28,7 @@ If you keep getting the same passwords over and over again make sure that you've
 in your apache config.
 
 =cut
+
 #TODO rename to temporary_credentials to better reflect what this is about
 #TODO properly hash passwords (1000 SHA1 iterations of salt + password)
 use strict;
@@ -92,6 +91,11 @@ TODO: This list is incomlete
 
 =over
 
+
+=item temporary_password_db_prepare
+
+Instantiate SQL statements to be prepared
+
 =cut
 
 sub temporary_password_db_prepare {
@@ -139,6 +143,7 @@ sub temporary_password_db_prepare {
 view a a temporary password record, returns an hashref
 
 =cut
+
 sub view {
     my ($pid) = @_;
     my $query = db_query_execute(
@@ -156,6 +161,7 @@ sub view {
 add a temporary password record to the database
 
 =cut
+
 #sub add {
 #    my (%data) = @_;
 #
@@ -170,6 +176,7 @@ add a temporary password record to the database
 _delete a temporary password record
 
 =cut
+
 sub _delete {
     my ($pid) = @_;
 
@@ -183,6 +190,7 @@ sub _delete {
 Creates a temporary password record for a given pid. Valid until given expiration.
 
 =cut
+
 sub create {
     my (%data) = @_;
 
@@ -197,6 +205,7 @@ sub create {
 Generates the password
 
 =cut
+
 sub _generate_password {
 
     my $password = word(8, 12);
@@ -238,6 +247,7 @@ Defaults to 0 (no per user limit)
 =back
 
 =cut
+
 sub generate {
     my ($pid, $valid_from, $actions, $password) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -274,7 +284,9 @@ sub generate {
 }
 
 =item _update_from_actions
-    Updates temporary_password fields from an action list
+
+Updates temporary_password fields from an action list
+
 =cut
 
 sub _update_from_actions {
@@ -318,7 +330,11 @@ sub _update_from_actions {
 }
 
 =item _update_field_for_action
+
+Updates temporary_password field from an action
+
 =cut
+
 sub _update_field_for_action {
     my ($data,$actions,$action,$field,$default) = @_;
     my @values = grep { $_->{type} eq $action } @{$actions};
@@ -330,7 +346,11 @@ sub _update_field_for_action {
 }
 
 =item modify_actions
+
+Modify the temporary_password actions
+
 =cut
+
 sub modify_actions {
     my ($temporary_password, $actions) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -345,9 +365,10 @@ sub modify_actions {
         TEMPORARY_PASSWORD, $temporary_password_statements,
         'temporary_password_modify_actions_sql',
         @{$temporary_password}{@ACTION_FIELDS}, $pid
-    ) || return (0);
-    $logger->info("temporarypassword $pid modified");
-    return (1);
+    );
+    my $rows = $query->rows;
+    $logger->info("temporarypassword $pid modified") if $rows ;
+    return ($rows);
 }
 
 
@@ -362,6 +383,7 @@ Return values:
  $AUTH_FAILED_NOT_YET_VALID - password not valid yet
 
 =cut
+
 sub validate_password {
     my ($pid, $password) = @_;
 

@@ -1,4 +1,9 @@
 package pfappserver;
+
+=head1 Name pfappserver
+
+=cut
+
 use Moose;
 use namespace::autoclean;
 
@@ -177,6 +182,7 @@ sub form {
 Returns the available names which can be passed to $c->forms
 
 =cut
+
 sub forms {
     my ($c) = @_;
     return $c->_comp_names(qw/Form F/);

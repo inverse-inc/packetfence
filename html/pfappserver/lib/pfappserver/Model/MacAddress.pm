@@ -30,7 +30,9 @@ use List::Util qw(first);
 
 =over
 
-=head2 field_names
+=item field_names
+
+Field Name of MacAddress for display
 
 =cut
 
@@ -38,7 +40,9 @@ sub field_names {
     return [qw(oui vendor_info)];
 }
 
-=head2 countAll
+=item countAll
+
+count all mac addresses that match search parameters
 
 =cut
 
@@ -71,7 +75,9 @@ sub countAll {
     return ( $STATUS::OK, $count);
 }
 
-=head2 search
+=item search
+
+find all all mac addresses that match search parameters
 
 =cut
 

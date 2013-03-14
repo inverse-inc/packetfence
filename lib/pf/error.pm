@@ -9,6 +9,7 @@ pf::error - Error codes and related functions
 Error codes constants and related error-handling and reporting utilities.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -31,6 +32,7 @@ Returns a true or false value based on if given error code is considered
 a success or not.
 
 =cut
+
 sub is_success {
     my ($code) = @_;
     return 1 if ($code >= 200 && $code < 300);
@@ -43,23 +45,46 @@ Returns a true or false value based on if given error code is considered
 an error or not.
 
 =cut
+
 sub is_error {
     my ($code) = @_;
     return 1 if ($code >= 400 && $code < 600);
     return 0;
 }
 
-package STATUS;
 =back
+
+=cut
+
+package STATUS;
 
 =head1 Status codes
 
-We rely on HTTP status codes for our Web Services and decided to use them 
+We rely on HTTP status codes for our Web Services and decided to use them
 in our Model without the mention of HTTP in front.
 
 Taken from HTTP::Status and stripped. Subject to change.
 
+=over
+
 =cut
+
+=item $OK
+
+=item $CREATED
+
+=item $BAD_REQUEST
+
+=item $FORBIDDEN
+
+=item $NOT_FOUND
+
+=item $PRECONDITION_FAILED
+
+=item $INTERNAL_SERVER_ERROR
+
+=cut
+
 Readonly::Scalar our $OK                                => 200;
 Readonly::Scalar our $CREATED                           => 201;
 #Readonly::Scalar our $ACCEPTED                         => 202;
@@ -118,6 +143,8 @@ Readonly::Scalar our $INTERNAL_SERVER_ERROR            => 500;
 #Readonly::Scalar our $BANDWIDTH_LIMIT_EXCEEDED         => 509;
 #Readonly::Scalar our $NOT_EXTENDED                     => 510;
 #Readonly::Scalar our $NETWORK_AUTHENTICATION_REQUIRED  => 511;
+
+=back
 
 =head1 AUTHOR
 

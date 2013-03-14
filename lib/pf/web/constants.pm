@@ -10,6 +10,7 @@ This file is splitted by packages and refering to the constant requires you to
 specify the package.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -27,6 +28,7 @@ Return all the WEB constants in an hash. This is to ease consumption by
 Template Toolkit.
 
 =cut
+
 sub to_hash {
     no strict 'refs';
 
@@ -47,6 +49,7 @@ sub to_hash {
 =head1 WEB
 
 =cut
+
 package WEB;
 
 =head2 URLs
@@ -55,6 +58,7 @@ See conf/httpd.conf.d/captive-portal-cleanurls.conf to see to which
 CGI they map.
 
 =cut
+
 # normal flow
 Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
@@ -100,6 +104,7 @@ Filesystem portion is prefixed by $install_dir before installing into
 Apache config.
 
 =cut
+
 Readonly::Hash our %STATIC_CONTENT_ALIASES => (
     '/common/' => '/html/common/',
     '/content/' => '/html/captive-portal/content/',
@@ -117,6 +122,7 @@ an ending anchor is also installed (^/file$).
 Anything else should be redirected. This happens in L<pf::web::dispatcher>.
 
 =cut
+
 my @components = ( keys %STATIC_CONTENT_ALIASES, _clean_urls_match() );
 # add $ to non-slash ending URLs
 foreach (@components) { s{([^/])$}{$1\$} };
@@ -145,6 +151,7 @@ Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /
 Return a regex that would match all the captive portal allowed clean URLs
 
 =cut
+
 sub _clean_urls_match {
     my %consts = pf::web::constants::to_hash();
     my @urls;
@@ -160,6 +167,7 @@ sub _clean_urls_match {
 Return a regex that would match all the captive portal allowed clean URLs
 
 =cut
+
 sub _clean_urls_match_mod_perl {
     my %consts = pf::web::constants::to_hash();
     my @urls;

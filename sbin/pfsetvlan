@@ -21,6 +21,7 @@ Act on SNMP traps and set switch port VLAN according to
 the discovered MACs status in packetfence.
 
 =cut
+
 # }}}1
 
 # use, require {{{1
