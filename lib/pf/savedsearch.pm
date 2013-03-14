@@ -105,16 +105,19 @@ BEGIN {
             return db_data(USERPREF, $savedsearch_statements, $statement_name, @args);
         }
     }
-    #Results expected to return a single query
-    for my $name (qw(update delete add count)) {
+    #Return row count from non select statement
+    for my $name (qw(update delete add)) {
         my $sub_name = __PACKAGE__ . "::_savedsearch_$name";
         my $statement_name = "savedsearch_${name}_sql";
         *{$sub_name} = sub {
             my (@args) = @_;
             my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+            $logger->debug("Executing $statement_name with " . join(" ",@args));
             my $sth = db_query_execute(USERPREF, $savedsearch_statements, $statement_name, @args);
-            my ($val) = $sth->fetchrow_array;
-            return $val;
+            if($sth) {
+                return $sth->rows;
+            }
+            return undef;
         }
     }
 }
@@ -158,8 +161,7 @@ sub savedsearch_update {
 =cut
 
 sub savedsearch_delete {
-    my ($savedsearch) = @_;
-    return _savedsearch_delete(@{$savedsearch}{qw(id)});
+    goto &_savedsearch_delete;
 }
 
 =item savedsearch_count
@@ -167,7 +169,8 @@ sub savedsearch_delete {
 =cut
 
 sub savedsearch_count {
-    goto &_savedsearch_count;
+    my $sth = db_query_execute(USERPREF, $savedsearch_statements, "savedsearch_count_sql");
+    return ($sth->fetchrow_array)[0];
 }
 
 =item savedsearch_add
