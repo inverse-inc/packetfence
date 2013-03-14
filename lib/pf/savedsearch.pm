@@ -1,19 +1,16 @@
 package pf::savedsearch;
 =head1 NAME
 
-pf::savedsearch add documentation
+pf::savedsearch - module for savedsearch management
 
 =cut
 
 =head1 DESCRIPTION
 
-=head1 Subroutines
 
-=over
-
-savedsearch
 
 =cut
+
 use strict;
 use warnings;
 use Log::Log4perl;
@@ -43,6 +40,13 @@ our $savedsearch_statements = {};
 
 use pf::db;
 
+=head1 Subroutines
+
+=over
+
+=item savedsearch_db_prepare
+
+=cut
 
 sub savedsearch_db_prepare {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -115,31 +119,60 @@ BEGIN {
     }
 }
 
+
+=item savedsearch_for_pid_and_namespace
+
+=cut
+
 sub savedsearch_for_pid_and_namespace {
     goto &_savedsearch_for_pid_and_namespace;
 }
+
+=item savedsearch_view
+
+=cut
 
 sub savedsearch_view {
     goto &_savedsearch_view;
 }
 
+=item savedsearch_view_all
+
+=cut
+
 sub savedsearch_view_all {
     goto &_savedsearch_view;
 }
+
+=item savedsearch_update
+
+=cut
 
 sub savedsearch_update {
     my ($savedsearch) = @_;
     return _savedsearch_update(@{$savedsearch}{qw(name pid namespace query in_dashboard id)});
 }
 
+=item savedsearch_delete
+
+=cut
+
 sub savedsearch_delete {
     my ($savedsearch) = @_;
     return _savedsearch_delete(@{$savedsearch}{qw(id)});
 }
 
+=item savedsearch_count
+
+=cut
+
 sub savedsearch_count {
     goto &_savedsearch_count;
 }
+
+=item savedsearch_add
+
+=cut
 
 sub savedsearch_add {
     my ($savedsearch) = @_;
@@ -149,8 +182,6 @@ sub savedsearch_add {
 =back
 
 =head1 AUTHOR
-
-YOUR NAME <flachapelle@inverse.ca>
 
 =head1 COPYRIGHT
 
