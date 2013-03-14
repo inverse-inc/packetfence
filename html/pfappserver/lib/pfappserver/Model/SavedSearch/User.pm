@@ -7,9 +7,7 @@ package pfappserver::Model::SavedSearch add documentation
 
 =head1 DESCRIPTION
 
-SavedSearch
-
-=head2 Methods
+SavedSearch for Users
 
 =over
 
@@ -19,69 +17,7 @@ use strict;
 use warnings;
 use Moose;
 
-use pf::savedsearch;
-use HTML::FormHandler::Params;
-
-=item create
-
-=cut
-
-sub create {
-    my ($self,$saved_search) = @_;
-    $saved_search->{namespace} = 'SavedSearch::User';
-    savedsearch_add($saved_search);
-}
-
-=item read
-
-=cut
-
-sub read {
-    my ($self,$id);
-    return _expand_query(savedsearch_view($id));
-}
-
-=item read_all
-
-=cut
-
-sub read_all {
-    my ($self,$pid) = @_;
-    return map { _expand_query($_) } savedsearch_for_pid_and_namespace($pid,'SavedSearch::User');
-}
-
-=item update
-
-=cut
-
-sub update {
-    my ($self,undef,$saved_search) = @_;
-    return savedsearch_update($saved_search);
-}
-
-=item remove
-
-=cut
-
-sub remove {
-    my ($self,$saved_search) = @_;
-    return savedsearch_update($saved_search);
-}
-
-=item _expand_query
-
-=cut
-
-sub _expand_query {
-    my ($saved_search) = @_;
-    my $params_handler =  HTML::FormHandler::Params->new;
-    my $uri = URI->new($saved_search->{query});
-    my $form = $uri->query_form_hash;
-    $saved_search->{form} = $form;
-    $saved_search->{params} = $params_handler->expand_hash($form);
-    $saved_search->{path} = $uri->path;
-    return $saved_search;
-}
+extends 'pfappserver::Base::Model::SavedSearch';
 
 __PACKAGE__->meta->make_immutable;
 
