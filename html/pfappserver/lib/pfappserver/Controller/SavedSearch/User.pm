@@ -22,11 +22,16 @@ BEGIN {
 }
 
 
-=head2 begin
+=head2 Methods
+
+=over
+
+=item begin
 
 Setting the current form instance and model
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
     $c->stash->{current_model} = "SavedSearch::User";
@@ -34,18 +39,30 @@ sub begin :Private {
 }
 
 
-=head2 object
+=item object
 
 =cut
+
 sub object :Chained('/') :PathPart('savedsearch/user') : CaptureArgs(1) {
     my ($self,@args) = @_;
-    $self->SUPER::_setup_object(@args);
+    $self->_setup_object(@args);
 }
+
+=item create
+
+=cut
 
 before 'create' => sub {
     my ( $self, $c ) = @_;
     $c->request->parameters->{pid} = $c->user->id;
 };
+
+=item view
+
+=cut
+
+sub view {}
+
 __PACKAGE__->meta->make_immutable;
 
 =back

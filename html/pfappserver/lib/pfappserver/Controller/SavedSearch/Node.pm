@@ -18,15 +18,19 @@ use HTTP::Status qw(:constants is_error is_success);
 
 BEGIN {
     extends 'pfappserver::Base::Controller::Base';
+    with 'pfappserver::Base::Controller::Crud';
 }
-with 'pfappserver::Base::Controller::Crud';
 
+=head2 Methods
 
-=head2 begin
+=over
+
+=item begin
 
 Setting the current form instance and model
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
     $c->stash->{current_model} = "SavedSearch::Node";
@@ -34,18 +38,30 @@ sub begin :Private {
 }
 
 
-=head2 object
+=item object
 
 =cut
+
 sub object :Chained('/') :PathPart('savedsearch/node') : CaptureArgs(1) {
     my ($self,@args) = @_;
-    $self->SUPER::object(@args);
+    $self->_setup_object(@args);
 }
+
+=item create
+
+=cut
 
 before 'create' => sub {
     my ( $self, $c ) = @_;
     $c->request->parameters->{pid} = $c->user->id;
 };
+
+
+=item view
+
+=cut
+
+sub view {}
 
 __PACKAGE__->meta->make_immutable;
 
