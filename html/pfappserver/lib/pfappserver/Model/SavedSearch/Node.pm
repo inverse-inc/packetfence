@@ -1,84 +1,24 @@
 package pfappserver::Model::SavedSearch::Node;
 =head1 NAME
 
-package pfappserver::Model::SavedSearch
+package pfappserver::Model::SavedSearch add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-SavedSearch
+SavedSearch for Nodes
+
+=over
 
 =cut
 
 use strict;
 use warnings;
 use Moose;
-use pf::savedsearch;
-use URI;
-use URI::QueryParam;
 
-=head2 Methods
+extends 'pfappserver::Base::Model::SavedSearch';
 
-=over
-
-=item create
-
-=cut
-
-sub create {
-    my ($self,$saved_search) = @_;
-    $saved_search->{namespace} = 'SavedSearch::Node';
-    savedsearch_add($saved_search);
-}
-
-=item read
-
-=cut
-
-sub read {
-    my ($self,$id);
-    return _expand_query(savedsearch_view($id));
-}
-
-=item read_all
-
-=cut
-
-sub read_all {
-    my ($self,$pid) = @_;
-    return map { _expand_query($_) } savedsearch_for_pid_and_namespace($pid,'SavedSearch::Node');
-}
-
-=item update
-
-=cut
-
-sub update {
-    my ($self,undef,$saved_search) = @_;
-    return savedsearch_update($saved_search);
-}
-
-=item remove
-
-=cut
-
-sub remove {
-    my ($self,$saved_search) = @_;
-    return savedsearch_update($saved_search);
-}
-
-=item _expand_query
-
-=cut
-
-sub _expand_query {
-    my ($saved_search) = @_;
-    my $uri = URI->new($saved_search->{query});
-    $saved_search->{form} = $uri->query_form_hash;
-    $saved_search->{path} = $uri->path;
-    return $saved_search;
-}
 
 __PACKAGE__->meta->make_immutable;
 
