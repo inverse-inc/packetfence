@@ -13,9 +13,10 @@ function registerExits() {
 
 function saveStep(href) {
     var form = $('form[name="networks"]');
-    var errorSibling = $('#section h3');
+    var section = $('#section');
+    var errorSibling = section.find('h3:first');
 
-    resetAlert(form);
+    resetAlert(section);
     var valid = isFormValid(form);
     if (true) {
         $.ajax({
