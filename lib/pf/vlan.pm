@@ -389,7 +389,7 @@ sub getNodeInfoForAutoReg {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
     my ($this, $switch_ip, $switch_port, $mac, $vlan, 
-        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid) = @_;
+        $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
     my %node_info = (
@@ -412,6 +412,11 @@ sub getNodeInfoForAutoReg {
     # under 802.1X EAP, we trust the username provided since it authenticated
     if (defined($conn_type) && (($conn_type & $EAP) == $EAP) && defined($user_name)) {
         $node_info{'pid'} = $user_name;
+    }
+
+    # set the eap_type if it exist
+    if (defined($eap_type)) {
+        $node_info{'eap_type'} = $eap_type;
     }
 
     return %node_info;
@@ -439,7 +444,7 @@ sub shouldAutoRegister {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid) = @_;
+    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
     my $logger = Log::Log4perl->get_logger();
 
     $logger->trace("asked if should auto-register device");

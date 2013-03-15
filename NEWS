@@ -17,7 +17,9 @@ Version <develVersion> released on <develVersionReleaseDate>
 
 New Features
  * Adding action change category and unreg in a violation configuration
-
+ * Adding support for scanning dot1x connections for auto-registration by EAP-Type
+ * Adding support for auto registering dot1x node based of the EAP-Type
+  
 --------------------------------------------------------------------------------
 Version 3.6.1 released on 2013-01-10
 
