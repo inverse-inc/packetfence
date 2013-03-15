@@ -1,5 +1,5 @@
 /*!
- * Bootstrap v2.3.0
+ * Bootstrap v2.3.1
  *
  * Copyright 2012 Twitter, Inc
  * Licensed under the Apache License v2.0
@@ -2273,337 +2273,102 @@ table th[class*="span"],
   background-color: #c4e3f3;
 }
 
-/*!
- *  Font Awesome 3.0.2
- *  the iconic font designed for use with Twitter Bootstrap
- *  -------------------------------------------------------
- *  The full suite of pictographic icons, examples, and documentation
- *  can be found at: http://fortawesome.github.com/Font-Awesome/
- *
- *  License
- *  -------------------------------------------------------
- *  - The Font Awesome font is licensed under the SIL Open Font License - http://scripts.sil.org/OFL
- *  - Font Awesome CSS, LESS, and SASS files are licensed under the MIT License -
- *    http://opensource.org/licenses/mit-license.html
- *  - The Font Awesome pictograms are licensed under the CC BY 3.0 License - http://creativecommons.org/licenses/by/3.0/
- *  - Attribution is no longer required in Font Awesome 3.0, but much appreciated:
- *    "Font Awesome by Dave Gandy - http://fortawesome.github.com/Font-Awesome"
+/*  Font Awesome
+    the iconic font designed for use with Twitter Bootstrap
+    -------------------------------------------------------
+    The full suite of pictographic icons, examples, and documentation
+    can be found at: http://fortawesome.github.com/Font-Awesome/
 
- *  Contact
- *  -------------------------------------------------------
- *  Email: dave@davegandy.com
- *  Twitter: http://twitter.com/fortaweso_me
- *  Work: Lead Product Designer @ http://kyruus.com
- */
+    License
+    -------------------------------------------------------
+    The Font Awesome webfont, CSS, and LESS files are licensed under CC BY 3.0:
+    http://creativecommons.org/licenses/by/3.0/ A mention of
+    'Font Awesome - http://fortawesome.github.com/Font-Awesome' in human-readable
+    source code is considered acceptable attribution (most common on the web).
+    If human readable source code is not available to the end user, a mention in
+    an 'About' or 'Credits' screen is considered acceptable (most common in desktop
+    or mobile software).
+
+    Contact
+    -------------------------------------------------------
+    Email: dave@davegandy.com
+    Twitter: http://twitter.com/fortaweso_me
+    Work: Lead Product Designer @ http://kyruus.com
+
+    */
 
 @font-face {
   font-family: 'FontAwesome';
   font-style: normal;
   font-weight: normal;
-  src: url('../font/fontawesome-webfont.eot?v=3.0.1');
-  src: url('../font/fontawesome-webfont.eot?#iefix&v=3.0.1') format('embedded-opentype'), url('../font/fontawesome-webfont.woff?v=3.0.1') format('woff'), url('../font/fontawesome-webfont.ttf?v=3.0.1') format('truetype');
+  src: url('../font/fontawesome-webfont.eot');
+  src: url('../font/fontawesome-webfont.eot?#iefix') format('embedded-opentype'), url('../font/fontawesome-webfont.woff') format('woff'), url('../font/fontawesome-webfont.ttf') format('truetype'), url('../font/fontawesome-webfont.svg#FontAwesome') format('svg');
 }
 
 /*  Font Awesome styles
     ------------------------------------------------------- */
 
-[class^="icon-"],
-[class*=" icon-"] {
-  display: inline;
-  width: auto;
-  height: auto;
-  margin-top: 0;
-  font-family: FontAwesome;
-  -webkit-font-smoothing: antialiased;
-  font-style: normal;
-  font-weight: normal;
-  line-height: normal;
-  text-decoration: inherit;
-  vertical-align: baseline;
-  background-image: none;
-  background-position: 0 0%;
-  background-repeat: repeat;
-}
-
-/* more sprites.less reset */
-
-.icon-white,
-.nav-pills > .active > a > [class^="icon-"],
-.nav-pills > .active > a > [class*=" icon-"],
-.nav-list > .active > a > [class^="icon-"],
-.nav-list > .active > a > [class*=" icon-"],
-.navbar-inverse .nav > .active > a > [class^="icon-"],
-.navbar-inverse .nav > .active > a > [class*=" icon-"],
-.dropdown-menu > li > a:hover > [class^="icon-"],
-.dropdown-menu > li > a:hover > [class*=" icon-"],
-.dropdown-menu > .active > a > [class^="icon-"],
-.dropdown-menu > .active > a > [class*=" icon-"],
-.dropdown-submenu:hover > a > [class^="icon-"],
-.dropdown-submenu:hover > a > [class*=" icon-"] {
-  background-image: none;
-}
-
 [class^="icon-"]:before,
 [class*=" icon-"]:before {
   display: inline-block;
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
   text-decoration: inherit;
-  speak: none;
 }
-
-/* makes sure icons active on rollover in links */
 
 a [class^="icon-"],
 a [class*=" icon-"] {
   display: inline-block;
+  text-decoration: inherit;
 }
 
 /* makes the font 33% larger relative to the icon container */
 
 .icon-large:before {
   font-size: 1.3333333333333333em;
-  vertical-align: -10%;
+  vertical-align: middle;
 }
 
 .btn [class^="icon-"],
-.nav [class^="icon-"],
+.nav-tabs [class^="icon-"],
 .btn [class*=" icon-"],
-.nav [class*=" icon-"] {
-  display: inline;
+.nav-tabs [class*=" icon-"] {
   /* keeps button heights with and without icons the same */
 
-}
-
-.btn [class^="icon-"].icon-large,
-.nav [class^="icon-"].icon-large,
-.btn [class*=" icon-"].icon-large,
-.nav [class*=" icon-"].icon-large {
-  line-height: .9em;
-}
-
-.btn [class^="icon-"].icon-spin,
-.nav [class^="icon-"].icon-spin,
-.btn [class*=" icon-"].icon-spin,
-.nav [class*=" icon-"].icon-spin {
-  display: inline-block;
-}
-
-.nav-tabs [class^="icon-"],
-.nav-pills [class^="icon-"],
-.nav-tabs [class*=" icon-"],
-.nav-pills [class*=" icon-"] {
-  /* keeps button heights with and without icons the same */
-
-}
-
-.nav-tabs [class^="icon-"],
-.nav-pills [class^="icon-"],
-.nav-tabs [class*=" icon-"],
-.nav-pills [class*=" icon-"],
-.nav-tabs [class^="icon-"].icon-large,
-.nav-pills [class^="icon-"].icon-large,
-.nav-tabs [class*=" icon-"].icon-large,
-.nav-pills [class*=" icon-"].icon-large {
   line-height: .9em;
 }
 
 li [class^="icon-"],
-.nav li [class^="icon-"],
-li [class*=" icon-"],
-.nav li [class*=" icon-"] {
+li [class*=" icon-"] {
   display: inline-block;
   width: 1.25em;
   text-align: center;
 }
 
-li [class^="icon-"].icon-large,
-.nav li [class^="icon-"].icon-large,
-li [class*=" icon-"].icon-large,
-.nav li [class*=" icon-"].icon-large {
-  /* increased font size for icon-large */
+li .icon-large:before,
+li .icon-large:before {
+  /* 1.5 increased font size for icon-large * 1.25 width */
 
-  width: 1.5625em;
+  width: 1.875em;
 }
 
 ul.icons {
-  text-indent: -0.75em;
+  margin-left: 2em;
+  text-indent: -0.8em;
   list-style-type: none;
 }
 
 ul.icons li [class^="icon-"],
 ul.icons li [class*=" icon-"] {
-  width: .75em;
+  width: .8em;
 }
 
-.icon-muted {
-  color: #eeeeee;
-}
+ul.icons li .icon-large:before,
+ul.icons li .icon-large:before {
+  /* 1.5 increased font size for icon-large * 1.25 width */
 
-.icon-border {
-  padding: .2em .25em .15em;
-  border: solid 1px #eeeeee;
-  -webkit-border-radius: 3px;
-     -moz-border-radius: 3px;
-          border-radius: 3px;
-}
-
-.icon-2x {
-  font-size: 2em;
-}
-
-.icon-2x.icon-border {
-  border-width: 2px;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-          border-radius: 4px;
-}
-
-.icon-3x {
-  font-size: 3em;
-}
-
-.icon-3x.icon-border {
-  border-width: 3px;
-  -webkit-border-radius: 5px;
-     -moz-border-radius: 5px;
-          border-radius: 5px;
-}
-
-.icon-4x {
-  font-size: 4em;
-}
-
-.icon-4x.icon-border {
-  border-width: 4px;
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
-}
-
-.pull-right {
-  float: right;
-}
-
-.pull-left {
-  float: left;
-}
-
-[class^="icon-"].pull-left,
-[class*=" icon-"].pull-left {
-  margin-right: .3em;
-}
-
-[class^="icon-"].pull-right,
-[class*=" icon-"].pull-right {
-  margin-left: .3em;
-}
-
-.btn [class^="icon-"].pull-left.icon-2x,
-.btn [class*=" icon-"].pull-left.icon-2x,
-.btn [class^="icon-"].pull-right.icon-2x,
-.btn [class*=" icon-"].pull-right.icon-2x {
-  margin-top: .18em;
-}
-
-.btn [class^="icon-"].icon-spin.icon-large,
-.btn [class*=" icon-"].icon-spin.icon-large {
-  line-height: .8em;
-}
-
-.btn.btn-small [class^="icon-"].pull-left.icon-2x,
-.btn.btn-small [class*=" icon-"].pull-left.icon-2x,
-.btn.btn-small [class^="icon-"].pull-right.icon-2x,
-.btn.btn-small [class*=" icon-"].pull-right.icon-2x {
-  margin-top: .25em;
-}
-
-.btn.btn-large [class^="icon-"],
-.btn.btn-large [class*=" icon-"] {
-  margin-top: 0;
-}
-
-.btn.btn-large [class^="icon-"].pull-left.icon-2x,
-.btn.btn-large [class*=" icon-"].pull-left.icon-2x,
-.btn.btn-large [class^="icon-"].pull-right.icon-2x,
-.btn.btn-large [class*=" icon-"].pull-right.icon-2x {
-  margin-top: .05em;
-}
-
-.btn.btn-large [class^="icon-"].pull-left.icon-2x,
-.btn.btn-large [class*=" icon-"].pull-left.icon-2x {
-  margin-right: .2em;
-}
-
-.btn.btn-large [class^="icon-"].pull-right.icon-2x,
-.btn.btn-large [class*=" icon-"].pull-right.icon-2x {
-  margin-left: .2em;
-}
-
-.icon-spin {
-  display: inline-block;
-  -webkit-animation: spin 2s infinite linear;
-     -moz-animation: spin 2s infinite linear;
-       -o-animation: spin 2s infinite linear;
-          animation: spin 2s infinite linear;
-}
-
-@-moz-keyframes spin {
-  0% {
-    -moz-transform: rotate(0deg);
-  }
-  100% {
-    -moz-transform: rotate(359deg);
-  }
-}
-
-@-webkit-keyframes spin {
-  0% {
-    -webkit-transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(359deg);
-  }
-}
-
-@-o-keyframes spin {
-  0% {
-    -o-transform: rotate(0deg);
-  }
-  100% {
-    -o-transform: rotate(359deg);
-  }
-}
-
-@-ms-keyframes spin {
-  0% {
-    -ms-transform: rotate(0deg);
-  }
-  100% {
-    -ms-transform: rotate(359deg);
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(359deg);
-  }
-}
-
-@-moz-document url-prefix() {
-  .icon-spin {
-    height: .9em;
-  }
-  .btn .icon-spin {
-    height: auto;
-  }
-  .icon-spin.icon-large {
-    height: 1.25em;
-  }
-  .btn .icon-spin.icon-large {
-    height: .75em;
-  }
+  vertical-align: initial;
 }
 
 /*  Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
@@ -3447,164 +3212,8 @@ ul.icons li [class*=" icon-"] {
   content: "\f0ea";
 }
 
-.icon-lightbulb:before {
-  content: "\f0eb";
-}
-
-.icon-exchange:before {
-  content: "\f0ec";
-}
-
-.icon-cloud-download:before {
-  content: "\f0ed";
-}
-
-.icon-cloud-upload:before {
-  content: "\f0ee";
-}
-
 .icon-user-md:before {
-  content: "\f0f0";
-}
-
-.icon-stethoscope:before {
-  content: "\f0f1";
-}
-
-.icon-suitcase:before {
-  content: "\f0f2";
-}
-
-.icon-bell-alt:before {
-  content: "\f0f3";
-}
-
-.icon-coffee:before {
-  content: "\f0f4";
-}
-
-.icon-food:before {
-  content: "\f0f5";
-}
-
-.icon-file-alt:before {
-  content: "\f0f6";
-}
-
-.icon-building:before {
-  content: "\f0f7";
-}
-
-.icon-hospital:before {
-  content: "\f0f8";
-}
-
-.icon-ambulance:before {
-  content: "\f0f9";
-}
-
-.icon-medkit:before {
-  content: "\f0fa";
-}
-
-.icon-fighter-jet:before {
-  content: "\f0fb";
-}
-
-.icon-beer:before {
-  content: "\f0fc";
-}
-
-.icon-h-sign:before {
-  content: "\f0fd";
-}
-
-.icon-plus-sign-alt:before {
-  content: "\f0fe";
-}
-
-.icon-double-angle-left:before {
-  content: "\f100";
-}
-
-.icon-double-angle-right:before {
-  content: "\f101";
-}
-
-.icon-double-angle-up:before {
-  content: "\f102";
-}
-
-.icon-double-angle-down:before {
-  content: "\f103";
-}
-
-.icon-angle-left:before {
-  content: "\f104";
-}
-
-.icon-angle-right:before {
-  content: "\f105";
-}
-
-.icon-angle-up:before {
-  content: "\f106";
-}
-
-.icon-angle-down:before {
-  content: "\f107";
-}
-
-.icon-desktop:before {
-  content: "\f108";
-}
-
-.icon-laptop:before {
-  content: "\f109";
-}
-
-.icon-tablet:before {
-  content: "\f10a";
-}
-
-.icon-mobile-phone:before {
-  content: "\f10b";
-}
-
-.icon-circle-blank:before {
-  content: "\f10c";
-}
-
-.icon-quote-left:before {
-  content: "\f10d";
-}
-
-.icon-quote-right:before {
-  content: "\f10e";
-}
-
-.icon-spinner:before {
-  content: "\f110";
-}
-
-.icon-circle:before {
-  content: "\f111";
-}
-
-.icon-reply:before {
-  content: "\f112";
-}
-
-.icon-github-alt:before {
-  content: "\f113";
-}
-
-.icon-folder-close-alt:before {
-  content: "\f114";
-}
-
-.icon-folder-open-alt:before {
-  content: "\f115";
+  content: "\f200";
 }
 
 .dropup,
