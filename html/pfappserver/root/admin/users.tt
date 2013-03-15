@@ -16,6 +16,7 @@
         'admin/searches'
         ]
      cssFiles = [
+       'app/bootstrap-datepicker',
         ] -%]
 
 <style type="text/css">
