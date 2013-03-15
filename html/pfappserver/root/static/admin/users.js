@@ -63,7 +63,7 @@ function init() {
         return false;
     });
 
-    /* Save a node (from the modal editor) */
+    /* Save a user (from the modal editor) */
     $('body').on('click', '#updateUser', function(event) {
         var btn = $(this),
         modal = $('#modalUser'),
@@ -71,9 +71,9 @@ function init() {
         modal_body = modal.find('.modal-body'),
         url = $(this).attr('href'),
         valid = false;
-        btn.button('loading');
         valid = isFormValid(form);
         if (valid) {
+            btn.button('loading');
             $.ajax({
                 type: 'POST',
                 url: url,
