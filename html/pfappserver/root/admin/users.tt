@@ -68,7 +68,7 @@ form {
                     tab ='simple';
                 END%]
               <li>
-                <a data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash" data-href="[% c.uri_for(c.controller('SavedSearch::User').action_for('remove'),[ss.id])  %]"><i class="icon-trash pull-right"></i></span> </a>
+                <a href="#" data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::User').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span> </a>
                 <form>
                   [%FOREACH input IN form.keys.sort%]
                   <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
@@ -93,7 +93,7 @@ form {
                       <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
                       <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                       <ul class="dropdown-menu">
-                        <li><a id="simpleSavedSearchBtn" >[% l('Save as...') %]</a></li>
+                        <li><a href="#" id="simpleSavedSearchBtn" >[% l('Save as...') %]</a></li>
                       </ul>
                     </div>
                 </form>

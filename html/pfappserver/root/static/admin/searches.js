@@ -34,6 +34,9 @@ function saveSearchFromForm(form_id) {
         return false;
     });
     modal.modal('show');
+    modal.on('shown', function(event) {
+        $(this).find(':input:first').focus();
+    });
     return true;
 }
 
