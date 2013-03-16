@@ -57,11 +57,6 @@ before 'create' => sub {
     $c->request->parameters->{pid} = $c->user->id;
 };
 
-=item view
-
-=cut
-
-sub view {}
 
 __PACKAGE__->meta->make_immutable;
 

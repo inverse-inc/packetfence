@@ -57,12 +57,6 @@ before 'create' => sub {
 };
 
 
-=item view
-
-=cut
-
-sub view {}
-
 __PACKAGE__->meta->make_immutable;
 
 =back
