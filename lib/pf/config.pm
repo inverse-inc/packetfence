@@ -99,6 +99,7 @@ BEGIN {
         $LOG4PERL_RELOAD_TIMER
         init_config
         profiles_config_file
+        $switches_config_file
     );
 }
 
@@ -326,6 +327,7 @@ WARNING: This has been recently introduced and was not tested with our
 multi-threaded daemons.
 
 =cut
+
 sub init_config {
     readPfConfigFiles();
     readNetworkConfigFile();
@@ -355,6 +357,7 @@ sub ipset_version {
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
 
 =cut
+
 sub readPfConfigFiles {
 
     # load default and override by local config (most common case)
@@ -525,6 +528,7 @@ sub _set_guest_self_registration {
 =item readNetworkConfigFiles - networks.conf
 
 =cut
+
 sub readNetworkConfigFile {
 
     tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file, -allowempty => 1 );
@@ -567,6 +571,7 @@ sub readNetworkConfigFile {
 =item readFloatingNetworkDeviceFile - floating_network_device.conf
 
 =cut
+
 sub readFloatingNetworkDeviceFile {
 
     tie %ConfigFloatingDevices, 'Config::IniFiles', ( -file => $floating_devices_file, -allowempty => 1 );
@@ -594,6 +599,7 @@ sub readFloatingNetworkDeviceFile {
 =item readOAuthFile - oauth2-ips.conf
 
 =cut
+
 sub readOAuthFile {
     tie %ConfigOAuth, 'Config::IniFiles', ( -file => $oauth_ip_file, -allowempty => 1 );
     my @errors = @Config::IniFiles::errors;
@@ -614,6 +620,7 @@ sub readOAuthFile {
 Months and years are approximate. Do not use for anything serious about time.
 
 =cut
+
 sub normalize_time {
     my ($date) = @_;
     if ( $date =~ /^\d+$/ ) {
@@ -638,6 +645,7 @@ sub normalize_time {
 Returns true or false based on if vlan enforcement is enabled or not
 
 =cut
+
 sub is_vlan_enforcement_enabled {
 
     # cache hit
@@ -664,6 +672,7 @@ sub is_vlan_enforcement_enabled {
 Returns true or false based on if inline enforcement is enabled or not
 
 =cut
+
 sub is_inline_enforcement_enabled {
 
     # cache hit
@@ -692,6 +701,7 @@ Returns the type of a network. The call encapsulate the type configuration chang
 Returns undef on unrecognized types.
 
 =cut
+
 # TODO we can deprecate isolation / registration in 2012
 sub get_network_type {
     my ($network) = @_;
@@ -733,6 +743,7 @@ sub get_network_type {
 Returns true if given network is of type vlan-registration and false otherwise.
 
 =cut
+
 sub is_network_type_vlan_reg {
     my ($network) = @_;
 
@@ -749,6 +760,7 @@ sub is_network_type_vlan_reg {
 Returns true if given network is of type vlan-isolation and false otherwise.
 
 =cut
+
 sub is_network_type_vlan_isol {
     my ($network) = @_;
 
@@ -765,6 +777,7 @@ sub is_network_type_vlan_isol {
 Returns true if given network is of type inline and false otherwise.
 
 =cut
+
 sub is_network_type_inline {
     my ($network) = @_;
 
@@ -783,6 +796,7 @@ Searches for an item in a comma separated list of elements (like we do in our co
 Returns true or false values based on if item was found or not.
 
 =cut
+
 sub is_in_list {
     my ($item, $list) = @_;
     my @list = split( /\s*,\s*/, $list );
@@ -802,6 +816,7 @@ We return the first vip that matches the above criteria in decimal dotted notati
 Undef if nothing is found.
 
 =cut
+
 # TODO IPv6 support
 sub _fetch_virtual_ip {
     my ($interface, $config_section) = @_;
@@ -827,6 +842,7 @@ sub _fetch_virtual_ip {
 Populate captive portal related configuration and constants.
 
 =cut
+
 sub _load_captive_portal {
 
     # CAPTIVE-PORTAL RELATED
@@ -861,12 +877,13 @@ sub _load_captive_portal {
     ;
 }
 
-=item * isenabled
+=item isenabled
 
 Is the given configuration parameter considered enabled? y, yes, true, enable
 and enabled are all positive values for PacketFence.
 
 =cut
+
 sub isenabled {
     my ($enabled) = @_;
     if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
