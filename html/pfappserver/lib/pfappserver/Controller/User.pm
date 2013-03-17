@@ -42,6 +42,7 @@ sub index :Path :Args(0) {
 =head2 simple_search
 
 =cut
+
 sub simple_search :SimpleSearch('User') :Local :Args() { }
 
 =head2 object
@@ -49,6 +50,7 @@ sub simple_search :SimpleSearch('User') :Local :Args() { }
 User controller dispatcher
 
 =cut
+
 sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
     my ( $self, $c, $pid ) = @_;
 
@@ -75,6 +77,7 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
 =head2 read
 
 =cut
+
 sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
@@ -248,7 +251,11 @@ sub create :Local {
 
 =head2 advanced_search
 
+Perform advanced search for user
+/user/advanced_search
+
 =cut
+
 sub advanced_search :Local :Args() {
     my ($self, $c) = @_;
     my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
