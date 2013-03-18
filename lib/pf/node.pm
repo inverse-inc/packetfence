@@ -70,6 +70,7 @@ BEGIN {
         is_max_reg_nodes_reached
         node_search
         $STATUS_REGISTERED
+        node_last_reg
     );
 }
 
@@ -298,6 +299,8 @@ sub node_db_prepare {
     $node_statements->{'node_update_lastarp_sql'} = get_db_handle()->prepare(qq [ update node set last_arp=now() where mac=? ]);
 
     $node_statements->{'node_search_sql'} = get_db_handle()->prepare(qq [ select mac from node where mac LIKE CONCAT(?,'%') ]);
+
+    $node_statements->{'node_last_reg_sql'} = get_db_handle()->prepare(qq [ select mac from node order by regdate DESC LIMIT 1,1 ]);
 
     $node_db_prepared = 1;
     return 1;
@@ -1038,6 +1041,20 @@ sub is_max_reg_nodes_reached {
                  );
     return $TRUE;
 }
+
+=item node_last_reg
+
+Return the last mac that has been register
+May be sometimes usefull for custom
+
+=cut
+sub node_last_reg {
+    my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_sql') || return (0);
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
+}
+
 
 =back
 
