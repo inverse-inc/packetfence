@@ -65,7 +65,7 @@ sub _format_section :Private {
         my $entry_ref = $entries_ref->[$i];
 
         # Try to be smart. Description that refers to a comma-delimited list must be bigger.
-        if ($entry_ref->{type} eq "text" && $entry_ref->{description} =~ m/comma-delimite/i) {
+        if ($entry_ref->{type} eq "text" && $entry_ref->{description} =~ m/comma[-\s](delimite|separate)/si) {
             $entry_ref->{type} = 'text-large';
         }
 
