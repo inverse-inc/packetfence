@@ -22,6 +22,7 @@ use UNIVERSAL::require;
 use Log::Log4perl;
 
 use pf::config;
+use pf::config::cached::switches;
 use pf::util;
 
 my $singleton;
@@ -35,6 +36,7 @@ my $singleton;
 Get the singleton instance of switchFactory. Create it if it doesn't exist.
 
 =cut
+
 sub getInstance {
     my ( $class, %args ) = @_;
 
@@ -50,8 +52,9 @@ sub getInstance {
 Create a switchFactory instance
 
 =cut
+
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("instantiating new SwitchFactory object");
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -69,7 +72,7 @@ sub new {
         $this->{_configFile} = $conf_dir.'/switches.conf';
     }
 
-    $this->readConfig();
+    $this->{_cache} = new pf::config::cached::switches( {configFile => $this->{_configFile}} );
 
     return $this;
 }
@@ -81,9 +84,9 @@ sub new {
 =cut
 
 sub instantiate {
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ( $this, $requestedSwitch ) = @_;
-    my %SwitchConfig = %{ $this->{_config} };
+    my %SwitchConfig = %{ $this->config };
     if ( !exists $SwitchConfig{$requestedSwitch} ) {
         $logger->error("ERROR ! Unknown switch $requestedSwitch");
         return 0;
@@ -145,7 +148,7 @@ sub instantiate {
     # transforming inlineTrigger to array
     my @inlineTrigger = ();
     if ( $SwitchConfig{$requestedSwitch}{'inlineTrigger'} || $SwitchConfig{'default'}{'inlineTrigger'} ) {
-        my @_inlineTrigger_tmp = 
+        my @_inlineTrigger_tmp =
             split(/,/,($SwitchConfig{$requestedSwitch}{'inlineTrigger'} || $SwitchConfig{'default'}{'inlineTrigger'}));
 
         foreach my $_tmp (@_inlineTrigger_tmp) {
@@ -323,47 +326,10 @@ sub instantiate {
     );
 }
 
-=item readConfig - read configuration file
-
-  $switchFactory->readConfig();
-
-=cut
-
-sub readConfig {
-    my $this   = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
-    $logger->debug("reading config file $this->{_configFile}");
-    if ( !defined( $this->{_configFile} ) ) {
-        croak "Config file has not been defined\n";
-    }
-    my %SwitchConfig;
-    if ( !-e $this->{_configFile} ) {
-        croak "Config file " . $this->{_configFile} . " cannot be read\n";
-    }
-    tie %SwitchConfig, 'Config::IniFiles', ( -file => $this->{_configFile} );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        croak "Error reading config file: " . join( "\n", @errors ) . "\n";
-    }
-
-    #remove trailing spaces..
-    foreach my $section ( tied(%SwitchConfig)->Sections ) {
-        foreach my $key ( keys %{ $SwitchConfig{$section} } ) {
-            $SwitchConfig{$section}{$key} =~ s/\s+$//;
-        }
-    }
-    #Prevent the presence of 127.0.0.1 in switches.conf
-    if (defined($SwitchConfig{'127.0.0.1'})) {
-        delete $SwitchConfig{'127.0.0.1'};
-    }
-
-    #Instanciate 127.0.0.1 switch
-    $SwitchConfig{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
-
-
-    %{ $this->{_config} } = %SwitchConfig;
-
-    return 1;
+sub config {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    return $self->{_cache}->config();
 }
 
 =back
@@ -372,7 +338,7 @@ sub readConfig {
 
 Copyright (C) 2006-2013 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

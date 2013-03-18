@@ -183,7 +183,8 @@ my $switchFactory_locker : shared;
 my @completeThreadList;
 
 my %switch_locker : shared;
-foreach my $switch_ip ( sort keys %{ $switchFactory->{_config} } ) {
+
+foreach my $switch_ip ( sort keys %{ $switchFactory->config } ) {
     if ( $switch_ip ne 'default' ) {
         $switch_locker{$switch_ip} = &share( {} );
     }
@@ -471,6 +472,7 @@ sub signalHandlerTrapListQueued {
                         my ( $switch_ip, $switch_port, $trapType, $trapVlan,
                             $trapOperation, $trapMac )
                             = split( /\|/, $trapLine );
+                        add_to_switch_locker($switch_ip);
                         my $switch = $switchFactory->instantiate($switch_ip);
                         if (!$switch) {
                             $logger->error("Can not instantiate switch $switch_ip !");
@@ -559,11 +561,12 @@ sub parseTrap {
             $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
             $switch_ip = $2;
             $logger->info("local (127.0.0.1) trap for switch $switch_ip");
+            add_to_switch_locker($switch_ip);
             $switch = $switchFactory->instantiate($switch_ip);
         } else {
             lock $switchFactory_locker;
             $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
-            my %config = %{ $switchFactory->{_config} };
+            my %config = %{ $switchFactory->config };
             $switch_ip = $1;
             if ( !exists $config{$switch_ip} ) {
                 $logger->warn("We have received a trap from switch $switch_ip. This switch is UNREGISTERED. Flush the trap");
@@ -573,6 +576,7 @@ sub parseTrap {
                 $logger->info("We have received a trap from switch $switch_ip. This switch is in 'ignore' mode. Flush the trap");
                 return;
             }
+            add_to_switch_locker($switch_ip);
             $switch = $switchFactory->instantiate($switch_ip);
         }
         $lockLogger->trace(
@@ -919,6 +923,7 @@ sub handleTrap {
     {
         lock $switchFactory_locker;
         $lockLogger->trace("locking - obtained lock on switchFactory_locker in handleTrap");
+        add_to_switch_locker($switch_ip);
         $switch = $switchFactory->instantiate($switch_ip);
     }
     $lockLogger->trace("locking - unlocked switchFactory_locker in handleTrap");
@@ -1700,8 +1705,8 @@ sub handleTrap {
     } elsif ( $trapType eq 'roaming' ) {
         my $switchIp = $switch->{_ip};
         locationlog_synchronize($switchIp, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID );
-     
-    } 
+
+    }
 
     # cleanupAfterThread {{{2
     cleanupAfterThread( $switch_ip, $switch_port );
@@ -1924,7 +1929,7 @@ sub do_port_security {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($mac);
     if ( defined($locationlog_mac) &&
-         ( exists($switchFactory->{_config}{$locationlog_mac->{'switch'}}) )
+         ( exists($switchFactory->config->{$locationlog_mac->{'switch'}}) )
        ) {
         my $old_switch = $locationlog_mac->{'switch'};
         my $old_port   = $locationlog_mac->{'port'};
@@ -1947,6 +1952,7 @@ sub do_port_security {
                 {
                     lock $switchFactory_locker;
                     $lockLogger->trace("locking - obtained lock on switchFactory_locker in $trapType handling");
+                    add_to_switch_locker($switch_ip);
                     $oldSwitch = $switchFactory->instantiate($old_switch);
                 }
                 $lockLogger->trace("locking - unlocked switchFactory_locker in $trapType handling");
@@ -2051,6 +2057,21 @@ sub handle_wireless_ips {
    }
 
    return;
+}
+
+=head2 add_to_switch_locker
+
+add switch to switch_locker
+This function should be called before or after each instance
+
+=cut
+
+sub add_to_switch_locker {
+    my ($switch_ip) = @_;
+    my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
+    lock %switch_locker;
+    $switch_locker{$switch_ip} = &share({})
+        unless exists $switch_locker{$switch_ip} ;
 }
 
 END {
