@@ -125,20 +125,15 @@ is($switch->getRoleByName('guest'), 'restricted', 'normal role lookup (from cach
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup (from cache)');
 
 $switch = $switchFactory->instantiate('10.0.0.7');
-is($switch->getRoleByName('guest'), 'restricted', 'normal role lookup with an ending ; (not cached)');
-is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup with an ending ; (from cache)');
-is($switch->getRoleByName('guest'), 'restricted', 'normal role lookup with an ending ; (from cache)');
-
-$switch = $switchFactory->instantiate('10.0.0.8');
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup with undefined role (not cached)');
 is($switch->getRoleByName('guest'), undef, 'expecting undef (from cache)');
 is($switch->getRoleByName('admin'), 'full-access', 'normal role lookup with undefined role (from cache)');
 
-$switch = $switchFactory->instantiate('10.0.0.9');
+$switch = $switchFactory->instantiate('10.0.0.8');
 is($switch->getRoleByName('admin'), undef, 'category but no assignment expecting undef (not cached)');
 is($switch->getRoleByName('admin'), undef, 'category but no assignment expecting undef (from cache)');
 
-$switch = $switchFactory->instantiate('10.0.0.10');
+$switch = $switchFactory->instantiate('10.0.0.9');
 is($switch->getRoleByName('admin'), undef, 'roles not configured expecting undef (not cached)');
 is($switch->getRoleByName('admin'), undef, 'roles not configured expecting undef (from cache)');
 

@@ -49,7 +49,7 @@ is( $switch->{_wsPwd},       'webservices_pwd',    'web services pwd of 192.168.
 # RADIUS Secret parameter tests
 is( $switch->{_radiusSecret}, 'bigsecret', 'RADIUS secret of 192.168.0.1' );
 
-is( $switch->{_voiceVlan},    '10',        'voice VLAN of 192.168.0.1' );
+is( $switch->getVlanByName('voice'),    '10',        'voice VLAN of 192.168.0.1' );
 is( $switch->{_SNMPEngineID},
     '0123456', 'SNMP Engine ID of 192.168.0.1' );
 is( $switch->{_SNMPUserNameRead},
