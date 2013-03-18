@@ -129,6 +129,7 @@ sub instantiate {
     my %vlans = ();
     my %roles = ();
     foreach my $key (keys %{$SwitchConfig{$requestedSwitch}}) {
+        next unless $SwitchConfig{$requestedSwitch}{$key};
         if (my ($vlan) = $key =~ m/^(\w+)Vlan$/) {
             $vlans{$vlan} = $SwitchConfig{$requestedSwitch}{$key};
         }
@@ -137,6 +138,7 @@ sub instantiate {
         }
     }
     foreach my $key (keys %{$SwitchConfig{default}}) {
+        next unless $SwitchConfig{default}{$key};
         if (my ($vlan) = $key =~ m/^(\w+)Vlan$/) {
             $vlans{$vlan} = $SwitchConfig{default}{$key} unless ($vlans{$vlan});
         }
