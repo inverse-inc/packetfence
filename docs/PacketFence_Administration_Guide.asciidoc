@@ -644,7 +644,7 @@ to register on an other inline interface PacketFence detect that the node is alr
 It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
 ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
-Introduced in PacketFence 3.6, the outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma limited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network section.
+Introduced in PacketFence 3.6, the outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network section.
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
