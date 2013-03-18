@@ -290,6 +290,9 @@ msgstr "Guests self-registration"
 msgid "registration.billing_engine"
 msgstr "Billing engine"
 
+msgid "registration.gaming_devices_registration"
+msgstr "Gaming devices"
+
 #: conf/pf.conf.defaults:250
 msgid "guests_self_registration"
 msgstr "Self registration"
