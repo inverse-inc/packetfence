@@ -253,13 +253,12 @@ Requires: perl >= 5.8.0, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML
 Requires: perl(SOAP::Lite)
 Conflicts: %{real_name}
 AutoReqProv: 0
-Summary: Files needed for fetching mac and ip from arp request to packetfence
+Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
 BuildArch: noarch
 
 %description -n %{real_name}-remote-arp-sensor
 The %{real_name}-remote-arp-sensor package contains the files needed
-for sending mac and ip from arp request to a PacketFence
-server.
+for sending MAC and IP from ARP requests to a PacketFence server.
 
 
 %package -n %{real_name}-pfcmd-suid
@@ -544,7 +543,7 @@ echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
 
 %post -n %{real_name}-remote-arp-sensor
-echo "Adding PacketFence remote arp Sensor startup script"
+echo "Adding PacketFence remote ARP Sensor startup script"
 /sbin/chkconfig --add pfarp
 
 %preun -n %{real_name}

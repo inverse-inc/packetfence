@@ -2,10 +2,8 @@
 #
 # Init script for PacketFence remote arp sensor
 #
-# Written by Dominik Gehl <dgehl@inverse.ca>
-#
 # chkconfig: - 35 65
-# description: PacketFence remote arp sensor
+# description: PacketFence remote ARP sensor
 #
 # processname: 
 # config: /usr/local/pf/conf/pfarp_remote.conf
