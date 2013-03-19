@@ -86,7 +86,7 @@ $service_launchers{'pfmon'} = '%1$s -d &';
 $service_launchers{'pfdhcplistener'} = '%1$s -i %2$s -d &';
 $service_launchers{'pfsetvlan'} = '%1$s -d &';
 # TODO the following join on @listen_ints will cause problems with dynamic config reloading
-$service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf " . join(" ", @listen_ints);
+$service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints);
 $service_launchers{'named'} = "%1\$s -u pf -c $generated_conf_dir/named.conf";
 $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
 $service_launchers{'radiusd'} = "%1\$s -d $install_dir/raddb/";
@@ -266,9 +266,9 @@ sub service_ctl {
                                 sleep(2);
                                 $curWait++;
                             }
-                            if ( -e $install_dir . "/var/$binary.pid" ) {
-                                $logger->info("Removing $install_dir/var/$binary.pid");
-                                unlink( $install_dir . "/var/$binary.pid" );
+                            if ( -e $install_dir . "/var/run/$binary.pid" ) {
+                                $logger->info("Removing $install_dir/var/run/$binary.pid");
+                                unlink( $install_dir . "/var/run/$binary.pid" );
                             }
                         }
                     }
@@ -300,9 +300,9 @@ sub service_ctl {
                             sleep(2);
                             $curWait++;
                         }
-                        if ( -e $install_dir . "/var/$binary.pid" ) {
-                            $logger->info("Removing $install_dir/var/$binary.pid");
-                            unlink( $install_dir . "/var/$binary.pid" );
+                        if ( -e $install_dir . "/var/run/$binary.pid" ) {
+                            $logger->info("Removing $install_dir/var/run/$binary.pid");
+                            unlink( $install_dir . "/var/run/$binary.pid" );
                         }
                     }
                 }
@@ -320,7 +320,9 @@ sub service_ctl {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
                 if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.soap") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.captport") ) ) {
-                    chomp( $pid = `pidof -x $binary` );
+                    if (-e "$install_dir/var/run/$daemon.pid") {
+                        chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
+                    }
                     $pid = 0 if ( !$pid );
                     $logger->info("pidof -x $binary returned $pid");
                     return ($pid);
