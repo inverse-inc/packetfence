@@ -22,7 +22,7 @@ use UNIVERSAL::require;
 use Log::Log4perl;
 
 use pf::config;
-use pf::config::cached::switches;
+use pf::config::cached;
 use pf::util;
 
 my $singleton;
@@ -72,7 +72,8 @@ sub new {
         $this->{_configFile} = $conf_dir.'/switches.conf';
     }
 
-    $this->{_cache} = new pf::config::cached::switches( {configFile => $this->{_configFile}} );
+    tie my %cache_config, 'pf::config::cached' => ( -file => $this->{_configFile} );
+    $this->{_config} = \%cache_config;
 
     return $this;
 }
@@ -328,10 +329,31 @@ sub instantiate {
     );
 }
 
+sub _fixupConfig {
+    my ($self) = @_;
+    my $config = $self->{_config};
+    foreach my $section ( keys %$config ) {
+        foreach my $key ( keys %{ $config->{$section} } ) {
+            $config->{$section}{$key} =~ s/\s+$//;
+        }
+    }
+    $config->{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
+    if(exists $config->{'default'}) {
+        my %default_values = %{$config->{'default'}};
+        foreach my $section ( grep { $_ ne 'default' }  keys %$config ) {
+            $config->{$section}  = { %default_values , %{$config->{$section}} };
+        }
+    }
+}
+
 sub config {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    return $self->{_cache}->config();
+    my $tied_config = tied (%{$self->{_config}});
+    if ($tied_config->ReadConfig && $tied_config->{reloaded} ) {
+        $self->_fixupConfig();
+    }
+    return $self->{_config};
 }
 
 =back
