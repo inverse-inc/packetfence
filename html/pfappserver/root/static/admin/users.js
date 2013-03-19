@@ -183,6 +183,8 @@ function init() {
     $('#modalUser').on('admin.added','tr', function(event) {
         var that = $(this);
         that.find(':input').removeAttr('disabled');
+        var type = that.find('select[name$=type]').first();
+        updateAction(type);
     });
 
     $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
