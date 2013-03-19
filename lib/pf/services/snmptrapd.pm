@@ -50,7 +50,7 @@ sub generate_snmptrapd_conf {
     $tags{'authLines'} = '';
     $tags{'userLines'} = '';
 
-    foreach my $user_key ( sort keys %$snmpv3_users ) { 
+    foreach my $user_key ( sort keys %$snmpv3_users ) {
         $tags{'userLines'} .= "createUser " . $snmpv3_users->{$user_key} . "\n";
 
         # grabbing only the username portion of the key
@@ -73,11 +73,12 @@ sub generate_snmptrapd_conf {
 Returns a tuple of two hashref. One with SNMPv3 Trap Users Auth parameters and one with unique communities.
 
 =cut
+
 sub _fetch_trap_users_and_communities {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $switchFactory = pf::SwitchFactory->getInstance();
-    my %switchConfig = %{ $switchFactory->{_config} };
+    my %switchConfig = %{ $switchFactory->config };
 
     my (%snmpv3_users, %snmp_communities);
     foreach my $key ( sort keys %switchConfig ) {
@@ -89,7 +90,7 @@ sub _fetch_trap_users_and_communities {
             $logger->error("Can not instantiate switch $key!");
         } else {
             if ( $switch->{_SNMPVersionTrap} eq '3' ) {
-                $snmpv3_users{"$switch->{_SNMPEngineID} $switch->{_SNMPUserNameTrap}"} = 
+                $snmpv3_users{"$switch->{_SNMPEngineID} $switch->{_SNMPUserNameTrap}"} =
                     '-e ' . $switch->{_SNMPEngineID} . ' ' . $switch->{_SNMPUserNameTrap} . ' '
                     . $switch->{_SNMPAuthProtocolTrap} . ' ' . $switch->{_SNMPAuthPasswordTrap} . ' '
                     . $switch->{_SNMPPrivProtocolTrap} . ' ' . $switch->{_SNMPPrivPasswordTrap}
