@@ -207,6 +207,7 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
+Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
 # configuration-wizard
 Requires: iproute, vconfig
