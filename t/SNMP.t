@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 33;
+use Test::More tests => 30;
 use Test::NoWarnings;
 
 use lib '/usr/local/pf/lib';
