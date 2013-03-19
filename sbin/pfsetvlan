@@ -1952,7 +1952,7 @@ sub do_port_security {
                 {
                     lock $switchFactory_locker;
                     $lockLogger->trace("locking - obtained lock on switchFactory_locker in $trapType handling");
-                    add_to_switch_locker($switch_ip);
+                    add_to_switch_locker($old_switch);
                     $oldSwitch = $switchFactory->instantiate($old_switch);
                 }
                 $lockLogger->trace("locking - unlocked switchFactory_locker in $trapType handling");
