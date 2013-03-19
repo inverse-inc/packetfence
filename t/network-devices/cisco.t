@@ -52,7 +52,7 @@ foreach my $nasPort (keys %nasPortIfIndex) {
 
 # Catalyst 3750G tests
 
-$switch = $switchFactory->instantiate('10.0.0.11');
+$switch = $switchFactory->instantiate('10.0.0.10');
 
 # sample NAS-Port -> ifIndex mappings
 %nasPortIfIndex = (
