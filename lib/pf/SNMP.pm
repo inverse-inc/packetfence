@@ -134,7 +134,7 @@ sub supportsRoleBasedEnforcement {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if (defined($this->{'_roles'}) && scalar(%{$this->{'_roles'}}) > 0) {
+    if (defined($this->{'_roles'}) && %{$this->{'_roles'}}) {
         $logger->warn(
             "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
         );
@@ -297,7 +297,7 @@ sub new {
         } elsif (/^-?radiusSecret$/i) {
             $this->{_radiusSecret} = $argv{$_};
         } elsif (/^-?controllerIp$/i) {
-            $this->{_controllerIp} = lc($argv{$_});
+            $this->{_controllerIp} = $argv{$_}? lc($argv{$_}) : undef;
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
@@ -697,7 +697,7 @@ sub getRoleByName {
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # skip if not defined or empty
-    return if (!defined($this->{'_roles'}) || scalar(%{$this->{'_roles'}}) == 0);
+    return if (!defined($this->{'_roles'}) || !%{$this->{'_roles'}});
 
     # return if found
     return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
