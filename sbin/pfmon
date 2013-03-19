@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/perl
 
 =head1 NAME
 
@@ -35,6 +35,7 @@ use lib INSTALL_DIR . "/lib";
 
 use pf::accounting qw(acct_maintenance);
 use pf::config;
+use pf::config::cached;
 use pf::iplog;
 use pf::locationlog;
 use pf::node;
@@ -122,7 +123,7 @@ exit(0);
 
 Listens to ARP traffic and logs.
 
-In PacketFence 3.0 we dropped support for ARP mode. This method has been 
+In PacketFence 3.0 we dropped support for ARP mode. This method has been
 severely crippled as part of that work. However it has been kept around since
 we might introduce ARP surveillance in the future.
 
@@ -228,6 +229,8 @@ sub cleanup {
 
             $logger->info("checking accounting data for potential bandwidth abuse");
             acct_maintenance();
+            #reload all cached configs after each iteration
+            pf::config::cached::ReloadConfigs();
         }
 
         sleep $Config{'general'}{'maintenance_interval'};
@@ -242,7 +245,7 @@ Encapsulate the ARP packet decoding.
 sub decode {
     my $pkt = shift;
 
-    my ($m1, $m2, $proto, $hwas, $pas, $hwal, $pal, $opcode, $sha, $spa, $tha, $tpa) 
+    my ($m1, $m2, $proto, $hwas, $pas, $hwal, $pal, $opcode, $sha, $spa, $tha, $tpa)
         = unpack( 'H12H12nnnCCnH12NH12N', $pkt );
 
     return ($opcode, clean_mac($sha), int2ip($spa), clean_mac($tha), int2ip($tpa));

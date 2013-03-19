@@ -1,4 +1,4 @@
-#!/usr/bin/perl 
+#!/usr/bin/perl
 
 =head1 NAME
 
@@ -30,6 +30,7 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
+use pf::config::cached;
 use pf::db;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::iplog;
@@ -167,6 +168,8 @@ sub dhcp_detector {
 sub process_pkt {
     my ( $user_data, $hdr, $pkt ) = @_;
     listen_dhcp( $pkt, $user_data );
+    #reload all cached configs after each iteration
+    pf::config::cached::ReloadConfigs();
 }
 
 sub listen_dhcp {
@@ -192,7 +195,7 @@ sub listen_dhcp {
     my ($ether_type, undef) = unpack("x[12]nC*", $packet);
     if ($ether_type != NetPacket::Ethernet::ETH_TYPE_IP) {
       return;
-    } 
+    }
 
     # we need success flag here because we can't next inside try catch
     my $success;
@@ -251,9 +254,9 @@ sub listen_dhcp {
     #   6     DHCPNAK
     #   7     DHCPRELEASE
     #   8     DHCPINFORM
- 
+
     if ( $dhcp->{'op'} == 2 ) {
-        parse_dhcp_offer($dhcp) if ( $dhcp->{'options'}{'53'} == 2 ); 
+        parse_dhcp_offer($dhcp) if ( $dhcp->{'options'}{'53'} == 2 );
 
         parse_dhcp_ack($dhcp) if ( $dhcp->{'options'}{'53'} == 5 );
 
@@ -273,8 +276,8 @@ sub listen_dhcp {
             parse_dhcp_option82($dhcp);
         }
 
-        # updating the node first 
-        # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes 
+        # updating the node first
+        # in case the fingerprint generates a violation and that autoreg uses fingerprint to auto-categorize nodes
         # see #1216 for details
         my %tmp;
         $tmp{'dhcp_fingerprint'} = defined($dhcp->{'options'}{'55'}) ? $dhcp->{'options'}{'55'} : '';
@@ -363,13 +366,13 @@ sub parse_dhcp_ack {
     my $s_ip = $dhcp->{'src_ip'};
     my $s_mac = $dhcp->{'src_mac'};
     my $lease_length = $dhcp->{'options'}->{'51'};
-    
+
     if ($dhcp->{'yiaddr'} !~ /^0\.0\.0\.0$/) {
 
         $logger->info(
             "DHCPACK from $s_ip ($s_mac) to host $dhcp->{'chaddr'} ($dhcp->{yiaddr})"
             . ( defined($lease_length) ? " for $lease_length seconds" : "" )
-        );  
+        );
         update_iplog( $dhcp->{'chaddr'}, $dhcp->{'yiaddr'}, $lease_length );
 
     } elsif ($dhcp->{'ciaddr'} !~ /^0\.0\.0\.0$/) {
@@ -459,7 +462,7 @@ sub rogue_dhcp_handling {
         while ( @{ $rogue_servers{$dhcp_srv_ip} } ) {
             $rogue_message{'message'} .= pop( @{ $rogue_servers{$dhcp_srv_ip} } );
         }
-        $rogue_message{'message'} .= 
+        $rogue_message{'message'} .=
             "\n\nIf this DHCP Server is legitimate, make sure to add it to the dhcpservers list under General.\n"
         ;
         pfmailer(%rogue_message);
@@ -526,7 +529,7 @@ sub update_iplog {
 
 =over
 
-=item Calls violation_trigger for every matching DHCP fingerprint type and class. 
+=item Calls violation_trigger for every matching DHCP fingerprint type and class.
 
 =item Logs unknown fingerprints
 
