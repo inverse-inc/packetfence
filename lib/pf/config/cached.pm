@@ -17,41 +17,134 @@ use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use CHI;
 use Config::IniFiles;
-use Moose;
+use Scalar::Util qw(refaddr);
 
-has configFile => (
-    is => 'ro',
-    'required' => 1,
-);
-
-has cache => (
-    is => 'ro',
-    lazy => 1,
-    builder => '_cache_builder'
-);
+our $CACHE;
+our %LOADED_CONFIGS;
 
 =head2 Methods
 
 =over
+=item new
 
-=item _cache_builder
+Creates a new pf::config::cached proxy for Config::IniFiles
+
+=cut
+
+sub new {
+    my ($class,%params) = @_;
+    my $self = {};
+    my $file = $params{'-file'};
+    $self->{config} = $class->computeFromPath(
+        $file,
+        sub {
+            return Config::IniFiles->new(%params);
+        }
+    );
+    push @{$LOADED_CONFIGS{$file}},$self;
+    bless $self,$class;
+    return $self;
+}
+
+
+=item ReadConfig
+
+=cut
+
+sub ReadConfig {
+    my ($self) = @_;
+    my $config = $self->{config};
+    my $cache  = $self->cache;
+    my $file   = $config->{cf};
+    my $reloaded = 0;
+    my $reloaded_from_cache = 0;
+    my $result;
+    $self->{config} = $self->computeFromPath(
+        $file,
+        sub {
+            #reread files
+            $result = $config->ReadConfig();
+            $reloaded = 1;
+            return $config;
+        }
+    );
+    if (refaddr($config) != refaddr($self->{config})) {
+        $reloaded = 1;
+        $reloaded_from_cache = 1;
+    }
+    $self->{reloaded} = $reloaded;
+    $self->{reloaded_from_cache} = $reloaded_from_cache;
+    return $result;
+}
+
+
+sub TIEHASH {
+    my ($proto,@args) = @_;
+    return $proto->new(@args);
+}
+
+=item AUTOLOAD
+
+=cut
+
+sub AUTOLOAD {
+    my ($self) = @_;
+    my $command = our $AUTOLOAD;
+    $command =~ s/.*://;
+    if(Config::IniFiles->can($command) ) {
+        no strict qw{refs};
+        *$AUTOLOAD = sub  {
+            my ($self,@args) = @_;
+            return  wantarray ? ($self->{config}->$command(@args)) : scalar $self->{config}->$command(@args);
+        };
+        goto &$AUTOLOAD;
+    }
+    die;
+}
+
+=item computeFromPath
+
+=cut
+
+sub computeFromPath {
+    my ($self,$file,$computeSub) = @_;
+    return $self->cache->compute(
+        $file,
+        {
+            expire_if => \&_expire_if
+        },
+        $computeSub
+    );
+}
+
+=item cache - get the global CACHE object
+
+=cut
+
+sub cache {
+    my ($self) = @_;
+    unless (defined($CACHE)) {
+        $CACHE = $self->_cache();
+    }
+    return $CACHE;
+}
+
+=item _cache
 
 builds the CHI cache object
 
 =cut
 
-sub _cache_builder {
-    my ($self) = @_;
+sub _cache {
     return CHI->new(
         driver => 'Memcached',   # or 'Memcached::Fast', or 'Memcached::libmemcached'
-        namespace => ref($self) || $self ,
+        namespace => __PACKAGE__,
         servers => ['localhost:11211'],
         l1_cache => {
             driver => 'RawMemory', global => 1
         }
     );
 }
-
 
 =item _expire_if
 
@@ -61,104 +154,37 @@ check to see if the config file needs to be reread
 
 sub _expire_if {
     my ($cache_object) = @_;
-    return $cache_object->created_at < (stat($cache_object->key()))[9];
+    return $cache_object->created_at < get_mod_timestamp($cache_object->key);
 }
 
+=item get_mod_timestamp
 
-=item config
-
-gets the current copy of the cached config
 
 =cut
 
-sub config {
-    my ($self) = @_;
-    my $file_name = $self->configFile;
-    return $self->cache->compute($file_name,
-        {
-            expire_if => \&_expire_if
-        } ,
-        sub {
-            my %ini;
-            my $ini_conf = tie %ini, 'Config::IniFiles', ( -file => $file_name,-allowempty => 1);
-            my %config;
-            foreach my $section (keys %ini) {
-                my %section_hash = %{$ini{$section}};
-                $config{$section} = \%section_hash;
-            }
-            $ini_conf  = undef;
-            untie (%ini);
-            $self->fixupConfig(\%config);
-            return \%config;
-        }
-    );
+sub get_mod_timestamp {
+    return (stat($_[0]))[9];
 }
 
-=item fixupConfig
 
-allows configuration to be modified before being stored
+=item ReloadConfigs
+
+ReloadConfigs reload all configs
 
 =cut
 
-sub fixupConfig { }
-
-sub TIEHASH {
-    my ($proto,@args) = @_;
-    my $class = ref($proto) || $proto;
-    return $class->new(@args);
+sub ReloadConfigs {
+    foreach my $configs (values %LOADED_CONFIGS) {
+        $_->ReadConfig() foreach (@$configs);
+    }
 }
 
-sub FETCH {
-  my($self,$key) = @_;
-  my $config = $self->config;
-  return if (!exists $config->{$key});
 
-  return $config->{$key};
-} # end FETCH
+=item DESTROY
 
+=cut
 
-sub STORE {
-  my($self,$key,$value) = @_;
-  my $config = $self->config;
-  return undef unless ref($value) eq 'HASH';
-  $config->{$key} = $value;
-  return 1;
-} # end STORE
-
-sub DELETE {
-  my($self,$key) = @_;
-  return delete $self->config->{$key};
-}
-
-sub EXISTS {
-  my($self,$key) = @_;
-  return exists $self->config->{$key};
-}
-
-sub CLEAR {
-  my($self) = @_;
-  %{$self->config} = ();
-}
-
-sub FIRSTKEY {
-    my($self) = @_;
-    my $config = $self->config;
-    my $a = scalar keys %{$config};
-    each %{$config}
-}
-
-sub NEXTKEY {
-    my($self) = @_;
-    my $config = $self->config;
-    each %{$config}
-}
-
-sub SCALAR {
-  my($self) = @_;
-  scalar %{$self->config};
-}
-
-__PACKAGE__->meta->make_immutable;
+sub DESTROY {}
 
 =back
 
