@@ -93,7 +93,7 @@
                     [% END %]
                 </ul>
             </div>
-            <div id="editor" style="height: 250px; position: relative;">[%file_content | html%]</div>
+            <div id="editor" style="height: 450px; position: relative;">[%file_content | html%]</div>
             <div class="form-actions">
               <a id="file-editor-save" href="#" class="btn btn-primary disabled editorToggle" data-toggle="modal" data-target="#saveFile"><i class="icon-save"></i> [% l('Save') %]</a>
               <a id="file-editor-reset" href="#" class="btn btn-danger disabled editorToggle" data-toggle="modal" data-target="#resetContent"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
