@@ -22,13 +22,11 @@ extends 'pfappserver::Model::Config::IniStyleBackend';
 
 Readonly::Scalar our $NAME => 'Violations';
 
-Readonly::Scalar our $params => ["actions", "auto_enable", "button_text", "desc", "enabled", "grace", "max_enable", "priority", "redirect_url", "snort_rules", "trigger", "template", "vlan", "whitelisted_categories", "window", "vclose"];
 Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    close => 'Close',
                                    email => 'Email',
                                    log => 'Log',
                                    trap => 'Trap' };
-Readonly::Scalar our $triggers => [qw/Accounting Detect MAC Nessus OS OpenVAS USERAGENT VENDORMAC internal soh/];
 
 sub _getName        { return $NAME };
 sub _myConfigFile   { return $pf::config::violations_config_file };
@@ -46,16 +44,6 @@ sub availableActions {
     my $self = shift;
 
     return $actions;
-}
-
-=item availableTriggerTypes
-
-=cut
-
-sub availableTriggerTypes {
-    my $self = shift;
-
-    return $triggers;
 }
 
 =head2 availableTemplates
@@ -89,10 +77,15 @@ sub update {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     while (my ($violation_id, $violation_entry) = each %$violation_update_ref) {
-        foreach my $param (@$params) {
-            if ($param eq 'window' && $violation_entry->{'window_dynamic'}) {
-                $violation_entry->{$param} = 'dynamic';
-            }
+        if ($violation_entry->{'window_dynamic'}) {
+            $violation_entry->{'window'} = 'dynamic';
+        }
+
+        # Remove parameters that must not appear in the configuration file
+        delete $violation_entry->{'id'};
+        delete $violation_entry->{'window_dynamic'};
+
+        foreach my $param (keys %$violation_entry) {
             my ($status, $result_ref) = $self->_update($violation_id,
                                                        $param, $violation_entry->{$param});
             # return errors to caller
@@ -386,15 +379,9 @@ sub exists {
 
 =back
 
-=head1 AUTHORS
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

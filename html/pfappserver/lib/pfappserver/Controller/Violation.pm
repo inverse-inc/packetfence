@@ -116,7 +116,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     $actions = $configViolationsModel->availableActions();
     $triggers = $configViolationsModel->list_triggers();
     $templates = $configViolationsModel->availableTemplates();
-    $c->stash->{trigger_types} = $configViolationsModel->availableTriggerTypes();
+    $c->stash->{trigger_types} = \@pf::config::VALID_TRIGGER_TYPES;
 
     if ($c->stash->{violation} && !$c->stash->{action_uri}) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->{stash}->{violation}->{id}]);

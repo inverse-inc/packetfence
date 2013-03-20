@@ -758,3 +758,33 @@ msgstr "Port"
 
 msgid "ssid"
 msgstr "Wifi Network SSID"
+
+msgid "accounting"
+msgstr "Accounting"
+
+msgid "detect"
+msgstr "Detect"
+
+msgid "internal"
+msgstr "Internal"
+
+msgid "mac"
+msgstr "MAC"
+
+msgid "nessus"
+msgstr "Nessus"
+
+msgid "openvas"
+msgstr "OpenVAS"
+
+msgid "os"
+msgstr "OS"
+
+msgid "soh"
+msgstr "SoH"
+
+msgid "useragent"
+msgstr "UserAgent"
+
+msgid "vendormac"
+msgstr "VendorMAC"

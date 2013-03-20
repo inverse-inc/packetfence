@@ -46,7 +46,7 @@
           <div class="controls">
             <select class="input-medium">
               [% FOREACH type IN trigger_types -%]
-              <option value="[% type %]">[% type %]</option>
+              <option value="[% l(type) %]">[% l(type) %]</option>
               [% END -%]
             </select>
             <input class="input-medium" type="text" placeholder="[% l('Enter the trigger ID') %]" />
