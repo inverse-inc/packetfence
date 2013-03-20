@@ -91,6 +91,7 @@ Requires: httpd, mod_ssl, php, php-gd
 Requires: mod_perl
 requires: libapreq2
 Requires: dhcp, bind
+Requires: memcached
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
 %{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
 %{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
@@ -207,6 +208,8 @@ Requires: perl(File::Slurp)
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
+Requires: perl(CHI)
+Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
 # configuration-wizard

@@ -15,7 +15,7 @@ Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
  freeradius-mysql, freeradius-krb5
 Depends: ${misc:Depends}, vlan, make,
  openssl, openssl-blacklist, openssl-blacklist-extra, snort | suricata,
- mysql-server,
+ mysql-server, memcached,
  snmp, snmptrapfmt,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
@@ -73,6 +73,7 @@ Depends: ${misc:Depends}, vlan, make,
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
  libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl,
+ libchi-driver-memcached-perl,libcache-memcached-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
