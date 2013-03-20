@@ -28,31 +28,11 @@ use pf::util qw(load_oui download_oui);
 use pf::config;
 use pfappserver::Form::Config::Pf;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN {extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 METHODS
 
 =cut
-
-=head2 auto
-
-Allow only authenticated users
-
-=cut
-
-sub auto :Private {
-    my ($self, $c) = @_;
-
-    unless ($c->user_exists()) {
-        $c->response->status(HTTP_UNAUTHORIZED);
-        $c->response->location($c->req->referer);
-        $c->stash->{template} = 'admin/unauthorized.tt';
-        $c->detach();
-        return 0;
-    }
-
-    return 1;
-}
 
 =head2 _format_section
 
