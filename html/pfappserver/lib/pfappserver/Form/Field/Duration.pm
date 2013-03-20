@@ -71,12 +71,12 @@ sub duration_deflate {
     my $interval = $value->{interval};
     my $unit = $value->{unit};
 
-    return $interval.$unit;
+    return $interval.$unit if ($interval && $unit);
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
