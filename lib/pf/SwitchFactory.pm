@@ -73,7 +73,9 @@ sub new {
     }
 
     tie my %cache_config, 'pf::config::cached' => ( -file => $this->{_configFile} );
-    $this->{_config} = \%cache_config;
+    $this->{_cache_config} = \%cache_config;
+    $this->_fixupConfig();
+    tied (%cache_config)->AddReloadCallback(sub { $this->_fixupConfig(); });
 
     return $this;
 }
@@ -330,30 +332,24 @@ sub instantiate {
 }
 
 sub _fixupConfig {
-    my ($self) = @_;
-    my $config = $self->{_config};
-    foreach my $section ( keys %$config ) {
-        foreach my $key ( keys %{ $config->{$section} } ) {
-            $config->{$section}{$key} =~ s/\s+$//;
+    my ($this) = @_;
+    my %config;
+    my $cached_config = $this->{_cache_config};
+    foreach my $section ( keys %$cached_config ) {
+        $config{$section} = {};
+        foreach my $key ( keys %{ $cached_config->{$section} } ) {
+            my $value = $cached_config->{$section}{$key};
+            $value =~ s/\s+$//;
+            $config{$section}{$key} = $value;
         }
     }
-    $config->{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
-    if(exists $config->{'default'}) {
-        my %default_values = %{$config->{'default'}};
-        foreach my $section ( grep { $_ ne 'default' }  keys %$config ) {
-            $config->{$section}  = { %default_values , %{$config->{$section}} };
-        }
-    }
+    $config{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
+    $this->{_config} = \%config;
 }
 
 sub config {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my $tied_config = tied (%{$self->{_config}});
-    if ($tied_config->ReadConfig && $tied_config->{reloaded} ) {
-        $self->_fixupConfig();
-    }
-    return $self->{_config};
+    my ($this) = @_;
+    return $this->{_config};
 }
 
 =back
