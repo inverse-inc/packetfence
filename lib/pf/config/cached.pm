@@ -21,6 +21,7 @@ use Scalar::Util qw(refaddr);
 
 our $CACHE;
 our %LOADED_CONFIGS;
+our @ON_RELOAD;
 
 =head2 Methods
 
@@ -32,22 +33,34 @@ Creates a new pf::config::cached proxy for Config::IniFiles
 =cut
 
 sub new {
-    my ($class,%params) = @_;
-    my $self = {};
+    my ($proto,%params) = @_;
+    my $class = ref($proto) || $proto;
+    my $self = {
+        on_reload => []
+    };
     my $file = $params{'-file'};
-    $self->{config} = $class->computeFromPath(
-        $file,
-        sub {
-            return Config::IniFiles->new(%params);
+    if($file) {
+        if(exists $LOADED_CONFIGS{$file}) {
+            return $LOADED_CONFIGS{$file};
         }
-    );
-    push @{$LOADED_CONFIGS{$file}},$self;
+        $self->{config} = $class->computeFromPath(
+            $file,
+            sub {
+                return Config::IniFiles->new(%params);
+            }
+        );
+        $LOADED_CONFIGS{$file} = $self;
+    } else {
+        die "param -file missing or empty";
+    }
     bless $self,$class;
     return $self;
 }
 
 
 =item ReadConfig
+
+Will reload the config when changed on the filesystem and call any register callbacks
 
 =cut
 
@@ -72,11 +85,21 @@ sub ReadConfig {
         $reloaded = 1;
         $reloaded_from_cache = 1;
     }
+    if($reloaded) {
+        local $_;
+        $_->() foreach (@{$self->{on_reload}});
+    }
     $self->{reloaded} = $reloaded;
     $self->{reloaded_from_cache} = $reloaded_from_cache;
     return $result;
 }
 
+
+=item TIEHASH
+
+Creating a tied pf::config::cached object
+
+=cut
 
 sub TIEHASH {
     my ($proto,@args) = @_;
@@ -84,6 +107,8 @@ sub TIEHASH {
 }
 
 =item AUTOLOAD
+
+Will proxy all unknown functions to Config::IniFiles
 
 =cut
 
@@ -104,6 +129,8 @@ sub AUTOLOAD {
 
 =item computeFromPath
 
+Will load the Config::IniFiles object from cache or filesystem and update the cache
+
 =cut
 
 sub computeFromPath {
@@ -117,7 +144,7 @@ sub computeFromPath {
     );
 }
 
-=item cache - get the global CACHE object
+=item cache - get the global CHI object
 
 =cut
 
@@ -131,7 +158,7 @@ sub cache {
 
 =item _cache
 
-builds the CHI cache object
+builds the CHI object
 
 =cut
 
@@ -159,6 +186,7 @@ sub _expire_if {
 
 =item get_mod_timestamp
 
+simple util function for getting the modification timestamp
 
 =cut
 
@@ -169,18 +197,50 @@ sub get_mod_timestamp {
 
 =item ReloadConfigs
 
-ReloadConfigs reload all configs
+ReloadConfigs reload all configs and call any register callbacks
 
 =cut
 
 sub ReloadConfigs {
-    foreach my $configs (values %LOADED_CONFIGS) {
-        $_->ReadConfig() foreach (@$configs);
+    my $any_reloaded = 0;
+    foreach my $config (values %LOADED_CONFIGS) {
+        $config->ReadConfig();
+        $any_reloaded += $config->{reloaded};
+    }
+    if($any_reloaded) {
+        local $_;
+        $_->() for (@ON_RELOAD);
     }
 }
 
 
+=item AddReloadCallback
+
+Add callbacks config have been reloaded
+
+=cut
+
+sub AddReloadCallback {
+    my ($self,@callbacks) = @_;
+    local $_;
+    push @{$self->{on_reload}}, grep { ref($_) eq 'CODE' } @callbacks;
+}
+
+=item AddGlobalReloadCallback
+
+Add global callbacks when configs have been reloaded
+
+=cut
+
+sub AddGlobalReloadCallback {
+    local $_;
+    push @ON_RELOAD, grep { ref($_) eq 'CODE' } @_;
+}
+
+
 =item DESTROY
+
+to avoid AUTOLOAD being called on object destruction
 
 =cut
 
