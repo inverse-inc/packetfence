@@ -56,7 +56,7 @@ sub create {
     }
 
     # Create requested virtual interface
-    my $cmd = "vconfig add $physical_interface $vlan_id";
+    my $cmd = "LANG=C sudo vconfig add $physical_interface $vlan_id";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = "Error in creating interface VLAN $interface";
@@ -107,7 +107,7 @@ sub delete {
     }
 
     # Delete requested virtual interface
-    my $cmd = "vconfig rem $interface";
+    my $cmd = "LANG=C sudo vconfig rem $interface";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
         $status_msg = "Error in deletion of interface VLAN $interface";
@@ -154,7 +154,7 @@ sub down {
     }
 
     # Disable interface using "ip"
-    my $cmd = sprintf "ip link set %s down", $interface;
+    my $cmd = sprintf "LANG=C sudo ip link set %s down", $interface;
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = "Can't disable interface $interface: $status";
@@ -281,7 +281,7 @@ sub update {
     # Delete previous IP address
     my $cmd;
     if ($interface_before->{address}) {
-        $cmd = sprintf "ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
+        $cmd = sprintf "LANG=C sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
         $logger->debug($cmd);
         eval { $status = pf_run($cmd) };
         if ( $@ || $status ) {
@@ -294,7 +294,7 @@ sub update {
 
     # Add new IP address and netmask
     $netmask = Net::Netmask->new($ipaddress.':'.$netmask)->bits();
-    $cmd = sprintf "ip addr add %s/%i dev %s", $ipaddress, $netmask, $interface;
+    $cmd = sprintf "LANG=C sudo ip addr add %s/%i dev %s", $ipaddress, $netmask, $interface;
     $logger->debug($cmd);
     eval { $status = pf_run($cmd) };
     if ( $@ || $status ) {
@@ -509,8 +509,8 @@ sub _listInterfaces {
     $ifname = '' if ($ifname eq 'all');
     my $cmd =
       {
-       link => "ip -4 -o link show $ifname",
-       addr => "ip -4 -o addr show %s"
+       link => "LANG=C sudo ip -4 -o link show $ifname",
+       addr => "LANG=C sudo ip -4 -o addr show %s"
       };
     my ($link, $addr);
     eval { $link = pf_run($cmd->{link}) };
@@ -611,7 +611,7 @@ sub up {
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
-    my $cmd = sprintf "ip link set %s up", $interface;
+    my $cmd = sprintf "LANG=C sudo ip link set %s up", $interface;
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
         $status_msg = "Can't enable interface $interface";
