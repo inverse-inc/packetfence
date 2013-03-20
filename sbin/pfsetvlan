@@ -535,6 +535,7 @@ sub signalHandlerTrapListQueued {
         $lockLogger->trace(
             "locking - unlocked trapList_queued in signalHandlerTrapListQueued"
         );
+        pf::config::cached::ReloadConfigs();
     }
 }
 
@@ -766,6 +767,7 @@ sub signalHandlerThreadListQueued {
                 "new enqueue or dequeue operation happened and threadList_queued is not empty"
             );
             startTrapHandlers();
+            pf::config::cached::ReloadConfigs();
         }
     }
 }
