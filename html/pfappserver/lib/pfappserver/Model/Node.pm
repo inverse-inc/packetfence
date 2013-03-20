@@ -19,7 +19,7 @@ use Time::localtime;
 use Time::Local;
 
 use pf::accounting qw(
-    node_accounting_view 
+    node_accounting_view
     node_accounting_daily_bw node_accounting_weekly_bw node_accounting_monthly_bw node_accounting_yearly_bw
     node_accounting_daily_time node_accounting_weekly_time node_accounting_monthly_time node_accounting_yearly_time
 );
@@ -37,9 +37,10 @@ use pf::util;
 
 =over
 
-=head2 exists
+=item exists
 
 =cut
+
 sub exists {
     my ( $self, $mac ) = @_;
 
@@ -63,7 +64,7 @@ sub exists {
     return ($status, $result);
 }
 
-=head2 field_names
+=item field_names
 
 =cut
 
@@ -71,9 +72,10 @@ sub field_names {
     return [qw(mac computer_name pid status dhcp_fingerprint)];
 }
 
-=head2 countAll
+=item countAll
 
 =cut
+
 sub countAll {
     my ( $self, %params ) = @_;
 
@@ -94,9 +96,10 @@ sub countAll {
     return ($STATUS::OK, $count->{nb});
 }
 
-=head2 search
+=item search
 
 =cut
+
 sub search {
     my ( $self, %params ) = @_;
 
@@ -117,11 +120,12 @@ sub search {
     return ($STATUS::OK, \@nodes);
 }
 
-=head2 get
+=item get
 
 From pf::lookup::node::lookup_node()
 
 =cut
+
 sub get {
     my ( $self, $mac ) = @_;
 
@@ -132,14 +136,14 @@ sub get {
     eval {
         $node = node_view($mac);
         $node->{vendor} = oui_to_vendor($mac);
-        if ($node->{regdate_timestamp}) {
-            my @regdate = CORE::localtime($node->{regdate_timestamp});
-            $node->{regdate} = POSIX::strftime("%Y-%m-%d %H:%M", @regdate);
+        for my $date (qw(regdate unregdate)) {
+            my $timestamp = "${date}_timestamp";
+            if ($node->{$timestamp}) {
+                my @date_data = CORE::localtime($node->{$timestamp});
+                $node->{$date} = POSIX::strftime("%Y-%m-%d %H:%M", @date_data);
+            }
         }
-        if ($node->{unregdate_timestamp}) {
-            my @unregdate = CORE::localtime($node->{unregdate_timestamp});
-            $node->{unregdate} = POSIX::strftime("%Y-%m-%d %H:%M", @unregdate);
-        }
+        $node->{unregdate} = '' if exists $node->{unregdate} &&  $node->{unregdate} eq '0000-00-00 00:00:00';
 
         # Show 802.1X username only if connection is of type EAP
         my $connection_type = str_to_connection_type($node->{last_connection_type}) if ($node->{last_connection_type});
@@ -201,9 +205,10 @@ sub get {
     return ($STATUS::OK, $node);
 }
 
-=head2 update
+=item update
 
 =cut
+
 sub update {
     my ( $self, $mac, $node_ref ) = @_;
 
@@ -218,7 +223,7 @@ sub update {
     return ($status, $status_msg);
 }
 
-=head2 delete
+=item delete
 
 =cut
 
@@ -236,9 +241,10 @@ sub delete {
     return ($status, $status_msg);
 }
 
-=head2 availableStatus
+=item availableStatus
 
 =cut
+
 sub availableStatus {
     my ( $self ) = @_;
 
@@ -248,9 +254,10 @@ sub availableStatus {
              $pf::node::STATUS_GRACE ];
 }
 
-=head2 _graphIplogHistory
+=item _graphIplogHistory
 
 =cut
+
 sub _graphIplogHistory {
     my ($node_ref, $start_time, $end_time) = @_;
 
@@ -262,7 +269,7 @@ sub _graphIplogHistory {
         my @ylabels = ('AM', 'PM');
         my %dates = ();
         my %series = ();
-        
+
         my ($log, $start_tm, $end_tm);
         foreach $log (@{$node_ref->{iplog}->{history}}) {
             $start_tm = localtime($log->{start_timestamp});
@@ -288,7 +295,7 @@ sub _graphIplogHistory {
                 }
                 if ($start_tm->mday == $end_tm->mday &&
                     $start_tm->mon  == $end_tm->mon  &&
-                    $start_tm->year == $end_tm->year && 
+                    $start_tm->year == $end_tm->year &&
                     $until > $end_tm->hour) {
                     # This is the last half-day
                     $until = $end_tm->hour;
