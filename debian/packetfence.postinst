@@ -47,18 +47,18 @@ case "$1" in
             -nodes -config /usr/local/pf/conf/openssl.cnf
         fi
 
-	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-		    echo "Bulding default RADIUS certificates..."
-		    cd /usr/local/pf/raddb/certs
-		    make dh 
-	    else
-		    echo "DH already exists, won't touch it!"
+	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+	    echo "Bulding default RADIUS certificates..."
+	    cd /usr/local/pf/raddb/certs
+	    make dh 
+	else
+	    echo "DH already exists, won't touch it!"
         fi
 
         # managing services
-        for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
+        for service in snort apache2 snmptrapfmt bind9 freeradius; do
             service $service stop  > /dev/null 2>&1
-            update-rc.d $service remove > /dev/null 2>&1
+            update-rc.d -f $service remove > /dev/null 2>&1
         done
         # add sudo entry
         if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
