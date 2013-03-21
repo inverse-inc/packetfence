@@ -98,7 +98,7 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-        profiles_config_file
+        $profiles_config_file
         $switches_config_file
         $OS
     );
