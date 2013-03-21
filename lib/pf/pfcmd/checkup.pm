@@ -19,6 +19,7 @@ use Readonly;
 
 use pf::config;
 use pf::config::cached;
+use Config::IniFiles;
 use pf::util;
 use pf::services;
 use pf::trigger;
@@ -563,11 +564,11 @@ sub is_config_documented {
     }
 
     #compare configuration with documentation
-    tie my %myconfig, 'pf::config::cached', (
+    tie my %myconfig, 'Config::IniFiles', (
         -file   => $config_file,
-        -import => pf::config::cached->new( -file => $default_config_file, -isimported => 1 )
+        -import => Config::IniFiles->new( -file => $default_config_file)
     );
-    tie my %documentation, 'pf::config::cached', ( -file => $conf_dir . "/documentation.conf" );
+    tie my %documentation, 'Config::IniFiles', ( -file => $conf_dir . "/documentation.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         my $message = join( "\n", @errors ) . "\n";
@@ -600,7 +601,7 @@ sub is_config_documented {
                     );
                 }
             } elsif ( $type eq "multi" ) {
-                my @selectedOptions = split( /\s*,\s*/, $myconfig{$group}{$item} );
+                my @selectedOptions = split( /\s*,\s*/, $Config{$group}{$item} );
                 my @availableOptions = split( /\s*[;\|]\s*/, $documentation{$section}{'options'} );
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
