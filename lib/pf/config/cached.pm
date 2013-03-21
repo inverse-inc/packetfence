@@ -16,6 +16,9 @@ use warnings;
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use CHI;
+#preload configs
+use CHI::Driver::Memcached;
+use CHI::Driver::RawMemory;
 use Config::IniFiles;
 use Scalar::Util qw(refaddr);
 
@@ -39,22 +42,56 @@ sub new {
         on_reload => []
     };
     my $file = $params{'-file'};
+    my $isimported = delete $params{'-isimported'};
+    my $config;
     if($file) {
         if(exists $LOADED_CONFIGS{$file}) {
             return $LOADED_CONFIGS{$file};
         }
-        $self->{config} = $class->computeFromPath(
+        delete $params{'-file'} unless (-e $file);
+        $config = $class->computeFromPath(
             $file,
             sub {
-                return Config::IniFiles->new(%params);
+                my $config = Config::IniFiles->new(%params);
+                if(!exists $params{'-file'}) {
+                    $config->SetFileName($file);
+                }
+                return $config;
             }
         );
         $LOADED_CONFIGS{$file} = $self;
     } else {
         die "param -file missing or empty";
     }
-    bless $self,$class;
+    if ($config) {
+        bless $self,$class;
+        $self->{config} = $config;
+        $self->{isimported} = $isimported;
+        $self->_importFromCache();
+    } else {
+        $self = undef;
+    }
     return $self;
+}
+
+=item RewriteConfig
+
+=cut
+
+sub RewriteConfig {
+    my ($self) = @_;
+    my $config = $self->{config};
+    my $file = $config->{cf};
+    my $cache = $self->cache;
+    my $cached_object = $cache->get_object($file);
+    if( _expire_if($cached_object)) {
+        die "Config $file was modified from last loading";
+    }
+    my $result = $config->RewriteConfig();
+    if($result) {
+        $cache->set($file,$config);
+    }
+    return $result;
 }
 
 
@@ -81,6 +118,7 @@ sub ReadConfig {
             return $config;
         }
     );
+    $self->_importFromCache();
     if (refaddr($config) != refaddr($self->{config})) {
         $reloaded = 1;
         $reloaded_from_cache = 1;
@@ -94,6 +132,16 @@ sub ReadConfig {
     return $result;
 }
 
+=item _importFromCache
+
+=cut
+
+sub _importFromCache {
+    my ($self) = @_;
+    if ($self->{isimported}) {
+        @{$self}{qw(sects parms group v sCMT pCMT EOT)} = @{$self->{config}}{qw(sects parms group v sCMT pCMT EOT)};
+    }
+}
 
 =item TIEHASH
 
@@ -103,7 +151,10 @@ Creating a tied pf::config::cached object
 
 sub TIEHASH {
     my ($proto,@args) = @_;
-    return $proto->new(@args);
+    my $object = $proto->new(@args);
+    die "cannot create a tied pf::config::cached"
+        unless $object;
+    return $object;
 }
 
 =item AUTOLOAD
@@ -124,7 +175,7 @@ sub AUTOLOAD {
         };
         goto &$AUTOLOAD;
     }
-    die;
+    die "$command not found";
 }
 
 =item computeFromPath
@@ -166,10 +217,9 @@ sub _cache {
     return CHI->new(
         driver => 'Memcached',   # or 'Memcached::Fast', or 'Memcached::libmemcached'
         namespace => __PACKAGE__,
+        global => 1,
         servers => ['localhost:11211'],
-        l1_cache => {
-            driver => 'RawMemory', global => 1
-        }
+        l1_cache => { driver => 'RawMemory', global => 1 }
     );
 }
 
@@ -181,7 +231,8 @@ check to see if the config file needs to be reread
 
 sub _expire_if {
     my ($cache_object) = @_;
-    return $cache_object->created_at < get_mod_timestamp($cache_object->key);
+    my $file = $cache_object->key;
+    return -e $file &&  ($cache_object->created_at < get_mod_timestamp($file));
 }
 
 =item get_mod_timestamp
@@ -245,6 +296,21 @@ to avoid AUTOLOAD being called on object destruction
 =cut
 
 sub DESTROY {}
+
+
+=item isa
+
+to fake being Config::IniFiles
+
+=cut
+
+sub isa {
+    my ($proto,$arg) = @_;
+    if ($arg eq 'Config::IniFiles') {
+        return 1;
+    }
+    return $proto->SUPER::isa($arg);
+}
 
 =back
 
