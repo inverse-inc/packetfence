@@ -12,13 +12,12 @@ The pf::config::ui OO module holds the content of conf/ui.conf hot in memory.
 
 Singleton patterns means you should not keep state within this module.
 
-=cut
-
 =head1 FILES
 
 conf/ui.conf
 
 =cut
+
 use strict;
 use warnings;
 
@@ -27,6 +26,7 @@ use Log::Log4perl;
 our $VERSION = 1.00;
 
 use pf::config;
+use pf::config::cached;
 
 my $singleton;
 
@@ -39,6 +39,7 @@ my $singleton;
 Get the singleton instance of pf::config::ui. Create it if it doesn't exist.
 
 =cut
+
 sub instance {
     my ( $class, %args ) = @_;
 
@@ -51,7 +52,7 @@ sub instance {
 
 =item new
 
-Constructor. Usually you don't want to call this constructor but use the 
+Constructor. Usually you don't want to call this constructor but use the
 pf::config::ui::custom subclass instead.
 
 =cut
@@ -71,6 +72,7 @@ sub new {
 =over
 
 =cut
+
 my $_ui_conf_tie = undef;
 
 =item _ui_conf
@@ -78,13 +80,14 @@ my $_ui_conf_tie = undef;
 Load ui.conf into a Config::IniFiles tied hashref
 
 =cut
+
 sub _ui_conf {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     unless (defined $_ui_conf_tie) {
         my %conf;
-        tie %conf, 'Config::IniFiles', ( -file => "$conf_dir/ui.conf" );
+        tie %conf, 'pf::config::cached', ( -file => "$conf_dir/ui.conf" );
         my @errors = @Config::IniFiles::errors;
         if ( scalar(@errors) || !%conf ) {
             $logger->logdie("Error reading ui.conf: " . join( "\n", @errors ) . "\n" );
@@ -105,8 +108,9 @@ Ex resources:
     interfaceconfig get
 
 =cut
+
 # TODO there is caching opportunity here
-# TODO once bin/pfcmd is only a web services client we can get rid of 
+# TODO once bin/pfcmd is only a web services client we can get rid of
 #      $resource and do auto-lookup based on caller and get rid of all
 #      hard-coded names
 sub field_order {

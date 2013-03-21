@@ -43,6 +43,7 @@ BEGIN {
 }
 
 use pf::config;
+use pf::config::cached;
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -58,6 +59,7 @@ This list is incomplete.
 =over
 
 =cut
+
 sub os_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::os');
     $logger->debug("Preparing pf::os database queries");
@@ -148,6 +150,7 @@ sub dhcp_fingerprint_view_all {
 view all nodes based on several criterias
 
 =cut
+
 sub dhcp_fingerprint_view_all_searchable {
     my ( %params ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::os');
@@ -228,6 +231,7 @@ Options:
   force => $TRUE: will trigger the import anyway
 
 =cut
+
 sub import_dhcp_fingerprints {
     my ($opts_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::os');
@@ -247,7 +251,7 @@ sub read_dhcp_fingerprints_conf {
 
     db_query_execute(OS, $os_statements, 'os_delete_all_sql');
     db_query_execute(OS, $os_statements, 'os_class_delete_all_sql');
-    tie %dhcp_fingerprints, 'Config::IniFiles',
+    tie %dhcp_fingerprints, 'pf::config::cached',
         ( -file => $dhcp_fingerprints_file );
     my @errors = @Config::IniFiles::errors;
 
@@ -299,6 +303,7 @@ sub read_dhcp_fingerprints_conf {
 Handles the F<dhcp_fingerprint.conf> members=... field. If a given OS is in a member range returns true otherwise false.
 
 =cut
+
 sub _class_member_in_range {
     my ( $range, $member ) = @_;
     foreach my $element ( split( /\s*,\s*/, $range ) ) {

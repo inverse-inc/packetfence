@@ -23,7 +23,6 @@ use strict;
 use warnings;
 
 use Carp;
-use Config::IniFiles;
 use Log::Log4perl;
 
 use constant FREERADIUS => 'freeradius';
@@ -42,6 +41,7 @@ BEGIN {
 }
 
 use pf::config;
+use pf::config::cached;
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -60,6 +60,7 @@ our $freeradius_statements = {};
 Prepares all the SQL statements related to this module
 
 =cut
+
 sub freeradius_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     $logger->debug("Preparing pf::freeradius database queries");
@@ -84,6 +85,7 @@ sub freeradius_db_prepare {
 Empties the radius_nas table
 
 =cut
+
 sub _delete_all_nas {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     $logger->debug("emptying radius_nas table");
@@ -98,6 +100,7 @@ sub _delete_all_nas {
 Add a new NAS (FreeRADIUS client) record
 
 =cut
+
 sub _insert_nas {
     my ($nasname, $shortname, $secret, $description) = @_;
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
@@ -113,6 +116,7 @@ sub _insert_nas {
 Populates the radius_nas table with switches in switches.conf.
 
 =cut
+
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
@@ -127,7 +131,7 @@ sub freeradius_populate_nas_config {
         croak "Config file " . $conf_dir.SWITCHES_CONF . " cannot be read\n";
     }
 
-    tie %SwitchConfig, 'Config::IniFiles', (-file => $conf_dir.SWITCHES_CONF);
+    tie %SwitchConfig, 'pf::config::cached', (-file => $conf_dir.SWITCHES_CONF);
 
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
@@ -142,13 +146,13 @@ sub freeradius_populate_nas_config {
 
         # valid if switch's radiusSecret exists and is not all whitespace
         my $valid_sw_radiussecret = (
-            defined($SwitchConfig{$switch}{'radiusSecret'}) 
+            defined($SwitchConfig{$switch}{'radiusSecret'})
             && $SwitchConfig{$switch}{'radiusSecret'} =~ /\S/
         );
 
         # valid if default radiusSecret exists and is not all whitespace
         my $valid_df_radiussecret = (
-            defined($SwitchConfig{'default'}{'radiusSecret'}) 
+            defined($SwitchConfig{'default'}{'radiusSecret'})
             && $SwitchConfig{'default'}{'radiusSecret'} =~ /\S/
         );
 

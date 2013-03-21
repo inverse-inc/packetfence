@@ -23,7 +23,7 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 
 use strict;
 use warnings;
-use Config::IniFiles;
+use pf::config::cached;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
@@ -361,24 +361,13 @@ sub ipset_version {
 sub readPfConfigFiles {
 
     # load default and override by local config (most common case)
-    if ( -e $default_config_file && -e $config_file ) {
-        tie %Config, 'Config::IniFiles',
+    if ( -e $default_config_file || -e $config_file ) {
+        tie %Config, 'pf::config::cached',
             (
             -file   => $config_file,
-            -import => Config::IniFiles->new( -file => $default_config_file )
+            -import => pf::config::cached->new( -file => $default_config_file, -isimported => 1 )
             );
     }
-    # load default values only (local config doesn't exist)
-    elsif ( -e $default_config_file ) {
-        # import from default values then assign filename to save configuration file
-        tie %Config, 'Config::IniFiles', ( -import => Config::IniFiles->new( -file => $default_config_file ) );
-        tied(%Config)->SetFileName($config_file);
-    }
-    # load only local config
-    elsif ( -e $config_file ) {
-        tie %Config, 'Config::IniFiles', ( -file => $config_file );
-    }
-    # fail
     else {
         die ("No configuration files present.");
     }
@@ -397,7 +386,7 @@ sub readPfConfigFiles {
 
     # TODO why was this commented out? it seems to be adequate, no?
     #normalize time
-    #tie %documentation, 'Config::IniFiles', ( -file => $conf_dir."/documentation.conf" );
+    #tie %documentation, 'pf::config::cached', ( -file => $conf_dir."/documentation.conf" );
     #foreach my $section (sort tied(%documentation)->Sections) {
     #   my($group,$item) = split(/\./, $section);
     #   my $type = $documentation{$section}{'type'};
@@ -531,7 +520,7 @@ sub _set_guest_self_registration {
 
 sub readNetworkConfigFile {
 
-    tie %ConfigNetworks, 'Config::IniFiles', ( -file => $network_config_file, -allowempty => 1 );
+    tie %ConfigNetworks, 'pf::config::cached', ( -file => $network_config_file, -allowempty => 1 );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
@@ -574,7 +563,7 @@ sub readNetworkConfigFile {
 
 sub readFloatingNetworkDeviceFile {
 
-    tie %ConfigFloatingDevices, 'Config::IniFiles', ( -file => $floating_devices_file, -allowempty => 1 );
+    tie %ConfigFloatingDevices, 'pf::config::cached', ( -file => $floating_devices_file, -allowempty => 1 );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
@@ -601,7 +590,7 @@ sub readFloatingNetworkDeviceFile {
 =cut
 
 sub readOAuthFile {
-    tie %ConfigOAuth, 'Config::IniFiles', ( -file => $oauth_ip_file, -allowempty => 1 );
+    tie %ConfigOAuth, 'pf::config::cached', ( -file => $oauth_ip_file, -allowempty => 1 );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );

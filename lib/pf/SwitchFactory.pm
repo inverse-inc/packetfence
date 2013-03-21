@@ -17,7 +17,6 @@ use strict;
 use warnings;
 
 use Carp;
-use Config::IniFiles;
 use UNIVERSAL::require;
 use Log::Log4perl;
 

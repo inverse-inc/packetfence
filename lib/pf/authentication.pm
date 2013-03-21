@@ -13,10 +13,10 @@ pf::authentication
 use strict;
 use warnings;
 
-use Config::IniFiles;
 use Log::Log4perl;
 
 use pf::config;
+use pf::config::cached;
 
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -37,7 +37,7 @@ use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
 
 # The results...
-# 
+#
 # name=Foo Bar
 # type=ldap
 # ...
@@ -71,7 +71,7 @@ BEGIN {
        );
 }
 
-my %cfg; tie %cfg, 'Config::IniFiles', ( -file => "$conf_dir/authentication.conf" );
+my %cfg; tie %cfg, 'pf::config::cached', ( -file => "$conf_dir/authentication.conf" );
 my $logger = Log::Log4perl->get_logger('pf::authentication');
 
 readAuthenticationConfigFile();
@@ -247,7 +247,7 @@ Write the configuration file to disk
 
 sub writeAuthenticationConfigFile {
     my %ini;
-    tie %ini, 'Config::IniFiles', ( -file => "$conf_dir/authentication.conf" );
+    tie %ini, 'pf::config::cached', ( -file => "$conf_dir/authentication.conf" );
 
     print "Writing configuration...\n";
 
@@ -382,6 +382,7 @@ sub deleteAuthenticationSource {
 =item username_from_email
 
 =cut
+
 sub username_from_email {
 
     my ($email) = @_;
@@ -481,7 +482,7 @@ sub match {
 
 Copyright (C) 2012-2013 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

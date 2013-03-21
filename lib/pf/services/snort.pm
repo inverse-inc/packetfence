@@ -25,6 +25,7 @@ use POSIX;
 use Readonly;
 
 use pf::config;
+use pf::config::cached;
 use pf::util qw(get_all_internal_ips parse_template);
 
 BEGIN {
@@ -51,7 +52,7 @@ sub generate_snort_conf {
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
     $tags{'install_dir'}   = $install_dir;
     my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
+    tie %violations_conf, 'pf::config::cached', ( -file => "$conf_dir/violations.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->error( "Error reading violations.conf: " . join( "\n", @errors ) . "\n" );

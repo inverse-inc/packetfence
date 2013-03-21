@@ -24,7 +24,6 @@ F<snort.conf>, F<httpd.conf>, F<snmptrapd.conf>.
 use strict;
 use warnings;
 
-use Config::IniFiles;
 use File::Basename;
 use IPC::Cmd qw[can_run run];
 use Log::Log4perl;
@@ -34,6 +33,7 @@ use Try::Tiny;
 use UNIVERSAL::require;
 
 use pf::config;
+use pf::config::cached;
 use pf::util;
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all parse_triggers);
@@ -75,6 +75,7 @@ sprintf-formatted strings that control how the services should be started.
     %2$s: optional parameters
 
 =cut
+
 my %service_launchers;
 $service_launchers{'httpd'} = "%1\$s -f $conf_dir/httpd.conf";
 $service_launchers{'httpd.soap'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.soap";
@@ -101,6 +102,7 @@ if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'t
         "%1\$s -D -c $install_dir/var/conf/suricata.yaml -i $monitor_int " .
         "-l $install_dir/var --pidfile $install_dir/var/run/suricata.pid";
 }
+
 =back
 
 =head1 SUBROUTINES
@@ -452,7 +454,7 @@ sub manage_Static_Route {
 sub read_violations_conf {
     my $logger = Log::Log4perl::get_logger('pf::services');
     my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
+    tie %violations_conf, 'pf::config::cached', ( -file => "$conf_dir/violations.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         $logger->error( "Error reading violations.conf: " .  join( "\n", @errors ) . "\n" );
