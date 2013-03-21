@@ -78,9 +78,9 @@ sprintf-formatted strings that control how the services should be started.
 
 my %service_launchers;
 $service_launchers{'httpd'} = "%1\$s -f $conf_dir/httpd.conf";
-$service_launchers{'httpd.soap'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.soap";
-$service_launchers{'httpd.admin'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.admin";
-$service_launchers{'httpd.captport'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.captport";
+$service_launchers{'httpd.soap'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.soap -D$OS";
+$service_launchers{'httpd.admin'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.admin -D$OS";
+$service_launchers{'httpd.captport'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.captport -D$OS";
 
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
 $service_launchers{'pfmon'} = '%1$s -d &';

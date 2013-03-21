@@ -100,6 +100,7 @@ BEGIN {
         init_config
         profiles_config_file
         $switches_config_file
+        $OS
     );
 }
 
@@ -154,6 +155,9 @@ $portscan_sid = 1200003;
 $default_pid  = 1;
 
 Readonly our $WIPS_VID => '1100020';
+
+# OS Specific
+Readonly::Scalar our $OS => os_detection();
 
 # Interface types
 Readonly our $IF_INTERNAL => 'internal';
@@ -351,6 +355,19 @@ sub ipset_version {
     }
     else {
         return 0;
+    }
+}
+
+=item os_detection -  check the os system
+
+=cut
+
+sub os_detection {
+    my $logger = Log::Log4perl::get_logger('pf::config');
+    if (-e '/etc/debian_version') {
+        return "debian";
+    }elsif (-e '/etc/redhat-release') {
+        return "rhel";
     }
 }
 

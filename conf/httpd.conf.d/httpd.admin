@@ -1,14 +1,30 @@
 #PacketFence apache configuration file
 
-<IfModule !mod_perl.c>
-  LoadModule perl_module modules/mod_perl.so
-</IfModule>
-<IfModule !mod_log_config.c>
-  LoadModule log_config_module modules/mod_log_config.so
-</IfModule>
-<IfModule !mod_ssl.c>
-  LoadModule ssl_module modules/mod_ssl.so
-</IfModule>
+#Debian specific
+<IfDefine debian>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+  </IfModule>
+</IfDefine>
+
+#RHEL specific
+<IfDefine rhel>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module modules/mod_ssl.so
+  </IfModule>
+</IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib

@@ -1,30 +1,60 @@
 #SOAP apache configuration file
 
+<IfDefine debian>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_auth_basic.c>
+    LoadModule auth_basic_module /usr/lib/apache2/modules/mod_auth_basic.so
+  </IfModule>
+  <IfModule !mod_authn_file.c>
+    LoadModule authn_file_module /usr/lib/apache2/modules/mod_authn_file.so
+  </IfModule>
+  <IfModule !mod_authz_groupfile.c>
+    Loadmodule authz_groupfile_module /usr/lib/apache2/modules/mod_authz_groupfile.so
+  </IfModule>
+  <IfModule !mod_authz_user.c>
+    LoadModule authz_user_module /usr/lib/apache2/modules/mod_authz_user.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+  </IfModule>
+</IfDefine>
 
-<IfModule !mod_perl.c>
-  LoadModule perl_module modules/mod_perl.so
-</IfModule>
-<IfModule !mod_log_config.c>
-  LoadModule log_config_module modules/mod_log_config.so
-</IfModule>
-<IfModule !mod_ssl.c>
-  LoadModule ssl_module modules/mod_ssl.so
-</IfModule>
-<IfModule !mod_auth_basic.c>
-  LoadModule auth_basic_module modules/mod_auth_basic.so
-</IfModule>
-<IfModule !mod_authn_file.c>
-  LoadModule authn_file_module modules/mod_authn_file.so
-</IfModule>
-<IfModule !mod_authz_groupfile.c>
-  Loadmodule authz_groupfile_module modules/mod_authz_groupfile.so
-</IfModule>
-<IfModule !mod_authz_user.c>
-  LoadModule authz_user_module modules/mod_authz_user.so
-</IfModule>
-<IfModule !mod_authz_host.c>
-  LoadModule authz_host_module modules/mod_authz_host.so
-</IfModule>
+#RHEL Specific
+<IfDefine rhel>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_auth_basic.c>
+    LoadModule auth_basic_module modules/mod_auth_basic.so
+  </IfModule>
+  <IfModule !mod_authn_file.c>
+    LoadModule authn_file_module modules/mod_authn_file.so
+  </IfModule>
+  <IfModule !mod_authz_groupfile.c>
+    Loadmodule authz_groupfile_module modules/mod_authz_groupfile.so
+  </IfModule>
+  <IfModule !mod_authz_user.c>
+    LoadModule authz_user_module modules/mod_authz_user.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module modules/mod_authz_host.so
+  </IfModule>
+</IfDefine>
+
 
 PerlSwitches -I/usr/local/pf/lib
 PerlSwitches -I/usr/local/pf/html/pfappserver/lib
