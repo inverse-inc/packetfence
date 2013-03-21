@@ -601,7 +601,7 @@ sub is_config_documented {
                     );
                 }
             } elsif ( $type eq "multi" ) {
-                my @selectedOptions = split( /\s*,\s*/, $Config{$group}{$item} );
+                my @selectedOptions = split( /\s*,\s*/, $myconfig{$group}{$item} );
                 my @availableOptions = split( /\s*[;\|]\s*/, $documentation{$section}{'options'} );
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
