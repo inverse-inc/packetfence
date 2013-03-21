@@ -35,7 +35,7 @@
 </IfDefine>
 
 #RHEL specific
-<IfDefine debian>
+<IfDefine rhel>
   <IfModule !mod_perl.c>
     LoadModule perl_module modules/mod_perl.so
   </IfModule>
