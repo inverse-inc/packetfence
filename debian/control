@@ -130,4 +130,14 @@ Replaces: packetfence (<< 3.6.0)
 Breaks: packetfence (<< 3.6.0)
 Description: C wrapper that replace perl-suid dependence
  perl 5.12 dropped suidperl support (packaged as suid-perl)
- 
+
+Package: packetfence-remote-arp-sensor
+Architecture: all
+Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl,
+ libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
+ libnet-pcap-perl, libcache-memcached-perl, memcached,
+# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
+ libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
+Conflicts: packetfence
+Description: Files needed for sending MAC and IP from ARP requeststo
+ PacketFence server. 

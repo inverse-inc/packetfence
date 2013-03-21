@@ -88,6 +88,12 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0755 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
+	#PacketFence remote ARP sensor
+	install -d -m0700 $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
+	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
+	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0755 addons/pfarp_remote/sbin/pfarp_remote $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0600 addons/pfdetect_remote/conf/pfarp_remote.conf $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
@@ -139,7 +145,8 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/captive-portal/*.cgi
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
                 -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
-                -X$(NAME)sbin/pfdetect_remote
+                -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
+		-X$(NAME)sbin/pfarp_remote
 	# Everything is owned by pf:pf
 	chown pf:pf -R $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
 	# Set setuid root on bin/pfcmd
