@@ -72,7 +72,7 @@ case "$1" in
             echo 'Defaults:pf !requiretty' >> /etc/sudoers
         fi
 
-        update-rc.d packetfence defaults . || exit 0
+        update-rc.d packetfence defaults 60 || exit 0
         echo "* Reboot your server and after please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
     ;;
 
