@@ -93,7 +93,7 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
 	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0755 addons/pfarp_remote/sbin/pfarp_remote $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
-	install -m0600 addons/pfdetect_remote/conf/pfarp_remote.conf $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
+	install -m0600 addons/pfarp_remote/conf/pfarp_remote.conf $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
