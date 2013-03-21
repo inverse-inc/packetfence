@@ -243,7 +243,7 @@ sub service_ctl {
                     foreach my $serv (@APACHE_SERVICES) {
                         my $pid = service_ctl( $serv, "status" );
                         if ($pid) {
-                            my $cmd = "/usr/bin/kill -TERM $pid";
+                            my $cmd = "/bin/kill -TERM $pid";
 
                             #Untaint cmd
                             $cmd =~ /^(.*)$/;
@@ -277,7 +277,7 @@ sub service_ctl {
                 } else {
                     my $pid = service_ctl( $daemon, "status" );
                     if ($pid) {
-                        my $cmd = "/usr/bin/kill -TERM $pid";
+                        my $cmd = "/bin/kill -TERM $pid";
 
                         #Untaint cmd
                         $cmd =~ /^(.*)$/;
