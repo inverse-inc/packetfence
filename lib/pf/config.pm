@@ -834,8 +834,8 @@ sub _fetch_virtual_ip {
     return if (!defined($if));
 
     # these array are ordered the same way, that's why we can assume the following
-    my @masks = $if->netmask(&AF_INET);
-    my @addresses = $if->address(&AF_INET);
+    my @masks = $if->netmask(AF_INET());
+    my @addresses = $if->address(AF_INET());
 
     for my $i (0 .. $#masks) {
         return inet_ntoa($addresses[$i]) if (inet_ntoa($masks[$i]) eq '255.255.255.255');
