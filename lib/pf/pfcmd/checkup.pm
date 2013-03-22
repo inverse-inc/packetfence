@@ -851,7 +851,7 @@ sub switches {
 
         # check type
         my $type = "pf::SNMP::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
-        if ( !$type->require() ) {
+        if ( !(eval "$type->require()" ) ) {
             add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
         }
 
