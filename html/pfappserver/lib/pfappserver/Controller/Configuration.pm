@@ -321,7 +321,7 @@ sub interfaces :Local {
 sub switches :Local {
     my ($self, $c) = @_;
 
-    $c->forward('Controller::Configuration::Switch', 'index');
+    $c->go('Controller::Configuration::Switch', 'index');
 }
 
 =head2 authentication

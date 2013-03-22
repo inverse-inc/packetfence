@@ -16,126 +16,85 @@ use namespace::autoclean;
 
 use pfappserver::Form::Config::Switch;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'pfappserver::Base::Controller::Base';
+    with 'pfappserver::Base::Controller::Crud';
+}
 
-
-=head1 METHODS
-
-=head2 CONTROLLER CRUD OPERATORS
+=head2 Methods
 
 =over
 
-=item create
+=item begin
 
-Usage: /configuration/switch/create
+Setting the current form instance and model
 
 =cut
-sub create :Local {
+
+sub begin :Private {
     my ( $self, $c ) = @_;
-
-    my ($status, $result, $form);
-
-    $c->stash->{action_uri} = $c->uri_for($c->action);
-    if ($c->request->method eq 'POST') {
-        $c->forward('update');
-    }
-    else {
-        my ($status, $result) = $c->model('Config::Switches')->read('default');
-        if (is_success($status)) {
-            $c->stash->{switch_default} = pop @$result;
-            delete $c->stash->{switch_default}->{id};
-        }
-        $c->forward('read');
-    }
+    my ($status,$switch_default,$roles);
+    my $model = $c->model("Config::Cached::Switch")->new;
+    ($status,$switch_default) = $model->read('default');
+    ($status, $roles) = $c->model('Roles')->list;
+    $roles = undef unless(is_success($status));
+    $c->stash->{current_model_instance} = $model;
+    $c->stash->{current_form_instance}  = $c->form("Config::Switch")->new(ctx => $c, placeholders => $switch_default, roles => $roles);
+    $c->stash->{switch_default} = $switch_default;
 }
+
+=item object
+
+/configuration/switch/*
+
+=cut
+
+sub object :Chained('/') :PathPart('configuration/switch') :CaptureArgs(1) {
+    my ($self,$c,$id) = @_;
+    $self->getModel($c)->readConfig();
+    $self->_setup_object($c,$id);
+    $c->stash->{action_uri} = $c->uri_for($c->action);
+}
+
+after [qw(update remove)] => sub {
+    my ($self,$c) = @_;
+    if(is_success($c->response->status) ) {
+        $self->getModel($c)->rewriteConfig();
+    }
+};
+
+after create => sub {
+    my ($self,$c) = @_;
+    if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
+        $self->getModel($c)->rewriteConfig();
+    } else {
+        $c->stash->{template} = 'configuration/switch/read.tt';
+    }
+};
+
+after view => sub {
+    my ( $self, $c ) = @_;
+    if (!$c->stash->{action_uri}) {
+        my $id = $c->stash->{id};
+        $c->log->info("ID : $id");
+        if ($id) {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'),[$c->stash->{id}]);
+        } else {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
+        }
+    }
+};
 
 =item read
 
 Usage: /configuration/switch/<switch>/read
 
 =cut
+
 sub read :Chained('object') :PathPart('read') :Args(0) {
     my ( $self, $c ) = @_;
-    my $switch = $c->stash->{switch};
-    my $switch_ref = $c->stash->{switch_ref};
-    my $switch_default = $c->stash->{switch_default};
-
-    # Build form
-    my $roles;
-    my ($status, $result) = $c->model('Roles')->list;
-    if (is_success($status)) {
-        $roles = $result;
-    }
-    my $form = pfappserver::Form::Config::Switch->new(ctx => $c, init_object => $switch_ref,
-                                                      placeholders => $switch_default, roles => $roles);
-    $form->process();
-    $c->stash->{form} = $form;
-
-    if ($c->stash->{switch} && !$c->stash->{action_uri}) {
-        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$switch]);
-    }
-    $c->stash->{template} = 'configuration/switch/read.tt';
+    $c->forward('view');
 }
-
-=item update
-
-Usage: /admin/configuration/switches/<switch>/update
-
-=cut
-sub update :Chained('object') :PathPart('update') :Args(0) {
-    my ( $self, $c ) = @_;
-    my $switch = $c->stash->{switch};
-
-    if ($c->request->method eq 'POST') {
-        my ($status, $result);
-        my ($roles, $form, $data);
-
-        ($status, $result) = $c->model('Roles')->list;
-        if (is_success($status)) {
-            $roles = $result;
-        }
-        $form = pfappserver::Form::Config::Switch->new(ctx => $c, roles => $roles);
-        $form->process(params => $c->req->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $result = $form->field_errors;
-        }
-        else {
-            $data = $form->value;
-            ($status, $result) = $c->model('Config::Switches')->update($data->{id}, $data);
-        }
-
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result; # TODO: localize error message
-        $c->stash->{current_view} = 'JSON';
-    }
-    else {
-        $c->forward('read');
-    }
-}
-
-=item delete
-
-Delete an existing switch / network equipment.
-
-Usage: /configuration/switch/<switch>/delete
-
-=cut
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
-    my ( $self, $c ) = @_;
-    my $switch = $c->stash->{switch};
-
-    my ($status, $result) = $c->model('Config::Switches')->deleteItem($switch);
-    if ( is_success($status) ) {
-        $c->stash->{status_msg} = $result;
-    } else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-    }
-
-    $c->stash->{current_view} = 'JSON';
-}
-
 
 =back
 
@@ -145,65 +104,28 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =item index
 
-Usage: /configuration/switch/index
+Usage: /configuration/switch/
 
 =cut
-sub index :Local :Args(0) {
-    my ( $self, $c ) = @_;
 
-    $c->stash->{template} = 'configuration/switch/index.tt';
-    $c->visit('list');
+sub index :Path :Args(0) {
+    my ( $self, $c ) = @_;
+    $c->forward('list');
 }
 
-=item list
-
-Usage: /configuration/switch/list
-
-=cut
 sub list :Local :Args(0) {
     my ( $self, $c ) = @_;
-
-    my ($status, $result) = $c->model('Config::Switches')->read('all');
+    my $model = $self->getModel($c);
+    my ($status,$result) = $model->readAll();
     if (is_error($status)) {
         $c->res->status($status);
         $c->error($c->loc($result));
-    }
-    else {
-        $c->stash->{switches} = $result;
-    }
-}
-
-=item object
-
-Controller dispatcher.
-
-We basically capture the requested switch and check if that one is valid.
-
-=cut
-sub object :Chained('/') :PathPart('switch') :CaptureArgs(1) {
-    my ( $self, $c, $id ) = @_;
-
-    my ($status, $result) = $c->model('Config::Switches')->read($id);
-    if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $c->loc($result);
-        $c->stash->{current_view} = 'JSON';
-        $c->detach();
-    }
-    else {
-        $c->stash->{switch} = $id;
-        $c->stash->{switch_ref} = pop @$result;
-
-        if ($id ne 'default') {
-            # Fetch the defaults to be used as the fields placeholders
-            ($status, $result) = $c->model('Config::Switches')->read('default');
-            if (is_success($status)) {
-                $c->stash->{switch_default} = pop @$result;
-            }
-        }
+    } else {
+        $c->stash(
+            items => $result,
+        )
     }
 }
-
 
 =back
 
