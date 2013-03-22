@@ -28,13 +28,14 @@ use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Log::Log4perl;
-use Net::Interface qw(inet_ntoa :afs);
+use Net::Interface qw(inet_ntoa);
 use Net::Netmask;
 use POSIX;
 use Readonly;
 use threads;
 use Try::Tiny;
 use File::Which;
+use Socket;
 
 # Categorized by feature, pay attention when modifying
 our (
