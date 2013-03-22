@@ -16,7 +16,6 @@ use Try::Tiny;
 use CGI::Session;
 use HTML::Entities;
 use CGI::Carp qw( fatalsToBrowser );
-use Config::IniFiles;
 use Locale::gettext;
 use Log::Log4perl;
 use PHP::Session;
@@ -179,7 +178,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
             my $violations = 0;
 
             my %ini;
-            tie %ini, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
+            tie %ini, 'pf::config::cached', ( -file => "$conf_dir/violations.conf" );
             if (@Config::IniFiles::errors) {
                 die "Error reading violations.conf";
             }
@@ -248,7 +247,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                 # trigger, we need to adjust the triggers defined for
                 # the relevant violation class.
                 #
-                # TODO at some point violations will be full blown objects 
+                # TODO at some point violations will be full blown objects
                 # SoH will be a subclass and none of this convoluted trigger
                 # management will be required TODO
 
@@ -279,7 +278,7 @@ elsif ($method eq 'POST' && $action =~ s/^filters\///) {
                                 join ",", grep $_ ne "soh::$fid", @t;
                         }
                     }
-                    
+
                     if ($new eq 'violation') {
                         unless ($ini{$vid}) {
                             $logger->debug(
