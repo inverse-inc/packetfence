@@ -9,27 +9,47 @@ pfappserver::Form::Portal - portal profiles
 Sortable list of portal profiles.
 
 =cut
+
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Base::Form::Base';
 
 
-# Form fields
-has_field 'profiles' =>
+=head2 Form fields
+
+=over
+
+=item items
+
+=cut
+
+has_field 'items' =>
   (
    type => 'Repeatable',
    num_when_empty => 0,
   );
-has_field 'profiles.id' =>
+
+=item items.id
+
+=cut
+
+has_field 'items.id' =>
   (
    type => 'Hidden',
    do_label => 0,
   );
-has_field 'profiles.description' =>
+
+=item items.description
+
+=cut
+
+has_field 'items.description' =>
   (
    type => 'Text',
    do_label => 0,
   );
+
+=back
 
 =head1 COPYRIGHT
 

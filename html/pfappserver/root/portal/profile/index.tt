@@ -1,5 +1,5 @@
 <div id="portal_profile_index">
-[% profiles = form.field('profiles') %]
+[% profiles = form.field('items') %]
 <div class="modal fade hide" id="deleteProfile">
   <div class="modal-header">
     <h3><i>[% l('Delete Profile') %]</i> <span id="content"></span></h3>
@@ -51,7 +51,7 @@
             <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id %]</a>
         </td>
         <td>[% profile.field('description').value %]</td>
-        <td><a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id  %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('delete_profile'), [ profile_id ]) %]">[% l('Delete') %]</a></td>
+        <td><a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id  %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a></td>
       </tr>
       [% END -%]
       <tr><td colspan="5"></td></tr>

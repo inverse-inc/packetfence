@@ -48,15 +48,18 @@ sub create : Local: Args(0) {
     if ($c->request->method eq 'POST') {
         $c->stash( current_view => 'JSON');
         my ($status,$status_msg);
-        $form->process(item => $c->request->params);
+        $form->process(params => $c->request->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
             $status_msg = $form->field_errors;
         }
         else {
             my $item = $form->value;
+            my $idKey =  $model->idKey;
+            my $id = $item->{$idKey};
             $c->stash->{item} = $item;
-            ($status,$status_msg) = $model->create($form->value);
+            $c->stash->{id} = $id;
+            ($status,$status_msg) = $model->create($id,$item)
         }
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
@@ -76,9 +79,8 @@ sub create : Local: Args(0) {
 =cut
 
 sub _setup_object {
-    my ($self,$c,$item) = @_;
-    my $status;
-    ($status, $item) = $self->getModel($c)->read($item);
+    my ($self,$c,$id) = @_;
+    my ($status, $item) = $self->getModel($c)->read($id);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $item;
@@ -87,6 +89,7 @@ sub _setup_object {
     }
     $c->stash(
         item  => $item,
+        id    => $id,
     );
 }
 
@@ -98,14 +101,14 @@ sub update :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
     my ($status,$status_msg,$form);
     $c->stash->{current_view} = 'JSON';
-    $form = $self->getForm();
+    $form = $self->getForm($c);
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
     } else {
         ($status,$status_msg) = $self->getModel($c)->update(
-            $c->stash->{item},
+            $c->stash->{id},
             $form->value
         );
     }
@@ -122,7 +125,7 @@ sub update :Chained('object') :PathPart :Args(0) {
 
 sub remove :Chained('object') :PathPart: Args(0) {
     my ($self,$c) = @_;
-    my ($status,$result) = $self->getModel($c)->remove($c->stash->{item});
+    my ($status,$result) = $self->getModel($c)->remove($c->stash->{id},$c->stash->{item});
     $c->stash(
         status_msg   => $result,
         current_view => 'JSON',
@@ -137,9 +140,11 @@ sub remove :Chained('object') :PathPart: Args(0) {
 sub view :Chained('object') :PathPart('') :Args(0) {
     my ($self,$c) = @_;
     my $item = $c->stash->{item};
+    my $form = $self->getForm($c);
+    $form->process(init_object => $item);
     $c->stash(
         item => $item,
-        form => $self->getForm($c,init_object => $item)
+        form => $form,
     );
 }
 

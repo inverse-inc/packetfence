@@ -34,87 +34,84 @@ Readonly our %FILTER_FILES => (
     'wireless-profile.xml' => 1,
 );
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN {
+    extends 'pfappserver::Base::Controller::Base';
+    with 'pfappserver::Base::Controller::Crud';
+}
 
-=head2 object
+=head2 Methods
 
-Authentication source chained dispatcher
+=over
+
+=item begin
+
+Setting the current form instance and model
+
+=cut
+
+sub begin :Private {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_model_instance} = $c->model("Config::Cached::Profile")->new;
+    $c->stash->{current_form_instance} = $c->form("Portal::Profile")->new(ctx=>$c);
+}
+
+=item object
+
+Portal Profile chained dispatcher
 
 /portal/profile/*
 
 =cut
 
 sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
-    my ($self, $c, $name) = @_;
-    my $model = $self->getConfigModel($c);
-    my ($status,$result_or_msg) = $model->read($name);
-    if (is_success($status)) {
-        $c->stash(
-            profile_name => $name,
-            profile => $result_or_msg,
-            model => $model
-        );
-    } else {
-        $c->stash(
-            current_view => 'JSON',
-            status_msg => $result_or_msg,
-        );
-    }
-    $c->response->status($status);
+    my ($self,$c,$id) = @_;
+    $self->getModel($c)->readConfig();
+    $self->_setup_object($c,$id);
 }
 
-=head2 getConfigModel
-
-=cut
-sub getConfigModel {
-    my ( $self, $c ) = @_;
-    return $c->model('Config::Profiles');
-}
-
-=head2 index
+=item index
 
 =cut
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-    my $config = $self->getConfigModel($c);
-    my ($status,$profiles) = $config->read_all();
+    my $model = $self->getModel($c);
+    my ($status,$items) = $model->readAll();
     my $form = new pfappserver::Form::Portal(ctx => $c,
-                                                init_object => { profiles => $profiles });
+                                                init_object => { items => $items });
     $form->process();
     $c->stash(
         form => $form,
     )
 }
 
+
+after [qw(update remove)] => sub {
+    my ($self,$c) = @_;
+    if(is_success($c->response->status) ) {
+        $self->getModel($c)->rewriteConfig();
+    }
+};
+
+after create => sub {
+    my ($self,$c) = @_;
+    if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
+        $self->getModel($c)->rewriteConfig();
+        my($entries_copied,$dir_copied,undef) = $self->copyDefaultFiles($c);
+        $c->response->location(
+            $c->pf_hash_for(
+                $c->controller('Portal::Profile')->action_for('view'),
+                [$c->stash->{item}{id}]
+            )
+        );
+    }
+};
+
+
+
 sub sort_profiles :Local : Args(0) {
     my ($self,$c) = @_;
     $c->stash->{current_view} = 'JSON';
-}
-
-sub getForm {
-    my ($self,$c,@args) = @_;
-    return pfappserver::Form::Portal::Profile->new(ctx => $c,@args);
-}
-
-sub update :Chained('object') :PathPart('update') :Args(0) {
-    my ($self,$c) = @_;
-    my ($status,$status_msg,$form);
-    $c->stash->{current_view} = 'JSON';
-    $form = $self->getForm();
-    $form->process(params => $c->request->params);
-    if ($form->has_errors) {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = $form->field_errors;
-    } else {
-        ($status,$status_msg) = $c->stash->{model}->updateItem(
-            $c->stash->{profile_name},
-            $form->value
-        );
-    }
-
-    $c->response->status($status);
-    $c->stash->{status_msg} = $status_msg; # TODO: localize error message
 }
 
 sub upload :Chained('object') :PathPart('upload') :Args() {
@@ -146,7 +143,7 @@ sub edit :Chained('object') :PathPart :Args() {
     my $file_path = $self->_makeFilePath($c,$full_file_name);
     my $file_content = read_file($file_path);
     $directory = '' if $directory eq './';
-    $directory = catfile($c->stash->{profile_name},$directory);
+    $directory = catfile($c->stash->{id},$directory);
     $directory .= "/" unless $directory =~ /\/$/;
     $c->stash(
         file_name => $file_name,
@@ -199,7 +196,7 @@ sub rename :Chained('object') :PathPart :Args() {
     $c->stash->{current_view} = 'JSON';
     #verify file exists if it does set error
     pop @pathparts;
-    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{profile_name} ], catfile(@pathparts,$to) ));
+    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{id} ], catfile(@pathparts,$to) ));
 }
 
 sub new_file :Chained('object') :PathPart :Args() {
@@ -212,7 +209,7 @@ sub new_file :Chained('object') :PathPart :Args() {
         #verify file exists if it does set error
         $c->stash->{path} = $self->_makeFilePath($c,$file_name);;
         $c->forward('path_exists');
-        $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit_new'), [$c->stash->{profile_name} ], $file_name ));
+        $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit_new'), [$c->stash->{id} ], $file_name ));
     }
     else {
         $path .= "/" if $path ne '';
@@ -276,7 +273,7 @@ sub _makePreviewTemplate {
 
 sub _makeFilePath {
     my ($self,$c,@pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{profile_name},@pathparts);
+    return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id},@pathparts);
 }
 
 sub _makeDefaultFilePath {
@@ -300,13 +297,6 @@ sub revert_file :Chained('object') :PathPart :Args() {
     copy($default_file_path,$file_path);
 }
 
-sub view :Chained('object') :PathPart('') :Args(0) {
-    my ($self,$c) = @_;
-    $c->stash(
-        profile_form  => $self->getForm($c,init_object => $c->stash->{profile}),
-    );
-}
-
 sub files :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
     $c->stash(
@@ -316,7 +306,7 @@ sub files :Chained('object') :PathPart :Args(0) {
 
 sub _getFilesInfo {
     my ($self,$c) = @_;
-    my $profile = $c->stash->{profile_name};
+    my $profile = $c->stash->{id};
     my $root_path = $self->_makeFilePath($c);
     my %default_files =
         map { catfile($root_path,$_) => 1 }
@@ -444,58 +434,6 @@ sub copyDefaultFiles {
     return dircopy($from_dir,$to_dir);
 }
 
-sub delete_profile :Chained('object') :PathPart('delete') :Args(0) {
-    my ($self,$c) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ($status,$status_msg) = $c->stash->{model}->deleteItem(
-        $c->stash->{profile_name}
-    );
-    $c->stash(
-        status_msg => $status_msg
-    );
-    $c->response->status($status);
-}
-
-sub create : Local: Args(0) {
-    my ($self,$c) = @_;
-    if ($c->request->method eq 'POST') {
-        $c->stash( current_view => 'JSON');
-        my ($status,$status_msg);
-        my $form = $self->getForm();
-        $form->process(params => $c->request->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $status_msg = $form->field_errors;
-        }
-        else {
-            my $id = $c->req->param('id');
-            my $model = $self->getConfigModel($c);
-            $c->stash->{profile_name} = $id;
-            ($status,$status_msg) = $model->createItem(
-                $id,
-                $form->value
-            );
-            if(is_success($status)) {
-                my($entries_copied,$dir_copied,undef) = $self->copyDefaultFiles($c);
-                $c->response->location(
-                    $c->pf_hash_for(
-                        $c->controller('Portal::Profile')->action_for('view'),
-                        [$id]
-                    )
-                );
-            }
-            $c->response->status($status);
-        }
-        $c->stash->{status_msg} = $status_msg;
-        # check if exists
-        # Create the source from the update action
-    }
-    else {
-        # Show an empty form
-        $c->stash->{profile} = {};
-        $c->forward('view');
-    }
-}
 
 =back
 
