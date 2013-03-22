@@ -115,6 +115,7 @@ sub readAll {
         foreach my $param ($config->Parameters($id)) {
             $section{$param} = $config->val( $id, $param);
         }
+        $self->cleanupAfterRead($id,\%section);
         push @sections,\%section;
     }
     return ($STATUS::OK, \@sections);
@@ -136,11 +137,11 @@ sub read {
     if ( $config->SectionExists($id) ) {
         my %item = ( $self->idKey => $id);
         foreach my $param ($config->Parameters($id)) {
-            $logger->debug("$id $param");
             $item{$param} = $config->val( $id, $param);
         }
         $status = $STATUS::OK;
         $result = \%item;
+        $self->cleanupAfterRead($id,$result);
     } else {
         $status = $STATUS::NOT_FOUND;
         $result = "\"$id\" does not exists";
@@ -166,6 +167,7 @@ sub update {
         $status_msg = "This method does not handle \"$id\"";
     }
     else {
+        $self->cleanupBeforeCommit($id,$assignments);
         my $config = $self->cachedConfig;
         delete $assignments->{$self->idKey};
         if ( $config->SectionExists($id) ) {
@@ -198,6 +200,7 @@ sub create {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status,$status_msg);
+    $self->cleanupBeforeCommit($id,$assignments);
     my $config = $self->cachedConfig;
 
     if ( !$config->SectionExists($id) ) {
@@ -241,6 +244,18 @@ sub remove {
     $logger->info("$status_msg");
     return ($status,$status_msg);
 }
+
+=item cleanupAfterRead
+
+=cut
+
+sub cleanupAfterRead { }
+
+=item cleanupBeforeCommit
+
+=cut
+
+sub cleanupBeforeCommit { }
 
 
 __PACKAGE__->meta->make_immutable;

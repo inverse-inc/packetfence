@@ -15,6 +15,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
+use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pfappserver::Base::Model::Config::Cached';
 
@@ -29,6 +30,54 @@ extends 'pfappserver::Base::Model::Config::Cached';
 sub _buildCachedConfig {
     my ($self) = @_;
     return pf::config::cached->new(-file => $switches_config_file);
+}
+
+
+=item cleanupAfterRead
+
+Clean up switch data
+
+=cut
+
+sub cleanupAfterRead {
+    my ( $self,$id, $switch ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    if ($switch->{uplink} && $switch->{uplink} eq 'dynamic') {
+        $switch->{uplink_dynamic} = 'dynamic';
+        $switch->{uplink} = undef;
+    }
+    if ($switch->{triggerInline}) {
+        # Decompose inline triggers (see pf::vlan::isInlineTrigger)
+        my @triggers = ();
+        foreach my $trigger (split(/,/, $switch->{triggerInline})) {
+            my ( $type, $value ) = split( /::/, $trigger );
+            $type = lc($type);
+            push(@triggers, { type => $type, value => $value });
+        }
+        $switch->{triggerInline} = \@triggers;
+    }
+}
+
+=item cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ( $self, $id, $switch ) = @_;
+
+    if ($switch->{uplink_dynamic}) {
+        $switch->{uplink} = 'dynamic';
+        $switch->{uplink_dynamic} = undef;
+    }
+    if ($switch->{triggerInline}) {
+        # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
+        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{triggerInline}};
+        $switch->{triggerInline} = join(',', @triggers);
+    }
+
 }
 
 =item remove
