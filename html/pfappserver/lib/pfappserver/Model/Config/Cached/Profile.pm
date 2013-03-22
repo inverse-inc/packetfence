@@ -19,6 +19,10 @@ use pf::config;
 extends 'pfappserver::Base::Model::Config::Cached';
 
 
+=head2 Methods
+
+=over
+
 =item _buildCachedConfig
 
 =cut
@@ -41,6 +45,8 @@ sub remove {
     }
     return $self->SUPER::remove($id);
 }
+
+=back
 
 =head1 COPYRIGHT
 
