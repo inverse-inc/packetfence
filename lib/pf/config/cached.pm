@@ -84,7 +84,7 @@ sub RewriteConfig {
     my $file = $config->{cf};
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
-    if($cached_object && _expire_if($cached_object)) {
+    if($cached_object && _expireIf($cached_object)) {
         die "Config $file was modified from last loading";
     }
     my $result = $config->RewriteConfig();
@@ -189,7 +189,7 @@ sub computeFromPath {
     return $self->cache->compute(
         $file,
         {
-            expire_if => \&_expire_if
+            expire_if => \&_expireIf
         },
         $computeSub
     );
@@ -223,25 +223,25 @@ sub _cache {
     );
 }
 
-=item _expire_if
+=item _expireIf
 
 check to see if the config file needs to be reread
 
 =cut
 
-sub _expire_if {
+sub _expireIf {
     my ($cache_object) = @_;
     my $file = $cache_object->key;
-    return -e $file &&  ($cache_object->created_at < get_mod_timestamp($file));
+    return -e $file &&  ($cache_object->created_at < getModTimestamp($file));
 }
 
-=item get_mod_timestamp
+=item getModTimestamp
 
 simple util function for getting the modification timestamp
 
 =cut
 
-sub get_mod_timestamp {
+sub getModTimestamp {
     return (stat($_[0]))[9];
 }
 
@@ -252,7 +252,7 @@ ReloadConfigs reload all configs and call any register callbacks
 
 =cut
 
-sub ReloadConfigs {
+sub reloadConfigs {
     my $any_reloaded = 0;
     foreach my $config (values %LOADED_CONFIGS) {
         $config->ReadConfig();
@@ -265,13 +265,13 @@ sub ReloadConfigs {
 }
 
 
-=item AddReloadCallback
+=item addReloadCallback
 
 Add callbacks config have been reloaded
 
 =cut
 
-sub AddReloadCallback {
+sub addReloadCallback {
     my ($self,@callbacks) = @_;
     local $_;
     push @{$self->{on_reload}}, grep { ref($_) eq 'CODE' } @callbacks;
@@ -310,6 +310,44 @@ sub isa {
         return 1;
     }
     return $proto->SUPER::isa($arg);
+}
+
+=item toHash
+
+Copy configuration to hash
+
+=cut
+
+sub toHash {
+    my ($self,$hash) = @_;
+    my $config = $self->{config};
+    %$hash = ();
+    foreach my $section ($config->Sections()) {
+        my %data;
+        foreach my $param ($config->Parameters($section)) {
+            $data{$param} = $config->val($section,$param);
+        }
+        $hash->{$section} = \%data;
+    }
+}
+
+=item cleanupWhitespace
+
+Clean up whitespace
+
+=cut
+
+sub cleanupWhitespace {
+    my ($self) = @_;
+    my $config = $self->{config};
+    foreach my $section ($config->Sections()) {
+        foreach my $param ($config->Parameters($section)) {
+            my $val = $config->val($section,$param);
+            $val = '' unless defined $val;
+            $val =~ s/\s+$//;
+            $config->setval($val);
+        }
+    }
 }
 
 =back
