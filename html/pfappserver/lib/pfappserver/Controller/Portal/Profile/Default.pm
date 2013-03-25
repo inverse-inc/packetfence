@@ -29,18 +29,16 @@ use Readonly;
 
 BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 
-=head2 index
+
+=head2 Methods
+
+=over
+
+=item index
 
 =cut
+
 sub index {}
-
-=head2 object
-
-The default chained dispatcher
-
-/portal/profile/default
-
-=cut
 
 our %PF_CONFIG_NAME_MAP = (
     'general.logo'                          => 'logo',
@@ -49,28 +47,31 @@ our %PF_CONFIG_NAME_MAP = (
     'registration.billing_engine'           => 'billing_engine',
 );
 
+sub begin :Private {
+    my ( $self, $c ) = @_;
+    $c->stash->{current_model_instance} = $c->model("Config::MappedPf")->new(\%PF_CONFIG_NAME_MAP);
+    $c->stash->{current_form_instance} = $c->form("Portal::Profile::Default")->new(ctx=>$c);
+}
+
+
 =item isDeleteOrRevertDisabled
 
 =cut
 
 sub isDeleteOrRevertDisabled {return 1};
 
-=item getConfigModel
-
-=cut
-
-sub getConfigModel {
-    return pfappserver::Model::Config::MappedPf->new(\%PF_CONFIG_NAME_MAP);
-}
-
 =item object
+
+The default chained dispatcher
+
+/portal/profile/default
 
 =cut
 
 sub object :Chained('/') :PathPart('portal/profile/default') :CaptureArgs(0) {
     my ($self, $c) = @_;
     my $result = $self->SUPER::object($c,'default');
-    my $profile = $c->stash->{profile};
+    my $profile = $c->stash->{item};
     if ($profile) {
         @{$profile}{'id','description'} = ( 'default', 'The Default Profile');
     }
@@ -129,7 +130,7 @@ sub revert_all :Chained('object') :PathPart :Args(0) {
 
 =cut
 
-sub delete_profile :Chained('object') :PathPart('delete') :Args(0) {
+sub remove :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
     $c->stash->{status_msg} = "Cannot delete the default profile";
     $c->go('bad_request');

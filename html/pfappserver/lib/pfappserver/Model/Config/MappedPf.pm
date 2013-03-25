@@ -27,6 +27,10 @@ has 'pf_entries'    => ( is => 'rw', isa => 'ArrayRef');
 has 'virtual_names' => ( is => 'rw', isa => 'ArrayRef');
 
 
+=head2 Methods
+
+=over
+
 =item BUILDARGS
 
 =cut
@@ -100,6 +104,7 @@ sub update {
     return $self->pf_config->update($self->map_names($config_ref));
 }
 
+sub readConfig {}
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
