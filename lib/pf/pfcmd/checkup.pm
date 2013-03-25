@@ -851,8 +851,12 @@ sub switches {
 
         # check type
         my $type = "pf::SNMP::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
-        if ( !(eval "$type->require()" ) ) {
-            add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
+        # FIXME lame taint-mode bypass
+        if ($type =~ /^(.+)$/) {
+            $type = $1;
+            if ( !(eval "$type->require()" ) ) {
+                add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
+            }
         }
 
         # check for valid switch IP

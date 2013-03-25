@@ -28,7 +28,7 @@ use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
 use Log::Log4perl;
-use Net::Interface qw(inet_ntoa);
+use Net::Interface;
 use Net::Netmask;
 use POSIX;
 use Readonly;
