@@ -149,6 +149,23 @@ sub view :Chained('object') :PathPart('') :Args(0) {
 }
 
 
+=item list
+
+=cut
+
+sub list :Local :Args(0) {
+    my ( $self, $c ) = @_;
+    my ($status,$result) = $self->getModel($c)->readAll();
+    if (is_error($status)) {
+        $c->res->status($status);
+        $c->error($c->loc($result));
+    } else {
+        $c->stash(
+            items => $result,
+        )
+    }
+}
+
 =back
 
 =head1 COPYRIGHT
