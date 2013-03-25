@@ -826,11 +826,7 @@ sub switches {
     }
 
     # remove trailing whitespaces
-    foreach my $section ( tied(%switches_conf)->Sections ) {
-        foreach my $key ( keys %{ $switches_conf{$section} } ) {
-            $switches_conf{$section}{$key} =~ s/\s+$//;
-        }
-    }
+    tied(%switches_conf)->Sections->cleanupWhitespace();
 
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
