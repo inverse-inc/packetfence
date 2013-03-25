@@ -22,6 +22,7 @@ case "$1" in
                 useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
                 echo "create pf user"
         fi
+        usermod -a -G pf dhcpd
         exit 0
     ;;
     

@@ -180,21 +180,23 @@ sub service_ctl {
                             pf::freeradius::freeradius_populate_nas_config();
 
                         }
-                        my $cmd_line = sprintf($service_launchers{$daemon}, $service);
-                        $logger->info("Starting $daemon with '$cmd_line'");
-                        # FIXME lame taint-mode bypass
                         if ($service_launchers{$daemon} =~ /^(.+)$/) {
-                            my $launch = $1;
-                            my $cmd_line = sprintf($launch, $service);
+                            my $cmd_line = sprintf($1, $service);
                             $logger->info("Starting $daemon with '$cmd_line'");
                             # FIXME lame taint-mode bypass
-                            if ($cmd_line =~ /^(.+)$/) {
-                                $cmd_line = $1;
-                                my $t0 = Time::HiRes::time();
-                                my $return_value = system($cmd_line);
-                                my $elapsed = Time::HiRes::time() - $t0;
-                                $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $daemon, $elapsed));
-                                return $return_value;
+                            if ($service_launchers{$daemon} =~ /^(.+)$/) {
+                                my $launch = $1;
+                                my $cmd_line = sprintf($launch, $service);
+                                $logger->info("Starting $daemon with '$cmd_line'");
+                                # FIXME lame taint-mode bypass
+                                if ($cmd_line =~ /^(.+)$/) {
+                                    $cmd_line = $1;
+                                    my $t0 = Time::HiRes::time();
+                                    my $return_value = system($cmd_line);
+                                    my $elapsed = Time::HiRes::time() - $t0;
+                                    $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $daemon, $elapsed));
+                                    return $return_value;
+                                }
                             }
                         }
                     } elsif ($daemon eq 'pfdhcplistener') {
