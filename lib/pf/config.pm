@@ -56,7 +56,7 @@ our (
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
-    %CAPTIVE_PORTAL, $profiles_config_file
+    %CAPTIVE_PORTAL, $profiles_config_file, $cached_pf_config
 );
 
 BEGIN {
@@ -101,6 +101,7 @@ BEGIN {
         init_config
         $profiles_config_file
         $switches_config_file
+        $cached_pf_config
         $OS
     );
 }
@@ -380,13 +381,14 @@ sub readPfConfigFiles {
 
     # load default and override by local config (most common case)
     if ( -e $default_config_file || -e $config_file ) {
-        tie %Config, 'pf::config::cached',
-            (
+        $cached_pf_config = pf::config::cached->new(
             -file   => $config_file,
-            -import => pf::config::cached->new( -file => $default_config_file, -isimported => 1 )
-            );
-    }
-    else {
+            -import => pf::config::cached->new(
+                -file => $default_config_file,
+                -isimported => 1
+            )
+        );
+    } else {
         die ("No configuration files present.");
     }
 
@@ -394,13 +396,12 @@ sub readPfConfigFiles {
     if ( scalar(@errors) ) {
         $logger->logcroak( join( "\n", @errors ) );
     }
-
-    #remove trailing spaces..
-    foreach my $section ( tied(%Config)->Sections ) {
-        foreach my $key ( keys %{ $Config{$section} } ) {
-            $Config{$section}{$key} =~ s/\s+$//;
-        }
-    }
+    $cached_pf_config->cleanupWhitespace;
+    $cached_pf_config->toHash(\%Config);
+    $cached_pf_config->addReloadCallback( sub {
+        $cached_pf_config->cleanupWhitespace;
+        $cached_pf_config->toHash(\%Config);
+    });
 
     # TODO why was this commented out? it seems to be adequate, no?
     #normalize time
@@ -435,7 +436,7 @@ sub readPfConfigFiles {
 
     $fqdn = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
 
-    foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+    foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
         my $int_obj;
         my $int = $interface;
         $int =~ s/interface //;
@@ -498,7 +499,7 @@ sub readPfConfigFiles {
     _set_guest_self_registration($modes);
 
     # check for portal profile guest self registration options in case they're disabled in default profile
-    foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
+    foreach my $portalprofile ( $cached_pf_config->GroupMembers("portal-profile") ) {
         # marking guest_self_registration as globally enabled if needed by one of the portal profiles
         if ( isenabled($Config{$portalprofile}{'guest_self_reg'}) ) {
             $guest_self_registration{'enabled'} = $TRUE;
