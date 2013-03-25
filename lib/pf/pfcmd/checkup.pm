@@ -156,7 +156,7 @@ sub interfaces_defined {
 
     my $nb_management_interface = 0;
 
-    foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+    foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
 
@@ -563,11 +563,6 @@ sub is_config_documented {
         return;
     }
 
-    #compare configuration with documentation
-    tie my %myconfig, 'Config::IniFiles', (
-        -file   => $config_file,
-        -import => Config::IniFiles->new( -file => $default_config_file)
-    );
     tie my %documentation, 'Config::IniFiles', ( -file => $conf_dir . "/documentation.conf" );
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
@@ -594,14 +589,14 @@ sub is_config_documented {
                     );
                 }
             } elsif ( $type eq "time" ) {
-                if ( $myconfig{$group}{$item} !~ /\d+$TIME_MODIFIER_RE$/ ) {
+                if ( $cached_pf_config->val($group,$item) !~ /\d+$TIME_MODIFIER_RE$/ ) {
                     add_problem( $FATAL,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"
                     );
                 }
             } elsif ( $type eq "multi" ) {
-                my @selectedOptions = split( /\s*,\s*/, $myconfig{$group}{$item} );
+                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->val($group,$item) );
                 my @availableOptions = split( /\s*[;\|]\s*/, $documentation{$section}{'options'} );
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
@@ -1006,7 +1001,7 @@ sub portal_profiles {
 
     my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
 
-    foreach my $portal_profile ( tied(%Config)->GroupMembers("portal-profile") ) {
+    foreach my $portal_profile ( $cached_pf_config->GroupMembers("portal-profile") ) {
 
         add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
             if ( !defined($Config{$portal_profile}{'filter'}) );
