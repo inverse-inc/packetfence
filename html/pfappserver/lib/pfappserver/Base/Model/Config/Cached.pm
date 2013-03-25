@@ -75,13 +75,13 @@ sub rewriteConfig {
     return ($STATUS::OK, $status_msg);
 }
 
-=item realAllIds
+=item readAllIds
 
 Get all the sections names
 
 =cut
 
-sub realAllIds {
+sub readAllIds {
     my ( $self, $id ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status,$status_msg);
@@ -158,7 +158,7 @@ sub read {
     my $config = $self->cachedConfig;
 
     if ( $config->SectionExists($id) ) {
-        my %item = ( $self->idKey => $id);
+        my %item = defined($self->idKey) ?  ( $self->idKey => $id) : ()  ;
         foreach my $param ($config->Parameters($id)) {
             $item{$param} = $config->val( $id, $param);
         }
