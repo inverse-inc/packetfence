@@ -32,6 +32,7 @@ use pf::Portal::Profile;
 Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
+
 # XXX incomplete
 sub instantiate {
     my ( $self, $mac, $profile_type ) = @_;
@@ -45,11 +46,11 @@ sub instantiate {
     #     reload in there in the future
     # XXX also take the given mac and lookup the SSID on it and return proper
     #     portal object
-    if (defined(tied(%Config)->GroupMembers("portal-profile"))) {
+    if (defined($cached_pf_config->GroupMembers("portal-profile"))) {
         # Fetch filter for every configured portal-profiles
         # Structure: FILTER => NAME OF PROFILE
         my %filters;
-        foreach my $portalprofile ( tied(%Config)->GroupMembers("portal-profile") ) {
+        foreach my $portalprofile ( $cached_pf_config->GroupMembers("portal-profile") ) {
             my $profile = $portalprofile;
             $profile =~ s/portal-profile //;
             $filters{$Config{$portalprofile}{'filter'}} = $profile;
