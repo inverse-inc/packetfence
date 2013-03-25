@@ -125,7 +125,7 @@ sub ReadConfig {
     }
     if($reloaded) {
         local $_;
-        $_->() foreach (@{$self->{on_reload}});
+        $_->($self) foreach (@{$self->{on_reload}});
     }
     $self->{reloaded} = $reloaded;
     $self->{reloaded_from_cache} = $reloaded_from_cache;
