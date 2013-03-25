@@ -121,6 +121,29 @@ sub readAll {
     return ($STATUS::OK, \@sections);
 }
 
+=item hasId
+
+If config has a section
+
+=cut
+
+sub hasId {
+    my ($self, $id ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg);
+    my $config = $self->cachedConfig;
+    if ( $config->SectionExists($id) ) {
+        $status = $STATUS::OK;
+        $status_msg = "\"$id\" found";
+    } else {
+        $status = $STATUS::NOT_FOUND;
+        $status_msg = "\"$id\" does not exists";
+        $logger->warn($status_msg);
+    }
+    $logger->info($status_msg);
+    return ($status,$status_msg);
+}
+
 =item read
 
 reads a section
