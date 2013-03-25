@@ -84,7 +84,7 @@ sub RewriteConfig {
     my $file = $config->{cf};
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
-    if( _expire_if($cached_object)) {
+    if($cached_object && _expire_if($cached_object)) {
         die "Config $file was modified from last loading";
     }
     my $result = $config->RewriteConfig();
