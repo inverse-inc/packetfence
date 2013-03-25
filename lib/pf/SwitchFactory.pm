@@ -71,10 +71,10 @@ sub new {
         $this->{_configFile} = $conf_dir.'/switches.conf';
     }
 
-    tie my %cache_config, 'pf::config::cached' => ( -file => $this->{_configFile} );
-    $this->{_cache_config} = \%cache_config;
+     my $cached_config  = pf::config::cached->new( -file => $this->{_configFile} );
+    $this->{_cached_config} = $cached_config;
     $this->_fixupConfig();
-    tied (%cache_config)->addReloadCallback(sub { $this->_fixupConfig(); });
+    $cached_config->addReloadCallback(sub { $this->_fixupConfig(); });
 
     return $this;
 }
@@ -333,7 +333,7 @@ sub instantiate {
 sub _fixupConfig {
     my ($this) = @_;
     my %config;
-    my $cached_config = $this->{_cache_config};
+    my $cached_config = $this->{_cached_config};
     $cached_config->cleanupWhitespace;
     $cached_config->toHash(\%config);
     $config{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
