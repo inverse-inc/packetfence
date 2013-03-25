@@ -154,11 +154,11 @@ binary-arch: build install
 	# Ubuntu dhcpd issue
 	chmod 775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	chmod 775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	# Set setuid root on bin/pfcmd
 	chown pf:pf -R $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
-	chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb

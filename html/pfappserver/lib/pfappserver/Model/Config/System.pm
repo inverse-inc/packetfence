@@ -59,7 +59,7 @@ sub _get_gateway_interface {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
-        next if ( !($interfaces_ref->{$interface}->{'running'}) );
+        next if ( !($interfaces_ref->{$interface}->{'is_running'}) );
 
         my $network = $interfaces_ref->{$interface}->{'network'};
         my $netmask = $interfaces_ref->{$interface}->{'netmask'};
@@ -89,21 +89,21 @@ sub _inject_default_route {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    my $cmd = "LANG=C route add default gw $gateway 2>&1";
+    my $cmd = "LANG=C sudo route add default gw $gateway 2>&1";
     $logger->debug("Adding default gateway: $cmd");
     $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
     # A default gateway already exists, we should delete it first and retry
     if ( defined($status)  && $status =~ /SIOCADDRT:\ File\ exists/ ) {
         $logger->info("Default gateway already exists, deleting it before adding the new one");
-        $cmd = "route del default 2>&1";
+        $cmd = "sudo route del default 2>&1";
         $logger->debug("Deleting old default gateway: $cmd");
         $status = pf_run($cmd);
         return ($STATUS::INTERNAL_SERVER_ERROR, "Error while deleting existing default gateway") 
             if ( !defined($status) || $status ne "" );
 
         $logger->info("Old default gateway deleted. Injecting the new one");
-        $cmd = "route add default gw $gateway 2>&1";
+        $cmd = "sudo route add default gw $gateway 2>&1";
         $logger->debug("Adding new default gateway: $cmd");
         $status = pf_run($cmd);
         return ($STATUS::INTERNAL_SERVER_ERROR, "Error while adding the new default gateway after deletion")
@@ -141,7 +141,7 @@ sub start_mysqld_service {
     }
 
     # please keep LANG=C in case we need to fetch the output of the command
-    my $cmd = "LANG=C service mysqld start 2>&1";
+    my $cmd = "LANG=C sudo service mysqld start 2>&1";
     $logger->debug("Starting mysqld service: $cmd");
     $status = pf_run($cmd);
 

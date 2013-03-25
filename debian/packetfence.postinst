@@ -66,7 +66,7 @@ case "$1" in
             sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
         fi
         if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig" /etc/sudoers > /dev/null  ) ; then
-            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig" >> /etc/sudoers
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/sbin/service" >> /etc/sudoers
         fi
         if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
             echo 'Defaults:pf !requiretty' >> /etc/sudoers
