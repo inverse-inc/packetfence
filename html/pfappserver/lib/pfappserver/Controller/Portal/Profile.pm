@@ -36,7 +36,7 @@ Readonly our %FILTER_FILES => (
 
 BEGIN {
     extends 'pfappserver::Base::Controller::Base';
-    with 'pfappserver::Base::Controller::Crud';
+    with 'pfappserver::Base::Controller::Crud::Config';
 }
 
 =head2 Methods
@@ -86,17 +86,9 @@ sub index :Path :Args(0) {
 }
 
 
-after [qw(update remove)] => sub {
-    my ($self,$c) = @_;
-    if(is_success($c->response->status) ) {
-        $self->getModel($c)->rewriteConfig();
-    }
-};
-
 after create => sub {
     my ($self,$c) = @_;
     if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
-        $self->getModel($c)->rewriteConfig();
         my($entries_copied,$dir_copied,undef) = $self->copyDefaultFiles($c);
         $c->response->location(
             $c->pf_hash_for(

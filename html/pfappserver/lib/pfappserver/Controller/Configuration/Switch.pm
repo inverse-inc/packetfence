@@ -18,7 +18,7 @@ use pfappserver::Form::Config::Switch;
 
 BEGIN {
     extends 'pfappserver::Base::Controller::Base';
-    with 'pfappserver::Base::Controller::Crud';
+    with 'pfappserver::Base::Controller::Crud::Config';
 }
 
 =head2 Methods
@@ -65,9 +65,7 @@ after [qw(update remove)] => sub {
 
 after create => sub {
     my ($self,$c) = @_;
-    if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
-        $self->getModel($c)->rewriteConfig();
-    } else {
+    if(!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'configuration/switch/read.tt';
     }
 };
@@ -113,19 +111,6 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-sub list :Local :Args(0) {
-    my ( $self, $c ) = @_;
-    my $model = $self->getModel($c);
-    my ($status,$result) = $model->readAll();
-    if (is_error($status)) {
-        $c->res->status($status);
-        $c->error($c->loc($result));
-    } else {
-        $c->stash(
-            items => $result,
-        )
-    }
-}
 
 =back
 
