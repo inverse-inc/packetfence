@@ -356,9 +356,9 @@ sub violations :Local {
     my ($status, $result) = $c->model('Config::Violations')->read_violation('all');
     if (is_success($status)) {
         $c->stash->{violations} = $result;
-        ($status, $result) = $c->model('Config::Profiles')->read_all_names();
+        ($status, $result) = $c->model('Config::Cached::Profile')->readAllIds();
         if (is_success($status)) {
-            $c->stash->{profiles} = $result;
+            $c->stash->{profiles} = ['default',@$result];
         }
     }
     else {
