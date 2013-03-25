@@ -108,13 +108,13 @@ sub deleteCustomProfile {
     my ($self,$name) = @_;
     my $section = "portal-profile $name";
     if (exists $Config{$section}) {
-        tied(%Config)->DeleteSection($section);
+        $cached_pf_config->DeleteSection($section);
     }
 }
 
 sub getAllCustomProfiles {
      return map { s/portal-profile //; pf::Portal::Profile->new(_custom_profile($_))  }
-            tied(%Config)->GroupMembers("portal-profile");
+            $cached_pf_config->GroupMembers("portal-profile");
 }
 
 =back
