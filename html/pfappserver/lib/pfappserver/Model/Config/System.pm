@@ -304,6 +304,7 @@ our $_network_conf_dir    = "/etc/sysconfig/";
 our $_interfaces_conf_dir = "network-scripts/";
 our $_network_conf_file   = "network";
 our $_interface_conf_file = "ifcfg-";
+our $var_dir              = "/usr/local/pf/var/";
 
 =head3 METHODS
 
@@ -319,7 +320,7 @@ sub writeNetworkConfigs {
     my $status_msg;
 
     foreach my $interface ( sort keys(%$interfaces_ref) ) {
-        next if ( !($interfaces_ref->{$interface}->{'running'}) );
+        next if ( !($interfaces_ref->{$interface}->{'is_running'}) );
 
         my $vars = {
             logical_name    => $interface,
@@ -331,7 +332,7 @@ sub writeNetworkConfigs {
 
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
-            OUTPUT_PATH     => $_network_conf_dir.$_interfaces_conf_dir,
+            OUTPUT_PATH     => $var_dir,
         });
         $template->process( "interface_rhel.tt", $vars, $_interface_conf_file.$interface );
 
@@ -339,7 +340,15 @@ sub writeNetworkConfigs {
             $status_msg = "Error while writing system network interfaces configuration";
             $logger->error("$status_msg");
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-        } 
+        }
+        my $cmd = "cat $var_dir$_interface_conf_file$interface | sudo tee $_network_conf_dir$_interfaces_conf_dir$_interface_conf_file$interface 2>&1";
+        my $status = pf_run($cmd);
+        # Something wen't wrong
+        if ( !(defined($status) ) ) {
+            $status_msg = "Something wen't wrong while writing the network interface file";
+            $logger->warn($status_msg);
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
     }
 
     if ( !(-e $_network_conf_dir.$_network_conf_file) ) {
@@ -354,15 +363,27 @@ sub writeNetworkConfigs {
 
     @content = grep !/^GATEWAY=/, @content;
 
-    open OUT, '>', $_network_conf_dir.$_network_conf_file;
-    print OUT @content;
-    print OUT "GATEWAY=$gateway";
-    close OUT;
+    my $cmd = "echo @content | sudo tee $_network_conf_dir$_network_conf_file";
+    my $status = pf_run($cmd);
+    # Something wen't wrong
+    if ( !(defined($status) ) ) {
+        $status_msg = "Something wen't wrong while writing the network file";
+        $logger->warn($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+    $cmd = "echo GATEWAY=$gateway | sudo tee -a $_network_conf_dir$_network_conf_file";
+
+    $status = pf_run($cmd);
+    # Something wen't wrong
+    if ( !(defined($status) ) ) {
+        $status_msg = "Something wen't wrong while writing the network file";
+        $logger->warn($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
 
     $logger->info("System network configurations successfully written");
     return $STATUS::OK;
 }
-
 
 package pfappserver::Model::Config::System::Debian;
 
@@ -386,6 +407,7 @@ with 'pfappserver::Model::Config::System::Role';
 
 our $_network_conf_dir    = "/etc/network/";
 our $_network_conf_file   = "interfaces";
+our $var_dir              ="/usr/local/pf/var/";
 
 =head3 METHODS
 
@@ -408,7 +430,7 @@ sub writeNetworkConfigs {
 
     my $template = Template->new({
         INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",
-        OUTPUT_PATH     => $_network_conf_dir,
+        OUTPUT_PATH     => $var_dir,
     });
     $template->process( "interface_debian.tt", $vars, $_network_conf_file ) || $logger->error($template->error());
 
@@ -417,9 +439,21 @@ sub writeNetworkConfigs {
         $logger->error("$status_msg");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-
-    $logger->info("System network configurations successfully written");
-    return $STATUS::OK;
+    my $cmd = "cat $var_dir$_network_conf_file | sudo tee $_network_conf_dir$_network_conf_file 2>&1";
+    $logger->warn($cmd);
+    my $status = pf_run($cmd);
+    # Everything goes as expected
+    if ( defined($status) ) {
+        $status_msg = "Interface creation successfull";
+        $logger->info($status_msg);
+        return ($STATUS::OK, $status_msg);
+    }
+    # Something wen't wrong
+    else {
+        $status_msg = "Something wen't wrong while writing the network interface file";
+        $logger->warn($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
 }
 
 =back

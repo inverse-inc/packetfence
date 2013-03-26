@@ -193,7 +193,7 @@ Returns an hashref with:
         name       => physical int (eth0 even if in a VLAN int)
         ipaddress  => ...
         netmask    => ...
-        running    => true / false value
+        is_running    => true / false value
         network    => network address (ie 192.168.0.0 for a 192.168.0.1 IP)
         hwaddress  => mac address
         type       => enforcement type (see Enforcement model)
