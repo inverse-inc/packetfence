@@ -47,7 +47,7 @@ our (
     $default_config_file, %Default_Config,
     $config_file, %Config,
     $network_config_file, %ConfigNetworks, %ConfigOAuth, $oauth_ip_file,
-    $pf_config_file, $pf_default_file, $pf_doc_file,
+    $pf_config_file, $pf_default_file, $pf_doc_file, %Doc_Config,
     $switches_config_file, $violations_config_file, $authentication_config_file, $floating_devices_config_file,
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
     $oui_file, $oui_url,
@@ -56,8 +56,9 @@ our (
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
-    %CAPTIVE_PORTAL, $profiles_config_file, $cached_pf_config,
-    $cached_network_config, $cached_floating_device_config, $cached_oauth_ip_config
+    %CAPTIVE_PORTAL, $profiles_config_file, $cached_pf_config, $cached_pf_default_config,
+    $cached_network_config, $cached_floating_device_config, $cached_oauth_ip_config,
+    $cached_pf_doc_config
 );
 
 BEGIN {
@@ -103,7 +104,9 @@ BEGIN {
         $profiles_config_file
         $switches_config_file
         $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config
+        $cached_pf_default_config $cached_pf_doc_config
         $OS
+        %Doc_Config
     );
 }
 
@@ -336,6 +339,7 @@ multi-threaded daemons.
 =cut
 
 sub init_config {
+    readPfDocConfigFiles();
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
@@ -374,6 +378,43 @@ sub os_detection {
     }
 }
 
+=item readPfDocConfigFiles
+
+=cut
+
+sub readPfDocConfigFiles {
+    $cached_pf_doc_config = pf::config::cached->new(-file => $pf_doc_file);
+    my $callback = sub {
+        my ($config) = @_;
+        $config->cleanupWhitespace();
+        $config->toHash(\%Doc_Config);
+        foreach my $doc_data (values %Doc_Config) {
+            if (exists $doc_data->{options} && defined $doc_data->{options}) {
+                my $options = $doc_data->{options};
+                $doc_data->{options} = [split(/\|/, $options)] if defined $options;
+            } else {
+                $doc_data->{options} = [];
+            }
+            if (exists $doc_data->{description} && defined $doc_data->{description}) {
+                # Limited formatting from text to html
+                my $description = $doc_data->{description};
+                $description =~ s/</&lt;/g; # convert < to HTML entity
+                $description =~ s/>/&gt;/g; # convert > to HTML entity
+                $description =~ s/(\S*(&lt;|&gt;)\S*)\b/<code>$1<\/code>/g; # enclose strings that contain < or >
+                $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
+                $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
+                $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
+                $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
+                $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
+                $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
+                $doc_data->{description} = $description;
+            }
+        }
+    };
+    $callback->($cached_pf_doc_config);
+    $cached_pf_doc_config->addReloadCallback($callback);
+}
+
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
 
 =cut
@@ -381,13 +422,17 @@ sub os_detection {
 sub readPfConfigFiles {
 
     # load default and override by local config (most common case)
+    $cached_pf_default_config = pf::config::cached->new(
+                -file => $default_config_file,
+                -isimported => 1
+    );
+    $cached_pf_default_config->cleanupWhitespace();
+    $cached_pf_default_config->toHash(\%Default_Config);
+
     if ( -e $default_config_file || -e $config_file ) {
         $cached_pf_config = pf::config::cached->new(
             -file   => $config_file,
-            -import => pf::config::cached->new(
-                -file => $default_config_file,
-                -isimported => 1
-            )
+            -import => $cached_pf_default_config,
         );
     } else {
         die ("No configuration files present.");
@@ -397,30 +442,17 @@ sub readPfConfigFiles {
         $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
     }
 
+
     #creating a call back to be called everytime the pf.conf file is reloaded
-    my $callback = sub {
+    my $pf_callback = sub {
         my ($config) = @_;
         $config->cleanupWhitespace();
         $config->toHash(\%Config);
-        # TODO why was this commented out? it seems to be adequate, no?
-        #normalize time
-        #tie %documentation, 'pf::config::cached', ( -file => $conf_dir."/documentation.conf" );
-        #foreach my $section (sort tied(%documentation)->Sections) {
-        #   my($group,$item) = split(/\./, $section);
-        #   my $type = $documentation{$section}{'type'};
-        #   $Config{$group}{$item}=normalize_time($Config{$group}{$item}) if ($type eq "time");
-        #}
+
+        my @time_values = grep {   my $t = $Doc_Config{$_}{type}; defined $t && $t  eq 'time'} keys %Doc_Config;
 
         #normalize time
-        foreach my $val (
-            "expire.iplog",               "expire.traplog",
-            "expire.locationlog",         "expire.node",
-            "trapping.redirtimer",
-            "general.maintenance_interval", "scan.duration",
-            "vlan.bounce_duration",
-            "guests_self_registration.email_activation_timeout",
-            "guests_admin_registration.default_access_duration",
-        ) {
+        foreach my $val (@time_values ) {
             my ( $group, $item ) = split( /\./, $val );
             $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
         }
@@ -516,10 +548,16 @@ sub readPfConfigFiles {
         _load_captive_portal();
     };
 
-    $callback->($cached_pf_config);
+    $pf_callback->($cached_pf_config);
 
-    $cached_pf_config->addReloadCallback( $callback );
+    $cached_pf_config->addReloadCallback( $pf_callback );
 
+    $cached_pf_default_config->addReloadCallback( sub {
+        my ($config) = @_;
+        $config->cleanupWhitespace();
+        $config->toHash(\%Default_Config);
+        $cached_pf_config->ReadConfig();
+    });
 }
 
 sub _set_guest_self_registration {
