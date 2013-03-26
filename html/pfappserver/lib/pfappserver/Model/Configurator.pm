@@ -94,12 +94,12 @@ sub createAdminUser {
 
     # First check if user/password already exists
     unless ($htpasswd->htCheckPassword($user, $password)) {
-        $htpasswd->htpasswd($user, $password);
-
-        if ( $htpasswd->error ) {
-            $status_msg = "Error creating administrative user $user";
-            $logger->error($status_msg . " | " . $htpasswd->error);
-            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        unless ($htpasswd->htpasswd($user, $password, { 'overwrite' => 1 })) {
+            if ( $htpasswd->error ) {
+                $status_msg = "Error creating administrative user $user";
+                $logger->error($status_msg . " | " . $htpasswd->error);
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
         }
     }
 
