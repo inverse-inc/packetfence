@@ -13,12 +13,14 @@ Form definition to create or update a section of pf.conf.
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
+use pf::config;
 
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 has 'section' => ( is => 'ro' );
+
 
 =head2 field_list
 
@@ -30,27 +32,26 @@ sub field_list {
     my $self = shift;
 
     my $list = [];
-    my $init_compound = 1;
-    foreach my $param (@{$self->section}) {
-        my $name = $param->{parameter};
-        #$name =~ s/\./::dot::/g; $name =~ s/::dot::/\./;
-        my $id = $name; $id =~ s/\./_/;
-        if ($init_compound) {
-            # Create a compound field for the section name in order to keep
-            # the section prefix for each parameter
-            my ($section) = $name =~ m/^([^\.]+)\./;
-            push(@$list, $section => { type => 'Compound' });
-            $init_compound = 0;
-        }
+    my $section = $self->section;
+    my @section_fields = $cached_pf_default_config->Parameters($section);
+    foreach my $name (@section_fields) {
+        my $doc_section_name = "$section.$name";
+        my $doc_section = $Doc_Config{$doc_section_name};
+        my $defaults = $Default_Config{$section};
         my $field =
-          { element_attr => { 'placeholder' => $param->{default_value} },
+          { element_attr => { 'placeholder' => $defaults->{$name} },
             tags => { after_element => \&help, # parent method, defined in Theme::Pf
-                      help => $param->{description} },
-            id => $id,
-            label => $name,
+                      help => $doc_section->{description} },
+            id => $name,
+            label => $doc_section_name,
           };
-        my $type = $param->{type};
+        my $type = $doc_section->{type} || "text";
         {
+
+            ($type eq "text" && $doc_section->{description} =~ m/comma[-\s](delimite|separate)/si) && do {
+                $type = 'text-large';
+                last;
+            };
             $type eq 'text' && do {
                 $field->{type} = 'Text';
                 last;
@@ -69,23 +70,23 @@ sub field_list {
                 $field->{multiple} = 1;
                 $field->{element_class} = ['chzn-select', 'input-xxlarge'];
                 $field->{element_attr} = {'data-placeholder' => 'Click to add'};
-                my @options = map { { value => $_, label => $_ } } @{$param->{options}};
+                my @options = map { { value => $_, label => $_ } } @{$doc_section->{options}};
                 $field->{options} = \@options;
                 last;
             };
             $type eq 'toggle' && do {
-                if ($param->{options}->[0] eq 'enabled' ||
-                    $param->{options}->[0] eq 'yes') {
+                if ($doc_section->{options}->[0] eq 'enabled' ||
+                    $doc_section->{options}->[0] eq 'yes') {
                     $field->{type} = 'Toggle';
-                    $field->{checkbox_value} = $param->{options}->[0];
-                    $field->{unchecked_value} = $param->{options}->[1];
+                    $field->{checkbox_value} = $doc_section->{options}->[0];
+                    $field->{unchecked_value} = $doc_section->{options}->[1];
                 }
                 else {
                     $field->{type} = 'Select';
                     $field->{element_class} = ['chzn-deselect'];
                     $field->{element_attr} = {'data-placeholder' => 'No selection'};
                     $field->{localize_labels} = 1;
-                    my @options = map { { value => $_, label => $_ } } @{$param->{options}};
+                    my @options = map { { value => $_, label => $_ } } @{$doc_section->{options}};
                     $field->{options} = \@options;
                 }
                 last;
@@ -102,27 +103,7 @@ sub field_list {
 
         push(@$list, $name => $field);
     }
-
     return $list;
-}
-
-=head2 init_object
-
-Dynamically initialize the field values from the 'section' instance attribute.
-
-=cut
-
-sub init_object {
-    my $self = shift;
-
-    my $object = {};
-    foreach my $param (@{$self->section}) {
-        my ($section, $name) = $param->{parameter} =~ m/^([^\.]+)\.(.+)$/;
-        #$name =~ s/\./::dot::/;
-        $object->{$section}->{$name} = $param->{value};
-    }
-
-    return $object;
 }
 
 #sub validate {

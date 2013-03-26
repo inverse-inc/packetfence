@@ -34,71 +34,6 @@ BEGIN {extends 'pfappserver::Base::Controller::Base'; }
 
 =cut
 
-=head2 _format_section
-
-=cut
-
-sub _format_section :Private {
-    my ($self, $entries_ref) = @_;
-
-    for (my $i = 0; $i < scalar @{$entries_ref}; $i++) {
-        my $entry_ref = $entries_ref->[$i];
-
-        # Try to be smart. Description that refers to a comma-delimited list must be bigger.
-        if ($entry_ref->{type} eq "text" && $entry_ref->{description} =~ m/comma[-\s](delimite|separate)/si) {
-            $entry_ref->{type} = 'text-large';
-        }
-
-        # Value should always be defined for toggles (checkbox and select) and times (duration)
-        elsif ($entry_ref->{type} eq "toggle" ||
-               $entry_ref->{type} eq "time") {
-            $entry_ref->{value} = $entry_ref->{default_value} unless ($entry_ref->{value});
-        }
-
-        elsif ($entry_ref->{type} eq "date") {
-            my $time = str2time($entry_ref->{value} || $entry_ref->{default_value});
-            # Match date format of Form::Widget::Theme::Pf
-            $entry_ref->{value} = POSIX::strftime("%Y-%m-%d", localtime($time));
-        }
-
-        # Limited formatting from text to html
-        $entry_ref->{description} =~ s/</&lt;/g; # convert < to HTML entity
-        $entry_ref->{description} =~ s/>/&gt;/g; # convert > to HTML entity
-        $entry_ref->{description} =~ s/(\S*(&lt;|&gt;)\S*)\b/<code>$1<\/code>/g; # enclose strings that contain < or >
-        $entry_ref->{description} =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
-        $entry_ref->{description} =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
-        $entry_ref->{description} =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
-        $entry_ref->{description} =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
-        $entry_ref->{description} =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
-        $entry_ref->{description} =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-    }
-}
-
-=head2 _update_section
-
-=cut
-
-sub _update_section :Private {
-    my ($self, $c, $form) = @_;
-
-    my $entries_ref = $c->model('Config::Pf')->read($c->action->name);
-    my $data = {};
-
-    foreach my $section (keys %$form) {
-        foreach my $field (keys %{$form->{$section}}) {
-            $data->{$section.'.'.$field} = $form->{$section}->{$field};
-        }
-    }
-
-    my ($status, $message) = $c->model('Config::Pf')->update($data);
-
-    if (is_error($status)) {
-        $c->response->status($status);
-    }
-    $c->stash->{status_msg} = $message;
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head2 _process_section
 
 =cut
@@ -111,25 +46,29 @@ sub _process_section :Private {
     $c->stash->{section} = $section;
     $c->stash->{template} = 'configuration/section.tt';
 
-    $params = $c->model('Config::Pf')->read($section);
-    $self->_format_section($params);
+    my $model = $c->model('Config::Cached::Pf')->new;
+    $model->readConfig();
 
     if ($c->request->method eq 'POST') {
         $form = pfappserver::Form::Config::Pf->new(ctx => $c,
-                                                   section => $params);
+                                                   section => $section);
         $form->process(params => $c->req->params);
         if ($form->has_errors) {
             $c->response->status(HTTP_BAD_REQUEST);
             $c->stash->{status_msg} = $form->field_errors; # TODO: localize error message
         }
         else {
-            $self->_update_section($c, $form->value);
+            $model->update($section, $form->value);
+            $model->rewriteConfig();
         }
     }
     else {
-        $form = pfappserver::Form::Config::Pf->new(ctx => $c,
-                                                   section => $params);
-        $form->process;
+        my ($status,$params) = $model->read($section);
+        $form = pfappserver::Form::Config::Pf->new(
+            ctx => $c,
+            section => $section
+        );
+        $form->process(init_object => $params);
         $c->stash->{form} = $form;
     }
 }
