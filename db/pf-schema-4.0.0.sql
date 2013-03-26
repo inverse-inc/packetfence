@@ -17,6 +17,7 @@ CREATE TABLE class (
   button_text varchar(255),
   enabled char(1) NOT NULL default "N",
   vlan varchar(255),
+  target_category varchar(255),
   PRIMARY KEY (vid)
 ) ENGINE=InnoDB;
 

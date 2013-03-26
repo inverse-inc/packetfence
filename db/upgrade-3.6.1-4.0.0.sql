@@ -20,3 +20,5 @@ CREATE TABLE savedsearch (
     in_dashboard TINYINT,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB;
+
+ALTER TABLE `class` ADD `target_category` varchar(255) default '' AFTER `vlan`;
