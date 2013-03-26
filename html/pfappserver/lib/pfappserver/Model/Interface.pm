@@ -306,7 +306,7 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    $self->setType($interface_ref, $models);
+    $self->setType($interface, $interface_ref, $models);
 
     return ($STATUS::OK, "Interface $interface successfully edited");
 }
@@ -361,9 +361,8 @@ sub getType {
 
 =cut
 sub setType {
-    my ( $self, $interface_ref, $models ) = @_;
+    my ( $self, $interface, $interface_ref, $models ) = @_;
 
-    my $interface = $interface_ref->{name};
     my $type = $interface_ref->{type} || 'none';
 
     # we ignore interface type 'Other' (it basically means unsupported in configurator)
