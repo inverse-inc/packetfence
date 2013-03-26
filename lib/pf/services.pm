@@ -31,6 +31,8 @@ use Readonly;
 use Time::HiRes;
 use Try::Tiny;
 use UNIVERSAL::require;
+use Proc::ProcessTable;
+use List::Util qw(first);
 
 use pf::config;
 use pf::config::cached;
@@ -50,7 +52,7 @@ use pf::SwitchFactory;
 Readonly our @ALL_SERVICES => (
     'named', 'dhcpd', 'snort', 'suricata', 'radiusd',
     'httpd.soap', 'httpd.admin', 'httpd.captport', 'snmptrapd',
-    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon', 'httpd'
 );
 
 Readonly our @APACHE_SERVICES => (
@@ -122,6 +124,7 @@ sub service_ctl {
         $service = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$daemon" );
     }
     my $binary = basename($service);
+    my $ppt = new Proc::ProcessTable;
 
     #Untaint Daemon
     $daemon =~ /^(.*)$/;
@@ -220,6 +223,7 @@ sub service_ctl {
                         }
                     } elsif ($daemon eq 'httpd') {
                         foreach my $serv (@APACHE_SERVICES) {
+                            next if ($serv eq "httpd.admin");
                             my $cmd_line = sprintf($service_launchers{$serv}, $service);
                             # FIXME lame taint-mode bypass
                             if ($cmd_line =~ /^(.+)$/) {
@@ -269,8 +273,9 @@ sub service_ctl {
 
                             my $maxWait = 10;
                             my $curWait = 0;
-                            while (( $curWait < $maxWait )
-                                && ( service_ctl( $daemon, "status" ) ne "0" ) )
+                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            while ( ( ( $curWait < $maxWait )
+                                && ( service_ctl( $daemon, "status" ) ne "0" ) ) && defined($proc) )
                             {
                                 $logger->info("Waiting for $binary to stop");
                                 sleep(2);
@@ -283,36 +288,40 @@ sub service_ctl {
                         }
                     }
                 } else {
-                    my $pid = service_ctl( $daemon, "status" );
-                    if ($pid) {
-                        my $cmd = "/bin/kill -TERM $pid";
+                    my $pids = service_ctl( $daemon, "status" );
+                    my @pid = split(' ', $pids);
+                    foreach my $pid (@pid) {
+                        if ($pid) {
+                            my $cmd = "/bin/kill -TERM $pid";
 
-                        #Untaint cmd
-                        $cmd =~ /^(.*)$/;
-                        $cmd = $1;
-                        $logger->info("Stopping $daemon with '$cmd'");
-                        eval { `$cmd`; };
-                        if ($@) {
-                            $logger->logcroak("Can't stop $daemon with '$cmd': $@");
-                            return;
-                        }
+                            #Untaint cmd
+                            $cmd =~ /^(.*)$/;
+                            $cmd = $1;
+                            $logger->info("Stopping $daemon with '$cmd'");
+                            eval { `$cmd`; };
+                            if ($@) {
+                                $logger->logcroak("Can't stop $daemon with '$cmd': $@");
+                                return;
+                            }
 
-                        if ( $service =~ /(dhcpd)/) {
-                            manage_Static_Route();
-                        }
+                            if ( $service =~ /(dhcpd)/) {
+                                manage_Static_Route();
+                            }
 
-                        my $maxWait = 10;
-                        my $curWait = 0;
-                        while (( $curWait < $maxWait )
-                            && ( service_ctl( $daemon, "status" ) ne "0" ) )
-                        {
-                            $logger->info("Waiting for $binary to stop");
-                            sleep(2);
-                            $curWait++;
-                        }
-                        if ( -e $install_dir . "/var/run/$binary.pid" ) {
-                            $logger->info("Removing $install_dir/var/run/$binary.pid");
-                            unlink( $install_dir . "/var/run/$binary.pid" );
+                            my $maxWait = 10;
+                            my $curWait = 0;
+                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            while ( ( ( $curWait < $maxWait )
+                                && ( service_ctl( $daemon, "status" ) ne "0" ) ) && defined($proc) )
+                            {
+                                $logger->info("Waiting for $binary to stop");
+                                sleep(2);
+                                $curWait++;
+                            }
+                            if ( -e $install_dir . "/var/run/$binary.pid" ) {
+                                $logger->info("Removing $install_dir/var/run/$binary.pid");
+                                unlink( $install_dir . "/var/run/$binary.pid" );
+                            }
                         }
                     }
                 }

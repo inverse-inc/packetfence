@@ -440,7 +440,6 @@ sub writeNetworkConfigs {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
     my $cmd = "cat $var_dir$_network_conf_file | sudo tee $_network_conf_dir$_network_conf_file 2>&1";
-    $logger->warn($cmd);
     my $status = pf_run($cmd);
     # Everything goes as expected
     if ( defined($status) ) {

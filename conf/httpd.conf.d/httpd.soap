@@ -96,6 +96,8 @@ $MinSpareServers = "6";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
+$ErrorLog = $install_dir.'/logs/soap_error_log';
+
 $NameVirtualHost => "*:$PfConfig->{'ports'}{'soap'}";
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {

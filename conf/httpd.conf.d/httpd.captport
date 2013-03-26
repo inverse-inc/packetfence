@@ -148,6 +148,8 @@ $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "connect builtin";
 $SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL";
 
+$ErrorLog = $install_dir.'/logs/captiveportal_error_log';
+
 @NameVirtualHost = ("*:80","*:443");
 
 foreach my $interface (@internal_nets) {
