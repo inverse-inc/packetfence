@@ -563,46 +563,32 @@ sub is_config_documented {
         return;
     }
 
-    tie my %documentation, 'Config::IniFiles', ( -file => $conf_dir . "/documentation.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        my $message = join( "\n", @errors ) . "\n";
-        add_problem( $FATAL, "problem reading documentation.conf. Error: $message" );
-    }
-
     #starting with documentation vs configuration
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
-    foreach my $section ( sort tied(%documentation)->Sections ) {
+    foreach my $section ( sort keys %Doc_Config) {
         my ( $group, $item ) = split( /\./, $section );
-        my $type = $documentation{$section}{'type'};
+        my $type = $Doc_Config{$section}{'type'};
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
 
         if ( defined( $Config{$group}{$item} ) ) {
-            if ( $type eq "toggle" ) {
-                if ( $Config{$group}{$item} !~ /^$documentation{$section}{'options'}$/ ) {
-                    add_problem( $FATAL,
-                        "pf.conf value $group\.$item must be one of the following: "
-                        . $documentation{$section}{'options'}
-                    );
-                }
-            } elsif ( $type eq "time" ) {
+            if ( $type eq "time" ) {
                 if ( $cached_pf_config->val($group,$item) !~ /\d+$TIME_MODIFIER_RE$/ ) {
                     add_problem( $FATAL,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"
                     );
                 }
-            } elsif ( $type eq "multi" ) {
+            } elsif ( $type eq "multi" || $type eq "toggle" ) {
                 my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->val($group,$item) );
-                my @availableOptions = split( /\s*[;\|]\s*/, $documentation{$section}{'options'} );
+                my @availableOptions = @{$Doc_Config{$section}{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
                         add_problem( $FATAL,
                             "pf.conf values for $group\.$item must be among the following: " .
-                            $documentation{$section}{'options'} .  " but you used $currentSelectedOption. " .
+                            join("|",@availableOptions) .  " but you used $currentSelectedOption. " .
                             "If you are sure of this choice, please update conf/documentation.conf"
                         );
                     }
@@ -621,7 +607,7 @@ sub is_config_documented {
                   || ($section =~ /^(services|interface|portal-profile|oauth2|nessus_category_policy)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
-            if ( !defined( $documentation{"$section.$item"} ) ) {
+            if ( !defined( $Doc_Config{"$section.$item"} ) ) {
                 add_problem( $FATAL,
                     "unknown configuration parameter $section.$item ".
                     "if you added the parameter yourself make sure it is present in conf/documentation.conf"
@@ -826,7 +812,7 @@ sub switches {
     }
 
     # remove trailing whitespaces
-    tied(%switches_conf)->Sections->cleanupWhitespace();
+    tied(%switches_conf)->cleanupWhitespace();
 
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
