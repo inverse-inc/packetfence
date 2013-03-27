@@ -116,7 +116,11 @@ sub readAll {
             $section{$param} = $config->val( $id, $param);
         }
         $self->cleanupAfterRead($id,\%section);
-        push @sections,\%section;
+        if ($id eq 'default') {
+            unshift @sections, \%section;
+        } else {
+            push @sections,\%section;
+        }
     }
     return ($STATUS::OK, \@sections);
 }
