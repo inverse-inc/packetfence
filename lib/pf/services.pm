@@ -51,12 +51,13 @@ use pf::SwitchFactory;
 
 Readonly our @ALL_SERVICES => (
     'named', 'dhcpd', 'snort', 'suricata', 'radiusd',
-    'httpd.soap', 'httpd.admin', 'httpd.captport', 'snmptrapd',
+    'httpd.webservices', 'httpd.admin', 'httpd.portal', 'snmptrapd',
+
     'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon', 'httpd'
 );
 
 Readonly our @APACHE_SERVICES => (
-    'httpd.soap', 'httpd.admin', 'httpd.captport'
+    'httpd.webservices', 'httpd.admin', 'httpd.portal'
 );
 
 my $services = join("|", @ALL_SERVICES);
@@ -80,9 +81,9 @@ sprintf-formatted strings that control how the services should be started.
 
 my %service_launchers;
 $service_launchers{'httpd'} = "%1\$s -f $conf_dir/httpd.conf";
-$service_launchers{'httpd.soap'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.soap -D$OS";
+$service_launchers{'httpd.webservices'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.webservices -D$OS";
 $service_launchers{'httpd.admin'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.admin -D$OS";
-$service_launchers{'httpd.captport'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.captport -D$OS";
+$service_launchers{'httpd.portal'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.portal -D$OS";
 
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
 $service_launchers{'pfmon'} = '%1$s -d &';
@@ -152,8 +153,8 @@ sub service_ctl {
                         'snort' => \&generate_snort_conf,
                         'suricata' => \&generate_suricata_conf,
                         'httpd' => \&generate_httpd_conf,
-                        'httpd.soap' => \&generate_httpd_conf,
-                        'httpd.captport' => \&generate_httpd_conf,
+                        'httpd.webservices' => \&generate_httpd_conf,
+                        'httpd.portal' => \&generate_httpd_conf,
                         'httpd.admin' => \&generate_httpd_conf,
                         'radiusd' => \&generate_radiusd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
@@ -168,7 +169,7 @@ sub service_ctl {
                 # valid daemon and flags are set
                 if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($service_launchers{$daemon})) {
 
-                    if ( !( ($daemon eq 'pfdhcplistener' ) || ($daemon eq 'httpd') || ($daemon eq 'httpd.soap') || ($daemon eq 'httpd.admin') || ($daemon eq 'httpd.captport') ) ) {
+                    if ( !( ($daemon eq 'pfdhcplistener' ) || ($daemon eq 'httpd') || ($daemon eq 'httpd.webservices') || ($daemon eq 'httpd.admin') || ($daemon eq 'httpd.portal') ) ) {
                         if ( $daemon eq 'dhcpd' ) {
 
                             # create var/dhcpd/dhcpd.leases if it doesn't exist
@@ -343,7 +344,7 @@ sub service_ctl {
             $action eq "status" && do {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.soap") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.captport") ) ) {
+                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") ) ) {
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
                     }

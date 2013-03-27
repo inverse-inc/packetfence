@@ -111,7 +111,7 @@ my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
 
 
-$PidFile = $install_dir.'/var/run/httpd.captport.pid';
+$PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
@@ -202,8 +202,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push @{ $VirtualHost{$management_network->{'Tip'}.":443"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/soap_error_log',
-         CustomLog           => $install_dir.'/logs/soap_access_log combined',
+         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
+         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
          SSLEngine           => 'on',
          Include             => $var_dir.'/conf/ssl-certificates.conf',
          Include             => $var_dir.'/conf/captive-portal-common.conf',

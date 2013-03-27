@@ -1,4 +1,4 @@
-#SOAP apache configuration file
+#Webservices apache configuration file
 
 <IfDefine debian>
   <IfModule !mod_perl.c>
@@ -68,7 +68,7 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 
-$PidFile = $install_dir.'/var/run/httpd.soap.pid';
+$PidFile = $install_dir.'/var/run/httpd.webservices.pid';
 
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
@@ -96,7 +96,7 @@ $MinSpareServers = "6";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
-$ErrorLog = $install_dir.'/logs/soap_error_log';
+$ErrorLog = $install_dir.'/logs/webservices_error_log';
 
 $NameVirtualHost => "*:$PfConfig->{'ports'}{'soap'}";
 
@@ -109,8 +109,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
         {
              ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'soap'},
              DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-             ErrorLog            => $install_dir.'/logs/soap_error_log',
-             CustomLog           => $install_dir.'/logs/soap_access_log combined',
+             ErrorLog            => $install_dir.'/logs/webservices_error_log',
+             CustomLog           => $install_dir.'/logs/webservices_access_log combined',
              SSLEngine           => 'on',
              Include             => $var_dir.'/conf/ssl-certificates.conf',
              Location     => {
@@ -137,8 +137,8 @@ push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'soap'}"} },
     {
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'soap'},
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/soap_error_log',
-         CustomLog           => $install_dir.'/logs/soap_access_log combined',
+         ErrorLog            => $install_dir.'/logs/webservices_error_log',
+         CustomLog           => $install_dir.'/logs/webservices_access_log combined',
          SetHandler          => 'modperl',
          PerlResponseHandler => 'pf::WebAPI',
     };

@@ -310,7 +310,7 @@ sub parseCommandLine {
         'service'         => qr{ ^ ( dhcpd | httpd | named | pfdetect 
                                      | pf | pfdhcplistener | pfmon 
                                      | pfsetvlan | radiusd | snmptrapd 
-                                     | snort | suricata | httpd\.soap | httpd\.admin | httpd\.captport)
+                                     | snort | suricata | httpd\.webservices | httpd\.admin | httpd\.portal)
                                    \s+
                                    ( restart | start | status | stop
                                      | watch )
