@@ -124,7 +124,6 @@ sub service_ctl {
         $service = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$daemon" );
     }
     my $binary = basename($service);
-    my $ppt = new Proc::ProcessTable;
 
     #Untaint Daemon
     $daemon =~ /^(.*)$/;
@@ -273,11 +272,14 @@ sub service_ctl {
 
                             my $maxWait = 10;
                             my $curWait = 0;
-                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            my $ppt;
+                            my $proc = 0;
                             while ( ( ( $curWait < $maxWait )
                                 && ( service_ctl( $daemon, "status" ) ne "0" ) ) && defined($proc) )
                             {
-                                $logger->info("Waiting for $binary to stop");
+                                $ppt = new Proc::ProcessTable;
+                                $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                                $logger->info("Waiting for $binary to stop ");
                                 sleep(2);
                                 $curWait++;
                             }
@@ -310,11 +312,14 @@ sub service_ctl {
 
                             my $maxWait = 10;
                             my $curWait = 0;
-                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            my $ppt;
+                            my $proc = 0;
                             while ( ( ( $curWait < $maxWait )
                                 && ( service_ctl( $daemon, "status" ) ne "0" ) ) && defined($proc) )
                             {
-                                $logger->info("Waiting for $binary to stop");
+                                $ppt = new Proc::ProcessTable;
+                                $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                                $logger->info("Waiting for $binary to stop ");
                                 sleep(2);
                                 $curWait++;
                             }
