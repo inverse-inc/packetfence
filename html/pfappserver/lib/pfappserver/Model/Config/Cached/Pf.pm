@@ -41,7 +41,7 @@ sub remove {
 sub cleanupAfterRead {
     my ( $self,$section, $data ) = @_;
     my $defaults = $Default_Config{$section};
-    foreach my $key ($cached_pf_config->{config}->Parameters($section) ) {
+    foreach my $key ($cached_pf_config->Parameters($section) ) {
         my $doc_section = "$section.$key";
         my $doc = $Doc_Config{$doc_section};
         my $type = $doc->{type} || "text";
