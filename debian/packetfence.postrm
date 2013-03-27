@@ -24,6 +24,9 @@ case "$1" in
     ;;
 
     remove)
+        #remove user and group pf
+        userdel pf
+        groupdel pf
     ;;
     purge)
         # removing init scripts

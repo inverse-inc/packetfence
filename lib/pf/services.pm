@@ -86,13 +86,13 @@ $service_launchers{'httpd.portal'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.port
 
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
 $service_launchers{'pfmon'} = '%1$s -d &';
-$service_launchers{'pfdhcplistener'} = '%1$s -i %2$s -d &';
+$service_launchers{'pfdhcplistener'} = 'sudo %1$s -i %2$s -d &';
 $service_launchers{'pfsetvlan'} = '%1$s -d &';
 # TODO the following join on @listen_ints will cause problems with dynamic config reloading
-$service_launchers{'dhcpd'} = "%1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints);
+$service_launchers{'dhcpd'} = "sudo %1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints);
 $service_launchers{'named'} = "%1\$s -u pf -c $generated_conf_dir/named.conf";
 $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
-$service_launchers{'radiusd'} = "%1\$s -d $install_dir/raddb/";
+$service_launchers{'radiusd'} = "sudo %1\$s -d $install_dir/raddb/";
 
 # TODO $monitor_int will cause problems with dynamic config reloading
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'snort' ) {
@@ -254,7 +254,7 @@ sub service_ctl {
                     foreach my $serv (@APACHE_SERVICES) {
                         my $pid = service_ctl( $serv, "status" );
                         if ($pid) {
-                            my $cmd = "/bin/kill -TERM $pid";
+                            my $cmd = "sudo /bin/kill -TERM $pid";
 
                             #Untaint cmd
                             $cmd =~ /^(.*)$/;
@@ -294,7 +294,7 @@ sub service_ctl {
                     my @pid = split(' ', $pids);
                     foreach my $pid (@pid) {
                         if ($pid) {
-                            my $cmd = "/bin/kill -TERM $pid";
+                            my $cmd = "sudo /bin/kill -TERM $pid";
 
                             #Untaint cmd
                             $cmd =~ /^(.*)$/;

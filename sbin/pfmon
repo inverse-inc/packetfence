@@ -255,10 +255,12 @@ sub daemonize {
     chdir '/' or $logger->logdie("Can't chdir to /: $!");
     open STDIN, '<', '/dev/null'
         or $logger->logdie("Can't read /dev/null: $!");
+    my ($login,$pass,$uid,$gid) = getpwnam('pf')
+        or die "pf not in passwd file";
     my $log_file = "$install_dir/logs/pfmon";
     open STDOUT, '>>', "$log_file"
         or $logger->logdie("Can't write to $log_file: $!");
-
+    chown $uid, $gid, $log_file;
     defined( my $pid = fork ) or $logger->logdie("pfmon: could not fork: $!");
     POSIX::_exit(0) if ($pid);
     if ( !POSIX::setsid() ) {

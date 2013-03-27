@@ -616,7 +616,7 @@ sub parse_template {
         foreach my $line (@parsed) {
             print {$destination_fh} $line;
         }
-
+        pf_chown($destination);
     } else {
         return (@parsed);
     }
@@ -1072,6 +1072,17 @@ sub trim_path {
     }
    return ((@parts == 0) ? '' : catdir(@parts));
 }
+
+=item pf_chown
+
+=cut
+sub pf_chown {
+    my ($file) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam('pf')
+        or die "pf not in passwd file";
+    chown $uid, $gid, $file;
+}
+
 
 =back
 
