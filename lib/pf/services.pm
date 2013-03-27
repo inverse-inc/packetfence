@@ -52,8 +52,7 @@ use pf::SwitchFactory;
 Readonly our @ALL_SERVICES => (
     'named', 'dhcpd', 'snort', 'suricata', 'radiusd',
     'httpd.webservices', 'httpd.admin', 'httpd.portal', 'snmptrapd',
-
-    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon', 'httpd'
+    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
 Readonly our @APACHE_SERVICES => (
