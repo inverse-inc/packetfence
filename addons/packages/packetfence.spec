@@ -119,6 +119,7 @@ Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
 Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
+requires: perl(Proc::ProcessTable)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
