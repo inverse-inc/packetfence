@@ -97,6 +97,7 @@ push @{ $VirtualHost{$vhost} },
          CustomLog    => $install_dir.'/logs/admin_access_log combined',
          SSLEngine    => 'on',
          Include      => $var_dir.'/conf/ssl-certificates.conf',
+         Alias        => '/static '.$install_dir.'/html/pfappserver/root/static',
          PerlModule   => 'pfappserver',
          Location     => {
              "/" => {
