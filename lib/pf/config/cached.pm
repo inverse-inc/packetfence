@@ -7,7 +7,9 @@ pf::config::cached
 
 =head1 DESCRIPTION
 
-A module to provide a layer for reading a cached config
+This is a proxy for Config::IniFiles that stored in CHI
+The class is a bless scalar ref
+When deferencing as a hash it will returned the proxied config
 
 =cut
 
@@ -16,7 +18,6 @@ use warnings;
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 use CHI;
-#preload configs
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
 use Config::IniFiles;
@@ -24,25 +25,27 @@ use Scalar::Util qw(refaddr);
 
 our $CACHE;
 our %LOADED_CONFIGS;
-our @ON_RELOAD;
+our @GLOBAL_ON_RELOAD;
+our %ON_RELOAD;
+our %RELOADED;
+our %RELOADED_FROM_CACHE;
+use overload "%{}" => \&config, fallback => 1;
 
 =head2 Methods
 
 =over
+
 =item new
 
-Creates a new pf::config::cached proxy for Config::IniFiles
+Creates a new pf::config::cached
 
 =cut
 
 sub new {
     my ($proto,%params) = @_;
     my $class = ref($proto) || $proto;
-    my $self = {
-        on_reload => []
-    };
+    my $self;
     my $file = $params{'-file'};
-    my $isimported = delete $params{'-isimported'};
     my $config;
     if($file) {
         if(exists $LOADED_CONFIGS{$file}) {
@@ -59,20 +62,25 @@ sub new {
                 return $config;
             }
         );
-        $LOADED_CONFIGS{$file} = $self;
     } else {
         die "param -file missing or empty";
     }
     if ($config) {
+        $self = \$config;
+        $LOADED_CONFIGS{$file} = $self;
+        $ON_RELOAD{$file} = [];
         bless $self,$class;
-        $self->{config} = $config;
-        $self->{isimported} = $isimported;
-        $self->_importFromCache();
-    } else {
-        $self = undef;
     }
     return $self;
 }
+
+=item config
+
+access for the proxied Config::IniFiles object
+
+=cut
+
+sub config { ${$_[0]}}
 
 =item RewriteConfig
 
@@ -80,14 +88,14 @@ sub new {
 
 sub RewriteConfig {
     my ($self) = @_;
-    my $config = $self->{config};
+    my $config = $self->config;
     my $file = $config->{cf};
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
     if($cached_object && _expireIf($cached_object)) {
         die "Config $file was modified from last loading";
     }
-    my $result = $config->RewriteConfig();
+    my $result = $config->WriteConfig($file, -delta => exists $config->{imported});
     if($result) {
         $cache->set($file,$config);
     }
@@ -103,13 +111,14 @@ Will reload the config when changed on the filesystem and call any register call
 
 sub ReadConfig {
     my ($self) = @_;
-    my $config = $self->{config};
+    my $config = $self->config;
     my $cache  = $self->cache;
     my $file   = $config->{cf};
     my $reloaded = 0;
     my $reloaded_from_cache = 0;
     my $result;
-    $self->{config} = $self->computeFromPath(
+    my $imported = $config->{imported} if exists $config->{imported};
+    $$self = $self->computeFromPath(
         $file,
         sub {
             #reread files
@@ -118,29 +127,17 @@ sub ReadConfig {
             return $config;
         }
     );
-    $self->_importFromCache();
-    if (refaddr($config) != refaddr($self->{config})) {
+    if (refaddr($config) != refaddr($self->config)) {
         $reloaded = 1;
         $reloaded_from_cache = 1;
     }
     if($reloaded) {
         local $_;
-        $_->($self) foreach (@{$self->{on_reload}});
+        $_->($self) foreach (@{$ON_RELOAD{$file}});
     }
-    $self->{reloaded} = $reloaded;
-    $self->{reloaded_from_cache} = $reloaded_from_cache;
+    $RELOADED{$file} = $reloaded;
+    $RELOADED_FROM_CACHE{$file} = $reloaded_from_cache;
     return $result;
-}
-
-=item _importFromCache
-
-=cut
-
-sub _importFromCache {
-    my ($self) = @_;
-    if ($self->{isimported}) {
-        @{$self}{qw(sects parms group v sCMT pCMT EOT)} = @{$self->{config}}{qw(sects parms group v sCMT pCMT EOT)};
-    }
 }
 
 =item TIEHASH
@@ -171,7 +168,7 @@ sub AUTOLOAD {
         no strict qw{refs};
         *$AUTOLOAD = sub  {
             my ($self,@args) = @_;
-            return  wantarray ? ($self->{config}->$command(@args)) : scalar $self->{config}->$command(@args);
+            return  wantarray ? ($self->config->$command(@args)) : scalar $self->config->$command(@args);
         };
         goto &$AUTOLOAD;
     }
@@ -254,13 +251,14 @@ ReloadConfigs reload all configs and call any register callbacks
 
 sub reloadConfigs {
     my $any_reloaded = 0;
-    foreach my $config (values %LOADED_CONFIGS) {
+    my @files;
+    while (my($file,$config) = each %LOADED_CONFIGS) {
         $config->ReadConfig();
-        $any_reloaded += $config->{reloaded};
+        push @files, $file if $RELOADED{$file};
     }
-    if($any_reloaded) {
+    if(@files) {
         local $_;
-        $_->() for (@ON_RELOAD);
+        $_->(@files) for (@GLOBAL_ON_RELOAD);
     }
 }
 
@@ -273,8 +271,9 @@ Add callbacks config have been reloaded
 
 sub addReloadCallback {
     my ($self,@callbacks) = @_;
+    my $file = $self->{cf};
     local $_;
-    push @{$self->{on_reload}}, grep { ref($_) eq 'CODE' } @callbacks;
+    push @{$ON_RELOAD{$file}}, grep { ref($_) eq 'CODE' } @callbacks;
 }
 
 =item AddGlobalReloadCallback
@@ -285,7 +284,7 @@ Add global callbacks when configs have been reloaded
 
 sub AddGlobalReloadCallback {
     local $_;
-    push @ON_RELOAD, grep { ref($_) eq 'CODE' } @_;
+    push @GLOBAL_ON_RELOAD, grep { ref($_) eq 'CODE' } @_;
 }
 
 
@@ -300,7 +299,7 @@ sub DESTROY {}
 
 =item isa
 
-to fake being Config::IniFiles
+Fake being a Config::IniFiles
 
 =cut
 
@@ -320,7 +319,7 @@ Copy configuration to hash
 
 sub toHash {
     my ($self,$hash) = @_;
-    my $config = $self->{config};
+    my $config = $self->config;
     %$hash = ();
     foreach my $section ($config->Sections()) {
         my %data;
@@ -333,19 +332,15 @@ sub toHash {
 
 =item cleanupWhitespace
 
-Clean up whitespace
+Clean up whitespace is a utility function for cleaning up whitespaces for hashes
 
 =cut
 
 sub cleanupWhitespace {
-    my ($self) = @_;
-    my $config = $self->{config};
-    foreach my $section ($config->Sections()) {
-        foreach my $param ($config->Parameters($section)) {
-            my $val = $config->val($section,$param);
-            $val = '' unless defined $val;
-            $val =~ s/\s+$//;
-            $config->setval($val);
+    my ($self,$hash) = @_;
+    foreach my $data (values %$hash ) {
+        foreach my $key (keys %$data) {
+            $data->{$key} =~ s/\s+$//;
         }
     }
 }
