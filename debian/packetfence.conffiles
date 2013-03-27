@@ -26,8 +26,8 @@
 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
-/usr/local/pf/conf/httpd.conf.d/httpd.soap
-/usr/local/pf/conf/httpd.conf.d/httpd.captport
+/usr/local/pf/conf/httpd.conf.d/httpd.webservices
+/usr/local/pf/conf/httpd.conf.d/httpd.portal
 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/iptables.conf
