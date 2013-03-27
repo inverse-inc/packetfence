@@ -11,6 +11,12 @@
   <IfModule !mod_ssl.c>
     LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
   </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -23,6 +29,12 @@
   </IfModule>
   <IfModule !mod_ssl.c>
     LoadModule ssl_module modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module modules/mod_mime.so
   </IfModule>
 </IfDefine>
 
@@ -37,6 +49,7 @@ my $PfConfig = \%pf::config::Config;
 my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
+my $vhost;
 
 $PidFile = $install_dir.'/var/run/httpd.admin.pid';
 
@@ -44,12 +57,16 @@ $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
     $Listen = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+    $vhost = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
 } else {
     $Listen = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
+    $vhost = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
 }
 
 $User = "pf";
 $Group = "pf";
+
+$TypesConfig = '/etc/mime.types';
 
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
@@ -71,8 +88,8 @@ $MaxRequestsPerChild = "1000";
 
 $ErrorLog = $install_dir.'/logs/apache2_admin_error_log';
 
-$NameVirtualHost => "*:$PfConfig->{'ports'}{'admin'}";
-push @{ $VirtualHost{"*:$PfConfig->{'ports'}{'admin'}"} },
+$NameVirtualHost => $vhost;
+push @{ $VirtualHost{$vhost} },
     {
          ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'admin'},
          DocumentRoot => $install_dir.'/html/pfappserver/lib',
@@ -85,6 +102,9 @@ push @{ $VirtualHost{"*:$PfConfig->{'ports'}{'admin'}"} },
              "/" => {
                  SetHandler => 'modperl',
                  PerlResponseHandler => 'pfappserver',
+             },
+             "/static" => {
+                 SetHandler => 'default-handler',
              },
          },
     };
