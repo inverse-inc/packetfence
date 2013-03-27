@@ -383,11 +383,14 @@ sub os_detection {
 =cut
 
 sub readPfDocConfigFiles {
-    $cached_pf_doc_config = pf::config::cached->new(-file => $pf_doc_file);
+    $cached_pf_doc_config = pf::config::cached->new(
+            -file => $pf_doc_file,
+            -allowempty => 1,
+    );
     my $callback = sub {
         my ($config) = @_;
-        $config->cleanupWhitespace();
         $config->toHash(\%Doc_Config);
+        $config->cleanupWhitespace(\%Doc_Config);
         foreach my $doc_data (values %Doc_Config) {
             if (exists $doc_data->{options} && defined $doc_data->{options}) {
                 my $options = $doc_data->{options};
@@ -424,15 +427,15 @@ sub readPfConfigFiles {
     # load default and override by local config (most common case)
     $cached_pf_default_config = pf::config::cached->new(
                 -file => $default_config_file,
-                -isimported => 1
     );
-    $cached_pf_default_config->cleanupWhitespace();
     $cached_pf_default_config->toHash(\%Default_Config);
+    $cached_pf_default_config->cleanupWhitespace(\%Default_Config);
 
     if ( -e $default_config_file || -e $config_file ) {
         $cached_pf_config = pf::config::cached->new(
             -file   => $config_file,
             -import => $cached_pf_default_config,
+            -allowempty => 1,
         );
     } else {
         die ("No configuration files present.");
@@ -446,8 +449,8 @@ sub readPfConfigFiles {
     #creating a call back to be called everytime the pf.conf file is reloaded
     my $pf_callback = sub {
         my ($config) = @_;
-        $config->cleanupWhitespace();
         $config->toHash(\%Config);
+        $config->cleanupWhitespace(\%Config);
 
         my @time_values = grep {   my $t = $Doc_Config{$_}{type}; defined $t && $t  eq 'time'} keys %Doc_Config;
 
@@ -554,8 +557,8 @@ sub readPfConfigFiles {
 
     $cached_pf_default_config->addReloadCallback( sub {
         my ($config) = @_;
-        $config->cleanupWhitespace();
         $config->toHash(\%Default_Config);
+        $config->cleanupWhitespace(\%Default_Config);
         $cached_pf_config->ReadConfig();
     });
 }
@@ -587,8 +590,8 @@ sub readNetworkConfigFile {
 
     my $callback = sub {
         my ($config) = @_;
-        $config->cleanupWhitespace();
         $config->toHash(\%ConfigNetworks);
+        $config->cleanupWhitespace(\%ConfigNetworks);
         foreach my $network ( $config->Sections ) {
 
             # populate routed nets variables
@@ -629,8 +632,8 @@ sub readFloatingNetworkDeviceFile {
 
     my $callback = sub {
         my ($config) = @_;
-        $config->cleanupWhitespace();
         $config->toHash(\%ConfigFloatingDevices);
+        $config->cleanupWhitespace(\%ConfigFloatingDevices);
         foreach my $section ( keys %ConfigFloatingDevices) {
             if ($ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
                 $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
@@ -657,8 +660,8 @@ sub readOAuthFile {
 
     my $callback = sub {
         my ($config) = @_;
-        $config->cleanupWhitespace();
         $config->toHash(\%ConfigOAuth);
+        $config->cleanupWhitespace(\%ConfigOAuth);
     };
     $callback->($cached_oauth_ip_config);
     $cached_oauth_ip_config->addReloadCallback($callback);
