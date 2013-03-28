@@ -197,6 +197,10 @@ msgstr "Timezone"
 msgid "general.maintenance_interval"
 msgstr "Maintenance interval"
 
+#: conf/pf.conf.defaults:42
+msgid "general.memcached"
+msgstr "Memcached Servers"
+
 #: conf/pf.conf.defaults:45
 msgid "network"
 msgstr "Network"
