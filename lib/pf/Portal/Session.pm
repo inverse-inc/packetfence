@@ -30,6 +30,8 @@ use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
 use pf::util;
+use CGI::Session::Driver::memcached;
+use pf::web::util;
 
 =head1 CONSTANTS
 
@@ -66,7 +68,7 @@ sub _initialize {
     $self->{'_cgi'} = new CGI;
     $self->{'_cgi'}->charset("UTF-8");
 
-    $self->{'_session'} = new CGI::Session(undef, $self->getCgi, {Directory=>'/tmp'});
+    $self->{'_session'} = new CGI::Session( "driver:memcached", $self->getCgi, { Memcached => pf::web::util::get_memcached(pf::web::util::get_memcached_conf()) } );
 
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);

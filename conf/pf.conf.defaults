@@ -41,7 +41,11 @@ timezone=America/Montreal
 #
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
-
+#
+# general.memcached
+#
+# Server list of the memcached server
+memcached=127.0.0.1:11211
 
 [network]
 #
