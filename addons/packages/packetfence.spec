@@ -105,7 +105,7 @@ Requires: perl >= 5.8.8
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires: %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::memcached), perl(JSON), perl(PHP::Session)
 Requires: perl(Apache2::Request)
 Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
