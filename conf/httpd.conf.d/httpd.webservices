@@ -1,5 +1,6 @@
 #Webservices apache configuration file
 
+#Debian Specific
 <IfDefine debian>
   <IfModule !mod_perl.c>
     LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
@@ -75,13 +76,11 @@ $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 $User = "pf";
 $Group = "pf";
 
-#$PerlModule = "pf::web::dispatcher";
-#$PerlOptions = "+GlobalRequest";
 
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
 } else {
-    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.$PfConfig->{'general'}{'domain'};
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'};
 }
 
 $ServerTokens = "Prod";
@@ -91,8 +90,9 @@ $Timeout = "50";
 $KeepAliveTimeout = "10";
 
 $MaxClients = "3";
-$StartServers = "12";
-$MinSpareServers = "6";
+$StartServers = "10";
+$MinSpareServers = "3";
+$MaxSpareServers = "10";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 

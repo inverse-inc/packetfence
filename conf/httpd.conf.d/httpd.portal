@@ -93,8 +93,8 @@ TypesConfig /etc/mime.types
 
 <Perl>
 use pf::config qw();
-#use Data::Dumper;
 use Tie::DxHash;
+use pf::services::apache;
 
 sub gen_conf {
     my %conf;
@@ -124,7 +124,7 @@ $ProxyRequests = "Off";
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
 } else {
-    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.$PfConfig->{'general'}{'domain'};
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'};
 }
 
 $ServerTokens = "Prod";
@@ -133,9 +133,10 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = "3";
-$StartServers = "12";
-$MinSpareServers = "6";
+$MaxClients = pf::services::apache::calculate_max_clients(pf::services::apache::get_total_system_memory());
+$StartServers =  pf::services::apache::calculate_start_servers($MaxClients);
+$MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients);
+
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 

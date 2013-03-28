@@ -114,9 +114,9 @@ watch acts as a service watcher which can send email/restart the services
 Services managed by PacketFence:
   dhcpd            | dhcpd daemon
   httpd            | Apache (Captive Portal and Web Admin and soap)
-  httpd.soap       | Apache soap
+  httpd.webservices| Apache Webservices
   httpd.admin      | Apache Web admin
-  httpd.captport   | Apache Captive Portal
+  httpd.portal     | Apache Captive Portal
   named            | DNS daemon (bind)
   pf               | all services that should be running based on your config
   pfdetect         | PF snort alert parser

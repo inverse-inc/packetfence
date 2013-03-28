@@ -71,7 +71,7 @@ $TypesConfig = '/etc/mime.types';
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
 } else {
-    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.$PfConfig->{'general'}{'domain'};
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'};
 }
 
 $ServerTokens = "Prod";
@@ -81,12 +81,12 @@ $Timeout = "50";
 $KeepAliveTimeout = "10";
 
 $MaxClients = "3";
-$StartServers = "12";
+$StartServers = "2";
 $MinSpareServers = "6";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
-$ErrorLog = $install_dir.'/logs/apache2_admin_error_log';
+$ErrorLog = $install_dir.'/logs/apache_admin_error_log';
 
 $NameVirtualHost => $vhost;
 push @{ $VirtualHost{$vhost} },

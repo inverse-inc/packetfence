@@ -91,6 +91,7 @@ sub iptables_generate {
 
     # global substitution variables
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
+    $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
