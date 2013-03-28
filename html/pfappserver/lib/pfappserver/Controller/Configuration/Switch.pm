@@ -32,14 +32,15 @@ Setting the current form instance and model
 =cut
 
 sub begin :Private {
-    my ( $self, $c ) = @_;
-    my ($status,$switch_default,$roles);
+    my ($self, $c) = @_;
+    my ($status, $switch_default, $roles);
     my $model = $c->model("Config::Cached::Switch")->new;
-    ($status,$switch_default) = $model->read('default');
+    ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance}  = $c->form("Config::Switch")->new(ctx => $c, placeholders => $switch_default, roles => $roles);
+    $c->stash->{current_form_instance} = $c->form("Config::Switch")->new(ctx => $c, placeholders => $switch_default,
+                                                                         roles => $roles);
     $c->stash->{switch_default} = $switch_default;
 }
 
@@ -50,33 +51,67 @@ sub begin :Private {
 =cut
 
 sub object :Chained('/') :PathPart('configuration/switch') :CaptureArgs(1) {
-    my ($self,$c,$id) = @_;
+    my ($self, $c, $id) = @_;
     $self->getModel($c)->readConfig();
-    $self->_setup_object($c,$id);
+    $self->_setup_object($c, $id);
     $c->stash->{action_uri} = $c->uri_for($c->action);
 }
 
+=item after list
+
+=cut
+
+after list => sub {
+    my ($self, $c) = @_;
+
+    my ($status, $floatingdevice, $ip);
+    my $floatingDeviceModel = $c->model('Config::Cached::FloatingDevice');
+    $floatingDeviceModel->readConfig();
+    foreach my $switch (@{$c->stash->{items}}) {
+        $ip = $switch->{id};
+        if ($ip) {
+            ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $ip);
+            if (is_success($status)) {
+                $switch->{floatingdevice} = pop @$floatingdevice;
+            }
+        }
+    }
+};
+
+=item after update
+
+=item after remove
+
+=cut
+
 after [qw(update remove)] => sub {
-    my ($self,$c) = @_;
-    if(is_success($c->response->status) ) {
+    my ($self, $c) = @_;
+    if (is_success($c->response->status)) {
         $self->getModel($c)->rewriteConfig();
     }
 };
 
+=item after create
+
+=cut
+
 after create => sub {
-    my ($self,$c) = @_;
-    if(!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+    my ($self, $c) = @_;
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'configuration/switch/read.tt';
     }
 };
 
+=after view
+
+=cut
+
 after view => sub {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     if (!$c->stash->{action_uri}) {
         my $id = $c->stash->{id};
-        $c->log->info("ID : $id");
         if ($id) {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'),[$c->stash->{id}]);
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
         }
@@ -90,15 +125,9 @@ Usage: /configuration/switch/<switch>/read
 =cut
 
 sub read :Chained('object') :PathPart('read') :Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     $c->forward('view');
 }
-
-=back
-
-=head2 CONTROLLER OPERATIONS
-
-=over
 
 =item index
 
@@ -107,10 +136,9 @@ Usage: /configuration/switch/
 =cut
 
 sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     $c->forward('list');
 }
-
 
 =back
 

@@ -1,13 +1,14 @@
-      <table id="switches" class="table">
+      <table id="switches" class="table items">
         <thead>
           <tr>
-            <th>[% l('IP') %]</th><th>[% l('Type') %]</th><th>[% l('Mode') %]</th><th></th>
+            <th>[% l('IP Address') %]</th><th>[% l('Type') %]</th><th>[% l('Mode') %]</th><th></th>
           </tr>
         </thead>
         <tbody>
           [% FOREACH switch IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Configuration::Switch').action_for('read'), [ switch.id ]) %]">[% switch.id %]</a></td>
+            <td><a href="[% c.uri_for(c.controller('Configuration::Switch').action_for('read'), [ switch.id ]) %]">[% switch.id %]</a>
+            [% IF switch.floatingdevice %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('read'), [ switch.floatingdevice.id ]) %]">[% l('Edit floating device') %]</a>[% END %]</td>
             <td>[% switch.type %]</td>
             <td>[% switch.mode %]</td>
             <td>

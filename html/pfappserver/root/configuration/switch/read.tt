@@ -1,10 +1,10 @@
 [% form.block('triggers').render %]
 
 <form name="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
-  [%- IF switch %]<input type="hidden" name="id" value="[% switch %]">[% END %]
+  [%- IF item %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
-    <h3>[% IF switch %]<i>[% l('Switch') %]</i> [% switch %][% ELSE %][% l('New Switch') %][% END %]</h3>
+    <h3>[% IF item %]<i>[% l('Switch') %]</i> [% item.id %][% ELSE %][% l('New Switch') %][% END %]</h3>
   </div>
 
   <div class="modal-body">
@@ -22,7 +22,7 @@
     <div class="tab-content">
 
       <div class="tab-pane fade in active" id="switchDefinition">
-        [% form.field('id').render UNLESS switch %]
+        [% form.field('id').render UNLESS item %]
         [% form.field('type').render %]
         [% form.field('mode').render %]
         [% form.field('uplink_dynamic').render %]

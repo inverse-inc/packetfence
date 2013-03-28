@@ -27,26 +27,101 @@ BEGIN {
 
 =item begin
 
-Setting the current form instance and model
+Set the current form instance and model
 
 =cut
 
 sub begin :Private {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
+    my $model = $c->model("Config::Cached::FloatingDevice")->new;
+    $c->stash->{current_model_instance} = $model;
+    $c->stash->{current_form_instance}  = $c->form("Config::FloatingDevice")->new(ctx => $c);
 }
 
 =item object
 
-/configuration/floatingdevice/*
+Usage: /configuration/floatingdevice/*
 
 =cut
 
 sub object :Chained('/') :PathPart('configuration/floatingdevice') :CaptureArgs(1) {
-    my ($self,$c,$id) = @_;
+    my ($self, $c, $id) = @_;
     $self->getModel($c)->readConfig();
-    $self->_setup_object($c,$id);
+    $self->_setup_object($c, $id);
 }
 
+=item after list
+
+=cut
+
+after list => sub {
+    my ($self, $c) = @_;
+
+    my ($status, $switch, $ip);
+    my $switchModel = $c->model('Config::Cached::Switch');
+    $switchModel->readConfig();
+    foreach my $floatingdevice (@{$c->stash->{items}}) {
+        $ip = $floatingdevice->{ip};
+        if ($ip) {
+            ($status, $switch) = $switchModel->read($ip);
+            if (is_success($status)) {
+                $floatingdevice->{switch} = $switch;
+            }
+        }
+    }
+};
+
+=item after update
+
+=item after remove
+
+=cut
+
+after [qw(update remove)] => sub {
+    my ($self, $c) = @_;
+    if (is_success($c->response->status) ) {
+        $self->getModel($c)->rewriteConfig();
+    }
+};
+
+=item after create
+
+=cut
+
+after create => sub {
+    my ($self, $c) = @_;
+    if(!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->stash->{template} = 'configuration/floatingdevice/read.tt';
+    }
+};
+
+=item after view
+
+=cut
+
+after view => sub {
+    my ($self, $c) = @_;
+    if (!$c->stash->{action_uri}) {
+        my $id = $c->stash->{id};
+        if ($id) {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
+        } else {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
+        }
+    }
+};
+
+=item read
+
+Usage: /configuration/floatingdevice/<floatingdevice>/read
+
+=cut
+
+sub read :Chained('object') :PathPart('read') :Args(0) {
+    my ($self, $c) = @_;
+
+    $c->forward('view');
+}
 
 =item index
 
@@ -54,7 +129,11 @@ Usage: /configuration/floatingdevice/
 
 =cut
 
+sub index :Path :Args(0) {
+    my ($self, $c) = @_;
 
+    $c->forward('list');
+}
 
 =back
 

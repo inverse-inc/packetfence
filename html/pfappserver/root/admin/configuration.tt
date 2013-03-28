@@ -11,6 +11,7 @@
         'admin/configuration',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
+        'admin/configuration/floatingdevices',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
         'admin/configuration/users',
@@ -83,7 +84,7 @@ tr[data-swap] > td {
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               [% list_entry('Configuration', 'interfaces', 'Interfaces') %]
               [% list_entry('Configuration', 'switches', 'Switches') %]
-              <li><a href="#">Floating devices</a></li>
+              [% list_entry('Configuration', 'floating_devices', 'Floating devices') %]
               <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
               [% list_entry('Configuration', 'roles', 'Roles') %]
               [% list_entry('Authentication','index','Sources') %]

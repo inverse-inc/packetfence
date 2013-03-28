@@ -1,4 +1,5 @@
 package pfappserver::Model::Config::Cached::FloatingDevice;
+
 =head1 NAME
 
 pfappserver::Model::Config::Cached::FloatingDevice add documentation
@@ -7,17 +8,17 @@ pfappserver::Model::Config::Cached::FloatingDevice add documentation
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::Profile
+pfappserver::Model::Config::Cached::FloatingDevice
 
 =cut
 
+use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
 
 extends 'pfappserver::Base::Model::Config::Cached';
-
 
 =head2 Methods
 
@@ -32,35 +33,29 @@ sub _buildCachedConfig {
     return pf::config::cached->new(-file => $pf::config::floating_devices_config_file);
 }
 
-#=item remove
-#
-#Delete an existing item
-#
-#=cut
-#
-#sub remove {
-#    my ($self,$id) = @_;
-#    if($id eq 'default') {
-#        return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
-#    }
-#    return $self->SUPER::remove($id);
-#}
+=item search
 
-#=item cleanupAfterRead
-#
-#=cut
-#
-#sub cleanupAfterRead {
-#    my ( $self,$id, $switch ) = @_;
-#}
-#
-#=item cleanupBeforeCommit
-#
-#=cut
-#
-#sub cleanupBeforeCommit {
-#    my ( $self, $id, $switch ) = @_;
-#}
+=cut
+
+sub search {
+    my ($self, $field, $value) = @_;
+
+    my @results;
+    $self->readConfig();
+    my ($status, $result) = $self->readAll();
+    if (is_success($status)) {
+        foreach my $floatingdevice (@{$result}) {
+            if ($floatingdevice->{$field} eq $value) {
+                push(@results, $floatingdevice);
+            }
+        }
+    }
+    if (@results) {
+        return ($STATUS::OK, \@results);
+    } else {
+        return ($STATUS::NOT_FOUND);
+    }
+}
 
 __PACKAGE__->meta->make_immutable;
 

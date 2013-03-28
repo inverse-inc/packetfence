@@ -1,0 +1,21 @@
+<form name="modalFloatingDevice" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+  [%- IF item %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>[% IF item %]<i>[% l('Floating Device') %]</i> [% item.id %][% ELSE %][% l('New Floating Device') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+        [% form.field('id').render UNLESS item %]
+        [% form.field('ip').render %]
+        [% form.field('pvid').render %]
+        [% form.field('trunkPort').render %]
+        [% form.field('taggedVlan').render %]
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+  </div>
+
+</form>

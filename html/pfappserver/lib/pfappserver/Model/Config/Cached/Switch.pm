@@ -1,7 +1,7 @@
 package pfappserver::Model::Config::Cached::Switch;
 =head1 NAME
 
-pfappserver::Model::Config::Cached::Profile add documentation
+pfappserver::Model::Config::Cached::Switch add documentation
 
 =cut
 

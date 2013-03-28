@@ -22,7 +22,7 @@ When an AP is plugged, PacketFence should:
 
 =back
 
-When an AP us unplugged, PacketFence should reconfigure the port like before the AP was plugged
+When an AP is unplugged, PacketFence should reconfigure the port like before the AP was plugged
 
 In order to simplify things at first, we decided that 
 FLOATING NETWORK DEVICES SHOULD ONLY BE PLUGGED IN PORT CONFIGURED WITH PORT_SECURITY!
@@ -44,7 +44,7 @@ PF changes the port configuration so that:
 
 =item - it sets the PVID
 
-=item - it eventually sets the port as multi-vlan (trunk) and sets the tagged Vlans 
+=item - it eventually sets the port as multi-vlan (trunk) and sets the tagged Vlans
 
 =item - it enables linkdown traps
 

@@ -40,6 +40,7 @@ Switches.prototype.post = function(options) {
  */
 var SwitchView = function(options) {
     var that = this;
+    this.parent = options.parent;
     this.switches = options.switches;
     this.disableToggle = false;
 
@@ -163,7 +164,7 @@ SwitchView.prototype.updateSwitch = function(e) {
 
     var that = this;
     var form = $(e.target);
-    var modal = $('#modalSwitch');
+    var modal = form.closest('.modal');
     var valid = isFormValid(form);
     if (valid) {
         var modal_body = modal.find('.modal-body').first();
@@ -178,7 +179,7 @@ SwitchView.prototype.updateSwitch = function(e) {
             },
             success: function(data) {
                 modal.modal('toggle');
-                showSuccess($('#switches'), data.status_msg);
+                showSuccess(that.parent.find('.table.items').first(), data.status_msg);
                 that.list();
             },
             errorSibling: modal_body.children().first()

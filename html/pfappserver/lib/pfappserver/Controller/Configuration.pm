@@ -250,7 +250,7 @@ sub provisioning :Local {
 sub interfaces :Local {
     my ($self, $c) = @_;
 
-    $c->forward('Controller::Interface', 'index');
+    $c->go('Controller::Interface', 'index');
 }
 
 =head2 switches
@@ -263,6 +263,16 @@ sub switches :Local {
     $c->go('Controller::Configuration::Switch', 'index');
 }
 
+=head2 floating_devices
+
+=cut
+
+sub floating_devices :Local {
+    my ($self, $c) = @_;
+
+    $c->go('Controller::Configuration::FloatingDevice', 'index');
+}
+
 =head2 authentication
 
 =cut
@@ -270,7 +280,7 @@ sub switches :Local {
 sub authentication :Local {
     my ($self, $c) = @_;
 
-    $c->forward('Controller::Authentication', 'index');
+    $c->go('Controller::Authentication', 'index');
 }
 
 =head2 users
@@ -280,7 +290,7 @@ sub authentication :Local {
 sub users :Local {
     my ($self, $c) = @_;
 
-    $c->forward('Controller::User', 'create');
+    $c->go('Controller::User', 'create');
 }
 
 =head2 violations
