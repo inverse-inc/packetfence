@@ -379,9 +379,15 @@ sub service_ctl {
                     );
 
                     # return 0 if one is not working
-                    return 0 if ($dead_flag);
-                    # otherwise the list of pids
-                    return join(" ", values %int_to_pid);
+                    # REWORK: if there only one interface without a pfdhcplistener then the pid is 0
+                    # result, you can have more than one pfdhcplistener per interface ?!
+                    # return 0 if ($dead_flag);
+                    $pid = join(" ", values %int_to_pid);
+                    if ( $pid =~ m/\d+/) {
+                        return $pid;
+                    } else {
+                        return 0;
+                    }
                 }
                 elsif ($daemon =~ "httpd(.*)") {
                     $pid = 0;

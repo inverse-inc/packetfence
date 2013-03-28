@@ -1266,7 +1266,6 @@ sub service {
         }
         checkup(@services);
         foreach my $tmp (@pf::services::ALL_SERVICES) {
-            next if ($tmp eq 'httpd.admin');
             if ( pf::services::service_ctl( $tmp, "status" ) ) {
                 $nb_running_services++;
                 push @alreadyRunningServices, $tmp;
@@ -1295,6 +1294,7 @@ sub service {
     }
 
     foreach my $srv (@services) {
+        next if ( ($srv eq 'httpd.admin') && ($command eq 'start' ) );
         if (   ( $command eq 'start' )
             && ( grep( { $_ eq $srv } @alreadyRunningServices ) == 1 ) )
         {
