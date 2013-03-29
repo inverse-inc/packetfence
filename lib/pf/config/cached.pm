@@ -23,6 +23,7 @@ use CHI::Driver::RawMemory;
 use Config::IniFiles;
 use Scalar::Util qw(refaddr);
 
+
 our $CACHE;
 our %LOADED_CONFIGS;
 our @GLOBAL_ON_RELOAD;
@@ -30,6 +31,8 @@ our %ON_RELOAD;
 our %RELOADED;
 our %RELOADED_FROM_CACHE;
 use overload "%{}" => \&config, fallback => 1;
+
+our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
 
 =head2 Methods
 
@@ -89,7 +92,7 @@ sub config { ${$_[0]}}
 sub RewriteConfig {
     my ($self) = @_;
     my $config = $self->config;
-    my $file = $config->{cf};
+    my $file = $config->GetFileName;
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
     if($cached_object && _expireIf($cached_object)) {
@@ -113,7 +116,7 @@ sub ReadConfig {
     my ($self) = @_;
     my $config = $self->config;
     my $cache  = $self->cache;
-    my $file   = $config->{cf};
+    my $file   = $config->GetFileName;
     my $reloaded = 0;
     my $reloaded_from_cache = 0;
     my $result;
@@ -148,7 +151,13 @@ Creating a tied pf::config::cached object
 
 sub TIEHASH {
     my ($proto,@args) = @_;
-    my $object = $proto->new(@args);
+    my $object;
+    my $first_arg = $args[0];
+    if(ref($first_arg) && $args[0]->isa('pf::config::cached')) {
+        $object = $first_arg;
+    } else {
+        $object = $proto->new(@args);
+    }
     die "cannot create a tied pf::config::cached"
         unless $object;
     return $object;
@@ -211,13 +220,7 @@ builds the CHI object
 =cut
 
 sub _cache {
-    return CHI->new(
-        driver => 'Memcached',   # or 'Memcached::Fast', or 'Memcached::libmemcached'
-        namespace => __PACKAGE__,
-        global => 1,
-        servers => ['localhost:11211'],
-        l1_cache => { driver => 'RawMemory', global => 1 }
-    );
+    return CHI->new(_buildCHIArgs());
 }
 
 =item _expireIf
@@ -249,7 +252,7 @@ ReloadConfigs reload all configs and call any register callbacks
 
 =cut
 
-sub reloadConfigs {
+sub ReloadConfigs {
     my $any_reloaded = 0;
     my @files;
     while (my($file,$config) = each %LOADED_CONFIGS) {
@@ -271,7 +274,7 @@ Add callbacks config have been reloaded
 
 sub addReloadCallback {
     my ($self,@callbacks) = @_;
-    my $file = $self->{cf};
+    my $file = $self->GetFileName;
     local $_;
     push @{$ON_RELOAD{$file}}, grep { ref($_) eq 'CODE' } @callbacks;
 }
@@ -319,12 +322,11 @@ Copy configuration to hash
 
 sub toHash {
     my ($self,$hash) = @_;
-    my $config = $self->config;
     %$hash = ();
-    foreach my $section ($config->Sections()) {
+    foreach my $section ($self->Sections()) {
         my %data;
-        foreach my $param ($config->Parameters($section)) {
-            $data{$param} = $config->val($section,$param);
+        foreach my $param ($self->Parameters($section)) {
+            $data{$param} = $self->val($section,$param);
         }
         $hash->{$section} = \%data;
     }
@@ -343,6 +345,31 @@ sub cleanupWhitespace {
             $data->{$key} =~ s/\s+$//;
         }
     }
+}
+
+=item _buildCHIArgs
+
+=cut
+
+sub _buildCHIArgs {
+    my $args = _extractCHIArgs("default");
+    return %$args;
+}
+
+sub _extractCHIArgs {
+    my ($section) = @_;
+    my %args;
+    foreach my $param ($chi_config->Parameters($section)) {
+        my $value = $chi_config->val($section,$param);
+        if($param eq 'servers') {
+            $args{$param} = [split(/\s*,\s*/,$value)];
+        } elsif($param eq 'l1_cache') {
+            $args{$param} = _extractCHIArgs($value);
+        } else {
+            $args{$param} = $value;
+        }
+    }
+    return \%args;
 }
 
 =back
