@@ -44,21 +44,31 @@ our (
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
     %guest_self_registration,
-    $default_config_file, %Default_Config,
-    $config_file, %Config,
-    $network_config_file, %ConfigNetworks, %ConfigOAuth, $oauth_ip_file,
-    $pf_config_file, $pf_default_file, $pf_doc_file, %Doc_Config,
-    $switches_config_file, $violations_config_file, $authentication_config_file, $floating_devices_config_file,
+#pf.conf.default variables
+    $default_config_file, $pf_default_file, %Default_Config, $cached_pf_default_config,
+#pf.conf variables
+    $config_file, $pf_config_file, %Config, $cached_pf_config,
+#network.conf variables
+    $network_config_file, %ConfigNetworks, $cached_network_config,
+#oauth2-ips.conf variables
+    $oauth_ip_file, %ConfigOAuth, $cached_oauth_ip_config,
+#documentation.conf variables
+    $pf_doc_file, %Doc_Config, $cached_pf_doc_config,
+#floating_network_device.conf variables
+    $floating_devices_config_file, $floating_devices_file, %ConfigFloatingDevices, $cached_floating_device_config,
+#dhcp_fingerprints.conf variables
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
+#oui.txt variables
     $oui_file, $oui_url,
-    $floating_devices_file, %ConfigFloatingDevices,
+#Other configuraton files variables
+    $switches_config_file, $violations_config_file, $authentication_config_file,
+    $chi_config_file, $profiles_config_file, $ui_config_file, @stored_config_files,
+
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
-    %CAPTIVE_PORTAL, $profiles_config_file, $cached_pf_config, $cached_pf_default_config,
-    $cached_network_config, $cached_floating_device_config, $cached_oauth_ip_config,
-    $cached_pf_doc_config
+    %CAPTIVE_PORTAL,
 );
 
 BEGIN {
@@ -67,8 +77,8 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir
-        @listen_ints @dhcplistener_ints @ha_ints $monitor_int
+        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir $ui_config_file
+        @listen_ints @dhcplistener_ints @ha_ints $monitor_int $pf_config_file
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
@@ -103,8 +113,8 @@ BEGIN {
         init_config
         $profiles_config_file
         $switches_config_file
-        $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config
-        $cached_pf_default_config $cached_pf_doc_config
+        $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config $authentication_config_file
+        $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
     );
@@ -150,6 +160,17 @@ $profiles_config_file           = $conf_dir . "/profiles.conf";
 $oui_file                       = $conf_dir . "/oui.txt";
 $floating_devices_file          = $conf_dir . "/floating_network_device.conf";  # TODO: To be deprecated. See $floating_devices_config_file
 $oauth_ip_file                  = $conf_dir . "/oauth2-ips.conf";
+$chi_config_file                = $conf_dir . "/chi.conf";
+$ui_config_file                 = $conf_dir . "/ui.conf";
+
+@stored_config_files = (
+    $pf_config_file, $network_config_file,
+    $switches_config_file, $violations_config_file,
+    $authentication_config_file, $floating_devices_config_file,
+    $dhcp_fingerprints_file, $profiles_config_file,
+    $oui_file, $floating_devices_file,
+    $oauth_ip_file,$chi_config_file,
+);
 
 $oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url      = 'http://www.packetfence.org/dhcp_fingerprints.conf';
@@ -436,6 +457,7 @@ sub readPfConfigFiles {
             -file   => $config_file,
             -import => $cached_pf_default_config,
             -allowempty => 1,
+            -negativedeltas => 0
         );
     } else {
         die ("No configuration files present.");
