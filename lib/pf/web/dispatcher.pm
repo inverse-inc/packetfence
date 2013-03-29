@@ -16,6 +16,7 @@ use Apache2::RequestUtil ();
 use Apache2::ServerRec;
 
 use APR::Table;
+use APR::URI;
 use Log::Log4perl;
 use Template;
 use URI::Escape qw(uri_escape);
@@ -52,7 +53,8 @@ sub translate {
         my $s = $r->server();
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
         #Because of chrome captiv portal detection we have to test if the request come from http request
-        if ($s->port eq '80' && $proto eq 'https') {
+        my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
+        if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /\/access/ && $parsed->path !~ /\/access/) {
             #Generate a page with a refresh tag
             $r->handler('modperl');
             $r->set_handlers( PerlResponseHandler => \&html_redirect );
