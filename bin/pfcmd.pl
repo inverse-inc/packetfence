@@ -1676,21 +1676,13 @@ sub configfiles {
     require pf::configfile;
     import pf::configfile;
     if ( $option eq "push" ) {
-        configfile_import( $conf_dir . '/pf.conf' );
-        configfile_import( $conf_dir . '/log.conf' );
-        configfile_import( $conf_dir . '/switches.conf' );
-        configfile_import( $conf_dir . '/violations.conf' );
-        configfile_import( $network_config_file );
-        configfile_import( $conf_dir . '/ui.conf' );
-        configfile_import( $conf_dir . '/floating_network_device.conf' );
+        foreach my $config_file (@config_files) {
+            configfile_import($config_file);
+        }
     } elsif ( $option eq "pull" ) {
-        configfile_export( $conf_dir . '/pf.conf' );
-        configfile_export( $conf_dir . '/log.conf' );
-        configfile_export( $conf_dir . '/switches.conf' );
-        configfile_export( $conf_dir . '/violations.conf' );
-        configfile_export( $network_config_file );
-        configfile_export( $conf_dir . '/ui.conf' );
-        configfile_export( $conf_dir . '/floating_network_device.conf' );
+        foreach my $config_file (@config_files) {
+            configfile_export($config_file);
+        }
     }
     exit;
 }
