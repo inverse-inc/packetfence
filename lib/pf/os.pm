@@ -300,7 +300,7 @@ sub read_dhcp_fingerprints_conf {
 
 =item _class_member_in_range
 
-Handles the F<dhcp_fingerprint.conf> members=... field. If a given OS is in a member range returns true otherwise false.
+Handles the F<dhcp_fingerprints.conf> members=... field. If a given OS is in a member range returns true otherwise false.
 
 =cut
 
