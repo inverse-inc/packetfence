@@ -200,6 +200,22 @@ sub get_memcached_conf {
     return \@serv;
 }
 
+=item get_memcached_connection
+
+get memcached object
+
+=cut
+sub get_memcached_connection {
+    my ( $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    return $memd;
+}
+
 =item get_memcached
 
 get information stored in memcached

@@ -68,7 +68,7 @@ sub _initialize {
     $self->{'_cgi'} = new CGI;
     $self->{'_cgi'}->charset("UTF-8");
 
-    $self->{'_session'} = new CGI::Session( "driver:memcached", $self->getCgi, { Memcached => pf::web::util::get_memcached(pf::web::util::get_memcached_conf()) } );
+    $self->{'_session'} = new CGI::Session( "driver:memcached", $self->getCgi, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
 
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
