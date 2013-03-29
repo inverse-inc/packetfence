@@ -575,6 +575,9 @@ msgstr "Ports redirect"
 msgid "inline.should_reauth_on_vlan_change"
 msgstr "Reauthenticate node"
 
+msgid "inline.interfaceSNAT"
+msgstr "SNAT Interface"
+
 #: conf/pf.conf.defaults:658
 msgid "servicewatch"
 msgstr "Service watch"
