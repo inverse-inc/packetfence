@@ -50,6 +50,7 @@ sub translate {
     #          rework also
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
         my $s = $r->server();
+        my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
         #Because of chrome captiv portal detection we have to test if the request come from http request
         if ($s->port eq '80' && $proto eq 'https') {
             #Generate a page with a refresh tag
