@@ -95,14 +95,14 @@ sub generate_httpd_conf {
     # signup and preregister if pre-registration is allowed
     my $guest_regist_allowed = $guest_self_registration{'enabled'};
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
-        # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
         $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
     }
     # /activate/email allowed if sponsor or email mode enabled
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
     if ($guest_regist_allowed && ($email_enabled || $sponsor_enabled)) {
-        # | is for a regexp "or" as this is pulled from a 'Location ~' statement 
+        # | is for a regexp "or" as this is pulled from a 'Location ~' statement
         $tags{'allowed_from_all_urls'} .= "|$WEB::URL_EMAIL_ACTIVATION|$WEB::CGI_EMAIL_ACTIVATION";
     }
 
@@ -111,7 +111,7 @@ sub generate_httpd_conf {
 
         ($pt_http, $pt_https) = generate_passthrough_rewrite_proxy_config(%{ $Config{'passthroughs'} });
 
-        # remediation passthrough (for violation.conf url=http:// or https://)
+        # remediation passthrough (for violations.conf url=http:// or https://)
         $remediation = generate_remediation_rewrite_proxy_config(class_view_all());
     }
 
@@ -204,7 +204,7 @@ sub calculate_start_servers {
 Generate the proper mod_rewrite configuration so that a request matching the specified URL will be reversed proxied
 through the captive portal. This is known as a passthrough URL.
 
-Configured by the [passthroughs] section of the F<pf.conf> configuration file. 
+Configured by the [passthroughs] section of the F<pf.conf> configuration file.
 trapping.passthrough must be set to proxy for this to work.
 
 Returns a list of two arrayref (one for http, one for https)
@@ -243,13 +243,13 @@ sub generate_passthrough_rewrite_proxy_config {
     if (@passthrough_http_proxies) {
         unshift @passthrough_http_proxies, "  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs";
         push @passthrough_http_proxies, "  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs";
-    } else {   
+    } else {
         push @passthrough_http_proxies, "  # NO auto-generated mod_rewrite rules for PacketFence Passthroughs";
     }
     if (@passthrough_https_proxies) {
         unshift @passthrough_https_proxies, "  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs";
         push @passthrough_https_proxies, "  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs";
-    } else {   
+    } else {
         push @passthrough_https_proxies, "  # NO auto-generated mod_rewrite rules for PacketFence Passthroughs";
     }
 
@@ -261,7 +261,7 @@ sub generate_passthrough_rewrite_proxy_config {
 Generate the proper mod_rewrite configuration so that URLs specified in violations.conf are allowed
 through the captive portal. Doing so allows people to be redirected to such URL on violations.
 
-Configured by the F<violations.conf> configuration file. 
+Configured by the F<violations.conf> configuration file.
 trapping.passthrough must be set to proxy for this to work.
 
 Returns an arrayref
@@ -271,7 +271,7 @@ sub generate_remediation_rewrite_proxy_config {
     my (@proxies) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services::apache');
 
-    # remediation passthrough (for violation.conf url=http:// or https://)
+    # remediation passthrough (for violations.conf url=http:// or https://)
     my @remediation_proxies;
     foreach my $row (@proxies) {
         my $url = $row->{'url'};
