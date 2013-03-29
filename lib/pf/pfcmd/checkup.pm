@@ -19,7 +19,6 @@ use Readonly;
 
 use pf::config;
 use pf::config::cached;
-use Config::IniFiles;
 use pf::util;
 use pf::services;
 use pf::trigger;
@@ -356,13 +355,13 @@ sub network {
 
     # make sure that networks.conf is not empty when services.dhcpd
     # is enabled
-    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))){
+    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
         add_problem( $FATAL, "networks.conf cannot be empty when services.dhcpd is enabled" );
     }
 
     # make sure that networks.conf is not empty when services.named
     # is enabled
-    if (isenabled($Config{'services'}{'named'}) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))){
+    if (isenabled($Config{'services'}{'named'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
         add_problem( $FATAL, "networks.conf cannot be empty when services.named is enabled" );
     }
 
@@ -812,7 +811,7 @@ sub switches {
     }
 
     # remove trailing whitespaces
-    tied(%switches_conf)->cleanupWhitespace();
+    tied(%switches_conf)->cleanupWhitespace(\%switches_conf);
 
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
