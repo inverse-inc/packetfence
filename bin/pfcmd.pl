@@ -106,9 +106,6 @@ if ( $offset && $offset > 0 ) {
     $offset = $offset * $count;
 }
 
-my %defaults;
-my %myconfig;
-my %documentation;
 
 if ( defined $ENV{GATEWAY_INTERFACE} ) {
     require CGI;
@@ -1516,24 +1513,24 @@ sub config_entry {
     $dot_param =~ s/\s+/\./g;
     ( $param, $param2 ) = split( " ", $param ) if ( $param =~ /\s/ );
 
-    if ( defined( $defaults{$orig_param}{$value} ) ) {
-        $default = $defaults{$orig_param}{$value};
+    if ( defined( $Default_Config{$orig_param}{$value} ) ) {
+        $default = $Default_Config{$orig_param}{$value};
     } else {
         $default = "";
     }
-    if ( defined( $documentation{"$param.$value"}{'options'} ) ) {
-        $options = $documentation{"$param.$value"}{'options'};
+    if ( defined( $Doc_Config{"$param.$value"}{'options'} ) ) {
+        $options = $Doc_Config{"$param.$value"}{'options'};
         $options =~ s/\|/;/g;
     } else {
         $options = "";
     }
-    if ( defined( $documentation{"$param.$value"}{'type'} ) ) {
-        $type = $documentation{"$param.$value"}{'type'};
+    if ( defined( $Doc_Config{"$param.$value"}{'type'} ) ) {
+        $type = $Doc_Config{"$param.$value"}{'type'};
     } else {
         $type = "text";
     }
-    if ( defined( $myconfig{$orig_param}{$value} ) ) {
-        $val = "$dot_param.$value=$myconfig{$orig_param}{$value}";
+    if ( defined( $Config{$orig_param}{$value} ) ) {
+        $val = "$dot_param.$value=$Config{$orig_param}{$value}";
     } else {
         $val = "$dot_param.$value=";
     }
@@ -1547,22 +1544,6 @@ sub config {
     my $option = $cmd{command}[1];
     my $param  = $cmd{command}[2];
     my $value  = "";
-
-    tie %documentation, 'Config::IniFiles',
-        ( -file => $conf_dir . "/documentation.conf" )
-        or $logger->logdie("Unable to open documentation.conf: $!");
-    tie %defaults, 'Config::IniFiles', ( -file => $default_config_file )
-        or $logger->logdie("Unable to open $default_config_file: $!");
-    # load config if it exists
-    if ( -e $config_file ) {
-        tie %myconfig, 'Config::IniFiles', ( -file => $config_file )
-            or $logger->logdie("Unable to open $config_file: $!");
-    }
-    # start with an empty file
-    else {
-        tie %myconfig, 'Config::IniFiles';
-        tied(%myconfig)->SetFileName($config_file);
-    }
 
     if ( lc($option) eq 'set' ) {
         if ($param =~ /^([^=]+)=(.+)?$/) {
@@ -1609,17 +1590,17 @@ sub config {
             exit($pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM);
         }
     } elsif ( lc($option) eq 'help' ) {
-        if ( defined( $documentation{$param}{'description'} ) ) {
+        if ( defined( $Doc_Config{$param}{'description'} ) ) {
             print uc($param) . "\n";
-            print "Default: $defaults{$section}{$parm}\n"
-                if ( defined( $defaults{$section}{$parm} ) );
-            print "Options: $documentation{$param}{'options'}\n"
-                if ( defined( $documentation{$param}{'options'} ) );
-            if ( ref( $documentation{$param}{'description'} ) eq 'ARRAY' ) {
-                print join( "\n", @{ $documentation{$param}{'description'} } )
+            print "Default: $Default_Config{$section}{$parm}\n"
+                if ( defined( $Default_Config{$section}{$parm} ) );
+            print "Options: $Doc_Config{$param}{'options'}\n"
+                if ( defined( $Doc_Config{$param}{'options'} ) );
+            if ( ref( $Doc_Config{$param}{'description'} ) eq 'ARRAY' ) {
+                print join( "\n", @{ $Doc_Config{$param}{'description'} } )
                     . "\n";
             } else {
-                print $documentation{$param}{'description'} . "\n";
+                print $Doc_Config{$param}{'description'} . "\n";
             }
         } else {
             print "No help available for $param\n";
@@ -1632,19 +1613,19 @@ sub config {
         } else {
 
             #write out the local config only - with the new value.
-            if ( defined( $myconfig{$section}{$parm} ) ) {
-                if (   ( !defined( $myconfig{$section}{$param} ) )
-                    || ( $defaults{$section}{$parm} ne $value ) )
+            if ( defined( $Config{$section}{$parm} ) ) {
+                if (   ( !defined( $Config{$section}{$param} ) )
+                    || ( $Default_Config{$section}{$parm} ne $value ) )
                 {
-                    tied(%myconfig)->setval( $section, $parm, $value );
+                    $cached_pf_config->setval( $section, $parm, $value );
                 } else {
-                    tied(%myconfig)->delval( $section, $parm );
+                    $cached_pf_config->delval( $section, $parm );
                 }
-            } elsif ( $defaults{$section}{$parm} ne $value ) {
-                tied(%myconfig)->newval( $section, $parm, $value );
+            } elsif ( $Default_Config{$section}{$parm} ne $value ) {
+                $cached_pf_config->newval( $section, $parm, $value );
             }
-            tied(%myconfig)->WriteConfig( $conf_dir . "/pf.conf" )
-                or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
+            $cached_pf_config->RewriteConfig()
+                or $logger->logdie("Unable to write config to $pf_config_file. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
@@ -1676,11 +1657,11 @@ sub configfiles {
     require pf::configfile;
     import pf::configfile;
     if ( $option eq "push" ) {
-        foreach my $config_file (@config_files) {
+        foreach my $config_file (@stored_config_files) {
             configfile_import($config_file);
         }
     } elsif ( $option eq "pull" ) {
-        foreach my $config_file (@config_files) {
+        foreach my $config_file (@stored_config_files) {
             configfile_export($config_file);
         }
     }
@@ -1820,12 +1801,8 @@ sub ui {
 
         # read in configuration file
         my %uiconfig;
-        my $ui_conf_file = $conf_dir . "/ui.conf";
-        if ( defined( $option ) ) {
-            $ui_conf_file = $conf_dir . "/" . $option;
-        }
-        tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file )
-            or $logger->logdie("Unable to open $ui_conf_file: $!");
+        tie %uiconfig, 'pf::config::cached', ( -file => $ui_config_file )
+            or $logger->logdie("Unable to open $ui_config_file $!");
 
         my $string;
         foreach my $section ( tied(%uiconfig)->Sections ) {
