@@ -32,6 +32,12 @@ has cachedConfig => (
     builder => '_buildCachedConfig'
 );
 
+=item idKey
+
+=cut
+
+has idKey => ( is=> 'ro', default => 'id');
+
 =back
 
 =head2 Methods
@@ -89,14 +95,6 @@ sub readAllIds {
     my @sections = $config->Sections();
     return ($STATUS::OK, \@sections);
 }
-
-=item idKey
-
-The key used for the section's id
-
-=cut
-
-sub idKey {"id"}
 
 =item readAll
 
