@@ -133,6 +133,16 @@ sub guests_self_registration :Local {
     $self->_process_section($c);
 }
 
+=head2 guests_admin_registration
+
+=cut
+
+sub guests_admin_registration :Local {
+    my ($self, $c) = @_;
+
+    $self->_process_section($c);
+}
+
 =head2 billing
 
 =cut
