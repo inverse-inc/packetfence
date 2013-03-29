@@ -87,7 +87,7 @@ sub _ui_conf {
 
     unless (defined $_ui_conf_tie) {
         my %conf;
-        tie %conf, 'pf::config::cached', ( -file => "$conf_dir/ui.conf" );
+        tie %conf, 'pf::config::cached', ( -file => $ui_config_file );
         my @errors = @Config::IniFiles::errors;
         if ( scalar(@errors) || !%conf ) {
             $logger->logdie("Error reading ui.conf: " . join( "\n", @errors ) . "\n" );
