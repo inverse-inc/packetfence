@@ -101,8 +101,9 @@ sub instantiate {
     } else {
         $type = "pf::SNMP";
     }
+    $type = untaint_chain($type);
     # load the module to instantiate
-    if (!$type->require()) {
+    if ( !(eval "$type->require()" ) ) {
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
             . "Either the type is unknown or the perl module has compilation errors. "
             . "Read the following message for details: $@");

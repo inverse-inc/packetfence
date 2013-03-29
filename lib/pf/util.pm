@@ -52,6 +52,7 @@ BEGIN {
         pf_run pfmailer
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
+        untaint_chain
     );
 }
 
@@ -1083,6 +1084,16 @@ sub pf_chown {
     chown $uid, $gid, $file;
 }
 
+=item untaint_chain
+
+=cut
+
+sub untaint_chain {
+    my ($chain) = @_;
+    if ($chain =~ /^(.+)$/) {
+        return $1;
+    }
+}
 
 =back
 
