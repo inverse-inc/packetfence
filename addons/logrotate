@@ -1,6 +1,6 @@
 # logrotate file for packetfence
 
-/usr/local/pf/logs/access_log /usr/local/pf/logs/admin_access_log /usr/local/pf/logs/admin_debug_log /usr/local/pf/logs/admin_error_log /usr/local/pf/logs/error_log /usr/local/pf/logs/packetfence.log /usr/local/pf/logs/pfdetect /usr/local/pf/logs/pfmon /usr/local/pf/logs/snmptrapd.log /usr/local/pf/logs/radius.log {
+/usr/local/pf/logs/access_log /usr/local/pf/logs/admin_access_log /usr/local/pf/logs/admin_error_log /usr/local/pf/logs/error_log /usr/local/pf/logs/packetfence.log /usr/local/pf/logs/pfdetect /usr/local/pf/logs/pfmon /usr/local/pf/logs/snmptrapd.log /usr/local/pf/logs/radius.log /usr/local/pf/logs/portal_access_log /usr/local/pf/logs/portal_error_log /usr/local/pf/logs/webservices_access_log /usr/local/pf/logs/webservices_error_log {
     weekly
     rotate 52
     missingok

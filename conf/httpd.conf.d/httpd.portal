@@ -159,8 +159,8 @@ foreach my $interface (@internal_nets) {
     push @{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
          DocumentRoot        => $install_dir.'/html/captive-portal',
-         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
-         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         ErrorLog            => $install_dir.'/logs/portal_error_log',
+         CustomLog           => $install_dir.'/logs/portal_access_log combined',
          Include             => $var_dir.'/conf/captive-portal-common.conf',
          Include             => $var_dir.'/conf/block-unwanted.conf',
          Include             => $var_dir.'/conf/ocsp-crl.conf',
@@ -171,8 +171,8 @@ foreach my $interface (@internal_nets) {
     push @{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
          DocumentRoot        => $install_dir.'/html/captive-portal',
-         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
-         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         ErrorLog            => $install_dir.'/logs/portal_error_log',
+         CustomLog           => $install_dir.'/logs/portal_access_log combined',
          SSLEngine           => 'on',
          Include             => $var_dir.'/conf/ssl-certificates.conf',
          Include             => $var_dir.'/conf/captive-portal-common.conf',
@@ -191,8 +191,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push @{ $VirtualHost{$management_network->{'Tip'}.":80"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
-         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         ErrorLog            => $install_dir.'/logs/portal_error_log',
+         CustomLog           => $install_dir.'/logs/portal_access_log combined',
          Include             => $var_dir.'/conf/captive-portal-common.conf',
          Include             => $var_dir.'/conf/block-unwanted.conf',
          Include             => $var_dir.'/conf/ocsp-crl.conf',
@@ -203,8 +203,8 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     push @{ $VirtualHost{$management_network->{'Tip'}.":443"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
-         ErrorLog            => $install_dir.'/logs/captiveportal_error_log',
-         CustomLog           => $install_dir.'/logs/captiveportal_access_log combined',
+         ErrorLog            => $install_dir.'/logs/portal_error_log',
+         CustomLog           => $install_dir.'/logs/portal_access_log combined',
          SSLEngine           => 'on',
          Include             => $var_dir.'/conf/ssl-certificates.conf',
          Include             => $var_dir.'/conf/captive-portal-common.conf',

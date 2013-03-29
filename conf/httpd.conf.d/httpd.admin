@@ -86,7 +86,7 @@ $MinSpareServers = "6";
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
 
-$ErrorLog = $install_dir.'/logs/apache_admin_error_log';
+$ErrorLog = $install_dir.'/logs/admin_error_log';
 
 $NameVirtualHost => $vhost;
 push @{ $VirtualHost{$vhost} },
