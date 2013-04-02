@@ -1,58 +1,49 @@
-var graphs = {};
+var graphs = {
+    charts: {},
+    resize_timeout: null
+};
 
-function graphLineData(holder, size, labels, series) {
-    var width = (size == 'small')? 460:800,
+function graphLineData(holder, labels, series) {
+    var div = $('#'+holder),
+    width = div.width(),
     height = 250,
     margin = 50;
 
+    if (width == null) return;
     if (labels.length < 2) return;
 
-    $('#'+holder).css({ width: width+'px',
-                        height: (2*height)+'px' }); // leave plenty of space for the legend
+    div.css({ height: (2*height)+'px' }); // leave plenty of space for the legend
 
-    var maxdots = parseInt(width/20),
-    increment = (labels.length > maxdots)? Math.round(labels.length/maxdots) : 1,
-    xstep = (size == 'small')? 4:8,
+    var count = 0,
+    xstep = (width <= 575)? 4:8,
     ystep = 8,
-    axisxstep =  (labels.length > xstep)? xstep : labels.length - 1,
-    axisystep = 0,
+    axisxstep = labels.length - 1,
+    axisystep = 8,
+    labelxstep = Math.round(labels.length/xstep),
     max = 0,
-    xoverflow = (labels.length > xstep)? (labels.length % axisxstep) - 1 : 0,
     valuesx = [],
     valuesy = [],
     legend = [],
     i = 0,
     j = 0;
 
-    // Drop some values if not dividable by the x-steps
-    if (xoverflow > 0)
-        labels.splice(0, xoverflow);
-
+    // Extract legend and values
     for (var name in series) {
         legend.push(name);
         valuesx[i] = [];
         valuesy[i] = [];
-        if (xoverflow > 0)
-            series[name].splice(0, xoverflow);
-        for (var jj = 0, j = 0; jj < labels.length; j++, jj += increment) {
+        if (series[name].length > count) count = series[name].length;
+        for (j = 0; j < labels.length; j++) {
             valuesx[i][j] = j;
-            valuesy[i][j] = series[name][jj];
+            valuesy[i][j] = series[name][j];
             if (valuesy[i][j] > max) max = valuesy[i][j];
         }
         i++;
     }
 
     // Compute the y-axis step based on the maximum y-value
-    if (max % 2 > 0)
-        max++;
     if (max < ystep)
         axisystep = max;
-    else {
-        var k = ystep;
-        while (max % k > 0 && k > 0)
-            k--;
-        axisystep = k;
-    }
 
     var r = Raphael(holder),
     txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
@@ -108,11 +99,10 @@ function graphLineData(holder, size, labels, series) {
                                 axis: "0 0 1 1",
                                 axisxstep: axisxstep,
                                 axisystep: axisystep,
-                                ydim: { from: 0, to: max, power: 1 },
-                                symbol: "circle",
+                                symbol: (count > 90)? "" : "circle",
                                 smooth: false,
                                 //dash: "-",
-                                shade: false,
+                                shade: true,
                                 colors: colors
                             }
                            );
@@ -121,10 +111,11 @@ function graphLineData(holder, size, labels, series) {
         this.tags = r.set();
         for (var i = 0, ii = this.y.length; i < ii; i++) {
             this.tags.push(
-                r.tag(this.x, this.y[i], this.values[i], 160, 10).insertBefore(this).attr(
+                //r.popup(this.x, this.y[i] - 5, this.values[i]).insertBefore(this)
+                r.tag(this.x, this.y[i], this.values[i], 160, 7).insertBefore(this).attr(
                     [
-                        { fill: "#fff" },
-                        { fill: this.symbols[i].attr("fill") }
+                        { fill: '#fff' },
+                        { fill: this.symbols[i]? this.symbols[i].attr("fill") : '#000' }
                     ]
                 )
             );
@@ -142,37 +133,62 @@ function graphLineData(holder, size, labels, series) {
         chart.symbols[i].attr({stroke: "#fff"});
     }
 
+    // Draw horizontal gridlines
+    for (i = 0; i < chart.axis[1].text.items.length; i++) {
+        r.path(['M', 25, chart.axis[1].text.items[i].attrs.y, 'H', width - 35]).attr({
+            stroke : '#EEE'
+        }).toBack();
+        var label = chart.axis[1].text.items[i];
+        if (i > 0) {
+            var j = parseInt(label.attr('text'));
+            if (j == 0) {
+                label.hide();
+            }
+        }
+    }
+    chart.axis[1].attr({stroke: '#FFF'});
+    //chart.axis[1].translate.apply(chart.axis[1], [10, 0]);
+
     // Set x-axis labels
-    for (var j = 0; j < chart.axis[0].text.items.length; j++) {
+    for (var j = 0, last = 0; j < chart.axis[0].text.items.length; j++) {
         var label = chart.axis[0].text.items[j];
         var i = parseInt(label.attr('text'));
-        label.attr({'text': labels[i*increment]});
+        var cur = i % labelxstep;
+        if (cur == 0 || cur < last) {
+            label.attr({'text': labels[i]});
+        }
+        else {
+            label.attr({'text': ''});
+        }
+        last = cur;
     }
 
-    $('#'+holder).css({ height: (height+h)+'px' });
-    var svg = $('#'+holder).children('svg');
+    div.css({ height: (height+h)+'px' });
+    var svg = div.children('svg');
     if (svg.length) svg.attr('height', (height+h));
 }
 
- function graphPieData(holder, size, labels, series) {
-    var width = 600,
+function graphPieData(holder, labels, series) {
+    var div = $('#'+holder),
+    labels_formatted = [],
+    values = series['values'].slice(0),
+    width = div.width(),
     height = 250,
     ray = 90;
 
     for (var i = 0; i < labels.length; i++)
-        labels[i] += " - %%.%%";
+        labels_formatted[i] = labels[i] + " - %%.%%";
 
-    $('#'+holder).css({ width: width+'px',
-                        height: height+'px' });
+    div.css({height: height+'px' });
 
     var r = Raphael(holder),
     txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
 
     var chart = r.piechart(parseInt(width*.75), parseInt(height*.4),
                            ray,
-                           series['values'],
+                           values,
                            {
-                               legend: labels,
+                               legend: labels_formatted,
                                legendpos: "west"
                            }
                           );
@@ -222,7 +238,7 @@ function graphBarData(holder, size, labels, series) {
     // Print legend at top
     var colors = Raphael.g.colors;
     var x = 15, h = 5, j = 0, lines = [];
-    for(i = 0, lines[j] = r.set(); i < legend.length; ++i) {
+    for (i = 0, lines[j] = r.set(); i < legend.length; ++i) {
  	var clr = colors[i];
  	var box = r.set();
         box.push(r.circle(x + 5, h, 5)
@@ -273,7 +289,7 @@ function graphBarData(holder, size, labels, series) {
     if (svg) svg.attr('height', (height+h));
 }
 
-function graphDotData(holder, size, ylabels, xlabels, series) {
+function graphDotData(holder, ylabels, xlabels, series) {
     var width = xlabels.length * 32,
     height = ylabels.length * 50;
 
@@ -327,25 +343,40 @@ function graphDotData(holder, size, ylabels, xlabels, series) {
      if (svg) svg.attr('height', (height+45));
 }
 
-function drawGraphs() {
-    for (var name in graphs) {
-        var graph = graphs[name];
+function drawGraphs(id) {
+    var _graphs = {};
+    if (id)
+        _graphs[id] = graphs.charts[id];
+    else
+        _graphs = graphs.charts;
+
+    for (var name in _graphs) {
+        var graph = _graphs[name];
+        $('#'+name).empty();
 
         switch(graph['type']) {
         case 'pie':
-            graphPieData(name, graph['size'], graph['labels'], graph['series']);
+            graphPieData(name, graph['labels'], graph['series']);
             break;
         case 'bar':
             graphBarData(name, graph['size'], graph['labels'], graph['series']);
             break;
         case 'dot':
-            graphDotData(name, graph['size'], graph['ylabels'], graph['xlabels'], graph['series']);
+            graphDotData(name, graph['ylabels'], graph['xlabels'], graph['series']);
             break;
         case 'stacked':
             graphBarData(name, graph['size'], graph['labels'], graph['series']);
             break;
         default:
-            graphLineData(name, graph['size'], graph['labels'], graph['series']);
+            graphLineData(name, graph['labels'], graph['series']);
         }
     }
 }
+
+$(function() {
+    $(window).on('resize', function(event) {
+        // When resizing the window, rebuild the graphs after a delay of 100 miliseconds
+        if (graphs.resize_timeout) window.clearTimeout(graphs.resize_timeout);
+        graphs.resize_timeout = window.setTimeout(function() { drawGraphs() }, 100);
+    });
+});

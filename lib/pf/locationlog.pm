@@ -31,6 +31,7 @@ BEGIN {
         locationlog_history_mac
         locationlog_history_switchport
 
+        locationlog_count_all
         locationlog_view_all
         locationlog_view_all_open_mac
         locationlog_view_open
@@ -124,6 +125,22 @@ sub locationlog_db_prepare {
             switch=? AND port=? AND start_time < from_unixtime(?) 
             AND (end_time > from_unixtime(?) OR isnull(end_time)) 
         ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
+    ]);
+
+    $locationlog_statements->{'locationlog_count_wired_sql'} = get_db_handle()->prepare(qq[
+        SELECT count(*) AS nb FROM (
+          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
+          FROM locationlog
+          WHERE start_time > ? AND start_time < ? AND connection_type NOT LIKE 'Wireless%' GROUP BY start_day, mac
+        ) AS wired_count
+    ]);
+
+    $locationlog_statements->{'locationlog_count_wireless_sql'} = get_db_handle()->prepare(qq[
+        SELECT count(*) AS nb FROM (
+          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
+          FROM locationlog
+          WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%' GROUP BY start_day, mac
+        ) AS wired_count
     ]);
 
     $locationlog_statements->{'locationlog_view_all_sql'} = get_db_handle()->prepare(qq[
@@ -266,6 +283,22 @@ sub locationlog_history_switchport {
     } else {
         return translate_connection_type(db_data(LOCATIONLOG, $locationlog_statements, 
             'locationlog_history_switchport_sql', $switch, $params{'ifIndex'}));
+    }
+}
+
+sub locationlog_count_all {
+    my ( $id, %params ) = @_;
+
+    my %where = %{$params{where}};
+    if ($where{start_date} && $where{end_date} && $where{value}) {
+        if ($where{value} eq 'wired') {
+            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wired_sql',
+                           $where{start_date}, $where{end_date});
+        }
+        elsif ($where{value} eq 'wireless') {
+            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wireless_sql',
+                           $where{start_date}, $where{end_date});
+        }
     }
 }
 

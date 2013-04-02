@@ -1,0 +1,37 @@
+.graph {
+    overflow: hidden;
+}
+.piegraph {
+    margin: auto;
+    width: 600px;
+}
+/* dashboard */
+#dashboard .nav-tabs li a {
+    height: 100px;
+}
+.counter {
+    n0margin-top: 50px;
+    text-align: center;
+}
+.counter h3 {
+    n0font-size: 48px;
+    color: #999;
+    font-size: 36px;
+}
+.active .counter h3,
+.active .counter h6 {
+    color: rgb(85, 85, 85);
+}
+.pull-right-down {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+.action {
+    color: #999;
+    font-size: 14px;
+}
+.action:hover {
+    color: #666;
+    text-decoration: none;
+}

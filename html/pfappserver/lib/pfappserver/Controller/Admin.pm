@@ -22,7 +22,7 @@ BEGIN {
     extends 'Catalyst::Controller';
 }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =head2 auto
 
@@ -150,6 +150,7 @@ sub status :Chained('object') :PathPart('status') :Args(0) {
 sub reports :Chained('object') :PathPart('reports') :Args(0) {
     my ( $self, $c ) = @_;
 
+    $c->forward('Controller::Graph', 'reports');
 }
 
 =head2 nodes
@@ -187,8 +188,6 @@ sub users :Chained('object') :PathPart('users') :Args(0) {
 sub configuration :Local :PathPart('configuration') :Args() {
     my ( $self, $c, $section ) = @_;
 
-    $section = 'general' unless ($section);
-    $c->stash->{section} = $section;
 }
 
 =head1 COPYRIGHT

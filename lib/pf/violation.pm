@@ -43,6 +43,7 @@ BEGIN {
         violation_force_close
         violation_close
         violation_view
+        violation_count_all
         violation_view_all
         violation_view_all_active
         violation_view_open_all
@@ -82,9 +83,7 @@ our $violation_statements = {};
 =head1 SUBROUTINES
 
 This list is incomplete.
-        
-=over   
-        
+
 =cut
 
 sub violation_db_prepare {
@@ -110,6 +109,11 @@ sub violation_db_prepare {
 
     $violation_statements->{'violation_view_sql'} = get_db_handle()->prepare(
         qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
+
+    $violation_statements->{'violation_count_all_sql'} = qq[
+        SELECT count(*) as nb
+        FROM violation
+    ];
 
     $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(qq[
         SELECT violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes
@@ -303,6 +307,35 @@ sub violation_exist_open {
 sub violation_view {
     my ($id) = @_;
     return db_data(VIOLATION, $violation_statements, 'violation_view_sql', $id);
+}
+
+sub violation_count_all {
+    my ( $id, %params ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
+    violation_db_prepare() if (!$violation_db_prepared);
+    my $violation_count_all_sql = $violation_statements->{'violation_count_all_sql'};
+
+    if ( defined( $params{'where'} ) ) {
+        my @where = ();
+        if ( ref($params{'where'}{'between'}) ) {
+            push(@where, sprintf '%s BETWEEN %s AND %s',
+                 $params{'where'}{'between'}->[0],
+                 get_db_handle()->quote($params{'where'}{'between'}->[1]),
+                 get_db_handle()->quote($params{'where'}{'between'}->[2]));
+        }
+        if (@where) {
+            $violation_count_all_sql .= ' WHERE ' . join(' AND ', @where);
+        }
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $violation_statements->{'violation_count_all_sql_custom'} = $violation_count_all_sql;
+    #$logger->debug($node_count_all_sql);
+
+    return db_data(VIOLATION, $violation_statements, 'violation_count_all_sql_custom');
 }
 
 sub violation_view_all {

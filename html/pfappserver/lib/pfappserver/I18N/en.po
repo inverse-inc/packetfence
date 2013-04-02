@@ -16,32 +16,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: root/interface/get.tt:12
+#: root/interface/get.tt
+
 msgid "inline"
 msgstr "Inline"
 
-#: root/interface/get.tt:12
 msgid "management"
 msgstr "Management"
 
-#: root/interface/get.tt:12
 msgid "other"
 msgstr "Other"
 
-#: root/interface/get.tt:12
 msgid "vlan-isolation"
 msgstr "Isolation"
 
-#: root/interface/get.tt:12
 msgid "vlan-registration"
 msgstr "Registration"
 
-#: root/configurator/networks.tt:95
-msgid "Actions"
+msgid "Add VLAN"
 msgstr ""
 
-#: root/interface/get.tt:25
-msgid "Add VLAN"
+#: root/configurator/networks.tt
+
+msgid "Actions"
 msgstr ""
 
 #: root/configurator/configuration.tt:48
@@ -160,6 +157,19 @@ msgstr ""
 #: lib/pfappserver/Controller/Configurator.pm:79
 msgid "You must assign an interface to the following types: %1"
 msgstr ""
+
+#: lib/pfappserver/Controller/Graph.pm
+msgid "callingstationid"
+msgstr "MAC Address"
+
+msgid "accttotal"
+msgstr "Total"
+
+msgid "acctinput"
+msgstr "Input"
+
+msgid "acctoutput"
+msgstr "Output"
 
 #: conf/pf.conf.defaults:0
 msgid "general"
@@ -726,6 +736,11 @@ msgstr "Connection type"
 msgid "computer_name"
 msgstr "Computer name"
 
+# lib/pf/SNMP/constants.pm
+
+msgid "testing"
+msgstr "Testing"
+
 # html/pfappserver/root/user/list_password.tt
 
 msgid "mail"
@@ -775,23 +790,16 @@ msgstr "Detect"
 msgid "internal"
 msgstr "Internal"
 
-msgid "mac"
-msgstr "MAC"
-
-msgid "nessus"
-msgstr "Nessus"
-
-msgid "openvas"
-msgstr "OpenVAS"
-
 msgid "os"
 msgstr "OS"
-
-msgid "soh"
-msgstr "SoH"
 
 msgid "useragent"
 msgstr "UserAgent"
 
 msgid "vendormac"
 msgstr "VendorMAC"
+
+# lib/pf/pfcmd/report.pm
+
+msgid "dhcp_fingerprint"
+msgstr "Operating System Class"

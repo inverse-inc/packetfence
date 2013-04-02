@@ -63,7 +63,7 @@ function activateNavLink() {
         // Find the longest match
         // Sort links by descending order by string length
         $('.sidebar-nav .nav-list a').sort(function(a,b){
-           return b.href.length - a.href.length ;
+           return b.href.length - a.href.length;
         })
         // Find the first link
         .filter(function(i,link) {
@@ -74,7 +74,7 @@ function activateNavLink() {
             return false;
         }).trigger('click');
     }
-    else if (false === found) {
+    if (false === found) {
         $('.sidebar-nav .nav-list a').first().trigger('click');
     }
 }
@@ -97,8 +97,10 @@ function updateSection(ajax_data) {
                 .done(function(data) {
                     section.html(data);
                     section.find('.datepicker').datepicker({ autoclose: true });
-                    section.find('.chzn-select').chosen();
-                    section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                    if (section.chosen) {
+                        section.find('.chzn-select').chosen();
+                        section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                    }
                     if (section.bootstrapSwitch)
                         section.find('.switch').bootstrapSwitch();
                     section.trigger('section.loaded');
@@ -123,11 +125,11 @@ function updateSectionFromForm(form) {
 
 
 /* Return a function to be called when the hash changes */
-function pfOnHashChange(updater,default_url) {
+function pfOnHashChange(updater, default_url) {
     return function(event) {
         var hash = location.hash;
-        var href = '/'+ hash.replace(/^#\/*/,'');
-        if(default_url !== undefined && ( href == '' || href == '/') ) {
+        var href = '/' + hash.replace(/^#\/*/,'');
+        if (default_url !== undefined && (href == '' || href == '/')) {
             href = default_url;
         }
         updater(href);
@@ -184,20 +186,22 @@ $(function () { // DOM ready
     /* Range datepickers
      * See https://github.com/eternicode/bootstrap-datepicker/tree/range */
 
-    $('.datepicker input[name="start"]').on('changeDate', function(event) {
+    $('body').on('changeDate', '.datepicker input[name="start"]', function(event) {
         var dp = $(this).parent().data('datepicker');
         // Limit the start date of the second datepicker to this new date
         dp.pickers[1].setStartDate(event.date);
     });
-    $('.datepicker input[name="end"]').on('changeDate', function(event) {
+    $('body').on('changeDate', '.datepicker input[name="end"]', function(event) {
         var dp = $(this).parent().data('datepicker');
         // Limit the end date of the first datepicker to this new date
         dp.pickers[0].setEndDate(event.date);
     });
-    $('.datepicker a[href*="day"]').click(function() {
+    $('body').on('click', '.datepicker a[href*="day"]', function(event) {
+        event.preventDefault();
+
         // The number of days is extracted from the href attribute
         var days = $(this).attr('href').replace(/#last([0-9]+)days?/, "$1");
-        var dp = $(this).parent().data('datepicker');
+        var dp = $(this).closest('.datepicker').data('datepicker');
         var now = new Date();
         var before = new Date(now.getTime() - days*24*60*60*1000);
         var now_str = (now.getMonth() + 1) + '/' + now.getDate() + '/' + now.getFullYear();
@@ -207,13 +211,16 @@ $(function () { // DOM ready
         dp.pickers[0].element.val(before_str);
         dp.pickers[0].update();
         dp.pickers[0].setEndDate(now);
+        dp.pickers[0].element.trigger({ type: 'changeDate', date: dp.pickers[0].date });
 
         // End date
         dp.pickers[1].element.val(now_str);
         dp.pickers[1].update();
         dp.pickers[1].setStartDate(before);
+        dp.pickers[1].element.trigger({ type: 'changeDate', date: dp.pickers[1].date });
 
         dp.updateDates();
+
         return false;
     });
 

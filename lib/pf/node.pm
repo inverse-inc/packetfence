@@ -243,7 +243,10 @@ sub node_db_prepare {
     ];
 
     # This guy here is special, have a look in node_count_all to see why
-    $node_statements->{'node_count_all_sql'} = "select count(*) as nb from node";
+    $node_statements->{'node_count_all_sql'} = qq[
+        SELECT count(*) as nb
+        FROM node
+    ];
 
     $node_statements->{'node_expire_unreg_field_sql'} = get_db_handle()->prepare(
         qq [ select mac from node where status="reg" and unregdate != 0 and unregdate < now() ]);
@@ -290,11 +293,21 @@ sub node_db_prepare {
         WHERE node.status='reg' GROUP BY node.mac HAVING count(violation.mac)=0
     ]);
 
-    $node_statements->{'nodes_active_unregistered_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,i.ip,i.start_time,i.end_time,n.last_arp from node n left join iplog i on n.mac=i.mac where n.status="unreg" and (i.end_time=0 or i.end_time > now()) ]);
+    $node_statements->{'nodes_active_unregistered_sql'} = get_db_handle()->prepare(qq [
+        SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
+            n.status, n.user_agent, n.computername, n.notes,
+            i.ip, i.start_time, i.end_time, n.last_arp
+        FROM node n LEFT JOIN iplog i ON n.mac=i.mac
+        WHERE n.status = "unreg" AND (i.end_time = 0 OR i.end_time > now())
+    ]);
 
-    $node_statements->{'nodes_active_sql'} = get_db_handle()->prepare(
-        qq [ select n.mac,n.pid,n.detect_date,n.regdate,n.unregdate,n.lastskip,n.status,n.user_agent,n.computername,n.notes,n.dhcp_fingerprint,i.ip,i.start_time,i.end_time,n.last_arp from node n, iplog i where n.mac=i.mac and (i.end_time=0 or i.end_time > now()) ]);
+    $node_statements->{'nodes_active_sql'} = get_db_handle()->prepare(qq [
+        SELECT n.mac, n.pid, n.detect_date, n.regdate, n.unregdate, n.lastskip,
+            n.status, n.user_agent, n.computername, n.notes, n.dhcp_fingerprint,
+            i.ip, i.start_time, i.end_time, n.last_arp
+        FROM node n, iplog i
+        WHERE n.mac = i.mac AND (i.end_time = 0 OR i.end_time > now())
+    ]);
 
     $node_statements->{'node_update_lastarp_sql'} = get_db_handle()->prepare(qq [ update node set last_arp=now() where mac=? ]);
 
@@ -541,32 +554,45 @@ sub node_count_all {
     my $node_count_all_sql = $node_statements->{'node_count_all_sql'};
 
     if ( defined( $params{'where'} ) ) {
-        if ( $params{'where'}{'type'} eq 'pid' ) {
-            $node_count_all_sql
-                .= " WHERE node.pid='" . $params{'where'}{'value'} . "'";
-        }
-        elsif ( $params{'where'}{'type'} eq 'category' ) {
-
-            my $cat_id = nodecategory_lookup($params{'where'}{'value'});
-            if (!defined($cat_id)) {
-                # lets be nice and issue a warning if the category doesn't exist
-                $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
-                # put cat_id to 0 so it'll return 0 results (achieving the count ok)
-                $cat_id = 0;
+        my @where = ();
+        if ( $params{'where'}{'type'} ) {
+            if ( $params{'where'}{'type'} eq 'pid' ) {
+                push(@where, "node.pid = " . get_db_handle()->quote($params{'where'}{'value'}));
             }
-            $node_count_all_sql .= " WHERE category_id =" . $cat_id;
-        }
-        elsif ( $params{'where'}{'type'} eq 'any' ) {
-            if (exists($params{'where'}{'like'})) {
-                $node_count_all_sql .= " WHERE mac LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%');
+            elsif ( $params{'where'}{'type'} eq 'category' ) {
+                my $cat_id = nodecategory_lookup($params{'where'}{'value'});
+                if (!defined($cat_id)) {
+                    # lets be nice and issue a warning if the category doesn't exist
+                    $logger->warn("there was a problem looking up category ".$params{'where'}{'value'});
+                    # put cat_id to 0 so it'll return 0 results (achieving the count ok)
+                    $cat_id = 0;
+                }
+                push(@where, "category_id = " . $cat_id);
             }
+            elsif ( $params{'where'}{'type'} eq 'status') {
+                push(@where, "node.status = " . get_db_handle()->quote($params{'where'}{'value'}));
+            }
+            elsif ( $params{'where'}{'type'} eq 'any' ) {
+                if (exists($params{'where'}{'like'})) {
+                    push(@where, "mac LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'));
+                }
+            }
+        }
+        if ( ref($params{'where'}{'between'}) ) {
+            push(@where, sprintf '%s BETWEEN %s AND %s',
+                 $params{'where'}{'between'}->[0],
+                 get_db_handle()->quote($params{'where'}{'between'}->[1]),
+                 get_db_handle()->quote($params{'where'}{'between'}->[2]));
+        }
+        if (@where) {
+            $node_count_all_sql .= ' WHERE ' . join(' AND ', @where);
         }
     }
 
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $node_statements->{'node_count_all_sql_custom'} = $node_count_all_sql;
-    $logger->debug($node_count_all_sql);
+    #$logger->debug($node_count_all_sql);
 
     return db_data(NODE, $node_statements, 'node_count_all_sql_custom');
 }

@@ -23,32 +23,73 @@ extends 'Catalyst::Model';
 
 =head1 METHODS
 
-=head2 field_order
-
-From pf::config::ui
+=head2
 
 =cut
-sub field_order {
-    return pf::config::ui->instance->field_order("@ARGV");
+
+sub _round {
+    my $number = shift;
+
+    if ($number > 1000) {
+        return int($number/100 + 0.5)/10 . 'K';
+    }
+
+    return $number;
+}
+
+=head2 count
+
+=cut
+
+sub countAll {
+    my ($self, $module, $params) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+    my (@results, $result);
+    my $function = \&{"pf::${module}::${module}_count_all"};
+
+    if ($function) {
+        eval {
+            require pf::node if ($module eq 'node');
+            @results = $function->(undef, ( where => $params )); };
+        if ($@) {
+            $logger->error($@);
+            $status_msg = "Can't count data from database for module $module.";
+            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        }
+    }
+    else {
+        $status_msg = "No such sub $function";
+        return ($STATUS::NOT_FOUND, $status_msg);
+    }
+
+    $result = pop @results;
+    $result->{nb} = _round($result->{nb});
+
+    return ($STATUS::OK, $result);
 }
 
 =head2 timeBase
 
 From bin/pfcmd (print_graph_results)
 
+TODO: restore the interval parameter (day/month/year)
+
 =cut
+
 sub timeBase {
-    my ( $self, $graph, $interval ) = @_;
+    my ($self, $graph, $startDate, $endDate, $options) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ( $status, $status_msg );
+    my ($status, $status_msg);
 
     my $function = \&{"pf::pfcmd::graph::graph_$graph"};
-    $interval = 'day' unless (defined($interval));
+    my $interval = 'day';
 
     my @data = ();
     my @results;
     if ($function) {
-        eval { @results = $function->($interval); };
+        eval { @results = $function->($startDate, $endDate); };
         if ($@) {
             $status_msg = "Can't fetch data from database for graph $graph.";
             $logger->error($@);
@@ -66,48 +107,45 @@ sub timeBase {
         my $s = $result->{'series'};
         push( @{ $series{$s} }, $result );
     }
-    my @fields = field_order();
-    push @fields, keys( %{ $results[0] } ) if ( !scalar(@fields) );
-    push(@data, \@fields);
+    my @fields = keys( %{ $results[0] } );
+    push(@data, \@fields) if (@fields);
 
-    #determine first and last time in all series
+    # Determine first and last time in all series
     my $first_time = undef;
     my $last_time  = undef;
-    foreach my $s ( keys(%series) ) {
-        my $start_year;
-        my $start_mon = 1;
-        my $start_day = 1;
-        my $end_year;
-        my $end_mon = 1;
-        my $end_day = 1;
-        my @results = @{ $series{$s} };
-        if ( $interval eq "day" ) {
-            ( $start_year, $start_mon, $start_day )
-                = split( /\//, $results[0]->{'mydate'} );
-            ( $end_year, $end_mon, $end_day )
-                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
-        } elsif ( $interval eq "month" ) {
-            ( $start_year, $start_mon )
-                = split( /\//, $results[0]->{'mydate'} );
-            ( $end_year, $end_mon )
-                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
-        } elsif ( $interval eq "year" ) {
-            $start_year = $results[0]->{'mydate'};
-            $end_year   = $results[ scalar(@results) - 1 ]->{'mydate'};
-        }
-        my $start_time = Date::Parse::str2time(
-            "$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
-        my $end_time = Date::Parse::str2time(
-            "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
-        if ( ( !defined($first_time) ) || ( $start_time < $first_time ) ) {
-            $first_time = $start_time;
-        }
-        if ( ( !defined($last_time) ) || ( $end_time > $last_time ) ) {
-            $last_time = $end_time;
+    if ($startDate && $endDate) {
+        my ($start_year, $start_mon, $start_day) = split( /\-/, $startDate);
+        my ($end_year, $end_mon, $end_day) = split( /\-/, $endDate);
+        $first_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+        $last_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+    }
+    else {
+        # TODO: do we check the last date of the series or simply take today as the end date?
+        $last_time = localtime();
+
+        foreach my $s ( keys(%series) ) {
+            my $start_year;
+            my $start_mon = 1;
+            my $start_day = 1;
+            my @results = @{ $series{$s} };
+            if ( $interval eq "day" ) {
+                ( $start_year, $start_mon, $start_day )
+                  = split( /\//, $results[0]->{'mydate'} );
+            } elsif ( $interval eq "month" ) {
+                ( $start_year, $start_mon )
+                  = split( /\//, $results[0]->{'mydate'} );
+            } elsif ( $interval eq "year" ) {
+                $start_year = $results[0]->{'mydate'};
+            }
+            my $start_time = Date::Parse::str2time(
+                                                   "$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+            if ( ( !defined($first_time) ) || ( $start_time < $first_time ) ) {
+                $first_time = $start_time;
+            }
         }
     }
 
-    #add, if necessary, first and last time entries to all series
+    # Add, if necessary, first and last time entries to all series
     foreach my $s ( keys(%series) ) {
         my $start_year;
         my $start_mon = 1;
@@ -144,10 +182,10 @@ sub timeBase {
                     $new_record->{$field} = 0;
                 } else {
                     $new_record->{$field}
-                        = $results[ scalar(@results) - 1 ]->{$field};
+                        = $results[$#results]->{$field};
                 }
             }
-            unshift( @{ $series{$s} }, $new_record );
+            unshift( @{$series{$s}}, $new_record );
         }
         if ( $end_time < $last_time ) {
             my $new_record;
@@ -155,37 +193,24 @@ sub timeBase {
                 if ( $field eq "mydate" ) {
                     $new_record->{$field} = POSIX::strftime( "%Y/%m/%d",
                         localtime($last_time) );
+                } elsif ( $field eq "count" ) {
+                    $new_record->{$field} = 0;
                 } else {
                     $new_record->{$field}
-                        = $results[ scalar(@results) - 1 ]->{$field};
+                        = $results[$#results]->{$field};
                 }
             }
-            push( @{ $series{$s} }, $new_record );
+            push( @{$series{$s}}, $new_record );
         }
     }
 
+    # Fill gap between every pair of dates
     foreach my $s ( keys(%series) ) {
         my @results = @{ $series{$s} };
-        my $year    = POSIX::strftime( "%Y", localtime );
-        my $month   = POSIX::strftime( "%m", localtime );
-        my $day     = POSIX::strftime( "%d", localtime );
-        my $date;
-        if ( $interval eq "day" ) {
-            $date = "$year/$month/$day";
-        } elsif ( $interval eq "month" ) {
-            $date = "$year/$month";
-        } elsif ( $interval eq "year" ) {
-            $date = "$year";
-        } else {
-        }
-        if ( $results[ scalar(@results) - 1 ]->{'mydate'} ne $date ) {
-            my %tmp = %{ $results[ scalar(@results) - 1 ] };
-            $tmp{'mydate'} = $date;
-            push( @results, \%tmp );
-        }
+
         push( @results, $results[0] ) if ( scalar(@results) == 1 );
         if ( $interval eq "day" ) {
-            for ( my $r = 0; $r < scalar(@results) - 1; $r++ ) {
+            for ( my $r = 0; $r < $#results; $r++ ) {
                 my ( $start_year, $start_mon, $start_day )
                     = split( /\//, $results[$r]->{'mydate'} );
                 my ( $end_year, $end_mon, $end_day )
@@ -196,11 +221,9 @@ sub timeBase {
                         . "T00:00:00.0000000" );
                 my $end_time = Date::Parse::str2time(
                     "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
-                for (
-                    my $current_time = $start_time;
-                    $current_time < $end_time;
-                    $current_time += 86400
-                    )
+                for (my $current_time = $start_time;
+                     $current_time < $end_time;
+                     $current_time += 86400)
                 {
                     my @values;
                     foreach my $field (@fields) {
@@ -211,18 +234,28 @@ sub timeBase {
                                     "%m/%d/%Y", localtime($current_time)
                                 )
                             );
-                        } else {
+                        }
+                        elsif ( $field eq 'count' ) {
+                            if ($current_time == $start_time || $options->{continuous}) {
+                                push( @values, $results[$r]->{$field} );
+                            }
+                            else {
+                                push( @values, 0 );
+                            }
+                        }
+                        else {
                             push( @values, $results[$r]->{$field} );
                         }
                     }
                     push(@data, \@values);
                 }
             }
-            my ( $year, $mon, $day )
-                = split( /\//, $results[ scalar(@results) - 1 ]->{'mydate'} );
+
             my @values;
             foreach my $field (@fields) {
                 if ( $field eq "mydate" ) {
+                    my ( $year, $mon, $day )
+                      = split( /\//, $results[$#results]->{'mydate'} );
                     push(
                         @values,
                         join( "/",
@@ -232,7 +265,7 @@ sub timeBase {
                     );
                 } else {
                     push( @values,
-                        $results[ scalar(@results) - 1 ]->{$field} );
+                        $results[$#results]->{$field} );
                 }
             }
             push(@data, \@values);
@@ -323,6 +356,8 @@ sub timeBase {
         }
     }
 
+    push (@data, [qw/count mydate series/]) unless (@data);
+
     return ($STATUS::OK, _format_timeBase(\@data));
 }
 
@@ -336,7 +371,7 @@ sub _format_timeBase {
     my %series = ();
     my $results = {};
 
-    # Expected headers from date are : count, mydate, series
+    # Expected headers from $data are : count, mydate, series
     my $headers = shift @{$data};
     my $index = {};
     for (my $i = 0; $i < scalar(@{$headers}); $i++) {
@@ -390,15 +425,15 @@ See bin/pfcmd (report)
 
 =cut
 sub ratioBase {
-    my ( $self, $report, $options ) = @_;
+    my ( $self, $report, $startDate, $endDate, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ( $status, $status_msg );
 
-    my $function = \&{"pf::pfcmd::report::report_${report}_" . $options->{report}};
+    my $function = \&{"pf::pfcmd::report::report_${report}"};
 
     my @results;
     if ($function) {
-        eval { @results = $function->(); };
+        eval { @results = $function->($startDate, $endDate); };
         if ($@) {
             $logger->error($@);
             $status_msg = "Can't fetch data from database for report $report.";
@@ -433,6 +468,8 @@ sub _format_ratioBase {
     my $total = pop @$data;
     $total = int $total->{$count_field};
 
+    return unless ($total > 0);
+
     # Extract only the necessary fields
     foreach my $row (@{$data}) {
         push(@rows, [$row->{$description_field}, $row->{$count_field}, $row->{$value_field}]);
@@ -465,13 +502,9 @@ sub _format_ratioBase {
     return $results;
 }
 
-=head1 AUTHOR
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
