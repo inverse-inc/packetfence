@@ -27,6 +27,7 @@ extends 'Catalyst::Model';
 =item create
 
 =cut
+
 sub create {
     my ( $self, $interface ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -34,10 +35,10 @@ sub create {
     my ($status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
-    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface") 
+    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
-    # Check if requested interface exists 
+    # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_success($status) ) {
         $status_msg = "Interface VLAN $interface already exists";
@@ -74,6 +75,7 @@ sub create {
 =item delete
 
 =cut
+
 sub delete {
     my ( $self, $interface, $host ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -84,7 +86,7 @@ sub delete {
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
-    # Check if requested interface exists 
+    # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
         $status_msg = "Interface VLAN $interface does not exists";
@@ -121,6 +123,7 @@ sub delete {
 =item down
 
 =cut
+
 sub down {
     my ( $self, $interface, $host ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -131,7 +134,7 @@ sub down {
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
-    # Check if requested interface exists 
+    # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
         $status_msg = "Interface $interface does not exists";
@@ -176,6 +179,7 @@ sub down {
 =item exists
 
 =cut
+
 sub exists {
     my ( $self, $interface ) = @_;
 
@@ -206,11 +210,13 @@ Where $interface is physical interface if there's no VLAN interface (eth0)
 and phy.vlan (eth0.100) if there's a vlan interface.
 
 =cut
+
 sub get {
     my ( $self, $interface, $models ) = @_;
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
+    my $networks_model = $models->{networks};
 
     my $result = {};
     my ($status, $return);
@@ -224,17 +230,17 @@ sub get {
           $result->{"$interface"}->{'name'}     = $physical_device;
           $result->{"$interface"}->{'vlan'}     = $vlan_id;
         }
-        if (($result->{"$interface"}->{'network'} = $models->{networks}->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
-            ($status, $return) = $models->{networks}->getRoutedNetworks($result->{"$interface"}->{'network'},
+        if (($result->{"$interface"}->{'network'} = $networks_model->getNetworkAddress($interface_ref->{ipaddress}, $interface_ref->{netmask}))) {
+            ($status, $return) = $networks_model->getRoutedNetworks($result->{"$interface"}->{'network'},
                                                                            $interface_ref->{netmask});
             if (is_success($status)) {
                 $result->{"$interface"}->{'networks'} = $return;
             }
-            ($status, $return) = $models->{networks}->read_value($result->{"$interface"}->{'network'}, 'dns');
+            ($status, $return) = $networks_model->read_value($result->{"$interface"}->{'network'}, 'dns');
             if (is_success($status)) {
                 $result->{"$interface"}->{'dns'} = $return;
             }
-            $result->{"$interface"}->{'network_iseditable'} = $models->{networks}->exist($result->{"$interface"}->{'network'});
+            $result->{"$interface"}->{'network_iseditable'} = $networks_model->exist($result->{"$interface"}->{'network'});
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref, $models);
     }
@@ -245,6 +251,7 @@ sub get {
 =item update
 
 =cut
+
 sub update {
     my ( $self, $interface, $interface_ref, $models ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -314,6 +321,7 @@ sub update {
 =item isActive
 
 =cut
+
 sub isActive {
     my ( $self, $interface ) = @_;
 
@@ -327,6 +335,7 @@ sub isActive {
 =item getType
 
 =cut
+
 sub getType {
     my ( $self, $interface_ref, $models ) = @_;
 
@@ -340,7 +349,8 @@ sub getType {
     }
     unless ($type) {
         # Check in pf.conf
-        ($status, $type) = $models->{pf}->read_interface_value($interface_ref->{name}, 'type');
+        my $interface;
+        ($status, $interface) = $models->{interface}->read($interface_ref->{name});
 
         # if the interface is not defined in pf.conf
         if ( is_error($status) ) {
@@ -348,6 +358,7 @@ sub getType {
         }
         # rely on pf.conf's info
         else {
+            $type = $interface->{type};
             $type = ($type =~ /management|managed/i) ? 'management' : 'other';
         }
     }
@@ -360,10 +371,12 @@ sub getType {
  Update networks.conf and pf.conf
 
 =cut
+
 sub setType {
     my ( $self, $interface, $interface_ref, $models ) = @_;
 
     my $type = $interface_ref->{type} || 'none';
+    my $pf_interface_model = $models->{interface};
 
     # we ignore interface type 'Other' (it basically means unsupported in configurator)
     return if ( $type =~ /^other$/i );
@@ -373,16 +386,17 @@ sub setType {
         if ($models->{networks}->exist($interface_ref->{network})) {
             $models->{networks}->delete($interface_ref->{network});
         }
-        if ($models->{pf}->exist_interface($interface)) {
-            $models->{pf}->delete_interface($interface);
+        my ($status,undef) = $pf_interface_model->hasId($interface);
+        if (is_success($status)) {
+            $pf_interface_model->remove($interface);
         }
     }
     # otherwise we update pf.conf and networks.conf
     else {
         # we willingly silently ignore errors if interface already exists
         # TODO have a wrapper that does both?
-        $models->{pf}->create_interface($interface);
-        $models->{pf}->update_interface($interface,
+        $pf_interface_model->remove($interface);
+        $pf_interface_model->create($interface,
                                         $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # FIXME refactor that!
@@ -432,6 +446,7 @@ sub setType {
             }
         }
     }
+    $pf_interface_model->rewriteConfig();
 }
 
 
@@ -458,6 +473,7 @@ sub interfaceForDestination {
 Check if the requested interface is active or not on the system.
 
 =cut
+
 sub _interfaceActive {
     my ( $self, $interface ) = @_;
 
@@ -469,6 +485,7 @@ sub _interfaceActive {
 =item _interfaceCurrentlyInUse
 
 =cut
+
 sub _interfaceCurrentlyInUse {
     my ( $self, $interface, $host ) = @_;
 
@@ -484,6 +501,7 @@ sub _interfaceCurrentlyInUse {
 =item _interfaceVirtual
 
 =cut
+
 sub _interfaceVirtual {
     my ( $self, $interface ) = @_;
 
@@ -491,7 +509,7 @@ sub _interfaceVirtual {
     if ( !$vlan_id ) {
         return;
     }
- 
+
     return ( $physical_device, $vlan_id );
 }
 
@@ -500,6 +518,7 @@ sub _interfaceVirtual {
 Return a list of all curently installed network interfaces.
 
 =cut
+
 sub _listInterfaces {
     my ( $self, $ifname ) = @_;
 
@@ -548,11 +567,12 @@ sub _listInterfaces {
     return @interfaces_list;
 }
 
-=head2 _prepare_interface_for_pfconf
+=item _prepare_interface_for_pfconf
 
 Process parameters to build a proper pf.conf interface section.
 
 =cut
+
 # TODO push hardcoded strings as constants (or re-use core constants)
 # this might imply a rework of this out of the controller into the model
 sub _prepare_interface_for_pfconf {
@@ -585,6 +605,7 @@ sub _prepare_interface_for_pfconf {
 =item up
 
 =cut
+
 sub up {
     my ( $self, $interface ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -595,7 +616,7 @@ sub up {
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
-    # Check if requested interface exists 
+    # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
         $status_msg = "Interface $interface does not exists";

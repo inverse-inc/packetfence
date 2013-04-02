@@ -51,6 +51,7 @@ my @steps = (
 Set the default view to pfappserver::View::Configurator.
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'Configurator';
@@ -59,6 +60,7 @@ sub begin :Private {
 =head2 index
 
 =cut
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -70,6 +72,7 @@ sub index :Path :Args(0) {
 Configurator controller dispatcher
 
 =cut
+
 sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
@@ -96,6 +99,7 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
 Set the next step with respect to the current action.
 
 =cut
+
 sub _next_step {
     my ( $self, $c ) = @_;
 
@@ -114,6 +118,7 @@ sub _next_step {
 Enforcement mechanisms (step 1)
 
 =cut
+
 sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -141,7 +146,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
         my $models =
           {
            'networks' => $c->model('Config::Networks'),
-           'pf' => $c->model('Config::Pf')
+           'interface' => $c->model('Config::Cached::Interface')
           };
         my $interfaces_ref = $c->model('Interface')->get('all', $models);
         my ($status, $interfaces_types) = $models->{'networks'}->getTypes($interfaces_ref);
@@ -179,13 +184,14 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
 Network interfaces (step 2)
 
 =cut
+
 sub networks :Chained('object') :PathPart('networks') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $models =
       {
        'networks' => $c->model('Config::Networks'),
-       'pf' => $c->model('Config::Pf')
+       'interface' => $c->model('Config::Cached::Interface')
       };
 
     if ($c->request->method eq 'POST') {
@@ -250,6 +256,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 Database setup (step 3)
 
 =cut
+
 # FIXME this is not like we built the rest of pfappserver.. re-architect?
 # the GET is expected to fail on first run, then the javascript calls it again and it should pass...
 sub database :Chained('object') :PathPart('database') :Args(0) {
@@ -294,6 +301,7 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
 PacketFence minimal configuration (step 4)
 
 =cut
+
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -352,6 +360,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
 Administrator account (step 5)
 
 =cut
+
 sub admin :Chained('object') :PathPart('admin') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -385,6 +394,7 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
 Confirmation and services launch (step 6)
 
 =cut
+
 sub services :Chained('object') :PathPart('services') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -465,6 +475,7 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
 Reset the root password (database)
 
 =cut
+
 sub reset_password :Path('reset_password') :Args(0) {
     my ( $self, $c ) = @_;
 

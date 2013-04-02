@@ -39,6 +39,7 @@ BEGIN {extends 'Catalyst::Controller'; }
 This controller defaults view is HTML.
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
 
@@ -56,6 +57,7 @@ sub begin :Private {
 =item index
 
 =cut
+
 sub index :Local :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -66,13 +68,14 @@ sub index :Local :Args(0) {
 =item list
 
 =cut
+
 sub list :Local :Args(0) {
     my ( $self, $c ) = @_;
 
     my $models =
       {
        'networks' => $c->model('Config::Networks'),
-       'pf' => $c->model('Config::Pf')
+       'interface' => $c->model('Config::Cached::Interface')
       };
     $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
 }
@@ -83,6 +86,7 @@ sub list :Local :Args(0) {
 Interface controller dispatcher
 
 =cut
+
 sub object :Chained('/') :PathPart('interface') :CaptureArgs(1) {
     my ( $self, $c, $interface ) = @_;
 
@@ -109,6 +113,7 @@ Create an interface vlan
 Usage: /interface/<logical_name>/create
 
 =cut
+
 sub create :Chained('object') :PathPart('create') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -135,7 +140,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
                 my $models =
                   {
                    'networks' => $c->model('Config::Networks'),
-                   'pf' => $c->model('Config::Pf')
+                   'interface' => $c->model('Config::Cached::Interface')
                   };
                 ($status, $result) = $c->model('Interface')->update($interface, $data, $models);
             }
@@ -163,6 +168,7 @@ Delete an existing vlan interface
 Usage: /interface/<logical_name>/delete
 
 =cut
+
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -186,6 +192,7 @@ Down the selected network interface
 Usage: /interface/<logical_name>/down
 
 =cut
+
 sub down :Chained('object') :PathPart('down') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -213,7 +220,7 @@ sub read :Chained('object') :ParthPart('read') :Args(0) {
     my $models =
       {
        'networks' => $c->model('Config::Networks'),
-       'pf' => $c->model('Config::Pf')
+       'interface' => $c->model('Config::Cached::Interface')
       };
     my $interface = $c->stash->{interface};
     my $interface_ref = $c->model('Interface')->get($interface, $models);
@@ -242,6 +249,7 @@ Edit the configuration of the selected network interface
 Usage: /interface/<logical_name>/update/<IP_address>/<netmask>
 
 =cut
+
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -249,7 +257,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my $models =
       {
        'networks' => $c->model('Config::Networks'),
-       'pf' => $c->model('Config::Pf')
+       'interface' => $c->model('Config::Cached::Interface')
       };
 
     if ($c->request->method eq 'POST') {
@@ -292,6 +300,7 @@ Activate the selected network interface
 Usage: /interface/<logical_name>/up
 
 =cut
+
 sub up :Chained('object') :PathPart('up') :Args(0) {
     my ( $self, $c ) = @_;
 
