@@ -64,6 +64,7 @@ Readonly our $ALL_BINARIES_RE => qr/$services
     |apache2                                   # httpd on debian
     |freeradius                                # radiusd on debian
     |httpd.worker                              # mpm_worker apache version
+    |httpd
 $/x;
 
 =head1 Globals
