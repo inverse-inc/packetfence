@@ -15,6 +15,7 @@ use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
 use pfappserver::Form::Config::Switch;
+use pf::config::cached;
 
 BEGIN {
     extends 'pfappserver::Base::Controller::Base';
@@ -33,6 +34,7 @@ Set the current form instance and model
 
 sub begin :Private {
     my ($self, $c) = @_;
+    pf::config::cached::ReloadConfigs();
     my $model = $c->model("Config::Cached::FloatingDevice")->new;
     $c->stash->{current_model_instance} = $model;
     $c->stash->{current_form_instance}  = $c->form("Config::FloatingDevice")->new(ctx => $c);
@@ -59,7 +61,6 @@ after list => sub {
 
     my ($status, $switch, $ip);
     my $switchModel = $c->model('Config::Cached::Switch');
-    $switchModel->readConfig();
     foreach my $floatingdevice (@{$c->stash->{items}}) {
         $ip = $floatingdevice->{ip};
         if ($ip) {
