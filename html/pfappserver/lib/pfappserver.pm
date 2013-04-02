@@ -58,7 +58,7 @@ __PACKAGE__->config(
     },
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
-    'Plugin::Static::Simple' => {
+    'static' => {
         mime_types => {
             woff => 'font/woff'
         },
