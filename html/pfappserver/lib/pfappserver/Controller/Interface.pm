@@ -74,7 +74,7 @@ sub list :Local :Args(0) {
 
     my $models =
       {
-       'networks' => $c->model('Config::Networks'),
+       'networks' => $c->model('Config::Cached::Network'),
        'interface' => $c->model('Config::Cached::Interface')
       };
     $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
@@ -139,7 +139,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
             if (is_success($status)) {
                 my $models =
                   {
-                   'networks' => $c->model('Config::Networks'),
+                   'networks' => $c->model('Config::Cached::Network'),
                    'interface' => $c->model('Config::Cached::Interface')
                   };
                 ($status, $result) = $c->model('Interface')->update($interface, $data, $models);
@@ -219,7 +219,7 @@ sub read :Chained('object') :ParthPart('read') :Args(0) {
     # Retrieve interface definition
     my $models =
       {
-       'networks' => $c->model('Config::Networks'),
+       'networks' => $c->model('Config::Cached::Network'),
        'interface' => $c->model('Config::Cached::Interface')
       };
     my $interface = $c->stash->{interface};
@@ -256,7 +256,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($status, $result, $form);
     my $models =
       {
-       'networks' => $c->model('Config::Networks'),
+       'networks' => $c->model('Config::Cached::Network'),
        'interface' => $c->model('Config::Cached::Interface')
       };
 
