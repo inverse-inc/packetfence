@@ -28,6 +28,7 @@ BEGIN {extends 'Catalyst::Controller'; }
 This controller defaults view is JSON.
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
 
@@ -41,6 +42,7 @@ Assign a new user to a database.
 Usage: /db/assign/<database_name>
 
 =cut
+
 sub assign :Path('assign') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
@@ -64,8 +66,11 @@ sub assign :Path('assign') :Args(1) {
     }
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $message;
-        ( $status, $message ) = $c->model('Config::Pf')->update({'database.user' => $pf_user,
-                                                                 'database.pass' => $pf_password});
+        my $db_model = $c->model('Config::Cached::Pf');
+        ($status, $message) = $db_model->update('database',{'user' => $pf_user, 'pass' => $pf_password});
+        if(is_success($status)) {
+            $db_model->rewriteConfig();
+        }
     }
     if ( is_error($status) ) {
         $c->response->status($status);
@@ -80,6 +85,8 @@ Create a new database.
 Usage: /db/create/<database_name>
 
 =cut
+
+
 sub create :Path('create') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
@@ -104,7 +111,11 @@ sub create :Path('create') :Args(1) {
     }
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $message;
-        ( $status, $message ) = $c->model('Config::Pf')->update({'database.db' => $db});
+        my $db_model = $c->model('Config::Cached::Pf');
+        ($status, $message) = $db_model->update('database',{'db' => $db});
+        if(is_success($status)) {
+            $db_model->rewriteConfig();
+        }
     }
     if ( is_error($status) ) {
         $c->response->status($status);
@@ -120,6 +131,7 @@ Start a MySQLd instance.
 Usage: /db/start
 
 =cut
+
 sub start :Path('start') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -142,6 +154,7 @@ Will try to connect to the 'mysql' database.
 Usage: /db/test
 
 =cut
+
 sub test :Path('test') :Args(0) {
     my ( $self, $c ) = @_;
 
