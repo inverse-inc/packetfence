@@ -145,7 +145,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
         # Detect chosen mechanisms from networks.conf
         my $models =
           {
-           'networks' => $c->model('Config::Networks'),
+           'networks' => $c->model('Config::Cached::Network'),
            'interface' => $c->model('Config::Cached::Interface')
           };
         my $interfaces_ref = $c->model('Interface')->get('all', $models);
@@ -190,7 +190,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 
     my $models =
       {
-       'networks' => $c->model('Config::Networks'),
+       'networks' => $c->model('Config::Cached::Network'),
        'interface' => $c->model('Config::Cached::Interface')
       };
 
@@ -270,18 +270,16 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
 
     if ($c->request->method eq 'GET') {
         # Check if the database and user exist
-        my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
-            ['database.user', 'database.pass', 'database.db']
-        );
+        my ($status, $result_ref) = $c->model('Config::Cached::Pf')->read('database');
         if (is_error($status)) {
             delete $c->session->{completed}->{$c->action->name};
             $c->log->warn("Could not read configuration: $result_ref");
             $c->detach();
         }
 
-        $c->stash->{'db'} = $result_ref;
+        $c->stash->{'database'} = $result_ref;
         # hash-slice assigning values to the list
-        my ($pf_user, $pf_pass, $pf_db) = @{$result_ref}{qw/database.user database.pass database.db/};
+        my ($pf_user, $pf_pass, $pf_db) = @{$result_ref}{qw/user pass db/};
         if ($pf_user && $pf_pass && $pf_db) {
             # throwing away result since we don't use it
             ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
@@ -305,12 +303,28 @@ PacketFence minimal configuration (step 4)
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c ) = @_;
 
+    my $pf_model = $c->model('Config::Cached::Pf');
     if ($c->request->method eq 'GET') {
-        my ($status, $result_ref) = $c->model('Config::Pf')->read_value(
-            ['general.domain', 'general.hostname', 'general.dhcpservers', 'alerting.emailaddr']
-        );
-        if (is_success($status)) {
-            $c->stash->{'config'} = $result_ref;
+        my (%config, $status, $general_ref, $alerting_ref);
+        ($status, $general_ref) = $pf_model->read('general');
+        if(is_success($status)) {
+            ($status, $alerting_ref) = $pf_model->read('alerting');
+            if (is_success($status)) {
+                @config{qw(
+                    general.domain
+                    general.hostname
+                    general.dhcpservers
+                    alerting.emailaddr
+                )} = (
+                    @$general_ref{qw(
+                        domain
+                        hostname
+                        dhcpservers
+                    )},
+                    @$alerting_ref{emailaddr}
+                );
+                $c->stash->{'config'} = \%config;
+            }
         }
     }
     elsif ($c->request->method eq 'POST') {
@@ -325,22 +339,30 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if (is_success($status)) {
-            my ( $status, $message ) = $c->model('Config::Pf')->update({
-                'general.domain'      => $general_domain,
-                'general.hostname'    => $general_hostname,
-                'general.dhcpservers' => $general_dhcpservers,
-                'alerting.emailaddr'  => $alerting_emailaddr
+            my ( $status, $message ) = $pf_model->update(general => {
+                'domain'      => $general_domain,
+                'hostname'    => $general_hostname,
+                'dhcpservers' => $general_dhcpservers,
             });
             if (is_error($status)) {
                 delete $c->session->{completed}->{$c->action->name};
             }
+            else {
+                my ( $status, $message ) = $pf_model->update(alerting => {
+                    'emailaddr'  => $alerting_emailaddr
+                });
+                if (is_error($status)) {
+                    delete $c->session->{completed}->{$c->action->name};
+                }
+            }
+            my $network_model = $c->model('Config::Cached::Network');
 
             # Update networks.conf file with correct domain-names for each networks
-            my $networks_ref;
-            ($status, $networks_ref) = $c->model('Config::Networks')->list_networks();
-            foreach my $network ( @$networks_ref ) {
-                my $type = $c->model('Config::Networks')->read_value($network, 'type');
-                $c->model('Config::Networks')->update($network, {'domain-name' => $type . "." . $general_domain});
+            my $networks;
+            ($status, $networks) = $network_model->readAll();
+            foreach my $network ( @$networks ) {
+                my $type = $network->{type};
+                $network_model->update($network->{id}, {'domain-name' => $type . "." . $general_domain});
             }
 
         }
