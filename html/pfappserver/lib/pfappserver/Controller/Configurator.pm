@@ -339,7 +339,8 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if (is_success($status)) {
-            my ( $status, $message ) = $pf_model->update(general => {
+            my $pf_model = $c->model('Config::Cached::Pf');
+            ( $status, $message ) = $pf_model->update('general' => {
                 'domain'      => $general_domain,
                 'hostname'    => $general_hostname,
                 'dhcpservers' => $general_dhcpservers,
@@ -347,13 +348,13 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             if (is_error($status)) {
                 delete $c->session->{completed}->{$c->action->name};
             }
-            else {
-                my ( $status, $message ) = $pf_model->update(alerting => {
-                    'emailaddr'  => $alerting_emailaddr
-                });
-                if (is_error($status)) {
-                    delete $c->session->{completed}->{$c->action->name};
-                }
+            ( $status, $message ) = $pf_model->update('alerting' => {
+                'emailaddr'  => $alerting_emailaddr
+            });
+            if (is_error($status)) {
+                delete $c->session->{completed}->{$c->action->name};
+            } else {
+                $pf_model->rewriteConfig();
             }
             my $network_model = $c->model('Config::Cached::Network');
 
