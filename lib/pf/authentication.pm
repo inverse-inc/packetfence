@@ -71,7 +71,7 @@ BEGIN {
        );
 }
 
-my %cfg; tie %cfg, 'pf::config::cached', ( -file => "$conf_dir/authentication.conf" );
+my %cfg; tie %cfg, 'pf::config::cached', ( -file => $authentication_config_file );
 my $logger = Log::Log4perl->get_logger('pf::authentication');
 
 readAuthenticationConfigFile();
@@ -247,7 +247,7 @@ Write the configuration file to disk
 
 sub writeAuthenticationConfigFile {
     my %ini;
-    tie %ini, 'pf::config::cached', ( -file => "$conf_dir/authentication.conf" );
+    tie %ini, 'pf::config::cached', ( -file => $authentication_config_file);
 
     print "Writing configuration...\n";
 
@@ -302,7 +302,7 @@ sub writeAuthenticationConfigFile {
         }
     }
 
-    tied(%ini)->WriteConfig( "$conf_dir/authentication.conf" );
+    tied(%ini)->ReWriteConfig();
 }
 
 =item getAuthenticationSource
