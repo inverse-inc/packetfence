@@ -29,6 +29,7 @@ TODO: This list is incomplete.
 If a true value is passed as a parameter we output to STDOUT instead of STDERR.
 
 =cut
+
 sub usage {
     my ($to_stdout) = @_;
 
@@ -113,7 +114,6 @@ watch acts as a service watcher which can send email/restart the services
 
 Services managed by PacketFence:
   dhcpd            | dhcpd daemon
-  httpd            | Apache (Captive Portal and Web Admin and soap)
   httpd.webservices| Apache Webservices
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
