@@ -90,6 +90,7 @@ form {
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>
                     <input type="text" class="input-small" name="end">
+
                     <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
                   <input type="text" name="filter" placeholder="Search..." value="[% filter | html %]">

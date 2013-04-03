@@ -92,10 +92,10 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     $c->stash->{mac} = $mac;
 }
 
-=head2 get
+=head2 read
 
 =cut
-sub get :Chained('object') :PathPart('get') :Args(0) {
+sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
@@ -104,7 +104,7 @@ sub get :Chained('object') :PathPart('get') :Args(0) {
     # Form initialization :
     # Retrieve node details, categories and status
 
-    ($status, $result) = $c->model('Node')->get($c->stash->{mac});
+    ($status, $result) = $c->model('Node')->read($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }
@@ -167,9 +167,13 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

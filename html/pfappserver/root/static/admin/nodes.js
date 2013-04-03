@@ -30,7 +30,7 @@ function init() {
                     var defaultTime = that.val().length? 'value' : false;
                     that.timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
                     that.on('hidden',function (e){
-                        //Stop the hidden event bubbling up to the modal
+                        // Stop the hidden event bubbling up to the modal
                         e.stopPropagation();
                     });
                 });

@@ -120,14 +120,14 @@ sub search {
     return ($STATUS::OK, \@nodes);
 }
 
-=item get
+=item read
 
 From pf::lookup::node::lookup_node()
 
 =cut
 
-sub get {
-    my ( $self, $mac ) = @_;
+sub read {
+    my ($self, $mac) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg);
@@ -143,7 +143,9 @@ sub get {
                 $node->{$date} = POSIX::strftime("%Y-%m-%d %H:%M", @date_data);
             }
         }
-        $node->{unregdate} = '' if exists $node->{unregdate} &&  $node->{unregdate} eq '0000-00-00 00:00:00';
+        foreach (qw[regdate unregdate]) {
+            $node->{$_} = '' if exists $node->{$_} &&  $node->{$_} eq '0000-00-00 00:00:00';
+        }
 
         # Show 802.1X username only if connection is of type EAP
         my $connection_type = str_to_connection_type($node->{last_connection_type}) if ($node->{last_connection_type});
@@ -201,6 +203,8 @@ sub get {
         $logger->error($@);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
+
+    use Data::Dumper; print Dumper $node;
 
     return ($STATUS::OK, $node);
 }
@@ -368,11 +372,11 @@ sub _graphIplogHistory {
 
 =head1 AUTHOR
 
-Francis Lachapelle <flachapelle@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2013 Inverse inc.
 
 =head1 LICENSE
 
