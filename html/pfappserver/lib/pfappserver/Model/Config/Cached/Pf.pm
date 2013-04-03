@@ -64,6 +64,30 @@ sub cleanupAfterRead {
 
 }
 
+=item help
+
+Obtain the help of a given configuration parameter
+
+=cut
+
+sub help {
+    my ( $self, $config_entry ) = @_;
+
+    return ($STATUS::NOT_FOUND, "No help available for $config_entry")
+        if ( !defined($Doc_Config{$config_entry}{'description'}) );
+    my $doc_entry = $Doc_Config{$config_entry};
+    my $description_ref = $doc_entry->{'description'};
+    $description_ref = join("\n",@$description_ref) if ref($description_ref) eq 'ARRAY';
+    my $options_ref = $doc_entry->{options};
+    my ($section, $param) = split( /\s*\.\s*/, $config_entry );
+    return ($STATUS::OK, {
+        'parameter' => $config_entry,
+        'default_value' => $Default_Config{$section}{$param},
+        'options' => $options_ref,
+        'description' => $description_ref,
+    });
+}
+
 __PACKAGE__->meta->make_immutable;
 
 =back
