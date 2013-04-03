@@ -631,7 +631,8 @@ sub mysql_date {
 sub oui_to_vendor {
     my ($mac) = @_;
     load_oui();
-    my $oui_info = Net::MAC::Vendor::lookup($mac);
+    my $oui_info = Net::MAC::Vendor::fetch_oui_from_cache($mac);
+
     return $$oui_info[0] || '';
 }
 
