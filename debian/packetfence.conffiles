@@ -52,9 +52,6 @@
 /usr/local/pf/conf/ui.conf.es_ES
 /usr/local/pf/conf/ui-global.conf
 /usr/local/pf/conf/violations.conf
-/usr/local/pf/html/admin/templates/login.html
-/usr/local/pf/html/admin/templates/register_guest.html
-/usr/local/pf/html/admin/templates/soh.html
 /usr/local/pf/html/captive-portal/content/responsive.css
 /usr/local/pf/html/captive-portal/content/styles.css
 /usr/local/pf/html/captive-portal/content/print.css

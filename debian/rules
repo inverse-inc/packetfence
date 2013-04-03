@@ -67,9 +67,6 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/mrtg
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/scan/results
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/traplog
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
@@ -141,12 +138,11 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/snort/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
-	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/*.cgi
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/captive-portal/*.cgi
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
-                -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
+                -X$(NAME)/conf/pfdetect_remote.conf \
                 -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
 		-X$(NAME)sbin/pfarp_remote
 	# Everything is owned by pf:pf

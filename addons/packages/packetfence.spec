@@ -325,9 +325,6 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
 %{__install} -d $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
@@ -746,10 +743,6 @@ fi
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html
-%dir                    /usr/local/pf/html/admin
-                        /usr/local/pf/html/admin/*
-%dir                    /usr/local/pf/html/admin/templates
-%config(noreplace)      /usr/local/pf/html/admin/templates/*
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
                         /usr/local/pf/html/captive-portal/*.php
