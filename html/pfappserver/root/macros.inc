@@ -2,6 +2,8 @@
 
 [% MACRO i18n(text, args) BLOCK;c.localize(text, args);END -%]
 
+[% MACRO i18n_format(text, args) BLOCK;c.localize(text, args);END -%]
+
 [%- MACRO pagination_path(section, params)  BLOCK -%]
     [%- tags =  [ 'page_num'  'by'  'direction'  'per_page'  'filter'] -%]
     [%- "${section}/" -%]

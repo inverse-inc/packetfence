@@ -172,7 +172,7 @@ sub html_redirect {
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
-    $template->process( "redirection_html.tt", $stash, \$response ) || $logger->error($template->error());;
+    $template->process( "redirection.html", $stash, \$response ) || $logger->error($template->error());;
     $r->content_type('text/html');
     $r->no_cache(1);
     $r->print($response);
