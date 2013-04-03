@@ -10,7 +10,7 @@
             <td><a href="[% c.uri_for(c.controller('Configuration::Switch').action_for('read'), [ switch.id ]) %]">[% switch.id %]</a>
             [% IF switch.floatingdevice %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('read'), [ switch.floatingdevice.id ]) %]">[% l('Edit floating device') %]</a>[% END %]</td>
             <td>[% switch.type %]</td>
-            <td>[% switch.mode %]</td>
+            <td>[% l(switch.mode) %]</td>
             <td>
               [% IF switch.id != 'default' %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
             </td>
