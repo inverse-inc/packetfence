@@ -37,13 +37,8 @@ sub _myDocFile      { return "" };
 # This array is used by the 'after setup_finalize' method modifier in html/pfappserver/lib/pfappserver.pm.
 # See getConfigurationModules
 my @configuration_modules = (
-    "Pf",               # global PacketFence configurations (pf.conf)
 #    "Authentication",   # authentication sources and rights ()
-    "Networks",         # dhcp/dns/networks types configurations (networks.conf)
-    "Switches",         # managed network equipements configurations (switches.conf)
     "Violations",       # violations/policies/isolation rules configurations (violations.conf)
-    "FloatingDevices",  # floating devices equipments configurations (floating_devices.conf)
-    "Profiles",   # custom portal profile configuration (profiles.conf)
 );
 
 # Set the permissions for the different config files
@@ -63,6 +58,7 @@ has '_cached_conf' => (is => 'rw', isa => 'HashRef');
 Returns the configuration modules array for which we act as a backend
 
 =cut
+
 sub getConfigurationModules {
     my ( $self ) = @_;
 
@@ -74,6 +70,7 @@ sub getConfigurationModules {
 Return the appropriate CHI cache definition according to the calling method/package.
 
 =cut
+
 sub _get_chi_cache_definition {
     my ( $name ) = @_;
 
@@ -95,6 +92,7 @@ sub _uiFieldOrderType {
 Return an array of arrays. Each array respects the field order defined in ui.conf.
 
 =cut
+
 sub readArray {
     my ( $self, $id ) = @_;
 
@@ -137,6 +135,7 @@ sub readArray {
 Return an array of hashes. Each hash corresponds to a configuration file section.
 
 =cut
+
 sub readHash {
     my ($self, $id ) = @_;
 
@@ -171,6 +170,7 @@ sub readHash {
 Delete an existing item
 
 =cut
+
 sub deleteItem {
     my ( $self, $id ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -200,6 +200,7 @@ Read the config file and cache the content using CHI.
 .ini style flat config file -> cache (CHI)
 
 =cut
+
 sub readConfig {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -323,6 +324,7 @@ sub updateItem {
 Read default configurations for module and returns an hashref.
 
 =cut
+
 sub readDefault {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -356,6 +358,7 @@ sub readDefault {
 Read documentation file and returns an hashref.
 
 =cut
+
 sub readDoc {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -391,6 +394,7 @@ Write the cache (CHI) content to the config file.
 cache (CHI) -> .ini style flat config file
 
 =cut
+
 sub writeConfig {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -448,6 +452,7 @@ It is also returning the timestamp of the the latest cache update.
 cache (CHI) --> sub
 
 =cut
+
 sub loadConfig {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -476,6 +481,7 @@ Update the cached config (CHI) with modified config parameters.
 sub --> cache (CHI)
 
 =cut
+
 sub updateConfig {
     my ( $self, $config ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -494,6 +500,7 @@ sub updateConfig {
 Compare both cache (CHI) and config file timestamp to see which one is the newer version.
 
 =cut
+
 sub checkTimestamp {
     my ( $self, $chi_timestamp ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -532,6 +539,7 @@ Load .ini style config file into a Config::IniFiles tied hasref.
 Performs caching.
 
 =cut
+
 # TODO: Meant to be removed... (dwuelfrath@inverse.ca 2012.12.20)
 sub _load_conf {
     my ( $self ) = @_;
