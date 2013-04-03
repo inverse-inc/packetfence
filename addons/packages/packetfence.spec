@@ -163,6 +163,7 @@ Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite)
+Requires: perl(WWW::Curl)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
 # Used by installer / configurator scripts

@@ -24,6 +24,7 @@ use warnings;
 
 use Carp;
 use Log::Log4perl;
+use Readonly;
 
 use constant FREERADIUS => 'freeradius';
 use constant SWITCHES_CONF => '/switches.conf';
@@ -49,6 +50,32 @@ our $freeradius_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
 our $freeradius_statements = {};
+
+
+#
+# FreeRADIUS return values
+#
+Readonly::Scalar our $RLM_MODULE_REJECT=>    0; # Immediately reject the request
+Readonly::Scalar our $RLM_MODULE_FAIL=>      1; # Module failed, don't reply
+Readonly::Scalar our $RLM_MODULE_OK=>        2; # The module is OK, continue
+Readonly::Scalar our $RLM_MODULE_HANDLED=>   3; # The module handled the request, so stop.
+Readonly::Scalar our $RLM_MODULE_INVALID=>   4; # The module considers the request invalid.
+Readonly::Scalar our $RLM_MODULE_USERLOCK=>  5; # Reject the request (user is locked out)
+Readonly::Scalar our $RLM_MODULE_NOTFOUND=>  6; # User not found
+Readonly::Scalar our $RLM_MODULE_NOOP=>      7; # Module succeeded without doing anything
+Readonly::Scalar our $RLM_MODULE_UPDATED=>   8; # OK (pairs modified)
+Readonly::Scalar our $RLM_MODULE_NUMCODES=>  9; # How many return codes there are
+
+#
+# FreeRADIUS log facility names
+#
+# Same as src/include/radiusd.h
+Readonly::Scalar our $L_DBG   => 1; # Debug
+Readonly::Scalar our $L_AUTH  => 2; # Authorization
+Readonly::Scalar our $L_INFO  => 3; # Info
+Readonly::Scalar our $L_ERR   => 4; # Error
+Readonly::Scalar our $L_PROXY => 5; # Proxy
+Readonly::Scalar our $L_ACCT  => 6; # Accounting
 
 
 =head1 SUBROUTINES
