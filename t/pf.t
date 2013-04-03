@@ -83,15 +83,11 @@ BEGIN { use_ok('pf::web::util') }
 
 =head1 AUTHOR
 
-Dominik Ghel <dghel@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-        
 =head1 COPYRIGHT
-        
-Copyright (C) 2009-2012 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     

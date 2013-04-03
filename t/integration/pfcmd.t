@@ -44,11 +44,11 @@ is($CHILD_ERROR >> 8, 0, "pfcmd set config with empty value (bug 1361)");
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
-        
-Copyright (C) 2012 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     

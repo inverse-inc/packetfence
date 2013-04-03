@@ -78,17 +78,11 @@ is_deeply(
 
 =head1 AUTHOR
 
-Dominik Ghel <dghel@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-        
-Copyright (C) 2009-2011 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     
