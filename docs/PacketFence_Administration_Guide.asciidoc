@@ -29,7 +29,9 @@ Network Devices Configuration Guide::
   Covers switch, controllers and access points configuration.
 Developers Guide::
   Covers captive portal customization, VLAN management customization and 
-  instructions for supporting new hardware. 
+  instructions for supporting new hardware.
+`CREDITS`::
+  This is, at least, a partial file of PacketFence contributors..  
 `NEWS`::
   Covers noteworthy features, improvements and bugfixes by release. 
 `UPGRADE`::
@@ -132,7 +134,7 @@ The following table provides recommendations for the required components, togeth
 
 [cols="1,3",frame="topbot",grid="rows"]
 |========================================
-|MySQL server     |MySQL 4.1 or 5.1
+|MySQL server     |MySQL 5.1
 |Web server       |Apache 2.2
 |DHCP server      |DHCP 3
 |DNS server       |BIND 9
@@ -151,7 +153,7 @@ The following provides a list of server hardware recommendations:
 [options="compact"]
 * Intel or AMD CPU 3 GHz
 * 2048 MB of RAM
-* 20 GB of disk space (RAID 1 recommended)
+* 100 GB of disk space (RAID-1 recommended)
 * 1 Network card
  - +1 for high-availability
  - +1 for intrusion detection
@@ -162,8 +164,9 @@ Operating System Requirements
 PacketFence supports the following operating systems on the i386 or x86_64 architectures: 
 
 [options="compact"]
-* Red Hat Enterprise Linux 5.x/6.x Server
-* Community ENTerprise Operating System (CentOS) 5.x/6.x
+* Red Hat Enterprise Linux 6.x Server
+* Community ENTerprise Operating System (CentOS) 6.x
+* Ubuntu 12.04 LTS
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
@@ -222,12 +225,6 @@ Several third party repositories are required to pull all the proper PacketFence
 
 Install the proper repositories in `yum` so it can directly lookup for packages:
 
-.For RHEL 5.x / CentOS 5.x
-
-  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el5.rf.`uname -i`.rpm
-  # rpm -Uvh http://download.fedoraproject.org/pub/epel/5/`uname -i`/epel-release-5-4.noarch.rpm
-  # rpm -Uvh http://repo.openfusion.net/centos5-`uname -i`/openfusion-release-0.6.2-1.of.el5.noarch.rpm
-
 .For RHEL 6.x / CentOS 6.x
 
   # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
@@ -237,11 +234,6 @@ Install the proper repositories in `yum` so it can directly lookup for packages:
 Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmforge.repo`, `epel.repo` and `openfusion.repo` and set `enabled` to 0 under every section like this:
 
   enabled = 0
-
-Under RHEL 5.x / Centos 5.x, you must exclude packages from rpmforge repository edit /etc/yum.repos.d/rpmforge.repo and add on the section [rpmforge] the line:
-
-  exclude = perl-PathTools*,perl-File-Spec*
-
 
 Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
 
@@ -275,15 +267,15 @@ All the PacketFence dependencies are available through the official Debian repos
 Software Download
 ~~~~~~~~~~~~~~~~~
 
-Starting with 1.8.5, PacketFence is now providing an RPM repository for RHEL / CentOS instead of a single RPM file.
+PacketFence provides a RPM repository for RHEL / CentOS instead of a single RPM file.
 
-For Debian squeeze, starting with 3.4.0, PacketFence is now providing a Debian package repository.
+For Debian squeeze, PacketFence provides a Debian package repository.
 
-This repository contains all required dependencies to install PacketFence. This provides numerous advantages: 
+These repositories contain all required dependencies to install PacketFence. This provides numerous advantages: 
 
 [options="compact"]
 * easy installation
-* everything is packaged as RPM (no more CPAN hassle)
+* everything is packaged as RPM/deb (no more CPAN hassle)
 * easy upgrade
 
 Software Installation
@@ -298,10 +290,6 @@ In order to use the repository, just create a file named `/etc/yum.repos.d/Packe
   baseurl=http://inverse.ca/downloads/PacketFence/RHEL$releasever/$basearch
   gpgcheck=0
   enabled=0
-
-NOTE: Under RHEL 5.x / Centos 5.x, you must exclude packages from PacketFence repository edit /etc/yum.repos.d/PacketFence.repo and add on the section [PacketFence] the line:
-
-  exclude = perl-HTML-FormHandler*
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (DNS server, database
@@ -352,7 +340,7 @@ Like mentioned at the end of the packages installation, fire up a web browser an
 * Step 5: Administrative user. This step will ask you to create an administrative user that will be able to access the web-based adminsitration interface once the services are functionals;
 * Step 6: Let's do this! See the status of your configuration and start your new NAC!
 
-NOTE: Keep in mind that the resulting PacketFence configuration will be located in `/usr/local/pf/conf/pf.conf` and `/usr/local/pf/conf/networks.conf` and it can always be adjusted by hand afterward.
+NOTE: Keep in mind that the resulting PacketFence configuration will be located in `/usr/local/pf/conf/pf.conf` and `/usr/local/pf/conf/networks.conf` and it can always be adjusted by hand afterward or from PacketFence's Web GUI.
 
 Web-based Administration Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

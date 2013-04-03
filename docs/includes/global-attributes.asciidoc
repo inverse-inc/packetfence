@@ -4,9 +4,7 @@
 
     This file is part of the PacketFence project.
     Authors:
-      - Derek Wuelfrath <dwuelfrath@inverse.ca>
-    Past Authors:
-      - Olivier Bilodeau <obilodeau@inverse.ca>
+      - Inverse inc. <info@inverse.ca>
 
     Copyright (C) 2012-2013 Inverse inc.
     License: GFDL 1.2 or later. http://www.gnu.org/licenses/fdl.html
@@ -15,6 +13,6 @@
 
 // TODO have the build system take care of this
 
-:release_version: 3.6.1
+:release_version: 4.0.0 
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

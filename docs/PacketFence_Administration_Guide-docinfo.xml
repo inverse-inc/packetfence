@@ -5,9 +5,15 @@
 
 <revhistory>
   <revision>
+    <revnumber>2.9</revnumber>
+    <date>2013-04-03</date>
+    <revremark>
+    - Major rework in for the v4 release
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.8</revnumber>
     <date>2013-01-09</date>
-    <authorinitials>DW</authorinitials>
     <revremark>
     - Adding documentation for gaming devices registration
     - Version bump for the epel repository version
@@ -16,7 +22,6 @@
   <revision>
     <revnumber>2.7</revnumber>
     <date>2012-10-01</date>
-    <authorinitials>FG</authorinitials>
     <revremark>
     Adding documentation for OAuth2 Providers
     </revremark>
@@ -24,7 +29,6 @@
   <revision>
     <revnumber>2.6</revnumber>
     <date>2012-09-05</date>
-    <authorinitials>OB, DW, FD</authorinitials>
     <revremark>
       Managed FreeRADIUS updates. Proper ownership of the
       /var/lib/samba/winbind_privileged folder since 3.5 release. Added EPEL
@@ -34,85 +38,48 @@
   <revision>
     <revnumber>2.5</revnumber>
     <date>2012-07-30</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Doc update for RADIUS</revremark>
   </revision>
   <revision>
     <revnumber>2.4</revnumber>
     <date>2012-07-26</date>
-    <authorinitials>DW</authorinitials>
     <revremark>Added documentation for new captive portal profiles feature.</revremark>
   </revision>
   <revision>
     <revnumber>2.3</revnumber>
     <date>2012-07-19</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Adding suricata documentation</revremark>
   </revision>
   <revision>
     <revnumber>2.2</revnumber>
     <date>2012-06-13</date>
-    <authorinitials>OB, FD</authorinitials>
     <revremark>Added installation procedure for Debian. A minor fix to RHEL6 install instructions.</revremark>
   </revision>
   <revision>
     <revnumber>2.1</revnumber>
     <date>2012-04-12</date>
-    <authorinitials>OB, DW</authorinitials>
     <revremark>Added new documentation about pre-registered, sponsored guests and role-based enforcement. Covered updated inline enforcement instructions. Updated drbd and samba installation instructions. SoH, ntlm_auth test and some typos fixed too.</revremark>
   </revision>
   <revision>
     <revnumber>2.0</revnumber>
     <date>2012-02-22</date>
-    <authorinitials>FG, OB, DW</authorinitials>
     <revremark>Documentation ported to asciidoc. Added section for accounting violations based on bandwidth, OpenVAS-based client side policy compliance and billing integration. Updated FreeRADIUS 2 config and log locations. More documentation about running a scan from a remote server. Improvements to the trap limit feature description. Updated guest registration configuration section (new parameter introduced). Added basic VoIP documentation and warning regarding CLI access due to #1370.</revremark>
   </revision>
   <revision>
     <revnumber>1.0</revnumber>
     <date>2008-12-13</date>
-    <authorinitials>DG</authorinitials>
     <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
 
 <authorgroup>
   <author>
-    <firstname>Fabrice</firstname>
-    <surname>Durand</surname>
+    <firstname>Inverse</firstname>
+    <surname>Inc.</surname>
     <affiliation>
       <address>
-        <email>fdurand@inverse.ca</email>
+        <email>info@inverse.ca</email>
       </address>
     </affiliation>
   </author>
-  <author>
-    <firstname>Derek</firstname>
-    <surname>Wuelfrath</surname>
-    <affiliation>
-      <address>
-        <email>dwuelfrath@inverse.ca</email>
-      </address>
-    </affiliation>
-  </author>
-  <othercredit>
-    <personname>
-      <firstname>Dominik</firstname>
-      <surname>Gehl</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
-  <othercredit>
-    <personname>
-      <firstname>Olivier</firstname>
-      <surname>Bilodeau</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
-  <othercredit>
-    <personname>
-      <firstname>Francois</firstname>
-      <surname>Gaudreault</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
 </authorgroup>
