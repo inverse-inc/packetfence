@@ -236,11 +236,13 @@ sub get {
             if (is_success($status)) {
                 $result->{"$interface"}->{'networks'} = $return;
             }
-            ($status, $return) = $networks_model->read_value($result->{"$interface"}->{'network'}, 'dns');
+            my $network;
+            ($status, $network) = $networks_model->read($result->{"$interface"}->{'network'});
             if (is_success($status)) {
-                $result->{"$interface"}->{'dns'} = $return;
+                $result->{"$interface"}->{'dns'} = $network->{dns};
             }
-            $result->{"$interface"}->{'network_iseditable'} = $networks_model->exist($result->{"$interface"}->{'network'});
+            ($status,undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
+            $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref, $models);
     }
@@ -342,9 +344,9 @@ sub getType {
     my ($status, $type);
     if ($interface_ref->{network}) {
         # Check in networks.conf
-        ($status, $type) = $models->{networks}->getType($interface_ref->{network});
-        if ( is_error($status) ) {
-            $type = undef;
+        ($status, my $network) = $models->{networks}->read($interface_ref->{network});
+        if ( is_success($status) ) {
+            $type = $network->{type};
         }
     }
     unless ($type) {
@@ -383,13 +385,8 @@ sub setType {
 
     # we delete interface type 'None'
     if ( $type =~ /^none$/i ) {
-        if ($models->{networks}->exist($interface_ref->{network})) {
-            $models->{networks}->delete($interface_ref->{network});
-        }
-        my ($status,undef) = $pf_interface_model->hasId($interface);
-        if (is_success($status)) {
+            $models->{networks}->remove($interface_ref->{network});
             $pf_interface_model->remove($interface);
-        }
     }
     # otherwise we update pf.conf and networks.conf
     else {
@@ -441,11 +438,10 @@ sub setType {
         }
         elsif ( $type =~ /^management$/ ) {
             # management interfaces must not appear in networks.conf
-            if ($models->{networks}->exist($interface_ref->{network})) {
-                $models->{networks}->delete($interface_ref->{network});
-            }
+            $models->{networks}->remove($interface_ref->{network});
         }
     }
+    $models->{networks}->rewriteConfig();
     $pf_interface_model->rewriteConfig();
 }
 
