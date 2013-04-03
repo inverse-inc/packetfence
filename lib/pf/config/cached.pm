@@ -22,6 +22,7 @@ use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
 use Config::IniFiles;
 use Scalar::Util qw(refaddr);
+use Fcntl qw(:flock);
 
 
 our $CACHE;
@@ -58,7 +59,9 @@ sub new {
         $config = $class->computeFromPath(
             $file,
             sub {
+                my $fh = lock_file_for_reading($file);
                 my $config = Config::IniFiles->new(%params);
+                unlock_filehandle($fh);
                 if(!exists $params{'-file'}) {
                     $config->SetFileName($file);
                 }
@@ -98,11 +101,47 @@ sub RewriteConfig {
     if($cached_object && _expireIf($cached_object)) {
         die "Config $file was modified from last loading";
     }
+    my $fh = lock_file_for_writing($file);
     my $result = $config->WriteConfig($file, -delta => exists $config->{imported});
+    unlock_filehandle($fh);
     if($result) {
         $cache->set($file,$config);
     }
     return $result;
+}
+
+=item lock_file_for_writing
+
+=cut
+
+sub lock_file_for_writing {
+    my ($file) = @_;
+    my $fh;
+    open($fh,">",$file) or die "cannot open $file";
+    flock($fh, LOCK_EX);
+    return $fh;
+}
+
+=item lock_file_for_reading
+
+=cut
+
+sub lock_file_for_reading {
+    my ($file) = @_;
+    my $fh;
+    open($fh,"<",$file) or die "cannot open $file";
+    flock($fh, LOCK_SH);
+    return $fh;
+}
+
+=item unlock_filehandle
+
+=cut
+
+sub unlock_filehandle {
+    my ($fh) = @_;
+    flock($fh, LOCK_UN);
+    close($fh);
 }
 
 
@@ -125,7 +164,9 @@ sub ReadConfig {
         $file,
         sub {
             #reread files
+            my $fh = lock_file_for_reading($file);
             $result = $config->ReadConfig();
+            unlock_filehandle($fh);
             $reloaded = 1;
             return $config;
         }
