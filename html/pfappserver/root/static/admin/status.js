@@ -30,14 +30,7 @@ function updateGraphSection(graph) {
                 drawGraphs(id);
         })
         .fail(function(jqXHR) {
-            var status_msg;
-            $("body,html").animate({scrollTop:0}, 'fast');
-            try {
-                var obj = $.parseJSON(jqXHR.responseText);
-                status_msg = obj.status_msg;
-            }
-            catch(e) {}
-            if (!status_msg) status_msg = _("Cannot Load Content");
+            var status_msg = getStatusMsg(jqXHR);
             showError(graph, status_msg);
         });
 
