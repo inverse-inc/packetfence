@@ -49,7 +49,7 @@ Create a new saved search
 =cut
 
 sub create {
-    my ($self,$saved_search) = @_;
+    my ($self,$id,$saved_search) = @_;
     $saved_search->{namespace} = $self->namespace;
     if( savedsearch_add($saved_search) ) {
         return ($STATUS::OK,"");
@@ -104,13 +104,19 @@ remove a saved search
 =cut
 
 sub remove {
-    my ($self,$saved_search) = @_;
-    if(savedsearch_delete($saved_search->{id})) {
+    my ($self,$id,$saved_search) = @_;
+    if(savedsearch_delete($id)) {
         return ($STATUS::OK,savedsearch_delete($saved_search));
     } else {
         return ($STATUS::INTERNAL_SERVER_ERROR,"cannot remove saved search");
     }
 }
+
+=item idKey
+
+=cut
+
+sub idKey {"id"}
 
 =item _expand_query
 
