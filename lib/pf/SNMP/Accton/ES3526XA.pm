@@ -33,11 +33,13 @@ sub getMinOSVersion {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

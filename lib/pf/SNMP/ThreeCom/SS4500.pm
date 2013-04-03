@@ -601,13 +601,11 @@ Mr.Ponpitak SANTIPAPTAWON <ponpitak.s@psu.ac.th>
 Prince of Songkla University, Thailand
 http://netserv.cc.psu.ac.th
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

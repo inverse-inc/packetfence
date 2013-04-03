@@ -32,14 +32,11 @@ sub description { 'D-Link DES 3550' }
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Module contributed by Olivier Roch Vilato <olivier.rochvilato@chilbp.fr> 
-but his parseTrap was integrated into Dlink instead for less code duplication and easier maintenance.
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

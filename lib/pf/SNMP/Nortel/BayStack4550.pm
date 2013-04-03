@@ -27,11 +27,11 @@ sub description { 'Nortel BayStack 4550' }
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

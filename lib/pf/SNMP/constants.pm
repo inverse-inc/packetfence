@@ -559,15 +559,11 @@ Readonly::Scalar our $ahIDPRSSI => '.1.3.6.1.4.1.26928.1.1.1.1.2.18';
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

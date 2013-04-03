@@ -198,17 +198,11 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

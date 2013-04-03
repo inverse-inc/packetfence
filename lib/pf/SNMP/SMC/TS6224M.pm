@@ -70,7 +70,7 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2005-2012 Inverse inc.
 
 =head1 LICENCE
 

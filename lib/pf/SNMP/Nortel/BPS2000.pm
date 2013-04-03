@@ -36,13 +36,11 @@ sub supportsLldp { return $FALSE; }
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
