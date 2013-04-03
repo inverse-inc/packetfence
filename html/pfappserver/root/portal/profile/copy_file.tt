@@ -1,4 +1,4 @@
 
-  <form id="copyModalForm" class="form-inline" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ profile_name ], from ) %]">
+  <form id="copyModalForm" class="form-inline" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ id ], from ) %]">
     <label>Copy <strong>[% from %]</strong> to <strong>[% path %]</strong> <input type="text" name="to" /></label>
   </form>

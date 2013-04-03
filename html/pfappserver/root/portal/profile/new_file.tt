@@ -1,4 +1,4 @@
 
-<form id="newFileModalForm" class="form-inline" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'), [ profile_name ], path ) %]">
+<form id="newFileModalForm" class="form-inline" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'), [ id ], path ) %]">
   <label>File name [% path %] <input type="text" name="file_name" /></label>
 </form>
