@@ -26,6 +26,7 @@ extends 'Catalyst::Model';
 =item check_mysqld_status
 
 =cut
+
 sub check_mysqld_status {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -42,6 +43,7 @@ sub check_mysqld_status {
 =item getDefaultGateway
 
 =cut
+
 sub getDefaultGateway {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -54,6 +56,7 @@ sub getDefaultGateway {
 =item _get_gateway_interface
 
 =cut
+
 sub _get_gateway_interface {
     my ( $self, $interfaces_ref, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -74,6 +77,7 @@ sub _get_gateway_interface {
 =item _inject_default_route
 
 =cut
+
 sub _inject_default_route {
     my ( $self, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -99,7 +103,7 @@ sub _inject_default_route {
         $cmd = "sudo route del default 2>&1";
         $logger->debug("Deleting old default gateway: $cmd");
         $status = pf_run($cmd);
-        return ($STATUS::INTERNAL_SERVER_ERROR, "Error while deleting existing default gateway") 
+        return ($STATUS::INTERNAL_SERVER_ERROR, "Error while deleting existing default gateway")
             if ( !defined($status) || $status ne "" );
 
         $logger->info("Old default gateway deleted. Injecting the new one");
@@ -115,7 +119,7 @@ sub _inject_default_route {
         $status_msg = "New default gateway successfully injected";
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
-    } 
+    }
     # Something wen't wrong
     else {
         $status_msg = "Something wen't wrong while injecting default gateway";
@@ -127,6 +131,7 @@ sub _inject_default_route {
 =item start_mysqld_service
 
 =cut
+
 sub start_mysqld_service {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -150,7 +155,7 @@ sub start_mysqld_service {
         $status_msg = "MySQL server successfully started";
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
-    } 
+    }
     # Something wen't wrong
     else {
         $status_msg = "Something wen't wrong while starting MySQL server";
@@ -162,6 +167,7 @@ sub start_mysqld_service {
 =item write_network_persistent
 
 =cut
+
 sub write_network_persistent {
     my ( $self, $interfaces_ref, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -182,7 +188,7 @@ sub write_network_persistent {
         $logger->error("$status_msg");
         return ($status, $status_msg);
     }
-    
+
     # Instantiate an object for the correct OS
     ($status, $systemObj) = pfappserver::Model::Config::SystemFactory->getSystem();
     return ($status, $systemObj) if ( is_error($status) );
@@ -222,6 +228,7 @@ use Moose;
 Checks running operating system
 
 =cut
+
 sub _checkOs {
     my ( $self ) = @_;
 
@@ -233,7 +240,7 @@ sub _checkOs {
     # Debian and derivatives
     $os = "Debian" if ( -e "/etc/debian_version" );
 
-    return $os;        
+    return $os;
 }
 
 =item getSystem
@@ -241,6 +248,7 @@ sub _checkOs {
 Obtain a system object suited for your system.
 
 =cut
+
 sub getSystem {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -313,6 +321,7 @@ our $var_dir              = "/usr/local/pf/var/";
 =item writeNetworkConfigs
 
 =cut
+
 sub writeNetworkConfigs {
     my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -358,7 +367,7 @@ sub writeNetworkConfigs {
     }
 
     open IN, '<', $_network_conf_dir.$_network_conf_file;
-    my @content = <IN>;
+    chomp(my @content = <IN>);
     close IN;
 
     @content = grep !/^GATEWAY=/, @content;
@@ -416,6 +425,7 @@ our $var_dir              ="/usr/local/pf/var/";
 =item writeNetworkConfigs
 
 =cut
+
 sub writeNetworkConfigs {
     my ( $this, $interfaces_ref, $gateway, $gateway_interface ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
