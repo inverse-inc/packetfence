@@ -617,11 +617,11 @@ sub _identify_os {
 
 =head1 AUTHOR
 
-Abhijit Menon-Sen <amenonsen@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

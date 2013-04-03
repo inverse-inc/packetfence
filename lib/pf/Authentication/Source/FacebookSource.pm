@@ -38,11 +38,15 @@ sub available_actions {
 
 =back
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -44,13 +44,13 @@ sub is_fallback {
 
 =head1 AUTHOR
 
-Ludovic Marcotte <lmarcotte@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

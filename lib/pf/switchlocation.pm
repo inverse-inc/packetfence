@@ -107,17 +107,13 @@ sub switchlocation_update_end {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2007-2008,2010 Inverse inc.
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

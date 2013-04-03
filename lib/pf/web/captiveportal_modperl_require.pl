@@ -35,13 +35,13 @@ our $lost_devices_cache = new Cache::FileCache( { 'namespace' => 'CaptivePortal_
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
-=head1 COPYRIGHT
-        
-Copyright (C) 2011, 2012 Inverse inc.
+Inverse inc. <info@inverse.ca>
 
-=head1 LICENSE 
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

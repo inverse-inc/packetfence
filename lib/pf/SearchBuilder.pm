@@ -583,11 +583,11 @@ sub or {
 
 =head1 AUTHOR
 
-Ludovic Marcotte <lmarcotte@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2013 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

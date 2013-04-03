@@ -108,19 +108,11 @@ sub _fetch_trap_users_and_communities {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-David LaPorte <david@davidlaporte.org>
-
-Kevin Amorin <kev@amorin.org>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
-
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2009-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

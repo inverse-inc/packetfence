@@ -698,23 +698,17 @@ sub oauth2_client {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2012 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

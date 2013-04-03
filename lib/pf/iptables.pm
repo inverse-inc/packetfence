@@ -779,21 +779,17 @@ sub get_snat_interface {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
-David LaPorte <david@davidlaporte.org>
-
-Kevin Amorin <kev@amorin.org>
-
-Fabrice Durand <fdurand@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

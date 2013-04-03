@@ -149,17 +149,13 @@ sub update_iplog {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
 =head1 COPYRIGHT
-        
-Copyright (C) 2008-2011 Inverse inc.
 
-=head1 LICENSE 
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1086,23 +1086,17 @@ sub node_last_reg {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Maikel van der Roest <mvdroest@utelisys.com>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
