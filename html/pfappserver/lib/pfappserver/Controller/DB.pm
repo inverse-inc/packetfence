@@ -51,6 +51,7 @@ sub assign :Path('assign') :Args(1) {
     my $root_password = $c->request->params->{'root_password'};
     my $pf_user = $c->request->params->{'database.user'};
     my $pf_password = $c->request->params->{'database.pass'};
+    my $pf_model;
 
     unless ( $root_user && $pf_user && $pf_password ) {
         ( $status, $message ) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
@@ -75,6 +76,8 @@ sub assign :Path('assign') :Args(1) {
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $message;
+    } else {
+        $pf_model->rewriteConfig() if $pf_model;
     }
 }
 
