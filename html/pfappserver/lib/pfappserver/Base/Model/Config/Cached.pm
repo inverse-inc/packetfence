@@ -282,6 +282,33 @@ sub cleanupAfterRead { }
 
 sub cleanupBeforeCommit { }
 
+=item expand_list
+
+=cut
+
+sub expand_list {
+    my ( $self,$object,@columns ) = @_;
+    foreach my $column (@columns) {
+        if (exists $object->{$column}) {
+            my @items = split(/\s*,\s*/,$object->{$column});
+            $object->{$column} = \@items;
+        }
+    }
+}
+
+=item flatten_list
+
+=cut
+
+sub flatten_list {
+    my ( $self,$object,@columns ) = @_;
+    foreach my $column (@columns) {
+        if (exists $object->{$column} && ref($object->{$column}) eq 'ARRAY') {
+            $object->{$column} = join(',',@{$object->{$column}});
+        }
+    }
+}
+
 
 __PACKAGE__->meta->make_immutable;
 
