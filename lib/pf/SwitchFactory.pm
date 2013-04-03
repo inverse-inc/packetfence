@@ -335,8 +335,8 @@ sub _fixupConfig {
     my ($this) = @_;
     my %config;
     my $cached_config = $this->{_cached_config};
-    $cached_config->cleanupWhitespace;
     $cached_config->toHash(\%config);
+    $cached_config->cleanupWhitespace(\%config);
     $config{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
     $this->{_config} = \%config;
 }
