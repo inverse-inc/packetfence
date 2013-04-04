@@ -15,11 +15,9 @@ use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 
-=head1 Methods
+=head1 METHODS
 
-=over
-
-=item getForm
+=head2 getForm
 
 =cut
 
@@ -28,7 +26,7 @@ sub getForm {
     return $c->form();
 }
 
-=item getModel
+=head2 getModel
 
 =cut
 
@@ -37,7 +35,7 @@ sub getModel {
     return $c->model();
 }
 
-=item create
+=head2 create
 
 =cut
 
@@ -74,7 +72,7 @@ sub create : Local: Args(0) {
     }
 }
 
-=item _setup_object
+=head2 _setup_object
 
 =cut
 
@@ -93,7 +91,7 @@ sub _setup_object {
     );
 }
 
-=item update
+=head2 update
 
 =cut
 
@@ -118,12 +116,12 @@ sub update :Chained('object') :PathPart :Args(0) {
 }
 
 
-=item remove
+=head2 remove
 
 =cut
 
 
-sub remove :Chained('object') :PathPart: Args(0) {
+sub remove :Chained('object') :PathPart('delete'): Args(0) {
     my ($self,$c) = @_;
     my ($status,$result) = $self->getModel($c)->remove($c->stash->{id},$c->stash->{item});
     $c->stash(
@@ -133,11 +131,11 @@ sub remove :Chained('object') :PathPart: Args(0) {
     $c->response->status($status);
 }
 
-=item view
+=head2 view
 
 =cut
 
-sub view :Chained('object') :PathPart('') :Args(0) {
+sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self,$c) = @_;
     my $item = $c->stash->{item};
     my $form = $self->getForm($c);
@@ -149,7 +147,7 @@ sub view :Chained('object') :PathPart('') :Args(0) {
 }
 
 
-=item list
+=head2 list
 
 =cut
 
@@ -165,8 +163,6 @@ sub list :Local :Args(0) {
         )
     }
 }
-
-=back
 
 =head1 COPYRIGHT
 
