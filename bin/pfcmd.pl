@@ -495,7 +495,7 @@ sub violationconfig {
             if ( tied(%violations_conf)->SectionExists($section) ) {
                 tied(%violations_conf)->DeleteSection($section);
                 tied(%violations_conf)
-                    ->WriteConfig( $conf_dir . "/violations.conf" )
+                    ->RewriteConfig()
                     or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
                         ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
                 require pf::configfile;
@@ -543,7 +543,7 @@ sub violationconfig {
                 }
             }
             tied(%violations_conf)
-                ->WriteConfig( $conf_dir . "/violations.conf" )
+                ->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -568,7 +568,7 @@ sub violationconfig {
                 }
             }
             tied(%violations_conf)
-                ->WriteConfig( $conf_dir . "/violations.conf" )
+                ->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -640,7 +640,7 @@ sub floatingnetworkdeviceconfig {
             if ( tied(%floatingnetworkdevice_conf)->SectionExists($section) ) {
                 tied(%floatingnetworkdevice_conf)->DeleteSection($section);
                 my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
-                $tied_floatingnetworkdevice->WriteConfig($configFile)
+                $tied_floatingnetworkdevice->RewriteConfig()
                     or $logger->logdie("Unable to write config to $configFile. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
                 require pf::configfile;
@@ -664,7 +664,7 @@ sub floatingnetworkdeviceconfig {
                 }
             }
             my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
-            $tied_floatingnetworkdevice->WriteConfig($configFile)
+            $tied_floatingnetworkdevice->RewriteConfig()
                 or $logger->logdie("Unable to write config to $configFile. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -684,7 +684,7 @@ sub floatingnetworkdeviceconfig {
                 tied(%floatingnetworkdevice_conf)->newval( $section, $param, $value );
             }
             my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
-            $tied_floatingnetworkdevice->WriteConfig($configFile)
+            $tied_floatingnetworkdevice->RewriteConfig()
                 or $logger->logdie("Unable to write config to $configFile. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -748,7 +748,7 @@ sub networkconfig {
             if ( tied(%ConfigNetworks)->SectionExists($network) ) {
                 tied(%ConfigNetworks)->DeleteSection($network);
                 my $tied_network = tied(%ConfigNetworks);
-                $tied_network->WriteConfig($network_config_file)
+                $tied_network->RewriteConfig()
                     or $logger->logdie("Unable to write config to $network_config_file. "
                                       ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
                 require pf::configfile;
@@ -772,7 +772,7 @@ sub networkconfig {
                 }
             }
             my $tied_network = tied(%ConfigNetworks);
-            $tied_network->WriteConfig($network_config_file)
+            $tied_network->RewriteConfig()
                 or $logger->logdie("Unable to write config to $network_config_file. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -792,7 +792,7 @@ sub networkconfig {
                 tied(%ConfigNetworks)->newval( $network, $param, $value );
             }
             my $tied_network = tied(%ConfigNetworks);
-            $tied_network->WriteConfig( $network_config_file )
+            $tied_network->RewriteConfig()
                 or $logger->logdie("Unable to write config to $network_config_file. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -874,7 +874,7 @@ sub interfaceconfig {
         } else {
             if ( tied(%pf_conf)->SectionExists($section_name) ) {
                 tied(%pf_conf)->DeleteSection($section_name);
-                tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+                tied(%pf_conf)->RewriteConfig()
                     or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
                         ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
                 require pf::configfile;
@@ -898,7 +898,7 @@ sub interfaceconfig {
                     tied(%pf_conf)->newval( $section_name, $param, $value );
                 }
             }
-            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+            tied(%pf_conf)->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -918,7 +918,7 @@ sub interfaceconfig {
                 my ( $param, $value ) = @$assignment;
                 tied(%pf_conf)->newval( $section_name, $param, $value );
             }
-            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+            tied(%pf_conf)->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -997,7 +997,7 @@ sub switchconfig {
             if ( tied(%switches_conf)->SectionExists($section) ) {
                 tied(%switches_conf)->DeleteSection($section);
                 my $tied_switch = tied(%switches_conf);
-                $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                $tied_switch->RewriteConfig()
                     or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
                         ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # hack
                 require pf::configfile;
@@ -1043,7 +1043,7 @@ sub switchconfig {
                 }
             }
             my $tied_switch = tied(%switches_conf);
-            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+            $tied_switch->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -1067,7 +1067,7 @@ sub switchconfig {
                 }
             }
             my $tied_switch = tied(%switches_conf);
-            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+            $tied_switch->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
