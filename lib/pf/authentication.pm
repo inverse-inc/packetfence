@@ -317,7 +317,7 @@ sub getAuthenticationSource {
 
     my $result;
     if ($id) {
-        $result = first {$_->{id}} @authentication_sources;
+        $result = first {$_->{id} eq $id} @authentication_sources;
     } else {
         $result = \@authentication_sources;
     }
