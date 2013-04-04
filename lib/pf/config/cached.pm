@@ -453,7 +453,7 @@ sub _extractCHIArgs {
 
 =head2 RenameSection ( $old_section_name, $new_section_name)
 
-Renames a section is it does not exists already
+Renames a section if it does not exists already
 
 =cut
 
@@ -462,11 +462,10 @@ sub RenameSection {
     my $old_sect = shift;
     my $new_sect = shift;
 
-    return undef if not defined $old_sect or not defined $new_sect;
-
-    if ( $self->SectionExists($new_sect))
-    {
-        return;
+    if (not defined $old_sect or
+        not defined $new_sect or
+        $self->SectionExists($new_sect)) {
+        return undef;
     }
 
     $self->_caseify(\$new_sect);
