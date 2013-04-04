@@ -55,16 +55,16 @@ sub new {
         if(exists $LOADED_CONFIGS{$file}) {
             return $LOADED_CONFIGS{$file};
         }
-        delete $params{'-file'} unless (-e $file);
+        unless ( -e $file) {
+            open( my $fh,">>",$file);
+            close($fh);
+        }
         $config = $class->computeFromPath(
             $file,
             sub {
                 my $fh = lock_file_for_reading($file);
                 my $config = Config::IniFiles->new(%params);
                 unlock_filehandle($fh);
-                if(!exists $params{'-file'}) {
-                    $config->SetFileName($file);
-                }
                 return $config;
             }
         );
@@ -167,8 +167,7 @@ sub lock_file_for_writing {
 
 sub lock_file_for_reading {
     my ($file) = @_;
-    my $fh;
-    open($fh,"+>>",$file) or die "cannot open $file";
+    open( my $fh,"<",$file) or die "cannot open $file";
     flock($fh, LOCK_SH);
     return $fh;
 }
