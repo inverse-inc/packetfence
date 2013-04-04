@@ -11,6 +11,7 @@ pf::Authentication::Source::GithubSource
 use Moose;
 extends 'pf::Authentication::Source';
 
+has '+class' => (default => 'external');
 has '+type' => (default => 'Github');
 has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);

@@ -14,7 +14,10 @@ use pf::Authentication::constants;
 use Moose;
 extends 'pf::Authentication::Source';
 
+has '+class' => (default => 'external');
 has '+type' => ( default => 'Email' );
+has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
+has 'allow_localdomain' => (isa => 'Bool', is => 'rw', default => 1);
 
 sub available_attributes {
   my $self = shift;

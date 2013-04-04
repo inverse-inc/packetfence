@@ -33,6 +33,10 @@ has_field 'sources.description' =>
   (
    type => 'Text',
   );
+has_field 'sources.class' =>
+  (
+   type => 'Text',
+  );
 has_field 'sources.type' =>
   (
    type => 'Text',
@@ -40,7 +44,7 @@ has_field 'sources.type' =>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

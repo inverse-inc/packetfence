@@ -11,6 +11,7 @@ pf::Authentication::Source::GoogleSource
 use Moose;
 extends 'pf::Authentication::Source';
 
+has '+class' => (default => 'external');
 has '+type' => (default => 'Google');
 has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'YOUR_API_ID.apps.googleusercontent.com');

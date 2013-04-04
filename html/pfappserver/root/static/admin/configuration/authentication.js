@@ -1,7 +1,7 @@
 $(function() { // DOM ready
 
     /* Delete a source */
-    $('#section').on('click', '#sources [href*="/delete"]', function(event) {
+    $('#section').on('click', '.sources [href*="/delete"]', function(event) {
         if ($(this).hasClass('disabled'))
             return false;
         var url = $(this).attr('href');
@@ -57,6 +57,8 @@ $(function() { // DOM ready
                 var status_msg = getStatusMsg(jqXHR);
                 showPermanentError(form, status_msg);
             });
+            // TODO: find a way to change the location hash without reloading the page
+            // location.hash = 'authentication';
         }
 
         return false;
@@ -179,13 +181,13 @@ $(function() { // DOM ready
     /* Initialize the rule condition and action fields when displaying a rule */
     $('#section').on('show', '#modalRule', function(event) {
         if (event.target.id == 'modalRule') {
-        $('#templates').find('option').removeAttr('id');
-        $('#ruleConditions tr:not(.hidden) select[name$=attribute]').each(function() {
-            updateCondition($(this));
-        });
-        $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
-            updateAction($(this), true);
-        });
+            $('#templates').find('option').removeAttr('id');
+            $('#ruleConditions tr:not(.hidden) select[name$=attribute]').each(function() {
+                updateCondition($(this));
+            });
+            $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
+                updateAction($(this), true);
+            });
         }
     });
 

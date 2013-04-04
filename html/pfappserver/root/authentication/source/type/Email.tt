@@ -1,0 +1,2 @@
+[% form.field('email_activation_timeout').render %]
+[% form.field('allow_localdomain').render %]

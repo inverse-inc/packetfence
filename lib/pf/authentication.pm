@@ -85,17 +85,19 @@ Return the list of source types, as defined in each of the class
 
 sub availableAuthenticationSourceTypes {
     return [
+            # internal sources
             'LDAP',
             'AD',
-            #'Email', -- don't offer email for the moment
             #'SQL', -- don't offer sql for the moment
-            #'SMS', -- don't offer sms for the moment
             'RADIUS',
             'Kerberos',
             'Htpasswd',
+            # external source
+            'Email',
+            'SMS',
             'Google',
             'Facebook',
-            'Github'
+            'Github',
            ];
 }
 
@@ -250,8 +252,6 @@ sub writeAuthenticationConfigFile {
     my %ini;
     tie %ini, 'pf::config::cached', ( -file => $authentication_config_file);
 
-    print "Writing configuration...\n";
-
     # Remove deleted sections
     my %new_sources = map { $_ => 1 } @authentication_sources;
     my @sources = tied(%ini)->Sections;
@@ -263,15 +263,19 @@ sub writeAuthenticationConfigFile {
 
     # Update existing sections and create new ones
     foreach my $source ( @authentication_sources ) {
-        print "Source " . $source->id . " (" . ref($source)->meta->name . ")\n";
+        $logger->debug("Writing source " . $source->id . " (" . ref($source)->meta->name . ")");
         $ini{$source->{id}} = {};
         $ini{$source->{id}}{description} = $source->{'description'};
 
         for my $attr ( $source->meta->get_all_attributes ) {
             $attr = $attr->name;
-            next if ($attr eq 'id' || $attr eq 'rules');
+            next if (grep { $_ eq $attr } qw[id rules]);
             next unless ($source->{$attr});
-            $ini{$source->{id}}{$attr} = $source->{$attr};
+            my $value = $source->{$attr};
+            if (ref($value)) {
+                $value = join(',', @$value);
+            }
+            $ini{$source->{id}}{$attr} = $value;
         }
 
         # We flush rules, including conditions and actions.

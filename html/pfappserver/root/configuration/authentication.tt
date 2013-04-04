@@ -26,7 +26,9 @@
 
 <form name="authentication" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Authentication').action_for('update')) %]">
 [% IF form.field('sources').num_fields -%]
-  <table id="sources" class="table table-sortable admin_ordered">
+
+  <h4>[% l('Internal Sources') %]</h4>
+  <table class="sources table table-sortable admin_ordered">
     <thead>
       <tr>
         <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th></th>
@@ -34,6 +36,7 @@
     </thead>
     <tbody>
       [% FOREACH source IN form.field('sources').fields %]
+      [% IF source.field('class').value == 'internal' %]
       <tr>
         <td class="sort-handle">[% loop.index + 1 %]</td>
         <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
@@ -42,9 +45,34 @@
         <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
       </tr>
       [% END -%]
+      [% END -%]
       <tr><td colspan="5"></td></tr>
     </tbody>
   </table>
+
+  <h4>[% l('External Sources') %]</h4>
+  <table class="sources table">
+    <thead>
+      <tr>
+        <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH source IN form.field('sources').fields %]
+      [% IF source.field('class').value == 'external' %]
+      <tr>
+        <td></td>
+        <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
+        <td>[% source.field('description').value %]</td>
+        <td>[% l(source.field('type').value) %]</td>
+        <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
+      </tr>
+      [% END -%]
+      [% END -%]
+      <tr><td colspan="5"></td></tr>
+    </tbody>
+  </table>
+
 [% END -%]
 </form>
 

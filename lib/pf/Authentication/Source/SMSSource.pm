@@ -14,7 +14,34 @@ use pf::Authentication::constants;
 use Moose;
 extends 'pf::Authentication::Source';
 
+has '+class' => (default => 'external');
 has '+type' => ( default => 'SMS' );
+has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw');
+
+=head1 METHODS
+
+=head2 around BUILDARGS
+
+Convert the comma-delimited string representing the SMS carriers to an array ref.
+
+=cut
+
+around BUILDARGS => sub {
+    my $orig = shift;
+    my $class = shift;
+    my $attrs = shift;
+
+    if (ref $attrs) {
+        my @carriers = split(/\s*,\s*/, $attrs->{sms_carriers});
+        $attrs->{sms_carriers} = \@carriers;
+    }
+
+    return $class->$orig($attrs);
+};
+
+=head2 available_attributes
+
+=cut
 
 sub available_attributes {
   my $self = shift;
@@ -24,8 +51,6 @@ sub available_attributes {
 
   return [@$super_attributes, @$own_attributes];
 }
-
-=back
 
 =head1 AUTHOR
 
