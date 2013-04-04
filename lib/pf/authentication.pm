@@ -35,6 +35,7 @@ use pf::Authentication::Source::SQLSource;
 use pf::Authentication::Source::FacebookSource;
 use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
+use List::Util qw(first);
 
 # The results...
 #
@@ -302,7 +303,7 @@ sub writeAuthenticationConfigFile {
         }
     }
 
-    tied(%ini)->ReWriteConfig();
+    tied(%ini)->RewriteConfig();
 }
 
 =item getAuthenticationSource
@@ -316,11 +317,7 @@ sub getAuthenticationSource {
 
     my $result;
     if ($id) {
-        foreach my $source (@authentication_sources) {
-            if ($source->{id} eq $id) {
-                $result = $source;
-            }
-        }
+        $result = first {$_->{id}} @authentication_sources;
     } else {
         $result = \@authentication_sources;
     }
