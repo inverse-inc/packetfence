@@ -37,7 +37,7 @@ use overload "%{}" => \&config, fallback => 1;
 
 our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
 
-=head1 Methods
+=head1 METHODS
 
 =head2 new
 
