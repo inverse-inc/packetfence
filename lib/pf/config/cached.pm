@@ -62,9 +62,9 @@ sub new {
         $config = $class->computeFromPath(
             $file,
             sub {
-                my $fh = lock_file_for_reading($file);
+                my $fh = lockFileForReaading($file);
                 my $config = Config::IniFiles->new(%params);
-                unlock_filehandle($fh);
+                unlockFilehandle($fh);
                 return $config;
             }
         );
@@ -101,10 +101,10 @@ sub RewriteConfig {
     if($cached_object && _expireIf($cached_object)) {
         die "Config $file was modified from last loading";
     }
-    my $fh = lock_file_for_writing($file);
+    my $fh = lockFileForWriting($file);
     $self->removeDefaultValues();
-    my $result = $config->WriteConfig($file, -delta => exists $config->{imported});
-    unlock_filehandle($fh);
+    my $result = $config->WriteConfig($file);
+    unlockFilehandle($fh);
     if($result) {
         $cache->set($file,$config);
         $self->_callReloadedCallback();
@@ -149,11 +149,11 @@ sub removeDefaultValues {
     }
 }
 
-=head2 lock_file_for_writing
+=head2 lockFileForWriting
 
 =cut
 
-sub lock_file_for_writing {
+sub lockFileForWriting {
     my ($file) = @_;
     my $fh;
     open($fh,">",$file) or die "cannot open $file";
@@ -161,22 +161,22 @@ sub lock_file_for_writing {
     return $fh;
 }
 
-=head2 lock_file_for_reading
+=head2 lockFileForReaading
 
 =cut
 
-sub lock_file_for_reading {
+sub lockFileForReaading {
     my ($file) = @_;
     open( my $fh,"<",$file) or die "cannot open $file";
     flock($fh, LOCK_SH);
     return $fh;
 }
 
-=head2 unlock_filehandle
+=head2 unlockFilehandle
 
 =cut
 
-sub unlock_filehandle {
+sub unlockFilehandle {
     my ($fh) = @_;
     flock($fh, LOCK_UN);
     close($fh);
@@ -202,9 +202,9 @@ sub ReadConfig {
         $file,
         sub {
             #reread files
-            my $fh = lock_file_for_reading($file);
+            my $fh = lockFileForReaading($file);
             $result = $config->ReadConfig();
-            unlock_filehandle($fh);
+            unlockFilehandle($fh);
             $reloaded = 1;
             return $config;
         }
