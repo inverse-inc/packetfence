@@ -9,10 +9,10 @@
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
-            <li><a href="#userRoles" data-toggle="tab">[% l('Roles') %]</a></li>
             <li><a href="#userHistory" data-toggle="tab">[% l('History') %]</a></li>
             <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
             <li><a data-target="#userViolations" href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            [% IF user.password.defined  %]<li><a href="#userRoles" data-toggle="tab">[% l('Roles') %]</a></li>[% END %]
           </ul>
 
           <div class="tab-content">
@@ -33,48 +33,48 @@
 <!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
 
             </div><!--tab-pane-->
+[% IF user.password.defined  %]
             <div class="tab-pane fade" id="userRoles">
-      [% form.field('valid_from').render %]
-  
- 
-  <div class="control-group">
-    <label class="control-label">[% l('Actions') %]</label>
-    <div class="controls">
-      <table id="ruleActions" class="table table-dynamic table-sortable table-condensed">
-        <tbody>
-          [% FOREACH action IN form.field('actions').fields -%]
-          <tr[% ' class="hidden"' IF loop.last %]>
-            <td class="sort-handle">
-              <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
-            </td>
-            <td>
-              [%
-                field_type  = action.field('type')
-                field_value = action.field('value')
-              %]
-              [% IF loop.last %]
-              [%
-                  field_type.element_attr.disabled = "disabled"
-                  field_value.element_attr.disabled = "disabled"
-              %]
-              [% ELSE %]
-                  [%field_value.element_class = []%]
-              [% END %]
-              [% field_type.render_element %]
-              [% field_value.render_element %]
-            </td>
-            <td class="action">
-              <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-              <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
-            </td>
-          </tr>
-          [% END -%]
-          <tr><td colspan="3"><!-- allow dnd to the bottom of the table --></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+              [% form.field('valid_from').render %]
+              <div class="control-group">
+                <label class="control-label">[% l('Actions') %]</label>
+                <div class="controls">
+                  <table id="ruleActions" class="table table-dynamic table-sortable table-condensed">
+                    <tbody>
+                      [% FOREACH action IN form.field('actions').fields -%]
+                      <tr[% ' class="hidden"' IF loop.last %]>
+                        <td class="sort-handle">
+                          <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
+                        </td>
+                        <td>
+                          [%
+                            field_type  = action.field('type')
+                            field_value = action.field('value')
+                          %]
+                          [% IF loop.last %]
+                          [%
+                              field_type.element_attr.disabled = "disabled"
+                              field_value.element_attr.disabled = "disabled"
+                          %]
+                          [% ELSE %]
+                              [%field_value.element_class = []%]
+                          [% END %]
+                          [% field_type.render_element %]
+                          [% field_value.render_element %]
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
+                        </td>
+                      </tr>
+                      [% END -%]
+                      <tr><td colspan="3"><!-- allow dnd to the bottom of the table --></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div><!--tab-pane-->
+[% END %]
             <div class="tab-pane fade" id="userHistory">
               <div id="noResult" class="unwell">
                 <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
