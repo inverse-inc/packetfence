@@ -312,7 +312,7 @@ sub violations :Local {
 
     $c->stash->{template} = 'configuration/violations.tt';
 
-    my ($status, $result) = $c->model('Config::Violations')->read_violation('all');
+    my ($status, $result) = $c->model('Config::Cached::Violations')->readAll();
     if (is_success($status)) {
         $c->stash->{violations} = $result;
         ($status, $result) = $c->model('Config::Cached::Profile')->readAllIds();
@@ -340,7 +340,7 @@ sub soh :Local {
     if (is_success($status)) {
         $c->stash->{filters} = $result;
 
-        ($status, $result) = $c->model('Config::Violations')->read_violation('all');
+        ($status, $result) = $c->model('Config::Cached::Violations')->readAll();
         if (is_success($status)) {
             $c->stash->{violations} = $result;
         }

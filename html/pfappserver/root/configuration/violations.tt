@@ -26,14 +26,14 @@
         <tbody>
           [% FOREACH violation IN violations %]
           <tr[% IF violation.enabled == 'N' %] class="muted"[% END %]>
-            <td><a href="[% c.uri_for(c.controller('Violation').action_for('read'), [ violation.id ]) %]#modalViolation">[% violation.id %]</a></td>
+            <td><a href="[% c.uri_for(c.controller('Violation').action_for('view'), [ violation.id ]) %]#modalViolation">[% violation.id %]</a></td>
             <td>[% violation.desc %]</td>
             <td>[% FOREACH action IN violation.actions %]
               <span class="label label-info">[% l(action) %]</span>
               [%- END %]</td>
             <td>[% violation.vlan %]</td>
             <td>
-              <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('delete'), [ violation.id ]) %]#deleteViolation">[% l('Delete') %]</a>
+              <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]#deleteViolation">[% l('Delete') %]</a>
               [% IF profiles.size %]
               <div class="btn-group">[% END %]
                 <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), ['default'], "violations/$violation.template") %].html" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>

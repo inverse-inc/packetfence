@@ -38,7 +38,6 @@ sub _myDocFile      { return "" };
 # See getConfigurationModules
 my @configuration_modules = (
 #    "Authentication",   # authentication sources and rights ()
-    "Violations",       # violations/policies/isolation rules configurations (violations.conf)
 );
 
 # Set the permissions for the different config files

@@ -26,6 +26,7 @@ use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
 # # imported but it's better than duplicating regex all over the place.
 use pf::config;
+use pf::config::cached;
 use Moose;
 use Class::MOP;
 use Catalyst::Utils;
@@ -49,6 +50,8 @@ our %VALID_PARAMS = (
 
 =head1 METHODS
 
+
+
 =head2 auto
 
 Allow only authenticated users
@@ -69,6 +72,13 @@ sub auto :Private {
     return 1;
 }
 
+=head2 begin
+
+=cut
+
+sub begin {
+    pf::config::cached::ReloadConfigs();
+}
 
 =head2 valid_param
 
