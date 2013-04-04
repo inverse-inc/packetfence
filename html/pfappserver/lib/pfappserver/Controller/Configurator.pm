@@ -269,10 +269,11 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
     $c->stash->{mysqld_running} = 1 if ($c->model('Config::System')->check_mysqld_status() ne 0);
 
     if ($c->request->method eq 'GET') {
+        delete $c->session->{completed}->{$c->action->name};
+
         # Check if the database and user exist
         my ($status, $result_ref) = $c->model('Config::Cached::Pf')->read('database');
         if (is_error($status)) {
-            delete $c->session->{completed}->{$c->action->name};
             $c->log->warn("Could not read configuration: $result_ref");
             $c->detach();
         }
@@ -283,14 +284,11 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
         if ($pf_user && $pf_pass && $pf_db) {
             # throwing away result since we don't use it
             ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
-            if (is_error($status)) {
-                delete $c->session->{completed}->{$c->action->name};
-                $c->detach();
+            if (is_success($status)) {
+                # everything has been done successfully
+                $c->session->{completed}->{$c->action->name} = 1;
             }
         }
-
-        # everything has been done successfully
-        $c->session->{completed}->{$c->action->name} = 1;
     }
 }
 
@@ -493,32 +491,9 @@ sub services :Chained('object') :PathPart('services') :Args(0) {
     }
 }
 
-=head2 reset_password
+=head1 AUTHORS
 
-Reset the root password (database)
-
-=cut
-
-sub reset_password :Path('reset_password') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    my ($status, $message) = ( HTTP_OK );
-    my $root_user      = $c->request->params->{root_user};
-    my $root_password  = $c->request->params->{root_password_new};
-
-    unless ( $root_user && $root_password ) {
-        ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
-    }
-    if ( is_success($status) ) {
-        ($status, $message) = $c->model('DB')->secureInstallation($root_user, $root_password);
-    }
-    if ( is_error($status) ) {
-        $c->response->status($status);
-    }
-
-    $c->stash->{status_msg} = $message;
-    $c->stash->{current_view} = 'JSON';
-}
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 

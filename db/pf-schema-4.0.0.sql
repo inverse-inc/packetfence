@@ -282,7 +282,7 @@ CREATE TABLE `configfile` (
   `filename` varchar(255) NOT NULL,
   `filecontent` text NOT NULL,
   `lastmodified` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB default CHARSET=latin1;
 
 --
 -- Table structure for table `email_activation`
@@ -294,7 +294,7 @@ CREATE TABLE email_activation (
   `mac` varchar(17) default NULL,
   `email` varchar(255) NOT NULL, -- email were approbation request is sent 
   `activation_code` varchar(255) NOT NULL,
-  `expiration` DATETIME NOT NULL,
+  `expiration` datetime NOT NULL,
   `status` varchar(60) default NULL,
   `type` varchar(60) default NULL,
   PRIMARY KEY (code_id),
@@ -309,12 +309,12 @@ CREATE TABLE email_activation (
 CREATE TABLE temporary_password (
   `pid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `valid_from` DATETIME DEFAULT NULL,
-  `expiration` DATETIME NOT NULL,
-  `access_duration` varchar(255) DEFAULT NULL,
-  `access_level` int unsigned NOT NULL DEFAULT 0,
+  `valid_from` datetime default NULL,
+  `expiration` datetime NOT NULL,
+  `access_duration` varchar(255) default NULL,
+  `access_level` int unsigned NOT NULL default 0,
   `category` int NOT NULL,
-  `sponsor` tinyint(1) NOT NULL DEFAULT 0,
+  `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   PRIMARY KEY (pid)
 ) ENGINE=InnoDB;
@@ -349,7 +349,7 @@ CREATE TABLE sms_activation (
   `phone_number` varchar(255) NOT NULL, -- phone number where sms is sent
   `carrier_id` int(11) NOT NULL,
   `activation_code` varchar(255) NOT NULL,
-  `expiration` DATETIME NOT NULL,
+  `expiration` datetime NOT NULL,
   `status` varchar(60) default NULL,
   PRIMARY KEY (code_id),
   KEY `identifier` (mac),
@@ -450,14 +450,14 @@ VALUES
 -- Adding RADIUS nas client table
 
 CREATE TABLE radius_nas (
-  id int(10) NOT NULL auto_increment,
+  id int(10) NOT NULL AUTO_INCREMENT,
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
-  type varchar(30) DEFAULT 'other',
+  type varchar(30) default 'other',
   ports int(5),
-  secret varchar(60) DEFAULT 'secret' NOT NULL,
+  secret varchar(60) default 'secret' NOT NULL,
   community varchar(50),
-  description varchar(200) DEFAULT 'RADIUS Client',
+  description varchar(200) default 'RADIUS Client',
   PRIMARY KEY (id),
   KEY nasname (nasname)
 ) ENGINE=InnoDB;
@@ -465,7 +465,7 @@ CREATE TABLE radius_nas (
 -- Adding RADIUS accounting table
 
 CREATE TABLE radacct (
-  radacctid bigint(21) NOT NULL auto_increment,
+  radacctid bigint(21) NOT NULL AUTO_INCREMENT,
   acctsessionid varchar(64) NOT NULL default '',
   acctuniqueid varchar(32) NOT NULL default '',
   username varchar(64) NOT NULL default '',
@@ -525,20 +525,20 @@ CREATE TABLE radacct_log (
 DROP PROCEDURE IF EXISTS acct_update;
 DELIMITER /
 CREATE PROCEDURE acct_update(
-  IN p_timestamp DATETIME,
-  IN p_acctsessiontime INT(12),
-  IN p_acctinputoctets BIGINT(20),
-  IN p_acctoutputoctets BIGINT(20),
+  IN p_timestamp datetime,
+  IN p_acctsessiontime int(12),
+  IN p_acctinputoctets bigint(20),
+  IN p_acctoutputoctets bigint(20),
   IN p_acctsessionid varchar(64),
-  IN p_username VARCHAR(64),
-  IN p_nasipaddress VARCHAR(15),
-  IN p_framedipaddress VARCHAR(15),
-  IN p_acctstatustype VARCHAR(25)
+  IN p_username varchar(64),
+  IN p_nasipaddress varchar(15),
+  IN p_framedipaddress varchar(15),
+  IN p_acctstatustype varchar(25)
 )
 BEGIN
-  DECLARE Previous_Input_Octets BIGINT(20);
-  DECLARE Previous_Output_Octets BIGINT(20);
-  DECLARE Previous_Session_Time INT(12);
+  DECLARE Previous_Input_Octets bigint(20);
+  DECLARE Previous_Output_Octets bigint(20);
+  DECLARE Previous_Session_Time int(12);
 
   # Collect traffic previous values in the update table
   SELECT SUM(acctinputoctets), SUM(acctoutputoctets), SUM(acctsessiontime)
@@ -582,31 +582,31 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS acct_start;
 DELIMITER /
 CREATE PROCEDURE acct_start (
-  IN p_acctsessionid VARCHAR(64),
-  IN p_acctuniqueid VARCHAR(32),
-  IN p_username VARCHAR(64),
-  IN p_realm VARCHAR(64),
-  IN p_nasipaddress VARCHAR(15),
-  IN p_nasportid VARCHAR(15),
-  IN p_nasporttype VARCHAR(32),
-  IN p_acctstarttime DATETIME,
-  IN p_acctstoptime DATETIME,
-  IN p_acctsessiontime INT(12),
-  IN p_acctauthentic VARCHAR(32),
-  IN p_connectioninfo_start VARCHAR(50),
-  IN p_connectioninfo_stop VARCHAR(50),
-  IN p_acctinputoctets BIGINT(20),
-  IN p_acctoutputoctets BIGINT(20),
-  IN p_calledstationid VARCHAR(50),
-  IN p_callingstationid VARCHAR(50),
-  IN p_acctterminatecause VARCHAR(32),
-  IN p_servicetype VARCHAR(32),
-  IN p_framedprotocol VARCHAR(32),
-  IN p_framedipaddress VARCHAR(15),
-  IN p_acctstartdelay VARCHAR(12),
-  IN p_acctstopdelay VARCHAR(12),
-  IN p_xascendsessionsvrkey VARCHAR(10),
-  IN p_acctstatustype VARCHAR(25)
+  IN p_acctsessionid varchar(64),
+  IN p_acctuniqueid varchar(32),
+  IN p_username varchar(64),
+  IN p_realm varchar(64),
+  IN p_nasipaddress varchar(15),
+  IN p_nasportid varchar(15),
+  IN p_nasporttype varchar(32),
+  IN p_acctstarttime datetime,
+  IN p_acctstoptime datetime,
+  IN p_acctsessiontime int(12),
+  IN p_acctauthentic varchar(32),
+  IN p_connectioninfo_start varchar(50),
+  IN p_connectioninfo_stop varchar(50),
+  IN p_acctinputoctets bigint(20),
+  IN p_acctoutputoctets bigint(20),
+  IN p_calledstationid varchar(50),
+  IN p_callingstationid varchar(50),
+  IN p_acctterminatecause varchar(32),
+  IN p_servicetype varchar(32),
+  IN p_framedprotocol varchar(32),
+  IN p_framedipaddress varchar(15),
+  IN p_acctstartdelay varchar(12),
+  IN p_acctstopdelay varchar(12),
+  IN p_xascendsessionsvrkey varchar(10),
+  IN p_acctstatustype varchar(25)
 )
 BEGIN
   # Insert new record with new traffic
@@ -644,22 +644,22 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS acct_stop;
 DELIMITER /
 CREATE PROCEDURE acct_stop(
-  IN p_timestamp DATETIME,
-  IN p_acctsessiontime INT(12),
-  IN p_acctinputoctets BIGINT(20),
-  IN p_acctoutputoctets BIGINT(20),
-  IN p_acctterminatecause VARCHAR(12),
-  IN p_acctdelaystop VARCHAR(32),
-  IN p_connectinfo_stop VARCHAR(50),
-  IN p_acctsessionid VARCHAR(64),
-  IN p_username VARCHAR(64),
-  IN p_nasipaddress VARCHAR(15),
-  IN p_acctstatustype VARCHAR(25)
+  IN p_timestamp datetime,
+  IN p_acctsessiontime int(12),
+  IN p_acctinputoctets bigint(20),
+  IN p_acctoutputoctets bigint(20),
+  IN p_acctterminatecause varchar(12),
+  IN p_acctdelaystop varchar(32),
+  IN p_connectinfo_stop varchar(50),
+  IN p_acctsessionid varchar(64),
+  IN p_username varchar(64),
+  IN p_nasipaddress varchar(15),
+  IN p_acctstatustype varchar(25)
 )
 BEGIN
-  DECLARE Previous_Input_Octets BIGINT(20);
-  DECLARE Previous_Output_Octets BIGINT(20);
-  DECLARE Previous_Session_Time INT(12);
+  DECLARE Previous_Input_Octets bigint(20);
+  DECLARE Previous_Output_Octets bigint(20);
+  DECLARE Previous_Session_Time int(12);
 
   # Collect traffic previous values in the update table
   SELECT SUM(acctinputoctets), SUM(acctoutputoctets), SUM(acctsessiontime)
@@ -713,43 +713,43 @@ DELIMITER ;
 -- One entry per filter.
 --
 
-create table soh_filters (
-    filter_id int not null primary key auto_increment,
-    name varchar(32) not null unique,
+CREATE TABLE soh_filters (
+  filter_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  name varchar(32) NOT NULL UNIQUE,
 
-    -- If action is null, this filter won't do anything. Otherwise this
-    -- column may have any value; "accept" and "violation" are currently
-    -- recognised and acted upon.
-    action varchar(32),
+  -- If action is null, this filter won't do anything. Otherwise this
+  -- column may have any value; "accept" and "violation" are currently
+  -- recognised and acted upon.
+  action varchar(32),
 
-    -- If action = 'violation', then this column contains the vid of a
-    -- violation to trigger. (I wish I could write a constraint to
-    -- express this.)
-    vid int
+  -- If action = 'violation', then this column contains the vid of a
+  -- violation to trigger. (I wish I could write a constraint to
+  -- express this.)
+  vid int
 ) ENGINE=InnoDB;
 
-insert into soh_filters (name) values ('Default');
+INSERT INTO soh_filters (name) VALUES ('Default');
 
 --
 -- One entry for each rule in a filter.
 --
 
-create table soh_filter_rules (
-    rule_id int not null primary key auto_increment,
+CREATE TABLE soh_filter_rules (
+  rule_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
 
-    filter_id int not null,
-    foreign key (filter_id) references soh_filters (filter_id)
-        on delete cascade,
+  filter_id int NOT NULL,
+  FOREIGN KEY (filter_id) REFERENCES soh_filters (filter_id)
+      ON DELETE CASCADE,
 
-    -- Any valid health class, e.g. "antivirus"
-    class varchar(32) not null,
+  -- Any valid health class, e.g. "antivirus"
+  class varchar(32) NOT NULL,
 
-    -- Must be 'is' or 'is not'
-    op varchar(16) not null,
+  -- Must be 'is' or 'is not'
+  op varchar(16) NOT NULL,
 
-    -- May be 'ok', 'installed', 'enabled', 'disabled', 'uptodate',
-    -- 'microsoft' for now; more values may be used in future.
-    status varchar(16) not null
+  -- May be 'ok', 'installed', 'enabled', 'disabled', 'uptodate',
+  -- 'microsoft' for now; more values may be used in future.
+  status varchar(16) NOT NULL
 ) ENGINE=InnoDB;
 
 --
@@ -757,15 +757,15 @@ create table soh_filter_rules (
 --
 
 CREATE TABLE scan (
-id varchar(20) NOT NULL,
-ip varchar(255) NOT NULL,
-mac varchar(17) NOT NULL,
-type varchar(255) NOT NULL,
-start_date datetime NOT NULL,
-update_date timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
-status varchar(255) NOT NULL,
-report_id varchar(255) NOT NULL,
-PRIMARY KEY (id)
+  id varchar(20) NOT NULL,
+  ip varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
+  type varchar(255) NOT NULL,
+  start_date datetime NOT NULL,
+  update_date timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  status varchar(255) NOT NULL,
+  report_id varchar(255) NOT NULL,
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
 --
@@ -773,17 +773,17 @@ PRIMARY KEY (id)
 --
 
 CREATE TABLE billing (
-id varchar(20) NOT NULL,
-ip varchar(255) NOT NULL,
-mac varchar(17) NOT NULL,
-type varchar(255) NOT NULL,
-start_date datetime NOT NULL,
-update_date timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
-status varchar(255) NOT NULL,
-item varchar(255) NOT NULL,
-price varchar(255) NOT NULL,
-person varchar(255) NOT NULL,
-PRIMARY KEY (id)
+  id varchar(20) NOT NULL,
+  ip varchar(255) NOT NULL,
+  mac varchar(17) NOT NULL,
+  type varchar(255) NOT NULL,
+  start_date datetime NOT NULL,
+  update_date timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  status varchar(255) NOT NULL,
+  item varchar(255) NOT NULL,
+  price varchar(255) NOT NULL,
+  person varchar(255) NOT NULL,
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
 --
@@ -791,11 +791,11 @@ PRIMARY KEY (id)
 --
 
 CREATE TABLE savedsearch (
-    id int NOT NULL AUTO_INCREMENT,
-    pid varchar(255) NOT NULL,
-    namespace varchar(255) NOT NULL,
-    name varchar(255) NOT NULL,
-    query TEXT,
-    in_dashboard TINYINT,
-    PRIMARY KEY (id)
+  id int NOT NULL AUTO_INCREMENT,
+  pid varchar(255) NOT NULL,
+  namespace varchar(255) NOT NULL,
+  name varchar(255) NOT NULL,
+  query text,
+  in_dashboard tinyint,
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB;

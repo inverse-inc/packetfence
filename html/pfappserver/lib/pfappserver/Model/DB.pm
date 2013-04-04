@@ -176,8 +176,8 @@ sub schema {
     my ( $status_msg, $result );
 
     my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < $install_dir/db/pf-schema.sql";
-    eval { $result = pf_run($cmd) };
-    if ( $@ ) {
+    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
+    if ( $@ || !defined($result) ) {
         $status_msg = "Error applying the schema to the database $db";
         $logger->warn("$status_msg | USER: $root_user");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
@@ -192,11 +192,11 @@ sub schema {
 
 =head1 AUTHORS
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -26,7 +26,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
+        <a class="btn btn-primary" href="[% c.uri_for(c.controller('DB').action_for('reset_password')) %]">[% l('Save') %]</a>
       </div>
   </div>
 

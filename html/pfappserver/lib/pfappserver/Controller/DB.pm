@@ -107,7 +107,10 @@ sub create :Path('create') :Args(1) {
         ( $status, $message ) = ( HTTP_PRECONDITION_FAILED, 'The root password must be set.' );
     }
     if ( is_success($status) ) {
-        ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
+        ( $status, $message ) = $c->model('DB')->connect($db, $root_user, $root_password);
+        if ( is_error($status) ) {
+            ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
+        }
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->schema($db, $root_user, $root_password );
@@ -184,15 +187,41 @@ sub test :Path('test') :Args(0) {
     $c->stash->{status_msg} = $message;
 }
 
+=head2 reset_password
+
+Reset the root password
+
+=cut
+
+sub reset_password :Path('reset_password') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = ( HTTP_OK );
+    my $root_user      = $c->request->params->{root_user};
+    my $root_password  = $c->request->params->{root_password_new};
+
+    unless ( $root_user && $root_password ) {
+        ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
+    }
+    if ( is_success($status) ) {
+        ($status, $message) = $c->model('DB')->secureInstallation($root_user, $root_password);
+    }
+    if ( is_error($status) ) {
+        $c->response->status($status);
+    }
+
+    $c->stash->{status_msg} = $message;
+}
+
 =back
 
 =head1 AUTHORS
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
