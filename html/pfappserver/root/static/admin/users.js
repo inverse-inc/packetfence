@@ -1,28 +1,5 @@
 
 function init() {
-    /* Sort the search results */
-    $('#section').on('click', 'thead a', function(event) {
-        var url = $(this).attr('href');
-        var section = $('#section');
-        var loader = section.prev('.loader');
-        loader.show();
-        section.fadeTo('fast', 0.5);
-        $.ajax(url)
-        .always(function() {
-            loader.hide();
-            section.stop();
-            section.fadeTo('fast', 1.0);
-        })
-        .done(function(data) {
-            section.html(data);
-        })
-        .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showPermanentError(section, status_msg);
-        });
-
-        return false;
-    });
 
     /* View a user (show the modal editor) */
     $('#section').on('click', '[href*="#modalUser"]', function(event) {
@@ -187,7 +164,7 @@ function init() {
         updateAction(type);
     });
 
-    $(window).hashchange(pfOnHashChange(updateSection,'/user/'));
+    $(window).hashchange(pfOnHashChange(updateSection,'/user'));
 
     $(window).hashchange();
 }

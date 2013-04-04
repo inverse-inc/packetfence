@@ -1,9 +1,9 @@
 [% MACRO header(column, title) BLOCK -%]
 [% params = { by => column, filter => filter };
     IF by == column && direction == 'asc';
-      params.direction = 'desc';
+      new_direction = 'desc';
     END %]
-                  <th><a href="#[% pagination_path('user/simple_search', params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+      <th><a href="[% c.pf_hash_for(c.controller('User').action_for('simple_search'),'filter', filter, 'by', column, 'direction', new_direction) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>[% l('Results') %]</h2>
 [% INCLUDE pagination.inc section = 'user/simple_search' IF items.size > 0 %]
