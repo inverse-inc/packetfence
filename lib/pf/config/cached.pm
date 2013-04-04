@@ -37,11 +37,9 @@ use overload "%{}" => \&config, fallback => 1;
 
 our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
 
-=head2 Methods
+=head1 Methods
 
-=over
-
-=item new
+=head2 new
 
 Creates a new pf::config::cached
 
@@ -82,7 +80,7 @@ sub new {
     return $self;
 }
 
-=item config
+=head2 config
 
 access for the proxied Config::IniFiles object
 
@@ -90,7 +88,7 @@ access for the proxied Config::IniFiles object
 
 sub config { ${$_[0]}}
 
-=item RewriteConfig
+=head2 RewriteConfig
 
 =cut
 
@@ -114,7 +112,7 @@ sub RewriteConfig {
     return $result;
 }
 
-=item _callReloadedCallbacks
+=head2 _callReloadedCallbacks
 
 call all the reloaded callbacks
 
@@ -127,7 +125,7 @@ sub _callReloadedCallback {
 }
 
 
-=item removeDefaultValues
+=head2 removeDefaultValues
 
 =cut
 
@@ -151,7 +149,7 @@ sub removeDefaultValues {
     }
 }
 
-=item lock_file_for_writing
+=head2 lock_file_for_writing
 
 =cut
 
@@ -163,19 +161,19 @@ sub lock_file_for_writing {
     return $fh;
 }
 
-=item lock_file_for_reading
+=head2 lock_file_for_reading
 
 =cut
 
 sub lock_file_for_reading {
     my ($file) = @_;
     my $fh;
-    open($fh,"<",$file) or die "cannot open $file";
+    open($fh,"+>>",$file) or die "cannot open $file";
     flock($fh, LOCK_SH);
     return $fh;
 }
 
-=item unlock_filehandle
+=head2 unlock_filehandle
 
 =cut
 
@@ -186,7 +184,7 @@ sub unlock_filehandle {
 }
 
 
-=item ReadConfig
+=head2 ReadConfig
 
 Will reload the config when changed on the filesystem and call any register callbacks
 
@@ -224,7 +222,7 @@ sub ReadConfig {
     return $result;
 }
 
-=item TIEHASH
+=head2 TIEHASH
 
 Creating a tied pf::config::cached object
 
@@ -244,7 +242,7 @@ sub TIEHASH {
     return $object;
 }
 
-=item AUTOLOAD
+=head2 AUTOLOAD
 
 Will proxy all unknown functions to Config::IniFiles
 
@@ -265,7 +263,7 @@ sub AUTOLOAD {
     die "$command not found";
 }
 
-=item computeFromPath
+=head2 computeFromPath
 
 Will load the Config::IniFiles object from cache or filesystem and update the cache
 
@@ -282,7 +280,7 @@ sub computeFromPath {
     );
 }
 
-=item cache - get the global CHI object
+=head2 cache - get the global CHI object
 
 =cut
 
@@ -294,7 +292,7 @@ sub cache {
     return $CACHE;
 }
 
-=item _cache
+=head2 _cache
 
 builds the CHI object
 
@@ -304,7 +302,7 @@ sub _cache {
     return CHI->new(_buildCHIArgs());
 }
 
-=item _expireIf
+=head2 _expireIf
 
 check to see if the config file needs to be reread
 
@@ -316,7 +314,7 @@ sub _expireIf {
     return -e $file &&  ($cache_object->created_at < getModTimestamp($file));
 }
 
-=item getModTimestamp
+=head2 getModTimestamp
 
 simple util function for getting the modification timestamp
 
@@ -327,7 +325,7 @@ sub getModTimestamp {
 }
 
 
-=item ReloadConfigs
+=head2 ReloadConfigs
 
 ReloadConfigs reload all configs and call any register callbacks
 
@@ -347,7 +345,7 @@ sub ReloadConfigs {
 }
 
 
-=item addReloadCallback
+=head2 addReloadCallback
 
 Add callbacks config have been reloaded
 
@@ -360,7 +358,7 @@ sub addReloadCallback {
     push @{$ON_RELOAD{$file}}, grep { ref($_) eq 'CODE' } @callbacks;
 }
 
-=item AddGlobalReloadCallback
+=head2 AddGlobalReloadCallback
 
 Add global callbacks when configs have been reloaded
 
@@ -372,7 +370,7 @@ sub AddGlobalReloadCallback {
 }
 
 
-=item DESTROY
+=head2 DESTROY
 
 to avoid AUTOLOAD being called on object destruction
 
@@ -381,7 +379,7 @@ to avoid AUTOLOAD being called on object destruction
 sub DESTROY {}
 
 
-=item isa
+=head2 isa
 
 Fake being a Config::IniFiles
 
@@ -395,7 +393,7 @@ sub isa {
     return $proto->SUPER::isa($arg);
 }
 
-=item toHash
+=head2 toHash
 
 Copy configuration to hash
 
@@ -413,7 +411,7 @@ sub toHash {
     }
 }
 
-=item cleanupWhitespace
+=head2 cleanupWhitespace
 
 Clean up whitespace is a utility function for cleaning up whitespaces for hashes
 
@@ -428,7 +426,7 @@ sub cleanupWhitespace {
     }
 }
 
-=item _buildCHIArgs
+=head2 _buildCHIArgs
 
 =cut
 
@@ -453,7 +451,40 @@ sub _extractCHIArgs {
     return \%args;
 }
 
-=back
+=head2 RenameSection ( $old_section_name, $new_section_name)
+
+Renames a section is it does not exists already
+
+=cut
+
+sub RenameSection {
+    my $self = shift;
+    my $old_sect = shift;
+    my $new_sect = shift;
+
+    return undef if not defined $old_sect or not defined $new_sect;
+
+    if ( $self->SectionExists($new_sect))
+    {
+        return;
+    }
+
+    $self->_caseify(\$new_sect);
+    $self->_AddSection_Helper($new_sect);
+    $self->_caseify(\$old_sect);
+
+    # This is done the fast way, change if data structure changes!!
+    foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
+        $self->{$key}{$new_sect} = delete $self->{$key}{$old_sect};
+    }
+
+    $self->{sects} = [grep {$_ ne $old_sect} @{$self->{sects}}];
+    $self->_touch_section($old_sect);
+
+    $self->RemoveGroupMember($old_sect);
+
+    return 1;
+} # end RenameSection
 
 =head1 AUTHOR
 
