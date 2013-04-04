@@ -23,6 +23,8 @@ use CHI::Driver::RawMemory;
 use Config::IniFiles;
 use Scalar::Util qw(refaddr);
 use Fcntl qw(:flock);
+use Storable;
+
 
 
 our $CACHE;
@@ -102,12 +104,51 @@ sub RewriteConfig {
         die "Config $file was modified from last loading";
     }
     my $fh = lock_file_for_writing($file);
+    $self->removeDefaultValues();
     my $result = $config->WriteConfig($file, -delta => exists $config->{imported});
     unlock_filehandle($fh);
     if($result) {
         $cache->set($file,$config);
+        $self->_callReloadedCallback();
     }
     return $result;
+}
+
+=item _callReloadedCallbacks
+
+call all the reloaded callbacks
+
+=cut
+
+sub _callReloadedCallback {
+    my ($self) = @_;
+    local $_;
+    $_->($self) foreach (@{$ON_RELOAD{$self->GetFileName}});
+}
+
+
+=item removeDefaultValues
+
+=cut
+
+sub removeDefaultValues {
+    my ($self) = @_;
+    my $config = $self->config;
+    if (exists $config->{imported} && defined $config->{imported}) {
+        my $imported = $config->{imported};
+        foreach my $section ( $config->Sections ) {
+            next if ( !$imported->SectionExists($section) );
+            foreach my $parameter ( $config->Parameters($section) ) {
+                next if ( !$imported->exists($section, $parameter) );
+                my $config_val = $config->val($section, $parameter);
+                my $default_val = $imported->val($section, $parameter);
+                if ( $config_val eq $default_val  ) {
+                    $config_val->delval($section, $parameter);
+                }
+            }
+
+        }
+    }
 }
 
 =item lock_file_for_writing
@@ -176,8 +217,7 @@ sub ReadConfig {
         $reloaded_from_cache = 1;
     }
     if($reloaded) {
-        local $_;
-        $_->($self) foreach (@{$ON_RELOAD{$file}});
+        $self->_callReloadedCallback();
     }
     $RELOADED{$file} = $reloaded;
     $RELOADED_FROM_CACHE{$file} = $reloaded_from_cache;
