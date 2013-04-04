@@ -132,7 +132,14 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $form = $form_type->new(ctx => $c, init_object => $c->stash->{source});
+        my %obj = ();
+        if ($c->stash->{source_id}) {
+            my @attrs = $c->stash->{source}->meta->get_all_attributes();
+            foreach my $attr (@attrs) {
+                $obj{$attr->name} = $c->stash->{source}->{$attr->name};
+            }
+        }
+        $form = $form_type->new(ctx => $c, init_object => \%obj);
         $form->process();
         $c->stash->{form} = $form;
         $c->stash->{template} = 'authentication/source/read.tt' unless ($c->stash->{template});
