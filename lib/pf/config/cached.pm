@@ -141,7 +141,7 @@ sub removeDefaultValues {
                 my $config_val = $config->val($section, $parameter);
                 my $default_val = $imported->val($section, $parameter);
                 if ( $config_val eq $default_val  ) {
-                    $config_val->delval($section, $parameter);
+                    $config->delval($section, $parameter);
                 }
             }
 
