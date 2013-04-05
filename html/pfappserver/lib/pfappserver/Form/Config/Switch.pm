@@ -335,6 +335,8 @@ has_field 'wsPwd' =>
    label => 'Password',
   );
 
+=head1 METHODS
+
 =head2 options_triggerInline
 
 =cut
@@ -373,7 +375,7 @@ sub field_list {
 
 =head2 update_fields
 
-When editing the default switch, set the VLANs mapping of the base roles required.
+When editing the default switch, set as required the VLANs mapping of the base roles.
 
 =cut
 
@@ -529,7 +531,9 @@ If one of the inline triggers is $ALWAYS, ignore any other trigger.
 
 Make sure the selected switch type supports the selected inline triggers.
 
-Valide the MAC address format of the inline triggers.
+Validate the MAC address format of the inline triggers.
+
+Validate the list of uplink ports.
 
 =cut
 
@@ -582,6 +586,12 @@ sub validate {
                  }
              }
          }
+    }
+
+    if ($self->value->{uplink_dynamic} ne 'dynamic') {
+        unless ($self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
+            $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
+        }
     }
 }
 
