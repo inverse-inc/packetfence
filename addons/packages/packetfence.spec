@@ -339,7 +339,6 @@ cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -613,8 +612,6 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%dir                    /usr/local/pf/addons/mrtg
-                        /usr/local/pf/addons/mrtg/*
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/snort
