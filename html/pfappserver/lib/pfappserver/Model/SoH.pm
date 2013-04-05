@@ -22,7 +22,6 @@ use pf::soh;
 
 =head1 METHODS
 
-=over
 
 =head2 exists
 
@@ -93,12 +92,14 @@ sub update {
         if ($filter_ref->{action} eq 'violation' &&
             ($action ne 'violation' || $filter_ref->{vid} != $vid)) {
             # Remove trigger from previous violation
-            ($tstatus, $trigger) = $configViolationsModel->delete_trigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
+            ($tstatus, $trigger) = $configViolationsModel->deleteTrigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
+            $configViolationsModel->rewriteConfig();
         }
         if ($action eq 'violation' &&
             ($filter_ref->{action} ne 'violation' || $filter_ref->{vid} != $vid)) {
             # Add trigger to new violation
-            ($status, $status_msg) = $configViolationsModel->add_trigger($vid, 'soh::' . $filter_ref->{filter_id});
+            ($status, $status_msg) = $configViolationsModel->addTrigger($vid, 'soh::' . $filter_ref->{filter_id});
+            $configViolationsModel->rewriteConfig();
         }
 
         if ($soh->update_filter($filter_ref->{filter_id}, $action, $vid) &&
@@ -131,7 +132,8 @@ sub delete {
         my $soh = pf::soh->new();
         $soh->delete_filter($filter_ref->{filter_id}); # rules will be automatically deleted
         if ($filter_ref->{action} eq 'violation') {
-            ($status, $status_msg) = $configViolationsModel->delete_trigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
+            ($status, $status_msg) = $configViolationsModel->deleteTrigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
+            $configViolationsModel->rewriteConfig();
         }
     };
     if ($@) {
@@ -161,7 +163,8 @@ sub create {
                 $soh->create_rule($id, @$rule);
             }
             if ($action eq 'violation') {
-                ($status, $status_msg) = $configViolationsModel->add_trigger($vid, 'soh::' . $id);
+                ($status, $status_msg) = $configViolationsModel->addTrigger($vid, 'soh::' . $id);
+                $configViolationsModel->rewriteConfig();
             }
         }
         else {
@@ -177,8 +180,6 @@ sub create {
 
     return ($status, $status_msg);
 }
-
-=back
 
 =head1 AUTHOR
 
