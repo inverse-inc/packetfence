@@ -629,6 +629,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
+%config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
