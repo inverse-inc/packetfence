@@ -1,6 +1,6 @@
 <form name="modalEditInterface" class="form-horizontal" action="[% c.uri_for(c.controller('Interface').action_for('update'), [interface]) %]">
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a> 
+    <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% ifname || interface %][% IF vlan %] <span class="label">vlan [% vlan %]</span>[% END %]</h3>
   </div>
   <div class="modal-body">

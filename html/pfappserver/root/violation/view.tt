@@ -1,7 +1,7 @@
 <form name="violation" class="form-horizontal" action="[% action_uri %]">
   [%- IF item %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a> 
+    <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item %]<i>[% l('Violation') %]</i> [% item.desc || item.id %][% ELSE %][% l('New Violation') %][% END %]</h3>
   </div>
 

@@ -3,7 +3,7 @@
 
       <div class="modal fade hide" id="deleteFloatingDevice">
         <div class="modal-header">
-          <a class="close" data-dismiss="modal">×</a>
+          <a class="close" data-dismiss="modal">&times;</a>
           <h3><i>[% l('Delete Floating Device') %]</i> <span></span></h3>
         </div>
         <div class="modal-body">

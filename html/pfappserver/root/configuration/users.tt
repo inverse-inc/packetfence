@@ -2,7 +2,7 @@
 
 <h2>[% l('Create Users')  %]</h2>
 [% IF error %]<div class="alert alert-error">
-  <button class="close" data-dismiss="alert">×</button>
+  <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
 <p>[% l('Create local users that trigger specific actions.') %]</p>

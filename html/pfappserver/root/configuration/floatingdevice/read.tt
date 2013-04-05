@@ -1,7 +1,7 @@
 <form name="modalFloatingDevice" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
   [%- IF item %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a>
+    <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item %]<i>[% l('Floating Device') %]</i> [% item.id %][% ELSE %][% l('New Floating Device') %][% END %]</h3>
   </div>
 

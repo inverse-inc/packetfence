@@ -1,3 +1,5 @@
+"use strict";
+
 /*
  * The Interfaces class defines the operations available from the controller.
  */

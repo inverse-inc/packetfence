@@ -2,7 +2,7 @@
 
 <form name="rule" class="form form-horizontal" method="post" action="[% action_uri %]">
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a>
+    <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF rule %]<i>[% l('Rule') %]</i> [% form.field('id').value %][% ELSE %][% l('New Rule') %][% END %]</h3>
   </div>
   <div class="modal-body">

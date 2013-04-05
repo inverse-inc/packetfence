@@ -33,7 +33,7 @@ dd.aup {
         <div class="span8 offset2">
           <h1>[% l('Access Code') %]</h1>
           <div class="alert alert-warn">
-            <button class="close" data-dismiss="alert">×</button>
+            <button class="close" data-dismiss="alert">&times;</button>
             <h4>[% l('Warning!') %]</h4>
             <p>[% l('Each account will be printed on a single page with the acceptable user policy.') %]</p>
             <p><a class="btn btn-warning" onClick="window.print()">[% l('Print') %]</a></p>

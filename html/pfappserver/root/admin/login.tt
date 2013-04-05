@@ -7,7 +7,7 @@
           <h2>[% l('Admin Login') %]</h2>
 [% IF status_msg %]
           <div class="alert alert-warning">
-            <button class="close" data-dismiss="alert-success">×</button>
+            <button class="close" data-dismiss="alert-success">&times;</button>
             <strong>Warning!</strong> <span>[% status_msg %]</span>
           </div>
 [% END %]

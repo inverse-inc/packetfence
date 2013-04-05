@@ -1,6 +1,6 @@
 <div class="modal fade hide" id="deleteSource">
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a>
+    <a class="close" data-dismiss="modal">&times;</a>
     <h3><i>[% l('Delete Source') %]</i> <span></span></h3>
   </div>
   <div class="modal-body">
@@ -14,13 +14,13 @@
 
 <h2>[% l('Users Sources')  %]</h2>
 [% IF error %]<div class="alert alert-error">
-  <button class="close" data-dismiss="alert">×</button>
+  <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
 <p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
-  <button class="close" data-dismiss="alert">×</button>
+  <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Success!') %]</strong> [% message %]
 </div>[% END -%]
 

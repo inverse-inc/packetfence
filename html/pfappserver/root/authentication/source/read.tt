@@ -8,7 +8,7 @@
 <h3>[% IF source.id %][% source.id %][% ELSE %][% l('New Source') %][% END %] <small>[% source.type %]</small></h3>
 
     [% IF message %]<div class="alert alert-success">
-      <button class="close" data-dismiss="alert">×</button>
+      <button class="close" data-dismiss="alert">&times;</button>
       <strong>[% l('Success!') %]</strong> [% message %]
     </div>[% END -%]
 

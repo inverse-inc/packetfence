@@ -67,7 +67,7 @@
             </fieldset>
           </form>
           <div id="serviceErrors" class="alert alert-danger"[% UNLESS error %] style="display: none;"[% END %]>
-            <button class="close" data-dismiss="alert">×</button>
+            <button class="close" data-dismiss="alert">&times;</button>
             <strong>Console Output</strong>
             <pre>[% error %]</pre>
           </div>

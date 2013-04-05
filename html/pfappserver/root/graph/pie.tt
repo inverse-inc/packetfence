@@ -46,7 +46,7 @@ graphs.charts['[% id %]'] = {
 </div>
 [%- ELSE %]
 <div class="alert alert-block">
-  <a class="close" data-dismiss="alert" href="#">×</a>
+  <a class="close" data-dismiss="alert" href="#">&times;</a>
   <h4 class="alert-heading">[% l("What's going on?") %]</h4>
   [% l("There's not enough data to generate this graph. Is PacketFence in production?") %]
 </div>

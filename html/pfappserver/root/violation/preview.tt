@@ -1,5 +1,5 @@
   <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a> 
+    <a class="close" data-dismiss="modal">&times;</a>
     <h3><i>[% l('Violation') %]</i> [% violation.desc || violation.id %]</h3>
   </div>
 
