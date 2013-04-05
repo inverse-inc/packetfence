@@ -94,6 +94,7 @@ sub config { ${$_[0]}}
 
 sub RewriteConfig {
     my ($self) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $config = $self->config;
     my $file = $config->GetFileName;
     my $cache = $self->cache;
@@ -101,10 +102,27 @@ sub RewriteConfig {
     if($cached_object && _expireIf($cached_object)) {
         die "Config $file was modified from last loading";
     }
-    my $fh = lockFileForWriting($file);
-    $self->removeDefaultValues();
-    my $result = $config->WriteConfig($file);
-    unlockFilehandle($fh);
+    my $result;
+    if ( $config->{imported} && defined $config->{imported}) {
+        my $fh = lockFileForWriting($file);
+        #localizing for saving only what is in
+        local $config->{v} = Config::IniFiles::_deepcopy($config->{v});
+        local $config->{sCMT} = Config::IniFiles::_deepcopy($config->{sCMT});
+        local $config->{pCMT} = Config::IniFiles::_deepcopy($config->{pCMT});
+        local $config->{EOT} = Config::IniFiles::_deepcopy($config->{EOT});
+        local $config->{parms} = Config::IniFiles::_deepcopy($config->{parms});
+        local $config->{myparms} = Config::IniFiles::_deepcopy($config->{myparms});
+        local $config->{sects} = Config::IniFiles::_deepcopy($config->{sects});
+        local $config->{group} = Config::IniFiles::_deepcopy($config->{group});
+        local $config->{mysects} = Config::IniFiles::_deepcopy($config->{mysects});
+        $self->removeDefaultValues();
+        $result = $config->WriteConfig($file);
+        unlockFilehandle($fh);
+    } else {
+        my $fh = lockFileForWriting($file);
+        $result = $config->WriteConfig($file);
+        unlockFilehandle($fh);
+    }
     if($result) {
         $cache->set($file,$config);
         $self->_callReloadedCallback();
@@ -144,7 +162,9 @@ sub removeDefaultValues {
                     $config->delval($section, $parameter);
                 }
             }
-
+            if ($config->Parameters($section) == 0) {
+                $config->DeleteSection($section);
+            }
         }
     }
 }

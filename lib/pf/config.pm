@@ -457,7 +457,6 @@ sub readPfConfigFiles {
             -file   => $config_file,
             -import => $cached_pf_default_config,
             -allowempty => 1,
-            -negativedeltas => 0
         );
     } else {
         die ("No configuration files present.");
