@@ -145,9 +145,9 @@ Clean up violation
 =cut
 
 sub cleanupAfterRead {
-    my ( $self,$id, $violation ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $self->expand_list($violation,qw(actions trigger));
+    my ($self, $id, $violation) = @_;
+
+    $self->expand_list($violation, qw(actions trigger whitelisted_categories));
     if ( exists $violation->{window} ) {
         $violation->{'window_dynamic'} = $violation->{window};
     }
@@ -160,8 +160,9 @@ Clean data before update or creating
 =cut
 
 sub cleanupBeforeCommit {
-    my ( $self, $id, $violation ) = @_;
-    $self->flatten_list($violation,qw(actions trigger));
+    my ($self, $id, $violation) = @_;
+
+    $self->flatten_list($violation, qw(actions trigger whitelisted_categories));
 
     if ($violation->{'window_dynamic'}) {
         $violation->{'window'} = 'dynamic';

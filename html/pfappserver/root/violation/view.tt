@@ -29,12 +29,7 @@
 
         [% form.field('priority').render %]
 
-        <div class="control-group">
-          <label class="control-label" for="whitelisted_categories">[% l('Whitelisted Categories') %]</label>
-          <div class="controls">
-            <p class="help-inline">Nodes in the selected categories won't be affected by a violation of this type.</p>
-          </div>
-        </div>
+        [% form.field('whitelisted_categories').render %]
 
       </div><!-- tab-pane -->
 

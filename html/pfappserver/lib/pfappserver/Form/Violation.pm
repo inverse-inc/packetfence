@@ -14,6 +14,8 @@ use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
 with 'pfappserver::Form::Widget::Theme::Pf';
 
+use HTTP::Status qw(:constants is_success);
+
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
@@ -73,6 +75,16 @@ has_field 'priority' =>
    range_end => 10,
    tags => { after_element => \&help,
              help => 'Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.' },
+  );
+has_field 'whitelisted_categories' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Whitelisted Roles',
+   element_class => ['chzn-select', 'input-xxlarge'],
+   element_attr => {'data-placeholder' => 'Click to add a role'},
+   tags => { after_element => \&help,
+             help => 'Nodes with the selected roles won\'t be affected by a violation of this type.' },
   );
 has_field 'trigger' =>
   (
@@ -186,6 +198,26 @@ sub options_vclose {
     my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->violations} if ($self->violations);
 
     return ('' => '', @violations);
+}
+
+=head2 options_whitelisted_categories
+
+Populate the select field for the whitelisted roles.
+
+=cut
+
+sub options_whitelisted_categories {
+    my $self = shift;
+
+    my @roles;
+
+    # Build a list of existing roles
+    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    if (is_success($status)) {
+        @roles = map { $_->{name} => $_->{name} } @$result;
+    }
+
+    return @roles;
 }
 
 =head2 options_trigger
