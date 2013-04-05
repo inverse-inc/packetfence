@@ -60,9 +60,11 @@ our (
     $dhcp_fingerprints_file, $dhcp_fingerprints_url,
 #oui.txt variables
     $oui_file, $oui_url,
+#profiles.conf variables
+    $profiles_config_file, %Profiles_Config, $cached_profiles_config,
 #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
-    $chi_config_file, $profiles_config_file, $ui_config_file, @stored_config_files,
+    $chi_config_file, $ui_config_file, @stored_config_files,
 
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
@@ -111,7 +113,7 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-        $profiles_config_file
+        $profiles_config_file %Profiles_Config $cached_profiles_config
         $switches_config_file
         $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config $authentication_config_file
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
@@ -361,6 +363,7 @@ multi-threaded daemons.
 
 sub init_config {
     readPfDocConfigFiles();
+    readProfileConfigFile();
     readPfConfigFiles();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
@@ -552,23 +555,6 @@ sub readPfConfigFiles {
         $guest_self_registration{'enabled'} = isenabled($Config{'registration'}{'guests_self_registration'}) ? $TRUE : $FALSE;
         _set_guest_self_registration($modes);
 
-        # check for portal profile guest self registration options in case they're disabled in default profile
-        foreach my $portalprofile ( $cached_pf_config->GroupMembers("portal-profile") ) {
-            # marking guest_self_registration as globally enabled if needed by one of the portal profiles
-            if ( isenabled($Config{$portalprofile}{'guest_self_reg'}) ) {
-                $guest_self_registration{'enabled'} = $TRUE;
-            }
-
-            # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
-            # no auth method == guest self registration
-            if ( !defined($Config{$portalprofile}{'auth'}) ) {
-                $guest_self_registration{'enabled'} = $TRUE;
-            }
-
-            # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
-            my $guest_modes = $Config{$portalprofile}{'guest_modes'};
-            _set_guest_self_registration($guest_modes) if ( defined $guest_modes );
-        }
         _load_captive_portal();
     };
 
@@ -596,6 +582,39 @@ sub _set_guest_self_registration {
         $guest_self_registration{$mode} = $TRUE
             if is_in_list( $mode,$modes);
     }
+}
+
+sub readProfileConfigFile {
+    $cached_profiles_config = pf::config::cached->new(
+            -file => $profiles_config_file,
+            -allowempty => 1,
+    );
+    my $callback = sub {
+        my ($config) = @_;
+        $config->toHash(\%Profiles_Config);
+        $config->cleanupWhitespace(\%Profiles_Config);
+        # check for portal profile guest self registration options in case they're disabled in default profile
+        $guest_self_registration{'enabled'} = $FALSE;
+        # check for portal profile guest self registration options in case they're disabled in default profile
+        foreach my $portalprofile ( $config->Sections) {
+            # marking guest_self_registration as globally enabled if needed by one of the portal profiles
+            if ( isenabled($Profiles_Config{$portalprofile}{'guest_self_reg'}) ) {
+                $guest_self_registration{'enabled'} = $TRUE;
+            }
+
+            # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
+            # no auth method == guest self registration
+            if ( !defined($Profiles_Config{$portalprofile}{'auth'}) ) {
+                $guest_self_registration{'enabled'} = $TRUE;
+            }
+
+            # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
+            my $guest_modes = $Profiles_Config{$portalprofile}{'guest_modes'};
+            _set_guest_self_registration($guest_modes) if ( defined $guest_modes );
+        }
+    };
+    $callback->($cached_profiles_config);
+    $cached_profiles_config->addReloadCallback($callback);
 }
 
 =item readNetworkConfigFiles - networks.conf

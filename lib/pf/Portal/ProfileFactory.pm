@@ -46,15 +46,14 @@ sub instantiate {
     #     reload in there in the future
     # XXX also take the given mac and lookup the SSID on it and return proper
     #     portal object
-    if (defined($cached_pf_config->GroupMembers("portal-profile"))) {
+    my @portal_profiles = $cached_profiles_config->Sections;
+    if (@portal_profiles) {
         # Fetch filter for every configured portal-profiles
         # Structure: FILTER => NAME OF PROFILE
         my %filters;
-        foreach my $portalprofile ( $cached_pf_config->GroupMembers("portal-profile") ) {
-            my $profile = $portalprofile;
-            $profile =~ s/portal-profile //;
-            $filters{$Config{$portalprofile}{'filter'}} = $profile;
-         }
+        foreach my $portalprofile ( @portal_profiles) {
+            $filters{$Profiles_Config{$portalprofile}{'filter'}} = $portalprofile;
+        }
         # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
         # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
         my $node_info = node_view($mac);
@@ -85,7 +84,7 @@ sub _default_profile {
 sub _custom_profile {
     my ($name) = @_;
     my $defaults = _default_profile();
-    my $profile = $Config{"portal-profile $name"};
+    my $profile = $Profiles_Config{$name};
     my %results = (
         'name' => $name,
         'template_path' => $name,
@@ -98,7 +97,7 @@ sub _custom_profile {
 
 sub getCustomProfile {
     my ($self,$name) = @_;
-    if (exists $Config{"portal-profile $name"}) {
+    if (exists $Profiles_Config{$name}) {
         return pf::Portal::Profile->new(_custom_profile($name));
     }
     return undef;
@@ -106,15 +105,14 @@ sub getCustomProfile {
 
 sub deleteCustomProfile {
     my ($self,$name) = @_;
-    my $section = "portal-profile $name";
-    if (exists $Config{$section}) {
-        $cached_pf_config->DeleteSection($section);
+    if (exists $Profiles_Config{$name}) {
+        $cached_profiles_config->DeleteSection($name);
+        $cached_profiles_config->RewriteConfig;
     }
 }
 
 sub getAllCustomProfiles {
-     return map { s/portal-profile //; pf::Portal::Profile->new(_custom_profile($_))  }
-            $cached_pf_config->GroupMembers("portal-profile");
+     return keys %Profiles_Config;
 }
 
 =back
