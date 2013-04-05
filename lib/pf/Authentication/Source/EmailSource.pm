@@ -15,7 +15,8 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
-has '+type' => ( default => 'Email' );
+has '+type' => (default => 'Email');
+has '+unique' => (default => 1);
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'allow_localdomain' => (isa => 'Bool', is => 'rw', default => 1);
 

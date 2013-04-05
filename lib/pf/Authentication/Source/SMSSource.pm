@@ -15,7 +15,8 @@ use Moose;
 extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
-has '+type' => ( default => 'SMS' );
+has '+type' => (default => 'SMS');
+has '+unique' => (default => 1);
 has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw');
 
 =head1 METHODS
@@ -31,7 +32,7 @@ around BUILDARGS => sub {
     my $class = shift;
     my $attrs = shift;
 
-    if (ref $attrs) {
+    if (ref $attrs && $attrs->{sms_carriers}) {
         my @carriers = split(/\s*,\s*/, $attrs->{sms_carriers});
         $attrs->{sms_carriers} = \@carriers;
     }
