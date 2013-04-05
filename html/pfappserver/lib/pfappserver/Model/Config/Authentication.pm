@@ -39,13 +39,13 @@ sub create {
 
 =back
 
-=head1 AUTHORS
+=head1 AUTHOR
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

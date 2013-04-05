@@ -180,11 +180,11 @@ sub service_start {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -24,11 +24,11 @@ L<pfappserver>
 
 =head1 AUTHOR
 
-Francis Lachapelle <flachapelle@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

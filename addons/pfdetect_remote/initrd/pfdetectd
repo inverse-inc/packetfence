@@ -2,7 +2,7 @@
 #
 # Init script for PacketFence remote Snort sensor
 #
-# Written by Dominik Gehl <dgehl@inverse.ca>
+# Written by Inverse inc. <info@inverse.ca>
 #
 # chkconfig: - 35 65
 # description: PacketFence remote Snort sensor
