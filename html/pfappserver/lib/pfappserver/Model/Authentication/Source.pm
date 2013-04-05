@@ -42,7 +42,8 @@ sub update {
     # Update attributes
     foreach my $attr ($source_obj->meta->get_all_attributes()) {
         $attr = $attr->name;
-        unless ($attr eq 'rules' || $attr eq 'type' || $attr eq 'unique') {
+        # Some attributes don't have to be written to disk
+        unless (grep { $_ eq $attr } qw[rules type unique class]) {
             $source_obj->$attr($def_ref->{$attr});
         }
     }
