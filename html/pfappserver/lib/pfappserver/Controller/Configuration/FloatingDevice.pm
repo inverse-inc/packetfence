@@ -112,18 +112,6 @@ after view => sub {
     }
 };
 
-=item read
-
-Usage: /configuration/floatingdevice/<floatingdevice>/read
-
-=cut
-
-sub read :Chained('object') :PathPart('read') :Args(0) {
-    my ($self, $c) = @_;
-
-    $c->forward('view');
-}
-
 =item index
 
 Usage: /configuration/floatingdevice/
