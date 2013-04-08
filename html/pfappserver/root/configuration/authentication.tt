@@ -35,14 +35,15 @@
       </tr>
     </thead>
     <tbody>
-      [% FOREACH source IN form.field('sources').fields %]
+      [% i = 0 ; FOREACH source IN form.field('sources').fields %]
       [% IF source.field('class').value == 'internal' %]
+      [% is_sql = (source.field('type').value == 'SQL') %]
       <tr>
-        <td class="sort-handle">[% loop.index + 1 %]</td>
-        <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
+        <td class="sort-handle">[% i = i + 1 ; i %]</td>
+        <td>([% source.field('active').value %]) [% source.field('id').render_element %][% IF is_sql %][% source.field('id').value %][% ELSE %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a>[% END %]</td>
         <td>[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
-        <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
+        <td>[% UNLESS is_sql %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>[% END %]</td>
       </tr>
       [% END -%]
       [% END -%]
