@@ -92,7 +92,7 @@ after [qw(update remove)] => sub {
 after create => sub {
     my ($self, $c) = @_;
     if(!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'configuration/floatingdevice/read.tt';
+        $c->stash->{template} = 'configuration/floatingdevice/view.tt';
     }
 };
 
