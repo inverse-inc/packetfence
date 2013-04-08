@@ -272,7 +272,7 @@ sub generate_scan_start_page {
 sub generate_login_page {
     my ( $portalSession, $err ) = @_;
 
-    #Signup link activated if self_reg is enabled AND we have at least 1 proper mode activated
+    # Activate signup link if self_reg is enabled and we have at least one proper mode enabled
     if (isenabled($portalSession->getProfile->getGuestSelfReg) &&
        ( is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ||
          is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ||
@@ -284,12 +284,16 @@ sub generate_login_page {
 
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
-    # return login
+    # Return login
     $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
-    # authentication
-    $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    $portalSession->stash->{'oauth2_github'} = $guest_self_registration{$SELFREG_MODE_GITHUB};
+
+    # External authentication
+    $portalSession->stash->{'oauth2_google'}
+      = is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_facebook'}
+      = is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_github'}
+      = is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes);
 
     render_template($portalSession, $LOGIN_TEMPLATE);
 }

@@ -980,7 +980,7 @@ Make sure that portal profiles, if defined, have a filter and no unsupported par
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
+    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
 
@@ -1002,19 +1002,22 @@ Make sure that if you enable OAuth2 for Google/Facebook that you have the provid
 
 sub oauth2 {
 
+    my $google_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
     if ($guest_self_registration{$SELFREG_MODE_GOOGLE}) {
           add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Google" )
-            if ( !defined($Config{"oauth2 google"}) );
+            if ( !defined(pf::authentication::getAuthenticationSourceByType($google_type)) );
     }
 
+    my $facebook_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
     if ($guest_self_registration{$SELFREG_MODE_FACEBOOK}) {
          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Facebook" )
-        if ( !defined($Config{"oauth2 facebook"}) );
+        if ( !defined(pf::authentication::getAuthenticationSourceByType($facebook_type)) );
     }
 
+    my $github_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
     if ($guest_self_registration{$SELFREG_MODE_GITHUB}) {
          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to GitHub" )
-        if ( !defined($Config{"oauth2 github"}) );
+        if ( !defined(pf::authentication::getAuthenticationSourceByType($github_type)) );
     }
 }
 

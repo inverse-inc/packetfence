@@ -179,11 +179,15 @@ sub validate_selfregistration {
         return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
     }
 
-    my $localdomain = $Config{'general'}{'domain'};
-    unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
-        # You should not register as a guest if you are part of the local network
-        if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-            return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
+    my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+    my $source = &pf::authentication::getAuthenticationSourceByType($email_type);
+    if ($source) {
+        unless (isenabled($source->{allow_localdomain})) {
+            # You should not register as a guest if you are part of the local network
+            my $localdomain = $Config{'general'}{'domain'};
+            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+                return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
+            }
         }
     }
 

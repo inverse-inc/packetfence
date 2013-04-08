@@ -35,6 +35,7 @@ Log::Log4perl::MDC->put('tid', 0);
 my $portalSession = pf::Portal::Session->new();
 my $cgi = $portalSession->getCgi();
 my $node_mac = undef;
+my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
 
 if (defined($cgi->url_param('code'))) {
 
@@ -63,16 +64,16 @@ if (defined($cgi->url_param('code'))) {
             my $pid = $activation_record->{'pid'};
             
             # Setting access timeout and role (category) dynamically
-            my $expiration = &pf::authentication::match("email", {username => $pid}, $Actions::SET_UNREG_DATE);
-            my $category = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ROLE);
+            my $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            my $category = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
 
             $logger->debug("Determined unregdate $expiration and category $category for pid $pid");
 
             # change the unregdate of the node associated with the submitted code
             # FIXME
             node_modify($node_mac, (
-                'unregdate' => $expiration, 
-                'status' => 'reg', 
+                'unregdate' => $expiration,
+                'status' => 'reg',
                 'category' => $category,
             ));
 
@@ -94,15 +95,13 @@ if (defined($cgi->url_param('code'))) {
             $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
             # we create temporary password with default expiration / arrival date and access duration from config
-            my $access_duration = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
             
             if (!defined $access_duration) {
                 $access_duration = 0;
             }
 
-            $info{'password'} = pf::temporary_password::generate(
-                $pid, undef, undef, $access_duration
-            );
+            $info{'password'} = pf::temporary_password::generate($pid, undef, undef, $access_duration);
     
             # send on-site guest credentials by email
             pf::web::guest::send_template_email(
@@ -186,8 +185,8 @@ if (defined($cgi->url_param('code'))) {
             }
 
             # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::match("email", {username => $pid}, $Actions::SET_UNREG_DATE);
-            $info{'category'} = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ROLE);
+            $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
     
             $logger->debug("Determined unregdate $info{'unregdate'} and category $info{'category'} for pid $pid");
 
@@ -217,12 +216,12 @@ if (defined($cgi->url_param('code'))) {
         $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
         # we create temporary password with default expiration / arrival date and access duration from config
         # TODO sponsor could control these (but current feature sponsor doesn't need the feature)
-        my $access_duration = &pf::authentication::match("email", {username => $pid}, $Actions::SET_ACCESS_DURATION);
-        
+        my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+
         if (!defined $access_duration) {
             $access_duration = 0;
         }
-        
+
         $info{'password'} = pf::temporary_password::generate(
             $pid, undef, undef,
             $access_duration

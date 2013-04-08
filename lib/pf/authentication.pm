@@ -329,6 +329,17 @@ sub getAuthenticationSource {
     return $result;
 }
 
+sub getAuthenticationSourceByType {
+    my $type = shift;
+
+    my $result;
+    if ($type) {
+        $result = first {$_->{type} eq $type} @authentication_sources;
+    }
+
+    return $result;
+}
+
 =item deleteAuthenticationSource
 
 Delete an authentication source along its rules. Returns the number of source(s)
@@ -446,33 +457,53 @@ If action is set, it'll return the value of the action immediately.
 =cut
 
 sub match {
-  my ($source_id, $params, $action) = @_;
-  my $actions = undef;
+    my ($source_id, $params, $action) = @_;
+    my $actions;
 
-  foreach my $current_source ( @authentication_sources ) {
-    $logger->info("Matching in source ".ref($current_source));
-    if (defined $source_id && $source_id eq $current_source->id) {
-      $actions = $current_source->match($params);
-      last;
-    } elsif (!defined $source_id) {
-      $actions = $current_source->match($params);
+    foreach my $current_source ( @authentication_sources ) {
+        $logger->info("Matching in source ".ref($current_source));
+        if (defined $source_id && $source_id eq $current_source->id) {
+            $actions = $current_source->match($params);
+            last;
+        } elsif (!defined $source_id) {
+            $actions = $current_source->match($params);
 
-      # First match in a source wins, and we stop looping
-      if (defined $actions) {
-        last;
-      }
-    }
-  }
-
-  if (defined $action && defined $actions) {
-    foreach my $current_action ( @{$actions} ) {
-      if ($current_action->type eq $action) {
-        return $current_action->value;
-      }
+            # First match in a source wins, and we stop looping
+            if (defined $actions) {
+                last;
+            }
+        }
     }
 
-    return undef;
-  }
+    if (defined $action && defined $actions) {
+        foreach my $current_action ( @{$actions} ) {
+            if ($current_action->type eq $action) {
+                return $current_action->value;
+            }
+        }
+        return undef;
+    }
+
+    return $actions;
+}
+
+sub matchByType {
+    my ($type, $params, $action) = @_;
+
+    my $actions;
+    my $source = getAuthenticationSourceByType($type);
+    if ($source) {
+        $actions = $source->match($params);
+    }
+
+    if (defined $action && defined $actions) {
+        foreach my $current_action ( @{$actions} ) {
+            if ($current_action->type eq $action) {
+                return $current_action->value;
+            }
+        }
+        return undef;
+    }
 
   return $actions;
 }
