@@ -603,7 +603,7 @@ sub is_config_documented {
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
         next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
-                  || ($section =~ /^(services|interface|portal-profile|oauth2|nessus_category_policy)/));
+                  || ($section =~ /^(services|interface|oauth2|nessus_category_policy)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
@@ -982,12 +982,12 @@ sub portal_profiles {
 
     my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
 
-    foreach my $portal_profile ( $cached_pf_config->GroupMembers("portal-profile") ) {
+    foreach my $portal_profile ( $cached_profiles_config->Sections) {
 
         add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
-            if ( !defined($Config{$portal_profile}{'filter'}) );
+            if ( !defined($Profiles_Config{$portal_profile}{'filter'}) );
 
-        foreach my $key ( keys %{$Config{$portal_profile}} ) {
+        foreach my $key ( keys %{$Profiles_Config{$portal_profile}} ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
                 if ( $key !~ /$profile_params/ );
         }
