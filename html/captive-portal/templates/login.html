@@ -77,15 +77,15 @@ document.observe("dom:loaded", function() {
           <div class="input">
             [% IF oauth2_google -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=google">Login with Google account <img src="/content/images/google.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=google">[% i18n('Login with Google account') %] <img src="/content/images/google.icon.png"></a>
             [% END -%]
             [% IF oauth2_facebook -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=facebook">Login with Facebook account <img src="/content/images/facebook.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=facebook">[% i18n('Login with Facebook account') %] <img src="/content/images/facebook.icon.png"></a>
             [% END %]
             [% IF oauth2_github -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=github">Login with GitHub account <img src="/content/images/github.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=github">[% i18n('Login with GitHub account') %] <img src="/content/images/github.icon.png"></a>
             [% END %]
           </div>
           [% END %]
