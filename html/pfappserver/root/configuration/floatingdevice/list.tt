@@ -7,8 +7,8 @@
         <tbody>
           [% FOREACH floatingdevice IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('read'), [ floatingdevice.id ]) %]">[% floatingdevice.id %]</a></td>
-            <td>[% floatingdevice.ip %][% IF floatingdevice.switch %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('read'), [ floatingdevice.switch.id ]) %]">[% l('Edit switch') %]</a>[% END %]</td>
+            <td><a href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('view'), [ floatingdevice.id ]) %]">[% floatingdevice.id %]</a></td>
+            <td>[% floatingdevice.ip %][% IF floatingdevice.switch %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('view'), [ floatingdevice.switch.id ]) %]">[% l('Edit switch') %]</a>[% END %]</td>
             <td>[% floatingdevice.pvid %]</td>
             <td>[% IF floatingdevice.trunkPort == 'yes' %]<i class=" icon-ok"></i>[% END %]</td>
             <td>
