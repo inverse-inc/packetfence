@@ -24,6 +24,9 @@ use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
 use pf::web;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Readonly our $GAMING_LOGIN_TEMPLATE   => 'gaming-login.html';
 Readonly our $GAMING_LANDING_TEMPLATE => 'gaming-landing.html';
 Readonly our $GAMING_REGISTRATION_TEMPLATE => 'gaming-registration.html';
@@ -63,25 +66,27 @@ Readonly our @GAMING_OUI => (
 
 
 sub authenticate {
-    my ($portalSession,$cgi, $session, $info,$logger) = @_;
-    my ($auth_return,$err) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
+    my ($portalSession, $info, $logger) = @_;
+    my ($auth_return, $err) = pf::web::web_user_authenticate($portalSession);
     if ($auth_return == 1) {
-        $info->{'category'} = $portalSession->getProfile->getGuestCategory;
-        $session->param(login => $cgi->param('username'));
+        my $pid = $portalSession->getSession->param("username");
+        # Obtain node information provided by authentication module. We need to get the role (category here)
+        # as web_node_register() might not work if we've reached the limit
+        my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
+        $logger->trace("Got role $value for username $pid");
+        $info->{category} = $value if (defined $value);
     }
-    return ( $auth_return, $err );
+    return ($auth_return, $err);
 }
 
 sub generate_login_page {
-    my ( $portalSession, $err ) = @_;
-    _generate_page($portalSession,$GAMING_LOGIN_TEMPLATE,
-        txt_auth_error => ( (defined $err) ? i18n($err) : undef)  ,
+    my ($portalSession, $err) = @_;
+    _generate_page($portalSession, $GAMING_LOGIN_TEMPLATE,
+        txt_auth_error => ( (defined $err) ? i18n($err) : undef ),
         username => encode_entities($portalSession->cgi->param("username")),
-        selected_auth => ( encode_entities($portalSession->cgi->param("auth")) || $portalSession->getProfile->getDefaultAuth),
-        list_authentications => pf::web::auth::list_enabled_auth_types(),
-        oauth2_google => $guest_self_registration{$SELFREG_MODE_GOOGLE},
-        oauth2_facebook => $guest_self_registration{$SELFREG_MODE_FACEBOOK},
-        oauth2_github => $guest_self_registration{$SELFREG_MODE_GITHUB},
+        oauth2_google => is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes),
+        oauth2_facebook => is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes),
+        oauth2_github => is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes),
     );
 }
 

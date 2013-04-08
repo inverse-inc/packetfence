@@ -13,10 +13,9 @@ Handles captive-portal gaming registration
 use strict;
 use warnings;
 
-use CGI;
-use Log::Log4perl;
-
 use lib '/usr/local/pf/lib';
+
+use Log::Log4perl;
 
 use pf::config;
 use pf::Portal::Session;
@@ -51,11 +50,11 @@ foreach my $param($cgi->param()) {
     $params{$param} = $cgi->param($param);
 }
 
-my $pid = $session->param("login");
+my $pid = $session->param("username");
 
 # See if user is trying to login and if is not already authenticated
 if( (!$pid) && ($cgi->param('username') ne '') && ($cgi->param('password') ne '') ) {
-  my ($auth_return, $err) = pf::web::gaming::authenticate($portalSession, $cgi, $session, \%info, $logger);
+  my ($auth_return, $err) = pf::web::gaming::authenticate($portalSession, \%info, $logger);
   if ($auth_return != 1) {
     pf::web::gaming::generate_login_page($portalSession);
   } else {
