@@ -42,6 +42,30 @@ sub remove {
     }
     return $self->SUPER::remove($id);
 }
+=item cleanupAfterRead
+
+Clean up switch data
+
+=cut
+
+sub cleanupAfterRead {
+    my ( $self,$id, $profile ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $self->expand_list($profile, qw(guest_modes));
+}
+
+=item cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ( $self,$id, $profile ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $self->flatten_list($profile, qw(guest_modes));
+
+}
 
 __PACKAGE__->meta->make_immutable;
 
