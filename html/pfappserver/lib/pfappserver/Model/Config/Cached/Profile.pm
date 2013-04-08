@@ -27,10 +27,7 @@ extends 'pfappserver::Base::Model::Config::Cached';
 
 =cut
 
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(-file => $pf::config::profiles_config_file);
-}
+sub _buildCachedConfig { $cached_profiles_config }
 
 =item remove
 

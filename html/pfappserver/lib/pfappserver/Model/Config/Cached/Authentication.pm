@@ -17,20 +17,10 @@ use pf::config;
 
 extends 'pfappserver::Base::Model::Config::Cached';
 
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { pf::config::cache->new(-file => $pf::config::authentication_config_file) }
+has '+configFile' => (default => $pf::config::authentication_config_file);
 
 
 __PACKAGE__->meta->make_immutable;
-
-=back
 
 =head1 AUTHOR
 

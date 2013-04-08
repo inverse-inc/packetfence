@@ -25,20 +25,11 @@ Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    log => 'Log',
                                    trap => 'Trap' };
 
-=head2 Methods
+has '+configFile' => (default => $pf::config::violations_config_file);
 
-=over
+=head1 Methods
 
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(-file => $pf::config::violations_config_file);
-}
-
-=item availableActions
+=head2 availableActions
 
 =cut
 
@@ -48,7 +39,7 @@ sub availableActions {
     return $actions;
 }
 
-=item availableTemplates
+=head2 availableTemplates
 
 Return the list of available remediation templates
 
@@ -63,7 +54,7 @@ sub availableTemplates {
     return \@templates;
 }
 
-=item remove
+=head2 remove
 
 =cut
 
@@ -73,7 +64,7 @@ sub remove {
     return $self->SUPER::remove($id,$violation);
 }
 
-=item listTriggers
+=head2 listTriggers
 
 =cut
 
@@ -95,7 +86,7 @@ sub listTriggers {
 }
 
 
-=item addTrigger
+=head2 addTrigger
 
 =cut
 
@@ -115,7 +106,7 @@ sub addTrigger {
     return ($STATUS::OK, "Successfully added trigger to violation");
 }
 
-=item deleteTrigger
+=head2 deleteTrigger
 
 =cut
 
@@ -138,7 +129,7 @@ sub deleteTrigger {
     return ($STATUS::OK, "Successfully deleted trigger from violation");
 }
 
-=item cleanupAfterRead
+=head2 cleanupAfterRead
 
 Clean up violation
 
@@ -153,7 +144,7 @@ sub cleanupAfterRead {
     }
 }
 
-=item cleanupBeforeCommit
+=head2 cleanupBeforeCommit
 
 Clean data before update or creating
 
@@ -169,8 +160,6 @@ sub cleanupBeforeCommit {
     }
     delete $violation->{'window_dynamic'};
 }
-
-=back
 
 =head1 AUTHOR
 

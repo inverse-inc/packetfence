@@ -38,11 +38,26 @@ has cachedConfig => (
 
 has idKey => ( is=> 'ro', default => 'id');
 
+=item configFile
+
+=cut
+
+has configFile => ( is=> 'ro');
+
 =back
 
 =head2 Methods
 
 =over
+
+=item _buildCachedConfig
+
+=cut
+
+sub _buildCachedConfig {
+    my ($self) = @_;
+    return pf::config::cached->new(-file => $self->configFile,-allowempty => 1);
+}
 
 
 =item readConfig

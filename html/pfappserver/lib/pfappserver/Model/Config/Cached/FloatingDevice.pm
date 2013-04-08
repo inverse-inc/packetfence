@@ -20,18 +20,12 @@ use pf::config;
 
 extends 'pfappserver::Base::Model::Config::Cached';
 
+
+has '+configFile' => (default => $pf::config::floating_devices_config_file);
+
 =head2 Methods
 
 =over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(-file => $pf::config::floating_devices_config_file);
-}
 
 =item search
 

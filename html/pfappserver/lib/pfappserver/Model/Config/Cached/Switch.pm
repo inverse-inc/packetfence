@@ -19,19 +19,11 @@ use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pfappserver::Base::Model::Config::Cached';
 
+has '+configFile' => (default => $pf::config::switches_config_file);
+
 =head2 Methods
 
 =over
-
-=item _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(-file => $switches_config_file);
-}
-
 
 =item cleanupAfterRead
 
