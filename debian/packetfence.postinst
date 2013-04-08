@@ -73,7 +73,8 @@ case "$1" in
         fi
 
         update-rc.d packetfence defaults 60 || exit 0
-        echo "* Reboot your server and after please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+        echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+        echo "* Please stop your iptables service if you don't have access to configurator."
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

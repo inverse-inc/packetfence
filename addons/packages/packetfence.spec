@@ -538,6 +538,7 @@ sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+echo "  * Please stop your iptables service if you don't have access to configurator."
 
 %post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
