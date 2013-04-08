@@ -94,18 +94,6 @@ sub getGuestModes {
 
 *guest_modes = \&getGuestModes;
 
-=item getGuestCategory
-
-Returns the category that should be assigned to guests who self-registers themselves on the current captive portal profile.
-
-=cut
-sub getGuestCategory {
-    my ($self) = @_;
-    return $self->{'_guest_category'};
-}
-
-*guest_category = \&getGuestCategory;
-
 =item getTemplatePath
 
 Returns the path for custom templates for the current captive portal profile.
