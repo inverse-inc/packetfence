@@ -10,14 +10,14 @@ td a.btn { margin-left: 5px; }
           </td>
           <td></td>
           <td>
-            <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[id], dirs.join('/') ) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
+            <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[id], name ) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id %]" class="pull-right"></div>
             <script>
             <!--
                     $('#[% uploader_id %]').fineUploader({
                          request: {
-                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[id],dirs.join('/')) %]',
+                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[id],name) %]',
                            paramsInBody : true
                          },
                          text: {

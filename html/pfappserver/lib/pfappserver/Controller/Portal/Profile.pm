@@ -396,13 +396,12 @@ sub isEditable {
 }
 
 sub _readDirRecursive {
-    my ($path,@subdir) = @_;
+    my ($root_path) = @_;
     my @files;
-    my $root_path = catfile($path,@subdir);
     foreach my $entry (read_dir($root_path)) {
         my $full_path = catfile($root_path,$entry);
         if (-d $full_path) {
-            push @files, map {catfile(@subdir,$entry,$_) } _readDirRecursive($path,@subdir,$entry);
+            push @files, map {catfile($entry,$_) } _readDirRecursive($full_path);
         }
         elsif ($entry !~ m/^\./) {
             push @files, $entry;
