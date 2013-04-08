@@ -62,7 +62,7 @@ sub new {
         $config = $class->computeFromPath(
             $file,
             sub {
-                my $fh = lockFileForReaading($file);
+                my $fh = lockFileForReading($file);
                 my $config = Config::IniFiles->new(%params);
                 unlockFilehandle($fh);
                 return $config;
@@ -181,11 +181,11 @@ sub lockFileForWriting {
     return $fh;
 }
 
-=head2 lockFileForReaading
+=head2 lockFileForReading
 
 =cut
 
-sub lockFileForReaading {
+sub lockFileForReading {
     my ($file) = @_;
     open( my $fh,"<",$file) or die "cannot open $file";
     flock($fh, LOCK_SH);
@@ -222,7 +222,7 @@ sub ReadConfig {
         $file,
         sub {
             #reread files
-            my $fh = lockFileForReaading($file);
+            my $fh = lockFileForReading($file);
             $result = $config->ReadConfig();
             unlockFilehandle($fh);
             $reloaded = 1;
