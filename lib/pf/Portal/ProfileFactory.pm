@@ -95,26 +95,6 @@ sub _custom_profile {
     return \%results;
 }
 
-sub getCustomProfile {
-    my ($self,$name) = @_;
-    if (exists $Profiles_Config{$name}) {
-        return pf::Portal::Profile->new(_custom_profile($name));
-    }
-    return undef;
-}
-
-sub deleteCustomProfile {
-    my ($self,$name) = @_;
-    if (exists $Profiles_Config{$name}) {
-        $cached_profiles_config->DeleteSection($name);
-        $cached_profiles_config->RewriteConfig;
-    }
-}
-
-sub getAllCustomProfiles {
-     return keys %Profiles_Config;
-}
-
 =back
 
 =head1 AUTHOR
