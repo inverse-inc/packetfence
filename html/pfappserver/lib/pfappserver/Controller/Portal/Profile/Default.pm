@@ -41,15 +41,15 @@ BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 sub index {}
 
 our %PF_CONFIG_NAME_MAP = (
-    'general.logo'                          => 'logo',
-    'registration.guests_self_registration' => 'guest_self_reg',
-    'guests_self_registration.modes'        => 'guest_modes',
-    'registration.billing_engine'           => 'billing_engine',
+    logo => [qw(general logo)],
+    guest_self_reg => [qw(registration guests_self_registration)],
+    guest_modes => [qw(guests_self_registration modes)],
+    billing_engine => [qw(registration billing_engine)],
 );
 
 sub begin :Private {
     my ( $self, $c ) = @_;
-    $c->stash->{current_model_instance} = $c->model("Config::MappedPf")->new(\%PF_CONFIG_NAME_MAP);
+    $c->stash->{current_model_instance} = $c->model("Config::MappedPf")->new( {mapping => \%PF_CONFIG_NAME_MAP });
     $c->stash->{current_form_instance} = $c->form("Portal::Profile::Default")->new(ctx=>$c);
 }
 

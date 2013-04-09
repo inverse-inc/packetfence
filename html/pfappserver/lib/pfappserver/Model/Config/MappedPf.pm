@@ -1,115 +1,97 @@
 package pfappserver::Model::Config::MappedPf;
-
 =head1 NAME
 
-pfappserver::Model::Config add documentation
+pfappserver::Model::Config::Cached::Profile add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-MappedPf
+pfappserver::Model::Config::Cached::Profile
 
 =cut
 
-use strict;
-use warnings;
-use Moose;  # automatically turns on strict and warnings
+use Moose;
 use namespace::autoclean;
-use Readonly;
-use pfappserver::Model::Config::IniStyleBackend;
-use HTTP::Status qw(:constants is_error is_success);
+use pf::config::cached;
+use pf::config;
+
+extends 'pfappserver::Base::Model::Config::Cached';
+
+has mapping => ( is => 'rw');
 
 
-has 'mapping'       => ( is => 'rw', isa => 'HashRef');
-has 'pf_config'     => ( is => 'rw');
-has 'pf_entries'    => ( is => 'rw', isa => 'ArrayRef');
-has 'virtual_names' => ( is => 'rw', isa => 'ArrayRef');
+=head1 Methods
 
 
-=head2 Methods
-
-=over
-
-=item BUILDARGS
+=head2 _buildCachedConfig
 
 =cut
 
-sub BUILDARGS {
-    my ($self,@args) = @_;
-    my $args_ref = {};
-    if(@args == 1 ) {
-        $args_ref = $args[0];
-    }
-    else {
-        $args_ref = {@args};
-    }
-    return $args_ref;
+sub _buildCachedConfig { $cached_pf_config }
+
+=head2 remove
+
+Delete an existing item
+
+=cut
+
+sub remove {
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
 }
 
+=head2 read
 
-=item BUILD
-
-=cut
-
-sub BUILD {
-    my ($self,$args) = @_;
-    my %mapping = %$args;
-    my @pf_entries = keys %mapping;
-    my @virtual_names = @mapping{@pf_entries};
-    @mapping{@virtual_names} = @pf_entries;
-    $self->pf_entries(\@pf_entries);
-    $self->mapping(\%mapping);
-    $self->virtual_names(\@virtual_names);
-    $self->pf_config(new pfappserver::Model::Config::Pf);
-};
-
-
-=item read
+Read mapped config
 
 =cut
 
 sub read {
-    my ($self) = @_;
-    my $pf_entries = $self->pf_entries;
-    my ($status,$result) = $self->pf_config->read_value($pf_entries);
-    if(is_success($status)) {
-        $result = $self->map_names($result);
+    my ($self,$dummy) = @_;
+    my %item = ($self->idKey => $dummy);
+    my $config = $self->cachedConfig;
+    while ( my ($key,$section_val) = each %{$self->mapping}  ) {
+        $item{$key} = $config->val($section_val->[0],$section_val->[1]);
     }
-    return ($status,$result);
+    return ($STATUS::OK,\%item);
 }
 
+=head2 update
 
-=item map_names
-
-=cut
-
-sub map_names {
-    my ($self,$hash) = @_;
-    my $mapping = $self->mapping;
-    my @names = grep {exists $mapping->{$_} } keys %$hash;
-    my %new_hash;
-    @new_hash{@{$self->mapping}{@names}} = @{$hash}{@names};
-    return \%new_hash;
-}
-
-
-
-=item update
+Update mapped config
 
 =cut
 
 sub update {
-    my ($self,$config_ref) = @_;
-    return $self->pf_config->update($self->map_names($config_ref));
+    my ( $self, $id, $assignments ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status,$status_msg) = ($STATUS::OK,"");
+    if($id eq 'all') {
+        $status = $STATUS::FORBIDDEN;
+        $status_msg = "This method does not handle \"$id\"";
+    }
+    else {
+        $self->cleanupBeforeCommit($id,$assignments);
+        my $config = $self->cachedConfig;
+        delete $assignments->{$self->idKey};
+        my $mapping = $self->mapping;
+        while ( my ($key, $value) = each %$assignments ) {
+            next unless exists $mapping->{$key};
+            my ($section,$param) = @{$mapping->{$key}};
+            if ( $config->exists($section, $param) ) {
+                $config->setval( $section, $param, $value );
+            } else {
+                $config->newval( $section, $param, $value );
+            }
+        }
+        $status_msg = "\"$id\" successfully modified";
+        $logger->info("$status_msg");
+    }
+    return ($status, $status_msg);
 }
 
-sub readConfig {}
-
-no Moose;
 __PACKAGE__->meta->make_immutable;
-
-=back
 
 =head1 COPYRIGHT
 
