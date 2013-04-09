@@ -16,191 +16,59 @@ use pfappserver::Form::Config::Network;
 use pfappserver::Form::Config::Network::Routed;
 use namespace::autoclean;
 
-BEGIN { extends 'Catalyst::Controller'; }
+BEGIN {
+    extends 'pfappserver::Base::Controller::Base';
+    with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [ qw(getForm) ] };
+}
 
 =head1 METHODS
 
-=over
+=head2 begin
 
-=item begin
-
-This controller defaults view is JSON.
+Setting up the controllers model
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
 
-    $c->stash->{current_view} = 'JSON';
+    $c->stash(
+        current_model_instance => $c->model("Config::Cached::Network")->new,
+    );
 }
 
-=item create
+=head2 getForm
 
-Usage: /config/network/create
+Gettng the form for the current view
 
 =cut
 
-sub create :Path('create') :Args(0) {
+sub getForm {
     my ( $self, $c ) = @_;
-
-    $c->stash->{action_uri} = $c->uri_for($c->action);
-    if ($c->request->method eq 'POST') {
-        my $network = $c->req->params->{network};
-        $c->stash->{network} = $network;
-        $c->forward('update');
+    my $network = $c->stash->{network};
+    my $network_ref = $c->stash->{item};
+    my $form;
+    if (!defined($network) || $network_ref->{next_hop}) {
+        # Create or edit a routed network
+        $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c, network => $network);
+    } else {
+        # Edit the default interface network
+        $form = pfappserver::Form::Config::Network->new(ctx => $c, network => $network);
     }
-    else {
-        $c->forward('read');
-    }
-}
+    return $form;
+};
 
-=item object
+
+=head2 object
 
 Chained dispatch
 
 =cut
+
 sub object :Chained('/') :PathPart('config/network') :CaptureArgs(1) {
     my ( $self, $c, $network ) = @_;
-
-    my ($status, $return )= $c->model('Config::Networks')->read($network);
-    if ( is_success($status) ) {
-        $c->stash->{network_ref} = shift @$return;
-    }
-    $c->stash->{network} = $network;
+    $self->_setup_object($c, $network);
 }
-
-=item delete
-
-Delete a network section in PacketFence networks.conf configuration file
-
-Usage: /config/network/<network>/delete
-
-=cut
-
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    my $network = $c->stash->{network};
-
-    my ($status, $return) = $c->model('Config::Networks')->delete($network);
-    if ( is_success($status) ) {
-        $c->stash->{status_msg} = $return;
-    } else {
-        $c->response->status($status);
-        $c->error($return);
-    }
-}
-
-=item read
-
-Usage: /config/network/<network>/read
-
-=cut
-sub read :Chained('object') :PathPart('read') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    my $network = $c->stash->{network};
-    my $network_ref = $c->stash->{network_ref};
-    my $form;
-
-    if (defined($network)) {
-        # Edit an existing network
-        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$network]);
-    }
-
-    if (!defined($network) || $network_ref->{next_hop}) {
-        # Create or edit a routed network
-        $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c, network => $network, init_object => $network_ref);
-    }
-    else {
-        # Edit the default interface network
-        $form = pfappserver::Form::Config::Network->new(ctx => $c, network => $network, init_object => $network_ref);
-    }
-    $form->process();
-    $c->stash->{form} = $form;
-    $c->stash->{template} = 'config/network.tt';
-    $c->stash->{current_view} = 'HTML';
-}
-
-=item update
-
-Usage: /config/network/<network>/update
-
-=cut
-sub update :Chained('object') :PathPart('update') :Args(0) {
-    my ( $self, $c ) = @_;
-
-    if ($c->request->method eq 'POST') {
-        my ($status, $result);
-        my ($form, $network, $network_ref);
-
-        $network = $c->stash->{network};
-        $network_ref = $c->stash->{network_ref};
-
-        # Validate form
-        if (!defined($network_ref)) {
-            # Create a routed network
-            $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c);
-        } elsif ($network_ref->{next_hop}) {
-            # Edit a routed network
-            $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c, network => $network);
-        } else {
-            # Edit the default interface network
-            $form = pfappserver::Form::Config::Network->new(ctx => $c, network => $network);
-        }
-        $form->process(params => $c->req->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $result = $form->field_errors;
-        }
-        else {
-            # Write networks.conf
-            if ($form->value->{network} && $network ne $form->value->{network}) {
-                # Network address has changed
-                $c->model('Config::Networks')->update_network($network, $form->value->{network});
-                $network = $form->value->{network};
-                $network_ref = $form->value;
-            }
-            delete $form->value->{network};
-            if ($network_ref) {
-                # Update an existing network
-                ($status, $result) = $c->model('Config::Networks')->update($network, $form->value);
-            }
-            else {
-                # Create a new network
-                ($status, $result) = $c->model('Config::Networks')->create($network, $form->value);
-            }
-        }
-
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result; # TODO: localize error message
-    }
-    else {
-        $c->stash->{template} = 'config/network.tt';
-        $c->forward('read');
-    }
-}
-
-=back
-
-=head1 FRAMEWORK HELPERS
-
-=over
-
-=item end
-
-=cut
-sub end :ActionClass('RenderView') {
-    my ( $self, $c ) = @_;
-
-    # TODO In DEVEL that's cool, but in production we want only a generic 500 message and logging on 'unhandled' errors
-    if ( scalar @{ $c->error } ) {
-        $c->stash->{status_msg} = $c->error;
-        $c->forward('View::JSON');
-        $c->error(0);
-    }
-}
-
-=back
 
 =head1 COPYRIGHT
 
