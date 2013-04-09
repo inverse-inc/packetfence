@@ -58,7 +58,7 @@ sub help_list {
 
 =head2 html_attributes
 
-Translate placeholders if defined
+Translate placeholders in select inputs (data-placeholder), if defined
 
 =cut
 
@@ -117,11 +117,14 @@ sub update_fields {
             $field->type_attr($field->html5_type_attr);
             $field->set_element_attr('data-type' => 'number');
         }
-        elsif ($field->type eq 'Duration') {
+        elsif ($field->{is_compound}) {
             foreach my $subfield (@{$field->fields}) {
                 if ($subfield->type eq 'PosInteger') {
                     $subfield->type_attr($subfield->html5_type_attr);
                     $subfield->set_element_attr('data-type' => 'number');
+                }
+                if ($field->required) {
+                    $subfield->set_element_attr('data-required' => 'required');
                 }
             }
         }
