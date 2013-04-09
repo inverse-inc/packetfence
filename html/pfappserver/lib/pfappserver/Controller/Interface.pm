@@ -257,7 +257,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my $models =
       {
        'networks' => $c->model('Config::Cached::Network'),
-       'interface' => $c->model('Config::Cached::Interface')
+       'interface' => $c->model('Config::Cached::Interface'),
+       'system' => $c->model('Config::System'),
       };
 
     if ($c->request->method eq 'POST') {

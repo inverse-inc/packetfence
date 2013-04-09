@@ -287,30 +287,39 @@ sub update {
         $models->{networks}->update_network($network, $new_network);
     }
 
-    # Delete previous IP address
-    my $cmd;
-    if ($interface_before->{address}) {
-        $cmd = sprintf "LANG=C sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
-        $logger->debug($cmd);
+    if ($ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask}) {
+        my $gateway = $models->{system}->getDefaultGateway();
+        my $isDefaultRoute = ($gateway eq $interface_before->{ipaddress});
+        $netmask = Net::Netmask->new($ipaddress.':'.$netmask)->bits();
+
+        $logger->debug("IP address has changed (".$interface_before->{address}." => $ipaddress/$netmask)");
+
+        # Delete previous IP address
+        my $cmd;
+        if ($interface_before->{address}) {
+            $cmd = sprintf "LANG=C sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = "Can't delete previous IP address of interface $interface (".$interface_before->{address}.")";
+                $logger->error($status_msg);
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+        }
+
+        # Add new IP address and netmask
+        $cmd = sprintf "LANG=C sudo ip addr add %s/%i dev %s", $ipaddress, $netmask, $interface;
         eval { $status = pf_run($cmd) };
         if ( $@ || $status ) {
-            $status_msg = "Can't delete previous IP address of interface $interface (".$interface_before->{address}.")";
-            $logger->error($status_msg);
+            $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
+            $logger->error($status);
             $logger->error("$cmd: $status");
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
-    }
-
-    # Add new IP address and netmask
-    $netmask = Net::Netmask->new($ipaddress.':'.$netmask)->bits();
-    $cmd = sprintf "LANG=C sudo ip addr add %s/%i dev %s", $ipaddress, $netmask, $interface;
-    $logger->debug($cmd);
-    eval { $status = pf_run($cmd) };
-    if ( $@ || $status ) {
-        $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
-        $logger->error($status);
-        $logger->error("$cmd: $status");
-        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        elsif ($isDefaultRoute) {
+            # Restore gateway
+            $models->{system}->setDefaultRoute($ipaddress);
+        }
     }
 
     # Set type
@@ -351,8 +360,10 @@ sub getType {
     }
     unless ($type) {
         # Check in pf.conf
-        my $interface;
-        ($status, $interface) = $models->{interface}->read($interface_ref->{name});
+        my ($name, $interface);
+        $name = $interface_ref->{name};
+        $name .= '.' . $interface_ref->{vlan} if ($interface_ref->{vlan});
+        ($status, $interface) = $models->{interface}->read($name);
 
         # if the interface is not defined in pf.conf
         if ( is_error($status) ) {

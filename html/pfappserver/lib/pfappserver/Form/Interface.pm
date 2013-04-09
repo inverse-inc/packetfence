@@ -76,7 +76,7 @@ Force DNS to be defined when the 'inline' type is selected
 sub validate {
     my $self = shift;
 
-    if ($self->value->{type} eq 'inline') {
+    if (defined $self->value->{type} && $self->value->{type} eq 'inline') {
         unless ($self->value->{dns}) {
             $self->field('dns')->add_error('Please specify your DNS server.');
         }

@@ -21,9 +21,7 @@ extends 'Catalyst::Model';
 
 =head1 METHODS
 
-=over
-
-=item check_mysqld_status
+=head2 check_mysqld_status
 
 =cut
 
@@ -40,24 +38,25 @@ sub check_mysqld_status {
     return ($pid);
 }
 
-=item getDefaultGateway
+=head2 getDefaultGateway
 
 =cut
 
 sub getDefaultGateway {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my $default_gateway = (split(" ", `ip route | grep default`))[2];
+    my $default_gateway = (split(" ", `LANG=C sudo ip route show to 0/0`))[2];
+    $logger->debug("Default gateway: " . $default_gateway);
 
     return $default_gateway if defined($default_gateway);
 }
 
-=item _get_gateway_interface
+=head2 getInterfaceForGateway
 
 =cut
 
-sub _get_gateway_interface {
+sub getInterfaceForGateway {
     my ( $self, $interfaces_ref, $gateway ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -74,12 +73,12 @@ sub _get_gateway_interface {
     return;
 }
 
-=item _inject_default_route
+=head2 setDefaultRoute
 
 =cut
 
-sub _inject_default_route {
-    my ( $self, $gateway ) = @_;
+sub setDefaultRoute {
+    my ($self, $gateway) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $_EXIT_CODE_EXISTS = 7;
@@ -93,26 +92,9 @@ sub _inject_default_route {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    my $cmd = "LANG=C sudo route add default gw $gateway 2>&1";
-    $logger->debug("Adding default gateway: $cmd");
+    my $cmd = "LANG=C sudo ip route replace to default via $gateway 2>&1";
+    $logger->debug("Replace default gateway: $cmd");
     $status = pf_run($cmd, accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-
-    # A default gateway already exists, we should delete it first and retry
-    if ( defined($status)  && $status =~ /SIOCADDRT:\ File\ exists/ ) {
-        $logger->info("Default gateway already exists, deleting it before adding the new one");
-        $cmd = "sudo route del default 2>&1";
-        $logger->debug("Deleting old default gateway: $cmd");
-        $status = pf_run($cmd);
-        return ($STATUS::INTERNAL_SERVER_ERROR, "Error while deleting existing default gateway")
-            if ( !defined($status) || $status ne "" );
-
-        $logger->info("Old default gateway deleted. Injecting the new one");
-        $cmd = "sudo route add default gw $gateway 2>&1";
-        $logger->debug("Adding new default gateway: $cmd");
-        $status = pf_run($cmd);
-        return ($STATUS::INTERNAL_SERVER_ERROR, "Error while adding the new default gateway after deletion")
-            if ( !defined($status) || $status ne "" );
-    }
 
     # Everything goes as expected
     if ( defined($status) && $status eq "" ) {
@@ -120,15 +102,15 @@ sub _inject_default_route {
         $logger->info($status_msg);
         return ($STATUS::OK, $status_msg);
     }
-    # Something wen't wrong
+    # Something went wrong
     else {
-        $status_msg = "Something wen't wrong while injecting default gateway";
+        $status_msg = "Something went wrong while injecting default gateway";
         $logger->warn($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 }
 
-=item start_mysqld_service
+=head2 start_mysqld_service
 
 =cut
 
@@ -164,7 +146,7 @@ sub start_mysqld_service {
     }
 }
 
-=item write_network_persistent
+=head2 write_network_persistent
 
 =cut
 
@@ -175,7 +157,7 @@ sub write_network_persistent {
     my ($status, $status_msg, $systemObj);
 
     # Check if gateway is valid
-    my $gateway_interface = $self->_get_gateway_interface($interfaces_ref, $gateway);
+    my $gateway_interface = $self->getInterfaceForGateway($interfaces_ref, $gateway);
     if ( !$gateway_interface ) {
         $status_msg = "Invalid gateway. Doesn't belong to any running and configured interface";
         $logger->error("$status_msg");
@@ -183,7 +165,7 @@ sub write_network_persistent {
     }
 
     # Inject gateway for live usage
-    ($status, $status_msg) = $self->_inject_default_route($gateway);
+    ($status, $status_msg) = $self->setDefaultRoute($gateway);
     if ( is_error($status) ) {
         $logger->error("$status_msg");
         return ($status, $status_msg);
@@ -223,7 +205,7 @@ use Moose;
 
 =over
 
-=item _checkOs
+=head2 _checkOs
 
 Checks running operating system
 
@@ -243,7 +225,7 @@ sub _checkOs {
     return $os;
 }
 
-=item getSystem
+=head2 getSystem
 
 Obtain a system object suited for your system.
 
@@ -318,7 +300,7 @@ our $var_dir              = "/usr/local/pf/var/";
 
 =over
 
-=item writeNetworkConfigs
+=head2 writeNetworkConfigs
 
 =cut
 
@@ -422,7 +404,7 @@ our $var_dir              ="/usr/local/pf/var/";
 
 =over
 
-=item writeNetworkConfigs
+=head2 writeNetworkConfigs
 
 =cut
 
@@ -464,8 +446,6 @@ sub writeNetworkConfigs {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 }
-
-=back
 
 =head1 AUTHOR
 
