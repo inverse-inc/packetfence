@@ -43,6 +43,9 @@ sub cleanupAfterRead {
     my $defaults = $Default_Config{$section};
     foreach my $key ($cached_pf_config->Parameters($section) ) {
         my $doc_section = "$section.$key";
+        unless (exists $Doc_Config{$doc_section} && exists $data->{$key}  ) {
+            next;
+        }
         my $doc = $Doc_Config{$doc_section};
         my $type = $doc->{type} || "text";
         # Value should always be defined for toggles (checkbox and select) and times (duration)
@@ -56,7 +59,7 @@ sub cleanupAfterRead {
             my $value = $data->{$key};
             my @values = split( /\s*,\s*/, $value ) if $value;
             $data->{$key} = \@values;
-        } elsif ( $data->{$key} eq $defaults->{$key}) {
+        } elsif ( defined ($data->{$key}) && $data->{$key} eq $defaults->{$key}) {
             #remove default values
             $data->{$key} = undef;
         }
