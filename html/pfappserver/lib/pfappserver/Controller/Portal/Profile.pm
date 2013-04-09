@@ -87,11 +87,12 @@ sub index :Path :Args(0) {
 after create => sub {
     my ($self, $c) = @_;
     if (is_success($c->response->status) && $c->request->method eq 'POST') {
-        my($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
+        my $model = $self->getModel($c);
+        my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
         $c->response->location(
             $c->pf_hash_for(
                 $c->controller('Portal::Profile')->action_for('view'),
-                [$c->stash->{id}]
+                [$c->stash->{$model->idKey}]
             )
         );
     }
