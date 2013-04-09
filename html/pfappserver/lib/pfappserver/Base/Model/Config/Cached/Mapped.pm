@@ -1,13 +1,14 @@
-package pfappserver::Model::Config::MappedPf;
+package pfappserver::Base::Model::Config::Cached::Mapped;
+
 =head1 NAME
 
-pfappserver::Model::Config::Cached::Profile add documentation
+pfappserver::Base::Model::Config::Cached::Mapped
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::Profile
+Maps values in different sections into one "object"
 
 =cut
 
@@ -18,26 +19,45 @@ use pf::config;
 
 extends 'pfappserver::Base::Model::Config::Cached';
 
-has mapping => ( is => 'rw');
 
+=head1 FIELDS
+
+=head2 mapping
+
+The hash that maps the key to the section and value
+Example below
+
+{
+    key1 => [qw(section1 val1)],
+    key2 => [qw(section2 val2)],
+}
+
+
+=cut
+
+has mapping => ( is => 'ro');
 
 =head1 Methods
 
 
-=head2 _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig { $cached_pf_config }
-
 =head2 remove
 
-Delete an existing item
+remove always throws an error
 
 =cut
 
 sub remove {
-    return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot remove using this interface");
+}
+
+=head2 create
+
+create always throws an error
+
+=cut
+
+sub create {
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot create using this interface");
 }
 
 =head2 read
@@ -47,12 +67,13 @@ Read mapped config
 =cut
 
 sub read {
-    my ($self,$dummy) = @_;
-    my %item = ($self->idKey => $dummy);
+    my ($self,$id) = @_;
+    my %item = ($self->idKey => $id);
     my $config = $self->cachedConfig;
     while ( my ($key,$section_val) = each %{$self->mapping}  ) {
         $item{$key} = $config->val($section_val->[0],$section_val->[1]);
     }
+    $self->cleanupAfterRead($id,\%item);
     return ($STATUS::OK,\%item);
 }
 
