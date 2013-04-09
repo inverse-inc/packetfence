@@ -21,7 +21,7 @@
       [%- IF first_page > 1 -%]
         [% params.page_num = 1 -%]
         <li><a href="#[% pagination_path(section, params) %]" title="Page 1">1</a></li>
-        <li class="disabled"><a href="#">…</a></li>
+        <li class="disabled"><a href="#">&hellip;</a></li>
       [%- END -%]
       [% page = first_page; WHILE page <= last_page -%]
         [% params.page_num = page %]
@@ -30,7 +30,7 @@
       [%- END -%]
       [%- IF last_page < pages_count -%]
         [% params.page_num = pages_count %]
-        <li class="disabled"><a href="#">…</a></li>
+        <li class="disabled"><a href="#">&hellip;</a></li>
         <li><a href="#[% pagination_path(section, params) %]" title="Page [% pages_count %]">[% pages_count %]</a></li>
       [%- END -%]
       [%- IF page_num < page - 1 -%]
