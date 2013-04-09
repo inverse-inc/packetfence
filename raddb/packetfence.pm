@@ -8,6 +8,26 @@ packetfence.pm - FreeRADIUS PacketFence integration module
 
 This module forwards normal RADIUS requests to PacketFence.
 
+=head1 NOTES
+
+Note1:
+
+Our pf::config package is loading all kind of stuff and should be reworked a bit. We need to use that package to load
+configuration parameters from the configuration file. Until the package is cleaned, we will define the configuration
+parameter here.
+
+Once cleaned:
+
+- Uncommented line: use pf::config
+
+- Remove line: use constant SOAP_PORT => '9090';
+
+- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT);
+
+- Uncomment line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
+
+Search for 'note1' to find the appropriate lines. 
+
 =cut
 
 use strict;
@@ -18,11 +38,12 @@ use XML::Simple;
 
 use lib '/usr/local/pf/lib/';
 
-use pf::config;
-use pf::freeradius;
+#use pf::config; # TODO: See note1
+use pf::radius::constants;
 use pf::util::freeradius qw(clean_mac);
 
 # Configuration parameter
+use constant SOAP_PORT => '9090'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
 
 require 5.8.8;
@@ -50,12 +71,12 @@ sub authorize {
         my $mac = $RAD_REQUEST{'User-Name'};
         # Password will be the MAC address, we set Cleartext-Password so that EAP Auth will perform auth properly
         $RAD_CHECK{'Cleartext-Password'} = $mac;
-        &radiusd::radlog($pf::freeradius::L_DBG, "This is a Wired MAC Authentication request with EAP for MAC: $mac. Authentication should pass. File a bug report if it doesn't");
-        return $pf::freeradius::RLM_MODULE_UPDATED;
+        &radiusd::radlog($RADIUS::L_DBG, "This is a Wired MAC Authentication request with EAP for MAC: $mac. Authentication should pass. File a bug report if it doesn't");
+        return $RADIUS::RLM_MODULE_UPDATED;
     }
 
     # otherwise, we don't do a thing
-    return $pf::freeradius::RLM_MODULE_NOOP;
+    return $RADIUS::RLM_MODULE_NOOP;
 }
 
 =item * post_auth
@@ -69,8 +90,8 @@ sub post_auth {
 
     # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
     if ( length($mac) != 17 ) {
-        &radiusd::radlog($pf::freeradius::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
-        return $pf::freeradius::RLM_MODULE_OK;
+        &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+        return $RADIUS::RLM_MODULE_OK;
     }
 
     # Build the SOAP request manually (using CURL)
@@ -133,16 +154,17 @@ sub post_auth {
 
     my $response_body;
     $curl->setopt(CURLOPT_HEADER, 0);
-    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
+    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
+#    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
-    my $radius_return_code = $pf::freeradius::RLM_MODULE_REJECT;
+    my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
 
     # For debugging purposes
-    #&radiusd::radlog($pf::freeradius::L_INFO, "curl_return_code: $curl_return_code");
+    #&radiusd::radlog($RADIUS::L_INFO, "curl_return_code: $curl_return_code");
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
@@ -154,7 +176,7 @@ sub post_auth {
         # Get RADIUS return code
         $radius_return_code = shift @$elements;
 
-        if ( !defined($radius_return_code) || !($radius_return_code > $pf::freeradius::RLM_MODULE_REJECT && $radius_return_code < $pf::freeradius::RLM_MODULE_NUMCODES) ) {
+        if ( !defined($radius_return_code) || !($radius_return_code > $RADIUS::RLM_MODULE_REJECT && $radius_return_code < $RADIUS::RLM_MODULE_NUMCODES) ) {
             return invalid_answer_handler();
         }
 
@@ -166,28 +188,28 @@ sub post_auth {
     }
 
     # For debugging purposes
-    #&radiusd::radlog($pf::freeradius::L_INFO, "radius_return_code: $radius_return_code");
+    #&radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
 
-    if ( $radius_return_code == $pf::freeradius::RLM_MODULE_OK ) {
+    if ( $radius_return_code == $RADIUS::RLM_MODULE_OK ) {
         if ( defined($RAD_REPLY{'Tunnel-Private-Group-ID'}) ) {
-            &radiusd::radlog($pf::freeradius::L_AUTH, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+            &radiusd::radlog($RADIUS::L_AUTH, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
                 . "to request from $mac port $port");
         } else {
-            &radiusd::radlog($pf::freeradius::L_AUTH, "request from $mac port $port was accepted but no VLAN returned. "
+            &radiusd::radlog($RADIUS::L_AUTH, "request from $mac port $port was accepted but no VLAN returned. "
                 . "This could be normal. See server logs for details.");
         }
     } else {
-        &radiusd::radlog($pf::freeradius::L_INFO, "request from $mac port $port was not accepted but a proper error code was provided. "
+        &radiusd::radlog($RADIUS::L_INFO, "request from $mac port $port was not accepted but a proper error code was provided. "
             . "Check server side logs for details");
     }
 
-    &radiusd::radlog($pf::freeradius::L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+    &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
 
     # Uncomment for verbose debugging with radius -X
     # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
     # use Data::Dumper;
     # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
-    # &radiusd::radlog($pf::freeradius::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
+    # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
 
     return $radius_return_code;
 }
@@ -201,16 +223,16 @@ If a customer wants to degrade gracefully, he should put some logic here to assi
 =cut
 sub server_error_handler {
    # no need to log here as on_fault is already triggered
-   return $pf::freeradius::RLM_MODULE_FAIL; 
+   return $RADIUS::RLM_MODULE_FAIL; 
 
    # TODO provide complete examples
    # for example:
    # send an email
    # set vlan default according to $nas_ip
-   # return $pf::freeradius::RLM_MODULE_OK
+   # return $RADIUS::RLM_MODULE_OK
 
    # or to fail open:
-   # return $pf::freeradius::RLM_MODULE_OK
+   # return $RADIUS::RLM_MODULE_OK
 }
 
 =item * invalid_answer_handler
@@ -219,10 +241,10 @@ Called whenever an invalid answer is returned from the server
 
 =cut
 sub invalid_answer_handler {
-    &radiusd::radlog($pf::freeradius::L_ERR, "No or invalid reply in SOAP communication with server. Check server side logs for details.");
-    &radiusd::radlog($pf::freeradius::L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
-    &radiusd::radlog($pf::freeradius::L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
-    return $pf::freeradius::RLM_MODULE_FAIL;
+    &radiusd::radlog($RADIUS::L_ERR, "No or invalid reply in SOAP communication with server. Check server side logs for details.");
+    &radiusd::radlog($RADIUS::L_DBG, "PacketFence UNDEFINED RESULT RESPONSE CODE");
+    &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT VLAN COULD NOT BE DETERMINED");
+    return $RADIUS::RLM_MODULE_FAIL;
 }
 
 =item * is_eap_mac_authentication
@@ -248,7 +270,7 @@ sub is_eap_mac_authentication {
                 return 1;
             }
         } else {
-            &radiusd::radlog($pf::freeradius::L_DBG, "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.");
+            &radiusd::radlog($RADIUS::L_DBG, "MAC inappropriate for comparison. Can't tell if we are in EAP Wired MAC Auth case.");
         }
     }
     return 0;
@@ -312,7 +334,7 @@ sub detach {
 #       &log_request_attributes;
 
         # Do some logging.
-        &radiusd::radlog($pf::freeradius::L_DBG, "rlm_perl::Detaching. Reloading. Done.");
+        &radiusd::radlog($RADIUS::L_DBG, "rlm_perl::Detaching. Reloading. Done.");
 }
 
 #
@@ -323,7 +345,7 @@ sub log_request_attributes {
         # This shouldn't be done in production environments!
         # This is only meant for debugging!
         for (keys %RAD_REQUEST) {
-                &radiusd::radlog($pf::freeradius::L_INFO, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
+                &radiusd::radlog($RADIUS::L_INFO, "RAD_REQUEST: $_ = $RAD_REQUEST{$_}");
         }
 }
 

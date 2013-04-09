@@ -8,6 +8,26 @@ packetfence-soh.pm - FreeRADIUS PacketFence integration module for SoH support
 
 This module forwards SoH authorization requests to PacketFence.
 
+=head1 NOTES
+
+Note1:
+
+Our pf::config package is loading all kind of stuff and should be reworked a bit. We need to use that package to load
+configuration parameters from the configuration file. Until the package is cleaned, we will define the configuration
+parameter here.
+
+Once cleaned:
+
+- Uncommented line: use pf::config
+
+- Remove line: use constant SOAP_PORT => '9090';
+
+- Remove line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT);
+
+- Uncomment line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
+
+Search for 'note1' to find the appropriate lines. 
+
 =cut
 
 use strict;
@@ -18,10 +38,11 @@ use XML::Simple;
 
 use lib '/usr/local/pf/lib/';
 
-use pf::config;
-use pf::freeradius;
+#use pf::config; # TODO: See note1
+use pf::radius::constants;
 
 # Configuration parameter
+use constant SOAP_PORT => '9090'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
 
 require 5.8.8;
@@ -95,16 +116,17 @@ sub authorize {
 
     my $response_body;
     $curl->setopt(CURLOPT_HEADER, 0);
-    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
+    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
+#    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
     $curl->setopt(CURLOPT_POSTFIELDS, $request);
     $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
     # Starts the actual request
     my $curl_return_code = $curl->perform;
-    my $radius_return_code = $pf::freeradius::RLM_MODULE_REJECT;
+    my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
 
     # For debugging purposes
-    #&radiusd::radlog($pf::freeradius::L_INFO, "curl_return_code: $curl_return_code");
+    #&radiusd::radlog($RADIUS::L_INFO, "curl_return_code: $curl_return_code");
 
     # Looking at the results...
     if ( $curl_return_code == 0 ) {
@@ -116,20 +138,20 @@ sub authorize {
         # Get RADIUS SoH return code
         $radius_return_code = shift @$elements;
 
-        if ( !defined($radius_return_code) || !($radius_return_code > $pf::freeradius::RLM_MODULE_REJECT && $radius_return_code < $pf::freeradius::RLM_MODULE_NUMCODES) ) {
-            return $pf::freeradius::RLM_MODULE_FAIL;
+        if ( !defined($radius_return_code) || !($radius_return_code > $RADIUS::RLM_MODULE_REJECT && $radius_return_code < $RADIUS::RLM_MODULE_NUMCODES) ) {
+            return $RADIUS::RLM_MODULE_FAIL;
         }
     } else {
-        return $pf::freeradius::RLM_MODULE_FAIL;
+        return $RADIUS::RLM_MODULE_FAIL;
     }
 
-    &radiusd::radlog($pf::freeradius::L_DBG, "StatementOfHealth RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+    &radiusd::radlog($RADIUS::L_DBG, "StatementOfHealth RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
 
     # Uncomment for verbose debugging with radius -X
     # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
     # use Data::Dumper;
     # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
-    # &radiusd::radlog($pf::freeradius::L_DBG, "StatementOfHealth COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
+    # &radiusd::radlog($RADIUS::L_DBG, "StatementOfHealth COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
 
     return $radius_return_code;
 }
