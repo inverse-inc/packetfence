@@ -18,6 +18,8 @@ use pf::config;
 extends 'pfappserver::Base::Model::Config::Cached';
 
 
+has '+idKey' => (default => 'network');
+
 =head2 Methods
 
 =over
