@@ -566,7 +566,6 @@ sub readPfConfigFiles {
         my ($config) = @_;
         $config->toHash(\%Default_Config);
         $config->cleanupWhitespace(\%Default_Config);
-        $cached_pf_config->ReadConfig();
     });
 }
 
