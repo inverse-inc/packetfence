@@ -102,12 +102,30 @@ sub authorize {
 
     my $request_content = '';
     my $counter = 1;    # looks like this one is not mandatory, we still use it to keep track of keys/values
+
     foreach my $key ( keys %RAD_REQUEST ) {
-        $request_content = $request_content . 
-            "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
-        $request_content = $request_content . 
-            "<c-gensym$counter xsi:type=\"xsd:string\">$RAD_REQUEST{$key}</c-gensym$counter>";
-        $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
+        # RADIUS Vendor Specific Attributes (VSA) are in the form of an ARRAY which is special in SOAP...
+        if ( ref($RAD_REQUEST{$key}) eq 'ARRAY' ) {
+            my $array_content = '';
+            my $array_counter = 0;  # that one is actually important...
+            $request_content = $request_content .
+                "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
+            foreach my $array_value ( @{$RAD_REQUEST{$key}} ) {
+                $array_counter += 1;    # that one is actually important...
+                $array_content = $array_content . "<item xsi:type=\"xsd:string\">$array_value</item>";
+                $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
+            }
+            $request_content = $request_content .
+                "<soapenc:Array soapenc:arrayType=\"xsd:string[$array_counter]\" xsi:type=\"soapenc:Array\">";
+            $request_content = $request_content . $array_content;
+            $request_content = $request_content . "</soapenc:Array>";
+        } else {
+            $request_content = $request_content .
+                "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
+            $request_content = $request_content .
+                "<c-gensym$counter xsi:type=\"xsd:string\">$RAD_REQUEST{$key}</c-gensym$counter>";
+            $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
+        }
     }
 
     my $request_suffix = '</soh_authorize></soap:Body></soap:Envelope>';
