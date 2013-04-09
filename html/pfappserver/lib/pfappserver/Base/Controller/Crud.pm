@@ -56,7 +56,7 @@ sub create : Local: Args(0) {
             my $idKey =  $model->idKey;
             my $id = $item->{$idKey};
             $c->stash->{item} = $item;
-            $c->stash->{id} = $id;
+            $c->stash->{$idKey} = $id;
             ($status,$status_msg) = $model->create($id,$item)
         }
         $c->response->status($status);
@@ -78,7 +78,8 @@ sub create : Local: Args(0) {
 
 sub _setup_object {
     my ($self,$c,$id) = @_;
-    my ($status, $item) = $self->getModel($c)->read($id);
+    my $model = $self->getModel($c);
+    my ($status, $item) = $model->read($id);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $item;
@@ -87,7 +88,7 @@ sub _setup_object {
     }
     $c->stash(
         item  => $item,
-        id    => $id,
+        $model->idKey    => $id,
     );
 }
 
@@ -105,8 +106,10 @@ sub update :Chained('object') :PathPart :Args(0) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
     } else {
-        ($status,$status_msg) = $self->getModel($c)->update(
-            $c->stash->{id},
+        my $model = $self->getModel($c);
+        my $idKey = $model->idKey;
+        ($status,$status_msg) = $model->update(
+            $c->stash->{$idKey},
             $form->value
         );
     }
@@ -123,7 +126,9 @@ sub update :Chained('object') :PathPart :Args(0) {
 
 sub remove :Chained('object') :PathPart('delete'): Args(0) {
     my ($self,$c) = @_;
-    my ($status,$result) = $self->getModel($c)->remove($c->stash->{id},$c->stash->{item});
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+    my ($status,$result) = $self->getModel($c)->remove($c->stash->{$idKey},$c->stash->{item});
     $c->stash(
         status_msg   => $result,
         current_view => 'JSON',
