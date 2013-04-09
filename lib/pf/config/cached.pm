@@ -337,7 +337,7 @@ check to see if the config file needs to be reread
 sub _expireIf {
     my ($cache_object) = @_;
     my $file = $cache_object->key;
-    return -e $file &&  ($cache_object->created_at < getModTimestamp($file));
+    return !-e $file ||  ($cache_object->created_at < getModTimestamp($file));
 }
 
 =head2 getModTimestamp
