@@ -463,41 +463,44 @@ $(function () { // DOM ready
         var form_id = that.attr('data-modal-form');
         var modal    = $('#' + modal_id);
         var content  = that.attr('data-content');
-        if(form_id) {
+        var confirm_link = modal.find('a.btn-primary').first();
+        if (form_id) {
             form = $('#' + form_id);
         } else {
             form = that.closest('form');
         }
-        if(content) {
+        if (content) {
             modal.find('#content').html(content);
         }
-        var confirm_link = modal.find('a.btn-primary').first();
-        modal.modal({ show: true });
-        confirm_link.off('click');
-        confirm_link.click(function() {
-            $.ajax({
-                'url'  : form.attr('action'),
-                'type' : form.attr('method') || "POST",
-                'data' : form.serialize()
+        var valid = isFormValid(form);
+        if (valid) {
+            modal.modal({ show: true });
+            confirm_link.off('click');
+            confirm_link.click(function() {
+                $.ajax({
+                    'url'  : form.attr('action'),
+                    'type' : form.attr('method') || "POST",
+                    'data' : form.serialize()
                 })
-                .always(function() {
-                    modal.modal('hide');
-                })
-                .done(function(data) {
-                    if (data.status_msg) {
+                    .always(function() {
+                        modal.modal('hide');
+                    })
+                    .done(function(data) {
+                        if (data.status_msg) {
+                            $("body,html").animate({scrollTop:0}, 'fast');
+                            showSuccess($('h2').first().next(), data.status_msg);
+                        } else {
+                            $(window).hashchange();
+                        }
+                    })
+                    .fail(function(jqXHR) {
                         $("body,html").animate({scrollTop:0}, 'fast');
-                        showSuccess($('h2').first().next(), data.status_msg);
-                    } else {
-                        $(window).hashchange();
-                    }
-                })
-                .fail(function(jqXHR) {
-                    $("body,html").animate({scrollTop:0}, 'fast');
-                    var status_msg = getStatusMsg(jqXHR);
-                    showError($('#section h2'), status_msg);
-                });
-            return false;
-        });
+                        var status_msg = getStatusMsg(jqXHR);
+                        showError($('#section h2'), status_msg);
+                    });
+                return false;
+            });
+        }
         return false;
     });
 

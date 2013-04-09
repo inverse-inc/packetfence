@@ -191,12 +191,19 @@ function initIndexPage(element) {
 }
 
 function initCreatePage(element) {
+    var form = element.find("#create_profile");
+    var saveBtn = form.find('.btn-primary').first();
+    saveBtn.off("click");
+    saveBtn.click(function(event) {
+        var valid = isFormValid(form);
+        return valid;
+    });
+
     var modal = $('#saveProfile');
-    var button = modal.find('.btn-primary').first();
-    button.off("click");
-    button.click(function(event) {
-        var form = element.find("#create_profile");
-        submitFormHideModalGoToLocation(modal,form);
+    var confirmationBtn = modal.find('.btn-primary').first();
+    confirmationBtn.off("click");
+    confirmationBtn.click(function(event) {
+        submitFormHideModalGoToLocation(modal, form);
         return false;
     });
 }
