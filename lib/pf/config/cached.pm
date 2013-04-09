@@ -22,9 +22,9 @@ use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
 use Config::IniFiles;
 use Scalar::Util qw(refaddr);
-use Fcntl qw(:flock);
+use Fcntl qw(:DEFAULT :flock);
 use Storable;
-
+use File::Flock;
 
 
 our $CACHE;
@@ -55,16 +55,14 @@ sub new {
         if(exists $LOADED_CONFIGS{$file}) {
             return $LOADED_CONFIGS{$file};
         }
-        unless ( -e $file) {
-            open( my $fh,">>",$file);
-            close($fh);
-        }
+        delete $params{'-file'} unless -e $file;
         $config = $class->computeFromPath(
             $file,
             sub {
-                my $fh = lockFileForReading($file);
+                my $lock = lockFileForReading($file);
                 my $config = Config::IniFiles->new(%params);
-                unlockFilehandle($fh);
+                $config->SetFileName($file);
+                unlockFilehandle($lock);
                 return $config;
             }
         );
@@ -104,7 +102,7 @@ sub RewriteConfig {
     }
     my $result;
     if ( $config->{imported} && defined $config->{imported}) {
-        my $fh = lockFileForWriting($file);
+        my $lock = lockFileForWriting($file);
         #localizing for saving only what is in
         local $config->{v} = Config::IniFiles::_deepcopy($config->{v});
         local $config->{sCMT} = Config::IniFiles::_deepcopy($config->{sCMT});
@@ -117,11 +115,11 @@ sub RewriteConfig {
         local $config->{mysects} = Config::IniFiles::_deepcopy($config->{mysects});
         $self->removeDefaultValues();
         $result = $config->WriteConfig($file);
-        unlockFilehandle($fh);
+        unlockFilehandle($lock);
     } else {
-        my $fh = lockFileForWriting($file);
+        my $lock = lockFileForWriting($file);
         $result = $config->WriteConfig($file);
-        unlockFilehandle($fh);
+        unlockFilehandle($lock);
     }
     if($result) {
         $cache->set($file,$config);
@@ -171,35 +169,44 @@ sub removeDefaultValues {
 
 =head2 lockFileForWriting
 
+Locks the lock file for writing a file
+
 =cut
 
 sub lockFileForWriting {
     my ($file) = @_;
-    my $fh;
-    open($fh,">",$file) or die "cannot open $file";
-    flock($fh, LOCK_EX);
-    return $fh;
+    return File::Flock->new(_makeFileLock($file));
 }
 
 =head2 lockFileForReading
+
+Locks the lock file for reading a file
 
 =cut
 
 sub lockFileForReading {
     my ($file) = @_;
-    open( my $fh,"<",$file) or die "cannot open $file";
-    flock($fh, LOCK_SH);
-    return $fh;
+    return File::Flock->new(_makeFileLock($file),'shared');
 }
 
 =head2 unlockFilehandle
 
+unlock the file handle returned from lockFileForWriting or lockFileForReading
+
 =cut
 
 sub unlockFilehandle {
-    my ($fh) = @_;
-    flock($fh, LOCK_UN);
-    close($fh);
+    my ($lock) = @_;
+    $lock->unlock;
+}
+
+=head2 _makeFileLock
+
+=cut
+
+sub _makeFileLock {
+    my ($file) = @_;
+    return "$file.lock";
 }
 
 
@@ -222,9 +229,9 @@ sub ReadConfig {
         $file,
         sub {
             #reread files
-            my $fh = lockFileForReading($file);
+            my $lock = lockFileForReading($file);
             $result = $config->ReadConfig();
-            unlockFilehandle($fh);
+            unlockFilehandle($lock);
             $reloaded = 1;
             return $config;
         }
