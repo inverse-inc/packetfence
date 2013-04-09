@@ -175,6 +175,10 @@ Locks the lock file for writing a file
 
 sub lockFileForWriting {
     my ($file) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    $logger->info("locking file for writing $file");
+#    local $Log::Log4perl::caller_depth =
+#              $Log::Log4perl::caller_depth + 5;
     return File::Flock->new(_makeFileLock($file));
 }
 
@@ -186,6 +190,8 @@ Locks the lock file for reading a file
 
 sub lockFileForReading {
     my ($file) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    $logger->info("locking file for reading $file");
     return File::Flock->new(_makeFileLock($file),'shared');
 }
 
@@ -197,6 +203,8 @@ unlock the file handle returned from lockFileForWriting or lockFileForReading
 
 sub unlockFilehandle {
     my ($lock) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    $logger->info("unlocking file ");
     $lock->unlock;
 }
 
