@@ -26,10 +26,10 @@
             <tr class="network">
               <td></td>
               <td colspan="5">
-                  [% l('default network:') %] [% IF interfaces.$i.network_iseditable %]<a href="[% c.uri_for(c.controller('Config::Networks').action_for('read'), [interfaces.$i.network]) %]">[% interfaces.$i.network %]</a>[% ELSE %][% interfaces.$i.network %][% END %]
+                  [% l('default network:') %] [% IF interfaces.$i.network_iseditable %]<a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [interfaces.$i.network]) %]">[% interfaces.$i.network %]</a>[% ELSE %][% interfaces.$i.network %][% END %]
                   [%- IF interfaces.$i.networks %], [% l('routed networks:') %]
                     [%- FOREACH network IN interfaces.$i.networks %]
-                      <a href="[% c.uri_for(c.controller('Config::Networks').action_for('read'), [network]) %]">[% network %]</a>[% ', ' IF NOT loop.last %]
+                      <a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [network]) %]">[% network %]</a>[% ', ' IF NOT loop.last %]
                     [%- END %]
                   [%- END %]
               </td>
