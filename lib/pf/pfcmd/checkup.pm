@@ -392,14 +392,14 @@ sub network {
         }
 
         # validate dns entry if named is enabled
-        if ($net{'named'} =~ /enabled/i) {
+        if (exists $net{'named'} &&  $net{'named'} =~ /enabled/i) {
             if (!valid_ip($net{'dns'})) {
                 add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
             }
         }
 
         # mandatory fields if we run DHCP (should be most cases)
-        if ($net{'dhcpd'} =~ /enabled/i) {
+        if (exists $net{'dhcpd'} &&  $net{'dhcpd'} =~ /enabled/i) {
             my $netmask_valid = (defined($net{'netmask'}) && valid_ip($net{'netmask'}));
             my $gw_valid = (defined($net{'gateway'}) && valid_ip($net{'gateway'}));
             my $domainname_valid = (defined($net{'domain-name'}) && $net{'domain-name'} !~ /^\s*$/);
@@ -980,7 +980,7 @@ Make sure that portal profiles, if defined, have a filter and no unsupported par
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine)/;
+    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
 
