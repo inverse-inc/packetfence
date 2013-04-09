@@ -40,7 +40,7 @@ has_field 'guest_self_reg' =>
    type => 'Toggle',
    label => 'Enable Self Registration',
    checkbox_value => 'enabled',
-   uncheckbox_value => 'disabled',
+   unchecked_value => 'disabled',
   );
 has_field 'guest_modes' =>
   (
@@ -56,7 +56,7 @@ has_field 'billing_engine' =>
    type => 'Toggle',
    label => 'Enable Billing Engine',
    checkbox_value => 'enabled',
-   uncheckbox_value => 'disabled',
+   unchecked_value => 'disabled',
   );
 
 
