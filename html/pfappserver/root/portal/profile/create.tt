@@ -1,5 +1,5 @@
-<h2></h2>
 <div id="portal_profile_create">
+
   <div class="modal fade hide" id="saveProfile">
     <div class="modal-header">
       <h3><i>[% l('Saving profile ') %]</i> <span id="content"></span></h3>
@@ -12,17 +12,21 @@
       <a href="#" class="btn btn-primary btn-danger"><i class="icon-save"></i> [% l('Save Profile') %]</a>
     </div>
   </div><!-- cancelEdit -->
+
   <div class="span10">
-      <ul class="breadcrumb">
-          <li>
-              <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
-              <span class="divider"><i class="icon-chevron-right"/></span>
-          </li>
-          <li class="active"> Create </li>
-      </ul>
+    <ul class="breadcrumb">
+      <li>
+        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
+        <span class="divider"><i class="icon-chevron-right"></i></span>
+      </li>
+      <li class="active">[% l('Create') %]</li>
+    </ul>
+    <h2><!-- first sibling of alerts --></h2>
     <div class="tab-content">
       <ul class="nav nav-tabs">
-        <li class="active"><a href="" data-toggle="tab">[% l('Settings') %]</a></li>
+        <li class="active">
+          <a href="" data-toggle="tab">[% l('Settings') %]</a>
+        </li>
         <li class="disabled">
           <a>[% l('Files')  %]</a>
         </li>
@@ -30,7 +34,7 @@
       <div class="tab-pane fade in active well" id="settings">
         <form id="create_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('create'))  %]"  class="form-horizontal">
           [% FOREACH field IN  form.fields %]
-            [% field.render %]
+          [% field.render %]
           [% END %]
           <div class="form-actions">
             <a data-target="#saveProfile" data-toggle="modal" class="btn btn-primary">[% l('Save') %]</a>
@@ -41,4 +45,5 @@
       </div>
     </div>
   </div>
+
 </div>

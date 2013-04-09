@@ -484,7 +484,12 @@ $(function () { // DOM ready
                     modal.modal('hide');
                 })
                 .done(function(data) {
-                    $(window).hashchange();
+                    if (data.status_msg) {
+                        $("body,html").animate({scrollTop:0}, 'fast');
+                        showSuccess($('h2').first().next(), data.status_msg);
+                    } else {
+                        $(window).hashchange();
+                    }
                 })
                 .fail(function(jqXHR) {
                     $("body,html").animate({scrollTop:0}, 'fast');

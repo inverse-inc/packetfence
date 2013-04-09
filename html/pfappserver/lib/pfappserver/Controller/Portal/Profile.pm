@@ -1,4 +1,5 @@
 package pfappserver::Controller::Portal::Profile;
+
 =head1 NAME
 
 pfappserver::Controller::PortalProfile add documentation
@@ -39,11 +40,9 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
-=head2 Methods
+=head1 METHODS
 
-=over
-
-=item begin
+=head2 begin
 
 Setting the current form instance and model
 
@@ -55,7 +54,7 @@ sub begin :Private {
     $c->stash->{current_form_instance} = $c->form("Portal::Profile")->new(ctx=>$c);
 }
 
-=item object
+=head2 object
 
 Portal Profile chained dispatcher
 
@@ -69,7 +68,7 @@ sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
     $self->_setup_object($c,$id);
 }
 
-=item index
+=head2 index
 
 =cut
 
@@ -85,21 +84,18 @@ sub index :Path :Args(0) {
     )
 }
 
-
 after create => sub {
-    my ($self,$c) = @_;
-    if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
-        my($entries_copied,$dir_copied,undef) = $self->copyDefaultFiles($c);
+    my ($self, $c) = @_;
+    if (is_success($c->response->status) && $c->request->method eq 'POST') {
+        my($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
         $c->response->location(
             $c->pf_hash_for(
                 $c->controller('Portal::Profile')->action_for('view'),
-                [$c->stash->{item}{id}]
+                [$c->stash->{id}]
             )
         );
     }
 };
-
-
 
 sub sort_profiles :Local : Args(0) {
     my ($self,$c) = @_;
@@ -424,9 +420,6 @@ sub copyDefaultFiles {
     my $from_dir = $self->_makeDefaultFilePath($c);
     return dircopy($from_dir,$to_dir);
 }
-
-
-=back
 
 =head1 COPYRIGHT
 

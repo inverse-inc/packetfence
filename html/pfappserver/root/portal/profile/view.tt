@@ -1,5 +1,4 @@
-<h2></h2>
-<div id="profile_read">
+<div id="portal_profile_read">
 
   <div class="modal fade hide" id="saveProfile">
     <div class="modal-header">
@@ -17,11 +16,12 @@
   <div class="span10">
     <ul class="breadcrumb">
       <li>
-        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
-        <span class="divider"><i class="icon-chevron-right"/></span>
+        <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
+        <span class="divider"><i class="icon-chevron-right"></i></span>
       </li>
-      <li class="active"> [% id %] </li>
+      <li class="active">[% id %]</li>
     </ul>
+    <h2><!-- first sibling of alerts --></h2>
     <div class="tab-content">
       <ul class="nav nav-tabs">
         <li class="active">
