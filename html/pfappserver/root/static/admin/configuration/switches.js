@@ -54,7 +54,7 @@ var SwitchView = function(options) {
 
     // Delete the switch
     var delete_s = $.proxy(this.deleteSwitch, this);
-    options.parent.on('click', '#switches [href$="/remove"]', delete_s);
+    options.parent.on('click', '#switches [href$="/delete"]', delete_s);
 
     // Disable the uplinks field when 'dynamic uplinks' is checked
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);

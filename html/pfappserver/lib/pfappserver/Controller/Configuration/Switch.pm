@@ -21,11 +21,9 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
-=head2 Methods
+=head1 METHODS
 
-=over
-
-=item begin
+=head2 begin
 
 Setting the current form instance and model
 
@@ -44,7 +42,7 @@ sub begin :Private {
     $c->stash->{switch_default} = $switch_default;
 }
 
-=item object
+=head2 object
 
 /configuration/switch/*
 
@@ -57,7 +55,7 @@ sub object :Chained('/') :PathPart('configuration/switch') :CaptureArgs(1) {
     $c->stash->{action_uri} = $c->uri_for($c->action);
 }
 
-=item after list
+=head2 after list
 
 =cut
 
@@ -78,9 +76,9 @@ after list => sub {
     }
 };
 
-=item after update
+=head2 after update
 
-=item after remove
+=head2 after remove
 
 =cut
 
@@ -91,14 +89,14 @@ after [qw(update remove)] => sub {
     }
 };
 
-=item after create
+=head2 after create
 
 =cut
 
 after create => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
-        $c->stash->{template} = 'configuration/switch/read.tt';
+        $c->stash->{template} = 'configuration/switch/view.tt';
     }
 };
 
@@ -118,18 +116,7 @@ after view => sub {
     }
 };
 
-=item read
-
-Usage: /configuration/switch/<switch>/read
-
-=cut
-
-sub read :Chained('object') :PathPart('read') :Args(0) {
-    my ($self, $c) = @_;
-    $c->forward('view');
-}
-
-=item index
+=head2 index
 
 Usage: /configuration/switch/
 
@@ -139,8 +126,6 @@ sub index :Path :Args(0) {
     my ($self, $c) = @_;
     $c->forward('list');
 }
-
-=back
 
 =head1 COPYRIGHT
 
