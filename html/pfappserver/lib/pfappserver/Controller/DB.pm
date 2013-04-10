@@ -21,9 +21,7 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 METHODS
 
-=over
-
-=item begin
+=head2 begin
 
 This controller defaults view is JSON.
 
@@ -35,7 +33,7 @@ sub begin :Private {
     $c->stash->{current_view} = 'JSON';
 }
 
-=item assign
+=head2 assign
 
 Assign a new user to a database.
 
@@ -81,7 +79,7 @@ sub assign :Path('assign') :Args(1) {
     }
 }
 
-=item create
+=head2 create
 
 Create a new database.
 
@@ -130,7 +128,7 @@ sub create :Path('create') :Args(1) {
     }
 }
 
-=item start
+=head2 start
 
 Start a MySQLd instance.
 
@@ -151,7 +149,7 @@ sub start :Path('start') :Args(0) {
     $c->stash->{status_msg} = $message;
 }
 
-=item test
+=head2 test
 
 Test the connection to the database server with the provided root user / password.
 
@@ -212,8 +210,6 @@ sub reset_password :Path('reset_password') :Args(0) {
 
     $c->stash->{status_msg} = $message;
 }
-
-=back
 
 =head1 AUTHORS
 

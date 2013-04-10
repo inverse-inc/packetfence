@@ -24,7 +24,7 @@ use pf::authentication;
 use pf::os;
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
-# # imported but it's better than duplicating regex all over the place.
+# imported but it's better than duplicating regex all over the place.
 use pf::config;
 use pf::config::cached;
 use Moose;
@@ -49,8 +49,6 @@ our %VALID_PARAMS = (
 );
 
 =head1 METHODS
-
-
 
 =head2 auto
 

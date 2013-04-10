@@ -7,19 +7,13 @@ pfappserver::Form::Field::Toggle - checkbox specific to PacketFence
 =head1 DESCRIPTION
 
 This field extends the default Checkbox. It is checked if the input
-value matches (y|yes|true|enabled|1).
+value matches the checkbox_value attribute.
 
 =cut
 
 use Moose;
 extends 'HTML::FormHandler::Field::Checkbox';
 use namespace::autoclean;
-
-=head1 DESCRIPTION
-
-This field returns Y if true, N if false.
-
-=cut
 
 has '+checkbox_value' => ( default => 'Y' );
 has 'unchecked_value' => ( is => 'ro', default => 'N' );
@@ -45,7 +39,7 @@ sub toggle_deflate {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

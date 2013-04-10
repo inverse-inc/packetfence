@@ -129,7 +129,7 @@ sub readAll {
             $section{$param} = $config->val( $id, $param);
         }
         $self->cleanupAfterRead($id,\%section);
-        if ($id eq 'default') {
+        if ($id =~ m/defaults?/) {
             unshift @sections, \%section;
         } else {
             push @sections,\%section;
@@ -198,24 +198,24 @@ Update/edit/modify an existing section
 =cut
 
 sub update {
-    my ( $self, $id, $assignments ) = @_;
+    my ($self, $id, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status,$status_msg) = ($STATUS::OK,"");
-    if($id eq 'all') {
+    my ($status, $status_msg) = ($STATUS::OK, "");
+    if ($id eq 'all') {
         $status = $STATUS::FORBIDDEN;
         $status_msg = "This method does not handle \"$id\"";
     }
     else {
-        $self->cleanupBeforeCommit($id,$assignments);
+        $self->cleanupBeforeCommit($id, $assignments);
         my $config = $self->cachedConfig;
         delete $assignments->{$self->idKey};
         if ( $config->SectionExists($id) ) {
             while ( my ($param, $value) = each %$assignments ) {
                 if ( $config->exists($id, $param) ) {
-                    $config->setval( $id, $param, $value );
+                    $config->setval($id, $param, $value);
                 } else {
-                    $config->newval( $id, $param, $value );
+                    $config->newval($id, $param, $value);
                 }
             }
         } else {
@@ -236,11 +236,11 @@ To create
 =cut
 
 sub create {
-    my ( $self, $id, $assignments ) = @_;
+    my ($self, $id, $assignments) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status,$status_msg);
-    $self->cleanupBeforeCommit($id,$assignments);
+    my ($status, $status_msg);
+    $self->cleanupBeforeCommit($id, $assignments);
     my $config = $self->cachedConfig;
 
     if ( !$config->SectionExists($id) ) {

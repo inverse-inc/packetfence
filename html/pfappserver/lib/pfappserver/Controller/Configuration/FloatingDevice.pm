@@ -52,6 +52,8 @@ sub object :Chained('/') :PathPart('configuration/floatingdevice') :CaptureArgs(
 
 =head2 after list
 
+Check which floating device is also defined as a switch
+
 =cut
 
 after list => sub {

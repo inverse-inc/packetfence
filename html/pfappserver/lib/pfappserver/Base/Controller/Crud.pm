@@ -45,7 +45,7 @@ sub create : Local: Args(0) {
     my $model = $self->getModel($c);
     if ($c->request->method eq 'POST') {
         $c->stash( current_view => 'JSON');
-        my ($status,$status_msg);
+        my ($status, $status_msg);
         $form->process(params => $c->request->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
@@ -53,11 +53,11 @@ sub create : Local: Args(0) {
         }
         else {
             my $item = $form->value;
-            my $idKey =  $model->idKey;
+            my $idKey = $model->idKey;
             my $id = $item->{$idKey};
             $c->stash->{item} = $item;
             $c->stash->{$idKey} = $id;
-            ($status,$status_msg) = $model->create($id,$item)
+            ($status, $status_msg) = $model->create($id, $item);
         }
         $c->response->status($status);
         $c->stash->{status_msg} = $status_msg;
