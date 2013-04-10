@@ -376,6 +376,7 @@ Tightly coupled to pf::pfcmd::graph::graph_wireless.
 Used in the dashboard.
 
 =cut
+
 sub wireless :Local :Args(2) {
     my ( $self, $c, $start, $end ) = @_;
 
