@@ -760,6 +760,15 @@ sub node_register {
         $auto_registered = 1;
     }
 
+    require pf::person;
+    # create a person entry for pid if it doesn't exist
+    if ( !pf::person::person_exist($pid) ) {
+        $logger->info("creating person $pid because it doesn't exist");
+        pf::person::person_add($pid);
+    } else {
+        $logger->debug("person $pid already exists");
+    }
+
     # if it's for auto-registration and mac is already registered, we are done
     if ($auto_registered) {
        my $node_info = node_view($mac);
@@ -774,21 +783,12 @@ sub node_register {
        }
     }
 
-    require pf::person;
     # do not check for max_node if it's for auto-register
     if (!$auto_registered) {
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
             $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
             return (0);
         }
-    }
-
-    # create a person entry for pid if it doesn't exist
-    if ( !pf::person::person_exist($pid) ) {
-        $logger->info("creating person $pid because it doesn't exist");
-        pf::person::person_add($pid);
-    } else {
-        $logger->debug("person $pid already exists");
     }
 
     $info{'pid'}     = $pid;
