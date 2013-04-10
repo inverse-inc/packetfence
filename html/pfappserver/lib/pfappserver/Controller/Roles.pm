@@ -21,29 +21,9 @@ use POSIX;
 
 use pfappserver::Form::Role;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 SUBROUTINES
-
-=head2 auto
-
-Allow only authenticated users
-
-=cut
-
-sub auto :Private {
-    my ($self, $c) = @_;
-
-    unless ($c->user_exists()) {
-        $c->response->status(HTTP_UNAUTHORIZED);
-        $c->response->location($c->req->referer);
-        $c->stash->{template} = 'admin/unauthorized.tt';
-        $c->detach();
-        return 0;
-    }
-
-    return 1;
-}
 
 =head2 index
 
@@ -62,9 +42,9 @@ sub index :Path :Args(0) {
 
 sub create :Local {
     my ($self, $c) = @_;
-  
+
     my ($status, $result, $form);
-  
+
     if ($c->request->method eq 'POST') {
         $form = pfappserver::Form::Role->new(ctx => $c);
         $form->process(params => $c->req->params);
@@ -117,11 +97,11 @@ sub object :Chained('/') :PathPart('roles') :CaptureArgs(1) {
 
 sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
-  
+
     my ($status, $result, $form);
-  
+
     $c->stash->{template} = 'roles/read.tt';
-  
+
     if ($c->stash->{role}->{category_id}) {
         # Update an existing role
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{role}->{category_id}]);
@@ -138,9 +118,9 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
-  
+
     my ($status, $result, $form);
-  
+
     if ($c->request->method eq 'POST') {
         $form = pfappserver::Form::Role->new(ctx => $c, id => $c->stash->{role}->{name});
         $form->process(params => $c->req->params);

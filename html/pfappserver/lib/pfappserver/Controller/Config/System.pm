@@ -14,7 +14,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;
 use namespace::autoclean;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =head1 METHODS
 
@@ -27,6 +27,7 @@ BEGIN {extends 'Catalyst::Controller'; }
 Usage: /config/system/create
 
 =cut
+
 sub create :Path('create') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -40,6 +41,7 @@ sub create :Path('create') :Args(0) {
 Usage: /config/system/delete
 
 =cut
+
 sub delete :Path('create') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -53,6 +55,7 @@ sub delete :Path('create') :Args(0) {
 Usage: /config/system/read
 
 =cut
+
 sub read :Path('read') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -66,6 +69,7 @@ Update the network interface configurations on system
 Usage: /config/system/update
 
 =cut
+
 sub update :Path('update') :Args(0) {
     my ( $self, $c ) = @_;
 
