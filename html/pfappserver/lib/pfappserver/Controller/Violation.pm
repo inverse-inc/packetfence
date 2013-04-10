@@ -26,7 +26,7 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =head2 begin
 
@@ -80,17 +80,57 @@ sub object :Chained('/') :PathPart('violation') :CaptureArgs(1) {
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('violations')));
-    $c->detach();
+    $c->stash->{template} = 'violation/list.tt';
+    $c->forward('list');
 }
+
 =head2 read
 
 =cut
 
 after view => sub {
     my ($self, $c, $id) = @_;
-    if ($c->stash->{item} && !$c->stash->{action_uri}) {
-        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [ $c->stash->{id} ]);
+    if (!$c->stash->{action_uri}) {
+        if ($c->stash->{item}) {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [ $c->stash->{id} ]);
+        } else {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
+        }
+    }
+};
+
+=head2 after create
+
+=cut
+
+after create => sub {
+    my ($self, $c) = @_;
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->stash->{template} = 'violation/view.tt';
+    }
+};
+
+=head2 after list
+
+=cut
+
+after list => sub {
+    my ($self, $c) = @_;
+
+    if (is_success($c->response->status)) {
+        # Sort violations by id and keep the defaults template at the top
+        my @items = sort {
+            if ($a->{id} eq 'defaults') {
+                -1;
+            } else {
+                int($a->{id}) <=> int($b->{id});
+            }
+        } @{$c->stash->{items}};
+        $c->stash->{items} = \@items;
+        my ($status, $result) = $c->model('Config::Cached::Profile')->readAllIds();
+        if (is_success($status)) {
+            $c->stash->{profiles} = ['default',@$result];
+        }
     }
 };
 

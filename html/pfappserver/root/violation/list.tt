@@ -16,7 +16,7 @@
       </div>
 
       <h2>[% l('Violations')  %]</h2>
-      [% IF violations.size -%]
+      [% IF items.size -%]
       <table class="table">
         <thead>
           <tr>
@@ -24,7 +24,7 @@
           </tr>
         </thead>
         <tbody>
-          [% FOREACH violation IN violations %]
+          [% FOREACH violation IN items %]
           <tr[% IF violation.enabled == 'N' %] class="muted"[% END %]>
             <td><a href="[% c.uri_for(c.controller('Violation').action_for('view'), [ violation.id ]) %]#modalViolation">[% violation.id %]</a></td>
             <td>[% violation.desc %]</td>
@@ -50,7 +50,7 @@
       </table>
       [% END -%]
 
-      <div id="noViolation" class="unwell[% ' hidden' IF violations.size > 0 %]">
+      <div id="noViolation" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-legal icon-large"></i><p>[% l('No violation defined') %]</p>
       </div>
 

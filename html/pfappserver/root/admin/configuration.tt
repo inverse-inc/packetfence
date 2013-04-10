@@ -64,11 +64,11 @@ tr[data-swap] > td {
               <!--[% list_entry('Configuration', 'proxies', 'Proxy') %]-->
               [% list_entry('Configuration', 'trapping', 'Trappings') %]
               [% list_entry('Configuration', 'registration', 'registration') %]
-              [% list_entry('Configuration', 'guests_self_registration','Self Registration') %]
-              [% list_entry('Configuration', 'guests_admin_registration','Admin Registration') %]
+              [% list_entry('Configuration', 'guests_self_registration', 'Self Registration') %]
+              [% list_entry('Configuration', 'guests_admin_registration', 'Admin Registration') %]
               [% list_entry('Configuration', 'billing', 'Billing') %]
               <!--[% list_entry( 'passthroughs') %]-->
-              [% list_entry('Configuration', 'alerting','Alerting') %]
+              [% list_entry('Configuration', 'alerting', 'Alerting') %]
               <!--[% list_entry('Configuration', 'ports', 'Ports') %]-->
               [% list_entry('Configuration', 'scan', 'Scan') %]
               [% list_entry('Configuration', 'expire', 'Expiration') %]
@@ -87,15 +87,15 @@ tr[data-swap] > td {
               [% list_entry('Configuration', 'floating_devices', 'Floating devices') %]
               <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
               [% list_entry('Configuration', 'roles', 'Roles') %]
-              [% list_entry('Authentication','index','Sources') %]
-              [% list_entry('User','create','Create') %]
+              [% list_entry('Authentication', 'index', 'Sources') %]
+              [% list_entry('User', 'create', 'Create') %]
               <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
-              [% list_entry('Configuration', 'violations', 'Violations') %]
+              [% list_entry('Violation', 'index', 'Violations') %]
               [% list_entry('Configuration', 'soh', 'SoH Filters') %]
               <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
-              [% list_entry('Configuration::FingerPrints', 'index','Fingerprints') %]
-              [% list_entry('Configuration::UserAgents', 'index','User Agents') %]
-              [% list_entry('Configuration::MacAddress', 'index','MAC Addresses') %]
+              [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
+              [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
+              [% list_entry('Configuration::MacAddress', 'index', 'MAC Addresses') %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

@@ -308,23 +308,9 @@ sub users :Local {
 =cut
 
 sub violations :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{template} = 'configuration/violations.tt';
-
-    my ($status, $result) = $c->model('Config::Cached::Violations')->readAll();
-    if (is_success($status)) {
-        $c->stash->{violations} = $result;
-        ($status, $result) = $c->model('Config::Cached::Profile')->readAllIds();
-        if (is_success($status)) {
-            $c->stash->{profiles} = ['default',@$result];
-        }
-    }
-    else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
-    }
+    $c->go('Controller::Violation', 'index');
 }
 
 =head2 soh
