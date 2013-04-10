@@ -764,6 +764,11 @@ sub node_register {
     if ($auto_registered) {
        my $node_info = node_view($mac);
        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq 'reg') {
+        $info{'pid'}     = $pid;
+        if ( !node_modify( $mac, %info ) ) {
+            $logger->error("modify of node $mac failed");
+            return (0);
+        }
            $logger->info("autoregister a node that is already registered, do nothing.");
            return 1;
        }
