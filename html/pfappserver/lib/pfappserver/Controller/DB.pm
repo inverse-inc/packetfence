@@ -29,7 +29,7 @@ This controller defaults view is JSON.
 
 sub begin :Private {
     my ( $self, $c ) = @_;
-
+    pf::config::cached::ReloadConfigs();
     $c->stash->{current_view} = 'JSON';
 }
 

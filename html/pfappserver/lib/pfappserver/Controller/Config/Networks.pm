@@ -31,6 +31,7 @@ Setting up the controllers model
 
 sub begin :Private {
     my ( $self, $c ) = @_;
+    pf::config::cached::ReloadConfigs();
 
     $c->stash(
         current_model_instance => $c->model("Config::Cached::Network")->new,

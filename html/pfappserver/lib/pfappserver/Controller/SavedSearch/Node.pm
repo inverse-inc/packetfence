@@ -33,6 +33,7 @@ Setting the current form instance and model
 
 sub begin :Private {
     my ( $self, $c ) = @_;
+    pf::config::cached::ReloadConfigs();
     $c->stash->{current_model} = "SavedSearch::Node";
     $c->stash->{current_form_instance} = $c->form("SavedSearch")->new(ctx=>$c);
 }

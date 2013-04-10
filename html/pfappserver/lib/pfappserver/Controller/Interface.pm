@@ -43,6 +43,7 @@ This controller defaults view is HTML.
 sub begin :Private {
     my ( $self, $c ) = @_;
 
+    pf::config::cached::ReloadConfigs();
     $c->stash->{current_view} = 'HTML';
 
     # Only show the interfaces networks when in the admin app.

@@ -53,7 +53,7 @@ Set the default view to pfappserver::View::JSON.
 
 sub begin :Private {
     my ($self, $c) = @_;
-
+    pf::config::cached::ReloadConfigs();
     $c->stash->{current_view} = 'JSON';
 }
 

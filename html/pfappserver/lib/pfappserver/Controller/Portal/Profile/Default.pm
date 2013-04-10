@@ -43,6 +43,7 @@ sub index {}
 
 sub begin :Private {
     my ( $self, $c ) = @_;
+    pf::config::cached::ReloadConfigs();
     $c->stash->{current_model_instance} = $c->model("Config::Profile::Default");
     $c->stash->{current_form_instance} = $c->form("Portal::Profile::Default")->new(ctx=>$c);
 }
