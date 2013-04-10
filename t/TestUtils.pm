@@ -38,7 +38,7 @@ our @cli_tests = qw(
 );
 
 our @compile_tests = qw(
-    pf.t binaries.t
+    pf.t binaries.t pfappserver_libs.t
 );
 
 our @dao_tests = qw(
@@ -170,7 +170,7 @@ sub get_all_perl_modules {
             && ! /^.*pfcmd_pregrammar\.pm\z/s
             && $File::Find::name !~ /^.*addons\/legacy\/.*\.pm\z/s
             && push(@list, $File::Find::name);
-        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons'
+        }}, '/usr/local/pf/lib/pf', '/usr/local/pf/addons', '/usr/local/pf/html/pfappserver/lib'
     );
 
     return @list;
