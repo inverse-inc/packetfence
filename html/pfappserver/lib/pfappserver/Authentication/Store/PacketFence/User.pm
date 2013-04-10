@@ -16,9 +16,9 @@ use overload '""' => sub { shift->id }, fallback => 1;
 
 sub new {
   my ( $class, $store, $user ) = @_;
-  
+
   return unless $user;
-  
+
   bless { _store => $store, _user => $user }, $class;
 }
 
@@ -29,10 +29,10 @@ sub id {
 
 sub supported_features {
   return {
-	  password => { self_check => 1, },
-	  session => 1,
-	  roles => 1,
-	 };
+    password => { self_check => 1, },
+    session => 1,
+    roles => 1,
+  };
 }
 
 sub check_password {
@@ -42,12 +42,12 @@ sub check_password {
 
   if ($result) {
       my $value = &pf::authentication::match(undef, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
-      
+
       if (defined $value && $value == $WEB_ADMIN_ALL) {
           return $TRUE;
       }
   }
-  
+
   return $FALSE;
 }
 
@@ -61,21 +61,19 @@ sub roles {
 
 sub AUTOLOAD {
   my $self = shift;
-  
+
   ( my $method ) = ( our $AUTOLOAD =~ /([^:]+)$/ );
-  
+
   return if $method eq "DESTROY";
-  
+
   $self->_user->$method;
 }
-
-=back
 
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
