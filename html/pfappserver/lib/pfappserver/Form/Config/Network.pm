@@ -50,6 +50,13 @@ has_field 'dhcp_max_lease_time' =>
    required => 1,
    messages => { required => 'Please specify the maximum DHCP lease time.' },
   );
+has_field 'domain-name' =>
+  (
+   type => 'Text',
+   label => 'DNS name',
+   required => 1,
+   messages => { required => 'Please specify the DNS name.' },
+  );
 
 =head2 validate
 

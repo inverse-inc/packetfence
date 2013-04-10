@@ -70,6 +70,33 @@ sub object :Chained('/') :PathPart('config/network') :CaptureArgs(1) {
     $self->_setup_object($c, $network);
 }
 
+=head2 after create
+
+=cut
+
+after create => sub {
+    my ($self, $c) = @_;
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+        $c->stash->{template} = 'config/networks/view.tt';
+    }
+};
+
+=head2 after view
+
+=cut
+
+after view => sub {
+    my ($self, $c) = @_;
+    if (!$c->stash->{action_uri}) {
+        my $id = $c->stash->{network};
+        if ($id) {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{network}]);
+        } else {
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
+        }
+    }
+};
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012-2013 Inverse inc.

@@ -12,7 +12,7 @@
         <h6>DHCP</h6>
       </div>
     </div>
-    [% form.field('dhcpd').render %]
+    [% form.field('domain-name').render %]
     [% form.field('dhcp_start').render %]
     [% form.field('dhcp_end').render %]
     [% form.field('dhcp_default_lease_time').render %]
@@ -20,7 +20,7 @@
     [% IF form.field('gateway') -%]
     <div class="control-group">
       <div class="controls">
-        <h6>Routing</h6>
+        <h6>[% l('Routing') %]</h6>
       </div>
     </div>
     [% form.field('gateway').render %]
@@ -30,7 +30,7 @@
   </div><!--modal-body-->
 
   <div class="modal-footer">
-    [% IF form.field('gateway') %]<a class="btn btn-danger pull-left" href="[% c.uri_for(c.controller('Config::Networks').action_for('delete'), [ network ]) %]" data-loading-text="[% l('Deleting') %]"><i class="icon-trash"></i> [% l('Delete') %]</a>[% END %]
+    [% IF form.field('gateway') && network %]<a class="btn btn-danger pull-left" href="[% c.uri_for(c.controller('Config::Networks').action_for('delete'), [ network ]) %]" data-loading-text="[% l('Deleting') %]"><i class="icon-trash"></i> [% l('Delete') %]</a>[% END %]
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
     <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
   </div>
