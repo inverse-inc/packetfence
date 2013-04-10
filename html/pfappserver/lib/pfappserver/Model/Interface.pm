@@ -77,7 +77,7 @@ sub create {
 =cut
 
 sub delete {
-    my ( $self, $interface, $host ) = @_;
+    my ( $self, $interface, $host ,$model, $config_model) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
@@ -116,6 +116,7 @@ sub delete {
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
+    $config_model->remove($interface);
 
     return ($STATUS::OK, "Interface VLAN $interface successfully deleted");
 }
