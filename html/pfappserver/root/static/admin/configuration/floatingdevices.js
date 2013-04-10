@@ -53,7 +53,7 @@ var FloatingDeviceView = function(options) {
 
     // Delete the floatingdevice
     var delete_s = $.proxy(this.deleteFloatingDevice, this);
-    options.parent.on('click', '#floatingdevices [href$="/remove"]', delete_s);
+    options.parent.on('click', '#floatingdevices [href$="/delete"]', delete_s);
 
     // Show the tagged VLANs field when 'trunk port' is checked
     options.parent.on('change', 'form[name="modalFloatingDevice"] input[name="trunkPort"]', this.toggleTaggedVlan);

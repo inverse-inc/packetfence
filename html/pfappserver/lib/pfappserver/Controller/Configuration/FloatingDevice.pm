@@ -22,11 +22,9 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
-=head2 Methods
+=head1 METHODS
 
-=over
-
-=item begin
+=head2 begin
 
 Set the current form instance and model
 
@@ -40,7 +38,7 @@ sub begin :Private {
     $c->stash->{current_form_instance}  = $c->form("Config::FloatingDevice")->new(ctx => $c);
 }
 
-=item object
+=head2 object
 
 Usage: /configuration/floatingdevice/*
 
@@ -52,7 +50,7 @@ sub object :Chained('/') :PathPart('configuration/floatingdevice') :CaptureArgs(
     $self->_setup_object($c, $id);
 }
 
-=item after list
+=head2 after list
 
 =cut
 
@@ -72,9 +70,9 @@ after list => sub {
     }
 };
 
-=item after update
+=head2 after update
 
-=item after remove
+=head2 after remove
 
 =cut
 
@@ -85,18 +83,18 @@ after [qw(update remove)] => sub {
     }
 };
 
-=item after create
+=head2 after create
 
 =cut
 
 after create => sub {
     my ($self, $c) = @_;
-    if(!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'configuration/floatingdevice/view.tt';
     }
 };
 
-=item after view
+=head2 after view
 
 =cut
 
@@ -112,7 +110,7 @@ after view => sub {
     }
 };
 
-=item index
+=head2 index
 
 Usage: /configuration/floatingdevice/
 
@@ -123,8 +121,6 @@ sub index :Path :Args(0) {
 
     $c->forward('list');
 }
-
-=back
 
 =head1 COPYRIGHT
 
