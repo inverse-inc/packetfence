@@ -179,12 +179,14 @@ sub form {
 
 =head2 uri_for
 
+This was overridden since we did not have a way to flatten array in the template toolkit
+
 =cut
 
 sub uri_for {
     my ($self,@args) = @_;
     my $query = pop @args if ref($args[-1]) eq 'HASH';
-    my $args_ref =  (ref($args[-1]) eq 'ARRAY' && ref($args[-2]) eq 'ARRAY') ? pop @args : [] ;
+    my $args_ref =  ( @args > 1 && ref($args[-1]) eq 'ARRAY' && ref($args[-2]) eq 'ARRAY') ? pop @args : [] ;
     @args = (@args,@$args_ref);
     push @args,$query if defined $query;
     return $self->SUPER::uri_for(@args);
