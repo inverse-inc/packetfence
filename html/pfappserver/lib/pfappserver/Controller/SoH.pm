@@ -46,12 +46,12 @@ sub create :Local {
     if ($c->request->method eq 'POST') {
         my $data = decode_json($c->request->params->{json});
         # Validate violation id
-        if ($data->{action} eq 'violation' && !$c->model('Config::Cached::Violations')->hasId($data->{vid})) {
+        if ($data->{action} eq 'violation' && !$c->model('Config::Violations')->hasId($data->{vid})) {
             $status = HTTP_BAD_REQUEST;
             $result = $c->loc("The specified violation doesn't exist.");
         }
         else {
-            my $configViolationsModel = $c->model('Config::Cached::Violations');
+            my $configViolationsModel = $c->model('Config::Violations');
             ($status, $result) = $c->model('SoH')->create($configViolationsModel,
                                                           $data->{name}, $data->{action}, $data->{vid},
                                                           $data->{rules});
@@ -107,7 +107,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{filter}->{filter_id}]);
     }
 
-    ($status, $result) = $c->model('Config::Cached::Violations')->readAll();
+    ($status, $result) = $c->model('Config::Violations')->readAll();
     if (is_success($status)) {
         $c->stash->{violations} = $result;
     }
@@ -126,7 +126,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
 
     my $data = decode_json($c->request->params->{json});
-    my $configViolationsModel = $c->model('Config::Cached::Violations');
+    my $configViolationsModel = $c->model('Config::Violations');
     my ($status, $result) = $c->model('SoH')->update($configViolationsModel,
                                                      $c->stash->{filter},
                                                      $data->{action}, $data->{vid},
@@ -146,7 +146,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
 
-    my $configViolationsModel = $c->model('Config::Cached::Violations');
+    my $configViolationsModel = $c->model('Config::Violations');
     my ($status, $result) = $c->model('SoH')->delete($configViolationsModel,
                                                      $c->stash->{filter});
     if (is_error($status)) {

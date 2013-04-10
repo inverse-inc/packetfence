@@ -326,7 +326,7 @@ sub soh :Local {
     if (is_success($status)) {
         $c->stash->{filters} = $result;
 
-        ($status, $result) = $c->model('Config::Cached::Violations')->readAll();
+        ($status, $result) = $c->model('Config::Violations')->readAll();
         if (is_success($status)) {
             $c->stash->{violations} = $result;
         }

@@ -1,26 +1,23 @@
 package pfappserver::Model::Config::Violations;
-
 =head1 NAME
 
-pfappserver::Model::Config::Violations - Catalyst Model
-
-=head1 DESCRIPTION
-
-Configuration module for operations involving conf/violations.conf.
+pfappserver::Model::Config::Violations
 
 =cut
 
-use Moose;  # automatically turns on strict and warnings
+=head1 DESCRIPTION
+
+pfappserver::Model::Config::Violations
+
+=cut
+
+use Moose;
 use namespace::autoclean;
+use pf::config::cached;
+use pf::config;
 use Readonly;
 
-use pf::config;
-use pf::error qw(is_error is_success);
-use pf::trigger qw(parse_triggers);
-
-extends 'pfappserver::Model::Config::IniStyleBackend';
-
-Readonly::Scalar our $NAME => 'Violations';
+extends 'pfappserver::Base::Model::Config::Cached';
 
 Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    close => 'Close',
@@ -28,15 +25,11 @@ Readonly::Scalar our $actions => { autoreg => 'Autoreg',
                                    log => 'Log',
                                    trap => 'Trap' };
 
-sub _getName        { return $NAME };
-sub _myConfigFile   { return $pf::config::violations_config_file };
+has '+configFile' => (default => $pf::config::violations_config_file);
 
+=head1 Methods
 
-=head1 METHODS
-
-=over
-
-=item availableActions
+=head2 availableActions
 
 =cut
 
@@ -61,327 +54,122 @@ sub availableTemplates {
     return \@templates;
 }
 
-=item update
-
-Update configuration. Supports batch updates.
-
-$config_update_ref is an hashref with key section.param and the value as a
-value, directly.
-
-One value will update one parameter and multiple key => value pairs will
-perform a batch update.
+=head2 remove
 
 =cut
-sub update {
-    my ($self, $violation_update_ref) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    while (my ($violation_id, $violation_entry) = each %$violation_update_ref) {
-        if ($violation_entry->{'window_dynamic'}) {
-            $violation_entry->{'window'} = 'dynamic';
-        }
-
-        # Remove parameters that must not appear in the configuration file
-        delete $violation_entry->{'id'};
-        delete $violation_entry->{'window_dynamic'};
-
-        foreach my $param (keys %$violation_entry) {
-            my ($status, $result_ref) = $self->_update($violation_id,
-                                                       $param, $violation_entry->{$param});
-            # return errors to caller
-            return ($status, $result_ref) if (is_error($status));
-        }
-    }
-
-    # if it worked, let's write the config
-    $self->_write_violations_conf();
-
-    return ($STATUS::OK, "Successfully updated configuration");
+sub remove {
+    my ($self,$id,$violation) = @_;
+    return ($STATUS::FORBIDDEN, "This violation can't be deleted") if (int($id) < 1500000);
+    return $self->SUPER::remove($id,$violation);
 }
 
-=item _update
-
-Updates a single value of the configuration tied hash. Meant to be called
-internally. Does not write the configuration to disk!
+=head2 listTriggers
 
 =cut
 
-sub _update {
-    my ($self, $section, $param, $value) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $config_entry = "$section.$param";
-    my $violations_conf = $self->_load_conf();
-
-    # flatten array references
-    if (ref($value)) {
-        $value = join(',', @$value);
-    }
-    if ( defined($violations_conf->{$section}->{$param}) ) {
-        # a violations.conf parameter is unset: delete it
-        if (!length($value)) {
-            tied(%$violations_conf)->delval( $section, $param );
-        }
-        # a violations.conf parameter is replaced
-        else {
-            tied(%$violations_conf)->setval( $section, $param, $value );
-        }
-    }
-    # violations.conf parameter isn't set: add to violations.conf
-    else {
-        tied(%$violations_conf)->newval( $section, $param, $value );
-    }
-
-    return ($STATUS::OK, "Successfully updated configuration");
-}
-
-=item _write_violations_conf
-
-Performs the write of violations.conf.
-
-=cut
-
-sub _write_violations_conf {
+sub listTriggers {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $violations_conf = $self->_load_conf();
-    tied(%$violations_conf)->WriteConfig($conf_dir . "/violations.conf")
-        or $logger->logdie(
-            "Unable to write config to $conf_dir/violations.conf. "
-            ."You might want to check the file's permissions."
-        );
-}
-
-=head2 read_violations
-
-=cut
-
-sub read_violations {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $violations_conf = $self->_load_conf();
-    my @violations = ();
-    foreach my $section ( keys %$violations_conf ) {
-        push @violations, $section;
-    }
-
-    return ($STATUS::OK, \@violations);
-}
-
-=head2 read_value
-
-=cut
-
-sub read_value {
-    my ( $self, $section, $param ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $status_msg;
-
-    my $violations_conf = $self->_load_conf();
-
-    # Warning: autovivification causes interfaces to be created if the section
-    # is not looked on her own first when the file is written later.
-    if (!defined($violations_conf->{$section}) || !defined($violations_conf->{$section}->{$param})) {
-        $status_msg = "$section.$param does not exists";
-        $logger->warn("$status_msg");
-        return ($STATUS::NOT_FOUND, $status_msg);
-    }
-
-    $status_msg = $violations_conf->{$section}->{$param} || '';
-
-    return ($STATUS::OK, $status_msg);    
-}
-
-=head2 read_violation
-
-=cut
-
-sub read_violation {
-    my ( $self, $violation ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $violations_conf = $self->_load_conf();
-    my @columns = pf::config::ui->instance->field_order('violationconfig get'); 
-    my @resultset;
-
-    foreach my $section ( keys %$violations_conf ) {
-        if ( ($violation eq 'all') || ($violation eq $section) ) {
-            my %values = ( id => $section );
-            foreach my $column (@columns) {
-                if ($violations_conf->{$section}->{$column}) {
-                    if ($column eq 'actions' || $column eq 'trigger') {
-                        my @items = split(',', $violations_conf->{$section}->{$column});
-                        $values{$column} = \@items;
-                    }
-                    else {
-                        $values{$column} = $violations_conf->{$section}->{$column};
-                    }
-                    if ($column eq 'window') {
-                        $values{'window_dynamic'} = $violations_conf->{$section}->{$column};
-                    }
-                }
-            }
-            push @resultset, \%values;
-        }
-    }
-
-    if ( $#resultset > -1 ) {
-        return ($STATUS::OK, \@resultset);
-    }
-    else {
-        return ($STATUS::NOT_FOUND, "Unknown violation $violation");
-    }
-}
-
-=item delete_violation
-
-Delete a violation section in the violations.conf configuration.
-
-=cut
-sub delete_violation {
-    my ($self, $violation) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    return ($STATUS::FORBIDDEN, "This violation can't be deleted") if (int($violation) < 1500000);
-
-    my $violations_conf = $self->_load_conf();
-    my $tied_conf = tied(%$violations_conf);
-    if ($tied_conf->SectionExists($violation)) {
-        $tied_conf->DeleteSection($violation);
-        $self->_write_violations_conf();
-    }
-    else {
-        return ($STATUS::NOT_FOUND, "Violation not found");
-    }
-
-    return ($STATUS::OK, "Successfully deleted violation $violation");
-}
-
-=head2 list_triggers
-
-=cut
-
-sub list_triggers {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
     my ($trigger, %triggers);
 
-    my ($status, $violations) = $self->read_violations();
-    if (is_success($status)) {
-        foreach my $violation (@$violations) {
-            ($status, $trigger) = $self->read_value($violation, 'trigger');
-            if (is_success($status)) {
-                my @items = split(',', $trigger);
-                foreach $trigger (@items) {
-                    $triggers{$trigger} = 1 unless (exists($triggers{$trigger}));
-                }
-            }
+    my $cachedConfig = $self->cachedConfig;
+    foreach my $violation ($cachedConfig->Sections()) {
+        $trigger = $cachedConfig->val($violation, 'trigger');
+        if (defined($trigger)) {
+            my @items = grep {!exists $triggers{$_}}  split(',', $trigger);
+            @triggers{@items} = ();
         }
     }
-
     my @list = sort keys %triggers;
-
     return \@list;
 }
 
-=head2 add_trigger
+
+=head2 addTrigger
 
 =cut
 
-sub add_trigger {
-    my ($self, $violation_id, $trigger) = @_;
-
+sub addTrigger {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my $triggers = '';
-    my ($status, $result) = $self->read_value($violation_id, 'trigger');
-
-    $logger->debug("Add trigger " . $trigger . " to violation " . $violation_id);
-
-    if (is_success($status) && length($result) > 0) {
-        my @items = split /\s*,\s*/, $result;
-        if (grep $_ eq $trigger, @items) {
+    my ( $self,$violation,$trigger ) = @_;
+    if ($violation->{trigger}) {
+        my %triggers_exists;
+        @triggers_exists{@{$violation->{trigger}}} = ();
+        if (exists $triggers_exists{$trigger}) {
             return ($STATUS::OK, 'Trigger already included.');
         }
-        else {
-            my @sorted_items = sort (@items, $trigger);
-            $triggers = join(',', @sorted_items);
-        }
+        $violation->{trigger} = [sort (@{$violation->{trigger}},$trigger)];
+    } else {
+        $violation->{trigger} = [$trigger];
     }
-    else {
-        $triggers = $trigger;
-    }
-
-    ($status, $result) = $self->_update($violation_id, 'trigger', $triggers);
-    if (is_error($status)) {
-        return ($status, $result);
-    }
-
-    # if it worked, let's write the config
-    $self->_write_violations_conf();
-
     return ($STATUS::OK, "Successfully added trigger to violation");
 }
 
-=head2 delete_trigger
+=head2 deleteTrigger
 
 =cut
 
-sub delete_trigger {
-    my ($self, $violation_id, $trigger) = @_;
-
+sub deleteTrigger {
+    my ( $self,$violation,$trigger ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my $triggers = '';
-    my ($status, $result) = $self->read_value($violation_id, 'trigger');
-
-    $logger->debug("Remove trigger " . $trigger . " from violation " . $violation_id);
-
-    if (is_success($status) && length($result) > 0) {
-        my @items = split /\s*,\s*/, $result;
-        if (grep $_ eq $trigger, @items) {
-            my @sorted_items = sort grep { $_ ne $trigger } @items;
-            $triggers = join(',', @sorted_items);
-        }
-        else {
+    if ($violation->{trigger}) {
+        my %triggers_exists;
+        @triggers_exists{@{$violation->{trigger}}} = ();
+        if (!exists $triggers_exists{$trigger}) {
             return ($STATUS::OK, 'Trigger already excluded.');
         }
-    }
+        delete $triggers_exists{$trigger};
+        $violation->{trigger} = [sort keys %triggers_exists];
 
-    ($status, $result) = $self->_update($violation_id, 'trigger', $triggers);
-    if (is_error($status)) {
-        return ($status, $result);
+    } else {
+            return ($STATUS::OK, 'Trigger already excluded.');
     }
-
-    # if it worked, let's write the config
-    $self->_write_violations_conf();
 
     return ($STATUS::OK, "Successfully deleted trigger from violation");
 }
 
-=head2 exists
+=head2 cleanupAfterRead
+
+Clean up violation
 
 =cut
 
-sub exists {
-    my ( $self, $violation ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+sub cleanupAfterRead {
+    my ($self, $id, $violation) = @_;
 
-    my $violations_conf = $self->_load_conf();
-    my $tied_conf = tied(%$violations_conf);
-
-    return $TRUE if ( $tied_conf->SectionExists($violation) );
-    return $FALSE;
+    $self->expand_list($violation, qw(actions trigger whitelisted_categories));
+    if ( exists $violation->{window} ) {
+        $violation->{'window_dynamic'} = $violation->{window};
+    }
 }
 
+=head2 cleanupBeforeCommit
 
-=back
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $violation) = @_;
+
+    $self->flatten_list($violation, qw(actions trigger whitelisted_categories));
+
+    if ($violation->{'window_dynamic'}) {
+        $violation->{'window'} = 'dynamic';
+    }
+    delete $violation->{'window_dynamic'};
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
@@ -402,6 +190,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+

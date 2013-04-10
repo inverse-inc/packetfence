@@ -40,7 +40,7 @@ sub begin :Private {
     my ($form, $actions, $violations, $triggers, $templates);
     pf::config::cached::ReloadConfigs();
 
-    my $model =  $c->model('Config::Cached::Violations');
+    my $model =  $c->model('Config::Violations');
     ($status, $result) = $model->readAll();
     if (is_success($status)) {
         $violations = $result;
