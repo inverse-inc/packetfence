@@ -29,11 +29,12 @@ use File::Copy::Recursive qw(dircopy);
 use File::Basename qw(fileparse);
 use Readonly;
 
-Readonly our %FILTER_FILES => (
-    'redirection.tt' => 1,
-    'response_wispr.tt' => 1,
-    'wireless-profile.xml' => 1,
-);
+Readonly our %FILTER_FILES =>
+  (
+   'redirection.tt' => 1,
+   'response_wispr.tt' => 1,
+   'wireless-profile.xml' => 1,
+  );
 
 BEGIN {
     extends 'pfappserver::Base::Controller::Base';
@@ -63,9 +64,9 @@ Portal Profile chained dispatcher
 =cut
 
 sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
-    my ($self,$c,$id) = @_;
+    my ($self, $c, $id) = @_;
     $self->getModel($c)->readConfig();
-    $self->_setup_object($c,$id);
+    $self->_setup_object($c, $id);
 }
 
 =head2 index
@@ -73,15 +74,13 @@ sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
 =cut
 
 sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     my $model = $self->getModel($c);
     my ($status,$items) = $model->readAll();
     my $form = new pfappserver::Form::Portal(ctx => $c,
-                                                init_object => { items => $items });
+                                             init_object => { items => $items });
     $form->process();
-    $c->stash(
-        form => $form,
-    )
+    $c->stash(form => $form);
 }
 
 after create => sub {
@@ -99,40 +98,40 @@ after create => sub {
 };
 
 sub sort_profiles :Local : Args(0) {
-    my ($self,$c) = @_;
+    my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
 }
 
 sub upload :Chained('object') :PathPart('upload') :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
-    $self->validatePathParts($c,@pathparts);
+    $self->validatePathParts($c, @pathparts);
     $c->stash->{success} = 'true';
     my $upload = $c->request->upload('qqfile');
     my $file_name = $upload->filename;
     push @pathparts,$file_name;
     $c->stash->{path} = $file_name;
     $c->forward('path_exists');
-    $self->validatePathParts($c,@pathparts);
-    $upload->copy_to($self->_makeFilePath($c,@pathparts));
+    $self->validatePathParts($c, @pathparts);
+    $upload->copy_to($self->_makeFilePath($c, @pathparts));
 }
 
 sub validatePathParts {
-    my ($self,$c,@pathparts) = @_;
-    if ( grep { /(\.\.)|[\/\0\?\*\+\%]/} @pathparts   ) {
+    my ($self, $c, @pathparts) = @_;
+    if ( grep { /(\.\.)|[\/\0\?\*\+\%]/} @pathparts ) {
         $c->stash->{status_msg} = 'Invalid file name';
         $c->detach('bad_request');
     }
 }
 
 sub edit :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $full_file_name = catfile(@pathparts);
     my ($file_name,$directory) = fileparse($full_file_name);
     my $file_path = $self->_makeFilePath($c,$full_file_name);
     my $file_content = read_file($file_path);
     $directory = '' if $directory eq './';
-    $directory = catfile($c->stash->{id},$directory);
+    $directory = catfile($c->stash->{id}, $directory);
     $directory .= "/" unless $directory =~ /\/$/;
     $c->stash(
         file_name => $file_name,
@@ -143,10 +142,10 @@ sub edit :Chained('object') :PathPart :Args() {
 }
 
 sub edit_new :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
-    $self->validatePathParts($c,@pathparts);
+    my ($self, $c, @pathparts) = @_;
+    $self->validatePathParts($c, @pathparts);
     my $full_file_name = catfile(@pathparts);
-    my $file_path = $self->_makeFilePath($c,$full_file_name);
+    my $file_path = $self->_makeFilePath($c, $full_file_name);
     my $file_content = '';
     if (-e $file_path) {
         $file_content = read_file($file_path);
@@ -159,7 +158,7 @@ sub edit_new :Chained('object') :PathPart :Args() {
 [% INCLUDE footer.html %]
 HTML
     }
-    my ($file_name,$directory) = fileparse($full_file_name);
+    my ($file_name, $directory) = fileparse($full_file_name);
     $c->stash(
         template => 'portal/profile/edit.tt',
         file_name => $file_name,
@@ -171,73 +170,69 @@ HTML
 }
 
 sub rename :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c,@pathparts) = @_;
     my $request = $c->request;
     my $to = $request->param('to');
-    $self->validatePathParts($c,$to,@pathparts);
+    $self->validatePathParts($c, $to, @pathparts);
     my $from = catfile(@pathparts);
-    my $from_path = $self->_makeFilePath($c,$from);
+    my $from_path = $self->_makeFilePath($c, $from);
     my(undef, $directories, undef) = fileparse($from_path);
-    my $to_path = catfile($directories,$to);
+    my $to_path = catfile($directories, $to);
     $c->stash->{path} = $to_path;
     $c->forward('path_exists');
-    move($from_path,$to_path);
+    move($from_path, $to_path);
     $c->stash->{current_view} = 'JSON';
     #verify file exists if it does set error
     pop @pathparts;
-    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{id} ], catfile(@pathparts,$to) ));
+    $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{id}], catfile(@pathparts,$to)) );
 }
 
 sub new_file :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $path = catfile(@pathparts);
     my $request = $c->request;
     if ($request->method eq 'POST') {
-        my $file_name = catfile(@pathparts,$request->param('file_name'));
+        my $file_name = catfile(@pathparts, $request->param('file_name'));
         $c->stash->{current_view} = 'JSON';
         #verify file exists if it does set error
-        $c->stash->{path} = $self->_makeFilePath($c,$file_name);;
+        $c->stash->{path} = $self->_makeFilePath($c, $file_name);;
         $c->forward('path_exists');
-        $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit_new'), [$c->stash->{id} ], $file_name ));
+        $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit_new'), [$c->stash->{id} ], $file_name) );
     }
     else {
         $path .= "/" if $path ne '';
-        $c->stash(
-            path => $path
-        );
+        $c->stash(path => $path);
     }
 
 }
 
 sub save :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $file_content = $c->req->param("file_content") || '';
-    my $path = $self->_makeFilePath($c,@pathparts);
+    my $path = $self->_makeFilePath($c, @pathparts);
     $c->stash->{current_view} = 'JSON';
-    write_file($path,$file_content);
+    write_file($path, $file_content);
 }
 
 sub show_preview :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $file_name = catfile(@pathparts);
-    $c->stash(
-        file_name => $file_name
-    );
+    $c->stash(file_name => $file_name);
 }
 
 sub preview :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $template_path = $self->_makeFilePath($c);
-    my $new_template = $self->_makePreviewTemplate($c,@pathparts);
-    $self->add_fake_profile_data($c,$new_template,@pathparts);
+    my $new_template = $self->_makePreviewTemplate($c, @pathparts);
+    $self->add_fake_profile_data($c, $new_template, @pathparts);
     $c->stash(
-        additional_template_paths => [$template_path],
-        template => $new_template
-    );
+              additional_template_paths => [$template_path],
+              template => $new_template
+             );
 }
 
 sub add_fake_profile_data {
-    my ($self,$c,$template,@pathparts) = @_;
+    my ($self, $c, $template, @pathparts) = @_;
     $self->SUPER::add_fake_profile_data($c);
     if ($template eq 'remediation.html' && $pathparts[0] eq 'violations' ) {
         $c->stash( sub_template => catfile(@pathparts) );
@@ -245,9 +240,9 @@ sub add_fake_profile_data {
 }
 
 sub _makePreviewTemplate {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $template;
-    if($pathparts[0] eq 'violations') {
+    if ($pathparts[0] eq 'violations') {
         $template = 'remediation.html';
     } else {
         my $file_content = read_file($self->_makeFilePath($c,@pathparts));
@@ -261,40 +256,37 @@ sub _makePreviewTemplate {
 }
 
 sub _makeFilePath {
-    my ($self,$c,@pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id},@pathparts);
+    my ($self, $c, @pathparts) = @_;
+    return catfile($CAPTIVE_PORTAL{PROFILE_TEMPLATE_DIR},$c->stash->{id}, @pathparts);
 }
 
 sub _makeDefaultFilePath {
-    my ($self,$c,@pathparts) = @_;
-    return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR},@pathparts);
+    my ($self, $c, @pathparts) = @_;
+    return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR}, @pathparts);
 }
 
-
 sub delete_file :Chained('object') :PathPart('delete') :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
-    my $file_path = $self->_makeFilePath($c,@pathparts);
+    my $file_path = $self->_makeFilePath($c, @pathparts);
     unlink($file_path);
 }
 
 sub revert_file :Chained('object') :PathPart :Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     my $file_path = $self->_makeFilePath($c,@pathparts);
-    my $default_file_path = $self->_makeDefaultFilePath($c,@pathparts);
-    copy($default_file_path,$file_path);
+    my $default_file_path = $self->_makeDefaultFilePath($c, @pathparts);
+    copy($default_file_path, $file_path);
 }
 
 sub files :Chained('object') :PathPart :Args(0) {
-    my ($self,$c) = @_;
-    $c->stash(
-        root => $self->_getFilesInfo($c)
-    );
+    my ($self, $c) = @_;
+    $c->stash(root => $self->_getFilesInfo($c));
 }
 
 sub _getFilesInfo {
-    my ($self,$c) = @_;
+    my ($self, $c) = @_;
     my $profile = $c->stash->{id};
     my $root_path = $self->_makeFilePath($c);
     my %default_files =
@@ -313,32 +305,30 @@ sub _getFilesInfo {
 }
 
 sub path_exists :Private {
-    my ($self,$c) = @_;
-    if(-e $c->stash->{path}) {
-        $c->stash(
-            status_msg => 'File already exist'
-        );
+    my ($self, $c) = @_;
+    if (-e $c->stash->{path}) {
+        $c->stash(status_msg => 'File already exist');
         $c->detach('bad_request');
     }
 }
 
 sub copy_file :Chained('object'): PathPart('copy'): Args() {
-    my ($self,$c,@pathparts) = @_;
+    my ($self, $c, @pathparts) = @_;
     my $from = catfile(@pathparts);
     my $request = $c->request;
     if ($request->method eq 'POST') {
         my $to = $request->param('to');
-        $self->validatePathParts($c,$to,@pathparts);
+        $self->validatePathParts($c, $to, @pathparts);
         my $from_path = $self->_makeFilePath($c,$from);
-        my(undef, $directories, undef) = fileparse($from_path);
-        my $to_path = catfile($directories,$to);
+        my (undef, $directories, undef) = fileparse($from_path);
+        my $to_path = catfile($directories, $to);
         $c->stash->{path} = $to_path;
         $c->forward('path_exists');
         $c->stash->{current_view} = 'JSON';
-        copy($from_path,$to_path);
+        copy($from_path, $to_path);
     }
     else {
-        my(undef, $path, undef) = fileparse($from);
+        my (undef, $path, undef) = fileparse($from);
         $path = '' if $path eq './';
         $c->stash(
             from => $from,
@@ -348,45 +338,50 @@ sub copy_file :Chained('object'): PathPart('copy'): Args() {
 }
 
 sub _makeFileInfo {
-    my ($self,$root_path,$file_name,$default_files) = @_;
-    my $full_path = catfile($root_path,$file_name);
+    my ($self, $root_path, $file_name, $default_files) = @_;
+    my $full_path = catfile($root_path, $file_name);
     my $i = 0;
-    my %data = (
-        name => $file_name,
-        size => format_bytes( -s $full_path),
-        hidden => 1,
-    );
-    if( -d $full_path) {
+    my %data =
+      (
+       name => $file_name,
+       size => format_bytes(-s $full_path),
+       hidden => 1,
+      );
+    if (-d $full_path) {
         $data{'type'} = 'dir';
-        $data{'entries'} = [
-            grep { $_->{name} = catfile($file_name,$_->{name}) }
-            map {$self->_makeFileInfo($full_path,$_,$default_files) }
-            sort grep { !m/^\./ } (read_dir($full_path))
-        ];
+        $data{'entries'} =
+          [
+           grep { $_->{name} = catfile($file_name, $_->{name}) }
+           map { $self->_makeFileInfo($full_path, $_, $default_files) }
+           sort grep { !m/^\./ } (read_dir($full_path))
+          ];
     }
     else {
         $data{'editable'} = $self->isEditable($full_path);
-        $data{'delete_or_revert'} =  (
-                (exists $default_files->{$full_path}  ) ?
-                'revert' :
-                'delete'
-        );
+        $data{'delete_or_revert'} =
+          (
+           (exists $default_files->{$full_path}) ?
+           'revert' :
+           'delete'
+          );
         $data{'delete_or_revert_disabled'} = $self->isDeleteOrRevertDisabled($full_path);
         $data{'previewable'} = $self->isPreviewable($full_path);
     }
    return \%data;
 }
+
 sub isPreviewable {
-    my ($self,$file_name) = @_;
+    my ($self, $file_name) = @_;
     return $file_name =~ /\.html$/;
 }
+
 sub isDeleteOrRevertDisabled {
     return 0;
 }
 
 sub isEditable {
-    my ($self,$file_name) = @_;
-    if( $file_name =~ /\.html$/ ) {
+    my ($self, $file_name) = @_;
+    if ($file_name =~ /\.html$/) {
         return 1;
     }
     return 0;
@@ -396,9 +391,9 @@ sub _readDirRecursive {
     my ($root_path) = @_;
     my @files;
     foreach my $entry (read_dir($root_path)) {
-        my $full_path = catfile($root_path,$entry);
+        my $full_path = catfile($root_path, $entry);
         if (-d $full_path) {
-            push @files, map {catfile($entry,$_) } _readDirRecursive($full_path);
+            push @files, map {catfile($entry, $_) } _readDirRecursive($full_path);
         }
         elsif ($entry !~ m/^\./) {
             push @files, $entry;
@@ -410,16 +405,16 @@ sub _readDirRecursive {
 sub revert_all :Chained('object') :PathPart :Args(0) {
     my ($self,$c) = @_;
     $c->stash->{current_view} = 'JSON';
-    my($entries_copied,$dir_copied,undef) = $self->copyDefaultFiles($c);
+    my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);
     my $status_msg = "Copied " . ($entries_copied - $dir_copied) . " files";
     $c->stash->{status_msg} = $status_msg;
 }
 
 sub copyDefaultFiles {
-    my ($self,$c) = @_;
+    my ($self, $c) = @_;
     my $to_dir = $self->_makeFilePath($c);
     my $from_dir = $self->_makeDefaultFilePath($c);
-    return dircopy($from_dir,$to_dir);
+    return dircopy($from_dir, $to_dir);
 }
 
 =head1 COPYRIGHT

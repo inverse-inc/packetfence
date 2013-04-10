@@ -36,11 +36,11 @@
               <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]#deleteViolation">[% l('Delete') %]</a>
               [% IF profiles.size %]
               <div class="btn-group">[% END %]
-                <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), ['default'], "violations/$violation.template") %].html" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
+                <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), ['default'], 'violations', "$violation.template") %].html" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
                 [% IF profiles.size %]<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   [% FOR profile IN profiles -%]
-                  <li><a target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [profile], "violations/$violation.template") %].html" >[% profile %]</a></li>[% END %]
+                  <li><a target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [profile], 'violations', "$violation.template") %].html" >[% profile %]</a></li>[% END %]
                 </ul>
               </div>[% END %]
             </td>

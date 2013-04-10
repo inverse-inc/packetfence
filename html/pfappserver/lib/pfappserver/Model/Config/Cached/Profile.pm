@@ -18,18 +18,15 @@ use pf::config;
 
 extends 'pfappserver::Base::Model::Config::Cached';
 
+=head1 METHODS
 
-=head2 Methods
-
-=over
-
-=item _buildCachedConfig
+=head2 _buildCachedConfig
 
 =cut
 
 sub _buildCachedConfig { $cached_profiles_config }
 
-=item remove
+=head2 remove
 
 Delete an existing item
 
@@ -42,7 +39,8 @@ sub remove {
     }
     return $self->SUPER::remove($id);
 }
-=item cleanupAfterRead
+
+=head2 cleanupAfterRead
 
 Clean up switch data
 
@@ -54,7 +52,7 @@ sub cleanupAfterRead {
     $self->expand_list($profile, qw(guest_modes));
 }
 
-=item cleanupBeforeCommit
+=head2 cleanupBeforeCommit
 
 Clean data before update or creating
 
@@ -68,8 +66,6 @@ sub cleanupBeforeCommit {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-=back
 
 =head1 COPYRIGHT
 
