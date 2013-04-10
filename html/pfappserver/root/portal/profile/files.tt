@@ -3,6 +3,7 @@ td a.btn { margin-left: 5px; }
 </style>
 [%- MACRO display_directory(entry,dirs) BLOCK -%]
     [% name = entry.name %]
+    [% paths = name.split('/') %]
     [% dir_id = "profile_dir_" _ dirs.join("_") _ "_" _ loop.count %]
         <tr>
           <td>
@@ -10,14 +11,14 @@ td a.btn { margin-left: 5px; }
           </td>
           <td></td>
           <td>
-            <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[id], name ) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
+            <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[id], paths) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id %]" class="pull-right"></div>
             <script>
             <!--
                     $('#[% uploader_id %]').fineUploader({
                          request: {
-                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[id],name) %]',
+                           endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[id],paths) %]',
                            paramsInBody : true
                          },
                          text: {
@@ -58,12 +59,13 @@ td a.btn { margin-left: 5px; }
 [%- MACRO display_file(entry,dirs) BLOCK -%]
     [% 
         name = entry.name
+        paths = name.split('/')
         delete_or_revert = entry.delete_or_revert 
     %]
     <tr>
       <td>
         [% IF entry.editable %]
-          <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[id], name) %]" ><i class="icon-file"></i> [% name %]</a>
+          <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('edit'),[id], paths) %]" ><i class="icon-file"></i> [% name %]</a>
         [% ELSE %]
             <i class="icon-file"></i> [% name %]
         [% END %]
@@ -72,15 +74,15 @@ td a.btn { margin-left: 5px; }
       <td>
         <div class="btn-group pull-right">
         [% IF entry.previewable %]
-            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ id ], entry.name ) %]"  title="[% l('Preview') %]"> <i class="icon-eye-open icon-border"></i></a>
+            <a class="btn btn-small" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [ id ], paths) %]"  title="[% l('Preview') %]"> <i class="icon-eye-open icon-border"></i></a>
         [% ELSE %]
             <a class="btn btn-small disabled"><i class="icon-eye-close icon-border"></i></a>
         [% END %]
-        <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ id ], entry.name ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
+        <a class="btn btn-small" data-toggle="modal" data-target="#copyModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('copy_file'), [ id ], paths ) %]" title="[% l('Copy') %]"> <i class="icon-copy icon-border"></i></a>
         [%IF entry.delete_or_revert == 'revert' %]
-            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ id ], name ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#revertModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("revert_file"), [ id ], paths ) %]" title="[% l('Revert') %]"> <i class="icon-refresh icon-border"></i></a>
         [% ELSE %]
-            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ id ], name ) %]" title="[% l('Delete') %]"> <i class="icon-trash icon-border"></i></a>
+            <a class="btn btn-small [% IF entry.delete_or_revert_disabled %] hidden[% END %]" data-toggle="modal" data-target="#deleteModal" data-content="[% name | html %]"  data-href-background="[% c.uri_for(c.controller('Portal::Profile').action_for("delete_file"), [ id ], paths ) %]" title="[% l('Delete') %]"> <i class="icon-trash icon-border"></i></a>
         [% END %]
         </div>
       </td>

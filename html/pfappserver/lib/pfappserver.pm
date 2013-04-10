@@ -177,6 +177,19 @@ sub form {
     return $c->_filter_component( $comp );
 }
 
+=head2 uri_for
+
+=cut
+
+sub uri_for {
+    my ($self,@args) = @_;
+    my $query = pop @args if ref($args[-1]) eq 'HASH';
+    my $args_ref =  (ref($args[-1]) eq 'ARRAY' && ref($args[-2]) eq 'ARRAY') ? pop @args : [] ;
+    @args = (@args,@$args_ref);
+    push @args,$query if defined $query;
+    return $self->SUPER::uri_for(@args);
+}
+
 =head2 forms
 
 Returns the available names which can be passed to $c->forms
@@ -194,7 +207,6 @@ sub forms {
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
-
 
 # Start the application
 __PACKAGE__->setup();
