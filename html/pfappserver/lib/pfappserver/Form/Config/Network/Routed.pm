@@ -23,6 +23,20 @@ has_field 'network' =>
    required => 1,
    messages => { required => 'Please specify the network.' },
   );
+has_field 'dhcpd' =>
+  (
+   type => 'Toggle',
+   label => 'Enable DHCP',
+   widget => 'Switch',
+   required => 1,
+  );
+has_field 'dns' =>
+  (
+   type => 'IPAddress',
+   label => 'DNS Server',
+   required => 1,
+   messages => { required => "Please specify the DNS server's IP address." },
+  );
 has_field 'gateway' =>
   (
    type => 'IPAddress',

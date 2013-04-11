@@ -87,6 +87,7 @@ InterfaceView.prototype.readInterface = function(e) {
         },
         success: function(data) {
             modal.append(data);
+            modal.find('.switch').bootstrapSwitch();
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
             modal.modal({ shown: true });
             modal.one('shown', function() {
