@@ -18,11 +18,10 @@ use pf::config::cached;
 
 BEGIN {extends 'Catalyst::Model';}
 
-=head2 Fields
+=head1 FIELDS
 
-=over
 
-=item cachedConfig
+=head2 cachedConfig
 
 =cut
 
@@ -32,25 +31,22 @@ has cachedConfig => (
     builder => '_buildCachedConfig'
 );
 
-=item idKey
+=head2 idKey
 
 =cut
 
 has idKey => ( is=> 'ro', default => 'id');
 
-=item configFile
+=head2 configFile
 
 =cut
 
 has configFile => ( is=> 'ro');
 
-=back
 
-=head2 Methods
+=head1 METHODs
 
-=over
-
-=item _buildCachedConfig
+=head2 _buildCachedConfig
 
 =cut
 
@@ -60,7 +56,7 @@ sub _buildCachedConfig {
 }
 
 
-=item readConfig
+=head2 readConfig
 
 =cut
 
@@ -73,7 +69,7 @@ sub readConfig {
     return ($STATUS::OK);
 }
 
-=item rewriteConfig
+=head2 rewriteConfig
 
 Save the cached config
 
@@ -96,7 +92,7 @@ sub rewriteConfig {
     return ($STATUS::OK, $status_msg);
 }
 
-=item readAllIds
+=head2 readAllIds
 
 Get all the sections names
 
@@ -111,7 +107,7 @@ sub readAllIds {
     return ($STATUS::OK, \@sections);
 }
 
-=item readAll
+=head2 readAll
 
 Get all the sections as an array of hash refs
 
@@ -138,7 +134,7 @@ sub readAll {
     return ($STATUS::OK, \@sections);
 }
 
-=item hasId
+=head2 hasId
 
 If config has a section
 
@@ -161,7 +157,7 @@ sub hasId {
     return ($status,$status_msg);
 }
 
-=item read
+=head2 read
 
 reads a section
 
@@ -191,7 +187,7 @@ sub read {
     return ($status,$result);
 }
 
-=item update
+=head2 update
 
 Update/edit/modify an existing section
 
@@ -229,7 +225,7 @@ sub update {
     return ($status, $status_msg);
 }
 
-=item create
+=head2 create
 
 To create
 
@@ -259,7 +255,7 @@ sub create {
 }
 
 
-=item remove
+=head2 remove
 
 Removes an existing item
 
@@ -285,19 +281,42 @@ sub remove {
     return ($status,$status_msg);
 }
 
-=item cleanupAfterRead
+=head2 renameItem
+
+=cut
+
+sub renameItem {
+    my ( $self, $old, $new ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status,$status_msg);
+    my $config = $self->cachedConfig;
+    if ( $config->SectionExists($old) ) {
+        $config->RenameSection($old,$new);
+        $status_msg = "\"$old\" successfully renamed to $new";
+        $status = $STATUS::OK;
+    } else {
+        $status = $STATUS::NOT_FOUND;
+        $status_msg = "\"$old\" does not exists";
+        $logger->warn("$status_msg");
+    }
+
+    $logger->info("$status_msg");
+    return ($status,$status_msg);
+}
+
+=head2 cleanupAfterRead
 
 =cut
 
 sub cleanupAfterRead { }
 
-=item cleanupBeforeCommit
+=head2 cleanupBeforeCommit
 
 =cut
 
 sub cleanupBeforeCommit { }
 
-=item expand_list
+=head2 expand_list
 
 =cut
 
@@ -311,7 +330,7 @@ sub expand_list {
     }
 }
 
-=item flatten_list
+=head2 flatten_list
 
 =cut
 
@@ -326,8 +345,6 @@ sub flatten_list {
 
 
 __PACKAGE__->meta->make_immutable;
-
-=back
 
 =head1 COPYRIGHT
 

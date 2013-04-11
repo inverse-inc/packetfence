@@ -25,7 +25,7 @@ with 'pfappserver::Base::Controller::Crud';
 
 =cut
 
-after [qw(update remove)] => sub {
+after [qw(update remove rename_item)] => sub {
     my ($self,$c) = @_;
     if(is_success($c->response->status) ) {
         $self->getModel($c)->rewriteConfig();
