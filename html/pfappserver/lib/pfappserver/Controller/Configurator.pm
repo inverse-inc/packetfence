@@ -80,17 +80,20 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
     $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
-    if( $c->stash->{installation_type} eq 'configuration' ) {
-        my $admin_ip    = $c->model('PfConfigAdapter')->getWebAdminIp();
-        my $admin_port  = $c->model('PfConfigAdapter')->getWebAdminPort();
-        $c->log->info("Redirecting to admin interface https://$admin_ip:$admin_port");
-        $c->response->redirect("https://$admin_ip:$admin_port");
+    if ($c->stash->{installation_type} eq $pfappserver::Model::Configurator::CONFIGURATION) {
+        my $admin_url = sprintf('%s://%s:%s/admin',
+                                $c->request->uri->scheme,
+                                $c->request->uri->host,
+                                $c->request->uri->port);
+        $c->log->info("Redirecting to admin interface $admin_url");
+        $c->response->redirect($admin_url);
+        $c->detach();
     }
 
     $c->stash->{steps} = \@steps;
     $self->_next_step($c);
 
-    if ($c->action->name() ne 'enforcement' &&
+    if ($c->action->name() ne $self->action_for('enforcement')->name &&
         (!exists($c->session->{enforcements}) || scalar($c->session->{enforcements}) == 0)) {
         # Defaults to inline mode if no mechanism has been chosen so far
         $c->session->{enforcements}->{inline} = 1;
