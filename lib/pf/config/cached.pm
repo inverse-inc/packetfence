@@ -36,7 +36,7 @@ our %RELOADED;
 our %RELOADED_FROM_CACHE;
 use overload "%{}" => \&config, fallback => 1;
 
-our $chi_config =ode Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
+our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
 
 Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
 
