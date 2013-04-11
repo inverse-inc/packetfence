@@ -473,21 +473,21 @@ sub readPfConfigFiles {
     }
 
 
-    #creating a call back to be called everytime the pf.conf file is reloaded
+    # creating a call back to be called everytime the pf.conf file is reloaded
     my $pf_callback = sub {
         my ($config) = @_;
         $config->toHash(\%Config);
         $config->cleanupWhitespace(\%Config);
 
-        my @time_values = grep {   my $t = $Doc_Config{$_}{type}; defined $t && $t  eq 'time'} keys %Doc_Config;
+        my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
 
-        #normalize time
+        # normalize time
         foreach my $val (@time_values ) {
             my ( $group, $item ) = split( /\./, $val );
-            $Config{$group}{$item} = normalize_time( $Config{$group}{$item} );
+            $Config{$group}{$item} = normalize_time($Config{$group}{$item}) if ($Config{$group}{$item});
         }
 
-        #determine absolute paths
+        # determine absolute paths
         foreach my $val ("alerting.log") {
             my ( $group, $item ) = split( /\./, $val );
             if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
