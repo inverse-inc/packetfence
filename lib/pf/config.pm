@@ -136,7 +136,7 @@ $var_dir = File::Spec->catdir( $install_dir, "var" );
 $generated_conf_dir = File::Spec->catdir( $var_dir , "conf");
 $lib_dir = File::Spec->catdir( $install_dir, "lib" );
 $log_dir = File::Spec->catdir( $install_dir, "logs" );
-$tt_compile_cache_dir = File::Spec->catdir( $install_dir, "tt_compile_cache" );
+$tt_compile_cache_dir = File::Spec->catdir( $var_dir, "tt_compile_cache" );
 
 Log::Log4perl->init("$conf_dir/log.conf");
 Log::Log4perl::MDC->put( 'proc', basename($0) );
