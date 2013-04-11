@@ -155,6 +155,8 @@ binary-arch: build install
 	chown pf:pf -R $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
+	# Set SGID on conf/
+	chmod g+s $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
