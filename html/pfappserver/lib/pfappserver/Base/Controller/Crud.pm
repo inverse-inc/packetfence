@@ -108,16 +108,54 @@ sub update :Chained('object') :PathPart :Args(0) {
     } else {
         my $model = $self->getModel($c);
         my $idKey = $model->idKey;
+        my $current_id = $c->stash->{$idKey};
+        my $value = $form->value;
+        my $new_id;
+        if(exists $value->{$idKey} && defined $value->{$idKey} ) {
+            $new_id = $value->{$idKey};
+        } else {
+            $new_id = $current_id;
+        }
         ($status,$status_msg) = $model->update(
-            $c->stash->{$idKey},
-            $form->value
+            $current_id,
+            $value
         );
+        if (is_success($status) && ($new_id ne $current_id)) {
+            ($status, my $rename_status_msg) = $model->renameItem(
+                $current_id,
+                $new_id
+            );
+            $status_msg .= " and $rename_status_msg";
+        }
     }
 
     $c->response->status($status);
     $c->stash->{status_msg} = $status_msg; # TODO: localize error message
 }
 
+
+=head2 rename_item
+
+=cut
+
+sub rename_item :Chained('object') :PathPart :Args(1) {
+    my ($self,$c,$new_id) = @_;
+    my ($status,$status_msg,$form);
+    my $model = $self->getModel($c);
+    my $idKey = $model->idKey;
+    my $current_id = $c->stash->{$idKey};
+    if ($new_id ne $current_id) {
+        ($status,$status_msg) = $model->renameItem( $current_id,$new_id);
+    } else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "cannot renamed $current_id to itself";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+        current_view => 'JSON',
+    )
+}
 
 =head2 remove
 
