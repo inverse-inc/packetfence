@@ -141,7 +141,8 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
                 my $models =
                   {
                    'networks' => $c->model('Config::Cached::Network'),
-                   'interface' => $c->model('Config::Cached::Interface')
+                   'interface' => $c->model('Config::Cached::Interface'),
+                   'system' => $c->model('Config::System'),
                   };
                 ($status, $result) = $c->model('Interface')->update($interface, $data, $models);
             }

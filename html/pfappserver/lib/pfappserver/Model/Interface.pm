@@ -288,7 +288,7 @@ sub update {
         $models->{networks}->update_network($network, $new_network);
     }
 
-    if ($ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask}) {
+if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask}) || $ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask}) {
         my $gateway = $models->{system}->getDefaultGateway();
         my $isDefaultRoute = ($gateway eq $interface_before->{ipaddress});
         $netmask = Net::Netmask->new($ipaddress.':'.$netmask)->bits();
@@ -297,7 +297,7 @@ sub update {
 
         # Delete previous IP address
         my $cmd;
-        if ($interface_before->{address}) {
+        if (defined($interface_before->{address}) && $interface_before->{address} ne '') {
             $cmd = sprintf "LANG=C sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
