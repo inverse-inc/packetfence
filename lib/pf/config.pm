@@ -71,6 +71,7 @@ our (
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
+    $tt_compile_cache_dir,
 );
 
 BEGIN {
@@ -119,6 +120,7 @@ BEGIN {
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
+        $tt_compile_cache_dir
     );
 }
 
@@ -134,6 +136,7 @@ $var_dir = File::Spec->catdir( $install_dir, "var" );
 $generated_conf_dir = File::Spec->catdir( $var_dir , "conf");
 $lib_dir = File::Spec->catdir( $install_dir, "lib" );
 $log_dir = File::Spec->catdir( $install_dir, "logs" );
+$tt_compile_cache_dir = File::Spec->catdir( $install_dir, "tt_compile_cache" );
 
 Log::Log4perl->init("$conf_dir/log.conf");
 Log::Log4perl::MDC->put( 'proc', basename($0) );

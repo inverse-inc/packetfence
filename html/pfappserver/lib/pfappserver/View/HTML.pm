@@ -2,6 +2,7 @@ package pfappserver::View::HTML;
 
 use strict;
 use warnings;
+use pf::config;
 
 use base 'Catalyst::View::TT';
 
@@ -13,6 +14,7 @@ __PACKAGE__->config(
         js => \&js_filter,
     },
     render_die => 1,
+    COMPILE_DIR => $tt_compile_cache_dir
 );
 
 =head1 NAME
