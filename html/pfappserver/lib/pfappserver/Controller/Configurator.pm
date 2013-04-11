@@ -17,6 +17,8 @@ use HTML::Entities;
 use HTTP::Status qw(:constants is_error is_success);
 use JSON;
 use Moose;
+
+use pf::config;
 #use namespace::autoclean;
 
 BEGIN {extends 'Catalyst::Controller'; }
@@ -273,18 +275,13 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
         delete $c->session->{completed}->{$c->action->name};
 
         # Check if the database and user exist
-        my ($status, $result_ref) = $c->model('Config::Cached::Pf')->read('database');
-        if (is_error($status)) {
-            $c->log->warn("Could not read configuration: $result_ref");
-            $c->detach();
-        }
-
-        $c->stash->{'database'} = $result_ref;
+        my $database_ref = \%{$Config{'database'}};
+        $c->stash->{'database'} = $database_ref;
         # hash-slice assigning values to the list
-        my ($pf_user, $pf_pass, $pf_db) = @{$result_ref}{qw/user pass db/};
+        my ($pf_user, $pf_pass, $pf_db) = @{$database_ref}{qw/user pass db/};
         if ($pf_user && $pf_pass && $pf_db) {
             # throwing away result since we don't use it
-            ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
+            my ($status) = $c->model('DB')->connect($pf_db, $pf_user, $pf_pass);
             if (is_success($status)) {
                 # everything has been done successfully
                 $c->session->{completed}->{$c->action->name} = 1;

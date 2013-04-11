@@ -107,6 +107,7 @@ sub create :Path('create') :Args(1) {
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->connect($db, $root_user, $root_password);
         if ( is_error($status) ) {
+            # The database doesn't exist; create it
             ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
         }
     }
