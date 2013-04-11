@@ -503,23 +503,20 @@ sub RenameSection {
 
     if (not defined $old_sect or
         not defined $new_sect or
+        !$self->SectionExists($old_sect) or
         $self->SectionExists($new_sect)) {
         return undef;
     }
 
     $self->_caseify(\$new_sect);
     $self->_AddSection_Helper($new_sect);
-    $self->_caseify(\$old_sect);
 
     # This is done the fast way, change if data structure changes!!
     foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
-        $self->{$key}{$new_sect} = delete $self->{$key}{$old_sect};
+        $self->{$key}{$new_sect} = $self->{$key}{$old_sect};
     }
 
-    $self->{sects} = [grep {$_ ne $old_sect} @{$self->{sects}}];
-    $self->_touch_section($old_sect);
-
-    $self->RemoveGroupMember($old_sect);
+    $self->DeleteSection($old_sect);
 
     return 1;
 } # end RenameSection
