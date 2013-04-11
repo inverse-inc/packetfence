@@ -25,6 +25,7 @@ use Scalar::Util qw(refaddr);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
+use Readonly;
 
 
 our $CACHE;
@@ -35,7 +36,9 @@ our %RELOADED;
 our %RELOADED_FROM_CACHE;
 use overload "%{}" => \&config, fallback => 1;
 
-our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
+our $chi_config =ode Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
+
+Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
 
 =head1 METHODS
 
@@ -62,6 +65,7 @@ sub new {
                 my $lock = lockFileForReading($file);
                 my $config = Config::IniFiles->new(%params);
                 $config->SetFileName($file);
+                $config->SetWriteMode($WRITE_PERMISSIONS);
                 unlockFilehandle($lock);
                 return $config;
             }
