@@ -97,7 +97,7 @@ sub RewriteConfig {
     my $file = $config->GetFileName;
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
-    if($cached_object && _expireIf($cached_object)) {
+    if( -e $file && $cached_object && _expireIf($cached_object)) {
         die "Config $file was modified from last loading";
     }
     my $result;
@@ -455,6 +455,7 @@ sub cleanupWhitespace {
     my ($self,$hash) = @_;
     foreach my $data (values %$hash ) {
         foreach my $key (keys %$data) {
+            next unless defined $data->{$key};
             $data->{$key} =~ s/\s+$//;
         }
     }
