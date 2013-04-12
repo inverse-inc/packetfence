@@ -188,6 +188,53 @@ sub schema {
     return ( $STATUS::OK, $status_msg );
 }
 
+=item resetAdminPassword
+
+=cut
+sub resetAdminPassword {
+    my ( $self, $user, $password ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+
+    # We need to establish connection to the database using database configuration parameters
+    my $database_ref = \%{$Config{'database'}};
+    my ($db_user, $db_password, $db_name) = @{$database_ref}{qw/user pass db/};
+    if ($db_user && $db_password && $db_name) {
+        $dbHandler = DBI->connect( "dbi:mysql:dbname=$db_name;host=localhost;port=3306", $db_user, $db_password );
+        if ( !$dbHandler ) {
+            $status_msg = "Error while changing default admin password";
+            $logger->warn("$status_msg | $DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+    } else {
+        $status_msg = "Error while changing default admin password";
+        $logger->warn("$status_msg | Missing configuration parameters to connect to the database");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Making sure username/password are "ok"
+    if ( !defined($user) || !defined($password) || (length($user) == 0) || (length($password) == 0) ) {
+        $status_msg = "Error while changing default admin password";
+        $logger->warn("$status_msg | Invalid admin username or password");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Doing the update
+    my $sql_query = "UPDATE temporary_password SET password=? WHERE pid=?";
+    $dbHandler->do($sql_query, undef, $password, $user);
+    if ( $DBI::errstr ) {
+        $status_msg = "Error while changing default admin password";
+        $logger->warn("$status_msg | $DBI::errstr");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    $status_msg = "Successfully modified admin password";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
+
+
 =back
 
 =head1 AUTHORS
