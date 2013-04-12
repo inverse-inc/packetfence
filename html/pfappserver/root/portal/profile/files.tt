@@ -4,6 +4,7 @@ td a.btn { margin-left: 5px; }
 [%- MACRO display_directory(entry,dirs) BLOCK -%]
     [% name = entry.name %]
     [% paths = name.split('/') %]
+    [% IF dirs.size == 0; paths = [] ;END %]
     [% dir_id = "profile_dir_" _ dirs.join("_") _ "_" _ loop.count %]
         <tr>
           <td>
