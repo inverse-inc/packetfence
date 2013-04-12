@@ -5,15 +5,64 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
-Upgrading from a version prior to 3.6.2
+Upgrading from a version prior to 4.0.0
 ---------------------------------------
+
+Upgrading an old version of PacketFence to v4 will be quite
+an endeavor. While it's entirely possible if done meticulously, we
+suggest you start from scratch and move your customizations and
+nodes information over to your new installation.
 
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
-New action has been added in the category and a new column has been added in class table.
-Make sure you run the following to update your schema
+The temporary password table has been extended to include roles information.
+Moreover, an "admin" user is now automatically created. The default password
+is also "admin". Finally, a new table has been added for saved searches in the
+new Web administrative interface.
 
-mysql -u root -p pf -v < db/upgrade-3.6.1-3.6.2.sql
+mysql -u root -p pf -v < db/upgrade-3.6.1-4.0.0.sql
+
+Other important changes
+^^^^^^^^^^^^^^^^^^^^^^^
+
+PacketFence v4 received a major overhaul, especially regarding the authentication
+sources. Authentication modules found in `conf/authentication/` are no longer
+being used and have been replaced by the `conf/authentication.conf` file. While
+this file can be hand-edited, you should create your authentication sources
+and perform roles-mapping using the Configuation > Users > Sources module from
+PacketFence's Web administrative interface.
+
+Also, in PacketFence v4, the VLANs can be assigned in `conf/switches.conf` by constructing
+the parameter names from the VLAN names and the `Vlan` suffix. The VLAN names must match one
+of the default names (registration, isolation, macDetection, inline, and voice) or one of the
+defined roles. If you were using custom VLANs, you must create a new role per VLAN and assign
+them accordingly.
+
+Other key changes were done, such as:
+
+* moved remediation templates in `html/captive-portal/templates/violations` and converted them to Template Toolkit
+* dropped guests_admin_registration.category
+* dropped guests_self_registration.access_duration
+* dropped guests_self_registration.category
+* dropped guests_self_registration.sponsor_authentication
+* dropped guests_self_registration.sponsors_only_from_localdomain
+* dropped ports.listeners
+* dropped registration.auth and registration.default_auth
+* dropped registration.maxnodes
+* dropped registration.expire_* and registration.skip_*
+* dropped trapping.blacklist
+* dropped support for resetVlanAllPort in `bin/pfcmd_vlan`
+* dropped `sbin/pfredirect` binary
+* splitted the httpd services in three: httpd.admin, httpd.portal and httpd.webservices
+* domain-name is no longer required in each section of networks.conf
+
+For all parameters related to authentication (categories, access duration, sponsor authentication, etc.),
+you should now set proper actions in the `conf/authentication.conf` file.
+
+Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary. As root, please do:
+
+echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
+
 
 Upgrading from a version prior to 3.6.1
 ---------------------------------------
