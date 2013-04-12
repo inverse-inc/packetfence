@@ -81,12 +81,18 @@ Node controller dispatcher
 sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     my ( $self, $c, $mac ) = @_;
 
-    my ($status, $node_ref) = $c->model('Node')->exists($mac);
+    my ($status, $node_ref, $roles_ref);
+
+    ($status, $node_ref) = $c->model('Node')->exists($mac);
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $node_ref;
         $c->stash->{current_view} = 'JSON';
         $c->detach();
+    }
+    ($status, $roles_ref) = $c->model('Roles')->list();
+    if (is_success($status)) {
+        $c->stash->{roles} = $roles_ref;
     }
 
     $c->stash->{mac} = $mac;
@@ -102,21 +108,17 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($form, $status, $roles);
 
     # Form initialization :
-    # Retrieve node details, categories and status
+    # Retrieve node details and status
 
     ($status, $result) = $c->model('Node')->read($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }
-    ($status, $result) = $c->model('Roles')->list();
-    if (is_success($status)) {
-        $roles = $result;
-    }
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = pfappserver::Form::Node->new(ctx => $c,
                                          init_object => $c->stash->{node},
                                          status => $nodeStatus,
-                                         roles => $roles);
+                                         roles => $c->stash->{roles});
     $form->process();
     $c->stash->{form} = $form;
 
@@ -136,7 +138,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = pfappserver::Form::Node->new(ctx => $c,
-                                         status => $nodeStatus);
+                                         status => $nodeStatus,
+                                         roles => $c->stash->{roles});
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
