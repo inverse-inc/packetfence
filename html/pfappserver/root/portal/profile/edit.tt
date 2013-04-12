@@ -2,11 +2,13 @@
 [%
   stag = "[\%"
   etag = "%\]"
-  paths = full_file_name.split('/')
 %]
    <li><a href="#" class="insert-into-file" data-content="[% stag %] [% var_name | html%] [%etag %]">[% var_name | html%]</a></li> 
 [%END%]
 <h2></h2>
+[%
+  paths = full_file_name.split('/')
+%]
 <div id="portal_profile_file_editor" >
     <div class="modal fade hide" id="cancelEdit">
       <div class="modal-header">
