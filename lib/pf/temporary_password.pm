@@ -135,6 +135,10 @@ sub temporary_password_db_prepare {
         WHERE pid = ?
     ]);
 
+    $temporary_password_statements->{'temporary_password_reset_password_sql'} = get_db_handle()->prepare(qq[
+        UPDATE temporary_password SET password = ? WHERE pid = ?
+    ]);
+
     $temporary_password_db_prepared = 1;
 }
 
@@ -420,6 +424,27 @@ sub validate_password {
     # otherwise failure
     return $AUTH_FAILED_INVALID;
 }
+
+=item reset_password
+
+Reset (change) a password for a user in the temporary_password table.
+
+=cut
+sub reset_password {
+    my ( $pid, $password ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Making sure pid/password are "ok"
+    if ( !defined($pid) || !defined($password) || (length($pid) == 0) || (length($password) == 0) ) {
+        $logger->error("Error while resetting the user password. Missing values.");
+        return;
+    }
+
+    db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
+    ) || return;
+}
+
 
 =back
 
