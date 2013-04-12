@@ -66,6 +66,7 @@ sub generate_dhcpd_conf {
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $domain = sprintf("%s.%s", $net{'type'}, $Config{general}{domain});
             delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};
 
             %net = _assign_defaults(%net);
@@ -74,7 +75,7 @@ sub generate_dhcpd_conf {
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
-  option domain-name "$net{'domain-name'}";
+  option domain-name "$domain";
   option domain-name-servers $net{'dns'};
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};

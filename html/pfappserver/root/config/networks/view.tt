@@ -12,20 +12,17 @@
         <h6>DHCP</h6>
       </div>
     </div>
-    [% form.field('dhcpd').render %]
-
-    [% form.field('domain-name').render %]
     [% form.field('dhcp_start').render %]
     [% form.field('dhcp_end').render %]
     [% form.field('dhcp_default_lease_time').render %]
     [% form.field('dhcp_max_lease_time').render %]
     [% IF form.field('gateway') -%]
+    [% form.field('dns').render %]
     <div class="control-group">
       <div class="controls">
         <h6>[% l('Routing') %]</h6>
       </div>
     </div>
-    [% form.field('dns').render %]
     [% form.field('gateway').render %]
     [% form.field('netmask').render %]
     [% form.field('next_hop').render %]

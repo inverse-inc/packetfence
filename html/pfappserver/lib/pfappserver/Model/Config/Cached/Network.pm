@@ -1,4 +1,5 @@
 package pfappserver::Model::Config::Cached::Network;
+
 =head1 NAME
 
 pfappserver::Model::Config::Cached::Network add documentation
@@ -20,24 +21,24 @@ extends 'pfappserver::Base::Model::Config::Cached';
 
 has '+idKey' => (default => 'network');
 
-=head2 Methods
+=head2 METHODS
 
 =over
 
-=item _buildCachedConfig
+=head2 _buildCachedConfig
 
 =cut
 
 sub _buildCachedConfig { $pf::config::cached_network_config }
 
-=item getRoutedNetworks
+=head2 getRoutedNetworks
 
 Return the routed networks for the specified network and mask.
 
 =cut
 
 sub getRoutedNetworks {
-    my ( $self, $network, $netmask ) = @_;
+    my ($self, $network, $netmask) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my @networks;
     foreach my $section ( keys %ConfigNetworks ) {
@@ -56,24 +57,24 @@ sub getRoutedNetworks {
     }
 }
 
-=item getType
+=head2 getType
 
 =cut
 
 sub getType {
-    my ( $self, $network ) = @_;
+    my ($self, $network) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    my ($status, $type) = ($STATUS::NOT_FOUND,"");
+    my ($status, $type) = ($STATUS::NOT_FOUND, "");
     # skip if we don't have a network address set
     if (defined($network) && exists $ConfigNetworks{$network} && exists $ConfigNetworks{$network}{type}) {
-        ($status, $type) = ($STATUS::OK,$ConfigNetworks{$network}{type});
+        ($status, $type) = ($STATUS::OK, $ConfigNetworks{$network}{type});
     }
 
     return ($status, $type);
 }
 
-=item getNetworkAddress
+=head2 getNetworkAddress
 
 Calculate the network address for the provided ipaddress/network combination
 
@@ -82,16 +83,27 @@ Returns undef on undef IP / Mask
 =cut
 
 sub getNetworkAddress {
-    my ( $self, $ipaddress, $netmask ) = @_;
+    my ($self, $ipaddress, $netmask) = @_;
 
     return if ( !defined($ipaddress) || !defined($netmask) );
     return Net::Netmask->new($ipaddress, $netmask)->base();
 }
 
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $network) = @_;
+
+    # Set default values
+    $network->{named} = 'enabled' unless ($network->{named});
+    $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
+}
+
 __PACKAGE__->meta->make_immutable;
-
-
-=back
 
 =head1 COPYRIGHT
 
