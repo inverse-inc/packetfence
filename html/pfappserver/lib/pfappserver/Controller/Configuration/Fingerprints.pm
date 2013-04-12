@@ -34,7 +34,17 @@ my %FIELD_MAP = (
 
 =cut
 
-sub index :SimpleSearch('OS') :Path :Args() { }
+sub index :Path :Args(0) {
+    my ($self, $c) = @_;
+    $c->stash(template => 'configuration/fingerprints/simple_search.tt') ;
+    $c->forward('simple_search');
+}
+
+=head2 simplesearch
+
+=cut
+
+sub simple_search :SimpleSearch('OS') :Local :Args() { }
 
 =head2 update
 
@@ -82,7 +92,7 @@ sub upload :Local :Args(0) {
         my $browser  = LWP::UserAgent->new;
         my $response = $browser->post(
             'http://www.packetfence.org/fingerprintsv2.php',
-            Content => $content 
+            Content => $content
         );
         if($response->content =~ /Thank you for submitting the following fingerprints/) {
             $c->stash->{status_msg} = "Thank you for submitting your fingerprints";

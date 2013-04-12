@@ -9,6 +9,7 @@
         'app/jquery.ba-hashchange',
         'app/pf-bootstrap-swap-class',
         'admin/configuration',
+        'admin/searches',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
         'admin/configuration/floatingdevices',

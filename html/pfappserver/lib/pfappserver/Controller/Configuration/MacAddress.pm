@@ -25,7 +25,17 @@ BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =cut
 
-sub index :SimpleSearch('MacAddress') :Path :Args() { }
+sub index :Path :Args(0) {
+    my ($self, $c) = @_;
+    $c->stash(template => 'configuration/macaddress/simple_search.tt') ;
+    $c->forward('simple_search');
+}
+
+=head2 simpl_esearch
+
+=cut
+
+sub simple_search :SimpleSearch('MacAddress') :Local :Args() { }
 
 =head2 update
 

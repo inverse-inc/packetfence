@@ -24,7 +24,17 @@ BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 
 =cut
 
-sub index :SimpleSearch('UserAgent') :Path :Args() { }
+sub index :Path :Args(0) {
+    my ($self, $c) = @_;
+    $c->stash(template => 'configuration/useragents/simple_search.tt') ;
+    $c->forward('simple_search');
+}
+
+=head2 simplesearch
+
+=cut
+
+sub simple_search :SimpleSearch('UserAgent') :Local :Args() { }
 
 =head2 upload
 
