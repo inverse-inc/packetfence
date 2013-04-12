@@ -204,8 +204,6 @@ sub read {
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    use Data::Dumper; print Dumper $node;
-
     return ($STATUS::OK, $node);
 }
 
