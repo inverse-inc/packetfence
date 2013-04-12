@@ -93,7 +93,7 @@
                 <tbody>
                 [% FOR node IN nodes %]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('get'), [ node.mac ]) %]#modalNode">[% node.mac %]</a></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('read'), [ node.mac ]) %]#modalNode">[% node.mac %]</a></td>
                   <td>[% node.computer_name %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                 </tr>
