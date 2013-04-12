@@ -69,7 +69,6 @@ sub upload :Local :Args(0) {
                 'ref' => $c->uri_for($c->action)
             }
         );
-        $c->log->info(Dumper($response));
     }
 }
 
