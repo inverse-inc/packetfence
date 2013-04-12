@@ -7,7 +7,7 @@ function registerExits() {
 }
 
 function initStep() {
-    $('#createUser').click(function(event) {
+    $('#adminPassword').click(function(event) {
         var btn = $(this),
         admin_user = $('#admin_user'),
         admin_user_control = admin_user.closest('.control-group'),
@@ -56,14 +56,14 @@ function initStep() {
 }
 
 function saveStep(href) {
-    var createUser = $('#createUser');
+    var adminPassword = $('#adminPassword');
 
-    if (createUser.hasClass('disabled')) {
+    if (adminPassword.hasClass('disabled')) {
         window.location.href = href;
     }
     else {
         var form = $('form[name="admin"]');
-        btnError(createUser);
+        btnError(adminPassword);
         resetAlert(form.parent());
         showError(form, 'Please verify your configuration.');
         $("body,html").animate({scrollTop:0}, 'fast');

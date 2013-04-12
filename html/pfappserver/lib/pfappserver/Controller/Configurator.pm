@@ -393,7 +393,7 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if ( is_success($status) ) {
-            ($status, $message) = $c->model('Configurator')->createAdminUser($admin_user, $admin_password);
+            ($status, $message) = $c->model('DB')->resetAdminPassword($admin_user, $admin_password);
         }
         if ( is_success($status) ) {
             $c->session(admin_user => $admin_user);
