@@ -76,7 +76,7 @@ function init() {
     });
 
     /* Hash change handler */
-    $(window).hashchange(pfOnHashChange(updateSection, '/service/'));
+    $(window).hashchange(pfOnHashChange(updateSection, '/graph/dashboard/'));
     $(window).hashchange();
     activateNavLink();
 }
