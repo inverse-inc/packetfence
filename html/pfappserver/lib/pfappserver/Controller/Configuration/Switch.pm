@@ -79,17 +79,6 @@ after list => sub {
     }
 };
 
-=head2 after update and remove
-
-=cut
-
-after [qw(update remove)] => sub {
-    my ($self, $c) = @_;
-    if (is_success($c->response->status)) {
-        $self->getModel($c)->rewriteConfig();
-    }
-};
-
 =head2 after create
 
 =cut
