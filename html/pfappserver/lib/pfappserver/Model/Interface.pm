@@ -284,7 +284,7 @@ sub update {
     my $new_network = $models->{networks}->getNetworkAddress($ipaddress, $netmask);
     if ($network && $network ne $new_network) {
         $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
-        $models->{networks}->update_network($network, $new_network);
+        $models->{networks}->renameItem($network, $new_network);
     }
 
     if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask})
