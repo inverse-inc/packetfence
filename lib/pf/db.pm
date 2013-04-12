@@ -21,8 +21,10 @@ use strict;
 use warnings;
 use DBI;
 use File::Basename;
-use Log::Log4perl;
+#get_logger() is equivalent to get_logger(__PACKAGE__)
+use Log::Log4perl qw(get_logger);
 use threads;
+use pf::config;
 
 # Constants
 use constant MAX_RETRIES  => 3;
@@ -32,20 +34,29 @@ use constant PREPARE_SUB       => '_db_prepare';  # sub with <modulename>_db_pre
 use constant PREPARED_VAR      => '_db_prepared'; # prepare flag with <modulename>_db_prepared
 use constant PREPARE_PF_PREFIX => 'pf::';         # prefix to access exported _prepare(d) variables
 
-our ( %dbh, %last_connect );
+our ( %dbh, %last_connect, $DB_Config );
 
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
     @EXPORT = qw(%dbh db_data db_connect db_disconnect get_db_handle db_query_execute);
+
 }
 
 END {
     $dbh{threads->self->tid}->disconnect() if ($dbh{threads->self->tid});
 }
 
-use pf::config;
+$DB_Config = $Config{'database'};
+#Adding a config reload callback that will disconnect the database when a change in the db configuration has been found
+$cached_pf_config->addReloadCallback( sub {
+    my $new_db_config = $pf::config::Config{'database'};
+    if (grep { $DB_Config->{$_} ne $new_db_config->{$_}  } qw(host port user pass db) ) {
+        db_disconnect();
+    }
+    $DB_Config = $new_db_config;
+});
 
 =head1 SUBROUTINES
 
@@ -56,9 +67,10 @@ use pf::config;
 manages the list of database connection handler per thread
 
 =cut
+
 sub db_connect {
     my ($mydbh) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::db');
+    my $logger = get_logger();
     $mydbh = 0 if ( !defined $mydbh );
     my $caller = ( caller(1) )[3] || basename($0);
     $logger->debug("function $caller is calling db_connect");
@@ -81,11 +93,11 @@ sub db_connect {
 
     $logger->debug("(Re)Connecting to MySQL (thread id: $tid)");
 
-    my $host = $Config{'database'}{'host'};
-    my $port = $Config{'database'}{'port'};
-    my $user = $Config{'database'}{'user'};
-    my $pass = $Config{'database'}{'pass'};
-    my $db   = $Config{'database'}{'db'};
+    my $host = $DB_Config->{'host'};
+    my $port = $DB_Config->{'port'};
+    my $user = $DB_Config->{'user'};
+    my $pass = $DB_Config->{'pass'};
+    my $db   = $DB_Config->{'db'};
 
     # TODO database prepared statements are disabled by default in dbd::mysql
     # we should test with them, see http://search.cpan.org/~capttofu/DBD-mysql-4.013/lib/DBD/mysql.pm#DESCRIPTION
@@ -106,12 +118,15 @@ sub db_connect {
     }
 }
 
-=item * db_disconnect 
+=item * db_disconnect
 
 =cut
+
 sub db_disconnect {
     my $tid = threads->self->tid;
     if (defined($dbh{threads->self->tid})) {
+        my $logger = get_logger();
+        $logger->debug("disconnecting db");
         $dbh{threads->self->tid}->disconnect();
         $last_connect{$tid} = 0;
     }
@@ -120,6 +135,7 @@ sub db_disconnect {
 =item * get_db_handle - always use that to get a db handle
 
 =cut
+
 sub get_db_handle {
     if (defined($dbh{threads->self->tid})) {
         return $dbh{threads->self->tid};
@@ -143,6 +159,7 @@ sub get_db_handle {
 =back
 
 =cut
+
 sub db_data {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
 
@@ -172,15 +189,16 @@ sub db_data {
 =back
 
 =cut
-#TODO we should mesure the performance and security benefit of using prepared statements because they 
+
+#TODO we should mesure the performance and security benefit of using prepared statements because they
 # cause a lot of complexity
-# TODO refactoring: getrid of all the module discovery magic and have the clients pass a reference to 
-# the module itself and call is_db_prepared() and db_prepare_sub(). 
+# TODO refactoring: getrid of all the module discovery magic and have the clients pass a reference to
+# the module itself and call is_db_prepared() and db_prepare_sub().
 # this would remove most magic and unneeded string magic
 # afterwards: remove export of $<module>_db_prepared and <module>_db_prepare()
 sub db_query_execute {
     my ($from_module, $module_statements_ref, $query, @params) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::db');
+    my $logger = get_logger();
 
     # argument validation
     my $parameters_exist = (defined($from_module) && defined($query) && defined($module_statements_ref));
@@ -195,7 +213,7 @@ sub db_query_execute {
     my $basename = ($from_module =~ /^.*::(.+)$/) ? $1 : $from_module; # basename equals ::(this) if there's a ::
     my $db_prepare_sub  = PREPARE_PF_PREFIX . $from_module . "::" . $basename . PREPARE_SUB;
     my $db_prepared_var = PREPARE_PF_PREFIX . $from_module . "::" . $basename . PREPARED_VAR;
- 
+
     # loop variables
     my $attempts = 0;
     my $done = 0;
@@ -236,7 +254,7 @@ sub db_query_execute {
             $logger->debug("statement provided is a SQL string, preparing statement...");
             $db_statement = get_db_handle()->prepare($db_statement);
         }
-        
+
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
         if ($valid_statement && $db_statement->execute(@params)) {
 
@@ -254,7 +272,7 @@ sub db_query_execute {
             }
 
             # this forces real reconnection by invalidating last_connect timer for this thread
-            $last_connect{threads->self->tid} = 0; 
+            $last_connect{threads->self->tid} = 0;
             db_connect();
 
             # invalidate prepared database statements, forces a new preparation on next iteration
