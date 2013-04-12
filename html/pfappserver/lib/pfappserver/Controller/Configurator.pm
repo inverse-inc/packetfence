@@ -21,7 +21,7 @@ use Moose;
 use pf::config;
 #use namespace::autoclean;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'Catalyst::Controller'; }
 
 # Define the order of the configurator steps.
 # The id must match an action name.
@@ -81,10 +81,7 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
 
     $c->stash->{installation_type} = $c->model('Configurator')->checkForUpgrade();
     if ($c->stash->{installation_type} eq $pfappserver::Model::Configurator::CONFIGURATION) {
-        my $admin_url = sprintf('%s://%s:%s/admin',
-                                $c->request->uri->scheme,
-                                $c->request->uri->host,
-                                $c->request->uri->port);
+        my $admin_url = $c->uri_for($c->controller('Admin')->action_for('index'));
         $c->log->info("Redirecting to admin interface $admin_url");
         $c->response->redirect($admin_url);
         $c->detach();

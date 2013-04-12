@@ -37,8 +37,16 @@ The root page (/)
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
-    # Redirect to the configurator
-    $c->response->redirect($c->uri_for($c->controller('Configurator')->action_for('index')));
+    if ($c->stash->{installation_type} eq $pfappserver::Model::Configurator::CONFIGURATION) {
+        # Redirect to the admin interface
+        my $admin_url = $c->uri_for($c->controller('Admin')->action_for('index'));
+        $c->log->info("Redirecting to admin interface $admin_url");
+        $c->response->redirect($admin_url);
+    }
+    else {
+        # Redirect to the configurator
+        $c->response->redirect($c->uri_for($c->controller('Configurator')->action_for('index')));
+    }
     $c->detach();
 }
 
