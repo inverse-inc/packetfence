@@ -23,9 +23,7 @@ extends 'Catalyst::Model';
 
 =head1 METHODS
 
-=over
-
-=item create
+=head2 create
 
 =cut
 
@@ -73,7 +71,7 @@ sub create {
     return ($STATUS::CREATED, "Interface VLAN $interface successfully created");
 }
 
-=item delete
+=head2 delete
 
 =cut
 
@@ -122,7 +120,7 @@ sub delete {
     return ($STATUS::OK, "Interface VLAN $interface successfully deleted");
 }
 
-=item down
+=head2 down
 
 =cut
 
@@ -178,7 +176,7 @@ sub down {
     return ($STATUS::OK, "Interface $interface successfully disabled");
 }
 
-=item exists
+=head2 exists
 
 =cut
 
@@ -191,7 +189,7 @@ sub exists {
     return ($STATUS::NOT_FOUND, "Interface $interface does not exists");
 }
 
-=item get
+=head2 get
 
 Returns an hashref with:
 
@@ -252,7 +250,7 @@ sub get {
     return $result;
 }
 
-=item update
+=head2 update
 
 =cut
 
@@ -289,12 +287,15 @@ sub update {
         $models->{networks}->update_network($network, $new_network);
     }
 
-if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask}) || $ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask}) {
+    if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask})
+         || $ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask}) {
         my $gateway = $models->{system}->getDefaultGateway();
-        my $isDefaultRoute = ($gateway eq $interface_before->{ipaddress});
-        $netmask = Net::Netmask->new($ipaddress.':'.$netmask)->bits();
+        my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
+        my $block = Net::Netmask->new($ipaddress.':'.$netmask);
+        my $broadcast = $block->broadcast();
+        $netmask = $block->bits();
 
-        $logger->debug("IP address has changed (".$interface_before->{address}." => $ipaddress/$netmask)");
+        $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
 
         # Delete previous IP address
         my $cmd;
@@ -310,7 +311,7 @@ if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{ne
         }
 
         # Add new IP address and netmask
-        $cmd = sprintf "LANG=C sudo ip addr add %s/%i dev %s", $ipaddress, $netmask, $interface;
+        $cmd = sprintf "LANG=C sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
         eval { $status = pf_run($cmd) };
         if ( $@ || $status ) {
             $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
@@ -331,7 +332,7 @@ if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{ne
     return ($STATUS::OK, "Interface $interface successfully edited");
 }
 
-=item isActive
+=head2 isActive
 
 =cut
 
@@ -345,7 +346,7 @@ sub isActive {
     return \%status;
 }
 
-=item getType
+=head2 getType
 
 =cut
 
@@ -381,7 +382,7 @@ sub getType {
     return $type;
 }
 
-=item setType
+=head2 setType
 
  Update networks.conf and pf.conf
 
@@ -478,7 +479,7 @@ sub interfaceForDestination {
     }
 }
 
-=item _interfaceActive
+=head2 _interfaceActive
 
 Check if the requested interface is active or not on the system.
 
@@ -492,7 +493,7 @@ sub _interfaceActive {
     return (scalar @result > 0 && $result[0]->{is_running});
 }
 
-=item _interfaceCurrentlyInUse
+=head2 _interfaceCurrentlyInUse
 
 =cut
 
@@ -508,7 +509,7 @@ sub _interfaceCurrentlyInUse {
     return 0;
 }
 
-=item _interfaceVirtual
+=head2 _interfaceVirtual
 
 =cut
 
@@ -523,7 +524,7 @@ sub _interfaceVirtual {
     return ( $physical_device, $vlan_id );
 }
 
-=item _listInterfaces
+=head2 _listInterfaces
 
 Return a list of all curently installed network interfaces.
 
@@ -577,7 +578,7 @@ sub _listInterfaces {
     return @interfaces_list;
 }
 
-=item _prepare_interface_for_pfconf
+=head2 _prepare_interface_for_pfconf
 
 Process parameters to build a proper pf.conf interface section.
 
@@ -612,7 +613,7 @@ sub _prepare_interface_for_pfconf {
     return $int_config_ref;
 }
 
-=item up
+=head2 up
 
 =cut
 
@@ -659,8 +660,6 @@ sub up {
 
     return ($STATUS::OK, "Interface $interface successfully enabled");
 }
-
-=back
 
 =head1 COPYRIGHT
 
