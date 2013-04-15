@@ -177,18 +177,21 @@ sub form {
     return $c->_filter_component( $comp );
 }
 
-=head2 uri_for
+=head2 $c->uri_for( $action, \@captures?, \@args?, \%query_values? )
 
-This was overridden since we did not have a way to flatten array in the template toolkit
+Accepts an array reference for the list of arguments (\@args).
+
+This was overridden since we did not have a way to dereference arrays in the template toolkit.
 
 =cut
 
 sub uri_for {
-    my ($self,@args) = @_;
-    my $query = pop @args if ref($args[-1]) eq 'HASH';
+    my ($self, @args) = @_;
+    my $query = pop @args if (ref($args[-1]) eq 'HASH');
     my $args_ref =  ( @args > 1 && ref($args[-1]) eq 'ARRAY' && ref($args[-2]) eq 'ARRAY') ? pop @args : [] ;
-    @args = (@args,@$args_ref);
-    push @args,$query if defined $query;
+    @args = (@args, @$args_ref);
+    push(@args, $query) if (defined $query);
+
     return $self->SUPER::uri_for(@args);
 }
 

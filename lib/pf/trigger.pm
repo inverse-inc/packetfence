@@ -59,10 +59,10 @@ our $trigger_statements = {};
 =head1 SUBROUTINES
 
 This list is incomplete.
-        
-=over   
-        
-=cut    
+
+=over
+
+=cut
 
 sub trigger_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::trigger');

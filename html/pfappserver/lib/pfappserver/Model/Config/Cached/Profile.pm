@@ -1,4 +1,5 @@
 package pfappserver::Model::Config::Cached::Profile;
+
 =head1 NAME
 
 pfappserver::Model::Config::Cached::Profile add documentation
@@ -34,7 +35,7 @@ Delete an existing item
 
 sub remove {
     my ($self,$id) = @_;
-    if($id eq 'default') {
+    if ($id eq 'default') {
         return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
     }
     return $self->SUPER::remove($id);
@@ -47,7 +48,7 @@ Clean up switch data
 =cut
 
 sub cleanupAfterRead {
-    my ( $self,$id, $profile ) = @_;
+    my ($self,$id, $profile) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $self->expand_list($profile, qw(guest_modes));
 }
@@ -59,10 +60,9 @@ Clean data before update or creating
 =cut
 
 sub cleanupBeforeCommit {
-    my ( $self,$id, $profile ) = @_;
+    my ($self, $id, $profile) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $self->flatten_list($profile, qw(guest_modes));
-
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -1,4 +1,5 @@
 package pfappserver::Base::Model::Config::Cached;
+
 =head1 NAME
 
 pfappserver::Base::Model::Config::Cached
@@ -17,19 +18,20 @@ use namespace::autoclean;
 use pf::config::cached;
 use Log::Log4perl qw(get_logger);
 
-BEGIN {extends 'Catalyst::Model';}
+BEGIN { extends 'Catalyst::Model'; }
 
 =head1 FIELDS
-
 
 =head2 cachedConfig
 
 =cut
 
-has cachedConfig => (
-    is=> 'ro',lazy=>1,
-    isa=> 'pf::config::cached',
-    builder => '_buildCachedConfig'
+has cachedConfig =>
+  (
+   is => 'ro',
+   lazy => 1,
+   isa => 'pf::config::cached',
+   builder => '_buildCachedConfig'
 );
 
 =head2 idKey
@@ -53,7 +55,7 @@ has configFile => ( is=> 'ro');
 
 sub _buildCachedConfig {
     my ($self) = @_;
-    return pf::config::cached->new(-file => $self->configFile,-allowempty => 1);
+    return pf::config::cached->new(-file => $self->configFile, -allowempty => 1);
 }
 
 
@@ -79,16 +81,16 @@ Save the cached config
 sub rewriteConfig {
     my ($self) = @_;
     my $logger = get_logger();
-    my ($status,$status_msg);
+    my ($status, $status_msg);
     my $config = $self->cachedConfig;
 
-    unless ( $config->RewriteConfig()) {
+    unless ($config->RewriteConfig()) {
         $status_msg = "Error Writing Config";
         $logger->warn("$status_msg");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    $status_msg = "Configuration successfully saved";
+    $status_msg = "Configuration file successfully saved";
     $logger->info("$status_msg");
     return ($STATUS::OK, $status_msg);
 }
@@ -102,7 +104,7 @@ Get all the sections names
 sub readAllIds {
     my ( $self, $id ) = @_;
     my $logger = get_logger();
-    my ($status,$status_msg);
+    my ($status, $status_msg);
     my $config = $self->cachedConfig;
     my @sections = $config->Sections();
     return ($STATUS::OK, \@sections);
@@ -185,7 +187,7 @@ sub read {
         $logger->warn("$result");
     }
 
-    return ($status,$result);
+    return ($status, $result);
 }
 
 =head2 update
