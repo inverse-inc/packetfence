@@ -11,7 +11,7 @@
 source /etc/rc.d/init.d/functions
 
 [ -x /usr/local/pf/bin/pfcmd ] || exit 1
-[ -r /usr/local/pf/conf/pf.conf ] || exit 1
+[ ! -f /usr/local/pf/conf/currently-at ] || [ -r /usr/local/pf/conf/pf.conf ] || exit 1
 
 start() {
         #Check if MySQL is started
