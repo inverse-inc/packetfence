@@ -112,7 +112,11 @@ sub person_db_prepare {
         qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
 
     $person_statements->{'person_violations_sql'} = get_db_handle()->prepare(
-        qq[ select violation.mac,vid,start_date,release_date,violation.status from violation LEFT JOIN node on violation.mac = node.mac where pid=? ]);
+        qq[ SELECT violation.mac, violation.vid, class.description, start_date, release_date, violation.status
+            FROM violation
+            LEFT JOIN node ON violation.mac = node.mac
+            LEFT JOIN class ON violation.vid = class.vid
+            WHERE pid = ? ]);
 
     $person_db_prepared = 1;
 }
