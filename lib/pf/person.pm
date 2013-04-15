@@ -47,6 +47,7 @@ use pf::db;
 =over
 
 =cut
+
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $person_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
@@ -59,6 +60,7 @@ Characters allowed in a person id (pid). This is stricter than what we have
 in pf::pfcmd and pf::pfcmd::pfcmd
 
 =cut
+
 our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
 =back
@@ -66,6 +68,7 @@ our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 =head1 SUBROUTINES
 
 =cut
+
 sub person_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::person');
     $logger->debug("Preparing pf::person database queries");
@@ -79,11 +82,12 @@ sub person_db_prepare {
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
-                   t.access_duration as 'access_duration', t.category as 'category',
+                   t.access_duration as 'access_duration', nc.name as 'category',
                    t.sponsor as 'can_sponsor', t.unregdate as 'unregdate'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
+            LEFT JOIN node_category nc ON nc.category_id = t.category
             WHERE p.pid = ? ]);
 
     $person_statements->{'person_view_all_sql'} =
