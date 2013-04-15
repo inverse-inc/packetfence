@@ -164,16 +164,9 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        if (!$c->stash->{source_id}) {
-            # New source -- show the source and let the user add some rules
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$form->value->{id}]);
-            $c->stash->{form} = $form;
-            $c->stash->{template} = 'authentication/source/read.tt';
-        }
-        else {
-            # Existing source; return to the list of sources
-            $c->forward('Controller::Authentication', 'index');
-        }
+        $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$form->value->{id}]);
+        $c->stash->{form} = $form;
+        $c->stash->{template} = 'authentication/source/read.tt';
         $c->stash->{message} = $message;
     }
 }
