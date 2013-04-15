@@ -118,11 +118,11 @@ sub RewriteConfig {
         local $config->{group} = Config::IniFiles::_deepcopy($config->{group});
         local $config->{mysects} = Config::IniFiles::_deepcopy($config->{mysects});
         $self->removeDefaultValues();
-        $result = $config->WriteConfig($file);
+        $result = $config->RewriteConfig();
         unlockFilehandle($lock);
     } else {
         my $lock = lockFileForWriting($file);
-        $result = $config->WriteConfig($file);
+        $result = $config->RewriteConfig();
         unlockFilehandle($lock);
     }
     if($result) {
