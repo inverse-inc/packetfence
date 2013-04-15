@@ -686,16 +686,31 @@ sub generate_generic_page {
 
 sub oauth2_client {
       my $provider = shift;
-      Net::OAuth2::Client->new(
-                $Config{"oauth2 $provider"}{'client_id'},
-                $Config{"oauth2 $provider"}{'client_secret'},
-                site => $Config{"oauth2 $provider"}{'site'},
-                authorize_path => $Config{"oauth2 $provider"}{'authorize_path'},
-                access_token_path => $Config{"oauth2 $provider"}{'access_token_path'},
-                access_token_method => $Config{"oauth2 $provider"}{'access_token_method'},
-                access_token_param => $Config{"oauth2 $provider"}{'access_token_param'},
-                scope => $Config{"oauth2 $provider"}{'scope'}
-       )->web_server(redirect_uri => $Config{"oauth2 $provider"}{'redirect_uri'} );
+      my $type;
+      {
+          if (lc($type) eq 'facebook') {
+              $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+          } elsif (lc($type) eq 'github') {
+              $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+          } elsif (lc($type) eq 'google') {
+              $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+          }
+      }
+      if ($type) {
+          my $source = &pf::authentication::getAuthenticationSourceByType($type);
+          if ($source) {
+              Net::OAuth2::Client->new(
+                $source->{'client_id'},
+                $source->{'client_secret'},
+                site => $source->{'site'},
+                authorize_path => $source->{'authorize_path'},
+                access_token_path => $source->{'access_token_path'},
+                access_token_method => $source->{'access_token_method'},
+                access_token_param => $source->{'access_token_param'},
+                scope => $source->{'scope'}
+          )->web_server(redirect_uri => $source->{'redirect_uri'} );
+          }
+      }
 }
 
 =back
