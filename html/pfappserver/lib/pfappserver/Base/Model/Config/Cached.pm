@@ -15,6 +15,7 @@ Is the Generic class for the cached config
 use Moose;
 use namespace::autoclean;
 use pf::config::cached;
+use Log::Log4perl qw(get_logger);
 
 BEGIN {extends 'Catalyst::Model';}
 
@@ -62,7 +63,7 @@ sub _buildCachedConfig {
 
 sub readConfig {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
     $config->ReadConfig();
@@ -77,7 +78,7 @@ Save the cached config
 
 sub rewriteConfig {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
 
@@ -100,7 +101,7 @@ Get all the sections names
 
 sub readAllIds {
     my ( $self, $id ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
     my @sections = $config->Sections();
@@ -115,7 +116,7 @@ Get all the sections as an array of hash refs
 
 sub readAll {
     my ( $self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
     my @sections;
@@ -142,7 +143,7 @@ If config has a section
 
 sub hasId {
     my ($self, $id ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
     my $config = $self->cachedConfig;
     if ( $config->SectionExists($id) ) {
@@ -166,7 +167,7 @@ reads a section
 sub read {
     my ($self, $id ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $result);
     my $config = $self->cachedConfig;
 
@@ -195,7 +196,7 @@ Update/edit/modify an existing section
 
 sub update {
     my ($self, $id, $assignments) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg) = ($STATUS::OK, "");
     if ($id eq 'all') {
@@ -209,8 +210,12 @@ sub update {
         if ( $config->SectionExists($id) ) {
             while ( my ($param, $value) = each %$assignments ) {
                 if ( $config->exists($id, $param) ) {
-                    $config->setval($id, $param, $value);
-                } else {
+                    if(defined($value)) {
+                        $config->setval($id, $param, $value);
+                    } else {
+                        $config->delval($id, $param);
+                    }
+                } elsif(defined($value)) {
                     $config->newval($id, $param, $value);
                 }
             }
@@ -233,7 +238,7 @@ To create
 
 sub create {
     my ($self, $id, $assignments) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     my ($status, $status_msg);
     $self->cleanupBeforeCommit($id, $assignments);
@@ -263,7 +268,7 @@ Removes an existing item
 
 sub remove {
     my ( $self, $id, $assignment ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
 
@@ -287,7 +292,7 @@ sub remove {
 
 sub renameItem {
     my ( $self, $old, $new ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
     if ( $config->SectionExists($old) ) {
