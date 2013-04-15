@@ -92,7 +92,7 @@ tr[data-swap] > td {
               [% list_entry('User', 'create', 'Create') %]
               <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
               [% list_entry('Violation', 'index', 'Violations') %]
-              [% list_entry('Configuration', 'soh', 'SoH Filters') %]
+              [% list_entry('Configuration', 'soh', 'Statement of Health') %]
               <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
               [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
