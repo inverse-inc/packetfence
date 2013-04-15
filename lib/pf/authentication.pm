@@ -131,7 +131,6 @@ sub newAuthenticationSource {
     if (exists $TYPE_TO_SOURCE{$type}) {
         my $source_name = $TYPE_TO_SOURCE{$type};
         my $source_module = "pf::Authentication::Source::$source_name";
-        $logger->info("source module $source_module");
         $source = $source_module->new ({ id => $source_id, %{$attrs} });
     }
 
