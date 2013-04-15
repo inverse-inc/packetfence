@@ -183,7 +183,11 @@ sub lockFileForWriting {
     $logger->trace("locking file for writing $file");
 #    local $Log::Log4perl::caller_depth =
 #              $Log::Log4perl::caller_depth + 5;
-    return File::Flock->new(_makeFileLock($file));
+    my $old_mask = umask 2;
+    my $flock = File::Flock->new(_makeFileLock($file));
+    umask $old_mask;
+    return $flock;
+
 }
 
 =head2 lockFileForReading
@@ -196,7 +200,10 @@ sub lockFileForReading {
     my ($file) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace("locking file for reading $file");
-    return File::Flock->new(_makeFileLock($file),'shared');
+    my $old_mask = umask 2;
+    my $flock = File::Flock->new(_makeFileLock($file),'shared');
+    umask $old_mask;
+    return $flock;
 }
 
 =head2 unlockFilehandle
