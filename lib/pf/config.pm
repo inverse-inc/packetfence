@@ -71,7 +71,7 @@ our (
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
-    $tt_compile_cache_dir,
+    $tt_compile_cache_dir
 );
 
 BEGIN {
@@ -118,6 +118,7 @@ BEGIN {
         $switches_config_file
         $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config $authentication_config_file
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
+        $violations_config_file
         $OS
         %Doc_Config
         $tt_compile_cache_dir
@@ -167,6 +168,7 @@ $floating_devices_file          = $conf_dir . "/floating_network_device.conf";  
 $oauth_ip_file                  = $conf_dir . "/oauth2-ips.conf";
 $chi_config_file                = $conf_dir . "/chi.conf";
 $ui_config_file                 = $conf_dir . "/ui.conf";
+$violations_config_file         = $conf_dir . "/violations.conf";
 
 @stored_config_files = (
     $pf_config_file, $network_config_file,
