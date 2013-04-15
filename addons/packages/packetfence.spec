@@ -538,6 +538,10 @@ echo "Disabling SELinux..."
 setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
+#Starting Packetfence.
+echo "Starting Packetfence..."
+/sbin/service packetfence start
+
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
