@@ -70,7 +70,22 @@ BEGIN {
             match
             username_from_email
        );
+
 }
+
+our %TYPE_TO_SOURCE = (
+    'ad'       => 'ADSource',
+    'email'    => 'EmailSource',
+    'htpasswd' => 'HtpasswdSource',
+    'kerberos' => 'KerberosSource',
+    'ldap'     => 'LDAPSource',
+    'radius'   => 'RADIUSSource',
+    'sms'      => 'SMSSource',
+    'sql'      => 'SQLSource',
+    'facebook' => 'FacebookSource',
+    'google'   => 'GoogleSource',
+    'github'   => 'GithubSource',
+);
 
 my %cfg; tie %cfg, 'pf::config::cached', ( -file => $authentication_config_file );
 my $logger = Log::Log4perl->get_logger('pf::authentication');
@@ -107,76 +122,17 @@ Returns an instance of pf::Authentication::Source::* for the given type
 
 =cut
 
+
 sub newAuthenticationSource {
     my ($type, $source_id, $attrs) = @_;
 
     my $source;
-    {
-        # Microsoft Active Directory sources
-        lc($type) eq 'ad' && do {
-            $source = pf::Authentication::Source::ADSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # Email sources
-        lc($type) eq 'email' && do {
-            $source = pf::Authentication::Source::EmailSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # Apache password style sources
-        lc($type) eq 'htpasswd' && do {
-            $source = pf::Authentication::Source::HtpasswdSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # Kerberos sources
-        lc($type) eq 'kerberos' && do {
-            $source = pf::Authentication::Source::KerberosSource->new(
-                { id => $source_id,  %{$attrs} });
-        };
-
-        # LDAP sources
-        lc($type) eq 'ldap' && do {
-            $source = pf::Authentication::Source::LDAPSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # RADIUS sources
-        lc($type) eq 'radius' && do {
-            $source = pf::Authentication::Source::RADIUSSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # SMS sources
-        lc($type) eq 'sms' && do {
-            $source = pf::Authentication::Source::SMSSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # SQL sources
-        lc($type) eq 'sql' && do {
-            $source = pf::Authentication::Source::SQLSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # Facebook source
-        lc($type) eq 'facebook' && do {
-            $source = pf::Authentication::Source::FacebookSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # Google source
-        lc($type) eq 'google' && do {
-            $source = pf::Authentication::Source::GoogleSource->new(
-                { id => $source_id, %{$attrs} });
-        };
-
-        # Github source
-        lc($type) eq 'github' && do {
-            $source = pf::Authentication::Source::GithubSource->new(
-                { id => $source_id, %{$attrs} });
-        };
+    $type = lc($type);
+    if (exists $TYPE_TO_SOURCE{$type}) {
+        my $source_name = $TYPE_TO_SOURCE{$type};
+        my $source_module = "pf::Authentication::Source::$source_name";
+        $logger->info("source module $source_module");
+        $source = $source_module->new ({ id => $source_id, %{$attrs} });
     }
 
     return $source;
