@@ -81,8 +81,10 @@ sub read {
     }
 }
 
-=head2
+=head2 _make_actions
+
 =cut
+
 sub _make_actions {
     my ( $self, $user ) = @_;
     my %FIELD_TO_ACTION = (
@@ -176,7 +178,7 @@ Return the violations associated to the person ID.
 =cut
 
 sub violations {
-    my ( $self, $pid ) = @_;
+    my ($self, $pid) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg);
@@ -333,7 +335,8 @@ sub createSingle {
         # We create temporary password with the expiration and a 'not valid before' value
         $result = pf::temporary_password::generate($pid,
                                                    $data->{arrival_date},
-                                                   $data->{actions});
+                                                   $data->{actions},
+                                                   $data->{password});
         if ($result) {
             push(@users, { pid => $pid, email => $data->{email}, password => $result });
         }

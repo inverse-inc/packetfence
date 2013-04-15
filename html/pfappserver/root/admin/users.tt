@@ -13,7 +13,8 @@
         'app/graphs',
         'app/uri',
         'admin/users',
-        'admin/searches'
+        'admin/searches',
+        'js/user',
         ]
      cssFiles = [
        'app/bootstrap-datepicker',

@@ -290,7 +290,7 @@ sub database :Chained('object') :PathPart('database') :Args(0) {
     }
 }
 
-=head2 config
+=head2 configuration
 
 PacketFence minimal configuration (step 4)
 
@@ -386,14 +386,14 @@ sub admin :Chained('object') :PathPart('admin') :Args(0) {
 
     if ($c->request->method eq 'POST') {
         my ($status, $message) = ( HTTP_OK );
-        my $admin_user      = $c->request->params->{admin_user};
+        my $admin_user      = $pf::config::ADMIN_USERNAME;
         my $admin_password  = $c->request->params->{admin_password};
 
         unless ( $admin_user && $admin_password ) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if ( is_success($status) ) {
-            ($status, $message) = $c->model('DB')->resetAdminPassword($admin_user, $admin_password);
+            ($status, $message) = $c->model('DB')->resetUserPassword($admin_user, $admin_password);
         }
         if ( is_success($status) ) {
             $c->session(admin_user => $admin_user);

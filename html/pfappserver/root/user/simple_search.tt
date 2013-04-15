@@ -20,7 +20,7 @@
               <tbody>
                 [%- FOREACH user IN items -%]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('User').action_for('read'), [ user.pid ]) %]#modalUser">[% user.pid %]</a></td>
+                  <td><a href="[% c.uri_for(c.controller('User').action_for('view'), [ user.pid ]) %]">[% user.pid %]</a></td>
                   <td>[% user.firstname %]</td>
                   <td>[% user.lastname %]</td>
                   <td>[% user.email %]</td>

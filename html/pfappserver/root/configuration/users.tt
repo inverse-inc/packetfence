@@ -15,15 +15,16 @@
   <input type="hidden" name="type" value="single"/>
 
   <ul class="nav nav-tabs">
-    <li class="active"><a href="#single" data-toggle="tab"><i class="icon-user"></i> Single</a></li>
-    <li><a href="#multiple" data-toggle="tab"><i class="icon-group"></i> Multiple</a></li>
-    <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> Import</a></li>
+    <li class="active"><a href="#single" data-toggle="tab"><i class="icon-user"></i> [% l('Single') %]</a></li>
+    <li><a href="#multiple" data-toggle="tab"><i class="icon-group"></i> [% l('Multiple') %]</a></li>
+    <li><a href="#import" data-toggle="tab"><i class="icon-upload-alt"></i> [% l('Import') %]</a></li>
   </ul>
 
   <div class="tab-content">
 
     <div class="tab-pane fade in active" id="single">
       [% form_single.field('pid').render %]
+      [% form_single.field('password').render %]
       [% form_single.field('firstname').render %]
       [% form_single.field('lastname').render %]
       [% form_single.field('company').render %]
@@ -34,7 +35,7 @@
     </div><!-- tab-pane -->
 
     <div class="tab-pane fade" id="multiple">
-      <p>[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>.') %]</p></p>
+      <p>[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') %]</p></p>
       [% form_multiple.field('prefix').render %]
       [% form_multiple.field('quantity').render %]
       [% form_multiple.field('firstname').render %]

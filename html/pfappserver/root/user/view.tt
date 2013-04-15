@@ -1,4 +1,4 @@
-<form action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
+<form name="modalUser" action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
           <h3><i>[% l('User') %]</i> [% user.pid %]</h3>
@@ -9,43 +9,63 @@
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
+            [% IF user.password.defined -%]
+            <li><a href="#userPassword" data-toggle="tab">[% l('Password') %]</a></li>
+            <li><a href="#userRoles" data-toggle="tab">[% l('Roles') %]</a></li>
+            [% END -%]
             <li><a href="#userHistory" data-toggle="tab">[% l('History') %]</a></li>
             <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
             <li><a data-target="#userViolations" href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
-            [% IF user.password.defined  %]<li><a href="#userRoles" data-toggle="tab">[% l('Roles') %]</a></li>[% END %]
           </ul>
 
           <div class="tab-content">
-            <div class="tab-pane fade in active" id="userInfo">
 
+            <div class="tab-pane fade in active" id="userInfo">
               <div class="control-group">
                 <div class="controls">
                   <h6>[% l('Profile') %]</h6>
                 </div>
               </div>
-
-  
-      [% form.block('user').render %]
-
-
-  
-  
+              [% form.block('user').render %]
 <!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
-
             </div><!--tab-pane-->
+
 [% IF user.password.defined  %]
+            <div class="tab-pane fade in" id="userPassword">
+              <div class="control-group">
+                <label class="control-label" for="password">[% l('Password') %]</label>
+                <div class="controls">
+                  <input type="password" name="password" id="password">
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <input type="password" name="password2" id="password2" placeholder="[% l('Retype the password') %]">
+                  <a class="btn" id="resetPassword" href="[% c.uri_for(c.controller('User').action_for('reset'), [user.pid]) %]">[% l('Reset Password') %]</a>
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <h6>[% l('Password Reminder') %]</h6>
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
+                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword">[% l('mail') %]</a>
+                </div>
+              </div>
+            </div><!--tab-pane-->
+
             <div class="tab-pane fade" id="userRoles">
               [% form.field('valid_from').render %]
               <div class="control-group">
                 <label class="control-label">[% l('Actions') %]</label>
                 <div class="controls">
-                  <table id="ruleActions" class="table table-dynamic table-sortable table-condensed">
+                  <table id="ruleActions" class="table table-dynamic table-condensed">
                     <tbody>
                       [% FOREACH action IN form.field('actions').fields -%]
                       <tr[% ' class="hidden"' IF loop.last %]>
-                        <td class="sort-handle">
-                          <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
-                        </td>
                         <td>
                           [%
                             field_type  = action.field('type')
@@ -68,7 +88,6 @@
                         </td>
                       </tr>
                       [% END -%]
-                      <tr><td colspan="3"><!-- allow dnd to the bottom of the table --></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -93,7 +112,7 @@
                 <tbody>
                 [% FOR node IN nodes %]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('read'), [ node.mac ]) %]#modalNode">[% node.mac %]</a></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('read'), [ node.mac ]) %]">[% node.mac %]</a></td>
                   <td>[% node.computer_name %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                 </tr>
@@ -106,6 +125,7 @@
               </div>
               [% END %]
             </div><!--tab-pane-->
+
             <div class="tab-pane fade" id="userViolations"/><!--tab-pane-->
 
           </div><!--tab-content-->
@@ -114,7 +134,7 @@
 
         <div class="modal-footer">
           <a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
-          <a href="[% c.uri_for(c.controller('User').action_for('update'), [ user.pid ]) %]" id="updateUser" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</a>
+          <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div><!--modal-footer-->
 </form>

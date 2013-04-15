@@ -74,11 +74,11 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
     }
 }
 
-=head2 read
+=head2 view
 
 =cut
 
-sub read :Chained('object') :PathPart('read') :Args(0) {
+sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($form);
@@ -127,7 +127,7 @@ sub violations :Chained('object') :PathPart :Args(0) {
 =cut
 
 sub update :Chained('object') :PathPart('update') :Args(0) {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
     my ($form, $status, $message);
 
@@ -144,6 +144,27 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         $c->response->status($status);
         $c->stash->{status_msg} = $message; # TODO: localize error message
     }
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 reset
+
+=cut
+
+sub reset :Chained('object') :PathPart('reset') :Args(0) {
+    my ($self, $c) = @_;
+
+    my ($status, $message) = (HTTP_BAD_REQUEST, 'Some required parameters are missing.');
+
+    if ($c->request->method eq 'POST') {
+        my $password = $c->request->params->{password};
+        if ($password) {
+            ($status, $message) = $c->model('DB')->resetUserPassword($c->stash->{user}->{pid}, $password);
+        }
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $c->loc($message);
     $c->stash->{current_view} = 'JSON';
 }
 
@@ -275,6 +296,7 @@ sub advanced_search :Local :Args() {
     );
     $c->response->status($status);
 }
+
 =head2 print
 
 Display a printable view of users credentials.

@@ -29,6 +29,13 @@ has_field 'pid' =>
    tags => { after_element => \&help,
              help => 'The username to use for login to the captive portal.' },
   );
+has_field 'password' =>
+  (
+   type => 'Password',
+   label => 'Password',
+   tags => { after_element => \&help,
+             help => 'Leave it empty if you want to generate a random password.' },
+  );
 has_field 'firstname' =>
   (
    type => 'Text',

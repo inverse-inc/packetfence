@@ -100,7 +100,7 @@
             </div>
             <div class="control-group">
               <div class="controls">
-                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.database %] disabled=""[% END %]>
+                <input name="database.pass2" class="text" type="password" placeholder="[% l('Retype your password') %]"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF c.session.completed.database %] success[% END %]">

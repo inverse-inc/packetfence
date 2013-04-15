@@ -2,8 +2,8 @@
 <table class="table table-condensed">
     <thead>
       <tr>
-        <th>[% l('Id') %]</th>
-        <th>[% l('Mac') %]</th>
+        <th>[% l('Description') %]</th>
+        <th>[% l('MAC') %]</th>
         <th>[% l('Status') %]</th>
         <th>[% l('Start Date') %]</th>
         <th>[% l('Release Date') %]</th>
@@ -12,8 +12,8 @@
     <tbody>
     [% FOR item IN items %]
     <tr>
-      <td>[% item.vid %]</td>
-      <td><a href="[% c.uri_for(c.controller('Node').action_for('read'), [ item.mac ]) %]#modalNode">[% item.mac %]</a></td>
+      <td>[% item.description %]</td>
+      <td><a href="[% c.uri_for(c.controller('Node').action_for('read'), [ item.mac ]) %]">[% item.mac %]</a></td>
       <td>[% item.status %]</td>
       <td>[% item.start_date %]</td>
       <td>[% item.release_date %]</td>

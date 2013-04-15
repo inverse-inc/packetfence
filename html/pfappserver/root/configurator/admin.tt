@@ -29,18 +29,18 @@
             <div class="control-group">
               <label class="control-label" for="admin_user">[% l('Username') %]</label>
               <div class="controls">
-                <input id="admin_user" class="text" type="text" value="admin" disabled="">
+                <input id="admin_user" class="text" type="text" value="admin" disabled="disabled">
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="admin_password">[% l('Password') %]</label>
               <div class="controls">
-                <input id="admin_password" class="text" type="password" value="admin" [% IF c.session.completed.admin %] disabled=""[% END %]>
+                <input id="admin_password" class="text" type="password" [% IF c.session.completed.admin %] disabled="disabled"[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.admin %] disabled=""[% END %]>
+                <input id="admin_password2" class="text" type="password" placeholder="[% l('Retype the password') %]"[% IF c.session.completed.admin %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF c.session.completed.admin %] success[% END %]">

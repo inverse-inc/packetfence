@@ -17,11 +17,10 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Authentication::Action';
 has '+source_type' => ( default => 'SQL' );
 
-=head2 Fields
+=head1 FIELDS
 
-=over
+=head2 pid
 
-=item pid
 =cut
 
 has_field 'pid' =>
@@ -30,7 +29,8 @@ has_field 'pid' =>
    label => 'Username',
   );
 
-=item firstname
+=head2 firstname
+
 =cut
 
 has_field 'firstname' =>
@@ -39,7 +39,8 @@ has_field 'firstname' =>
    label => 'Firstname',
   );
 
-=item lastname
+=head2 lastname
+
 =cut
 
 has_field 'lastname' =>
@@ -48,7 +49,8 @@ has_field 'lastname' =>
    label => 'Lastname',
   );
 
-=item company
+=head2 company
+
 =cut
 
 has_field 'company' =>
@@ -57,7 +59,8 @@ has_field 'company' =>
    label => 'Company',
   );
 
-=item email
+=head2 email
+
 =cut
 
 has_field 'email' =>
@@ -67,7 +70,8 @@ has_field 'email' =>
    required => 1,
   );
 
-=item sponsor
+=head2 sponsor
+
 =cut
 
 has_field 'sponsor' =>
@@ -76,7 +80,8 @@ has_field 'sponsor' =>
    label => 'Sponsor',
   );
 
-=item address
+=head2 address
+
 =cut
 
 has_field 'address' =>
@@ -85,7 +90,8 @@ has_field 'address' =>
    label => 'Address',
   );
 
-=item notes
+=head2 notes
+
 =cut
 
 has_field 'notes' =>
@@ -94,7 +100,8 @@ has_field 'notes' =>
    label => 'Notes',
   );
 
-=item valid_from
+=head2 valid_from
+
 =cut
 
 has_field 'valid_from' =>
@@ -105,17 +112,14 @@ has_field 'valid_from' =>
    start => &now,
   );
 
-=back
-
 =head2 Blocks
-=cut
 
 =over
-=cut
-
 
 =item user block
+
   The user block contains the static fields of user
+
 =cut
 
 has_block 'user' =>
@@ -147,11 +151,9 @@ has_block 'templates' =>
 
 =back
 
-=head2 Methods
+=head1 METHODS
 
-=over
-
-=item options_access_level
+=head2 options_access_level
 
 Populate the select field for the 'access level' template action.
 
@@ -173,7 +175,7 @@ sub options_access_level {
       );
 }
 
-=item options_roles
+=head2 options_roles
 
 Populate the select field for the roles template action.
 
@@ -193,7 +195,7 @@ sub options_roles {
     return @roles;
 }
 
-=item options_durations
+=head2 options_durations
 
 Populate the access duration select field with the available values defined
 in the pf.conf configuration file.
@@ -212,16 +214,16 @@ sub options_durations {
     return \@options;
 }
 
-=item now
+=head2 now
+
 Return the current day, used as the minimal date of the arrival date.
+
 =cut
 
 sub now {
     my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
     return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
 }
-
-=back
 
 =head1 COPYRIGHT
 

@@ -180,8 +180,19 @@ $ui_config_file                 = $conf_dir . "/ui.conf";
 $oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url      = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
-Readonly our @VALID_TRIGGER_TYPES => ( "accounting", "detect", "internal", "mac", "nessus", "openvas", "os", "soh", "useragent",
-        "vendormac" );
+Readonly our @VALID_TRIGGER_TYPES =>
+  (
+   "accounting",
+   "detect",
+   "internal",
+   "mac",
+   "nessus",
+   "openvas",
+   "os",
+   "soh",
+   "useragent",
+   "vendormac"
+  );
 
 $portscan_sid = 1200003;
 $default_pid  = 1;
@@ -217,6 +228,7 @@ Readonly our $WIRED    => 0b001000000;
 Readonly our $EAP      => 0b010000000;
 
 # Catalyst-based access level constants
+Readonly::Scalar our $ADMIN_USERNAME => 'admin';
 Readonly our $WEB_ADMIN_NONE => 0;
 Readonly our $WEB_ADMIN_ALL => 4294967295;
 
