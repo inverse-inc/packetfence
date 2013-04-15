@@ -74,7 +74,7 @@ sub auto :Private {
 
 =cut
 
-sub begin {
+sub begin : Private {
     pf::config::cached::ReloadConfigs();
 }
 
