@@ -48,6 +48,7 @@ use pf::services::snmptrapd qw(generate_snmptrapd_conf);
 use pf::services::snort qw(generate_snort_conf);
 use pf::services::suricata qw(generate_suricata_conf);
 use pf::SwitchFactory;
+use pf::violation_config;
 
 Readonly our @ALL_SERVICES => (
     'named', 'dhcpd', 'snort', 'suricata', 'radiusd',
@@ -481,62 +482,7 @@ sub manage_Static_Route {
 =cut
 
 sub read_violations_conf {
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my %violations_conf;
-    tie %violations_conf, 'pf::config::cached', ( -file => "$conf_dir/violations.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error( "Error reading violations.conf: " .  join( "\n", @errors ) . "\n" );
-        return 0;
-    }
-    my %violations = class_set_defaults(%violations_conf);
-
-    #clear all triggers at startup
-    trigger_delete_all();
-    foreach my $violation ( keys %violations ) {
-
-        # parse triggers if they exist
-        my $triggers_ref = [];
-        if ( defined $violations{$violation}{'trigger'} ) {
-            try {
-                $triggers_ref = parse_triggers($violations{$violation}{'trigger'});
-            } catch {
-                $logger->warn("Violation $violation is ignored: $_");
-                $triggers_ref = [];
-            };
-        }
-
-        # parse grace, try to understand trailing signs, and convert back to seconds
-        if ( defined $violations{$violation}{'grace'} ) {
-            $violations{$violation}{'grace'} = normalize_time($violations{$violation}{'grace'});
-        }
-
-        if ( defined $violations{$violation}{'window'} && $violations{$violation}{'window'} ne "dynamic" ) {
-            $violations{$violation}{'window'} = normalize_time($violations{$violation}{'window'});
-        }
-
-        # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
-        class_merge(
-            $violation,
-            $violations{$violation}{'desc'},
-            $violations{$violation}{'auto_enable'},
-            $violations{$violation}{'max_enable'},
-            $violations{$violation}{'grace'},
-            $violations{$violation}{'window'},
-            $violations{$violation}{'vclose'},
-            $violations{$violation}{'priority'},
-            $violations{$violation}{'template'},
-            $violations{$violation}{'max_enable_url'},
-            $violations{$violation}{'redirect_url'},
-            $violations{$violation}{'button_text'},
-            $violations{$violation}{'enabled'},
-            $violations{$violation}{'vlan'},
-            $violations{$violation}{'target_category'},
-            $violations{$violation}{'whitelisted_categories'},
-            $violations{$violation}{'actions'},
-            $triggers_ref
-        );
-    }
+    pf::violation_config::readViolationConfigFile();
     return 1;
 }
 
