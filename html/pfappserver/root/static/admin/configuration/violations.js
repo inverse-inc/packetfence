@@ -145,16 +145,20 @@ $(function() { // DOM ready
     /* Modal Editor: save a violation */
     $('body').on('submit', 'form[name="violation"]', function(event) {
         var form = $(this),
+        btn = form.find('.btn-primary'),
         modal = $('#modalViolation'),
         modal_body = modal.find('.modal-body'),
         valid = isFormValid(form);
 
         if (valid) {
             resetAlert(modal_body);
+            btn.button('loading');
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'),
                 data: form.serialize()
+            }).always(function() {
+                btn.button('reset');
             }).done(function() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
