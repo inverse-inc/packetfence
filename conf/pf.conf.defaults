@@ -10,11 +10,6 @@ domain=packetfence.org
 # Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
 hostname=packetfence
 #
-# general.logo
-#
-# Logo displayed on web pages.
-logo=/common/packetfence-cp.png
-#
 # general.dnsservers
 #
 # Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.
@@ -178,46 +173,12 @@ button_text=Register
 # The number of registration pages to show to the user
 nbregpages=0
 #
-# registration.guests_self_registration
-#
-# Is the guest self-registration feature enabled or not. Self-registration 
-# is the signup button where a guest can register by email, SMS or be sponsored 
-# their access.
-guests_self_registration=enabled
-#
-# registation.billing_engine
-#
-# Enable or Disable the billing engine that allow registering to the network by buying access
-billing_engine = disabled
-#
 # registration.gaming_devices_registration
 #
 # Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
 gaming_devices_registration = disabled
 
 [guests_self_registration]
-#
-# guests_self_registration.modes
-# 
-# Self-registration is the signup button where a guest can register by
-# email, SMS or sponsored by someone. You can also select "google" and 
-# "facebook", or "github" to authenticate users. Several modes can be enabled at the same time. 
-# To disable guest self-registration entirely see the 
-# guests_self_registration parameter under [registration].
-modes=sms,email,sponsor
-#
-# guests_self_registration.email_activation_timeout
-#
-# This is the delay given to a guest who registered by email confirmation
-# to log into his email and click the activation link. Low values will require
-# a modification of maintenance_interval because the timeout is enforced every
-# 10 maintenance intervals.
-email_activation_timeout=10m
-#
-# guests_self_registration.allow_localdomain
-#
-# Accept self-registration with email address from the local domain.
-allow_localdomain=enabled
 #
 # guests_self_registration.mandatory_fields
 #
