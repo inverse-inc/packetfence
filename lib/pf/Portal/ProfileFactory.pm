@@ -69,17 +69,7 @@ sub instantiate {
     return pf::Portal::Profile->new(_default_profile());
 }
 
-sub _default_profile {
-    return {
-        'name'              => 'default',
-        'description'       => 'The Default Profile',
-        'logo'              => $Config{'general'}{'logo'},
-        'guest_self_reg'    => $Config{'registration'}{'guests_self_registration'},
-        'guest_modes'       => $Config{'guests_self_registration'}{'modes'},
-        'template_path'     => '/',
-        'billing_engine'    => $Config{'registration'}{'billing_engine'},
-    };
-}
+sub _default_profile { return $Profiles_Config{default}; }
 
 sub _custom_profile {
     my ($name) = @_;
