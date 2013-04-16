@@ -30,6 +30,7 @@ use constant ACTION => 'action';
 #FIXME port all hard-coded strings to these constants
 Readonly::Scalar our $AUTOREG => 'autoreg';
 Readonly::Scalar our $TRAP => 'trap';
+Readonly::Scalar our $EMAIL => 'email';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
 Readonly::Scalar our $WINPOPUP => 'winpopup';
@@ -39,6 +40,7 @@ Readonly::Scalar our $ROLE => 'role';
 Readonly::Array our @VIOLATION_ACTIONS =>
   (
    $AUTOREG,
+   $EMAIL,
    $TRAP,
    $LOG,
    $EXTERNAL,
