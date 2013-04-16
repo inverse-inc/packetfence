@@ -44,7 +44,7 @@ sub index {}
 sub begin :Private {
     my ( $self, $c ) = @_;
     pf::config::cached::ReloadConfigs();
-    $c->stash->{current_model_instance} = $c->model("Config::Profile::Default");
+    $c->stash->{current_model_instance} = $c->model("Config::Cached::Profile");
     $c->stash->{current_form_instance} = $c->form("Portal::Profile::Default")->new(ctx=>$c);
 }
 
@@ -65,21 +65,7 @@ The default chained dispatcher
 
 sub object :Chained('/') :PathPart('portal/profile/default') :CaptureArgs(0) {
     my ($self, $c) = @_;
-    my $result = $self->SUPER::object($c,'default');
-    my $profile = $c->stash->{item};
-    if ($profile) {
-        @{$profile}{'id','description'} = ( 'default', 'The Default Profile');
-    }
-    return $result;
-}
-
-=item get_form
-
-=cut
-
-sub getForm {
-    my ($self,$c,@args) = @_;
-    return pfappserver::Form::Portal::Profile::Default->new(ctx => $c,@args);
+    return $self->SUPER::object($c,'default');
 }
 
 =item _make_file_path
