@@ -683,6 +683,7 @@ fi
 #%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/profiles.conf
 #%config                 /usr/local/pf/conf/services.conf
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
