@@ -34,7 +34,7 @@
       <tr style="font-weight: normal">
         <td></td>
         <td><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
-        <td>[% l('Default Profile') %]</td>
+        <td>[% l('The Default Profile') %]</td>
         <td></td>
       </tr>
     </thead>
@@ -44,6 +44,7 @@
           id_field = profile.field('id')
           profile_id = id_field.value
       %]
+      [%IF profile_id != 'default' %]
       <tr>
         <td class="sort-handle">[% loop.index + 1 %]</td>
         <td>
@@ -53,6 +54,7 @@
         <td>[% profile.field('description').value %]</td>
         <td><a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id  %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a></td>
       </tr>
+      [% END %]
       [% END -%]
       <tr><td colspan="5"></td></tr>
     </tbody>
