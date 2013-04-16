@@ -345,25 +345,9 @@ NOTE: Keep in mind that the resulting PacketFence configuration will be located 
 Web-based Administration Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence provides a web-based administration interface for easy configuration and operational management. In order to access the interface you need to create an administrator and a web services account.
+PacketFence provides a web-based administration interface for easy configuration and operational management. If you went through PacketFence's web-based configuration tool, you should have set the password for the `admin` user. If not, the default password is also `admin`.
 
-You need to encrypt the new password in the `admin.conf` file with `htpasswd`:
-
-----
-htpasswd -d /usr/local/pf/conf/admin.conf admin
-----
-
-Then enter the new password twice.
-
-Then again for webservice:
-
-----
-htpasswd -d /usr/local/pf/conf/admin.conf webservice
-----
-
-Then enter the new password twice. *Use a very strong password*. You will never have to enter it more than once.
-
-Once PacketFence is started, administration interface is available at: https://<hostname>:1443/
+Once PacketFence is started, the administration interface is available at: https://<hostname>:1443/
 
 Global configuration file (pf.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -376,7 +360,7 @@ In order to override a default parameter, define it and set it in `pf.conf`.
 
 `/usr/local/pf/conf/documentation.conf` holds the complete list of all available parameters.
 
-All of these parameters are also accessible through the Web Administration interface under the Configuration tab.
+All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
 Captive Portal
 ^^^^^^^^^^^^^^
