@@ -78,6 +78,8 @@ Return 1 if string provided is a valid credit card expiration date, 0 otherwise.
 sub is_creditcardexpiration_valid {
     my ( $credit_card_expiration ) = @_;
 
+    $credit_card_expiration =~ s{/}{};  # We remove potential slash separating character
+
     if ( $credit_card_expiration =~ /
             ^[0-9]{4}   # The expiration date is made of 4 digits
             $/x
