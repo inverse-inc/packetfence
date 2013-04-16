@@ -985,7 +985,7 @@ sub portal_profiles {
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
 
         add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
-            if ( !defined($Profiles_Config{$portal_profile}{'filter'}) );
+            if ( $portal_profile ne 'default' &&  !defined($Profiles_Config{$portal_profile}{'filter'}) );
 
         foreach my $key ( keys %{$Profiles_Config{$portal_profile}} ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
