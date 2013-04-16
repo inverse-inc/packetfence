@@ -69,7 +69,7 @@ sub instantiate {
     return pf::Portal::Profile->new(_default_profile());
 }
 
-sub _default_profile { return $Profiles_Config{default}; }
+sub _default_profile { return {%{$Profiles_Config{default} }, name => 'default' ,template_path => '/'}; }
 
 sub _custom_profile {
     my ($name) = @_;
