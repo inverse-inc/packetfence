@@ -16,22 +16,17 @@
           </ul>
 
           <div class="tab-content">
-            <div class="tab-pane fade in active" id="nodeInfo">
 
+            <div class="tab-pane fade in active" id="nodeInfo">
             <div class="control-group">
               <div class="controls">
                 <h6>[% l('Profile') %]</h6>
               </div>
             </div>
-
             [% form.field('pid').render %]
-
             [% form.field('status').render %]
-
             [% form.field('category_id').render %]
-
             [% form.field('regdate').render %]
-
             [% form.field('unregdate').render %]
 
             <div class="control-group">
@@ -46,16 +41,13 @@
             </div>
 
             [% form.field('vendor').render %]
-
             [% IF node.dhcp -%]
             <div class="control-group">
               <label class="control-label">[% l('OS') %]</label>
               <div class="controls"><span class="uneditable">[% node.dhcp.os %]</span></div>
             </div>
             [%- END %]
-
             [% form.field('computername').render IF node.computername -%]
-
             [% form.field('voip').render %]
 
             [% IF node.last_switch OR node.last_ssid -%]

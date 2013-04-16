@@ -43,7 +43,7 @@ has_field 'category_id' =>
   );
 has_field 'regdate' =>
   (
-   type => '+DateTimePicker',
+   type => 'Uneditable',
    label => 'Registration',
   );
 has_field 'unregdate' =>
