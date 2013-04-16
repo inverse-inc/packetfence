@@ -72,7 +72,7 @@ sub readViolationConfigFile {
                 # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
                 class_merge(
                     $violation,
-                    $Violation_Config{$violation}{'desc'},
+                    $Violation_Config{$violation}{'desc'} || '',
                     $Violation_Config{$violation}{'auto_enable'},
                     $Violation_Config{$violation}{'max_enable'},
                     $Violation_Config{$violation}{'grace'},
@@ -85,7 +85,8 @@ sub readViolationConfigFile {
                     $Violation_Config{$violation}{'button_text'},
                     $Violation_Config{$violation}{'enabled'},
                     $Violation_Config{$violation}{'vlan'},
-                    $Violation_Config{$violation}{'whitelisted_categories'},
+                    $Violation_Config{$violation}{'target_category'},
+                    $Violation_Config{$violation}{'whitelisted_categories'} || '',
                     $Violation_Config{$violation}{'actions'},
                     $triggers_ref
                 );
