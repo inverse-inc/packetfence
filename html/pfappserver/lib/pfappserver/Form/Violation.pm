@@ -16,12 +16,13 @@ with 'pfappserver::Form::Widget::Theme::Pf';
 
 use HTTP::Status qw(:constants is_success);
 
+use pf::action;
+
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 # Form select options
-has 'actions' => ( is => 'ro' );
 has 'violations' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro' );
@@ -63,9 +64,18 @@ has_field 'vclose' =>
    type => 'Select',
    label => 'Violation to close',
    element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'No violation'},
+   element_attr => {'data-placeholder' => 'Select a violation'},
    tags => { after_element => \&help,
-             help => 'When selecting the <strong>close</strong> action, triggering the violation will close the one you select in the vclose field. This is an experimental workflow for Mobile Device Management (MDM).' },
+             help => 'When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM).' },
+  );
+has_field 'target_category' =>
+  (
+   type => 'Select',
+   label => 'Set role',
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Select a role'},
+   tags => { after_element => \&help,
+             help => 'When selecting the <strong>role</strong> action, triggering the violation will change the node to this role.' },
   );
 has_field 'priority' =>
   (
@@ -181,8 +191,7 @@ around 'has_errors'  => sub {
 sub options_actions {
     my $self = shift;
 
-    # $self->actions comes from pfappserver::Model::Config::Violations->availableActions
-    my @actions = map { $_ => $self->actions->{$_} } keys %{$self->actions} if ($self->actions);
+    my @actions = map { $_ => $_ } @pf::action::VIOLATION_ACTIONS;
 
     return @actions;
 }
@@ -198,6 +207,24 @@ sub options_vclose {
     my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->violations} if ($self->violations);
 
     return ('' => '', @violations);
+}
+
+=head2 options_role
+
+=cut
+
+sub options_target_category {
+    my $self = shift;
+
+    my @roles;
+
+    # Build a list of existing roles
+    my ($status, $result) = $self->form->ctx->model('Roles')->list();
+    if (is_success($status)) {
+        @roles = map { $_->{name} => $_->{name} } @$result;
+    }
+
+    return ('' => '', @roles);
 }
 
 =head2 options_whitelisted_categories
@@ -247,6 +274,10 @@ sub options_template {
 
 =head2 validate
 
+Make sure a violation is specified if the close action is selected.
+
+Make sure a role is specified if the role action is selected.
+
 =cut
 
 sub validate {
@@ -258,6 +289,20 @@ sub validate {
         my @vids = map { $_->{id} } @{$self->violations};
         unless (defined $vclose && grep {$_ eq $vclose} @vids) {
             $self->field('vclose')->add_error('Specify a violation to close.');
+        }
+    }
+
+    # If the role action is selected, make sure a valid role (target_category) is specified
+    if (grep {$_ eq 'role'} @{$self->value->{actions}}) {
+        my $role = $self->value->{target_category};
+        my $roles_ref = [];
+        my ($status, $result) = $self->ctx->model('Roles')->list();
+        if (is_success($status)) {
+            $roles_ref = $result;
+        }
+        my @roles = map { $_->{name} } @$roles_ref;
+        unless (defined $role && grep {$_ eq $role} @roles) {
+            $self->field('target_category')->add_error('Specify a role to use.');
         }
     }
 }

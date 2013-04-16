@@ -20,6 +20,9 @@ $(function() { // DOM ready
                 $('.chzn-select').chosen();
                 $('.chzn-deselect').chosen({allow_single_deselect: true});
                 modal.modal('show');
+                modal.one('shown', function() {
+                    $('#actions').trigger('change');
+                });
             })
             .fail(function(jqXHR) {
                 var status_msg = getStatusMsg(jqXHR);
@@ -96,6 +99,25 @@ $(function() { // DOM ready
         });
 
         return false;
+    });
+
+    /* Modal Editor: add/remove an action */
+    $('body').on('change', '#actions', function(event) {
+        var actions = $(this).val();
+
+        // Show/hide the vclose field if 'close' is add/remove
+        var vclose_group = $('#vclose').closest('.control-group');
+        if ($.inArray('close', actions) < 0)
+            vclose_group.fadeOut('fast');
+        else
+            vclose_group.fadeIn('fast');
+
+        // Show/hide the target_category field if 'role' is add/remove
+        var role_group = $('#target_category').closest('.control-group');
+        if ($.inArray('role', actions) < 0)
+            role_group.fadeOut('fast');
+        else
+            role_group.fadeIn('fast');
     });
 
     /* Modal Editor: add a trigger */

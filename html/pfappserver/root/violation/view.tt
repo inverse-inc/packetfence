@@ -15,28 +15,20 @@
     </ul>
 
     <div class="tab-content">
+
       <div class="tab-pane fade in active" id="violationDefinition">
-
         [% form.field('enabled').render %]
-
         [% form.field('id').render UNLESS item %]
-
         [% form.field('desc').render %]
-
         [% form.field('actions').render %]
-
         [% form.field('vclose').render %]
-
+        [% form.field('target_category').render %]
         [% form.field('priority').render %]
-
         [% form.field('whitelisted_categories').render %]
-
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="violationTriggers">
-
         [% form.field('trigger').render %]
-
         <div class="control-group">
           <div class="controls">
             <select class="input-medium">
@@ -48,34 +40,22 @@
             <a class="btn" href="#addTrigger">[% l('Add') %]</a>
           </div>
         </div>
-
         <div class="control-group">
         </div>
-
       </div><!--tab-pane-->
 
       <div class="tab-pane fade" id="violationRemediation">
-
         [% form.field('auto_enable').render %]
-
         [% form.field('max_enable').render %]
-
         [% form.field('grace').render %]
-
         [% form.field('window_dynamic').render %]
-
         [% form.field('window').render %]
-
         [% form.field('template').render %]
-
         [% form.field('button_text').render %]
-
       </div><!--tab-pane-->
       
       <div class="tab-pane fade" id="violationAdvanced">
-
         [% form.field('vlan').render %]
-
       </div><!--tab-pane-->
 
     </div><!--tab-content-->

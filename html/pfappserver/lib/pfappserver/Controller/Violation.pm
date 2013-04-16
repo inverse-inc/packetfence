@@ -35,9 +35,9 @@ Setting the current form instance and model
 =cut
 
 sub begin :Private {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
     my ($configViolationsModel, $status, $result);
-    my ($form, $actions, $violations, $triggers, $templates);
+    my ($form, $violations, $triggers, $templates);
     pf::config::cached::ReloadConfigs();
 
     my $model =  $c->model('Config::Violations');
@@ -45,15 +45,13 @@ sub begin :Private {
     if (is_success($status)) {
         $violations = $result;
     }
-    $actions = $model->availableActions();
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
     $c->stash(
         trigger_types => \@pf::config::VALID_TRIGGER_TYPES,
         current_model_instance => $model,
         current_form_instance => $c->form("Violation")->new(
-            ctx=>$c,
-            actions => $actions,
+            ctx => $c,
             violations => $violations,
             triggers => $triggers,
             templates => $templates,
@@ -70,6 +68,7 @@ Violation controller dispatcher
 
 sub object :Chained('/') :PathPart('violation') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
+
     $self->_setup_object($c,$id);
 }
 
@@ -84,7 +83,7 @@ sub index :Path :Args(0) {
     $c->forward('list');
 }
 
-=head2 read
+=head2 after view
 
 =cut
 
@@ -92,7 +91,7 @@ after view => sub {
     my ($self, $c, $id) = @_;
     if (!$c->stash->{action_uri}) {
         if ($c->stash->{item}) {
-            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [ $c->stash->{id} ]);
+            $c->stash->{action_uri} = $c->uri_for($self->action_for('update'), [$c->stash->{id}]);
         } else {
             $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
         }
@@ -129,7 +128,7 @@ after list => sub {
         $c->stash->{items} = \@items;
         my ($status, $result) = $c->model('Config::Cached::Profile')->readAllIds();
         if (is_success($status)) {
-            $c->stash->{profiles} = ['default',@$result];
+            $c->stash->{profiles} = ['default', @$result];
         }
     }
 };

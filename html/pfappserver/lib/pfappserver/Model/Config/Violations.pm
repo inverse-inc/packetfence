@@ -1,4 +1,5 @@
 package pfappserver::Model::Config::Violations;
+
 =head1 NAME
 
 pfappserver::Model::Config::Violations
@@ -13,32 +14,16 @@ pfappserver::Model::Config::Violations
 
 use Moose;
 use namespace::autoclean;
+
 use pf::config::cached;
 use pf::config;
 use pf::violation_config;
-use Readonly;
 
 extends 'pfappserver::Base::Model::Config::Cached';
-
-Readonly::Scalar our $actions => { autoreg => 'Autoreg',
-                                   close => 'Close',
-                                   email => 'Email',
-                                   log => 'Log',
-                                   trap => 'Trap' };
 
 has '+configFile' => (default => $pf::config::violations_config_file);
 
 =head1 Methods
-
-=head2 availableActions
-
-=cut
-
-sub availableActions {
-    my $self = shift;
-
-    return $actions;
-}
 
 =head2 availableTemplates
 
