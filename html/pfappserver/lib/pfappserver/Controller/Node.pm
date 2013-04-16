@@ -98,10 +98,10 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     $c->stash->{mac} = $mac;
 }
 
-=head2 read
+=head2 view
 
 =cut
-sub read :Chained('object') :PathPart('read') :Args(0) {
+sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
@@ -110,7 +110,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     # Form initialization :
     # Retrieve node details and status
 
-    ($status, $result) = $c->model('Node')->read($c->stash->{mac});
+    ($status, $result) = $c->model('Node')->view($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }

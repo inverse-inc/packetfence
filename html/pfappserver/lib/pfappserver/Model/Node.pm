@@ -120,13 +120,13 @@ sub search {
     return ($STATUS::OK, \@nodes);
 }
 
-=item read
+=item view
 
 From pf::lookup::node::lookup_node()
 
 =cut
 
-sub read {
+sub view {
     my ($self, $mac) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
