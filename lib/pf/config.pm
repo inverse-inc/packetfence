@@ -565,13 +565,6 @@ sub readPfConfigFiles {
             }
         }
 
-        my $modes = $Config{'guests_self_registration'}{'modes'};
-
-        # GUEST RELATED
-        # explode self-registration status and modes for easier and cached boolean tests for different services
-        $guest_self_registration{'enabled'} = isenabled($Config{'registration'}{'guests_self_registration'}) ? $TRUE : $FALSE;
-        _set_guest_self_registration($modes);
-
         _load_captive_portal();
     };
 
