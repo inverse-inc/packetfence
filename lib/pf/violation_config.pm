@@ -1,4 +1,5 @@
 package pf::violation_config;
+
 =head1 NAME
 
 pf::violation_config
@@ -13,10 +14,13 @@ pf::violation_config
 
 use strict;
 use warnings;
+use Log::Log4perl qw(get_logger);
+use Try::Tiny;
+
 use pf::config;
 use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_merge);
-use Log::Log4perl qw(get_logger);
+
 our (%Violation_Config, $cached_violations_config);
 
 BEGIN {
@@ -81,7 +85,6 @@ sub readViolationConfigFile {
                     $Violation_Config{$violation}{'button_text'},
                     $Violation_Config{$violation}{'enabled'},
                     $Violation_Config{$violation}{'vlan'},
-                    $Violation_Config{$violation}{'target_category'},
                     $Violation_Config{$violation}{'whitelisted_categories'},
                     $Violation_Config{$violation}{'actions'},
                     $triggers_ref

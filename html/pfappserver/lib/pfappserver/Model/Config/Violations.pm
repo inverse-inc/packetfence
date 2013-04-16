@@ -15,6 +15,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
+use pf::violation_config;
 use Readonly;
 
 extends 'pfappserver::Base::Model::Config::Cached';
@@ -159,6 +160,8 @@ sub cleanupBeforeCommit {
         $violation->{'window'} = 'dynamic';
     }
     delete $violation->{'window_dynamic'};
+
+    pf::violation_config::readViolationConfigFile();
 }
 
 =head1 AUTHOR
