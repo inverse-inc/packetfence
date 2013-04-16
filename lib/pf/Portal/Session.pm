@@ -340,13 +340,11 @@ sub setGuestNodeMac {
 sub getTemplateIncludePath {
     my ($self) = @_;
     my $profile = $self->getProfile;
-    if ($profile->getName eq 'default') {
-        return [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . trim_path($profile->getTemplatePath)],
+    my @paths = ($CAPTIVE_PORTAL{'TEMPLATE_DIR'});
+    if ($profile->getName ne 'default') {
+        unshift @paths,catdir($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},trim_path($profile->getTemplatePath));
     }
-    else {
-        return [$CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'} . trim_path($profile->getTemplatePath),
-                $CAPTIVE_PORTAL{'TEMPLATE_DIR'}];
-    }
+    return \@paths;
 }
 
 =item getRequestLanguages
