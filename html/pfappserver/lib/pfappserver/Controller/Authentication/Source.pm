@@ -198,7 +198,6 @@ sub test :Chained('object') :PathPart('test') :Args(0) {
         foreach my $param (keys %{$c->request->params}) {
             $source->{$param} = $c->request->param($param);
         }
-        use Data::Dumper; print Dumper $c->request->params;
         ($status, $message) = $source->test();
         $status = $status ? HTTP_OK : HTTP_BAD_REQUEST;
     }
