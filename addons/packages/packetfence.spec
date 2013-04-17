@@ -378,10 +378,12 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
+cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
+cp -r NEWS.old $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
-cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
+cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
+cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 # logfiles
 for LOG in %logfiles; do
     touch $RPM_BUILD_ROOT%logdir/$LOG
@@ -788,7 +790,8 @@ fi
 %ghost                  %logdir/admin_debug_log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon
-%doc                    /usr/local/pf/NEWS
+%doc                    /usr/local/pf/NEWS.asciidoc
+%doc                    /usr/local/pf/NEWS.old
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
@@ -796,7 +799,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
-%doc                    /usr/local/pf/UPGRADE
+%doc                    /usr/local/pf/UPGRADE.asciidoc
+%doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
