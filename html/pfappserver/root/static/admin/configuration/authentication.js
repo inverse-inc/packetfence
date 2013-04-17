@@ -31,6 +31,25 @@ $(function() { // DOM ready
         return false;
     });
 
+    /* Test a source */
+    $('#section').on('click', '#testSource', function(e) {
+        e.preventDefault();
+
+        var btn = $(this);
+        var form = btn.closest('form');
+        resetAlert($('#section'));
+        $.ajax({
+            type: 'POST',
+            url: btn.attr('href'),
+            data: form.serialize()
+        }).done(function(data) {
+            showSuccess(form, data.status_msg);
+        }).fail(function(jqXHR) {
+            var status_msg = getStatusMsg(jqXHR);
+            showPermanentError(form, status_msg);
+        });
+    });
+
     /* Save a source */
     $('#section').on('submit', 'form[name="source"]', function(event) {
         var form = $(this),

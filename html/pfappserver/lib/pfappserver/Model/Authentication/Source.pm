@@ -15,7 +15,6 @@ use warnings;
 
 use Moose;
 use namespace::autoclean;
-use Readonly;
 
 use pf::authentication;
 use pf::error qw(is_error is_success);
@@ -43,6 +42,7 @@ sub update {
     foreach my $attr ($source_obj->meta->get_all_attributes()) {
         $attr = $attr->name;
         # Some attributes don't have to be written to disk
+        # (see pf::authentication::writeAuthenticationConfigFile)
         unless (grep { $_ eq $attr } qw[rules type unique class]) {
             $source_obj->$attr($def_ref->{$attr});
         }

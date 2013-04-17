@@ -19,12 +19,12 @@ extends 'pf::Authentication::Source';
 
 # available encryption
 use constant {
-        NONE => "none",
-        SSL => "ssl",
-        TLS => "tls",
-      };
+    NONE => "none",
+    SSL => "ssl",
+    TLS => "tls",
+};
 
-has '+type' => ( default => 'LDAP' );
+has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
@@ -33,6 +33,12 @@ has 'password' => (isa => 'Str', is => 'rw', required => 1);
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
+
+=head1 METHODS
+
+=head2 available_attributes
+
+=cut
 
 sub available_attributes {
   my $self = shift;
@@ -48,6 +54,10 @@ sub available_attributes {
 
   return [@$super_attributes, @ldap_attributes];
 }
+
+=head2 authenticate
+
+=cut
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
@@ -94,9 +104,10 @@ sub authenticate {
   return ($TRUE, 'Successful authentication using LDAP.');
 }
 
-=item match_in_subclass
+=head2 match_in_subclass
 
 =cut
+
 sub match_in_subclass {
 
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
@@ -145,12 +156,57 @@ sub match_in_subclass {
     return undef;
 }
 
-=item ldap_filter_for_conditions
+=head2 test
+
+Test if we can bind and search to the LDAP server
+
+=cut
+
+sub test {
+  my ($self) = @_;
+  my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+
+  # Connect
+  my $connection = Net::LDAP->new($self->{'host'});
+
+  if (! defined($connection)) {
+    $logger->info("Unable to establish LDAP connection.");
+    return ($FALSE, "Can't connect to server");
+  }
+
+  # Bind
+  my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+
+  if ($result->is_error) {
+    $logger->info("Invalid LDAP credentials.");
+    return ($FALSE, 'Wrong bind DN or password');
+  }
+
+  # Search
+  my $filter = "($self->{'usernameattribute'}=*)";
+  $result = $connection->search(
+    base => $self->{'basedn'},
+    filter => $filter,
+    scope => $self->{'scope'},
+    attrs => ['dn'],
+    sizelimit => 1
+  );
+
+  if ($result->is_error) {
+    $logger->info("Invalid LDAP search query ($filter).");
+    return ($FALSE, 'Wrong base DN or username attribute');
+  }
+
+  return ($TRUE, 'Success');
+}
+
+=head2 ldap_filter_for_conditions
 
 This function is used to generate an LDAP filter based on conditions
 from a rule.
 
 =cut
+
 sub ldap_filter_for_conditions {
   my ($conditions, $match, $usernameattribute, $params) = @_;
 
@@ -187,6 +243,10 @@ sub ldap_filter_for_conditions {
 
   return $expression;
 }
+
+=head2 username_from_email
+
+=cut
 
 sub username_from_email {
     my ( $self, $email ) = @_;
@@ -231,8 +291,6 @@ sub username_from_email {
     $logger->info("No match found for filter: $filter");
     return undef;
 }
-
-=back
 
 =head1 AUTHOR
 

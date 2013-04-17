@@ -189,7 +189,24 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
+sub test :Chained('object') :PathPart('test') :Args(0) {
+    my ($self, $c) = @_;
 
+    my ($status, $message) = (HTTP_METHOD_NOT_ALLOWED, 'The source cannot be tested.');
+    my $source = $c->stash->{source};
+    if ($source->can('test')) {
+        foreach my $param (keys %{$c->request->params}) {
+            $source->{$param} = $c->request->param($param);
+        }
+        use Data::Dumper; print Dumper $c->request->params;
+        ($status, $message) = $source->test();
+        $status = $status ? HTTP_OK : HTTP_BAD_REQUEST;
+    }
+
+    $c->response->status($status);
+    $c->stash->{status_msg} = $c->loc($message);
+    $c->stash->{current_view} = 'JSON';
+}
 
 =head2 rule_create
 
