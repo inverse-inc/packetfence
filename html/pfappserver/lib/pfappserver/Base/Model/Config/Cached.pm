@@ -38,13 +38,13 @@ has cachedConfig =>
 
 =cut
 
-has idKey => ( is=> 'ro', default => 'id');
+has idKey => ( is => 'ro', default => 'id');
 
 =head2 configFile
 
 =cut
 
-has configFile => ( is=> 'ro');
+has configFile => ( is => 'ro');
 
 
 =head1 METHODs
@@ -66,7 +66,7 @@ sub _buildCachedConfig {
 sub readConfig {
     my ($self) = @_;
     my $logger = get_logger();
-    my ($status,$status_msg);
+    my ($status, $status_msg);
     my $config = $self->cachedConfig;
     $config->ReadConfig();
     return ($STATUS::OK);
@@ -102,8 +102,7 @@ Get all the sections names
 =cut
 
 sub readAllIds {
-    my ( $self, $id ) = @_;
-    my $logger = get_logger();
+    my ($self, $id) = @_;
     my ($status, $status_msg);
     my $config = $self->cachedConfig;
     my @sections = $config->Sections();
@@ -119,7 +118,7 @@ Get all the sections as an array of hash refs
 sub readAll {
     my ( $self) = @_;
     my $logger = get_logger();
-    my ($status,$status_msg);
+    my ($status, $status_msg);
     my $config = $self->cachedConfig;
     my @sections;
     foreach my $id ($config->Sections()) {
@@ -174,7 +173,7 @@ sub read {
     my $config = $self->cachedConfig;
 
     if ( $config->SectionExists($id) ) {
-        my %item = defined($self->idKey) ?  ( $self->idKey => $id) : ()  ;
+        my %item = defined($self->idKey) ? ($self->idKey => $id) : ();
         foreach my $param ($config->Parameters($id)) {
             $item{$param} = $config->val( $id, $param);
         }
@@ -269,7 +268,7 @@ Removes an existing item
 =cut
 
 sub remove {
-    my ( $self, $id, $assignment ) = @_;
+    my ($self, $id) = @_;
     my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->cachedConfig;
@@ -285,7 +284,7 @@ sub remove {
     }
 
     $logger->info("$status_msg");
-    return ($status,$status_msg);
+    return ($status, $status_msg);
 }
 
 =head2 renameItem
