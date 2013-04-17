@@ -427,36 +427,34 @@ sub readPfDocConfigFiles {
     $cached_pf_doc_config = pf::config::cached->new(
             -file => $pf_doc_file,
             -allowempty => 1,
+            -onreload => [ 'reload_pf_doc_config' =>  sub {
+                my ($config,$name) = @_;
+                $config->toHash(\%Doc_Config);
+                $config->cleanupWhitespace(\%Doc_Config);
+                foreach my $doc_data (values %Doc_Config) {
+                    if (exists $doc_data->{options} && defined $doc_data->{options}) {
+                        my $options = $doc_data->{options};
+                        $doc_data->{options} = [split(/\|/, $options)] if defined $options;
+                    } else {
+                        $doc_data->{options} = [];
+                    }
+                    if (exists $doc_data->{description} && defined $doc_data->{description}) {
+                        # Limited formatting from text to html
+                        my $description = $doc_data->{description};
+                        $description =~ s/</&lt;/g; # convert < to HTML entity
+                        $description =~ s/>/&gt;/g; # convert > to HTML entity
+                        $description =~ s/(\S*(&lt;|&gt;)\S*)\b/<code>$1<\/code>/g; # enclose strings that contain < or >
+                        $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
+                        $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
+                        $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
+                        $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
+                        $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
+                        $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
+                        $doc_data->{description} = $description;
+                    }
+                }
+            }]
     );
-    my $callback = sub {
-        my ($config) = @_;
-        $config->toHash(\%Doc_Config);
-        $config->cleanupWhitespace(\%Doc_Config);
-        foreach my $doc_data (values %Doc_Config) {
-            if (exists $doc_data->{options} && defined $doc_data->{options}) {
-                my $options = $doc_data->{options};
-                $doc_data->{options} = [split(/\|/, $options)] if defined $options;
-            } else {
-                $doc_data->{options} = [];
-            }
-            if (exists $doc_data->{description} && defined $doc_data->{description}) {
-                # Limited formatting from text to html
-                my $description = $doc_data->{description};
-                $description =~ s/</&lt;/g; # convert < to HTML entity
-                $description =~ s/>/&gt;/g; # convert > to HTML entity
-                $description =~ s/(\S*(&lt;|&gt;)\S*)\b/<code>$1<\/code>/g; # enclose strings that contain < or >
-                $description =~ s/(\S+\.(html|tt|pm|pl|txt))\b(?!<\/code>)/<code>$1<\/code>/g; # enclose strings that ends with .html, .tt, etc
-                $description =~ s/^ \* (.+?)$/<li>$1<\/li>/mg; # create list elements for lines beginning with " * "
-                $description =~ s/(<li>.*<\/li>)/<ul>$1<\/ul>/s; # create lists from preceding substitution
-                $description =~ s/\"([^\"]+)\"/<i>$1<\/i>/mg; # enclose strings surrounded by double quotes
-                $description =~ s/\[(\S+)\]/<strong>$1<\/strong>/mg; # enclose strings surrounded by brakets
-                $description =~ s/(https?:\/\/\S+)/<a href="$1">$1<\/a>/g; # make links clickable
-                $doc_data->{description} = $description;
-            }
-        }
-    };
-    $callback->($cached_pf_doc_config);
-    $cached_pf_doc_config->addReloadCallback($callback);
 }
 
 =item readPfConfigFiles -  pf.conf.defaults & pf.conf
@@ -468,15 +466,97 @@ sub readPfConfigFiles {
     # load default and override by local config (most common case)
     $cached_pf_default_config = pf::config::cached->new(
                 -file => $default_config_file,
+                -onreload => [ 'reload_pf_default_config' =>  sub {
+                    my ($config) = @_;
+                    $config->toHash(\%Default_Config);
+                    $config->cleanupWhitespace(\%Default_Config);
+                }]
     );
-    $cached_pf_default_config->toHash(\%Default_Config);
-    $cached_pf_default_config->cleanupWhitespace(\%Default_Config);
 
     if ( -e $default_config_file || -e $config_file ) {
         $cached_pf_config = pf::config::cached->new(
             -file   => $config_file,
             -import => $cached_pf_default_config,
             -allowempty => 1,
+            -onreload => [ 'reload_pf_config' =>  sub {
+                my ($config) = @_;
+                $config->toHash(\%Config);
+                $config->cleanupWhitespace(\%Config);
+
+                my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
+
+                # normalize time
+                foreach my $val (@time_values ) {
+                    my ( $group, $item ) = split( /\./, $val );
+                    $Config{$group}{$item} = normalize_time($Config{$group}{$item}) if ($Config{$group}{$item});
+                }
+
+                # determine absolute paths
+                foreach my $val ("alerting.log") {
+                    my ( $group, $item ) = split( /\./, $val );
+                    if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
+                        $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
+                    }
+                }
+
+                $fqdn = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+
+                foreach my $interface ( $config->GroupMembers("interface") ) {
+                    my $int_obj;
+                    my $int = $interface;
+                    $int =~ s/interface //;
+
+                    my $ip             = $Config{$interface}{'ip'};
+                    my $mask           = $Config{$interface}{'mask'};
+                    my $type           = $Config{$interface}{'type'};
+
+                    if ( defined($ip) && defined($mask) ) {
+                        $ip   =~ s/ //g;
+                        $mask =~ s/ //g;
+                        $int_obj = new Net::Netmask( $ip, $mask );
+                        $int_obj->tag( "ip",      $ip );
+                        $int_obj->tag( "int",     $int );
+                    }
+
+                    if (!defined($type)) {
+                        $logger->warn("$int: interface type not defined");
+                        # setting type to empty to avoid warnings on split below
+                        $type = '';
+                    }
+
+                    die "Missing mandatory element ip or netmask on interface $int"
+                        if ($type =~ /internal|managed|management|external/ && !defined($int_obj));
+
+                    foreach my $type ( split( /\s*,\s*/, $type ) ) {
+                        if ( $type eq 'internal' ) {
+                            push @internal_nets, $int_obj;
+                            if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
+                              push @vlan_enforcement_nets, $int_obj;
+                            } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
+                                push @inline_enforcement_nets, $int_obj;
+                            }
+                            push @listen_ints, $int if ( $int !~ /:\d+$/ );
+                        } elsif ( $type eq 'managed' || $type eq 'management' ) {
+
+                            $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
+                            $management_network = $int_obj;
+                            # adding management to dhcp listeners by default (if it's not already there)
+                            push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
+
+                        } elsif ( $type eq 'external' ) {
+                            push @external_nets, $int_obj;
+                        } elsif ( $type eq 'monitor' ) {
+                            $monitor_int = $int;
+                        } elsif ( $type =~ /^dhcp-?listener$/i ) {
+                            push @dhcplistener_ints, $int;
+                        } elsif ( $type eq 'high-availability' ) {
+                            push @ha_ints, $int;
+                        }
+                    }
+                }
+
+                _load_captive_portal();
+            }]
         );
     } else {
         die ("No configuration files present.");
@@ -488,95 +568,6 @@ sub readPfConfigFiles {
 
 
     # creating a call back to be called everytime the pf.conf file is reloaded
-    my $pf_callback = sub {
-        my ($config) = @_;
-        $config->toHash(\%Config);
-        $config->cleanupWhitespace(\%Config);
-
-        my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
-
-        # normalize time
-        foreach my $val (@time_values ) {
-            my ( $group, $item ) = split( /\./, $val );
-            $Config{$group}{$item} = normalize_time($Config{$group}{$item}) if ($Config{$group}{$item});
-        }
-
-        # determine absolute paths
-        foreach my $val ("alerting.log") {
-            my ( $group, $item ) = split( /\./, $val );
-            if ( !File::Spec->file_name_is_absolute( $Config{$group}{$item} ) ) {
-                $Config{$group}{$item} = File::Spec->catfile( $log_dir, $Config{$group}{$item} );
-            }
-        }
-
-        $fqdn = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
-
-        foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
-            my $int_obj;
-            my $int = $interface;
-            $int =~ s/interface //;
-
-            my $ip             = $Config{$interface}{'ip'};
-            my $mask           = $Config{$interface}{'mask'};
-            my $type           = $Config{$interface}{'type'};
-
-            if ( defined($ip) && defined($mask) ) {
-                $ip   =~ s/ //g;
-                $mask =~ s/ //g;
-                $int_obj = new Net::Netmask( $ip, $mask );
-                $int_obj->tag( "ip",      $ip );
-                $int_obj->tag( "int",     $int );
-            }
-
-            if (!defined($type)) {
-                $logger->warn("$int: interface type not defined");
-                # setting type to empty to avoid warnings on split below
-                $type = '';
-            }
-
-            die "Missing mandatory element ip or netmask on interface $int"
-                if ($type =~ /internal|managed|management|external/ && !defined($int_obj));
-
-            foreach my $type ( split( /\s*,\s*/, $type ) ) {
-                if ( $type eq 'internal' ) {
-                    push @internal_nets, $int_obj;
-                    if ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) {
-                      push @vlan_enforcement_nets, $int_obj;
-                    } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
-                        push @inline_enforcement_nets, $int_obj;
-                    }
-                    push @listen_ints, $int if ( $int !~ /:\d+$/ );
-                } elsif ( $type eq 'managed' || $type eq 'management' ) {
-
-                    $int_obj->tag("vip", _fetch_virtual_ip($int, $interface));
-                    $management_network = $int_obj;
-                    # adding management to dhcp listeners by default (if it's not already there)
-                    push @dhcplistener_ints, $int if ( not scalar grep({ $_ eq $int } @dhcplistener_ints) );
-
-                } elsif ( $type eq 'external' ) {
-                    push @external_nets, $int_obj;
-                } elsif ( $type eq 'monitor' ) {
-                    $monitor_int = $int;
-                } elsif ( $type =~ /^dhcp-?listener$/i ) {
-                    push @dhcplistener_ints, $int;
-                } elsif ( $type eq 'high-availability' ) {
-                    push @ha_ints, $int;
-                }
-            }
-        }
-
-        _load_captive_portal();
-    };
-
-    $pf_callback->($cached_pf_config);
-
-    $cached_pf_config->addReloadCallback( $pf_callback );
-
-    $cached_pf_default_config->addReloadCallback( sub {
-        my ($config) = @_;
-        $config->toHash(\%Default_Config);
-        $config->cleanupWhitespace(\%Default_Config);
-    });
 }
 
 sub _set_guest_self_registration {
@@ -597,33 +588,31 @@ sub readProfileConfigFile {
     $cached_profiles_config = pf::config::cached->new(
             -file => $profiles_config_file,
             -allowempty => 1,
+            -onreload => [ 'reload_profile_config' => sub {
+                my ($config,$name) = @_;
+                $config->toHash(\%Profiles_Config);
+                $config->cleanupWhitespace(\%Profiles_Config);
+                # check for portal profile guest self registration options in case they're disabled in default profile
+                $guest_self_registration{'enabled'} = $FALSE;
+                # check for portal profile guest self registration options in case they're disabled in default profile
+                foreach my $portalprofile ( $config->Sections) {
+                    # marking guest_self_registration as globally enabled if needed by one of the portal profiles
+                    if ( isenabled($Profiles_Config{$portalprofile}{'guest_self_reg'}) ) {
+                        $guest_self_registration{'enabled'} = $TRUE;
+                    }
+
+                    # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
+                    # no auth method == guest self registration
+                    if ( !defined($Profiles_Config{$portalprofile}{'auth'}) ) {
+                        $guest_self_registration{'enabled'} = $TRUE;
+                    }
+
+                    # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
+                    my $guest_modes = $Profiles_Config{$portalprofile}{'guest_modes'};
+                    _set_guest_self_registration($guest_modes) if ( defined $guest_modes );
+                }
+            }]
     );
-    my $callback = sub {
-        my ($config) = @_;
-        $config->toHash(\%Profiles_Config);
-        $config->cleanupWhitespace(\%Profiles_Config);
-        # check for portal profile guest self registration options in case they're disabled in default profile
-        $guest_self_registration{'enabled'} = $FALSE;
-        # check for portal profile guest self registration options in case they're disabled in default profile
-        foreach my $portalprofile ( $config->Sections) {
-            # marking guest_self_registration as globally enabled if needed by one of the portal profiles
-            if ( isenabled($Profiles_Config{$portalprofile}{'guest_self_reg'}) ) {
-                $guest_self_registration{'enabled'} = $TRUE;
-            }
-
-            # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
-            # no auth method == guest self registration
-            if ( !defined($Profiles_Config{$portalprofile}{'auth'}) ) {
-                $guest_self_registration{'enabled'} = $TRUE;
-            }
-
-            # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
-            my $guest_modes = $Profiles_Config{$portalprofile}{'guest_modes'};
-            _set_guest_self_registration($guest_modes) if ( defined $guest_modes );
-        }
-    };
-    $callback->($cached_profiles_config);
-    $cached_profiles_config->addReloadCallback($callback);
 }
 
 =item readNetworkConfigFiles - networks.conf
@@ -631,41 +620,39 @@ sub readProfileConfigFile {
 =cut
 
 sub readNetworkConfigFile {
+    $cached_network_config = pf::config::cached->new(
+        -file => $network_config_file,
+        -allowempty => 1,
+        -onreload => [ reload_network_config =>  sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigNetworks);
+            $config->cleanupWhitespace(\%ConfigNetworks);
+            foreach my $network ( $config->Sections ) {
 
-    $cached_network_config = 'pf::config::cached'->new( -file => $network_config_file, -allowempty => 1 );
+                # populate routed nets variables
+                if ( is_network_type_vlan_isol($network) ) {
+                    my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+                    push @routed_isolation_nets, $isolation_obj;
+                } elsif ( is_network_type_vlan_reg($network) ) {
+                    my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+                    push @routed_registration_nets, $registration_obj;
+                } elsif ( is_network_type_inline($network) ) {
+                    my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
+                    push @inline_nets, $inline_obj;
+                }
+
+                # transition pf_gateway to next_hop
+                # TODO we can deprecate pf_gateway in 2012
+                if ( defined($ConfigNetworks{$network}{'pf_gateway'}) && !defined($ConfigNetworks{$network}{'next_hop'}) ) {
+                    # carry over the parameter so that things still work
+                    $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
+                }
+            }
+        }]
+    );
     if(@Config::IniFiles::errors) {
         $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
     }
-
-    my $callback = sub {
-        my ($config) = @_;
-        $config->toHash(\%ConfigNetworks);
-        $config->cleanupWhitespace(\%ConfigNetworks);
-        foreach my $network ( $config->Sections ) {
-
-            # populate routed nets variables
-            if ( is_network_type_vlan_isol($network) ) {
-                my $isolation_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                push @routed_isolation_nets, $isolation_obj;
-            } elsif ( is_network_type_vlan_reg($network) ) {
-                my $registration_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                push @routed_registration_nets, $registration_obj;
-            } elsif ( is_network_type_inline($network) ) {
-                my $inline_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
-                push @inline_nets, $inline_obj;
-            }
-
-            # transition pf_gateway to next_hop
-            # TODO we can deprecate pf_gateway in 2012
-            if ( defined($ConfigNetworks{$network}{'pf_gateway'}) && !defined($ConfigNetworks{$network}{'next_hop'}) ) {
-                # carry over the parameter so that things still work
-                $ConfigNetworks{$network}{'next_hop'} = $ConfigNetworks{$network}{'pf_gateway'};
-            }
-        }
-    };
-    $callback->($cached_network_config);
-    $cached_network_config->addReloadCallback($callback);
-
 }
 
 =item readFloatingNetworkDeviceFile - floating_network_device.conf
@@ -673,27 +660,25 @@ sub readNetworkConfigFile {
 =cut
 
 sub readFloatingNetworkDeviceFile {
-
-    $cached_floating_device_config = pf::config::cached->new( -file => $floating_devices_file, -allowempty => 1 );
+    $cached_floating_device_config = pf::config::cached->new(
+        -file => $floating_devices_file,
+        -allowempty => 1,
+        -onreload => [ reload_floating_network_device_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigFloatingDevices);
+            $config->cleanupWhitespace(\%ConfigFloatingDevices);
+            foreach my $section ( keys %ConfigFloatingDevices) {
+                if ($ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
+                    $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
+                } else {
+                    $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
+                }
+            }
+        }]
+    );
     if(@Config::IniFiles::errors) {
         $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
     }
-
-    my $callback = sub {
-        my ($config) = @_;
-        $config->toHash(\%ConfigFloatingDevices);
-        $config->cleanupWhitespace(\%ConfigFloatingDevices);
-        foreach my $section ( keys %ConfigFloatingDevices) {
-            if ($ConfigFloatingDevices{$section}{"trunkPort"} =~ /^\s*(y|yes|true|enabled|1)\s*$/i) {
-                $ConfigFloatingDevices{$section}{"trunkPort"} = '1';
-            } else {
-                $ConfigFloatingDevices{$section}{"trunkPort"} = '0';
-            }
-        }
-    };
-    $callback->($cached_floating_device_config);
-    $cached_floating_device_config->addReloadCallback($callback);
-
 }
 
 =item readOAuthFile - oauth2-ips.conf
@@ -701,19 +686,20 @@ sub readFloatingNetworkDeviceFile {
 =cut
 
 sub readOAuthFile {
-    $cached_oauth_ip_config = pf::config::cached->new( -file => $oauth_ip_file, -allowempty => 1 );
+    $cached_oauth_ip_config = pf::config::cached->new(
+        -file => $oauth_ip_file,
+        -allowempty => 1,
+        -onreload => [reload_oauth_config => sub {
+            my ($config) = @_;
+            $config->toHash(\%ConfigOAuth);
+            $config->cleanupWhitespace(\%ConfigOAuth);
+        }]
+    );
 
     if(@Config::IniFiles::errors) {
         $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
     }
 
-    my $callback = sub {
-        my ($config) = @_;
-        $config->toHash(\%ConfigOAuth);
-        $config->cleanupWhitespace(\%ConfigOAuth);
-    };
-    $callback->($cached_oauth_ip_config);
-    $cached_oauth_ip_config->addReloadCallback($callback);
 }
 
 =item normalize_time - formats date

@@ -35,64 +35,69 @@ sub readViolationConfigFile {
     my $logger = get_logger();
     unless ($cached_violations_config) {
         $cached_violations_config = pf::config::cached->new(
-                -file => $violations_config_file,
-                -allowempty => 1,
+            -file => $violations_config_file,
+            -allowempty => 1,
+            -onreload => [ reload_violation_config => sub {
+                my ($config,$name) = @_;
+                $logger->info("called $name");
+                $config->toHash(\%Violation_Config);
+                $config->cleanupWhitespace(\%Violation_Config);
+            }],
+            -onfilereload => [file_reload_violation_config => sub {
+                my ($config,$name) = @_;
+                my $logger = get_logger();
+                $logger->info("called $name");
+                trigger_delete_all();
+                foreach my $violation ( keys %Violation_Config ) {
+
+                    # parse triggers if they exist
+                    my $triggers_ref = [];
+                    if ( defined $Violation_Config{$violation}{'trigger'} ) {
+                        try {
+                            $triggers_ref = parse_triggers($Violation_Config{$violation}{'trigger'});
+                        } catch {
+                            $logger->warn("Violation $violation is ignored: $_");
+                            $triggers_ref = [];
+                        };
+                    }
+
+                    # parse grace, try to understand trailing signs, and convert back to seconds
+                    if ( defined $Violation_Config{$violation}{'grace'} ) {
+                        $Violation_Config{$violation}{'grace'} = normalize_time($Violation_Config{$violation}{'grace'});
+                    }
+
+                    if ( defined $Violation_Config{$violation}{'window'} && $Violation_Config{$violation}{'window'} ne "dynamic" ) {
+                        $Violation_Config{$violation}{'window'} = normalize_time($Violation_Config{$violation}{'window'});
+                    }
+
+                    # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
+                    class_merge(
+                        $violation,
+                        $Violation_Config{$violation}{'desc'} || '',
+                        $Violation_Config{$violation}{'auto_enable'},
+                        $Violation_Config{$violation}{'max_enable'},
+                        $Violation_Config{$violation}{'grace'},
+                        $Violation_Config{$violation}{'window'},
+                        $Violation_Config{$violation}{'vclose'},
+                        $Violation_Config{$violation}{'priority'},
+                        $Violation_Config{$violation}{'template'},
+                        $Violation_Config{$violation}{'max_enable_url'},
+                        $Violation_Config{$violation}{'redirect_url'},
+                        $Violation_Config{$violation}{'button_text'},
+                        $Violation_Config{$violation}{'enabled'},
+                        $Violation_Config{$violation}{'vlan'},
+                        $Violation_Config{$violation}{'target_category'},
+                        $Violation_Config{$violation}{'whitelisted_categories'} || '',
+                        $Violation_Config{$violation}{'actions'},
+                        $triggers_ref
+                    );
+                }
+            }]
         );
         if ( scalar(@Config::IniFiles::errors) ) {
             $logger->error( "Error reading $violations_config_file " .  join( "\n", @Config::IniFiles::errors ) . "\n" );
             return 0;
         }
-        my $callback = sub {
-            my ($config) = @_;
-            $config->toHash(\%Violation_Config);
-            $config->cleanupWhitespace(\%Violation_Config);
-            trigger_delete_all();
-            foreach my $violation ( keys %Violation_Config ) {
-
-                # parse triggers if they exist
-                my $triggers_ref = [];
-                if ( defined $Violation_Config{$violation}{'trigger'} ) {
-                    try {
-                        $triggers_ref = parse_triggers($Violation_Config{$violation}{'trigger'});
-                    } catch {
-                        $logger->warn("Violation $violation is ignored: $_");
-                        $triggers_ref = [];
-                    };
-                }
-
-                # parse grace, try to understand trailing signs, and convert back to seconds
-                if ( defined $Violation_Config{$violation}{'grace'} ) {
-                    $Violation_Config{$violation}{'grace'} = normalize_time($Violation_Config{$violation}{'grace'});
-                }
-
-                if ( defined $Violation_Config{$violation}{'window'} && $Violation_Config{$violation}{'window'} ne "dynamic" ) {
-                    $Violation_Config{$violation}{'window'} = normalize_time($Violation_Config{$violation}{'window'});
-                }
-
-                # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
-                class_merge(
-                    $violation,
-                    $Violation_Config{$violation}{'desc'} || '',
-                    $Violation_Config{$violation}{'auto_enable'},
-                    $Violation_Config{$violation}{'max_enable'},
-                    $Violation_Config{$violation}{'grace'},
-                    $Violation_Config{$violation}{'window'},
-                    $Violation_Config{$violation}{'vclose'},
-                    $Violation_Config{$violation}{'priority'},
-                    $Violation_Config{$violation}{'template'},
-                    $Violation_Config{$violation}{'max_enable_url'},
-                    $Violation_Config{$violation}{'redirect_url'},
-                    $Violation_Config{$violation}{'button_text'},
-                    $Violation_Config{$violation}{'enabled'},
-                    $Violation_Config{$violation}{'vlan'},
-                    $Violation_Config{$violation}{'target_category'},
-                    $Violation_Config{$violation}{'whitelisted_categories'} || '',
-                    $Violation_Config{$violation}{'actions'},
-                    $triggers_ref
-                );
-            }
-        };
-        $cached_violations_config->addReloadCallback($callback);
     } else {
         $cached_violations_config->ReadConfig();
     }

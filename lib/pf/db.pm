@@ -50,7 +50,7 @@ END {
 
 $DB_Config = $Config{'database'};
 #Adding a config reload callback that will disconnect the database when a change in the db configuration has been found
-$cached_pf_config->addReloadCallback( sub {
+$cached_pf_config->addReloadCallbacks( 'reload_db_config' => sub {
     my $new_db_config = $pf::config::Config{'database'};
     if (grep { $DB_Config->{$_} ne $new_db_config->{$_}  } qw(host port user pass db) ) {
         db_disconnect();

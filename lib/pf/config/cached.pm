@@ -26,14 +26,19 @@ use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
 use Readonly;
+use Sub::Name;
+use Log::Log4perl qw(get_logger);
+use List::Util qw(first);
 
 
 our $CACHE;
 our %LOADED_CONFIGS;
-our @GLOBAL_ON_RELOAD;
 our %ON_RELOAD;
-our %RELOADED;
-our %RELOADED_FROM_CACHE;
+our %ON_FILE_RELOAD;
+our @ON_DESTROY_REFS = (
+    \%ON_RELOAD,
+    \%ON_FILE_RELOAD,
+);
 use overload "%{}" => \&config, fallback => 1;
 
 our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
@@ -54,22 +59,30 @@ sub new {
     my $self;
     my $file = $params{'-file'};
     my $config;
+    my $onReload = delete $params{'-onreload'} || [];
+    my $onFileReload = delete $params{'-onfilereload'} || [];
     if($file) {
         if(exists $LOADED_CONFIGS{$file}) {
-            return $LOADED_CONFIGS{$file};
+            $self = $LOADED_CONFIGS{$file};
+            #Adding the reload and filereload callbacks
+            $self->addReloadCallbacks(@$onReload) if @$onReload;
+            $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+            #Rereading the config to ensure the latest version
+            $self->ReadConfig();
+        } else {
+            delete $params{'-file'} unless -e $file;
+            $config = $class->computeFromPath(
+                $file,
+                sub {
+                    my $lock = lockFileForReading($file);
+                    my $config = Config::IniFiles->new(%params);
+                    unlockFilehandle($lock);
+                    $config->SetFileName($file);
+                    $config->SetWriteMode($WRITE_PERMISSIONS);
+                    return $config;
+                }
+            );
         }
-        delete $params{'-file'} unless -e $file;
-        $config = $class->computeFromPath(
-            $file,
-            sub {
-                my $lock = lockFileForReading($file);
-                my $config = Config::IniFiles->new(%params);
-                $config->SetFileName($file);
-                $config->SetWriteMode($WRITE_PERMISSIONS);
-                unlockFilehandle($lock);
-                return $config;
-            }
-        );
     } else {
         die "param -file missing or empty";
     }
@@ -77,7 +90,12 @@ sub new {
         $self = \$config;
         $LOADED_CONFIGS{$file} = $self;
         $ON_RELOAD{$file} = [];
+        $ON_FILE_RELOAD{$file} = [];
         bless $self,$class;
+        $self->addReloadCallbacks(@$onReload) if @$onReload;
+        $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+        $self->_callReloadCallbacks();
+        $self->_callFileReloadCallbacks();
     }
     return $self;
 }
@@ -96,7 +114,7 @@ sub config { ${$_[0]}}
 
 sub RewriteConfig {
     my ($self) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
     my $cache = $self->cache;
@@ -127,21 +145,40 @@ sub RewriteConfig {
     }
     if($result) {
         $cache->set($file,$config);
-        $self->_callReloadedCallback();
+        $self->_callReloadCallbacks();
+        $self->_callFileReloadCallbacks();
     }
     return $result;
 }
 
-=head2 _callReloadedCallbacks
+=head2 _callReloadCallbackss
 
-call all the reloaded callbacks
+call all reload callbacks
 
 =cut
 
-sub _callReloadedCallback {
+sub _callReloadCallbacks {
     my ($self) = @_;
-    local $_;
-    $_->($self) foreach (@{$ON_RELOAD{$self->GetFileName}});
+    my $file = $self->GetFileName;
+    my $on_reload = $ON_RELOAD{$file};
+    foreach my $callback_data ( @$on_reload) {
+        $callback_data->[1]->($self,$callback_data->[0]);
+    }
+}
+
+=head2 _callFileReloadCallbackss
+
+call all the file reload callbacks
+
+=cut
+
+sub _callFileReloadCallbacks {
+    my ($self) = @_;
+    my $file = $self->GetFileName;
+    my $on_file_reload = $ON_FILE_RELOAD{$file};
+    foreach my $callback_data ( @$on_file_reload) {
+        $callback_data->[1]->($self,$callback_data->[0]);
+    }
 }
 
 
@@ -179,10 +216,8 @@ Locks the lock file for writing a file
 
 sub lockFileForWriting {
     my ($file) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("locking file for writing $file");
-#    local $Log::Log4perl::caller_depth =
-#              $Log::Log4perl::caller_depth + 5;
     my $old_mask = umask 2;
     my $flock = File::Flock->new(_makeFileLock($file));
     umask $old_mask;
@@ -198,7 +233,7 @@ Locks the lock file for reading a file
 
 sub lockFileForReading {
     my ($file) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("locking file for reading $file");
     my $old_mask = umask 2;
     my $flock = File::Flock->new(_makeFileLock($file),'shared');
@@ -214,7 +249,7 @@ unlock the file handle returned from lockFileForWriting or lockFileForReading
 
 sub unlockFilehandle {
     my ($lock) = @_;
-    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->trace("unlocking file");
     $lock->unlock;
 }
@@ -242,6 +277,7 @@ sub ReadConfig {
     my $file   = $config->GetFileName;
     my $reloaded = 0;
     my $reloaded_from_cache = 0;
+    my $reloaded_from_file = 0;
     my $result;
     my $imported = $config->{imported} if exists $config->{imported};
     $$self = $self->computeFromPath(
@@ -251,19 +287,20 @@ sub ReadConfig {
             my $lock = lockFileForReading($file);
             $result = $config->ReadConfig();
             unlockFilehandle($lock);
-            $reloaded = 1;
+            $reloaded_from_file = 1;
             return $config;
         }
     );
     if (refaddr($config) != refaddr($self->config)) {
-        $reloaded = 1;
         $reloaded_from_cache = 1;
     }
+    $reloaded = $reloaded_from_file || $reloaded_from_cache;
     if($reloaded) {
-        $self->_callReloadedCallback();
+        $self->_callReloadCallbacks();
     }
-    $RELOADED{$file} = $reloaded;
-    $RELOADED_FROM_CACHE{$file} = $reloaded_from_cache;
+    if($reloaded_from_file) {
+        $self->_callFileReloadCallbacks();
+    }
     return $result;
 }
 
@@ -381,48 +418,110 @@ sub ReloadConfigs {
     my @files;
     while (my($file,$config) = each %LOADED_CONFIGS) {
         $config->ReadConfig();
-        push @files, $file if $RELOADED{$file};
-    }
-    if(@files) {
-        local $_;
-        $_->(@files) for (@GLOBAL_ON_RELOAD);
     }
 }
 
 
-=head2 addReloadCallback
+=head2 addReloadCallbacks
 
-Add callbacks config have been reloaded
+$self->addReloadCallbacks('name' => sub {...});
+Add named callback
+Callbacks are called in order inserted
+If callback name already exists the previous one will be replaced
 
 =cut
 
-sub addReloadCallback {
-    my ($self,@callbacks) = @_;
+sub addReloadCallbacks {
+    my ($self,@args) = @_;
     my $file = $self->GetFileName;
-    local $_;
-    push @{$ON_RELOAD{$file}}, grep { ref($_) eq 'CODE' } @callbacks;
+    my $on_reload = $ON_RELOAD{$file};
+    $self->_addReloadCallbacks($on_reload,@args);
 }
 
-=head2 AddGlobalReloadCallback
-
-Add global callbacks when configs have been reloaded
+=head2 _addReloadCallbacks
 
 =cut
 
-sub AddGlobalReloadCallback {
-    local $_;
-    push @GLOBAL_ON_RELOAD, grep { ref($_) eq 'CODE' } @_;
+sub _addReloadCallbacks {
+    my ($self,$on_reload,$name,$callback,@args) = @_;
+    my $callback_data = first { $_->[0] eq $name  } @$on_reload;
+    $callback = subname $name,$callback;
+    if ($callback_data) {
+        $callback_data->[1] = $callback;
+    } else {
+        push @$on_reload ,[$name, $callback];
+    }
+    if (@args) {
+        $self->_addReloadCallbacks($on_reload,@args);
+    }
+}
+
+=head2 addFileReloadCallbacks
+
+$self->addFileReloadCallbacks('name' => sub {...});
+Add named callback
+Be called in insert order
+If callback already exists will replace the current
+
+=cut
+
+sub addFileReloadCallbacks {
+    my ($self,@args) = @_;
+    my $file = $self->GetFileName;
+    my $on_file_reload = $ON_FILE_RELOAD{$file};
+    $self->_addFileReloadCallbacks($on_file_reload,@args);
+}
+
+=head2 _addFileReloadCallbacks
+
+=cut
+
+sub _addFileReloadCallbacks {
+    my ($self,$on_file_reload,$name,$callback,@args) = @_;
+    my $callback_data = first { $_->[0] eq $name  } @$on_file_reload;
+    $callback = subname $name,$callback;
+    if ($callback_data) {
+        $callback_data->[1] = $callback;
+    } else {
+        push @$on_file_reload ,[$name, $callback];
+    }
+    if (@args) {
+        $self->_addFileReloadCallbacks($on_file_reload,@args);
+    }
 }
 
 
 =head2 DESTROY
 
-to avoid AUTOLOAD being called on object destruction
+Cleaning up externally stored
 
 =cut
 
-sub DESTROY {}
+sub DESTROY {
+    my ($self) = @_;
+    my $config = $self->config;
+    if($config) {
+        my $file = $config->GetFileName;
+        foreach my $hash_ref (@ON_DESTROY_REFS) {
+            delete $hash_ref->{$file};
+        }
+    }
+}
 
+=head2 unloadConfig
+
+Unload cached config from global cache
+
+=cut
+
+sub unloadConfig {
+    my ($self) = @_;
+    my $config = $self->config;
+    if($config) {
+        my $file = $config->GetFileName;
+        delete $LOADED_CONFIGS{$file};
+    }
+}
 
 =head2 isa
 

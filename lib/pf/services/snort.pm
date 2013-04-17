@@ -25,7 +25,7 @@ use POSIX;
 use Readonly;
 
 use pf::config;
-use pf::config::cached;
+use pf::violation_config;
 use pf::util qw(get_all_internal_ips parse_template);
 
 BEGIN {
@@ -46,22 +46,15 @@ BEGIN {
 sub generate_snort_conf {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %tags;
+    readViolationConfigFile();
     $tags{'template'}      = "$conf_dir/snort.conf";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     $tags{'dhcp_servers'}  = $Config{'general'}{'dhcpservers'};
     $tags{'dns_servers'}   = $Config{'general'}{'dnsservers'};
     $tags{'install_dir'}   = $install_dir;
-    my %violations_conf;
-    tie %violations_conf, 'pf::config::cached', ( -file => "$conf_dir/violations.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error( "Error reading violations.conf: " . join( "\n", @errors ) . "\n" );
-        return;
-    }
-
     my @rules;
 
-    foreach my $rule ( split( /\s*,\s*/, $violations_conf{'defaults'}{'snort_rules'} ) ) {
+    foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
 
         #append install_dir if the path doesn't start with /
         $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );

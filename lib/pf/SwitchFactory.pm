@@ -68,13 +68,13 @@ sub new {
     }
 
     if ( !defined( $this->{_configFile} ) ) {
-        $this->{_configFile} = $conf_dir.'/switches.conf';
+        $this->{_configFile} = $switches_config_file;
     }
 
-     my $cached_config  = pf::config::cached->new( -file => $this->{_configFile} );
+    my $cached_config  = pf::config::cached->new( -file => $this->{_configFile}, -allowempty => 1 );
     $this->{_cached_config} = $cached_config;
     $this->_fixupConfig();
-    $cached_config->addReloadCallback(sub { $this->_fixupConfig(); });
+    $cached_config->addReloadCallbacks( 'reload_switch_factory' =>  sub { $this->_fixupConfig(); });
 
     return $this;
 }

@@ -35,7 +35,6 @@ use Proc::ProcessTable;
 use List::Util qw(first);
 
 use pf::config;
-use pf::config::cached;
 use pf::util;
 use pf::node qw(nodes_registered_not_violators);
 use pf::trigger qw(trigger_delete_all parse_triggers);
