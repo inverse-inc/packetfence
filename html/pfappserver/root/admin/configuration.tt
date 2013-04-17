@@ -49,7 +49,13 @@ tr[data-swap] > td {
 </style>
 [% MACRO list_entry(controller_name,action,description) BLOCK %]
               <li>
-                <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action)) %]">[% l(description || action || controller_name) %]</a>
+                <a href="[%c.pf_hash_for(c.controller(controller_name).action_for(action),[]) %]">[% l(description || action || controller_name) %]</a>
+              </li>
+[% END -%]
+
+[% MACRO pf_section_entry(section,description) BLOCK %]
+              <li>
+                <a href="[%c.pf_hash_for(c.controller('Configuration').action_for('pf_section'),section) %]">[% l(description || section) %]</a>
               </li>
 [% END -%]
 
@@ -59,40 +65,41 @@ tr[data-swap] > td {
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
-              [% list_entry('Configuration', 'general', 'General') %]
-              <!--[% list_entry('Configuration', 'database', 'Database') %]-->
-              [% list_entry('Configuration', 'network', 'Network') %]
-              <!--[% list_entry('Configuration', 'proxies', 'Proxy') %]-->
-              [% list_entry('Configuration', 'trapping', 'Trappings') %]
-              [% list_entry('Configuration', 'registration', 'registration') %]
-              [% list_entry('Configuration', 'guests_self_registration', 'Self Registration') %]
-              [% list_entry('Configuration', 'guests_admin_registration', 'Admin Registration') %]
-              [% list_entry('Configuration', 'billing', 'Billing') %]
+              [% pf_section_entry('general', 'General') %]
+              <!--[% pf_section_entry( 'database', 'Database') %]-->
+              [% pf_section_entry( 'network', 'Network') %]
+              <!--[% pf_section_entry( 'proxies', 'Proxy') %]-->
+              [% pf_section_entry( 'trapping', 'Trappings') %]
+              [% pf_section_entry( 'registration', 'registration') %]
+              [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
+              [% pf_section_entry( 'guests_admin_registration', 'Admin Registration') %]
+              [% pf_section_entry( 'billing', 'Billing') %]
               <!--[% list_entry( 'passthroughs') %]-->
-              [% list_entry('Configuration', 'alerting', 'Alerting') %]
-              <!--[% list_entry('Configuration', 'ports', 'Ports') %]-->
-              [% list_entry('Configuration', 'scan', 'Scan') %]
-              [% list_entry('Configuration', 'expire', 'Expiration') %]
-              [% list_entry('Configuration', 'services', 'Services') %]
-              [% list_entry('Configuration', 'vlan', 'SNMP') %]
-              [% list_entry('Configuration', 'inline', 'Inline') %]
-              [% list_entry('Configuration', 'servicewatch', 'Service watch') %]
-              [% list_entry('Configuration', 'captive_portal', 'Captive portal') %]
-              [% list_entry('Configuration', 'advanced', 'Advanced') %]
-              [% list_entry('Configuration', 'provisioning', 'Provisioning') %]
+              [% pf_section_entry( 'alerting', 'Alerting') %]
+              <!--[% pf_section_entry( 'ports', 'Ports') %]-->
+              [% pf_section_entry( 'scan', 'Scan') %]
+              [% pf_section_entry( 'expire', 'Expiration') %]
+              [% pf_section_entry( 'services', 'Services') %]
+              [% pf_section_entry( 'vlan', 'SNMP') %]
+              [% pf_section_entry( 'inline', 'Inline') %]
+              [% pf_section_entry( 'servicewatch', 'Service watch') %]
+              [% pf_section_entry( 'captive_portal', 'Captive portal') %]
+              [% pf_section_entry( 'advanced', 'Advanced') %]
+              [% pf_section_entry( 'provisioning', 'Provisioning') %]
               <!--[% list_entry( 'node_import') %]-->
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
+              [% pf_section_entry( 'webservices', 'Webservices') %]
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
-              [% list_entry('Configuration', 'interfaces', 'Interfaces') %]
-              [% list_entry('Configuration', 'switches', 'Switches') %]
-              [% list_entry('Configuration', 'floating_devices', 'Floating devices') %]
+              [% pf_section_entry( 'interfaces', 'Interfaces') %]
+              [% pf_section_entry( 'switches', 'Switches') %]
+              [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
-              [% list_entry('Configuration', 'roles', 'Roles') %]
+              [% pf_section_entry( 'roles', 'Roles') %]
               [% list_entry('Authentication', 'index', 'Sources') %]
               [% list_entry('User', 'create', 'Create') %]
               <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
               [% list_entry('Violation', 'index', 'Violations') %]
-              [% list_entry('Configuration', 'soh', 'Statement of Health') %]
+              [% pf_section_entry( 'soh', 'Statement of Health') %]
               <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
               [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]

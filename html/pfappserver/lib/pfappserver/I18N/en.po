@@ -678,6 +678,18 @@ msgstr ""
 msgid "node_import.voip"
 msgstr ""
 
+#: conf/pf.conf.defaults:767
+msgid "webservices"
+msgstr "Webservices"
+
+#: conf/pf.conf.defaults:767
+msgid "webservices.user"
+msgstr "Username"
+
+#: conf/pf.conf.defaults:772
+msgid "webservices.pass"
+msgstr "Password"
+
 # html/pfappserver/root/admin/configuration.tt
 
 msgid "fingerprints"
@@ -702,6 +714,9 @@ msgid "roles"
 msgstr "Roles"
 
 msgid "macaddress"
+msgstr "MAC Addresses"
+
+msgid ""
 msgstr "MAC Addresses"
 
 # lib/pf/Authentication/constants.pm

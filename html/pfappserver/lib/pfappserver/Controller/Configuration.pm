@@ -38,16 +38,36 @@ BEGIN {extends 'pfappserver::Base::Controller::Base'; }
 
 =cut
 
+our %ALLOWED_SECTIONS = (
+    general => undef,
+    network => undef,
+    trapping => undef,
+    registration => undef,
+    guests_self_registration => undef,
+    guests_admin_registration => undef,
+    billing => undef,
+    alerting => undef,
+    scan => undef,
+    expire => undef,
+    services => undef,
+    vlan => undef,
+    inline => undef,
+    servicewatch => undef,
+    captive_portal => undef,
+    advanced => undef,
+    provisioning => undef,
+    webservices => undef,
+);
+
 sub _process_section :Private {
-    my ($self, $c) = @_;
-    my $section = $c->action->name;
+    my ($self, $c,$section) = @_;
+    $section ||= $c->action->name;
     my ($params, $form);
 
     $c->stash->{section} = $section;
     $c->stash->{template} = 'configuration/section.tt';
 
     my $model = $c->model('Config::Cached::Pf')->new;
-    $model->readConfig();
 
     if ($c->request->method eq 'POST') {
         $form = pfappserver::Form::Config::Pf->new(ctx => $c,
@@ -64,12 +84,19 @@ sub _process_section :Private {
     }
     else {
         my ($status,$params) = $model->read($section);
-        $form = pfappserver::Form::Config::Pf->new(
-            ctx => $c,
-            section => $section
-        );
-        $form->process(init_object => $params);
-        $c->stash->{form} = $form;
+        if (is_success($status)) {
+            $form = pfappserver::Form::Config::Pf->new(
+                ctx => $c,
+                section => $section
+            );
+            $form->process(init_object => $params);
+            $c->stash->{form} = $form;
+        }
+        else {
+            $c->stash->{current_view} = 'JSON';
+            $c->response->status(HTTP_BAD_REQUEST);
+            $c->stash->{status_msg} = $params;
+        }
     }
 }
 
@@ -79,179 +106,26 @@ sub _process_section :Private {
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-    $c->response->redirect($c->uri_for($c->controller('Configuration')->action_for('general')));
+    $c->response->redirect($c->uri_for($self->action_for('pf_section'),'general'));
     $c->detach();
 }
 
-=head2 general
+
+=head2 pf_section
+
+The generic handler for all pf sections
 
 =cut
 
-sub general :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
+sub pf_section :Path :Args(1) {
+    my ($self, $c, $section) = @_;
+    if (exists $ALLOWED_SECTIONS{$section} ) {
+        $self->_process_section($c,$section);
+    } else {
+        $c->go('Root','default');
+    }
 }
 
-=head2 network
-
-=cut
-
-sub network :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 trapping
-
-=cut
-
-sub trapping :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 registration
-
-=cut
-
-sub registration :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 guests_self_registration
-
-=cut
-
-sub guests_self_registration :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 guests_admin_registration
-
-=cut
-
-sub guests_admin_registration :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 billing
-
-=cut
-
-sub billing :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 alerting
-
-=cut
-
-sub alerting :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 scan
-
-=cut
-
-sub scan :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 expire
-
-=cut
-
-sub expire :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 services
-
-=cut
-
-sub services :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 vlan
-
-=cut
-
-sub vlan :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 inline
-
-=cut
-
-sub inline :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 servicewatch
-
-=cut
-
-sub servicewatch :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 captive_portal
-
-=cut
-
-sub captive_portal :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 advanced
-
-=cut
-
-sub advanced :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
-
-=head2 provisioning
-
-=cut
-
-sub provisioning :Local {
-    my ($self, $c) = @_;
-
-    $self->_process_section($c);
-}
 
 =head2 interfaces
 
@@ -353,7 +227,6 @@ sub roles :Local {
         $c->stash->{error} = $result;
     }
 }
-
 
 =head1 COPYRIGHT
 

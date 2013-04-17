@@ -672,3 +672,8 @@ category=default
 #
 # By default is an imported node a Voice over IP device or not?
 voip=no
+
+[webservices]
+user = 
+pass =
+
