@@ -10,6 +10,8 @@ Portal profile.
 
 =cut
 
+use pf::authentication;
+
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form::Base';
 
@@ -47,7 +49,6 @@ has_field 'guest_modes' =>
     'multiple'=> 1,
     'element_class' => ['chzn-select', 'input-xlarge'],
     'element_attr' => {'data-placeholder' => 'Click to add'},
-    'options' => [map { { value => $_, label => $_ } } qw(email sms sponsor google facebook github) ],
   );
 has_field 'billing_engine' =>
   (
@@ -57,6 +58,18 @@ has_field 'billing_engine' =>
    unchecked_value => 'disabled',
   );
 
+=head1 METHODS
+
+=head2 options_guest_modes
+
+=cut
+
+sub options_guest_modes {
+    my $self = shift;
+
+    my $types = availableAuthenticationSourceTypes('external');
+    return map { { value => $_, label => $_ } } @$types;
+}
 
 =head1 COPYRIGHT
 

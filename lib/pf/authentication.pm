@@ -94,26 +94,23 @@ readAuthenticationConfigFile();
 
 =item availableAuthenticationSourceTypes
 
-Return the list of source types, as defined in each of the class
+Return the list of source types, as defined in each of the class.
+
+Can limit the sources to a specific class ('internal' or 'external').
 
 =cut
 
 sub availableAuthenticationSourceTypes {
-    return [
-            # internal sources
-            pf::Authentication::Source::LDAPSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::ADSource->meta->get_attribute('type')->default,
-            #'SQL', -- don't offer sql for the moment
-            pf::Authentication::Source::RADIUSSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::KerberosSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::HtpasswdSource->meta->get_attribute('type')->default,
-            # external source
-            pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default,
-            pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default,
-           ];
+    my $class = shift;
+
+    my @types;
+    foreach my $module (values %TYPE_TO_SOURCE) {
+        if (!defined $class || $module->meta->find_attribute_by_name('class')->default eq $class) {
+            push(@types, $module->meta->get_attribute('type')->default);
+        }
+    }
+
+    return \@types;
 }
 
 =item newAuthenticationSource
