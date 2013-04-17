@@ -140,7 +140,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
             if (is_success($status)) {
                 my $models =
                   {
-                   'networks' => $c->model('Config::Cached::Network'),
+                   'network' => $c->model('Config::Cached::Network'),
                    'interface' => $c->model('Config::Cached::Interface'),
                    'system' => $c->model('Config::System'),
                   };
@@ -175,7 +175,12 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
-    my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host, $c->model('Config::Cached::Interface'));
+    my $models =
+      {
+       interface => $c->model('Config::Cached::Interface'),
+       network => $c->model('Config::Cached::Network')
+      };
+    my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host, $models);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -258,7 +263,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($status, $result, $form);
     my $models =
       {
-       'networks' => $c->model('Config::Cached::Network'),
+       'network' => $c->model('Config::Cached::Network'),
        'interface' => $c->model('Config::Cached::Interface'),
        'system' => $c->model('Config::System'),
       };

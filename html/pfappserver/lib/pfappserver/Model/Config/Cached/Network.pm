@@ -15,9 +15,9 @@ pfappserver::Model::Config::Cached::Switch;
 use Moose;
 use namespace::autoclean;
 use pf::config;
+use pf::error qw(is_error is_success);
 
 extends 'pfappserver::Base::Model::Config::Cached';
-
 
 has '+idKey' => (default => 'network');
 
@@ -40,6 +40,7 @@ Return the routed networks for the specified network and mask.
 sub getRoutedNetworks {
     my ($self, $network, $netmask) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     my @networks;
     foreach my $section ( keys %ConfigNetworks ) {
         next if ($section eq $network);
@@ -53,7 +54,7 @@ sub getRoutedNetworks {
         @networks = sort @networks;
         return ($STATUS::OK, \@networks);
     } else {
-        return ($STATUS::NOT_FOUND,"No routes for $network/$netmask found");
+        return ($STATUS::NOT_FOUND, "No routes for $network/$netmask found");
     }
 }
 
@@ -89,9 +90,47 @@ sub getNetworkAddress {
     return Net::Netmask->new($ipaddress, $netmask)->base();
 }
 
+=head2 cleanupNetworks
+
+=cut
+
+sub cleanupNetworks {
+    my ($self, $interfaces) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $networks = $self->readAllIds();
+    my %unused = map { $_ => 1 } @$networks;
+
+    foreach my $interface (@$interfaces) {
+
+        # Only check interface with an IP address
+        next unless $interface->{ipaddress};
+
+        # Check default network
+        my $network = $self->getNetworkAddress($interface->{ipaddress}, $interface->{netmask});
+        delete $unused{$network} if exists $unused{$network};
+
+        # Check routed networks
+        my ($status, $return) = $self->getRoutedNetworks($network, $interface->{netmask});
+        if (is_success($status)) {
+            foreach (@$return) {
+                delete $unused{$_} if exists $unused{$_};
+            }
+        }
+
+    }
+
+    foreach my $network (keys %unused) {
+        $logger->warn("Remmoving unused network $network");
+        $self->remove($network);
+    }
+
+    return (scalar %unused);
+}
+
 =head2 cleanupBeforeCommit
 
-Clean data before update or creating
+Set default values before update or creating
 
 =cut
 

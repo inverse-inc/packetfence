@@ -29,8 +29,6 @@ has_field 'ipaddress' =>
   (
    type => 'IPAddress',
    label => 'IP Address',
-   required => 1,
-   messages => { required => 'Please specify an IP address.' },
   );
 has_field 'netmask' =>
   (

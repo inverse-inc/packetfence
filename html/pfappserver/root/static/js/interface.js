@@ -24,6 +24,7 @@ Interfaces.prototype.post = function(options) {
         type: 'POST',
         data: options.data
     })
+        .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
@@ -102,11 +103,13 @@ InterfaceView.prototype.readInterface = function(e) {
 InterfaceView.prototype.typeChanged = function(e) {
     var modal = $('#modalEditInterface');
     var type = e? $(e.target) : modal.find('[name="type"]');
-    var dns = modal.find('[name="dns"]').closest('.control-group');
-    if (type.val() == 'inline')
-        dns.show('fast');
-    else
-        dns.hide('fast');
+    if (type.length) {
+        var dns = modal.find('[name="dns"]').closest('.control-group');
+        if (type.val() == 'inline')
+            dns.show('fast');
+        else
+            dns.hide('fast');
+    }
 };
 
 InterfaceView.prototype.updateInterface = function(e) {
@@ -114,15 +117,19 @@ InterfaceView.prototype.updateInterface = function(e) {
 
     var that = this;
     var form = $(e.target);
+    var btn = form.find('.btn-primary');
     var modal = $('#modalEditInterface');
     var valid = isFormValid(form);
     if (valid) {
         var modal_body = modal.find('.modal-body').first();
         resetAlert(modal_body);
-
+        btn.button('loading');
         this.interfaces.post({
             url: form.attr('action'),
             data: form.serialize(),
+            always: function() {
+                btn.button('reset');
+            },
             success: function(data) {
                 modal.modal('toggle');
                 showSuccess($('#interfaces table'), data.status_msg);

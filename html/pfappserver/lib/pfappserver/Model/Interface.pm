@@ -76,7 +76,7 @@ sub create {
 =cut
 
 sub delete {
-    my ( $self, $interface, $host ,$model ) = @_;
+    my ($self, $interface, $host, $models) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
@@ -85,9 +85,12 @@ sub delete {
     return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
+    # Retrieve interface definition
+    my @results = $self->_listInterfaces($interface);
+    my $interface_ref = pop @results;
+
     # Check if requested interface exists
-    ($status, $status_msg) = $self->exists($interface);
-    if ( is_error($status) ) {
+    if (!defined $interface_ref) {
         $status_msg = "Interface VLAN $interface does not exists";
         $logger->warn($status_msg);
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
@@ -115,7 +118,15 @@ sub delete {
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-    $model->remove($interface);
+
+    # Delete corresponding interface entry from pf.conf
+    $models->{interface}->remove($interface);
+
+    # Remove associated network entries
+    @results = $self->_listInterfaces('all');
+    if ($models->{network}->cleanupNetworks(\@results)) {
+        $models->{network}->rewriteConfig();
+    }
 
     return ($STATUS::OK, "Interface VLAN $interface successfully deleted");
 }
@@ -181,11 +192,11 @@ sub down {
 =cut
 
 sub exists {
-    my ( $self, $interface ) = @_;
+    my ($self, $interface) = @_;
 
     my @result = $self->_listInterfaces($interface);
-    return ($STATUS::OK, "Interface $interface exists") if (scalar @result > 0);
 
+    return ($STATUS::OK, "Interface $interface exists") if (scalar @result > 0);
     return ($STATUS::NOT_FOUND, "Interface $interface does not exists");
 }
 
@@ -241,7 +252,7 @@ sub get {
             if (is_success($status)) {
                 $result->{"$interface"}->{'dns'} = $network->{dns};
             }
-            ($status, undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
+            #($status, undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
             $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
         $result->{"$interface"}->{'type'} = $self->getType($interface_ref, $models);
@@ -255,7 +266,7 @@ sub get {
 =cut
 
 sub update {
-    my ( $self, $interface, $interface_ref, $models ) = @_;
+    my ($self, $interface, $interface_ref, $models) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($ipaddress, $netmask, $status, $status_msg);
@@ -280,22 +291,20 @@ sub update {
     my $interface_before = pop @result;
 
     # Check if the network has changed
-    my $network = $models->{networks}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
-    my $new_network = $models->{networks}->getNetworkAddress($ipaddress, $netmask);
-    if ($network && $network ne $new_network) {
+    my $network = $models->{network}->getNetworkAddress($interface_before->{ipaddress}, $interface_before->{netmask});
+    my $new_network = $models->{network}->getNetworkAddress($ipaddress, $netmask);
+    if ($network && $new_network && $network ne $new_network) {
         $logger->debug("Network has changed for $ipaddress ($network => $new_network)");
-        $models->{networks}->renameItem($network, $new_network);
+        $models->{network}->renameItem($network, $new_network);
     }
 
-    if ( !defined($interface_before->{ipaddress}) || !defined($interface_before->{netmask})
-         || $ipaddress ne $interface_before->{ipaddress} || $netmask ne $interface_before->{netmask}) {
+    if ( !defined($interface_before->{ipaddress})
+         || !defined($interface_before->{netmask})
+         || !defined($ipaddress)
+         || $ipaddress ne $interface_before->{ipaddress}
+         || $netmask ne $interface_before->{netmask}) {
         my $gateway = $models->{system}->getDefaultGateway();
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
-        my $block = Net::Netmask->new($ipaddress.':'.$netmask);
-        my $broadcast = $block->broadcast();
-        $netmask = $block->bits();
-
-        $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
 
         # Delete previous IP address
         my $cmd;
@@ -311,18 +320,29 @@ sub update {
         }
 
         # Add new IP address and netmask
-        $cmd = sprintf "LANG=C sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
-        eval { $status = pf_run($cmd) };
-        if ( $@ || $status ) {
-            $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
-            $logger->error($status);
-            $logger->error("$cmd: $status");
-            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+        if ($ipaddress && $ipaddress ne '') {
+            my $block = Net::Netmask->new($ipaddress.':'.$netmask);
+            my $broadcast = $block->broadcast();
+            $netmask = $block->bits();
+
+            $logger->debug("IP address has changed ($interface $ipaddress/$netmask)");
+
+            $cmd = sprintf "LANG=C sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
+            eval { $status = pf_run($cmd) };
+            if ( $@ || $status ) {
+                $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
+                $logger->error($status);
+                $logger->error("$cmd: $status");
+                return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+            }
+            elsif ($isDefaultRoute) {
+                # Restore gateway
+                $models->{system}->setDefaultRoute($ipaddress);
+            }
         }
-        elsif ($isDefaultRoute) {
-            # Restore gateway
-            $models->{system}->setDefaultRoute($ipaddress);
-        }
+
+        @result = $self->_listInterfaces('all');
+        $models->{network}->cleanupNetworks(\@result);
     }
 
     # Set type
@@ -392,7 +412,6 @@ sub setType {
     my ($self, $interface, $interface_ref, $models) = @_;
 
     my $type = $interface_ref->{type} || 'none';
-    my $pf_interface_model = $models->{interface};
     my ($status, $network_ref);
 
     # we ignore interface type 'Other' (it basically means unsupported in configurator)
@@ -400,21 +419,20 @@ sub setType {
 
     # we delete interface type 'None'
     if ( $type =~ /^none$/i ) {
-            $models->{networks}->remove($interface_ref->{network});
-            $pf_interface_model->remove($interface);
+        $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+        $models->{interface}->remove($interface);
     }
     # otherwise we update pf.conf and networks.conf
     else {
-        # we willingly silently ignore errors if interface already exists
-        # TODO have a wrapper that does both?
-        $pf_interface_model->remove($interface);
-        $pf_interface_model->create($interface,
+        # Update pf.conf
+        $models->{interface}->update($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
+        # Update networks.conf
         # FIXME refactor that!
         # and we must create a network portion for the following types
         if ( $type =~ /^vlan-isolation$|^vlan-registration$/i ) {
-            ($status, $network_ref) = $models->{networks}->read($interface_ref->{network});
+            ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
             if (is_error($status)) {
                 # Create new network with default values
                 $network_ref =
@@ -422,7 +440,7 @@ sub setType {
                    dhcp_default_lease_time => 30,
                    dhcp_max_lease_time => 30,
                   };
-                $models->{networks}->create($interface_ref->{network}, $network_ref);
+                $models->{network}->create($interface_ref->{network}, $network_ref);
             }
             $network_ref->{type} = $type;
             $network_ref->{netmask} = $interface_ref->{'netmask'};
@@ -430,10 +448,10 @@ sub setType {
             $network_ref->{dns} = $interface_ref->{'ipaddress'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
-            $models->{networks}->update($interface_ref->{network}, $network_ref);
+            $models->{network}->update($interface_ref->{network}, $network_ref);
         }
         elsif ( $type =~ /^inline$/i ) {
-            ($status, $network_ref) = $models->{networks}->read($interface_ref->{network});
+            ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
             if (is_error($status)) {
                 # Create new network with default values
                 $network_ref =
@@ -441,7 +459,7 @@ sub setType {
                    dhcp_default_lease_time => 24 * 60 * 60,
                    dhcp_max_lease_time => 24 * 60 * 60,
                   };
-                $models->{networks}->create($interface_ref->{network}, $network_ref);
+                $models->{network}->create($interface_ref->{network}, $network_ref);
             }
             $network_ref->{type} = $type;
             $network_ref->{netmask} = $interface_ref->{'netmask'};
@@ -449,20 +467,20 @@ sub setType {
             $network_ref->{dns} = $interface_ref->{'dns'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
-            $models->{networks}->update($interface_ref->{network}, $network_ref);
+            $models->{network}->update($interface_ref->{network}, $network_ref);
         }
         elsif ( $type =~ /^management$/ ) {
             # management interfaces must not appear in networks.conf
-            $models->{networks}->remove($interface_ref->{network});
+            $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
         }
     }
-    $models->{networks}->rewriteConfig();
-    $pf_interface_model->rewriteConfig();
+    $models->{network}->rewriteConfig();
+    $models->{interface}->rewriteConfig();
 }
 
 
 sub interfaceForDestination {
-    my ( $self, $destination ) = @_;
+    my ($self, $destination) = @_;
 
     my @interfaces = $self->_listInterfaces();
 
@@ -531,7 +549,7 @@ Return a list of all curently installed network interfaces.
 =cut
 
 sub _listInterfaces {
-    my ( $self, $ifname ) = @_;
+    my ($self, $ifname) = @_;
 
     my @interfaces_list = ();
 
@@ -546,7 +564,7 @@ sub _listInterfaces {
     if ($link) {
         # Parse output of ip command
         while ($link =~ m/^
-                          (\d):\s         # ifindex
+                          (\d+):\s        # ifindex
                           ([\w\.]+)       # interface name, including the VLAN
                           (?:\@([^:]+))?  # master interface name
                           .+
