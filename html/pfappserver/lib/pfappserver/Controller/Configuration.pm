@@ -59,46 +59,6 @@ our %ALLOWED_SECTIONS = (
     webservices => undef,
 );
 
-sub _process_section :Private {
-    my ($self, $c,$section) = @_;
-    $section ||= $c->action->name;
-    my ($params, $form);
-
-    $c->stash->{section} = $section;
-    $c->stash->{template} = 'configuration/section.tt';
-
-    my $model = $c->model('Config::Cached::Pf')->new;
-
-    if ($c->request->method eq 'POST') {
-        $form = pfappserver::Form::Config::Pf->new(ctx => $c,
-                                                   section => $section);
-        $form->process(params => $c->req->params);
-        if ($form->has_errors) {
-            $c->response->status(HTTP_BAD_REQUEST);
-            $c->stash->{status_msg} = $form->field_errors; # TODO: localize error message
-        }
-        else {
-            $model->update($section, $form->value);
-            $model->rewriteConfig();
-        }
-    }
-    else {
-        my ($status,$params) = $model->read($section);
-        if (is_success($status)) {
-            $form = pfappserver::Form::Config::Pf->new(
-                ctx => $c,
-                section => $section
-            );
-            $form->process(init_object => $params);
-            $c->stash->{form} = $form;
-        }
-        else {
-            $c->stash->{current_view} = 'JSON';
-            $c->response->status(HTTP_BAD_REQUEST);
-            $c->stash->{status_msg} = $params;
-        }
-    }
-}
 
 =head2 index
 
@@ -120,7 +80,42 @@ The generic handler for all pf sections
 sub pf_section :Path :Args(1) {
     my ($self, $c, $section) = @_;
     if (exists $ALLOWED_SECTIONS{$section} ) {
-        $self->_process_section($c,$section);
+        my ($params, $form);
+
+        $c->stash->{section} = $section;
+        $c->stash->{template} = 'configuration/section.tt';
+
+        my $model = $c->model('Config::Cached::Pf')->new;
+
+        if ($c->request->method eq 'POST') {
+            $form = pfappserver::Form::Config::Pf->new(ctx => $c,
+                                                       section => $section);
+            $form->process(params => $c->req->params);
+            if ($form->has_errors) {
+                $c->response->status(HTTP_BAD_REQUEST);
+                $c->stash->{status_msg} = $form->field_errors; # TODO: localize error message
+            }
+            else {
+                $model->update($section, $form->value);
+                $model->rewriteConfig();
+            }
+        }
+        else {
+            my ($status,$params) = $model->read($section);
+            if (is_success($status)) {
+                $form = pfappserver::Form::Config::Pf->new(
+                    ctx => $c,
+                    section => $section
+                );
+                $form->process(init_object => $params);
+                $c->stash->{form} = $form;
+            }
+            else {
+                $c->stash->{current_view} = 'JSON';
+                $c->response->status(HTTP_BAD_REQUEST);
+                $c->stash->{status_msg} = $params;
+            }
+        }
     } else {
         $c->go('Root','default');
     }
