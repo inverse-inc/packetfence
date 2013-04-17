@@ -74,17 +74,17 @@ BEGIN {
 }
 
 our %TYPE_TO_SOURCE = (
-    'ad'       => 'ADSource',
-    'email'    => 'EmailSource',
-    'htpasswd' => 'HtpasswdSource',
-    'kerberos' => 'KerberosSource',
-    'ldap'     => 'LDAPSource',
-    'radius'   => 'RADIUSSource',
-    'sms'      => 'SMSSource',
-    'sql'      => 'SQLSource',
-    'facebook' => 'FacebookSource',
-    'google'   => 'GoogleSource',
-    'github'   => 'GithubSource',
+    'sql'      => pf::Authentication::Source::SQLSource->meta->name,
+    'ad'       => pf::Authentication::Source::ADSource->meta->name,
+    'htpasswd' => pf::Authentication::Source::HtpasswdSource->meta->name,
+    'kerberos' => pf::Authentication::Source::KerberosSource->meta->name,
+    'ldap'     => pf::Authentication::Source::LDAPSource->meta->name,
+    'radius'   => pf::Authentication::Source::RADIUSSource->meta->name,
+    'email'    => pf::Authentication::Source::EmailSource->meta->name,
+    'sms'      => pf::Authentication::Source::SMSSource->meta->name,
+    'facebook' => pf::Authentication::Source::FacebookSource->meta->name,
+    'google'   => pf::Authentication::Source::GoogleSource->meta->name,
+    'github'   => pf::Authentication::Source::GithubSource->meta->name
 );
 
 my %cfg; tie %cfg, 'pf::config::cached', ( -file => $authentication_config_file );
@@ -101,18 +101,18 @@ Return the list of source types, as defined in each of the class
 sub availableAuthenticationSourceTypes {
     return [
             # internal sources
-            'LDAP',
-            'AD',
+            pf::Authentication::Source::LDAPSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::ADSource->meta->get_attribute('type')->default,
             #'SQL', -- don't offer sql for the moment
-            'RADIUS',
-            'Kerberos',
-            'Htpasswd',
+            pf::Authentication::Source::RADIUSSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::KerberosSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::HtpasswdSource->meta->get_attribute('type')->default,
             # external source
-            'Email',
-            'SMS',
-            'Google',
-            'Facebook',
-            'Github',
+            pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default,
+            pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default,
            ];
 }
 
@@ -122,16 +122,14 @@ Returns an instance of pf::Authentication::Source::* for the given type
 
 =cut
 
-
 sub newAuthenticationSource {
     my ($type, $source_id, $attrs) = @_;
 
     my $source;
     $type = lc($type);
     if (exists $TYPE_TO_SOURCE{$type}) {
-        my $source_name = $TYPE_TO_SOURCE{$type};
-        my $source_module = "pf::Authentication::Source::$source_name";
-        $source = $source_module->new ({ id => $source_id, %{$attrs} });
+        my $source_module = $TYPE_TO_SOURCE{$type};
+        $source = $source_module->new({ id => $source_id, %{$attrs} });
     }
 
     return $source;
