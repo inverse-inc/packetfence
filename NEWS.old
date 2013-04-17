@@ -13,25 +13,6 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
-Version 4.0.0 released on <releaseDate>
-
-New Features
- * Brand new Catalyst-based Web administrative interface
- * Adding action change category and unreg in a violation configuration
- * Adding support for scanning dot1x connections for auto-registration by EAP-Type
- * Adding support for auto registering dot1x node based of the EAP-Type
- * New searchable MAC Addresses module to query all existing OUI prefixes
-
-Enchancements
- * Authentication sources can now be managed directly from the GUI
- * Roles (previously called categories) are now computed dynamically using authentication sources
- * Portal profiles and portal pages are now managed from the GUI
- * Fingerprints and User Agents modules are now searchable
- * Translated all remediation pages to French
-
-Bug Fixes
- * Modified the SQL upgrade script from 3.5.0 to 3.6.1 (#1624)
---------------------------------------------------------------------------------
 Version 3.6.1 released on 2013-01-10
 
 New Features
