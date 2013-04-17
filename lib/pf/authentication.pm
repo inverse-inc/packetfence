@@ -224,7 +224,8 @@ sub writeAuthenticationConfigFile {
 
         for my $attr ( $source->meta->get_all_attributes ) {
             $attr = $attr->name;
-            next if (grep { $_ eq $attr } qw[id rules]);
+            # Don't write static attributes (see pfappserver::Model::Authentication::Source::update)
+            next if (grep { $_ eq $attr } qw[id rules unique class]);
             next unless ($source->{$attr});
             my $value = $source->{$attr};
             if (ref($value)) {
