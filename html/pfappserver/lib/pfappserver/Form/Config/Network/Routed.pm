@@ -29,6 +29,8 @@ has_field 'dns' =>
    label => 'DNS Server',
    required => 1,
    messages => { required => "Please specify the DNS server's IP address." },
+   tags => { after_element => \&help,
+             help => 'Should match the IP of a registration interface' },
   );
 has_field 'gateway' =>
   (
