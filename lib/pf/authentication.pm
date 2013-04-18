@@ -13,7 +13,7 @@ pf::authentication
 use strict;
 use warnings;
 
-use Log::Log4perl;
+use Log::Log4perl qw(get_logger);
 
 use pf::config;
 use pf::config::cached;
@@ -49,6 +49,7 @@ use List::Util qw(first);
 #
 #
 our @authentication_sources = ();
+our $cached_authentication_config;
 
 BEGIN {
     use Exporter ();
@@ -87,8 +88,9 @@ our %TYPE_TO_SOURCE = (
     'github'   => pf::Authentication::Source::GithubSource->meta->name
 );
 
-my %cfg; tie %cfg, 'pf::config::cached', ( -file => $authentication_config_file );
-my $logger = Log::Log4perl->get_logger('pf::authentication');
+our $logger = get_logger();
+
+
 
 readAuthenticationConfigFile();
 
@@ -139,56 +141,71 @@ Populate @authentication_sources with object representations of the configuratio
 =cut
 
 sub readAuthenticationConfigFile {
-    foreach my $source_id ( tied(%cfg)->Sections() ) {
 
-        # We skip groups from our ini files
-        if ($source_id =~ m/\s/) {
-          next;
-        }
+    unless ($cached_authentication_config) {
+        $cached_authentication_config = pf::config::cached->new (
+            -file => $authentication_config_file,
+            -onreload => [ reload_authentication_config => sub {
+                $logger->trace("readAuthenticationConfigFile");
+                @authentication_sources = ();
+                my ($config,$name) = @_;
+                my %cfg;
+                $config->toHash(\%cfg);
+                foreach my $source_id ( $config->Sections() ) {
 
-        # Keep aside the source type
-        my $type = tied(%cfg)->val($source_id, "type");
-        delete $cfg{$source_id}{type};
-
-        # Instantiate the source object
-        my $current_source = newAuthenticationSource($type, $source_id, $cfg{$source_id});
-
-        # Parse rules
-        foreach my $rule_id ( tied(%cfg)->GroupMembers($source_id) ) {
-
-            my ($id) = $rule_id =~ m/$source_id rule (\w+)/;
-            my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
-
-            foreach my $parameter ( tied(%cfg)->Parameters($rule_id) ) {
-                if ($parameter =~ m/condition(\d+)/) {
-                    #print "Condition $1: " . tied(%cfg)->val($rule, $parameter) . "\n";
-                    my ($attribute, $operator, $value) = split(',', tied(%cfg)->val($rule_id, $parameter), 3);
-
-                    $current_rule->add_condition( pf::Authentication::Condition->new({attribute => $attribute,
-                                                                                      operator => $operator,
-                                                                                      value => $value}) );
-                } elsif ($parameter =~ m/action(\d+)/) {
-                    #print "Action: $1" . tied(%cfg)->val($rule_id, $parameter) . "\n";
-                    my ($type, $value) = split('=', tied(%cfg)->val($rule_id, $parameter), 2);
-
-                    if (defined $value) {
-                        $current_rule->add_action( pf::Authentication::Action->new({type => $type,
-                                                                                    value => $value}) );
-                    } else {
-                        $current_rule->add_action( pf::Authentication::Action->new({type => $type}) );
+                    # We skip groups from our ini files
+                    if ($source_id =~ m/\s/) {
+                      next;
                     }
 
-                } elsif ($parameter =~ m/match/) {
-                    $current_rule->{'match'} = tied(%cfg)->val($rule_id, $parameter);
-                } elsif ($parameter =~ m/description/) {
-                    $current_rule->{'description'} = tied(%cfg)->val($rule_id, $parameter);
+                    # Keep aside the source type
+                    my $type = $config->val($source_id, "type");
+                    delete $cfg{$source_id}{type};
+
+                    # Instantiate the source object
+                    my $current_source = newAuthenticationSource($type, $source_id, $cfg{$source_id});
+
+                    # Parse rules
+                    foreach my $rule_id ( $config->GroupMembers($source_id) ) {
+
+                        my ($id) = $rule_id =~ m/$source_id rule (\w+)/;
+                        my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
+
+                        foreach my $parameter ( $config->Parameters($rule_id) ) {
+                            if ($parameter =~ m/condition(\d+)/) {
+                                #print "Condition $1: " . $config->val($rule, $parameter) . "\n";
+                                my ($attribute, $operator, $value) = split(',', $config->val($rule_id, $parameter), 3);
+
+                                $current_rule->add_condition( pf::Authentication::Condition->new({attribute => $attribute,
+                                                                                                  operator => $operator,
+                                                                                                  value => $value}) );
+                            } elsif ($parameter =~ m/action(\d+)/) {
+                                #print "Action: $1" . $config->val($rule_id, $parameter) . "\n";
+                                my ($type, $value) = split('=', $config->val($rule_id, $parameter), 2);
+
+                                if (defined $value) {
+                                    $current_rule->add_action( pf::Authentication::Action->new({type => $type,
+                                                                                                value => $value}) );
+                                } else {
+                                    $current_rule->add_action( pf::Authentication::Action->new({type => $type}) );
+                                }
+
+                            } elsif ($parameter =~ m/match/) {
+                                $current_rule->{'match'} = $config->val($rule_id, $parameter);
+                            } elsif ($parameter =~ m/description/) {
+                                $current_rule->{'description'} = $config->val($rule_id, $parameter);
+                            }
+                        }
+
+                        $current_source->add_rule($current_rule);
+                    }
+
+                    push(@authentication_sources, $current_source);
                 }
-            }
-
-            $current_source->add_rule($current_rule);
-        }
-
-        push(@authentication_sources, $current_source);
+            }]
+        );
+    } else {
+        $cached_authentication_config->ReadConfig();
     }
 }
 
@@ -199,23 +216,18 @@ Write the configuration file to disk
 =cut
 
 sub writeAuthenticationConfigFile {
-    my %ini;
-    tie %ini, 'pf::config::cached', ( -file => $authentication_config_file);
-
     # Remove deleted sections
-    my %new_sources = map { $_ => 1 } @authentication_sources;
-    my @sources = tied(%ini)->Sections;
-    foreach my $id (@sources) {
-        unless ($new_sources{$id}) {
-            tied(%ini)->DeleteSection($id);
-        }
+    my %new_sources = map { $_->id => undef } @authentication_sources;
+    foreach my $id ( grep { !exists $new_sources{$_} } $cached_authentication_config->Sections) {
+        $cached_authentication_config->DeleteSection($id);
     }
+    tie my %cfg ,'pf::config::cached',$cached_authentication_config;
 
     # Update existing sections and create new ones
     foreach my $source ( @authentication_sources ) {
         $logger->debug("Writing source " . $source->id . " (" . ref($source)->meta->name . ")");
-        $ini{$source->{id}} = {};
-        $ini{$source->{id}}{description} = $source->{'description'};
+        $cfg{$source->{id}} = {};
+        $cfg{$source->{id}}{description} = $source->{'description'};
 
         for my $attr ( $source->meta->get_all_attributes ) {
             $attr = $attr->name;
@@ -226,7 +238,7 @@ sub writeAuthenticationConfigFile {
             if (ref($value)) {
                 $value = join(',', @$value);
             }
-            $ini{$source->{id}}{$attr} = $value;
+            $cfg{$source->{id}}{$attr} = $value;
         }
 
         # We flush rules, including conditions and actions.
@@ -234,17 +246,17 @@ sub writeAuthenticationConfigFile {
             my $rule_id = $source->{'id'} . " rule " . $rule->{'id'};
 
             # Since 'description' is defined in the parent section, set the paramater through the object
-            # for proper initialization
-            tied(%ini)->newval($rule_id, 'description', $rule->{'description'});
-            $ini{$rule_id}{match} = $rule->{'match'};
+            # for proper cfgtialization
+            $cached_authentication_config->newval($rule_id, 'description', $rule->{'description'});
+            $cfg{$rule_id}{match} = $rule->{'match'};
 
             my $index = 0;
             foreach my $action ( @{$rule->{'actions'}} ) {
                 my $action_id = 'action' . $index;
                 if (defined $action->{'value'}) {
-                    $ini{$rule_id}{$action_id} = $action->{'type'} . '=' . $action->{'value'};
+                    $cfg{$rule_id}{$action_id} = $action->{'type'} . '=' . $action->{'value'};
                 } else {
-                    $ini{$rule_id}{$action_id} = $action->{'type'};
+                    $cfg{$rule_id}{$action_id} = $action->{'type'};
                 }
                 $index++;
             }
@@ -252,13 +264,12 @@ sub writeAuthenticationConfigFile {
             $index = 0;
             foreach my $condition ( @{$rule->{'conditions'}} ) {
                 my $condition_id = 'condition' . $index;
-                $ini{$rule_id}{$condition_id} = $condition->{'attribute'} . ',' . $condition->{'operator'} . ',' . $condition->{'value'};
+                $cfg{$rule_id}{$condition_id} = $condition->{'attribute'} . ',' . $condition->{'operator'} . ',' . $condition->{'value'};
                 $index++;
             }
         }
     }
-
-    tied(%ini)->RewriteConfig();
+    $cached_authentication_config->RewriteConfig();
 }
 
 =item getAuthenticationSource
