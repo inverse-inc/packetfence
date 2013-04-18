@@ -308,9 +308,7 @@ sub generate_enabler_page {
 }
 
 sub generate_redirect_page {
-    my ( $portalSession, $violation_url ) = @_;
-
-    $portalSession->stash->{'violation_url'} = $violation_url;
+    my ( $portalSession ) = @_;
 
     render_template($portalSession, 'redirect.html');
 }

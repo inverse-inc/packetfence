@@ -1,4 +1,5 @@
 package pf::web::release;
+
 =head1 NAME
 
 release.pm - Handles releasing nodes out of the captive portal.
@@ -81,16 +82,15 @@ sub handler
   my $vid = $violations->{'vid'}; 
   
   # is class valid? if so, let's grab some related info that we will need
-  my ($class_violation_url, $class_redirect_url, $class_max_enable_url);
+  my ($class_redirect_url, $class_max_enable_url);
   my $class=class_view($vid);
-  if (defined($class) && ref($class) eq 'HASH') {   
-    $class_violation_url = "/remediation.cgi" if defined($class->{'template'});
+  if (defined($class) && ref($class) eq 'HASH') {
     $class_redirect_url = $class->{'redirect_url'} if defined($class->{'redirect_url'});
     $class_max_enable_url = $class->{'max_enable_url'} if defined($class->{'max_enable_url'});
   }
 
   # scan code...
-  if ($vid==$SCAN_VID){
+  if ($vid == $SCAN_VID) {
     # detect if a system scan is in progress, if so redirect to scan in progress page
     # this should only happen if the user explicitly put /release in his browser address
     if ($violations->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
@@ -113,7 +113,7 @@ sub handler
   my $cmd = $bin_dir."/pfcmd manage vclose $mac $vid";
   $logger->info("calling $bin_dir/pfcmd manage vclose $mac $vid");
   my $grace = qx/$cmd/;
-  $grace=~s/^.+\n\n//;
+  $grace =~ s/^.+\n\n//;
   #my $grace = violation_close($mac,$vid);
   $logger->info("pfcmd manage vclose $mac $vid returned $grace");
   

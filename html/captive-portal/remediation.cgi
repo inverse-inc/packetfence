@@ -46,6 +46,7 @@ $portalSession->stash->{'user_agent'} = $cgi->user_agent;
 my $violation = violation_view_top($mac);
 
 if ($violation) {
+    # Retrieve violation template name
     my $vid = $violation->{'vid'};
     my $class = class_view($vid);
     
@@ -55,7 +56,8 @@ if ($violation) {
     $portalSession->stash->{'sub_template'} = $url;
 
     pf::web::generate_violation_page($portalSession, $class->{'template'});
-} else {
+}
+else {
     $logger->info("No open violation for " . $mac);
     # TODO - rework to not show "Your computer was not found in the PacketFence database. Please reboot to solve this issue."
     pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));

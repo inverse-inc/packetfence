@@ -64,11 +64,11 @@ if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
 # check violation 
 #
 my $violation = violation_view_top($mac);
-if ($violation){
+if ($violation) {
   # There is a violation, redirect the user
   # FIXME: there is not enough validation below
   my $vid=$violation->{'vid'};
-  my $class=class_view($vid);
+  my $class = class_view($vid);
 
   # detect if a system scan is in progress, if so redirect to scan in progress page
   if ($vid == $SCAN_VID && $violation->{'ticket_ref'} =~ /^Scan in progress, started at: (.*)$/) {
@@ -86,13 +86,13 @@ if ($violation){
   if ($portalSession->getCgi->param("enable_menu")) {
     $logger->debug("violation redirect: generating enable button frame (enable_menu = 1)");
     pf::web::generate_enabler_page($portalSession, $vid, $class->{'button_text'});
-  } elsif  ($class->{'auto_enable'} eq 'Y'){
-    $logger->debug("violation redirect: generating redirect frame");
-    pf::web::generate_redirect_page($portalSession, $class->{'url'});
+  } elsif ($class->{'auto_enable'} eq 'Y') {
+    $logger->debug("violation redirect: showing violation remediation page inside a frame");
+    pf::web::generate_redirect_page($portalSession);
   } else {
-    $logger->debug("violation redirect: showing violation url directly since there is no enable button");
-    print $portalSession->getCgi->redirect($class->{'url'});
-  }
+    $logger->debug("violation redirect: showing violation remediation page directly since there is no enable button");
+    pf::web::generate_violation_page($portalSession, $class->{'template'});
+}
   exit(0);
 }
 

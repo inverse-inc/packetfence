@@ -6,14 +6,12 @@
   <head>
     <title>[% i18n("Quarantine Established!") %]</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <link href="/content/styles.css" media="screen" rel="stylesheet" type="text/css" />
     <link href="/content/responsive.css" media="screen" rel="stylesheet" type="text/css" />
   </head>
-  <frameset rows="5*,1*" frameborder="0" framespacing="0"> 
-    <!-- <frame src="[% violation_url %]" name="content"
-frameborder="no">  -->
-    <frame src="/remediation.cgi" name="content" frameborder="no">
-    <frame src="/enabler?destination_url=[% destination_url %]" name="enabler" frameborder="no"> 
+  <frameset rows="5*,1*" frameborder="0" framespacing="0">
+    <frame src="/remediation" name="content" frameborder="no" />
+    <frame src="/enabler?destination_url=[% destination_url %]" name="enabler" frameborder="no" />
   </frameset> 
 </html>

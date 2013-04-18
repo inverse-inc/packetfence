@@ -70,6 +70,7 @@ Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
 Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
+Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_WIRELESS_PROFILE      => '/wireless-profile.mobileconfig';
 
@@ -85,7 +86,6 @@ Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 # TODO: Temp... migration process. Should be kept since it breaks the portal on removal
 # dwuelfrath@inverse.ca - 2012.11.12
-Readonly::Scalar our $URL_REMEDIATION           => '/remediation.php(.*)';
 Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi';
 Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
