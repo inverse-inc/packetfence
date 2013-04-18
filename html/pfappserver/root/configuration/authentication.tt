@@ -85,7 +85,7 @@
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
-      [% FOREACH type IN types -%]
+      [% FOREACH type IN types.sort -%]
       <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
       [% END -%]
     </ul>
