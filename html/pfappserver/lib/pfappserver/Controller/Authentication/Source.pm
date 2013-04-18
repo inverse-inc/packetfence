@@ -189,17 +189,31 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-sub test :Chained('object') :PathPart('test') :Args(0) {
-    my ($self, $c) = @_;
+=head2 test
+
+Test the connection to a source of a specific type.
+
+=cut
+
+sub test :Local :Args(1) {
+    my ($self, $c, $type) = @_;
 
     my ($status, $message) = (HTTP_METHOD_NOT_ALLOWED, 'The source cannot be tested.');
-    my $source = $c->stash->{source};
-    if ($source->can('test')) {
-        foreach my $param (keys %{$c->request->params}) {
-            $source->{$param} = $c->request->param($param);
+    my %attrs = ();
+    foreach my $param (keys %{$c->request->params}) {
+        $attrs{$param} = $c->request->param($param) if ($c->request->param($param));
+    }
+    eval {
+        my $source = newAuthenticationSource($type, 'test', \%attrs);
+        if ($source && $source->can('test')) {
+            ($status, $message) = $source->test();
+            $status = $status ? HTTP_OK : HTTP_BAD_REQUEST;
         }
-        ($status, $message) = $source->test();
-        $status = $status ? HTTP_OK : HTTP_BAD_REQUEST;
+    };
+    if ($@) {
+        $c->log->debug($@);
+        $status = HTTP_INTERNAL_SERVER_ERROR;
+        $message = $c->loc("Unexpected error. See server-side logs for details.");
     }
 
     $c->response->status($status);

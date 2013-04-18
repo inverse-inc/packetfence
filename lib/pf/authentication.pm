@@ -271,7 +271,7 @@ sub getAuthenticationSource {
     my $id = shift;
 
     my $result;
-    if ($id) {
+    if (defined $id) {
         $result = first {$_->{id} eq $id} @authentication_sources;
     } else {
         $result = \@authentication_sources;

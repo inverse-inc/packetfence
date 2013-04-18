@@ -183,7 +183,7 @@ sub test {
   }
 
   # Search
-  my $filter = "($self->{'usernameattribute'}=*)";
+  my $filter = "($self->{'usernameattribute'}=packetfence)";
   $result = $connection->search(
     base => $self->{'basedn'},
     filter => $filter,

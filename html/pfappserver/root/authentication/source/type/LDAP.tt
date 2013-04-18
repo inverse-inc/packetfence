@@ -12,6 +12,6 @@
           <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>
           <div class="controls">
             [% form.field('password').render_element %]
-            <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Authentication::Source').action_for('test'), [source_id]) %]">[% l('Test') %]</a>
+            <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
           </div>
         </div>
