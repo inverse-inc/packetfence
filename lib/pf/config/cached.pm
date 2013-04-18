@@ -119,12 +119,12 @@ sub RewriteConfig {
     my $file = $config->GetFileName;
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
-    if( -e $file && $cached_object && _expireIf($cached_object)) {
+    if( -e $file && $cached_object && $self->_expireIf($cached_object,$file)) {
         die "Config $file was modified from last loading";
     }
     my $result;
-    if ( $config->{imported} && defined $config->{imported}) {
-        my $lock = lockFileForWriting($file);
+    my $lock = lockFileForWriting($file);
+    if ( exists $config->{imported} && defined $config->{imported}) {
         #localizing for saving only what is in
         local $config->{v} = Config::IniFiles::_deepcopy($config->{v});
         local $config->{sCMT} = Config::IniFiles::_deepcopy($config->{sCMT});
@@ -137,17 +137,18 @@ sub RewriteConfig {
         local $config->{mysects} = Config::IniFiles::_deepcopy($config->{mysects});
         $self->removeDefaultValues();
         $result = $config->RewriteConfig();
-        unlockFilehandle($lock);
     } else {
-        my $lock = lockFileForWriting($file);
         $result = $config->RewriteConfig();
-        unlockFilehandle($lock);
     }
     if($result) {
-        $cache->set($file,$config);
+        $config = $self->computeFromPath(
+            $file,
+            sub { return $config; }, 1
+        );
         $self->_callReloadCallbacks();
         $self->_callFileReloadCallbacks();
     }
+    unlockFilehandle($lock);
     return $result;
 }
 
@@ -275,10 +276,13 @@ sub ReadConfig {
     my $config = $self->config;
     my $cache  = $self->cache;
     my $file   = $config->GetFileName;
-    my $reloaded = 0;
+    my $reloaded;
     my $reloaded_from_cache = 0;
     my $reloaded_from_file = 0;
-    my $result;
+    #If considered latest version of file it is always succesful
+    my $result = 1;
+    my $logger = get_logger();
+    $logger->trace("ReadConfig for $file");
     my $imported = $config->{imported} if exists $config->{imported};
     $$self = $self->computeFromPath(
         $file,
@@ -352,14 +356,16 @@ Will load the Config::IniFiles object from cache or filesystem and update the ca
 =cut
 
 sub computeFromPath {
-    my ($self,$file,$computeSub) = @_;
-    return $self->cache->compute(
+    my ($self,$file,$computeSub,$expire) = @_;
+    my $mod_time = getModTimestamp($file);
+    my $result = $self->cache->compute(
         $file,
         {
-            expire_if => \&_expireIf
+            expire_if => sub { return $expire || $self->_expireIf($_[0],$file); },
         },
         $computeSub
     );
+    return $result;
 }
 
 =head2 cache - get the global CHI object
@@ -391,9 +397,14 @@ check to see if the config file needs to be reread
 =cut
 
 sub _expireIf {
-    my ($cache_object) = @_;
-    my $file = $cache_object->key;
-    return !-e $file ||  ($cache_object->created_at < getModTimestamp($file));
+    my ($self,$cache_object,$file) = @_;
+    my $imported_expired = 0;
+    #checking to see if the imported file needs to be reimported also
+    if ( ref($self) && exists $self->{imported} ) {
+        my $imported = $self->{imported};
+        $imported_expired = (defined $imported && $cache_object->created_at < getModTimestamp($imported->GetFileName));
+    }
+    return ($imported_expired ||  !-e $file ||  ($cache_object->created_at < getModTimestamp($file)));
 }
 
 =head2 getModTimestamp
@@ -414,9 +425,9 @@ ReloadConfigs reload all configs and call any register callbacks
 =cut
 
 sub ReloadConfigs {
-    my $any_reloaded = 0;
-    my @files;
-    while (my($file,$config) = each %LOADED_CONFIGS) {
+    my $logger = get_logger();
+    $logger->trace("Reloading all configs");
+    foreach my $config (values %LOADED_CONFIGS) {
         $config->ReadConfig();
     }
 }
@@ -445,6 +456,7 @@ sub addReloadCallbacks {
 sub _addReloadCallbacks {
     my ($self,$on_reload,$name,$callback,@args) = @_;
     my $callback_data = first { $_->[0] eq $name  } @$on_reload;
+    #Adding a name to the anonymous function for debug and tracing purposes
     $callback = subname $name,$callback;
     if ($callback_data) {
         $callback_data->[1] = $callback;
