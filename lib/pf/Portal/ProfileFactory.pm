@@ -25,9 +25,7 @@ use pf::Portal::Profile;
 
 =head1 SUBROUTINES
 
-=over
-
-=item instantiate
+=head2 instantiate
 
 Create a new pf::Portal::Profile instance based on parameters given.
 
@@ -80,12 +78,10 @@ sub _custom_profile {
         'template_path' => $name,
         'description' => $profile->{'description'} || '',
         map { $_ =>  ($profile->{$_} || $defaults->{$_} ) }
-        qw (logo guest_selfreg guest_modes billing_engine filter)
+        qw (logo guest_self_reg guest_modes billing_engine filter)
     );
     return \%results;
 }
-
-=back
 
 =head1 AUTHOR
 
