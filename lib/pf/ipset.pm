@@ -69,6 +69,20 @@ sub iptables_generate {
             }
         }
     }
+    # OAuth
+    my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
+    my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
+    my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
+
+    if ($google_enabled || $facebook_enabled || $github_enabled) {
+        if ($IPSET_VERSION > 4) {
+            $cmd = "LANG=C sudo ipset --create pfsession_oauth hash:ip,port 2>&1";
+             my @lines  = pf_run($cmd);
+        }
+        else {
+            $logger->warn("We doesnt support ipset under version 4");
+        }
+    }
     $self->SUPER::iptables_generate();
 }
 

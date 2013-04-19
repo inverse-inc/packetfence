@@ -1,0 +1,243 @@
+#!/usr/bin/perl 
+
+=head1 NAME
+
+pfdns - PacketFence DNS server
+
+=head1 SYNOPSIS
+
+pfdns
+
+=cut
+
+use warnings;
+use strict;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
+use File::Basename qw(basename);
+use Getopt::Std;
+use Log::Log4perl;
+use Pod::Usage;
+use POSIX qw(:signal_h);
+use Try::Tiny;
+use Data::Dumper;
+use Net::DNS::Nameserver;
+use NetAddr::IP;
+
+use constant INSTALL_DIR => '/usr/local/pf';
+
+use lib INSTALL_DIR . "/lib";
+
+use pf::config;
+use pf::util;
+
+# initialization
+# --------------
+# assign process name (see #1464)
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+# log4perl init
+Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
+# storing process id instead of thread id in tid (more useful)
+Log::Log4perl::MDC->put( 'tid',  $PID );
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfdns: could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfdns: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfdns: could not set SIGINT handler: $!");
+
+
+my %args;
+getopts( 'dhi:', \%args );
+
+my $daemonize = $args{d};
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+
+# standard signals and daemonize
+daemonize() if ($daemonize);
+
+my @ip_addr;
+my @routed_inline_nets_named;
+my @routed_isolation_nets_named;
+my @routed_registration_nets_named;
+
+foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+    my $ip             = $Config{$interface}{'ip'};
+    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) ) ) {
+        push @ip_addr, $ip;
+    }
+}
+
+foreach my $network ( keys %ConfigNetworks ) {
+
+    if ( $ConfigNetworks{$network}{'named'} eq 'enabled' ) {
+        if ( pf::config::is_network_type_inline($network) ) {
+            my $inline_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_inline_nets_named, $inline_obj;
+        } elsif ( pf::config::is_network_type_vlan_isol($network) ) {
+            my $isolation_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_isolation_nets_named, $isolation_obj;
+
+        } elsif ( pf::config::is_network_type_vlan_reg($network) ) {
+            my $registration_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
+            push @routed_registration_nets_named, $registration_obj;
+        }
+    }
+}
+
+
+my $ns = new Net::DNS::Nameserver(
+LocalAddr       => [@ip_addr],
+LocalPort    => 53,
+ReplyHandler => \&response_handler,
+Verbose      => 1
+) || die "couldn't create nameserver object\n";
+$ns->main_loop;
+
+sub response_handler {
+    my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
+    my $ip = new NetAddr::IP::Lite clean_ip($peerhost);
+    foreach my $network (@routed_registration_nets_named) {
+        if ($network->contains($ip)) {
+           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+        }
+    }
+    foreach my $network (@routed_isolation_nets_named) {
+        if ($network->contains($ip)) {
+           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+        }
+    }
+
+    foreach my $network (@routed_inline_nets_named) {
+        if ($network->contains($ip)) {
+           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+        }
+    }
+}
+
+sub regzone {
+    my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
+    my ($rcode, @ans, @auth, @add);
+
+    print "Received query from $peerhost to ". $conn->{sockhost}. "\n";
+    $query->print;
+    if ($qtype eq "A" && $qname =~ m/www\.(.*)/) {
+        my ($ttl, $rdata) = (15, $conn->{sockhost});
+        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    }
+    elsif ($qtype eq "A" && ($qname =~ m/(.*).google\.com/ || $qname =~ m/(.*).googleusercontent\.com/ || $qname =~ m/(.*).gstatic\.com/ || $qname =~ m/(.*).google\.fr/ || $qname =~ m/(.*).google\.ca/ ) ) {
+        my ($ttl, $rdata);
+        my $res   = Net::DNS::Resolver->new;
+        my $query = $res->search($qname);
+        if ($query) {
+            foreach my $rr ($query->answer) {
+                next unless $rr->type eq "A";
+                my $ip = $rr->address;
+                my $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'80' 2>&1";
+                my @lines  = pf_run($cmd);
+                $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'443' 2>&1";
+                @lines  = pf_run($cmd);
+                ($ttl, $rdata) = (15, $rr->address);
+            }
+        }
+
+        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    }
+    elsif ($qtype eq "A" && $qname =~ m/(.*)/ ) {
+        my ($ttl, $rdata) = (15, $conn->{sockhost});
+        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+        push @ans, $rr;
+        $rcode = "NOERROR";
+    }else{
+        $rcode = "NXDOMAIN";
+    }
+
+    # mark the answer as authoritive (by setting the 'aa' flag
+    return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+}
+
+
+sub daemonize {
+    chdir '/' or $logger->logdie("Can't chdir to /: $!");
+    open STDIN, '<', '/dev/null'
+        or $logger->logdie("Can't read /dev/null: $!");
+    open STDOUT, '>', '/dev/null'
+        or $logger->logdie("Can't write to /dev/null: $!");
+
+    defined( my $pid = fork )
+        or $logger->logdie("pfdns: could not fork: $!");
+    POSIX::_exit(0) if ($pid);
+    if ( !POSIX::setsid() ) {
+        $logger->error("could not start a new session: $!");
+    }
+    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+    my $daemon_pid = createpid("pfdns");
+
+    # updating Log4perl's pid info
+    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
+}
+
+sub normal_sighandler {
+    deletepid("pfdns");
+    if ( threads->self->tid() == 0 ) {
+        $logger->logdie(
+            "pfdns: caught SIG" . $_[0] . " - terminating" );
+    }
+}
+
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Probably
+
+=head1 AUTHOR
+
+Fabrice Durand <fdurand@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2007-2013 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut

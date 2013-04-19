@@ -471,7 +471,7 @@ dhcpd_binary=/usr/sbin/dhcpd
 # services.named_binary
 #
 # Location of the named binary. Only necessary to change if you are not running the RPMed version.
-named_binary=/usr/sbin/named
+named_binary=/usr/sbin/pfdns
 #
 # services.snmptrapd_binary
 #

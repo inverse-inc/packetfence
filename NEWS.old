@@ -13,6 +13,20 @@ For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
 --------------------------------------------------------------------------------
+Version <develVersion> released on <develVersionReleaseDate>
+
+New Features
+ * Removed bind for pfdns
+ * Rewrite Oauth2 support (based on ipset session)
+ * Adding action change category and unreg in a violation configuration
+ * Adding support for scanning dot1x connections for auto-registration by EAP-Type
+ * Adding support for auto registering dot1x node based of the EAP-Type
+  
+--------------------------------------------------------------------------------
+Version <releaseVersion> released on <releaseDate>
+
+Bug Fixes
+ * Modified the SQL upgrade script from 3.5.0 to 3.6.1 (#1624)
 Version 3.6.1 released on 2013-01-10
 
 New Features

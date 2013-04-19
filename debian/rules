@@ -72,7 +72,6 @@ install: build
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/named
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/rrd
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/session
@@ -122,8 +121,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installinfo
 	dh_installman
-	dh_link	/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf \
-			/usr/local/pf/raddb/sites-available/control-socket /usr/local/pf/raddb/sites-enabled/control-socket \
+	dh_link /usr/local/pf/raddb/sites-available/control-socket /usr/local/pf/raddb/sites-enabled/control-socket \
 			/usr/local/pf/raddb/sites-available/default /usr/local/pf/raddb/sites-enabled/default \
 			/usr/local/pf/raddb/sites-available/inner-tunnel /usr/local/pf/raddb/sites-enabled/inner-tunnel \
 			/usr/local/pf/raddb/sites-available/packetfence /usr/local/pf/raddb/sites-enabled/packetfence \

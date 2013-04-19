@@ -169,9 +169,11 @@ sub generate_filter_if_src_to_chain {
 
         # VLAN enforcement
         if ($enforcement_type eq $IF_ENFORCEMENT_VLAN) {
+            if ($dev =~ m/(\w+):\d+/) {
+                $dev = $1;
+            }
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            
             if ($google_enabled || $facebook_enabled || $github_enabled) {
                 $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
@@ -255,23 +257,10 @@ sub generate_inline_rules {
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
 
-    if ($google_enabled) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'google'}{'ips'} ) ) {
-            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d $ip --jump ACCEPT\n";
-        }
+    if ($google_enabled||$facebook_enabled||$github_enabled) {
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_oauth dst,dst --jump ACCEPT\n";
     }
 
-    if ($facebook_enabled) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
-            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d $ip --jump ACCEPT\n";
-        }
-    }
-
-    if ($github_enabled) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'github'}{'ips'} ) ) {
-            $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -d $ip --jump ACCEPT\n";
-        }
-    }
 
     $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_REG --jump ACCEPT\n";
     if (!isenabled($Config{'trapping'}{'registration'})) {
@@ -297,25 +286,8 @@ sub generate_oauth_rules {
     $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers.");
     my $reg_int = "";
 
-    if ($google) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'google'}{'ips'} ) ) {
-            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d $ip --jump ACCEPT\n";
-            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s $ip --jump ACCEPT\n"
-        }
-    }
-
-    if ($facebook) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
-            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d $ip --jump ACCEPT\n";
-            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s $ip --jump ACCEPT\n"
-        }
-    }
-
-    if ($github) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'github'}{'ips'} ) ) {
-            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -d $ip --jump ACCEPT\n";
-            $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -s $ip --jump ACCEPT\n"
-        }
+    if ($google||$facebook||$github) {
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_oauth dst,dst --jump ACCEPT\n";
     }
 
     $logger->info("Adding NAT Masquerade statement.");
@@ -444,25 +416,9 @@ sub generate_nat_redirect_rules {
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
 
-    if ($google_enabled) {
-         foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'google'}{'ips'} ) ) {
-             $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d $ip --destination-port 443 ".
-                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-         }
-    }
-
-    if ($facebook_enabled) {
-        foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'facebook'}{'ips'} ) ) {
-             $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d $ip --destination-port 443 ".
-                       "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-        } 
-    }
-
-    if ($github_enabled) {
-         foreach my $ip ( split( /\s*,\s*/, $ConfigOAuth{'github'}{'ips'} ) ) {
-             $rules .= "-A $FW_PREROUTING_INT_INLINE --protocol tcp -d $ip --destination-port 443 ".
-                   "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
-         }
+    if ($google_enabled||$facebook_enabled||$github_enabled) {
+         $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_oauth dst,dst ".
+               "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
     }
     
     # Now, do your magic
