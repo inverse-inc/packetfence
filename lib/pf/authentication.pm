@@ -220,7 +220,7 @@ sub writeAuthenticationConfigFile {
     foreach my $id ( grep { !exists $new_sources{$_} } $cached_authentication_config->Sections) {
         $cached_authentication_config->DeleteSection($id);
     }
-    tie my %cfg ,'pf::config::cached',$cached_authentication_config;
+    tie(my %cfg,$cached_authentication_config);
 
     # Update existing sections and create new ones
     foreach my $source ( @authentication_sources ) {
