@@ -170,6 +170,22 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 violations
+
+=cut
+
+sub violations :Chained('object') :PathPart :Args(0) {
+    my ($self, $c) = @_;
+    my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
+    if (is_success($status)) {
+        $c->stash->{items} = $result;
+    } else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

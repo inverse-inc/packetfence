@@ -13,6 +13,7 @@
             <li class="active"><a href="#nodeInfo" data-toggle="tab">[% l('Info') %]</a></li>
             <li><a href="#nodeHistory" data-toggle="tab">[% l('History') %]</a></li>
             <li><a href="#nodeAccounting" data-toggle="tab">[% l('Accounting') %]</a></li>
+            <li><a data-target="#nodeViolations" href="[% c.uri_for(c.controller('Node').action_for('violations'), [node.mac]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
           </ul>
 
           <div class="tab-content">
@@ -131,6 +132,9 @@ graphs['iplog'] = {
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="nodeAccounting">
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="nodeViolations">
             </div><!--tab-pane-->
 
           </div><!--tab-content-->

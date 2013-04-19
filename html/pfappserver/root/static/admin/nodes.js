@@ -53,6 +53,15 @@ function init() {
         return false;
     });
 
+    /* Handle dynamic loading of violations */
+    $('body').on('show', '#modalNode [data-toggle="tab"][data-target][href]', function(event) {
+        var that = $(this);
+        var target = $(that.attr("data-target"));
+        if (target.children().length == 0)
+            target.load(that.attr("href"));
+        return true;
+    });
+
     /* Save a node (from the modal editor) */
     $('body').on('click', '#updateNode', function(event) {
         var btn = $(this),

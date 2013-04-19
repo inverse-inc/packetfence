@@ -32,6 +32,7 @@ use pf::node;
 use pf::os;
 use pf::useragent qw(node_useragent_view);
 use pf::util;
+use pf::violation;
 
 =head1 METHODS
 
@@ -254,6 +255,31 @@ sub availableStatus {
              $pf::node::STATUS_UNREGISTERED,
              $pf::node::STATUS_PENDING,
              $pf::node::STATUS_GRACE ];
+}
+
+=head2 violations
+
+Return the open violations associated to the MAC.
+
+=cut
+
+sub violations {
+    my ($self, $mac) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $status_msg);
+
+    my @violations;
+    eval {
+        @violations = violation_view_open_desc($mac);
+    };
+    if ($@) {
+        $status_msg = "Can't fetch violations from database.";
+        $logger->error($status_msg);
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    return ($STATUS::OK, \@violations);
 }
 
 =item _graphIplogHistory
