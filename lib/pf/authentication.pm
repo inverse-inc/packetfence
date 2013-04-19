@@ -146,7 +146,6 @@ sub readAuthenticationConfigFile {
         $cached_authentication_config = pf::config::cached->new (
             -file => $authentication_config_file,
             -onreload => [ reload_authentication_config => sub {
-                $logger->trace("readAuthenticationConfigFile");
                 @authentication_sources = ();
                 my ($config,$name) = @_;
                 my %cfg;
