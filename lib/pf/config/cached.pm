@@ -50,9 +50,9 @@ Creating a pf::config::cached object with some callbacks
 
 =over
 
-=item C<onreload> - called whenever the config is loaded from the filesystem or the cache
+=item C<onreload> - called whenever the config is (re)loaded from the filesystem or the cache
 
-=item C<onfilereload> - called whenever the config is loaded only from the filesystem
+=item C<onfilereload> - called whenever the config is (re)loaded only from the filesystem
 
 =back
 
@@ -96,21 +96,26 @@ Example:
     ],
   );
 
-=head4 Add to an existing pf::config::cached object
+=head4 Add callbacks to an existing pf::config::cached object
 
-If the name already exists, it just replaces the previous callback keeping it's calling order.
+If the name already exists, the current callback is replaced with the newer callback keeping it's calling order.
 
-The new callbacks will not be called so would need to call them yourself.
+When adding a callback to an existing pf::config::cached object it will not be called.
+If it needs to be called it must be done manually.
 
 Adding new callback example:
   $cached_config->addReloadCallbacks( 'onreload_do_something_else' => sub {...}  );
   $cached_config->addFileReloadCallbacks( 'onfilereload_do_something_else' => sub {...}  );
 
 
+    my $callback = sub {...};
+    $cached_config->addReloadCallbacks('callback_name' => $callback);
+    $callback($cached_config,'callback_name');
+
 Adding new callback then calling them after:
   my $callback = sub {...};
   $cached_config->addReloadCallbacks('callback_name' => $callback);
-  $callback($cached_config,callback_name);
+  $callback($cached_config,'callback_name');
 
 =head3 Removing callbacks
 
@@ -128,7 +133,7 @@ They should be stored in a package variable.
 
 =head3 Readonly
 
-If you are only reading the data and not creating other data then these methods are safe to use: 
+The following methods are safe to call for readonly access to configuration data
 
 =over
 
@@ -745,7 +750,7 @@ sub DESTROY {
 
 =head2 unloadConfig
 
-Unloads the cached config from the global cache
+Unloads the cached config from the internal global cache
 
 =cut
 
@@ -808,7 +813,7 @@ sub cleanupWhitespace {
 
 =head2 _buildCHIArgs
 
-Builds the arguments to pass to CHI
+Builds CHI arguments
 
 =cut
 
@@ -818,6 +823,8 @@ sub _buildCHIArgs {
 }
 
 =head2 _extractCHIArgs
+
+Helper function for creating CHI arguments from chi.conf
 
 =cut
 
