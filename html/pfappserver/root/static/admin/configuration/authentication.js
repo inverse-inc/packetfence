@@ -54,11 +54,11 @@ $(function() { // DOM ready
         }
     });
 
-    /* Save a source */
-    $('#section').on('submit', 'form[name="source"]', function(event) {
-        e.preventDefault(event);
+    /* Create a source */
+    $('#section').on('submit', 'form[name="create_source"]', function(e) {
+        e.preventDefault();
 
-        var form = $(this),
+        var form = $(this);
         valid = isFormValid(form);
 
         if (valid) {
@@ -67,7 +67,32 @@ $(function() { // DOM ready
                 type: 'POST',
                 url: form.attr('action'),
                 data: form.serialize()
-            }).done(function(data) {
+            }).done(function(data, textStatus, jqXHR) {
+                location.hash = jqXHR.getResponseHeader('Location');
+            }).fail(function(jqXHR) {
+                $("body,html").animate({scrollTop:0}, 'fast');
+                var status_msg = getStatusMsg(jqXHR);
+                showPermanentError(form, status_msg);
+            });
+            // TODO: find a way to change the location hash without reloading the page
+            // location.hash = 'authentication';
+        }
+    });
+    /* Save a source */
+    $('#section').on('submit', 'form[name="source"]', function(e) {
+        e.preventDefault();
+
+        var form = $(this);
+        valid = isFormValid(form);
+
+        if (valid) {
+            resetAlert($('#section'));
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize()
+            }).done(function(data, textStatus, jqXHR) {
+                location.hash = jqXHR.getResponseHeader('Location');
                 $('#section').fadeOut('fast', function() {
                     // Refresh the complete section
                     $(this).empty();

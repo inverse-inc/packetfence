@@ -55,6 +55,9 @@ sub create :Local :Args(1) {
         # Create the source from the update action
         $c->stash->{source}->{id} = $c->req->params->{id};
         $c->forward('update');
+        if(is_success($c->response->status)) {
+            $c->response->location( $c->pf_hash_for($self->action_for('read'), [$c->stash->{source}->{id}]));
+        }
     }
     else {
         # Show an empty form
@@ -103,10 +106,10 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     }
 
     # Load the appropriate source module
-    $form_type = 'pfappserver::Form::Authentication::Source::' . $c->stash->{source}->{type};
-    eval "require $form_type";
-    if ($@) {
-        $c->log->error($@);
+    $form_type = "Authentication::Source::" . $c->stash->{source}->{type};
+    $form = $c->form($form_type);
+    unless ($form) {
+        $c->log->error("cannot load form $form_type");
         $c->response->status(HTTP_INTERNAL_SERVER_ERROR);
         $c->stash->{status_msg} = $c->loc('Unexpected error. See server-side logs for details.');
         $c->stash->{current_view} = 'JSON';
@@ -114,12 +117,10 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     else {
         my %obj = ();
         if ($c->stash->{source_id}) {
-            my @attrs = $c->stash->{source}->meta->get_all_attributes();
-            foreach my $attr (@attrs) {
-                $obj{$attr->name} = $c->stash->{source}->{$attr->name};
-            }
+            my @attrs = map { $_->name } $c->stash->{source}->meta->get_all_attributes();
+            @obj{@attrs} = @{$c->stash->{source}}{@attrs};
         }
-        $form = $form_type->new(ctx => $c, init_object => \%obj);
+        $form = $form->new(ctx => $c, init_object => \%obj);
         $form->process();
         $c->stash->{form} = $form;
         $c->stash->{template} = 'authentication/source/read.tt' unless ($c->stash->{template});
