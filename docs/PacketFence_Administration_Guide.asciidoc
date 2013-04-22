@@ -592,16 +592,16 @@ engineering and the role `little-access` to nodes categorized as sales.
 CAUTION: Make sure that the roles are properly defined on the network devices
 prior to assigning roles!
 
-Default VLAN assignment
-~~~~~~~~~~~~~~~~~~~~~~~
+Default VLAN/role assignment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
 
-The default VLAN assignment technique used in PacketFence is a per-switch one. The correct default VLAN for a given MAC is the `normalVlan` variable of the switch where the MAC is connected or the `[default]` `normalVlan` if the switch doesn't specify a `normalVlan`.
+The default VLAN assignment technique used in PacketFence is a per-switch one. The correct default VLAN for a given MAC is determined based on the computed role by PacketFence during the registration process for the device, or dynamically during an 802.1X authentication. The computed internal role will then be mapped to either a VLAN or an external role for the specific equipement the user is connected to.
 
-This allows you to do easy per-building VLAN segmentation.
+This allows you to do easy per-building VLAN/role segmentation.
 
-If you need more flexibility (per SSID, per node category, etc.) take a look at the FAQ entry http://www.packetfence.org/support/faqs/article/custom-vlan-assignment-behavior.html[Custom VLAN assignment behavior] available online.
+If you need more flexibility than what can be defined from the PacketFence's authentication sources (rules/conditions/actions) take a look at the FAQ entry http://www.packetfence.org/support/faqs/article/custom-vlan-assignment-behavior.html[Custom VLAN assignment behavior] available online.
 
 Inline enforcement configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
