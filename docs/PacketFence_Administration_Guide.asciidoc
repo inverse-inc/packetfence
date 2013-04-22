@@ -1007,22 +1007,14 @@ rad_recv: Access-Accept packet from host 127.0.0.1:18120, id=74, length=20
 Debug
 ^^^^^
 
-First, check the FreeRADIUS logs. Depending on your PacketFence version this changed.
-
-3.5 or greater::
-  See `/usr/local/pf/logs/radius.log`.
-Between 3.4.1 and 3.2.0::
-  See `/var/log/radius/radius.log`.
-3.2.0 or earlier::
-  Check the syslog (`/var/log/messages` or `/var/log/syslog`).
+First, check the FreeRADIUS logs. The file is located at `/usr/local/pf/logs/radius.log`.
 
 If this didn't help, run FreeRADIUS in debug mode. To do so, start it using the following command:
 
   # radiusd -X -d /usr/local/pf/raddb
 
 Additionally there is a `raddebug` tool that can extract debug logs from a
-running FreeRADIUS daemon. Starting with version 3.5.0 PacketFence's
-FreeRADIUS is preconfigured with such support.
+running FreeRADIUS daemon. PacketFence's FreeRADIUS is preconfigured with such support.
 
 In order to have an output from `raddebug`, you need to either:
 
