@@ -110,7 +110,7 @@ sub report_db_prepare {
         qq [ select n.mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,o.description as os FROM (node n,iplog i) LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint=d.fingerprint LEFT JOIN os_type o ON o.os_id=d.os_id where n.status='reg' and i.mac=n.mac and (i.end_time=0 or i.end_time > now()) ]);
 
     $report_statements->{'report_os_sql'} = get_db_handle()->prepare(qq[
-        SELECT o.description, n.dhcp_fingerprint, count(*) AS count, ROUND(COUNT(*)/(SELECT COUNT(*) FROM node)*100,1) AS percent
+        SELECT o.description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS count, ROUND(COUNT(DISTINCT n.mac)/(SELECT COUNT(*) FROM node)*100,1) AS percent
         FROM (node n, iplog i)
         LEFT JOIN dhcp_fingerprint d ON n.dhcp_fingerprint = d.fingerprint
         LEFT JOIN os_type o ON o.os_id = d.os_id
