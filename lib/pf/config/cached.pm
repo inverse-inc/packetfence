@@ -9,14 +9,14 @@ pf::config::cached object is a proxy for a cached (in CHI) Config::IniFiles obje
 
 =head1 SYNOPSIS
 
-By default the pf::cached::object is interally cached keyed by file path.
+By default, the pf::cached::object is internally cached and keyed by file path.
 
-So multiple calls to pf::config::cached->new with the same file path will results to the same object being return.
+So multiple calls to pf::config::cached->new with the same file path will return the same object.
 
 Simple usage
 
- use pf::config::cached;
- $cached_config = pf::config::cached->new( -file => 'file.conf');
+  use pf::config::cached;
+  my $cached_config = pf::config::cached->new( -file => 'file.conf');
 
 Using as an tied hash
 
@@ -26,13 +26,13 @@ Using as an tied hash
 Tying an hash using an existing pf::config::cached object
 
   use pf::config::cached;
-  $cached_config = pf::config::cached->new( -file => 'file.conf');
+  my $cached_config = pf::config::cached->new( -file => 'file.conf');
   tie my %Config, $cached_config;
 
 Creating a pf::config::cached object with some callbacks
 
   use pf::config::cached;
-  $cached_config = pf::config::cached->new(
+  my $cached_config = pf::config::cached->new(
     -file => 'file.conf'
     -onreload => [
         onreload_config => sub { ...  },
@@ -48,36 +48,42 @@ Creating a pf::config::cached object with some callbacks
 
 =head3 Types of callbacks
 
-=head4 onreload
+=over
 
-onreload callbacks are called whenever the config is loaded from the filesystem or the cache
+=item C<onreload> - called whenever the config is loaded from the filesystem or the cache
 
-=head4 onfilereload
+=item C<onfilereload> - called whenever the config is loaded only from the filesystem
 
-onfilereload callbacks are called whenever the config is loaded only from the filesystem
+=back
 
 =head3 Behavior
 
-The callbacks are triggered by calling ReadConfig and there has been a change in the cache or filesystem.
+The callbacks are triggered by calling C<ReadConfig> and there has been a change in the cache or filesystem.
   $config->ReadConfig()
 
-To reload all the configs that have been created call ReloadConfigs
+To reload all the configs that have been created call C<ReloadConfigs>.
 
-Call unloadConfig to avoid a config from being re-read when ReloadConfigs is call.
+Call C<unloadConfig> to avoid a config file from being re-read when C<ReloadConfigs> is called.
   $config->unloadConfig()
 
 The order callbacks are called
-  1) onreload callbacks in order of insertion
-  2) onfilereload callbacks in order of insertion
+
+=over
+
+=item 1) C<onreload> callbacks in order of insertion
+
+=item 2) C<onfilereload> callbacks in order of insertion
+
+=back
 
 =head3 Adding callbacks
 
-All callbacks are named to ensure the same callback is added only once
+All callbacks are named to ensure the same callback is added only once.
 
 =head4 At creation of object
 
 All callbacks will be called after creating an object or recieving it from the cache.
-If recieved from the cache it will replace any existing callbacks with the same name
+If recieved from the cache, it will replace any existing callbacks with the same name.
 
 Example:
   $cached_config = pf::config::cached->new(
@@ -92,21 +98,19 @@ Example:
 
 =head4 Add to an existing pf::config::cached object
 
-If the name already exists it just replaces the previous callback keeping it's calling order
+If the name already exists, it just replaces the previous callback keeping it's calling order.
 
 The new callbacks will not be called so would need to call them yourself.
 
-Adding new callback example
-    $cached_config->addReloadCallbacks( 'onreload_do_something_else' => sub {...}  );
-    $cached_config->addFileReloadCallbacks( 'onfilereload_do_something_else' => sub {...}  );
+Adding new callback example:
+  $cached_config->addReloadCallbacks( 'onreload_do_something_else' => sub {...}  );
+  $cached_config->addFileReloadCallbacks( 'onfilereload_do_something_else' => sub {...}  );
 
 
-Adding new callback then calling them after
-
-    my $callback = sub {...};
-    $cached_config->addReloadCallbacks('callback_name' => $callback);
-    $callback($cached_config,callback_name);
-
+Adding new callback then calling them after:
+  my $callback = sub {...};
+  $cached_config->addReloadCallbacks('callback_name' => $callback);
+  $callback($cached_config,callback_name);
 
 =head3 Removing callbacks
 
@@ -118,25 +122,43 @@ A quick guide on how to use in a library
 
 =head3 Singleton
 
-By default pf::config::cached are singleton so you only initialize them once
+By default pf::config::cached are singleton so you only initialize them once.
 
-They should stored in a package variable
+They should be stored in a package variable.
 
 =head3 Readonly
 
-If you are only reading the data and not using to create other data then these methods are safe to use val, exists, Sections, SectionExists, Parameters, Groups, GroupMembers, GetFileName
+If you are only reading the data and not creating other data then these methods are safe to use: 
+
+=over
+
+=item C<val>
+
+=item C<exists>
+
+=item C<Sections>
+
+=item C<SectionExists>
+
+=item C<Parameters>
+
+=item C<Groups>
+
+=item C<GroupMembers>
+
+=item C<GetFileName>
+
+=back
 
 =head3 Modifing data in the config
 
-If the library is not responsible for modify data in the cache then never call any methods that modify data.
+If the library doesn't have to modify data in the cache, then never call any methods that modify data.
 
-If the library is responsible for modify data always perform the RewriteConfig at the latest time.
+If the library has to modify data, then always perform the C<RewriteConfig> at the latest time.
 
 =head3 Setting up data
 
-If the library is reading configuration data to setup global variables.
-
-Then it must use callbacks in ensure the after the config is reloaded it will update it's data.
+If the library is reading configuration data to setup global variables, then it must use callbacks to update its data when the config is reloaded.
 
 Example:
   use pf::config::cached;
@@ -154,29 +176,27 @@ Example:
 
 =head3 Reloading configurations
 
-In general reloading configurations should only happen at the start or end of an event loop to ensure the latest data is loaded.
-A good rule to follow if a function is consumed by others for other than initialization then do not call $config->ReadConfig() or ReloadConfigs().
+In general, reloading configurations should only happen at the start or end of an event loop to ensure the latest data is loaded.
+A good rule to follow for a function other than initialization is to not call C<$config->ReadConfig()> or C<ReloadConfigs()>.
 
 =head2 Daemons
 
 =head3 When to Reload
 
-It is best reload the data before event loop begins or after the event loop ends
+It is best to reload the data before the event loop begins or after the event loop ends.
 
 =head3 Using the configuration
 
-=head4 Copying to non global variables
+=head4 Copying to non-global variables
 
-The safest way (but not the most effecient way) is to copy the configuration to a temporary variable
+The safest way (but not the most effecient way) is to copy the configuration to a temporary variable.
 
 Example:
   $config->toHash(\%hash);
 
 =head4 Setting up global variables
 
-If the daemon is reading configuration data to setup global variables.
-
-Then it must use callbacks in ensure the after the config is reloaded it will update it's data.
+If the daemon is reading configuration data to setup global variables, then it must use callbacks to update its data when the config is reloaded.
 
 Example:
   use pf::config::cached;
@@ -255,12 +275,12 @@ This will the key used for store the cached config
 =item I<-onreload> [name => sub {...}]
 
 This is an array ref that contains pairs of strings and sub references
-The sub reference is passed the pf::config::cached object and the name of the callback
+The sub reference is passed the C<pf::config::cached> object and the name of the callback
 
 =item I<-onfilereload> [name => sub {...}]
 
 This is an array ref that contains pairs of strings and sub references
-The sub reference is passed the pf::config::cached object and the name of the callback
+The sub reference is passed the C<pf::config::cached> object and the name of the callback
 
 =back
 
@@ -315,7 +335,7 @@ sub new {
 
 =head2 config
 
-access for the proxied Config::IniFiles object
+Access for the proxied C<Config::IniFiles> object
 
 =cut
 
@@ -323,8 +343,7 @@ sub config { ${$_[0]}}
 
 =head2 RewriteConfig
 
-Will Rewrite the config using the filename passed to it and update the cache with the latest caches.
-And run the onreload and onfilereload callbacks if successful
+Will rewrite the config using the filename passed to it, update the cache, and run the C<onreload> and C<onfilereload> callbacks if successful.
 
 =cut
 
@@ -370,7 +389,7 @@ sub RewriteConfig {
 
 =head2 _callReloadCallbackss
 
-call all reload callbacks
+Call all reload callbacks
 
 =cut
 
@@ -385,7 +404,7 @@ sub _callReloadCallbacks {
 
 =head2 _callFileReloadCallbackss
 
-call all the file reload callbacks
+Call all the file reload callbacks
 
 =cut
 
@@ -462,7 +481,7 @@ sub lockFileForReading {
 
 =head2 unlockFilehandle
 
-unlock the file handle returned from lockFileForWriting or lockFileForReading
+Unlock the file handle returned from lockFileForWriting or lockFileForReading
 
 =cut
 
@@ -530,7 +549,7 @@ sub ReadConfig {
 
 =head2 TIEHASH
 
-Creating a tied pf::config::cached object
+Creating a tied C<pf::config::cached> object
 
 =cut
 
@@ -549,7 +568,7 @@ sub TIEHASH {
 
 =head2 AUTOLOAD
 
-Will proxy all unknown functions to Config::IniFiles
+Will proxy all unknown functions to C<Config::IniFiles>
 
 =cut
 
@@ -570,7 +589,7 @@ sub AUTOLOAD {
 
 =head2 computeFromPath
 
-Will load the Config::IniFiles object from cache or filesystem and update the cache
+Will load the C<Config::IniFiles> object from cache or filesystem and update the cache
 
 =cut
 
@@ -589,7 +608,7 @@ sub computeFromPath {
 
 =head2 cache
 
-get the global CHI object
+Get the global CHI object
 
 =cut
 
@@ -603,7 +622,7 @@ sub cache {
 
 =head2 _cache
 
-builds the CHI object
+Builds the CHI object
 
 =cut
 
@@ -613,7 +632,7 @@ sub _cache {
 
 =head2 _expireIf
 
-check to see if the config file needs to be reread
+Check to see if the config file needs to be reread
 
 =cut
 
@@ -630,7 +649,7 @@ sub _expireIf {
 
 =head2 getModTimestamp
 
-simple util function for getting the modification timestamp
+Simple utility function for getting the modification timestamp
 
 =cut
 
@@ -659,7 +678,7 @@ sub ReloadConfigs {
 $self->addReloadCallbacks('name' => sub {...});
 Add named callbacks to the onreload array
 Called in insert order
-If callback already exists will replace the current in the position
+If callback already exists, previous callback is replaced and previous position is preserved
 
 =cut
 
@@ -672,7 +691,7 @@ sub addReloadCallbacks {
 
 =head2 _addCallbacks
 
-internal helper method for adding callbacks
+Internal helper method for adding callbacks
 
 =cut
 
@@ -696,7 +715,7 @@ sub _addCallbacks {
 $self->addFileReloadCallbacks('name' => sub {...});
 Add named callbacks to the onfilereload array
 Called in insert order
-If callback already exists will replace the current in the position
+If callback already exists, previous callback is replaced and previous position is preserved
 
 =cut
 
@@ -755,7 +774,7 @@ sub isa {
 
 =head2 toHash
 
-Copy configuration to hash
+Copy configuration to a hash
 
 =cut
 
@@ -789,7 +808,7 @@ sub cleanupWhitespace {
 
 =head2 _buildCHIArgs
 
-Builds the arguments to pass to chi
+Builds the arguments to pass to CHI
 
 =cut
 
@@ -797,6 +816,10 @@ sub _buildCHIArgs {
     my $args = _extractCHIArgs("default");
     return %$args;
 }
+
+=head2 _extractCHIArgs
+
+=cut
 
 sub _extractCHIArgs {
     my ($section) = @_;
@@ -816,7 +839,7 @@ sub _extractCHIArgs {
 
 =head2 RenameSection ( $old_section_name, $new_section_name)
 
-Renames a section if it does not exists already
+Renames a section if it does not already exists
 
 =cut
 
