@@ -92,7 +92,6 @@ $(function() { // DOM ready
                 url: form.attr('action'),
                 data: form.serialize()
             }).done(function(data, textStatus, jqXHR) {
-                location.hash = jqXHR.getResponseHeader('Location');
                 $('#section').fadeOut('fast', function() {
                     // Refresh the complete section
                     $(this).empty();
