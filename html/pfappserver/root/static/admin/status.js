@@ -12,7 +12,8 @@ function updateGraphSection(graph) {
     var endDate = [end.getUTCFullYear(), (end.getUTCMonth() + 1), end.getUTCDate()].join('-');
     if (!graph) {
         var section = $('#section');
-        var tab = $(section.find('.nav .active a').attr('href'));
+        var name = section.find('.nav .active a').attr('href');
+        var tab = $(name.substr(name.indexOf('#')));
         if (tab.length) {
             graph = tab.find('.graph:first');
         }
@@ -70,7 +71,8 @@ function init() {
 
     /* Build graph when changing tab on the dashboard */
     $('#section').on('shown', 'a[data-toggle="tab"]', function(event) {
-        var tab = $($(event.target).attr('href'));
+        var name = $(event.target).attr('href');
+        var tab = $(name.substr(name.indexOf('#')));
         var graph = tab.find('.graph:first');
         updateGraphSection(graph)
     });
