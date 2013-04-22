@@ -1052,8 +1052,6 @@ There are other log files in `/usr/local/pf/logs/` that could be relevant depend
 
 The logging system's configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it.
 
-Starting with 3.0, you can see logs file in the Web Administration under *Administration -> Logs*.
-
 Configuration by example
 ------------------------
 
@@ -1066,7 +1064,7 @@ Throughout this configuration example we use the following assumptions for our n
 
 [options="compact"]
 * There are two different types of manageable switches in our network: Cisco Catalyst 2900XL and Cisco Catalyst 2960, and one unmanageable device.
-* VLAN 1 is the "regular" VLAN
+* VLAN 1 is the "normal" VLAN - users with the "default" role will be assigned to it
 * VLAN 2 is the registration VLAN (unregistered devices will be put in this VLAN)
 * VLAN 3 is the isolation VLAN (isolated devices will be put in this VLAN)
 * VLANs 2 and 3 are spanned throughout the network
@@ -1211,7 +1209,7 @@ SNMPCommunityWrite = private
 SNMPommunityTrap = public
 SNMPVersion = 1
 vlans = 1,2,3,4,10
-normalVlan = 1
+defaultVlan = 1
 registrationVlan = 2
 isolationVlan = 3
 macDetectionVlan = 4
@@ -1226,7 +1224,7 @@ uplink = 24
 type = Cisco::Catalyst_2960
 mode = production
 uplink = 25
-normalVlan = 10
+defaultVlan = 10
 radiusSecret=useStrongerSecret
 ----
 
@@ -1248,9 +1246,6 @@ dhcpservers=192.168.2.1,192.168.3.1,192.168.5.1
 registration=enabled
 detection=enabled
 range=192.168.2.0/24,192.168.3.0/24,192.168.5.0/24
-
-[registration]
-auth=ldap
 
 [interface eth0]
 mask=255.255.255.0
@@ -1482,10 +1477,10 @@ Enable Limewire violation in `/usr/local/pf/conf/violations.conf` and configure 
   max_enable=1
   trigger=Detect::2001808
 
-Conformity Scan
-~~~~~~~~~~~~~~~
+Compliance Checks
+~~~~~~~~~~~~~~~~~
 
-PacketFence supports either Nessus or OpenVAS as a scanning engine for conformity scan.
+PacketFence supports either Nessus or OpenVAS as a scanning engine for compliance checks.
 
 Installation
 ^^^^^^^^^^^^
@@ -1511,7 +1506,7 @@ For example `report-format-f5c2a364-47d2-4700-b21d-0a7693daddab.xml` gives repor
 Configuration
 ^^^^^^^^^^^^^
 
-In order for the conformity scan to correctly work with PacketFence (communication and generate violations inside PacketFence), you must configure two sections:
+In order for the compliance checks to correctly work with PacketFence (communication and generate violations inside PacketFence), you must configure two sections:
 
 pf.conf
 +++++++
@@ -1706,7 +1701,7 @@ As we mentioned earlier, each floating network device has to be identified. Ther
 
 [options="compact"]
 * by editing `conf/floating_network_device.conf`
-* through the Web GUI, in the *Configuration -> Floating Network Device* tab
+* through the Web GUI, in the *Configuration -> Network -> Floating devices* tab
 
 image::docs/images/screenshot-floating-dev.png[scaledwidth="100%",alt="Floating network devices screenshots"]
 
@@ -1728,7 +1723,7 @@ taggedVlan::
 Guest management
 ~~~~~~~~~~~~~~~~
 
-PacketFence supports the ability to manage guest by establishing expire dates and assign a different category which will permit a different access to the network resources.
+PacketFence supports the ability to manage guest by establishing expire dates and assign a different role which will permit a different access to the network resources.
 
 Guests can self-register themselves using an activation code sent to their mobile phone or they can use their email address and receive and activation link to activate their network access.
 
@@ -1744,14 +1739,14 @@ Usage
 Guest self-registration
 +++++++++++++++++++++++
 
-Self-registration is enabled by default. It is part of the captive portal and can be accessed on the registration page by clicking the *Sign up* link.
+Self-registration is enabled by default. It is part of the captive portal profile and can be accessed on the registration page by clicking the *Sign up* link.
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
 Managed guests
 ++++++++++++++
 
-Part of the web administration interface, the guests management interface is enabled by default. It is accessible through a separate interface which can use a different users file for access rights: https://<hostname>:1443/guests/manage
+Part of the web administration interface, the guests management interface is enabled by default. It is accessible through the *Configuration -> Users -> Create* menu.
 
 Guest pre-registration
 ++++++++++++++++++++++
@@ -1836,13 +1831,6 @@ Statement of Health (SoH)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Statement of Health (SoH) is product that has been developed by Microsoft. In the Microsoft world, this is named Network Access Protection or NAP. On Windows versions from XP SP2 to Windows 7, there is a NAP service installed that can relay health information (Anti-Virus update status, Windows Update status, etc) to a RADIUS Server or a DHCP server. The section below explains you how to do SoH policies with PacketFence.
-
-Packages
-^^^^^^^^
-
-NOTE: The additional package is no longer required since PacketFence 3.5.0.
-
-Adding the SoH functionality requires specific RADIUS configuration. Ensure that you have at least the version 3.1 of the packetfence-freeradius2 package.
  
 Installation
 ^^^^^^^^^^^^
@@ -1906,7 +1894,7 @@ Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* 
 
 The last step is to create a new remediation template called `noantivirus.php` on the filesystem in the `html/captive-portal/violations` folder. Edit it to include the text you want to display to the users.
 
-Apple wireless profile provisioning
+Apple Wireless Profile Provisioning
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apple devices such as iPhones, iPads, and iPods support wireless profile importation using a special XML file format (mobileconfig). In fact, installing such file on your phone will automatically configure the wireless settings for a given SSID. This feature is often used when the SSID is hidden, and you want to easy the configuration steps on the phone (because it is painful to configure manually). In PacketFence, we are going further, we generate the profile according to the administrator desire, and we pre-populate the file with the user's credentials (without the password). The user simply need to install its generated file, and he will be able to use the new SSID.
@@ -1927,39 +1915,45 @@ Here is an example: We have an hidden WPA2-Enterprise SSID named HiddenSecure, a
   ssid=HiddenSecure
   category=any
 
+Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> Provisioning* section.
+
 
 Profile generation
 ^^^^^^^^^^^^^^^^^^
 
 Upon registration, instead of showing the default release page, the user will be showing another version of the page saying that the wireless profile has been generated with a clickable link on it. To install the profile, the user simply need to click on that link, and follow the instructions on their device. It is that simple.
 
-SNMP traps limit
+SNMP Traps Limit
 ~~~~~~~~~~~~~~~~
 
 PacketFence mainly rely on SNMP traps to communicate with equipment. Due to the fact that traps coming in from approved (configured) devices are all processed by the daemon, it is possible for someone who want to generate a certain load on the PacketFence server to force the generation of non-legitimate SNMP traps or a switch can randomly generate a high quantity of traps sent to PacketFence for an unknown reason.
 
 Because of that, it is possible to limit the number of SNMP traps coming in from a single switch port and take action if that limit is reached. For example, if over 100 traps are received by PacketFence from the same switch port in a minute, the switch port will be shut and a notification email will be sent.
 
-Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute.
-
-These configurations are in the `pf.conf` file:
+Here's the default config for the SNMP traps limit feature. As you can see, by default, PacketFence will log the abnormal activity after 100 traps from the same switch port in a minute. These configurations are in the `conf/pf.conf` file:
 
   [vlan]
   trap_limit = enabled
   trap_limit_threshold = 100
   trap_limit_action = 
 
-Billing engine
+Alternatively, you can configure these parameters from the PacketFence Web administrative GUI, in the *Configuration -> SNMP* section.
+
+
+Billing Engine
 ~~~~~~~~~~~~~~
 
-Since version 3.2.0, PacketFence integrate the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
+PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personnal information as well as it's credit card information.
 
 At this moment there is only one payment gateway built into PacketFence: Authorize.net.
 
-The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI or in the `pf.conf` file:
+The configuration to use the feature is fairly simple. The general configuration to enable / disable the billing engine can be done through the Web administration GUI (*Configuration -> Portal Profiles and Pages*) or from the `conf/profiles.conf` file:
 
-  [registration]
+  [default]
   billing_engine = enabled
+  ...
+
+Billing engine parameters are specified in `conf/pf.conf` or from *Configuration -> Billing*:
 
   [billing]
   gateway = authorize_net
@@ -1972,27 +1966,25 @@ For example, you may want to provide basic Internet access with a decent speed a
 
 To do so, some customizations is needed to the billing module. You'll need to redefined the `getAvailableTiers` method in the `lib/pf/billing/custom.pm` file. An example is already in place in the file.
 
-CAUTION: The use of different billing tiers requires different category in PacketFence. Make sure to create those category first otherwise you will run into problems.
+CAUTION: The use of different billing tiers requires different roles in PacketFence. Make sure to create these roles first otherwise you will run into problems.
 
-Portal profiles
+Portal Profiles
 ~~~~~~~~~~~~~~~
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence introduced, in version 3.5, the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
 
-When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to either pf.conf or pf.conf.defaults), except for the authentication which, if not set in the profile, will revert back to guests self-registration only.
+When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
 
-Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile.
+Here are the different configuration parameters that can be set for each portal profiles. The only mandatory parameter is "filter", otherwise, PacketFence won't be able to correctly apply the portal profile. The parameters must be set in conf/profiles.conf:
 
-  [portal-profile name1]
-  filter = the name of the SSID for which you'd like to apply the profile
-  logo = the logo to be displayed on the various captive portal pages
+  [profilename1]
+  description = the description of your portal profile
+  filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
   guest_self_reg = either enabled or disabled
   guest_modes = the availables guest self-registration modes (sms|email|sponsor|google|facebook|github)
-  guest_category = the category that will be assigned to the self-registered guests
-  template_path = path (relative to html/captive-portal/templates/) containing the custom template files 
   billing_engine = either enabled or disabled
 
-CAUTION: If you set a custom template_path, make sure to copy over all of the default template files in the new custom folder. PacketFence will only render templates from the files in that custom folder if the value is setted. If files are missing, you'll be facing some error in templates generation. 
+Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles and Pages* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
 OAuth2 Authentication
 ~~~~~~~~~~~~~~~~~~~~~
@@ -2065,7 +2057,7 @@ Once you have your information, configure the OAuth2 provider in pf.conf that wa
 
 Like other providers, enable the GitHub authentication in the `guests_self_registration.modes` field.
 
-Gaming devices registration
+Gaming Devices Registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Users have the possibility to register gaming devices (Microsoft XBOX/XBOX360, Nintendo DS/Wii, Sony PlayStation and so on) right from a special portal page. When accessing this page, users will be prompted to login as if they were registering themselves. Once logged in, the portal will ask them to enter the gaming device MAC address that will then be matched against a predefined list of authorized MAC OUI. The gaming device will be registered with the user's id and can be assigned into a specific category for easier management.
@@ -2078,11 +2070,9 @@ The following can be configured by editing the pf.conf file:
 
    [registration]
    gaming_devices_registration = enabled
+   gaming_devices_registration_role = gaming
 
-   [gaming_devices_registration]
-   category = THE_CATEGORY_YOU_WANT_TO_ASSIGN
-
-Make sure the category you set in the pf.conf file actually exists in PacketFence otherwise you will encounter registration errors. 
+Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
 
 Operating System Best Practices
 -------------------------------
@@ -2123,7 +2113,7 @@ Once you downloaded those packages, you need to modify the logging configuration
   log4perl.appender.LOGFILE.layout=PatternLayout
   log4perl.appender.LOGFILE.layout.ConversionPattern=%d{MMM dd HH:mm:ss} %X{proc}(%X{tid}) %p: %m (%M)%n
 
-High availability
+High Availability
 ~~~~~~~~~~~~~~~~~
 
 A high availability setup (active/passive) for PacketFence can be created using two PacketFence servers and the following open source utilities:
@@ -2172,13 +2162,6 @@ After the install, you need to create the extra partition for drbd. Using fdisk,
 
 DRBD and Linux-HA Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-CentOS 5
-++++++++
-
-Use the following line to install the required packages.
-
-  yum install drbd drbd-kmdl heartbeat heartbeat-pils heartbeat-stonith
 
 CentOS 6
 ++++++++
@@ -2557,7 +2540,7 @@ In a wireless context, there tend to be a lot of connections made to the databas
 
 This will grind PacketFence to a halt so you want to avoid that at all cost. One way to do so is to increase the number of maximum connections (see above), to periodically flush hosts or to allow more connection errors. See http://dev.mysql.com/doc/refman/5.0/en/blocked-host.html for details.
 
-Captive portal optimizations
+Captive Portal Optimizations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Avoid captive portal overload due to non-browser HTTP requests
@@ -2940,154 +2923,5 @@ eap {
         }
 }
 ----
-
-[appendix]
-Legacy FreeRADIUS 1.x configuration
------------------------------------
-
-Since PacketFence 1.9.0 we recommend the use of FreeRADIUS 2.x over 1.x.
-
-This documentation is provided here for historical reference.
-
-FreeRADIUS 1.x Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Make sure to install the following packages:
-
-[options="compact"]
-* freeradius
-
-In /etc/raddb/clients.conf
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Add the following lines:
-
-  client 192.168.0.3 {
-    secret = secretKey
-    shortname = AP1242
-  }
-
-In /etc/raddb/radiusd.conf
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Add the following lines to the `modules{}` section:
-
-  perl {
-          module = ${confdir}/rlm_perl_packetfence.pl
-  }
-
-Make sure the `authorize{}` section looks like this:
-
-  authorize {
-          preprocess
-          eap
-          files
-          perl
-  }
-
-Make sure the `post-auth{}` section looks like this:
-
-  post-auth {
-          perl
-  }
-
-Make sure the `mschap{}` section looks like this:
-
-  mschap {
-          authtype = MS-CHAP
-          use_mppe = yes
-          require_encryption = yes
-          require_strong = yes
-          with_ntdomain_hack = yes
-          ntlm_auth = "/usr/bin/ntlm_auth --request-nt-key --username=%{mschap:User-Name:-None} --challenge=%{mschap:Challenge:-00} --nt-response=%{mschap:NT-Response:-00}"
-  }
-
-In /etc/raddb/eap.conf
-^^^^^^^^^^^^^^^^^^^^^^
-
-Make sure this file looks like:
-
-----
-eap {
-        default_eap_type = peap
-        timer_expire     = 60
-        ignore_unknown_eap_types = no
-        cisco_accounting_username_bug = no
-
-        md5 {
-        }
-                    
-        leap {
-        }
-                    
-        gtc {
-                auth_type = PAP
-        }
-
-        tls {
-                private_key_file = /usr/local/pf/conf/ssl/keyfile.key
-                certificate_file = /usr/local/pf/conf/ssl/certfile.crt
-                CA_file = /usr/local/pf/conf/ssl/CAfile.crt
-                dh_file = /dev/null
-                random_file = /dev/urandom
-        }
-
-        peap {
-                default_eap_type = mschapv2
-        }
-
-        mschapv2 {
-        }
-}
-----
-
-In /etc/raddb/users
-^^^^^^^^^^^^^^^^^^^
-
-Add the following lines where we define that non EAP-messages should, by default, lead to an authentication acceptance:
-
-  DEFAULT EAP-Message !* "", Auth-Type := Accept
-
-In /etc/raddb/rlm_perl_packetfence.pl
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This perl script uses the `Calling-Station-Id` RADIUS request attribute, containing the MAC of the wireless station, to determine its registration and violation status. Based on this information, it sets the `Tunnel-Medium-Type`, `Tunnel-Type` and `Tunnel-Private-Group-ID` RADIUS reply attributes. The AP, upon reception of these three attributes, then confines the wireless station into the specified VLAN.
-
-Make sure to set the required configuration parameters on top of the file. Mainly, the VLAN tags used in your environment and PacketFence's database credentials.
-
-  # Database connection settings
-  DB_HOSTNAME => 'localhost',
-  DB_NAME     => 'pf',
-  DB_USER     => 'pf',
-  DB_PASS     => 'pf',
-  # VLAN configuration
-  VLAN_GUEST        => 5,
-  VLAN_REGISTRATION => 2,
-  VLAN_ISOLATION    => 3,
-  VLAN_NORMAL       => 1
-
-Tests
-~~~~~
-
-Test your setup with radtest using the following command and make sure you get an `Access-Accept` answer:
-
-----
-# radtest dd9999 Abcd1234 localhost 12 testing123
-
-Sending Access-Request of id 74 to 127.0.0.1 port 1812
-  User-Name = "dd9999"
-  User-Password = "Abcd1234"
-  NAS-IP-Address = 255.255.255.255
-  NAS-Port = 12
-rad_recv: Access-Accept packet from host 127.0.0.1:1812, id=74, length=20
-----
-
-Debug
-~~~~~
-
-In order to start FreeRADIUS in debug mode, start it using the following command:
-
-  # radiusd -X
-
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
