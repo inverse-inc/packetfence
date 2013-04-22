@@ -247,7 +247,7 @@ use List::Util qw(first);
 
 
 our $CACHE;
-our %LOADED_CONFIGS;
+our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
 our @ON_DESTROY_REFS = (
@@ -300,8 +300,8 @@ sub new {
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
     if($file) {
-        if(exists $LOADED_CONFIGS{$file}) {
-            $self = $LOADED_CONFIGS{$file};
+        $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
+        if( defined $self) {
             #Adding the reload and filereload callbacks
             $self->addReloadCallbacks(@$onReload) if @$onReload;
             $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
@@ -326,7 +326,7 @@ sub new {
     }
     if ($config) {
         $self = \$config;
-        $LOADED_CONFIGS{$file} = $self;
+        push @LOADED_CONFIGS, $self;
         $ON_RELOAD{$file} = [];
         $ON_FILE_RELOAD{$file} = [];
         bless $self,$class;
@@ -672,7 +672,7 @@ ReloadConfigs reload all configs and call any register callbacks
 sub ReloadConfigs {
     my $logger = get_logger();
     $logger->trace("Reloading all configs");
-    foreach my $config (values %LOADED_CONFIGS) {
+    foreach my $config (@LOADED_CONFIGS) {
         $config->ReadConfig();
     }
 }
@@ -759,7 +759,7 @@ sub unloadConfig {
     my $config = $self->config;
     if($config) {
         my $file = $config->GetFileName;
-        delete $LOADED_CONFIGS{$file};
+        @LOADED_CONFIGS = grep { $config->GetFileName ne $file  } @LOADED_CONFIGS;
     }
 }
 
