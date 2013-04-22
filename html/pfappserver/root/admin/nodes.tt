@@ -85,7 +85,7 @@ form {
                   <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
                 </ul>
                 <div class="tab-pane active well" id="simple">
-                  <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('simple_search')) %]">
+                  <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('Node').action_for('simple_search')) %]">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">to</span>

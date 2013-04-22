@@ -65,7 +65,7 @@ $(function() {
                 }
             }
         }
-        updateSection(url);
+        location.hash = url;
         return false;
     });
 
