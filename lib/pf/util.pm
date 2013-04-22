@@ -1042,6 +1042,9 @@ sub generate_id {
 
 sub ordinal_suffix {
     my ($num) = @_;
+    if( 4 <= $num && $num <= 20 ) {
+        return "${num}th";
+    }
     my $last_digit = $num % 10;
     if ($last_digit == 1) {
         return "${num}st";
@@ -1078,6 +1081,7 @@ sub trim_path {
 =item pf_chown
 
 =cut
+
 sub pf_chown {
     my ($file) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
