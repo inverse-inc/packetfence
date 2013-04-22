@@ -117,8 +117,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                   "/" => {
                       SetHandler          => 'modperl',
                       PerlResponseHandler => 'pf::WebAPI',
-                      AuthUserFile        => $install_dir.'/conf/admin.conf',
-                      AuthGroupFile       => '/dev/null',
+                      PerlAuthenHandler => 'pf::WebAPI::AuthenHandler',
                       AuthName            => "PacketFence_Authentication",
                       AuthType            => 'Basic',
                       require             => 'valid-user',
