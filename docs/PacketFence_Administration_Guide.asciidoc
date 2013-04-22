@@ -2051,7 +2051,7 @@ OAuth2 Authentication
 
 The captive portal of PacketFence allows a guest/user to register using his Google, Facebook or Github account.
 
-For each providers, we maintain an allowed IP list to punch holes into the firewall so the user can hit the provider login page.  This file is located in `conf/oauth2-ips`.  You might need to maintain it quite often, as well as the different DNS zones also located in `conf`.
+For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 
 Google
 ^^^^^^

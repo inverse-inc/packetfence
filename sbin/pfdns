@@ -19,7 +19,6 @@ use Log::Log4perl;
 use Pod::Usage;
 use POSIX qw(:signal_h);
 use Try::Tiny;
-use Data::Dumper;
 use Net::DNS::Nameserver;
 use NetAddr::IP;
 
@@ -29,6 +28,7 @@ use lib INSTALL_DIR . "/lib";
 
 use pf::config;
 use pf::util;
+use pf::pfdns::constants;
 
 # initialization
 # --------------
@@ -80,15 +80,15 @@ my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
+ 
 foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
-    my $ip             = $Config{$interface}{'ip'};
+    my $ip = $Config{$interface}{'ip'};
     if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) ) ) {
         push @ip_addr, $ip;
     }
 }
 
 foreach my $network ( keys %ConfigNetworks ) {
-
     if ( $ConfigNetworks{$network}{'named'} eq 'enabled' ) {
         if ( pf::config::is_network_type_inline($network) ) {
             my $inline_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
@@ -106,11 +106,12 @@ foreach my $network ( keys %ConfigNetworks ) {
 
 
 my $ns = new Net::DNS::Nameserver(
-LocalAddr       => [@ip_addr],
-LocalPort    => 53,
-ReplyHandler => \&response_handler,
-Verbose      => 1
-) || die "couldn't create nameserver object\n";
+    LocalAddr       => [@ip_addr],
+    LocalPort    => 53,
+    ReplyHandler => \&response_handler,
+    Verbose      => 0
+    ) || die "couldn't create nameserver object\n";
+
 $ns->main_loop;
 
 sub response_handler {
@@ -138,39 +139,39 @@ sub regzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     my ($rcode, @ans, @auth, @add);
 
-    print "Received query from $peerhost to ". $conn->{sockhost}. "\n";
-    $query->print;
-    if ($qtype eq "A" && $qname =~ m/www\.(.*)/) {
-        my ($ttl, $rdata) = (15, $conn->{sockhost});
-        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-        push @ans, $rr;
-        $rcode = "NOERROR";
-    }
-    elsif ($qtype eq "A" && ($qname =~ m/(.*).google\.com/ || $qname =~ m/(.*).googleusercontent\.com/ || $qname =~ m/(.*).gstatic\.com/ || $qname =~ m/(.*).google\.fr/ || $qname =~ m/(.*).google\.ca/ ) ) {
-        my ($ttl, $rdata);
-        my $res   = Net::DNS::Resolver->new;
-        my $query = $res->search($qname);
-        if ($query) {
-            foreach my $rr ($query->answer) {
-                next unless $rr->type eq "A";
-                my $ip = $rr->address;
-                my $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'80' 2>&1";
-                my @lines  = pf_run($cmd);
-                $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'443' 2>&1";
-                @lines  = pf_run($cmd);
-                ($ttl, $rdata) = (15, $rr->address);
-            }
+    if ($qtype eq "A") {
+        if ($qname =~ m/www\.(.*)/) {
+            my ($ttl, $rdata) = (15, $conn->{sockhost});
+            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+            push @ans, $rr;
+            $rcode = "NOERROR";
         }
+        if ( $qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o ) {
+            my ($ttl, $rdata);
+            my $res   = Net::DNS::Resolver->new;
+            my $query = $res->search($qname);
+            if ($query) {
+                foreach my $rr ($query->answer) {
+                    next unless $rr->type eq "A";
+                    my $ip = $rr->address;
+                    my $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'80' 2>&1";
+                    my @lines  = pf_run($cmd);
+                    $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'443' 2>&1";
+                    @lines  = pf_run($cmd);
+                    ($ttl, $rdata) = (15, $rr->address);
+                }
+            }
 
-        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-        push @ans, $rr;
-        $rcode = "NOERROR";
-    }
-    elsif ($qtype eq "A" && $qname =~ m/(.*)/ ) {
-        my ($ttl, $rdata) = (15, $conn->{sockhost});
-        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-        push @ans, $rr;
-        $rcode = "NOERROR";
+            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+            push @ans, $rr;
+            $rcode = "NOERROR";
+        }
+        elsif ($qname =~ m/(.*)/ ) {
+            my ($ttl, $rdata) = (15, $conn->{sockhost});
+            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+            push @ans, $rr;
+            $rcode = "NOERROR";
+        }
     }else{
         $rcode = "NXDOMAIN";
     }
