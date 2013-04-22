@@ -58,8 +58,8 @@ $(function() { // DOM ready
     $('#section').on('submit', 'form[name="create_source"]', function(e) {
         e.preventDefault();
 
-        var form = $(this);
-        valid = isFormValid(form);
+        var form = $(this),
+            valid = isFormValid(form);
 
         if (valid) {
             resetAlert($('#section'));
