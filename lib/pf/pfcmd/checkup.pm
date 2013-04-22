@@ -304,9 +304,9 @@ sub scan {
 
     # Check if the configuration provided scan engine is instanciable
     my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
-
+    $scan_engine = untaint_chain($scan_engine);
     try {
-        eval "use $scan_engine;";
+        eval "$scan_engine->require()";
         die($@) if ($@);
         my $scan = $scan_engine->new(
             host => $Config{'scan'}{'host'},
@@ -827,14 +827,10 @@ sub switches {
 
         # check type
         my $type = "pf::SNMP::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
-        # FIXME lame taint-mode bypass
-        if ($type =~ /^(.+)$/) {
-            $type = $1;
-            if ( !(eval "$type->require()" ) ) {
+        $type = untaint_chain($type);
+        if ( !(eval "$type->require()" ) ) {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
-        }
-
         # check for valid switch IP
         if ( !valid_ip($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
@@ -913,9 +909,9 @@ Validation related to the billing engine feature.
 sub billing {
     # Check if the configuration provided payment gateway is instanciable
     my $payment_gw = 'pf::billing::gateway::' . lc($Config{'billing'}{'gateway'});
-
+    $payment_gw = untaint_chain($payment_gw);
     try {
-        eval "use $payment_gw;";
+        eval "$payment_gw->require()";
         die($@) if ($@);
         my $gw = $payment_gw->new();
 
