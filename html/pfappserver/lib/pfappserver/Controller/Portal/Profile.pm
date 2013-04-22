@@ -66,7 +66,6 @@ Portal Profile chained dispatcher
 
 sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
-    $self->getModel($c)->readConfig();
     $self->_setup_object($c, $id);
 }
 
