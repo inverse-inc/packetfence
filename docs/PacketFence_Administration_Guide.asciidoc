@@ -45,7 +45,7 @@ These files are included in the package and release tarballs.
 Introduction
 ------------
 
-PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive-portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort/Suricata IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
+PacketFence is a fully supported, trusted, Free and Open Source network access control (NAC) system. Boosting an impressive feature set including a captive portal for registration and remediation, centralized wired and wireless management, 802.1X support, layer-2 isolation of problematic devices, integration with the Snort/Suricata IDS and the Nessus vulnerability scanner; PacketFence can be used to effectively secure networks - from small to very large heterogeneous networks.
 
 Features
 ~~~~~~~~
@@ -389,66 +389,66 @@ SELinux
 
 Even if this feature may be wanted by some organizations, PacketFence will not run properly if SELinux is set to enforced. You will need to explicitly disable it in the `/etc/selinux/config` file.
 
-Authentication (flat file, LDAP/AD, RADIUS)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Roles Management
+~~~~~~~~~~~~~~~~
 
-PacketFence can authenticate users that register devices via the captive-portal using various methods. Among them are a flat file, an LDAP (or Active Directory) server or a RADIUS server. 
+Roles in PacketFence can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Roles* section. From this interface, you can also limit the number of devices users belonging to certain roles can register.
 
-Other authentication techniques are also available. Check the modules under `/usr/local/pf/conf/authentication/` to see what is available.
+Roles are dynamically computed by PacketFence, based on the rules (ie., a set of conditions and actions) from authentication sources, using a first-match wins algorithm. Roles are then matched to VLAN or internal roles on equipment from the *Configuration -> Network -> Switches* module.
 
-Flat file
-^^^^^^^^^
+Authentication
+~~~~~~~~~~~~~~
 
-By default, PacketFence looks into `/usr/local/pf/conf/user.conf` to find users allowed to register devices. If you want to use a different file, edit `/usr/local/pf/conf/authentication/local.pm` and change the following parameter:
+PacketFence can authenticate users that register devices via the captive portal using various methods. Among the supported methods, there are:
 
-  my $passwdFile = '/usr/local/pf/conf/user.conf';
+* Active Directory
+* Apache htpasswd file
+* Facebook (OAuth 2)
+* Github (OAuth 2)
+* Google (OAuth 2)
+* Kerberos
+* LDAP
+* RADIUS
 
-You need to encrypt the password of each user with htpasswd like this:
+Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section.
 
-  htpasswd -d /usr/local/pf/conf/user.conf newuser
+Each authentication sources you define will have a set of rules and actions. When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
 
-LDAP / Active Directory (AD)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Concrete Example
+~~~~~~~~~~~~~~~~
 
-Edit `/usr/local/pf/conf/authentication/ldap.pm` and make the necessary changes to the following parameters :
+Let's say we have two roles: guest and employee. First, we define them *Configuration -> Users -> Roles*.
 
-  my $LDAPUserBase = "ou=People,dc=domain,dc=org";
-  my $LDAPUserKey = "uid";
-  my $LDAPUserScope = "one";
-  my $LDAPBindDN = "cn=ldapuser,dc=domain,dc=org";
-  my $LDAPBindPassword = "password";
-  my $LDAPServer = "127.0.0.1";
+Now, we want to authenticate employees using Active Directory, and guests using PacketFence's internal database. From the *Configuration -> Users -> Sources*, we select *Add source -> AD*. We provide the following information:
 
-RADIUS
-^^^^^^
+* Name: ad1
+* Description: Active Directory for Employees
+* Host: 192.168.1.2:389 without SSL/TLS
+* Base DN: CN=Users,DC=acme,DC=local
+* Scope: One-level
+* Username Attribute: sAMAccountName
+* Bind DN: CN=Administrator,CN=Users,DC=acme,DC=local
+* Password: acme123
 
-Edit `/usr/local/pf/conf/authentication/radius.pm` and make the necessary changes to the following parameters:
+Then, we add a rule by clicking on the *Add rule* button. We provide the following information:
 
-  my $RadiusServer = 'localhost';
-  my $RadiusSecret = 'testing123';
+* Name: employees
+* Description: Rule for all employees
+* Don't set any condition (as it's a fallback rule)
+* Set the following actions:
+  - Set role employee
+  - Set unregistration date January 1st, 2020
 
-Selecting an Authentication Method
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Test the connection and save everything. Using the newly defined source, any username that actually matches in the source (using the sAMAccountName) will have the employee role and an unregistration date set to January 1st, 2020.
 
-To configure authentication set the `[registration].auth` option in `/usr/local/pf/conf/pf.conf`:
-
-  auth=local,ldap,radius
-
-If more than one method are specified, PacketFence will display a pull-down list to allow users to select the preferred authentication method.
-
-The authentication method name displayed in the drop-down is controlled by the `$name` variable in the authentication module (located in `conf/authentication/`). Feel free to modify the names to fit your organization's need.
-
-Default Authentication Method
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Authentication method selected as the default in the captive portal drop-down. Only useful if you have more than one authentication method (in `registration.auth`). Named `[registration].default_auth` in the configuration file.
+Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisionned manually. You can do so from the *Configuration -> Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This section applies only for VLAN enforcement. Users planning to do inline enforcement only can skip this section.
 
-PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it in the Web Administration panel under *Configuration -> Switches*.
+PacketFence needs to know which switches, access points or controllers it manages, their type and configuration. All this information is stored in `/usr/local/pf/conf/switches.conf`. You can modify the configuration directly in the `switches.conf` file or you can do it in the Web Administration panel under *Configuration -> Network -> Switches*.
 
 This files contains a default section including:
 
@@ -606,17 +606,17 @@ Inline enforcement configuration
 
 This section applies only for Inline enforcement. Users planning to do VLAN enforcement only can skip this section.
 
-Introduced in PacketFence 3.0, inline enforcement is a very convenient method of performing access control on older network hardware who is not capable of doing VLAN enforcement or who is not compatible with PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
+The inline enforcement is a very convenient method of performing access control on older network hardware who is not capable of doing VLAN enforcement or who is not compatible with PacketFence. This technique is covered in details in the <<_technical_introduction_to_inline_enforcement,"Technical introduction to Inline enforcement" section>>.
 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
 
-Introduced in PacketFence 3.6, under debian squeeze and RHEL6/Centos 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
+Under Debian Squeeze and RHEL6/CentOS 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
 It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try
 to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
 It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
 ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
-Introduced in PacketFence 3.6, the outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network section.
+The outgoing interface should be specified by adding in pf.conf the option interfaceSNAT in inline section. It is a comma delimited list of network interfaces like eth0,eth0.100. It's also possible to specify a network that will be routed instead of using NAT by adding in `conf/networks.conf` an option nat=no under one or more network section.
 
 Another important setting is the `gateway` statement. Since it this the only way to get the PacketFence server inline interface ip address, it is mandatory to set it to this ip (which is supposed to be the same as in the `ip` statement of the inline interface in `conf/pf.conf`) .
 
@@ -625,7 +625,7 @@ Hybrid mode
 
 This section applies for hybrid support for the manageable devices that support 802.1x or mac-auth.
 
-Introduced in PacketFence 3.6, hybrid enforcement is a mix method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
+Hybrid enforcement is a mixed method that offers the use of inline enforcement mode with VLAN enforcement mode on the same device.
 This technique is covered in details in the <<_technical_introduction_to_hybrid_enforcement,"Technical introduction to Hybrid enforcement" section>>
 
 DHCP and DNS Server Configuration (networks.conf)
@@ -668,7 +668,7 @@ The DNS configuration files are generated this way:
 * `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
 * `var/named/named-registration.ca` generated from `conf/named-registration.ca`
 
-Since PacketFence 3.0, the DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/named/named-inline.ca`, `var/named/named-isolation.ca` and `var/named/named-registration.ca`).
+The DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/named/named-inline.ca`, `var/named/named-isolation.ca` and `var/named/named-registration.ca`).
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1621,7 +1621,7 @@ RADIUS Accounting is usually used by ISPs to bill clients.  In PacketFence, we a
 Violations
 ^^^^^^^^^^
 
-Since PacketFence 3.2, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
+Using PacketFence, it is possible to add violations to limit bandwidth abuse.  The format of the trigger is very simple:
 
    Accounting::[DIRECTION][LIMIT][INTERVAL(optional)]
 
@@ -1747,19 +1747,19 @@ PacketFence supports the ability to manage guest by establishing expire dates an
 
 Guests can self-register themselves using an activation code sent to their mobile phone or they can use their email address and receive and activation link to activate their network access.
 
-Added in 3.3.0 is the option to have guests sponsored their access by local staff. Once a guest requests a sponsored access an email is sent to the sponsor and the sponsor must click on a link and authenticate in order to enable his access.
+PacketFence has the option to have guests sponsored their access by local staff. Once a guest requests a sponsored access an email is sent to the sponsor and the sponsor must click on a link and authenticate in order to enable his access.
 
-Also added in 3.3.0 is the option for guests to request their access in advance. Confirmation by email and by a sponsor are the two pre-registration techniques supported at this point.
+Moreover, PacketFence also has the option for guests to request their access in advance. Confirmation by email and by a sponsor are the two pre-registration techniques supported at this point.
 
 Guests can also be created using a separate web interface. This interface allow PacketFence administrators or guests managers to create single accounts, multiple accounts using a prefix (ie.: guest1, guest2, guest3...) or import data from a CSV to create accounts. Access duration and expected arrival date are also customizable.
 
-Utilization
-^^^^^^^^^^^
+Usage
+^^^^^
 
 Guest self-registration
 +++++++++++++++++++++++
 
-Self-registration is enabled by default. It is part of the captive-portal and can be accessed on the registration page by clicking the *Sign up* link.
+Self-registration is enabled by default. It is part of the captive portal and can be accessed on the registration page by clicking the *Sign up* link.
 
 image::docs/images/screenshot-captive-portal.png[alt="Captive portal screenshot"]
 
@@ -1815,7 +1815,7 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
 
-To allow the guest created by the guest management interface to login through the captive-portal, `preregistered_guests` must be selected as a valid authentication mechanism. For example with the following line in `/usr/local/pf/conf/pf.conf`:
+To allow the guest created by the guest management interface to login through the captive portal, `preregistered_guests` must be selected as a valid authentication mechanism. For example with the following line in `/usr/local/pf/conf/pf.conf`:
 
   [registration]
   auth=preregistered_guests
@@ -2693,7 +2693,7 @@ No special configuration is needed on the unmanageable device. That's the beauty
 Access control
 ~~~~~~~~~~~~~~
 
-The access control relies entirely on IPTables. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the firewall, and all the Web traffic will be redirected to the captive-portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the firewall marking rule to allow the user's mac address to go through it.
+The access control relies entirely on IPTables. When a user is not registered, and connects in the inline VLAN, PacketFence will give him an IP address. At this point, the user will be marked as unregistered in the firewall, and all the Web traffic will be redirected to the captive portal and other traffic blocked. The user will have to register through the captive portal as in VLAN enforcement. When he registers, PacketFence changes the firewall marking rule to allow the user's mac address to go through it.
 
 Limitations
 ~~~~~~~~~~~
