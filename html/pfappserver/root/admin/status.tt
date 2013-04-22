@@ -23,9 +23,9 @@
               <li class="nav-header">[% l('Overview') %]</li>
               <li><a href="#graph/dashboard">[% l('Dashboard') %]</a></li>
               <li><a href="#service">[% l('Services') %]</a></li>
-              <li class="nav-header">[% l('System') %]</li>
+              <!-- <li class="nav-header">[% l('System') %]</li>
               <li><a href="#">[% l('Server') %]</a></li>
-              <li><a href="#">[% l('Logs') %]</a></li>
+              <li><a href="#">[% l('Logs') %]</a></li> -->
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
