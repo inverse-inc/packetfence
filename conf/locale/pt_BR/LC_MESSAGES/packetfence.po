@@ -551,9 +551,7 @@ msgid ""
 "see if your access was enabled."
 msgstr "Se o usuário possuir scripting desligado, o usuário não será redirecionado automaticamente. Por favor, ative o scripting ou abra uma nova janela do navegador de tempos em tempos para ver se o seu acesso foi ativado."
 
-msgid ""
-"Unable to detect network connectivity. Try opening a web page to see if your"
-" access has been succesfully enabled."
+msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
 msgstr "Incapaz de detectar a conectividade da rede. Tente abrir uma página web para ver se o seu acesso foi habilitado com sucesso."
 
 msgid ""

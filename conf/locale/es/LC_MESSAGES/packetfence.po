@@ -552,9 +552,7 @@ msgid ""
 "see if your access was enabled."
 msgstr "Si usted ha desactivado la ejecución de secuencia de comandos (scripts), usted no será automaticamente redireccionado. Por favor habilite la ejecución de secuencia de comandos (scripts), o abra una nueva ventana del navegador de vez en cuando para ver si su acceso fue habilitado."
 
-msgid ""
-"Unable to detect network connectivity. Try opening a web page to see if your"
-" access has been succesfully enabled."
+msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
 msgstr "Incapaz de detectar actividad en la red. Intente abrir una página web para mirar si su acceso ha sido habilitado exitósamente."
 
 msgid ""
