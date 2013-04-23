@@ -51,6 +51,7 @@ BEGIN {
         violation_view_open
         violation_view_open_desc
         violation_view_open_uniq
+        violation_view_desc
         violation_modify
         violation_trigger
         violation_count
@@ -59,9 +60,9 @@ BEGIN {
         violation_delete
         violation_exist_open
         violation_exist_acct
+        violation_exist_id
         violation_view_last_closed
         violation_maintenance
-
     );
 }
 
@@ -126,13 +127,20 @@ sub violation_db_prepare {
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_desc_sql'} = get_db_handle()->prepare(
-        qq [ select v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
+        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
         qq [ select mac from violation where status="open" group by mac ]);
 
     $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
+
+    $violation_statements->{'violation_view_desc_sql'} = get_db_handle()->prepare(qq[
+        SELECT v.id,v.start_date,c.description,v.vid,v.status
+        FROM violation v
+        INNER JOIN class c ON v.vid=c.vid
+        WHERE v.mac=? order by start_date desc
+    ]);
 
     $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(qq[
         SELECT id, mac, v.vid, start_date, release_date, status, ticket_ref, notes 
@@ -368,6 +376,11 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 sub violation_view_open_uniq {
     return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
+}
+
+sub violation_view_desc {
+    my ($mac) = @_;
+    return db_data(VIOLATION, $violation_statements, 'violation_view_desc_sql', $mac);
 }
 
 sub violation_view_open_all {
