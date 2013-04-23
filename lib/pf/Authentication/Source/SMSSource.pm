@@ -11,13 +11,14 @@ pf::Authentication::Source::SMSSource
 use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
+use Log::Log4perl qw(get_logger);
 use Moose;
 extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'SMS');
 has '+unique' => (default => 1);
-has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw');
+has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
 
 =head1 METHODS
 
@@ -32,7 +33,7 @@ around BUILDARGS => sub {
     my $class = shift;
     my $attrs = shift;
 
-    if (ref $attrs && $attrs->{sms_carriers}) {
+    if (ref $attrs && exists $attrs->{sms_carriers} && !ref($attrs->{sms_carriers}) ) {
         my @carriers = split(/\s*,\s*/, $attrs->{sms_carriers});
         $attrs->{sms_carriers} = \@carriers;
     }
@@ -47,7 +48,7 @@ around BUILDARGS => sub {
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes; 
+  my $super_attributes = $self->SUPER::available_attributes;
   my $own_attributes = [{ value => "phonenumber", type => $Conditions::STRING }];
 
   return [@$super_attributes, @$own_attributes];
