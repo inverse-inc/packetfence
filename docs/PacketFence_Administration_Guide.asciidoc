@@ -410,9 +410,13 @@ PacketFence can authenticate users that register devices via the captive portal 
 * LDAP
 * RADIUS
 
-Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section.
+Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
 
-Each authentication sources you define will have a set of rules and actions. When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
+Each authentication sources you define will have a set of rules, conditions and actions.
+
+Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Eeach source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
+
+When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
 
 Concrete Example
 ~~~~~~~~~~~~~~~~
@@ -1720,10 +1724,10 @@ pvid::
 taggedVlan::
   Comma separated list of VLANs. If the port is a multi-vlan, these are the Vlans that have to be tagged on the port.
 
-Guest management
-~~~~~~~~~~~~~~~~
+Guests Management
+~~~~~~~~~~~~~~~~~
 
-PacketFence supports the ability to manage guest by establishing expire dates and assign a different role which will permit a different access to the network resources.
+PacketFence supports the ability to manage guests by establishing expire dates and assign different roles which will permit different accesses to the network resources.
 
 Guests can self-register themselves using an activation code sent to their mobile phone or they can use their email address and receive and activation link to activate their network access.
 
@@ -1766,19 +1770,14 @@ It is possible to modify the default values of the guest self-registration featu
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentation.conf`.
 
   [guests_self_registration]
-  modes=sms,email,sponsor
-  category=guest
-  access_duration=7d
-  email_activation_timeout=10m
-  allow_localdomain=enabled
   mandatory_fields=firstname,lastname,phone,email
   guest_pid=email
   preregistration=disabled
+  sponsorship_cc=
 
-To disable the self-registration feature, you can do so in the Web Administration interface or by modify the following line in `/usr/local/pf/conf/pf.conf`:
+These parameters can also be configured from the *Configuration -> Self Registration* section.
 
-  [registration]
-  guests_self_registration=disabled
+Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles and Pages*. To disable the self-registration feature, simply remove all modes from the portal profile definition. 
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
@@ -1795,20 +1794,13 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
 
-To allow the guest created by the guest management interface to login through the captive portal, `preregistered_guests` must be selected as a valid authentication mechanism. For example with the following line in `/usr/local/pf/conf/pf.conf`:
+These parameters can also be configured from the *Configuration -> Admin Registration* section.
 
-  [registration]
-  auth=preregistered_guests
-
-PacketFence administrators automatically have access to the guest management interface. It is also possible to create users that will only have access to this separate interface:
-
-  htpasswd /usr/local/pf/conf/guest-managers.conf <new_username>
-
-The newly created user will be able to access the interface immediately.
+PacketFence administrators automatically have access to the guest management interface. It is also possible to create users that will only have access to this separate interface by setting the access level to *All* as an action.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Guests created by the guest management interface are added under the persons tab of the PacketFence web administration interface.
+Guests created by the guest management interface are added under the Users tab of the PacketFence web administration interface. From there, it is possible to reset their password, change their role and more.
 
 Guest pre-registration
 ++++++++++++++++++++++
@@ -1818,10 +1810,7 @@ To minimally configure guest pre-registration, you must make sure that the follo
   [guests_self_registration]
   preregistration=enabled
 
-Pre-registration ensure the creation of proper credentials for guests even if they are not on-site. In order for them to be able to use the credentials `preregistered_guests` must be selected as a valid authentication mechanism. For example with the following line in `/usr/local/pf/conf/pf.conf`:
-
-  [registration]
-  auth=preregistered_guests
+This parameter can also be configured from the *Configuration -> Self Registration* section.
 
 Finally, it is advised that you read the whole guest self-registration section since pre-registration is simply a twist of the self-registration process.
 
@@ -1841,6 +1830,7 @@ By default, we turn SoH off. To enable its support, simply uncomment the followi
   soh-virtual-server = "soh-server"
 
 Then make sure to set the required configuration parameters on top of the `/usr/local/pf/raddb/packetfence-soh.pm` file. Set the username/password to the account created under *Configuration -> Web Services*:
+
   # FreeRADIUS to PacketFence communications (SOAP Server settings)
   WS_USER     => 'webservice',
   WS_PASS     => 'password',
@@ -1997,20 +1987,9 @@ Google
 In order to use Google as a OAuth2 provider, you need to get an API key to access their services.  Sign up here : http://code.google.com/apis/console.  Make sure you use this URI for the "Redirect URI"
 field : https://YOUR_PORTAL_HOSTNAME/oauth2/google.  Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your client id, and API key, you need to configure the OAuth2 provider in pf.conf.  The example below shows you how to do it:
+Once you have your client id, and API key, you need to configure the OAuth2 provider. This can be done by adding a Google OAuth2 authentication source from *Configuration -> Sources*.
 
-   [oauth2 google]
-   client_id = YOUR_API_ID.apps.googleusercontent.com
-   client_secret = YOUR_API_SECRET
-   site = https://accounts.google.com
-   authorize_path = /o/oauth2/auth
-   access_token_path = /o/oauth2/token
-   scope = https://www.googleapis.com/auth/userinfo.email
-   protected_resource_url = https://www.googleapis.com/oauth2/v2/userinfo
-   access_token_param = oauth_token
-   redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/google
-
-Also, enable the Google authentication in the `guests_self_registration.modes` field.
+Moreover, don't forget to add Google as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Facebook
 ^^^^^^^^
@@ -2019,19 +1998,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`. 
 
-Once you have your information, configure the OAuth2 provider in pf.conf that way:
+Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Facebook OAuth2 authentication source from *Configuration -> Sources*.
 
-   [oauth2 facebook]
-   client_id = YOUR_APP_ID
-   client_secret = YOUR_APP_SECRET
-   site = https://graph.facebook.com
-   access_token_path = /oauth/access_token
-   scope = email
-   access_token_param = access_token
-   protected_resource_url = https://graph.facebook.com/me
-   redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/facebook
-
-Also, enable the Facebook authentication in the `guests_self_registration.modes` field.
+Moreover, don't forget to add Facebook as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 CAUTION: By allowing OAuth through Facebook, you will give Facebook access to the users while they are sitting in the registration VLAN.
 
@@ -2042,19 +2011,9 @@ https://YOUR_PORTAL_HOSTNAME/oauth2/github
 
 Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
 
-Once you have your information, configure the OAuth2 provider in pf.conf that way:
+Once you have your information, Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a GitHub OAuth2 authentication source from *Configuration -> Sources*.
 
-   [oauth2 github]
-   client_id = YOUR_APP_ID
-   client_secret = YOUR_APP_SECRET
-   site = https://github.com
-   authorize_path = /login/oauth/authorize
-   access_token_path = /login/oauth/access_token
-   access_token_param = access_token
-   protected_resource_url = https://api.github.com/user
-   redirect_uri = https://YOUR_PORTAL_HOSTNAME/oauth2/github
-
-Like other providers, enable the GitHub authentication in the `guests_self_registration.modes` field.
+Moreover, don't forget to add GitHub as a registration mode from your portal profile definition, available from *Configuration -> Portal Profiles and Pages*.
 
 Gaming Devices Registration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2072,6 +2031,8 @@ The following can be configured by editing the pf.conf file:
    gaming_devices_registration_role = gaming
 
 Make sure the role exists in PacketFence otherwise you will encounter registration errors. Moreover, make sure the role mapping for your particular equipment is done.
+
+These parameters can also be configured from the *Configuration -> Registration* section.
 
 Operating System Best Practices
 -------------------------------
