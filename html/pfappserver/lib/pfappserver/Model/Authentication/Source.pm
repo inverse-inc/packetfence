@@ -19,7 +19,7 @@ use namespace::autoclean;
 use pf::authentication;
 use pf::error qw(is_error is_success);
 
-=head2
+=head2 update
 
 =cut
 
@@ -59,12 +59,17 @@ sub update {
     $source_obj->{rules} = \@sorted_rules;
 
     # Write configuration file to disk
-    writeAuthenticationConfigFile();
+    eval {
+        writeAuthenticationConfigFile();
+    };
+    if($@) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, $@);
+    }
 
     return ($STATUS::OK, "The authentication source was successfully saved.");
 }
 
-=head2
+=head2 delete
 
 =cut
 
@@ -72,12 +77,18 @@ sub delete {
     my ($self, $source_obj) = @_;
 
     deleteAuthenticationSource($source_obj->id);
-    writeAuthenticationConfigFile();
+    # Write configuration file to disk
+    eval {
+        writeAuthenticationConfigFile();
+    };
+    if($@) {
+        return ($STATUS::INTERNAL_SERVER_ERROR, $@);
+    }
 
     return ($STATUS::OK, "The user source was successfully deleted.");
 }
 
-=head2
+=head2 updateRule
 
 =cut
 
@@ -105,7 +116,12 @@ sub updateRule {
             $rule->$attr($def_ref->{$attr} || '');
         }
         # Write configuration file to disk
-        writeAuthenticationConfigFile();
+        eval {
+            writeAuthenticationConfigFile();
+        };
+        if($@) {
+            return ($STATUS::INTERNAL_SERVER_ERROR, $@);
+        }
         return ($STATUS::OK, "The rule was successfully updated.");;
     }
     else {
@@ -113,7 +129,6 @@ sub updateRule {
     }
 }
 
-=back
 
 =head1 COPYRIGHT
 

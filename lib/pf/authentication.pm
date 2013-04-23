@@ -268,7 +268,11 @@ sub writeAuthenticationConfigFile {
             }
         }
     }
-    $cached_authentication_config->RewriteConfig();
+    my $result = $cached_authentication_config->RewriteConfig();
+    unless($result) {
+        $cached_authentication_config->Rollback();
+        die "Error writing authentication configuration\n";
+    }
 }
 
 =item getAuthenticationSource
