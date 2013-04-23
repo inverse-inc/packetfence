@@ -20,7 +20,6 @@ use namespace::autoclean;
 use POSIX;
 use URI::Escape;
 
-use pf::authentication;
 use pf::os;
 use pf::util qw(load_oui download_oui);
 # imported only for the $TIME_MODIFIER_RE regex. Ideally shouldn't be
