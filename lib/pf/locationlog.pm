@@ -96,7 +96,7 @@ sub locationlog_db_prepare {
     $logger->debug("Preparing pf::locationlog database queries");
 
     $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time,
+        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time
         FROM locationlog
         WHERE mac=? 
         ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
