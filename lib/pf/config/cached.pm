@@ -318,7 +318,7 @@ sub new {
                     $config->SetFileName($file);
                     $config->SetWriteMode($WRITE_PERMISSIONS);
                     my $mode = oct($config->GetWriteMode);
-                    #chmod $mode, $file;
+                    chmod $mode, $file;
                     return $config;
                 }
             );
@@ -389,7 +389,7 @@ sub RewriteConfig {
         );
         $config->SetWriteMode($WRITE_PERMISSIONS);
         my $mode = oct($config->GetWriteMode);
-        #chmod $mode, $file;
+        chmod $mode, $file;
         $self->_callReloadCallbacks();
         $self->_callFileReloadCallbacks();
     }
