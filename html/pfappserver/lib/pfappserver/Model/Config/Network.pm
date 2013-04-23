@@ -1,14 +1,14 @@
-package pfappserver::Model::Config::Cached::Network;
+package pfappserver::Model::Config::Network;
 
 =head1 NAME
 
-pfappserver::Model::Config::Cached::Network add documentation
+pfappserver::Model::Config::Network add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::Switch;
+pfappserver::Model::Config::Network
 
 =cut
 
@@ -21,9 +21,7 @@ extends 'pfappserver::Base::Model::Config::Cached';
 
 has '+idKey' => (default => 'network');
 
-=head2 METHODS
-
-=over
+=head1 METHODS
 
 =head2 _buildCachedConfig
 

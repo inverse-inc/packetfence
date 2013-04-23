@@ -30,7 +30,7 @@
   </div><!--modal-body-->
 
   <div class="modal-footer">
-    [% IF form.field('gateway') && network %]<a class="btn btn-danger pull-left" href="[% c.uri_for(c.controller('Config::Networks').action_for('delete'), [ network ]) %]" data-loading-text="[% l('Deleting') %]"><i class="icon-trash"></i> [% l('Delete') %]</a>[% END %]
+    [% IF form.field('gateway') && network %]<a class="btn btn-danger pull-left" href="[% c.uri_for(c.controller('Config::Networks').action_for('remove'), [ network ]) %]" data-loading-text="[% l('Deleting') %]"><i class="icon-trash"></i> [% l('Delete') %]</a>[% END %]
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
     <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
   </div>

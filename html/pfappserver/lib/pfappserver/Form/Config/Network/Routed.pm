@@ -84,7 +84,7 @@ sub validate {
 
     if ($self->network && $self->network ne $self->value->{network} || !$self->network) {
         # Build a list of existing networks
-        my ($status, $result) = $self->ctx->model('Config::Networks')->list_networks();
+        my ($status, $result) = $self->ctx->model('Config::Network')->readAllIds();
         if (is_success($status)) {
             my %networks = map { $_ => 1 } @$result;
             if (defined $networks{$self->value->{network}}) {

@@ -19,11 +19,25 @@ use namespace::autoclean;
 use POSIX;
 
 use pf::authentication;
-use pfappserver::Form::Authentication;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN {
+    extends 'pfappserver::Base::Controller::Base';
+    with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [ qw(getForm) ] };
+}
 
-=head1 SUBROUTINES
+=head1 METHODS
+
+=head2 begin
+
+Setting the current form instance and model
+
+=cut
+
+sub begin :Private {
+    my ( $self, $c ) = @_;
+    pf::config::cached::ReloadConfigs();
+    $c->stash->{current_model_instance} = $c->model("Config::Authentication")->new;
+}
 
 =head2 index
 

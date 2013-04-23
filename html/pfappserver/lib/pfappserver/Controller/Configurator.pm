@@ -148,7 +148,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
         # Detect chosen mechanisms from networks.conf
         my $models =
           {
-           'networks' => $c->model('Config::Cached::Network'),
+           'networks' => $c->model('Config::Network'),
            'interface' => $c->model('Config::Cached::Interface')
           };
         my $interfaces_ref = $c->model('Interface')->get('all', $models);
@@ -193,7 +193,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 
     my $models =
       {
-       'networks' => $c->model('Config::Cached::Network'),
+       'networks' => $c->model('Config::Network'),
        'interface' => $c->model('Config::Cached::Interface')
       };
 
@@ -352,7 +352,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             } else {
                 $pf_model->rewriteConfig();
             }
-            my $network_model = $c->model('Config::Cached::Network');
+            my $network_model = $c->model('Config::Network');
 
             # Update networks.conf file with correct domain-names for each networks
             my $networks;

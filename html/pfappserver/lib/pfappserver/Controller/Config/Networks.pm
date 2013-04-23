@@ -34,7 +34,7 @@ sub begin :Private {
     pf::config::cached::ReloadConfigs();
 
     $c->stash(
-        current_model_instance => $c->model("Config::Cached::Network")->new,
+        current_model_instance => $c->model("Config::Network")->new,
     );
 }
 
