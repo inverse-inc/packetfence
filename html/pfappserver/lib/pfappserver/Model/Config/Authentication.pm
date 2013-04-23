@@ -1,51 +1,36 @@
 package pfappserver::Model::Config::Authentication;
-
 =head1 NAME
 
-pfappserver::Model::Config::Authentication - Catalyst Model
+pfappserver::Model::Config::Authentication
+
+=cut
 
 =head1 DESCRIPTION
 
-Configuration module for operations involving conf/authentication.conf.
+pfappserver::Model::Config::Authentication
 
 =cut
 
-use Moose;  # automatically turns on strict and warnings
+use Moose;
 use namespace::autoclean;
-use Readonly;
+use pf::authentication;
 
-use pf::config;
-use pf::config::ui;
-use pf::error qw(is_error is_success);
+extends 'pfappserver::Base::Model::Config::Cached';
 
-extends 'pfappserver::Model::Config::IniStyleBackend';
-
-Readonly::Scalar our $NAME => 'Authentication';
-
-sub _getName        { return $NAME };
-sub _myConfigFile   { return $pf::config::authentication_config_file };
+sub _buildCachedConfig { $pf::authentication::cached_authentication_config };
 
 
-=head1 METHODS
-
-=cut
-
-=item create
-
-=cut
-sub create {
-}
-
-
-=back
+__PACKAGE__->meta->make_immutable;
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
+Minor parts of this file may have been contributed. See CREDITS.
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012-2013 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
@@ -66,6 +51,5 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable;
-
 1;
+
