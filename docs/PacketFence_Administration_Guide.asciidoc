@@ -330,7 +330,7 @@ First Step
 
 The first step after installing the necessary packages is the configuration step. PacketFence provides an helpful and detailed web-based configurator.
 
-Like mentioned at the end of the packages installation, fire up a web browser and go to http://@ip_packetfence:1444/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
+Like mentioned at the end of the packages installation, fire up a web browser and go to http://@ip_of_packetfence:1443/configurator. From there, the configuration process is splited in six (6) distinctive steps, after which you'll have a working PacketFence setup.
 
 [options="compact"]
 * Step 1: Enforcement technique. You'll choose either VLAN enforcement, inline enforcement or both;
@@ -362,19 +362,6 @@ In order to override a default parameter, define it and set it in `pf.conf`.
 
 All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
-Captive Portal
-^^^^^^^^^^^^^^
-
-Important parameters to configure regarding the captive portal are the following:
-
-`redirecturl` under `[trapping]`
-
-For some browsers, is it preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
-
-`network_detection_ip` under `[captive_portal]`
-
-This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
-
 Apache Configuration
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -383,6 +370,19 @@ The PacketFence configuration for Apache is located in `/usr/local/pf/conf/httpd
 Upon PacketFence installation, a default configuration file is created which is suitable for most configurations. SSL is enabled by default to secure access.
 
 If you used the installer.pl script, you should have self-signed SSL certificates in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+
+Captive Portal
+^^^^^^^^^^^^^^
+
+Important parameters to configure regarding the captive portal are the following:
+
+* Redirect URL under *Configuration -> Trappings*
+
+For some browsers, is it preferable to redirect the user to a specific URL instead of the URL the user originally intended to visit. For these browsers, the URL defined in `redirecturl` will be the one where the user will be redirected. Affected browsers are Firefox 3 and later.
+
+* IP under *Configuration -> Captive portal*
+
+This IP is used as the web server who hosts the `common/network-access-detection.gif` which is used to detect if network access was enabled. It cannot be a domain name since it is used in registration or quarantine where DNS is black-holed. It is recommended that you allow your users to reach your PacketFence server and put your LAN's PacketFence IP. By default we will make this reach PacketFence's website as an easier and more accessible solution.
 
 SELinux
 ~~~~~~~
@@ -858,7 +858,7 @@ This section presents the FreeRADIUS configuration steps. In some occasions, a R
 In /usr/local/pf/raddb/packetfence.pm
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Make sure to set the required configuration parameters on top of the file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
+Make sure to set the required configuration parameters on top of the file. Set the username/password to the account created under *Configuration -> Web Services*:
 
   # FreeRADIUS to PacketFence communications (SOAP Server settings)
   WS_USER     => 'webservice',
@@ -1840,8 +1840,7 @@ By default, we turn SoH off. To enable its support, simply uncomment the followi
   soh=yes
   soh-virtual-server = "soh-server"
 
-Then make sure to set the required configuration parameters on top of the `/usr/local/pf/raddb/packetfence-soh.pm` file. Set the password to the account previously created under the <<_web_based_administration_interface,Web-based Administration Interface section>>.
-
+Then make sure to set the required configuration parameters on top of the `/usr/local/pf/raddb/packetfence-soh.pm` file. Set the username/password to the account created under *Configuration -> Web Services*:
   # FreeRADIUS to PacketFence communications (SOAP Server settings)
   WS_USER     => 'webservice',
   WS_PASS     => 'password',

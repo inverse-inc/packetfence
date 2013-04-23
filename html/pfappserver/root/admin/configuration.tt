@@ -88,7 +88,7 @@ tr[data-swap] > td {
               [% pf_section_entry( 'provisioning', 'Provisioning') %]
               <!--[% list_entry( 'node_import') %]-->
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
-              [% pf_section_entry( 'webservices', 'Webservices') %]
+              [% pf_section_entry( 'webservices', 'Web Services') %]
               <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]
