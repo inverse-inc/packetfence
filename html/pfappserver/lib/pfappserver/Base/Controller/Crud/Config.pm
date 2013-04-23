@@ -16,6 +16,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
+use Log::Log4perl qw(get_logger);
 
 with 'pfappserver::Base::Controller::Crud';
 
@@ -35,7 +36,19 @@ after [qw(update remove rename_item)] => sub {
 after create => sub {
     my ($self,$c) = @_;
     if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
-        $self->getModel($c)->rewriteConfig();
+        my $model = $self->getModel($c);
+        my ($status,$message) = $model->rewriteConfig();
+        if(is_error($status)) {
+            my $logger = get_logger();
+            $c->stash(
+                current_view => 'JSON',
+                status_msg => $message,
+            );
+            $logger->info("rolling back");
+            $model->rollback();
+        }
+        $get_logger->info($message);
+        $c->response->status($status);
     }
 };
 

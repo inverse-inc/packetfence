@@ -72,6 +72,20 @@ sub readConfig {
     return ($STATUS::OK);
 }
 
+=head2 rollBack
+
+Rollback changes that were made
+
+=cut
+
+sub rollBack {
+    my ($self) = @_;
+    my ($status, $status_msg);
+    my $config = $self->cachedConfig;
+    $config->Rollback();
+    return ($STATUS::OK);
+}
+
 =head2 rewriteConfig
 
 Save the cached config
