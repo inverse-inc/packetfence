@@ -98,19 +98,18 @@ Example:
 
 =head4 Add callbacks to an existing pf::config::cached object
 
-If the name already exists, it replaces the previous callback keeping it's calling order.
+If the name already exists, it replaces the previous callback keeping its calling order.
 
-When adding a callback to an existing pf::config::cached object it will not be called.
+When adding a callback to an existing C<pf::config::cached> object it will not be called.
 If it needs to be called it must be done manually.
 
 Adding new callback example:
   $cached_config->addReloadCallbacks( 'onreload_do_something_else' => sub {...}  );
   $cached_config->addFileReloadCallbacks( 'onfilereload_do_something_else' => sub {...}  );
 
-
-    my $callback = sub {...};
-    $cached_config->addReloadCallbacks('callback_name' => $callback);
-    $callback($cached_config,'callback_name');
+  my $callback = sub {...};
+  $cached_config->addReloadCallbacks('callback_name' => $callback);
+  $callback($cached_config,'callback_name');
 
 Adding new callback then calling them after:
   my $callback = sub {...};
