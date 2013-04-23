@@ -20,9 +20,7 @@ Moreover, an "admin" user is now automatically created. The default password
 is also "admin". Finally, a new table has been added for saved searches in the
 new Web administrative interface.
 
----
-mysql -u root -p pf -v < db/upgrade-3.6.1-4.0.0.sql
----
+  mysql -u root -p pf -v < db/upgrade-3.6.1-4.0.0.sql
 
 Other important changes
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -63,6 +61,4 @@ you should now set proper actions in the `conf/authentication.conf` file.
 
 Finally, the `pf` must be sudoer access to the `/sbin/ip` (and others) binary. As root, please do:
 
----
-echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
----
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
