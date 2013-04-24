@@ -225,6 +225,46 @@ This ideally should be done in the begin action of a Catalyst controller
 
 sub begin :Private { pf::config::cached::ReloadConfigs(); }
 
+
+=head2 HTML::FormHandler
+
+=head3 Default values
+
+If the default value is from a derived value then you should use a sub routine to set the default value
+
+See L<HTML::FormHandler::Manual::Defaults/Defaults> for more information
+
+  package pfappserver::Form::Person;
+
+  use HTML::FormHandler::Moose;
+  extends 'HTML::FormHandler';
+  with 'pfappserver::Form::Widget::Theme::Pf';
+
+  sub default_hair { $Config{person}{default} eq 'James' ? 'no' : 'yes' }
+
+  has_field hair =>
+  (
+    type => 'Toggle',
+    wrapper => 'Switch',
+    checkbox_value => 'yes',
+    unchecked_value => 'no',
+  );
+
+=head2 Moose
+
+=head3 Default values
+
+When using a value that was dervived from a configuration use a sub routine to create the default value
+
+  package pf::person;
+
+  use Moose;
+
+  has 'hair' => (
+    is => 'ro',
+    default => sub { $Config{person}{default} ne 'James'  },
+  );
+
 =cut
 
 use strict;
