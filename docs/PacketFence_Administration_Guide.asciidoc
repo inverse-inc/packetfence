@@ -205,7 +205,7 @@ Make sure your system is up to date and your yum or apt-get database is updated.
 
   yum update
 
-On a Debian-based system, do:
+On a Ubuntu 12.04 LTS system, do:
 
   apt-get update
   apt-get upgrade
@@ -259,17 +259,17 @@ RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` 
 
   yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras,rpmforge
 
-Debian Squeeze
-^^^^^^^^^^^^^^
+Ubuntu 12.04 LTS 
+^^^^^^^^^^^^^^^^
 
-All the PacketFence dependencies are available through the official Debian repository. 
+All the PacketFence dependencies are available through the official Ubuntu repository. 
 
 Software Download
 ~~~~~~~~~~~~~~~~~
 
 PacketFence provides a RPM repository for RHEL / CentOS instead of a single RPM file.
 
-For Debian squeeze, PacketFence provides a Debian package repository.
+For Ubuntu 12.04 LTS, PacketFence provides a Ubuntu package repository.
 
 These repositories contain all required dependencies to install PacketFence. This provides numerous advantages: 
 
@@ -301,11 +301,11 @@ Or, if you prefer, to install only the core PacketFence without all the external
 
   yum install --enablerepo=PacketFence,epel,rpmforge,of packetfence
 
-For Debian squeeze:
+For Ubuntu 12.04 LTS:
 
 In order to use the repository, just create a file named `/etc/apt/sources.list.d/packetfence.list` with the following content:
 
-  deb http://inverse.ca/downloads/PacketFence/debian squeeze squeeze
+  deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise
 
 Once the repository is defined, you can install PacketFence with all its
 dependencies, and the required external services (DNS server, Database
@@ -365,11 +365,18 @@ All these parameters are also accessible through the web-based administration in
 Apache Configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-The PacketFence configuration for Apache is located in `/usr/local/pf/conf/httpd.conf`.
+The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
 
-Upon PacketFence installation, a default configuration file is created which is suitable for most configurations. SSL is enabled by default to secure access.
+In this directory you have 3 importants files, httpd.admin, httpd.portal, httpd.webservice.
+httpd.admin is use to manage PacketFence admin interface.
+httpd.portal is use to manage PacketFence captive portal interface.
+httpd.webservices is use to manage PacketFence webservices interface.
 
-If you used the installer.pl script, you should have self-signed SSL certificates in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+These files have been written in perl language and are completly dynamic, so they activate services only on the interfaces provided for this purpose.
+
+The other files in this directory are managed by PacketFence but with template, so it is easy to modify this files based on your configuration. SSL is enabled by default to secure access.
+
+Upon PacketFence installation, self signed certificates will be create in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
 
 Captive Portal
 ^^^^^^^^^^^^^^
@@ -616,7 +623,7 @@ The inline enforcement is a very convenient method of performing access control 
 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
 
-Under Debian Squeeze and RHEL6/CentOS 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
+Under Ubuntu 12.04 LTS and RHEL6/CentOS 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
 It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try
 to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
 It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
@@ -891,7 +898,7 @@ Install Samba 3 and NOT Samba 4. You can either use the sources or use the packa
 yum install samba
 ----
 
-For Debian, do:
+For Ubuntu 12.04 LTS, do:
 
 ----
 apt-get install samba winbind krb5-user
@@ -1046,11 +1053,13 @@ Log files
 Here are the most important PacketFence log files:
 
 /usr/local/pf/logs/packetfence.log:: PacketFence Core Log
-/usr/local/pf/logs/access_log:: Apache – Captive Portal Access Log
-/usr/local/pf/logs/error_log:: Apache – Captive Portal Error Log
+/usr/local/pf/logs/portal_access_log:: Apache – Captive Portal Access Log
+/usr/local/pf/logs/portal_error_log:: Apache – Captive Portal Error Log
 /usr/local/pf/logs/admin_access_log:: Apache – Web Admin/Services Access Log
 /usr/local/pf/logs/admin_error_log:: Apache – Web Admin/Services Error Log
 /usr/local/pf/logs/admin_debug_log:: Apache – Web Admin Debug Log
+/usr/local/pf/logs/webservices_access_log:: Apache – Webservices Access Log
+/usr/local/pf/logs/webservices_error_log:: Apache – Webservices Error Log
 
 There are other log files in `/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
 
@@ -1212,7 +1221,6 @@ SNMPCommunityRead = public
 SNMPCommunityWrite = private
 SNMPommunityTrap = public
 SNMPVersion = 1
-vlans = 1,2,3,4,10
 defaultVlan = 1
 registrationVlan = 2
 isolationVlan = 3
