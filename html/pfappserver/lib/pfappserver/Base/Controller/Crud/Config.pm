@@ -17,6 +17,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use MooseX::MethodAttributes::Role;
 use namespace::autoclean;
 use Log::Log4perl qw(get_logger);
+use HTML::FormHandler::Params;
 
 with 'pfappserver::Base::Controller::Crud';
 
@@ -26,31 +27,51 @@ with 'pfappserver::Base::Controller::Crud';
 
 =cut
 
-after [qw(update remove rename_item)] => sub {
+sub sort_items : Local: Args(0) {
+    my ($self,$c) = @_;
+    my $model = $self->getModel($c);
+    my $params_handler =  HTML::FormHandler::Params->new;
+    my $items = $params_handler->expand_hash($c->request->params);
+    my ($status,$message) = $model->sortItems($items->{items});
+    $c->stash(
+        current_view => 'JSON',
+        status_msg => $message,
+    );
+    $c->response->status($status);
+}
+
+after [qw(update remove rename_item sort_items)] => sub {
     my ($self,$c) = @_;
     if(is_success($c->response->status) ) {
-        $self->getModel($c)->rewriteConfig();
+        $self->_commitChanges($c);
     }
 };
 
 after create => sub {
     my ($self,$c) = @_;
     if(is_success($c->response->status) && $c->request->method eq 'POST' ) {
-        my $model = $self->getModel($c);
-        my ($status,$message) = $model->rewriteConfig();
-        if(is_error($status)) {
-            my $logger = get_logger();
-            $c->stash(
-                current_view => 'JSON',
-                status_msg => $message,
-            );
-            $logger->info("rolling back");
-            $model->rollback();
-        }
-        $get_logger->info($message);
-        $c->response->status($status);
+        $self->_commitChanges($c);
     }
 };
+
+
+sub _commitChanges {
+    my ($self,$c) = @_;
+    my $model = $self->getModel($c);
+    my ($status,$message) = $model->rewriteConfig();
+    my $logger = get_logger();
+    if(is_error($status)) {
+        $c->stash(
+            current_view => 'JSON',
+            status_msg => $message,
+        );
+        $logger->warn($message);
+        $model->rollback();
+    }
+    $logger->info($message);
+    $c->response->status($status);
+}
+
 
 
 =back
