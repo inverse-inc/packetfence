@@ -31,11 +31,23 @@ Users.prototype.post = function(options) {
         });
 };
 
+Users.prototype.toggle = function(options) {
+    var action = options.status? "open" : "close";
+    var url = ['/node',
+               action,
+               options.name.substr(10)];
+    $.ajax({ url: url.join('/') })
+        .always(options.always)
+        .done(options.success)
+        .fail(options.error);
+};
+
 /*
  * The UserView class defines the DOM operations from the Web interface.
  */
 var UserView = function(options) {
     this.users = options.users;
+    this.disableToggle = false;
 
     var read = $.proxy(this.readUser, this);
     options.parent.on('click', '[href$="/read"]', read);
@@ -52,8 +64,14 @@ var UserView = function(options) {
     var mail_password = $.proxy(this.mailPassword, this);
     $('body').on('click', '#modalUser #mailPassword', mail_password);
 
+    var read_violations = $.proxy(this.readViolations, this);
+    $('body').on('show', '[data-toggle="tab"][data-target="#userViolations"][href]', read_violations);
+
     var read_node = $.proxy(this.readNode, this);
     $('body').on('click', '#modalUser [href$="/read"]', read_node);
+
+    var toggle_violation = $.proxy(this.toggleViolation, this);
+    $('body').on('switch-change', '#modalUser .switch', toggle_violation);
 
     $('body').on('change', '#modalUser #ruleActions select[name$=type]', function(event) {
         /* Update the rule action fields when changing an action type */
@@ -87,13 +105,14 @@ UserView.prototype.readUser = function(e) {
         },
         success: function(data) {
             modal.append(data);
-            modal.modal({ shown: true });
+            modal.modal({ show: true });
             modal.find('.datepicker').datepicker({ autoclose: true });
             modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
                 updateAction($(this),true);
             });
             modal.on('shown', function() {
                 modal.find(':input:visible').first().focus();
+                modal.find('[data-toggle="tooltip"]').tooltip({placement: 'top'});
             });
         },
         errorSibling: section.find('h2').first()
@@ -193,11 +212,15 @@ UserView.prototype.mailPassword = function(e) {
     });
 };
 
-UserView.prototype.up
-    $('#modalUser').on('change', '#ruleActions select[name$=type]', function(event) {
-        updateAction($(this));
-    });
-
+UserView.prototype.readViolations = function(e) {
+    var btn = $(e.target);
+    var target = $(btn.attr("data-target"));
+    if (target.children().length == 0)
+        target.load(btn.attr("href"), function() {
+            target.find('.switch').bootstrapSwitch();
+        });
+    return true;
+};
 
 UserView.prototype.readNode = function(e) {
     e.preventDefault();
@@ -249,5 +272,35 @@ UserView.prototype.readNode = function(e) {
             modalUser.modal('hide');
         },
         errorSibling: section.find('h2').first()
+    });
+};
+
+UserView.prototype.toggleViolation = function(e) {
+    e.preventDefault();
+
+    // Ignore event if it occurs while processing a toggling
+    if (this.disableToggle) return;
+    this.disableToggle = true;
+
+    var that = this;
+    var btn = $(e.target);
+    var name = btn.find('input:checkbox').attr('name');
+    var status = btn.bootstrapSwitch('status');
+    var pane = $('userViolations');
+    resetAlert(pane.parent());
+    this.users.toggle({
+        name: name,
+        status: status,
+        success: function(data) {
+            showSuccess(pane, data.status_msg);
+            that.disableToggle = false;
+        },
+        error: function(jqXHR) {
+            var status_msg = getStatusMsg(jqXHR);
+            showError(pane, status_msg);
+            // Restore switch state
+            btn.bootstrapSwitch('setState', !status, true);
+            that.disableToggle = false;
+        }
     });
 };

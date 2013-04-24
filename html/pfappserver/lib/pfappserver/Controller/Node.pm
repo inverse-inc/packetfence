@@ -179,11 +179,57 @@ sub violations :Chained('object') :PathPart :Args(0) {
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{items} = $result;
+        $c->stash->{template} = 'node/violations.tt';
+        (undef, $c->stash->{violations}) = $c->model('Config::Violations')->readAll();
     } else {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
     }
+}
+
+=head2 triggerViolation
+
+=cut
+
+sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
+    my ($self, $c, $id) = @_;
+    my ($status, $result) = $c->model('Config::Violations')->hasId($id);
+    if (is_success($status)) {
+        ($status, $result) = $c->model('Node')->addViolation($c->stash->{mac}, $id);
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    if (is_success($status)) {
+        $c->forward('violations');
+    }
+    else {
+        $c->stash->{current_view} = 'JSON';
+    }
+}
+
+=head2 openViolation
+
+=cut
+
+sub openViolation :Path('open') :Args(1) {
+    my ($self, $c, $id) = @_;
+    my ($status, $result) = $c->model('Node')->openViolation($id);
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    $c->stash->{current_view} = 'JSON';
+}
+
+=head2 closeViolation
+
+=cut
+
+sub closeViolation :Path('close') :Args(1) {
+    my ($self, $c, $id) = @_;
+    my ($status, $result) = $c->model('Node')->closeViolation($id);
+    $c->response->status($status);
+    $c->stash->{status_msg} = $result;
+    $c->stash->{current_view} = 'JSON';
 }
 
 =head1 AUTHOR

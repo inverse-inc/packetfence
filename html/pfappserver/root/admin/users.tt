@@ -14,10 +14,12 @@
         'app/uri',
         'admin/users',
         'admin/searches',
+        'js/bootstrapSwitch',
         'js/user',
         ]
      cssFiles = [
-       'app/bootstrap-datepicker',
+        'app/bootstrap-datepicker',
+        'css/bootstrapSwitch',
         ] -%]
 
 <style type="text/css">

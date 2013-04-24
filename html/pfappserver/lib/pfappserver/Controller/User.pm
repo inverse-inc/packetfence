@@ -106,22 +106,6 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-=head2 violations
-
-=cut
-
-sub violations :Chained('object') :PathPart :Args(0) {
-    my ($self, $c) = @_;
-    my ($status, $result) = $c->model('User')->violations($c->stash->{user}->{pid});
-    if (is_success($status)) {
-        $c->stash->{items} = $result;
-    } else {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
-        $c->stash->{current_view} = 'JSON';
-    }
-}
-
 =head2 update
 
 =cut
@@ -145,6 +129,22 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         $c->stash->{status_msg} = $message; # TODO: localize error message
     }
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 violations
+
+=cut
+
+sub violations :Chained('object') :PathPart :Args(0) {
+    my ($self, $c) = @_;
+    my ($status, $result) = $c->model('User')->violations($c->stash->{user}->{pid});
+    if (is_success($status)) {
+        $c->stash->{items} = $result;
+    } else {
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
+        $c->stash->{current_view} = 'JSON';
+    }
 }
 
 =head2 reset

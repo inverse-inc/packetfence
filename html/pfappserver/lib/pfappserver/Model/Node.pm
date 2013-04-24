@@ -36,9 +36,7 @@ use pf::violation;
 
 =head1 METHODS
 
-=over
-
-=item exists
+=head2 exists
 
 =cut
 
@@ -65,7 +63,7 @@ sub exists {
     return ($status, $result);
 }
 
-=item field_names
+=head2 field_names
 
 =cut
 
@@ -73,7 +71,7 @@ sub field_names {
     return [qw(mac computer_name pid status dhcp_fingerprint)];
 }
 
-=item countAll
+=head2 countAll
 
 =cut
 
@@ -97,7 +95,7 @@ sub countAll {
     return ($STATUS::OK, $count->{nb});
 }
 
-=item search
+=head2 search
 
 =cut
 
@@ -121,7 +119,7 @@ sub search {
     return ($STATUS::OK, \@nodes);
 }
 
-=item view
+=head2 view
 
 From pf::lookup::node::lookup_node()
 
@@ -208,7 +206,7 @@ sub view {
     return ($STATUS::OK, $node);
 }
 
-=item update
+=head2 update
 
 =cut
 
@@ -226,7 +224,7 @@ sub update {
     return ($status, $status_msg);
 }
 
-=item delete
+=head2 delete
 
 =cut
 
@@ -244,7 +242,7 @@ sub delete {
     return ($status, $status_msg);
 }
 
-=item availableStatus
+=head2 availableStatus
 
 =cut
 
@@ -271,7 +269,7 @@ sub violations {
 
     my @violations;
     eval {
-        @violations = violation_view_open_desc($mac);
+        @violations = violation_view_desc($mac);
     };
     if ($@) {
         $status_msg = "Can't fetch violations from database.";
@@ -282,7 +280,54 @@ sub violations {
     return ($STATUS::OK, \@violations);
 }
 
-=item _graphIplogHistory
+=head2 addViolation
+
+=cut
+
+sub addViolation {
+    my ($self, $mac, $vid) = @_;
+
+    if (violation_add($mac, $vid)) {
+        return ($STATUS::OK, 'The violation was successfully added.');
+    }
+    else {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while adding the violation.');
+    }
+}
+
+=head2 openViolation
+
+=cut
+
+sub openViolation {
+    my ($self, $id) = @_;
+
+    if (violation_modify($id, ( status => 'open', release_date => '0' ))) {
+        return ($STATUS::OK, 'The violation was successfully opened.');
+    }
+    else {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while opening the violation.');
+    }
+}
+
+=head2 closeViolation
+
+=cut
+
+sub closeViolation {
+    my ($self, $id) = @_;
+
+    my $violation = violation_exist_id($id);
+    if ($violation) {
+        if (violation_force_close($violation->{mac}, $violation->{vid})) {
+            return ($STATUS::OK, 'The violation was successfully closed.');
+        }
+    }
+
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
+}
+
+=head2 _graphIplogHistory
 
 =cut
 
@@ -391,8 +436,6 @@ sub _graphIplogHistory {
         delete $node_ref->{iplog}->{history};
     }
 }
-
-=back
 
 =head1 AUTHOR
 

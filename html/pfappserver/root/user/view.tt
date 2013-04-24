@@ -126,7 +126,8 @@
               [% END %]
             </div><!--tab-pane-->
 
-            <div class="tab-pane fade" id="userViolations"/><!--tab-pane-->
+            <div class="tab-pane fade" id="userViolations">
+            </div><!--tab-pane-->
 
           </div><!--tab-content-->
 

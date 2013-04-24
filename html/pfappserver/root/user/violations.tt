@@ -4,25 +4,25 @@
       <tr>
         <th>[% l('Description') %]</th>
         <th>[% l('MAC') %]</th>
-        <th>[% l('Status') %]</th>
         <th>[% l('Start Date') %]</th>
         <th>[% l('Release Date') %]</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
     [% FOR item IN items %]
     <tr>
       <td>[% item.description %]</td>
-      <td><a href="[% c.uri_for(c.controller('Node').action_for('read'), [ item.mac ]) %]">[% item.mac %]</a></td>
-      <td>[% item.status %]</td>
+      <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ item.mac ]) %]">[% item.mac %]</a></td>
       <td>[% item.start_date %]</td>
       <td>[% item.release_date %]</td>
+      <td><div class="switch switch-mini pull-right"><input type="checkbox" id="violation.[% item.id %]" name="violation.[% item.id %]"[% IF item.status =='open' %] checked="checked"[% END %]/></div></td>
     </tr>
     [% END %]
     </tbody>
 </table>
 [% ELSE %]
   <div id="noResult" class="unwell">
-    <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
+    <i class="icon-legal icon-large"></i><p>[% l('No violation') %]</p>
   </div>
 [% END %]

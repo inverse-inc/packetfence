@@ -1,3 +1,5 @@
+var disableToggle = false;
+
 function init() {
     $('.datepicker').datepicker({
         endDate: new Date(), // today
@@ -58,7 +60,9 @@ function init() {
         var that = $(this);
         var target = $(that.attr("data-target"));
         if (target.children().length == 0)
-            target.load(that.attr("href"));
+            target.load(that.attr("href"), function() {
+                target.find('.switch').bootstrapSwitch();
+            });
         return true;
     });
 
@@ -114,6 +118,60 @@ function init() {
             });
 
         return false;
+    });
+
+    /* Trigger a violation (from the modal editor) */
+    $('body').on('click', '#addViolation', function(event) {
+        var btn = $(this),
+        modal = $('#modalNode'),
+        modal_body = modal.find('.modal-body'),
+        sibbling = modal_body.children().first(),
+        href = btn.attr('href'),
+        vid = modal.find('#vid').val();
+        resetAlert(modal_body);
+        $.ajax([href, vid].join('/'))
+            .done(function(data) {
+                //showSuccess(sibbling, data.status_msg);
+                var content = $('#nodeViolations');
+                content.html(data);
+                content.find('.switch').bootstrapSwitch();
+            }).fail(function(jqXHR) {
+                var status_msg = getStatusMsg(jqXHR);
+                btn.button('reset');
+                showPermanentError(sibbling, status_msg);
+            });
+
+        return false;
+    });
+
+    /* Open/close a violation */
+    $('body').on('switch-change', '#nodeViolations .switch', function(e) {
+        e.preventDefault();
+
+        // Ignore event if it occurs while processing a toggling
+        if (disableToggle) return;
+        disableToggle = true;
+
+        var btn = $(e.target);
+        var name = btn.find('input:checkbox').attr('name');
+        var status = btn.bootstrapSwitch('status');
+        var action = status? "open" : "close";
+        var pane = $('#nodeViolations');
+        resetAlert(pane.parent());
+        var url = ['/node',
+                   action,
+                   name.substr(10)]; // remove "violation." prefix
+        $.ajax(url.join('/'))
+            .done(function(data) {
+                showSuccess(pane, data.status_msg);
+                disableToggle = false;
+            }).fail(function(jqXHR) {
+                var status_msg = getStatusMsg(jqXHR);
+                showPermanentError(pane, status_msg);
+                // Restore switch state
+                btn.bootstrapSwitch('setState', !status, true);
+                disableToggle = false;
+            });
     });
 
     $(window).hashchange(pfOnHashChange(updateSection,'/node/'));
