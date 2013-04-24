@@ -68,6 +68,7 @@ my $PfConfig = \%pf::config::Config;
 my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
+my $host;
 
 $PidFile = $install_dir.'/var/run/httpd.webservices.pid';
 
@@ -89,7 +90,7 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = "3";
+$MaxClients = "40";
 $StartServers = "10";
 $MinSpareServers = "3";
 $MaxSpareServers = "10";
@@ -101,11 +102,16 @@ $ErrorLog = $install_dir.'/logs/webservices_error_log';
 $NameVirtualHost => "*:$PfConfig->{'ports'}{'soap'}";
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-    @Listen =  ("127.0.0.1:".$PfConfig->{'ports'}{'soap'},$management_network->{'Tip'}.":".$PfConfig->{'ports'}{'soap'});
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        $host = $management_network->{'Tvip'};
+    } else {
+        $host = $management_network->{'Tip'};
+    }
+    @Listen =  ("127.0.0.1:".$PfConfig->{'ports'}{'soap'},$host.":".$PfConfig->{'ports'}{'soap'});
 
 
     #Generate Virtualhost for management interface (ssl enabled and auth enabled)
-    push @{ $VirtualHost{$management_network->{'Tip'}.":".$PfConfig->{'ports'}{'soap'}} },
+    push @{ $VirtualHost{$host.":".$PfConfig->{'ports'}{'soap'}} },
         {
              ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'soap'},
              DocumentRoot        => $install_dir.'/html/pfappserver/lib',
@@ -117,7 +123,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
                   "/" => {
                       SetHandler          => 'modperl',
                       PerlResponseHandler => 'pf::WebAPI',
-                      PerlAuthenHandler => 'pf::WebAPI::AuthenHandler',
+                      PerlAuthenHandler   => 'pf::WebAPI::AuthenHandler',
                       AuthName            => "PacketFence_Authentication",
                       AuthType            => 'Basic',
                       require             => 'valid-user',
@@ -144,8 +150,5 @@ push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'soap'}"} },
 
 
 </Perl>
-
-
-
 
 

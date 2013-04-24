@@ -109,7 +109,7 @@ my $management_network = $pf::config::management_network;
 my $install_dir = $pf::config::install_dir;
 my $var_dir = $pf::config::var_dir;
 my @internal_nets = @pf::config::internal_nets;
-
+my $host;
 
 $PidFile = $install_dir.'/var/run/httpd.portal.pid';
 
@@ -185,10 +185,16 @@ foreach my $interface (@internal_nets) {
 }
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-    push (@Listen,$management_network->{'Tip'}.":80");
-    push (@Listen,$management_network->{'Tip'}.":443");
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        $host = $management_network->{'Tvip'};
+    } else {
+        $host = $management_network->{'Tip'};
+    }
 
-    push @{ $VirtualHost{$management_network->{'Tip'}.":80"} }, gen_conf(
+    push (@Listen,$host.":80");
+    push (@Listen,$host.":443");
+
+    push @{ $VirtualHost{$host.":80"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
          ErrorLog            => $install_dir.'/logs/portal_error_log',
@@ -200,7 +206,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
          ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
     );
-    push @{ $VirtualHost{$management_network->{'Tip'}.":443"} }, gen_conf(
+    push @{ $VirtualHost{$host.":443"} }, gen_conf(
          ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
          ErrorLog            => $install_dir.'/logs/portal_error_log',
@@ -218,4 +224,5 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
 } 
 
 </Perl>
+
 

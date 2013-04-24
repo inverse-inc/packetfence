@@ -56,8 +56,13 @@ $PidFile = $install_dir.'/var/run/httpd.admin.pid';
 $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-    $Listen = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
-    $vhost = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        $Listen = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
+        $vhost = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
+    } else {
+        $Listen = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+        $vhost = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+   }
 } else {
     $Listen = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
     $vhost = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
