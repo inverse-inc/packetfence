@@ -77,13 +77,21 @@ has_field "${Actions::SET_ROLE}_action" =>
    wrapper => 0,
    options_method => \&options_roles,
   );
+
+#Adding default method for ${Actions::SET_ACCESS_DURATION}_action to always use the current value of the guests_admin_registration.default_access_duration
+
+__PACKAGE__->meta->add_method(
+    "default_${Actions::SET_ACCESS_DURATION}_action" => sub {
+        return get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'});
+    }
+);
+
 has_field "${Actions::SET_ACCESS_DURATION}_action" =>
   (
    type => 'Select',
    do_label => 0,
    wrapper => 0,
    options_method => \&options_durations,
-   default => get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'}),
   );
 has_field "${Actions::SET_UNREG_DATE}_action" =>
   (
