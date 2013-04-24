@@ -80,7 +80,7 @@ $UseCanonicalName = "Off";
 $Timeout = "50";
 $KeepAliveTimeout = "10";
 
-$MaxClients = "3";
+$MaxClients = "20";
 $StartServers = "2";
 $MinSpareServers = "6";
 $HostnameLookups = "off";
