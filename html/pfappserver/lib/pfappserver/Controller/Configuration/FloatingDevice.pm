@@ -18,7 +18,7 @@ use pfappserver::Form::Config::Switch;
 use pf::config::cached;
 
 BEGIN {
-    extends 'pfappserver::Base::Controller::Base';
+    extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 

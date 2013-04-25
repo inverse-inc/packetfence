@@ -18,7 +18,7 @@ use Moose;
 use namespace::autoclean;
 use URI::Escape;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head2 index
 

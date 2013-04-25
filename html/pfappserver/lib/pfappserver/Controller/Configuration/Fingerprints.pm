@@ -21,7 +21,7 @@ use URI::Escape;
 use pf::config;
 use pf::os;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 my %FIELD_MAP = (
     dhcp_fingerprint => 'fprint[]',

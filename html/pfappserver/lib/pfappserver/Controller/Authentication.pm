@@ -21,7 +21,7 @@ use POSIX;
 use pf::authentication;
 use pfappserver::Form::Authentication;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 

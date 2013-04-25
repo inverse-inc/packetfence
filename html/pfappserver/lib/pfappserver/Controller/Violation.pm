@@ -22,7 +22,7 @@ use pf::config;
 use pfappserver::Form::Violation;
 
 BEGIN {
-    extends 'pfappserver::Base::Controller::Base';
+    extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 

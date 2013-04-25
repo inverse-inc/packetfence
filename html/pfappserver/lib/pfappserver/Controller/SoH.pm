@@ -19,7 +19,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 

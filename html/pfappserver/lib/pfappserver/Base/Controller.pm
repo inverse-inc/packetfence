@@ -1,12 +1,12 @@
-package pfappserver::Base::Controller::Base;
+package pfappserver::Base::Controller;
 
 =head1 NAME
 
-/usr/local/pf/html/pfappserver/lib/pfappserver/Base/Controller add documentation
+package pfappserver::Base::Controller;
 
 =head1 DESCRIPTION
 
-Base
+The base controller
 
 =cut
 
@@ -70,6 +70,8 @@ sub auto :Private {
 }
 
 =head2 begin
+
+Called at the begin of the dispatch
 
 =cut
 

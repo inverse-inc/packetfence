@@ -21,7 +21,7 @@ use POSIX;
 
 use pfappserver::Form::Role;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 

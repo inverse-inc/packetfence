@@ -17,7 +17,7 @@ use namespace::autoclean;
 use pfappserver::Form::Config::Switch;
 
 BEGIN {
-    extends 'pfappserver::Base::Controller::Base';
+    extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 

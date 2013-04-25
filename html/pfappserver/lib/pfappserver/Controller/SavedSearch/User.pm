@@ -17,7 +17,7 @@ use Moose;
 use HTTP::Status qw(:constants is_error is_success);
 
 BEGIN {
-    extends 'pfappserver::Base::Controller::Base';
+    extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud';
 }
 

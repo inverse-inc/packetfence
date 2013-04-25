@@ -17,7 +17,7 @@ use pfappserver::Form::Config::Network::Routed;
 use namespace::autoclean;
 
 BEGIN {
-    extends 'pfappserver::Base::Controller::Base';
+    extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [ qw(getForm) ] };
 }
 

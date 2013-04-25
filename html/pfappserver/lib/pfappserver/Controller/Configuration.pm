@@ -27,7 +27,7 @@ use pf::util qw(load_oui download_oui);
 use pf::config;
 use pfappserver::Form::Config::Pf;
 
-BEGIN {extends 'pfappserver::Base::Controller::Base'; }
+BEGIN {extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
 

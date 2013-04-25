@@ -25,7 +25,7 @@ use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
 use pfappserver::Form::AdvancedSearch;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 

@@ -14,7 +14,7 @@ use HTTP::Status qw(:constants is_error);
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
 

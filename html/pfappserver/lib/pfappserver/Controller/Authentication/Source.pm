@@ -22,7 +22,7 @@ use pf::authentication;
 use pfappserver::Form::Authentication::Source;
 use pfappserver::Form::Authentication::Rule;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 

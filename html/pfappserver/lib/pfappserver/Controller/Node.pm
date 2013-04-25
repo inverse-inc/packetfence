@@ -21,7 +21,7 @@ use POSIX;
 use pfappserver::Form::Node;
 use pfappserver::Form::AdvancedSearch;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 
@@ -29,6 +29,7 @@ BEGIN { extends 'pfappserver::Base::Controller::Base'; }
 =head2 index
 
 =cut
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -38,11 +39,13 @@ sub index :Path :Args(0) {
 =head2 simple_search
 
 =cut
+
 sub simple_search :SimpleSearch('Node') :Local :Args() { }
 
 =head2 advanced_search
 
 =cut
+
 sub advanced_search :Local :Args() {
     my ($self, $c) = @_;
     my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
@@ -66,11 +69,13 @@ sub advanced_search :Local :Args() {
 =head2 save_search
 
 =cut
+
 sub save_search : Local :Args(0) { }
 
 =head2 get_searches
 
 =cut
+
 sub get_searches : Local :Args(0) { }
 
 =head2 object
@@ -78,6 +83,7 @@ sub get_searches : Local :Args(0) { }
 Node controller dispatcher
 
 =cut
+
 sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
     my ( $self, $c, $mac ) = @_;
 
@@ -101,6 +107,7 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
 =head2 view
 
 =cut
+
 sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
@@ -130,6 +137,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
 =head2 update
 
 =cut
+
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -159,6 +167,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
+
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -173,6 +182,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 =head2 violations
 
 =cut
+
 
 sub violations :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
@@ -191,6 +201,7 @@ sub violations :Chained('object') :PathPart :Args(0) {
 =head2 triggerViolation
 
 =cut
+
 
 sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
     my ($self, $c, $id) = @_;
@@ -212,6 +223,7 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
 
 =cut
 
+
 sub openViolation :Path('open') :Args(1) {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->openViolation($id);
@@ -223,6 +235,7 @@ sub openViolation :Path('open') :Args(1) {
 =head2 closeViolation
 
 =cut
+
 
 sub closeViolation :Path('close') :Args(1) {
     my ($self, $c, $id) = @_;

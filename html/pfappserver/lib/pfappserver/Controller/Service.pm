@@ -20,7 +20,7 @@ use POSIX;
 
 use pf::services;
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 
@@ -46,6 +46,7 @@ sub object :Chained('/') :PathPart('service') :CaptureArgs(1) {
 =head2 status
 
 =cut
+
 sub status :Chained('object') :PathPart('') :Args(0) {
     my ($self, $c) = @_;
     $self->_process_model_results($c,$c->stash->{model},'status',$c->stash->{service});
@@ -54,6 +55,7 @@ sub status :Chained('object') :PathPart('') :Args(0) {
 =head2 stop
 
 =cut
+
 sub stop :Chained('object') :PathPart :Args(0) {
     my ( $self, $c ) = @_;
     $self->_process_model_results_as_json($c,$c->stash->{model},'service_stop',$c->stash->{service});

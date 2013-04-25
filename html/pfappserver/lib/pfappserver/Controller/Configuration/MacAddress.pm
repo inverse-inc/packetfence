@@ -19,7 +19,7 @@ use namespace::autoclean;
 
 use pf::util qw(load_oui download_oui);
 
-BEGIN { extends 'pfappserver::Base::Controller::Base'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head2 index
 
