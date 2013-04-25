@@ -32,7 +32,8 @@ sub sort_items : Local: Args(0) {
     my $model = $self->getModel($c);
     my $params_handler =  HTML::FormHandler::Params->new;
     my $items = $params_handler->expand_hash($c->request->params);
-    my ($status,$message) = $model->sortItems($items->{items});
+    my $itemsKey = $model->itemsKey;
+    my ($status,$message) = $model->sortItems($items->{$itemsKey});
     $c->stash(
         current_view => 'JSON',
         status_msg => $message,
@@ -57,15 +58,21 @@ after create => sub {
 
 sub _commitChanges {
     my ($self,$c) = @_;
-    my $model = $self->getModel($c);
-    my ($status,$message) = $model->rewriteConfig();
     my $logger = get_logger();
+    my $model = $self->getModel($c);
+    my ($status,$message);
+    eval {
+        ($status,$message) = $model->rewriteConfig();
+    };
+    if($@) {
+        $status = HTTP_INTERNAL_SERVER_ERROR;
+        $message = $@;
+    }
     if(is_error($status)) {
         $c->stash(
             current_view => 'JSON',
             status_msg => $message,
         );
-        $logger->warn($message);
         $model->rollback();
     }
     $logger->info($message);
