@@ -386,7 +386,7 @@ For other switches, add placeholders with values from default switch.
 sub update_fields {
     my $self = shift;
 
-    if ($self->init_object->{id} eq 'default') {
+    if ($self->{init_object} && $self->init_object->{id} eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
             $self->field($role.'Vlan')->messages({ required => 'Please specify the corresponding VLAN for each role.' });

@@ -54,7 +54,6 @@ sub object :Chained('/') :PathPart('configuration/switch') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
     $self->getModel($c)->readConfig();
     $self->_setup_object($c, $id);
-    $c->stash->{action_uri} = $c->uri_for($c->action, $c->req->captures);
 }
 
 =head2 after list
