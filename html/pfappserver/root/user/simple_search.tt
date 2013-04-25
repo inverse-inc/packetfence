@@ -7,7 +7,7 @@
 [% END -%]
             <h2>[% l('Results') %]</h2>
 [% INCLUDE pagination.inc section = 'user/simple_search' IF items.size > 0 %]
-            <table class="table table-condensed table-striped">
+            <table id="users" class="table table-condensed table-striped">
               <thead>
                 <tr>
                   [% header('pid', 'Username') %]

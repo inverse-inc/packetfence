@@ -15,10 +15,12 @@
         'admin/users',
         'admin/searches',
         'js/bootstrapSwitch',
+        'js/node',
         'js/user',
         ]
      cssFiles = [
         'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
         'css/bootstrapSwitch',
         ] -%]
 

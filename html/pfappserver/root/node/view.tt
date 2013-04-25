@@ -1,6 +1,6 @@
       <div class="modal fade hide" id="modalNode">
 
-        <form action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac]) %]" class="form-horizontal form-condensed" >
+        <form name="modalNode" action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac]) %]" class="form-horizontal form-condensed" >
 
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
@@ -109,10 +109,10 @@
             <div class="tab-pane fade" id="nodeHistory">
 
               <h6>Last 2 weeks</h6>
-              [%- IF node.iplog.series %]
+              [%- IF node.iplog.series.size %]
               <div id="iplog" class="chart"></div>
               <script type="text/javascript">
-graphs['iplog'] = {
+graphs.charts['iplog'] = {
     type: 'dot',
     size: 'large',
     ylabels: ['[% node.iplog.ylabels.join("','") %]'],
@@ -126,7 +126,7 @@ graphs['iplog'] = {
               </script>
               [%- ELSE %]
               <div class="alert alert-warning">
-                <strong>Warning!</strong> <span>This MAC address has not been seen recently.</span>
+                <strong>Warning!</strong> <span>[% l('This MAC address has not been seen recently.') %]</span>
               </div>
               [%- END %]
             </div><!--tab-pane-->
@@ -143,7 +143,7 @@ graphs['iplog'] = {
 
         <div class="modal-footer">
           <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [ node.mac ]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
-          <a href="[% c.uri_for(c.controller('Node').action_for('update'), [ node.mac ]) %]" id="updateNode" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</a>
+          <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div><!--modal-footer-->
         </form>

@@ -31,7 +31,7 @@ Users.prototype.post = function(options) {
         });
 };
 
-Users.prototype.toggle = function(options) {
+Users.prototype.toggleViolation = function(options) {
     var action = options.status? "open" : "close";
     var url = ['/node',
                action,
@@ -47,10 +47,10 @@ Users.prototype.toggle = function(options) {
  */
 var UserView = function(options) {
     this.users = options.users;
-    this.disableToggle = false;
+    this.disableToggleViolation = false;
 
     var read = $.proxy(this.readUser, this);
-    options.parent.on('click', '[href$="/read"]', read);
+    options.parent.on('click', '#users [href$="/read"]', read);
 
     var update = $.proxy(this.updateUser, this);
     $('body').on('submit', '#modalUser form[name="modalUser"]', update);
@@ -146,6 +146,8 @@ UserView.prototype.updateUser = function(e) {
 UserView.prototype.deleteUser = function(e) {
     e.preventDefault();
 
+    var modal = $('#modalUser');
+    var modal_body = modal.find('.modal-body');
     var btn = $(e.target);
     var url = btn.attr('href');
     this.users.get({
@@ -156,7 +158,7 @@ UserView.prototype.deleteUser = function(e) {
                 $(window).hashchange();
             });
         },
-        errorSibling: $('#section h2')
+        errorSibling: modal_body.children().first()
     });
 };
 
@@ -228,6 +230,8 @@ UserView.prototype.readNode = function(e) {
     var url = $(e.target).attr('href');
     var section = $('#section');
     var loader = section.prev('.loader');
+    var modalUser = $("#modalUser");
+    var modalUser_body = modalUser.find('.modal-body').first();
     loader.show();
     section.fadeTo('fast', 0.5);
     this.users.get({
@@ -240,11 +244,10 @@ UserView.prototype.readNode = function(e) {
         success: function(data) {
             $('body').append(data);
             var modalNode = $("#modalNode");
-            var modalUser = $("#modalUser");
             modalUser.one('hidden',function(event){
                 modalNode.modal('show');
             });
-            modalNode.one('shown', function(event) {
+            modalNode.on('shown', function(event) {
                 var modal = $(this);
                 modal.find('.chzn-select').chosen();
                 modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
@@ -253,8 +256,8 @@ UserView.prototype.readNode = function(e) {
                     var that = $(this);
                     var defaultTime = that.val().length? 'value' : false;
                     that.timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
-                    that.on('hidden',function (e){
-                        //Stop the hidden event bubbling up to the modal
+                    that.on('hidden', function (e) {
+                        // Stop the hidden event bubbling up to the modal
                         e.stopPropagation();
                     });
                 });
@@ -268,10 +271,9 @@ UserView.prototype.readNode = function(e) {
                 $(this).remove();
                 modalUser.modal('show');
             });
-
             modalUser.modal('hide');
         },
-        errorSibling: section.find('h2').first()
+        errorSibling: modalUser_body.children().first()
     });
 };
 
@@ -279,28 +281,28 @@ UserView.prototype.toggleViolation = function(e) {
     e.preventDefault();
 
     // Ignore event if it occurs while processing a toggling
-    if (this.disableToggle) return;
-    this.disableToggle = true;
+    if (this.disableToggleViolation) return;
+    this.disableToggleViolation = true;
 
     var that = this;
     var btn = $(e.target);
     var name = btn.find('input:checkbox').attr('name');
     var status = btn.bootstrapSwitch('status');
-    var pane = $('userViolations');
+    var pane = $('#userViolations');
     resetAlert(pane.parent());
-    this.users.toggle({
+    this.users.toggleViolation({
         name: name,
         status: status,
         success: function(data) {
             showSuccess(pane, data.status_msg);
-            that.disableToggle = false;
+            that.disableToggleViolation = false;
         },
         error: function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
             showError(pane, status_msg);
             // Restore switch state
             btn.bootstrapSwitch('setState', !status, true);
-            that.disableToggle = false;
+            that.disableToggleViolation = false;
         }
     });
 };

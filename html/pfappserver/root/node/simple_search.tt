@@ -5,9 +5,9 @@
     END %]
       <th><a href="[% c.pf_hash_for(c.controller('Node').action_for('simple_search'),'filter', filter, 'by', column, 'direction', new_direction) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
-            <h2>Results</h2>
+            <h2>[% l('Results') %]</h2>
 [% INCLUDE pagination.inc section = 'node/simple_search' IF items.size > 0 %]
-            <table class="table table-condensed table-striped">
+            <table id="nodes" class="table table-condensed table-striped">
               <thead>
                 <tr>
                   [% header('mac', 'MAC') %]
@@ -20,7 +20,7 @@
               <tbody>
                 [%- FOREACH node IN items -%]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]#modalNode">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
                   <td>[% node.computername %]</td>
                   <td>[% node.pid %]</td>
                   <td>[% node.last_switch %]
