@@ -401,7 +401,7 @@ sub RewriteConfig {
     my $cache = $self->cache;
     my $cached_object = $cache->get_object($file);
     if( -e $file && $cached_object && $self->_expireIf($cached_object,$file)) {
-        die "Config $file was modified from last loading";
+        die "Config $file was modified from last loading\n";
     }
     my $result;
     my $lock = lockFileForWriting($file);
