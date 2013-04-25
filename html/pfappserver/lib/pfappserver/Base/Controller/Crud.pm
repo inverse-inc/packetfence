@@ -54,9 +54,12 @@ sub create : Local: Args(0) {
         else {
             my $item = $form->value;
             my $idKey = $model->idKey;
+            my $itemKey = $model->itemKey;
             my $id = $item->{$idKey};
-            $c->stash->{item} = $item;
-            $c->stash->{$idKey} = $id;
+            $c->stash(
+                $itemKey => $item,
+                $idKey   => $id
+            );
             ($status, $status_msg) = $model->create($id, $item);
         }
         $c->response->status($status);
@@ -86,9 +89,11 @@ sub _setup_object {
         $c->stash->{current_view} = 'JSON';
         $c->detach();
     }
+    my $itemKey = $model->itemKey;
+    my $idKey = $model->idKey;
     $c->stash(
-        item  => $item,
-        $model->idKey    => $id,
+        $itemKey  => $item,
+        $idKey    => $id,
     );
 }
 
@@ -166,7 +171,8 @@ sub remove :Chained('object') :PathPart('delete'): Args(0) {
     my ($self,$c) = @_;
     my $model = $self->getModel($c);
     my $idKey = $model->idKey;
-    my ($status,$result) = $self->getModel($c)->remove($c->stash->{$idKey},$c->stash->{item});
+    my $itemKey = $model->itemKey;
+    my ($status,$result) = $self->getModel($c)->remove($c->stash->{$idKey},$c->stash->{$itemKey});
     $c->stash(
         status_msg   => $result,
         current_view => 'JSON',
@@ -180,12 +186,14 @@ sub remove :Chained('object') :PathPart('delete'): Args(0) {
 
 sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self,$c) = @_;
-    my $item = $c->stash->{item};
+    my $model = $self->getModel($c);
+    my $itemKey = $model->itemKey;
+    my $item = $c->stash->{$itemKey};
     my $form = $self->getForm($c);
     $form->process(init_object => $item);
     $c->stash(
-        item => $item,
-        form => $form,
+        $itemKey => $item,
+        form     => $form,
     );
 }
 
@@ -196,13 +204,15 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
 
 sub list :Local :Args(0) {
     my ( $self, $c ) = @_;
-    my ($status,$result) = $self->getModel($c)->readAll();
+    my $model = $self->getModel($c);
+    my ($status,$result) = $model->readAll();
     if (is_error($status)) {
         $c->res->status($status);
         $c->error($c->loc($result));
     } else {
+        my $itemsKey = $model->itemsKey;
         $c->stash(
-            items => $result,
+            $itemsKey => $result,
         )
     }
 }
