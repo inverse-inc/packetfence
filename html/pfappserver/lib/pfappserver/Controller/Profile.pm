@@ -1,38 +1,67 @@
-package pfappserver::Model::Config::Cached::Interface;
+package pfappserver::Controller::Profile;
 =head1 NAME
 
-pfappserver::Model::Config::Cached::Profile add documentation
+pfappserver::Controller::Profile
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::Switch;
+User
 
 =cut
 
+use strict;
+use warnings;
 use Moose;
-use namespace::autoclean;
-use pf::config::cached;
-use pf::config;
 use HTTP::Status qw(:constants is_error is_success);
 
-extends 'pfappserver::Base::Model::Config::Cached::Group';
+BEGIN {
+    extends 'pfappserver::Base::Controller';
+    with 'pfappserver::Base::Controller::Crud';
+}
 
-has '+group' => (default => 'interface');
 
 =head2 Methods
 
 =over
 
-=item _buildCachedConfig
+=item begin
+
+Setting the current form instance and model
 
 =cut
 
-sub _buildCachedConfig { $pf::config::cached_pf_config }
+sub begin :Private {
+    my ( $self, $c ) = @_;
+    pf::config::cached::ReloadConfigs();
+    $c->stash->{current_model_instance} = $c->model("Config::Profile")->new;
+    $c->stash->{current_form_instance} = $c->form("Portal::Profile")->new(ctx=>$c);
+}
+
+
+=item object
+
+=cut
+
+sub object :Chained('/') :PathPart('profile') : CaptureArgs(1) {
+    my ($self,$c,$id) = @_;
+    $self->_setup_object($c,$id);
+    $c->stash->{item}{id} = $id;
+}
+
+=item update
+
+=cut
+
+after 'update' => sub {
+    my ( $self, $c ) = @_;
+    my $model = $self->getModel();
+    $model->rewriteConfig();
+};
+
 
 __PACKAGE__->meta->make_immutable;
-
 
 =back
 

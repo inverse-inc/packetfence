@@ -33,7 +33,7 @@ Set the current form instance and model
 sub begin :Private {
     my ($self, $c) = @_;
     pf::config::cached::ReloadConfigs();
-    my $model = $c->model("Config::Cached::FloatingDevice")->new;
+    my $model = $c->model("Config::FloatingDevice")->new;
     $c->stash->{current_model_instance} = $model;
     $c->stash->{current_form_instance}  = $c->form("Config::FloatingDevice")->new(ctx => $c);
 }
@@ -60,7 +60,7 @@ after list => sub {
     my ($self, $c) = @_;
 
     my ($status, $switch, $ip);
-    my $switchModel = $c->model('Config::Cached::Switch');
+    my $switchModel = $c->model('Config::Switch');
     foreach my $floatingdevice (@{$c->stash->{items}}) {
         $ip = $floatingdevice->{ip};
         if ($ip) {

@@ -1,8 +1,8 @@
-package pfappserver::Base::Model::Config::Cached::Mapped;
+package pfappserver::Base::Model::Config::Mapped;
 
 =head1 NAME
 
-pfappserver::Base::Model::Config::Cached::Mapped
+pfappserver::Base::Model::Config::Mapped
 
 =cut
 
@@ -17,7 +17,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
 
 
 =head1 FIELDS

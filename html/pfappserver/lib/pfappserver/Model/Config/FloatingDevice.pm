@@ -1,14 +1,14 @@
-package pfappserver::Model::Config::Cached::FloatingDevice;
+package pfappserver::Model::Config::FloatingDevice;
 
 =head1 NAME
 
-pfappserver::Model::Config::Cached::FloatingDevice add documentation
+pfappserver::Model::Config::FloatingDevice add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::FloatingDevice
+pfappserver::Model::Config::FloatingDevice
 
 =cut
 
@@ -18,7 +18,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
 
 
 has '+configFile' => (default => $pf::config::floating_devices_config_file);

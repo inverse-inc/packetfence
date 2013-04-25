@@ -126,7 +126,7 @@ after list => sub {
             }
         } @{$c->stash->{items}};
         $c->stash->{items} = \@items;
-        my ($status, $result) = $c->model('Config::Cached::Profile')->readAllIds();
+        my ($status, $result) = $c->model('Config::Profile')->readAllIds();
         if (is_success($status)) {
             $c->stash->{profiles} = ['default', @$result];
         }

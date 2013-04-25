@@ -1,14 +1,14 @@
-package pfappserver::Base::Model::Config::Cached;
+package pfappserver::Base::Model::Config;
 
 =head1 NAME
 
-pfappserver::Base::Model::Config::Cached
+pfappserver::Base::Model::Config
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Base::Model::Config::Cached
+pfappserver::Base::Model::Config
 Is the Generic class for the cached config
 
 =cut

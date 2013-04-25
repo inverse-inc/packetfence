@@ -19,7 +19,7 @@ use pf::config::cached;
 use pf::config;
 use pf::violation_config;
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
 
 has '+configFile' => (default => $pf::config::violations_config_file);
 

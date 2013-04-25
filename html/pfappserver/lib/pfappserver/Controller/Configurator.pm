@@ -149,7 +149,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
         my $models =
           {
            'networks' => $c->model('Config::Network'),
-           'interface' => $c->model('Config::Cached::Interface')
+           'interface' => $c->model('Config::Interface')
           };
         my $interfaces_ref = $c->model('Interface')->get('all', $models);
         my ($status, $interfaces_types) = $models->{'networks'}->getTypes($interfaces_ref);
@@ -194,7 +194,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
     my $models =
       {
        'networks' => $c->model('Config::Network'),
-       'interface' => $c->model('Config::Cached::Interface')
+       'interface' => $c->model('Config::Interface')
       };
 
     if ($c->request->method eq 'POST') {
@@ -299,7 +299,7 @@ PacketFence minimal configuration (step 4)
 sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $pf_model = $c->model('Config::Cached::Pf');
+    my $pf_model = $c->model('Config::Pf');
     if ($c->request->method eq 'GET') {
         my (%config, $status, $general_ref, $alerting_ref);
         ($status, $general_ref) = $pf_model->read('general');
@@ -335,7 +335,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
         }
         if (is_success($status)) {
-            my $pf_model = $c->model('Config::Cached::Pf');
+            my $pf_model = $c->model('Config::Pf');
             ( $status, $message ) = $pf_model->update('general' => {
                 'domain'      => $general_domain,
                 'hostname'    => $general_hostname,

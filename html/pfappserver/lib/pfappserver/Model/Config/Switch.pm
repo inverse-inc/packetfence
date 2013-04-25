@@ -1,13 +1,13 @@
-package pfappserver::Model::Config::Cached::Switch;
+package pfappserver::Model::Config::Switch;
 =head1 NAME
 
-pfappserver::Model::Config::Cached::Switch add documentation
+pfappserver::Model::Config::Switch add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::Switch;
+pfappserver::Model::Config::Switch;
 
 =cut
 
@@ -17,7 +17,7 @@ use pf::config::cached;
 use pf::config;
 use HTTP::Status qw(:constants is_error is_success);
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
 
 has '+configFile' => (default => $pf::config::switches_config_file);
 

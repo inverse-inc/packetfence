@@ -52,7 +52,7 @@ Setting the current form instance and model
 sub begin :Private {
     my ( $self, $c ) = @_;
     pf::config::cached::ReloadConfigs();
-    $c->stash->{current_model_instance} = $c->model("Config::Cached::Profile")->new;
+    $c->stash->{current_model_instance} = $c->model("Config::Profile")->new;
     $c->stash->{current_form_instance} = $c->form("Portal::Profile")->new(ctx=>$c);
 }
 

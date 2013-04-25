@@ -50,7 +50,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
     my $config_item = $c->stash->{config_item};
     my ($section, $param) = split /\./, $config_item;
 
-    my ($status, $result) = $c->model('Config::Cached::Pf')->read($section);
+    my ($status, $result) = $c->model('Config::Pf')->read($section);
     if (is_error($status)) {
         $c->res->status($status);
         $c->error($result);
@@ -76,7 +76,7 @@ sub help :Chained('object') :PathPart('help') :Args(0) {
     my ($self, $c) = @_;
     my $config_item = $c->stash->{config_item};
 
-    my ($status, $message) = $c->model('Config::Cached::Pf')->help($config_item);
+    my ($status, $message) = $c->model('Config::Pf')->help($config_item);
     if (is_error($status)) {
         $c->res->status($status);
         $c->error($message);
@@ -112,7 +112,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my $value = $c->request->body_params->{value};
     my ($section, $param) = split /\./, $config_item;
     if (defined($value) && !ref($value)) {
-        my ($status, $message) = $c->model('Config::Cached::Pf')->update($section => { $param => $value });
+        my ($status, $message) = $c->model('Config::Pf')->update($section => { $param => $value });
         if (is_error($status)) {
             $c->res->status($status);
             $c->error($message);
@@ -120,7 +120,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         else {
             $c->res->status(HTTP_CREATED);
             $c->stash->{status_msg} = $message;
-            $c->model('Config::Cached::Pf')->rewriteConfig();
+            $c->model('Config::Pf')->rewriteConfig();
         }
     }
     else {

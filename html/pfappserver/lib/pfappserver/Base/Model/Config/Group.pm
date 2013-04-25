@@ -1,13 +1,13 @@
-package pfappserver::Base::Model::Config::Cached::Group;
+package pfappserver::Base::Model::Config::Group;
 =head1 NAME
 
-pfappserver::Base::Model::Config::Cached
+pfappserver::Base::Model::Config
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Base::Model::Config::Cached
+pfappserver::Base::Model::Config
 Is the Generic class for the cached config
 
 =cut
@@ -17,7 +17,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use HTTP::Status qw(:constants is_error is_success);
 
-BEGIN {extends 'pfappserver::Base::Model::Config::Cached';}
+BEGIN {extends 'pfappserver::Base::Model::Config';}
 
 =head2 Fields
 
@@ -55,7 +55,7 @@ sub readAllIds {
 sub _Sections {
     my ($self) = @_;
     my $group = $self->group;
-    return map { s/^\Q$group\E //} $self->cachedConfig->GroupMembers($group);
+    return grep { s/^\Q$group\E // }  $self->cachedConfig->Sections($group);
 }
 
 

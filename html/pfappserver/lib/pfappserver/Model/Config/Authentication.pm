@@ -14,11 +14,52 @@ pfappserver::Model::Config::Authentication
 use Moose;
 use namespace::autoclean;
 use pf::authentication;
+use HTTP::Status qw(:constants is_error is_success);
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
+
+has '+itemKey' => (default => 'source');
+has '+itemsKey' => (default => 'sources');
 
 sub _buildCachedConfig { $pf::authentication::cached_authentication_config };
 
+
+sub readAll {
+    my ($self) = @_;
+    return ($STATUS::OK,\@authentication_sources);
+}
+
+sub update {
+    my ($self,$id,$source_obj) = @_;
+    my %not_params;
+    @not_params{qw(rules unique class)} = ();
+    # Update attributes
+    my %assignments;
+    foreach my $attr (grep { !exists $not_params{$_}  } map { $_->name } $source_obj->meta->get_all_attributes()) {
+        $assignments{$attr} = $source_obj->$attr;
+    }
+    $self->SUPER::update($id,\%assignments);
+}
+
+sub create {
+    my ($self) = @_;
+}
+
+sub remove {
+    my ($self) = @_;
+}
+
+sub renameItem {
+    my ($self) = @_;
+}
+
+sub cleanupAfterRead {
+    my ($self) = @_;
+}
+
+sub cleanupBeforeCommit {
+    my ($self) = @_;
+}
 
 __PACKAGE__->meta->make_immutable;
 

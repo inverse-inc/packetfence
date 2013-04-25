@@ -84,7 +84,7 @@ sub pf_section :Path :Args(1) {
         $c->stash->{section} = $section;
         $c->stash->{template} = 'configuration/section.tt';
 
-        my $model = $c->model('Config::Cached::Pf')->new;
+        my $model = $c->model('Config::Pf')->new;
 
         if ($c->request->method eq 'POST') {
             $form = pfappserver::Form::Config::Pf->new(ctx => $c,

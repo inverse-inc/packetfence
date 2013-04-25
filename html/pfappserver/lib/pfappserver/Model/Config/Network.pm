@@ -17,7 +17,7 @@ use namespace::autoclean;
 use pf::config;
 use pf::error qw(is_error is_success);
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
 
 has '+idKey' => (default => 'network');
 

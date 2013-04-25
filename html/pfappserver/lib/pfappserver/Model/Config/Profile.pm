@@ -1,14 +1,14 @@
-package pfappserver::Model::Config::Cached::Profile;
+package pfappserver::Model::Config::Profile;
 
 =head1 NAME
 
-pfappserver::Model::Config::Cached::Profile add documentation
+pfappserver::Model::Config::Profile add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Model::Config::Cached::Profile
+pfappserver::Model::Config::Profile
 
 =cut
 
@@ -17,7 +17,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
 
-extends 'pfappserver::Base::Model::Config::Cached';
+extends 'pfappserver::Base::Model::Config';
 
 =head1 METHODS
 

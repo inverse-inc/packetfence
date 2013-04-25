@@ -33,7 +33,7 @@ sub begin :Private {
     my ($self, $c) = @_;
     pf::config::cached::ReloadConfigs();
     my ($status, $switch_default, $roles);
-    my $model = $c->model("Config::Cached::Switch")->new;
+    my $model = $c->model("Config::Switch")->new;
     ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
@@ -66,7 +66,7 @@ after list => sub {
     my ($self, $c) = @_;
 
     my ($status, $floatingdevice, $ip);
-    my $floatingDeviceModel = $c->model('Config::Cached::FloatingDevice');
+    my $floatingDeviceModel = $c->model('Config::FloatingDevice');
     $floatingDeviceModel->readConfig();
     foreach my $switch (@{$c->stash->{items}}) {
         $ip = $switch->{id};
