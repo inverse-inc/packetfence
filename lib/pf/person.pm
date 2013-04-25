@@ -116,7 +116,8 @@ sub person_db_prepare {
             FROM violation
             LEFT JOIN node ON violation.mac = node.mac
             LEFT JOIN class ON violation.vid = class.vid
-            WHERE pid = ? ]);
+            WHERE pid = ?
+            ORDER BY start_date desc ]);
 
     $person_db_prepared = 1;
 }
