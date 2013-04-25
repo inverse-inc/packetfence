@@ -136,6 +136,7 @@ has_field 'deauthMethod' =>
   (
    type => 'Select',
    label => 'Deauthentication Method',
+   element_class => ['chzn-deselect'],
    required => 1,
    messages => { required => 'Please specify the deauthentication method.' },
   );
@@ -176,7 +177,7 @@ has_field 'SNMPVersion' =>
   (
    type => 'Select',
    label => 'Version',
-   default => '3',
+   element_class => ['chzn-deselect'],
   );
 has_field 'SNMPCommunityRead' =>
   (
@@ -304,7 +305,7 @@ has_field 'cliPwd' =>
 
 has_field 'cliEnablePwd' =>
   (
-   type => 'Toggle',
+   type => 'Text',
    label => 'Enable Password',
   );
 
@@ -377,6 +378,8 @@ sub field_list {
 
 When editing the default switch, set as required the VLANs mapping of the base roles.
 
+For other switches, add placeholders with values from default switch.
+
 =cut
 
 sub update_fields {
@@ -391,7 +394,13 @@ sub update_fields {
     elsif ($self->placeholders) {
         foreach my $field ($self->fields) {
             if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
-                $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
+                if ($field->type eq 'Select') {
+                    my $val = sprintf "%s (%s)", $self->ctx->loc('Default'), $self->placeholders->{$field->name};
+                    $field->element_attr({ 'data-placeholder' => $val });
+                }
+                elsif ($field->name ne 'id') {
+                    $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
+                }
             }
         }
     }
@@ -486,7 +495,7 @@ sub options_deauthMethod {
 
     my @methods = map { $_ => $_ } @SNMP::METHODS;
 
-    return @methods;
+    return ('' => '', @methods);
 }
 
 =head2 options_vclose
@@ -498,7 +507,7 @@ sub options_SNMPVersion {
 
     my @versions = map { $_ => "v$_" } @SNMP::VERSIONS;
 
-    return \@versions;
+    return ('' => '', @versions);
 }
 
 =head2 options_cliTransport
