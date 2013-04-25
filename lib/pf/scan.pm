@@ -96,10 +96,10 @@ sub instantiate_scan_engine {
 
     my $scan_engine = 'pf::scan::' . $type;
     $logger->info("Instantiate a new vulnerability scanning engine object of type $scan_engine.");
-
+    $scan_engine = untaint_chain($scan_engine);
     try {
         # try to import module and re-throw the error to catch if there's one
-        eval "use $scan_engine";
+        eval "$scan_engine->require()";
         die($@) if ($@);
 
     } catch {
