@@ -42,6 +42,7 @@ has_field 'type' =>
   (
    type => 'Select',
    label => 'Type',
+   element_class => ['chzn-deselect'],
    required => 1,
   );
 has_field 'mode' =>
@@ -385,11 +386,12 @@ For other switches, add placeholders with values from default switch.
 sub update_fields {
     my $self = shift;
 
-    if ($self->field('id')->{init_value} && $self->field('id')->{init_value} eq 'default') {
+    if ($self->init_object->{id} eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
             $self->field($role.'Vlan')->messages({ required => 'Please specify the corresponding VLAN for each role.' });
         }
+        $self->field('type')->required(0);
     }
     elsif ($self->placeholders) {
         foreach my $field ($self->fields) {
@@ -471,7 +473,7 @@ sub options_type {
                          options => \@switches };
     }
 
-    return \@modules;
+    return ({ group => '' }, @modules);
 }
 
 =head2 options_mode

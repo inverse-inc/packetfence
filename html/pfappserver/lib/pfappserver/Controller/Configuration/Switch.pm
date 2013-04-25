@@ -38,7 +38,8 @@ sub begin :Private {
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch")->new(ctx => $c, placeholders => $switch_default,
+    $c->stash->{current_form_instance} = $c->form("Config::Switch")->new(ctx => $c,
+                                                                         placeholders => $switch_default,
                                                                          roles => $roles);
     $c->stash->{switch_default} = $switch_default;
 }
@@ -53,7 +54,7 @@ sub object :Chained('/') :PathPart('configuration/switch') :CaptureArgs(1) {
     my ($self, $c, $id) = @_;
     $self->getModel($c)->readConfig();
     $self->_setup_object($c, $id);
-    $c->stash->{action_uri} = $c->uri_for($c->action);
+    $c->stash->{action_uri} = $c->uri_for($c->action, $c->req->captures);
 }
 
 =head2 after list
