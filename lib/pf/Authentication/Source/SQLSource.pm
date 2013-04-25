@@ -41,8 +41,6 @@ sub authenticate {
      return ($TRUE, 'Successful authentication using SQL.');
    }
 
-   $logger->info("Auth failed: $result");
-
    return ($FALSE, 'Unable to authenticate successfully using SQL.');
  }
 
