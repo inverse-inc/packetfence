@@ -231,6 +231,7 @@ sub node_db_prepare {
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
             IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
             locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
+            iplog.ip as last_ip,
             COUNT(DISTINCT violation.id) as nbopenviolations,
             node.notes
         FROM node
@@ -239,6 +240,7 @@ sub node_db_prepare {
             LEFT JOIN os_type ON dhcp_fingerprint.os_id = os_type.os_id
             LEFT JOIN violation ON node.mac=violation.mac AND violation.status = 'open'
             LEFT JOIN locationlog ON node.mac=locationlog.mac AND end_time IS NULL
+            LEFT JOIN iplog ON node.mac=iplog.mac AND iplog.end_time = '0000-00-00 00:00:00'
         GROUP BY node.mac
     ];
 
@@ -801,12 +803,10 @@ sub node_register {
     }
 
     if ( !$auto_registered ) {
-
         # triggering a violation used to communicate the scan to the user
         if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
             violation_add( $mac, $SCAN_VID );
         }
-
     }
 
     # if autoregister and it´s a EAP connection and scan dot1x is activated then we scan the node

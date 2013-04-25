@@ -63,7 +63,7 @@
             <div class="control-group">
               <label class="control-label">[% l('Switch') %]</label>
               <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="[% l('Edit switch') %]">[% node.last_switch %]</a></span>
-                  [%- IF node.last_port.length %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
+                  [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
                   [%- IF node.last_vlan.length %] <span class="badge badge-info">vlan [% node.last_vlan %]</span>[% END %]
                   <span class="label">On [% node.last_start_time %]</span></div>
             </div>

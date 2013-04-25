@@ -68,7 +68,7 @@ sub exists {
 =cut
 
 sub field_names {
-    return [qw(mac computer_name pid status dhcp_fingerprint)];
+    return [qw(mac computername pid last_ip status dhcp_fingerprint)];
 }
 
 =head2 countAll

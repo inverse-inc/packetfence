@@ -10,22 +10,22 @@
             <table id="nodes" class="table table-condensed table-striped">
               <thead>
                 <tr>
+                  [% header('status', 'Status') %]
                   [% header('mac', 'MAC') %]
                   [% header('computername', 'Computer Name') %]
                   [% header('pid', 'Identifier') %]
-                  [% header('status', 'Last AP/Controller') %]
+                  [% header('last_ip', 'IP Address') %]
                   [% header('dhcp_fingerprint', 'OS (DHCP)') %]
                 </tr>
               </thead>
               <tbody>
                 [%- FOREACH node IN items -%]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
                   <td>[% node.computername %]</td>
                   <td>[% node.pid %]</td>
-                  <td>[% node.last_switch %]
-                    [%- IF node.last_port %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
-                    [%- IF node.last_ssid %] <span class="label label-info"><i class="icon-signal icon-white"></i> [% node.last_ssid %]</span>[% END %]</td>
+                  <td>[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                 </tr>
                 [%- END -%]

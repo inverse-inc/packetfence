@@ -1,19 +1,20 @@
 [% MACRO header(column, title) BLOCK -%]
 [% params = { by => column, filter => filter };
     IF by == column && direction == 'asc';
-      params.direction = 'desc';
+      new_direction = 'desc';
     END %]
-                  <th><a href="[% c.uri_for(c.action.name, params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+      <th><a href="[% c.pf_hash_for(c.controller('Node').action_for('advanced_search'),'filter', filter, 'by', column, 'direction', new_direction) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>[% l('Results') %]</h2>
-[% INCLUDE pagination.inc section = 'simple_search'  IF items.size > 0 %]
+[% INCLUDE pagination.inc section = 'node/advanced_search'  IF items.size > 0 %]
             <table id="nodes" class="table table-condensed table-striped">
               <thead>
                 <tr>
+                  [% header('status', 'Status') %]
                   [% header('mac', 'MAC') %]
-                  [% header('computer_name', 'Computer Name') %]
+                  [% header('computername', 'Computer Name') %]
                   [% header('pid', 'Identifier') %]
-                  [% header('status', 'Last AP/Controller') %]
+                  [% header('last_ip', 'IP Address') %]
                   [% header('dhcp_fingerprint', 'OS (DHCP)') %]
                   [% header('category', 'Category') %]
                 </tr>
@@ -21,19 +22,18 @@
               <tbody>
                 [%- FOREACH node IN items -%]
                 <tr>
-                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a> <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                 <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
                   <td>[% node.computername %]</td>
                   <td>[% node.pid %]</td>
-                  <td>[% node.last_switch %]
-                    [%- IF node.last_port %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
-                    [%- IF node.last_ssid %] <span class="label label-info"><i class="icon-signal icon-white"></i> [% node.last_ssid %]</span>[% END %]</td>
+                  <td>[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                   <td>[% node.category %]</td>
                 </tr>
                 [%- END -%]
               </tbody>
             </table>
-[% INCLUDE pagination.inc section = 'simple_search' IF items.size > 0 %]
+[% INCLUDE pagination.inc section = 'node/advanced_search' IF items.size > 0 %]
       <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
         <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
       </div>
