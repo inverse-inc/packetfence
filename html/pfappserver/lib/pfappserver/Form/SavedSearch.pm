@@ -15,8 +15,7 @@ Form for SavedSearch data
 use HTML::FormHandler::Moose;
 use namespace::autoclean;
 
-extends 'pfappserver::Base::Form::Base';
-with 'pfappserver::Form::Widget::Theme::Pf';
+extends 'pfappserver::Base::Form';
 
 =head2 Fields
 =cut

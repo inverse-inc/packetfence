@@ -12,7 +12,7 @@ Form definition to create or update a node.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form::Base';
+extends 'pfappserver::Base::Form';
 
 =head2 Form Fields
 

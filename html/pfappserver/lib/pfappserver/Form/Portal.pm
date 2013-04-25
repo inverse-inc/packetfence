@@ -12,7 +12,7 @@ Sortable list of portal profiles.
 
 use HTML::FormHandler::Moose;
 
-extends 'pfappserver::Base::Form::Base';
+extends 'pfappserver::Base::Form';
 
 
 =head2 Form fields

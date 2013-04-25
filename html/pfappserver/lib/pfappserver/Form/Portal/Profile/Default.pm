@@ -13,7 +13,7 @@ Portal profile.
 use pf::authentication;
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Base::Form::Base';
+extends 'pfappserver::Base::Form';
 
 # Form fields
 has_field 'id' =>

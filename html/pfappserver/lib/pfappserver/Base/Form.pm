@@ -1,13 +1,14 @@
-package pfappserver::Base::Form::Base;
+package pfappserver::Base::Form;
 =head1 NAME
 
-/usr/local/pf/html/pfappserver/lib/pfappserver/Base/Form add documentation
+pfappserver::Base::Form
+The base form
 
 =cut
 
 =head1 DESCRIPTION
 
-Base
+The Base class for Forms
 
 =cut
 
@@ -18,7 +19,19 @@ with 'pfappserver::Form::Widget::Theme::Pf';
 has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
-=back
+
+
+=head2 ACCEPT_CONTEXT
+
+To automatically add the context to the Form
+
+=cut
+
+sub ACCEPT_CONTEXT {
+    my ($self,$c,@args) = @_;
+    return $self->new(ctx => $c,@args);
+}
+
 
 =head1 COPYRIGHT
 
