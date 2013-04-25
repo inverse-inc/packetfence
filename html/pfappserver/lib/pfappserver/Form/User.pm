@@ -14,7 +14,10 @@ use pf::config;
 use pf::util qw(get_abbr_time);
 use HTTP::Status qw(:constants is_success);
 use HTML::FormHandler::Moose;
+
 extends 'pfappserver::Base::Form::Authentication::Action';
+with 'pfappserver::Form::Widget::Theme::Pf' => { -alias => { update_fields => 'theme_update_fields' },
+                                                 -excludes => 'update_fields' };
 has '+source_type' => ( default => 'SQL' );
 
 =head1 FIELDS
@@ -108,7 +111,6 @@ has_field 'valid_from' =>
   (
    type => 'DatePicker',
    label => 'Arrival Date',
-   required => 1,
    start => &now,
   );
 
@@ -152,6 +154,23 @@ has_block 'templates' =>
 =back
 
 =head1 METHODS
+
+=head2 update_fields
+
+When editing a local/SQL user, set as required the arrival date.
+
+=cut
+
+sub update_fields {
+    my $self = shift;
+
+    if ($self->{init_object} && exists $self->{init_object}->{password}) {
+        $self->field('valid_from')->required(1);
+    }
+
+    # Call the theme implementation of the method
+    $self->theme_update_fields();
+}
 
 =head2 options_access_level
 
@@ -227,7 +246,7 @@ sub now {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

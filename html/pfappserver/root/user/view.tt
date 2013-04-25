@@ -1,11 +1,14 @@
-<form name="modalUser" action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
+    <div class="modal fade hide" id="modalUser">
+
+      <form name="modalUser" action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
+
         <div class="modal-header">
           <a class="close" data-dismiss="modal">&times;</a>
           <h3><i>[% l('User') %]</i> [% user.pid %]</h3>
         </div>
 
         <div class="modal-body">
-      [% form.block('templates').render %]
+          [% form.block('templates').render %]
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
@@ -27,7 +30,6 @@
                 </div>
               </div>
               [% form.block('user').render %]
-<!--t.password, t.valid_from, t.expiration, t.access_duration, t.category-->
             </div><!--tab-pane-->
 
 [% IF user.password.defined  %]
@@ -35,12 +37,12 @@
               <div class="control-group">
                 <label class="control-label" for="password">[% l('Password') %]</label>
                 <div class="controls">
-                  <input type="password" name="password" id="password">
+                  <input type="password" name="password" id="password" />
                 </div>
               </div>
               <div class="control-group">
                 <div class="controls">
-                  <input type="password" name="password2" id="password2" placeholder="[% l('Retype the password') %]">
+                  <input type="password" name="password2" id="password2" placeholder="[% l('Retype the password') %]" />
                   <a class="btn" id="resetPassword" href="[% c.uri_for(c.controller('User').action_for('reset'), [user.pid]) %]">[% l('Reset Password') %]</a>
                 </div>
               </div>
@@ -108,6 +110,7 @@
                     <th>[% l('MAC') %]</th>
                     <th>[% l('Computer Name') %]</th>
                     <th>[% l('OS (DHCP)') %]</th>
+                  </tr>
                 </thead>
                 <tbody>
                 [% FOR node IN nodes %]
@@ -138,4 +141,6 @@
           <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div><!--modal-footer-->
-</form>
+
+      </form>
+    </div><!--modal-->

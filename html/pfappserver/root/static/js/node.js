@@ -50,7 +50,7 @@ var NodeView = function(options) {
     this.disableToggleViolation = false;
 
     var read = $.proxy(this.readNode, this);
-    options.parent.on('click', '#nodes [href$="/read"]', read);
+    options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
     var update = $.proxy(this.updateNode, this);
     $('body').on('submit', '#modalNode form[name="modalNode"]', update);

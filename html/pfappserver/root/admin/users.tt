@@ -37,23 +37,20 @@ form {
 
 </style>
 
-      <div class="modal fade hide" id="savedSearch">
-        <div class="modal-header">
-          <a class="close" data-dismiss="modal">&times;</a>
-          <h3>[% l('Save Search') %]</h3>
-        </div>
-        <div class="modal-body">
-          <form id="savedSearchForm" class="form-horizontal" method="POST" action="[% c.uri_for(c.controller('SavedSearch::User').action_for('create'))  %]">
-                [%saved_search_form.render%]
-          </form>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          <a class="btn btn-primary" >[% l('Save') %]</a>
-        </div>
+    <div class="modal fade hide" id="savedSearch">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">&times;</a>
+        <h3>[% l('Save Search') %]</h3>
       </div>
-
-    <div class="modal fade hide" id="modalUser">
+      <div class="modal-body">
+        <form id="savedSearchForm" class="form-horizontal" method="POST" action="[% c.uri_for(c.controller('SavedSearch::User').action_for('create'))  %]">
+              [%saved_search_form.render%]
+        </form>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+        <a class="btn btn-primary" >[% l('Save') %]</a>
+      </div>
     </div>
 
     <div class="container-fluid">

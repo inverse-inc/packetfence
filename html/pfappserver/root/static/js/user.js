@@ -50,7 +50,7 @@ var UserView = function(options) {
     this.disableToggleViolation = false;
 
     var read = $.proxy(this.readUser, this);
-    options.parent.on('click', '#users [href$="/read"]', read);
+    options.parent.on('click', '[href*="user"][href$="/read"]', read);
 
     var update = $.proxy(this.updateUser, this);
     $('body').on('submit', '#modalUser form[name="modalUser"]', update);
@@ -90,12 +90,10 @@ var UserView = function(options) {
 UserView.prototype.readUser = function(e) {
     e.preventDefault();
 
-    var modal = $('#modalUser');
     var section = $('#section');
     var loader = section.prev('.loader');
     loader.show();
     section.fadeTo('fast', 0.5);
-    modal.empty();
     this.users.get({
         url: $(e.target).attr('href'),
         always: function() {
@@ -104,8 +102,8 @@ UserView.prototype.readUser = function(e) {
             section.fadeTo('fast', 1.0);
         },
         success: function(data) {
-            modal.append(data);
-            modal.modal({ show: true });
+            $('body').append(data);
+            var modal = $("#modalUser");
             modal.find('.datepicker').datepicker({ autoclose: true });
             modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
                 updateAction($(this),true);
@@ -114,6 +112,10 @@ UserView.prototype.readUser = function(e) {
                 modal.find(':input:visible').first().focus();
                 modal.find('[data-toggle="tooltip"]').tooltip({placement: 'top'});
             });
+            modal.on('hidden', function (eventObject) {
+                $(this).remove();
+            });
+            modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()
     });

@@ -146,5 +146,6 @@ graphs.charts['iplog'] = {
           <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
         </div><!--modal-footer-->
+
         </form>
       </div><!--modal-->
