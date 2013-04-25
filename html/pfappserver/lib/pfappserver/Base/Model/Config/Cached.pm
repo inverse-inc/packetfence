@@ -37,9 +37,27 @@ has cachedConfig =>
 
 =head2 idKey
 
+The key of the id attribute
+
 =cut
 
 has idKey => ( is => 'ro', default => 'id');
+
+=head2 itemKey
+
+The key of a single item
+
+=cut
+
+has itemKey => ( is => 'ro', default => 'item');
+
+=head2 itemsKey
+
+The key of the list of items
+
+=cut
+
+has itemsKey => ( is => 'ro', default => 'items');
 
 =head2 configFile
 
@@ -120,7 +138,7 @@ sub readAllIds {
     my ($self) = @_;
     my ($status, $status_msg);
     my $config = $self->cachedConfig;
-    my @sections = $config->Sections();
+    my @sections = $self->_Sections();
     return (HTTP_OK, \@sections);
 }
 
@@ -136,7 +154,7 @@ sub readAll {
     my ($status, $status_msg);
     my $config = $self->cachedConfig;
     my @sections;
-    foreach my $id ($config->Sections()) {
+    foreach my $id ($self->_Sections()) {
         my %section = ( $self->idKey() => $id );
         foreach my $param ($config->Parameters($id)) {
             $section{$param} = $config->val( $id, $param);
@@ -149,6 +167,15 @@ sub readAll {
         }
     }
     return (HTTP_OK, \@sections);
+}
+
+=head2 _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    return $self->cachedConfig->Sections();
 }
 
 =head2 hasId
@@ -393,6 +420,12 @@ sub flatten_list {
             $object->{$column} = join(',',@{$object->{$column}});
         }
     }
+}
+
+
+sub ACCEPT_CONTEXT {
+    my ( $self,$c,%args) = @_;
+    return $self->new(\%args);
 }
 
 
