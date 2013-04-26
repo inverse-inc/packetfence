@@ -13,8 +13,7 @@ Authentication::Rule).
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
+extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(:constants is_success);
 use pf::config;
@@ -23,9 +22,6 @@ use pf::web::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 has 'source_type' => ( is => 'ro' );
 
 # Form fields
