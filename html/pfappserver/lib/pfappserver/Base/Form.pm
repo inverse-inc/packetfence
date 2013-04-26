@@ -20,6 +20,17 @@ has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
 has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
+=head2 get_language_handle_from_ctx
+
+=cut
+
+sub get_language_handle_from_ctx {
+    my $self = shift;
+
+    return pfappserver::I18N->get_handle(
+        @{ $self->ctx->languages } );
+
+}
 
 =head2 ACCEPT_CONTEXT
 
