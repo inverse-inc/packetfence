@@ -126,7 +126,7 @@ Gets a L<HTML::FormHandler> instance by name.
 
     $c->form('Foo')->do_stuff;
 
-Any extra arguments are directly passed to ACCEPT_CONTEXT.
+Any extra arguments are directly passed to the constructor of the Form the ctx is automatically added to the constructor
 
 If the name is omitted, it will look for
  - a form object in $c->stash->{current_form_instance}, then
