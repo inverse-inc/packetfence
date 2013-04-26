@@ -2,16 +2,11 @@ package pfappserver::Base::Form::Role::Help;
 
 =head1 NAME
 
-pfappserver::Form::Widget::Theme::Pf - PacketFence theme
+pfappserver::Base::Form::Role::Help
 
 =head1 DESCRIPTION
 
-This theme extends the Bootstrap theme. It modifies various aspects of
-the fields:
-
- - add some element and wrapper classes to fields
- - add 'data-required=required' attribute to required fields
- - add 'data-type=number' attribute to number fields
+This roles provides help and help_list
 
 =cut
 
