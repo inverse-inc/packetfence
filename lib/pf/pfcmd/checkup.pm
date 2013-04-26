@@ -572,7 +572,9 @@ sub is_config_documented {
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
 
-        if ( defined( $Config{$group}{$item} ) ) {
+        if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
+            add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
+        } elsif (defined( $Config{$group}{$item} ) ) {
             if ( $type eq "time" ) {
                 if ( $cached_pf_config->val($group,$item) !~ /\d+$TIME_MODIFIER_RE$/ ) {
                     add_problem( $FATAL,
@@ -593,7 +595,7 @@ sub is_config_documented {
                     }
                 }
             }
-        } elsif ( $Config{$group}{$item} ne "0" ) {
+        } elsif( $Config{$group}{$item} ne "0"  ) {
             add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
         }
     }
