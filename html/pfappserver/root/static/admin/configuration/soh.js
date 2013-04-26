@@ -16,6 +16,9 @@
             .done(function(data) {
                 modal.append(data);
                 modal.modal({ shown: true });
+                modal.on('shown', function() {
+                    modal.find('select[name="action"]').trigger('change');
+                });
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -58,7 +61,9 @@
     });
 
     /* Delete a SoH filter */
-    $('#section').on('click', '[href*="#deleteFilter"]', function(event) {
+    $('#section').on('click', '[href*="#deleteFilter"]', function(e) {
+        e.preventDefault();
+
         var url = $(this).attr('href');
         var row = $(this).closest('tr');
         var name = row.find('td a[href*="#modalFilter"]').html();
@@ -67,7 +72,8 @@
         modal.find('h3 span').html(name);
         modal.modal({ show: true });
         confirm_btn.off('click');
-        confirm_btn.click(function() {
+        confirm_btn.click(function(e) {
+            e.preventDefault();
             $.ajax(url)
                 .always(function() {
                     modal.modal('hide');
@@ -112,33 +118,20 @@
     });
 
     /* Modal Editor: create or modify a filter */
-    $('body').on('submit', 'form[name="filter"]', function(event) {
+    $('body').on('submit', 'form[name="filter"]', function(e) {
+        e.preventDefault();
+
         var form = $(this);
         var modal = $('#modalFilter');
-        var valid = true;
-        var data = {};
-        form.find('.control-group input:text').each(function() {
-            var input = $(this);
-            if (isFormInputEmpty(input))
-                valid = false;
-            else
-                data[input.attr('name')] = input.val();
-        });
+        var modal_body = modal.find('.modal-body');
+        var valid = isFormValid(form);
         if (valid) {
-            data['action'] = form.find('select[name="action"]').val();
-            if (data['action'] == 'violation')
-                data['vid'] = form.find('select[name="vid"]').val();
-            data['rules'] = [];
-            form.find('.filterRule:not(.hidden)').each(function() {
-                var row = $(this);
-                data['rules'].push([ row.find('select[name="rule"]').val(),
-                                     row.find('select[name="op"]').val(),
-                                     row.find('select[name="status"]').val() ]);
-            });
+            // Don't submit hidden/template rows -- serialize will ignore disabled inputs
+            form.find('tr.hidden :input').attr('disabled', 'disabled');
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'),
-                data: {json: $.toJSON(data)}
+                data: form.serialize()
             }).done(function() {
                 modal.modal('hide');
                 modal.on('hidden', function() {
@@ -148,7 +141,9 @@
             }).fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
                 var status_msg = getStatusMsg(jqXHR);
-                showError(form.find('.modal-body'), status_msg);
+                showError(modal_body.children().first(), status_msg);
+                // Restore hidden/template rows
+                form.find('tr.hidden :input').removeAttr('disabled');
             });
         }
 

@@ -14,14 +14,15 @@ use strict;
 use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
-use JSON;
 use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pfappserver::Form::SoH;
+
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =head2 index
 
@@ -30,8 +31,13 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('soh')));
-    $c->detach();
+    my ($status, $result) = $c->model('SoH')->filters();
+    if (is_success($status)) {
+        $c->stash->{filters} = $result;
+    }
+    if (is_error($status)) {
+        $c->stash->{error} = $result;
+    }
 }
 
 =head2 create
@@ -41,21 +47,29 @@ sub index :Path :Args(0) {
 sub create :Local {
     my ($self, $c) = @_;
 
-    my ($status, $result);
+    my ($status, $result, $form);
 
     if ($c->request->method eq 'POST') {
-        my $data = decode_json($c->request->params->{json});
-        # Validate violation id
-        if ($data->{action} eq 'violation' && !$c->model('Config::Violations')->hasId($data->{vid})) {
+        ($status, $result) = $c->model('Config::Violations')->readAll();
+        if (is_success($status)) {
+            $c->stash->{violations} = $result;
+        }
+        $form = pfappserver::Form::SoH->new(ctx => $c, violations => $c->stash->{violations});
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
-            $result = $c->loc("The specified violation doesn't exist.");
+            $result = $form->field_errors;
         }
         else {
+            my $data = $form->value;
             my $configViolationsModel = $c->model('Config::Violations');
             ($status, $result) = $c->model('SoH')->create($configViolationsModel,
-                                                          $data->{name}, $data->{action}, $data->{vid},
+                                                          $data->{name},
+                                                          $data->{action},
+                                                          $data->{vid},
                                                           $data->{rules});
         }
+
         if (is_error($status)) {
             $c->response->status($status);
             $c->stash->{status_msg} = $result;
@@ -82,6 +96,10 @@ sub object :Chained('/') :PathPart('soh') :CaptureArgs(1) {
     my ($status, $result) = $c->model('SoH')->read($id);
     if (is_success($status)) {
         $c->stash->{filter} = $result;
+        ($status, $result) = $c->model('Config::Violations')->readAll();
+        if (is_success($status)) {
+            $c->stash->{violations} = $result;
+        }
     }
     else {
         $c->response->status($status);
@@ -98,7 +116,7 @@ sub object :Chained('/') :PathPart('soh') :CaptureArgs(1) {
 sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
-    my ($status, $result);
+    my ($status, $result, $form);
 
     $c->stash->{template} = 'soh/read.tt';
 
@@ -116,6 +134,12 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
     }
+
+    $form = pfappserver::Form::SoH->new(ctx => $c,
+                                        init_object => $c->stash->{filter},
+                                        violations => $c->stash->{violations});
+    $form->process();
+    $c->stash->{form} = $form;
 }
 
 =head2 update
@@ -125,15 +149,29 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
 
-    my $data = decode_json($c->request->params->{json});
-    my $configViolationsModel = $c->model('Config::Violations');
-    my ($status, $result) = $c->model('SoH')->update($configViolationsModel,
-                                                     $c->stash->{filter},
-                                                     $data->{action}, $data->{vid},
-                                                     $data->{rules});
-    if (is_error($status)) {
-        $c->response->status($status);
-        $c->stash->{status_msg} = $result;
+    my ($status, $result, $form);
+
+    if ($c->request->method eq 'POST') {
+        $form = pfappserver::Form::SoH->new(ctx => $c, violations => $c->stash->{violations});
+        $form->process(params => $c->req->params);
+        if ($form->has_errors) {
+            $status = HTTP_BAD_REQUEST;
+            $result = $form->field_errors;
+        }
+        else {
+            my $data = $form->value;
+            my $configViolationsModel = $c->model('Config::Violations');
+            ($status, $result) = $c->model('SoH')->update($configViolationsModel,
+                                                          $c->stash->{filter},
+                                                          $data->{name},
+                                                          $data->{action},
+                                                          $data->{vid},
+                                                          $data->{rules});
+        }
+        if (is_error($status)) {
+            $c->response->status($status);
+            $c->stash->{status_msg} = $result; # TODO: localize error message
+        }
     }
 
     $c->stash->{current_view} = 'JSON';

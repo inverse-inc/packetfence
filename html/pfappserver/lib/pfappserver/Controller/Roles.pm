@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
-use JSON;
 use Moose;
 use namespace::autoclean;
 use POSIX;
@@ -23,7 +22,7 @@ use pfappserver::Form::Role;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
 =head2 index
 
@@ -32,8 +31,13 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('configuration'), ('roles')));
-    $c->detach();
+    my ($status, $result) = $c->model('Roles')->list();
+    if (is_success($status)) {
+        $c->stash->{roles} = $result;
+    }
+    else {
+        $c->stash->{error} = $result;
+    }
 }
 
 =head2 create

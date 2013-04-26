@@ -82,7 +82,7 @@ sub soh_db_prepare {
 
     $soh_statements->{'soh_filter_update'} = get_db_handle()->prepare(<<"    SQL");
         UPDATE soh_filters SET
-            action = ?, vid = ?
+            name = ?, action = ?, vid = ?
         WHERE filter_id = ?
     SQL
 
@@ -500,10 +500,10 @@ sub create_filter {
 =cut
 
 sub update_filter {
-    my ($self, $filter_id, $action, $vid) = @_;
+    my ($self, $filter_id, $name, $action, $vid) = @_;
 
     db_query_execute("soh", $soh_statements, 'soh_filter_update',
-                     $action, $vid, $filter_id
+                     $name, $action, $vid, $filter_id
                     ) || return (0);
 
     return (1);

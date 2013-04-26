@@ -181,22 +181,9 @@ sub violations :Local {
 =cut
 
 sub soh :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{template} = 'configuration/soh.tt';
-
-    my ($status, $result) = $c->model('SoH')->filters();
-    if (is_success($status)) {
-        $c->stash->{filters} = $result;
-
-        ($status, $result) = $c->model('Config::Violations')->readAll();
-        if (is_success($status)) {
-            $c->stash->{violations} = $result;
-        }
-    }
-    if (is_error($status)) {
-        $c->stash->{error} = $result;
-    }
+    $c->go('Controller::SoH', 'index');
 }
 
 =head2 roles
@@ -204,17 +191,9 @@ sub soh :Local {
 =cut
 
 sub roles :Local {
-    my ( $self, $c ) = @_;
+    my ($self, $c) = @_;
 
-    $c->stash->{template} = 'configuration/roles.tt';
-
-    my ($status, $result) = $c->model('Roles')->list();
-    if (is_success($status)) {
-        $c->stash->{roles} = $result;
-    }
-    else {
-        $c->stash->{error} = $result;
-    }
+    $c->go('Controller::Roles', 'index');
 }
 
 =head1 COPYRIGHT

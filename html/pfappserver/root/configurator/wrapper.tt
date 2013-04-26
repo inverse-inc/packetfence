@@ -53,7 +53,6 @@
     };
     </script>
     <script src="[% c.uri_for('/static/app/jquery.js') %]"></script>
-    <script src="[% c.uri_for('/static/app/jquery.json-2.3.min.js') %]"></script>
     <script src="[% c.uri_for('/static/js/bootstrap.js') %]"></script>
 [% FOREACH js = jsFiles -%]
     <script type="text/javascript" src="[% c.uri_for("/static/${js}.js") %]" charset="UTF-8"></script>

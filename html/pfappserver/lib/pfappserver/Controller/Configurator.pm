@@ -10,12 +10,8 @@ Catalyst Controller.
 
 =cut
 
-#use strict;
-#use warnings;
-
 use HTML::Entities;
 use HTTP::Status qw(:constants is_error is_success);
-use JSON;
 use Moose;
 
 use pf::config;
@@ -127,11 +123,12 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
 
     if ($c->request->method eq 'POST') {
         # Save parameters in user session
-        my $data = decode_json($c->request->params->{json});
+        my $enforcements = $c->request->params->{enforcement};
+        $enforcements = [$enforcements] if (ref $enforcements ne 'ARRAY');
         $c->session(enforcements => {});
-        map { $c->session->{enforcements}->{$_} = 1 } @{$data->{enforcements}};
+        map { $c->session->{enforcements}->{$_} = 1 } @$enforcements;
 
-        if (scalar @{$data->{enforcements}} == 0) {
+        if (scalar @$enforcements == 0) {
             # Make sure at least one enforcement method is selected
             $c->response->status(HTTP_PRECONDITION_FAILED);
             $c->stash->{status_msg} = $c->loc("You must choose at least one enforcement mechanism.");

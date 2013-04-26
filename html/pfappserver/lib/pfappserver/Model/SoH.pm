@@ -80,7 +80,7 @@ sub filters {
 =cut
 
 sub update {
-    my ($self, $configViolationsModel, $filter_ref, $action, $vid, $rules_ref) = @_;
+    my ($self, $configViolationsModel, $filter_ref, $name, $action, $vid, $rules_ref) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
@@ -102,10 +102,10 @@ sub update {
             $configViolationsModel->rewriteConfig();
         }
 
-        if ($soh->update_filter($filter_ref->{filter_id}, $action, $vid) &&
+        if ($soh->update_filter($filter_ref->{filter_id}, $name, $action, $vid) &&
             $soh->delete_rules($filter_ref->{filter_id})) {
             foreach my $rule (@$rules_ref) {
-                $soh->create_rule($filter_ref->{filter_id}, @$rule);
+                $soh->create_rule($filter_ref->{filter_id}, $rule->{class}, $rule->{op}, $rule->{status});
             }
         }
     };
@@ -160,7 +160,7 @@ sub create {
         my $id = $soh->create_filter($name, $action, $vid);
         if ($id > 0) {
             foreach my $rule (@$rules_ref) {
-                $soh->create_rule($id, @$rule);
+                $soh->create_rule($id, $rule->{class}, $rule->{op}, $rule->{status});
             }
             if ($action eq 'violation') {
                 ($status, $status_msg) = $configViolationsModel->addTrigger($vid, 'soh::' . $id);
