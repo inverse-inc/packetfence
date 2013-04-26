@@ -27,6 +27,8 @@ use strict;
 use warnings;
 use Moose;
 
+extends 'pfappserver::Base::Model';
+
 use pf::savedsearch;
 use HTML::FormHandler::Params;
 use HTTP::Status qw(:constants is_error is_success);
@@ -112,12 +114,6 @@ sub remove {
     }
 }
 
-=item idKey
-
-=cut
-
-sub idKey {"id"}
-
 =item _expand_query
 
 a helper function to expand query parts
@@ -127,11 +123,13 @@ a helper function to expand query parts
 sub _expand_query {
     my ($saved_search) = @_;
     my $params_handler =  HTML::FormHandler::Params->new;
-    my $uri = URI->new($saved_search->{query});
+    my $query = $saved_search->{query};
+    my $has_hash = $query =~ s/^#//;
+    my $uri = URI->new($query);
     my $form = $uri->query_form_hash;
     $saved_search->{form} = $form;
     $saved_search->{params} = $params_handler->expand_hash($form);
-    $saved_search->{path} = $uri->path;
+    $saved_search->{path} = ($has_hash ? '#' . $uri->path : $uri->path);
     return $saved_search;
 }
 
