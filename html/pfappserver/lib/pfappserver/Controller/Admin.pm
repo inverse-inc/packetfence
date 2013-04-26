@@ -163,7 +163,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
     my ($status,$saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     $c->stash(
         saved_searches => $saved_searches,
-        saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
+        saved_search_form => $c->form("SavedSearch")
     );
 }
 
@@ -177,7 +177,7 @@ sub users :Chained('object') :PathPart('users') :Args(0) {
     my ($status,$saved_searches) = $c->model("SavedSearch::User")->read_all($id);
     $c->stash(
         saved_searches => $saved_searches,
-        saved_search_form => $c->form("SavedSearch")->new(ctx=>$c)
+        saved_search_form => $c->form("SavedSearch")
     );
 }
 
