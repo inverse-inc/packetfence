@@ -84,11 +84,10 @@ sub pf_section :Path :Args(1) {
         $c->stash->{section} = $section;
         $c->stash->{template} = 'configuration/section.tt';
 
-        my $model = $c->model('Config::Pf')->new;
+        my $model = $c->model('Config::Pf');
+        $form = $c->form("Config::Pf", section => $section);
 
         if ($c->request->method eq 'POST') {
-            $form = pfappserver::Form::Config::Pf->new(ctx => $c,
-                                                       section => $section);
             $form->process(params => $c->req->params);
             if ($form->has_errors) {
                 $c->response->status(HTTP_BAD_REQUEST);
@@ -102,10 +101,6 @@ sub pf_section :Path :Args(1) {
         else {
             my ($status,$params) = $model->read($section);
             if (is_success($status)) {
-                $form = pfappserver::Form::Config::Pf->new(
-                    ctx => $c,
-                    section => $section
-                );
                 $form->process(init_object => $params);
                 $c->stash->{form} = $form;
             }
