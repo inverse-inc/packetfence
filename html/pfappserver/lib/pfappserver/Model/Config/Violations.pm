@@ -18,6 +18,7 @@ use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
 use pf::violation_config;
+use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -77,19 +78,28 @@ sub listTriggers {
 =cut
 
 sub addTrigger {
+    my ( $self,$id,$trigger ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ( $self,$violation,$trigger ) = @_;
-    if ($violation->{trigger}) {
-        my %triggers_exists;
-        @triggers_exists{@{$violation->{trigger}}} = ();
-        if (exists $triggers_exists{$trigger}) {
-            return ($STATUS::OK, 'Trigger already included.');
+    my $status_msg;
+    my ($status,$result) = $self->read($id);
+    if(is_success($status)) {
+        my $violation = $result;
+        $status_msg = "Successfully added trigger to violation";
+        if ($violation->{trigger}) {
+            my %triggers_exists;
+            @triggers_exists{@{$violation->{trigger}}} = ();
+            if (exists $triggers_exists{$trigger}) {
+                $status_msg = 'Trigger already included.';
+            } else {
+                $violation->{trigger} = [sort (@{$violation->{trigger}},$trigger)];
+            }
+        } else {
+            $violation->{trigger} = [$trigger];
         }
-        $violation->{trigger} = [sort (@{$violation->{trigger}},$trigger)];
     } else {
-        $violation->{trigger} = [$trigger];
+        $status_msg = $result;
     }
-    return ($STATUS::OK, "Successfully added trigger to violation");
+    return ($status,$status_msg);
 }
 
 =head2 deleteTrigger
@@ -97,22 +107,26 @@ sub addTrigger {
 =cut
 
 sub deleteTrigger {
-    my ( $self,$violation,$trigger ) = @_;
+    my ( $self,$id,$trigger ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    if ($violation->{trigger}) {
-        my %triggers_exists;
-        @triggers_exists{@{$violation->{trigger}}} = ();
-        if (!exists $triggers_exists{$trigger}) {
-            return ($STATUS::OK, 'Trigger already excluded.');
+    my $status_msg;
+    my ($status,$result) = $self->read($id);
+    if(is_success($status)) {
+        my $violation = $result;
+        $status_msg = 'Trigger already excluded.';
+        if ($violation->{trigger}) {
+            my %triggers_exists;
+            @triggers_exists{@{$violation->{trigger}}} = ();
+            if (exists $triggers_exists{$trigger}) {
+                delete $triggers_exists{$trigger};
+                $violation->{trigger} = [sort keys %triggers_exists];
+                $status = "Successfully deleted trigger from violation";
+            }
         }
-        delete $triggers_exists{$trigger};
-        $violation->{trigger} = [sort keys %triggers_exists];
-
     } else {
-            return ($STATUS::OK, 'Trigger already excluded.');
+        $status_msg = $result;
     }
-
-    return ($STATUS::OK, "Successfully deleted trigger from violation");
+    return ($status,$status_msg);
 }
 
 =head2 cleanupAfterRead
