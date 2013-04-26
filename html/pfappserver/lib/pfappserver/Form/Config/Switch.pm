@@ -38,7 +38,8 @@ has_field 'type' =>
    type => 'Select',
    label => 'Type',
    element_class => ['chzn-deselect'],
-   required => 1,
+   required_when => { 'id' => sub { $_[0] ne 'default' } },
+   messages => { required => 'Please select the type of the switch.' },
   );
 has_field 'mode' =>
   (
@@ -356,9 +357,30 @@ sub field_list {
     my $self = shift;
 
     my $list = [];
-    if(defined $self->roles) {
 
-        foreach my $role (@SNMP::ROLES, map { $_->{name} } @{$self->roles}) {
+    # Add VLAN & role mapping for default roles
+    foreach my $role (@SNMP::ROLES) {
+        my $field =
+          {
+           type => 'Text',
+           label => $role,
+          };
+        push(@$list, $role.'Role' => $field);
+
+        # The VLAN mapping for default roles is mandatory for the default switch
+        $field =
+          {
+           type => 'Text',
+           label => $role,
+           required_when => { 'id' => sub { $_[0] eq 'default' } },
+           messages => { required => 'Please specify the corresponding VLAN for each role.' }
+          };
+        push(@$list, $role.'Vlan' => $field);
+    }
+
+    # Add VLAN & role mapping for custom roles
+    if (defined $self->roles) {
+        foreach my $role (map { $_->{name} } @{$self->roles}) {
             my $field =
               {
                type => 'Text',
@@ -386,15 +408,13 @@ sub update_fields {
     if ($self->{init_object} && $self->init_object->{id} eq 'default') {
         foreach my $role (@SNMP::ROLES) {
             $self->field($role.'Vlan')->required(1);
-            $self->field($role.'Vlan')->messages({ required => 'Please specify the corresponding VLAN for each role.' });
         }
-        $self->field('type')->required(0);
     }
     elsif ($self->placeholders) {
         foreach my $field ($self->fields) {
             if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
                 if ($field->type eq 'Select') {
-                    my $val = sprintf "%s (%s)", $self->ctx->loc('Default'), $self->placeholders->{$field->name};
+                    my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
                     $field->element_attr({ 'data-placeholder' => $val });
                 }
                 elsif ($field->name ne 'id') {
@@ -404,7 +424,6 @@ sub update_fields {
         }
     }
 
-    # Call the theme implementation of the method
     $self->SUPER::update_fields();
 }
 
@@ -556,44 +575,42 @@ sub validate {
         $self->field('triggerInline')->value([{ type => $ALWAYS }]);
     }
 
-    else {
-         my $type = 'pf::SNMP::'. $self->value->{type};
-         if ($type->require()) {
-             @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
-             if (scalar @triggers > 0) {
-                 # Make sure the selected switch type supports the selected inline triggers.
-                 my @capabilities = $type->new()->inlineCapabilities();
-                 if (scalar @capabilities > 0) {
-                     my %unsupported = ();
-                     foreach my $trigger (@triggers) {
-                         unless (grep { $_ eq $trigger } @capabilities) {
-                             $unsupported{$trigger} = 1;
-                         }
-                     }
-                     if (scalar %unsupported > 0) {
-                         $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
-                                                                  . join(', ', keys %unsupported));
-                     }
-                 }
-                 else {
-                     $self->field('type')->add_error("The chosen type doesn't support inline mode.");
-                 }
-             }
-         }
-         else {
-             $self->field('type')->add_error("The chosen type is not supported.");
-         }
+    if ($self->value->{type} ne '') {
+        my $type = 'pf::SNMP::'. $self->value->{type};
+        if ($type->require()) {
+            @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
+            if (scalar @triggers > 0) {
+                # Make sure the selected switch type supports the selected inline triggers.
+                my @capabilities = $type->new()->inlineCapabilities();
+                if (scalar @capabilities > 0) {
+                    my %unsupported = ();
+                    foreach my $trigger (@triggers) {
+                        unless (grep { $_ eq $trigger } @capabilities) {
+                            $unsupported{$trigger} = 1;
+                        }
+                    }
+                    if (scalar %unsupported > 0) {
+                        $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
+                                                        . join(', ', keys %unsupported));
+                    }
+                } else {
+                    $self->field('type')->add_error("The chosen type doesn't support inline mode.");
+                }
+            }
+        } else {
+            $self->field('type')->add_error("The chosen type is not supported.");
+        }
+    }
 
-         unless ($self->has_errors) {
-             # Valide the MAC address format of the inline triggers.
-             @triggers = grep { $_->{type} eq $MAC } @{$self->value->{triggerInline}};
-             foreach my $trigger (@triggers) {
-                 unless (valid_mac($trigger->{value})) {
-                     $self->field('triggerInline')->add_error("Verify the format of the MAC address(es).");
-                     last;
-                 }
-             }
-         }
+    unless ($self->has_errors) {
+        # Valide the MAC address format of the inline triggers.
+        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{triggerInline}};
+        foreach my $trigger (@triggers) {
+            unless (valid_mac($trigger->{value})) {
+                $self->field('triggerInline')->add_error("Verify the format of the MAC address(es).");
+                last;
+            }
+        }
     }
 
     if ($self->value->{uplink_dynamic} ne 'dynamic') {
