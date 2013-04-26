@@ -29,6 +29,11 @@ use Readonly;
 
 BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 
+__PACKAGE__->config(
+    models => { '*' => 'Config::Profile' },
+    forms => { '*' => 'Portal::Profile::Default' }
+);
+
 
 =head2 Methods
 
@@ -39,14 +44,6 @@ BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 =cut
 
 sub index {}
-
-
-sub begin :Private {
-    my ( $self, $c ) = @_;
-    pf::config::cached::ReloadConfigs();
-    $c->stash->{current_model_instance} = $c->model("Config::Profile");
-    $c->stash->{current_form_instance} = $c->form("Portal::Profile::Default")->new(ctx=>$c);
-}
 
 
 =item isDeleteOrRevertDisabled

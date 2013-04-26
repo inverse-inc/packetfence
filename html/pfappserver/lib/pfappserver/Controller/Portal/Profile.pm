@@ -41,20 +41,15 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
+__PACKAGE__->config(
+    models => { '*' => 'Config::Profile' },
+    forms => {
+        '*' => 'Portal::Profile',
+        'index' => 'Portal',
+    }
+);
+
 =head1 METHODS
-
-=head2 begin
-
-Setting the current form instance and model
-
-=cut
-
-sub begin :Private {
-    my ( $self, $c ) = @_;
-    pf::config::cached::ReloadConfigs();
-    $c->stash->{current_model_instance} = $c->model("Config::Profile")->new;
-    $c->stash->{current_form_instance} = $c->form("Portal::Profile")->new(ctx=>$c);
-}
 
 =head2 object
 
@@ -75,12 +70,15 @@ sub object :Chained('/') :PathPart('portal/profile') :CaptureArgs(1) {
 
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
-    my $model = $self->getModel($c);
-    my ($status,$items) = $model->readAll();
-    my $form = new pfappserver::Form::Portal(ctx => $c,
-                                             init_object => { items => $items });
-    $form->process();
-    $c->stash(form => $form);
+    $c->forward('list');
+    if (is_success($c->response->status)) {
+        my $model = $self->getModel($c);
+        my $form =  $self->getForm($c);
+        my $itemsKey = $model->itemsKey;
+        my $items = $c->stash->{$itemsKey};
+        $form->process(init_object => { $itemsKey => $items });
+        $c->stash(form => $form);
+    }
 }
 
 after create => sub {
