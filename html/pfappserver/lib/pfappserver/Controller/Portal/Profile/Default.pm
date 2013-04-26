@@ -15,8 +15,6 @@ use strict;
 use warnings;
 use Moose;
 use namespace::autoclean;
-use pfappserver::Form::Portal::Profile::Default;
-use pf::Portal::ProfileFactory;
 use pf::config;
 use File::Copy;
 use HTTP::Status qw(:constants is_error is_success);
