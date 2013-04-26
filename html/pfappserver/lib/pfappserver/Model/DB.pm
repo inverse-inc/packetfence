@@ -23,7 +23,7 @@ use pf::util;
 
 extends 'Catalyst::Model';
 
-my $dbHandler;
+our $dbHandler;
 
 
 =head1 METHODS
@@ -39,7 +39,7 @@ sub assign {
     my $status_msg;
 
     $db = $dbHandler->quote_identifier($db);
-    
+
     # Create global PF user
     my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@'%' IDENTIFIED BY ?";
     $dbHandler->do($sql_query, undef, $user, $password);
