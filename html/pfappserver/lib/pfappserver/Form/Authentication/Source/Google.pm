@@ -12,7 +12,7 @@ Form definition to create or update a Google user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Authentication::Source';
-with 'pfappserver::Form::Widget::Theme::Pf';
+with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::GoogleSource;
 

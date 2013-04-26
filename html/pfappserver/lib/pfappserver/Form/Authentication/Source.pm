@@ -12,14 +12,10 @@ to be extended.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
+extends 'pfappserver::Base::Form';
 
 use pf::authentication;
 
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 has 'id' => ( is => 'ro' );
 
 # Form fields

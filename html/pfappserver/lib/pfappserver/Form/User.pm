@@ -16,8 +16,7 @@ use HTTP::Status qw(:constants is_success);
 use HTML::FormHandler::Moose;
 
 extends 'pfappserver::Base::Form::Authentication::Action';
-with 'pfappserver::Form::Widget::Theme::Pf' => { -alias => { update_fields => 'theme_update_fields' },
-                                                 -excludes => 'update_fields' };
+
 has '+source_type' => ( default => 'SQL' );
 
 =head1 FIELDS
@@ -169,7 +168,7 @@ sub update_fields {
     }
 
     # Call the theme implementation of the method
-    $self->theme_update_fields();
+    $self->SUPER::update_fields();
 }
 
 =head2 options_access_level

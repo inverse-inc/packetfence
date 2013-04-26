@@ -12,7 +12,7 @@ Form definition to create or update a routed network.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Network';
-with 'pfappserver::Form::Widget::Theme::Pf';
+with 'pfappserver::Base::Form::Role::Help';
 
 use HTTP::Status qw(:constants is_success);
 

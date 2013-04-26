@@ -11,12 +11,7 @@ Sortable list of authentication sources.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
-
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
+extends 'pfappserver::Base::Form';
 
 # Form fields
 has_field 'sources' =>

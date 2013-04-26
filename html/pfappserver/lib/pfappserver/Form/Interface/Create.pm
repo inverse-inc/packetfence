@@ -12,7 +12,8 @@ Form definition to add a VLAN to a network interface.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Interface';
-with 'pfappserver::Form::Widget::Theme::Pf';
+with 'pfappserver::Base::Form::Role::Help';
+
 
 # Form fields
 has_field 'vlan' =>

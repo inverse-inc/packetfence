@@ -11,11 +11,10 @@ Form for SavedSearch data
 
 =cut
 
-
 use HTML::FormHandler::Moose;
-use namespace::autoclean;
 
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 =head2 Fields
 =cut

@@ -11,9 +11,8 @@ Form definition to create or update a network switch.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf' => { -alias => { update_fields => 'theme_update_fields' },
-                                                 -excludes => 'update_fields' };
+extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 use File::Find qw(find);
 use File::Spec::Functions;
@@ -21,10 +20,6 @@ use File::Spec::Functions;
 use pf::config;
 use pf::SNMP::constants;
 use pf::util;
-
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 has 'roles' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
@@ -361,15 +356,17 @@ sub field_list {
     my $self = shift;
 
     my $list = [];
+    if(defined $self->roles) {
 
-    foreach my $role (@SNMP::ROLES, map { $_->{name} } @{$self->roles}) {
-        my $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Vlan' => $field);
-        push(@$list, $role.'Role' => $field);
+        foreach my $role (@SNMP::ROLES, map { $_->{name} } @{$self->roles}) {
+            my $field =
+              {
+               type => 'Text',
+               label => $role,
+              };
+            push(@$list, $role.'Vlan' => $field);
+            push(@$list, $role.'Role' => $field);
+        }
     }
 
     return $list;
@@ -408,7 +405,7 @@ sub update_fields {
     }
 
     # Call the theme implementation of the method
-    $self->theme_update_fields();
+    $self->SUPER::update_fields();
 }
 
 =head2 build_block_list

@@ -11,8 +11,8 @@ Form definition to create or update a violation.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
+extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 use HTTP::Status qw(:constants is_success);
 
@@ -26,6 +26,7 @@ has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 has 'violations' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro' );
+has 'roles' => (is => 'ro', default => sub {[]});
 
 # Form fields
 has_field 'enabled' =>
@@ -215,15 +216,7 @@ sub options_vclose {
 
 sub options_target_category {
     my $self = shift;
-
-    my @roles;
-
-    # Build a list of existing roles
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
-    if (is_success($status)) {
-        @roles = map { $_->{name} => $_->{name} } @$result;
-    }
-
+    my @roles = map { $_->{name} => $_->{name} } @{$self->roles};
     return ('' => '', @roles);
 }
 
@@ -235,15 +228,7 @@ Populate the select field for the whitelisted roles.
 
 sub options_whitelisted_categories {
     my $self = shift;
-
-    my @roles;
-
-    # Build a list of existing roles
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
-    if (is_success($status)) {
-        @roles = map { $_->{name} => $_->{name} } @$result;
-    }
-
+    my @roles = map { $_->{name} => $_->{name} } @{$self->roles};
     return @roles;
 }
 
@@ -295,11 +280,7 @@ sub validate {
     # If the role action is selected, make sure a valid role (target_category) is specified
     if (grep {$_ eq 'role'} @{$self->value->{actions}}) {
         my $role = $self->value->{target_category};
-        my $roles_ref = [];
-        my ($status, $result) = $self->ctx->model('Roles')->list();
-        if (is_success($status)) {
-            $roles_ref = $result;
-        }
+        my $roles_ref = $self->roles;
         my @roles = map { $_->{name} } @$roles_ref;
         unless (defined $role && grep {$_ eq $role} @roles) {
             $self->field('target_category')->add_error('Specify a role to use.');

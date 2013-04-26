@@ -12,7 +12,7 @@ Form definition to create or update an SMS-verified user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Authentication::Source';
-with 'pfappserver::Form::Widget::Theme::Pf';
+with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::SMSSource;
 use pf::sms_activation;
