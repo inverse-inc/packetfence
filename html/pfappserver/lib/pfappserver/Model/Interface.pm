@@ -425,22 +425,31 @@ sub setType {
     # otherwise we update pf.conf and networks.conf
     else {
         # Update pf.conf
-        $models->{interface}->update($interface,
+        $models->{interface}->update_or_create($interface,
                                     $self->_prepare_interface_for_pfconf($interface, $interface_ref, $type));
 
         # Update networks.conf
-        # FIXME refactor that!
-        # and we must create a network portion for the following types
-        if ( $type =~ /^vlan-isolation$|^vlan-registration$/i ) {
+        if ( $type =~ /^management$/ ) {
+            # management interfaces must not appear in networks.conf
+            $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+        }
+        else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
             if (is_error($status)) {
-                # Create new network with default values
-                $network_ref =
-                  {
-                   dhcp_default_lease_time => 30,
-                   dhcp_max_lease_time => 30,
-                  };
-                $models->{network}->create($interface_ref->{network}, $network_ref);
+                # Create new network with default values depending on the type
+                if ( $type =~ /^vlan-isolation$|^vlan-registration$/i ) {
+                    $network_ref =
+                      {
+                       dhcp_default_lease_time => 30,
+                       dhcp_max_lease_time => 30,
+                      };
+                } else {
+                    $network_ref =
+                      {
+                       dhcp_default_lease_time => 24 * 60 * 60,
+                       dhcp_max_lease_time => 24 * 60 * 60,
+                      };
+                }
             }
             $network_ref->{type} = $type;
             $network_ref->{netmask} = $interface_ref->{'netmask'};
@@ -448,30 +457,7 @@ sub setType {
             $network_ref->{dns} = $interface_ref->{'ipaddress'};
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
-            $models->{network}->update($interface_ref->{network}, $network_ref);
-        }
-        elsif ( $type =~ /^inline$/i ) {
-            ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
-            if (is_error($status)) {
-                # Create new network with default values
-                $network_ref =
-                  {
-                   dhcp_default_lease_time => 24 * 60 * 60,
-                   dhcp_max_lease_time => 24 * 60 * 60,
-                  };
-                $models->{network}->create($interface_ref->{network}, $network_ref);
-            }
-            $network_ref->{type} = $type;
-            $network_ref->{netmask} = $interface_ref->{'netmask'};
-            $network_ref->{gateway} = $interface_ref->{'ipaddress'};
-            $network_ref->{dns} = $interface_ref->{'dns'};
-            $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
-            $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
-            $models->{network}->update($interface_ref->{network}, $network_ref);
-        }
-        elsif ( $type =~ /^management$/ ) {
-            # management interfaces must not appear in networks.conf
-            $models->{network}->remove($interface_ref->{network}) if ($interface_ref->{network});
+            $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
     $models->{network}->rewriteConfig();
