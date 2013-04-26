@@ -42,6 +42,7 @@ has_field 'vid' =>
   (
    type => 'Select',
    widget_wrapper => 'None',
+   element_attr => {'style' => 'display: none'},
   );
 has_field 'rules' =>
   (
@@ -95,7 +96,8 @@ sub options_vid {
     my $self = shift;
 
     # $self->violations comes from pfappserver::Model::Config::Violations->readAll
-    my @violations = map { $_->{id} => $_->{desc} } @{$self->violations} if ($self->violations);
+    my @violations = map { ($_->{id} eq 'defaults') ? () : ($_->{id} => $_->{desc}) } @{$self->violations}
+      if ($self->violations);
 
     return @violations;
 }
@@ -142,6 +144,25 @@ sub options_status {
     my @status = map { $_ => $self->_localize($_) } @pf::config::SOH_STATUS;
 
     return @status;
+}
+
+=head2 validate
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    # If the trigger action is 'violation', make sure a valid violation (vid) is specified
+    $self->ctx->log->debug("action is " . $self->value->{action});
+    if ($self->value->{action} eq $pf::config::SOH_ACTION_VIOLATION) {
+        my $vid = $self->value->{vid};
+        $self->ctx->log->debug("violation is " . $self->value->{vid});
+        my @vids = map { $_->{id} } @{$self->violations};
+        unless (defined $vid && grep {$_ eq $vid} @vids) {
+            $self->field('vid')->add_error('Specify a violation to trigger.');
+        }
+    }
 }
 
 =head1 COPYRIGHT
