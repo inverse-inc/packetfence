@@ -19,42 +19,8 @@ use HTML::FormHandler::Moose::Role;
 use namespace::autoclean;
 with 'HTML::FormHandler::Widget::Theme::Bootstrap';
 
-=head2 get_language_handle_from_ctx
 
-=cut
 
-sub get_language_handle_from_ctx {
-    my $self = shift;
-
-    return pfappserver::I18N->get_handle(
-        @{ $self->ctx->languages } );
-}
-
-=head2 help
-
-=cut
-
-sub help {
-    my $self = shift;
-    my $help = undef;
-
-    if ($self->get_tag('help')) {
-        return sprintf('<p class="help-block">%s</p>', $self->_localize($self->get_tag('help')));
-    }
-}
-
-=head2 help_list
-
-=cut
-
-sub help_list {
-    my $self = shift;
-    my $help = undef;
-
-    if ($self->get_tag('help')) {
-        return sprintf('<dl class="help-block">%s</dl>', $self->_localize($self->get_tag('help')));
-    }
-}
 
 =head2 html_attributes
 
