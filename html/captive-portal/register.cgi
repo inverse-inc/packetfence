@@ -82,12 +82,22 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 
   $logger->trace("Got role $value for username $pid");
 
+  # This appends the hashes to one another. values returned by authenticator wins on key collision
   if (defined $value) {
       %info = (%info, (category => $value));
   }
 
-  # This appends the hashes to one another. values returned by authenticator wins on key collision
-  $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
+  $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+  
+  if (defined $value) {
+      $logger->trace("No unregdate found - computing it from access duration");
+      $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
+  }
+  else {
+      $logger->trace("Unregdate found, we use it right away");
+      $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
+     
+  }
 
   $logger->trace("Got unregdate $value for username $pid");
 

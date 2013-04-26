@@ -69,7 +69,15 @@ if ( $portalSession->getCgi->param("pin") ) {
     my $pid = $portalSession->getSession->param("guest_pid") || "admin";
 
     # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_UNREG_DATE);
+    $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_ACCESS_DURATION);
+    
+    if (defined $info{'unregdate'}) {
+        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+    }
+    else {
+        $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_UNREG_DATE);
+    }
+
     $info{'category'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_ROLE);
 
 

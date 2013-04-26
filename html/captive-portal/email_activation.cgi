@@ -64,7 +64,15 @@ if (defined($cgi->url_param('code'))) {
             my $pid = $activation_record->{'pid'};
             
             # Setting access timeout and role (category) dynamically
-            my $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            my $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            
+            if (defined $expiration) {
+                $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
+            }
+            else {
+                $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            }
+
             my $category = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
 
             $logger->debug("Determined unregdate $expiration and category $category for pid $pid");
@@ -185,7 +193,15 @@ if (defined($cgi->url_param('code'))) {
             }
 
             # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            
+            if (defined $info{'unregdate'}) {
+                $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+            }
+            else {
+                $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            }
+
             $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
     
             $logger->debug("Determined unregdate $info{'unregdate'} and category $info{'category'} for pid $pid");
