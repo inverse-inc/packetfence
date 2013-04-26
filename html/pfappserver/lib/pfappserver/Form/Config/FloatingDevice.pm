@@ -11,15 +11,11 @@ Form definition to create or update a floating network device.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'HTML::FormHandler';
-with 'pfappserver::Form::Widget::Theme::Pf';
+extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use pf::util;
-
-has '+field_name_space' => ( default => 'pfappserver::Form::Field' );
-has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
-has '+language_handle' => ( builder => 'get_language_handle_from_ctx' );
 
 ## Definition
 has_field 'id' =>
