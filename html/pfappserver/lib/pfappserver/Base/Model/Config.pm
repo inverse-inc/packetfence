@@ -262,16 +262,17 @@ sub update {
                     $config->newval($id, $param, $value);
                 }
             }
+            $status_msg = "\"$id\" successfully modified";
         } else {
             $status_msg = "\"$id\" does not exists";
             $status =  HTTP_NOT_FOUND;
             $logger->warn("$status_msg");
         }
-        $status_msg = "\"$id\" successfully modified";
         $logger->info("$status_msg");
     }
     return ($status, $status_msg);
 }
+
 
 =head2 create
 
@@ -300,6 +301,21 @@ sub create {
     }
     $logger->info("$status_msg");
     return ($status, $status_msg);
+}
+
+=head2 update_or_create
+
+=cut
+
+sub update_or_create {
+    my ($self, $id, $assignments) = @_;
+    my $logger = get_logger();
+    my $config = $self->cachedConfig;
+    if ( $config->SectionExists($id) ) {
+        return $self->update($id, $assignments);
+    } else {
+        return $self->create($id, $assignments);
+    }
 }
 
 
