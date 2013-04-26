@@ -435,9 +435,10 @@ sub setType {
         }
         else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
+            my $is_vlan = /^vlan-isolation$|^vlan-registration$/i;
             if (is_error($status)) {
                 # Create new network with default values depending on the type
-                if ( $type =~ /^vlan-isolation$|^vlan-registration$/i ) {
+                if ( $is_vlan) {
                     $network_ref =
                       {
                        dhcp_default_lease_time => 30,
@@ -454,7 +455,11 @@ sub setType {
             $network_ref->{type} = $type;
             $network_ref->{netmask} = $interface_ref->{'netmask'};
             $network_ref->{gateway} = $interface_ref->{'ipaddress'};
-            $network_ref->{dns} = $interface_ref->{'ipaddress'};
+            if($is_vlan) {
+                $network_ref->{dns} = $interface_ref->{'ipaddress'};
+            } else {
+                $network_ref->{dns} = $interface_ref->{'dns'};
+            }
             $network_ref->{dhcp_start} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(10);
             $network_ref->{dhcp_end} = Net::Netmask->new(@{$interface_ref}{qw(ipaddress netmask)})->nth(-10);
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
