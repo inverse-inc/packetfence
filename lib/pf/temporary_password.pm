@@ -390,6 +390,8 @@ Return values:
 sub validate_password {
     my ($pid, $password) = @_;
 
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements,
         'temporary_password_validate_password_sql', $pid
@@ -407,12 +409,14 @@ sub validate_password {
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
         if ($temppass_record->{'valid_from'} > time) {
+            $logger->info("Password validation failed: password not yet valid");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
         # password is valid but expired
         # expiration is in unix timestamp format so an int comparison is enough
         if ($temppass_record->{'expiration'} < time) {
+            $logger->info("Password validation failed: password has expired");
             return $AUTH_FAILED_EXPIRED;
         }
 
@@ -421,6 +425,7 @@ sub validate_password {
     }
 
     # otherwise failure
+    $logger->info("Password validation failed: passwords don't match");
     return $AUTH_FAILED_INVALID;
 }
 
