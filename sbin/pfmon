@@ -109,7 +109,7 @@ END {
         }
 
         # killing kids ain't fun, but somebody's got to do it...
-        kill 6, -$$;
+        kill 15, -$$;
     }
 }
 

@@ -2083,7 +2083,7 @@ END {
         foreach my $t (@completeThreadList) {
             $t->detach;
         }
-        kill 6, -$$;
+        kill 15, -$$;
     }
 }
 
