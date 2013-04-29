@@ -29,6 +29,9 @@ use pf::web;
 # called last to allow redefinitions
 use pf::web::custom;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('oauth2.cgi');
 Log::Log4perl::MDC->put('proc', 'oauth2.cgi');
@@ -44,6 +47,7 @@ if ( !valid_mac($portalSession->getClientMac()) ) {
   exit(0);
 }
 
+my $source_type = undef;
 my %info;
 
 # Pull username
@@ -58,6 +62,7 @@ if (defined($cgi->url_param('provider'))) {
     exit(0);
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "google") {
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "google" );
+    $source_type = "Google";
 
     if ($code) {
       my $pid = $email;
@@ -69,6 +74,7 @@ if (defined($cgi->url_param('provider'))) {
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "facebook") {
 #Handle OAuth2 response from Facebook
     my ($code,$username,$err) = pf::web::generate_oauth2_result( $portalSession, "facebook" );
+    $source_type = "Facebook";
 
     if ($code) {
       my $pid = $username . "\@facebook.com";
@@ -80,9 +86,23 @@ if (defined($cgi->url_param('provider'))) {
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "github") {
 #Handle OAuth2 response from Github
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "github" );
+    $source_type = "GitHub";
 
     if ($code) {
       my $pid = $email;
+
+      # Setting access timeout and role (category) dynamically
+      $info{'unregdate'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+      
+      if (defined $info{'unregdate'}) {
+          $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+      }
+      else {
+          $info{'unregdate'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+      }
+      
+      $info{'category'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_ROLE);
+
       pf::web::web_node_register($portalSession, $pid, %info);
       pf::web::end_portal_session($portalSession);
     } else {
