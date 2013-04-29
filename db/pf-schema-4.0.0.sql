@@ -78,6 +78,12 @@ INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Plac
 INSERT INTO `node_category` (category_id,name,notes) VALUES ("2","guest","Guests");
 
 --
+-- Insert 'gaming' category
+--
+
+INSERT INTO `node_category` (category_id,name,notes) VALUES ("3","gaming","Gaming devices");
+
+--
 -- Table structure for table `node`
 --
 
