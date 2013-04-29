@@ -33,10 +33,10 @@ sub sort_items : Local: Args(0) {
     my $params_handler =  HTML::FormHandler::Params->new;
     my $items = $params_handler->expand_hash($c->request->params);
     my $itemsKey = $model->itemsKey;
-    my ($status,$message) = $model->sortItems($items->{$itemsKey});
+    my ($status,$status_msg) = $model->sortItems($items->{$itemsKey});
     $c->stash(
         current_view => 'JSON',
-        status_msg => $message,
+        status_msg => $status_msg,
     );
     $c->response->status($status);
 }
@@ -60,22 +60,14 @@ sub _commitChanges {
     my ($self,$c) = @_;
     my $logger = get_logger();
     my $model = $self->getModel($c);
-    my ($status,$message);
-    eval {
-        ($status,$message) = $model->rewriteConfig();
-    };
-    if($@) {
-        $status = HTTP_INTERNAL_SERVER_ERROR;
-        $message = $@;
-    }
+    my ($status,$status_msg) = $model->commit();
     if(is_error($status)) {
         $c->stash(
             current_view => 'JSON',
-            status_msg => $message,
+            status_msg => $status_msg,
         );
-        $model->rollback();
     }
-    $logger->info($message);
+    $logger->info($status_msg);
     $c->response->status($status);
 }
 
