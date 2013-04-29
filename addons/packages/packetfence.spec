@@ -607,6 +607,7 @@ fi
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
+                        /usr/local/pf/Makefile
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
