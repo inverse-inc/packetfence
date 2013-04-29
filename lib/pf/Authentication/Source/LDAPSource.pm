@@ -143,14 +143,17 @@ sub match_in_subclass {
 
     if ($result->is_error) {
         $logger->error("Unable to execute search, we skip the rule.");
-        next;
+        return undef;
     }
 
+    # If we found a result, we push all conditions as matched ones.
+    # That is normal, as we used them all to build our LDAP filter.
     if ($result->count == 1) {
         my $dn = $result->entry(0)->dn;
         $connection->unbind;
         $logger->info("Found a match ($dn)! pushing LDAP conditions");
         push @{ $matching_conditions }, @{ $own_conditions };
+        return $params->{'username'};
     }
 
     return undef;
@@ -210,6 +213,13 @@ from a rule.
 sub ldap_filter_for_conditions {
   my ($conditions, $match, $usernameattribute, $params) = @_;
 
+  # We first check if it's a catch all, if it is, we only
+  # check for the usernameattribute - to match it in the source
+  if (scalar @{$conditions} == 0)
+    {
+      return '(' . $usernameattribute . '=' . $params->{'username'} . ')';
+    }
+
   my $expression = '(';
 
   if ($match eq $Rules::ANY) {
@@ -229,7 +239,7 @@ sub ldap_filter_for_conditions {
       $str = "$condition->{'attribute'}=*$condition->{'value'}*";
     }
 
-    if (scalar @{$conditions}  == 1) {
+    if (scalar @{$conditions} == 1) {
       $expression = '(' . $str;
     }
     else {

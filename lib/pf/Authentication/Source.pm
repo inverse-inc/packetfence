@@ -99,10 +99,6 @@ sub match {
     foreach my $rule ( @{$self->{'rules'}} ) {
         my @matching_conditions = ();
         my @own_conditions = ();
-        if (!defined $rule->{'conditions'} || scalar @{$rule->{'conditions'}} == 0) {
-            push(@matching_rules, $rule);
-            goto done;
-        }
 
         foreach my $condition ( @{$rule->{'conditions'}} ) {
             if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
@@ -116,20 +112,21 @@ sub match {
             }
         } # foreach my $condition (...)
 
-        $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions);
-
-        # We compare the matched conditions with how many we had
-        if ($rule->match eq $Rules::ANY &&
-            scalar @matching_conditions > 0) {
-            push(@matching_rules, $rule);
-        } elsif ($rule->match eq $Rules::ALL &&
-                 scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
-            push(@matching_rules, $rule);
+        # We always check if at least the returned value is defined. That means the username
+        # has been found in the source.
+        if (defined $self->match_in_subclass($params, $rule, \@own_conditions, \@matching_conditions)) {
+          # We compare the matched conditions with how many we had
+          if ($rule->match eq $Rules::ANY &&
+              scalar @matching_conditions > 0) {
+              push(@matching_rules, $rule);
+          } elsif ($rule->match eq $Rules::ALL &&
+                   scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
+              push(@matching_rules, $rule);
+          }
         }
 
         # For now, we return the first matching rule. We might change this in the future
         # so let's keep the @matching_rules array for now.
-        done:
         if (scalar @matching_rules == 1) {
             $logger->info("Matched rule ($rule->{'id'}), returning actions.");
             return $rule->{'actions'};

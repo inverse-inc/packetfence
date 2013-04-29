@@ -446,7 +446,7 @@ Then, we add a rule by clicking on the *Add rule* button. We provide the followi
 
 * Name: employees
 * Description: Rule for all employees
-* Don't set any condition (as it's a fallback rule)
+* Don't set any condition (as it's a catch-all rule)
 * Set the following actions:
   - Set role employee
   - Set unregistration date January 1st, 2020
@@ -470,11 +470,12 @@ Then, we add a rule:
 
 * Name: machines
 * Description: Rule for all machines
-* Don't set any condition (as it's a fallback rule)
+* Don't set any condition (as it's a catch-all rule)
 * Set the following actions:
   - Set role machineauth
   - Set unregistration date January 1st, 2020
 
+Note that when a rule is defined as a catch-all, it will always match if the username attribute matches the queried one. This applies for Active Directory, LDAP and Apache htpasswd file sources. Kerberos and RADIUS will act as true catch-all, and accept everything.
 
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

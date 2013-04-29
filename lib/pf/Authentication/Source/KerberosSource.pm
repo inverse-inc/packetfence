@@ -48,6 +48,13 @@ sub authenticate_using_kerberos {
   return ($FALSE, 'Unable to connect to Kerberos server');
 }
 
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+
+    return $params->{'username'};
+}
+ 
+
 =back
 
 =head1 AUTHOR

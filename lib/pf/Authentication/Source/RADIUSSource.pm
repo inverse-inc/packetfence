@@ -62,6 +62,12 @@ sub authenticate {
    return ($FALSE, 'Unable to authenticate successfully using RADIUS.');
  }
 
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+
+    return $params->{'username'};
+}
+
 =back
 
 =head1 AUTHOR

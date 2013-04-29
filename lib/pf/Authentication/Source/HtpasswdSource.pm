@@ -77,6 +77,8 @@ sub match_in_subclass {
                     if ( $condition->matches("username", $params->{'username'}) ) {
                         push(@{ $matching_conditions }, $condition);
                     }
+                    
+                    return $params->{'username'};
                 }
             }
         }
