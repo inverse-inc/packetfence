@@ -918,7 +918,7 @@ Samba / Kerberos / Winbind
 Install Samba 3 and NOT Samba 4. You can either use the sources or use the package for your OS. For RHEL/CentOS, do:
 
 ----
-yum install samba
+yum install samba krb5-workstation
 ----
 
 For Ubuntu 12.04 LTS, do:
