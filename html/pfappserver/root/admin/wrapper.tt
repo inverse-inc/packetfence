@@ -72,9 +72,6 @@
                   <li><a href="[% c.uri_for(c.controller('Admin').action_for('logout')) %]"><i class="icon-off"></i> [% l('Log out') %]</a></li>
                 </ul>
               </li>
-              <li>
-                <a href="#help"><i class="icon-question-sign icon-white"></i> [% l('Help') %]</a>
-              </li>
             </ul>
           </div><!--/.nav-collapse -->
           [%- END %]
