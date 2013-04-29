@@ -135,9 +135,12 @@ Set default values before update or creating
 sub cleanupBeforeCommit {
     my ($self, $id, $network) = @_;
 
-    # Set default values
-    $network->{named} = 'enabled' unless ($network->{named});
-    $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
+    my $config = $self->cachedConfig;
+    unless ( $config->SectionExists($id) ) {
+        # Set default values when creating a new network
+        $network->{named} = 'enabled' unless ($network->{named});
+        $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
+    }
 }
 
 __PACKAGE__->meta->make_immutable;
