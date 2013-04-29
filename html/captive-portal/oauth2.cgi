@@ -62,7 +62,7 @@ if (defined($cgi->url_param('provider'))) {
     exit(0);
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "google") {
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "google" );
-    $source_type = "Google";
+    $source_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
 
     if ($code) {
       my $pid = $email;
@@ -74,7 +74,7 @@ if (defined($cgi->url_param('provider'))) {
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "facebook") {
 #Handle OAuth2 response from Facebook
     my ($code,$username,$err) = pf::web::generate_oauth2_result( $portalSession, "facebook" );
-    $source_type = "Facebook";
+    $source_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
 
     if ($code) {
       my $pid = $username . "\@facebook.com";
@@ -86,7 +86,7 @@ if (defined($cgi->url_param('provider'))) {
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "github") {
 #Handle OAuth2 response from Github
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "github" );
-    $source_type = "GitHub";
+    $source_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
 
     if ($code) {
       my $pid = $email;
