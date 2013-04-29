@@ -431,7 +431,7 @@ Concrete Example
 
 Let's say we have two roles: guest and employee. First, we define them *Configuration -> Users -> Roles*.
 
-Now, we want to authenticate employees using Active Directory, and guests using PacketFence's internal database. From the *Configuration -> Users -> Sources*, we select *Add source -> AD*. We provide the following information:
+Now, we want to authenticate employees using Active Directory (over LDAP), and guests using PacketFence's internal database - both using PacketFence's captive portal. From the *Configuration -> Users -> Sources*, we select *Add source -> AD*. We provide the following information:
 
 * Name: ad1
 * Description: Active Directory for Employees
