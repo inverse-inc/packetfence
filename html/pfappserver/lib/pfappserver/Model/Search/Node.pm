@@ -17,12 +17,14 @@ use Moose;
 use pfappserver::Base::Model::Search;
 use pf::SearchBuilder;
 use pf::node qw(node_custom_search);
+use HTTP::Status qw(:constants);
+use POSIX qw(ceil);
 
 extends 'pfappserver::Base::Model::Search';
 
 sub search {
     my ($self,$params) = @_;
-    my %results;
+    my %results = %$params;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $builder = new pf::SearchBuilder;
     $builder
@@ -53,7 +55,9 @@ sub search {
                 }
         );
     my @searches = map {$self->process_query($_)} @{$params->{searches}};
-    my ($start,$end,$all_or_any,$page_num,$per_page) = @{$params}{qw(start end all_or_any)};
+    my ($start,$end,$all_or_any,$page_num,$per_page, $by, $direction) = @{$params}{qw(start end all_or_any page_num per_page by direction)};
+    $per_page ||= 25;
+    $page_num ||= 1;
     $self->add_joins($builder,$params);
     if($start && $end) {
     }
@@ -68,9 +72,21 @@ sub search {
         $builder->where(')');
     }
     $self->add_limit($builder,$params);
+    if($by && $direction) {
+        $builder->order_by($by,$direction);
+    }
     my $sql = $builder->sql;
-    $results{items} = [node_custom_search($sql)];
-    return %results;
+    my $itemsKey = $self->itemsKey;
+    $results{$itemsKey} = [node_custom_search($sql)];
+    my $sql_count = $builder->sql_count;
+    my ($count) = node_custom_search($sql_count);
+    $count = $count->{count};
+    $results{count} = $count;
+    $results{pages_count} = ceil( $count / $per_page );
+    $results{per_page} = $per_page;
+    $results{page_num} = $page_num;
+    $results{column} = $by;
+    return(HTTP_OK,\%results);
 }
 
 my %COLUMN_MAP = (
@@ -168,7 +184,6 @@ sub add_joins {
 
 __PACKAGE__->meta->make_immutable;
 
-=back
 
 =head1 COPYRIGHT
 
