@@ -604,7 +604,7 @@ Some network devices support the assignment of a specific set of rules
 precise to control what a user can or cannot do compared to VLAN which have a
 larger network management overhead.
 
-PacketFence supporst assigning roles on devices that supports it.
+PacketFence supports assigning roles on devices that supports it.
 The current role assignment strategy is to assign it along 
 with the VLAN (that may change in the future). A special internal role
 to external role assignment must be configured in the switch configuration file 
