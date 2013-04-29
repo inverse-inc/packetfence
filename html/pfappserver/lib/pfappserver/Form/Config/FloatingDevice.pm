@@ -69,7 +69,7 @@ sub validate {
     my $self = shift;
 
     if ($self->value->{'trunkPort'} eq 'yes') {
-        unless ($self->value->{'taggedVlan'} =~ m/^(\d+,)*\d$/) {
+        unless ($self->value->{'taggedVlan'} =~ m/^(\d+,)*\d+$/) {
             $self->field('taggedVlan')->add_error("Please specify the VLANs to be tagged on the port.");
         }
     }
