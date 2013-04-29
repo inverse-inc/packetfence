@@ -50,9 +50,15 @@ sub read {
         if ($user) {
             if ($user->{valid_from}) {
                 # Formulate activation date
-                $user->{valid_from} =~ s/ 00:00:00$//;
+                $user->{valid_from} =~ s/ \d{2}:\d{2}:\d{2}$//;
                 $user->{txt_valid_from} = $c->loc("This username and password will be valid starting [_1].",
                                                   $user->{valid_from});
+            }
+            if ($user->{expiration}) {
+                # Formulate expiration date
+                $user->{expiration} =~ s/ \d{2}:\d{2}:\d{2}$//;
+                $user->{txt_expiration} = $c->loc("Registration must happen before [_1].",
+                                                  $user->{expiration});
             }
             if ($user->{access_duration}) {
                 # Formulate access duration
@@ -186,11 +192,6 @@ sub violations {
     my @violations;
     eval {
         @violations = person_violations($pid);
-        foreach my $violation (@violations) {
-            if ($violation->{release_date} eq '0000-00-00 00:00:00') {
-                $violation->{release_date} = '';
-            }
-        }
     };
     if ($@) {
         $status_msg = "Can't fetch violations from database.";
@@ -206,15 +207,20 @@ sub violations {
 =cut
 
 sub update {
-    my ( $self, $pid, $user_ref ) = @_;
+    my ($self, $pid, $user_ref) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     my ($status, $status_msg) = ($STATUS::OK);
     my $actions = delete $user_ref->{actions};
 
     unless (person_modify($pid, %{$user_ref})) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user.';
-    } elsif($actions) {
+    }
+    elsif ($actions) {
+        # Update the actions and the registration window
+        push(@$actions, { type => 'valid_from', value => $user_ref->{valid_from} });
+        push(@$actions, { type => 'expiration', value => $user_ref->{expiration} });
         ($status, $status_msg) = $self->update_actions($pid, $actions);
     }
 
@@ -226,12 +232,13 @@ sub update {
 =cut
 
 sub update_actions {
-    my ( $self, $pid, $actions ) = @_;
+    my ($self, $pid, $actions) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg) = ($STATUS::OK);
     my $tp = pf::temporary_password::view($pid);
-    unless(pf::temporary_password::modify_actions($tp,$actions)) {
+    # Only update the actions if the user has an entry in temporary_password
+    unless (!$tp || pf::temporary_password::modify_actions($tp, $actions)) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $status_msg = 'An error occurred while updating the user actions.';
     }
@@ -336,10 +343,11 @@ sub createSingle {
                            );
     if ($result) {
         $logger->info("Created user account $pid. Sponsored by $user");
-
-        # We create temporary password with the expiration and a 'not valid before' value
+        # The registration window is add to the actions
+        push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
+        push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
         $result = pf::temporary_password::generate($pid,
-                                                   $data->{arrival_date},
+                                                   $data->{valid_from},
                                                    $data->{actions},
                                                    $data->{password});
         if ($result) {
@@ -387,8 +395,11 @@ sub createMultiple {
                                );
         if ($result) {
             # Create/update password
+            # The registration window is add to the actions
+            push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
+            push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
             $result = pf::temporary_password::generate($pid,
-                                                       $data->{arrival_date},
+                                                       $data->{valid_from},
                                                        $data->{actions});
             if ($result) {
                 push(@users, { pid => $pid, email => $data->{email}, password => $result });
@@ -472,8 +483,11 @@ sub importCSV {
             my $result = person_modify($pid, %person);
             if ($result) {
                 # Create/update password
+                # The registration window is add to the actions
+                push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
+                push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
                 $result = pf::temporary_password::generate($pid,
-                                                           $data->{arrival_date},
+                                                           $data->{valid_from},
                                                            $data->{actions},
                                                            $row->[$index{'c_password'}]);
                 push(@users, { pid => $pid, email => $person{email}, password => $result });

@@ -109,8 +109,17 @@ has_field 'notes' =>
 has_field 'valid_from' =>
   (
    type => 'DatePicker',
-   label => 'Arrival Date',
-   start => &now,
+   required => 1,
+  );
+
+=head2 expiration
+
+=cut
+
+has_field 'expiration' =>
+  (
+   type => 'DatePicker',
+   required => 1,
   );
 
 =head2 Blocks
@@ -230,17 +239,6 @@ sub options_durations {
     my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
 
     return \@options;
-}
-
-=head2 now
-
-Return the current day, used as the minimal date of the arrival date.
-
-=cut
-
-sub now {
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
-    return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
 }
 
 =head1 COPYRIGHT

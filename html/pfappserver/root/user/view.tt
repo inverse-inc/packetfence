@@ -14,7 +14,7 @@
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
             [% IF user.password.defined -%]
             <li><a href="#userPassword" data-toggle="tab">[% l('Password') %]</a></li>
-            <li><a href="#userRoles" data-toggle="tab">[% l('Roles') %]</a></li>
+            <li><a href="#userActions" data-toggle="tab">[% l('Actions') %]</a></li>
             [% END -%]
             <li><a href="#userHistory" data-toggle="tab">[% l('History') %]</a></li>
             <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
@@ -59,8 +59,14 @@
               </div>
             </div><!--tab-pane-->
 
-            <div class="tab-pane fade" id="userRoles">
-              [% form.field('valid_from').render %]
+            <div class="tab-pane fade" id="userActions">
+              <div class="control-group">
+                <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
+                <div class="controls input-daterange datepicker">
+                  [% form.field('valid_from').render_element %] <i class="icon-arrow-right"></i>
+                  [% form.field('expiration').render_element %]
+                </div>
+              </div>
               <div class="control-group">
                 <label class="control-label">[% l('Actions') %]</label>
                 <div class="controls">

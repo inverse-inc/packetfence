@@ -16,12 +16,16 @@ extends 'pfappserver::Base::Form::Authentication::Action';
 has '+source_type' => ( default => 'SQL' );
 
 # Form fields
-has_field 'arrival_date' =>
+has_field 'valid_from' =>
   (
    type => 'DatePicker',
-   label => 'Arrival Date',
    required => 1,
-   start => &now,
+  );
+
+has_field 'expiration' =>
+  (
+   type => 'DatePicker',
+   required => 1,
   );
 
 # The templates block contains the dynamic fields of the rule definition.
@@ -43,17 +47,6 @@ has_block 'templates' =>
    attr => { id => 'templates' },
    class => [ 'hidden' ],
   );
-
-=head2 now
-
-Return the current day, used as the minimal date of the arrival date.
-
-=cut
-
-sub now {
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
-    return sprintf "%d-%02d-%02d", $year+1900, $mon+1, $mday;
-}
 
 =head2 validate
 

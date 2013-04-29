@@ -71,7 +71,13 @@
 
   <hr/>
 
-  [% form.field('arrival_date').render %]
+  <div class="control-group">
+    <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
+    <div class="controls input-daterange datepicker">
+      [% form.field('valid_from').render_element %] <i class="icon-arrow-right"></i>
+      [% form.field('expiration').render_element %]
+    </div>
+  </div>
 
   <div class="control-group">
     <label class="control-label">[% l('Actions') %]</label>

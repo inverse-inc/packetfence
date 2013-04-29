@@ -131,7 +131,8 @@ sub temporary_password_db_prepare {
     ]);
 
     $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
-        update temporary_password SET expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
+        UPDATE temporary_password
+        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
         WHERE pid = ?
     ]);
 
@@ -293,8 +294,16 @@ Updates temporary_password fields from an action list
 =cut
 
 sub _update_from_actions {
-    my ($data,$actions) = @_;
+    my ($data, $actions) = @_;
 
+    _update_field_for_action(
+        $data,$actions,'valid_from',
+        'valid_from',undef
+    );
+    _update_field_for_action(
+        $data,$actions,'expiration',
+        'expiration',"0000-00-00 00:00:00"
+    );
     _update_field_for_action(
         $data,$actions,$Actions::MARK_AS_SPONSOR,
         'sponsor',0
@@ -307,29 +316,16 @@ sub _update_from_actions {
         $data,$actions,$Actions::SET_UNREG_DATE,
         'unregdate',"0000-00-00 00:00:00"
     );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_ACCESS_DURATION,
+        'access_duration',undef
+    );
 
-    # we check for all actions
-    my @values;
-
-    @values = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$actions};
-    if (scalar @values > 0 && defined $data->{'valid_from'}) {
-        # Expiration is arrival date + access duration + a tolerance window of 24 hrs
-        # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
-        $data->{'access_duration'} = $values[0]->{value} || undef;
-
-        # if $expiration is set we use it, otherwise we use the module default defined earlier
-        $data->{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S",
-                                      localtime(str2time($data->{'valid_from'}) +
-                                                normalize_time($data->{'access_duration'}) +
-                                                24*60*60));
-    }
-
-    @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
+    my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
         $data->{'category'} = $role_id;
     }
-
 }
 
 =item _update_field_for_action
@@ -339,7 +335,7 @@ Updates temporary_password field from an action
 =cut
 
 sub _update_field_for_action {
-    my ($data,$actions,$action,$field,$default) = @_;
+    my ($data, $actions, $action, $field, $default) = @_;
     my @values = grep { $_->{type} eq $action } @{$actions};
     if (scalar @values > 0) {
         $data->{$field} = $values[0]->{value};
@@ -358,9 +354,9 @@ sub modify_actions {
     my ($temporary_password, $actions) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my @ACTION_FIELDS = qw(
-        expiration access_duration access_level
-        category sponsor unregdate
-    );
+        valid_from expiration
+        access_duration access_level category sponsor unregdate
+    ); # respect the prepared statement placeholders order
     delete @{$temporary_password}{@ACTION_FIELDS};
     _update_from_actions($temporary_password, $actions);
     my $pid = $temporary_password->{pid};
