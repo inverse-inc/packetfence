@@ -427,6 +427,11 @@ sub match {
     my $actions;
 
     foreach my $current_source ( @authentication_sources ) {
+
+        if ($current_source->class eq 'external') {
+            next;
+        }
+        
         $logger->info("Matching in source ".ref($current_source));
         if (defined $source_id && $source_id eq $current_source->id) {
             $actions = $current_source->match($params);
