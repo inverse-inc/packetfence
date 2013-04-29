@@ -36,7 +36,36 @@ has_field 'end' =>
    type => 'DatePicker',
   );
 
-=item end
+=item page_num
+
+=cut
+
+has_field 'page_num' =>
+  (
+   type => 'Hidden',
+   default => '1',
+  );
+
+=item by
+
+=cut
+
+has_field 'by' =>
+  (
+   type => 'Hidden',
+  );
+
+=item direction
+
+=cut
+
+has_field 'direction' =>
+  (
+   type => 'Hidden',
+   default => 'asc',
+  );
+
+=item all_or_any
 
 =cut
 
