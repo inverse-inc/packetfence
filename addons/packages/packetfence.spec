@@ -52,7 +52,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %endif
 
 # Log related globals
-%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
+%global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
