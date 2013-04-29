@@ -42,7 +42,7 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify an identifier for the violation.' },
    tags => { after_element => \&help,
-             help => 'Use an number above 150000 if you want to be able to delete this violation later.' },
+             help => 'Use an number above 1500000 if you want to be able to delete this violation later.' },
   );
 has_field 'desc' =>
   (
