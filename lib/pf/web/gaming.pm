@@ -65,20 +65,6 @@ Readonly our @GAMING_OUI => (
 =cut
 
 
-sub authenticate {
-    my ($portalSession, $info, $logger) = @_;
-    my ($auth_return, $err) = pf::web::web_user_authenticate($portalSession);
-    if ($auth_return == 1) {
-        my $pid = $portalSession->getSession->param("username");
-        # Obtain node information provided by authentication module. We need to get the role (category here)
-        # as web_node_register() might not work if we've reached the limit
-        my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
-        $logger->trace("Got role $value for username $pid");
-        $info->{category} = $value if (defined $value);
-    }
-    return ($auth_return, $err);
-}
-
 sub generate_login_page {
     my ($portalSession, $err) = @_;
     _generate_page($portalSession, $GAMING_LOGIN_TEMPLATE,
@@ -108,19 +94,22 @@ sub _generate_page {
 }
 
 sub register_node {
-    my ( $portalSession, $pid, $mac, %info ) = @_;
+    my ($portalSession, $pid, $mac, %info) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($result,$msg);
-    if(!valid_mac($mac) || !is_gaming_mac($mac)) {
-        $msg = "Please verify MAC address provided";
+    my ($result, $msg);
+    if (!valid_mac($mac) || !is_gaming_mac($mac)) {
+        $msg = "Please verify the provided MAC address.";
+    }
+    elsif (!defined($info{'category'})) {
+        $msg = "Can't determine the role. Please contact your system administrator.";
     }
     elsif ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         $msg = "You have reached the maximum number of devices you are able to register with this username.";
     }
     else {
-        ($result,$msg) = _sanitize_and_register($portalSession->session, $mac, $pid, %info);
+        ($result, $msg) = _sanitize_and_register($portalSession->session, $mac, $pid, %info);
     }
-    return ($result,$msg);
+    return ($result, $msg);
 }
 
 sub is_gaming_mac {
@@ -135,7 +124,7 @@ sub _sanitize_and_register {
     my ( $session, $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($result,$msg);
-    if(valid_mac($mac)) {
+    if (valid_mac($mac)) {
         $logger->info("performing node registration MAC: $mac pid: $pid");
         node_register( $mac, $pid, %info );
         $result = $TRUE;

@@ -70,6 +70,16 @@ sub field_list {
                 $field->{options} = \@options;
                 last;
             };
+            $type eq 'role' && do {
+                $field->{type} = 'Select';
+                $field->{element_class} = ['chzn-deselect', 'input'];
+                $field->{element_attr} = {'data-placeholder' => 'Select a role'};
+                my $roles = $self->ctx->model('Roles')->list();
+                my @options = map { { value => $_->{category_id}, label => $_->{name} } } @$roles;
+                unshift(@options, { value => '', label => ''});
+                $field->{options} = \@options;
+                last;
+            };
             $type eq 'toggle' && do {
                 if ($doc_section->{options}->[0] eq 'enabled' ||
                     $doc_section->{options}->[0] eq 'yes') {
@@ -117,7 +127,7 @@ sub field_list {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

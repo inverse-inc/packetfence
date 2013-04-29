@@ -17,6 +17,8 @@ use lib '/usr/local/pf/lib';
 
 use Log::Log4perl;
 
+use pf::authentication;
+use pf::Authentication::constants;
 use pf::config;
 use pf::Portal::Session;
 use pf::util;
@@ -53,11 +55,13 @@ foreach my $param($cgi->param()) {
 my $pid = $session->param("username");
 
 # See if user is trying to login and if is not already authenticated
-if( (!$pid) && ($cgi->param('username') ne '') && ($cgi->param('password') ne '') ) {
-  my ($auth_return, $err) = pf::web::gaming::authenticate($portalSession, \%info, $logger);
+if ( (!$pid) && ($cgi->param('username') ne '') && ($cgi->param('password') ne '') ) {
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
   if ($auth_return != 1) {
-    pf::web::gaming::generate_login_page($portalSession);
-  } else {
+    $logger->trace("authentication failed for " . $portalSession->getClientMac());
+    pf::web::gaming::generate_login_page($portalSession, $error);
+  }
+  else {
     pf::web::gaming::generate_registration_page($portalSession);
   }
 }
@@ -67,23 +71,32 @@ elsif (!$pid) {
   pf::web::gaming::generate_login_page($portalSession);
 } elsif (exists $params{cancel} )  {
     $session->delete();
-    pf::web::gaming::generate_login_page($portalSession, 'Registration canceled please try again');
+    pf::web::gaming::generate_login_page($portalSession, 'Registration canceled. Please try again.');
 }
 
 # User is authenticated and requesting to register gaming device
 elsif (exists $params{'device_mac'}) {
-    $info{'pid'} = $pid;
     my $device_mac = $params{'device_mac'};
     $portalSession->stash->{device_mac} = $device_mac;
 
-    # register gaming device
-    $info{'category'} = $Config{'gaming_devices_registration'}{'category'};
-    my ($result,$msg) = pf::web::gaming::register_node($portalSession, $pid,$device_mac, %info);
-    if($result) {
-        pf::web::gaming::generate_landing_page($portalSession,$msg);
+    # Get role for gaming device
+    my $role = $Config{'registratrion'}{'gaming_devices_registration_role'};
+    if ($role) {
+        $logger->trace("Gaming devices role is $role (from pf.conf)");
+    }
+    else {
+        $role = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
+        $logger->trace("Gaming devices role is $role (from username $pid)");
+    }
+    $info{'category'} = $role if (defined $role);
+
+    # Register gaming device
+    my ($result, $msg) = pf::web::gaming::register_node($portalSession, $pid, $device_mac, %info);
+    if ($result) {
+        pf::web::gaming::generate_landing_page($portalSession, $msg);
         $portalSession->session->delete();
     } else {
-        pf::web::gaming::generate_registration_page($portalSession,$msg);
+        pf::web::gaming::generate_registration_page($portalSession, $msg);
     }
 }
 

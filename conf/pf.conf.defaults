@@ -176,7 +176,12 @@ nbregpages=0
 # registration.gaming_devices_registration
 #
 # Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
-gaming_devices_registration = disabled
+gaming_devices_registration=disabled
+#
+# registration.gaming_devices_registration_role
+#
+# The role to assign to gaming devices. If none is specified, the role of the registrant is used.
+gaming_devices_registration_role=
 
 [guests_self_registration]
 #
