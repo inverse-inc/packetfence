@@ -37,7 +37,6 @@ my $sql = $builder->sql();
 
 pf::SearchBuilder
 
-=over
 
 =cut
 
@@ -127,7 +126,7 @@ sub from {
 }
 
 
-=item L_
+=head2 L_
 
 A convenience function for creating literals
 my $builder = new pf::SearchBuilder;
@@ -332,7 +331,7 @@ sub order_by {
     my ($self,$column,$direction) = @_;
     $direction ||= 'ASC';
     $direction = uc($direction);
-    if($direction ne 'ASC' || $direction ne 'DESC') {
+    if($direction ne 'ASC' && $direction ne 'DESC') {
         die "direction order ($direction) is invalid";
     }
     $self->add_to_order_by_clause_elements([$self->_process_select($column),$direction]);
@@ -368,6 +367,18 @@ sub sql {
     );
 }
 
+sub sql_count {
+    my $self = shift;
+    return (
+        join q{ },
+        $self->select_count_clause(),
+        $self->from_clause(),
+        $self->where_clause(),
+        $self->group_by_clause(),
+        $self->having_clause(),
+    );
+}
+
 sub bind_params {
     my ($self,@args) = @_;
     return $self;
@@ -389,6 +400,14 @@ sub select_clause {
         join ', ',
         map { $self->format_column($_,$dbh) } $self->select_clause_elements()
     );
+
+    return $sql;
+}
+
+sub select_count_clause {
+    my ($self,$dbh) = @_;
+
+    my $sql = 'SELECT COUNT(*) as count ';
 
     return $sql;
 }
@@ -508,6 +527,14 @@ sub where_clause {
 sub order_by_clause {
     my ($self,@args) = @_;
     my $sql = '';
+    if($self->has_order_by_clause_elements) {
+        $sql = join(' ',
+            'ORDER BY',
+            (
+            join(",", map { $self->format_column($_->[0]) . " " . $_->[1] } $self->order_by_clause_elements())
+            )
+        );
+    }
     return $sql;
 }
 
@@ -556,7 +583,7 @@ sub sql_with_alias {
     return $self;
 }
 
-=item and
+=head2 and
 
 Some syntax sugar for where('and')
 
@@ -567,7 +594,7 @@ sub and {
     return $self->where(@args);
 }
 
-=item or
+=head2 or
 
 Some syntax sugar for where('or)
 
@@ -579,7 +606,6 @@ sub or {
     return $self->where('or');
 }
 
-=back
 
 =head1 AUTHOR
 
