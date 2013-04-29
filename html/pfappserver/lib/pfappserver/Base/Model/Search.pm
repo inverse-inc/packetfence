@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moose;
 use namespace::autoclean;
+extends 'pfappserver::Base::Model';
 
 my %OP_MAP = (
     equal       => '=',
