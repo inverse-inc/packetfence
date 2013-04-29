@@ -447,7 +447,7 @@ sub commit {
     my $logger = get_logger();
     my ($status,$status_msg);
     eval {
-        ($status,$status_msg) = $->rewriteConfig();
+        ($status,$status_msg) = $self->rewriteConfig();
     };
     if($@) {
         $status = HTTP_INTERNAL_SERVER_ERROR;
