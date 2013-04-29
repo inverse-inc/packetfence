@@ -203,7 +203,7 @@ sub reset_password :Path('reset_password') :Args(0) {
         ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
     }
     if ( is_success($status) ) {
-        ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, $root_password);
+        ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, undef);
     }
     if ( is_success($status) ) {
         ($status, $message) = $c->model('DB')->secureInstallation($root_user, $root_password);
