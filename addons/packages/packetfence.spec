@@ -320,12 +320,13 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
-%{__install} -d -m2745 $RPM_BUILD_ROOT/usr/local/pf/conf
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
 %{__install} -d $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
