@@ -42,8 +42,8 @@ has_field 'match' =>
    localize_labels => 1,
    options => 
    [
-    { value => 'any', label => 'any' },
-    { value => 'all', label => 'all' },
+    { value => $Rules::ANY, label => 'any' },
+    { value => $Rules::ALL, label => 'all' },
    ],
    element_class => ['input-mini'],
   );
@@ -296,6 +296,12 @@ sub validate {
         unless (scalar @actions > 0) {
             $self->field('actions')->add_error("For this authentication source type, the rule must set a role as one of its actions.");
         }
+    }
+
+    if (scalar @{$self->value->{conditions}} == 0) {
+        # This rule has no condition (catchall); force the match to 'all'
+        # See pf::Authentication::Source->match
+        $self->field('match')->value($Rules::ALL);
     }
 }
 
