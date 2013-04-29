@@ -435,7 +435,7 @@ sub setType {
         }
         else {
             ($status, $network_ref) = $models->{network}->read($interface_ref->{network});
-            my $is_vlan = /^vlan-isolation$|^vlan-registration$/i;
+            my $is_vlan = $type =~ /^vlan-isolation$|^vlan-registration$/i;
             if (is_error($status)) {
                 # Create new network with default values depending on the type
                 if ( $is_vlan) {
@@ -473,7 +473,7 @@ sub setType {
 sub interfaceForDestination {
     my ($self, $destination) = @_;
 
-    my @interfaces = $self->_listInterfaces();
+    my @interfaces = $self->_listInterfaces('all');
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     foreach my $interface ( @interfaces ) {
