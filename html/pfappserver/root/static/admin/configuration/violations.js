@@ -65,7 +65,8 @@ $(function() { // DOM ready
     });
 
     /* Delete a violation */
-    $('#section').on('click', '[href*="#deleteViolation"]', function(event) {
+    $('#section').on('click', '[href*="/delete"]', function(e) {
+        e.preventDefault();
         if ($(this).hasClass('disabled'))
             return false;
         var url = $(this).attr('href');
@@ -78,7 +79,8 @@ $(function() { // DOM ready
         modal.find('h3 span').html(name);
         modal.modal('show');
         confirm_link.off('click');
-        confirm_link.click(function() {
+        confirm_link.click(function(e) {
+            e.preventDefault();
             $.ajax(url)
                 .always(function() {
                     modal.modal('hide');

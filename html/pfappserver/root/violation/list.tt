@@ -33,7 +33,7 @@
               [%- END %]</td>
             <td>[% violation.vlan %]</td>
             <td>
-              <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]#deleteViolation">[% l('Delete') %]</a>
+              <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]">[% l('Delete') %]</a>
               [% IF profiles.size %]
               <div class="btn-group">[% END %]
                 <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), ['default'], 'violations', "$violation.template") %].html" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
