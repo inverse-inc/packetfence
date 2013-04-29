@@ -31,7 +31,7 @@
     <table class="sources table table-sortable admin_ordered">
       <thead>
         <tr>
-          <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th></th>
+          <th width="20px"></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th width="80px"></th>
         </tr>
       </thead>
       <tbody>
@@ -56,7 +56,7 @@
   <table class="sources table">
     <thead>
       <tr>
-        <th></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th></th>
+        <th width="20px"></th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Type') %]</th><th width="80px"></th>
       </tr>
     </thead>
     <tbody>
