@@ -438,6 +438,27 @@ sub flatten_list {
     }
 }
 
+=head2 commit
+
+=cut
+
+sub commit {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my ($status,$status_msg);
+    eval {
+        ($status,$status_msg) = $->rewriteConfig();
+    };
+    if($@) {
+        $status = HTTP_INTERNAL_SERVER_ERROR;
+        $status_msg = $@;
+    }
+    if(is_error($status)) {
+        $self->rollback();
+    }
+    $logger->info($status_msg);
+    return ($status,$status_msg);
+}
 
 sub ACCEPT_CONTEXT {
     my ( $self,$c,%args) = @_;
