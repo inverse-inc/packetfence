@@ -367,16 +367,17 @@ Apache Configuration
 
 The PacketFence´s Apache configuration are located in `/usr/local/pf/conf/httpd.conf.d/`.
 
-In this directory you have 3 importants files, httpd.admin, httpd.portal, httpd.webservice.
-httpd.admin is use to manage PacketFence admin interface.
-httpd.portal is use to manage PacketFence captive portal interface.
-httpd.webservices is use to manage PacketFence webservices interface.
+In this directory you have 3 important file: httpd.admin, httpd.portal, httpd.webservice.
 
-These files have been written in perl language and are completly dynamic, so they activate services only on the interfaces provided for this purpose.
+* httpd.admin is used to manage PacketFence admin interface
+* httpd.portal is used to manage PacketFence captive portal interface
+* httpd.webservices is used to manage PacketFence webservices interface
 
-The other files in this directory are managed by PacketFence but with template, so it is easy to modify this files based on your configuration. SSL is enabled by default to secure access.
+These files have been written using the Perl language and are completely dynamic - so they activate services only on the network interfaces provided for this purpose.
 
-Upon PacketFence installation, self signed certificates will be create in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
+The other files in this directory are managed by PacketFence using templates, so it is easy to modify these files based on your configuration. SSL is enabled by default to secure access.
+
+Upon PacketFence installation, self-signed certificates will be created in `/usr/local/pf/conf/ssl` (`server.key` and `server.crt`). Those certificates can be replaced anytime by your 3rd-party or existing wildcard certificate without problems. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file (`pf.conf`).
 
 Captive Portal
 ^^^^^^^^^^^^^^
