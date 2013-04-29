@@ -339,6 +339,50 @@ Readonly our $SELFREG_MODE_GOOGLE => 'google';
 Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 Readonly our $SELFREG_MODE_GITHUB => 'github';
 
+# SoH filters
+Readonly our $SOH_ACTION_ACCEPT => 'accept';
+Readonly our $SOH_ACTION_REJECT => 'reject';
+Readonly our $SOH_ACTION_VIOLATION => 'violation';
+
+Readonly::Array our @SOH_ACTIONS =>
+  (
+   $SOH_ACTION_ACCEPT,
+   $SOH_ACTION_REJECT,
+   $SOH_ACTION_VIOLATION
+  );
+
+Readonly our $SOH_CLASS_FIREWALL => 'firewall';
+Readonly our $SOH_CLASS_ANTIVIRUS => 'antivirus';
+Readonly our $SOH_CLASS_ANTISPYWARE => 'antispyware';
+Readonly our $SOH_CLASS_AUTO_UPDATES => 'auto-updates';
+Readonly our $SOH_CLASS_SECURITY_UPDATES => 'security-updates';
+
+Readonly::Array our @SOH_CLASSES =>
+  (
+   $SOH_CLASS_FIREWALL,
+   $SOH_CLASS_ANTIVIRUS,
+   $SOH_CLASS_ANTISPYWARE,
+   $SOH_CLASS_AUTO_UPDATES,
+   $SOH_CLASS_SECURITY_UPDATES
+  );
+
+Readonly our $SOH_STATUS_OK => 'ok';
+Readonly our $SOH_STATUS_INSTALLED => 'installed';
+Readonly our $SOH_STATUS_ENABLED => 'enabled';
+Readonly our $SOH_STATUS_DISABLED => 'disabled';
+Readonly our $SOH_STATUS_UP2DATE => 'up2date';
+Readonly our $SOH_STATUS_MICROSOFT => 'microsoft';
+
+Readonly::Array our @SOH_STATUS =>
+  (
+   $SOH_STATUS_OK,
+   $SOH_STATUS_INSTALLED,
+   $SOH_STATUS_ENABLED,
+   $SOH_STATUS_DISABLED,
+   $SOH_STATUS_UP2DATE,
+   $SOH_STATUS_MICROSOFT
+  );
+
 # Log Reload Timer in seconds
 Readonly our $LOG4PERL_RELOAD_TIMER => 5 * 60;
 
