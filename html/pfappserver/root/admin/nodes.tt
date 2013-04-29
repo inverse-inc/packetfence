@@ -109,6 +109,10 @@ form {
                 </div>
                 <div class="tab-pane well" id="advanced">
                   <form id="advancedSearch" name="advancedSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
+                    <input type="hidden" name="page_num">
+                    <input type="hidden" name="per_page">
+                    <input type="hidden" name="by">
+                    <input type="hidden" name="direction">
                   <div class="input-daterange datepicker">
                     <input type="text" class="input-small" name="start">
                     <span class="add-on">[% l('to') %]</span>

@@ -66,6 +66,9 @@ var NodeView = function(options) {
 
     var trigger_violation = $.proxy(this.triggerViolation, this);
     $('body').on('click', '#modalNode #addViolation', trigger_violation);
+
+    var advanced_search = $.proxy(this.advancedSearch, this);
+    $('body').on('click', '[href*="#node/advanced_search"]', advanced_search);
 };
 
 NodeView.prototype.readNode = function(e) {
@@ -220,4 +223,22 @@ NodeView.prototype.triggerViolation = function(e) {
         },
         errorSibling: modal_body.children().first()
     });
+};
+
+NodeView.prototype.advancedSearch = function(e) {
+    e.preventDefault();
+    var link = $(e.target);
+    var form = $('#advancedSearch');
+    var href = link.attr("href");
+    href = href.replace(/^.*#node\/advanced_search\//,'');
+    if(href) {
+        var values = href.split("/");
+        for(var i =0;i<values.length;i+=2) {
+            var name = values[i];
+            var value = values[i + 1];
+            form.find('[name="' + name + '"]:not(:disabled)').val(value);
+        }
+        form.submit();
+    }
+    return false;
 };
