@@ -482,7 +482,7 @@ echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
+for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
@@ -783,6 +783,7 @@ fi
 %dir                    /usr/local/pf/logs
 # logfiles
 %ghost                  %logdir/packetfence.log
+%ghost                  %logdir/catalyst.log
 %ghost                  %logdir/snmptrapd.log
 %ghost                  %logdir/access_log
 %ghost                  %logdir/error_log
