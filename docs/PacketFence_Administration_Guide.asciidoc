@@ -140,7 +140,7 @@ The following table provides recommendations for the required components, togeth
 |DNS server       |BIND 9
 |RADIUS server    |FreeRADIUS 2.1.12
 |Snort            |Snort 2.8 or 2.9
-|Suricata         |Suricata 1.x
+|Suricata         |Suricata 1.4.1
 |========================================
 
 More recent versions of the software mentioned above can also be used.
