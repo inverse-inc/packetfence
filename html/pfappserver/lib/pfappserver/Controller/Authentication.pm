@@ -18,6 +18,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use Log::Log4perl qw(get_logger);
 use pf::authentication;
 use pfappserver::Form::Authentication;
 
@@ -68,21 +69,56 @@ sub update :Path('update') :Args(0) {
     my ($self, $c) = @_;
 
     my ($form, $status, $message);
+    $c->stash->{current_view} = 'JSON';
 
-    $form = pfappserver::Form::Authentication->new(ctx => $c);
+    $form = $c->form("Authentication");
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $message = $form->field_errors;
     }
     else {
-        ($status, $message) = $c->model('Authentication')->update($form->value->{sources});
+        my $model = $c->model('Config::Authentication');
+        ($status, $message) = $model->sortItems($form->value->{sources});
+        if(is_success($status)) {
+            $self->_commitChanges($c,$model);
+        }
     }
 
     $c->response->status($status);
     $c->stash->{status_msg} = $message; # TODO: localize error message
 
-    $c->stash->{current_view} = 'JSON';
+}
+
+
+
+=head2 _commitChanges
+
+Commit changes would want to refactor to model
+#Would need to refactor to the model
+
+=cut
+
+sub _commitChanges {
+    my ($self,$c,$model) = @_;
+    my $logger = get_logger();
+    my ($status,$message);
+    eval {
+        ($status,$message) = $model->rewriteConfig();
+    };
+    if($@) {
+        $status = HTTP_INTERNAL_SERVER_ERROR;
+        $message = $@;
+    }
+    if(is_error($status)) {
+        $c->stash(
+            current_view => 'JSON',
+            status_msg => $message,
+        );
+        $model->rollback();
+    }
+    $logger->info($message);
+    $c->response->status($status);
 }
 
 =head1 COPYRIGHT
