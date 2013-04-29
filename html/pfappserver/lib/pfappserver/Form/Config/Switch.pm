@@ -51,6 +51,14 @@ has_field 'mode' =>
 doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch
 ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>' },
   );
+has_field 'deauthMethod' =>
+  (
+   type => 'Select',
+   label => 'Deauthentication Method',
+   element_class => ['chzn-deselect'],
+   required => 1,
+   messages => { required => 'Please specify the deauthentication method.' },
+  );
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -125,17 +133,8 @@ has_block 'radius' =>
   (
    tag => 'div',
    render_list => [
-                   'deauthMethod',
                    'radiusSecret',
                   ],
-  );
-has_field 'deauthMethod' =>
-  (
-   type => 'Select',
-   label => 'Deauthentication Method',
-   element_class => ['chzn-deselect'],
-   required => 1,
-   messages => { required => 'Please specify the deauthentication method.' },
   );
 has_field 'radiusSecret' =>
   (

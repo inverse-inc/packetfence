@@ -25,6 +25,7 @@
         [% form.field('id').render UNLESS item %]
         [% form.field('type').render %]
         [% form.field('mode').render %]
+        [% form.field('deauthMethod').render %]
         [% form.field('uplink_dynamic').render %]
         [% form.field('uplink').render %]
       </div><!-- tab-pane -->
