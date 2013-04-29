@@ -455,6 +455,27 @@ Test the connection and save everything. Using the newly defined source, any use
 
 Now, since we want to authenticate guests from PacketFence's internal SQL database, accounts must be provisionned manually. You can do so from the *Configuration -> Users -> Create* section. When creating guests, specify "guest" for the *Set role* action, and set an access duration for 1 day.
 
+If you would like to differentiate user authentication and machine authentication using Active Directory, one way to do it is by creating a second authentication sources, for machines:
+
+* Name: ad1
+* Description: Active Directory for Machines
+* Host: 192.168.1.2:389 without SSL/TLS
+* Base DN: CN=Computers,DC=acme,DC=local
+* Scope: One-level
+* Username Attribute: servicePrincipalName
+* Bind DN: CN=Administrator,CN=Users,DC=acme,DC=local
+* Password: acme123
+
+Then, we add a rule:
+
+* Name: machines
+* Description: Rule for all machines
+* Don't set any condition (as it's a fallback rule)
+* Set the following actions:
+  - Set role machineauth
+  - Set unregistration date January 1st, 2020
+
+
 Network Devices Definition (switches.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
