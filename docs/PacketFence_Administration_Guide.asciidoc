@@ -31,7 +31,7 @@ Developers Guide::
   Covers captive portal customization, VLAN management customization and 
   instructions for supporting new hardware.
 `CREDITS`::
-  This is, at least, a partial file of PacketFence contributors..  
+  This is, at least, a partial file of PacketFence contributors.
 `NEWS`::
   Covers noteworthy features, improvements and bugfixes by release. 
 `UPGRADE`::
@@ -259,10 +259,10 @@ RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` 
 
   yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras,rpmforge
 
-Ubuntu 12.04 LTS 
+Ubuntu 12.04 LTS
 ^^^^^^^^^^^^^^^^
 
-All the PacketFence dependencies are available through the official Ubuntu repository. 
+All the PacketFence dependencies are available through the official Ubuntu repository.
 
 Software Download
 ~~~~~~~~~~~~~~~~~
@@ -271,7 +271,7 @@ PacketFence provides a RPM repository for RHEL / CentOS instead of a single RPM 
 
 For Ubuntu 12.04 LTS, PacketFence provides a Ubuntu package repository.
 
-These repositories contain all required dependencies to install PacketFence. This provides numerous advantages: 
+These repositories contain all required dependencies to install PacketFence. This provides numerous advantages:
 
 [options="compact"]
 * easy installation
@@ -283,7 +283,7 @@ Software Installation
 
 For RHEL / CentOS:
 
-In order to use the repository, just create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content: 
+In order to use the repository, just create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content:
 
   [PacketFence]
   name=PacketFence Repository
@@ -599,18 +599,11 @@ Also, starting with PacketFence 3.1, the RADIUS secret is required for our suppo
 Role-based enforcement support
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some network devices support the assignment of a specific set of rules 
-(firewall or ACLs) to a user. The idea is that these rules can be a lot more
-precise to control what a user can or cannot do compared to VLAN which have a
-larger network management overhead.
+Some network devices support the assignment of a specific set of rules (firewall or ACLs) to a user. The idea is that these rules can be a lot more precise to control what a user can or cannot do compared to VLAN which have a larger network management overhead.
 
-PacketFence supports assigning roles on devices that supports it.
-The current role assignment strategy is to assign it along 
-with the VLAN (that may change in the future). A special internal role
-to external role assignment must be configured in the switch configuration file 
-(`/usr/local/pf/conf/switches.conf`) as described below:
+PacketFence supports assigning roles on devices that supports it. The current role assignment strategy is to assign it along with the VLAN (that may change in the future). A special internal role to external role assignment must be configured in the switch configuration file (`/usr/local/pf/conf/switches.conf`).
 
-The current format (which *will* change in the future) is the following:
+The current format is the following:
 
   Format: <rolename>Role=<controller_role>
 
@@ -620,11 +613,9 @@ And you assign it to the global `roles` parameter or the per-switch one. For exa
   engineeringRole=full-access
   salesRole=little-access
 
-would return the `full-access` role to the nodes categorized as admin or 
-engineering and the role `little-access` to nodes categorized as sales.
+would return the `full-access` role to the nodes categorized as admin or engineering and the role `little-access` to nodes categorized as sales.
 
-CAUTION: Make sure that the roles are properly defined on the network devices
-prior to assigning roles!
+CAUTION: Make sure that the roles are properly defined on the network devices prior to assigning roles!
 
 Default VLAN/role assignment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -667,11 +658,7 @@ This technique is covered in details in the <<_technical_introduction_to_hybrid_
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration, Isolation and Inline VLANs. This is done when executing the configurator script (see the <<_first_step,First Step section>>).
-
-These networks informations are accessible through the GUI in *Administration -> Networks*:
-
-image::docs/images/screenshot-network-config.png[scaledwidth="100%",alt="Network configuration screenshot"]
+PacketFence automatically generates the DHCP and DNS configuration files for Registration, Isolation and Inline VLANs. This is done by editing the network interfaces from the configuration module of the administration Web interface (see the <<_first_step,First Step section>>).
 
 network:: Network subnet
 netmask:: Network mask
@@ -1491,7 +1478,7 @@ CAUTION: Great care should be taken when using this feature because any resource
 +
 `redirect_url`:: The user is redirected to this URL after he re-enabled his network access on the remediation page.
 `enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
-`trigger`:: Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type`::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`trigger`:: Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
 `actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
 `log`::: Log a message to the file specified in `[alerting].log`
 `email`::: Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
@@ -1782,11 +1769,7 @@ As we mentioned earlier, each floating network device has to be identified. Ther
 
 [options="compact"]
 * by editing `conf/floating_network_device.conf`
-* through the Web GUI, in the *Configuration -> Network -> Floating devices* tab
-
-image::docs/images/screenshot-floating-dev.png[scaledwidth="100%",alt="Floating network devices screenshots"]
-
-image::docs/images/screenshot-add-floating-dev.png[scaledwidth="60%",alt="Add a floating network device screenshot"]
+* through the Web GUI, in *Configuration -> Network -> Floating devices*
 
 Here are the settings that are available:
 
@@ -2650,7 +2633,7 @@ More on SNMP traps VLAN isolation
 
 When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::SNMP` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
 
-image::docs/images/diagram-trap-interaction.png[scaledwidth="100%",alt="pfsetvlan SNMP interactions diagram"]
+image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan SNMP interactions diagram"]
 
 You need to create a registration VLAN (with a DHCP server, but no routing to other VLANs) in which PacketFence will put unregistered devices. If you want to isolate computers which have open violations in a separate VLAN, an isolation VLAN needs also to be created.
 
@@ -2822,8 +2805,6 @@ Web Admin GUI
 ~~~~~~~~~~~~~
 
 The Web Admin GUI, accessible using https on port 1443, shows the same information available using `pfcmd`.
-
-image::docs/images/screenshot-node-view.png[scaledwidth="100%",alt="Web Admin node view screenshot"]
 
 [appendix]
 Manual FreeRADIUS 2 configuration
