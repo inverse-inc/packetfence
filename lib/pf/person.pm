@@ -36,6 +36,7 @@ BEGIN {
         person_modify
         person_nodes
         person_violations
+        person_custom_search
     );
     @EXPORT_OK = qw( $PID_RE );
 }
@@ -224,6 +225,14 @@ sub person_count_all {
     $logger->debug($person_count_all_sql);
 
     return db_data(PERSON, $person_statements, 'person_count_all_sql_custom');
+}
+
+sub person_custom_search {
+    my ($sql) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->debug($sql);
+    $person_statements->{'person_custom_search'} = $sql;
+    return db_data(PERSON, $person_statements, 'person_custom_search');
 }
 
 sub person_view_all {
