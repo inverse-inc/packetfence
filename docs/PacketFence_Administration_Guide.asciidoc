@@ -929,7 +929,7 @@ apt-get install samba winbind krb5-user
 
 NOTE: If you have Windows 7 PCs in your network, you need to use Samba version 3.5.0 (or greater).
  
-When done with the samba install, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain for Centos/RHEL:
+When done with the Samba install, modify your `/etc/hosts` in order to add the FQDN of your Active Directory servers. Then, you need to modify `/etc/krb5.conf`. Here is an example for the `DOMAIN.NET` domain for Centos/RHEL:
 
 ----
 [logging]
@@ -991,18 +991,16 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
   [global]
   workgroup = DOMAIN
   server string = pf_server_name
-  interfaces = 192.168.1.2/24
-  security = ADS
+  security = ads
   passdb backend = tdbsam
   realm = DOMAIN.NET
   encrypt passwords = yes
   winbind use default domain = yes
   client NTLMv2 auth = yes
   preferred master = no
+  domain master = no
+  local master = no
   load printers = no
-  cups options = raw
-  idmap uid = 10000-45000
-  idmap gid = 10000-45000
   log level = 1 winbind:5 auth:3
 ----
 
@@ -1018,11 +1016,6 @@ For Ubuntu 12.04 LTS:
   domain master = no
   local master = no
   preferred master = no
-  idmap backend = tdb
-  idmap uid = 10000-99999
-  idmap gid = 10000-99999
-  idmap config DOMAIN:backend = rid
-  idmap config DOMAIN:range = 10000-99999
   winbind separator = +
   winbind enum users = yes
   winbind enum groups = yes
