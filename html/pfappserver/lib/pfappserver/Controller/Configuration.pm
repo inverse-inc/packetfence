@@ -19,6 +19,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 use URI::Escape;
+use Log::Log4perl qw(get_logger);
 
 use pf::os;
 use pf::util qw(load_oui download_oui);
@@ -78,6 +79,7 @@ The generic handler for all pf sections
 
 sub pf_section :Path :Args(1) {
     my ($self, $c, $section) = @_;
+    my $logger = get_logger();
     if (exists $ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
 
@@ -86,12 +88,16 @@ sub pf_section :Path :Args(1) {
 
         my $model = $c->model('Config::Pf');
         $form = $c->form("Config::Pf", section => $section);
-
         if ($c->request->method eq 'POST') {
             $form->process(params => $c->req->params);
+            $logger->info("Processed form");
             if ($form->has_errors) {
-                $c->response->status(HTTP_BAD_REQUEST);
-                $c->stash->{status_msg} = $form->field_errors; # TODO: localize error message
+                $logger->info(join(" ",$form->errors));
+                $c->response->status(HTTP_PRECONDITION_FAILED);
+                $c->stash(
+                    status_msg => join(" ",$form->errors), # TODO: localize error message
+                    current_view => 'JSON'
+                );
             }
             else {
                 $model->update($section, $form->value);
