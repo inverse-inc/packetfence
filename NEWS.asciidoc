@@ -23,6 +23,8 @@ New Features
 * Adding support for scanning dot1x connections for auto-registration by EAP-Type
 * Adding support for auto registering dot1x node based of the EAP-Type
 * New searchable MAC Addresses module to query all existing OUI prefixes
+* New advanced nodes/users search capabilities
+* New memory object caching subsystem for configuration files
 
 Enchancements
 
