@@ -85,6 +85,10 @@ var UserView = function(options) {
         var type = tr.find('select[name$=type]').first();
         updateAction(type);
     });
+
+    var advanced_search = $.proxy(this.advancedSearch, this);
+    $('body').on('click', '[href*="#user/advanced_search"]', advanced_search);
+
 };
 
 UserView.prototype.readUser = function(e) {
@@ -307,4 +311,22 @@ UserView.prototype.toggleViolation = function(e) {
             that.disableToggleViolation = false;
         }
     });
+};
+
+UserView.prototype.advancedSearch = function(e) {
+    e.preventDefault();
+    var link = $(e.currentTarget);
+    var form = $('#advancedSearch');
+    var href = link.attr("href");
+    if(href) {
+        href = href.replace(/^.*#user\/advanced_search\//,'');
+        var values = href.split("/");
+        for(var i =0;i<values.length;i+=2) {
+            var name = values[i];
+            var value = values[i + 1];
+            form.find('[name="' + name + '"]:not(:disabled)').val(value);
+        }
+        form.submit();
+    }
+    return false;
 };
