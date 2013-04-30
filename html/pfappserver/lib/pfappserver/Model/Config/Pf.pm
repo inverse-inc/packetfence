@@ -70,10 +70,7 @@ sub cleanupAfterRead {
 sub cleanupBeforeCommit {
     my ( $self,$section, $assignment ) = @_;
     while(my ($key,$value) = each %$assignment) {
-        if (!defined ($value) ) {
-            delete $assignment->{$key};
-        }
-        elsif(ref($value) eq 'ARRAY') {
+        if(ref($value) eq 'ARRAY') {
             $assignment->{$key} = join(',',@$value);
         }
     }
