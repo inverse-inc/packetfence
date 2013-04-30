@@ -1873,7 +1873,7 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
 
 These parameters can also be configured from the *Configuration -> Admin Registration* section.
 
-PacketFence administrators automatically have access to the guest management interface. It is also possible to create users that will only have access to this separate interface by setting the access level to *All* as an action.
+PacketFence administrators automatically have access to the guest management interface. It is also possible to create users that will only have access to the administrative interface by setting the access level to *All* as an action.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
@@ -1929,7 +1929,7 @@ The last step is to select the "Enforce Network Access Protection" checkbox unde
 Configuration of SoH policy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to enforce a SoH policy, we need to create it first. This is done using a separate interface accessible on the same virtual server as the administrative UI under *Configuration -> SOH*.
+In order to enforce a SoH policy, we need to create it first. This is done using the *Configuration -> Compliance -> Statement of Health* module.
 
 Policy example
 ^^^^^^^^^^^^^^
