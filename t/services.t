@@ -13,7 +13,7 @@ Exercizing pf::services and sub modules components.
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 18;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -27,7 +27,6 @@ BEGIN { use SwitchFactoryConfig; }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::services::dhcpd') }
-BEGIN { use_ok('pf::services::named') }
 BEGIN { use_ok('pf::services::snmptrapd') }
 BEGIN { use_ok('pf::services::snort') }
 BEGIN { use_ok('pf::services::suricata') }
