@@ -168,7 +168,7 @@ $(function () { // DOM ready
     };
     /* Default values for Ajax requests */
     $.ajaxSetup({
-        timeout: 30000,
+        timeout: 120000,
         statusCode: {
             401: redirectCallback,
             302: redirectCallback
