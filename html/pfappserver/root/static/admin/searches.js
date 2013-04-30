@@ -65,7 +65,11 @@ $(function() {
                 }
             }
         }
-        location.hash = url;
+        if(location.hash == url) {
+            $(window).hashchange();
+        } else {
+            location.hash = url;
+        }
         return false;
     });
 
