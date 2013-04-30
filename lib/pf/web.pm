@@ -388,9 +388,17 @@ sub generate_oauth2_result {
 
    my $response;
 
+   my $type;
    # Validate the token
-   $response = $token->get($Config{"oauth2 $provider"}{'protected_resource_url'});
-
+   if (lc($provider) eq 'facebook') {
+       $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+   } elsif (lc($provider) eq 'github') {
+       $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+   } elsif (lc($provider) eq 'google') {
+       $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+   }
+   my $source = &pf::authentication::getAuthenticationSourceByType($type);
+   $response = $token->get($source->{'protected_resource_url'});
    if ($response->is_success) {
         # Grab JSON content
         my $json = new JSON;
