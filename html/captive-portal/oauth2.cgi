@@ -49,6 +49,7 @@ if ( !valid_mac($portalSession->getClientMac()) ) {
 
 my $source_type = undef;
 my %info;
+my $pid;
 
 # Pull username
 $info{'pid'} = "admin";
@@ -65,7 +66,7 @@ if (defined($cgi->url_param('provider'))) {
     $source_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
 
     if ($code) {
-      my $pid = $email;
+        $pid = $email;
     } else {
         exit(0);
     }
@@ -75,7 +76,7 @@ if (defined($cgi->url_param('provider'))) {
     $source_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
 
     if ($code) {
-      my $pid = $username . "\@facebook.com";
+       $pid = $username . "\@facebook.com";
     } else {
        exit(0);
     }
@@ -85,7 +86,7 @@ if (defined($cgi->url_param('provider'))) {
     $source_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
 
     if ($code) {
-      my $pid = $email;
+      $pid = $email;
     } else {
        exit(0);
     }
