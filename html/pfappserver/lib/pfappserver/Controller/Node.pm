@@ -18,10 +18,16 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
-use pfappserver::Form::Node;
-use pfappserver::Form::AdvancedSearch;
-
 BEGIN { extends 'pfappserver::Base::Controller'; }
+
+__PACKAGE__->config(
+    models => {
+        advanced_search => 'Search::Node'
+    },
+    forms  => {
+        advanced_search => 'AdvancedSearch'
+    },
+);
 
 =head1 SUBROUTINES
 
@@ -32,7 +38,6 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-
     $c->go('simple_search');
 }
 
@@ -47,36 +52,33 @@ sub simple_search :SimpleSearch('Node') :Local :Args() { }
 =cut
 
 sub advanced_search :Local :Args() {
-    my ($self, $c) = @_;
-    my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
-    my $search_model = $c->model("Search::Node");
-    my $form = new pfappserver::Form::AdvancedSearch;
+    my ($self, $c, @args) = @_;
+    my ($status,$status_msg,$result);
+    my %search_results;
+    my $model = $c->model;
+    my $form = $c->form;
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
+        $c->stash(
+            current_view => 'JSON',
+        );
     } else {
-        %search_results = $search_model->search($form->value);
+        my $query = $form->value;
+        ($status,$result) = $model->search($query);
+        my $itemsKey = $model->itemsKey;
+        if(is_success($status)) {
+            $c->stash( form => $form);
+            $c->stash( $result);
+        }
     }
     $c->stash(
         status_msg => $status_msg,
-        %search_results
     );
     $c->response->status($status);
 }
 
-
-=head2 save_search
-
-=cut
-
-sub save_search : Local :Args(0) { }
-
-=head2 get_searches
-
-=cut
-
-sub get_searches : Local :Args(0) { }
 
 =head2 object
 
@@ -122,10 +124,11 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{node} = $result;
     }
     $nodeStatus = $c->model('Node')->availableStatus();
-    $form = pfappserver::Form::Node->new(ctx => $c,
-                                         init_object => $c->stash->{node},
-                                         status => $nodeStatus,
-                                         roles => $c->stash->{roles});
+    $form = $c->form("Node" ,
+        init_object => $c->stash->{node},
+        status => $nodeStatus,
+        roles => $c->stash->{roles}
+    );
     $form->process();
     $c->stash->{form} = $form;
 
@@ -145,9 +148,10 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($form, $nodeStatus);
 
     $nodeStatus = $c->model('Node')->availableStatus();
-    $form = pfappserver::Form::Node->new(ctx => $c,
-                                         status => $nodeStatus,
-                                         roles => $c->stash->{roles});
+    $form = $c->form("Node" ,
+        status => $nodeStatus,
+        roles => $c->stash->{roles}
+    );
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
