@@ -69,7 +69,7 @@ CREATE TABLE `node_category` (
 -- Insert 'default' category
 --
 
-INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Placeholder category, feel free to edit");
+INSERT INTO `node_category` (category_id,name,notes) VALUES ("1","default","Placeholder role/category, feel free to edit");
 
 --
 -- Insert 'guest' category
