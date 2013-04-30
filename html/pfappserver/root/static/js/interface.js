@@ -105,10 +105,13 @@ InterfaceView.prototype.typeChanged = function(e) {
     var type = e? $(e.target) : modal.find('[name="type"]');
     if (type.length) {
         var dns = modal.find('[name="dns"]').closest('.control-group');
-        if (type.val() == 'inline')
+        if (type.val() == 'inline') {
             dns.show('fast');
-        else
+            dns.find(':input').removeAttr('disabled');
+        } else {
             dns.hide('fast');
+            dns.find(':input').attr('disabled','disabled');
+        }
     }
 };
 
