@@ -66,8 +66,6 @@ if (defined($cgi->url_param('provider'))) {
 
     if ($code) {
       my $pid = $email;
-      pf::web::web_node_register($portalSession, $pid, %info);
-      pf::web::end_portal_session($portalSession);
     } else {
         exit(0);
     }
@@ -78,8 +76,6 @@ if (defined($cgi->url_param('provider'))) {
 
     if ($code) {
       my $pid = $username . "\@facebook.com";
-      pf::web::web_node_register($portalSession, $pid, %info);
-      pf::web::end_portal_session($portalSession);
     } else {
        exit(0);
     }
@@ -90,25 +86,25 @@ if (defined($cgi->url_param('provider'))) {
 
     if ($code) {
       my $pid = $email;
-
-      # Setting access timeout and role (category) dynamically
-      $info{'unregdate'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
-      
-      if (defined $info{'unregdate'}) {
-          $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
-      }
-      else {
-          $info{'unregdate'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_UNREG_DATE);
-      }
-      
-      $info{'category'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_ROLE);
-
-      pf::web::web_node_register($portalSession, $pid, %info);
-      pf::web::end_portal_session($portalSession);
     } else {
        exit(0);
     }
 }
+
+# Setting access timeout and role (category) dynamically
+$info{'unregdate'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+
+if (defined $info{'unregdate'}) {
+    $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+}
+else {
+    $info{'unregdate'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+}
+
+$info{'category'} = &pf::authentication::matchByType($source_type, {username => $pid}, $Actions::SET_ROLE);
+
+pf::web::web_node_register($portalSession, $pid, %info);
+pf::web::end_portal_session($portalSession);
 
 =head1 AUTHOR
 
