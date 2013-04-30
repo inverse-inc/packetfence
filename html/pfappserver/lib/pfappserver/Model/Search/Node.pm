@@ -82,12 +82,13 @@ sub make_builder {
         ->select(qw(
             mac pid voip bypass_vlan status category_id
             detect_date regdate unregdate lastskip
-            user_agent computername dhcp_fingerprint
+            user_agent computername
             last_arp last_dhcp notes),
-            L_("IF(ISNULL(node_category.name), '', node_category.name)",'category')
+            L_("IF(ISNULL(node_category.name), '', node_category.name)",'category'),
+            L_("IFNULL(os_type.description, ' ')",'dhcp_fingerprint')
         )->from('node',
                 {
-                    'table'  => 'node_category',
+                    'table' => 'node_category',
                     'join' => 'LEFT',
                     'on' =>
                     [
@@ -101,9 +102,32 @@ sub make_builder {
                                 'table'  => 'node',
                                 'name'   => 'category_id',
                             }
-                        ]
+                        ],
                     ],
-                }
+                },
+                {
+                    'table' => 'dhcp_fingerprint',
+                    'join' => 'LEFT',
+                    'on' =>
+                    [
+                        [
+                            {
+                                'table'  => 'dhcp_fingerprint',
+                                'name'   => 'fingerprint',
+                            },
+                            '=',
+                            {
+                                'table'  => 'node',
+                                'name'   => 'dhcp_fingerprint',
+                            }
+                        ],
+                    ],
+                },
+                {
+                    'table' => 'os_type',
+                    'join' => 'LEFT',
+                    'using' => 'os_id',
+                },
         );
 }
 

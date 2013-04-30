@@ -16,6 +16,7 @@
                   [% header('pid', 'Identifier') %]
                   [% header('last_ip', 'IP Address') %]
                   [% header('dhcp_fingerprint', 'OS (DHCP)') %]
+                  [% header('category', 'Category') %]
                 </tr>
               </thead>
               <tbody>
@@ -24,9 +25,10 @@
                   <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
                   <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
                   <td>[% node.computername %]</td>
-                  <td>[% node.pid %]</td>
+                  <td><a href="[% c.uri_for(c.controller('User').action_for('view'), [ node.pid ]) %]">[% node.pid %]</td>
                   <td>[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
+                  <td>[% node.category %]</td>
                 </tr>
                 [%- END -%]
               </tbody>

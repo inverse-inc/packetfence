@@ -1,4 +1,5 @@
 package pfappserver::Form::SavedSearch;
+
 =head1 NAME
 
 pfappserver::Form::SavedSearch
@@ -17,13 +18,15 @@ extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
 =head2 Fields
-=cut
 
 =over
+
 =cut
 
 =item name
+
 =cut
+
 has_field 'name'  => (
    type  => 'Text',
    label => 'Name',
@@ -32,28 +35,27 @@ has_field 'name'  => (
     },
 );
 
-=item name
-=cut
-has_field 'in_dashboard' => (
-   type  => 'Toggle',
-   label => 'Show in dashboard',
-);
-
 =item query
+
 =cut
+
 has_field 'query' => (
    type => 'Hidden',
 );
 
 =item pid
+
 =cut
+
 has_field 'pid' => (
    type => 'Text',
    widget => 'NoRender',
 );
 
 =item namespace
+
 =cut
+
 has_field 'namespace' => (
    type => 'Text',
    widget => 'NoRender',
