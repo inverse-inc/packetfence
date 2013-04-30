@@ -686,11 +686,11 @@ sub oauth2_client {
       my $provider = shift;
       my $type;
       {
-          if (lc($type) eq 'facebook') {
+          if (lc($provider) eq 'facebook') {
               $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
-          } elsif (lc($type) eq 'github') {
+          } elsif (lc($provider) eq 'github') {
               $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
-          } elsif (lc($type) eq 'google') {
+          } elsif (lc($provider) eq 'google') {
               $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
           }
       }
