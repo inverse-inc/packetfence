@@ -67,8 +67,9 @@ var NodeView = function(options) {
     var trigger_violation = $.proxy(this.triggerViolation, this);
     $('body').on('click', '#modalNode #addViolation', trigger_violation);
 
-    var advanced_search = $.proxy(this.advancedSearch, this);
-    $('body').on('click', 'a[href*="#node/advanced_search"]', advanced_search);
+    /* Update the advanced search form to the next page or resort the query*/
+    var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
+    $('body').on('click', 'a[href*="#node/advanced_search"]', advanced_search_updater);
 };
 
 NodeView.prototype.readNode = function(e) {
@@ -225,7 +226,7 @@ NodeView.prototype.triggerViolation = function(e) {
     });
 };
 
-NodeView.prototype.advancedSearch = function(e) {
+NodeView.prototype.advancedSearchUpdater = function(e) {
     e.preventDefault();
     var link = $(e.currentTarget);
     var form = $('#advancedSearch');

@@ -85,9 +85,9 @@ var UserView = function(options) {
         var type = tr.find('select[name$=type]').first();
         updateAction(type);
     });
-
-    var advanced_search = $.proxy(this.advancedSearch, this);
-    $('body').on('click', '[href*="#user/advanced_search"]', advanced_search);
+    /* Update the advanced search form to the next page or resort the query*/
+    var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
+    $('body').on('click', '[href*="#user/advanced_search"]', advanced_search_updater);
 
 };
 
@@ -313,7 +313,7 @@ UserView.prototype.toggleViolation = function(e) {
     });
 };
 
-UserView.prototype.advancedSearch = function(e) {
+UserView.prototype.advancedSearchUpdater = function(e) {
     e.preventDefault();
     var link = $(e.currentTarget);
     var form = $('#advancedSearch');
