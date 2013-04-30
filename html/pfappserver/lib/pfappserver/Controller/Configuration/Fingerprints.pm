@@ -34,17 +34,8 @@ my %FIELD_MAP = (
 
 =cut
 
-sub index :Path :Args(0) {
-    my ($self, $c) = @_;
-    $c->stash(template => 'configuration/fingerprints/simple_search.tt') ;
-    $c->forward('simple_search');
-}
+sub index :Path :Args() : SimpleSearch('OS') { }
 
-=head2 simplesearch
-
-=cut
-
-sub simple_search :SimpleSearch('OS') :Local :Args() { }
 
 =head2 update
 
