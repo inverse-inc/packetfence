@@ -393,7 +393,6 @@ sub init_config {
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
-    readOAuthFile();
 }
 
 =item ipset_version -  check the ipset version on the system
