@@ -55,8 +55,8 @@ sub advanced_search :Local :Args() {
     my ($self, $c, @args) = @_;
     my ($status,$status_msg,$result);
     my %search_results;
-    my $model = $c->model;
-    my $form = $c->form;
+    my $model = $self->getModel($c);
+    my $form = $self->getForm($c);
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
@@ -67,7 +67,6 @@ sub advanced_search :Local :Args() {
     } else {
         my $query = $form->value;
         ($status,$result) = $model->search($query);
-        my $itemsKey = $model->itemsKey;
         if(is_success($status)) {
             $c->stash( form => $form);
             $c->stash( $result);
