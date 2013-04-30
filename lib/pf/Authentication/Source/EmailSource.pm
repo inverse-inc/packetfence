@@ -29,6 +29,15 @@ sub available_attributes {
   return [@$super_attributes, @$own_attributes];
 }
 
+=head2 match_in_subclass
+
+=cut
+
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    return $params->{'username'};
+}
+
 =back
 
 =head1 AUTHOR

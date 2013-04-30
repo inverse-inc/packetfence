@@ -37,6 +37,10 @@ sub available_actions {
            ];
 }
 
+=head2 match_in_subclass
+
+=cut
+
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     return $params->{'username'};

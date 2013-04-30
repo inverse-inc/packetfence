@@ -53,7 +53,7 @@ sub authenticate {
     return ($TRUE, 'Successful authentication using htpasswd file.');
 }
 
-=item match
+=item match_in_subclass
 
 =cut
 sub match_in_subclass {

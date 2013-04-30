@@ -48,6 +48,10 @@ sub authenticate_using_kerberos {
   return ($FALSE, 'Unable to connect to Kerberos server');
 }
 
+=item match_in_subclass
+
+=cut
+
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 

@@ -54,6 +54,11 @@ sub available_attributes {
   return [@$super_attributes, @$own_attributes];
 }
 
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    return $params->{'username'};
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
