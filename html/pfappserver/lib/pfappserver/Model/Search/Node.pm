@@ -24,10 +24,61 @@ extends 'pfappserver::Base::Model::Search';
 
 sub search {
     my ($self,$params) = @_;
-    my %results = %$params;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my $builder = new pf::SearchBuilder;
-    $builder
+    my $builder = $self->make_builder;
+    $self->setup_query($builder,$params);
+    my $results = $self->do_query($builder,$params);
+    return(HTTP_OK,$results);
+}
+
+sub setup_query {
+    my ($self,$builder,$params) = @_;
+    $self->add_joins($builder,$params);
+    $self->add_searches($builder,$params);
+    $self->add_limit($builder,$params);
+    $self->add_order_by($builder,$params);
+}
+
+sub do_query {
+    my ($self,$builder,$params) = @_;
+    my %results = %$params;
+    my $sql = $builder->sql;
+    my ($per_page,$page_num,$by,$direction) = @{$params}{qw(per_page page_num by direction)};
+    $per_page ||= 25;
+    $page_num ||= 1;
+    $direction ||= 'asc';
+    my $itemsKey = $self->itemsKey;
+    $results{$itemsKey} = [node_custom_search($sql)];
+    my $sql_count = $builder->sql_count;
+    my ($count) = node_custom_search($sql_count);
+    $count = $count->{count};
+    $results{count} = $count;
+    $results{pages_count} = ceil( $count / $per_page );
+    $results{per_page} = $per_page;
+    $results{page_num} = $page_num;
+    return \%results;
+}
+
+sub add_searches {
+    my ($self,$builder,$params) = @_;
+    my @searches = map {$self->process_query($_)} @{$params->{searches}};
+    my $all_or_any = $params->{all_or_any};
+    if ($all_or_any eq 'any' ) {
+        $all_or_any = 'or';
+    } else {
+        $all_or_any = 'and';
+    }
+    if(@searches) {
+        $builder->where('(');
+        $builder->where($all_or_any)->where(@$_) for @searches;
+        $builder->where(')');
+    }
+
+}
+
+sub make_builder {
+    my ($self) = @_;
+    return pf::SearchBuilder->new
         ->select(qw(
             mac pid voip bypass_vlan status category_id
             detect_date regdate unregdate lastskip
@@ -54,39 +105,14 @@ sub search {
                     ],
                 }
         );
-    my @searches = map {$self->process_query($_)} @{$params->{searches}};
-    my ($start,$end,$all_or_any,$page_num,$per_page, $by, $direction) = @{$params}{qw(start end all_or_any page_num per_page by direction)};
-    $per_page ||= 25;
-    $page_num ||= 1;
-    $self->add_joins($builder,$params);
-    if($start && $end) {
-    }
-    if ($all_or_any eq 'any' ) {
-        $all_or_any = 'or';
-    } else {
-        $all_or_any = 'and';
-    }
-    if(@searches) {
-        $builder->where('(');
-        $builder->where($all_or_any)->where(@$_) for @searches;
-        $builder->where(')');
-    }
-    $self->add_limit($builder,$params);
+}
+
+sub add_order_by {
+    my ($self,$builder,$params) = @_;
+    my ($by,$direction) = @$params{qw(by direction)};
     if($by && $direction) {
         $builder->order_by($by,$direction);
     }
-    my $sql = $builder->sql;
-    my $itemsKey = $self->itemsKey;
-    $results{$itemsKey} = [node_custom_search($sql)];
-    my $sql_count = $builder->sql_count;
-    my ($count) = node_custom_search($sql_count);
-    $count = $count->{count};
-    $results{count} = $count;
-    $results{pages_count} = ceil( $count / $per_page );
-    $results{per_page} = $per_page;
-    $results{page_num} = $page_num;
-    $results{column} = $by;
-    return(HTTP_OK,\%results);
 }
 
 my %COLUMN_MAP = (
