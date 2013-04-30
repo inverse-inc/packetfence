@@ -1948,7 +1948,7 @@ First, create the proper violation either via the Admin UI, or by editing the `c
 
 NOTE: You may also want to set other attributes such as auto_enable, grace, etc.
 
-When done with the violation, visit the Web Administration under *Configuration -> SOH* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
+When done with the violation, visit the Web Administration under *Configuration -> Compliance -> Statement of Health* and (edit the filter named *Default*, or) use the *Add a filter* button to create a filter named *antivirus*. Click on *antivirus* in the filter list, and select *Trigger violation* in the action drop-down. Enter the vid of the violation you created above in the input box that appears.
 
 Next, click on *Add a condition*, and select *Anti-virus*, *is*, and *disabled* in the drop-down boxes that appear. Click on the *Save filters* button. Finally, reload the violations either by restarting PacketFence or using the `pfcmd reload violations` command.
 
