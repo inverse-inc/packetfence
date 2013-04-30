@@ -706,7 +706,7 @@ sub oauth2_client {
                 access_token_method => $source->{'access_token_method'},
                 access_token_param => $source->{'access_token_param'},
                 scope => $source->{'scope'}
-          )->web_server(redirect_uri => $source->{'redirect_uri'} );
+          )->web_server(redirect_uri => $source->{'redirect_url'} );
           }
       }
 }
