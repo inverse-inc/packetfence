@@ -27,6 +27,15 @@ use pfappserver::Form::AdvancedSearch;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
+__PACKAGE__->config(
+    models => {
+        advanced_search => 'Search::User'
+    },
+    forms  => {
+        advanced_search => 'AdvancedSearch'
+    },
+);
+
 =head1 SUBROUTINES
 
 =head2 index
@@ -278,21 +287,28 @@ Perform advanced search for user
 =cut
 
 sub advanced_search :Local :Args() {
-    my ($self, $c) = @_;
-    my ($status,$status_msg,%search_results) = (HTTP_OK,undef,);
-    my $search_model = $c->model("Search::User");
-    my $form = new pfappserver::Form::AdvancedSearch;
+    my ($self, $c, @args) = @_;
+    my ($status,$status_msg,$result);
+    my %search_results;
+    my $model = $self->getModel($c);
+    my $form = $self->getForm($c);
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
-        $c->stash->{current_view} = 'JSON';
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
+        $c->stash(
+            current_view => 'JSON',
+        );
     } else {
-        %search_results = $search_model->search($form->value);
+        my $query = $form->value;
+        ($status,$result) = $model->search($query);
+        if(is_success($status)) {
+            $c->stash( form => $form);
+            $c->stash( $result);
+        }
     }
     $c->stash(
         status_msg => $status_msg,
-        %search_results
     );
     $c->response->status($status);
 }
