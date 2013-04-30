@@ -889,16 +889,6 @@ FreeRADIUS Configuration
 
 This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
 
-In /usr/local/pf/raddb/packetfence.pm
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Make sure to set the required configuration parameters on top of the file. Set the username/password to the account created under *Configuration -> Web Services*:
-
-  # FreeRADIUS to PacketFence communications (SOAP Server settings)
-  WS_USER     => 'webservice',
-  WS_PASS     => 'password',
-
-
 Option 1: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -1915,12 +1905,6 @@ By default, we turn SoH off. To enable its support, simply uncomment the followi
 
   soh=yes
   soh-virtual-server = "soh-server"
-
-Then make sure to set the required configuration parameters on top of the `/usr/local/pf/raddb/packetfence-soh.pm` file. Set the username/password to the account created under *Configuration -> Web Services*:
-
-  # FreeRADIUS to PacketFence communications (SOAP Server settings)
-  WS_USER     => 'webservice',
-  WS_PASS     => 'password',
 
 Restart the RADIUS service afterward.
 
