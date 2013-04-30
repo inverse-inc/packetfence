@@ -372,10 +372,13 @@ sub sql_count {
     return (
         join q{ },
         $self->select_count_clause(),
-        $self->from_clause(),
-        $self->where_clause(),
-        $self->group_by_clause(),
-        $self->having_clause(),
+        "from (",
+            $self->select_clause(),
+            $self->from_clause(),
+            $self->where_clause(),
+            $self->group_by_clause(),
+            $self->having_clause(),
+        ") as x"
     );
 }
 
