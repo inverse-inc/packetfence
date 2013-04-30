@@ -50,7 +50,7 @@ $(function() {
     });
 
     /* For simpleSearch */
-    $('body').on('submit','#simpleSearch', function(event) {
+    $('#simpleSearch').on('submit', function(event) {
         var form = $(this);
         var section = $('#section');
         section.fadeTo('fast', 0.5);
@@ -95,6 +95,7 @@ $(function() {
         });
         $('[data-toggle="tab"][href="#' + target  + '"]').tab('show');
         to_form.submit();
+        return false;
     });
 
 
