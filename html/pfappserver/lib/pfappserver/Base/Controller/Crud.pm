@@ -17,49 +17,6 @@ use namespace::autoclean;
 
 =head1 METHODS
 
-=head2 getForm
-
-=cut
-
-sub getForm {
-    my ($self,$c) = @_;
-    my @args;
-    my $form = $self->_findComponentByAction($c,'forms');
-    if (defined $form) {
-        @args = $form;
-    }
-    return $c->form(@args);
-}
-
-=head2 getModel
-
-=cut
-
-sub getModel {
-    my ($self,$c) = @_;
-    my @args;
-    my $model = $self->_findComponentByAction($c,'models');
-    if (defined $model) {
-        @args = $model;
-    }
-    return $c->model(@args);
-}
-
-sub _findComponentByAction {
-    my ($self,$c,$type) = @_;
-    my $component;
-    if(exists $self->{$type}) {
-        my $hash = $self->{$type};
-        my $name = $c->action->name;
-        if (exists $hash->{$name} && defined $hash->{$name}  ) {
-            $component = $hash->{$name};
-        } elsif(exists $hash->{'*'} && defined $hash->{'*'}) {
-            $component = $hash->{'*'};
-        }
-    }
-    return $component;
-}
-
 =head2 create
 
 =cut
