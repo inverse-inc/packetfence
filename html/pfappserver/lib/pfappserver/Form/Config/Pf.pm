@@ -46,7 +46,6 @@ sub field_list {
 
             ($type eq "text" && $doc_section->{description} =~ m/comma[-\s](delimite|separate)/si) && do {
                 $type = 'text-large';
-                last;
             };
             $type eq 'text' && do {
                 $field->{type} = 'Text';
@@ -103,6 +102,10 @@ sub field_list {
             };
             $type eq 'time' && do {
                 $field->{type} = 'Duration';
+                last;
+            };
+            $type eq 'email' && do {
+                $field->{type} = 'Email';
                 last;
             };
         }
