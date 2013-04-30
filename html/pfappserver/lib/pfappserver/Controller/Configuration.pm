@@ -92,7 +92,6 @@ sub pf_section :Path :Args(1) {
             $form->process(params => $c->req->params);
             $logger->info("Processed form");
             if ($form->has_errors) {
-                $logger->info(join(" ",$form->errors));
                 $c->response->status(HTTP_PRECONDITION_FAILED);
                 $c->stash(
                     status_msg => join(" ",$form->errors), # TODO: localize error message
