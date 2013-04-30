@@ -119,7 +119,7 @@ sub cleanupNetworks {
     }
 
     foreach my $network (keys %unused) {
-        $logger->warn("Remmoving unused network $network");
+        $logger->warn("Removing unused network $network");
         $self->remove($network);
     }
 
@@ -140,6 +140,9 @@ sub cleanupBeforeCommit {
         # Set default values when creating a new network
         $network->{named} = 'enabled' unless ($network->{named});
         $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
+        $network->{'domain-name'} = $network->{type} . "." . $Config{general}{domain}
+            unless $network->{'domain-name'};
+
     }
 }
 
