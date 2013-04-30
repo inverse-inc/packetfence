@@ -14,9 +14,14 @@ use pf::util;
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Base::Form::Role::Help';
 
 has 'network' => ( is => 'ro' );
 
+has_field 'type' =>
+  (
+   type => 'Hidden',
+  );
 has_field 'dhcp_start' =>
   (
    type => 'IPAddress',
@@ -44,6 +49,15 @@ has_field 'dhcp_max_lease_time' =>
    label => 'Max Lease Time',
    required => 1,
    messages => { required => 'Please specify the maximum DHCP lease time.' },
+  );
+has_field 'dns' =>
+  (
+   type => 'IPAddress',
+   label => 'DNS Server',
+   required => 1,
+   messages => { required => "Please specify the DNS server's IP address." },
+   tags => { after_element => \&help,
+             help => 'Should match the IP of a registration interface' },
   );
 
 =head2 validate

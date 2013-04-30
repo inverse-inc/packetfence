@@ -23,15 +23,6 @@ has_field 'network' =>
    required => 1,
    messages => { required => 'Please specify the network.' },
   );
-has_field 'dns' =>
-  (
-   type => 'IPAddress',
-   label => 'DNS Server',
-   required => 1,
-   messages => { required => "Please specify the DNS server's IP address." },
-   tags => { after_element => \&help,
-             help => 'Should match the IP of a registration interface' },
-  );
 has_field 'gateway' =>
   (
    type => 'IPAddress',
@@ -45,6 +36,17 @@ has_field 'netmask' =>
    label => 'Netmask',
    required => 1,
    messages => { required => 'Please specify the netmask.' },
+  );
+has_field 'type' =>
+  (
+   type => 'Select',
+   label => 'Network type',
+   required => 1,
+   options => [
+        { value => '',label => ''},
+        { value => 'isolation',label => 'Isolation'},
+        { value => 'registration',label => 'Registration'},
+   ]
   );
 has_field 'next_hop' =>
   (
