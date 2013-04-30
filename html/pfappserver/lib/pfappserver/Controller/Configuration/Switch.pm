@@ -14,8 +14,6 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
-use pfappserver::Form::Config::Switch;
-
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
@@ -33,14 +31,12 @@ sub begin :Private {
     my ($self, $c) = @_;
     pf::config::cached::ReloadConfigs();
     my ($status, $switch_default, $roles);
-    my $model = $c->model("Config::Switch")->new;
+    my $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch")->new(ctx => $c,
-                                                                         placeholders => $switch_default,
-                                                                         roles => $roles);
+    $c->stash->{current_form_instance} = $c->form("Config::Switch",placeholders => $switch_default, roles => $roles);
     $c->stash->{switch_default} = $switch_default;
 }
 
