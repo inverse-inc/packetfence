@@ -81,7 +81,7 @@ my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
  
-foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
     my $ip = $Config{$interface}{'ip'};
     if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) ) ) {
         push @ip_addr, $ip;
@@ -124,12 +124,14 @@ sub response_handler {
     }
     foreach my $network (@routed_isolation_nets_named) {
         if ($network->contains($ip)) {
+           # Should be different for isolation network.
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
 
     foreach my $network (@routed_inline_nets_named) {
         if ($network->contains($ip)) {
+           # Should be different for inline
            return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
@@ -140,12 +142,6 @@ sub regzone {
     my ($rcode, @ans, @auth, @add);
 
     if ($qtype eq "A") {
-        if ($qname =~ m/www\.(.*)/) {
-            my ($ttl, $rdata) = (15, $conn->{sockhost});
-            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-            push @ans, $rr;
-            $rcode = "NOERROR";
-        }
         if ( $qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;

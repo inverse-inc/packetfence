@@ -15,6 +15,7 @@ use warnings;
 
 use Readonly;
 
+use pf::authentication;
 use pf::config;
 
 =head1 SUBROUTINES
@@ -30,13 +31,17 @@ Build all the permit domain for oauth authentication
 sub oauth_domain {
 
     my @domains;
-    if ($guest_self_registration{$SELFREG_MODE_GOOGLE}) {
-        push(@domains, split(',',$Config{"oauth2 $SELFREG_MODE_GOOGLE"}{'domains'}));
-    } elsif ($guest_self_registration{$SELFREG_MODE_FACEBOOK}) {
-        push(@domains, split(',',$Config{"oauth2 $SELFREG_MODE_FACEBOOK"}{'domains'}));
-    } elsif ($guest_self_registration{$SELFREG_MODE_GITHUB}) {
-        push(@domains, split(',',$Config{"oauth2 $SELFREG_MODE_GITHUB"}{'domains'}));
+    foreach my $source ( @authentication_sources ) {
+
+        my $classname = $source->meta->name;
+
+        if ($classname eq 'pf::Authentication::Source::GoogleSource') {
+
+            push(@domains, split(',',$source->{'domains'}));
+
+        }
     }
+
     return @domains;
 }
 

@@ -288,6 +288,7 @@ sub generate_oauth_rules {
 
     if ($google||$facebook||$github) {
         $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_oauth dst,dst --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_oauth src,src --jump ACCEPT\n";
     }
 
     $logger->info("Adding NAT Masquerade statement.");

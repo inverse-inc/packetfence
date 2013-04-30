@@ -22,6 +22,7 @@ has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/login/oauth/a
 has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
 has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.github.com/user');
 has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/github');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'api.github.com');
 
 =head2 available_actions
 
