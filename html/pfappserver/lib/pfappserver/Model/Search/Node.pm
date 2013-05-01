@@ -149,6 +149,10 @@ my %COLUMN_MAP = (
        table => 'locationlog',
        name  => 'switch',
     },
+    node_ip   => {
+       table => 'iplog',
+       name  => 'ip',
+    },
     violation   => {
         table => 'class',
         name  => 'description',
@@ -201,6 +205,26 @@ my %JOIN_MAP = (
                 ]
             ],
         }
+    ],
+    node_ip => [
+        {
+            'table'  => 'iplog',
+            'join' => 'LEFT',
+            'on' =>
+            [
+                [
+                    {
+                        'table' => 'iplog',
+                        'name'  => 'mac',
+                    },
+                    '=',
+                    {
+                        'table' => 'node',
+                        'name'  => 'mac',
+                    }
+                ]
+            ],
+        },
     ],
     switch_ip => [
         {
