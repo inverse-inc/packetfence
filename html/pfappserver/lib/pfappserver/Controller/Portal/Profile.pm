@@ -35,14 +35,14 @@ Readonly our %FILTER_FILES =>
 
 BEGIN {
     extends 'pfappserver::Base::Controller';
-    with 'pfappserver::Base::Controller::Crud::Config';
 }
+with 'pfappserver::Base::Controller::Crud::Config' => {excludes => [qw(object)]};
 
 __PACKAGE__->config(
-    models => { '*' => 'Config::Profile' },
-    forms => {
-        '*' => 'Portal::Profile',
-        'index' => 'Portal',
+#Reconfiguring the models and forms for actions
+    action_args => {
+        '*' => { model => "Config::Profile", form => 'Portal::Profile'},
+        'index' => { model => "Config::Profile", form => 'Portal'},
     }
 );
 

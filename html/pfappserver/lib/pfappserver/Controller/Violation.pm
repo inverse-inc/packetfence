@@ -26,6 +26,12 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
+__PACKAGE__->config(
+    action => {
+        object => { Chained => '/', PathPart => 'violation', CaptureArgs => 1 }
+    },
+);
+
 =head1 METHODS
 
 =head2 begin
@@ -50,26 +56,13 @@ sub begin :Private {
     $c->stash(
         trigger_types => \@pf::config::VALID_TRIGGER_TYPES,
         current_model_instance => $model,
-        current_form_instance => $c->form("Violation")->new(
-            ctx => $c,
+        current_form_instance => $c->form("Violation" =>
             violations => $violations,
             triggers => $triggers,
             templates => $templates,
         )
     )
 
-}
-
-=head2 object
-
-Violation controller dispatcher
-
-=cut
-
-sub object :Chained('/') :PathPart('violation') :CaptureArgs(1) {
-    my ($self, $c, $id) = @_;
-
-    $self->_setup_object($c,$id);
 }
 
 =head2 index

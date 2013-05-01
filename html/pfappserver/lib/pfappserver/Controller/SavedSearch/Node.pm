@@ -21,6 +21,13 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud';
 }
 
+__PACKAGE__->config(
+    action => {
+#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'savedsearch/node', CaptureArgs => 1 }
+    },
+);
+
 =head2 Methods
 
 =over
@@ -36,16 +43,6 @@ sub begin :Private {
     pf::config::cached::ReloadConfigs();
     $c->stash->{current_model} = "SavedSearch::Node";
     $c->stash->{current_form_instance} = $c->form("SavedSearch");
-}
-
-
-=item object
-
-=cut
-
-sub object :Chained('/') :PathPart('savedsearch/node') : CaptureArgs(1) {
-    my ($self,@args) = @_;
-    $self->_setup_object(@args);
 }
 
 =item create

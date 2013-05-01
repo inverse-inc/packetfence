@@ -79,6 +79,15 @@ sub _setup_object {
     );
 }
 
+=head2 object
+
+=cut
+
+sub object {
+    my ($self,$c,$id) = @_;
+    $self->_setup_object($c,$id);
+}
+
 =head2 update
 
 =cut

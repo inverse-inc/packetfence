@@ -28,11 +28,8 @@ use pfappserver::Form::AdvancedSearch;
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
-    models => {
-        advanced_search => 'Search::User'
-    },
-    forms  => {
-        advanced_search => 'AdvancedSearch'
+    action_args => {
+        advanced_search => { model => 'Search::User', form => 'AdvancedSearch' },
     },
 );
 

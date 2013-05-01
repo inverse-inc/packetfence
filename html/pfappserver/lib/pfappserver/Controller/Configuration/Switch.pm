@@ -19,6 +19,13 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
+__PACKAGE__->config(
+    action => {
+#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'configuration/switch', CaptureArgs => 1 }
+    },
+);
+
 =head1 METHODS
 
 =head2 begin
@@ -29,7 +36,7 @@ Setting the current form instance and model
 
 sub begin :Private {
     my ($self, $c) = @_;
-    pf::config::cached::ReloadConfigs();
+    $self->SUPER::begin($c);
     my ($status, $switch_default, $roles);
     my $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
@@ -38,18 +45,6 @@ sub begin :Private {
     $c->stash->{current_model_instance} = $model;
     $c->stash->{current_form_instance} = $c->form("Config::Switch",placeholders => $switch_default, roles => $roles);
     $c->stash->{switch_default} = $switch_default;
-}
-
-=head2 object
-
-/configuration/switch/*
-
-=cut
-
-sub object :Chained('/') :PathPart('configuration/switch') :CaptureArgs(1) {
-    my ($self, $c, $id) = @_;
-    $self->getModel($c)->readConfig();
-    $self->_setup_object($c, $id);
 }
 
 =head2 after list

@@ -201,6 +201,8 @@ sub roles :Local {
     $c->go('Controller::Roles', 'index');
 }
 
+sub test : Local { }
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012-2013 Inverse inc.

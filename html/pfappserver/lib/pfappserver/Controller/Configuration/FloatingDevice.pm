@@ -22,33 +22,18 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config';
 }
 
+__PACKAGE__->config(
+    action => {
+#Reconfigure the object action from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'configuration/floatingdevice', CaptureArgs => 1 }
+    },
+    action_args => {
+#Setting the global model and form for all actions
+        '*' => { model => "Config::FloatingDevice",form => "Config::FloatingDevice" },
+    },
+);
+
 =head1 METHODS
-
-=head2 begin
-
-Set the current form instance and model
-
-=cut
-
-sub begin :Private {
-    my ($self, $c) = @_;
-    pf::config::cached::ReloadConfigs();
-    my $model = $c->model("Config::FloatingDevice")->new;
-    $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance}  = $c->form("Config::FloatingDevice")->new(ctx => $c);
-}
-
-=head2 object
-
-Usage: /configuration/floatingdevice/*
-
-=cut
-
-sub object :Chained('/') :PathPart('configuration/floatingdevice') :CaptureArgs(1) {
-    my ($self, $c, $id) = @_;
-    $self->getModel($c)->readConfig();
-    $self->_setup_object($c, $id);
-}
 
 =head2 after list
 
@@ -69,19 +54,6 @@ after list => sub {
                 $floatingdevice->{switch} = $switch;
             }
         }
-    }
-};
-
-=head2 after update
-
-=head2 after remove
-
-=cut
-
-after [qw(update remove)] => sub {
-    my ($self, $c) = @_;
-    if (is_success($c->response->status) ) {
-        $self->getModel($c)->rewriteConfig();
     }
 };
 

@@ -198,8 +198,9 @@ sub add_fake_profile_data {
 sub getForm {
     my ($self,$c,@args) = @_;
     unless (@args) {
-        my $form = $self->_findComponentByAction($c,'forms');
-        push @args,$form if $form ;
+        if (exists $c->action->{form} && defined (my $form = $c->action->{form})) {
+            push @args,$form;
+        }
     }
     return $c->form(@args);
 }
@@ -211,25 +212,11 @@ sub getForm {
 sub getModel {
     my ($self,$c,@args) = @_;
     unless (@args) {
-        my $model = $self->_findComponentByAction($c,'models');
-        push @args,$model if $model ;
-    }
-    return $c->model(@args);
-}
-
-sub _findComponentByAction {
-    my ($self,$c,$type) = @_;
-    my $component;
-    if(exists $self->{$type}) {
-        my $hash = $self->{$type};
-        my $name = $c->action->name;
-        if (exists $hash->{$name} && defined $hash->{$name}  ) {
-            $component = $hash->{$name};
-        } elsif(exists $hash->{'*'} && defined $hash->{'*'}) {
-            $component = $hash->{'*'};
+        if (exists $c->action->{model} && defined (my $model = $c->action->{model})) {
+            push @args,$model;
         }
     }
-    return $component;
+    return $c->model(@args);
 }
 
 

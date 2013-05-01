@@ -28,8 +28,10 @@ use Readonly;
 BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 
 __PACKAGE__->config(
-    models => { '*' => 'Config::Profile' },
-    forms => { '*' => 'Portal::Profile::Default' }
+#Reconfiguring the models and forms for actions
+    action_args => {
+        '*' => { model => "Config::Profile", form => 'Portal::Profile::Default'},
+    }
 );
 
 
@@ -41,7 +43,10 @@ __PACKAGE__->config(
 
 =cut
 
-sub index {}
+sub index :Path :Args(0) {
+    my ($self, $c) = @_;
+    $c->forward('object');
+}
 
 
 =item isDeleteOrRevertDisabled

@@ -21,12 +21,9 @@ use POSIX;
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
-    models => {
-        advanced_search => 'Search::Node'
-    },
-    forms  => {
-        advanced_search => 'AdvancedSearch'
-    },
+    action_args => {
+        advanced_search => { model=> 'Search::Node', form => 'AdvancedSearch' },
+    }
 );
 
 =head1 SUBROUTINES

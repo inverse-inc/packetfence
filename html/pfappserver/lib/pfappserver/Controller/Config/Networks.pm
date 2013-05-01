@@ -21,22 +21,19 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config' => { -excludes => [ qw(getForm) ] };
 }
 
+#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+__PACKAGE__->config(
+    action => {
+#Reconfiguring the object action from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'config/network', CaptureArgs => 1 }
+    },
+    action_args => {
+#Setting the global model for all actions
+        '*' => { model => "Config::Network"}
+    }
+);
+
 =head1 METHODS
-
-=head2 begin
-
-Setting up the controllers model
-
-=cut
-
-sub begin :Private {
-    my ( $self, $c ) = @_;
-    pf::config::cached::ReloadConfigs();
-
-    $c->stash(
-        current_model_instance => $c->model("Config::Network")->new,
-    );
-}
 
 =head2 getForm
 
@@ -51,25 +48,14 @@ sub getForm {
     my $form;
     if (!defined($network) || $network_ref->{next_hop}) {
         # Create or edit a routed network
-        $form = pfappserver::Form::Config::Network::Routed->new(ctx => $c, network => $network);
+        $form = $c->form("Config::Network::Routed", network => $network);
     } else {
         # Edit the default interface network
-        $form = pfappserver::Form::Config::Network->new(ctx => $c, network => $network);
+        $form = $c->form("Config::Network", network => $network);
     }
     return $form;
 };
 
-
-=head2 object
-
-Chained dispatch
-
-=cut
-
-sub object :Chained('/') :PathPart('config/network') :CaptureArgs(1) {
-    my ( $self, $c, $network ) = @_;
-    $self->_setup_object($c, $network);
-}
 
 =head2 after create
 
