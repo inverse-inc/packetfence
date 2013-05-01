@@ -121,11 +121,12 @@ sub delete {
 
     # Delete corresponding interface entry from pf.conf
     $models->{interface}->remove($interface);
+    $models->{interface}->commit();
 
     # Remove associated network entries
     @results = $self->_listInterfaces('all');
     if ($models->{network}->cleanupNetworks(\@results)) {
-        $models->{network}->rewriteConfig();
+        $models->{network}->commit();
     }
 
     return ($STATUS::OK, "Interface VLAN $interface successfully deleted");
