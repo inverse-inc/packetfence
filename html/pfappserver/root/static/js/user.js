@@ -65,7 +65,7 @@ var UserView = function(options) {
     $('body').on('click', '#modalUser #mailPassword', mail_password);
 
     var read_violations = $.proxy(this.readViolations, this);
-    $('body').on('show', '[data-toggle="tab"][data-target="#userViolations"][href]', read_violations);
+    $('body').on('show', 'a[data-toggle="tab"][href="#userViolations"]', read_violations);
 
     var read_node = $.proxy(this.readNode, this);
     $('body').on('click', '#modalUser [href$="/read"]', read_node);
@@ -222,9 +222,9 @@ UserView.prototype.mailPassword = function(e) {
 
 UserView.prototype.readViolations = function(e) {
     var btn = $(e.target);
-    var target = $(btn.attr("data-target"));
+    var target = $(btn.attr("href"));
     if (target.children().length == 0)
-        target.load(btn.attr("href"), function() {
+        target.load(btn.attr("data-href"), function() {
             target.find('.switch').bootstrapSwitch();
         });
     return true;

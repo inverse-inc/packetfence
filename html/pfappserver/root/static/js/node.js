@@ -59,7 +59,7 @@ var NodeView = function(options) {
     $('body').on('click', '#modalNode [href$="/delete"]', delete_node);
 
     var read_violations = $.proxy(this.readViolations, this);
-    $('body').on('show', '[data-toggle="tab"][data-target="#nodeViolations"][href]', read_violations);
+    $('body').on('show', 'a[data-toggle="tab"][href="#nodeViolations"]', read_violations);
 
     var toggle_violation = $.proxy(this.toggleViolation, this);
     $('body').on('switch-change', '#modalNode .switch', toggle_violation);
@@ -67,7 +67,7 @@ var NodeView = function(options) {
     var trigger_violation = $.proxy(this.triggerViolation, this);
     $('body').on('click', '#modalNode #addViolation', trigger_violation);
 
-    /* Update the advanced search form to the next page or resort the query*/
+    /* Update the advanced search form to the next page or resort the query */
     var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
     $('body').on('click', 'a[href*="#node/advanced_search"]', advanced_search_updater);
 };
@@ -119,9 +119,9 @@ NodeView.prototype.readNode = function(e) {
 
 NodeView.prototype.readViolations = function(e) {
     var btn = $(e.target);
-    var target = $(btn.attr("data-target"));
+    var target = $(btn.attr("href"));
     if (target.children().length == 0)
-        target.load(btn.attr("href"), function() {
+        target.load(btn.attr("data-href"), function() {
             target.find('.switch').bootstrapSwitch();
         });
     return true;
