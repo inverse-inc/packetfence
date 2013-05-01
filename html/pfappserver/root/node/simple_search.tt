@@ -16,7 +16,7 @@
                   [% header('pid', 'Identifier') %]
                   [% header('last_ip', 'IP Address') %]
                   [% header('dhcp_fingerprint', 'OS (DHCP)') %]
-                  [% header('category', 'Category') %]
+                  [% header('category', 'Role') %]
                 </tr>
               </thead>
               <tbody>
