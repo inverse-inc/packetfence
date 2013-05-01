@@ -83,7 +83,7 @@ $(function() {
         that.find(':input').removeAttr('disabled');
     });
 
-    $('body').on('click','[data-toggle="pf-search-form][data-target]"',function(event) {
+    $('body').on('click','[data-toggle="pf-search-form"][data-target]',function(event) {
         var that = $(this);
         var target = that.attr('data-target');
         var from_form = that.next();
