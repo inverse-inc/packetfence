@@ -103,13 +103,14 @@ NodeView.prototype.readNode = function(e) {
                     });
                 });
                 modal.find('.datepicker').datepicker({ autoclose: true });
-                modal.find('a[href="#nodeHistory"]').on('shown', function () {
-                    if ($('#nodeHistory .chart').children().length == 0)
-                        drawGraphs();
+                modal.find('[data-toggle="tooltip"]').tooltip({placement: 'right'}).click(function(e) {
+                    e.preventDefault;
+                    return false;
                 });
             });
-            modal.on('hidden', function (eventObject) {
-                $(this).remove();
+            modal.on('hidden', function (e) {
+                if ($(e.target).hasClass('modal'))
+                    $(this).remove();
             });
             modal.modal({ show: true });
         },

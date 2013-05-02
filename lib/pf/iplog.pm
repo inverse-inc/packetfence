@@ -99,7 +99,7 @@ sub iplog_db_prepare {
         qq [ SELECT mac,ip,start_time,end_time,
                UNIX_TIMESTAMP(start_time) AS start_timestamp,
                UNIX_TIMESTAMP(end_time) AS end_timestamp
-             FROM iplog WHERE mac=? ORDER BY start_time ASC ]);
+             FROM iplog WHERE mac=? ORDER BY start_time DESC LIMIT 25 ]);
 
     $iplog_statements->{'iplog_open_sql'} = get_db_handle()->prepare(
         qq [ insert into iplog(mac,ip,start_time) values(?,?,now()) ]);

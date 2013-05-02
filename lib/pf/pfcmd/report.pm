@@ -1075,7 +1075,9 @@ Translates connection_type database string into a human-understandable string
 =cut
 # TODO we can probably be more efficient than that by passing references and stuff
 sub translate_connection_type {
-    my (@data) = @_;
+    my @data = @_;
+
+    return unless (@data);
     my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
 
     # determine if we are translating connection_type or last_connection_type
@@ -1083,8 +1085,8 @@ sub translate_connection_type {
     $field = 'connection_type' if (exists($data[0]->{'connection_type'}));
     $field = 'last_connection_type' if (exists($data[0]->{'last_connection_type'}));
     if (!defined($field)) {
-        $logger->info("nothing to translate");
-        return @data;
+        $logger->trace("nothing to translate");
+        return (@data);
     }
 
     # change connection_type into its meaningful to humans counterpart

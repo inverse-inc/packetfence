@@ -99,7 +99,8 @@ sub locationlog_db_prepare {
         SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time
         FROM locationlog
         WHERE mac=? 
-        ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
+        ORDER BY start_time DESC, ISNULL(end_time) DESC, end_time DESC
+        LIMIT 25
     ]);
 
     $locationlog_statements->{'locationlog_history_switchport_sql'} = get_db_handle()->prepare(qq[

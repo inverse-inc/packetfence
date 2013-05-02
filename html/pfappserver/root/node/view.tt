@@ -11,8 +11,8 @@
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#nodeInfo" data-toggle="tab">[% l('Info') %]</a></li>
-            <li><a href="#nodeHistory" data-toggle="tab">[% l('History') %]</a></li>
-            <li><a href="#nodeAccounting" data-toggle="tab">[% l('Accounting') %]</a></li>
+            <li><a href="#nodeIpLog" data-toggle="tab">[% l('IP Address') %]</a></li>
+            <li><a href="#nodeLocationLog" data-toggle="tab">[% l('Location') %]</a></li>
             <li><a href="#nodeViolations" data-href="[% c.uri_for(c.controller('Node').action_for('violations'), [node.mac]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
           </ul>
 
@@ -61,8 +61,8 @@
 
             [% IF node.last_switch -%]
             <div class="control-group">
-              <label class="control-label">[% l('Switch') %]</label>
-              <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="[% l('Edit switch') %]">[% node.last_switch %]</a></span>
+              <label class="control-label">[% l('Switch/AP') %]</label>
+              <div class="controls"><span class="uneditable">[% IF switches.${node.last_switch} %]<a href="" data-toggle="tooltip" title="[% switches.${node.last_switch}.type %] ([% switches.${node.last_switch}.mode %])">[% node.last_switch %]</a>[% ELSE %][% node.last_switch %][% END %]</span>
                   [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
                   [%- IF node.last_vlan.length %] <span class="badge badge-info">vlan [% node.last_vlan %]</span>[% END %]
                   <span class="label">On [% node.last_start_time %]</span></div>
@@ -91,12 +91,12 @@
 
             <div class="control-group">
               <label class="control-label">[% l('Browser') %]</label>
-              <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="See browsers statistics">[% node.useragent.browser %]</a></span></div>
+              <div class="controls"><span class="uneditable">[% node.useragent.browser %]</span></div>
             </div>
 
             <div class="control-group">
               <label class="control-label">[% l('OS') %]</label>
-              <div class="controls"><span class="uneditable"><a href="#" rel="tooltip" title="See operating systems statistics">[% node.useragent.os %]</a></span></div>
+              <div class="controls"><span class="uneditable">[% node.useragent.os %]</span></div>
             </div>
 
             [% form.field('useragent.device').render %]
@@ -106,32 +106,64 @@
             [%- END # user_agent %]
 
             </div><!--tab-pane-->
-            <div class="tab-pane fade" id="nodeHistory">
+            <div class="tab-pane fade" id="nodeIpLog">
 
-              <h6>Last 2 weeks</h6>
-              [%- IF node.iplog.series.size %]
-              <div id="iplog" class="chart"></div>
-              <script type="text/javascript">
-graphs.charts['iplog'] = {
-    type: 'dot',
-    size: 'large',
-    ylabels: ['[% node.iplog.ylabels.join("','") %]'],
-    xlabels: ['[% node.iplog.xlabels.join("','") %]'],
-    series: {
-    [% FOREACH set IN node.iplog.series.keys -%]
-      '[% set %]' : [[% node.iplog.series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
-    [%- END %]
-    }
-};
-              </script>
-              [%- ELSE %]
-              <div class="alert alert-warning">
-                <strong>Warning!</strong> <span>[% l('This MAC address has not been seen recently.') %]</span>
-              </div>
-              [%- END %]
+[% IF node.iplog.history.size %]
+<table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>[% l('IP') %]</th>
+        <th>[% l('Start') %]</th>
+        <th>[% l('End') %]</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOR item IN node.iplog.history %]
+    <tr[% IF item.end_time %] class="muted"[% END %]>
+      <td>[% item.ip %]</td>
+      <td>[% item.start_time %]</td>
+      <td>[% item.end_time %]</td>
+    </tr>
+    [% END %]
+    </tbody>
+</table>
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-search icon-large"></i><p>[% l('No IP history') %]</p>
+  </div>
+[% END %]
+
             </div><!--tab-pane-->
 
-            <div class="tab-pane fade" id="nodeAccounting">
+            <div class="tab-pane fade" id="nodeLocationLog">
+
+[% IF node.locationlog.history.size %]
+<table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>[% l('Switch/AP') %]</th>
+        <th>[% l('Connection Type') %]</th>
+        <th>[% l('Start') %]</th>
+        <th>[% l('End') %]</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOR item IN node.locationlog.history %]
+    <tr[% IF item.end_time %] class="muted"[% END %]>
+      <td>[% IF switches.${item.switch} %]<a href="" data-toggle="tooltip" title="[% switches.${item.switch}.type %] ([% switches.${item.switch}.mode %])">[% item.switch %]</a>[% ELSE %][% item.switch %][% END %]<br/>[% IF item.ssid %] <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid %]</span>[% ELSE %][% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port %]</span> [% END %][% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan %]</span>[% END %][% END %]</td>
+      <td>[% l(item.connection_type) %]</td>
+      <td>[% item.start_time %]</td>
+      <td>[% item.end_time %]</td>
+    </tr>
+    [% END %]
+    </tbody>
+</table>
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-search icon-large"></i><p>[% l('No location history') %]</p>
+  </div>
+[% END %]
+
             </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="nodeViolations">

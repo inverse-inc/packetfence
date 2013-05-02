@@ -119,6 +119,12 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
     if (is_success($status)) {
         $c->stash->{node} = $result;
     }
+    ($status, $result) = $c->model('Config::Switch')->readAll();
+    if (is_success($status)) {
+        my %switches = map { $_->{id} => { type => $_->{type},
+                                           mode => $_->{mode} } } @$result;
+        $c->stash->{switches} = \%switches;
+    }
     $nodeStatus = $c->model('Node')->availableStatus();
     $form = $c->form("Node" ,
         init_object => $c->stash->{node},

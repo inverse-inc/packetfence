@@ -156,12 +156,17 @@ sub view {
         $node->{iplog} = iplog_view_open_mac($mac);
 
         # Fetch the IP activity of the past 14 days
-        my $start_time = time() - 14 * 24 * 60 * 60;
-        my $end_time = time();
-        my @iplog_history = iplog_history_mac($mac,
-                                              (start_time => $start_time, end_time => $end_time));
+#        my $start_time = time() - 14 * 24 * 60 * 60;
+#        my $end_time = time();
+#        my @iplog_history = iplog_history_mac($mac,
+#                                              (start_time => $start_time, end_time => $end_time));
+#        $node->{iplog}->{history} = \@iplog_history;
+#        _graphIplogHistory($node, $start_time, $end_time);
+
+        # Fetch IP address history
+        my @iplog_history = iplog_history_mac($mac);
+        map { $_->{end_time} = '' if ($_->{end_time} eq '0000-00-00 00:00:00') } @iplog_history;
         $node->{iplog}->{history} = \@iplog_history;
-        _graphIplogHistory($node, $start_time, $end_time);
 
         if ($node->{iplog}->{'ip'}) {
             $node->{iplog}->{active} = 1;
@@ -171,8 +176,13 @@ sub view {
             $node->{iplog}->{end_time} = $last_iplog->{end_time};
         }
 
-        #my @locationlog_history = locationlog_history_mac($mac,
+        # Fetch switch location history
+        my @locationlog_history = locationlog_history_mac($mac);
         #                                                  (start_time => $start_time, end_time => $end_time));
+        if (scalar @locationlog_history > 0) {
+            use Data::Dumper; $logger->debug(Dumper \@locationlog_history);
+            $node->{locationlog}->{history} = \@locationlog_history;
+        }
 
         # Fetch user-agent information
         if ($node->{user_agent}) {
@@ -328,6 +338,45 @@ sub closeViolation {
 }
 
 =head2 _graphIplogHistory
+
+The associated HTML template to show the graph could look like this:
+
+=begin html
+
+              <h6>Last 2 weeks</h6>
+              [%- IF node.iplog.series.size %]
+              <div id="iplog" class="chart"></div>
+              <script type="text/javascript">
+graphs.charts['iplog'] = {
+    type: 'dot',
+    size: 'large',
+    ylabels: ['[% node.iplog.ylabels.join("','") %]'],
+    xlabels: ['[% node.iplog.xlabels.join("','") %]'],
+    series: {
+    [% FOREACH set IN node.iplog.series.keys -%]
+      '[% set %]' : [[% node.iplog.series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+    [%- END %]
+    }
+};
+              </script>
+              [%- ELSE %]
+              <div class="alert alert-warning">
+                <strong>Warning!</strong> <span>[% l('This MAC address has not been seen recently.') %]</span>
+              </div>
+              [%- END %]
+
+=end html
+
+And the corresponding JavaScript:
+
+=begin javascript
+
+                modal.find('a[href="#nodeHistory"]').on('shown', function () {
+                    if ($('#nodeHistory .chart').children().length == 0)
+                        drawGraphs();
+                });
+
+=end javascript
 
 =cut
 
