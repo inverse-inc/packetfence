@@ -691,21 +691,21 @@ sub generate_generic_page {
 }
 
 sub oauth2_client {
-      my $provider = shift;
-      my $type;
-      {
-          if (lc($provider) eq 'facebook') {
-              $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
-          } elsif (lc($provider) eq 'github') {
-              $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
-          } elsif (lc($provider) eq 'google') {
-              $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
-          }
-      }
-      if ($type) {
-          my $source = &pf::authentication::getAuthenticationSourceByType($type);
-          if ($source) {
-              Net::OAuth2::Client->new(
+    my $provider = shift;
+    my $type;
+    {
+        if (lc($provider) eq 'facebook') {
+            $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+        } elsif (lc($provider) eq 'github') {
+            $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+        } elsif (lc($provider) eq 'google') {
+            $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+        }
+    }
+    if ($type) {
+        my $source = &pf::authentication::getAuthenticationSourceByType($type);
+        if ($source) {
+            Net::OAuth2::Client->new(
                 $source->{'client_id'},
                 $source->{'client_secret'},
                 site => $source->{'site'},
@@ -715,8 +715,8 @@ sub oauth2_client {
                 access_token_param => $source->{'access_token_param'},
                 scope => $source->{'scope'}
           )->web_server(redirect_uri => $source->{'redirect_url'} );
-          }
-      }
+        }
+    }
 }
 
 =back
