@@ -55,11 +55,11 @@ sub instantiate {
         # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
         # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
         my $node_info = node_view($mac);
+        my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)), @{$node_info}{'last_ssid','last_vlan'});
         my @filtered_profiles =
             map { $filters{$_}  }
               grep { defined $_ && exists $filters{$_}  }
-                (map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)),
-                @{$node_info}{'last_ssid','last_vlan'} ;
+              @filter_ids;
 
         return pf::Portal::Profile->new(_custom_profile($filtered_profiles[0])) if (@filtered_profiles);
     }
