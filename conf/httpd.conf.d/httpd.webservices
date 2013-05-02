@@ -77,6 +77,7 @@ $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 $User = "pf";
 $Group = "pf";
 
+$PerlInitHandler = "pf::WebAPI::InitHandler";
 
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};

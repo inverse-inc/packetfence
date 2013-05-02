@@ -139,6 +139,7 @@ $MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients
 
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
+$PerlInitHandler = "pf::WebAPI::InitHandler";
 
 
 $SSLPassPhraseDialog = "builtin";
