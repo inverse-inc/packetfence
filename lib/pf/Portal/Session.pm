@@ -126,7 +126,11 @@ sub _initializeI18n {
 
     # if it's overridden take it otherwise we take the first locale specified in config
     my $locale = defined($override_lang) ? $override_lang : $authorized_locale_array[0];
-    setlocale( POSIX::LC_MESSAGES, $locale );
+    setlocale( POSIX::LC_MESSAGES, "$locale.utf8" );
+    my $newlocale = setlocale(POSIX::LC_MESSAGES);
+    if ($newlocale !~ m/^$locale/) {
+        $logger->error("Error while setting locale to $locale.utf8.");
+    }
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 }
