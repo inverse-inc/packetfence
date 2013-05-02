@@ -37,9 +37,8 @@ has_field 'enabled' =>
   );
 has_field 'id' =>
   (
-   type => 'PosInteger',
+   type => 'Text',
    label => 'Identifier',
-   required => 1,
    messages => { required => 'Please specify an identifier for the violation.' },
    tags => { after_element => \&help,
              help => 'Use an number above 1500000 if you want to be able to delete this violation later.' },
@@ -261,6 +260,8 @@ sub options_template {
 
 =head2 validate
 
+Make sure the ID is a positive integer, unless its 'defaults'
+
 Make sure a violation is specified if the close action is selected.
 
 Make sure a role is specified if the role action is selected.
@@ -269,6 +270,11 @@ Make sure a role is specified if the role action is selected.
 
 sub validate {
     my $self = shift;
+
+    # Check the violation ID
+    unless ($self->value->{id} =~ m/^(defaults|\d+)$/) {
+        $self->field('id')->add_error('The violation ID must be a positive integer.');
+    }
 
     # If the close action is selected, make sure a valid closing violation (vclose) is specified
     if (grep {$_ eq 'close'} @{$self->value->{actions}}) {
