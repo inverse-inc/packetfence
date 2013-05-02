@@ -20,6 +20,7 @@ use Try::Tiny;
 use pf::config;
 use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_merge);
+use pf::services;
 
 our (%Violation_Config, $cached_violations_config);
 
@@ -48,6 +49,7 @@ sub readViolationConfigFile {
                 my $logger = get_logger();
                 $logger->info("called $name");
                 trigger_delete_all();
+                %Violation_Config = pf::services::class_set_defaults(%Violation_Config);
                 foreach my $violation ( keys %Violation_Config ) {
 
                     # parse triggers if they exist
