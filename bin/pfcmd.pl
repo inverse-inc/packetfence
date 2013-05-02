@@ -1520,7 +1520,7 @@ sub config_entry {
     }
     if ( defined( $Doc_Config{"$param.$value"}{'options'} ) ) {
         $options = $Doc_Config{"$param.$value"}{'options'};
-        $options =~ s/\|/;/g;
+        $options = join(";",@$options);
     } else {
         $options = "";
     }
