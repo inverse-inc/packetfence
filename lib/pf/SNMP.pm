@@ -703,7 +703,7 @@ sub getRoleByName {
     return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
 
     # otherwise log and return undef
-    $logger->warn("Roles are configured but no role found for $roleName");
+    $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $this->{_ip});
     return;
 }
 
@@ -718,19 +718,21 @@ sub getVlanByName {
 
     if (!defined($this->{'_vlans'}) || !defined($this->{'_vlans'}->{$vlanName})) {
         # VLAN name doesn't exist
-        $logger->warn("VLAN $vlanName is not a valid VLAN identifier (something wrong in conf/switches.conf?)");
+        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip});
         return;
     }
 
     if ($vlanName eq "inline" && length($this->{'_vlans'}->{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
-        $logger->warn("VLAN $vlanName is empty in switches.conf.  Please ignore if your intentions were to use the native VLAN");
+        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip} .
+                      ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
     
     if ($this->{'_vlans'}->{$vlanName} !~ /^\d+$/) {
         # is not resolved to a valid VLAN number
-        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
+                      ", not a vlan number");
         return;
     }   
     return $this->{'_vlans'}->{$vlanName};
