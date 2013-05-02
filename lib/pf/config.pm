@@ -543,7 +543,9 @@ sub readPfConfigFiles {
                     }
                 }
 
-                $fqdn = $Config{'general'}{'hostname'} . "." . $Config{'general'}{'domain'};
+                $fqdn = sprintf("%s.%s",
+                                $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'},
+                                $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'});
 
                 foreach my $interface ( $config->GroupMembers("interface") ) {
                     my $int_obj;
