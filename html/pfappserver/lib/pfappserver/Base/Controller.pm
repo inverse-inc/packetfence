@@ -69,16 +69,6 @@ sub auto :Private {
     return 1;
 }
 
-=head2 begin
-
-Called at the begin of the dispatch
-
-=cut
-
-sub begin : Private {
-    pf::config::cached::ReloadConfigs();
-}
-
 =head2 valid_param
 
 =cut

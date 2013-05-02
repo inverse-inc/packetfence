@@ -44,7 +44,6 @@ sub begin :Private {
     my ($self, $c) = @_;
     my ($status, $result);
     my ($model, $violations, $roles, $triggers, $templates);
-    pf::config::cached::ReloadConfigs();
 
     $model =  $c->model('Config::Violations');
     ($status, $result) = $model->readAll();

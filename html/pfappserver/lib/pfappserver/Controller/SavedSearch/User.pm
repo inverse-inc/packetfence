@@ -26,26 +26,15 @@ __PACKAGE__->config(
 #Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 }
     },
+    action_args => {
+        '*' => { model=> 'SavedSearch::Node', form => 'SavedSearch'}
+    }
 );
 
 
 =head2 Methods
 
 =over
-
-=item begin
-
-Setting the current form instance and model
-
-=cut
-
-sub begin :Private {
-    my ( $self, $c ) = @_;
-    pf::config::cached::ReloadConfigs();
-    $c->stash->{current_model} = "SavedSearch::User";
-    $c->stash->{current_form_instance} = $c->form("SavedSearch");
-}
-
 
 =item create
 
