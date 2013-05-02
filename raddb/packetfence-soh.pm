@@ -26,7 +26,7 @@ Once cleaned:
 
 - Uncomment line: $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'});
 
-Search for 'note1' to find the appropriate lines. 
+Search for 'note1' to find the appropriate lines.
 
 =cut
 
@@ -61,6 +61,7 @@ This function is called to evaluate and react to an SoH packet. It is
 the only callback available inside an SoH virtual server.
 
 =cut
+
 sub authorize {
     # Build the SOAP request manually (using CURL)
     # We use CURL to manually build the SOAP request rather than using an existing SOAP module due to the fact that
@@ -153,6 +154,7 @@ sub authorize {
 
         my $elements = $data->{'soap:Body'}->{'soh_authorizeResponse'}->{'soapenc:Array'}->{'item'};
 
+        $elements = [$elements] unless ref($elements) eq 'ARRAY';
         # Get RADIUS SoH return code
         $radius_return_code = shift @$elements;
 
@@ -187,17 +189,17 @@ Copyright (C) 2011-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software: you can redistribute it and/or modify 
-it under the terms of the GNU General Public License as published by 
-the Free Software Foundation, either version 3 of the License, or 
-(at your option) any later version. 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
-but WITHOUT ANY WARRANTY; without even the implied warranty of 
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
-GNU General Public License for more details. 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License 
+You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
