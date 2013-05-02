@@ -17,6 +17,8 @@ use Log::Log4perl;
 
 use base ('pf::SNMP::Aruba');
 
+sub description { 'Aruba 200 Controller' }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
