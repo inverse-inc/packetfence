@@ -176,24 +176,4 @@ $(function() { // DOM ready
 
         return false;
     });
-
-    /* Preview a violation's remediation page */
-    $('#section').on('click', '[href*="#previewPage"]', function(event) {
-        if ($(this).hasClass('disabled'))
-            return false;
-        var modal = $('#modalViolation');
-        var url = $(this).attr('href');
-        modal.empty();
-        modal.modal('show');
-        $.ajax(url)
-            .done(function(data) {
-                modal.append(data);
-            })
-            .fail(function(jqXHR) {
-                var status_msg = getStatusMsg(jqXHR);
-                showError($('#section h2'), status_msg);
-            });
-
-        return false;
-    });
 });
