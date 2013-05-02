@@ -79,6 +79,15 @@ sub stop_all :Local {
     $self->_process_model_results_as_json($c,$c->model("Services"),'stop_all',$c->stash->{service});
 }
 
+=head2 restart_all
+
+=cut
+
+sub restart_all :Local {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->model("Services"),'restart_all',$c->stash->{service});
+}
+
 
 =head2 start
 
