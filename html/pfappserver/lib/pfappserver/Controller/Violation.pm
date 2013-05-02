@@ -19,6 +19,7 @@ use namespace::autoclean;
 use POSIX;
 
 use pf::config;
+use pf::SNMP::constants;
 use pfappserver::Form::Violation;
 
 BEGIN {
@@ -50,9 +51,10 @@ sub begin :Private {
     if (is_success($status)) {
         $violations = $result;
     }
+    my @roles = map {{ name => $_ }} @SNMP::ROLES;
     ($status, $result) = $c->model('Roles')->list();
     if (is_success($status)) {
-        $roles = $result;
+        push(@roles, @$result);
     }
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
@@ -61,7 +63,7 @@ sub begin :Private {
         current_model_instance => $model,
         current_form_instance => $c->form("Violation" =>
             violations => $violations,
-            roles => $roles,
+            roles => \@roles,
             triggers => $triggers,
             templates => $templates,
         )

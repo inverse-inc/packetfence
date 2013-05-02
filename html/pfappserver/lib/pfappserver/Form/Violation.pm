@@ -73,6 +73,7 @@ has_field 'target_category' =>
   (
    type => 'Select',
    label => 'Set role',
+   options_method => \&options_roles,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Select a role'},
    wrapper_attr => {style => 'display: none'},
@@ -93,6 +94,7 @@ has_field 'whitelisted_categories' =>
    type => 'Select',
    multiple => 1,
    label => 'Whitelisted Roles',
+   options_method => \&options_roles,
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add a role'},
    tags => { after_element => \&help,
@@ -160,8 +162,11 @@ has_field 'button_text' =>
   );
 has_field 'vlan' =>
   (
-   type => 'Text',
-   label => 'Target VLAN',
+   type => 'Select',
+   label => 'VLAN',
+   options_method => \&options_roles,
+   element_class => ['chzn-deselect'],
+   element_attr => {'data-placeholder' => 'Select a VLAN'},
    tags => { after_element => \&help,
              help => 'Destination VLAN where PacketFence should put the client when a violation of this type is open.' }
   );
@@ -206,31 +211,21 @@ sub options_vclose {
     my $self = shift;
 
     # $self->violations comes from pfappserver::Model::Config::Violations->readAll
-    my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->violations} if ($self->violations);
+    my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->form->violations} if ($self->form->violations);
 
     return ('' => '', @violations);
 }
 
-=head2 options_role
+=head2 options_roles
 
 =cut
 
-sub options_target_category {
+sub options_roles {
     my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->roles};
+
+    my @roles = map { $_->{name} => $_->{name} } @{$self->form->roles} if ($self->form->roles);
+
     return ('' => '', @roles);
-}
-
-=head2 options_whitelisted_categories
-
-Populate the select field for the whitelisted roles.
-
-=cut
-
-sub options_whitelisted_categories {
-    my $self = shift;
-    my @roles = map { $_->{name} => $_->{name} } @{$self->roles};
-    return @roles;
 }
 
 =head2 options_trigger
@@ -241,7 +236,7 @@ sub options_trigger {
     my $self = shift;
 
     # $self->triggers comes from pfappserver::Model::Config::Violations->list_triggers
-    my @triggers = map { $_ => $_ } @{$self->triggers} if ($self->triggers);
+    my @triggers = map { $_ => $_ } @{$self->form->triggers} if ($self->form->triggers);
 
     return @triggers;
 }
@@ -253,7 +248,7 @@ sub options_trigger {
 sub options_template {
     my $self = shift;
 
-    my @templates = map { $_ => "$_.html" } @{$self->templates} if ($self->templates);
+    my @templates = map { $_ => "$_.html" } @{$self->form->templates} if ($self->form->templates);
 
     return @templates;
 }
