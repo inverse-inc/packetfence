@@ -66,6 +66,7 @@ has_field 'vclose' =>
    label => 'Violation to close',
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Select a violation'},
+   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>close</strong> action, triggering the violation will close this violation. This is an experimental workflow for Mobile Device Management (MDM).' },
   );
@@ -75,6 +76,7 @@ has_field 'target_category' =>
    label => 'Set role',
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Select a role'},
+   wrapper_attr => {style => 'display: none'},
    tags => { after_element => \&help,
              help => 'When selecting the <strong>role</strong> action, triggering the violation will change the node to this role.' },
   );
@@ -204,7 +206,7 @@ sub options_actions {
 sub options_vclose {
     my $self = shift;
 
-    # $self->violations comes from pfappserver::Model::Config::Violations->read_violation
+    # $self->violations comes from pfappserver::Model::Config::Violations->readAll
     my @violations = map { $_->{id} => $_->{desc} || $_->{id} } @{$self->violations} if ($self->violations);
 
     return ('' => '', @violations);

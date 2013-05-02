@@ -1,13 +1,26 @@
 $(function() { // DOM ready
+
+    /* Show a violation from the received HTML */
+    function showViolation(data) {
+        var modal = $('#modalViolation');
+        modal.empty();
+        modal.append(data);
+        modal.find('.switch').bootstrapSwitch();
+        modal.find('.chzn-select').chosen();
+        modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+        modal.one('shown', function() {
+            $('#actions').trigger('change');
+        });
+        modal.modal('show');
+    }
+
     /* Show a violation */
     $('#section').on('click', '[href*="#modalViolation"]', function(event) {
-        var modal = $('#modalViolation');
         var url = $(this).attr('href');
         var section = $('#section');
         var loader = section.prev('.loader');
         loader.show();
         section.fadeTo('fast', 0.5);
-        modal.empty();
         $.ajax(url)
             .always(function(){
                 loader.hide();
@@ -15,14 +28,7 @@ $(function() { // DOM ready
                 section.fadeTo('fast', 1.0);
             })
             .done(function(data) {
-                modal.append(data);
-                $('.switch').bootstrapSwitch();
-                $('.chzn-select').chosen();
-                $('.chzn-deselect').chosen({allow_single_deselect: true});
-                modal.modal('show');
-                modal.one('shown', function() {
-                    $('#actions').trigger('change');
-                });
+                showViolation(data);
             })
             .fail(function(jqXHR) {
                 var status_msg = getStatusMsg(jqXHR);
@@ -35,13 +41,11 @@ $(function() { // DOM ready
 
     /* Create a violation */
     $('#section').on('click', '#createViolation', function(event) {
-        var modal = $('#modalViolation');
         var url = $(this).attr('href');
         var section = $('#section');
         var loader = section.prev('.loader');
         loader.show();
         section.fadeTo('fast', 0.5);
-        modal.empty();
         $.ajax(url)
             .always(function(){
                 loader.hide();
@@ -49,11 +53,7 @@ $(function() { // DOM ready
                 section.fadeTo('fast', 1.0);
             })
             .done(function(data) {
-                modal.append(data);
-                $('.switch').bootstrapSwitch();
-                $('.chzn-select').chosen();
-                $('.chzn-deselect').chosen({allow_single_deselect: true});
-                modal.modal('show');
+                showViolation(data);
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');

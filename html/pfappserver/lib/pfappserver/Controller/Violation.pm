@@ -42,14 +42,18 @@ Setting the current form instance and model
 
 sub begin :Private {
     my ($self, $c) = @_;
-    my ($configViolationsModel, $status, $result);
-    my ($form, $violations, $triggers, $templates);
+    my ($status, $result);
+    my ($model, $violations, $roles, $triggers, $templates);
     pf::config::cached::ReloadConfigs();
 
-    my $model =  $c->model('Config::Violations');
+    $model =  $c->model('Config::Violations');
     ($status, $result) = $model->readAll();
     if (is_success($status)) {
         $violations = $result;
+    }
+    ($status, $result) = $c->model('Roles')->list();
+    if (is_success($status)) {
+        $roles = $result;
     }
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
@@ -58,11 +62,11 @@ sub begin :Private {
         current_model_instance => $model,
         current_form_instance => $c->form("Violation" =>
             violations => $violations,
+            roles => $roles,
             triggers => $triggers,
             templates => $templates,
         )
     )
-
 }
 
 =head2 index
@@ -121,7 +125,7 @@ after list => sub {
         $c->stash->{items} = \@items;
         my ($status, $result) = $c->model('Config::Profile')->readAllIds();
         if (is_success($status)) {
-            $c->stash->{profiles} = ['default', @$result];
+            $c->stash->{profiles} = $result;
         }
     }
 };
