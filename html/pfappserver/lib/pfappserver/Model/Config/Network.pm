@@ -73,6 +73,37 @@ sub getType {
     return ($status, $type);
 }
 
+=head2 getTypes
+
+Returns an hashref with
+
+    $interface => $type
+
+For example
+
+    eth0 => vlan-isolation
+
+=cut
+
+sub getTypes {
+    my ( $self, $interfaces_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $types_ref = {};
+    foreach my $interface ( sort keys(%$interfaces_ref) ) {
+
+        # skip if we don't have a network address set
+        next if (!defined($interfaces_ref->{$interface}->{'network'}));
+
+        my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
+        if ( is_success($status) ) {
+            $types_ref->{$interface} = $type;
+        }
+    }
+
+    return ($STATUS::OK, $types_ref);
+}
+
 =head2 getNetworkAddress
 
 Calculate the network address for the provided ipaddress/network combination
