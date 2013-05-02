@@ -92,7 +92,7 @@ sub read {
     if ($@) {
         $logger->error($@);
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "Can't fetch filter from the database.";
+        $status_msg = "Can't fetch role from the database.";
     }
 
     return ($status, $status_msg);
@@ -114,7 +114,7 @@ sub create {
   if ($@) {
     $logger->error($@);
     $status = $STATUS::INTERNAL_SERVER_ERROR;
-    $status_msg = "Can't insert filter in the database.";
+    $status_msg = "Can't insert role in the database.";
   }
 
   return ($status, $status_msg);
@@ -136,7 +136,7 @@ sub delete {
     if ($@) {
         $logger->error($@);
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "Can't delete filter from the database.";
+        $status_msg = "Some nodes are still associated to this role.";
     }
 
     return ($status, $status_msg);
@@ -158,7 +158,7 @@ sub update {
     if ($@) {
         $logger->error($@);
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "Can't insert filter in the database.";
+        $status_msg = "Can't insert role in the database.";
     }
 
     return ($status, $status_msg);

@@ -23,7 +23,7 @@
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
                 var status_msg = getStatusMsg(jqXHR);
-                showError($('#section h2'), status_msg);
+                showError($('#section table'), status_msg);
             });
 
         return false;
@@ -56,7 +56,7 @@
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
                 var status_msg = getStatusMsg(jqXHR);
-                showError($('#section h2'), status_msg);
+                showError($('#section table'), status_msg);
             });
 
         return false;
@@ -72,7 +72,8 @@
         modal.find('h3 span').html(name);
         modal.modal({ show: true });
         confirm_link.off('click');
-        confirm_link.click(function() {
+        confirm_link.click(function(e) {
+            e.preventDefault();
             $.ajax(url)
                 .always(function() {
                     modal.modal('hide');
@@ -89,7 +90,7 @@
                 .fail(function(jqXHR) {
                     $("body,html").animate({scrollTop:0}, 'fast');
                     var status_msg = getStatusMsg(jqXHR);
-                    showError($('#section h2'), status_msg);
+                    showError($('#section table'), status_msg);
                 });
         });
 
