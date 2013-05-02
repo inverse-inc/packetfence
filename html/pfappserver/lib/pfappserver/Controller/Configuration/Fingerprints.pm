@@ -34,7 +34,16 @@ my %FIELD_MAP = (
 
 =cut
 
-sub index :Path :Args() : SimpleSearch('OS') { }
+sub index :Path :Args(0) {
+    my ( $self, $c ) = @_;
+    $c->go('simple_search');
+}
+
+=head2 index
+
+=cut
+
+sub simple_search :Local :Args() : SimpleSearch('OS') { }
 
 
 =head2 update

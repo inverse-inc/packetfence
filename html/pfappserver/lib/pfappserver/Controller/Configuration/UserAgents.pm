@@ -24,7 +24,16 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =cut
 
-sub index :Path :Args() : SimpleSearch('UserAgent') {}
+sub index :Path {
+    my ( $self, $c ) = @_;
+    $c->go('simple_search');
+}
+
+=head2 simple_search
+
+=cut
+
+sub simple_search :Local :Args() : SimpleSearch('UserAgent') {}
 
 =head2 upload
 

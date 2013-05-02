@@ -50,7 +50,7 @@ $(function() {
     });
 
     /* For simpleSearch */
-    $('#simpleSearch').on('submit', function(event) {
+    $('body').on('submit','#simpleSearch', function(event) {
         var form = $(this);
         var section = $('#section');
         section.fadeTo('fast', 0.5);

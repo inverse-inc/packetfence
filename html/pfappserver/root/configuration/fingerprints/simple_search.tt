@@ -11,7 +11,7 @@
     os => 'Operating System',
     fingerprint => 'Fingerprint' 
 } 
-section='configuration/fingerprints'
+section='configuration/fingerprints/simple_search'
 -%]
 
 <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">

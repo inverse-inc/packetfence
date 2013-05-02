@@ -25,7 +25,16 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =cut
 
-sub index :Path :Args(): SimpleSearch('MacAddress') { }
+sub index :Path {
+    my ( $self, $c ) = @_;
+    $c->go('simple_search');
+}
+
+=head2 simple_search
+
+=cut
+
+sub simple_search :Local :Args(): SimpleSearch('MacAddress') { }
 
 =head2 update
 
