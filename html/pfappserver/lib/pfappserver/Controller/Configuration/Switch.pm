@@ -36,7 +36,6 @@ Setting the current form instance and model
 
 sub begin :Private {
     my ($self, $c) = @_;
-    $self->SUPER::begin($c);
     my ($status, $switch_default, $roles);
     my $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
