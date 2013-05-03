@@ -56,6 +56,7 @@ has_field 'actions' =>
    type => 'Select',
    multiple => 1,
    label => 'Actions',
+   localize_labels => 1,
    element_class => ['chzn-select', 'input-xxlarge'],
    element_attr => {'data-placeholder' => 'Click to add an action' }
   );
@@ -236,7 +237,9 @@ sub options_trigger {
     my $self = shift;
 
     # $self->triggers comes from pfappserver::Model::Config::Violations->list_triggers
-    my @triggers = map { $_ => $_ } @{$self->form->triggers} if ($self->form->triggers);
+    my @triggers = map {
+        my ($type, $tid) = split(/::/);
+        $_ => $self->_localize($type)."::$tid" } @{$self->form->triggers} if ($self->form->triggers);
 
     return @triggers;
 }

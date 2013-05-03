@@ -127,14 +127,17 @@ $(function() { // DOM ready
         event.preventDefault();
 
         var id = $(this).prev().val();
-        var type = $(this).prev().prev().val();
-        var name = type + "::" + id;
+        var type_select = $(this).prev().prev().find(':selected');
+        var type = type_select.val();
+        var type_name = type_select.text();
+        var value = type + "::" + id;
+        var name = type_name + "::" + id;
         var select = $('#trigger');
         var last = true;
         $(this).prev().val('');
         select.find('option').each(function() {
-            if ($(this).val() > name) {
-                $('<option value="' + name + '" selected="selected">' + name + '</option>').insertBefore(this);
+            if ($(this).val() > value) {
+                $('<option value="' + value + '" selected="selected">' + name + '</option>').insertBefore(this);
                 last = false;
                 return false;
             }
