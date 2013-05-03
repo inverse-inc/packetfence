@@ -144,7 +144,7 @@ sub class_modify {
 }
 
 sub class_merge {
-    my $id = shift(@_);
+    my $id = $_[0];
     my $triggers = pop(@_);
     my $actions = pop(@_);
     my $whitelisted_categories = pop(@_);
@@ -155,8 +155,6 @@ sub class_merge {
         $logger->error("error deleting actions for class $id");
         return (0);
     }
-
-    unshift( @_, $id );
 
     # Check for violations
     if (class_exist($id) ) {
