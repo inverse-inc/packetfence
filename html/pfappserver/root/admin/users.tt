@@ -56,29 +56,44 @@ form {
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span2">
-          <div class="sidebar-nav well">
-            <ul class="nav nav-list">
-              <li class="nav-header">[% l('Users') %]</li>
-              <li class="active"><a href="#">[% l('Search') %]</a></li>
-              <li class="nav-header">[% l('Saved Searches') %]</li>
-              [%FOR ss IN saved_searches%]
-                [% form = ss.form %]
-                [% 
-                IF ss.path == 'user/advanced_search';
-                    tab = 'advanced';
-                   ELSE;
-                    tab ='simple';
-                END%]
-              <li>
-                <a href="#" data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::User').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span> </a>
-                <form>
-                  [%FOREACH input IN form.keys.sort%]
-                  <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+          <div class="row-fluid">
+            <div class="span12">
+              <div class="sidebar-nav well">
+                <ul class="nav nav-list">
+                  <li class="nav-header">[% l('Users') %]</li>
+                  <li class="active"><a href="#">[% l('Search') %]</a></li>
+                  <li class="nav-header">[% l('Saved Searches') %]</li>
+                  [%FOR ss IN saved_searches%]
+                  [% form = ss.form %]
+                  [% 
+                  IF ss.path == 'user/advanced_search';
+                  tab = 'advanced';
+                  ELSE;
+                  tab ='simple';
+                  END%]
+                  <li>
+                    <a href="#" data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::User').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span> </a>
+                    <form>
+                      [%FOREACH input IN form.keys.sort%]
+                      <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+                      [%END%]
+                    </form>
+                  </li>
                   [%END%]
-                </form>
-              </li>
-              [%END%]
-            </ul>
+                </ul>
+              </div>
+            </div>
+            <div class="row-fluid">
+              <div class="span12">
+                <div class="sidebar-nav">
+                  <ul class="nav nav-list">
+                    <li class="nav-header">[% l('Legend') %]</li>
+                    <li><i class="icon-user"></i> [% l('Internal user') %]</li>
+                    <li><i class="icon-briefcase"></i> [% l('External user') %]</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div><!--/.well -->
         </div><!--/span-->
         <div class="span10">

@@ -28,7 +28,7 @@ sub make_builder {
     return $builder
     ->select(qw(
             pid firstname lastname email telephone company address notes sponsor),
-            (map { { table=>'temporary_password', name => $_  } } qw(valid_from expiration access_duration category)),
+            (map { { table => 'temporary_password', name => $_  } } qw(valid_from expiration access_duration category password)),
             L_("count(node.mac) as nodes"),
             L_("concat(firstname,' ', lastname) as person_name"),
     )->from('person',
