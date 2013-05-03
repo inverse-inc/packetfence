@@ -3,8 +3,8 @@
         <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Configuration::MacAddress').action_for('update') )%]"><i class="icon-share"></i> [% l('Update OUI Prefixes') %] </a>
       </div>
     [%- INCLUDE 'configuration/listing.inc' titles = {
-            oui => 'OUI',
-            vendor_info => 'Vendor',
+            oui =>{ title => 'OUI' },
+            vendor_info => { title => 'Vendor' },
         }
         section = 'configuration/macaddress/simple_search'
      -%]

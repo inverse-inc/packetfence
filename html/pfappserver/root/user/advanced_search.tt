@@ -1,9 +1,9 @@
-[% MACRO header(column, title) BLOCK -%]
+[% MACRO header(column, title, class) BLOCK -%]
 [% params = { by => column, filter => filter, per_page => per_page };
     IF by == column && direction == 'asc';
       params.direction = 'desc';
     END %]
-                  <th><a href="#[% pagination_path('user/advanced_search', params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+                  <th[% " class=\"$class\"" IF class %]><a href="#[% pagination_path('user/advanced_search', params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
             <h2>[% l('Results') %]</h2>
 [% pagination = BLOCK %]   
@@ -14,8 +14,8 @@
               <thead>
                 <tr>
                   [% header('pid', 'Username') %]
-                  [% header('firstname', 'Firstname') %]
-                  [% header('lastname', 'Lastname') %]
+                  [% header('firstname', 'Firstname', 'hidden-phone') %]
+                  [% header('lastname', 'Lastname', 'hidden-phone') %]
                   [% header('email', 'Email') %]
                   [% header('nodes', '# nodes') %]
                 </tr>
@@ -24,8 +24,8 @@
                 [%- FOREACH user IN items -%]
                 <tr>
                   <td><a href="[% c.uri_for(c.controller('User').action_for('view'), [ user.pid ]) %]">[% user.pid %]</a></td>
-                  <td>[% user.firstname %]</td>
-                  <td>[% user.lastname %]</td>
+                  <td class="hidden-phone">[% user.firstname %]</td>
+                  <td class="hidden-phone">[% user.lastname %]</td>
                   <td>[% user.email %]</td>
                   <td>[% IF user.nodes > 0 %]<span class="badge">[% user.nodes %]</span>[% END %]</td>
                 </tr>

@@ -3,7 +3,7 @@
     IF by == column && direction == 'asc';
       params.direction = 'desc';
     END %]
-    <th class="listing_[%section%] [%section%]_[%column%]"> <a href="#[% pagination_path(section, params)  %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+    <th class="listing_[%section%] [%section%]_[%column%] [% title.class %]"> <a href="#[% pagination_path(section, params)  %]">[% title.title %][% IF by == column %] <i class="icon-chevron-[% IF direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
 [% END -%]
       <div>
         <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller().action_for('simple_search')) %]">
@@ -26,7 +26,7 @@
             [%- FOREACH item IN items -%]
             <tr>
               [%- FOREACH field IN field_names -%]
-              <td class="listing_[%section%] [%section%]_[%field%]">[% item.$field %]</td>
+              <td class="listing_[%section%] [%section%]_[%field%] [% titles.$field.class %]">[% item.$field %]</td>
               [%- END -%]
             </tr>
             [%- END -%]

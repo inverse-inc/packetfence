@@ -26,7 +26,11 @@
       <table class="table">
         <thead>
           <tr>
-            <th>[% l('Id') %]</th><th>[% l('Name') %]</th><th>[% l('Description') %]</th><th>[% l('Max nodes per user') %]</th><th></th>
+            <th>[% l('Id') %]</th>
+            <th>[% l('Name') %]</th>
+            <th class="hidden-phone">[% l('Description') %]</th>
+            <th class="hidden-phone">[% l('Max nodes per user') %]</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -34,8 +38,8 @@
           <tr>
             <td>[% role.category_id %]</td>
             <td><a href="[% c.uri_for(c.controller('Roles').action_for('read'), [ role.category_id ]) %]#modalRole">[% role.name %]</a></td>
-	     <td>[% role.notes %]</td>
-	     <td>[% role.max_nodes_per_pid %]</td>
+	     <td class="hidden-phone">[% role.notes %]</td>
+	     <td class="hidden-phone">[% role.max_nodes_per_pid %]</td>
 	     <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Roles').action_for('delete'), [ role.category_id ]) %]#deleteRole">[% l('Delete') %]</a></td>
           </tr>
           [% END -%]

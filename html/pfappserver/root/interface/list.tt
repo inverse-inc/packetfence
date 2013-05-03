@@ -3,7 +3,14 @@
       <form id="interfaces" name="interfaces" class="form">
         <table class="table">
           <thead>
-            <tr><th></th><th>[% l('Logical name') %]</th><th>[% l('IP Address') %]</th><th>[% l('Netmask') %]</th><th>[% l('Type') %]</th><th></th></tr>
+            <tr>
+              <th></th>
+              <th>[% l('Logical name') %]</th>
+              <th>[% l('IP Address') %]</th>
+              <th class="hidden-phone">[% l('Netmask') %]</th>
+              <th class="hidden-phone">[% l('Type') %]</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody>
            [% FOREACH i IN interfaces.keys.sort %]
@@ -11,8 +18,8 @@
               <td><div class="switch switch-mini"><input type="checkbox" id="[% i %]" name="[% i %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
               <td><a href="[% c.uri_for(c.controller('Interface').action_for('read'), [i]) %]">[% interfaces.$i.name %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
               <td>[% interfaces.$i.ipaddress %]</td>
-              <td>[% interfaces.$i.netmask %]</td>
-              <td>[% l(interfaces.$i.type) %]</td>
+              <td class="hidden-phone">[% interfaces.$i.netmask %]</td>
+              <td class="hidden-phone">[% l(interfaces.$i.type) %]</td>
               <td>
                 <!--<a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('read'), [i]) %]">[% l('Edit') %]</a>-->
                 [% IF interfaces.$i.vlan -%]
@@ -25,7 +32,7 @@
             [%- IF show_network && interfaces.$i.network %]
             <tr class="network">
               <td></td>
-              <td colspan="5">
+              <td colspan="3">
                   [% l('default network:') %] [% IF interfaces.$i.network_iseditable %]<a href="[% c.uri_for(c.controller('Config::Networks').action_for('view'), [interfaces.$i.network]) %]">[% interfaces.$i.network %]</a>[% ELSE %][% interfaces.$i.network %][% END %]
                   [%- IF interfaces.$i.networks %], [% l('routed networks:') %]
                     [%- FOREACH network IN interfaces.$i.networks %]
@@ -33,6 +40,7 @@
                     [%- END %]
                   [%- END %]
               </td>
+              <td class="hidden-phone" colspan="2"></td>
             </tr>
             [%- END %]
             [% END -%]

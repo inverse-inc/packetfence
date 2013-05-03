@@ -5,11 +5,11 @@
 </div>
 
 [%- INCLUDE 'configuration/listing.inc' titles = {
-    id => 'ID',
-    classid => 'OS Class ID',
-    class => 'OS Class',
-    os => 'Operating System',
-    fingerprint => 'Fingerprint' 
+    id => { title => 'ID', class => 'hidden-phone' },
+    classid => { title => 'OS Class ID', class => 'hidden-phone' },
+    class => { title => 'OS Class', class => 'hidden-phone' },
+    os => { title => 'Operating System' },
+    fingerprint => { title => 'Fingerprint' }
 } 
 section='configuration/fingerprints/simple_search'
 -%]
