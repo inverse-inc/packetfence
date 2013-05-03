@@ -1463,7 +1463,7 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
   url=/content/index.php?template=<template>
   redirect_url=/proxies/tools/stinger.exe
   enable=Y
-  trigger=Detect::2200032,Scan::11808
+  trigger=Detect::2200032,Nessus::11808
   actions=email,log,trap
   vlan=isolationVlan
   whitelisted_categories=
@@ -1472,13 +1472,10 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
 `[1234]`:: The violation ID. Any integer except 1200000-120099 which is reserved for required administration violations.
 `desc`:: single line description of violation
 `priority`:: Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority violations will be addressed first if a host has more than one.
-`url`:: HTML URL the host will be redirected to while in violation. This is usually a local URL of the form /content/index.php?template=... where ... is the name of the remediation template to show to the user. Full URLs like http://myportal.com/violation1234/ are also supported if passthrough=proxy is set under [trapping]. In that case, the Captive Portal will do reverse proxying to the specified URL. 
-+
-CAUTION: Great care should be taken when using this feature because any resource outside the specified path will fail to load.
-+
+`template`:: Template name to use while in violation. It must match a HTML file name (without the extension) of the `violations` templates directory. 
 `redirect_url`:: The user is redirected to this URL after he re-enabled his network access on the remediation page.
 `enable`:: If enable is set to 'N', this violation is disabled and no additional violations of this type will be added.
-`trigger`:: Method to reference external detection methods such as Detect (SNORT), Nessus, OpenVAS, OS (DHCP Fingerprint Detection), USERAGENT (Browser signature), VENDORMAC (MAC address class), etc. Trigger is formatted as follows `type::ID`. in this example 2000032 is the snort id and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
+`trigger`:: Method to reference external detection methods. Trigger is formatted as follows `type::ID`. The type can be `Detect` (Snort), `Nessus`, `OpenVAS`, `OS` (DHCP Fingerprint Detection), `UserAgent` (Browser signature), `VendorMAC` (MAC address class), `SoH` (Statement of Health filter), `Accounting`, etc. In the above example, 2000032 is the Snort ID and 11808 is the Nessus plugin number. The Snort ID does NOT have to match the violation ID.
 `actions`:: This is the list of actions that will be executed on a violation addition. The actions can be:
 `log`::: Log a message to the file specified in `[alerting].log`
 `email`::: Email the address specified in `[alerting].emailaddr`, using `[alerting].smtpserver`. Multiple `emailaddr` can be sperated by comma.
