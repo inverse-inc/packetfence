@@ -26,8 +26,7 @@ use pf::Portal::Session;
 use pf::util;
 use pf::violation;
 use pf::web;
-# called last to allow redefinitions
-use pf::web::custom;
+use pf::web::custom; # called last to allow redefinitions
 
 use pf::authentication;
 use pf::Authentication::constants;
@@ -52,8 +51,7 @@ $logger->info($portalSession->getClientIp() . " - " . $portalSession->getClientM
 my %info;
 
 # Pull username
-$info{'pid'} = "admin";
-$info{'pid'} = $cgi->remote_user if (defined $cgi->remote_user);
+$info{'pid'} = $cgi->remote_user || "admin";
 
 # Pull browser user-agent string
 $info{'user_agent'} = $cgi->user_agent;
