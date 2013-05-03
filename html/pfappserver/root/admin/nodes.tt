@@ -91,9 +91,9 @@ form {
                 <div class="tab-pane active well" id="simple">
                   <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('Node').action_for('simple_search')) %]">
                   <div class="input-daterange datepicker">
-                    <input type="text" class="input-small" name="start">
-                    <span class="add-on">[% l('to') %]</span>
-                    <input type="text" class="input-small" name="end">
+                    <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
+                    <i class="icon-arrow-right"></i>
+                    <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
 
                     <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
@@ -114,9 +114,9 @@ form {
                     <input type="hidden" name="by">
                     <input type="hidden" name="direction">
                   <div class="input-daterange datepicker">
-                    <input type="text" class="input-small" name="start">
-                    <span class="add-on">[% l('to') %]</span>
-                    <input type="text" class="input-small" name="end">
+                    <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
+                    <i class="icon-arrow-right"></i>
+                    <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
                     <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
                   </div>
                   <div>

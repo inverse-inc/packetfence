@@ -202,21 +202,37 @@ $(function () { // DOM ready
         // The number of days is extracted from the href attribute
         var days = $(this).attr('href').replace(/#last([0-9]+)days?/, "$1");
         var dp = $(this).closest('.datepicker').data('datepicker');
-        var now = new Date();
-        var before = new Date(now.getTime() - days*24*60*60*1000);
-        var now_str = (now.getMonth() + 1) + '/' + now.getDate() + '/' + now.getFullYear();
-        var before_str = (before.getMonth() + 1) + '/' + before.getDate() + '/' + before.getFullYear();
+        var nowDate = new Date();
+        var now = {
+            yyyy: nowDate.getFullYear(),
+            m: (nowDate.getMonth() + 1),
+            d: nowDate.getDate()
+        };
+        now.dd = (now.d < 10 ? '0' : '') + now.d;
+        now.mm = (now.m < 10 ? '0' : '') + now.m;
+        var beforeDate = new Date(nowDate.getTime() - days*24*60*60*1000);
+        var before = {
+            yyyy: beforeDate.getFullYear(),
+            m: (beforeDate.getMonth() + 1),
+            d: beforeDate.getDate()
+        };
+        before.dd = (before.d < 10 ? '0' : '') + before.d;
+        before.mm = (before.m < 10 ? '0' : '') + before.m;
 
         // Start date
+        var format = dp.pickers[0].element.attr('data-date-format');
+        var before_str = format.replace('yyyy', before.yyyy).replace('mm', before.mm).replace('dd', before.dd);
         dp.pickers[0].element.val(before_str);
         dp.pickers[0].update();
-        dp.pickers[0].setEndDate(now);
+        dp.pickers[0].setEndDate(beforeDate);
         dp.pickers[0].element.trigger({ type: 'changeDate', date: dp.pickers[0].date });
 
         // End date
+        var format = dp.pickers[1].element.attr('data-date-format');
+        var now_str = format.replace('yyyy', now.yyyy).replace('mm', now.mm).replace('dd', now.dd);
         dp.pickers[1].element.val(now_str);
         dp.pickers[1].update();
-        dp.pickers[1].setStartDate(before);
+        dp.pickers[1].setStartDate(nowDate);
         dp.pickers[1].element.trigger({ type: 'changeDate', date: dp.pickers[1].date });
 
         dp.updateDates();
