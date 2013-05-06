@@ -16,7 +16,6 @@
             <li><a href="#userPassword" data-toggle="tab">[% l('Password') %]</a></li>
             <li><a href="#userActions" data-toggle="tab">[% l('Actions') %]</a></li>
             [% END -%]
-            <li><a href="#userHistory" data-toggle="tab">[% l('History') %]</a></li>
             <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
             <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
           </ul>
@@ -102,14 +101,9 @@
               </div>
             </div><!--tab-pane-->
 [% END %]
-            <div class="tab-pane fade" id="userHistory">
-              <div id="noResult" class="unwell">
-                <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
-              </div>
-            </div><!--tab-pane-->
 
             <div class="tab-pane fade" id="userDevices">
-              [%IF nodes.size%]
+              [% IF nodes.size %]
               <table class="table table-condensed">
                 <thead>
                   <tr>
@@ -128,9 +122,9 @@
                 [% END %]
                 </tbody>
               </table>
-              [%ELSE%]
+              [% ELSE %]
               <div id="noResult" class="unwell">
-                <i class="icon-search icon-large"></i><p>[% l('No matching items') %]</p>
+                <i class="icon-search icon-large"></i><p>[% l('No device found') %]</p>
               </div>
               [% END %]
             </div><!--tab-pane-->
