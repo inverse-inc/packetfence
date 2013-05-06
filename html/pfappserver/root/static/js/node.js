@@ -120,7 +120,9 @@ NodeView.prototype.readNode = function(e) {
 
 NodeView.prototype.readViolations = function(e) {
     var btn = $(e.target);
-    var target = $(btn.attr("href"));
+    var name = btn.attr("href");
+    var target = $(name.substr(name.indexOf('#')));
+    var url = btn.attr("data-href");
     if (target.children().length == 0)
         target.load(btn.attr("data-href"), function() {
             target.find('.switch').bootstrapSwitch();
