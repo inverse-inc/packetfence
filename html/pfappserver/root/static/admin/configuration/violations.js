@@ -143,7 +143,7 @@ $(function() { // DOM ready
             }
         });
         if (last)
-            select.append('<option value="' + name + '" selected="selected">' + name + '</option>');
+            select.append('<option value="' + value + '" selected="selected">' + name + '</option>');
         select.trigger("liszt:updated");
     });
 
