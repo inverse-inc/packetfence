@@ -77,11 +77,6 @@ function init() {
         updateGraphSection(graph)
     });
 
-
-    function reTry() {
-        //setTimeout(function() { $(window).hashchange(); }, 60000);
-    }
-
     $('#section').on('click', '[data-href-background]', function() {
         var that = $(this);
         var href = that.attr('data-href-background');
@@ -90,19 +85,17 @@ function init() {
         if (loader) loader.show();
         section.fadeTo('fast', 0.5);
         $.ajax(href)
+            .always(function(){
+                if (loader) loader.hide();
+                section.stop();
+                section.fadeTo('fast', 1.0);
+            })
             .done(function(data) {
-                setTimeout(function() { $(window).hashchange(); }, 1000);
+                $(window).hashchange();
             })
             .fail(function(jqXHR) {
-                if(jqXHR.status != 0) {
-                    section.stop();
-                    section.fadeTo('fast', 1.0);
-                    if (loader) loader.hide();
-                    var status_msg = getStatusMsg(jqXHR);
-                    showPermanentError($("#section .table"), status_msg);
-                } else {
-                    showWarning($("#section .table"), "Lost connectivity with server retrying in 60 seconds");
-                }
+                var status_msg = getStatusMsg(jqXHR);
+                showPermanentError($("#section .table"), status_msg);
             });
         return false;
     });
