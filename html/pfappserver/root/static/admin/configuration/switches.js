@@ -102,10 +102,10 @@ SwitchView.prototype.readSwitch = function(e) {
             modal.append(data);
             modal.find('.chzn-select').chosen();
             modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
-            modal.modal({ shown: true });
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
             });
+            modal.modal({ shown: true });
         },
         errorSibling: section.find('h2').first()
     });

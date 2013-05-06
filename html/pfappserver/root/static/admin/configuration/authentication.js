@@ -128,10 +128,10 @@ $(function() { // DOM ready
             })
             .done(function(data) {
                 modal.append(data);
-                modal.modal({ shown: true });
                 modal.one('shown', function() {
                     $('#id').focus();
                 });
+                modal.modal({ shown: true });
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -159,10 +159,10 @@ $(function() { // DOM ready
             })
             .done(function(data) {
                 modal.append(data);
-                modal.modal({ shown: true });
                 modal.one('shown', function() {
                     $('#id').focus();
                 });
+                modal.modal({ shown: true });
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -189,7 +189,6 @@ $(function() { // DOM ready
                 url: form.attr('action'),
                 data: form.serialize()
             }).done(function(data) {
-                modal.modal('hide');
                 modal.one('hidden', function() {
                     // Refresh the rules list
                     $('#sourceRulesEmpty').closest('.control-group').fadeOut('fast', function() {
@@ -200,6 +199,7 @@ $(function() { // DOM ready
                         });
                     });
                 });
+                modal.modal('hide');
             }).fail(function(jqXHR) {
                 var status_msg = getStatusMsg(jqXHR);
                 showPermanentError(modal_body.children().first(), status_msg);

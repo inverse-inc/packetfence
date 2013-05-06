@@ -168,11 +168,11 @@ $(function() { // DOM ready
             }).always(function() {
                 btn.button('reset');
             }).done(function() {
-                modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the section
                     $(window).hashchange();
                 });
+                modal.modal('hide');
             }).fail(function(jqXHR) {
                 var status_msg = getStatusMsg(jqXHR);
                 resetAlert(modal_body);

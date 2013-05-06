@@ -15,10 +15,10 @@
             })
             .done(function(data) {
                 modal.append(data);
-                modal.modal({ shown: true });
                 modal.on('shown', function() {
                     modal.find('select[name="action"]').trigger('change');
                 });
+                modal.modal({ shown: true });
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -46,10 +46,10 @@
             })
             .done(function(data) {
                 modal.append(data);
-                modal.modal({ shown: true });
                 modal.one('shown', function() {
                     $('#filterName').focus();
                 });
+                modal.modal({ shown: true });
             })
             .fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
@@ -133,11 +133,11 @@
                 url: form.attr('action'),
                 data: form.serialize()
             }).done(function() {
-                modal.modal('hide');
                 modal.on('hidden', function() {
                     // Refresh the section
                     $(window).hashchange();
                 });
+                modal.modal('hide');
             }).fail(function(jqXHR) {
                 $("body,html").animate({scrollTop:0}, 'fast');
                 var status_msg = getStatusMsg(jqXHR);

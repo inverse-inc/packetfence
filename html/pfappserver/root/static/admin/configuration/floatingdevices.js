@@ -84,10 +84,10 @@ FloatingDeviceView.prototype.readFloatingDevice = function(e) {
         },
         success: function(data) {
             modal.append(data);
-            modal.modal({ shown: true });
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
             });
+            modal.modal({ shown: true });
         },
         errorSibling: section.find('h2').first()
     });
