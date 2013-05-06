@@ -15,8 +15,7 @@ td a.btn { margin-left: 5px; }
             <a class="btn btn-small pull-right" data-toggle="modal" data-target="#newFileModal" href="[% c.uri_for(c.controller('Portal::Profile').action_for('new_file'),[id], paths) %]" ><i class="icon-plus"></i> [% l('New') %]</a>
             [% uploader_id = "uploader_" _ dir_id %]
             <div id="[% uploader_id %]" class="pull-right"></div>
-            <script>
-            <!--
+            <script type="text/javascript">
                     $('#[% uploader_id %]').fineUploader({
                          request: {
                            endpoint: '[% c.uri_for(c.controller('Portal::Profile').action_for('upload'),[id],paths) %]',
@@ -39,12 +38,10 @@ td a.btn { margin-left: 5px; }
                            '<span class="qq-drop-processing"><span>{dropProcessingText}</span><span class="qq-drop-processing-spinner"></span></span>' +
                            '<ul class="qq-upload-list pull-right"></ul>' +
                            '</div>',
-                           multiple: false
+                         multiple: false
                     }).on('complete', function(id, fileName, responseJSON) {
-                              $(window).hashchange();
-                       });
-            
-            -->
+                         $(window).hashchange();
+                    });
             </script>
           </td>
         </tr>
@@ -122,7 +119,7 @@ td a.btn { margin-left: 5px; }
     <div class="modal-body"></div>
     <div class="modal-footer">
       <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-      <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Create New File') %]</a>
+      <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Create New File') %]</button>
     </div>
   </div>
 
@@ -133,7 +130,7 @@ td a.btn { margin-left: 5px; }
     <div class="modal-body"></div>
     <div class="modal-footer">
       <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
-      <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Copy File') %]</a>
+      <button type="submit" class="btn btn-primary"><i class="icon-copy"></i> [% l('Copy File') %]</button>
     </div>
   </div>
 
