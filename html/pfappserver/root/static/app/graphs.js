@@ -158,7 +158,7 @@ function graphLineData(holder, labels, series) {
             label.attr({'text': labels[i]});
         }
         else {
-            label.attr({'text': ''});
+            label.attr({'text': ' '});
         }
         last = cur;
     }
