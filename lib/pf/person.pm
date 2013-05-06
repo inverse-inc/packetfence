@@ -112,7 +112,13 @@ sub person_db_prepare {
             WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
-        qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
+        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername,
+                   IFNULL(os_class.description, ' ') as dhcp_fingerprint
+            FROM node
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint = dhcp_fingerprint.fingerprint
+            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id = os_mapping.os_type
+            LEFT JOIN os_class ON os_mapping.os_class = os_class.class_id
+            WHERE pid = ? ]);
 
     $person_statements->{'person_violations_sql'} = get_db_handle()->prepare(
         qq[ SELECT violation.id, violation.mac, violation.vid, class.description, start_date, release_date, violation.status
