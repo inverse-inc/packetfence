@@ -31,4 +31,3 @@
   </select>
   <a id="addViolation" class="btn btn-warning" href="[% c.uri_for(c.controller('Node').action_for('triggerViolation'), [mac]) %]">[% l('Trigger') %]</a>
 </div>
-</div>
