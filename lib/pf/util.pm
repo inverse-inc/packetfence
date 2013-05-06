@@ -867,17 +867,18 @@ sub get_vlan_from_int {
 
 
 sub log_of {
-    my ($n,$base) = @_;
+    my ($n, $base) = @_;
     return log($n)/log($base);
 }
 
 sub format_bytes {
-    my ($n,@args) = @_;
-    my @DEFAULT_UNITS = ("","KB", "MB", "GB", "TB", "PB");
+    my ($n, @args) = @_;
+    my @DEFAULT_UNITS = ("bytes","KB", "MB", "GB", "TB", "PB");
     my $unit = 1024;
     my $i = 0;
     my $format = "%.2f";
-    if($n >= $unit) {
+    return undef unless ($n);
+    if ($n >= $unit) {
         $i = int(log_of($n,$unit));
         $i = $#DEFAULT_UNITS if $i >= @DEFAULT_UNITS;
         $n /= $unit ** $i;
