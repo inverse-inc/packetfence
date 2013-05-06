@@ -169,6 +169,7 @@ $(function () { // DOM ready
     /* Default values for Ajax requests */
     $.ajaxSetup({
         timeout: 120000,
+        cache: false,
         statusCode: {
             401: redirectCallback,
             302: redirectCallback

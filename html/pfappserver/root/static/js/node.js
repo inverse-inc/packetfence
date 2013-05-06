@@ -179,10 +179,10 @@ NodeView.prototype.updateNode = function(e) {
                 btn.button('reset');
             },
             success: function(data) {
-                modal.modal('hide');
                 modal.on('hidden', function() {
                     $(window).hashchange();
                 });
+                modal.modal('hide');
             },
             errorSibling: modal_body.children().first()
         });
