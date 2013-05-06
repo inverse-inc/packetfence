@@ -145,11 +145,11 @@ sub add_order_by {
 
 
 my %COLUMN_MAP = (
+    person_name => 'pid',
     node_category => {
         table => 'node_category',
         name  => 'name',
     },
-    person_name => 'pid',
     switch_ip   => {
        table => 'locationlog',
        name  => 'switch',
@@ -197,10 +197,6 @@ my %COLUMN_MAP = (
               ],
           },
        ]
-    },
-    node_ip   => {
-       table => 'iplog',
-       name  => 'ip',
     },
     violation   => {
         table => 'class',
@@ -269,87 +265,6 @@ sub process_query {
     $new_query->[0] = exists $COLUMN_MAP{$old_column} ? $COLUMN_MAP{$old_column}  : $old_column;
     return $new_query;
 }
-
-my %JOIN_MAP = (
-    violation => [
-        {
-            'table'  => 'violation',
-            'join' => 'LEFT',
-            'on' =>
-            [
-                [
-                    {
-                        'table' => 'violation',
-                        'name'  => 'mac',
-                    },
-                    '=',
-                    {
-                        'table' => 'node',
-                        'name'  => 'mac',
-                    }
-                ]
-            ],
-        },
-        {
-            'table'  => 'class',
-            'join' => 'LEFT',
-            'on' =>
-            [
-                [
-                    {
-                        'table' => 'violation',
-                        'name'  => 'vid',
-                    },
-                    '=',
-                    {
-                        'table' => 'class',
-                        'name'  => 'vid',
-                    }
-                ]
-            ],
-        }
-    ],
-    node_ip => [
-        {
-            'table'  => 'iplog',
-            'join' => 'LEFT',
-            'on' =>
-            [
-                [
-                    {
-                        'table' => 'iplog',
-                        'name'  => 'mac',
-                    },
-                    '=',
-                    {
-                        'table' => 'node',
-                        'name'  => 'mac',
-                    }
-                ]
-            ],
-        },
-    ],
-    switch_ip => [
-        {
-            'table'  => 'locationlog',
-            'join' => 'LEFT',
-            'on' =>
-            [
-                [
-                    {
-                        'table' => 'locationlog',
-                        'name'  => 'mac',
-                    },
-                    '=',
-                    {
-                        'table' => 'node',
-                        'name'  => 'mac',
-                    }
-                ]
-            ],
-        },
-    ]
-);
 
 sub add_joins {
     my ($self,$builder,$params) = @_;
