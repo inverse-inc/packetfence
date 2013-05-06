@@ -78,6 +78,16 @@ function resetAlert(parent) {
     parent.children('.error').removeClass('error');
 }
 
+function showWarning(sibling, msg, permanent) {
+    var alert = $('.alert-block').first().clone();
+    alert.find('span').first().html(msg);
+    sibling.before(alert);
+    if (permanent)
+        alert.fadeIn('fast');
+    else
+        alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
+}
+
 function showSuccess(sibling, msg, permanent) {
     var alert = $('.alert-success').first().clone();
     alert.find('span').first().html(msg);

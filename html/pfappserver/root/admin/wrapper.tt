@@ -27,6 +27,11 @@
 
   <body>
 
+    <div class="alert alert-block hide">
+      <button class="close" data-dismiss="alert">&times;</button>
+      <strong>[% l('Warning!') %]</strong> <span></span>
+    </div>
+
     <div class="alert alert-success hide">
       <button class="close" data-dismiss="alert">&times;</button>
       <strong>[% l('Success!') %]</strong> <span></span>
