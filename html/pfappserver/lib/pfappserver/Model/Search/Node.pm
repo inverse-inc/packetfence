@@ -22,6 +22,10 @@ use POSIX qw(ceil);
 
 extends 'pfappserver::Base::Model::Search';
 
+=head2 search
+
+=cut
+
 sub search {
     my ($self,$params) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -35,6 +39,7 @@ sub setup_query {
     my ($self,$builder,$params) = @_;
     $self->add_joins($builder,$params);
     $self->add_searches($builder,$params);
+    $self->add_date_range($builder,$params,@{$params}{qw(start end)});
     $self->add_limit($builder,$params);
     $self->add_order_by($builder,$params);
 }
@@ -46,7 +51,7 @@ sub do_query {
     my ($per_page,$page_num,$by,$direction) = @{$params}{qw(per_page page_num by direction)};
     $per_page ||= 25;
     $page_num ||= 1;
-    $direction ||= 'asc';
+    $direction ||= 'ASC';
     my $itemsKey = $self->itemsKey;
     $results{$itemsKey} = [node_custom_search($sql)];
     my $sql_count = $builder->sql_count;
@@ -73,7 +78,6 @@ sub add_searches {
         $builder->where($all_or_any)->where(@$_) for @searches;
         $builder->where(')');
     }
-
 }
 
 sub make_builder {
@@ -139,6 +143,7 @@ sub add_order_by {
     }
 }
 
+
 my %COLUMN_MAP = (
     node_category => {
         table => 'node_category',
@@ -148,6 +153,50 @@ my %COLUMN_MAP = (
     switch_ip   => {
        table => 'locationlog',
        name  => 'switch',
+       joins => [
+           {
+               'table'  => 'locationlog',
+               'join' => 'LEFT',
+               'on' =>
+               [
+                   [
+                       {
+                           'table' => 'locationlog',
+                           'name'  => 'mac',
+                       },
+                       '=',
+                       {
+                           'table' => 'node',
+                           'name'  => 'mac',
+                       }
+                   ]
+               ],
+           },
+       ]
+    },
+    node_ip   => {
+       table => 'iplog',
+       name  => 'ip',
+       joins => [
+          {
+              'table'  => 'iplog',
+              'join' => 'LEFT',
+              'on' =>
+              [
+                  [
+                      {
+                          'table' => 'iplog',
+                          'name'  => 'mac',
+                      },
+                      '=',
+                      {
+                          'table' => 'node',
+                          'name'  => 'mac',
+                      }
+                  ]
+              ],
+          },
+       ]
     },
     node_ip   => {
        table => 'iplog',
@@ -156,8 +205,62 @@ my %COLUMN_MAP = (
     violation   => {
         table => 'class',
         name  => 'description',
+        joins => [
+            {
+                'table'  => 'violation',
+                'join' => 'LEFT',
+                'on' =>
+                [
+                    [
+                        {
+                            'table' => 'violation',
+                            'name'  => 'mac',
+                        },
+                        '=',
+                        {
+                            'table' => 'node',
+                            'name'  => 'mac',
+                        }
+                    ]
+                ],
+            },
+            {
+                'table'  => 'class',
+                'join' => 'LEFT',
+                'on' =>
+                [
+                    [
+                        {
+                            'table' => 'violation',
+                            'name'  => 'vid',
+                        },
+                        '=',
+                        {
+                            'table' => 'class',
+                            'name'  => 'vid',
+                        }
+                    ]
+                ],
+            }
+        ]
     },
 );
+
+sub add_date_range {
+    my ($self,$builder,$params,$start,$end) = @_;
+    if($start || $end) {
+        unless (grep { $_->{name} eq 'switch_ip'} @{$params->{searches}}) {
+            $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
+        }
+        $builder->where('and');
+        if ($start) {
+            $builder->where({ table=>'locationlog', name => 'start_time' }, '>=' ,$start);
+        }
+        if($end) {
+            $builder->where({ table=>'locationlog', name => 'end_time' }, '<=' ,$end);
+        }
+    }
+}
 
 sub process_query {
     my ($self,$query) = @_;
@@ -251,8 +354,8 @@ my %JOIN_MAP = (
 sub add_joins {
     my ($self,$builder,$params) = @_;
     foreach my $name (map { $_->{name} } @{$params->{searches}}) {
-        $builder->from(@{$JOIN_MAP{$name}})
-            if( exists $JOIN_MAP{$name});
+        $builder->from(@{$COLUMN_MAP{$name}{'joins'}})
+            if( exists $COLUMN_MAP{$name} && $COLUMN_MAP{$name}{'joins'});
     }
 }
 
