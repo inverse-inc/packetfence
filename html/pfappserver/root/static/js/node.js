@@ -147,12 +147,12 @@ NodeView.prototype.toggleViolation = function(e) {
         name: name,
         status: status,
         success: function(data) {
-            showSuccess(pane, data.status_msg);
+            showSuccess(pane.children().first(), data.status_msg);
             that.disableToggleViolation = false;
         },
         error: function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
-            showError(pane, status_msg);
+            showError(pane.children().first(), status_msg);
             // Restore switch state
             btn.bootstrapSwitch('setState', !status, true);
             that.disableToggleViolation = false;
@@ -216,16 +216,15 @@ NodeView.prototype.triggerViolation = function(e) {
     var btn = $(e.target);
     var href = btn.attr('href');
     var vid = modal.find('#vid').val();
-
-    resetAlert(modal_body);
+    var pane = $('#nodeViolations');
+    resetAlert(pane);
     this.nodes.get({
         url: [href, vid].join('/'),
         success: function(data) {
-            var content = $('#nodeViolations');
-            content.html(data);
-            content.find('.switch').bootstrapSwitch();
+            pane.html(data);
+            pane.find('.switch').bootstrapSwitch();
         },
-        errorSibling: modal_body.children().first()
+        errorSibling: pane.children().first()
     });
 };
 

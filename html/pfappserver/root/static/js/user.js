@@ -300,12 +300,12 @@ UserView.prototype.toggleViolation = function(e) {
         name: name,
         status: status,
         success: function(data) {
-            showSuccess(pane, data.status_msg);
+            showSuccess(pane.children().first(), data.status_msg);
             that.disableToggleViolation = false;
         },
         error: function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
-            showError(pane, status_msg);
+            showError(pane.children().first(), status_msg);
             // Restore switch state
             btn.bootstrapSwitch('setState', !status, true);
             that.disableToggleViolation = false;
