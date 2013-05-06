@@ -102,15 +102,18 @@ InterfaceView.prototype.readInterface = function(e) {
 
 InterfaceView.prototype.typeChanged = function(e) {
     var modal = $('#modalEditInterface');
-    var type = e? $(e.target) : modal.find('[name="type"]');
-    if (type.length) {
-        var dns = modal.find('[name="dns"]').closest('.control-group');
-        if (type.val() == 'inline') {
-            dns.show('fast');
-            dns.find(':input').removeAttr('disabled');
-        } else {
-            dns.hide('fast');
-            dns.find(':input').attr('disabled','disabled');
+    if (modal.find('[name="ipaddress"]').length) {
+        // We are editing an interface
+        var type = e? $(e.target) : modal.find('[name="type"]');
+        if (type.length) {
+            var dns = modal.find('[name="dns"]').closest('.control-group');
+            if (type.val() == 'inline') {
+                dns.show('fast');
+                dns.find(':input').removeAttr('disabled');
+            } else {
+                dns.hide('fast');
+                dns.find(':input').attr('disabled','disabled');
+            }
         }
     }
 };
