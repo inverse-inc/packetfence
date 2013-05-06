@@ -69,8 +69,9 @@ $(function() { // DOM ready
         e.preventDefault();
         if ($(this).hasClass('disabled'))
             return false;
-        var url = $(this).attr('href');
-        var row = $(this).closest('tr');
+        var link = $(this);
+        var url = link.attr('href');
+        var row = link.closest('tr');
         var cells = row.find('td');
         var name = $(cells[1]).text();
         if (!name) name = $(cells[0]).text();
@@ -81,9 +82,11 @@ $(function() { // DOM ready
         confirm_link.off('click');
         confirm_link.click(function(e) {
             e.preventDefault();
+            confirm_link.button('loading');
             $.ajax(url)
                 .always(function() {
                     modal.modal('hide');
+                    confirm_link.button('reset');
                 })
                 .done(function(data) {
                     row.remove();
