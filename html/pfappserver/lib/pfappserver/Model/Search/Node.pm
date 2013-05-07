@@ -248,12 +248,16 @@ sub add_date_range {
         unless (grep { $_->{name} eq 'switch_ip'} @{$params->{searches}}) {
             $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
         }
-        $builder->where('and');
         if ($start) {
             $builder->where({ table=>'locationlog', name => 'start_time' }, '>=' ,$start);
         }
         if($end) {
-            $builder->where({ table=>'locationlog', name => 'end_time' }, '<=' ,$end);
+            $builder
+                ->where('(')
+                ->where({ table=>'locationlog', name => 'end_time' }, '<=' ,$end)
+                ->or()
+                ->where({ table=>'locationlog', name => 'end_time' }, 'IS NULL')
+                ->where(')');
         }
     }
 }
