@@ -725,6 +725,35 @@ msgstr "MAC Addresses"
 msgid ""
 msgstr "MAC Addresses"
 
+# lib/pf/action.pm
+
+msgid "autoreg"
+msgstr "Register node"
+
+msgid "trap"
+msgstr "Trap"
+
+msgid "email"
+msgstr "Send email"
+
+msgid "log"
+msgstr "Log message"
+
+msgid "external"
+msgstr "External command"
+
+msgid "winpopup"
+msgstr "Send Windows popup message"
+
+msgid "close"
+msgstr "Close a violation"
+
+msgid "role"
+msgstr "Set role"
+
+msgid "unreg"
+msgstr "Deregister node"
+
 # lib/pf/Authentication/constants.pm
 
 msgid "mark_as_sponsor"

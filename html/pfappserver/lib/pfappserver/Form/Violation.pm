@@ -199,7 +199,7 @@ around 'has_errors'  => sub {
 sub options_actions {
     my $self = shift;
 
-    my @actions = map { $_ => $_ } @pf::action::VIOLATION_ACTIONS;
+    my @actions = map { $_ => $self->_localize($_) } @pf::action::VIOLATION_ACTIONS;
 
     return @actions;
 }
