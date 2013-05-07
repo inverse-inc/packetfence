@@ -77,12 +77,15 @@ form .uneditable {
 #interfaces td span.label {
     margin-left: 5px;
 }
-
-.inline {
-    display:inline;
-}
 /* enlarge modal of violation, user and user source rule */
-#modalViolation, #modalRule, #modalUser {
+#modalViolation, #modalRule, #modalUser, #modalNode {
     margin-left: -390px;
     width: 780px;
+}
+.inline {
+    display: inline;
+}
+.blurry {
+    color: transparent;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
