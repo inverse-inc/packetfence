@@ -74,7 +74,7 @@ table.sources {
               <!--[% pf_section_entry( 'database', 'Database') %]-->
               [% pf_section_entry( 'network', 'Network') %]
               <!--[% pf_section_entry( 'proxies', 'Proxy') %]-->
-              [% pf_section_entry( 'trapping', 'Trappings') %]
+              [% pf_section_entry( 'trapping', 'Trapping') %]
               [% pf_section_entry( 'registration', 'registration') %]
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
               [% pf_section_entry( 'guests_admin_registration', 'Admin Registration') %]
