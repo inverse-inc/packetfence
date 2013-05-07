@@ -30,6 +30,7 @@ use pf::iplog;
 use pf::locationlog;
 use pf::node;
 use pf::os;
+use pf::enforcement qw(reevaluate_access);
 use pf::useragent qw(node_useragent_view);
 use pf::util;
 use pf::violation;
@@ -217,20 +218,44 @@ sub view {
 
 =head2 update
 
+See subroutine manage of pfcmd.pl
+
 =cut
 
 sub update {
-    my ( $self, $mac, $node_ref ) = @_;
+    my ($self, $mac, $node_ref) = @_;
 
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($status, $status_msg) = ($STATUS::OK);
+    my ($status, $result) = ($STATUS::OK);
+    my $previous_node_ref;
 
-    unless (node_modify($mac, %{$node_ref})) {
-        $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = 'An error occurred while saving the node.';
+    $previous_node_ref = node_attributes($mac);
+    if ($previous_node_ref->{status} ne $node_ref->{status}) {
+        # Status was modified
+        my $option;
+        if ($node_ref->{status} eq $pf::node::STATUS_REGISTERED) {
+            $option = "register";
+            $result = node_register($mac, $previous_node_ref->{pid}, %{$node_ref});
+        }
+        elsif ($node_ref->{status} eq $pf::node::STATUS_UNREGISTERED) {
+            $option = "deregister";
+            $result = node_deregister($mac, %{$node_ref});
+        }
+        if ($result) {
+            # Node has been registered or deregistered
+            reevaluate_access( $mac, "manage_$option" );
+        }
+    }
+    unless (defined $result) {
+        $result = node_modify($mac, %{$node_ref});
     }
 
-    return ($status, $status_msg);
+    unless ($result) {
+        $status = $STATUS::INTERNAL_SERVER_ERROR;
+        $result = 'An error occurred while saving the node.';
+    }
+
+    return ($status, $result);
 }
 
 =head2 delete
