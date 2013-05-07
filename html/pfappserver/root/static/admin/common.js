@@ -438,7 +438,7 @@ $(function () { // DOM ready
             section.fadeTo('fast', 1.0);
         })
         .done(function(data) {
-            showSuccess(sibling, data.status_msg);
+            showPermanentSuccess(sibling, data.status_msg);
         })
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
