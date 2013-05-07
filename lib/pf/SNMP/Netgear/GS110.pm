@@ -38,6 +38,8 @@ use pf::SNMP::constants;
 
 use base ('pf::SNMP::Netgear');
 
+sub description { 'Netgear GS110' }
+
 =head1 METHODS
 
 =over
@@ -247,15 +249,13 @@ sub _setVlan {
 
 =head1 AUTHOR
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-Rich Graves <rgraves@carleton.edu>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
-=head1 LICENCE
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

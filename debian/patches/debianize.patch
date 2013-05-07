@@ -27,13 +27,3 @@ Author: Fabrice Durand <fdurand@inverse.ca>
  
  [vlan]
  #
---- a/conf/httpd.conf.apache22
-+++ b/conf/httpd.conf.apache22
-@@ -8,6 +8,7 @@ ServerSignature Off
- UseCanonicalName Off
- Timeout 50
- KeepAliveTimeout 10
-+ServerRoot /usr/lib/apache2
- 
- # PERFORMANCE RELATED
- # These values are automatically adjusted by PacketFence based on total system memory

@@ -52,7 +52,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %endif
 
 # Log related globals
-%global logfiles packetfence.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon pfredirect
+%global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
 BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
@@ -87,16 +87,15 @@ Requires: chkconfig, coreutils, grep, iproute, openssl, sed, tar, wget, gettext
 # for process management
 Requires: procps
 Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
-Requires: httpd, mod_ssl, php, php-gd
+Requires: httpd, mod_ssl
 Requires: mod_perl
 requires: libapreq2
 Requires: dhcp, bind
+Requires: memcached
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
 %{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
 %{?el6:Requires: freeradius >= 2.1.12, freeradius-mysql, freeradius-perl, freeradius-ldap, freeradius-utils }
 Requires: make
-# php-pear-Log required not php-pear, fixes #804
-Requires: php-pear-Log
 Requires: net-tools
 Requires: net-snmp >= 5.3.2.2
 Requires: mysql, mysql-server, perl(DBD::mysql)
@@ -104,7 +103,7 @@ Requires: perl >= 5.8.8
 # replaces the need for perl-suidperl which was deprecated in perl 5.12 (Fedora 14)
 Requires: %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
-Requires: perl(CGI::Session), perl(JSON), perl(PHP::Session)
+Requires: perl(CGI::Session), perl(CGI::Session::Driver::memcached), perl(JSON), perl(PHP::Session)
 Requires: perl(Apache2::Request)
 Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
@@ -117,6 +116,8 @@ Requires: perl(File::Tail)
 Requires: perl(IPC::Cmd)
 Requires: perl(IPTables::ChainMgr)
 Requires: perl(IPTables::Parse)
+Requires: perl(Tie::DxHash)
+requires: perl(Proc::ProcessTable)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
@@ -125,9 +126,10 @@ Requires: perl(Time::HiRes)
 %{?el6:Requires: perl(IPTables::libiptc), ipset, sudo }
 Requires: perl(File::Which), perl(NetAddr::IP)
 Requires: perl(Net::LDAP)
-# TODO: we depend on perl modules not perl-libwww-perl
+# TODO: we should depend on perl modules not perl-libwww-perl package
 # find out what they are and specify them as perl(...::...) instead of perl-libwww-perl
-Requires: perl-libwww-perl, perl(LWP::Protocol::https)
+# LWP::Simple is one of them (required by inlined Net::MAC::Vendor and probably other stuff)
+Requires: perl-libwww-perl, perl(LWP::Simple), perl(LWP::Protocol::https)
 Requires: perl(List::MoreUtils)
 Requires: perl(Locale::gettext)
 Requires: perl(Log::Log4perl) >= 1.11
@@ -138,7 +140,6 @@ Requires: perl(Net::Appliance::Session) = 1.36
 Requires: perl(Net::OAuth2)
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
-Requires: perl(Net::MAC), perl(Net::MAC::Vendor)
 Requires: perl(Net::Netmask)
 # pfmon, pfdhcplistener
 Requires: perl(Net::Pcap) >= 0.16
@@ -151,7 +152,7 @@ Requires: perl(Net::SNMP)
 # for SNMPv3 AES as privacy protocol, fixes #775
 Requires: perl(Crypt::Rijndael)
 Requires: perl(Net::Telnet)
-Requires: perl(Parse::Nessus::NBE)
+Requires: perl(Net::Write)
 Requires: perl(Parse::RecDescent)
 # for nessus scan, this version add the NBE download (inverse patch)
 Requires: perl(Net::Nessus::XMLRPC) >= 0.40
@@ -160,6 +161,7 @@ Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
 Requires: perl(SOAP::Lite)
+Requires: perl(WWW::Curl)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
 # Used by installer / configurator scripts
@@ -168,7 +170,6 @@ Requires: perl(Thread::Pool)
 Requires: perl(Date::Parse)
 Requires: perl(UNIVERSAL::require)
 Requires: perl(YAML)
-Requires: php-ldap
 Requires: perl(Try::Tiny)
 Requires: perl(Crypt::GeneratePassword)
 Requires: perl(MIME::Lite::TT)
@@ -200,13 +201,20 @@ Requires: perl(Catalyst::Controller::HTML::FormFu)
 Requires: perl(Params::Validate) >= 0.97
 # for Catalyst stand-alone server
 Requires: perl(Catalyst::Devel)
+Requires: perl(Sort::Naturally)
+Requires: perl(PHP::Serialization)
+Requires: perl(File::Slurp)
 # these are probably missing dependencies for the above. 
 # I shall file upstream tickets to openfusion before we integrate
 Requires: perl(Plack), perl(Plack::Middleware::ReverseProxy)
 Requires: perl(MooseX::Types::LoadableClass)
+Requires: perl(CHI)
+Requires: perl(HTML::FormHandler)
+Requires: perl(Cache::Memcached)
+Requires: perl(CHI::Driver::Memcached)
+Requires: perl(File::Flock)
 # configuration-wizard
-Requires: perl(IO::Interface::Simple)
-Requires: vconfig
+Requires: iproute, vconfig
 #
 # TESTING related
 #
@@ -243,6 +251,20 @@ BuildArch: noarch
 The %{real_name}-remote-snort-sensor package contains the files needed
 for sending snort alerts from a remote snort sensor to a PacketFence
 server.
+
+
+%package -n %{real_name}-remote-arp-sensor
+Group: System Environment/Daemons
+Requires: perl >= 5.8.0, perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https), perl(Net::Pcap) >= 0.16, memcached, perl(Cache::Memcached)
+Requires: perl(SOAP::Lite)
+Conflicts: %{real_name}
+AutoReqProv: 0
+Summary: Files needed for sending MAC and IP addresses from ARP requests to PacketFence
+BuildArch: noarch
+
+%description -n %{real_name}-remote-arp-sensor
+The %{real_name}-remote-arp-sensor package contains the files needed
+for sending MAC and IP from ARP requests to a PacketFence server.
 
 
 %package -n %{real_name}-pfcmd-suid
@@ -295,18 +317,16 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %install
 %{__rm} -rf $RPM_BUILD_ROOT
 %{__install} -D -m0755 packetfence.init $RPM_BUILD_ROOT%{_initrddir}/packetfence
-%{__install} -D -m0755 pfappserver.init $RPM_BUILD_ROOT%{_initrddir}/pfappserver
 %{__install} -d $RPM_BUILD_ROOT/etc/logrotate.d
 # creating path components that are no longer in the tarball since we moved to git
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/addons
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/mrtg
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/scan/results
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/html/admin/traplog
 %{__install} -d $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
+%{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
@@ -314,12 +334,12 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/webadmin_cache
+cp Makefile $RPM_BUILD_ROOT/usr/local/pf/
 cp -r bin $RPM_BUILD_ROOT/usr/local/pf/
 cp -r addons/captive-portal/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/dev-helpers/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/high-availability/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/integration-testing/ $RPM_BUILD_ROOT/usr/local/pf/addons/
-cp -r addons/mrtg/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/packages/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/snort/ $RPM_BUILD_ROOT/usr/local/pf/addons/
 cp -r addons/soh/ $RPM_BUILD_ROOT/usr/local/pf/addons/
@@ -341,6 +361,15 @@ rmdir addons/pfdetect_remote/initrd
 rmdir addons/pfdetect_remote/conf
 rmdir addons/pfdetect_remote
 #end pfdetect_remote
+#pfarp_remote
+mv addons/pfarp_remote/initrd/pfarp $RPM_BUILD_ROOT%{_initrddir}/
+mv addons/pfarp_remote/sbin/pfarp_remote $RPM_BUILD_ROOT/usr/local/pf/sbin
+mv addons/pfarp_remote/conf/pfarp_remote.conf $RPM_BUILD_ROOT/usr/local/pf/conf
+rmdir addons/pfarp_remote/sbin
+rmdir addons/pfarp_remote/initrd
+rmdir addons/pfarp_remote/conf
+rmdir addons/pfarp_remote
+#end pfarp_remote
 cp -r ChangeLog $RPM_BUILD_ROOT/usr/local/pf/
 cp -r COPYING $RPM_BUILD_ROOT/usr/local/pf/
 cp -r db $RPM_BUILD_ROOT/usr/local/pf/
@@ -351,10 +380,12 @@ rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/fonts
 rm -r $RPM_BUILD_ROOT/usr/local/pf/docs/images
 cp -r html $RPM_BUILD_ROOT/usr/local/pf/
 cp -r lib $RPM_BUILD_ROOT/usr/local/pf/
-cp -r NEWS $RPM_BUILD_ROOT/usr/local/pf/
+cp -r NEWS.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
+cp -r NEWS.old $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README $RPM_BUILD_ROOT/usr/local/pf/
 cp -r README.network-devices $RPM_BUILD_ROOT/usr/local/pf/
-cp -r UPGRADE $RPM_BUILD_ROOT/usr/local/pf/
+cp -r UPGRADE.asciidoc $RPM_BUILD_ROOT/usr/local/pf/
+cp -r UPGRADE.old $RPM_BUILD_ROOT/usr/local/pf/
 # logfiles
 for LOG in %logfiles; do
     touch $RPM_BUILD_ROOT%logdir/$LOG
@@ -373,7 +404,7 @@ fi
 #httpd.conf symlink
 #We dropped support for pre 2.2.0 but keeping the symlink trick alive since Apache 2.4 is coming
 cd $RPM_BUILD_ROOT/usr/local/pf/conf
-ln -s httpd.conf.apache22 ./httpd.conf
+#ln -s httpd.conf.apache22 ./httpd.conf
 #if (/usr/sbin/httpd -v | egrep 'Apache/2\.[2-9]\.' > /dev/null)
 #then
 #  ln -s httpd.conf.apache22 ./httpd.conf
@@ -440,14 +471,19 @@ if ! /usr/bin/id pf &>/dev/null; then
                 echo Unexpected error adding user "pf" && exit
 fi
 
+%pre -n %{real_name}-remote-arp-sensor
+
+if ! /usr/bin/id pf &>/dev/null; then
+        /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
+                echo Unexpected error adding user "pf" && exit
+fi
+
 %post -n %{real_name}
 echo "Adding PacketFence startup script"
 /sbin/chkconfig --add packetfence
-echo "Adding pfappserver startup script"
-/sbin/chkconfig --add pfappserver
 
 #Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
+for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
 do
 if [ ! -e /usr/local/pf/logs/$fic_log ]; then
   touch /usr/local/pf/logs/$fic_log
@@ -490,8 +526,12 @@ fi
 if (grep "^Defaults.*requiretty" /etc/sudoers > /dev/null  ) ; then
   sed -i 's/^Defaults.*requiretty/#Defaults requiretty/g' /etc/sudoers
 fi
-if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+  # Comment out entry from a previous version of PF (< 4.0)
+  sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
+fi
+if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/sbin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/radiusd" /etc/sudoers > /dev/null  ) ; then
+  echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/radiusd" >> /etc/sudoers
 fi
 if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
   echo 'Defaults:pf !requiretty' >> /etc/sudoers
@@ -502,15 +542,21 @@ echo "Disabling SELinux..."
 setenforce 0
 sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
-#Start pfappserver
-service pfappserver start
+#Starting Packetfence.
+echo "Starting Packetfence..."
+/sbin/service packetfence start
 
 echo Installation complete
-echo "  * Please fire up your Web browser and go to http://@ip_packetfence:1444/configurator to complete your PacketFence configuration."
+echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+echo "  * Please stop your iptables service if you don't have access to configurator."
 
 %post -n %{real_name}-remote-snort-sensor
 echo "Adding PacketFence remote Snort Sensor startup script"
 /sbin/chkconfig --add pfdetectd
+
+%post -n %{real_name}-remote-arp-sensor
+echo "Adding PacketFence remote ARP Sensor startup script"
+/sbin/chkconfig --add pfarp
 
 %preun -n %{real_name}
 if [ $1 -eq 0 ] ; then
@@ -522,6 +568,12 @@ fi
 if [ $1 -eq 0 ] ; then
         /sbin/service pfdetectd stop &>/dev/null || :
         /sbin/chkconfig --del pfdetectd
+fi
+
+%preun -n %{real_name}-remote-arp-sensor
+if [ $1 -eq 0 ] ; then
+        /sbin/service pfarp stop &>/dev/null || :
+        /sbin/chkconfig --del pfarp
 fi
 
 %postun -n %{real_name}
@@ -537,6 +589,11 @@ if [ $1 -eq 0 ]; then
         /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
 fi
 
+%postun -n %{real_name}-remote-arp-sensor
+if [ $1 -eq 0 ]; then
+        /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
+fi
+
 # TODO we should simplify this file manifest to the maximum keeping treating 
 # only special attributes explicitly 
 # "To make this situation a bit easier, if the %files list contains a path 
@@ -547,11 +604,11 @@ fi
 
 %defattr(-, pf, pf)
 %attr(0755, root, root) %{_initrddir}/packetfence
-%attr(0755, root, root) %{_initrddir}/pfappserver
 %dir                    %{_sysconfdir}/logrotate.d
 %config                 %{_sysconfdir}/logrotate.d/packetfence
 
 %dir                    /usr/local/pf
+                        /usr/local/pf/Makefile
 %dir                    /usr/local/pf/addons
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/*.sh
@@ -564,8 +621,6 @@ fi
 %dir                    /usr/local/pf/addons/integration-testing/
                         /usr/local/pf/addons/integration-testing/*
                         /usr/local/pf/addons/logrotate
-%dir                    /usr/local/pf/addons/mrtg
-                        /usr/local/pf/addons/mrtg/*
 %dir                    /usr/local/pf/addons/packages
                         /usr/local/pf/addons/packages/*
 %dir                    /usr/local/pf/addons/snort
@@ -585,13 +640,8 @@ fi
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/admin.perm
 %config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
-%dir                    /usr/local/pf/conf/authentication
-%config(noreplace)      /usr/local/pf/conf/authentication/guest_managers.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/kerberos.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/local.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/ldap.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/preregistered_guests.pm
-%config(noreplace)      /usr/local/pf/conf/authentication/radius.pm
+%config(noreplace)      /usr/local/pf/conf/authentication.conf
+%config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
@@ -638,6 +688,7 @@ fi
 #%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
+%config(noreplace)      /usr/local/pf/conf/profiles.conf
 #%config                 /usr/local/pf/conf/services.conf
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
@@ -650,14 +701,16 @@ fi
 %dir                    /usr/local/pf/conf/ssl
 %config(noreplace)      /usr/local/pf/conf/switches.conf
 %config                 /usr/local/pf/conf/dhcpd.conf
-%config                 /usr/local/pf/conf/httpd.conf
 %dir                    /usr/local/pf/conf/httpd.conf.d
 %config                 /usr/local/pf/conf/httpd.conf.d/block-unwanted.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-cleanurls.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
+%config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/ocsp-crl.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
-%config                 /usr/local/pf/conf/httpd.conf.apache22
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)	/usr/local/pf/conf/named-akamai.net
@@ -698,13 +751,8 @@ fi
 %dir                    /usr/local/pf/docs/MIB
 %doc                    /usr/local/pf/docs/MIB/Inverse-PacketFence-Notification.mib
 %dir                    /usr/local/pf/html
-%dir                    /usr/local/pf/html/admin
-                        /usr/local/pf/html/admin/*
-%dir                    /usr/local/pf/html/admin/templates
-%config(noreplace)      /usr/local/pf/html/admin/templates/*
 %dir                    /usr/local/pf/html/captive-portal
 %attr(0755, pf, pf)     /usr/local/pf/html/captive-portal/*.cgi
-                        /usr/local/pf/html/captive-portal/*.php
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
@@ -714,8 +762,6 @@ fi
                         /usr/local/pf/html/captive-portal/content/images/*
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
-%dir                    /usr/local/pf/html/captive-portal/violations
-%config(noreplace)      /usr/local/pf/html/captive-portal/violations/*
 %dir                    /usr/local/pf/html/common
                         /usr/local/pf/html/common/*
                         /usr/local/pf/html/pfappserver/
@@ -739,6 +785,7 @@ fi
 %dir                    /usr/local/pf/logs
 # logfiles
 %ghost                  %logdir/packetfence.log
+%ghost                  %logdir/catalyst.log
 %ghost                  %logdir/snmptrapd.log
 %ghost                  %logdir/access_log
 %ghost                  %logdir/error_log
@@ -747,17 +794,17 @@ fi
 %ghost                  %logdir/admin_debug_log
 %ghost                  %logdir/pfdetect
 %ghost                  %logdir/pfmon
-%ghost                  %logdir/pfredirect
-%doc                    /usr/local/pf/NEWS
+%doc                    /usr/local/pf/NEWS.asciidoc
+%doc                    /usr/local/pf/NEWS.old
 %doc                    /usr/local/pf/README
 %doc                    /usr/local/pf/README.network-devices
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfredirect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
-%doc                    /usr/local/pf/UPGRADE
+%doc                    /usr/local/pf/UPGRADE.asciidoc
+%doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
@@ -793,6 +840,16 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect_remote
 %dir                    /usr/local/pf/var
 
+# Remote arp sensor file list
+%files -n %{real_name}-remote-arp-sensor
+%defattr(-, pf, pf)
+%attr(0755, root, root) %{_initrddir}/pfarp
+%dir                    /usr/local/pf
+%dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/pfarp_remote.conf
+%dir                    /usr/local/pf/sbin
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfarp_remote
+%dir
 
 %files -n %{real_name}-pfcmd-suid
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd

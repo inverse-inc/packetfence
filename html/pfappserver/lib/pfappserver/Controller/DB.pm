@@ -21,26 +21,25 @@ BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 METHODS
 
-=over
-
-=item begin
+=head2 begin
 
 This controller defaults view is JSON.
 
 =cut
+
 sub begin :Private {
     my ( $self, $c ) = @_;
-
     $c->stash->{current_view} = 'JSON';
 }
 
-=item assign
+=head2 assign
 
 Assign a new user to a database.
 
 Usage: /db/assign/<database_name>
 
 =cut
+
 sub assign :Path('assign') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
@@ -49,6 +48,7 @@ sub assign :Path('assign') :Args(1) {
     my $root_password = $c->request->params->{'root_password'};
     my $pf_user = $c->request->params->{'database.user'};
     my $pf_password = $c->request->params->{'database.pass'};
+    my $pf_model;
 
     unless ( $root_user && $pf_user && $pf_password ) {
         ( $status, $message ) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
@@ -64,22 +64,29 @@ sub assign :Path('assign') :Args(1) {
     }
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $message;
-        ( $status, $message ) = $c->model('Config::Pf')->update({'database.user' => $pf_user,
-                                                                 'database.pass' => $pf_password});
+        my $db_model = $c->model('Config::Pf');
+        ($status, $message) = $db_model->update('database',{'user' => $pf_user, 'pass' => $pf_password});
+        if(is_success($status)) {
+            $db_model->rewriteConfig();
+        }
     }
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $message;
+    } else {
+        $pf_model->rewriteConfig() if $pf_model;
     }
 }
 
-=item create
+=head2 create
 
 Create a new database.
 
 Usage: /db/create/<database_name>
 
 =cut
+
+
 sub create :Path('create') :Args(1) {
     my ( $self, $c, $db ) = @_;
 
@@ -97,14 +104,22 @@ sub create :Path('create') :Args(1) {
         ( $status, $message ) = ( HTTP_PRECONDITION_FAILED, 'The root password must be set.' );
     }
     if ( is_success($status) ) {
-        ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
+        ( $status, $message ) = $c->model('DB')->connect($db, $root_user, $root_password);
+        if ( is_error($status) ) {
+            # The database doesn't exist; create it
+            ( $status, $message ) = $c->model('DB')->create($db, $root_user, $root_password);
+        }
     }
     if ( is_success($status) ) {
         ( $status, $message ) = $c->model('DB')->schema($db, $root_user, $root_password );
     }
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $message;
-        ( $status, $message ) = $c->model('Config::Pf')->update({'database.db' => $db});
+        my $db_model = $c->model('Config::Pf');
+        ($status, $message) = $db_model->update('database',{'db' => $db});
+        if(is_success($status)) {
+            $db_model->rewriteConfig();
+        }
     }
     if ( is_error($status) ) {
         $c->response->status($status);
@@ -113,13 +128,14 @@ sub create :Path('create') :Args(1) {
     }
 }
 
-=item start
+=head2 start
 
 Start a MySQLd instance.
 
 Usage: /db/start
 
 =cut
+
 sub start :Path('start') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -133,7 +149,7 @@ sub start :Path('start') :Args(0) {
     $c->stash->{status_msg} = $message;
 }
 
-=item test
+=head2 test
 
 Test the connection to the database server with the provided root user / password.
 
@@ -142,6 +158,7 @@ Will try to connect to the 'mysql' database.
 Usage: /db/test
 
 =cut
+
 sub test :Path('test') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -168,15 +185,42 @@ sub test :Path('test') :Args(0) {
     $c->stash->{status_msg} = $message;
 }
 
-=back
+=head2 reset_password
+
+Reset the root password
+
+=cut
+
+sub reset_password :Path('reset_password') :Args(0) {
+    my ( $self, $c ) = @_;
+
+    my ($status, $message) = ( HTTP_OK );
+    my $root_user      = $c->request->params->{root_user};
+    my $root_password  = $c->request->params->{root_password_new};
+
+    unless ( $root_user && $root_password ) {
+        ($status, $message) = ( HTTP_BAD_REQUEST, 'Some required parameters are missing.' );
+    }
+    if ( is_success($status) ) {
+        ( $status, $message ) = $c->model('DB')->connect('mysql', $root_user, undef);
+    }
+    if ( is_success($status) ) {
+        ($status, $message) = $c->model('DB')->secureInstallation($root_user, $root_password);
+    }
+    if ( is_error($status) ) {
+        $c->response->status($status);
+    }
+
+    $c->stash->{status_msg} = $message;
+}
 
 =head1 AUTHORS
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

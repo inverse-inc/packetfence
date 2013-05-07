@@ -84,7 +84,7 @@ while (1) {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 Luis E. Muñoz <luismunoz@cpan.org>.
 
@@ -92,7 +92,7 @@ Christopher Masto.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2011-2013 Inverse inc.
 
 Changes (c) 2002,2003 Luis E. Muñoz <luismunoz@cpan.org>.
 

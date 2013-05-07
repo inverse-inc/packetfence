@@ -134,7 +134,7 @@ sub supportsRoleBasedEnforcement {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    if (defined($this->{'_roles'}) && $this->{'_roles'} =~ /^\s*$/) {
+    if (defined($this->{'_roles'}) && %{$this->{'_roles'}}) {
         $logger->warn(
             "Role-based Network Access Control is not supported on network device type " . ref($this) . ". "
         );
@@ -190,16 +190,10 @@ sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
         '_error'                    => undef,
-        '_guestVlan'                => undef,
         '_ip'                       => undef,
-        '_isolationVlan'            => undef,
-        '_macDetectionVlan'         => undef,
         '_macSearchesMaxNb'         => undef,
         '_macSearchesSleepInterval' => undef,
         '_mode'                     => undef,
-        '_normalVlan'               => undef,
-        '_registrationVlan'         => undef,
-        '_inlineVlan'               => undef,
         '_sessionRead'              => undef,
         '_sessionWrite'             => undef,
         '_sessionControllerWrite'   => undef,
@@ -235,7 +229,6 @@ sub new {
         '_controllerIp'             => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
-        '_voiceVlan'                => undef,
         '_VoIPEnabled'              => undef,
         '_roles'                    => undef,
         '_inlineTrigger'            => undef,
@@ -249,28 +242,14 @@ sub new {
             $this->{_SNMPCommunityTrap} = $argv{$_};
         } elsif (/^-?SNMPCommunityWrite$/i) {
             $this->{_SNMPCommunityWrite} = $argv{$_};
-        }
-        # customVlan members are now dynamically generated. 0 to 99 supported.
-        elsif (/^-?customVlan(\d\d?)$/i) {
-            $this->{'_customVlan'.$1} = $argv{$_};
-        } elsif (/^-?guestVlan$/i) {
-            $this->{_guestVlan} = $argv{$_};
         } elsif (/^-?ip$/i) {
             $this->{_ip} = $argv{$_};
-        } elsif (/^-?isolationVlan$/i) {
-            $this->{_isolationVlan} = $argv{$_};
-        } elsif (/^-?macDetectionVlan$/i) {
-            $this->{_macDetectionVlan} = $argv{$_};
         } elsif (/^-?macSearchesMaxNb$/i) {
             $this->{_macSearchesMaxNb} = $argv{$_};
         } elsif (/^-?macSearchesSleepInterval$/i) {
             $this->{_macSearchesSleepInterval} = $argv{$_};
         } elsif (/^-?mode$/i) {
             $this->{_mode} = $argv{$_};
-        } elsif (/^-?normalVlan$/i) {
-            $this->{_normalVlan} = $argv{$_};
-        } elsif (/^-?registrationVlan$/i) {
-            $this->{_registrationVlan} = $argv{$_};
         } elsif (/^-?SNMPAuthPasswordRead$/i) {
             $this->{_SNMPAuthPasswordRead} = $argv{$_};
         } elsif (/^-?SNMPAuthPasswordTrap$/i) {
@@ -318,7 +297,7 @@ sub new {
         } elsif (/^-?radiusSecret$/i) {
             $this->{_radiusSecret} = $argv{$_};
         } elsif (/^-?controllerIp$/i) {
-            $this->{_controllerIp} = lc($argv{$_});
+            $this->{_controllerIp} = $argv{$_}? lc($argv{$_}) : undef;
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
@@ -329,19 +308,19 @@ sub new {
             $this->{_SNMPVersionTrap} = $argv{$_};
         } elsif (/^-?vlans$/i) {
             $this->{_vlans} = $argv{$_};
-        } elsif (/^-?voiceVlan$/i) {
-            $this->{_voiceVlan} = $argv{$_};
         } elsif (/^-?VoIPEnabled$/i) {
             $this->{_VoIPEnabled} = $argv{$_};
         } elsif (/^-?roles$/i) {
             $this->{_roles} = $argv{$_};
         } elsif (/^-?inlineTrigger$/i) {
             $this->{_inlineTrigger} = $argv{$_};
-        } elsif (/^-?inlineVlan$/i) {
-            $this->{_inlineVlan} = $argv{$_};
         } elsif (/^-?deauthMethod$/i) {
             $this->{_deauthMethod} = $argv{$_};
         }
+        # customVlan members are now dynamically generated. 0 to 99 supported.
+        elsif (/^-?(\w+)Vlan$/i) {
+            $this->{'_'.$1.'Vlan'} = $argv{$_};
+        } 
 
     }
     return $this;
@@ -589,9 +568,9 @@ sub setVlan {
     }
 
     my $vlan = $this->getVlan($ifIndex);
+    my $macDetectionVlan = $this->getVlanByName('macDetection');
 
-    if ( !defined($presentPCMac) && ( $newVlan ne $this->{_macDetectionVlan} ) ) {
-
+    if ( !defined($presentPCMac) && ( $newVlan ne $macDetectionVlan ) ) {
         my @macArray = $this->_getMacAtIfIndex( $ifIndex, $vlan );
         if ( scalar(@macArray) == 1 ) {
             $presentPCMac = $macArray[0];
@@ -611,23 +590,23 @@ sub setVlan {
     # it would take advantage of per-switch features
     if ($newVlan == -1) {
         $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
-        $newVlan = $this->getVlanByName('macDetectionVlan');
+        $newVlan = $macDetectionVlan;
     }
 
     # unmanaged VLAN
     if (!$this->isManagedVlan($newVlan)) {   
         $logger->warn(
             "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
-            . $this->getVlanByName('macDetectionVlan')
+            . $macDetectionVlan
         );
-        $newVlan = $this->getVlanByName('macDetectionVlan');
+        $newVlan = $macDetectionVlan;
     }
 
     # VLAN are not defined on the switch
     if ( !$this->isDefinedVlan($newVlan) ) {
-        if ( $newVlan == $this->getVlanByName('macDetectionVlan') ) {
+        if ( $newVlan == $macDetectionVlan ) {
             $logger->warn(
-                "MAC detection VLAN " . $this->getVlanByName('macDetectionVlan')
+                "MAC detection VLAN " . $macDetectionVlan
                 . " is not defined on switch " . $this->{_ip}
                 . " -> Do nothing"
             );
@@ -636,12 +615,12 @@ sub setVlan {
         $logger->warn(
             "new VLAN $newVlan is not defined on switch " . $this->{_ip}
             . " -> replacing VLAN $newVlan with MAC detection VLAN "
-            . $this->getVlanByName('macDetectionVlan')
+            . $macDetectionVlan
         );
-        $newVlan = $this->getVlanByName('macDetectionVlan');
+        $newVlan = $macDetectionVlan;
         if ( !$this->isDefinedVlan($newVlan) ) {
             $logger->warn(
-                "MAC detection VLAN " . $this->getVlanByName('macDetectionVlan')
+                "MAC detection VLAN " . $macDetectionVlan
                 . " is also not defined on switch " . $this->{_ip}
                 . " -> Do nothing"
             );
@@ -712,51 +691,19 @@ sub _setVlanByOnlyModifyingPvid {
 
 Get the switch-specific role of a given global role in switches.conf
 
-Warning: this interface is considered experimental!
-
-For now the format of roles is:
-
-  <category_name1>=<controller_role1>;<category_name2>=<controller_role2>;...
-
-We cache the configuration on first role lookup request.
- 
-=cut                    
+=cut
 sub getRoleByName {
     my ($this, $roleName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # skip if not defined or empty
-    return if (!defined($this->{'_roles'}) || $this->{'_roles'} =~ /^\s*$/);
-
-    # is the cache ready?
-    if (defined($this->{'_cached_roles'})) {
-
-        # return if found
-        return $this->{'_cached_roles'}->{$roleName} if (defined($this->{'_cached_roles'}->{$roleName}));
-
-        # otherwise undef
-        $logger->warn("Roles are configured but no role found in cache for $roleName");
-        return;
-    }
-
-    # not cached, let's perform the lookup then prepare cache
-    # split on ; to get 'category = controller_role'
-    my $roles_assignment_ref;
-    my @category_split = split( /\;/, $this->{'_roles'} );
-    foreach my $current_role_assignment (@category_split) {
-        # split on = to get category then controller_role
-        my ($category, $controller_role) = split( /\=/, $current_role_assignment );
-        $roles_assignment_ref->{$category} = $controller_role if (defined($controller_role) && $controller_role !~ /^\s*$/);
-    }
-
-    # cache the result of the role extrapolation
-    $this->{'_cached_roles'} = $roles_assignment_ref;
+    return if (!defined($this->{'_roles'}) || !%{$this->{'_roles'}});
 
     # return if found
-    return $roles_assignment_ref->{$roleName} if (defined($roles_assignment_ref->{$roleName}));
+    return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
 
     # otherwise log and return undef
-    $logger->warn("Roles are configured but no role found for $roleName");
+    $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $this->{_ip});
     return;
 }
 
@@ -769,24 +716,26 @@ sub getVlanByName {
     my ($this, $vlanName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (!defined($this->{'_'.$vlanName})) {
+    if (!defined($this->{'_vlans'}) || !defined($this->{'_vlans'}->{$vlanName})) {
         # VLAN name doesn't exist
-        $logger->warn("VLAN $vlanName is not a valid VLAN identifier (something wrong in conf/switches.conf?)");
+        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip});
         return;
     }
 
-    if ($vlanName eq "inlineVlan" && $this->{"_".$vlanName} eq "") {
+    if ($vlanName eq "inline" && length($this->{'_vlans'}->{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
-        $logger->warn("VLAN $vlanName is empty in switches.conf.  Please ignore if your intentions were to use the native VLAN");
+        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip} .
+                      ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
     
-    if ($this->{"_".$vlanName} !~ /^\d+$/) {
+    if ($this->{'_vlans'}->{$vlanName} !~ /^\d+$/) {
         # is not resolved to a valid VLAN number
-        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
+                      ", not a vlan number");
         return;
     }   
-    return $this->{"_".$vlanName};
+    return $this->{'_vlans'}->{$vlanName};
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
@@ -838,7 +787,7 @@ sub setMacDetectionVlan {
     my ( $this, $ifIndex, $switch_locker_ref,
         $closeAllOpenLocationlogEntries )
         = @_;
-    return $this->setVlan( $ifIndex, $this->{_macDetectionVlan},
+    return $this->setVlan( $ifIndex, $this->getVlanByName('macDetection'),
         $switch_locker_ref, undef, $closeAllOpenLocationlogEntries );
 }
 
@@ -983,7 +932,7 @@ sub getManagedIfIndexes {
         my $portVlan = $vlanHashRef->{$ifIndex};
         if ( defined $portVlan ) {    # skip port with no VLAN
 
-            if ( grep( { $_ == $portVlan } @{ $this->{_vlans} } ) != 0 )
+            if ( grep( { $_ == $portVlan } values %{ $this->{_vlans} } ) != 0 )
             {                         # skip port in a non-managed VLAN
                 push @managedIfIndexes, $ifIndex;
             } else {
@@ -1007,7 +956,7 @@ sub isManagedVlan {
     my ($this, $vlan) = @_;
 
     # can I find $vlan in _vlans ?
-    if (grep({$_ == $vlan} @{$this->{_vlans}}) == 0) {
+    if (grep({$_ == $vlan} values %{$this->{_vlans}}) == 0) {
         #unmanaged VLAN
         return $FALSE;
     }
@@ -1116,38 +1065,6 @@ sub setVlanAllPort {
             # otherwise its a vlan name
             $this->setVlanByName($ifIndex, $vlan, $switch_locker_ref);
         }
-    }
-}
-
-=item resetVlanAllPort - reset the port VLAN for all the non-UpLink ports of a switch
-
-=cut
-
-sub resetVlanAllPort {
-    my ( $this, $switch_locker_ref ) = @_;
-    my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';    # MIB: ifTypes
-
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->info("resetting all ports of switch $this->{_ip}");
-    if ( !$this->isProductionMode() ) {
-        $logger->info("not in production mode ... we won't change any port");
-        return 1;
-    }
-
-    if ( !$this->connectRead() ) {
-        return 0;
-    }
-
-    my @managedIfIndexes = $this->getManagedIfIndexes();
-    foreach my $ifIndex (@managedIfIndexes) {
-        if ( $this->isPortSecurityEnabled($ifIndex) )
-        {    # disabling port-security
-            $logger->debug("disabling port-security on ifIndex $ifIndex before resetting to vlan " . 
-                           $this->{_normalVlan} );
-            $this->disablePortSecurityByIfIndex($ifIndex);
-        }
-        $logger->debug( "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN " . $this->{_normalVlan} );
-        $this->setVlan( $ifIndex, $this->{_normalVlan}, $switch_locker_ref );
     }
 }
 
@@ -2103,7 +2020,7 @@ sub getHubs {
 
                 # the port is not a upLink
                 my $portVlan = $this->getVlan($ifIndex);
-                if ( grep( { $_ == $portVlan } @{ $this->{_vlans} } ) != 0 ) {
+                if ( grep( { $_ == $portVlan } values %{ $this->{_vlans} } ) != 0 ) {
 
                     # the port is in a VLAN we manage
                     push @{ $hubPorts->{$ifIndex} }, $mac;
@@ -2133,7 +2050,7 @@ sub getIfIndexForThisMac {
     }
 
     my $oid_dot1qTpFdbPort = '1.3.6.1.2.1.17.7.1.2.2.1.2'; #Q-BRIDGE-MIB
-    foreach my $vlan ( @{ $this->{_vlans} } ) {
+    foreach my $vlan ( values %{ $this->{_vlans} } ) {
         my $oid = "$oid_dot1qTpFdbPort.$vlan.$oid_mac";
         $logger->trace("SNMP get_request for $oid");
         my $result
@@ -2176,7 +2093,7 @@ sub getMacAddrVlan {
         foreach my $key ( keys %{$result} ) {
             if ( grep( { $_ == $result->{$key} } @upLinks ) == 0 ) {
                 my $portVlan = $this->getVlan( $result->{$key} );
-                if ( grep( { $_ == $portVlan } @{ $this->{_vlans} } ) != 0 )
+                if ( grep( { $_ == $portVlan } values %{ $this->{_vlans} } ) != 0 )
                 {    # the port is in a VLAN we manage
                     push @{ $ifIndexMac{ $result->{$key} } }, $key;
                 }
@@ -2223,10 +2140,10 @@ sub getAllMacs {
     my $result
         = $this->{_sessionRead}->get_table( -baseoid => $OID_dot1qTpFdbPort );
 
-    my @vlansToConsider = @{ $this->{_vlans} };
+    my @vlansToConsider = values %{ $this->{_vlans} };
     if ( $this->isVoIPEnabled() ) {
-        if ( defined( $this->{_voiceVlan} ) ) {
-            my $voiceVlan = $this->{_voiceVlan};
+        my $voiceVlan = $this->getVlanByName('voice');
+        if ( defined( $voiceVlan ) ) {
             if ( grep( { $_ == $voiceVlan } @vlansToConsider ) == 0 ) {
                 push @vlansToConsider, $voiceVlan;
             }
@@ -2838,15 +2755,11 @@ sub deauthenticateMacDefault {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

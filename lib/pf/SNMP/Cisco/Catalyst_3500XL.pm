@@ -29,6 +29,8 @@ use Data::Dumper;
 
 use pf::SNMP::constants;
 
+sub description { 'Cisco Catalyst 3500XL Series' }
+
 sub getMinOSVersion {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -77,7 +79,7 @@ sub getManagedPorts {
                         {                         # skip non static
 
                             if (grep(
-                                    { $_ == $portVlan } @{ $this->{_vlans} } )
+                                    { $_ == $portVlan } values %{ $this->{_vlans} } )
                                 != 0 )
                             {    # skip port in a non-managed VLAN
                                 $logger->trace(
@@ -413,13 +415,11 @@ sub ping {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

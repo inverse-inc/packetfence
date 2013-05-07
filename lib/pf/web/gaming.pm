@@ -24,6 +24,9 @@ use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
 use pf::web;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Readonly our $GAMING_LOGIN_TEMPLATE   => 'gaming-login.html';
 Readonly our $GAMING_LANDING_TEMPLATE => 'gaming-landing.html';
 Readonly our $GAMING_REGISTRATION_TEMPLATE => 'gaming-registration.html';
@@ -62,26 +65,14 @@ Readonly our @GAMING_OUI => (
 =cut
 
 
-sub authenticate {
-    my ($portalSession,$cgi, $session, $info,$logger) = @_;
-    my ($auth_return,$err) = pf::web::web_user_authenticate($portalSession, $cgi->param("auth"));
-    if ($auth_return == 1) {
-        $info->{'category'} = $portalSession->getProfile->getGuestCategory;
-        $session->param(login => $cgi->param('username'));
-    }
-    return ( $auth_return, $err );
-}
-
 sub generate_login_page {
-    my ( $portalSession, $err ) = @_;
-    _generate_page($portalSession,$GAMING_LOGIN_TEMPLATE,
-        txt_auth_error => ( (defined $err) ? i18n($err) : undef)  ,
+    my ($portalSession, $err) = @_;
+    _generate_page($portalSession, $GAMING_LOGIN_TEMPLATE,
+        txt_auth_error => ( (defined $err) ? i18n($err) : undef ),
         username => encode_entities($portalSession->cgi->param("username")),
-        selected_auth => ( encode_entities($portalSession->cgi->param("auth")) || $portalSession->getProfile->getDefaultAuth),
-        list_authentications => pf::web::auth::list_enabled_auth_types(),
-        oauth2_google => $guest_self_registration{$SELFREG_MODE_GOOGLE},
-        oauth2_facebook => $guest_self_registration{$SELFREG_MODE_FACEBOOK},
-        oauth2_github => $guest_self_registration{$SELFREG_MODE_GITHUB},
+        oauth2_google => is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes),
+        oauth2_facebook => is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes),
+        oauth2_github => is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes),
     );
 }
 
@@ -103,19 +94,22 @@ sub _generate_page {
 }
 
 sub register_node {
-    my ( $portalSession, $pid, $mac, %info ) = @_;
+    my ($portalSession, $pid, $mac, %info) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($result,$msg);
-    if(!valid_mac($mac) || !is_gaming_mac($mac)) {
-        $msg = "Please verify MAC address provided";
+    my ($result, $msg);
+    if (!valid_mac($mac) || !is_gaming_mac($mac)) {
+        $msg = "Please verify the provided MAC address.";
+    }
+    elsif (!defined($info{'category'})) {
+        $msg = "Can't determine the role. Please contact your system administrator.";
     }
     elsif ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         $msg = "You have reached the maximum number of devices you are able to register with this username.";
     }
     else {
-        ($result,$msg) = _sanitize_and_register($portalSession->session, $mac, $pid, %info);
+        ($result, $msg) = _sanitize_and_register($portalSession->session, $mac, $pid, %info);
     }
-    return ($result,$msg);
+    return ($result, $msg);
 }
 
 sub is_gaming_mac {
@@ -130,7 +124,7 @@ sub _sanitize_and_register {
     my ( $session, $mac, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($result,$msg);
-    if(valid_mac($mac)) {
+    if (valid_mac($mac)) {
         $logger->info("performing node registration MAC: $mac pid: $pid");
         node_register( $mac, $pid, %info );
         $result = $TRUE;
@@ -146,9 +140,13 @@ sub _sanitize_and_register {
 
 =back
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

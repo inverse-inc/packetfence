@@ -12,17 +12,17 @@ Package: packetfence
 Architecture: all
 # TODO: We can probably move these in Depends since 3.5.0 (managed RADIUS feature)
 Pre-Depends:  freeradius, freeradius-ldap, freeradius-postgresql,
- freeradius-mysql, freeradius-krb5
+ freeradius-mysql, freeradius-krb5, dhcp3-server
 Depends: ${misc:Depends}, vlan, make,
- openssl, openssl-blacklist, openssl-blacklist-extra, snort | suricata,
- mysql-server,
+ openssl, openssl-blacklist, openssl-blacklist-extra,
+ mysql-server, memcached,
  snmp, snmptrapfmt,
 # apache related
  apache2, apache2.2-common, apache2-utils, libapache2-mod-proxy-html,
  apache2-mpm-prefork, libapache2-mod-apreq2, libapache2-mod-perl2,
- libapache2-request-perl,
-# php web admin
- libapache2-mod-php5, php-pear, php5-mysql, php5-gd, make, php-log,
+ libapache2-request-perl, libtie-dxhash-perl,
+ make,
+ iproute,
 # ipset (ipset must be installed by hand  apt-get install xtables-addons-common  xtables-addons-source)
  sudo,
 # process management
@@ -33,8 +33,8 @@ Depends: ${misc:Depends}, vlan, make,
  libapache-htpasswd-perl, libbit-vector-perl, libtext-csv-perl,
  libcgi-session-serialize-yaml-perl, libtimedate-perl, libapache-dbi-perl,
  libdbd-mysql-perl, libfile-tail-perl, libnetwork-ipv4addr-perl,
- libiptables-parse-perl, libiptables-chainmgr-perl, iptables,
- liblwp-useragent-determined-perl, libnet-mac-vendor-perl, libnet-mac-perl,
+ libiptables-parse-perl, libiptables-chainmgr-perl, iptables (>= 1.4.0),
+ liblwp-useragent-determined-perl, 
  libnet-netmask-perl, libnet-pcap-perl, libnet-snmp-perl, libsnmp-perl,
  libnet-telnet-cisco-perl, libparse-recdescent-perl,
  libregexp-common-email-address-perl, libregexp-common-time-perl,
@@ -42,38 +42,38 @@ Depends: ${misc:Depends}, vlan, make,
  libterm-readkey-perl, libtest-perl-critic-perl, libtest-pod-perl,
  libtest-pod-coverage-perl, libthread-pool-simple-perl,
  libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl,
- libcgi-session-perl, libconfig-inifiles-perl,
+ libcgi-session-perl, libcgi-session-driver-memcached-perl, libconfig-inifiles-perl,
  libdatetime-format-dateparse-perl, libdbi-perl,
  libnet-telnet-perl, libregexp-common-perl,
  libreadonly-perl, libtemplate-perl, libterm-readkey-perl,
  libuniversal-require-perl, libthread-serialize-perl,
- libnet-ldap-perl, libcrypt-generatepassword-perl, perl-doc, dhcp3-server,
+ libnet-ldap-perl, libcrypt-generatepassword-perl, perl-doc,
  bind9, librrds-perl, libnetpacket-perl (>= 1.3), libcache-cache-perl, libcarp-perl,
  libiptables-libiptc-perl, libload-perl, libmime-lite-tt-perl, libmime-lite-perl,
- libconfig-general-perl,
+ libconfig-general-perl, libproc-processtable-perl, libfile-flock-perl,
 # hard-coded to specific version because v3 broke the API and we haven't ported to it yet
 # see #1313: Port our Net-Appliance-Session to the version 3 API
 # http://packetfence.org/bugs/view.php?id=1313
  libnet-appliance-session-perl (>= 2.111080),
  libnet-cli-interact-perl,
  libnet-interface-perl, libnet-radius-perl,
- libparse-nessus-nbe-perl, libphp-session-perl, libtest-mockdbi-perl,
+ libparse-nessus-nbe-perl, libtest-mockdbi-perl,
  libsoap-lite-perl, libnet-frame-perl, libthread-pool-perl,
- libnet-nessus-xmlrpc-perl (>= 0.4),
+ libwww-curl-perl,
+ libnet-nessus-xmlrpc-perl (>= 0.4),libfile-slurp-perl,
 # required for ipset
  libnetaddr-ip-perl, libfile-which-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libthread-conveyor-monitored-perl, libthread-conveyor-perl, libthread-tie-perl,
  liberror-perl,
-# required by pfappserver
  libio-interface-perl, libnet-route-perl,
 # required by catalyst
  libcatalyst-perl, libcatalyst-modules-perl,
  libauthen-htpasswd-perl, libcatalyst-authentication-credential-http-perl, 
  libcatalyst-authentication-store-htpasswd-perl,
  libcatalyst-view-tt-perl, libhtml-formfu-perl, libjson-perl,
-# catalyst-server
- libcatalyst-engine-http-prefork-perl,
+ libsort-naturally-perl, libhtml-formhandler-perl, libchi-perl,
+ libchi-driver-memcached-perl,libcache-memcached-perl,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
@@ -130,4 +130,14 @@ Replaces: packetfence (<< 3.6.0)
 Breaks: packetfence (<< 3.6.0)
 Description: C wrapper that replace perl-suid dependence
  perl 5.12 dropped suidperl support (packaged as suid-perl)
- 
+
+Package: packetfence-remote-arp-sensor
+Architecture: all
+Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl,
+ libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
+ libnet-pcap-perl, libcache-memcached-perl, memcached,
+# FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
+ libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
+Conflicts: packetfence
+Description: Files needed for sending MAC and IP from ARP requeststo
+ PacketFence server. 

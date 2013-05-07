@@ -550,9 +550,7 @@ msgid ""
 "see if your access was enabled."
 msgstr ""
 
-msgid ""
-"Unable to detect network connectivity. Try opening a web page to see if your"
-" access has been succesfully enabled."
+msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
 msgstr ""
 
 msgid ""

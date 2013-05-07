@@ -2,23 +2,90 @@
 body {
     padding-top: 60px;
 }
-.navbar .nav > li > a {
-    line-height: 30px;
-}
-#navbar .navbar-text {
-    line-height: 50px;
-}
-#navbar h6 {
-    margin: 0;
-    line-height: 48px;
-}
-.dropdown .caret {
-    margin-top: 13px;
+.navbar .brand {
+    padding: 11px 20px 11px;
 }
 /* bootstrap.css fix to remove padding surrounding sidebar */
 .sidebar-nav {
-  padding: 9px 0;
+    padding: 9px 0;
+}
+/* bootstrap.css fix to show dropdown menus in modals */
+.dropdown-menu {
+    z-index: 2050;
+}
+/* bootstrap.css fix to restore 2.0.4 apparence */
+h6 {
+  font-size: 11px;
+  color: #999999;
+  text-transform: uppercase;
 }
 a.active {
     color: #333;
+}
+.modal h3 i,
+.modal dt i {
+    font-weight: normal;
+    font-style: normal;
+}
+/* bootstrap fix for modals */
+.modal form, .modal select {
+    margin-bottom: 0px;
+}
+/* bootstrap.css extension to forms */
+.form-condensed .control-group {
+    margin-bottom: 2px;
+}
+/* mixing noneditable fields in forms, inspired from .uneditable-input */
+form .uneditable {
+    display: inline-block;
+    n0height: 18px;
+    line-height: 18px;
+    padding-top: 5px;
+    margin-bottom: 5px;
+}
+/* icon-only links */
+.btn-icon {
+    float: right;
+    color: #000000;
+    text-shadow: 0 1px 0 #ffffff;
+    opacity: 0.2;
+    filter: alpha(opacity=20);
+    font-size: 17px;
+    margin-left: 3px;
+    vertical-align: middle;
+}
+.btn-icon:hover {
+    color: #000000;
+    text-decoration: none;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+}
+/* datepicker + timepicker fix to limit the bottom margin */
+.modal .datepicker,
+.modal .timepicker-default {
+    margin-top: 1px;
+    margin-bottom: 0px;
+}
+.bootstrap-timepicker a {
+    color: #000;
+    text-decoration: none;
+}
+.dl-expanded dt, .dl-expanded dd {
+    line-height: 27px;
+}
+/* specific to interfaces */
+#interfaces td span.label {
+    margin-left: 5px;
+}
+/* enlarge modal of violation, user and user source rule */
+#modalViolation, #modalRule, #modalUser, #modalNode {
+    margin-left: -390px;
+    width: 780px;
+}
+.inline {
+    display: inline;
+}
+.blurry {
+    color: transparent;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
 }

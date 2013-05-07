@@ -9,15 +9,15 @@ pf::web - module to generate the different web pages.
 =head1 DESCRIPTION
 
 pf::web contains the functions necessary to generate different web pages:
-based on pre-defined templates: login, registration, release, error, status.  
+based on pre-defined templates: login, registration, release, error, status.
 
 It is possible to customize the behavior of this module by redefining its subs in pf::web::custom.
 See F<pf::web::custom> for details.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the following template files: F<release.html>, 
-F<login.html>, F<enabler.html>, F<error.html>, F<status.html>, 
+Read the following template files: F<release.html>,
+F<login.html>, F<enabler.html>, F<error.html>, F<status.html>,
 F<register.html>.
 
 =cut
@@ -45,6 +45,7 @@ BEGIN {
     @EXPORT = qw(i18n ni18n i18n_format render_template);
 }
 
+use pf::authentication;
 use pf::config;
 use pf::enforcement qw(reevaluate_access);
 use pf::iplog qw(ip2mac);
@@ -53,10 +54,10 @@ use pf::os qw(dhcp_fingerprint_view);
 use pf::useragent;
 use pf::util;
 use pf::violation qw(violation_count);
-use pf::web::auth; 
-use pf::web::constants; 
+use pf::web::constants;
 
 Readonly our $LOGIN_TEMPLATE => 'login.html';
+Readonly our $VIOLATION_TEMPLATE => 'remediation.html';
 
 =head1 SUBROUTINES
 
@@ -133,8 +134,8 @@ sub render_template {
     }
 
     $logger->debug("rendering template named $template");
-    my $tt = Template->new({ 
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'} . $portalSession->getProfile->getTemplatePath], 
+    my $tt = Template->new({
+        INCLUDE_PATH => $portalSession->getTemplateIncludePath()
     });
     $tt->process( $template, $portalSession->stash, $r ) || do {
         $logger->error($tt->error());
@@ -142,6 +143,8 @@ sub render_template {
     };
     return $TRUE;
 }
+
+
 
 =item stash_template_vars
 
@@ -182,7 +185,7 @@ sub generate_release_page {
 
 =item supports_mobileconfig_provisioning
 
-Validating that the node supports mobile configuration provisioning, that it's configured 
+Validating that the node supports mobile configuration provisioning, that it's configured
 and that the node's category matches the configuration.
 
 =cut
@@ -196,7 +199,7 @@ sub supports_mobileconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/); 
+    return $FALSE if (!defined($fingerprint[0]->{'os'}) || $fingerprint[0]->{'os'} !~ /Apple iPod, iPhone or iPad/);
 
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
@@ -269,9 +272,9 @@ sub generate_scan_start_page {
 sub generate_login_page {
     my ( $portalSession, $err ) = @_;
 
-    #Signup link activated if self_reg is enabled AND we have at least 1 proper mode activated
-    if (isenabled($portalSession->getProfile->getGuestSelfReg) && 
-       ( is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) || 
+    # Activate signup link if self_reg is enabled and we have at least one proper mode enabled
+    if (isenabled($portalSession->getProfile->getGuestSelfReg) &&
+       ( is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ||
          is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ||
          is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) ) {
         $portalSession->stash->{'guest_allowed'} = 1;
@@ -281,15 +284,16 @@ sub generate_login_page {
 
     $portalSession->stash->{'txt_auth_error'} = i18n($err) if (defined($err));
 
-    # return login
+    # Return login
     $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
-    # authentication
-    $portalSession->stash->{'selected_auth'} = encode_entities($portalSession->cgi->param("auth"))
-        || $portalSession->getProfile->getDefaultAuth;
-    $portalSession->stash->{'list_authentications'} = pf::web::auth::list_enabled_auth_types();
-    $portalSession->stash->{'oauth2_google'} = $guest_self_registration{$SELFREG_MODE_GOOGLE};
-    $portalSession->stash->{'oauth2_facebook'} = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
-    $portalSession->stash->{'oauth2_github'} = $guest_self_registration{$SELFREG_MODE_GITHUB};
+
+    # External authentication
+    $portalSession->stash->{'oauth2_google'}
+      = is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_facebook'}
+      = is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_github'}
+      = is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes);
 
     render_template($portalSession, $LOGIN_TEMPLATE);
 }
@@ -304,9 +308,7 @@ sub generate_enabler_page {
 }
 
 sub generate_redirect_page {
-    my ( $portalSession, $violation_url ) = @_;
-
-    $portalSession->stash->{'violation_url'} = $violation_url;
+    my ( $portalSession ) = @_;
 
     render_template($portalSession, 'redirect.html');
 }
@@ -377,7 +379,7 @@ sub generate_oauth2_result {
    eval {
       $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
    };
-   
+
    if ($@) {
        $logger->info("OAuth2: failed to receive the token from the provider, redireting to login page");
        generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to get the token") );
@@ -386,9 +388,17 @@ sub generate_oauth2_result {
 
    my $response;
 
+   my $type;
    # Validate the token
-   $response = $token->get($Config{"oauth2 $provider"}{'protected_resource_url'});
-   
+   if (lc($provider) eq 'facebook') {
+       $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+   } elsif (lc($provider) eq 'github') {
+       $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+   } elsif (lc($provider) eq 'google') {
+       $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+   }
+   my $source = &pf::authentication::getAuthenticationSourceByType($type);
+   $response = $token->get($source->{'protected_resource_url'});
    if ($response->is_success) {
         # Grab JSON content
         my $json = new JSON;
@@ -405,6 +415,43 @@ sub generate_oauth2_result {
         generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to validate the token, please retry") );
         return 0;
    }
+}
+
+=item generate_violation_page
+
+=cut
+sub generate_violation_page {
+    my ( $portalSession, $template ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $langs = $portalSession->getRequestLanguages();
+    my $mac = $portalSession->getClientMac();
+    my $paths = $portalSession->getTemplateIncludePath();
+
+    my $node_info = node_view($mac);
+
+    # We stash stuff we want to expose to all templates, for better
+    # customizations by PacketFence administrators
+    $portalSession->stash->{'dhcp_fingerprint'} = $node_info->{'dhcp_fingerprint'};
+    $portalSession->stash->{'last_switch'} = $node_info->{'last_switch'};
+    $portalSession->stash->{'last_port'} = $node_info->{'last_port'};
+    $portalSession->stash->{'last_vlan'} =$node_info->{'last_vlan'};
+    $portalSession->stash->{'last_connection_type'} = $node_info->{'last_connection_type'};
+    $portalSession->stash->{'last_ssid'} =  $node_info->{'last_ssid'};
+    $portalSession->stash->{'username'} = $node_info->{'pid'};
+
+    push(@$langs, ''); # default template
+    foreach my $lang (@$langs) {
+        my $file = "violations/$template" . ($lang?".$lang":"") . ".html";
+        foreach my $dir (@$paths) {
+            if ( -f "$dir/$file" ) {
+                $portalSession->stash->{'sub_template'} = $file;
+                return render_template($portalSession, $VIOLATION_TEMPLATE);
+            }
+        }
+    }
+
+    $logger->error("Template $template not found");
 }
 
 =item web_node_register
@@ -428,7 +475,7 @@ sub web_node_register {
 
     if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
         pf::web::generate_error_page(
-            $portalSession, 
+            $portalSession,
             i18n("You have reached the maximum number of devices you are able to register with this username.")
         );
         exit(0);
@@ -445,7 +492,7 @@ sub _sanitize_and_register {
     $logger->info("performing node registration MAC: $mac pid: $pid");
     node_register( $mac, $pid, %info );
 
-    unless ( defined($session->param("do_not_deauth")) && $session->param("do_not_deauth") == $TRUE ) {
+     unless ( defined($session->param("do_not_deauth")) && $session->param("do_not_deauth") == $TRUE ) {
         reevaluate_access( $mac, 'manage_register' );
     }
 
@@ -460,7 +507,7 @@ Records User-Agent for the provided node and triggers violations.
 sub web_node_record_user_agent {
     my ( $mac, $user_agent ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
-    
+
     # caching useragents, if it's the same don't bother triggering violations
     my $cached_useragent = $main::useragent_cache->get($mac);
 
@@ -492,18 +539,10 @@ sub validate_form {
     $logger->trace("form validation attempt");
 
     my $cgi = $portalSession->getCgi();
-    if ( $cgi->param("username") && $cgi->param("password") && $cgi->param("auth") ) {
-
+    if ( $cgi->param("username") && $cgi->param("password") ) {
         # acceptable use pocliy accepted?
         if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
             return ( 0 , 'You need to accept the terms before proceeding any further.' );
-        }
-
-        # validates if supplied auth type is allowed by configuration
-        my $auth = $cgi->param("auth");
-        my @auth_choices = split( /\s*,\s*/, $portalSession->getProfile->getAuth );
-        if ( grep( { $_ eq $auth } @auth_choices ) == 0 ) {
-            return ( 0, 'Unable to validate credentials at the moment' );
         }
 
         return (1);
@@ -519,25 +558,21 @@ sub validate_form {
 
 =cut
 sub web_user_authenticate {
-    my ( $portalSession, $auth_module ) = @_;
+    my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     $logger->trace("authentication attempt");
 
-    my $authenticator = pf::web::auth::instantiate($auth_module);
-    return (0, undef) if (!defined($authenticator));
+    my $session = $portalSession->getSession();
 
     # validate login and password
-    my $return = $authenticator->authenticate( 
-        $portalSession->cgi->param("username"),
-        $portalSession->cgi->param("password")
-    );
+    my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
+                                                               $portalSession->cgi->param("password"));
 
     if (defined($return) && $return == 1) {
-        #save login into session
+        # save login into session
         $portalSession->session->param( "username", $portalSession->cgi->param("username") );
-        $portalSession->session->param( "authType", $auth_module );
     }
-    return ($return, $authenticator);
+    return ($return, $message);
 }
 
 sub generate_registration_page {
@@ -546,7 +581,6 @@ sub generate_registration_page {
     $pagenumber = 1 if (!defined($pagenumber));
 
     $portalSession->stash({
-        deadline        => $Config{'registration'}{'skip_deadline'},
         reg_page_content_file => "register_$pagenumber.html",
     });
 
@@ -599,8 +633,8 @@ sub generate_pending_page {
 
 =item end_portal_session
 
-Call after you made your changes to the user / node. 
-This takes care of handling violations, bouncing back to http for portal 
+Call after you made your changes to the user / node.
+This takes care of handling violations, bouncing back to http for portal
 network access detection or handling mobile provisionning.
 
 This was done in several different locations making maintenance more difficult than it should.
@@ -636,7 +670,7 @@ sub end_portal_session {
             .'/access?destination_url=' . uri_escape($destination_url)
         );
         exit(0);
-    } 
+    }
 
     pf::web::generate_release_page($portalSession);
     exit(0);
@@ -657,43 +691,49 @@ sub generate_generic_page {
 }
 
 sub oauth2_client {
-      my $provider = shift;
-      
-      
-
-      Net::OAuth2::Client->new(
-                $Config{"oauth2 $provider"}{'client_id'},
-                $Config{"oauth2 $provider"}{'client_secret'},
-                site => $Config{"oauth2 $provider"}{'site'},
-                authorize_path => $Config{"oauth2 $provider"}{'authorize_path'},
-                access_token_path => $Config{"oauth2 $provider"}{'access_token_path'},
-                access_token_method => $Config{"oauth2 $provider"}{'access_token_method'},
-                access_token_param => $Config{"oauth2 $provider"}{'access_token_param'},
-                scope => $Config{"oauth2 $provider"}{'scope'}
-       )->web_server(redirect_uri => $Config{"oauth2 $provider"}{'redirect_uri'} );
+    my $provider = shift;
+    my $type;
+    {
+        if (lc($provider) eq 'facebook') {
+            $type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
+        } elsif (lc($provider) eq 'github') {
+            $type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
+        } elsif (lc($provider) eq 'google') {
+            $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
+        }
+    }
+    if ($type) {
+        my $source = &pf::authentication::getAuthenticationSourceByType($type);
+        if ($source) {
+            Net::OAuth2::Client->new(
+                $source->{'client_id'},
+                $source->{'client_secret'},
+                site => $source->{'site'},
+                authorize_path => $source->{'authorize_path'},
+                access_token_path => $source->{'access_token_path'},
+                access_token_method => $source->{'access_token_method'},
+                access_token_param => $source->{'access_token_param'},
+                scope => $source->{'scope'}
+          )->web_server(redirect_uri => $source->{'redirect_url'} );
+        }
+    }
 }
 
 =back
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2012 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 
@@ -715,3 +755,7 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:

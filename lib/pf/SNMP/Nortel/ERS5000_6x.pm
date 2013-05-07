@@ -29,6 +29,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::Nortel');
 
+sub description { 'Nortel ERS 5000 Series w/ firmware 6.x' }
+
 =head1 METHODS
 
 TODO: This list is incomplete
@@ -51,11 +53,11 @@ sub getBoardIndexWidth {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

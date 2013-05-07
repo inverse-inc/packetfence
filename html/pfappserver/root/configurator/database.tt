@@ -1,4 +1,4 @@
-[% jsFiles = ['database'] -%]
+[% jsFiles = ['configurator/database'] -%]
  <!-- root password reset -->
   <div class="modal fade hide" id="modalRootPassword">
     <div class="modal-header">
@@ -26,7 +26,7 @@
         </form>
       </div>
       <div class="modal-footer">
-        <a class="btn btn-primary" href="[% c.uri_for('reset_password') %]">[% l('Save') %]</a>
+        <a class="btn btn-primary" href="[% c.uri_for(c.controller('DB').action_for('reset_password')) %]">[% l('Save') %]</a>
       </div>
   </div>
 
@@ -76,7 +76,7 @@
             <div class="control-group">
               <label class="control-label" for="database">[% l('Name') %]</label>
               <div class="controls">
-                <input name="database.db" class="text" type="text" value="[% db.${"database.db"} | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
+                <input name="database.db" class="text" type="text" value="[% database.db | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF c.session.completed.database %] success[% END %]">
@@ -89,7 +89,7 @@
             <div class="control-group">
               <label class="control-label" for="pf_user">[% l('Username') %]</label>
               <div class="controls">
-                <input name="database.user" class="text" type="text" value="[% db.${"database.user"} | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
+                <input name="database.user" class="text" type="text" value="[% database.user | html %]"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group">
@@ -100,7 +100,7 @@
             </div>
             <div class="control-group">
               <div class="controls">
-                <input name="database.pass2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.database %] disabled=""[% END %]>
+                <input name="database.pass2" class="text" type="password" placeholder="[% l('Retype your password') %]"[% IF c.session.completed.database %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF c.session.completed.database %] success[% END %]">
@@ -118,6 +118,6 @@
         </div>
       </div>
       <footer>
-        <p>&copy; Inverse 2012</p>
+        <p>&copy; Inverse 2013</p>
       </footer>
     </div><!--/container-->

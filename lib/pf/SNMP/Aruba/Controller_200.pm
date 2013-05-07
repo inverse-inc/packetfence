@@ -17,13 +17,17 @@ use Log::Log4perl;
 
 use base ('pf::SNMP::Aruba');
 
+sub description { 'Aruba 200 Controller' }
+
 =head1 AUTHOR
 
-Regis Balzard <rbalzard@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

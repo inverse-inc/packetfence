@@ -118,10 +118,7 @@ function initStep() {
             $.ajax({
                 type: 'POST',
                 url: url.join('/'),
-                data: { root_user: root_user.val(), root_password: root_password.val() },
-                statusCode: {
-                    412: function(jqXHR) { alert("code 412!"); }
-                }
+                data: { root_user: root_user.val(), root_password: root_password.val() }
             }).done(function(data) {
                 btn.addClass('disabled');
                 database.attr('disabled', '');

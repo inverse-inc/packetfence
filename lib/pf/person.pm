@@ -8,7 +8,7 @@ pf::person - module for person management.
 
 =head1 DESCRIPTION
 
-pf::person contains the functions necessary to manage a person: creation, 
+pf::person contains the functions necessary to manage a person: creation,
 deletion, read info, ...
 
 =cut
@@ -31,9 +31,12 @@ BEGIN {
         person_delete
         person_add
         person_view
+        person_count_all
         person_view_all
         person_modify
         person_nodes
+        person_violations
+        person_custom_search
     );
     @EXPORT_OK = qw( $PID_RE );
 }
@@ -45,6 +48,7 @@ use pf::db;
 =over
 
 =cut
+
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $person_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
@@ -57,6 +61,7 @@ Characters allowed in a person id (pid). This is stricter than what we have
 in pf::pfcmd and pf::pfcmd::pfcmd
 
 =cut
+
 our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
 =back
@@ -64,6 +69,7 @@ our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 =head1 SUBROUTINES
 
 =cut
+
 sub person_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::person');
     $logger->debug("Preparing pf::person database queries");
@@ -74,18 +80,53 @@ sub person_db_prepare {
         qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes,sponsor) values(?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
-        qq[ select pid,firstname,lastname,email,telephone,company,address,notes,sponsor from person where pid=? ]);
+        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
+                   count(n.mac) as nodes,
+                   t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
+                   t.access_duration as 'access_duration', nc.name as 'category',
+                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate'
+            FROM person p
+            LEFT JOIN node n ON p.pid = n.pid
+            LEFT JOIN temporary_password t ON p.pid = t.pid
+            LEFT JOIN node_category nc ON nc.category_id = t.category
+            WHERE p.pid = ? ]);
 
-    $person_statements->{'person_view_all_sql'} = get_db_handle()->prepare(
-        qq[ select pid,firstname,lastname,email,telephone,company,address,notes,sponsor from person ]);
+    $person_statements->{'person_view_all_sql'} =
+        qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
+                   count(n.mac) as nodes,
+                   t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
+                   t.access_duration as 'access_duration', t.category as 'category',
+                   t.sponsor as 'can_sponsor'
+            FROM person p
+            LEFT JOIN node n ON p.pid = n.pid
+            LEFT JOIN temporary_password t ON p.pid = t.pid
+            GROUP BY pid ];
+
+    $person_statements->{'person_count_all_sql'} = qq[ SELECT count(*) as nb FROM person ];
 
     $person_statements->{'person_delete_sql'} = get_db_handle()->prepare(qq[ delete from person where pid=? ]);
 
     $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
-        qq[ update person set pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=?,sponsor=? where pid=? ]);
+        qq[ UPDATE person
+            SET pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=?,sponsor=?
+            WHERE pid=? ]);
 
     $person_statements->{'person_nodes_sql'} = get_db_handle()->prepare(
-        qq[ select mac,pid,regdate,unregdate,lastskip,status,user_agent,computername,dhcp_fingerprint from node where pid=? ]);
+        qq[ SELECT mac, pid, regdate, unregdate, lastskip, status, user_agent, computername,
+                   IFNULL(os_class.description, ' ') as dhcp_fingerprint
+            FROM node
+            LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint = dhcp_fingerprint.fingerprint
+            LEFT JOIN os_mapping ON dhcp_fingerprint.os_id = os_mapping.os_type
+            LEFT JOIN os_class ON os_mapping.os_class = os_class.class_id
+            WHERE pid = ? ]);
+
+    $person_statements->{'person_violations_sql'} = get_db_handle()->prepare(
+        qq[ SELECT violation.id, violation.mac, violation.vid, class.description, start_date, release_date, violation.status
+            FROM violation
+            LEFT JOIN node ON violation.mac = node.mac
+            LEFT JOIN class ON violation.vid = class.vid
+            WHERE pid = ?
+            ORDER BY start_date desc ]);
 
     $person_db_prepared = 1;
 }
@@ -108,7 +149,7 @@ sub person_delete {
     my ($pid) = @_;
 
     my $logger = Log::Log4perl::get_logger('pf::person');
-    return (0) if ( $pid eq "1" );
+    return (0) if ( $pid eq "admin" );
 
     if ( !person_exist($pid) ) {
         $logger->error("delete of non-existent person '$pid' failed");
@@ -151,7 +192,7 @@ sub person_add {
 sub person_view {
     my ($pid) = @_;
 
-    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid) 
+    my $query  = db_query_execute(PERSON, $person_statements, 'person_view_sql', $pid)
         || return (0);
     my $ref = $query->fetchrow_hashref();
 
@@ -160,9 +201,80 @@ sub person_view {
     return ($ref);
 }
 
-sub person_view_all {
+sub person_count_all {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::person');
 
-    return db_data(PERSON, $person_statements, 'person_view_all_sql');
+    # Hack! we prepare the statement here so that $person_count_all_sql is pre-filled
+    person_db_prepare() if (!$person_db_prepared);
+    my $person_count_all_sql = $person_statements->{'person_count_all_sql'};
+
+    if ( defined( $params{'where'} ) ) {
+        if ( $params{'where'}{'type'} eq 'pid' ) {
+            $person_count_all_sql
+                .= " WHERE pid='" . $params{'where'}{'value'} . "'";
+        }
+        elsif ( $params{'where'}{'type'} eq 'any' ) {
+            if (exists($params{'where'}{'like'})) {
+                $person_count_all_sql .= " WHERE"
+                  . " pid LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+                  . " OR firstname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+                  . " OR lastname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+                  . " OR email LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+            }
+        }
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $person_statements->{'person_count_all_sql_custom'} = $person_count_all_sql;
+    $logger->debug($person_count_all_sql);
+
+    return db_data(PERSON, $person_statements, 'person_count_all_sql_custom');
+}
+
+sub person_custom_search {
+    my ($sql) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    $logger->debug($sql);
+    $person_statements->{'person_custom_search'} = $sql;
+    return db_data(PERSON, $person_statements, 'person_custom_search');
+}
+
+sub person_view_all {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::person');
+
+    # Hack! we prepare the statement here so that $person_view_all_sql is pre-filled
+    person_db_prepare() if (!$person_db_prepared);
+    my $person_view_all_sql = $person_statements->{'person_view_all_sql'};
+
+    if ( defined( $params{'where'} ) ) {
+        if ( $params{'where'}{'type'} eq 'pid' ) {
+            $person_view_all_sql
+                .= " HAVING p.pid='" . $params{'where'}{'value'} . "'";
+        }
+        elsif ( $params{'where'}{'type'} eq 'any' ) {
+            $person_view_all_sql .= " HAVING"
+              . " pid LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+              . " OR p.firstname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+              . " OR p.lastname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
+              . " OR p.email LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+        }
+    }
+    if ( defined( $params{'orderby'} ) ) {
+        $person_view_all_sql .= " " . $params{'orderby'};
+    }
+    if ( defined( $params{'limit'} ) ) {
+        $person_view_all_sql .= " " . $params{'limit'};
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $person_statements->{'person_view_all_sql_custom'} = $person_view_all_sql;
+    $logger->debug($person_view_all_sql);
+
+    return db_data(PERSON, $person_statements, 'person_view_all_sql_custom');
 }
 
 sub person_modify {
@@ -195,13 +307,13 @@ sub person_modify {
         return (0);
     }
 
-    db_query_execute(PERSON, $person_statements, 'person_modify_sql', 
+    db_query_execute(PERSON, $person_statements, 'person_modify_sql',
         $new_pid,                 $existing->{'firstname'},
         $existing->{'lastname'},  $existing->{'email'},
         $existing->{'telephone'}, $existing->{'company'},
-        $existing->{'address'},   $new_notes, 
+        $existing->{'address'},   $new_notes,
         $existing->{'sponsor'},
-        $pid 
+        $pid
     ) || return (0);
     $logger->info("person $pid modified to $new_pid");
     return (1);
@@ -213,25 +325,27 @@ sub person_nodes {
     return db_data(PERSON, $person_statements, 'person_nodes_sql', $pid);
 }
 
+sub person_violations {
+    my ($pid) = @_;
+
+    return db_data(PERSON, $person_statements, 'person_violations_sql', $pid);
+}
+
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francis Lachapelle <flachapelle@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009, 2010 Inverse inc.
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

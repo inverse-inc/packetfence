@@ -21,6 +21,7 @@ use Apache2::Request;
 use Apache2::Access;
 use Apache2::Connection;
 use Log::Log4perl;
+use pf::authentication;
 use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::node;
@@ -52,15 +53,12 @@ sub handler {
     my $portalSession = pf::Portal::Session->new();
     
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-
-    my @auth_types = split( /\s*,\s*/, $portalSession->getProfile->getAuth );    
     
     my $response;
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });    
 
-    my $return;
     my %info;
     my $pid;
     my $mac;
@@ -72,33 +70,30 @@ sub handler {
 
     # Trace the user in the apache log
     $r->user($req->param("username"));
-
-    foreach my $auth_type (@auth_types) {
-        my $authenticator = pf::web::auth::instantiate($auth_type);
-        return (0, undef) if (!defined($authenticator));
-        $return = $authenticator->authenticate( $req->param("username"), $req->param("password") );
-        if ($return) {
-             $logger->info("Authentification success for wispr client");
-             $stash = {
-                 'code_result' => "50",
-                 'result' => "Authentication Success",
-             };
-             
-             if (defined($portalSession->getGuestNodeMac)) {
-                 $mac = $portalSession->getGuestNodeMac;
-             }
-             else {
-                 $mac = $portalSession->getClientMac;
-             }
-             $info{'pid'} = 1;
-             $pid = $req->param("username") if (defined $req->param("username"));
-             $r->pnotes->{pid}=$pid;
-             $r->pnotes->{user_agent}=$r->headers_in->{"User-Agent"};
-             $r->pnotes->{mac} = $mac;
-             
-             last;
+    
+    my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
+                                                               $portalSession->cgi->param("password"));
+    if ($return) {
+        $logger->info("Authentification success for wispr client");
+        $stash = {
+                  'code_result' => "50",
+                  'result' => "Authentication Success",
+                 };
+        
+        if (defined($portalSession->getGuestNodeMac)) {
+            $mac = $portalSession->getGuestNodeMac;
         }
+        else {
+            $mac = $portalSession->getClientMac;
+        }
+ 
+        $info{'pid'} = 'admin';
+        $pid = $req->param("username") if (defined $req->param("username"));
+        $r->pnotes->{pid}=$pid;
+        $r->pnotes->{user_agent}=$r->headers_in->{"User-Agent"};
+             $r->pnotes->{mac} = $mac;
     }
+    
     $template->process( "response_wispr.tt", $stash, \$response ) || $logger->error($template->error());
     $r->content_type('text/xml');
     $r->no_cache(1);
@@ -138,11 +133,11 @@ sub register {
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010, 2011, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

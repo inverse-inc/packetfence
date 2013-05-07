@@ -1,8 +1,8 @@
 /**
  * PacketFence Javascript Library
  *
- * @author      Olivier Bilodeau <obilodeau@inverse.ca>
- * @copyright   2011 Inverse inc.
+ * @author      Inverse inc. <info@inverse.ca>
+ * @copyright   2005-2013 Inverse inc.
  * @license     http://opensource.org/licenses/gpl-2.0.php      GPL
  */
 

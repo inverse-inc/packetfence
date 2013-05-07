@@ -25,10 +25,9 @@ requires 'Catalyst::Plugin::Session::State::Cookie';
 requires 'Catalyst::Plugin::StatusMessage';
 requires 'Catalyst::View::TT';
 requires 'Catalyst::View::JSON';
-requires 'IO::Interface::Simple';
 requires 'DBI';
 requires 'JSON';
-requires 'Net::Route';
+requires 'Net::Netmask';
 requires 'Apache::Htpasswd';
 
 test_requires 'Test::More' => '0.88';

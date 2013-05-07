@@ -1,0 +1,42 @@
+[% MACRO header(column, title, class) BLOCK -%]
+[% params = { by => column, filter => filter, per_page => per_page };
+    new_direction = 'asc';
+    IF by == column && direction == 'asc';
+      new_direction = 'desc';
+    END;
+    params.direction = new_direction;
+ %]
+      <th[% " class=\"$class\"" IF class %]><a href="#[% pagination_path("node/advanced_search", params) %]">[% title %][% IF by == column %] <i class="icon-chevron-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]"></i>[% END %]</a></th>
+[% END -%]
+            <h2>[% l('Results') %]</h2>
+[% INCLUDE pagination.inc section = 'node/advanced_search'  IF items.size > 0 %]
+            <table id="nodes" class="table table-condensed table-striped">
+              <thead>
+                <tr>
+                  [% header('status', 'Status') %]
+                  [% header('mac', 'MAC') %]
+                  [% header('computername', 'Computer Name', 'hidden-phone') %]
+                  [% header('pid', 'Identifier', 'hidden-phone') %]
+                  [% header('last_ip', 'IP Address') %]
+                  [% header('dhcp_fingerprint', 'OS (DHCP)', 'hidden-phone') %]
+                  [% header('category', 'Role', 'hidden-phone') %]
+                </tr>
+              </thead>
+              <tbody>
+                [%- FOREACH node IN items -%]
+                <tr>
+                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
+                  <td>[% node.computername %]</td>
+                  <td class="hidden-phone"><a href="[% c.uri_for(c.controller('User').action_for('view'), [ node.pid ]) %]">[% node.pid %]</td>
+                  <td>[% IF node.last_ssid %]<i class="icon-signal"></i> [% END %][% node.last_ip %]</td>
+                  <td class="hidden-phone">[% node.dhcp_fingerprint %]</td>
+                  <td class="hidden-phone">[% node.category %]</td>
+                </tr>
+                [%- END -%]
+              </tbody>
+            </table>
+[% INCLUDE pagination.inc section = 'node/advanced_search' IF items.size > 0 %]
+      <div id="noResult" class="unwell[% ' hidden' IF items.size > 0 %]">
+        <i class="icon-search icon-large"></i><p>[% l('No node found') %]</p>
+      </div>

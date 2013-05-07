@@ -58,23 +58,6 @@ document.observe("dom:loaded", function() {
             <div class="mobile"><input name="aup_signed" type="checkbox" />[% i18n("I have read and accept the terms") %]</div>
           </div>
 
-          [%# Authentication choice %]
-          [% IF list_authentications.size <= 1 %]
-	    [% FOREACH authentication_info IN list_authentications.pairs %]
-              <input type='hidden' name='auth' value='[% authentication_info.key %]' />
-            [% END %]
-          [% ELSE %]
-            <div class="input">
-                <span>[% i18n("Authentication") %]</span>
-                <select name='auth'>
-                [% FOREACH authentication_info IN list_authentications.pairs %]
-                  <option [% IF authentication_info.key == selected_auth %]selected='selected' [% END %]
-                    value='[% authentication_info.key %]'>[% authentication_info.value %]</option>
-                [% END %]
-              </select>
-            </div>
-          [% END %]
-
           [%# User / Pass %]
           <div class="input">
             <span>[% i18n("Username") %]</span>
@@ -93,15 +76,15 @@ document.observe("dom:loaded", function() {
           <div class="input">
             [% IF oauth2_google -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=google">Login with Google account <img src="/content/images/google.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=google">[% i18n('Login with Google account') %] <img src="/content/images/google.icon.png"></a>
             [% END -%]
             [% IF oauth2_facebook -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=facebook">Login with Facebook account <img src="/content/images/facebook.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=facebook">[% i18n('Login with Facebook account') %] <img src="/content/images/facebook.icon.png"></a>
             [% END %]
             [% IF oauth2_github -%]
             <div class="separator"><div class="or_separator">[% i18n("or") %]</div></div>
-            <a class="btn disabled" href="/oauth2/auth?provider=github">Login with GitHub account <img src="/content/images/github.icon.png"></a>
+            <a class="btn disabled" href="/oauth2/auth?provider=github">[% i18n('Login with GitHub account') %] <img src="/content/images/github.icon.png"></a>
             [% END %]
           </div>
           [% END %]

@@ -503,7 +503,7 @@ msgstr ""
 msgid "If you have scripting turned off, you will not be automatically redirected. Please enable scripting or open a new browser window from time to time to see if your access was enabled."
 msgstr ""
 
-msgid "Unable to detect network connectivity. Try opening a web page to see if your access has been succesfully enabled."
+msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
 msgstr ""
 
 msgid "Your network access should be available. Close your current browser, and open a new one to start browsing."

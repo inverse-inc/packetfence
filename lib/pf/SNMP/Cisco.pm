@@ -179,11 +179,12 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
+        my $macDetectionVlan = $this->getVlanByName('macDetection');
         push @vlansToTest, $trapHashRef->{'trapVlan'};
-        push @vlansToTest, $this->{'_macDetectionVlan'};
-        foreach my $currentVlan ( @{ $this->{_vlans} } ) {
+        push @vlansToTest, $macDetectionVlan;
+        foreach my $currentVlan ( values %{ $this->{_vlans} } ) {
             if (   ( $currentVlan != $trapHashRef->{'trapVlan'} )
-                && ( $currentVlan != $this->{'_macDetectionVlan'} ) )
+                && ( $currentVlan != $macDetectionVlan ) )
             {
                 push @vlansToTest, $currentVlan;
             }
@@ -752,7 +753,7 @@ sub getIfIndexForThisMac {
         . hex( $macParts[4] ) . "."
         . hex( $macParts[5] );
 
-    foreach my $vlan ( @{ $this->{_vlans} } ) {
+    foreach my $vlan ( values %{ $this->{_vlans} } ) {
         my $result = undef;
 
         $logger->trace(
@@ -1204,8 +1205,8 @@ sub getAllMacs {
         }
     }
 
-    my @vlansOnSwitch   = keys( %{ $this->getVlans() } );
-    my @vlansToConsider = @{ $this->{_vlans} };
+    my @vlansOnSwitch   = keys %{ $this->getVlans() };
+    my @vlansToConsider = values %{ $this->{_vlans} };
     if ( $this->isVoIPEnabled() ) {
         my $OID_vmVoiceVlanId
             = '1.3.6.1.4.1.9.9.68.1.5.1.1.1';    #CISCO-VLAN-MEMBERSHIP-MIB
@@ -1561,15 +1562,11 @@ sub _radiusBounceMac {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

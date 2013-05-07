@@ -1,3 +1,6 @@
+.modal-body {
+    max-height: 480px;
+}
 #tracker a:hover {
   color: #08c;
 }
@@ -44,12 +47,6 @@ form[name="enforcement"] .table .graph {
 }
 #interfaces table {
     margin-top: 20px;
-}
-#interfaces td span.label {
-    float: right;
-}
-#interfaces .btn-toggle {
-    min-width: 50px;
 }
 #services td {
     min-width: 100px;

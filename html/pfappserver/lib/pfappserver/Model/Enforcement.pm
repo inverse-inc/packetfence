@@ -22,9 +22,9 @@ extends 'Catalyst::Model';
 my @mechanisms           = qw/vlan inline option/;
 # TODO once we display option we should move 'other' over to there
 my %types   = (
-    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation', 'other' ],
-    inline      => [ 'management', 'inline', 'other'],
-    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
+    vlan        => [ 'management', 'vlan-registration', 'vlan-isolation' ],
+    inline      => [ 'management', 'inline' ],
+#    option      => [ 'high-availability', 'dhcp-listener', 'monitor' ],
 );
 
 =head1 METHODS
@@ -44,7 +44,7 @@ sub getAvailableMechanisms {
 
 =cut
 sub getAvailableTypes {
-    my ( $self, $mechanism ) = @_;
+    my ( $self, $mechanism, $interface, $interfaces ) = @_;
 
     my @mechanisms;
     my @available_types;
@@ -59,13 +59,24 @@ sub getAvailableTypes {
         @mechanisms = ($mechanism);
     }
 
-    foreach my $type ( @mechanisms ) {
-        foreach ( @{$types{$type}} ) {
-            unless ( $self->_isInArray(\@available_types, $_) ) {
-                push( @available_types, $_ );
+    my @exclusions;
+    if ($interfaces) {
+        foreach my $i (keys %$interfaces) {
+            next if ($i eq $interface);
+            # Don't return "management" if it's already set for an interface
+            push(@exclusions, 'management') if ($interfaces->{$i}->{type} eq 'management');
+        }
+    }
+    foreach my $m (@mechanisms) {
+        foreach my $type (@{$types{$m}}) {
+            unless ($self->_isInArray(\@exclusions, $type) ||
+                    $self->_isInArray(\@available_types, $type)) {
+                push(@available_types, $type);
             }
         }
     }
+    @available_types = sort @available_types;
+    push(@available_types, 'other');
 
     return \@available_types;
 }
@@ -85,13 +96,9 @@ sub _isInArray {
 
 =back
 
-=head1 AUTHORS
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

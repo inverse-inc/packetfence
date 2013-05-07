@@ -109,6 +109,8 @@ use base ('pf::SNMP::Cisco');
 
 use pf::config;
 
+sub description { 'Cisco Wireless Controller (WLC)' }
+
 =head1 SUBROUTINES
 
 =over
@@ -159,7 +161,7 @@ RFC3576 aka CoA) is better and also it no longer worked with firmware 7.2 and up
 See L<BUGS AND LIMITATIONS> for details.
 
 =cut
-sub _deauthenticateMacSnmp {
+sub _deauthenticateMacSNMP {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $OID_bsnMobileStationDeleteAction = '1.3.6.1.4.1.14179.2.1.4.1.22';
@@ -335,15 +337,11 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

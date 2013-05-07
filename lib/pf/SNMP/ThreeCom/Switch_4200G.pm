@@ -86,6 +86,8 @@ use base ('pf::SNMP::ThreeCom::SS4500');
 use pf::config;
 use pf::SNMP::constants;
 
+sub description { '3COM 4200G' }
+
 =head1 SUBROUTINES
 
 =over
@@ -150,13 +152,11 @@ sub dot1xPortReauthenticate {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

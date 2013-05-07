@@ -7,97 +7,58 @@
   <revision>
     <revnumber>2.6</revnumber>
     <date>2012-10-26</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Adding documentation for Belair AP</revremark>
    </revision>
   <revision>
     <revnumber>2.5</revnumber>
     <date>2012-09-12</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Adding documentation for WIPS feature</revremark>
    </revision>
    <revision>
     <revnumber>2.4.1</revnumber>
     <date>2012-09-05</date>
-    <authorinitials>FG, OB</authorinitials>
     <revremark>Adding the server-group support on Procurve 2610 switches. Minor fix to Trapeze config.</revremark>
   </revision>
   <revision>
     <revnumber>2.4</revnumber>
     <date>2012-06-19</date>
-    <authorinitials>DW</authorinitials>
     <revremark>Added Netgear GS110 documentation. Updated the authors list.</revremark>
   </revision>
   <revision>
     <revnumber>2.3</revnumber>
     <date>2012-06-13</date>
-    <authorinitials>FD, DW, OB</authorinitials>
     <revremark>Added Brocade, Cisco WLC/WiSM and H3C documentation. Some assumptions were updated.</revremark>
   </revision>
   <revision>
     <revnumber>2.2</revnumber>
     <date>2012-04-23</date>
-    <authorinitials>OB</authorinitials>
     <revremark>HP ProCurve 5300 Series identified as supported.</revremark>
   </revision>
   <revision>
     <revnumber>2.1</revnumber>
     <date>2012-04-12</date>
-    <authorinitials>FG, OB</authorinitials>
     <revremark>Added new configuration documentation for AlliedTelesis. Roles support for AeroHive, Aruba, Meru and Motorola.</revremark>
   </revision>
   <revision>
     <revnumber>2.0</revnumber>
     <date>2012-02-22</date>
-    <authorinitials>FG, OB</authorinitials>
     <revremark>Port to asciidoc. Added Ruckus documentation. Added documentation for Meru PMK caching.</revremark>
   </revision>
   <revision>
     <revnumber>1.0</revnumber>
     <date>2010-11-22</date>
-    <authorinitials>OBU</authorinitials>
     <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
 
 <authorgroup>
   <author>
-    <firstname>Fabrice</firstname>
-    <surname>Durand</surname>
+    <firstname>Inverse</firstname>
+    <surname>Inc.</surname>
     <affiliation>
       <address>
-        <email>fdurand@inverse.ca</email>
+        <email>info@inverse.ca</email>
       </address>
     </affiliation>
   </author>
-  <author>
-    <firstname>Derek</firstname>
-    <surname>Wuelfrath</surname>
-    <affiliation>
-      <address>
-        <email>dwuelfrath@inverse.ca</email>
-      </address>
-    </affiliation>
-  </author>
-  <othercredit>
-    <personname>
-      <firstname>Olivier</firstname>
-      <surname>Bilodeau</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
-  <othercredit>
-    <personname>
-      <firstname>Francois</firstname>
-      <surname>Gaudreault</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
-  <othercredit>
-    <personname>
-      <firstname>Rich</firstname>
-      <surname>Graves</surname>
-    </personname>
-    <contrib>Contributors</contrib>
-  </othercredit>
 </authorgroup>

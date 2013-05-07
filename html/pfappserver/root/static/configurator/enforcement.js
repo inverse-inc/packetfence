@@ -14,14 +14,10 @@ function saveStep(href) {
     }
 
     if (valid) {
-        var data = { enforcements: [] };
-        $('input:checkbox:checked[name="enforcement"]').each(function(index) {
-            data.enforcements.push($(this).val());
-        });
         $.ajax({
             type: 'POST',
             url: window.location.pathname,
-            data: {json: $.toJSON(data)}
+            data: form.serialize()
         }).done(function(data) {
             window.location.href = href;
         }).fail(function(jqXHR) {

@@ -12,8 +12,11 @@ use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use Apache2::RequestIO ();
 use Apache2::RequestRec ();
 use Apache2::Response ();
+use Apache2::RequestUtil ();
+use Apache2::ServerRec;
 
 use APR::Table;
+use APR::URI;
 use Log::Log4perl;
 use Template;
 use URI::Escape qw(uri_escape);
@@ -47,8 +50,19 @@ sub translate {
     #          to reload Apache dynamically. pf::web::constants will need some
     #          rework also
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES/o) {
-        # DECLINED tells Apache to continue further mod_rewrite / alias processing
-        return Apache2::Const::DECLINED;
+        my $s = $r->server();
+        my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+        #Because of chrome captiv portal detection we have to test if the request come from http request
+        my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
+        if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /\/access/ && $parsed->path !~ /\/access/) {
+            #Generate a page with a refresh tag
+            $r->handler('modperl');
+            $r->set_handlers( PerlResponseHandler => \&html_redirect );
+            return Apache2::Const::OK;
+        } else {
+            # DECLINED tells Apache to continue further mod_rewrite / alias processing
+            return Apache2::Const::DECLINED;
+        }
     }
     if ($r->uri =~ /$WEB::ALLOWED_RESOURCES_MOD_PERL/o) {
         $r->handler('modperl');
@@ -107,7 +121,14 @@ sub handler {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
 
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    my $proto;
+    # Google chrome hack redirect in http
+    if ($r->uri =~ /\/generate_204/) {
+        $proto = $HTTP;
+    } else {
+        $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    }
+
     my $stash = {
         'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
         'login_url_wispr' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/wispr",
@@ -130,15 +151,44 @@ sub handler {
     return Apache2::Const::HTTP_MOVED_TEMPORARILY;
 }
 
+=item html_redirect
+
+html redirection to captive portal
+
+=cut
+
+sub html_redirect {
+    my ($r) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    $logger->trace('hitting html redirector');
+
+    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+    my $stash = {
+        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
+    };
+
+    # prepare custom REDIRECT response
+    my $response;
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process( "redirection.html", $stash, \$response ) || $logger->error($template->error());;
+    $r->content_type('text/html');
+    $r->no_cache(1);
+    $r->print($response);
+    return Apache2::Const::OK;
+}
+
+
 =back
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
-        
-Copyright (C) 2012 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     

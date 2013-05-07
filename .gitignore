@@ -2,6 +2,7 @@
 *.swp
 *.orig
 *.local
+.#*
 
 # Configuration not in git
 conf/admin.conf
@@ -9,6 +10,7 @@ conf/httpd.conf
 conf/named.conf
 conf/pf.conf
 conf/nessus/
+bin/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
 conf/user.conf

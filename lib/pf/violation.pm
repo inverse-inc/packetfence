@@ -43,6 +43,7 @@ BEGIN {
         violation_force_close
         violation_close
         violation_view
+        violation_count_all
         violation_view_all
         violation_view_all_active
         violation_view_open_all
@@ -50,6 +51,7 @@ BEGIN {
         violation_view_open
         violation_view_open_desc
         violation_view_open_uniq
+        violation_view_desc
         violation_modify
         violation_trigger
         violation_count
@@ -58,9 +60,9 @@ BEGIN {
         violation_delete
         violation_exist_open
         violation_exist_acct
+        violation_exist_id
         violation_view_last_closed
         violation_maintenance
-
     );
 }
 
@@ -82,9 +84,7 @@ our $violation_statements = {};
 =head1 SUBROUTINES
 
 This list is incomplete.
-        
-=over   
-        
+
 =cut
 
 sub violation_db_prepare {
@@ -111,6 +111,11 @@ sub violation_db_prepare {
     $violation_statements->{'violation_view_sql'} = get_db_handle()->prepare(
         qq [ select violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes from violation,node where violation.mac=node.mac and violation.id=? order by start_date desc ]);
 
+    $violation_statements->{'violation_count_all_sql'} = qq[
+        SELECT count(*) as nb
+        FROM violation
+    ];
+
     $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(qq[
         SELECT violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes
         FROM violation,node 
@@ -122,13 +127,20 @@ sub violation_db_prepare {
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where mac=? and status="open" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_desc_sql'} = get_db_handle()->prepare(
-        qq [ select v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
+        qq [ select v.id,v.start_date,c.description,v.vid,v.status from violation v inner join class c on v.vid=c.vid where v.mac=? and v.status="open" order by start_date desc ]);
 
     $violation_statements->{'violation_view_open_uniq_sql'} = get_db_handle()->prepare(
         qq [ select mac from violation where status="open" group by mac ]);
 
     $violation_statements->{'violation_view_open_all_sql'} = get_db_handle()->prepare(
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
+
+    $violation_statements->{'violation_view_desc_sql'} = get_db_handle()->prepare(qq[
+        SELECT v.id,v.start_date,c.description,v.vid,v.status
+        FROM violation v
+        INNER JOIN class c ON v.vid=c.vid
+        WHERE v.mac=? order by start_date desc
+    ]);
 
     $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(qq[
         SELECT id, mac, v.vid, start_date, release_date, status, ticket_ref, notes 
@@ -305,6 +317,35 @@ sub violation_view {
     return db_data(VIOLATION, $violation_statements, 'violation_view_sql', $id);
 }
 
+sub violation_count_all {
+    my ( $id, %params ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Hack! we prepare the statement here so that $node_count_all_sql is pre-filled
+    violation_db_prepare() if (!$violation_db_prepared);
+    my $violation_count_all_sql = $violation_statements->{'violation_count_all_sql'};
+
+    if ( defined( $params{'where'} ) ) {
+        my @where = ();
+        if ( ref($params{'where'}{'between'}) ) {
+            push(@where, sprintf '%s BETWEEN %s AND %s',
+                 $params{'where'}{'between'}->[0],
+                 get_db_handle()->quote($params{'where'}{'between'}->[1]),
+                 get_db_handle()->quote($params{'where'}{'between'}->[2]));
+        }
+        if (@where) {
+            $violation_count_all_sql .= ' WHERE ' . join(' AND ', @where);
+        }
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $violation_statements->{'violation_count_all_sql_custom'} = $violation_count_all_sql;
+    #$logger->debug($node_count_all_sql);
+
+    return db_data(VIOLATION, $violation_statements, 'violation_count_all_sql_custom');
+}
+
 sub violation_view_all {
     return db_data(VIOLATION, $violation_statements, 'violation_view_all_sql');
 }
@@ -335,6 +376,11 @@ Since trap violations stay open, this has the intended effect of getting all MAC
 =cut
 sub violation_view_open_uniq {
     return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
+}
+
+sub violation_view_desc {
+    my ($mac) = @_;
+    return db_data(VIOLATION, $violation_statements, 'violation_view_desc_sql', $mac);
 }
 
 sub violation_view_open_all {
@@ -406,7 +452,7 @@ sub violation_add {
         $mac, $vid, $data{start_date}, $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes})
         || return (0);
     $logger->info("violation $vid added for $mac");
-    action_execute( $mac, $vid, $data{notes} );
+    pf::action::action_execute( $mac, $vid, $data{notes} );
     return (1);
 }
 
@@ -670,21 +716,17 @@ sub violation_maintenance {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009-2012 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

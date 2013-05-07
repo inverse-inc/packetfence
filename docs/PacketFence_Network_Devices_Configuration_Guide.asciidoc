@@ -2155,7 +2155,7 @@ Caching and Roaming
 ++++++++++++++++++++
 
 AeroHIVE have a session replication feature to ease the EAP session roaming between two access points. However, this may cause problems when you bounce the wireless card of a client, it will not do a new RADIUS request. Two settings can be tweaked to reduce the caching impact, it is the roaming cache update interval and roaming cache ageout. They are located in *Configuration -> SSIDs -> [SSID Name] -> Optional Settings -> Advanced*.
-
+The other way to support Roaming is to enable snmp trap in the AeroHIVE configuration to PacketFence server. PacketFence will recognise the ahConnectionChangeEvent and will change the location of the node in his base.
 
 Avaya
 ~~~~~

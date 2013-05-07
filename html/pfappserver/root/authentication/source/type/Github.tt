@@ -1,0 +1,8 @@
+[% form.field('client_id').render %]
+[% form.field('client_secret').render %]
+[% form.field('site').render %]
+[% form.field('authorize_path').render %]
+[% form.field('access_token_path').render %]
+[% form.field('access_token_param').render %]
+[% form.field('protected_resource_url').render %]
+[% form.field('redirect_url').render %]

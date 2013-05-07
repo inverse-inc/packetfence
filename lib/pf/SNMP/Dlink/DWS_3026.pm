@@ -52,6 +52,8 @@ use base ('pf::SNMP::Dlink');
 use pf::config;
 use pf::util;
 
+sub description { 'D-Link DWS 3026' }
+
 # CAPABILITIES
 # access technology supported
 sub supportsWirelessDot1x { return $TRUE; }
@@ -171,15 +173,11 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

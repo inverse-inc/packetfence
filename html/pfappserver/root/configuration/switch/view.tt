@@ -1,0 +1,100 @@
+[% form.block('triggers').render %]
+
+<form name="modalSwitch" class="form-horizontal form-condensed" action="[% action_uri %]" method="post">
+  [%- IF item %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>[% IF item %]<i>[% l('Switch') %]</i> [% item.id %][% ELSE %][% l('New Switch') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#switchDefinition" data-toggle="tab">[% l('Definition') %]</a></li>
+      <li><a href="#switchRoles" data-toggle="tab">[% l('Roles') %]</a></li>
+      <li><a href="#switchInline" data-toggle="tab">[% l('Inline') %]</a></li>
+      <li><a href="#switchRADIUS" data-toggle="tab">[% l('RADIUS') %]</a></li>
+      <li><a href="#switchSNMP" data-toggle="tab">[% l('SNMP') %]</a></li>
+      <li><a href="#switchCLI" data-toggle="tab">[% l('CLI') %]</a></li>
+      <li><a href="#switchWS" data-toggle="tab">[% l('Web Services') %]</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+      <div class="tab-pane fade in active" id="switchDefinition">
+        [% form.field('id').render UNLESS item %]
+        [% form.field('type').render %]
+        [% form.field('mode').render %]
+        [% form.field('deauthMethod').render %]
+        [% form.field('uplink_dynamic').render %]
+        [% form.field('uplink').render %]
+      </div><!-- tab-pane -->
+
+      <div class="tab-pane fade" id="switchRoles">
+        <div class="control-group">
+          <div class="controls">
+            <h6>[% l('Role mapping by VLAN') %]</h6>
+          </div>
+        </div>
+        [% form.block('vlans').render %]
+        <div class="control-group">
+          <div class="controls">
+            <h6>[% l('Role mapping by switch role') %]</h6>
+          </div>
+        </div>
+        [% form.block('roles').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchInline">
+        <dl>
+          <dt>[% l('Set inline mode if any of the following conditions are met:') %]</dt>
+          <dd>
+            <table id="triggerInline" class="table table-dynamic table-condensed">
+              <tbody>
+                [% FOREACH trigger IN form.field('triggerInline').fields -%]
+                <tr[% ' class="hidden"' IF loop.last %]>
+                  <td>
+                    [% trigger.field('type').render_element %]
+                    [% trigger.field('value').render_element %]
+                  </td>
+                  <td class="action">
+                    <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                    <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                  </td>
+                </tr>
+                [% END -%]
+              </tbody>
+            </table>
+            <div id="triggerInlineEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('triggerInline').index > 1 %]">
+              <p><i class="icon-filter icon-large"></i>[% l('Without condition, this rule will act as a catch-all.') %]<br/>
+                <a href="#add">[% l('Add a condition.') %]</a></p>
+            </div>
+          </dd>
+        </dl>
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchRADIUS">
+        [% form.block('radius').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchSNMP">
+        [% form.block('snmp').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchCLI">
+        [% form.block('cli').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="switchWS">
+        [% form.block('ws').render %]
+      </div><!--tab-pane-->
+
+    </div><!--tab-content-->
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+  </div>
+
+</form>

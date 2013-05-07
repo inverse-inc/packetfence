@@ -343,9 +343,7 @@ sub authorizeMAC {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
@@ -354,7 +352,7 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008,2010 Inverse inc.
+Copyright (C) 2005-2013.
 
 =head1 LICENCE
 

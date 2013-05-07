@@ -25,6 +25,7 @@ use POSIX;
 use Readonly;
 
 use pf::config;
+use pf::violation_config;
 use pf::util qw(parse_template);
 
 BEGIN {
@@ -48,16 +49,10 @@ sub generate_suricata_conf {
     $tags{'template'}      = "$conf_dir/suricata.yaml";
     $tags{'trapping-range'} = $Config{'trapping'}{'range'};
     $tags{'install_dir'}   = $install_dir;
-    my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        $logger->error( "Error reading violations.conf: " .  join( "\n", @errors ) . "\n" );
-        return;
-    }
+    readViolationConfigFile();
 
     my @rules;
-    foreach my $rule ( split( /\s*,\s*/, $violations_conf{'defaults'}{'snort_rules'} ) ) {
+    foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
 
         #append install_dir if the path doesn't start with /
         $rule = " - $rule" if ( $rule !~ /^\// );
@@ -73,13 +68,11 @@ sub generate_suricata_conf {
 
 =head1 AUTHOR
 
-Francois Gaudreault <fgaudreault@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

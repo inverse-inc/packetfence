@@ -29,13 +29,6 @@ case "$1" in
                         /etc/init.d/packetfence stop || exit $?
                 fi
         fi
-	if [ -x "/etc/init.d/pfappserver" ]; then
-                if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                        invoke-rc.d pfappserver stop || exit $?
-                else
-                        /etc/init.d/pfappserver stop || exit $?
-                fi
-        fi
     ;;
 
 # End automatically added sectio

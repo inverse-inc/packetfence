@@ -4,8 +4,6 @@ package pf::temporary_password;
 
 pf::temporary_password - module to view, query and manage temporary passwords
 
-=cut
-
 =head1 DESCRIPTION
 
 pf::temporary_password contains the functions necessary to manage all aspects
@@ -15,10 +13,10 @@ utility methods generate activation codes and validate them.
 =head1 DEVELOPER NOTES
 
 Notice that this module doesn't export all its subs like our other modules do.
-This is an attempt to shift our paradigm towards calling with package names 
-and avoid the double naming. 
+This is an attempt to shift our paradigm towards calling with package names
+and avoid the double naming.
 
-For ex: pf::temporary_password::view() instead of 
+For ex: pf::temporary_password::view() instead of
 pf::temporary_password::temporary_password_view()
 
 Remove this note when it will be no longer relevant. ;)
@@ -30,20 +28,26 @@ If you keep getting the same passwords over and over again make sure that you've
 in your apache config.
 
 =cut
+
 #TODO rename to temporary_credentials to better reflect what this is about
 #TODO properly hash passwords (1000 SHA1 iterations of salt + password)
 use strict;
 use warnings;
 
+use Date::Parse;
 use Crypt::GeneratePassword qw(word);
 use Log::Log4perl;
 use POSIX;
 use Readonly;
 
+use pf::nodecategory;
+use pf::Authentication::constants;
+
 our $VERSION = 1.10;
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';
+
 
 # Authenticatation return codes
 Readonly our $AUTH_SUCCESS => 0;
@@ -64,7 +68,7 @@ BEGIN {
     );
 
     @EXPORT_OK = qw(
-        view add modify 
+        view add modify
         create
         validate_password
         $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
@@ -87,50 +91,69 @@ TODO: This list is incomlete
 
 =over
 
+
+=item temporary_password_db_prepare
+
+Instantiate SQL statements to be prepared
+
 =cut
 
 sub temporary_password_db_prepare {
-    my $logger = Log::Log4perl::get_logger('pf::temporary_password');
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("Preparing pf::temporary_password database queries");
 
     $temporary_password_statements->{'temporary_password_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, valid_from, expiration, access_duration
-        FROM temporary_password 
-        WHERE pid = ?
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
+            p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
+        FROM temporary_password t
+        LEFT JOIN person p ON t.pid = p.pid
+        LEFT JOIN node_category c ON t.category = c.category_id
+        WHERE t.pid = ?
     ]);
 
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
-            (pid, password, valid_from, expiration, access_duration)
-        VALUES (?, ?, ?, ?, ?)
+            (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]);
 
     $temporary_password_statements->{'temporary_password_delete_sql'} = get_db_handle()->prepare(
         qq [ DELETE FROM temporary_password WHERE pid = ? ]
     );
 
-    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[ 
+    $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
         SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from, UNIX_TIMESTAMP(expiration) as expiration,
-            access_duration
+            access_duration, category
         FROM temporary_password
         WHERE pid = ?
         ORDER BY expiration DESC
         LIMIT 1
     ]);
 
+    $temporary_password_statements->{'temporary_password_modify_actions_sql'} = get_db_handle()->prepare(qq[
+        UPDATE temporary_password
+        SET valid_from = ?, expiration = ?, access_duration = ?, access_level = ?, category = ?, sponsor = ?, unregdate = ?
+        WHERE pid = ?
+    ]);
+
+    $temporary_password_statements->{'temporary_password_reset_password_sql'} = get_db_handle()->prepare(qq[
+        UPDATE temporary_password SET password = ? WHERE pid = ?
+    ]);
+
     $temporary_password_db_prepared = 1;
 }
 
-=item view 
+=item view
 
 view a a temporary password record, returns an hashref
 
 =cut
+
 sub view {
     my ($pid) = @_;
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $pid
-    );
+    ) || return;
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
@@ -138,16 +161,17 @@ sub view {
     return ($ref);
 }
 
-=item add 
+=item add
 
 add a temporary password record to the database
 
 =cut
+
 #sub add {
 #    my (%data) = @_;
 #
-#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements, 
-#        'temporary_password_add_sql', 
+#    return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
+#        'temporary_password_add_sql',
 #        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
 #    ));
 #}
@@ -157,6 +181,7 @@ add a temporary password record to the database
 _delete a temporary password record
 
 =cut
+
 sub _delete {
     my ($pid) = @_;
 
@@ -165,17 +190,18 @@ sub _delete {
     ));
 }
 
-=item create 
+=item create
 
 Creates a temporary password record for a given pid. Valid until given expiration.
 
 =cut
+
 sub create {
     my (%data) = @_;
 
     return(db_data(TEMPORARY_PASSWORD, $temporary_password_statements,
         'temporary_password_add_sql',
-        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}
+        $data{'pid'}, $data{'password'}, $data{'valid_from'}, $data{'expiration'}, $data{'access_duration'}, $data{'access_level'}, $data{'category'}, $data{'sponsor'}, $data{'unregdate'}
     ));
 }
 
@@ -184,6 +210,7 @@ sub create {
 Generates the password
 
 =cut
+
 sub _generate_password {
 
     my $password = word(8, 12);
@@ -200,7 +227,7 @@ Generates a temporary password and add it to the temporary password table.
 
 Returns the temporary password
 
-Optional arguments: 
+Optional arguments:
 
 =over
 
@@ -225,24 +252,24 @@ Defaults to 0 (no per user limit)
 =back
 
 =cut
+
 sub generate {
-    my ($pid, $expiration, $valid_from, $access_duration, $password) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::temporary_password');
+    my ($pid, $valid_from, $actions, $password) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %data;
     $data{'pid'} = $pid;
 
-    # if $expiration is set we use it, otherwise we use the module default
-    $data{'expiration'} = $expiration || POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
-
     # if $valid_from is set we use it, otherwise set to null which means valid from the begining of time
     $data{'valid_from'} = $valid_from || undef;
 
-    # if $access_duration is set we use it, otherwise set to null which means don't use per user duration
-    $data{'access_duration'} = $access_duration || undef;
-
-    # generate password 
+    # generate password
     $data{'password'} = $password || _generate_password();
+
+    # default expiration
+    $data{'expiration'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $EXPIRATION));
+
+    _update_from_actions(\%data, $actions);
 
     # if an entry of the same pid already exist, delete it
     if (defined(view($pid))) {
@@ -250,14 +277,97 @@ sub generate {
         _delete($pid);
     }
 
-    my $result = create(%data);
-    if (defined($result)) {
-        $logger->info("new temporary account successfully generated");
-        return $data{'password'};
-    } else {
+    my @result = create(%data);
+    if (scalar @result == 1 && $result[0] == 0) {
         $logger->warn("something went wrong creating a new temporary password for $pid");
         return;
+    } else {
+        $logger->info("new temporary account successfully generated");
+        return $data{'password'};
     }
+}
+
+=item _update_from_actions
+
+Updates temporary_password fields from an action list
+
+=cut
+
+sub _update_from_actions {
+    my ($data, $actions) = @_;
+
+    _update_field_for_action(
+        $data,$actions,'valid_from',
+        'valid_from',undef
+    );
+    _update_field_for_action(
+        $data,$actions,'expiration',
+        'expiration',"0000-00-00 00:00:00"
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::MARK_AS_SPONSOR,
+        'sponsor',0
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_ACCESS_LEVEL,
+        'access_level',0
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_UNREG_DATE,
+        'unregdate',"0000-00-00 00:00:00"
+    );
+    _update_field_for_action(
+        $data,$actions,$Actions::SET_ACCESS_DURATION,
+        'access_duration',undef
+    );
+
+    my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
+    if (scalar @values > 0) {
+        my $role_id = nodecategory_lookup( $values[0]->{value} );
+        $data->{'category'} = $role_id;
+    }
+}
+
+=item _update_field_for_action
+
+Updates temporary_password field from an action
+
+=cut
+
+sub _update_field_for_action {
+    my ($data, $actions, $action, $field, $default) = @_;
+    my @values = grep { $_->{type} eq $action } @{$actions};
+    if (scalar @values > 0) {
+        $data->{$field} = $values[0]->{value};
+    } else {
+        $data->{$field} = $default;
+    }
+}
+
+=item modify_actions
+
+Modify the temporary_password actions
+
+=cut
+
+sub modify_actions {
+    my ($temporary_password, $actions) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my @ACTION_FIELDS = qw(
+        valid_from expiration
+        access_duration access_level category sponsor unregdate
+    ); # respect the prepared statement placeholders order
+    delete @{$temporary_password}{@ACTION_FIELDS};
+    _update_from_actions($temporary_password, $actions);
+    my $pid = $temporary_password->{pid};
+    my $query = db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements,
+        'temporary_password_modify_actions_sql',
+        @{$temporary_password}{@ACTION_FIELDS}, $pid
+    );
+    my $rows = $query->rows;
+    $logger->info("temporarypassword $pid modified") if $rows ;
+    return ($rows);
 }
 
 
@@ -272,8 +382,11 @@ Return values:
  $AUTH_FAILED_NOT_YET_VALID - password not valid yet
 
 =cut
+
 sub validate_password {
     my ($pid, $password) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements,
@@ -283,41 +396,65 @@ sub validate_password {
     my $temppass_record = $query->fetchrow_hashref();
     # just get one row
     $query->finish();
-    
+
     if (!defined($temppass_record) || ref($temppass_record) ne 'HASH') {
         return $AUTH_FAILED_INVALID;
     }
 
-    # password is valid but not yet valid
-    # valid_from is in unix timestamp format so an int comparison is enough
-    if ($temppass_record->{'password'} eq $password && $temppass_record->{'valid_from'} > time) {
-        return $AUTH_FAILED_NOT_YET_VALID;
-    }   
+    if($temppass_record->{'password'} eq $password) {
+        # password is valid but not yet valid
+        # valid_from is in unix timestamp format so an int comparison is enough
+        if ($temppass_record->{'valid_from'} > time) {
+            $logger->info("Password validation failed: password not yet valid");
+            return $AUTH_FAILED_NOT_YET_VALID;
+        }
 
-    # password is valid but expired
-    # expiration is in unix timestamp format so an int comparison is enough
-    if ($temppass_record->{'password'} eq $password && $temppass_record->{'expiration'} < time) {
-        return $AUTH_FAILED_EXPIRED;
-    }   
+        # password is valid but expired
+        # expiration is in unix timestamp format so an int comparison is enough
+        if ($temppass_record->{'expiration'} < time) {
+            $logger->info("Password validation failed: password has expired");
+            return $AUTH_FAILED_EXPIRED;
+        }
 
-    # password match success
-    if ($temppass_record->{'password'} eq $password) {
-        return ( $AUTH_SUCCESS, $temppass_record->{'access_duration'});
+        # password match success
+        return $AUTH_SUCCESS;
     }
 
     # otherwise failure
+    $logger->info("Password validation failed: passwords don't match");
     return $AUTH_FAILED_INVALID;
 }
+
+=item reset_password
+
+Reset (change) a password for a user in the temporary_password table.
+
+=cut
+sub reset_password {
+    my ( $pid, $password ) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    # Making sure pid/password are "ok"
+    if ( !defined($pid) || !defined($password) || (length($pid) == 0) || (length($password) == 0) ) {
+        $logger->error("Error while resetting the user password. Missing values.");
+        return;
+    }
+
+    db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
+    ) || return;
+}
+
 
 =back
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

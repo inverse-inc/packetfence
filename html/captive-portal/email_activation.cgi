@@ -24,6 +24,9 @@ use pf::web::guest 1.30;
 # called last to allow redefinitions
 use pf::web::custom;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('email_activation.cgi');
 Log::Log4perl::MDC->put('proc', 'email_activation.cgi');
@@ -32,6 +35,7 @@ Log::Log4perl::MDC->put('tid', 0);
 my $portalSession = pf::Portal::Session->new();
 my $cgi = $portalSession->getCgi();
 my $node_mac = undef;
+my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
 
 if (defined($cgi->url_param('code'))) {
 
@@ -57,15 +61,28 @@ if (defined($cgi->url_param('code'))) {
         # if we have a MAC, guest is on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
 
-            # calculate expiration according to config
-            my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
-            my $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
+            my $pid = $activation_record->{'pid'};
+            
+            # Setting access timeout and role (category) dynamically
+            my $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            
+            if (defined $expiration) {
+                $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
+            }
+            else {
+                $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            }
+
+            my $category = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
+
+            $logger->debug("Determined unregdate $expiration and category $category for pid $pid");
 
             # change the unregdate of the node associated with the submitted code
+            # FIXME
             node_modify($node_mac, (
-                'unregdate' => $expiration, 
-                'status' => 'reg', 
-                'category' => $portalSession->getProfile->getGuestCategory,
+                'unregdate' => $expiration,
+                'status' => 'reg',
+                'category' => $category,
             ));
 
             # send to a success page
@@ -86,9 +103,13 @@ if (defined($cgi->url_param('code'))) {
             $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
 
             # we create temporary password with default expiration / arrival date and access duration from config
-            $info{'password'} = pf::temporary_password::generate(
-                $pid, undef, undef, $Config{'guests_self_registration'}{'access_duration'}
-            );
+            my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            
+            if (!defined $access_duration) {
+                $access_duration = 0;
+            }
+
+            $info{'password'} = pf::temporary_password::generate($pid, undef, undef, $access_duration);
     
             # send on-site guest credentials by email
             pf::web::guest::send_template_email(
@@ -121,18 +142,10 @@ if (defined($cgi->url_param('code'))) {
             }
 
             # User provided username and password: authenticate
-            my ($auth_return, $authenticator) = pf::web::web_user_authenticate(
-                $portalSession, $Config{'guests_self_registration'}{'sponsor_authentication'}
-            );
+            my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
 
             if ($auth_return != $TRUE) {
                 $logger->info("authentication failed for user ".$cgi->param("username"));
-                my $error;
-                if (!defined($authenticator)) {
-                    $error = 'Unable to validate credentials at the moment';
-                } else {
-                    $error = $authenticator->getLastError();
-                }
                 pf::web::guest::generate_custom_login_page($portalSession, $error, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
                 exit(0);
             }
@@ -178,12 +191,21 @@ if (defined($cgi->url_param('code'))) {
                 );
                 exit(0);
             }
+
+            # Setting access timeout and role (category) dynamically
+            $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            
+            if (defined $info{'unregdate'}) {
+                $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+            }
+            else {
+                $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+            }
+
+            $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
     
-            # update node info and prepare for registration according to config
-            my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
-            $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $access_duration ));
-            $info{'category'} = $portalSession->getProfile->getGuestCategory;
-    
+            $logger->debug("Determined unregdate $info{'unregdate'} and category $info{'category'} for pid $pid");
+
             # register the node
             pf::web::web_node_register($portalSession, $node_info->{'pid'}, %info);
     
@@ -210,9 +232,15 @@ if (defined($cgi->url_param('code'))) {
         $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
         # we create temporary password with default expiration / arrival date and access duration from config
         # TODO sponsor could control these (but current feature sponsor doesn't need the feature)
+        my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+
+        if (!defined $access_duration) {
+            $access_duration = 0;
+        }
+
         $info{'password'} = pf::temporary_password::generate(
             $pid, undef, undef,
-            $Config{'guests_self_registration'}{'access_duration'}
+            $access_duration
         );
         # prepare welcome email for a guest who registered locally
         $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
@@ -239,13 +267,11 @@ if (defined($cgi->url_param('code'))) {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-        
-Copyright (C) 2010-2012 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

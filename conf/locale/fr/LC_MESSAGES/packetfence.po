@@ -552,10 +552,8 @@ msgid ""
 "see if your access was enabled."
 msgstr "Si vous avez désactivé l’exécution de scripts, vous ne serez pas redirigé automatiquement. Activer l’exécution de script ou ouvrer une nouvelle fenêtre de votre navigateur internet de temps en temps pour voir si votre accès à été activé."
 
-msgid ""
-"Unable to detect network connectivity. Try opening a web page to see if your"
-" access has been succesfully enabled."
-msgstr "Incapable de détecter l'accès réseau. Essayez d'ouvrir une page Web pour voir si votre connectivité a été établie."
+msgid "Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled."
+msgstr "Incapable de détecter l'accès réseau. Essayez de redémarrer votre navigateur ou d'ouvrir un nouvel onglet pour voir si votre connectivité a été établie."
 
 msgid ""
 "Your network access should be available. Close your current browser, and "

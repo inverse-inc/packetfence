@@ -1,0 +1,53 @@
+<div class="piegraph">
+  <h2>[% title %]</h2>
+  <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
+  [% IF options.size %]<i class="icon-bar-chart"></i>
+  [% FOREACH o IN options -%]
+  <a href="[% c.pf_hash_for(c.action, o) %]"[% IF option == o %] class="active"[% END %]>[% l(o) %]</a>
+  [% UNLESS loop.last %] |[% END -%]
+  [% END -%]
+  [% END -%]
+</div>
+<hr/>
+
+[%- IF labels.size > 0 %]
+<div class="row-fluid">
+  <div class="span8">
+    <div id="[% id %]" class="chart"></div>
+    <script type="text/javascript">
+graphs.charts['[% id %]'] = {
+    type: '[% graphtype %]',
+    labels: ['[% labels.join("','") %]'],
+    series: {
+    [% FOREACH set IN series.keys -%]
+      '[% set %]' : [[% series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+    [%- END %]
+    }
+};
+    </script>
+  </div>
+  <div class="span4">
+    <table class="table table-bordered table-striped table-condensed">
+      <thead>
+        <tr>
+          <th>[% l(label) %]</th><th>[% l(value) %]</th>
+        </tr>
+      </thead>
+      <tbody>
+        [% FOREACH label IN labels -%]
+        <tr[% IF loop.count > piecut %] class="muted"[% END %]>
+          <td>[% label %]</td>
+          <td>[% i = loop.index %][% values.$i %]</td>
+        </tr>
+        [%- END %]
+      </tbody>
+    </table>
+  </div>
+</div>
+[%- ELSE %]
+<div class="alert alert-block">
+  <a class="close" data-dismiss="alert" href="#">&times;</a>
+  <h4 class="alert-heading">[% l("What's going on?") %]</h4>
+  [% l("There's not enough data to generate this graph. Is PacketFence in production?") %]
+</div>
+[%- END %]

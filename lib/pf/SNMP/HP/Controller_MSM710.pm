@@ -31,6 +31,8 @@ use POSIX;
 use base ('pf::SNMP::HP');
 
 use pf::config;
+sub description { 'HP ProCurve MSM710 Mobility Controller' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -234,15 +236,11 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,2 @@
+[% form.field('host').render %]
+[% form.field('realm').render %]

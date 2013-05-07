@@ -21,7 +21,6 @@ use strict;
 use warnings;
 use Date::Parse;
 use Log::Log4perl;
-use Net::MAC;
 
 use constant IFOCTETSLOG => 'ifoctetslog';
 
@@ -46,6 +45,7 @@ BEGIN {
 }
 
 use pf::db;
+use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $ifoctetslog_db_prepared = 0;
@@ -84,8 +84,9 @@ sub ifoctetslog_db_prepare {
 sub ifoctetslog_history_mac {
     my ( $mac, %params ) = @_;
 
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    # sanitize
+    $mac = clean_mac($mac);
+
     my @raw_data;
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
@@ -362,21 +363,19 @@ sub getFirstAndLastPosInRange {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2008,2010 Inverse inc.
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

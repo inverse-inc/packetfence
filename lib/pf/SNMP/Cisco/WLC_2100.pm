@@ -46,6 +46,8 @@ use base ('pf::SNMP::Cisco::WLC');
 use pf::config;
 use pf::util qw(format_mac_as_cisco);
 
+sub description { 'Cisco Wireless (WLC) 2100 Series' }
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -63,7 +65,7 @@ sub supportsSaveConfig { return $FALSE; }
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
-=item _deauthenticateMacSnmp
+=item _deauthenticateMacSNMP
 
 Deprecated: This is no longer required since IOS 5.x+. New implementation is
 in pf::SNMP::Cisco::WLC and relies on Disconnect-Message (RFC3576).
@@ -76,7 +78,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
-sub _deauthenticateMacSnmp {
+sub _deauthenticateMacSNMP {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
@@ -124,13 +126,11 @@ sub _deauthenticateMacSnmp {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

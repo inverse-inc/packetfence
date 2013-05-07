@@ -89,7 +89,7 @@ Sample shouldAutoRegister, see pf::vlan for shouldAutoRegister interface descrip
 #    #$conn_type is set to the connnection type expressed as the constant in pf::config
 #    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
 #    #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-#    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid) = @_;
+#    my ($this, $mac, $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
 #    my $logger = Log::Log4perl->get_logger();
 #
 #    $logger->trace("asked if should auto-register device");
@@ -124,13 +124,11 @@ Sample shouldAutoRegister, see pf::vlan for shouldAutoRegister interface descrip
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2010 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -17,11 +17,11 @@ use strict;
 use warnings;
 
 use Carp;
-use Config::IniFiles;
 use UNIVERSAL::require;
 use Log::Log4perl;
 
 use pf::config;
+use pf::config::cached;
 use pf::util;
 
 my $singleton;
@@ -35,6 +35,7 @@ my $singleton;
 Get the singleton instance of switchFactory. Create it if it doesn't exist.
 
 =cut
+
 sub getInstance {
     my ( $class, %args ) = @_;
 
@@ -50,8 +51,9 @@ sub getInstance {
 Create a switchFactory instance
 
 =cut
+
 sub new {
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("instantiating new SwitchFactory object");
     my ( $class, %argv ) = @_;
     my $this = bless {
@@ -66,10 +68,13 @@ sub new {
     }
 
     if ( !defined( $this->{_configFile} ) ) {
-        $this->{_configFile} = $conf_dir.'/switches.conf';
+        $this->{_configFile} = $switches_config_file;
     }
 
-    $this->readConfig();
+    my $cached_config  = pf::config::cached->new( -file => $this->{_configFile}, -allowempty => 1 );
+    $this->{_cached_config} = $cached_config;
+    $this->_fixupConfig();
+    $cached_config->addReloadCallbacks( 'reload_switch_factory' =>  sub { $this->_fixupConfig(); });
 
     return $this;
 }
@@ -81,9 +86,9 @@ sub new {
 =cut
 
 sub instantiate {
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ( $this, $requestedSwitch ) = @_;
-    my %SwitchConfig = %{ $this->{_config} };
+    my %SwitchConfig = %{ $this->config };
     if ( !exists $SwitchConfig{$requestedSwitch} ) {
         $logger->error("ERROR ! Unknown switch $requestedSwitch");
         return 0;
@@ -96,8 +101,9 @@ sub instantiate {
     } else {
         $type = "pf::SNMP";
     }
+    $type = untaint_chain($type);
     # load the module to instantiate
-    if (!$type->require()) {
+    if ( !(eval "$type->require()" ) ) {
         $logger->error("Can not load perl module for switch $requestedSwitch, type: $type. "
             . "Either the type is unknown or the perl module has compilation errors. "
             . "Read the following message for details: $@");
@@ -122,23 +128,32 @@ sub instantiate {
         }
     }
 
-    # transforming vlans to array
-    my @vlans      = ();
-    my @_vlans_tmp = split(
-        /,/,
-        (          $SwitchConfig{$requestedSwitch}{'vlans'}
-                || $SwitchConfig{'default'}{'vlans'}
-        )
-    );
-    foreach my $_tmp (@_vlans_tmp) {
-        $_tmp =~ s/ //g;
-        push @vlans, $_tmp;
+    # transforming vlans and roles to hashes
+    my %vlans = ();
+    my %roles = ();
+    foreach my $key (keys %{$SwitchConfig{$requestedSwitch}}) {
+        next unless $SwitchConfig{$requestedSwitch}{$key};
+        if (my ($vlan) = $key =~ m/^(\w+)Vlan$/) {
+            $vlans{$vlan} = $SwitchConfig{$requestedSwitch}{$key};
+        }
+        elsif (my ($role) = $key =~ m/^(\w+)Role$/) {
+            $roles{$role} = $SwitchConfig{$requestedSwitch}{$key};
+        }
+    }
+    foreach my $key (keys %{$SwitchConfig{default}}) {
+        next unless $SwitchConfig{default}{$key};
+        if (my ($vlan) = $key =~ m/^(\w+)Vlan$/) {
+            $vlans{$vlan} = $SwitchConfig{default}{$key} unless ($vlans{$vlan});
+        }
+        elsif (my ($role) = $key =~ m/^(\w+)Role$/) {
+            $roles{$role} = $SwitchConfig{default}{$key} unless ($roles{$role});
+        }
     }
 
     # transforming inlineTrigger to array
     my @inlineTrigger = ();
     if ( $SwitchConfig{$requestedSwitch}{'inlineTrigger'} || $SwitchConfig{'default'}{'inlineTrigger'} ) {
-        my @_inlineTrigger_tmp = 
+        my @_inlineTrigger_tmp =
             split(/,/,($SwitchConfig{$requestedSwitch}{'inlineTrigger'} || $SwitchConfig{'default'}{'inlineTrigger'}));
 
         foreach my $_tmp (@_inlineTrigger_tmp) {
@@ -147,18 +162,12 @@ sub instantiate {
         }
     }
 
-    my $custom_vlan_assignments_ref = $this->_customVlanExpansion($requestedSwitch, %SwitchConfig);
-
     $logger->debug("creating new $type object");
     return $type->new(
-        %$custom_vlan_assignments_ref,
         '-uplink'    => \@uplink,
-        '-vlans'     => \@vlans,
+        '-vlans'     => \%vlans,
+        '-roles'     => \%roles,
         '-inlineTrigger' => \@inlineTrigger,
-        '-guestVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'guestVlan'}
-                || $SwitchConfig{'default'}{'guestVlan'}
-        ),
         '-wsUser' => (
             $SwitchConfig{$requestedSwitch}{'wsUser'}
             || $SwitchConfig{$requestedSwitch}{'htaccessUser'}
@@ -186,14 +195,6 @@ sub instantiate {
             || $SwitchConfig{'default'}{'controllerIp'}
         ),
         '-ip'            => $requestedSwitch,
-        '-isolationVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'isolationVlan'}
-                || $SwitchConfig{'default'}{'isolationVlan'}
-        ),
-        '-macDetectionVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'macDetectionVlan'}
-                || $SwitchConfig{'default'}{'macDetectionVlan'}
-        ),
         '-macSearchesMaxNb' => (
                    $SwitchConfig{$requestedSwitch}{'macSearchesMaxNb'}
                 || $SwitchConfig{'default'}{'macSearchesMaxNb'}
@@ -203,18 +204,6 @@ sub instantiate {
                 || $SwitchConfig{'default'}{'macSearchesSleepInterval'}
         ),
         '-mode' => lc( ($SwitchConfig{$requestedSwitch}{'mode'} || $SwitchConfig{'default'}{'mode'}) ),
-        '-normalVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'normalVlan'}
-                || $SwitchConfig{'default'}{'normalVlan'}
-        ),
-        '-registrationVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'registrationVlan'}
-                || $SwitchConfig{'default'}{'registrationVlan'}
-        ),
-        '-inlineVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'inlineVlan'}
-                || $SwitchConfig{'default'}{'inlineVlan'}
-        ),
         '-SNMPAuthPasswordRead' => (
                    $SwitchConfig{$requestedSwitch}{'SNMPAuthPasswordRead'}
                 || $SwitchConfig{'default'}{'SNMPAuthPasswordRead'}
@@ -330,18 +319,10 @@ sub instantiate {
                 || $SwitchConfig{'default'}{'cliTransport'}
                 || 'Telnet'
         ),
-        '-voiceVlan' => (
-                   $SwitchConfig{$requestedSwitch}{'voiceVlan'}
-                || $SwitchConfig{'default'}{'voiceVlan'}
-        ),
         '-VoIPEnabled' => (
             (          $SwitchConfig{$requestedSwitch}{'VoIPEnabled'}
                     || $SwitchConfig{'default'}{'VoIPEnabled'}
             ) =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0
-        ),
-        '-roles' => (
-                   $SwitchConfig{$requestedSwitch}{'roles'}
-                || $SwitchConfig{'default'}{'roles'}
         ),
         '-deauthMethod' => (
                    $SwitchConfig{$requestedSwitch}{'deauthMethod'}
@@ -350,85 +331,32 @@ sub instantiate {
     );
 }
 
-=item readConfig - read configuration file
-
-  $switchFactory->readConfig();
-
-=cut
-
-sub readConfig {
-    my $this   = shift;
-    my $logger = Log::Log4perl::get_logger("pf::SwitchFactory");
-    $logger->debug("reading config file $this->{_configFile}");
-    if ( !defined( $this->{_configFile} ) ) {
-        croak "Config file has not been defined\n";
-    }
-    my %SwitchConfig;
-    if ( !-e $this->{_configFile} ) {
-        croak "Config file " . $this->{_configFile} . " cannot be read\n";
-    }
-    tie %SwitchConfig, 'Config::IniFiles', ( -file => $this->{_configFile} );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        croak "Error reading config file: " . join( "\n", @errors ) . "\n";
-    }
-
-    #remove trailing spaces..
-    foreach my $section ( tied(%SwitchConfig)->Sections ) {
-        foreach my $key ( keys %{ $SwitchConfig{$section} } ) {
-            $SwitchConfig{$section}{$key} =~ s/\s+$//;
-        }
-    }
-    #Prevent the presence of 127.0.0.1 in switches.conf
-    if (defined($SwitchConfig{'127.0.0.1'})) {
-        delete $SwitchConfig{'127.0.0.1'};
-    }
-
-    #Instanciate 127.0.0.1 switch
-    $SwitchConfig{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
-
-
-    %{ $this->{_config} } = %SwitchConfig;
-
-    return 1;
+sub _fixupConfig {
+    my ($this) = @_;
+    my %config;
+    my $cached_config = $this->{_cached_config};
+    $cached_config->toHash(\%config);
+    $cached_config->cleanupWhitespace(\%config);
+    $config{'127.0.0.1'} = {type => 'PacketFence', mode => 'production', uplink => 'dynamic', SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
+    $this->{_config} = \%config;
 }
 
-sub _customVlanExpansion {
-    my ($this, $requestedSwitch, %SwitchConfig) = @_;
-
-    my %custom_vlan_assignments;
-    for my $custom_nb (0 .. 99) {
-        my $vlan;
-        # switch specific VLAN first
-        if (defined($SwitchConfig{$requestedSwitch}{'customVlan'.$custom_nb})) {
-            $vlan = $SwitchConfig{$requestedSwitch}{'customVlan'.$custom_nb};
-        }
-        # then default section
-        elsif (defined($SwitchConfig{'default'}{'customVlan'.$custom_nb})) {
-            $vlan = $SwitchConfig{'default'}{'customVlan'.$custom_nb};
-        }
-
-        # we'll assign the customVlanXX value only if it exists
-        $custom_vlan_assignments{'-customVlan' . $custom_nb} = $vlan if (defined($vlan));
-    }
-    return \%custom_vlan_assignments;
+sub config {
+    my ($this) = @_;
+    return $this->{_config};
 }
 
 =back
 
 =head1 AUTHOR
 
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

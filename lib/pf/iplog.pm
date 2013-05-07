@@ -19,7 +19,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Net::MAC;
+
 use Net::Netmask;
 use Net::Ping;
 use Date::Parse;
@@ -85,13 +85,21 @@ sub iplog_db_prepare {
         qq [ select mac,ip,start_time,end_time from iplog where ip=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
 
     $iplog_statements->{'iplog_history_mac_date_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? and start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0) order by start_time desc ]);
+        qq [ SELECT mac,ip,start_time,end_time,
+               UNIX_TIMESTAMP(start_time) AS start_timestamp,
+               UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog
+             WHERE mac=? AND start_time < from_unixtime(?) and (end_time > from_unixtime(?) or end_time=0)
+             ORDER BY start_time ASC ]);
 
     $iplog_statements->{'iplog_history_ip_sql'} = get_db_handle()->prepare(
         qq [ select mac,ip,start_time,end_time from iplog where ip=? order by start_time desc ]);
 
     $iplog_statements->{'iplog_history_mac_sql'} = get_db_handle()->prepare(
-        qq [ select mac,ip,start_time,end_time from iplog where mac=? order by start_time desc ]);
+        qq [ SELECT mac,ip,start_time,end_time,
+               UNIX_TIMESTAMP(start_time) AS start_timestamp,
+               UNIX_TIMESTAMP(end_time) AS end_timestamp
+             FROM iplog WHERE mac=? ORDER BY start_time DESC LIMIT 25 ]);
 
     $iplog_statements->{'iplog_open_sql'} = get_db_handle()->prepare(
         qq [ insert into iplog(mac,ip,start_time) values(?,?,now()) ]);
@@ -140,9 +148,7 @@ sub iplog_history_ip {
 
 sub iplog_history_mac {
     my ( $mac, %params ) = @_;
-
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
 
     if ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) )
     {
@@ -381,21 +387,19 @@ sub mac2allips {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008,2010 Inverse inc.
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

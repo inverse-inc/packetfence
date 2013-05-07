@@ -63,7 +63,7 @@ sub reloadConfiguration {
     $logger->info("reloading PacketFence configuration");
 
     # reloading packetfence's configuration using fancy Try::Tiny syntax
-    my ($status, $error) = try { pf::config::load_config(); return $TRUE; }
+    my ($status, $error) = try { pf::config::init_config(); return $TRUE; }
     catch { return ($FALSE, $_); };
 
     $logger->info("done reloading PacketFence configuration");
@@ -80,11 +80,11 @@ sub reloadConfiguration {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -7,6 +7,7 @@ extends 'Catalyst::Model';
 use pf::config;
 use pf::error;
 use pf::util;
+use pf::services;
 
 =head1 NAME
 
@@ -33,17 +34,57 @@ sub start {
     my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
     $logger->debug("Startup output: " . $result);
 
-    return ($STATUS::OK, $result) if ( defined($result) );
+    return ($STATUS::OK, {result => $result}) if ( defined($result) );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
-=item status 
+=item stop_all
+
+Naively calls `bin/pfcmd service pf restart` and return output.
+
+=cut
+sub stop_all {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $cmd = $bin_dir . '/pfcmd service pf stop 2>&1';
+    $logger->info("About to start the services with: $cmd");
+
+    my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+    $logger->debug("Startup output: " . $result);
+
+    return ($STATUS::OK, {result => $result}) if ( defined($result) );
+
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
+}
+
+=item restart_all
+
+Naively calls `bin/pfcmd service pf restart` and return output.
+
+=cut
+sub restart_all {
+    my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $cmd = $bin_dir . '/pfcmd service pf restart 2>&1';
+    $logger->info("About to start the services with: $cmd");
+
+    my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+    $logger->debug("Startup output: " . $result);
+
+    return ($STATUS::OK, {result => $result}) if ( defined($result) );
+
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
+}
+
+=item status
 
 Calls and parse the output of `bin/pfcmd service pf status`.
 
-Returns a tuple status, hashref with servicename => true / false values. 
-Returns only the list of services that should be started based on 
+Returns a tuple status, hashref with servicename => true / false values.
+Returns only the list of services that should be started based on
 configuration.
 
 =cut
@@ -56,7 +97,7 @@ sub status {
 
     my @services_status = pf_run( $cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
     $logger->debug(
-        "Service status output: " 
+        "Service status output: "
         . ( (@services_status) ? join('', @services_status) : 'NONE' )
     );
 
@@ -65,27 +106,85 @@ sub status {
         return ( $STATUS::INTERNAL_SERVER_ERROR, join('', @services_status) );
     }
 
-    my $services_ref;
+    my $services_ref = {};
     shift @services_status; # throw out first line
     foreach my $service_status (@services_status) {
         chomp($service_status);
         my ($service_name, $should_be_started, $pids) = split(/\|/, $service_status);
         $services_ref->{$service_name} = ($pids) if ($should_be_started);
     }
-
-    return ($STATUS::OK, $services_ref) if ( %$services_ref );
+    return ($STATUS::OK, { services => $services_ref}) if ( %$services_ref );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
+}
+
+=item service_status
+
+
+=cut
+
+sub service_status {
+    my ($self,$service) = @_;
+    my @services = @pf::services::ALL_SERVICES;
+    my @services_which_should_be_started = pf::services::service_list(@services);
+    my %status = (
+        pid => pf::services::service_ctl($service, 'status' ),
+        shouldBeStarted => (
+                (   grep( { $_ eq $service } @services_which_should_be_started )
+                        > 0
+                ) ? 1 : 0
+            )
+    );
+    return ($STATUS::OK,\%status);
+}
+
+sub _service_ctl {
+    my ($self,$service,$verb) = @_;
+    my $status = $STATUS::OK;
+    my $result = pf::services::service_ctl($service, $verb );
+    if($result) {
+        $result = {};
+    } else {
+        $status = $STATUS::SERVICE_UNAVAILABLE;
+        $result = "unable to $verb service $service";
+    }
+
+    return ($status,$result);
+}
+
+=item service_restart
+=cut
+
+sub service_restart {
+    my ($self,$service) = @_;
+    return $self->_service_ctl($service,'restart');
+}
+
+=item service_stop
+=cut
+
+sub service_stop {
+    my ($self,$service) = @_;
+    return $self->_service_ctl($service,'stop');
+}
+
+
+=item service_start
+=cut
+
+sub service_start {
+    my ($self,$service) = @_;
+    return $self->_service_ctl($service,'start');
 }
 
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -485,8 +485,9 @@ sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    if (defined($this->{_voiceVlan})) {
-        return ($this->{_voiceVlan});
+    my $voiceVlan = $this->getVlanByName('voice');
+    if (defined($voiceVlan)) {
+        return $voiceVlan;
     }
 
     # otherwise say it didn't work
@@ -499,13 +500,13 @@ sub getVoiceVlan {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009,2010 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

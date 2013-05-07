@@ -1,0 +1,32 @@
+<div class="linegraph">
+  [% FOREACH counter IN counters %]
+  <div id="[% counter.id %]" class="counter">
+    <h3>[% counter.count.nb %]</h3>
+    <h6>[% l(counter.title) %]</h6>
+  </div>
+  [% END %]
+  [% IF section == 'reports' -%]
+  <h2>[% title %]</h2>
+  <h6>[% range.start %] <i class="icon-arrow-right"></i> [% range.end %]</h6>
+  [%- END %]
+  [%- IF labels.size > 0 %]
+  <div id="[% id %]" class="chart"></div>
+  <script type="text/javascript">
+    graphs.charts['[% id %]'] = {
+      type: '[% graphtype %]',
+      labels: ['[% labels.join("','") %]'],
+      series: {
+        [% FOREACH set IN series.keys -%]
+        '[% set %]' : [[% series.$set.join(',') %]][% UNLESS loop.last %],[% END %]
+        [%- END %]
+      }
+    };
+  </script>
+  [%- ELSE %]
+  <div class="alert alert-block">
+    <a class="close" data-dismiss="alert" href="#">&times;</a>
+    <h4 class="alert-heading">[% l("What's going on?") %]</h4>
+    [% l("There's not enough data to generate this graph. Is PacketFence in production?") %]
+  </div>
+  [%- END %]
+</div>

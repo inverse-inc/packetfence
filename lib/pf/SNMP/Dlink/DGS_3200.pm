@@ -39,6 +39,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Dlink');
 
+sub description { 'D-Link DGS 3200' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -92,11 +94,11 @@ sub NasPortToIfIndex {
 
 =head1 AUTHOR
 
-Francois Gaudreault <fgaudreault@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse Inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

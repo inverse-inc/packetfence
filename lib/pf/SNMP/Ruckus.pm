@@ -45,6 +45,8 @@ use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config;
 use pf::util;
 
+sub description { 'Ruckus Wireless Controllers' }
+
 =head1 SUBROUTINES
 
 =over
@@ -155,15 +157,11 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Francois Gaudreault <fgaudreault@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

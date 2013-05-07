@@ -1,0 +1,198 @@
+[%  jsFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'app/chosen.jquery.min',
+        'app/jquery.ba-hashchange',
+        'app/raphael/raphael-min',
+        'app/raphael/g.raphael-min',
+        'app/raphael/g.bar-min',
+        'app/raphael/g.dot-min',
+        'app/raphael/g.line-min',
+        'app/raphael/g.pie-min',
+        'app/graphs',
+        'app/uri',
+        'admin/nodes',
+        'admin/searches',
+        'js/bootstrapSwitch',
+        'js/node',
+        'js/user',
+        ]
+     cssFiles = [
+        'app/bootstrap-datepicker',
+        'app/bootstrap-timepicker',
+        'css/bootstrapSwitch',
+        ] -%]
+
+<style type="text/css">
+form {
+    margin-bottom: 0px;
+}
+.bootstrap-timepicker table {
+    width: 160px;
+}
+.table-dynamic .action {
+    width: 32px;
+}
+</style>
+
+      <div class="modal fade hide" id="savedSearch">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3>[% l('Save Search') %]</h3>
+        </div>
+        <div class="modal-body">
+          <form id="savedSearchForm" class="form-horizontal" method="POST" action="[% c.uri_for(c.controller('SavedSearch::Node').action_for('create'))  %]">
+                [% saved_search_form.render %]
+          </form>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+          <a class="btn btn-primary" >[% l('Save') %]</a>
+        </div>
+      </div>
+      
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="sidebar-nav well">
+            <ul class="nav nav-list">
+              <li class="nav-header">[% l('Nodes') %]</li>
+              <li class="active"><a href="#">[% l('Search') %]</a></li>
+              <!--<li><a href="#">[% l('Create') %]</a></li>
+              <li><a href="#">[% l('Import') %]</a></li>-->
+              <li class="nav-header">[% l('Saved Searches') %]</li>
+              [%FOR ss IN saved_searches%]
+                [% form = ss.form %]
+                [% 
+                IF ss.path == 'node/advanced_search';
+                    tab = 'advanced';
+                   ELSE;
+                    tab ='simple';
+                END%]
+              <li>
+                <a href="#" data-toggle="pf-search-form" data-target="[% tab %]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::Node').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span></a>
+                <form>
+                  [%FOREACH input IN form.keys.sort%]
+                  <input type="hidden" name="[%input%]" value="[%form.$input%]"/>
+                  [%END%]
+                </form>
+              </li>
+              [%END%]
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span10">
+            <div class="tabbable">
+              <div class="tab-content">
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#simple" data-toggle="tab">[% l('Simple') %]</a></li>
+                  <li><a href="#advanced" data-toggle="tab">[% l('Advanced') %]</a></li>
+                </ul>
+                <div class="tab-pane active well" id="simple">
+                  <form id="simpleSearch" method="POST" name="simpleSearch" class="form-inline" action="[% c.pf_hash_for(c.controller('Node').action_for('simple_search')) %]">
+                  <input type="text" name="filter" placeholder="Search..." value="[% filter | html %]">
+                  <div class="btn-group pull-right">
+                    <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li><a href="#" id="simpleSavedSearchBtn">[% l('Save as...') %]</a></li>
+                    </ul>
+                  </div>
+                  </form>
+                </div>
+                <div class="tab-pane well" id="advanced">
+                  <form id="advancedSearch" name="advancedSearch" method="POST" class="form-inline" action="[% c.uri_for(c.controller('Node').action_for('advanced_search')) %]">
+                    <input type="hidden" name="page_num">
+                    <input type="hidden" name="per_page">
+                    <input type="hidden" name="by">
+                    <input type="hidden" name="direction">
+                  <div class="input-daterange datepicker">
+                    <input type="text" class="input-small" name="start" data-date-format="yyyy-mm-dd" />
+                    <i class="icon-arrow-right"></i>
+                    <input type="text" class="input-small" name="end" data-date-format="yyyy-mm-dd" />
+                    <a href="#last0day">[% l('Today') %]</a> | <a href="#last7days">[% l('7 days') %]</a> | <a href="#last30days">[% l('30 days') %]</a> | <a href="#last60days">[% l('60 days') %]</a>
+                  </div>
+                  <div>
+                          [% match_options = BLOCK %]
+                          <select name="all_or_any" class="input-mini">
+                            <option value="all">[% l('all') %]</option>
+                            <option value="any">[% l('any') %]</option>
+                          </select>
+                          [% END %]
+                          [% l('Match [_1] of the following conditions:', [match_options]) %]
+                  </div>
+                  <table class="table-dynamic">
+                    <tbody>
+                      <tr class="hidden dynamic-row">
+                        <td>
+                          <select name="searches.0.name" disabled="disabled" class="span4">
+                            <option value="mac">Node MAC</option>
+                            <option value="node_ip">Node IP</option>
+                            <option value="node_category">Node category</option>
+                            <option value="person_name">Person name</option>
+                            <option value="violation">Violation name</option>
+                            <option value="user_agent">User agent</option>
+                            <option value="switch_ip">Source switch IP</option>
+                          </select>
+                          <select name="searches.0.op" disabled="disabled" class="span2" >
+                            <option value="equal">is</option>
+                            <option value="not_equal">is not</option>
+                            <option value="starts_with">starts with</option>
+                            <option value="ends_with">ends with</option>
+                            <option value="like">matches</option>
+                          </select>
+                          <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="String...">
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a>
+                        </td>
+                      </tr>
+                      <tr class="dynamic-row">
+                        <td>
+                          <select name="searches.0.name" class="span4">
+                            <option value="mac">Node MAC</option>
+                            <option value="node_ip">Node IP</option>
+                            <option value="node_category">Node category</option>
+                            <option value="person_name">Person name</option>
+                            <option value="violation">Violation name</option>
+                            <option value="user_agent">User agent</option>
+                            <option value="switch_ip">Source switch IP</option>
+                          </select>
+                          <select name="searches.0.op" class="span2">
+                            <option value="equal">is</option>
+                            <option value="not_equal">is not</option>
+                            <option value="starts_with">starts with</option>
+                            <option value="ends_with">ends with</option>
+                            <option value="like">matches</option>
+                          </select>
+                          <input name="searches.0.value" type="text" class="span6" placeholder="String..." />
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <!-- first condition cannot be deleted -->
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" style="padding-top: 1em">
+                          <div class="btn-group pull-right">
+                            <button class="btn btn-primary"><i class="icon-search icon-white"></i> [% l('Search') %]</button>
+                            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                              <li><a id="advancedSavedSearchBtn" >[% l('Save as...') %]</a></li>
+                            </ul>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
+          <div class="row-fluid" id="section">
+          </div>
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->

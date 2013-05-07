@@ -97,7 +97,7 @@ Installation
 Import the virtual machine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence ZEN 3.5.0 comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
+PacketFence ZEN 4.0.0 comes in a pre-built virtual disk (OVF), or a pre-configured vmx file.  You can import the vmx file in many VMWare desktop products and it will automatically create your VM.  However, if you are using an ESX type hypervisor, you need to import the OVF using vSphere Client (or vCenter).  We are not supporting any Xen-based hypervisors yet.
 
 
 Import to ESX
@@ -133,7 +133,7 @@ Configuring your PacketFence environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Before booting your VM, make sure the network cable coming from the TRUNK port for the demonstration PC is correctly plugged in the switch and the PC and that the link is up.
 
-Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. http://PF_IP:1444/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
+Once powered, open a browser and point it to the configuration URL as stated by the VM login prompt (ie. http://PF_IP:1443/configurator). The configuration process is a five steps process at the end of which, the VM will be a persistent working PacketFence environment.
 
 Step 1: Enforcement
 +++++++++++++++++++
@@ -253,7 +253,7 @@ Please refer to the http://www.packetfence.org/documentation/[Network Devices Co
 FreeRADIUS
 ~~~~~~~~~~
 
-PacketFence ZEN 3.5.0 comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  We created a local user for the 802.1X authentication.
+PacketFence ZEN 4.0.0 comes with a pre-configured FreeRADIUS to do Wired and Wireless 802.1X with EAP as well as MAC Authentication.  We created a local user for the 802.1X authentication.
 
 The main configuration files are :
 
