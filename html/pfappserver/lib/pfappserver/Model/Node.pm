@@ -180,7 +180,6 @@ sub view {
         my @locationlog_history = locationlog_history_mac($mac);
         #                                                  (start_time => $start_time, end_time => $end_time));
         if (scalar @locationlog_history > 0) {
-            use Data::Dumper; $logger->debug(Dumper \@locationlog_history);
             $node->{locationlog}->{history} = \@locationlog_history;
         }
 
