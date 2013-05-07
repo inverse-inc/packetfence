@@ -727,32 +727,46 @@ msgstr "MAC Addresses"
 
 # lib/pf/action.pm
 
-msgid "autoreg"
+msgid "autoreg_action"
 msgstr "Register node"
 
-msgid "trap"
+msgid "trap_action"
 msgstr "Trap"
 
-msgid "email"
+msgid "email_action"
 msgstr "Send email"
 
-msgid "log"
+msgid "log_action"
 msgstr "Log message"
 
-msgid "external"
+msgid "external_action"
 msgstr "External command"
 
-msgid "winpopup"
-msgstr "Send Windows popup message"
+msgid "winpopup_action"
+msgstr "Windows popup message"
 
-msgid "close"
+msgid "close_action"
 msgstr "Close a violation"
 
-msgid "role"
+msgid "role_action"
 msgstr "Set role"
 
-msgid "unreg"
+msgid "unreg_action"
 msgstr "Deregister node"
+
+# lib/pf/node.pm
+
+msgid "reg"
+msgstr "registered"
+
+msgid "unreg"
+msgstr "unregistered"
+
+msgid "pending"
+msgstr "pending"
+
+msgid "grace"
+msgstr "grace"
 
 # lib/pf/Authentication/constants.pm
 
