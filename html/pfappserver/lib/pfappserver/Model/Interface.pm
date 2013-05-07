@@ -76,7 +76,8 @@ sub create {
 =cut
 
 sub delete {
-    my ($self, $interface, $host, $models) = @_;
+    my ($self, $interface, $host) = @_;
+    my $models = $self->{models};
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($status, $status_msg);
@@ -224,11 +225,12 @@ and phy.vlan (eth0.100) if there's a vlan interface.
 =cut
 
 sub get {
-    my ( $self, $interface, $models ) = @_;
+    my ( $self, $interface) = @_;
+    my $models = $self->{models};
 
     # Put requested interfaces into an array
     my @interfaces = $self->_listInterfaces($interface);
-    my $networks_model = $models->{networks};
+    my $networks_model = $models->{network};
 
     my $result = {};
     my ($status, $return);
@@ -256,7 +258,7 @@ sub get {
             #($status, undef) = $networks_model->hasId($result->{"$interface"}->{'network'});
             $result->{"$interface"}->{'network_iseditable'} = is_success($status);
         }
-        $result->{"$interface"}->{'type'} = $self->getType($interface_ref, $models);
+        $result->{"$interface"}->{'type'} = $self->getType($interface_ref);
     }
 
     return $result;
@@ -267,7 +269,8 @@ sub get {
 =cut
 
 sub update {
-    my ($self, $interface, $interface_ref, $models) = @_;
+    my ($self, $interface, $interface_ref) = @_;
+    my $models = $self->{models};
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ($ipaddress, $netmask, $status, $status_msg);
@@ -304,7 +307,7 @@ sub update {
          || !defined($ipaddress)
          || $ipaddress ne $interface_before->{ipaddress}
          || $netmask ne $interface_before->{netmask}) {
-        my $gateway = $models->{system}->getDefaultGateway();
+        my $gateway = $models->{'system'}->getDefaultGateway();
         my $isDefaultRoute = (defined($interface_before->{ipaddress}) && $gateway eq $interface_before->{ipaddress});
 
         # Delete previous IP address
@@ -338,8 +341,10 @@ sub update {
             }
             elsif ($isDefaultRoute) {
                 # Restore gateway
-                $models->{system}->setDefaultRoute($ipaddress);
+                $models->{'system'}->setDefaultRoute($ipaddress);
             }
+            my $interfaces = $self->get('all');
+            $models->{'system'}->write_network_persistent($interfaces,$gateway);
         }
 
         @result = $self->_listInterfaces('all');
@@ -348,7 +353,7 @@ sub update {
 
     # Set type
     $interface_ref->{network} = $new_network;
-    $self->setType($interface, $interface_ref, $models);
+    $self->setType($interface, $interface_ref);
 
     return ($STATUS::OK, "Interface $interface successfully edited");
 }
@@ -372,12 +377,13 @@ sub isActive {
 =cut
 
 sub getType {
-    my ( $self, $interface_ref, $models ) = @_;
+    my ( $self, $interface_ref) = @_;
+    my $models = $self->{models};
 
     my ($status, $type);
     if ($interface_ref->{network}) {
         # Check in networks.conf
-        ($status, my $network) = $models->{networks}->read($interface_ref->{network});
+        ($status, my $network) = $models->{network}->read($interface_ref->{network});
         if ( is_success($status) ) {
             $type = $network->{type};
         }
@@ -410,7 +416,8 @@ sub getType {
 =cut
 
 sub setType {
-    my ($self, $interface, $interface_ref, $models) = @_;
+    my ($self, $interface, $interface_ref) = @_;
+    my $models = $self->{models};
 
     my $type = $interface_ref->{type} || 'none';
     my ($status, $network_ref);
@@ -669,6 +676,23 @@ sub up {
     }
 
     return ($STATUS::OK, "Interface $interface successfully enabled");
+}
+
+
+sub ACCEPT_CONTEXT {
+    my ($proto,$c) = @_;
+    my $object;
+    if(ref($proto)) {
+        $object = $proto
+    } else {
+       $object = $proto->new;
+    }
+    $object->{models} = {
+        'network' => $c->model('Config::Network'),
+        'interface' => $c->model('Config::Interface'),
+        'system' => $c->model('Config::System'),
+    };
+    return $object;
 }
 
 =head1 COPYRIGHT

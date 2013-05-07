@@ -142,13 +142,8 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
     }
     elsif (!exists($c->session->{enforcements})) {
         # Detect chosen mechanisms from networks.conf
-        my $models =
-          {
-           'networks' => $c->model('Config::Network'),
-           'interface' => $c->model('Config::Interface')
-          };
-        my $interfaces_ref = $c->model('Interface')->get('all', $models);
-        my ($status, $interfaces_types) = $models->{'networks'}->getTypes($interfaces_ref);
+        my $interfaces_ref = $c->model('Interface')->get('all');
+        my ($status, $interfaces_types) = $c->model('Config::Network')->getTypes($interfaces_ref);
         if (is_success($status)) {
             # If some interfaces are associated to a type, find the corresponding mechanism
             my @active_types = values %{$interfaces_types};
@@ -187,12 +182,6 @@ Network interfaces (step 2)
 sub networks :Chained('object') :PathPart('networks') :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $models =
-      {
-       'networks' => $c->model('Config::Network'),
-       'interface' => $c->model('Config::Interface')
-      };
-
     if ($c->request->method eq 'POST') {
         $c->stash->{current_view} = 'JSON';
 
@@ -208,7 +197,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
 
         # Make sure all types for each enforcement is assigned to an interface
         # TODO: Shall we ignore disabled interfaces?
-        my $interfaces = $c->model('Interface')->get('all', $models);
+        my $interfaces = $c->model('Interface')->get('all');
         my %selected_types = map { $interfaces->{$_}->{type} => 1 } keys %$interfaces;
         my @missing = ();
 
@@ -245,7 +234,7 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
     else {
         $c->session->{gateway} = $c->model('Config::System')->getDefaultGateway if (!defined($c->session->{gateway}));
 
-        my $interfaces_ref = $c->model('Interface')->get('all', $models);
+        my $interfaces_ref = $c->model('Interface')->get('all');
         $c->stash(interfaces => $interfaces_ref);
     }
 }

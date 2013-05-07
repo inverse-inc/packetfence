@@ -72,12 +72,7 @@ sub index :Local :Args(0) {
 sub list :Local :Args(0) {
     my ( $self, $c ) = @_;
 
-    my $models =
-      {
-       'networks' => $c->model('Config::Network'),
-       'interface' => $c->model('Config::Interface')
-      };
-    $c->stash->{interfaces} = $c->model('Interface')->get('all', $models);
+    $c->stash->{interfaces} = $c->model('Interface')->get('all');
 }
 
 
@@ -137,13 +132,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
             my $interface = $c->stash->{interface} . "." . $data->{vlan};
             ($status, $result) = $c->model('Interface')->create($interface);
             if (is_success($status)) {
-                my $models =
-                  {
-                   'network' => $c->model('Config::Network'),
-                   'interface' => $c->model('Config::Interface'),
-                   'system' => $c->model('Config::System'),
-                  };
-                ($status, $result) = $c->model('Interface')->update($interface, $data, $models);
+                ($status, $result) = $c->model('Interface')->update($interface, $data);
             }
 
             $c->response->status($status);
@@ -174,12 +163,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
-    my $models =
-      {
-       interface => $c->model('Config::Interface'),
-       network => $c->model('Config::Network')
-      };
-    my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host, $models);
+    my ($status, $status_msg) = $c->model('Interface')->delete($interface, $c->req->uri->host);
 
     if ( is_success($status) ) {
         $c->stash->{status_msg} = $status_msg;
@@ -223,13 +207,8 @@ sub read :Chained('object') :ParthPart('read') :Args(0) {
     my ( $self, $c ) = @_;
 
     # Retrieve interface definition
-    my $models =
-      {
-       'networks' => $c->model('Config::Network'),
-       'interface' => $c->model('Config::Interface')
-      };
     my $interface = $c->stash->{interface};
-    my $interface_ref = $c->model('Interface')->get($interface, $models);
+    my $interface_ref = $c->model('Interface')->get($interface);
     $interface_ref->{$interface}->{name} = $interface;
 
     # Retrieve available enforcement types
@@ -237,7 +216,7 @@ sub read :Chained('object') :ParthPart('read') :Args(0) {
     if ($c->session->{'enforcements'}) {
         $mechanism = [ keys %{$c->session->{'enforcements'}} ];
     }
-    my $interfaces = $c->model('Interface')->get('all', $models);
+    my $interfaces = $c->model('Interface')->get('all');
     my $types = $c->model('Enforcement')->getAvailableTypes($mechanism, $interface, $interfaces);
 
     # Build form
@@ -260,13 +239,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
     my ($status, $result, $form);
-    my $models =
-      {
-       'network' => $c->model('Config::Network'),
-       'interface' => $c->model('Config::Interface'),
-       'system' => $c->model('Config::System'),
-      };
-
     if ($c->request->method eq 'POST') {
         # Fetch valid types for enforcement mechanism
         my $mechanism = 'all';
@@ -285,7 +257,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         else {
             # Update interface
             my $data = $form->value;
-            ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data, $models);
+            ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data);
             $result = $c->loc($result);
         }
         if (is_error($status)) {
