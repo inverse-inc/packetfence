@@ -18,12 +18,12 @@ Version 4.0.0 released on <releaseDate>
 
 New Features
 
-* Brand new Catalyst-based Web administrative interface
-* Adding action change category and unreg in a violation configuration
-* Adding support for scanning dot1x connections for auto-registration by EAP-Type
-* Adding support for auto registering dot1x node based of the EAP-Type
+* Brand new Perl-based Web administrative interface using the Catalyst framework
+* New violation actions to set the node's role and deregister it
+* Support for scanning dot1x connections for auto-registration by EAP-Type
+* Support for auto registering dot1x node based of the EAP-Type
 * New searchable MAC Addresses module to query all existing OUI prefixes
-* New advanced nodes/users search capabilities
+* New advanced search capabilities for nodes and users
 * New memory object caching subsystem for configuration files
 
 Enchancements

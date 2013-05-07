@@ -1483,6 +1483,9 @@ PacketFence policy violations are controlled using the `/usr/local/pf/conf/viola
 `winpopup`::: send a windows popup message. You need to configure `[alerting].winserver`, `[alerting].netbiosname` in `pf.conf` when using this option.
 `external`::: execute an external command, specified in `[paths].externalapi`.
 `close`::: close the violation ID specified in the vclose field.
+`role`::: change the node's role to the one specified in the target_category field.
+`autoreg`::: register the node.
+`unreg`::: deregister the node.
 `vlan`:: Destination VLAN where PacketFence should put the client when a violation of this type is open. The VLAN value can be:
 `isolationVlan`::: Isolation VLAN as specified in `switches.conf`. This is the recommended value for most violation types.
 `registrationVlan`::: Registration VLAN as specified in `switches.conf`.
@@ -1500,6 +1503,7 @@ Also included in `violations.conf` is the defaults section. The defaults section
   grace=120m
   window=0
   vclose=
+  target_category=
   button_text=Enable Network
   snort_rules=local.rules,bleeding-attack_response.rules,bleeding-exploit.rules,bleeding-p2p.rules,bleeding-scan.rules,bleeding-virus.rules
   vlan=isolationVlan
@@ -1517,7 +1521,9 @@ use the allowed time modifiers or the dynamic keyword.  Note that the dynamic ke
 accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the
 current month.)
 `vclose`::
-When selecting the "close" action, triggering the violation will close the one you select in the vclose field.  This is an experimental workflow for Mobile Device Management (MDM).
+When selecting the "close" action, triggering the violation will close the one you select in the vclose field. This is an experimentalworkflow for Mobile Device Management (MDM).
+`target_category`::
+When selecting the "role" action, triggering the violation will change the node's role to the one you select in the target_category field.
 `button_text`::
 Text displayed on the violation form to hosts.
 `snort_rules`::

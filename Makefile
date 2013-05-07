@@ -4,7 +4,7 @@ all:
 	@echo " 'pdf' will build all guide using the PDF format"
 	@echo " 'doc-admin-pdf' will build the Administration guide in PDF"
 	@echo " 'doc-developers-pdf' will build the Develoeprs guide in PDF"
-	@echo " 'doc-networkdevices-pdf' will build the Network Devices Configuration guide in PDF"	
+	@echo " 'doc-networkdevices-pdf' will build the Network Devices Configuration guide in PDF"
 
 pdf: doc-admin-pdf doc-developers-pdf doc-networkdevices-pdf
 

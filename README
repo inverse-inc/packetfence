@@ -37,7 +37,7 @@
 
   Noteworthy changes since the last release see the NEWS file.
 
-  Upgrading? See the UPGRADE file.
+  Upgrading? See the UPGRADE.asciidoc file.
 
   For more details and developer visible changes see the ChangeLog file.
 

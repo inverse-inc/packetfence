@@ -29,7 +29,7 @@ PacketFence v4 received a major overhaul, especially regarding the authenticatio
 sources. Authentication modules found in `conf/authentication/` are no longer
 being used and have been replaced by the `conf/authentication.conf` file. While
 this file can be hand-edited, you should create your authentication sources
-and perform roles-mapping using the Configuation > Users > Sources module from
+and perform roles-mapping using the Configuation > Users > Sources page from
 PacketFence's Web administrative interface.
 
 Also, in PacketFence v4, the VLANs can be assigned in `conf/switches.conf` by constructing
