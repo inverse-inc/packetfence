@@ -42,9 +42,12 @@ sub simple_search :Local :Args() : SimpleSearch('UserAgent') {}
 sub upload :Local :Args(0) {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
+
     require PHP::Serialization;
     require pf::pfcmd::report;
     import pf::pfcmd::report qw(report_unknownuseragents_all);
+
+    my $status = HTTP_OK;
     my @fields = qw(browser os computername dhcp_fingerprint description);
     my %data   = map {
         my %ua;
@@ -68,7 +71,19 @@ sub upload :Local :Args(0) {
                 'ref' => $c->uri_for($c->action)
             }
         );
+        if ($response->content =~ /Thank you for submitting the following fingerprints/) {
+            $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
+        }
+        else {
+            $c->stash->{status_msg} = "Error uploading user-agent fingerprints";
+            $status = HTTP_INTERNAL_SERVER_ERROR;
+        }
     }
+    else {
+        $c->stash->{status_msg} = "No unknown fingerprint found";
+        $status = HTTP_NOT_FOUND;
+    }
+    $c->response->status($status);
 }
 
 =head1 COPYRIGHT
