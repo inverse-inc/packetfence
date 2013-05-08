@@ -24,6 +24,7 @@ Catalyst Model.
 Naively calls `bin/pfcmd service pf start` and return output.
 
 =cut
+
 sub start {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -44,6 +45,7 @@ sub start {
 Naively calls `bin/pfcmd service pf restart` and return output.
 
 =cut
+
 sub stop_all {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -64,6 +66,7 @@ sub stop_all {
 Naively calls `bin/pfcmd service pf restart` and return output.
 
 =cut
+
 sub restart_all {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -88,6 +91,7 @@ Returns only the list of services that should be started based on
 configuration.
 
 =cut
+
 sub status {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -111,6 +115,7 @@ sub status {
     foreach my $service_status (@services_status) {
         chomp($service_status);
         my ($service_name, $should_be_started, $pids) = split(/\|/, $service_status);
+        next if $service_name eq 'httpd.admin';
         $services_ref->{$service_name} = ($pids) if ($should_be_started);
     }
     return ($STATUS::OK, { services => $services_ref}) if ( %$services_ref );
@@ -177,6 +182,7 @@ sub service_start {
     return $self->_service_ctl($service,'start');
 }
 
+=back
 
 =head1 AUTHOR
 
