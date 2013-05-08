@@ -289,9 +289,9 @@ Readonly our $HTTPS => 'https';
 
 # API version constants
 Readonly::Scalar our $RADIUS_API_LEVEL => 1.02;
-Readonly::Scalar our $VLAN_API_LEVEL => 1.01;
+Readonly::Scalar our $VLAN_API_LEVEL => 1.04;
 Readonly::Scalar our $INLINE_API_LEVEL => 1.01;
-Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.10;
+Readonly::Scalar our $AUTHENTICATION_API_LEVEL => 1.11;
 Readonly::Scalar our $SOH_API_LEVEL => 1.00;
 Readonly::Scalar our $BILLING_API_LEVEL => 1.00;
 Readonly::Scalar our $ROLE_API_LEVEL => 0.90;

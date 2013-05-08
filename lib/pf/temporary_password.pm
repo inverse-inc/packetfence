@@ -43,7 +43,7 @@ use Readonly;
 use pf::nodecategory;
 use pf::Authentication::constants;
 
-our $VERSION = 1.10;
+our $VERSION = 1.11;
 
 # Constants
 use constant TEMPORARY_PASSWORD => 'temporary_password';

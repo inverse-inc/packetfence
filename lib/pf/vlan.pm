@@ -27,7 +27,7 @@ use pf::violation qw(violation_count_trap violation_exist_open violation_view_to
 use pf::authentication;
 use pf::Authentication::constants;
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 =head1 SUBROUTINES
 
@@ -170,12 +170,12 @@ Return values:
 
 =cut
 sub getViolationVlan {
-    #$switch is the switch object (pf::SNMP)
-    #$ifIndex is the ifIndex of the computer connected to
-    #$mac is the mac connected
-    #$conn_type is set to the connnection type expressed as the constant in pf::config 
-    #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
-    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
+    # $switch is the switch object (pf::SNMP)
+    # $ifIndex is the ifIndex of the computer connected to
+    # $mac is the mac connected
+    # $conn_type is set to the connnection type expressed as the constant in pf::config
+    # $user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
+    # $ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl->get_logger();
 
@@ -186,7 +186,7 @@ sub getViolationVlan {
 
     $logger->debug("$mac has $open_violation_count open violations(s) with action=trap; ".
                    "it might belong into another VLAN (isolation or other).");
-    
+
     # By default we assume that we put the user in isolation vlan unless proven otherwise
     my $vlan = "isolation";
 
@@ -202,11 +202,11 @@ sub getViolationVlan {
     }   
         
     # get violation id
-    my $vid=$top_violation->{'vid'};
+    my $vid = $top_violation->{'vid'};
     
     # find violation class based on violation id
     require pf::class;
-    my $class=pf::class::class_view($vid);
+    my $class = pf::class::class_view($vid);
     # finding violation class based on violation id failed
     if (!$class || !defined($class->{'vlan'})) {
 

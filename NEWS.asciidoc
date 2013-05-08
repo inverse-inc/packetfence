@@ -5,18 +5,17 @@ Project homepage: https://www.packetfence.org/
 
 Please report bugs to: http://www.packetfence.org/bugs/
 
-Interested in contributing to the project? Check the following link:
-
-http://www.packetfence.org/support/community.html
+Interested in contributing to the project? http://www.packetfence.org/support/community.html
 
 This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
-For a list of compatibility related changes see the UPGRADE file.
+For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.0.0 released on <releaseDate>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Version 4.0.0 released on 2013-05-08
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
+++++++++++++
 
 * Brand new Perl-based Web administrative interface using the Catalyst framework
 * New violation actions to set the node's role and deregister it
@@ -25,15 +24,24 @@ New Features
 * New searchable MAC Addresses module to query all existing OUI prefixes
 * New advanced search capabilities for nodes and users
 * New memory object caching subsystem for configuration files
+* Ubuntu packages (12.04)
 
-Enchancements
+Enhancements
+++++++++++++
 
 * Authentication sources can now be managed directly from the GUI
 * Roles (previously called categories) are now computed dynamically using authentication sources
 * Portal profiles and portal pages are now managed from the GUI
 * Fingerprints and User Agents modules are now searchable
-* Translated all remediation pages to French
 
 Bug Fixes
++++++++++
 
 * Modified the SQL upgrade script from 3.5.0 to 3.6.1 (#1624)
+
+Translations
+++++++++++++
+
+* Translated all remediation pages to French
+* Updated Brazilian Portuguese (pt_BR) translation
+* Updated Spanish (es) translation

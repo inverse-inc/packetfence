@@ -45,7 +45,7 @@ BEGIN {
 }
 
 use pf::config;
-use pf::temporary_password 1.10;
+use pf::temporary_password 1.11;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
 use pf::web::constants;
@@ -54,7 +54,7 @@ use pf::sms_activation;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 
-our $VERSION = 1.40;
+our $VERSION = 1.41;
 
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
