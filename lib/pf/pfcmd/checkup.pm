@@ -19,6 +19,7 @@ use Readonly;
 
 use pf::config;
 use pf::config::cached;
+use pf::violation_config;
 use pf::util;
 use pf::services;
 use pf::trigger;
@@ -761,30 +762,22 @@ Checking for violations configurations
 =cut
 
 sub violations {
-    my %violations_conf;
-    tie %violations_conf, 'pf::config::cached', ( -file => "$conf_dir/violations.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        add_problem( $FATAL, "Error reading violations.conf");
-    }
-
-    my %violations = pf::services::class_set_defaults(%violations_conf);
 
     my $deprecated_disable_seen = $FALSE;
-    foreach my $violation ( keys %violations ) {
+    foreach my $violation ( keys %Violation_Config ) {
 
         # parse triggers if they exist
-        if ( defined $violations{$violation}{'trigger'} ) {
+        if ( defined $Violation_Config{$violation}{'trigger'} ) {
             try {
                 # TODO we are parsing triggers both on checkup and when we parse the configuration on startup
                 # we probably can do something smarter here (but can't find right maintenance / efficiency balance now)
-                parse_triggers($violations{$violation}{'trigger'});
+                parse_triggers($Violation_Config{$violation}{'trigger'});
             } catch {
                 add_problem($WARN, "Violation $violation is ignored: $_");
             };
         }
 
-        if ( defined $violations{$violation}{'disable'} ) {
+        if ( defined $Violation_Config{$violation}{'disable'} ) {
             $deprecated_disable_seen = $TRUE;
         }
     }

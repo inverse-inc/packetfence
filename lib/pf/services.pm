@@ -485,25 +485,6 @@ sub read_violations_conf {
     return 1;
 }
 
-=item * class_set_defaults
-
-=cut
-
-sub class_set_defaults {
-    my %violations_conf = @_;
-    my %violations      = %violations_conf;
-
-    foreach my $violation ( keys %violations_conf ) {
-        foreach my $default ( keys %{ $violations_conf{'defaults'} } ) {
-            if ( !defined( $violations{$violation}{$default} ) ) {
-                $violations{$violation}{$default}
-                    = $violations{'defaults'}{$default};
-            }
-        }
-    }
-    delete( $violations{'defaults'} );
-    return (%violations);
-}
 
 =back
 
