@@ -792,7 +792,7 @@ sub node_register {
 
     # do not check for max_node if it's for auto-register
     if (!$auto_registered) {
-        if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}) ) {
+        if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}, $info{'category_id'}) ) {
             $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
             return (0);
         }
@@ -1058,7 +1058,7 @@ Two techniques so far: a global maxnodes parameter and a per-category maximum.
 =cut
 
 sub is_max_reg_nodes_reached {
-    my ($mac, $pid, $category) = @_;
+    my ($mac, $pid, $category, $category_id) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     # default_pid is a special case: no limit for this user
@@ -1067,9 +1067,14 @@ sub is_max_reg_nodes_reached {
     my $nb_nodes_for_pid = node_pid($pid);
 
     # per-category max node per pid limit
-    if ( defined($category) ) {
+    if ( defined($category) || defined($category_id) ) {
 
-        my $category_info = nodecategory_view_by_name($category);
+        my $category_info;
+        if ($category) {
+            $category_info = nodecategory_view_by_name($category);
+        } else {
+            $category_info = nodecategory_view($category_id);
+        }
         if ( defined($category_info->{'max_nodes_per_pid'}) ) {
 
             my $max_nodes_for_category = $category_info->{'max_nodes_per_pid'};
