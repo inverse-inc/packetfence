@@ -19,7 +19,7 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl;
+use Log::Log4perl qw(get_logger);
 use Log::Log4perl::Level;
 use Readonly;
 
@@ -451,6 +451,7 @@ Returns information about a given MAC address (node)
 It's a simpler and faster version of node_view with fewer fields returned.
 
 =cut
+
 sub node_attributes {
     my ($mac) = @_;
 
@@ -472,6 +473,7 @@ It's a simpler and faster version of node_view_with_fingerprint with
 fewer fields returned.
 
 =cut
+
 sub node_attributes_with_fingerprint {
     my ($mac) = @_;
 
@@ -491,6 +493,7 @@ DEPRECATED: This has been kept in case of regressions in the new node_view code.
 This code will disappear in 2013.
 
 =cut
+
 sub _node_view_old {
     my ($mac) = @_;
     $mac = clean_mac($mac);
@@ -516,6 +519,7 @@ Returning lots of information about a given MAC address (node).
 New implementation in 3.2.0.
 
 =cut
+
 sub node_view {
     my ($mac) = @_;
 
@@ -612,6 +616,7 @@ sub node_custom_search {
 Warning: The connection_type field is translated into its human form before return.
 
 =cut
+
 sub node_view_all {
     my ( $id, %params ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -660,6 +665,7 @@ DEPRECATED: This has been kept in case of regressions in the new
 node_attributes_with_fingerprint code.  This code will disappear in 2013.
 
 =cut
+
 sub node_view_with_fingerprint {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -738,7 +744,7 @@ sub node_modify {
         $existing->{regdate} = mysql_date();
     }
 
-    db_query_execute(NODE, $node_statements, 'node_modify_sql',
+    my $sth = db_query_execute(NODE, $node_statements, 'node_modify_sql',
         $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip},
         $existing->{bypass_vlan},
         $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip},
@@ -746,9 +752,8 @@ sub node_modify {
         $existing->{last_arp}, $existing->{last_dhcp},
         $existing->{notes},
         $mac
-    ) || return (0);
-
-    return (1);
+    );
+    return ($sth->rows);
 }
 
 sub node_register {
@@ -836,6 +841,7 @@ sub node_deregister {
         $logger->error("unable to de-register node $mac");
         return (0);
     }
+    return (1);
 }
 
 =item * nodes_maintenance - handling deregistration on node expiration and node grace
@@ -843,6 +849,7 @@ sub node_deregister {
 called by pfmon daemon every 10 maintenance interval (usually each 10 minutes)
 
 =cut
+
 sub nodes_maintenance {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -883,6 +890,7 @@ Returns a list of MACs which are registered and don't have any open violation.
 Since trap violations stay open, this has the intended effect of getting all MACs which should be allowed through.
 
 =cut
+
 sub nodes_registered_not_violators {
     return db_data(NODE, $node_statements, 'nodes_registered_not_violators_sql');
 }
@@ -939,6 +947,7 @@ out: void
 
 =cut
 
+
 sub node_mac_wakeup {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -969,6 +978,7 @@ Is given MAC a VoIP Device or not?
 in: mac address
 
 =cut
+
 sub is_node_voip {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -989,6 +999,7 @@ Is given MAC registered or not?
 in: mac address
 
 =cut
+
 sub is_node_registered {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -1009,6 +1020,7 @@ expects category_id or category name in the form of category => 'name' or catego
 returns category_id, undef if no category was required or 0 if no category is found (which is a problem)
 
 =cut
+
 sub _node_category_handling {
     my (%data) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -1044,6 +1056,7 @@ Performs the enforcement of the maximum number of registered nodes allowed per u
 Two techniques so far: a global maxnodes parameter and a per-category maximum.
 
 =cut
+
 sub is_max_reg_nodes_reached {
     my ($mac, $pid, $category) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -1079,6 +1092,7 @@ Return the last mac that has been register
 May be sometimes usefull for custom
 
 =cut
+
 sub node_last_reg {
     my $query =  db_query_execute(NODE, $node_statements, 'node_last_reg_sql') || return (0);
     my ($val) = $query->fetchrow_array();
