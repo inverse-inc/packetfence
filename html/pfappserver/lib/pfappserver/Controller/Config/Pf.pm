@@ -1,11 +1,4 @@
 package pfappserver::Controller::Config::Pf;
-use HTTP::Status qw(:constants is_error);
-use JSON;
-use Moose;
-use namespace::autoclean;
-use Try::Tiny;
-
-BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 NAME
 
@@ -15,11 +8,20 @@ pfappserver::Controller::Config::Pf - Catalyst Controller
 
 Catalyst Controller.
 
+=cut
+
+use HTTP::Status qw(:constants is_error);
+use Moose;
+use namespace::autoclean;
+
+BEGIN { extends 'pfappserver::Base::Controller'; }
+
 =head1 METHODS
 
 =head2 index
 
 =cut
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -31,6 +33,7 @@ sub index :Path :Args(0) {
 Chained dispatch for a configuration parameter.
 
 =cut
+
 sub object :Chained('/') :PathPart('config/pf') :CaptureArgs(1) {
     my ($self, $c, $config_item) = @_;
     $c->stash->{config_item} = $config_item;
@@ -41,27 +44,34 @@ sub object :Chained('/') :PathPart('config/pf') :CaptureArgs(1) {
 /config/pf/<section.param>/read
 
 =cut
+
 sub read :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
     my $config_item = $c->stash->{config_item};
+    my ($section, $param) = split /\./, $config_item;
 
-    my ($status, $message) = $c->model('Config::Pf')->read($config_item);
+    my ($status, $result) = $c->model('Config::Pf')->read($section);
     if (is_error($status)) {
         $c->res->status($status);
-        $c->error($message);
+        $c->error($result);
+    }
+    elsif(exists $result->{$param} ) {
+        $c->stash->{config} = $result->{$param};
     }
     else {
-        $c->stash->{config} = $message;
+        $c->res->status(HTTP_NOT_FOUND);
+        $c->error("$config_item is not found");
     }
 }
 
-=head2 help 
+=head2 help
 
 /config/pf/<section.param>/help
 
 Get help on a configuration parameter.
 
 =cut
+
 sub help :Chained('object') :PathPart('help') :Args(0) {
     my ($self, $c) = @_;
     my $config_item = $c->stash->{config_item};
@@ -81,6 +91,7 @@ sub help :Chained('object') :PathPart('help') :Args(0) {
 /config/pf/<section.param>/delete
 
 =cut
+
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ($self, $c) = @_;
 
@@ -93,13 +104,15 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 /config/pf/<section.param>/update
 
 =cut
+
 sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($self, $c) = @_;
     my $config_item = $c->stash->{config_item};
 
     my $value = $c->request->body_params->{value};
+    my ($section, $param) = split /\./, $config_item;
     if (defined($value) && !ref($value)) {
-        my ($status, $message) = $c->model('Config::Pf')->update({ $config_item => $value });
+        my ($status, $message) = $c->model('Config::Pf')->update($section => { $param => $value });
         if (is_error($status)) {
             $c->res->status($status);
             $c->error($message);
@@ -107,6 +120,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         else {
             $c->res->status(HTTP_CREATED);
             $c->stash->{status_msg} = $message;
+            $c->model('Config::Pf')->rewriteConfig();
         }
     }
     else {
@@ -120,6 +134,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 /config/pf/<section.param>/create
 
 =cut
+
 
 sub create :Chained('object') :PathPart('create') :Args(0) {
     my ($self, $c) = @_;
@@ -142,11 +157,11 @@ sub end : ActionClass('RenderView') {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

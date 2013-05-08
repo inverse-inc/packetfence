@@ -1,15 +1,13 @@
 #!/bin/bash
+#
 # Highlight changes between pf servers
 #
-# Changes:
-# 2010-02-26	Olivier Bilodeau <obilodeau@inverse.ca>
-# - Little usage dialog of run with no arguments
+# Copyright (C) 2005-2013 Inverse inc.
 #
-# 2009-10-02	Olivier Bilodeau <obilodeau@inverse.ca>
-# - ignoring the whole /etc/udev/ now instead of just rules.d/network-devices.rules
-# - added /etc/pam.d/, /etc/security/console.apps/, /etc/X11/ to ignore list
-# - added /var/named to the list of checked directories
-# - now comparing dhcpd.conf and conf/httpd.conf
+# Author: Inverse inc. <info@inverse.ca>
+#
+# Licensed under the GPL
+#
 
 # compares the whole server
 #find /etc/ /usr/local/pf /var/named -regextype posix-egrep -type f \! -regex "(/usr/local/pf/logs/.+)|(/usr/local/pf/var/.+)|(/etc/adjtime)|(/etc/aliases.db)|(/etc/blkid/.+)|(/etc/gconf/.+)|(/etc/group-?)|(/etc/gshadow-?)|(/etc/gtk-2.0/.+)|(/etc/hosts)|(/etc/ld.so.cache)|(/etc/lvm/.cache)|(/etc/mail/.+)|(/etc/pam.d/.+)|(/etc/pango/.+)|(/etc/pki/.+)|(/etc/ppp/.+)|(/etc/prelink.cache)|(/etc/resolv.conf)|(/etc/rndc.key)|(/etc/security/console.apps/.+)|(/etc/shadow-?)|(/etc/ssh/.+)|(/etc/sysconfig/hwconf)|(/etc/sysconfig/network.*)|(/etc/sysconfig/rhn/.+)|(/etc/udev/.+)|(/etc/X11/.+)|(/usr/local/pf/html/admin/tmp/.+)" | sort | xargs md5sum > ~/md5_local.txt && ssh $1 'find /etc/ /usr/local/pf /var/named -regextype posix-egrep -type f \! -regex "(/usr/local/pf/logs/.+)|(/usr/local/pf/var/.+)|(/etc/adjtime)|(/etc/aliases.db)|(/etc/blkid/.+)|(/etc/gconf/.+)|(/etc/group-?)|(/etc/gshadow-?)|(/etc/gtk-2.0/.+)|(/etc/hosts)|(/etc/ld.so.cache)|(/etc/lvm/.cache)|(/etc/mail/.+)|(/etc/pam.d/.+)|(/etc/pango/.+)|(/etc/pki/.+)|(/etc/ppp/.+)|(/etc/prelink.cache)|(/etc/resolv.conf)|(/etc/rndc.key)|(/etc/security/console.apps/.+)|(/etc/shadow-?)|(/etc/ssh/.+)|(/etc/sysconfig/hwconf)|(/etc/sysconfig/network.*)|(/etc/sysconfig/rhn/.+)|(/etc/udev/.+)|(/etc/X11/.+)|(/usr/local/pf/html/admin/tmp/.+)" | sort | xargs md5sum' > ~/md5_remote.txt && diff -u ~/md5_local.txt ~/md5_remote.txt

@@ -24,6 +24,8 @@ use base ('pf::SNMP');
 use Log::Log4perl;
 use Net::SNMP;
 
+sub description { 'PacketFence' }
+
 sub connectWrite {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -118,13 +120,11 @@ sub sendLocalFirewallRequestTrap {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

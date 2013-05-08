@@ -18,6 +18,8 @@ use Try::Tiny;
 use Readonly;
 
 use pf::config;
+use pf::config::cached;
+use pf::violation_config;
 use pf::util;
 use pf::services;
 use pf::trigger;
@@ -55,6 +57,7 @@ Add a problem to the problem list.
 add_problem( severity, message );
 
 =cut
+
 sub add_problem {
     my ($severity, $message) = @_;
 
@@ -69,6 +72,7 @@ sub add_problem {
 Returns an array of hashes of the form ( $SEVERITY => ... , $MESSAGE => ... )
 
 =cut
+
 sub sanity_check {
     my (@services) = @_;
 
@@ -78,13 +82,13 @@ sub sanity_check {
 
     # SELinux test only for RedHat based distros
     if ( -e "/etc/redhat-release" && `getenforce` =~ /^Enforcing/ ) {
-        add_problem( $WARN, 
+        add_problem( $WARN,
             'SELinux is in enforcing mode. This is currently not supported in PacketFence'
         );
     }
 
     if (!-f $lib_dir . '/pf/pfcmd/pfcmd_pregrammar.pm') {
-        add_problem( $FATAL, 
+        add_problem( $FATAL,
             "You are missing a critical file for PacketFence's proper operation. " .
             "See instructions to re-create the file in: perldoc $lib_dir/pf/pfcmd/pfcmd.pm"
         );
@@ -97,7 +101,7 @@ sub sanity_check {
     if ( isenabled($Config{'services'}{'radiusd'} ) ) {
         freeradius();
     }
-    
+
     if ( isenabled($Config{'trapping'}{'detection'}) ) {
         ids();
 
@@ -121,6 +125,7 @@ sub sanity_check {
     violations();
     switches();
     portal_profiles();
+    guests();
     unsupported();
     oauth2();
 
@@ -132,6 +137,9 @@ sub service_exists {
 
     foreach my $service (@services) {
         my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
+        if ($service =~ /httpd\.(.*)/) {
+            $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
+        }
         if ( !-e $exe ) {
             add_problem( $FATAL, "$exe for $service does not exist !" );
         }
@@ -143,11 +151,12 @@ sub service_exists {
 check the config file to make sure interfaces are fully defined
 
 =cut
+
 sub interfaces_defined {
 
     my $nb_management_interface = 0;
 
-    foreach my $interface ( tied(%Config)->GroupMembers("interface") ) {
+    foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
         my %int_conf = %{$Config{$interface}};
         my $int_with_no_config_required_regexp = qr/(?:monitor|dhcplistener|dhcp-listener|high-availability)/;
 
@@ -175,6 +184,7 @@ sub interfaces_defined {
 check the Netmask objs and make sure a managed and internal interface exist
 
 =cut
+
 sub interfaces {
 
     if ( !scalar(get_internal_devs()) ) {
@@ -189,7 +199,7 @@ sub interfaces {
         my $device = "interface " . $interface;
 
         if ( !($Config{$device}{'mask'} && $Config{$device}{'ip'} && $Config{$device}{'type'}) && !$seen{$interface}) {
-            add_problem( $FATAL, 
+            add_problem( $FATAL,
                 "Incomplete network information for $device. " .
                 "IP, network mask and type required."
             );
@@ -198,16 +208,16 @@ sub interfaces {
 
         foreach my $type ( split( /\s*,\s*/, $Config{$device}{'type'} ) ) {
             if ($type eq $IF_INTERNAL && !defined($Config{$device}{'enforcement'})) {
-                add_problem( $FATAL, 
+                add_problem( $FATAL,
                     "Incomplete network information for $device. " .
                     "Enforcement technique must be defined on an internal interface. " .
-                    "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " . 
+                    "Your choices are: $IF_ENFORCEMENT_VLAN or $IF_ENFORCEMENT_INLINE. " .
                     "If unsure refer to the documentation."
                 );
             }
 
             if ($type eq 'managed') {
-                add_problem( $WARN, 
+                add_problem( $WARN,
                     "Interface type 'managed' is deprecated and will be removed in future versions of PacketFence. " .
                     "You should use the 'management' keyword instead. " .
                     "Seen on interface $interface."
@@ -236,6 +246,7 @@ sub interfaces {
 Validation related to the FreeRADIUS daemon
 
 =cut
+
 sub freeradius {
 
     if ( !-x $Config{'services'}{'radiusd_binary'} ) {
@@ -246,15 +257,16 @@ sub freeradius {
 
 =item ids
 
-Validation related to the Snort/Suricata IDS usage 
+Validation related to the Snort/Suricata IDS usage
 
 =cut
+
 sub ids {
 
     # make sure a monitor device is present if trapping.detection is enabled
     if ( !$monitor_int ) {
-        add_problem( $FATAL, 
-            "monitor interface not defined, please disable trapping.detection " . 
+        add_problem( $FATAL,
+            "monitor interface not defined, please disable trapping.detection " .
             "or set an interface type=...,monitor in pf.conf"
         );
     }
@@ -288,12 +300,14 @@ sub ids {
 Validation related to the vulnerability scanning engine option.
 
 =cut
+
 sub scan {
+
     # Check if the configuration provided scan engine is instanciable
     my $scan_engine = 'pf::scan::' . lc($Config{'scan'}{'engine'});
-
+    $scan_engine = untaint_chain($scan_engine);
     try {
-        eval "use $scan_engine;";
+        eval "$scan_engine->require()";
         die($@) if ($@);
         my $scan = $scan_engine->new(
             host => $Config{'scan'}{'host'},
@@ -311,14 +325,15 @@ sub scan {
 Validation related to the OpenVAS vulnerability scanning engine usage.
 
 =cut
+
 sub scan_openvas {
     # Check if the mandatory informations are provided in the config file
     if ( !$Config{'scan'}{'openvas_configid'} ) {
-        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " . 
+        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
                 "scan.openvas_configid field in pf.conf" );
     }
     if ( !$Config{'scan'}{'openvas_reportformatid'} ) {
-        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " . 
+        add_problem( $WARN, "SCAN: The use of OpenVas as a scanning engine require to fill the " .
                 "scan.openvas_reportformatid field in pf.conf");
     }
 }
@@ -328,11 +343,12 @@ sub scan_openvas {
 Configuration validation of the network portion of the config
 
 =cut
+
 sub network {
 
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
-        add_problem( $WARN, 
+        add_problem( $WARN,
             "iptables based passthrough (trapping.passthrough) is incompatible with current PacketFence release. " .
             "Please file a ticket if you need this feature back."
         );
@@ -340,13 +356,13 @@ sub network {
 
     # make sure that networks.conf is not empty when services.dhcpd
     # is enabled
-    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))){
+    if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
         add_problem( $FATAL, "networks.conf cannot be empty when services.dhcpd is enabled" );
     }
 
     # make sure that networks.conf is not empty when services.named
     # is enabled
-    if (isenabled($Config{'services'}{'named'}) && ((!-e "$conf_dir/networks.conf") || (-z "$conf_dir/networks.conf"))){
+    if (isenabled($Config{'services'}{'named'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
         add_problem( $FATAL, "networks.conf cannot be empty when services.named is enabled" );
     }
 
@@ -359,8 +375,8 @@ sub network {
         # and upgrade to $FATAL
         if (defined($net{'type'}) && $net{'type'} =~ /^isolation$|^registration$/i) {
             add_problem( $WARN,
-                "networks.conf type isolation or registration is deprecated in favor of " . 
-                "vlan-isolation and vlan-registration. " . 
+                "networks.conf type isolation or registration is deprecated in favor of " .
+                "vlan-isolation and vlan-registration. " .
                 "Make sure to update your configuration as the old keywords will be removed in the future. " .
                 "Network $network"
             );
@@ -370,21 +386,21 @@ sub network {
         # TODO upgrade to FATAL once pf_gateway officially deprecated (somewhere in 2012)
         if (defined($net{'pf_gateway'}) && $net{'pf_gateway'} ne '') {
             add_problem( $WARN,
-                "networks.conf pf_gateway is deprecated in favor of next_hop. " . 
+                "networks.conf pf_gateway is deprecated in favor of next_hop. " .
                 "Make sure to update your configuration as the old parameters will be removed in the future. " .
                 "Network $network"
             );
         }
 
         # validate dns entry if named is enabled
-        if ($net{'named'} =~ /enabled/i) {
+        if (exists $net{'named'} &&  $net{'named'} =~ /enabled/i) {
             if (!valid_ip($net{'dns'})) {
                 add_problem( $FATAL, "networks.conf: DNS IP is not valid for network $network" );
             }
         }
 
         # mandatory fields if we run DHCP (should be most cases)
-        if ($net{'dhcpd'} =~ /enabled/i) {
+        if (exists $net{'dhcpd'} &&  $net{'dhcpd'} =~ /enabled/i) {
             my $netmask_valid = (defined($net{'netmask'}) && valid_ip($net{'netmask'}));
             my $gw_valid = (defined($net{'gateway'}) && valid_ip($net{'gateway'}));
             my $domainname_valid = (defined($net{'domain-name'}) && $net{'domain-name'} !~ /^\s*$/);
@@ -393,9 +409,9 @@ sub network {
                 defined($net{'dhcp_end'}) && $net{'dhcp_end'} !~ /^\s*$/
             );
             my $default_lease_valid = (
-                defined($net{'dhcp_default_lease_time'}) && $net{'dhcp_default_lease_time'} =~ /^\d+$/
+                !defined($net{'dhcp_default_lease_time'}) || $net{'dhcp_default_lease_time'} =~ /^\d+$/
             );
-            my $max_lease_valid = ( defined($net{'dhcp_max_lease_time'}) && $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
+            my $max_lease_valid = ( !defined($net{'dhcp_max_lease_time'}) || $net{'dhcp_max_lease_time'} =~ /^\d+$/ );
             if (!($netmask_valid && $gw_valid && $domainname_valid && $range_valid && $default_lease_valid && $max_lease_valid)) {
                 add_problem( $FATAL, "networks.conf: Incomplete DHCP information for network $network" );
             }
@@ -412,6 +428,7 @@ sub network {
 Tests that validate the configuration of an inline network.
 
 =cut
+
 sub network_inline {
     my ($network) = @_;
     # shorter, more convenient accessor
@@ -434,7 +451,7 @@ sub network_inline {
         }
     }
     if ( !$found ) {
-        add_problem( $WARN, 
+        add_problem( $WARN,
             "networks.conf $network gateway ($net{'gateway'}) is not bound to an internal interface. " .
             "Assume your configuration is wrong unless you know what you are doing."
         );
@@ -458,11 +475,12 @@ sub network_inline {
 If some interfaces are configured to run in inline enforcement then these tests will run
 
 =cut
+
 sub inline {
 
     # make sure trapping.passthrough=proxy if network.mode is set to vlan
     if ( $Config{'trapping'}{'passthrough'} eq 'proxy' ) {
-        add_problem( $WARN, 
+        add_problem( $WARN,
             "Proxy passthrough (trapping.passthrough) is untested with inline enforcement and might not work. " .
             "If you don't understand the warning you can safely ignore it you won't be affected. "
         );
@@ -470,8 +488,8 @@ sub inline {
 
     my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
     if ($result ne "1\n") {
-        add_problem( $WARN, 
-            "inline mode needs ip_forward enabled to work properly. " . 
+        add_problem( $WARN,
+            "inline mode needs ip_forward enabled to work properly. " .
             "Refer to the administration guide to enable ip_forward."
         );
     }
@@ -482,21 +500,22 @@ sub inline {
 database check
 
 =cut
+
 sub database {
 
     try {
 
-        # make sure pid 1 exists
+        # make sure pid "admin" exists
         require pf::person;
-        if ( !pf::person::person_exist(1) ) {
-            add_problem( $FATAL, "person user id 1 must exist - please reinitialize your database" );
+        if ( !pf::person::person_exist("admin") ) {
+            add_problem( $FATAL, "person user id \"admin\" must exist - please reinitialize your database" );
         }
 
     } catch {
         if ($_ =~ /unable to connect to database/) {
-            add_problem( 
-                $FATAL, 
-                "Unable to connect to your database. " 
+            add_problem(
+                $FATAL,
+                "Unable to connect to your database. "
                 . "Please verify your connection settings in conf/pf.conf and make sure that it is started."
             );
         } else {
@@ -511,6 +530,7 @@ sub database {
 Web Administration interface checks
 
 =cut
+
 sub web_admin {
 
     # make sure admin port exists
@@ -525,39 +545,12 @@ sub web_admin {
 Registration configuration sanity
 
 =cut
+
 sub registration {
 
     # warn when scan.registration=enabled and trapping.registration=disabled
     if ( isenabled( $Config{'scan'}{'registration'} ) && isdisabled( $Config{'trapping'}{'registration'} ) ) {
         add_problem( $WARN, "scan.registration is enabled but trapping.registration is not ... this is strange!" );
-    }
-
-    # registration.skip_mode validation
-    if ( $Config{'registration'}{'skip_mode'} eq "deadline" && !$Config{'registration'}{'skip_deadline'} ) {
-        add_problem( $FATAL,
-            "pf.conf value registration.skip_deadline is mal-formed or null! " . 
-            "(format should be that of the 'date' command)"
-        );
-    } elsif ( $Config{'registration'}{'skip_mode'} eq "windows" && !$Config{'registration'}{'skip_window'} ) {
-        add_problem( $FATAL, "pf.conf value registration.skip_window is not defined!" );
-    }
-
-    # registration.expire_mode validation
-    if ( $Config{'registration'}{'expire_mode'} eq "deadline" && !$Config{'registration'}{'expire_deadline'} ) {
-        add_problem( $FATAL,
-            "pf.conf value registration.expire_deadline is mal-formed or null! " . 
-            "(format should be that of the 'date' command)"
-        );
-    } elsif ( $Config{'registration'}{'expire_mode'} eq "window" && !$Config{'registration'}{'expire_window'} ) {
-        add_problem( $FATAL, "pf.conf value registration.expire_window is not defined!" );
-    }
-
-    # make sure that expire_mode session is disabled in VLAN isolation
-    if (lc($Config{'registration'}{'expire_mode'}) eq 'session') {
-        add_problem( $FATAL, 
-            "automatic node expiration mode ".$Config{'registration'}{'expire_mode'} . " " .
-            "is incompatible with current PacketFence release. Please file a ticket if you need this feature."
-        );
     }
 
 }
@@ -570,57 +563,40 @@ sub is_config_documented {
         return;
     }
 
-    #compare configuration with documentation
-    tie my %myconfig, 'Config::IniFiles', (
-        -file   => $config_file,
-        -import => Config::IniFiles->new( -file => $default_config_file )
-    );
-    tie my %documentation, 'Config::IniFiles', ( -file => $conf_dir . "/documentation.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        my $message = join( "\n", @errors ) . "\n";
-        add_problem( $FATAL, "problem reading documentation.conf. Error: $message" );
-    }
-
     #starting with documentation vs configuration
     #i.e. make sure that pf.conf contains everything defined in
     #documentation.conf
-    foreach my $section ( sort tied(%documentation)->Sections ) {
+    foreach my $section ( sort keys %Doc_Config) {
         my ( $group, $item ) = split( /\./, $section );
-        my $type = $documentation{$section}{'type'};
+        my $type = $Doc_Config{$section}{'type'};
 
         next if ( $section =~ /^(proxies|passthroughs)$/ || $group =~ /^(interface|services)$/ );
         next if ( ( $group eq 'alerting' ) && ( $item eq 'fromaddr' ) );
 
-        if ( defined( $Config{$group}{$item} ) ) {
-            if ( $type eq "toggle" ) {
-                if ( $Config{$group}{$item} !~ /^$documentation{$section}{'options'}$/ ) {
-                    add_problem( $FATAL,
-                        "pf.conf value $group\.$item must be one of the following: "
-                        . $documentation{$section}{'options'}
-                    );
-                }
-            } elsif ( $type eq "time" ) {
-                if ( $myconfig{$group}{$item} !~ /\d+$TIME_MODIFIER_RE$/ ) {
+        if ( !exists $Config{$group} || !exists $Config{$group}{$item} ) {
+            add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
+        } elsif (defined( $Config{$group}{$item} ) ) {
+            if ( $type eq "time" ) {
+                if ( $cached_pf_config->val($group,$item) !~ /\d+$TIME_MODIFIER_RE$/ ) {
                     add_problem( $FATAL,
                         "pf.conf value $group\.$item does not explicity define interval (eg. 7200s, 120m, 2h) " .
                         "- please define it before running packetfence"
                     );
                 }
-            } elsif ( $type eq "multi" ) {
-                my @selectedOptions = split( /\s*,\s*/, $myconfig{$group}{$item} );
-                my @availableOptions = split( /\s*[;\|]\s*/, $documentation{$section}{'options'} );
+            } elsif ( $type eq "multi" || $type eq "toggle" ) {
+                my @selectedOptions = split( /\s*,\s*/, $cached_pf_config->val($group,$item) );
+                my @availableOptions = @{$Doc_Config{$section}{'options'}};
                 foreach my $currentSelectedOption (@selectedOptions) {
                     if ( grep(/^$currentSelectedOption$/, @availableOptions) == 0 ) {
                         add_problem( $FATAL,
                             "pf.conf values for $group\.$item must be among the following: " .
-                            $documentation{$section}{'options'} .  " but you used $currentSelectedOption. " .
+                            join("|",@availableOptions) .  " but you used $currentSelectedOption. " .
                             "If you are sure of this choice, please update conf/documentation.conf"
                         );
                     }
                 }
             }
-        } elsif ( $Config{$group}{$item} ne "0" ) {
+        } elsif( $Config{$group}{$item} ne "0"  ) {
             add_problem( $FATAL, "pf.conf value $group\.$item is not defined!" );
         }
     }
@@ -630,11 +606,11 @@ sub is_config_documented {
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
         next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
-                  || ($section =~ /^(services|interface|portal-profile|oauth2|nessus_category_policy)/));
+                  || ($section =~ /^(services|interface|oauth2|nessus_category_policy)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
-            if ( !defined( $documentation{"$section.$item"} ) ) {
-                add_problem( $FATAL, 
+            if ( !defined( $Doc_Config{"$section.$item"} ) ) {
+                add_problem( $FATAL,
                     "unknown configuration parameter $section.$item ".
                     "if you added the parameter yourself make sure it is present in conf/documentation.conf"
                 );
@@ -649,6 +625,7 @@ sub is_config_documented {
 Performs version checking of the extension points.
 
 =cut
+
 sub extensions {
 
     my @extensions = (
@@ -669,7 +646,7 @@ sub extensions {
             die($@) if ($@);
 
             if (!defined($extension_ref->{module}->VERSION())) {
-                add_problem($FATAL, 
+                add_problem($FATAL,
                     "$extension_ref->{name} extension point ($extension_ref->{module}) VERSION is not defined."
                 );
             }
@@ -679,14 +656,14 @@ sub extensions {
                     "Did you read the UPGRADE document?"
                 );
             }
-        } 
+        }
         catch {
             chomp($_);
             add_problem($FATAL, "Uncaught exception while trying to identify $extension_ref->{name} extension version: $_");
         };
     }
 
-    # TODO we might want to re-add that to the above if we ever get 
+    # TODO we might want to re-add that to the above if we ever get
     # catastrophic chains of extension failures that are confusing to users
 
     # we ignore "version check failed" or "version x required"
@@ -694,45 +671,6 @@ sub extensions {
     #if ($_ !~ /(?:version check failed)|(?:version .+ required)/) {
     #        add_problem( $FATAL, "Uncaught exception while trying to identify RADIUS extension version: $_" );
     #}
-
-    # Authentication modules
-    my @activated_auth_modules = split( /\s*,\s*/, $Config{'registration'}{'auth'} );
-    # if sponsored guest authentication is enabled test the module
-    if ($guest_self_registration{$SELFREG_MODE_SPONSOR}) {
-        push @activated_auth_modules, $Config{'guests_self_registration'}{'sponsor_authentication'};
-    }
-    foreach my $auth (@activated_auth_modules) {
-        my ($authenticator, $authReturn, $err);
-        try {
-            # try to import module and re-throw the error to catch if there's one
-            eval "use authentication::$auth";
-            die($@) if ($@);
-
-            $authenticator = new {"authentication::$auth"}();
-            if (!$authenticator->isa('pf::web::auth')) {
-                add_problem( $FATAL,
-                    "Authentication module authentication::$auth is enabled and is not of the correct object type. " .
-                    "Did you read the UPGRADE document?"
-                );
-            }
-
-            if (!defined($authenticator->VERSION())) { 
-                add_problem( $FATAL,
-                    "Authentication module authentication::$auth is enabled and its VERSION is not defined. " . 
-                    "Did you read the UPGRADE document?"
-                );
-            } elsif ($AUTHENTICATION_API_LEVEL > $authenticator->VERSION()) { 
-                add_problem( $FATAL,
-                    "Authentication module authentication::$auth is enabled and is not at the correct API level. " .
-                    "Did you read the UPGRADE document?"
-                );
-            }
-
-
-        } catch {
-            add_problem($FATAL, "Uncaught exception while trying to identify authentication::$auth module version: $_");
-        }
-    }
 }
 
 =item permissions
@@ -740,19 +678,20 @@ sub extensions {
 Checking some important permissions
 
 =cut
+
 sub permissions {
 
-    # pfcmd needs to be setuid / setgid and 
     my (undef, undef, $pfcmd_mode, undef, $pfcmd_owner, $pfcmd_group) = stat($bin_dir . "/pfcmd");
-    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
-        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
-    }
-    # pfcmd needs to be owned by root (owner id 0 / group id 0) 
+    # pfcmd needs to be owned by root (owner id 0 / group id 0)
     if ($pfcmd_owner || $pfcmd_group) {
         add_problem( $FATAL, "pfcmd needs to be owned by root. Fix with chown root:root pfcmd" );
     }
+    # and pfcmd needs to be setuid / setgid
+    if (!($pfcmd_mode & S_ISUID && $pfcmd_mode & S_ISGID)) {
+        add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s pfcmd" );
+    }
 
-    # Disabled because it was causing too many false positives 
+    # Disabled because it was causing too many false positives
     # pfcmd (setuid root) changes ownership to root all the time
     ## owner must be pf otherwise we can't modify configuration
     ## only a warning because pf can still run, it's the config we can't change (friendlier cluster failover handling)
@@ -786,14 +725,15 @@ sub permissions {
 Apache related tests
 
 =cut
+
 sub apache {
 
     # we dynamically adjust apache's configuration based on total system memory
     # we will first here test if we can figure it out
     my $total_ram = get_total_system_memory();
     if (!defined($total_ram)) {
-        add_problem( 
-            $WARN, 
+        add_problem(
+            $WARN,
             "Unable to find out how much system memory is available. "
             . "We'll assume you have 2 Gigabyte. "
             . "Please report an issue."
@@ -803,13 +743,13 @@ sub apache {
     # Apache PerlPostConfigRequire scripts *must* compile otherwise apache startup silently fails
     my $captive_portal = pf_run("perl -c $lib_dir/pf/web/captiveportal_modperl_require.pl 2>&1");
     if (!defined($captive_portal) || $captive_portal !~ /syntax OK$/) {
-        add_problem( 
+        add_problem(
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/captiveportal_modperl_require.pl doesn't compile"
         );
     }
     my $back_end = pf_run("perl -c $lib_dir/pf/web/backend_modperl_require.pl 2>&1");
     if (!defined($back_end) || $back_end !~ /syntax OK$/) {
-        add_problem( 
+        add_problem(
             $FATAL, "Apache will fail to start! $lib_dir/pf/web/backend_modperl_require.pl doesn't compile"
         );
     }
@@ -820,38 +760,31 @@ sub apache {
 Checking for violations configurations
 
 =cut
-sub violations {
-    my %violations_conf;
-    tie %violations_conf, 'Config::IniFiles', ( -file => "$conf_dir/violations.conf" );
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        add_problem( $FATAL, "Error reading violations.conf");
-    }
 
-    my %violations = pf::services::class_set_defaults(%violations_conf);    
+sub violations {
 
     my $deprecated_disable_seen = $FALSE;
-    foreach my $violation ( keys %violations ) {
+    foreach my $violation ( keys %Violation_Config ) {
 
         # parse triggers if they exist
-        if ( defined $violations{$violation}{'trigger'} ) {
-            try { 
+        if ( defined $Violation_Config{$violation}{'trigger'} ) {
+            try {
                 # TODO we are parsing triggers both on checkup and when we parse the configuration on startup
                 # we probably can do something smarter here (but can't find right maintenance / efficiency balance now)
-                parse_triggers($violations{$violation}{'trigger'});
+                parse_triggers($Violation_Config{$violation}{'trigger'});
             } catch {
                 add_problem($WARN, "Violation $violation is ignored: $_");
             };
         }
 
-        if ( defined $violations{$violation}{'disable'} ) {
+        if ( defined $Violation_Config{$violation}{'disable'} ) {
             $deprecated_disable_seen = $TRUE;
         }
     }
 
     if ($deprecated_disable_seen) {
         add_problem( $FATAL,
-            "violations.conf's disable parameter is deprecated in favor of enabled. " . 
+            "violations.conf's disable parameter is deprecated in favor of enabled. " .
             "Make sure to update your configuration. Read UPGRADE for details and an upgrade script."
         );
     }
@@ -862,25 +795,22 @@ sub violations {
 Checking for switches configurations
 
 =cut
+
 sub switches {
     my %switches_conf;
-    tie %switches_conf, 'Config::IniFiles', ( -file => "$conf_dir/switches.conf" );
-    
+    tie %switches_conf, 'pf::config::cached', ( -file => "$conf_dir/switches.conf" );
+
     my @errors = @Config::IniFiles::errors;
     if ( scalar(@errors) ) {
         add_problem( $FATAL, "switches.conf | Error reading switches.conf" );
     }
 
     # remove trailing whitespaces
-    foreach my $section ( tied(%switches_conf)->Sections ) {
-        foreach my $key ( keys %{ $switches_conf{$section} } ) {
-            $switches_conf{$section}{$key} =~ s/\s+$//;
-        }
-    }
+    tied(%switches_conf)->cleanupWhitespace(\%switches_conf);
 
     foreach my $section ( keys %switches_conf ) {
         # skip default switch parameters
-        next if ( $section =~ /^default$/i ); 
+        next if ( $section =~ /^default$/i );
         if ( $section eq '127.0.0.1' ) {
             add_problem( $WARN, "switches.conf | Switch 127.0.0.1 is defined but it had to be removed" );
         }
@@ -892,10 +822,10 @@ sub switches {
 
         # check type
         my $type = "pf::SNMP::" . ( $switches_conf{$section}{'type'} || $switches_conf{'default'}{'type'} );
-        if ( !$type->require() ) {
-            add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
-        }
-
+        $type = untaint_chain($type);
+        if ( !(eval "$type->require()" ) ) {
+                add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
+            }
         # check for valid switch IP
         if ( !valid_ip($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
@@ -914,7 +844,7 @@ sub switches {
         }
 
         # check SNMP Trap version
-        my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'} 
+        my $SNMPVersionTrap = ($switches_conf{$section}{'SNMPVersionTrap'}
                 || $switches_conf{'default'}{'SNMPVersionTrap'});
         if (!defined($SNMPVersionTrap)) {
             add_problem( $WARN, "switches.conf | Switch SNMP Trap version is missing for switch $section"
@@ -925,8 +855,8 @@ sub switches {
         } elsif ( $SNMPVersionTrap =~ /^3$/ ) {
             # mandatory SNMPv3 traps parameters
             foreach (qw(
-                SNMPUserNameTrap SNMPEngineID 
-                SNMPAuthProtocolTrap SNMPAuthPasswordTrap 
+                SNMPUserNameTrap SNMPEngineID
+                SNMPAuthProtocolTrap SNMPAuthPasswordTrap
                 SNMPPrivProtocolTrap SNMPPrivPasswordTrap
             )) {
                 add_problem( $WARN, "switches.conf | $_ is missing for switch $section" )
@@ -956,7 +886,7 @@ sub switches {
             ;?               # optional ending ;
             $/x ) {
             add_problem(
-                $WARN, 
+                $WARN,
                 "switches.conf | Roles parameter ($roles) is badly formatted for switch $section. "
                 . "It should be: <category_name1>=<controller_role1>;<category_name2>=<controller_role2>;..."
             );
@@ -970,19 +900,20 @@ sub switches {
 Validation related to the billing engine feature.
 
 =cut
+
 sub billing {
     # Check if the configuration provided payment gateway is instanciable
     my $payment_gw = 'pf::billing::gateway::' . lc($Config{'billing'}{'gateway'});
-
+    $payment_gw = untaint_chain($payment_gw);
     try {
-        eval "use $payment_gw;";
+        eval "$payment_gw->require()";
         die($@) if ($@);
         my $gw = $payment_gw->new();
 
-        if (!defined($gw->VERSION())) { 
+        if (!defined($gw->VERSION())) {
             add_problem($FATAL, "Payment gateway module $payment_gw is enabled and its VERSION is not defined.");
         }
-        elsif ($BILLING_API_LEVEL > $gw->VERSION()) { 
+        elsif ($BILLING_API_LEVEL > $gw->VERSION()) {
             add_problem( $FATAL,
                 "Payment gateway module $payment_gw is enabled and is not at the correct API level. " .
                 "Did you read the UPGRADE document?"
@@ -994,11 +925,34 @@ sub billing {
     };
 }
 
+=item guests
+
+Guest-related Checks
+
+=cut
+
+sub guests {
+
+    # if we are going to send emails we must warn that MIME::Lite::TT must be installed
+    my $guests_enabled = isenabled($Config{'registration'}{'guests_self_registration'});
+    my $guest_require_email = ($guest_self_registration{$SELFREG_MODE_SMS} || $guest_self_registration{$SELFREG_MODE_SPONSOR});
+    if ($guests_enabled && $guest_require_email) {
+        my $import_succesfull = try { require MIME::Lite::TT; };
+        if (!$import_succesfull) {
+            add_problem( $WARN,
+                "Can't load MIME::Lite::TT. Emails to guests won't work. " .
+                "Make sure to install it or disable the self-registered guest feature."
+            );
+        }
+    }
+}
+
 =item unsupported
 
 Feature that we know don't work under certain circumstances (or other features activated)
 
 =cut
+
 sub unsupported {
 
     # SMS confirmation doesn't work with pre-registration
@@ -1013,17 +967,18 @@ sub unsupported {
 Make sure that portal profiles, if defined, have a filter and no unsupported parameters
 
 =cut
+
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|auth|guest_self_reg|guest_modes|guest_category|template_path|billing_engine)/;
+    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description)/;
 
-    foreach my $portal_profile ( tied(%Config)->GroupMembers("portal-profile") ) {
+    foreach my $portal_profile ( $cached_profiles_config->Sections) {
 
         add_problem ( $FATAL, "missing filter parameter for profile $portal_profile" )
-            if ( !defined($Config{$portal_profile}{'filter'}) );
+            if ( $portal_profile ne 'default' &&  !defined($Profiles_Config{$portal_profile}{'filter'}) );
 
-        foreach my $key ( keys %{$Config{$portal_profile}} ) {
+        foreach my $key ( keys %{$Profiles_Config{$portal_profile}} ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
                 if ( $key !~ /$profile_params/ );
         }
@@ -1035,21 +990,25 @@ sub portal_profiles {
 Make sure that if you enable OAuth2 for Google/Facebook that you have the provider information defined in pf.conf
 
 =cut
+
 sub oauth2 {
 
+    my $google_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
     if ($guest_self_registration{$SELFREG_MODE_GOOGLE}) {
           add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Google" )
-            if ( !defined($Config{"oauth2 google"}) );
+            if ( !defined(pf::authentication::getAuthenticationSourceByType($google_type)) );
     }
 
+    my $facebook_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
     if ($guest_self_registration{$SELFREG_MODE_FACEBOOK}) {
          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Facebook" )
-        if ( !defined($Config{"oauth2 facebook"}) );
+        if ( !defined(pf::authentication::getAuthenticationSourceByType($facebook_type)) );
     }
 
+    my $github_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
     if ($guest_self_registration{$SELFREG_MODE_GITHUB}) {
          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to GitHub" )
-        if ( !defined($Config{"oauth2 github"}) );
+        if ( !defined(pf::authentication::getAuthenticationSourceByType($github_type)) );
     }
 }
 
@@ -1058,15 +1017,11 @@ sub oauth2 {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

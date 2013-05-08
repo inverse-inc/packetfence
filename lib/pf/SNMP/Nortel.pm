@@ -242,7 +242,10 @@ sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    return ($this->{_voiceVlan}) if (defined($this->{_voiceVlan})); 
+    my $voiceVlan = $this->getVlanByName('voice');
+    if (defined($voiceVlan)) {
+        return $voiceVlan;
+    }
 
     # otherwise say it didn't work
     $logger->warn("Voice VLAN was requested but it's not configured!");
@@ -866,15 +869,11 @@ sub setTaggedVlans {
 
 =head1 AUTHOR
 
-Regis Balzard <rbalzard@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -43,7 +43,7 @@ my @whitelist = (
     'getMode', 'isTestingMode', 'isIgnoreMode', 'isRegistrationMode',
     'isProductionMode', 'isDiscoveryMode', 'getBitAtPosition', 'modifyBitmask', 'flipBits',
     'createPortListWithOneItem', 'reverseBitmask', 'generateFakeMac', 'isFakeMac', 'isFakeVoIPMac', 'getVlanFdbId',
-    'isNotUpLink', 'setVlan', 'setVlanAllPort', 'resetVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
+    'isNotUpLink', 'setVlan', 'setVlanAllPort', 'getMacAtIfIndex', 'hasPhoneAtIfIndex',
     'isPhoneAtIfIndex', '_authorizeMAC', 'getRegExpFromList', '_getMacAtIfIndex', 'getMacAddrVlan', 'getHubs',
     'getVlanByName', 'isManagedVlan', 'deauthenticateMac', 'setVlan', 'extractSsid', 'supportsWirelessMacAuth', 
     'supportsWirelessDot1x', 'authorizeCurrentMacWithNewVlan', '_authorizeCurrentMacWithNewVlan',
@@ -78,17 +78,11 @@ is_deeply(
 
 =head1 AUTHOR
 
-Dominik Ghel <dghel@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-        
-Copyright (C) 2009-2011 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     

@@ -1,0 +1,6 @@
+<html>
+  <body>
+    <h1>Unauthorized</h1>
+    <p>You are not authorized to view this page. Please <a href="[% c.uri_for(c.controller('Admin').action_for('login')) %]">login</a>.</p>
+  </body>
+</html>

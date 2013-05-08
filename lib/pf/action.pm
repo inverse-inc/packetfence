@@ -22,17 +22,34 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Readonly;
+use pf::node;
 
 use constant ACTION => 'action';
 
 # Action types constants
 #FIXME port all hard-coded strings to these constants
 Readonly::Scalar our $AUTOREG => 'autoreg';
+Readonly::Scalar our $UNREG => 'unreg';
 Readonly::Scalar our $TRAP => 'trap';
+Readonly::Scalar our $EMAIL => 'email';
 Readonly::Scalar our $LOG => 'log';
 Readonly::Scalar our $EXTERNAL => 'external';
 Readonly::Scalar our $WINPOPUP => 'winpopup';
 Readonly::Scalar our $CLOSE => 'close';
+Readonly::Scalar our $ROLE => 'role';
+
+Readonly::Array our @VIOLATION_ACTIONS =>
+  (
+   $AUTOREG,
+   $UNREG,
+   $EMAIL,
+   $TRAP,
+   $LOG,
+   $EXTERNAL,
+   $WINPOPUP,
+   $CLOSE,
+   $ROLE,
+  );
 
 BEGIN {
     use Exporter ();
@@ -83,15 +100,16 @@ sub action_db_prepare {
 }
 
 sub action_exist {
-    my ( $vid, $action ) = @_;
+    my ($vid, $action) = @_;
     my $query = db_query_execute(ACTION, $action_statements, 'action_exist_sql', $vid, $action) || return (0);
     my ($val) = $query->fetchrow_array();
     $query->finish();
+
     return ($val);
 }
 
 sub action_add {
-    my ( $vid, $action ) = @_;
+    my ($vid, $action) = @_;
     my $logger = Log::Log4perl::get_logger('pf::action');
     if ( action_exist( $vid, $action ) ) {
         $logger->warn("attempt to add existing action $action to class $vid");
@@ -99,30 +117,34 @@ sub action_add {
     }
     db_query_execute(ACTION, $action_statements, 'action_add_sql', $vid, $action) || return (0);
     $logger->debug("action $action added to class $vid");
+
     return (1);
 }
 
 sub action_view {
-    my ( $vid, $action ) = @_;
+    my ($vid, $action) = @_;
 
     my $query = db_query_execute(ACTION, $action_statements, 'action_view_sql', $vid, $action) || return (0);
     my $ref = $query->fetchrow_hashref();
 
     # just get one row and finish
     $query->finish();
+
     return ($ref);
 }
 
 sub action_view_all {
     my ($vid) = @_;
+
     return db_data(ACTION, $action_statements, 'action_view_all_sql', $vid );
 }
 
 sub action_delete {
-    my ( $vid, $action ) = @_;
+    my ($vid, $action) = @_;
     my $logger = Log::Log4perl::get_logger('pf::action');
     db_query_execute(ACTION, $action_statements, 'action_delete_sql', $vid, $action) || return (0);
     $logger->debug("action $action deleted from class $vid");
+
     return (1);
 }
 
@@ -131,25 +153,27 @@ sub action_delete_all {
     my $logger = Log::Log4perl::get_logger('pf::action');
     db_query_execute(ACTION, $action_statements, 'action_delete_all_sql', $vid) || return (0);
     $logger->debug("all actions for class $vid deleted");
+
     return (1);
 }
 
 # TODO what is that? Isn't it dangerous?
 sub action_api {
-    my ( $mac, $vid, $external_id ) = @_;
+    my ($mac, $vid, $external_id) = @_;
     my $class_info = class_view($vid);
-    my @args       = (
-        $Config{'paths'}{ 'external' . $external_id },
-        $mac, $class_info->{'description'}
+    my @args =
+      (
+       $Config{'paths'}{ 'external' . $external_id },
+       $mac, $class_info->{'description'}
     );
     system(@args);
 }
 
 sub action_execute {
-    my ( $mac, $vid, $notes ) = @_;
-    my $logger     = Log::Log4perl::get_logger('pf::action');
+    my ($mac, $vid, $notes) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::action');
     my $leave_open = 0;
-    my @actions    = class_view_actions($vid);
+    my @actions = class_view_actions($vid);
     foreach my $row (@actions) {
         my $action = $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
@@ -168,6 +192,10 @@ sub action_execute {
             action_autoregister($mac, $vid);
         } elsif ( $action =~ /^close$/i ) {
             action_close( $mac, $vid );
+        } elsif ( $action =~ /^role$/i ) {
+            action_role( $mac, $vid );
+        } elsif ( $action =~ /^unreg$/i ) {
+            action_unreg( $mac, $vid );
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
         }
@@ -180,8 +208,24 @@ sub action_execute {
     return (1);
 }
 
+sub action_role {
+    my ($mac, $vid) = @_;
+    my %info;
+
+    my $class_info = class_view($vid);
+    $info{'category'} = $class_info->{'target_category'};
+
+    node_modify($mac, %info);
+}
+
+sub action_unreg {
+    my ($mac, $vid) = @_;
+
+    node_deregister($mac);
+}
+
 sub action_email {
-    my ( $mac, $vid, $notes ) = @_;
+    my ($mac, $vid, $notes) = @_;
     my %message;
 
     require pf::lookup::node;
@@ -197,7 +241,7 @@ sub action_email {
 }
 
 sub action_log {
-    my ( $mac, $vid ) = @_;
+    my ($mac, $vid) = @_;
     my $logger = Log::Log4perl::get_logger('pf::action');
     require pf::iplog;
     my $ip = pf::iplog::mac2ip($mac) || 0;
@@ -221,14 +265,13 @@ sub action_log {
 }
 
 sub action_trap {
-    my ( $mac, $vid ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::action');
+    my ($mac, $vid) = @_;
 
     # Nothing here, trapping is handled by pf::enforcement (called by pfcmd on violation changes)
 }
 
 sub action_winpopup {
-    my ( $mac, $vid ) = @_;
+    my ($mac, $vid) = @_;
     my $logger = Log::Log4perl::get_logger('pf::action');
 
     eval "use Net::NetSend qw(:all); 1" || return (0);
@@ -257,7 +300,6 @@ sub action_winpopup {
     } else {
         $logger->error("Unable to resolve NetBIOS->IP to send winpopup");
     }
-
 }
 
 sub action_autoregister {
@@ -313,21 +355,19 @@ sub action_close {
 
 =head1 AUTHOR
 
-David Laporte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David Laporte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2007-2010 Inverse inc.
+Copyright (C) 2005 David LaPorte
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

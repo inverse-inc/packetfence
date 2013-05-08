@@ -34,12 +34,16 @@ BEGIN {
         read_dhcp_fingerprints_conf
         dhcp_fingerprint_view
         dhcp_fingerprint_view_all
+        dhcp_fingerprint_view_all_searchable
         dhcp_fingerprint_count
         import_dhcp_fingerprints
+        update_dhcp_fingerprints_conf
+        dhcp_fingerprint_count_searchable
     );
 }
 
 use pf::config;
+use pf::config::cached;
 use pf::db;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -55,6 +59,7 @@ This list is incomplete.
 =over
 
 =cut
+
 sub os_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::os');
     $logger->debug("Preparing pf::os database queries");
@@ -74,12 +79,12 @@ sub os_db_prepare {
 
     $os_statements->{'dhcp_fingerprint_view_sql'} = get_db_handle()->prepare(qq[
          SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.class_id AS classid, c.description AS class
-         FROM dhcp_fingerprint d 
-            LEFT JOIN os_type o ON o.os_id=d.os_id 
-            LEFT JOIN os_mapping m ON m.os_type=o.os_id 
-            LEFT JOIN os_class c ON  m.os_class=c.class_id 
-         WHERE d.fingerprint=? 
-         GROUP BY c.class_id 
+         FROM dhcp_fingerprint d
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id
+            LEFT JOIN os_class c ON  m.os_class=c.class_id
+         WHERE d.fingerprint=?
+         GROUP BY c.class_id
          ORDER BY class_id
     ]);
 
@@ -100,6 +105,37 @@ sub os_db_prepare {
     $os_db_prepared = 1;
 }
 
+sub update_dhcp_fingerprints_conf {
+    require LWP::UserAgent;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+    my $browser = LWP::UserAgent->new;
+    my $response = $browser->get($dhcp_fingerprints_url);
+    my ($status,$version_or_msg,$total) = ($response->code,undef,undef);
+    if ( !$response->is_success ) {
+        $version_or_msg = "Unable to update DHCP fingerprints: " . $response->status_line;
+    } else {
+        my ($fingerprints_fh);
+        if( open( $fingerprints_fh, '>', "$dhcp_fingerprints_file" ) ) {
+            my $fingerprints = $response->content;
+            ($version_or_msg)
+                = $fingerprints
+                =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
+            print $fingerprints_fh $fingerprints;
+            close($fingerprints_fh);
+            $logger->info(
+                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_or_msg"
+            );
+            $total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
+            $logger->info("$total DHCP fingerprints reloaded");
+        }
+        else {
+           $version_or_msg = "Unable to open $dhcp_fingerprints_file: $!";
+        }
+    }
+    return ($status,$version_or_msg,$total);
+
+}
+
 sub dhcp_fingerprint_view {
     my ($fingerprint) = @_;
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_sql', $fingerprint );
@@ -107,6 +143,77 @@ sub dhcp_fingerprint_view {
 
 sub dhcp_fingerprint_view_all {
     return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql');
+}
+
+=item dhcp_fingerprint_view_all
+
+view all nodes based on several criterias
+
+=cut
+
+sub dhcp_fingerprint_view_all_searchable {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+
+    os_db_prepare() if (!$os_db_prepared);
+    my $sql = qq[
+        SELECT d.os_id AS id, d.fingerprint, o.description AS os, c.class_id AS classid, c.description AS class
+        FROM dhcp_fingerprint d
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id
+            LEFT JOIN os_class c ON  m.os_class=c.class_id
+        ];
+
+    if ( defined( $params{'where'} ) ) {
+        my $where = $params{'where'};
+        if ( $where->{type} eq 'any' && $where->{like} ne '' ) {
+            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%');
+            $sql .= " WHERE " . join (' or ',map { "$_ $like"  } qw(c.description o.description));
+        }
+    }
+    if ( defined( $params{'orderby'} ) ) {
+        $sql .= " " . $params{'orderby'};
+    }
+    if ( defined( $params{'limit'} ) ) {
+        $sql .= " " . $params{'limit'};
+    }
+
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $os_statements->{'dhcp_fingerprint_view_all_sql_custom'} = $sql;
+    $logger->info($sql);
+
+    return db_data(OS, $os_statements, 'dhcp_fingerprint_view_all_sql_custom');
+}
+
+sub dhcp_fingerprint_count_searchable {
+    my ( %params ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::os');
+
+    os_db_prepare() if (!$os_db_prepared);
+    my $sql = qq[
+        SELECT count(*) FROM dhcp_fingerprint d
+            LEFT JOIN os_type o ON o.os_id=d.os_id
+            LEFT JOIN os_mapping m ON m.os_type=o.os_id
+            LEFT JOIN os_class c ON  m.os_class=c.class_id
+        ];
+
+    if ( defined( $params{'where'} ) ) {
+        my $where = $params{'where'};
+        if ( $where->{type} eq 'any' && $where->{like} ne '' ) {
+            my $like = " LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%');
+            $sql .= " WHERE " . join (' or ',map { "$_ $like"  } qw(c.description o.description));
+        }
+    }
+    # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
+    # and pf::db will recognize it and prepare it as such
+    $os_statements->{'dhcp_fingerprint_view_all_sql_custom'} = $sql;
+    $logger->info($sql);
+
+    my $query = db_query_execute(OS, $os_statements, 'dhcp_fingerprint_view_all_sql_custom');
+    my ($val) = $query->fetchrow_array();
+    $query->finish();
+    return ($val);
 }
 
 sub dhcp_fingerprint_count {
@@ -124,6 +231,7 @@ Options:
   force => $TRUE: will trigger the import anyway
 
 =cut
+
 sub import_dhcp_fingerprints {
     my ($opts_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::os');
@@ -143,7 +251,7 @@ sub read_dhcp_fingerprints_conf {
 
     db_query_execute(OS, $os_statements, 'os_delete_all_sql');
     db_query_execute(OS, $os_statements, 'os_class_delete_all_sql');
-    tie %dhcp_fingerprints, 'Config::IniFiles',
+    tie %dhcp_fingerprints, 'pf::config::cached',
         ( -file => $dhcp_fingerprints_file );
     my @errors = @Config::IniFiles::errors;
 
@@ -178,7 +286,7 @@ sub read_dhcp_fingerprints_conf {
 
             my $os_class = $class;
             $os_class =~ s/^class\s+//;
-            db_query_execute(OS, $os_statements, 'os_class_add_sql', 
+            db_query_execute(OS, $os_statements, 'os_class_add_sql',
                 $os_class, $dhcp_fingerprints{$class}{"description"}) if ( !$seen_class{$os_class} );
             $seen_class{$os_class} = 1;
 
@@ -192,9 +300,10 @@ sub read_dhcp_fingerprints_conf {
 
 =item _class_member_in_range
 
-Handles the F<dhcp_fingerprint.conf> members=... field. If a given OS is in a member range returns true otherwise false.
+Handles the F<dhcp_fingerprints.conf> members=... field. If a given OS is in a member range returns true otherwise false.
 
 =cut
+
 sub _class_member_in_range {
     my ( $range, $member ) = @_;
     foreach my $element ( split( /\s*,\s*/, $range ) ) {
@@ -216,19 +325,17 @@ sub _class_member_in_range {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2010,2011 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

@@ -49,6 +49,8 @@ use pf::config;
 use pf::SNMP::constants;
 use pf::util;
 
+sub description { 'HP ProCurve 5400 Series' }
+
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
@@ -91,13 +93,11 @@ sub isVoIPEnabled {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

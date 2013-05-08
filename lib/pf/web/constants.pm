@@ -10,6 +10,7 @@ This file is splitted by packages and refering to the constant requires you to
 specify the package.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -27,6 +28,7 @@ Return all the WEB constants in an hash. This is to ease consumption by
 Template Toolkit.
 
 =cut
+
 sub to_hash {
     no strict 'refs';
 
@@ -47,6 +49,7 @@ sub to_hash {
 =head1 WEB
 
 =cut
+
 package WEB;
 
 =head2 URLs
@@ -55,6 +58,7 @@ See conf/httpd.conf.d/captive-portal-cleanurls.conf to see to which
 CGI they map.
 
 =cut
+
 # normal flow
 Readonly::Scalar our $URL_ACCESS                => '/access';
 Readonly::Scalar our $URL_AUTHENTICATE          => '/authenticate';
@@ -66,6 +70,7 @@ Readonly::Scalar our $URL_OAUTH2                => '/oauth2/auth';
 Readonly::Scalar our $URL_OAUTH2_FACEBOOK       => '/oauth2/facebook';
 Readonly::Scalar our $URL_OAUTH2_GITHUB         => '/oauth2/github';
 Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
+Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_WIRELESS_PROFILE      => '/wireless-profile.mobileconfig';
 
@@ -77,11 +82,9 @@ Readonly::Scalar our $URL_EMAIL_ACTIVATION_LINK => '/activate/email';
 Readonly::Scalar our $CGI_EMAIL_ACTIVATION      => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $URL_SMS_ACTIVATION        => '/activate/sms';
 Readonly::Scalar our $URL_PREREGISTER           => '/preregister';
-Readonly::Scalar our $URL_ADMIN_MANAGE_GUESTS   => '/guests/manage';
 
 # TODO: Temp... migration process. Should be kept since it breaks the portal on removal
 # dwuelfrath@inverse.ca - 2012.11.12
-Readonly::Scalar our $URL_REMEDIATION           => '/remediation.php(.*)';
 Readonly::Scalar our $URL_SIGNUP_UGLY           => '/guest-selfregistration.cgi';
 Readonly::Scalar our $ACL_EMAIL_ACTIVATION_CGI  => '/cgi-perl/email_activation.cgi';
 Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistration.cgi';
@@ -100,6 +103,7 @@ Filesystem portion is prefixed by $install_dir before installing into
 Apache config.
 
 =cut
+
 Readonly::Hash our %STATIC_CONTENT_ALIASES => (
     '/common/' => '/html/common/',
     '/content/' => '/html/captive-portal/content/',
@@ -117,6 +121,7 @@ an ending anchor is also installed (^/file$).
 Anything else should be redirected. This happens in L<pf::web::dispatcher>.
 
 =cut
+
 my @components = ( keys %STATIC_CONTENT_ALIASES, _clean_urls_match() );
 # add $ to non-slash ending URLs
 foreach (@components) { s{([^/])$}{$1\$} };
@@ -145,6 +150,7 @@ Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /
 Return a regex that would match all the captive portal allowed clean URLs
 
 =cut
+
 sub _clean_urls_match {
     my %consts = pf::web::constants::to_hash();
     my @urls;
@@ -160,6 +166,7 @@ sub _clean_urls_match {
 Return a regex that would match all the captive portal allowed clean URLs
 
 =cut
+
 sub _clean_urls_match_mod_perl {
     my %consts = pf::web::constants::to_hash();
     my @urls;
@@ -174,13 +181,11 @@ sub _clean_urls_match_mod_perl {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

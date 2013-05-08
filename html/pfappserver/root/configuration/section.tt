@@ -1,0 +1,12 @@
+ <h3>[% l(section) %]</h3>
+  <form name="section" class="form-horizontal" action="[% c.uri_for(c.action,section) %]" method="POST">
+
+[% FOREACH field IN form.fields %]
+  [% form.field(field.name).render %]
+[% END %]
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
+      <button type="reset" class="btn">[% l('Reset') %]</button>
+    </div>
+  </form>

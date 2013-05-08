@@ -29,8 +29,6 @@ pfcmd_vlan command [options]
    -man                 full documentation
    -reAssignVlan        re-assign a switch port VLAN
    -reevaluateAccess    reevaluate the current VLAN or firewall rules of a given MAC
-   -resetVlanAllPort    reset VLAN on all non-UpLink ports of the specified switch
-   -resetVlanNetwork    reset VLAN on all non-UpLink ports of all managed switches
    -runSwitchMethod     run a particular method call on a given switch (FOR ADVANCED PURPOSES)
    -setAlias            set the description of the specified switch port
    -setDefaultVlan      set the switch port to the default VLAN
@@ -76,6 +74,7 @@ This script allows to execute the following commands related to switches and VLA
 use strict;
 use warnings;
 
+use autouse 'Net::MAC::Vendor' => qw(lookup);
 use Data::Dumper;
 use English qw( -no_match_vars ) ;  # Avoids regex performance penalty
 use File::Basename qw(basename);
@@ -83,7 +82,6 @@ use Getopt::Long;
 use Log::Log4perl;
 use Log::Log4perl::Logger;
 use Log::Log4perl::Level;
-use Net::MAC::Vendor;
 use Pod::Usage;
 use threads;
 use threads::shared;
@@ -120,8 +118,6 @@ my $getAlias;
 my $getSwitchLocation;
 my $setAlias;
 my $getVlan;
-my $resetVlanAllPort;
-my $resetVlanNetwork;
 my $setVlan;
 my $setVlanAllPort;
 my $setIfAdminStatus;
@@ -170,8 +166,6 @@ GetOptions(
     "man"                 => \$man,
     "reAssignVlan"        => \$reAssignVlan,
     "reevaluateAccess"    => \$reevaluateAccess,
-    "resetVlanAllPort"    => \$resetVlanAllPort,
-    "resetVlanNetwork"    => \$resetVlanNetwork,
     "runSwitchMethod"     => \$runSwitchMethod,
     "setAlias"            => \$setAlias,
     "setDefaultVlan"      => \$setDefaultVlan,
@@ -447,7 +441,7 @@ if ($reevaluateAccess) {
             foreach my $mac ( sort @{ $hubPorts->{$port} } ) {
                 print "- $mac";
                 if ($showMacVendor) {
-                    my $oui_info = Net::MAC::Vendor::lookup($mac);
+                    my $oui_info = lookup($mac);
                     print ", " . ( $$oui_info[0] || 'unknown' );
                 }
                 if ($showPF) {
@@ -522,7 +516,6 @@ if ($reevaluateAccess) {
     || $setAlias
     || $getVlan
     || $setVlan
-    || $resetVlanAllPort
     || $setVlanAllPort
     || $getVlanType
     || $isolate
@@ -533,7 +526,7 @@ if ($reevaluateAccess) {
     || $reAssignVlan )
 {
 
-    if ( !$resetVlanAllPort && !$setVlanAllPort ) {
+    if ( !$setVlanAllPort ) {
         if ( $ifIndex == 0 ) {
             exit_wrong_args("the ifIndex option is necessary");
         }
@@ -555,7 +548,7 @@ if ($reevaluateAccess) {
             foreach my $currentMac ( $switch->getMacAtIfIndex($ifIndex) ) {
                 print "$currentMac";
                 if ($showMacVendor) {
-                    my $oui_info = Net::MAC::Vendor::lookup($currentMac);
+                    my $oui_info = lookup($currentMac);
                     print ", " . ( $$oui_info[0] || 'unknown' );
                 }
                 if ($showPF) {
@@ -641,12 +634,6 @@ if ($reevaluateAccess) {
             $switch->setAlias( $ifIndex, $alias );
             print "new alias: " . $switch->getAlias($ifIndex) . "\n";
             $logger->debug("finished handling 'setAlias' command");
-        } elsif ($resetVlanAllPort) {
-            $logger->debug("start handling 'resetVlanAllPort' command");
-            my %switch_locker : shared;
-            $switch_locker{ $switch->{_ip} } = &share( {} );
-            $switch->resetVlanAllPort( \%switch_locker );
-            print "finished handling 'resetVlanAllPort' command\n";
         } elsif ($setVlanAllPort) {
             if ( $vlan == 0 ) {
                 exit_wrong_args("you must specify the VLAN to set");
@@ -724,7 +711,7 @@ if ($reevaluateAccess) {
         }
     }
     if ($showMacVendor) {
-        my $oui_info = Net::MAC::Vendor::lookup($mac);
+        my $oui_info = lookup($mac);
         $mac = "$mac (" . ( $$oui_info[0] || 'unknown' ) . ")";
     }
     if ($found) {
@@ -734,29 +721,6 @@ if ($reevaluateAccess) {
         print "MAC $mac cannot be found\n";
     }
     $logger->debug("finished handling 'getLocation' command");
-
-} elsif ($resetVlanNetwork) {
-    $logger->debug("start handling 'resetVlanNetwork' command");
-    my %Config = %{ $switchFactory->{_config} };
-
-    my $switch_ip   = undef;
-    my $switch_port = undef;
-    foreach my $key ( sort keys %Config ) {
-        if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1' ) ) {
-            $switch_ip = $key;
-            my $switch = $switchFactory->instantiate($switch_ip);
-            if (!$switch) {
-                print "Can not instantiate switch $switch_ip ! See log files for details\n";
-            } else {
-                if ( $switch->isProductionMode() ) {
-                    my %switch_locker : shared;
-                    $switch_locker{ $switch->{_ip} } = &share( {} );
-                    $switch->resetVlanAllPort( \%switch_locker );
-                }
-            }
-        }
-    }
-    $logger->debug("finished handling 'resetVlanNetwork command");
 
 } else {
     pod2usage( -verbose => 1 );
@@ -771,19 +735,11 @@ sub exit_wrong_args {
 
 =head1 AUTHOR
 
-=over
-
-=item Dominik Gehl <dgehl@inverse.ca>
-
-=item Regis Balzard <rbalzard@inverse.ca>
-
-=item Olivier Bilodeau <obilodeau@inverse.ca>
-
-=back
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

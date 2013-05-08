@@ -1,0 +1,42 @@
+<h2>[% l('Services') %]</h2>
+<div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>[% l('Daemon') %]</th>
+        <th>[% l('Status') %]</th>
+        <th></th>
+      </tr>
+      </thead>
+    <tbody>
+      [%- FOREACH service IN services.sort %]
+      [% started = services.$service  %]
+      <tr>
+        <td>[% service %]</td>
+        <td>
+          <span id="service-[% service %]"
+          class="label[% IF started %] label-success[% END %]">
+          [%- IF started %]Started[%- ELSE -%]Stopped[% END -%]</span>
+        </td>
+        <td>
+          <span class="pull-right">
+            [% IF started -%]
+            <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop'),[service])%]">[% l('Stop') %]</a>
+            <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart'),[service])%]">[% l('Restart') %]</a>
+            [% ELSE -%]
+            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller('Service').action_for('start'),[service])%]">[% l('Start') %]</a>
+            [% END -%]
+          </span>
+        </td>
+      </tr>
+      [%- END %]
+    </tbody>
+  </table>
+    <div class="form-actions">
+      <div class="pull-right">
+        <button type="submit" class="btn btn-danger" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop_all'))%]">[% l('Stop All') %]</button>
+        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller('Service').action_for('start_all'))%]">[% l('Start All') %]</button>
+        <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart_all'))%]">[% l('Restart All') %]</button>
+      </div>
+    </div>
+</div>

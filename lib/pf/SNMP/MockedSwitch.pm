@@ -892,11 +892,12 @@ sub parseTrap {
         #populate list of Vlans we must potentially connect to to
         #convert the dot1dBasePort into an ifIndex
         my @vlansToTest = ();
+        my $macDetectionVlan = $this->getVlanByName('macDetection');
         push @vlansToTest, $trapHashRef->{'trapVlan'};
-        push @vlansToTest, $this->{'_macDetectionVlan'};
-        foreach my $currentVlan ( @{ $this->{_vlans} } ) {
+        push @vlansToTest, $macDetectionVlan;
+        foreach my $currentVlan ( values %{ $this->{_vlans} } ) {
             if (   ( $currentVlan != $trapHashRef->{'trapVlan'} )
-                && ( $currentVlan != $this->{'_macDetectionVlan'} ) )
+                && ( $currentVlan != $macDetectionVlan ) )
             {
                 push @vlansToTest, $currentVlan;
             }
@@ -1465,7 +1466,7 @@ sub getIfIndexForThisMac {
         . hex( $macParts[4] ) . "."
         . hex( $macParts[5] );
 
-    foreach my $vlan ( @{ $this->{_vlans} } ) {
+    foreach my $vlan ( values %{ $this->{_vlans} } ) {
         my $result = undef;
 
         $logger->debug("BROKEN SNMP fake get_request for dot1dTpFdbPort: $oid on switch $this->{'_ip'}, VLAN $vlan");
@@ -1811,7 +1812,7 @@ sub getAllMacs {
     }
 
     my @vlansOnSwitch   = keys( %{ $this->getVlans() } );
-    my @vlansToConsider = @{ $this->{_vlans} };
+    my @vlansToConsider = values %{ $this->{_vlans} };
     if ( $this->isVoIPEnabled() ) {
         my $OID_vmVoiceVlanId
             = '1.3.6.1.4.1.9.9.68.1.5.1.1.1';    #CISCO-VLAN-MEMBERSHIP-MIB
@@ -2008,7 +2009,7 @@ sub getManagedPorts {
                         {                         # skip non static
 
                             if (grep(
-                                    { $_ == $portVlan } @{ $this->{_vlans} } )
+                                    { $_ == $portVlan } values %{ $this->{_vlans} } )
                                 != 0 )
                             {    # skip port in a non-managed VLAN
                                 $logger->debug("BROKEN SNMP fake get_request for ifName: $oid_ifName.$1"
@@ -2856,11 +2857,11 @@ sub deauthenticateMacDefault {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 - 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -66,13 +66,16 @@ sub generate_dhcpd_conf {
         my %net = %{$ConfigNetworks{$network}};
 
         if ( $net{'dhcpd'} eq 'enabled' ) {
+            my $domain = sprintf("%s.%s", $net{'type'}, $Config{general}{domain});
             delete $direct_subnets{"subnet $network netmask $net{'netmask'}"};
+
+            %net = _assign_defaults(%net);
 
             $tags{'networks'} .= <<"EOT";
 subnet $network netmask $net{'netmask'} {
   option routers $net{'gateway'};
   option subnet-mask $net{'netmask'};
-  option domain-name "$net{'domain-name'}";
+  option domain-name "$domain";
   option domain-name-servers $net{'dns'};
   range $net{'dhcp_start'} $net{'dhcp_end'};
   default-lease-time $net{'dhcp_default_lease_time'};
@@ -97,15 +100,31 @@ EOT
     return 1;
 }
 
+=item assign_defaults
+
+Will replace all undef with default values.
+
+=cut
+# TODO should handle also dhcp_start and dhcp_end but it's more complex
+#      requires network / netmask extrapolation
+sub _assign_defaults {
+    my (%net) = @_;
+
+    $net{'dhcp_default_lease_time'} = 300 if (!defined($net{'dhcp_default_lease_time'}));
+    $net{'dhcp_max_lease_time'} = 600 if (!defined($net{'dhcp_max_lease_time'}));
+
+    return %net;
+}
+
 =back
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

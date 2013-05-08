@@ -15,6 +15,7 @@ use warnings;
 
 use Apache::Htpasswd;
 use Moose;
+use Readonly;
 use namespace::autoclean;
 
 use pf::config;
@@ -22,6 +23,10 @@ use pf::error;
 use pf::util;
 
 extends 'Catalyst::Model';
+
+Readonly::Scalar our $CONFIGURATION => 'configuration';
+Readonly::Scalar our $INSTALLATION => 'installation';
+Readonly::Scalar our $UPGRADE => 'upgrade';
 
 =head1 METHODS
 
@@ -55,7 +60,7 @@ sub checkForUpgrade {
     my $filehandler;
 
     if ( !(-e "$install_dir/conf/currently-at") ) {
-        return "installation";
+        return $INSTALLATION;
     }
 
     open( $filehandler, '<', "$install_dir/conf/currently-at" );
@@ -68,44 +73,11 @@ sub checkForUpgrade {
 
     if ( (!$currently_at) || ($currently_at eq $pf_release) ) {
         $logger->info("Configuration process");
-        return "configuration";
+        return $CONFIGURATION;
     } else {
         $logger->info("Upgrade process");
-        return "upgrade";
+        return $UPGRADE;
     }
-}
-
-=item createAdminUser
-
-=cut
-sub createAdminUser {
-    my ( $self, $user, $password ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my ($status, $status_msg);
-    my $admins_file = "$install_dir/conf/admin.conf";
-
-    unless ( -e $admins_file ) {
-        $logger->warn("File $admins_file does not exists, creating it");
-        pf_run("touch $admins_file");  
-    }
-
-    my $htpasswd = new Apache::Htpasswd($admins_file);
-
-    # First check if user/password already exists
-    unless ($htpasswd->htCheckPassword($user, $password)) {
-        $htpasswd->htpasswd($user, $password);
-
-        if ( $htpasswd->error ) {
-            $status_msg = "Error creating administrative user $user";
-            $logger->error($status_msg . " | " . $htpasswd->error);
-            return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
-        }
-    }
-
-    $status_msg = "Successfully created the administrative user $user";
-    $logger->info("$status_msg");
-    return ($STATUS::OK, $status_msg);
 }
 
 =item upate_currently_at
@@ -128,13 +100,13 @@ sub update_currently_at {
 
 =back
 
-=head1 AUTHORS
+=head1 AUTHOR
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

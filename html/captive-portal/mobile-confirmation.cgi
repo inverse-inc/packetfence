@@ -30,6 +30,9 @@ use pf::web::guest;
 # called last to allow redefinitions
 use pf::web::custom;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('mobile-confirmation.cgi');
 Log::Log4perl::MDC->put('proc', 'mobile-confirmation.cgi');
@@ -50,7 +53,7 @@ my %info;
 
 # FIXME to enforce 'harder' trapping (proper workflow) once this all work
 # put code as main if () and provide a way to unset session in template
-if ( $portalSession->getCgi->param("pin") ) { # && $portalSession->getSession->param("authType")) {
+if ( $portalSession->getCgi->param("pin") ) {
 
     $logger->info("Entering guest authentication by SMS");
     my ($auth_return, $err) = pf::web::guest::web_sms_validation($portalSession);
@@ -63,12 +66,21 @@ if ( $portalSession->getCgi->param("pin") ) { # && $portalSession->getSession->p
 
     $logger->info("Valid PIN -- Registering user");
    
-    # Setting access timeout and category from config
-    my $access_duration = $Config{'guests_self_registration'}{'access_duration'};
-    $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + $access_duration));
-    $info{'category'} = $portalSession->getProfile->getGuestCategory;
+    my $pid = $portalSession->getSession->param("guest_pid") || "admin";
 
-    my $pid = $portalSession->getSession->param("guest_pid") || 1;
+    # Setting access timeout and role (category) dynamically
+    $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_ACCESS_DURATION);
+    
+    if (defined $info{'unregdate'}) {
+        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+    }
+    else {
+        $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_UNREG_DATE);
+    }
+
+    $info{'category'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_ROLE);
+
+
     pf::web::web_node_register($portalSession, $pid, %info);
     # clear state that redirects to the Enter PIN page
     $portalSession->getSession->clear(["guest_pid"]);
@@ -84,15 +96,11 @@ if ( $portalSession->getCgi->param("pin") ) { # && $portalSession->getSession->p
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Francis Lachapelle <flachapelle@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -7,35 +7,18 @@
   <revision>
     <revnumber>1.0</revnumber>
     <date>2012-06-13</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Initial Version</revremark>
   </revision>
 </revhistory>
 
 <authorgroup>
   <author>
-    <firstname>Fabrice</firstname>
-    <surname>Durand</surname>
+    <firstname>Inverse</firstname>
+    <surname>Inc.</surname>
     <affiliation>
       <address>
-        <email>fdurand@inverse.ca</email>
+        <email>info@inverse.ca</email>
       </address>
     </affiliation>
   </author>
-  <author>
-    <firstname>Derek</firstname>
-    <surname>Wuelfrath</surname>
-    <affiliation>
-      <address>
-        <email>dwuelfrath@inverse.ca</email>
-      </address>
-    </affiliation>
-  </author>
-  <othercredit>
-    <personname>
-      <firstname>Francois</firstname>
-      <surname>Gaudreault</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
 </authorgroup>

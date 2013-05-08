@@ -26,11 +26,11 @@ ok(defined(get_total_system_memory()), "fetch total system memory");
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
-        
-Copyright (C) 2010-2011 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     

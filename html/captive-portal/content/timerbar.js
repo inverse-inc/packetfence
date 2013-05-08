@@ -112,7 +112,7 @@ id.clip.bottom=b;
 }
 
 //window.onload=progressBarInit;
-//changed by Dominik Gehl <dgehl@inverse.ca> to allow 
+//changed by Inverse inc. <info@inverse.ca> to allow 
 //showing the progress bar under IE6 when VLAN isolation
 //is used
 progressBarInit();

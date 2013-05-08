@@ -7,52 +7,28 @@
   <revision>
     <revnumber>2.1</revnumber>
     <date>2012-08-01</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Adjust doc for the new configurator</revremark>
   </revision>
   <revision>
     <revnumber>2.0</revnumber>
     <date>2012-02-22</date>
-    <authorinitials>FG</authorinitials>
     <revremark>Port from ODT to Asciidoc</revremark>
   </revision>
   <revision>
     <revnumber>1.0</revnumber>
     <date>2009-01-29</date>
-    <authorinitials>RB</authorinitials>
     <revremark>First OpenDocument version.</revremark>
   </revision>
 </revhistory>
 
 <authorgroup>
   <author>
-    <firstname>Derek</firstname>
-    <surname>Wuelfrath</surname>
+    <firstname>Inverse</firstname>
+    <surname>Inc.</surname>
     <affiliation>
       <address>
-        <email>dwuelfrath@inverse.ca</email>
+        <email>info@inverse.ca</email>
       </address>
     </affiliation>
   </author>
-  <othercredit>
-    <personname>
-      <firstname>Regis</firstname>
-      <surname>Balzard</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
-  <othercredit>
-    <personname>
-      <firstname>Olivier</firstname>
-      <surname>Bilodeau</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
-  <othercredit>
-    <personname>
-      <firstname>Francois</firstname>
-      <surname>Gaudreault</surname>
-    </personname>
-    <contrib>Past Authors</contrib>
-  </othercredit>
 </authorgroup>

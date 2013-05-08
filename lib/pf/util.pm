@@ -2,7 +2,7 @@ package pf::util;
 
 =head1 NAME
 
-pf::util - module for generic functions and utilities used by all the 
+pf::util - module for generic functions and utilities used by all the
 modules.
 
 =cut
@@ -10,7 +10,7 @@ modules.
 =head1 DESCRIPTION
 
 pf::util contains many functions and utilities used by the other different
-modules. 
+modules.
 
 =cut
 
@@ -24,6 +24,7 @@ use Log::Log4perl;
 use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
+use File::Spec::Functions;
 
 our ( %local_mac );
 
@@ -32,24 +33,26 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        valid_date valid_ip reverse_ip clean_ip 
+        valid_date valid_ip reverse_ip clean_ip
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
-        ip2interface ip2device ip2int int2ip 
+        ip2interface ip2device ip2int int2ip
         isenabled isdisabled isempty
         getlocalmac
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
         get_internal_devs get_internal_devs_phy get_external_devs get_internal_macs
         get_internal_info createpid readpid deletepid
-        parse_template mysql_date oui_to_vendor mac2oid oid2mac 
+        parse_template mysql_date oui_to_vendor mac2oid oid2mac
         str_to_connection_type connection_type_to_str
         get_total_system_memory
         parse_mac_from_trap
         get_vlan_from_int
-        get_translatable_time
+        get_abbr_time get_translatable_time
         pretty_bandwidth
         unpretty_bandwidth
-        pf_run pfmailer 
-        generate_id
+        pf_run pfmailer
+        generate_id load_oui download_oui
+        trim_path format_bytes log_of ordinal_suffix
+        untaint_chain
     );
 }
 
@@ -64,6 +67,7 @@ TODO: This list is incomplete.
 =over
 
 =cut
+
 sub valid_date {
     my ($date) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -101,6 +105,7 @@ Returns the IP in reverse notation. ex: 1.2.3.4 will return 4.3.2.1
 Used for DNS configuration templates.
 
 =cut
+
 sub reverse_ip {
     my ($ip) = @_;
 
@@ -116,6 +121,7 @@ sub reverse_ip {
 Properly format an IPv4 address. Has the nice side-effect of untainting it also.
 
 =cut
+
 sub clean_ip {
     my ($ip) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -126,13 +132,14 @@ sub clean_ip {
 }
 
 
-=item clean_mac 
+=item clean_mac
 
 Clean a MAC address accepting xxxxxxxxxxxx, xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx.
 
 Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 =cut
+
 sub clean_mac {
     my ($mac) = @_;
     return (0) if ( !$mac );
@@ -144,7 +151,7 @@ sub clean_mac {
     # inject :
     $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g if ( $mac =~ /^[a-f0-9]{12}$/i );
     # Untaint MAC (see perldoc perlsec if you don't know what Taint mode is)
-    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {   
+    if ($mac =~ /^([0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2}:[0-9a-zA-Z]{2})$/) {
         return $1;
     }
 
@@ -158,6 +165,7 @@ Put the mac address in the accounting format, accepting xx:xx:xx:xx:xx:xx
 Returning format XXXXXXXXXXXX
 
 =cut
+
 sub format_mac_for_acct {
     my ($mac) = @_;
     return (0) if ( !$mac );
@@ -175,10 +183,11 @@ Put the mac address in the cisco format, accepting xx:xx:xx:xx:xx:xx
 Returning format aabb.ccdd.eeff
 
 =cut
+
 sub format_mac_as_cisco {
     my ($mac) = @_;
 
-    if (defined($mac) && 
+    if (defined($mac) &&
         $mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/
         ) {
             return "$1$2.$3$4.$5$6";
@@ -188,13 +197,14 @@ sub format_mac_as_cisco {
     return;
 }
 
-=item valid_mac 
+=item valid_mac
 
 Validates MAC addresses. Returns 1 or 0 (true or false)
 
 Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxxx
 
 =cut
+
 sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -214,7 +224,7 @@ sub valid_mac {
     }
 }
 
-=item * macoui2nb
+=item  macoui2nb
 
 Extract the OUI (Organizational Unique Identifier) from a MAC address then
 converts it into a decimal value. To be used to generate vendormac violations.
@@ -224,6 +234,7 @@ in: MAC address (of xx:xx:xx:xx:xx format)
 Returns a number.
 
 =cut
+
 sub macoui2nb {
     my ($mac) = @_;
 
@@ -232,7 +243,7 @@ sub macoui2nb {
     return hex($oui);
 }
 
-=item * mac2nb
+=item  mac2nb
 
 Converts a MAC address into a decimal value. To be used to generate mac violations.
 
@@ -241,6 +252,7 @@ in: MAC address (of xx:xx:xx:xx:xx format)
 Returns a number.
 
 =cut
+
 sub mac2nb {
     my ($mac) = @_;
     my $nb;
@@ -278,9 +290,8 @@ sub trappable_mac {
     return (0) if ( !$mac );
     $mac = clean_mac($mac);
 
-    if (  !valid_mac($mac)
-        || grep( { $_ eq $mac } get_internal_macs() )
-        || $mac eq $blackholemac )
+    if ( !valid_mac($mac)
+        || grep( { $_ eq $mac } get_internal_macs() ) )
     {
         $logger->info("$mac is not trappable, skipping");
         return (0);
@@ -311,31 +322,33 @@ sub ip2device {
     return (0);
 }
 
-=item * oid2mac - convert a MAC in oid format to a MAC in usual format 
+=item  oid2mac - convert a MAC in oid format to a MAC in usual format
 
 in: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
 out: comma-separated MAC address (ex: 00:12:f0:13:32:ba)
 
 =cut
+
 sub oid2mac {
     my ($oid) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
     if ($oid =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/) {
         return lc(sprintf( "%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6));
-    } else { 
+    } else {
         $logger->warn("$oid is not a MAC in oid format");
         return;
     }
 }
 
-=item * mac2oid - convert a MAC in usual pf format into a MAC in oid format
+=item  mac2oid - convert a MAC in usual pf format into a MAC in oid format
 
 in: comma-separated MAC address (ex: 00:12:f0:13:32:ba). Use clean_mac() if you need.
 
 out: 6 dot-separated digits (ex: 0.18.240.19.50.186)
 
 =cut
+
 sub mac2oid {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -377,27 +390,29 @@ sub pfmailer {
     return 1;
 }
 
-=item * isenabled
+=item  isenabled
 
 Is the given configuration parameter considered enabled? y, yes, true, enable
 and enabled are all positive values for PacketFence.
 
 =cut
+
 sub isenabled {
     my ($enabled) = @_;
-    if ( $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
         return (1);
     } else {
         return (0);
     }
 }
 
-=item * isdisabled
+=item  isdisabled
 
-Is the given configuration parameter considered disabled? n, no, false, 
+Is the given configuration parameter considered disabled? n, no, false,
 disable and disabled are all negative values for PacketFence.
 
 =cut
+
 sub isdisabled {
     my ($disabled) = @_;
     if ( $disabled =~ /^\s*(n|no|false|disable|disabled)\s*$/i ) {
@@ -407,12 +422,13 @@ sub isdisabled {
     }
 }
 
-=item * isempty
+=item  isempty
 
-Is the given configuration parameter considered empty? Whitespace is 
+Is the given configuration parameter considered empty? Whitespace is
 considered empty.
 
 =cut
+
 sub isempty {
     my ($parameter) = @_;
 
@@ -589,7 +605,7 @@ sub parse_template {
 
     # add generated file header (inserting in front of array)
     $comment_char = "#" if (!defined($comment_char));
-    unshift @parsed, 
+    unshift @parsed,
         "$comment_char This file is generated from a template at $template\n"
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
 
@@ -601,7 +617,7 @@ sub parse_template {
         foreach my $line (@parsed) {
             print {$destination_fh} $line;
         }
-
+        pf_chown($destination);
     } else {
         return (@parsed);
     }
@@ -614,23 +630,49 @@ sub mysql_date {
 
 sub oui_to_vendor {
     my ($mac) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::util');
-    if ( scalar( keys( %${Net::MAC::Vendor::Cached} ) ) == 0 ) {
-        $logger->debug("loading Net::MAC::Vendor cache from $oui_file");
+    load_oui();
+    my $oui_info = Net::MAC::Vendor::fetch_oui_from_cache($mac);
+
+    return $$oui_info[0] || '';
+}
+
+sub load_oui {
+    my ($force) = @_;
+    if ( !%$Net::MAC::Vendor::Cached || $force  ) {
+        my $logger = Log::Log4perl::get_logger('pf::util');
+        $logger->info("loading Net::MAC::Vendor cache from $oui_file");
         Net::MAC::Vendor::load_cache("file://$oui_file");
     }
-    my $oui_info = Net::MAC::Vendor::lookup($mac);
-    return $$oui_info[0] || '';
+}
+
+sub download_oui {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    require LWP::UserAgent;
+    my $browser = LWP::UserAgent->new;
+    my $response = $browser->get($oui_url);
+    my ($status,$msg) = $response->code;
+    if ( !$response->is_success ) {
+        $msg = "Unable to update OUI prefixes: " . $response->status_line;
+    } else {
+        my ($oui_fh);
+        open( $oui_fh, '>', "$oui_file" )
+            || $logger->info("Unable to open $oui_file: $!");
+        print $oui_fh $response->content;
+        close($oui_fh);
+        $msg = "OUI prefixes updated via $oui_url";
+    }
+    return ($status,$msg);
 }
 
 =item connection_type_to_str
 
-In the database we store the connection type as a string but we use a constant binary value internally. 
+In the database we store the connection type as a string but we use a constant binary value internally.
 This converts from the constant binary value to the string.
 
 return connection_type string (as defined in pf::config) or an empty string if connection type not found
 
-=cut 
+=cut
+
 sub connection_type_to_str {
     my ($conn_type) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -648,12 +690,13 @@ sub connection_type_to_str {
 
 =item str_to_connection_type
 
-In the database we store the connection type as a string but we use a constant binary value internally. 
+In the database we store the connection type as a string but we use a constant binary value internally.
 This parses the string from the database into the the constant binary value.
 
 return connection_type constant (as defined in pf::config) or undef if connection type not found
 
 =cut
+
 sub str_to_connection_type {
     my ($conn_type_str) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -679,6 +722,7 @@ sub str_to_connection_type {
 Returns the total amount of memory in kilobytes. Undef if something went wrong or it can't determined.
 
 =cut
+
 sub get_total_system_memory {
     my $logger = Log::Log4perl::get_logger('pf::util');
 
@@ -701,7 +745,7 @@ sub get_total_system_memory {
     return $total_mem;
 }
 
-=item parse_mac_from_trap 
+=item parse_mac_from_trap
 
 snmptrapd sometimes converts an Hex-STRING into STRING if all of the values are valid "printable" ascii.
 
@@ -710,6 +754,7 @@ This method handles both technique and return the MAC address in a format Packet
 Must be combined with new regular expression that handles both formats: $SNMP::MAC_ADDRESS_FORMAT
 
 =cut
+
 sub parse_mac_from_trap {
     my ($to_parse) = @_;
 
@@ -729,25 +774,63 @@ sub parse_mac_from_trap {
     return $mac;
 }
 
+=item get_abbr_time
+
+Return the abbreviated time representation given a number of seconds.
+
+ex:
+  7200 will return '2h'
+  70 will return '70s'
+
+See pf::config::normalize_time
+
+=cut
+
+sub get_abbr_time {
+    my $time = int shift;
+
+    if ($time < 60) {
+        return $time . 's';
+    } elsif ($time < 3600 || $time % 3600 > 0) {
+        return int($time/60) . 'm';
+    } elsif ($time < 86400 || $time % 86400 > 0) {
+        return int($time/3600) . 'h';
+    } elsif ($time < 604800 || $time % 604800 > 0) {
+        return int($time/86400) . 'D';
+    } elsif ($time < 2592000 || $time % 2592000 > 0) { # 30 days
+        return int($time/604800) . 'W';
+    } elsif ($time < 31536000 || $time % 31536000 > 0) { # 365 days
+        return int($time/2592000) . 'M';
+    } else {
+        return int($time/31536000) . 'Y';
+    }
+}
+
 =item get_translatable_time
 
-Returns a triplet with singular and plural english string representation plus integer of a time string 
+Returns a triplet with singular and plural english string representation plus integer of a time string
 as defined in pf.conf.
 
-ex: 7d will return ("day", "days", 7)
+ex: 7D will return ("day", "days", 7)
 
 Returns undef on failure
 
 =cut
+
 sub get_translatable_time {
    my ($time) = @_;
 
    # grab time unit
    my ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
 
+   unless ($unit) {
+       $time = get_abbr_time($time);
+       ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+   }
+
    if ($unit eq "s") { return ("second", "seconds", $value);
    } elsif ($unit eq "m") { return ("minute", "minutes", $value);
-   } elsif ($unit eq "h") { return ("hour", "hours", $value); 
+   } elsif ($unit eq "h") { return ("hour", "hours", $value);
    } elsif ($unit eq "D") { return ("day", "days", $value);
    } elsif ($unit eq "W") { return ("week", "weeks", $value);
    } elsif ($unit eq "M") { return ("month", "months", $value);
@@ -761,6 +844,7 @@ sub get_translatable_time {
 Returns the VLAN id for a given interface
 
 =cut
+
 sub get_vlan_from_int {
     my ($eth) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -779,6 +863,28 @@ sub get_vlan_from_int {
     }
 
     return;
+}
+
+
+sub log_of {
+    my ($n, $base) = @_;
+    return log($n)/log($base);
+}
+
+sub format_bytes {
+    my ($n, @args) = @_;
+    my @DEFAULT_UNITS = ("bytes","KB", "MB", "GB", "TB", "PB");
+    my $unit = 1024;
+    my $i = 0;
+    my $format = "%.2f";
+    return undef unless ($n);
+    if ($n >= $unit) {
+        $i = int(log_of($n,$unit));
+        $i = $#DEFAULT_UNITS if $i >= @DEFAULT_UNITS;
+        $n /= $unit ** $i;
+        $n = sprintf($format,$n);
+    }
+    return "$n $DEFAULT_UNITS[$i]";
 }
 
 =item pretty_bandwidth
@@ -807,7 +913,7 @@ Returns the bandwidth in bytes depending of the incombing unit
 
 sub unpretty_bandwidth {
     my ($bw,$unit) = @_;
-    
+
     # Check what units we have, and multiple by 1024 exponent something
     if ($unit eq 'PB') {
         return $bw * 1024**5;
@@ -820,7 +926,7 @@ sub unpretty_bandwidth {
     } elsif ($unit eq 'KB') {
         return $bw * 1024;
     }
-    
+
     # Not matching, We assume we have bytes then
     return $bw;
 }
@@ -829,18 +935,19 @@ sub unpretty_bandwidth {
 
 Execute a system command but check the return status and log anything not normal.
 
-Returns output in list or string based on context (like backticks does ``) 
+Returns output in list or string based on context (like backticks does ``)
 but returns undef on a failure. Non-zero exit codes are considered failures.
 
 Does not enforce any security. Callers should take care of string sanitization.
 
-Takes an optional hash that offers additional options. For now, 
+Takes an optional hash that offers additional options. For now,
 accepted_exit_status => arrayref allows the command to succeed and a proper
-value being returned if the exit status is mentionned in the arrayref. For 
+value being returned if the exit status is mentionned in the arrayref. For
 example: accepted_exit_status => [ 1, 2, 3] will allow the process to exit
 with code 1, 2 or 3 without reporting it as an error.
 
 =cut
+
 sub pf_run {
     my ($command, %options) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
@@ -854,7 +961,7 @@ sub pf_run {
         `$command`;
         return if ($CHILD_ERROR == 0);
 
-    } elsif (wantarray) { 
+    } elsif (wantarray) {
         # list context
         @result = `$command`;
         return @result if ($CHILD_ERROR == 0);
@@ -880,7 +987,7 @@ sub pf_run {
         my $signal = ($CHILD_ERROR & 127);
         my $with_core = ($CHILD_ERROR & 128) ? 'with' : 'without';
         $logger->warn(
-            "Problem trying to run command: $command called from $caller. " 
+            "Problem trying to run command: $command called from $caller. "
             . "Child died with signal $signal $with_core coredump."
         );
     # Non-zero exit code received
@@ -894,7 +1001,7 @@ sub pf_run {
             return $result; # scalar context
         }
         $logger->warn(
-            "Problem trying to run command: $command called from $caller. " 
+            "Problem trying to run command: $command called from $caller. "
             . "Child exited with non-zero value $exit_status"
         );
     }
@@ -908,6 +1015,7 @@ The id will be as follow: epochtime + 2 random numbers + last four characters of
 The epoch will be used in database entries so we use the same to make sure it is the same.
 
 =cut
+
 sub generate_id {
     my ( $epoch, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -929,25 +1037,85 @@ sub generate_id {
     return $id;
 }
 
+=item ordinal_suffix
+
+=cut
+
+sub ordinal_suffix {
+    my ($num) = @_;
+    if( 4 <= $num && $num <= 20 ) {
+        return "${num}th";
+    }
+    my $last_digit = $num % 10;
+    if ($last_digit == 1) {
+        return "${num}st";
+    }
+    elsif ($last_digit == 2) {
+        return "${num}nd";
+    }
+    elsif ($last_digit == 3) {
+        return "${num}rd";
+    }
+    return "${num}th";
+}
+
+=item trim_path
+
+=cut
+
+sub trim_path {
+    my ($path) = @_;
+    my @parts = ();
+    foreach my $part (File::Spec->splitdir($path)) {
+        if ($part eq '..') {
+            # Note that if there are no directory parts, this will effectively
+            #         # swallow any excess ".." components.
+             pop(@parts);
+        }
+        elsif ($part ne '.') {
+            push(@parts, $part);
+        }
+    }
+   return ((@parts == 0) ? '' : catdir(@parts));
+}
+
+=item pf_chown
+
+=cut
+
+sub pf_chown {
+    my ($file) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam('pf')
+        or die "pf not in passwd file";
+    chown $uid, $gid, $file;
+}
+
+=item untaint_chain
+
+=cut
+
+sub untaint_chain {
+    my ($chain) = @_;
+    if ($chain =~ /^(.+)$/) {
+        return $1;
+    }
+}
+
 =back
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2009, 2010, 2011, 2012 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

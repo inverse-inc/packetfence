@@ -74,9 +74,9 @@ use lib INSTALL_DIR . "/lib";
 
 use pf::config;
 use pf::config::ui;
-use pf::enforcement;
 use pf::pfcmd;
 use pf::util;
+use HTTP::Status qw(is_success);
 
 # Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
@@ -106,9 +106,6 @@ if ( $offset && $offset > 0 ) {
     $offset = $offset * $count;
 }
 
-my %defaults;
-my %myconfig;
-my %documentation;
 
 if ( defined $ENV{GATEWAY_INTERFACE} ) {
     require CGI;
@@ -136,8 +133,8 @@ if (! exists($cmd_tmp{'grammar'})) {
     %cmd = %cmd_tmp;
     # TODO minor refactoring: call method using exit( method() ) instead of appending an exit(1)
     my %commands = (
-        'checkup' => sub { 
-            my $return = checkup(); 
+        'checkup' => sub {
+            my $return = checkup();
             print "Nothing to report.\n" if ($return == $FALSE);
             exit(1);
         },
@@ -161,7 +158,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'manage' => sub { exit(manage()); },
         'networkconfig' => sub { networkconfig(); exit(1); },
         'node' => sub {
-            require pf::node; 
+            require pf::node;
             import pf::node;
             command_param('node');
             exit(1);
@@ -169,8 +166,8 @@ if (! exists($cmd_tmp{'grammar'})) {
         'nodeaccounting' => sub { nodeaccounting(); exit(1) },
         'nodecategory' => sub { nodecategory(); exit(1); },
         'nodeuseragent' => sub { nodeuseragent(); exit(1); },
-        'person' => sub { 
-            require pf::person; 
+        'person' => sub {
+            require pf::person;
             import pf::person;
             command_param('person');
             exit(1);
@@ -188,7 +185,7 @@ if (! exists($cmd_tmp{'grammar'})) {
         'useragent' => sub { useragent(); exit(1); },
         'version' => sub { version(); exit(1); },
         'violation' => sub {
-            require pf::violation; 
+            require pf::violation;
             import pf::violation;
             command_param('violation');
             exit(1);
@@ -283,6 +280,7 @@ sub manage {
         require pf::violation;
         print pf::violation::violation_add( $mac, $id );
     }
+    require pf::enforcement;
     pf::enforcement::reevaluate_access( $mac, $function );
     return 0;
 }
@@ -377,7 +375,7 @@ sub nodecategory {
             chomp($_);
             $logger->logcarp("$_");
         };
- 
+
     } elsif ($sub_cmd eq 'edit') {
 
         my %params = format_assignment(@{$cmd{'nodecategory_assignment'}});
@@ -387,7 +385,7 @@ sub nodecategory {
             chomp($_);
             $logger->logcarp("$_");
         };
- 
+
     } elsif ($sub_cmd eq 'delete') {
 
         try {
@@ -396,7 +394,7 @@ sub nodecategory {
             chomp($_);
             $logger->logcarp("$_");
         };
-    } 
+    }
     return 1;
 }
 
@@ -497,7 +495,7 @@ sub violationconfig {
             if ( tied(%violations_conf)->SectionExists($section) ) {
                 tied(%violations_conf)->DeleteSection($section);
                 tied(%violations_conf)
-                    ->WriteConfig( $conf_dir . "/violations.conf" )
+                    ->RewriteConfig()
                     or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
                         ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
                 require pf::configfile;
@@ -545,7 +543,7 @@ sub violationconfig {
                 }
             }
             tied(%violations_conf)
-                ->WriteConfig( $conf_dir . "/violations.conf" )
+                ->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -570,7 +568,7 @@ sub violationconfig {
                 }
             }
             tied(%violations_conf)
-                ->WriteConfig( $conf_dir . "/violations.conf" )
+                ->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/violations.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -612,7 +610,7 @@ sub floatingnetworkdeviceconfig {
         }
 
         my @sections_tmp = keys %floatingnetworkdevice_conf;
-        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
+        my @sections = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
             . $_ => @sections_tmp;
 
         my @fields = field_order();
@@ -642,7 +640,7 @@ sub floatingnetworkdeviceconfig {
             if ( tied(%floatingnetworkdevice_conf)->SectionExists($section) ) {
                 tied(%floatingnetworkdevice_conf)->DeleteSection($section);
                 my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
-                $tied_floatingnetworkdevice->WriteConfig($configFile)
+                $tied_floatingnetworkdevice->RewriteConfig()
                     or $logger->logdie("Unable to write config to $configFile. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
                 require pf::configfile;
@@ -666,7 +664,7 @@ sub floatingnetworkdeviceconfig {
                 }
             }
             my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
-            $tied_floatingnetworkdevice->WriteConfig($configFile)
+            $tied_floatingnetworkdevice->RewriteConfig()
                 or $logger->logdie("Unable to write config to $configFile. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -686,7 +684,7 @@ sub floatingnetworkdeviceconfig {
                 tied(%floatingnetworkdevice_conf)->newval( $section, $param, $value );
             }
             my $tied_floatingnetworkdevice = tied(%floatingnetworkdevice_conf);
-            $tied_floatingnetworkdevice->WriteConfig($configFile)
+            $tied_floatingnetworkdevice->RewriteConfig()
                 or $logger->logdie("Unable to write config to $configFile. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -713,7 +711,7 @@ sub networkconfig {
     if ( $mode eq 'get' ) {
 
         my @networks_tmp = keys %ConfigNetworks;
-        my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ ) 
+        my @networks = map substr( $_, 4 ) => sort map pack( 'C4' => /(\d+)\.(\d+)\.(\d+)\.(\d+)/ )
             . $_ => @networks_tmp;
 
         my @fields = field_order();
@@ -731,8 +729,8 @@ sub networkconfig {
                 foreach my $column (@fields) {
                     # pf_gateway to next_hop translation
                     # TODO remove code once pf_gateway is deprecated (somewhere in 2012)
-                    if ($column eq 'next_hop' 
-                        && !defined($ConfigNetworks{$network}{$column}) 
+                    if ($column eq 'next_hop'
+                        && !defined($ConfigNetworks{$network}{$column})
                         && defined($ConfigNetworks{$network}{'pf_gateway'})) {
                             $ConfigNetworks{$network}{$column} = $ConfigNetworks{$network}{'pf_gateway'};
                     }
@@ -750,7 +748,7 @@ sub networkconfig {
             if ( tied(%ConfigNetworks)->SectionExists($network) ) {
                 tied(%ConfigNetworks)->DeleteSection($network);
                 my $tied_network = tied(%ConfigNetworks);
-                $tied_network->WriteConfig($network_config_file)
+                $tied_network->RewriteConfig()
                     or $logger->logdie("Unable to write config to $network_config_file. "
                                       ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
                 require pf::configfile;
@@ -774,7 +772,7 @@ sub networkconfig {
                 }
             }
             my $tied_network = tied(%ConfigNetworks);
-            $tied_network->WriteConfig($network_config_file)
+            $tied_network->RewriteConfig()
                 or $logger->logdie("Unable to write config to $network_config_file. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -794,7 +792,7 @@ sub networkconfig {
                 tied(%ConfigNetworks)->newval( $network, $param, $value );
             }
             my $tied_network = tied(%ConfigNetworks);
-            $tied_network->WriteConfig( $network_config_file )
+            $tied_network->RewriteConfig()
                 or $logger->logdie("Unable to write config to $network_config_file. "
                                   ."You might want to check the file's permissions. (see pfcmd)"); # web ui hack
             require pf::configfile;
@@ -876,7 +874,7 @@ sub interfaceconfig {
         } else {
             if ( tied(%pf_conf)->SectionExists($section_name) ) {
                 tied(%pf_conf)->DeleteSection($section_name);
-                tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+                tied(%pf_conf)->RewriteConfig()
                     or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
                         ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
                 require pf::configfile;
@@ -900,7 +898,7 @@ sub interfaceconfig {
                     tied(%pf_conf)->newval( $section_name, $param, $value );
                 }
             }
-            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+            tied(%pf_conf)->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -920,7 +918,7 @@ sub interfaceconfig {
                 my ( $param, $value ) = @$assignment;
                 tied(%pf_conf)->newval( $section_name, $param, $value );
             }
-            tied(%pf_conf)->WriteConfig( $conf_dir . "/pf.conf" )
+            tied(%pf_conf)->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -999,7 +997,7 @@ sub switchconfig {
             if ( tied(%switches_conf)->SectionExists($section) ) {
                 tied(%switches_conf)->DeleteSection($section);
                 my $tied_switch = tied(%switches_conf);
-                $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+                $tied_switch->RewriteConfig()
                     or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
                         ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # hack
                 require pf::configfile;
@@ -1045,7 +1043,7 @@ sub switchconfig {
                 }
             }
             my $tied_switch = tied(%switches_conf);
-            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+            $tied_switch->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -1069,7 +1067,7 @@ sub switchconfig {
                 }
             }
             my $tied_switch = tied(%switches_conf);
-            $tied_switch->WriteConfig($conf_dir . "/switches.conf")
+            $tied_switch->RewriteConfig()
                 or $logger->logdie("Unable to write config to $conf_dir/switches.conf. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
@@ -1154,9 +1152,9 @@ sub service {
     $logger->info("Executing pfcmd service $service $command");
 
     if ( lc($command) eq 'status' ) {
-        my @services;
+        my (@services, %diff);
         if ( $service eq 'pf' ) {
-            @services = @pf::services::ALL_SERVICES;
+            @services =  @pf::services::ALL_SERVICES;
         } else {
             push( @services, $service );
         }
@@ -1179,9 +1177,9 @@ sub service {
     }
 
     if ( lc($command) eq 'watch' ) {
-        my @services;
+        my (@services, %diff);
         if ( $service eq "pf" ) {
-            @services = @pf::services::ALL_SERVICES;
+            @services =  @pf::services::ALL_SERVICES;
         } else {
             push( @services, $service );
         }
@@ -1232,7 +1230,7 @@ sub service {
         }
     }
 
-    my @services;
+    my (@services, %diff);
     if ( $service ne 'pf' ) {
         # make sure that snort is not started without pfdetect
         if ($service eq 'snort') {
@@ -1243,15 +1241,27 @@ sub service {
         }
         push @services, $service;
     } else {
-        @services = pf::services::service_list(@pf::services::ALL_SERVICES);
+        @services =  @pf::services::ALL_SERVICES;
     }
 
     my @alreadyRunningServices = ();
     if ( lc($command) eq 'start' ) {
         require pf::pfcmd::checkup;
         import pf::pfcmd::checkup;
-        checkup(@services);
+        #Start httpd.admin anyway for the configurator
         my $nb_running_services = 0;
+        if ( pf::services::service_ctl( "httpd.admin", "status" ) ) {
+            $nb_running_services++;
+            push @alreadyRunningServices, "httpd.admin";
+        }
+        if ( grep( { $_ eq "httpd.admin" } @alreadyRunningServices ) == 1 )
+        {
+            print "httpd.admin|already running\n";
+        } else {
+            pf::services::service_ctl( "httpd.admin", $command );
+            print "httpd.admin|$command\n";
+        }
+        checkup(@services);
         foreach my $tmp (@pf::services::ALL_SERVICES) {
             if ( pf::services::service_ctl( $tmp, "status" ) ) {
                 $nb_running_services++;
@@ -1281,6 +1291,7 @@ sub service {
     }
 
     foreach my $srv (@services) {
+        next if ( ($srv eq 'httpd.admin') && ($command eq 'start' ) );
         if (   ( $command eq 'start' )
             && ( grep( { $_ eq $srv } @alreadyRunningServices ) == 1 ) )
         {
@@ -1306,7 +1317,7 @@ sub service {
         } else {
             if ( lc($service) eq 'pf' ) {
                 $logger->error(
-                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. " 
+                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. "
                      . "Can't restore iptables from var/iptables.bak"
                 );
             }
@@ -1426,7 +1437,7 @@ sub schedule {
 
     #scan now, no cron entry
     if ( $option && $option eq 'now' ) {
-        
+
         $logger->trace("pcmd schedule now called");
 
         require pf::scan;
@@ -1437,9 +1448,9 @@ sub schedule {
     # or modify cron
     } else {
         require pf::schedule;
-    
+
         my $date = $params{date} || 0;
-    
+
         my $cron = new pf::schedule();
         $cron->load_cron("pf");
         print join( $delimiter, ( "id", "date", "hosts" ) ) . "\n";
@@ -1484,7 +1495,7 @@ sub schedule {
             $logger->error("Schedule Failed");
             return (0);
         }
-    
+
         print $cron->get_indexes();
         $cron->write_cron("pf");
     }
@@ -1502,24 +1513,24 @@ sub config_entry {
     $dot_param =~ s/\s+/\./g;
     ( $param, $param2 ) = split( " ", $param ) if ( $param =~ /\s/ );
 
-    if ( defined( $defaults{$orig_param}{$value} ) ) {
-        $default = $defaults{$orig_param}{$value};
+    if ( defined( $Default_Config{$orig_param}{$value} ) ) {
+        $default = $Default_Config{$orig_param}{$value};
     } else {
         $default = "";
     }
-    if ( defined( $documentation{"$param.$value"}{'options'} ) ) {
-        $options = $documentation{"$param.$value"}{'options'};
-        $options =~ s/\|/;/g;
+    if ( defined( $Doc_Config{"$param.$value"}{'options'} ) ) {
+        $options = $Doc_Config{"$param.$value"}{'options'};
+        $options = join(";",@$options);
     } else {
         $options = "";
     }
-    if ( defined( $documentation{"$param.$value"}{'type'} ) ) {
-        $type = $documentation{"$param.$value"}{'type'};
+    if ( defined( $Doc_Config{"$param.$value"}{'type'} ) ) {
+        $type = $Doc_Config{"$param.$value"}{'type'};
     } else {
         $type = "text";
     }
-    if ( defined( $myconfig{$orig_param}{$value} ) ) {
-        $val = "$dot_param.$value=$myconfig{$orig_param}{$value}";
+    if ( defined( $Config{$orig_param}{$value} ) ) {
+        $val = "$dot_param.$value=$Config{$orig_param}{$value}";
     } else {
         $val = "$dot_param.$value=";
     }
@@ -1533,22 +1544,6 @@ sub config {
     my $option = $cmd{command}[1];
     my $param  = $cmd{command}[2];
     my $value  = "";
-
-    tie %documentation, 'Config::IniFiles',
-        ( -file => $conf_dir . "/documentation.conf" )
-        or $logger->logdie("Unable to open documentation.conf: $!");
-    tie %defaults, 'Config::IniFiles', ( -file => $default_config_file )
-        or $logger->logdie("Unable to open $default_config_file: $!");
-    # load config if it exists
-    if ( -e $config_file ) {
-        tie %myconfig, 'Config::IniFiles', ( -file => $config_file )
-            or $logger->logdie("Unable to open $config_file: $!");
-    }
-    # start with an empty file
-    else {
-        tie %myconfig, 'Config::IniFiles';
-        tied(%myconfig)->SetFileName($config_file);
-    }
 
     if ( lc($option) eq 'set' ) {
         if ($param =~ /^([^=]+)=(.+)?$/) {
@@ -1595,17 +1590,17 @@ sub config {
             exit($pf::pfcmd::ERROR_CONFIG_UNKNOWN_PARAM);
         }
     } elsif ( lc($option) eq 'help' ) {
-        if ( defined( $documentation{$param}{'description'} ) ) {
+        if ( defined( $Doc_Config{$param}{'description'} ) ) {
             print uc($param) . "\n";
-            print "Default: $defaults{$section}{$parm}\n"
-                if ( defined( $defaults{$section}{$parm} ) );
-            print "Options: $documentation{$param}{'options'}\n"
-                if ( defined( $documentation{$param}{'options'} ) );
-            if ( ref( $documentation{$param}{'description'} ) eq 'ARRAY' ) {
-                print join( "\n", @{ $documentation{$param}{'description'} } )
+            print "Default: $Default_Config{$section}{$parm}\n"
+                if ( defined( $Default_Config{$section}{$parm} ) );
+            print "Options: $Doc_Config{$param}{'options'}\n"
+                if ( defined( $Doc_Config{$param}{'options'} ) );
+            if ( ref( $Doc_Config{$param}{'description'} ) eq 'ARRAY' ) {
+                print join( "\n", @{ $Doc_Config{$param}{'description'} } )
                     . "\n";
             } else {
-                print $documentation{$param}{'description'} . "\n";
+                print $Doc_Config{$param}{'description'} . "\n";
             }
         } else {
             print "No help available for $param\n";
@@ -1618,19 +1613,19 @@ sub config {
         } else {
 
             #write out the local config only - with the new value.
-            if ( defined( $myconfig{$section}{$parm} ) ) {
-                if (   ( !defined( $myconfig{$section}{$param} ) )
-                    || ( $defaults{$section}{$parm} ne $value ) )
+            if ( defined( $Config{$section}{$parm} ) ) {
+                if (   ( !defined( $Config{$section}{$param} ) )
+                    || ( $Default_Config{$section}{$parm} ne $value ) )
                 {
-                    tied(%myconfig)->setval( $section, $parm, $value );
+                    $cached_pf_config->setval( $section, $parm, $value );
                 } else {
-                    tied(%myconfig)->delval( $section, $parm );
+                    $cached_pf_config->delval( $section, $parm );
                 }
-            } elsif ( $defaults{$section}{$parm} ne $value ) {
-                tied(%myconfig)->newval( $section, $parm, $value );
+            } elsif ( $Default_Config{$section}{$parm} ne $value ) {
+                $cached_pf_config->newval( $section, $parm, $value );
             }
-            tied(%myconfig)->WriteConfig( $conf_dir . "/pf.conf" )
-                or $logger->logdie("Unable to write config to $conf_dir/pf.conf. "
+            $cached_pf_config->RewriteConfig()
+                or $logger->logdie("Unable to write config to $pf_config_file. "
                     ."You might want to check the file's permissions. (pfcmd line ".__LINE__.".)"); # web ui hack
             require pf::configfile;
             import pf::configfile;
@@ -1662,21 +1657,13 @@ sub configfiles {
     require pf::configfile;
     import pf::configfile;
     if ( $option eq "push" ) {
-        configfile_import( $conf_dir . '/pf.conf' );
-        configfile_import( $conf_dir . '/log.conf' );
-        configfile_import( $conf_dir . '/switches.conf' );
-        configfile_import( $conf_dir . '/violations.conf' );
-        configfile_import( $network_config_file );
-        configfile_import( $conf_dir . '/ui.conf' );
-        configfile_import( $conf_dir . '/floating_network_device.conf' );
+        foreach my $config_file (@stored_config_files) {
+            configfile_import($config_file);
+        }
     } elsif ( $option eq "pull" ) {
-        configfile_export( $conf_dir . '/pf.conf' );
-        configfile_export( $conf_dir . '/log.conf' );
-        configfile_export( $conf_dir . '/switches.conf' );
-        configfile_export( $conf_dir . '/violations.conf' );
-        configfile_export( $network_config_file );
-        configfile_export( $conf_dir . '/ui.conf' );
-        configfile_export( $conf_dir . '/floating_network_device.conf' );
+        foreach my $config_file (@stored_config_files) {
+            configfile_export($config_file);
+        }
     }
     exit;
 }
@@ -1705,44 +1692,24 @@ sub update {
     require LWP::UserAgent;
     my $browser = LWP::UserAgent->new;
     if ( $option eq "fingerprints" ) {
-        my $response = $browser->get($dhcp_fingerprints_url);
-        if ( !$response->is_success ) {
-            $logger->logdie( "Unable to update DHCP fingerprints: "
-                    . $response->status_line );
-        } else {
-            my ($fingerprints_fh);
-            open( $fingerprints_fh, '>', "$dhcp_fingerprints_file" )
-                || $logger->logdie(
-                "Unable to open $dhcp_fingerprints_file: $!");
-            my $fingerprints = $response->content;
-            my ($version)
-                = $fingerprints
-                =~ /^#\s+dhcp_fingerprints.conf:\s+(version.+?)\n/;
-            print $fingerprints_fh $fingerprints;
-            close($fingerprints_fh);
-            $logger->info(
-                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version"
-            );
-            print
-                "DHCP fingerprints updated via $dhcp_fingerprints_url to $version\n";
-            require pf::os;
-            my $fp_total = pf::os::import_dhcp_fingerprints({ force => $TRUE });
-            $logger->info("$fp_total DHCP fingerprints reloaded");
-            print "$fp_total DHCP fingerprints reloaded\n";
+        require pf::os;
+        my ($status,$version_msg,$total) = pf::os::update_dhcp_fingerprints_conf();
+        if ( is_success($status) ) {
+            print "DHCP fingerprints updated via $dhcp_fingerprints_url to $version_msg\n";
+            print "$total DHCP fingerprints reloaded\n";
         }
-    } elsif ( $option eq "oui" ) {
-        my $response = $browser->get($oui_url);
-        if ( !$response->is_success ) {
-            $logger->logdie(
-                "Unable to update OUI prefixes: " . $response->status_line );
-        } else {
-            my ($oui_fh);
-            open( $oui_fh, '>', "$oui_file" )
-                || $logger->logdie("Unable to open $oui_file: $!");
-            print $oui_fh $response->content;
-            close($oui_fh);
-            $logger->info("OUI prefixes updated via $oui_url");
-            print "OUI prefixes updated via $oui_url\n";
+        else {
+            $logger->logdie( $version_msg);
+        }
+    }
+    elsif ( $option eq "oui" ) {
+        my ($status,$msg) = download_oui();
+        if ( is_success($status) ) {
+            load_oui(1);
+            print "$msg\n";
+        }
+         else {
+            $logger->logdie($msg);
         }
     }
     exit;
@@ -1834,12 +1801,8 @@ sub ui {
 
         # read in configuration file
         my %uiconfig;
-        my $ui_conf_file = $conf_dir . "/ui.conf";
-        if ( defined( $option ) ) {
-            $ui_conf_file = $conf_dir . "/" . $option;
-        }
-        tie %uiconfig, 'Config::IniFiles', ( -file => $ui_conf_file )
-            or $logger->logdie("Unable to open $ui_conf_file: $!");
+        tie %uiconfig, 'pf::config::cached', ( -file => $ui_config_file )
+            or $logger->logdie("Unable to open $ui_config_file $!");
 
         my $string;
         foreach my $section ( tied(%uiconfig)->Sections ) {
@@ -2013,8 +1976,9 @@ sub command_param {
                 );
             }
 
+            require pf::enforcement;
             if (    ($function eq 'violation_add')
-                 || ( $function eq 'violation_delete' ) 
+                 || ( $function eq 'violation_delete' )
                  || ( $function eq 'violation_modify' ) ) {
                 pf::enforcement::reevaluate_access( $params{mac}, $function );
             } else {
@@ -2403,23 +2367,17 @@ sub field_order {
 
 =head1 AUTHOR
 
-Dave Laporte <dave@laportestyle.org>
+Inverse inc. <info@inverse.ca>
 
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 Dave Laporte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2008-2012 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

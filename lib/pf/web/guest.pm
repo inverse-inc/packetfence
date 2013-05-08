@@ -9,15 +9,15 @@ pf::web::guest - module to handle guest portions of the captive portal
 =head1 DESCRIPTION
 
 pf::web::guest contains the functions necessary to generate different guest-related web pages:
-based on pre-defined templates: login, registration, release, error, status.  
+based on pre-defined templates: login, registration, release, error, status.
 
 It is possible to customize the behavior of this module by redefining its subs in pf::web::custom.
 See F<pf::web::custom> for details.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the following template files: F<release.html>, 
-F<login.html>, F<enabler.html>, F<error.html>, F<status.html>, 
+Read the following template files: F<release.html>,
+F<login.html>, F<enabler.html>, F<error.html>, F<status.html>,
 F<register.html>.
 
 =cut
@@ -29,9 +29,12 @@ use Encode;
 use File::Basename;
 use HTML::Entities;
 use Log::Log4perl;
-use MIME::Lite::TT;
+use Net::LDAP;
+use POSIX;
 use Readonly;
 use Template;
+use Text::CSV;
+use Try::Tiny;
 
 BEGIN {
     use Exporter ();
@@ -42,15 +45,16 @@ BEGIN {
 }
 
 use pf::config;
-use pf::temporary_password 1.10;
+use pf::temporary_password 1.11;
 use pf::util;
 use pf::web qw(i18n ni18n i18n_format render_template);
-use pf::web::auth;
 use pf::web::constants;
 use pf::web::util;
 use pf::sms_activation;
+use pf::Authentication::constants;
+use pf::Authentication::Action;
 
-our $VERSION = 1.40;
+our $VERSION = 1.41;
 
 our $SELF_REGISTRATION_TEMPLATE = "guest.html";
 
@@ -80,13 +84,12 @@ Warning: The list of subroutine is incomplete
 
 =over
 
-=cut
-
 =item generate_selfregistration_page
 
 Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
+
 sub generate_selfregistration_page {
     my ( $portalSession, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -94,7 +97,6 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     $portalSession->stash({
-        deadline => $Config{'registration'}{'skip_deadline'},
         post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
 
         firstname => $portalSession->cgi->param("firstname") || '',
@@ -116,7 +118,7 @@ sub generate_selfregistration_page {
     # Error management
     if (defined($error_code) && $error_code != 0) {
         # ideally we'll set the array_ref always and won't need the following
-        $error_args_ref = [] if (!defined($error_args_ref)); 
+        $error_args_ref = [] if (!defined($error_args_ref));
         $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
     }
 
@@ -129,6 +131,7 @@ sub generate_selfregistration_page {
 Sub to validate self-registering guests.
 
 =cut
+
 sub validate_selfregistration {
     my ($portalSession) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -176,11 +179,15 @@ sub validate_selfregistration {
         return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
     }
 
-    my $localdomain = $Config{'general'}{'domain'};
-    unless (isenabled($Config{'guests_self_registration'}{'allow_localdomain'})) {
-        # You should not register as a guest if you are part of the local network
-        if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
-            return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
+    my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+    my $source = &pf::authentication::getAuthenticationSourceByType($email_type);
+    if ($source) {
+        unless (isenabled($source->{allow_localdomain})) {
+            # You should not register as a guest if you are part of the local network
+            my $localdomain = $Config{'general'}{'domain'};
+            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+                return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
+            }
         }
     }
 
@@ -193,10 +200,10 @@ sub validate_selfregistration {
     # auth accepted, save login information in session (we will use them to put the guest in the db)
     $session->param("firstname", $cgi->param("firstname"));
     $session->param("lastname", $cgi->param("lastname"));
-    $session->param("company", $cgi->param("organization")); 
+    $session->param("company", $cgi->param("organization"));
     $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
-    $session->param("email", lc($cgi->param("email"))); 
-    $session->param("sponsor", lc($cgi->param("sponsor_email"))); 
+    $session->param("email", lc($cgi->param("email")));
+    $session->param("sponsor", lc($cgi->param("sponsor_email")));
     # guest pid is configurable (defaults to email)
     $session->param("guest_pid", $session->param($Config{'guests_self_registration'}{'guest_pid'}));
     return ($TRUE, 0);
@@ -207,26 +214,26 @@ sub validate_selfregistration {
 Performs sponsor validation.
 
 =cut
+
 sub validate_sponsor {
     my ($portalSession) = @_;
 
-    # sponsors should be from the local network
-    if (isenabled($Config{'guests_self_registration'}{'sponsors_only_from_localdomain'})) {
-        my $localdomain = $Config{'general'}{'domain'};
-        if ($portalSession->cgi->param('sponsor_email') !~ /[@.]$localdomain$/i) {
-            return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_FROM_LOCALDOMAIN, [ $localdomain ]);
+    my $cgi = $portalSession->getCgi();
+
+    # validate that this email can sponsor network accesses
+    my $username = &pf::authentication::username_from_email( lc($cgi->param('sponsor_email')) );
+
+    if (defined $username) {
+
+        my $value = &pf::authentication::match(undef, {username => $username}, $Actions::MARK_AS_SPONSOR);
+
+        # all sponsor checks have passed
+        if (defined $value) {
+            return ($TRUE, 0);
         }
     }
 
-    my $authenticator = pf::web::auth::instantiate($Config{'guests_self_registration'}{'sponsor_authentication'});
-    return ($FALSE, $GUEST::ERROR_SPONSOR_UNABLE_TO_VALIDATE) if (!defined($authenticator));
-
-    # validate that this email can sponsor network accesses
-    my $can_sponsor = $authenticator->isAllowedToSponsorGuests( lc($portalSession->cgi->param('sponsor_email')) );
-    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $portalSession->cgi->param('sponsor_email') ] ) if (!$can_sponsor);
-
-    # all sponsor checks passed
-    return ($TRUE, 0);
+    return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] );
 }
 
 =item prepare_email_guest_activation_info
@@ -236,6 +243,7 @@ Provides basic information for the self registered guests by email template.
 This is meant to be overridden in L<pf::web::custom>.
 
 =cut
+
 sub prepare_email_guest_activation_info {
     my ( $portalSession, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -259,6 +267,7 @@ Provides basic information for the self registered sponsored guests template.
 This is meant to be overridden in L<pf::web::custom>.
 
 =cut
+
 sub prepare_sponsor_guest_activation_info {
     my ( $portalSession, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -283,6 +292,7 @@ sub prepare_sponsor_guest_activation_info {
 Sub to present a login form. Template is provided as a parameter.
 
 =cut
+
 sub generate_custom_login_page {
     my ( $portalSession, $err, $html_template ) = @_;
 
@@ -290,14 +300,33 @@ sub generate_custom_login_page {
 
     # return login
     $portalSession->stash->{'username'} = encode_entities($portalSession->cgi->param("username"));
-
     render_template($portalSession, $html_template);
     exit;
+}
+
+=item aup
+
+Return the Acceptable User Policy (AUP) defined in the template file
+/usr/local/pf/html/captive-portal/templates/aup_text.html
+
+=cut
+
+sub aup {
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $html;
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process( 'aup_text.html', undef, \$html ) || $logger->error($template->error());
+
+    return $html;
 }
 
 =item send_template_email
 
 =cut
+
 sub send_template_email {
     my ($template, $subject, $info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
@@ -306,6 +335,14 @@ sub send_template_email {
     # local override (EMAIL_FROM) or pf.conf's value or root@domain
     my $from = $pf::web::guest::EMAIL_FROM || $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
 
+    my $import_succesfull = try { require MIME::Lite::TT; };
+    if (!$import_succesfull) {
+        $logger->error(
+            "Could not send email because I couldn't load a module. ".
+            "Are you sure you have MIME::Lite::TT installed?"
+        );
+        return $FALSE;
+    }
     my $msg = MIME::Lite::TT->new(
         From        =>  $from,
         To          =>  $info->{'email'},
@@ -317,7 +354,7 @@ sub send_template_email {
         TmplUpgrade =>  1,
     );
 
-    $msg->send('smtp', $smtpserver, Timeout => 20) 
+    $msg->send('smtp', $smtpserver, Timeout => 20)
         or $logger->warn("problem sending guest registration email");
 }
 
@@ -360,13 +397,15 @@ sub web_sms_validation {
 =over
 
 =cut
+
 package GUEST;
 
-=item error_code 
+=item error_code
 
 PacketFence error codes regarding guests.
 
 =cut
+
 Readonly::Scalar our $ERROR_INVALID_FORM => 1;
 Readonly::Scalar our $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => 2;
 Readonly::Scalar our $ERROR_CONFIRMATION_EMAIL => 3;
@@ -381,11 +420,12 @@ Readonly::Scalar our $ERROR_SPONSOR_NOT_ALLOWED => 11;
 Readonly::Scalar our $ERROR_PREREG_NOT_ALLOWED => 12;
 Readonly::Scalar our $ERROR_INVALID_PIN => 13;
 
-=item errors 
+=item errors
 
 An hash mapping error codes to error messages.
 
 =cut
+
 Readonly::Hash our %ERRORS => (
     $ERROR_INVALID_FORM => 'Missing mandatory parameter or malformed entry',
     $ERROR_EMAIL_UNAUTHORIZED_AS_GUEST => q{You can't register as a guest with a %s email address. Please register as a regular user using your email address instead.},
@@ -406,13 +446,11 @@ Readonly::Hash our %ERRORS => (
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010, 2011, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

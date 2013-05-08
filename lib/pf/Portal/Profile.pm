@@ -9,7 +9,7 @@ pf::Portal::Profile
 =head1 DESCRIPTION
 
 pf::Portal::Profile wraps captive portal configuration in a way that we can
-provide several differently configured (behavior and template) captive 
+provide several differently configured (behavior and template) captive
 portal from the same server.
 
 =cut
@@ -35,11 +35,11 @@ sub new {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
-    # XXX if complex init is required, it should be done in a sub and the 
+    # XXX if complex init is required, it should be done in a sub and the
     # below should be kept for the simple parameters using an hashref slice
 
     # prepending all parameters in hashref with _ (ex: logo => a.jpg becomes _logo => a.jpg)
-    %$args_ref = map { '_'.$_ => $args_ref->{$_} } keys %$args_ref;
+    %$args_ref = map { "_".$_ => $args_ref->{$_} } keys %$args_ref;
 
     my $self = bless $args_ref, $class;
 
@@ -56,6 +56,8 @@ sub getName {
     return $self->{'_name'};
 }
 
+*name = \&getName;
+
 =item getLogo
 
 Returns the logo for the current captive portal profile.
@@ -66,15 +68,7 @@ sub getLogo {
     return $self->{'_logo'};
 }
 
-=item getAuth
-
-Returns the configured allowed authentication methods for the current captive portal profile.
-
-=cut
-sub getAuth {
-    my ($self) = @_;
-    return $self->{'_auth'};
-}
+*logo = \&getLogo;
 
 =item getGuestSelfReg
 
@@ -86,6 +80,8 @@ sub getGuestSelfReg {
     return $self->{'_guest_self_reg'};
 }
 
+*guest_self_reg = \&getGuestSelfReg;
+
 =item getGuestModes
 
 Returns the available enabled modes for guest self-registration for the current captive portal profile.
@@ -96,15 +92,7 @@ sub getGuestModes {
     return $self->{'_guest_modes'};
 }
 
-=item getGuestCategory
-
-Returns the category that should be assigned to guests who self-registers themselves on the current captive portal profile.
-
-=cut
-sub getGuestCategory {
-    my ($self) = @_;
-    return $self->{'_guest_category'};
-}
+*guest_modes = \&getGuestModes;
 
 =item getTemplatePath
 
@@ -118,6 +106,8 @@ sub getTemplatePath {
     return $self->{'_template_path'};
 }
 
+*template_path = \&getTemplatePath;
+
 =item getBillingEngine
 
 Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
@@ -128,37 +118,29 @@ sub getBillingEngine {
     return $self->{'_billing_engine'};
 }
 
-=item getDefaultAuth
+*billing_engine = \&getBillingEngine;
 
-Returns the default authentication for the current captive portal profile.
+=item getDescripton
 
-=cut
-sub getDefaultAuth {
-    my ($self) = @_;
-    return $self->{'_default_auth'};
-}
-
-=item getCategory
-
-Returns the default category for the current captive portal profile.
+Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
 
 =cut
-sub getCategory {
+sub getDescripton {
     my ($self) = @_;
-    return $self->{'_category'};
+    return $self->{'_description'};
 }
+
+*description = \&getDescripton;
 
 =back
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

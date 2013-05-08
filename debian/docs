@@ -1,6 +1,8 @@
-NEWS
+NEWS.asciidoc
+NEWS.old
 README
 README.network-devices
 ChangeLog
 ChangeLog.old
-UPGRADE
+UPGRADE.asciidoc
+UPGRADE.old

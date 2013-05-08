@@ -64,6 +64,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP');
 
+sub description { 'Brocade Switches' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -180,7 +182,7 @@ sub getVoipVsa {
         'Foundry-MAC-Authent-needs-802.1x' => $FALSE,
         'Tunnel-Type'               => $RADIUS::VLAN,
         'Tunnel-Medium-Type'        => $RADIUS::ETHERNET,
-        'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voiceVlan'),
+        'Tunnel-Private-Group-ID'   => "T:".$this->getVlanByName('voice'),
     );
 }
 
@@ -225,13 +227,11 @@ sub returnRadiusAccessAccept {
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
-
-Francois Gaudreault <fgaudreault@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse Inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

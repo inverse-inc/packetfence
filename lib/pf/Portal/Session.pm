@@ -25,11 +25,13 @@ use Log::Log4perl;
 use POSIX qw(setlocale);
 use Readonly;
 use URI::Escape qw(uri_escape uri_unescape);
-
+use File::Spec::Functions;
 use pf::config;
 use pf::iplog qw(ip2mac);
 use pf::Portal::ProfileFactory;
 use pf::util;
+use CGI::Session::Driver::memcached;
+use pf::web::util;
 
 =head1 CONSTANTS
 
@@ -49,7 +51,7 @@ sub new {
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
     my $self = bless {}, $class;
-    
+
     $self->_initialize() unless ($argv{'testing'});
     return $self;
 }
@@ -66,7 +68,7 @@ sub _initialize {
     $self->{'_cgi'} = new CGI;
     $self->{'_cgi'}->charset("UTF-8");
 
-    $self->{'_session'} = new CGI::Session(undef, $self->getCgi, {Directory=>'/tmp'});
+    $self->{'_session'} = new CGI::Session( "driver:memcached", $self->getCgi, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
 
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
@@ -124,8 +126,11 @@ sub _initializeI18n {
 
     # if it's overridden take it otherwise we take the first locale specified in config
     my $locale = defined($override_lang) ? $override_lang : $authorized_locale_array[0];
-
-    setlocale( POSIX::LC_MESSAGES, $locale );
+    setlocale( POSIX::LC_MESSAGES, "$locale.utf8" );
+    my $newlocale = setlocale(POSIX::LC_MESSAGES);
+    if ($newlocale !~ m/^$locale/) {
+        $logger->error("Error while setting locale to $locale.utf8.");
+    }
     bindtextdomain( "packetfence", "$conf_dir/locale" );
     textdomain("packetfence");
 }
@@ -146,7 +151,7 @@ sub _getDestinationUrl {
 
 =item _resolveIp
 
-Returns the IP address of the client reaching the captive portal. 
+Returns the IP address of the client reaching the captive portal.
 Either directly connected or through a proxy.
 
 =cut
@@ -163,7 +168,7 @@ sub _resolveIp {
     my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first
     $proxied_lookup{$LOOPBACK_IPV4} = 1; # loopback (proxy-bypass)
     # adding virtual IP if one is present (proxy-bypass w/ high-avail.)
-    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network->tag('vip'));
+    $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network && $management_network->tag('vip'));
 
     # if this is NOT from one of the expected proxy IPs return the IP
     if (!$proxied_lookup{$directly_connected_ip}) {
@@ -332,17 +337,46 @@ sub setGuestNodeMac {
     $self->{'_guest_node_mac'} = $guest_node_mac;
 }
 
+=item getTemplateIncludePath
+
+=cut
+sub getTemplateIncludePath {
+    my ($self) = @_;
+    my $profile = $self->getProfile;
+    my @paths = ($CAPTIVE_PORTAL{'TEMPLATE_DIR'});
+    if ($profile->getName ne 'default') {
+        unshift @paths,catdir($CAPTIVE_PORTAL{'PROFILE_TEMPLATE_DIR'},trim_path($profile->getTemplatePath));
+    }
+    return \@paths;
+}
+
+=item getRequestLanguages
+
+Extract the preferred languages from the HTTP request.
+Ex: Accept-Language: en-US,en;q=0.8,fr;q=0.6,fr-CA;q=0.4,no;q=0.2,es;q=0.2
+will return qw(en_US en fr fr_CA no es)
+
+=cut
+sub getRequestLanguages {
+    my ($self) = @_;
+    my $s = $self->getCgi->http('Accept-language');
+    my @l = split(/,/, $s);
+    map { s/;.+// } @l;
+    map {  s/-/_/g } @l;
+    @l = map { m/^en(_US)?/? ():$_ } @l;
+
+    return \@l;
+}
+
 =back
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

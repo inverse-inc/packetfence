@@ -31,6 +31,9 @@ use pf::web::guest 1.30;
 # called last to allow redefinitions
 use pf::web::custom;
 
+use pf::authentication;
+use pf::Authentication::constants;
+
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('guest-selfregistration.cgi');
 Log::Log4perl::MDC->put('proc', 'guest-selfregistration.cgi');
@@ -42,8 +45,7 @@ my $session = $portalSession->getSession();
 
 # if self registration is not enabled, redirect to portal entrance
 print $cgi->redirect("/captive-portal?destination_url=".uri_escape($portalSession->getDestinationUrl()))
-    if ( isdisabled($portalSession->getProfile->getGuestSelfReg) 
-         && $portalSession->getProfile->getAuth ne 'guests_self_registration_only');
+    if ( isdisabled($portalSession->getProfile->getGuestSelfReg) );
 
 # if we can resolve the MAC we are in on-site self-registration
 # if we can't resolve it and preregistration is disabled, generate an error
@@ -96,15 +98,19 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # grab additional info about the node
       my %info;
-      $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $portalSession->getProfile->getGuestCategory;
-
-      # unreg in guests.email_activation_timeout seconds
-      my $timeout = $Config{'guests_self_registration'}{'email_activation_timeout'};
-      $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
+      my $pid = $session->param('guest_pid');
+      my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+      $info{'pid'} = $pid;
+      $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
 
       # if we are on-site: register the node
       if (!$session->param("preregistration")) {
+          # Use the activation timeout to set the unregistration date
+          my $source = &pf::authentication::getAuthenticationSourceByType($email_type);
+          my $timeout = normalize_time($source->{email_activation_timeout});
+          $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
+          $logger->debug("Registration for guest ".$info{'pid'}." is valid until ".$info{'unregdate'});
+
           pf::web::web_node_register($portalSession, $info{'pid'}, %info);
       }
 
@@ -144,7 +150,9 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # User chose to register by SMS
       $logger->info("registering " . $portalSession->getClientMac() . " guest by SMS " . $session->param("phone") . " @ " . $cgi->param("mobileprovider"));
-      ($auth_return, $err, $errargs_ref) = sms_activation_create_send($portalSession->getGuestNodeMac(), $session->param("phone"), $cgi->param("mobileprovider") );
+      ($auth_return, $err, $errargs_ref) = sms_activation_create_send( $portalSession->getGuestNodeMac(),
+                                                                       $session->param("phone"),
+                                                                       $cgi->param("mobileprovider") );
       if ($auth_return) {
 
           # form valid, adding person (using modify in case person already exists)
@@ -185,8 +193,10 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # grab additional info about the node
       my %info;
-      $info{'pid'} = $session->param('guest_pid');
-      $info{'category'} = $portalSession->getProfile->getGuestCategory;
+      my $pid = $session->param('guest_pid');
+      my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+      $info{'pid'} = $pid;
+      $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
       $info{'status'} = $pf::node::STATUS_PENDING;
 
       if (!$session->param("preregistration")) {
@@ -239,14 +249,12 @@ else {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
-        
-Copyright (C) 2010-2012 Inverse inc.
-    
+
+Copyright (C) 2005-2013 Inverse inc.
+
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or

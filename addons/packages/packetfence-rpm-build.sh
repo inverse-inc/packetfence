@@ -4,9 +4,12 @@
 # Supports
 # - building directly from git
 # - specifying branch to build
-# 
-# @Author: Olivier Bilodeau <obilodeau@inverse.ca>
 #
+# Copyright (C) 2005-2013 Inverse inc.
+#
+# Author: Inverse inc. <info@inverse.ca>
+#
+# Licensed under the GPL
 
 DATE="`date +%Y%m%d`"
 BRANCH=$1

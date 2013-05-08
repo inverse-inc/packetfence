@@ -1,0 +1,146 @@
+    <div class="modal fade hide" id="modalUser">
+
+      <form name="modalUser" action="[% c.uri_for(c.controller('User').action_for('update'), [user.pid]) %]" class="form-horizontal form-condensed" >
+
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i class="icon-[% IF user.password %]briefcase[% ELSE %]user[% END %]"></i> <i>[% l('User') %]</i> [% user.pid %]</h3>
+        </div>
+
+        <div class="modal-body">
+          [% form.block('templates').render %]
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
+            [% IF user.password.defined -%]
+            <li><a href="#userPassword" data-toggle="tab">[% l('Password') %]</a></li>
+            <li><a href="#userActions" data-toggle="tab">[% l('Actions') %]</a></li>
+            [% END -%]
+            <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
+            <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+          </ul>
+
+          <div class="tab-content">
+
+            <div class="tab-pane fade in active" id="userInfo">
+              <div class="control-group">
+                <div class="controls">
+                  <h6>[% l('Profile') %]</h6>
+                </div>
+              </div>
+              [% form.block('user').render %]
+            </div><!--tab-pane-->
+
+[% IF user.password.defined  %]
+            <div class="tab-pane fade in" id="userPassword">
+              <div class="control-group">
+                <label class="control-label" for="password">[% l('Password') %]</label>
+                <div class="controls">
+                  <input type="password" name="password" id="password" />
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <input type="password" name="password2" id="password2" placeholder="[% l('Retype the password') %]" />
+                  <a class="btn" id="resetPassword" href="[% c.uri_for(c.controller('User').action_for('reset'), [user.pid]) %]">[% l('Reset Password') %]</a>
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <h6>[% l('Password Reminder') %]</h6>
+                </div>
+              </div>
+              <div class="control-group">
+                <div class="controls">
+                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
+                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword">[% l('mail') %]</a>
+                </div>
+              </div>
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="userActions">
+              <div class="control-group">
+                <label class="control-label" for="valid_from">[% l('Registration Window') %]</label>
+                <div class="controls input-daterange datepicker">
+                  [% form.field('valid_from').render_element %] <i class="icon-arrow-right"></i>
+                  [% form.field('expiration').render_element %]
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label">[% l('Actions') %]</label>
+                <div class="controls">
+                  <table id="ruleActions" class="table table-dynamic table-condensed">
+                    <tbody>
+                      [% FOREACH action IN form.field('actions').fields -%]
+                      <tr[% ' class="hidden"' IF loop.last %]>
+                        <td>
+                          [%
+                            field_type  = action.field('type')
+                            field_value = action.field('value')
+                          %]
+                          [% IF loop.last %]
+                          [%
+                              field_type.element_attr.disabled = "disabled"
+                              field_value.element_attr.disabled = "disabled"
+                          %]
+                          [% ELSE %]
+                              [%field_value.element_class = []%]
+                          [% END %]
+                          [% field_type.render_element %]
+                          [% field_value.render_element %]
+                        </td>
+                        <td class="action">
+                          <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
+                          <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
+                        </td>
+                      </tr>
+                      [% END -%]
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div><!--tab-pane-->
+[% END %]
+
+            <div class="tab-pane fade" id="userDevices">
+              [% IF nodes.size %]
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th>[% l('MAC') %]</th>
+                    <th>[% l('Computer Name') %]</th>
+                    <th>[% l('OS (DHCP)') %]</th>
+                  </tr>
+                </thead>
+                <tbody>
+                [% FOR node IN nodes %]
+                <tr>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
+                  <td>[% node.computer_name %]</td>
+                  <td>[% node.dhcp_fingerprint %]</td>
+                </tr>
+                [% END %]
+                </tbody>
+              </table>
+              [% ELSE %]
+              <div id="noResult" class="unwell">
+                <i class="icon-search icon-large"></i><p>[% l('No device found') %]</p>
+              </div>
+              [% END %]
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="userViolations">
+            </div><!--tab-pane-->
+
+          </div><!--tab-content-->
+
+        </div><!--modal-body-->
+
+        <div class="modal-footer">
+          <a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+        </div><!--modal-footer-->
+
+      </form>
+    </div><!--modal-->

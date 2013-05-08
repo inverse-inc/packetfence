@@ -42,3 +42,5 @@ $INCLUDE	/usr/share/freeradius/dictionary
 #ATTRIBUTE	My-Local-String		3000	string
 #ATTRIBUTE	My-Local-IPAddr		3001	ipaddr
 #ATTRIBUTE	My-Local-Integer	3002	integer
+# The SSID the supplicant/user device connected to
+ATTRIBUTE      Called-Station-SSID     3010    string

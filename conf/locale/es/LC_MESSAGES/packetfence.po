@@ -2,16 +2,16 @@
 # This file is distributed under the same license as the PacketFence project.
 #
 # Translators:
-#  <cgagun@gmail.com>, 2012.
+# cgomez <cgagun@gmail.com>, 2012
 # Juan Camilo Valencia <juan.valencia@seguratec.com.co>, 2011-2012.
-# Dominique Couot <dcouot@hotmail.com>, 2012.
+# Dominique Couot <dcouot@hotmail.com>, 2012-2013
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-08-01 18:39+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2013-03-26 12:42+0000\n"
+"Last-Translator: Dominique Couot <dcouot@hotmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/packetfence/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -994,3 +994,30 @@ msgstr "No se puede validar su promotor en éste momento"
 
 msgid "Email %s is not allowed to sponsor guest access"
 msgstr "Correo electrónico %s no permitido para patrocinar acceso invitados"
+
+msgid "You need to be authenticated to access this page."
+msgstr "You need to be authenticated to access this page."
+
+msgid "OAuth2 Error: Failed to get the token"
+msgstr "OAuth2 Error: Failed to get the token"
+
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr "OAuth2 Error: Failed to validate the token, please retry"
+
+msgid "Registration canceled please try again"
+msgstr "Registration canceled please try again"
+
+msgid "Please verify MAC address provided"
+msgstr "Por favor verifica la dirección MAC facilitada"
+
+msgid "You are not authorized"
+msgstr "No tiene autorización"
+
+msgid "The MAC address %s has been successfully registered."
+msgstr "La dirección MAC %s ha sido registrada con éxito."
+
+msgid "The MAC address %s provided is invalid please try again"
+msgstr "La dirección MAC %s facilitada es invalida por favor inténtalo de nuevo"
+
+msgid "This module is not enabled"
+msgstr "Este modulo no esta activado"

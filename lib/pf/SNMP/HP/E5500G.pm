@@ -98,6 +98,8 @@ use base ('pf::SNMP::ThreeCom::Switch_4200G');
 use pf::config;
 use pf::SNMP::constants;
 
+sub description { 'HP E5500G (3Com)' }
+
 =head1 SUBROUTINES
 
 =over
@@ -106,11 +108,11 @@ use pf::SNMP::constants;
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -18,16 +18,18 @@ use Log::Log4perl;
 use Net::Appliance::Session;
 
 use pf::config;
+sub description { 'Juniper EX Series' }
+
 # importing switch constants
 use pf::SNMP::constants;
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

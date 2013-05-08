@@ -91,6 +91,7 @@ sub iptables_generate {
 
     # global substitution variables
     $tags{'web_admin_port'} = $Config{'ports'}{'admin'};
+    $tags{'webservices_port'} = $Config{'ports'}{'soap'};
     # FILTER
     # per interface-type pointers to pre-defined chains
     $tags{'filter_if_src_to_chain'} .= $self->generate_filter_if_src_to_chain();
@@ -427,14 +428,6 @@ sub generate_mangle_rules {
         ;
     }
 
-    # mark blacklisted users
-    # TODO blacklist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
-        $mangle_rules .=
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
-        ;
-    }
-
     return $mangle_rules;
 }
 
@@ -622,25 +615,6 @@ of the inline mode because of time constraints.
 
 =over
 
-=item generate_filter_input_listeners
-
-=cut
-sub generate_filter_input_listeners {
-    my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $rules = '';
-
-    # TODO to integrate and might need to adjust other tables too (NAT's dnat)
-    my @listeners = split( /\s*,\s*/, $Config{'ports'}{'listeners'} );
-    foreach my $listener (@listeners) {
-        my $port = getservbyname( $listener, "tcp" );
-        $rules .= "--protocol tcp --destination-port $port --jump ACCEPT\n";
-    }
-
-    return $rules;
-}
-
-
 =item generate_filter_forward_scanhost
 
 =cut
@@ -805,21 +779,17 @@ sub get_snat_interface {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
-David LaPorte <david@davidlaporte.org>
-
-Kevin Amorin <kev@amorin.org>
-
-Fabrice Durand <fdurand@inverse.ca>
+Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
 Copyright (C) 2005 Kevin Amorin
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005 David LaPorte
 
 =head1 LICENSE
 

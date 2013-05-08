@@ -94,6 +94,8 @@ use Data::Dumper;
 
 use pf::config;
 use pf::locationlog;
+sub description { 'Cisco Catalyst 2950' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -157,7 +159,7 @@ sub getManagedPorts {
                         {                         # skip non static
 
                             if (grep(
-                                    { $_ == $portVlan } @{ $this->{_vlans} } )
+                                    { $_ == $portVlan } values %{ $this->{_vlans} } )
                                 != 0 )
                             {    # skip port in a non-managed VLAN
                                 $logger->trace(
@@ -1145,15 +1147,11 @@ sub ifIndexToLldpLocalPort {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
-
-Regis Balzard <rbalzard@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

@@ -1,0 +1,122 @@
+#PacketFence apache configuration file
+
+#Debian specific
+<IfDefine debian>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+  </IfModule>
+</IfDefine>
+
+#RHEL specific
+<IfDefine rhel>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module modules/mod_mime.so
+  </IfModule>
+</IfDefine>
+
+PerlSwitches -I/usr/local/pf/lib
+PerlSwitches -I/usr/local/pf/html/pfappserver/lib
+
+<Perl>
+
+use pf::config qw();
+
+my $PfConfig = \%pf::config::Config;
+my $management_network = $pf::config::management_network;
+my $install_dir = $pf::config::install_dir;
+my $var_dir = $pf::config::var_dir;
+my $vhost;
+
+$PidFile = $install_dir.'/var/run/httpd.admin.pid';
+
+$Include = $install_dir.'/conf/httpd.conf.d/log.conf';
+
+if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+    if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+        $Listen = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
+        $vhost = $management_network->{'Tvip'}.":".$PfConfig->{'ports'}{'admin'};
+    } else {
+        $Listen = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+        $vhost = $management_network->{'Tip'}.":".$PfConfig->{'ports'}{'admin'};
+   }
+} else {
+    $Listen = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
+    $vhost = "0.0.0.0:".$PfConfig->{'ports'}{'admin'};
+}
+
+$User = "pf";
+$Group = "pf";
+
+$TypesConfig = '/etc/mime.types';
+
+if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
+    $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
+} else {
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'};
+}
+
+$ServerTokens = "Prod";
+$ServerSignature = "Off";
+$UseCanonicalName = "Off";
+$Timeout = "50";
+$KeepAliveTimeout = "10";
+
+$MaxClients = "20";
+$StartServers = "2";
+$MinSpareServers = "6";
+$HostnameLookups = "off";
+$MaxRequestsPerChild = "1000";
+
+$ErrorLog = $install_dir.'/logs/admin_error_log';
+
+$PerlInitHandler = "pf::WebAPI::InitHandler";
+
+$NameVirtualHost => $vhost;
+push @{ $VirtualHost{$vhost} },
+    {
+         ServerName   => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'admin'},
+         DocumentRoot => $install_dir.'/html/pfappserver/lib',
+         ErrorLog     => $install_dir.'/logs/admin_error_log',
+         CustomLog    => $install_dir.'/logs/admin_access_log combined',
+         AllowEncodedSlashes => "on",
+         SSLEngine    => 'on',
+         Include      => $var_dir.'/conf/ssl-certificates.conf',
+         Alias        => '/static '.$install_dir.'/html/pfappserver/root/static',
+         PerlModule   => 'pfappserver',
+         Location     => {
+             "/" => {
+                 SetHandler => 'modperl',
+                 PerlResponseHandler => 'pfappserver',
+             },
+             "/static" => {
+                 SetHandler => 'default-handler',
+             },
+         },
+    };
+
+</Perl>
+

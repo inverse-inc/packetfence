@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2012-06-15 20:34+0000\n"
+"PO-Revision-Date: 2013-02-19 22:23+0000\n"
 "Last-Translator: djkakaroto <djkakaroto@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -993,3 +993,30 @@ msgstr "Não é possível validar o seu patrocinador no momento"
 
 msgid "Email %s is not allowed to sponsor guest access"
 msgstr "E-mail %s não está autorizado a patrocinar o acesso a convidados"
+
+msgid "You need to be authenticated to access this page."
+msgstr "Você precisa estar autenticado para acessar esta página."
+
+msgid "OAuth2 Error: Failed to get the token"
+msgstr "OAuth2 erro: Falha ao obter o token"
+
+msgid "OAuth2 Error: Failed to validate the token, please retry"
+msgstr "OAuth2 erro: Falha ao validar o token, por favor tente novamente"
+
+msgid "Registration canceled please try again"
+msgstr "Registro cancelado, por favor tente novamente"
+
+msgid "Please verify MAC address provided"
+msgstr "Por favor, verifique o endereço MAC fornecido"
+
+msgid "You are not authorized"
+msgstr "Você não está autorizado"
+
+msgid "The MAC address %s has been successfully registered."
+msgstr "O endereço MAC %s foi registrado com sucesso."
+
+msgid "The MAC address %s provided is invalid please try again"
+msgstr "O endereço MAC %s fornecido é inválido, por favor tente novamente"
+
+msgid "This module is not enabled"
+msgstr "Este módulo não está ativado"

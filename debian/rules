@@ -67,12 +67,10 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/mrtg
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/scan/results
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/traplog
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
+	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/named
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
@@ -82,19 +80,25 @@ install: build
 	#Configurator integration
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/init.d
 	install -d -m0700 $(CURDIR)/debian/packetfence/etc/default
-	install -m0755 $(CURDIR)/debian/pfappserver.init $(CURDIR)/debian/packetfence/etc/init.d/pfappserver
-	install -m0644 $(CURDIR)/debian/pfappserver.default $(CURDIR)/debian/packetfence/etc/default/pfappserver
 	#PacketFence remote Snort sensor
 	install -d -m0700 $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/var
 	install -d $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0755 addons/pfdetect_remote/sbin/pfdetect_remote $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/sbin
 	install -m0600 addons/pfdetect_remote/conf/pfdetect_remote.conf $(CURDIR)/debian/packetfence-remote-snort-sensor$(PREFIX)/$(NAME)/conf
+	#PacketFence remote ARP sensor
+	install -d -m0700 $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
+	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/var
+	install -d $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0755 addons/pfarp_remote/sbin/pfarp_remote $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/sbin
+	install -m0600 addons/pfarp_remote/conf/pfarp_remote.conf $(CURDIR)/debian/packetfence-remote-arp-sensor$(PREFIX)/$(NAME)/conf
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
 	gcc src/pfcmd.c -o $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	# Install our logrotate file into debian/ so dh_installlogrotate will be able to do it's magic
 	install addons/logrotate $(CURDIR)/debian/packetfence.logrotate
+	#Create our dhcpd.leases
+	touch $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 # Build architecture-independent files here.
 binary-indep: build install
 # We have nothing to do by default.
@@ -118,8 +122,7 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installinfo
 	dh_installman
-	dh_link /usr/local/pf/conf/httpd.conf.apache22 /usr/local/pf/conf/httpd.conf \
-			/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf \
+	dh_link	/usr/local/pf/conf/named.conf.bind97 /usr/local/pf/conf/named.conf \
 			/usr/local/pf/raddb/sites-available/control-socket /usr/local/pf/raddb/sites-enabled/control-socket \
 			/usr/local/pf/raddb/sites-available/default /usr/local/pf/raddb/sites-enabled/default \
 			/usr/local/pf/raddb/sites-available/inner-tunnel /usr/local/pf/raddb/sites-enabled/inner-tunnel \
@@ -136,19 +139,25 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/snort/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/watchdog/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
-	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/admin/*.cgi
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/script/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/captive-portal/*.cgi
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons \
-                -X$(NAME)/html/admin/soh.cgi -X$(NAME)/conf/pfdetect_remote.conf \
-                -X$(NAME)sbin/pfdetect_remote
+                -X$(NAME)/conf/pfdetect_remote.conf \
+                -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
+		-X$(NAME)sbin/pfarp_remote
 	# Everything is owned by pf:pf
 	chown pf:pf -R $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
+	# Ubuntu dhcpd issue
+	chmod 775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
+	chmod 775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	# Set setuid root on bin/pfcmd
 	chown pf:pf -R $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
+	# Set SGID on conf/
+	chmod g+s $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb

@@ -40,6 +40,8 @@ use Log::Log4perl;
 use pf::config;
 use pf::util;
 
+sub description { 'Avaya Wireless Controller' }
+
 =back
 
 =head1 SUBROUTINES
@@ -161,13 +163,11 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Francois Gaudreault <fgaudreault@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

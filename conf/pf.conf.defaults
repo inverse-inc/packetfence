@@ -10,11 +10,6 @@ domain=packetfence.org
 # Hostname of PacketFence system.  This is concatenated with the domain in Apache rewriting rules and therefore must be resolvable by clients.
 hostname=packetfence
 #
-# general.logo
-#
-# Logo displayed on web pages.
-logo=/common/packetfence-cp.png
-#
 # general.dnsservers
 #
 # Comma-delimited list of DNS servers.  Passthroughs are created to allow queries to these servers from even "trapped" nodes.
@@ -41,7 +36,11 @@ timezone=America/Montreal
 #
 # Interval at which Packetfence runs its maintenance tasks.
 maintenance_interval=60s
-
+#
+# general.memcached
+#
+# Server list of the memcached server
+memcached=127.0.0.1:11211
 
 [network]
 #
@@ -112,11 +111,6 @@ redirtimer=20s
 # When set to "disabled" passthrough is disabled.
 passthrough=disabled
 #
-# trapping.blacklist
-#
-# Comma-delimited list of MAC addresses that are not allowed to pass through the PacketFence system.
-blacklist=
-#
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
@@ -169,81 +163,6 @@ wireless_ips_threshold=90
 #
 range=
 #
-# registration.skip_mode
-#
-# If set to "deadline", the deadline option defines the time at which skipping registration is no longer 
-# an option for clients.  If set to "window", the window is used to determine the amount of time after 
-# first network access that a node may skip registration.
-skip_mode=disabled
-#
-# registration.skip_deadline
-#
-# If mode is set to "deadline", this is the date at which the "skip registration" option is disabled.  Date 
-# string is formatted as the output of the "date" command is.
-skip_deadline=Mon Nov 12 12:00:00 EST 2012
-#
-# registration.skip_window
-#
-# The length of time that a node may skip registration.  For instance, setting it to 14 days would allow 
-# students to skip registration for two weeks, giving them time to get a student ID, password, etc.
-skip_window=14D
-#
-# registration.skip_reminder
-#
-# Interval that a user is re-prompted to register after skipping.  For example, if skip_window=2W and skip_reminder=1D,
-# a user will be allowed to skip for two weeks but will be re-prompted every day.
-skip_reminder=1D
-#
-# registration.auth
-#
-# Method by which registering nodes will be authenticated.  Templates for LDAP, RADIUS, Kerberos, local and guests are 
-# available at <conf_dir>/authentication.  If you wish to use a different authentication mechanism, simply create 
-# a file called <conf_dir>/authentication/<authname>.pm, fill it with the necessary data, and set 
-# auth=<authname>.  The default value, local, relies on a local access file in <conf_dir>/user.conf.
-auth=local
-
-#
-# registration.default_auth
-#
-# Authentication method selected as the default in the captive portal drop-down. Only useful if you have more than
-# one authentication method (registration.auth).
-default_auth=
-
-#
-# registration.expire_mode
-#
-# If set to "deadline", the expire_deadline option defines the date at
-# which a node reverts to an unregistered state.  If set to "window",
-# the window is used to determine the length of time after registration
-# that a node remains registered.  If set to "session", it specifies
-# that a client should be unregistered as soon as its iplog entry closes
-# (or with a bit of latency - check regitration.expire_session).
-expire_mode=disabled
-#
-# registration.expire_deadline
-#
-# If expire_mode is set to "deadline", this is the date (formatted as returned by the "date" command) at which 
-# nodes revert to an unregistered state.  This would typically be the end of a semester.
-expire_deadline=Mon Nov 12 12:00:00 EST 2012
-#
-# registration.expire_window
-#
-# If expire_mode is set to "window", this is length of time after
-# registration that a node reverts to an unregistered state.
-expire_window=52W
-#
-# registration.expire_session
-# If expire_mode is set to "session", this is the amount of time after
-# a node's iplog entry is closed that it reverts to an unregistered
-# state.
-# Warning: Does not work in vlan isolation mode!
-expire_session=5m
-#
-# registration.maxnodes
-#
-# If defined, the maximum number of nodes that can be registered to a single PID.
-maxnodes=0
-#
 # registration.button_text
 #
 #
@@ -254,57 +173,17 @@ button_text=Register
 # The number of registration pages to show to the user
 nbregpages=0
 #
-# registration.guests_self_registration
-#
-# Is the guest self-registration feature enabled or not. Self-registration 
-# is the signup button where a guest can register by email, SMS or be sponsored 
-# their access.
-guests_self_registration=enabled
-#
-# registation.billing_engine
-#
-# Enable or Disable the billing engine that allow registering to the network by buying access
-billing_engine = disabled
-#
 # registration.gaming_devices_registration
 #
 # Enable or Disable the ability to register a gaming device using the specific portal page designed to do it
-gaming_devices_registration = disabled
+gaming_devices_registration=disabled
+#
+# registration.gaming_devices_registration_role
+#
+# The role to assign to gaming devices. If none is specified, the role of the registrant is used.
+gaming_devices_registration_role=
 
 [guests_self_registration]
-#
-# guests_self_registration.modes
-# 
-# Self-registration is the signup button where a guest can register by
-# email, SMS or sponsored by someone. You can also select "google" and 
-# "facebook", or "github" to authenticate users. Several modes can be enabled at the same time. 
-# To disable guest self-registration entirely see the 
-# guests_self_registration parameter under [registration].
-modes=sms,email,sponsor
-#
-# guests_self_registration.category
-#
-# The node category that will be assigned to guests' nodes.
-category=guest
-#
-# guests_self_registration.access_duration
-#
-# The length of network access a confirmed guest will have. On successful
-# confirmation a guest node's unregdate is set to now + access_duration.
-access_duration=7D
-#
-# guests_self_registration.email_activation_timeout
-#
-# This is the delay given to a guest who registered by email confirmation
-# to log into his email and click the activation link. Low values will require
-# a modification of maintenance_interval because the timeout is enforced every
-# 10 maintenance intervals.
-email_activation_timeout=10m
-#
-# guests_self_registration.allow_localdomain
-#
-# Accept self-registration with email address from the local domain.
-allow_localdomain=enabled
 #
 # guests_self_registration.mandatory_fields
 #
@@ -318,23 +197,6 @@ mandatory_fields=firstname,lastname,phone,email
 #
 # What field should we assign to the pid of the guest? Defaults to email.
 guest_pid=email
-#
-# guests_self_registration.sponsors_only_from_localdomain
-#
-# Sponsors emails can only be from the general.localdomain domain. Defaults to 
-# yes.
-sponsors_only_from_localdomain=yes
-#
-# guests_self_registration.sponsor_authentication
-#
-# Method by which sponsors will be validated as valid sponsors and then 
-# authenticated. Templates for LDAP, RADIUS, Kerberos and local are available
-# at <conf_dir>/authentication.  If you wish to use a different 
-# authentication mechanism, simply create a file called 
-# <conf_dir>/authentication/<authname>.pm, fill it with the necessary
-# data, and set sponsor_authentication=<authname>. The default value, local,
-# relies on a local access file in <conf_dir>/user.conf.
-sponsor_authentication=local
 #
 # guests_self_registration.preregistration
 # 
@@ -364,19 +226,6 @@ access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 # This is the default access duration value selected in the dropdown on the 
 # guest management interface.
 default_access_duration=12h
-#
-# guests_admin_registration.category
-#
-# The node category that will be assigned to guests' nodes registered by an
-# admin by default.
-category=guest
-
-[gaming_devices_registration]
-#
-# gaming_devices_registration.category
-#
-# The node category that will be assigned to gaming devices registered through the interface.
-category=gaming
 
 #
 # This section allows you to create passthroughs to HTML content or remote addresses/networks.
@@ -435,17 +284,15 @@ admin_netbiosname=EXAMPLE
 
 [ports]
 #
-# ports.listeners
-#
-# Enables "bogus" IMAP and POP servers.  These servers serve only to deliver a message (POP3) or send an alert (IMAP) to
-# inform the user that he/she must register before connectivity is allowed.  Content of the message is found at 
-# <conf_dir>/listener.msg
-listeners=
-#
 # ports.admin
 #
 # Port the administrative interface listens on.
 admin=1443
+#
+# ports.soap
+#
+# Port of the soap interface listens on.
+soap=9090
 
 [scan]
 #
@@ -459,6 +306,17 @@ engine=none
 # If this option is enabled, the PF system will scan each host after
 # registration is complete.
 registration=disabled
+#
+# scan.dot1x
+#
+# If this option is enabled, the PF system will scan all the machines after a 802.1x
+# autoregister connection
+dot1x=disabled
+#
+#scan.dot1x_type
+#
+# List of the EAP-Type that pass into the scan engine
+dot1x_type=MS-CHAP-V2
 #
 # scan.duration
 #
@@ -755,7 +613,6 @@ loadbalancers_ip=
 # captured clients. This is the default behavior.
 secure_redirect=enabled
 
-
 [advanced]
 #
 # advanced.reevaluate_access_reasons
@@ -820,3 +677,8 @@ category=default
 #
 # By default is an imported node a Voice over IP device or not?
 voip=no
+
+[webservices]
+user = 
+pass =
+

@@ -30,11 +30,8 @@ case "$1" in
             ln -s $VERSIONSQL ./pf-schema.sql
         fi
     
-        # we are not compatible with suhosin session encryption
-        sed -i "1i\suhosin.session.encrypt=Off\n" /etc/php5/apache2/php.ini
-    
         #Check if log files exist and create them with the correct owner
-        for fic_log in packetfence.log access_log error_log admin_access_log admin_error_log
+        for fic_log in packetfence.log catalyst.log access_log error_log admin_access_log admin_error_log
         do
         if [ ! -e /usr/local/pf/logs/$fic_log ]; then
             touch /usr/local/pf/logs/$fic_log
@@ -50,31 +47,34 @@ case "$1" in
             -nodes -config /usr/local/pf/conf/openssl.cnf
         fi
 
-	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-		    echo "Bulding default RADIUS certificates..."
-		    cd /usr/local/pf/raddb/certs
-		    make dh 
-	    else
-		    echo "DH already exists, won't touch it!"
+	if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+	    echo "Bulding default RADIUS certificates..."
+	    cd /usr/local/pf/raddb/certs
+	    make dh 
+	else
+	    echo "DH already exists, won't touch it!"
         fi
 
         # managing services
-        for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
+        for service in snort apache2 snmptrapfmt bind9 freeradius apparmor; do
             service $service stop  > /dev/null 2>&1
-            update-rc.d $service remove > /dev/null 2>&1
+            update-rc.d -f $service remove > /dev/null 2>&1
         done
         # add sudo entry
-        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
-            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset" >> /etc/sudoers
+        if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
+            # Comment out entry from a previous version of PF (< 4.0)
+            sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
+        fi
+        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/usr/bin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/freeradius" /etc/sudoers > /dev/null  ) ; then
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/freeradius" >> /etc/sudoers
         fi
         if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
             echo 'Defaults:pf !requiretty' >> /etc/sudoers
         fi
 
-        update-rc.d packetfence defaults . || exit 0
-        update-rc.d pfappserver defaults . || exit 0
-        invoke-rc.d pfappserver start
-        echo "* Reboot your server and after please fire up your Web browser and go to http://@ip_packetfence:1444/configurator to complete your PacketFence configuration."
+        update-rc.d packetfence defaults 60 || exit 0
+        echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443/configurator to complete your PacketFence configuration."
+        echo "* Please stop your iptables service if you don't have access to configurator."
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -98,13 +98,13 @@ Readonly::Scalar our $HELD_FOR_REVIEW   => 4;
 
 =head1 AUTHOR
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

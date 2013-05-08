@@ -17,6 +17,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::Dlink');
 
+sub description { 'D-Link DES 3526' }
+
 =head1 AUTHOR
 
 Treker Chen <treker.chen@gmail.com>

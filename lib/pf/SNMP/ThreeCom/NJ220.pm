@@ -23,6 +23,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::ThreeCom');
 
+sub description { '3COM NJ220' }
+
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -38,11 +40,13 @@ sub getVersion {
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

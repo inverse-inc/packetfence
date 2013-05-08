@@ -46,6 +46,8 @@ use base ('pf::SNMP::Cisco::WLC');
 use pf::config;
 use pf::util qw(format_mac_as_cisco);
 
+sub description { 'Cisco Wireless (WLC) 2100 Series' }
+
 =head1 SUBROUTINES
 
 TODO: This list is incomplete
@@ -124,13 +126,11 @@ sub _deauthenticateMacSNMP {
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

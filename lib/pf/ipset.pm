@@ -146,14 +146,6 @@ sub generate_mangle_rules {
         ;
     }
 
-    # mark blacklisted users
-    # TODO blacklist concept on it's way to the graveyard
-    foreach my $mac ( split( /\s*,\s*/, $Config{'trapping'}{'blacklist'} ) ) {
-        $mangle_rules .=
-            "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark $IPTABLES_MARK_ISOLATION\n"
-        ;
-    }
-
     return $mangle_rules;
 }
 
@@ -393,11 +385,11 @@ sub iptables_flush_mangle {
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

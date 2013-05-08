@@ -1,4 +1,4 @@
-[% jsFiles = ['admin'] -%]
+[% jsFiles = ['configurator/admin'] -%]
     <div class="container">
       [% INCLUDE configurator/tracker.inc %]
       <div class="row">
@@ -18,8 +18,9 @@
         <div class="span3">
           <div class="well">
             <h3>Instructions</h3>
-            <p>On this page, you create an account to access the web administrative interface of PacketFence.</p>
+            <p>On this page, you need to modify the default admin user password that will be used to access the web administrative interface of PacketFence.</p>
             <p>After completing all the steps of the configuration wizard, you will be redirected to the administrative interface of PacketFence. To access it, you will need to enter the credentials you defined on this page.</p>
+            <p>Please note that if you do not change the password, the default one is 'admin'.</p>
           </div>
         </div>
         <div class="span9">
@@ -28,23 +29,23 @@
             <div class="control-group">
               <label class="control-label" for="admin_user">[% l('Username') %]</label>
               <div class="controls">
-                <input id="admin_user" class="text" type="text" value="[% c.session.admin_user %]"[% IF c.session.completed.admin %] disabled=""[% END %]>
+                <input id="admin_user" class="text" type="text" value="admin" disabled="disabled">
               </div>
             </div>
             <div class="control-group">
               <label class="control-label" for="admin_password">[% l('Password') %]</label>
               <div class="controls">
-                <input id="admin_password" class="text" type="password"[% IF c.session.completed.admin %] disabled=""[% END %]>
+                <input id="admin_password" class="text" type="password" [% IF c.session.completed.admin %] disabled="disabled"[% END %]>
               </div>
             </div>
             <div class="control-group">
               <div class="controls">
-                <input id="admin_password2" class="text" type="password" placeholder="Retype your password"[% IF c.session.completed.admin %] disabled=""[% END %]>
+                <input id="admin_password2" class="text" type="password" placeholder="[% l('Retype the password') %]"[% IF c.session.completed.admin %] disabled=""[% END %]>
               </div>
             </div>
             <div class="control-group[% IF c.session.completed.admin %] success[% END %]">
               <div class="controls">
-                <button type="submit" id="createUser" class="btn btn-primary[% IF c.session.completed.admin %] disabled[% END %]" href="[% c.uri_for('admin') %]">Create user</button>
+                <button type="submit" id="adminPassword" class="btn btn-primary[% IF c.session.completed.admin %] disabled[% END %]" href="[% c.uri_for('admin') %]">Modify the password</button>
                 [% IF c.session.completed.admin %]<span class="help-inline">[% l('Success!') %]</span>[% END %]
               </div>
             </div>
@@ -58,6 +59,6 @@
         </div>
       </div>
       <footer>
-        <p>&copy; Inverse 2012</p>
+        <p>&copy; Inverse 2013</p>
       </footer>
     </div><!--/container-->

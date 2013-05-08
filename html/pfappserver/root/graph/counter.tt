@@ -1,0 +1,4 @@
+<span id="[% id %]" class="counter">
+  <h3>[% count.nb %]</h3>
+  <h6>[% l(title) %]</h6>
+</span>

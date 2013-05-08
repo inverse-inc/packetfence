@@ -52,6 +52,19 @@ Readonly::Scalar our $RLM_MODULE_NOOP=>      7;#  /* module succeeded without do
 Readonly::Scalar our $RLM_MODULE_UPDATED=>   8;#  /* OK (pairs modified) */
 Readonly::Scalar our $RLM_MODULE_NUMCODES=>  9;#  /* How many return codes there are */
 
+=item FreeRADIUS log facility names
+
+Same as src/include/radiusd.h
+
+=cut
+
+Readonly::Scalar our $L_DBG   => 1; # Debug
+Readonly::Scalar our $L_AUTH  => 2; # Authorization
+Readonly::Scalar our $L_INFO  => 3; # Info
+Readonly::Scalar our $L_ERR   => 4; # Error
+Readonly::Scalar our $L_PROXY => 5; # Proxy
+Readonly::Scalar our $L_ACCT  => 6; # Accounting
+
 =back
 
 =head1 RADIUS Standard Values
@@ -98,13 +111,11 @@ Readonly::Scalar our $ETHERNET => 6;
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010, 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

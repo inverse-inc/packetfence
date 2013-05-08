@@ -125,11 +125,11 @@ sub authorize {
     my $vlan_obj = new pf::vlan::custom();
     # should we auto-register? let's ask the VLAN object
     if ($vlan_obj->shouldAutoRegister($mac, $switch->isRegistrationMode(), 0, $isPhone,
-        $connection_type, $user_name, $ssid)) {
+        $connection_type, $user_name, $ssid, $eap_type)) {
 
         # automatic registration
         my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $port,
-            $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid);
+            $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type);
 
         $logger->debug("auto-registering node $mac");
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
@@ -227,7 +227,7 @@ sub _parseRequest {
 
     my $eap_type = 0;
     if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = 1;
+        $eap_type = $radius_request->{'EAP-Type'};
     }
 
     return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name);
@@ -380,7 +380,7 @@ sub _authorizeVoip {
     }
 
     locationlog_synchronize(
-        $switch->{_ip}, $port, $switch->{_voiceVlan}, $mac, $VOIP, $connection_type, $user_name, $ssid
+        $switch->{_ip}, $port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid
     );
 
     my %RAD_REPLY = $switch->getVoipVsa();
@@ -477,19 +477,13 @@ sub _rewriteAccessAccept {
 
 =back
 
-=head1 BUGS AND LIMITATIONS
-
-None reported yet ;)
-
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2009-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

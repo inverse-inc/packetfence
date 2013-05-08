@@ -1,8 +1,10 @@
 #!/bin/bash
-
-# Copyright 2011 Inverse inc.
-# Author: Marc-Andre Jutras <mjutras@inverse.ca>
-# Licensed under the GPLv2 or later.
+#
+# Copyright (C) 2005-2013 Inverse inc.
+#
+# Author: Inverse inc. <info@inverse.ca>
+#
+# Licensed under the GPL
 
 # Variables
 EMAILTO="user@domain.tld"

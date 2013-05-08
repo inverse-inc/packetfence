@@ -1,6 +1,6 @@
 $(function () {
     /* Activate toggle buttons */
-    $('tbody').on(
+    $('body').on(
         {'mouseenter': function(event) {
             var btn = $(this);
             btn.text(btn.attr('toggle-hover'));
@@ -33,32 +33,106 @@ $(function () {
          }},
         '.btn-toggle');
 
+    /* Activate button dropdowns */
     $('.dropdown-toggle').dropdown();
+
+    /* Activate button groups */
+    $('body').on('click', '.btn-group .btn', function(event) {
+        var btn = $(this);
+        var name = btn.attr('name');
+        var input = btn.prevAll('input[name="' + name + '"]');
+        input.val(btn.attr('value'));
+    });
+
+    /* Live validation for required fields */
+    $('body').on('blur', 'input[data-required]', function() {
+        isFormInputEmpty($(this));
+    });
+    $('body').on('changeDate', 'input.datepicker[data-required]', function() {
+        isFormInputEmpty($(this));
+    });
+
+    /* Live validation for number fields */
+    $('body').on('blur', 'input[type="number"]', function() {
+        var input = $(this);
+        var min = input.attr('min');
+        var max = input.attr('max');
+        if ($.trim(input.val()).length > 0)
+            isInvalidNumber(input, min, max);
+    });
 });
 
+function getStatusMsg(jqXHR) {
+    var status_msg;
+    try {
+        var obj = $.parseJSON(jqXHR.responseText);
+        status_msg = obj.status_msg;
+    }
+    catch(e) {}
+    if (!status_msg) status_msg = _("Cannot Load Content");
+    return status_msg;
+}
+
 function resetAlert(parent) {
-    parent.children('.alert').hide(); //slideUp('fast', function() { $(this).remove(); });
+    parent.children('.alert').clearQueue().remove();
+    parent.children('.error').removeClass('error');
 }
 
-function showSuccess(sibling, msg) {
+function showWarning(sibling, msg, permanent) {
+    var alert = $('.alert-block').first().clone();
+    alert.find('span').first().html(msg);
+    sibling.before(alert);
+    if (permanent)
+        alert.fadeIn('fast');
+    else
+        alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
+}
+
+function showSuccess(sibling, msg, permanent) {
     var alert = $('.alert-success').first().clone();
-    alert.find('span').first().text(msg);
+    alert.find('span').first().html(msg);
     sibling.before(alert);
-    alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
+    if (permanent)
+        alert.fadeIn('fast');
+    else
+        alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
 }
 
-function showError(sibling, msg) {
-    var alert = $('.alert-error').first().clone();
-    alert.find('span').first().text(msg);
-    sibling.before(alert);
-    alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
+function showPermanentSuccess(sibbling, msg, permanent) {
+    showSuccess(sibbling, msg, true);
+}
+
+function showError(sibling, msg, permanent) {
+    if (typeof msg == 'string') {
+        var alert = $('.alert-error').first().clone();
+        alert.find('span').first().html(msg);
+        sibling.before(alert);
+        if (permanent)
+            alert.fadeIn('fast');
+        else
+            alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
+    }
+    else {
+        var form = sibling.closest('form');
+        $.each(msg, function(name, error) {
+            var input = form.find('[name="' + name + '"]');
+            var control = input.closest('.control-group');
+            control.addClass('error');
+            showTab(control, input);
+
+            var alert = $('.alert-error').first().clone();
+            alert.find('span').first().html(error);
+            sibling.before(alert);
+            if (permanent)
+                alert.fadeIn('fast');
+            else
+                alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
+        });
+    }
 }
 
 function showPermanentError(sibling, msg) {
-    var alert = $('.alert-error').first().clone();
-    alert.find('span').first().text(msg);
-    sibling.before(alert);
-    alert.fadeIn('fast');
+    showError(sibling, msg, true);
 }
 
 function btnError(btn) {
@@ -73,10 +147,21 @@ function btnError(btn) {
 function isFormInputEmpty(input) {
     var control = input.closest('.control-group');
     var empty = false;
+    var value;
 
-    if ($.trim(input.val()).length == 0) {
+    if (input.attr('data-toggle') == 'buttons-radio')
+        value = input.find('.active').length == 0? null : 1;
+    else
+        value = input.val();
+
+    if (value == null
+        || typeof value == 'string' && $.trim(value).length == 0
+        || value.length == 0) {
         control.addClass('error');
         empty = true;
+
+        // If input is in a tab, show the tab
+        showTab(control, input);
     }
     else {
         control.removeClass('error');
@@ -91,7 +176,8 @@ function isInvalidNumber(input, min, max) {
 
     if (/^[0-9]+$/.test($.trim(input.val()))) {
         var value = parseInt(input.val());
-        if (value < min || value > max)
+        if (typeof min != "undefined" && value < min ||
+            typeof max != "undefined" && value > max)
             isInvalid = true;
     }
     else {
@@ -99,10 +185,47 @@ function isInvalidNumber(input, min, max) {
     }
     if (isInvalid) {
         control.addClass('error');
+        showTab(control, input);
     }
     else {
         control.removeClass('error');
     }
 
     return isInvalid;
+}
+
+function isFormValid(form) {
+    var valid = true;
+    form.find('input[data-required]:not(:disabled), input[type="number"]:not(:disabled)').each(function() {
+        var input = $(this);
+        var control = input.closest('.control-group');
+        input.trigger('blur');
+        valid = !control.hasClass('error');
+
+        return valid;
+    });
+    return valid;
+}
+
+function showTab(control, input) {
+    var tab = control.closest('.tab-pane');
+    if (tab) {
+        var a = tab.closest('form').find('.nav-tabs a[href="#' + tab.attr('id') + '"]');
+        a.tab('show');
+        // Scroll to the input
+//        var container = tab.closest('.modal-body');
+//        if (!container)
+//            container = $("body,html");
+//        container.animate({scrollTop: input.position().top}, 'fast');
+    }
+}
+
+/* Translate a string using the general "labels" array defined in the wrapper.tt template */
+function _(key) {
+    var value = key;
+    if (labels[key]) {
+        value = labels[key];
+    }
+
+    return value;
 }

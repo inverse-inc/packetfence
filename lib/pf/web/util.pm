@@ -21,6 +21,7 @@ use warnings;
 use pf::config;
 use pf::util;
 use pf::web;
+use Cache::Memcached;
 
 BEGIN {
     use Exporter ();
@@ -77,6 +78,8 @@ Return 1 if string provided is a valid credit card expiration date, 0 otherwise.
 =cut
 sub is_creditcardexpiration_valid {
     my ( $credit_card_expiration ) = @_;
+
+    $credit_card_expiration =~ s{/}{};  # We remove potential slash separating character
 
     if ( $credit_card_expiration =~ /
             ^[0-9]{4}   # The expiration date is made of 4 digits
@@ -182,15 +185,103 @@ sub get_translated_time_hash {
     return \%time;
 }
 
+=item get_memcached_conf
+
+Return memcached server list
+
+=cut
+sub get_memcached_conf {
+    my @serv = ();
+    for my $x ( split( ",", $Config{'general'}{'memcached'})) {
+        $x =~ s/^\s+//;
+        $x =~ s/\s+$//;
+        push( @serv, $x );
+    }
+    return \@serv;
+}
+
+=item get_memcached_connection
+
+get memcached object
+
+=cut
+sub get_memcached_connection {
+    my ( $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    return $memd;
+}
+
+=item get_memcached
+
+get information stored in memcached
+
+=cut
+sub get_memcached {
+    my ( $key, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    return $memd->get($key);
+}
+
+=item set_memcached
+
+set information into memcached
+
+=cut
+sub set_memcached {
+    my ( $key, $value, $exptime, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+
+    #limit expiration time to 6000
+    $exptime = $exptime || 6_000;
+    if ( $exptime > 6_000 ) {
+        $exptime = 6_000;
+    }
+
+    return $memd->set( $key, $value, $exptime );
+}
+
+=item
+
+get information stored in memcached
+
+=cut
+sub del_memcached {
+    my ( $key, $mc ) = @_;
+    my $memd;
+    $memd = Cache::Memcached->new(
+        servers => $mc,
+        debug => 0,
+        compress_threshold => 10_000,
+    ) unless defined $memd;
+    $memd->delete($key);
+}
+
 =back
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010-2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

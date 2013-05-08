@@ -13,18 +13,18 @@ Handles captive-portal gaming registration
 use strict;
 use warnings;
 
-use CGI;
-use Log::Log4perl;
-
 use lib '/usr/local/pf/lib';
 
+use Log::Log4perl;
+
+use pf::authentication;
+use pf::Authentication::constants;
 use pf::config;
 use pf::Portal::Session;
 use pf::util;
 use pf::web;
 use pf::web::gaming;
 use pf::web::custom;    # called last to allow redefinitions
-
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register-gaming-device.cgi');
@@ -52,14 +52,16 @@ foreach my $param($cgi->param()) {
     $params{$param} = $cgi->param($param);
 }
 
-my $pid = $session->param("login");
+my $pid = $session->param("username");
 
 # See if user is trying to login and if is not already authenticated
-if( (!$pid) && ($cgi->param('username') ne '') && ($cgi->param('password') ne '') ) {
-  my ($auth_return, $err) = pf::web::gaming::authenticate($portalSession, $cgi, $session, \%info, $logger);
+if ( (!$pid) && ($cgi->param('username') ne '') && ($cgi->param('password') ne '') ) {
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
   if ($auth_return != 1) {
-    pf::web::gaming::generate_login_page($portalSession);
-  } else {
+    $logger->trace("authentication failed for " . $portalSession->getClientMac());
+    pf::web::gaming::generate_login_page($portalSession, $error);
+  }
+  else {
     pf::web::gaming::generate_registration_page($portalSession);
   }
 }
@@ -69,23 +71,32 @@ elsif (!$pid) {
   pf::web::gaming::generate_login_page($portalSession);
 } elsif (exists $params{cancel} )  {
     $session->delete();
-    pf::web::gaming::generate_login_page($portalSession, 'Registration canceled please try again');
+    pf::web::gaming::generate_login_page($portalSession, 'Registration canceled. Please try again.');
 }
 
 # User is authenticated and requesting to register gaming device
 elsif (exists $params{'device_mac'}) {
-    $info{'pid'} = $pid;
     my $device_mac = $params{'device_mac'};
     $portalSession->stash->{device_mac} = $device_mac;
 
-    # register gaming device
-    $info{'category'} = $Config{'gaming_devices_registration'}{'category'};
-    my ($result,$msg) = pf::web::gaming::register_node($portalSession, $pid,$device_mac, %info);
-    if($result) {
-        pf::web::gaming::generate_landing_page($portalSession,$msg);
+    # Get role for gaming device
+    my $role = $Config{'registratrion'}{'gaming_devices_registration_role'};
+    if ($role) {
+        $logger->trace("Gaming devices role is $role (from pf.conf)");
+    }
+    else {
+        $role = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
+        $logger->trace("Gaming devices role is $role (from username $pid)");
+    }
+    $info{'category'} = $role if (defined $role);
+
+    # Register gaming device
+    my ($result, $msg) = pf::web::gaming::register_node($portalSession, $pid, $device_mac, %info);
+    if ($result) {
+        pf::web::gaming::generate_landing_page($portalSession, $msg);
         $portalSession->session->delete();
     } else {
-        pf::web::gaming::generate_registration_page($portalSession,$msg);
+        pf::web::gaming::generate_registration_page($portalSession, $msg);
     }
 }
 
@@ -97,9 +108,13 @@ else {
 exit(0);
 
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 

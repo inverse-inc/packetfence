@@ -1,0 +1,183 @@
+      <div class="modal fade hide" id="modalNode">
+
+        <form name="modalNode" action="[% c.uri_for(c.controller('Node').action_for('update'), [node.mac]) %]" class="form-horizontal form-condensed" >
+
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>MAC</i> [% node.mac %]</h3>
+        </div>
+
+        <div class="modal-body">
+
+          <ul class="nav nav-tabs">
+            <li class="active"><a href="#nodeInfo" data-toggle="tab">[% l('Info') %]</a></li>
+            <li><a href="#nodeIpLog" data-toggle="tab">[% l('IP Address') %]</a></li>
+            <li><a href="#nodeLocationLog" data-toggle="tab">[% l('Location') %]</a></li>
+            <li><a href="#nodeViolations" data-href="[% c.uri_for(c.controller('Node').action_for('violations'), [node.mac]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+          </ul>
+
+          <div class="tab-content">
+
+            <div class="tab-pane fade in active" id="nodeInfo">
+            <div class="control-group">
+              <div class="controls">
+                <h6>[% l('Profile') %]</h6>
+              </div>
+            </div>
+            [% form.field('pid').render %]
+            [% form.field('status').render %]
+            [% form.field('category_id').render %]
+            [% form.field('regdate').render %]
+            [% form.field('unregdate').render %]
+
+            <div class="control-group">
+              <label class="control-label">[% l('IP Address') %]</label>
+              <div class="controls"><span class="uneditable">[% node.iplog.ip %] <span
+                                                                         [% IF node.iplog.active -%]
+                                                                         class="label label-success">Since [% node.iplog.start_time %]
+                    [% ELSE -%]
+                    class="label label-important">Inactive[% IF node.iplog.end_time %] since [% node.iplog.end_time %][% END %]
+                    [% END -%]
+                </span></span></div>
+            </div>
+
+            [% form.field('vendor').render %]
+            [% IF node.dhcp -%]
+            <div class="control-group">
+              <label class="control-label">[% l('OS') %]</label>
+              <div class="controls"><span class="uneditable">[% node.dhcp.os %]</span></div>
+            </div>
+            [%- END %]
+            [% form.field('computername').render IF node.computername -%]
+            [% form.field('voip').render %]
+
+            [% IF node.last_switch OR node.last_ssid -%]
+
+            <div class="control-group">
+              <div class="controls">
+                <h6>[% l('Location') %]</h6>
+              </div>
+            </div>
+
+            [% IF node.last_switch -%]
+            <div class="control-group">
+              <label class="control-label">[% l('Switch/AP') %]</label>
+              <div class="controls"><span class="uneditable">[% IF switches.${node.last_switch} %]<a href="" data-toggle="tooltip" title="[% switches.${node.last_switch}.type %] ([% switches.${node.last_switch}.mode %])">[% node.last_switch %]</a>[% ELSE %][% node.last_switch %][% END %]</span>
+                  [%- IF node.last_port.length && !node.last_ssid %] <span class="badge badge-info">port [% node.last_port %]</span>[% END %]
+                  [%- IF node.last_vlan.length %] <span class="badge badge-info">vlan [% node.last_vlan %]</span>[% END %]
+                  <span class="label">On [% node.last_start_time %]</span></div>
+            </div>
+            [%- END %]
+
+            [% IF node.last_ssid -%]
+            <div class="control-group">
+              <label class="control-label">[% l('Wireless SSID') %]</label>
+              <div class="controls"><span class="uneditable"><i class="icon-signal"></i> [% node.last_ssid %]</span></div>
+            </div>
+            [% END -%]
+
+            [% form.field('last_dot1x_username').render IF node.last_dot1x_username -%]
+
+            [% END %]
+
+            [% IF node.user_agent -%]
+            <div class="control-group">
+              <div class="controls">
+                <h6>[% l('User-Agent Information') %]</h6>
+              </div>
+            </div>
+
+            [% form.field('user_agent').render %]
+
+            <div class="control-group">
+              <label class="control-label">[% l('Browser') %]</label>
+              <div class="controls"><span class="uneditable">[% node.useragent.browser %]</span></div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">[% l('OS') %]</label>
+              <div class="controls"><span class="uneditable">[% node.useragent.os %]</span></div>
+            </div>
+
+            [% form.field('useragent.device').render %]
+
+            [% form.field('useragent.mobile').render %]
+
+            [%- END # user_agent %]
+
+            </div><!--tab-pane-->
+            <div class="tab-pane fade" id="nodeIpLog">
+
+[% IF node.iplog.history.size %]
+<table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>[% l('IP') %]</th>
+        <th>[% l('Start') %]</th>
+        <th>[% l('End') %]</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOR item IN node.iplog.history %]
+    <tr[% IF item.end_time %] class="muted"[% END %]>
+      <td>[% item.ip %]</td>
+      <td>[% item.start_time %]</td>
+      <td>[% item.end_time %]</td>
+    </tr>
+    [% END %]
+    </tbody>
+</table>
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-search icon-large"></i><p>[% l('No IP history') %]</p>
+  </div>
+[% END %]
+
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="nodeLocationLog">
+
+[% IF node.locationlog.history.size %]
+<table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th>[% l('Switch/AP') %]</th>
+        <th>[% l('Connection Type') %]</th>
+        <th>[% l('Start') %]</th>
+        <th>[% l('End') %]</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOR item IN node.locationlog.history %]
+    <tr[% IF item.end_time %] class="muted"[% END %]>
+      <td>[% IF switches.${item.switch} %]<a href="" data-toggle="tooltip" title="[% switches.${item.switch}.type %] ([% switches.${item.switch}.mode %])">[% item.switch %]</a>[% ELSE %][% item.switch %][% END %]<br/>[% IF item.ssid %] <span class="badge badge-info"><i class="icon-signal"></i> [% item.ssid %]</span>[% ELSE %][% IF item.port.length %]<span class="badge badge-info">[% l('port') %] [% item.port %]</span> [% END %][% IF item.vlan.length %]<span class="badge badge-info">vlan [% item.vlan %]</span>[% END %][% END %]</td>
+      <td>[% l(item.connection_type) %]</td>
+      <td>[% item.start_time %]</td>
+      <td>[% item.end_time %]</td>
+    </tr>
+    [% END %]
+    </tbody>
+</table>
+[% ELSE %]
+  <div id="noResult" class="unwell">
+    <i class="icon-search icon-large"></i><p>[% l('No location history') %]</p>
+  </div>
+[% END %]
+
+            </div><!--tab-pane-->
+
+            <div class="tab-pane fade" id="nodeViolations">
+            </div><!--tab-pane-->
+
+          </div><!--tab-content-->
+
+        </div><!--modal-body-->
+
+        <div class="modal-footer">
+          <a href="[% c.uri_for(c.controller('Node').action_for('delete'), [ node.mac ]) %]" id="deleteNode" class="btn btn-danger pull-left"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+          <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+        </div><!--modal-footer-->
+
+        </form>
+      </div><!--modal-->

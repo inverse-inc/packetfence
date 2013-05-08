@@ -19,6 +19,8 @@ use Net::SNMP;
 
 use base ('pf::SNMP::ThreeCom');
 
+sub description { '3COM SS4200' }
+
 sub getVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -301,7 +303,7 @@ Mr. Chinasee BOONYATANG <chinasee.b@psu.ac.th>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006-2008 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

@@ -1,15 +1,15 @@
 #!/bin/bash
 #
 # Database maintenance and backup
+#
 # - Move entries older than a month from locationlog to locationlog_history
 # - Optimize tables on sunday
 # - compressed mysqldump to $BACKUP_DIRECTORY, rotate and clean
 # - archive locationlog_history entries older than a year the first day of each month
 #
-# Copyright (C) 2009, 2010 Inverse inc.
-# Authors: Regis Balzard <rbalzard@inverse.ca>
-#          Olivier Bilodeau <obilodeau@inverse.ca>
-#          Dominik Gehl <dgehl@inverse.ca>
+# Copyright (C) 2005-2013 Inverse inc.
+#
+# Author: Inverse inc. <info@inverse.ca>
 #
 # Licensed under the GPL
 #

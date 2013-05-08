@@ -23,6 +23,7 @@ use pf::db;
 use pf::iplog qw(ip2mac);
 # TODO this dependency is unfortunate, ideally it wouldn't be in that direction
 use pf::web::guest;
+use pf::authentication;
 
 # Constants
 use constant SMS_ACTIVATION => 'sms_activation';
@@ -57,11 +58,10 @@ our $sms_activation_statements = {};
 
 =head1 SUBROUTINES
 
-=over
-
-=item sms_activation_db_prepare
+=head2 sms_activation_db_prepare
 
 =cut
+
 sub sms_activation_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
     $logger->debug("Preparing pf::sms_activation database queries");
@@ -71,19 +71,25 @@ sub sms_activation_db_prepare {
         FROM sms_carrier
     ]);
 
+    $sms_activation_statements->{'sms_activation_carrier_view_sql'} = qq[
+        SELECT id, name
+        FROM sms_carrier
+        WHERE id IN (?)
+    ];
+
     $sms_activation_statements->{'sms_activation_view_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, mac, phone_number, carrier_id, activation_code, expiration, status 
-        FROM sms_activation 
+        SELECT code_id, mac, phone_number, carrier_id, activation_code, expiration, status
+        FROM sms_activation
         WHERE code_id = ?
     ]);
 
     $sms_activation_statements->{'sms_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, mac, phone_number, carrier_id, activation_code, expiration, status FROM sms_activation
-        WHERE activation_code LIKE ? AND status = ?
+        WHERE activation_code = ? AND status = ?
     ]);
 
     $sms_activation_statements->{'sms_activation_view_by_code_sql'} = get_db_handle()->prepare(qq[
-        SELECT code_id, mac, phone_number, email_pattern as carrier_email_pattern, activation_code, expiration, status 
+        SELECT code_id, mac, phone_number, email_pattern as carrier_email_pattern, activation_code, expiration, status
         FROM sms_activation LEFT JOIN sms_carrier ON carrier_id=sms_carrier.id
         WHERE activation_code = ?
     ]);
@@ -91,7 +97,7 @@ sub sms_activation_db_prepare {
     $sms_activation_statements->{'sms_activation_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO sms_activation (
             mac, phone_number, carrier_id, activation_code, expiration, status
-        ) VALUES (?, ?, ?, ?, ?, ?) 
+        ) VALUES (?, ?, ?, ?, ?, ?)
     ]);
 
     $sms_activation_statements->{'sms_activation_modify_status_sql'} = get_db_handle()->prepare(
@@ -109,17 +115,32 @@ sub sms_activation_db_prepare {
     $sms_activation_db_prepared = 1;
 }
 
-=item sms_carrier_view_all
+=head2 sms_carrier_view_all
 
 =cut
+
 sub sms_carrier_view_all {
-    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 
-                                 'sms_activation_carrier_view_all_sql');
+    my $query;
 
+    # Check if a SMS authentication source is defined; if so, use the carriers list
+    # from this source
+    my $type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
+    my $source = pf::authentication::getAuthenticationSourceByType($type);
+    if ($source) {
+        my $list = join(',', @{$source->sms_carriers});
+        sms_activation_db_prepare() unless ($sms_activation_db_prepared);
+        $sms_activation_statements->{'sms_activation_carrier_view_sql'} =~ s/\?/$list/;
+        $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
+                                  'sms_activation_carrier_view_sql');
+    }
+    else {
+        # Retrieve all carriers
+        $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
+                                  'sms_activation_carrier_view_all_sql');
+    }
     my $val = $query->fetchall_arrayref({});
-    my $logger = Log::Log4perl::get_logger('pf::sms_activation');
-
     $query->finish();
+
     return $val;
 }
 
@@ -132,9 +153,10 @@ sub sms_carrier_view_all {
 #    return (1);
 #},
 
-=item add - add an sms activation record to the database
+=head2 add - add an sms activation record to the database
 
 =cut
+
 sub add {
     my (%data) = @_;
 
@@ -143,44 +165,53 @@ sub add {
                    $data{'activation_code'}, $data{'expiration'}, $data{'status'}));
 }
 
-=item invalidate_code - invalidate all unverified PIN codes for a given mac and phone 
+=head2 invalidate_code - invalidate all unverified PIN codes for a given mac and phone
 
 =cut
+
 sub invalidate_codes {
     my ($mac, $phone) = @_;
 
-    return(db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 
+    return(db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
                             'sms_activation_change_status_old_same_mac_phone_sql', $INVALIDATED, $mac, $phone, $UNVERIFIED));
 }
 
-=item _generate_activation_code - generate proper PIN code. Created to encapsulate flexible hash types.
+=head2 _generate_activation_code - generate proper PIN code. Created to encapsulate flexible hash types.
 
 =cut
+
 sub _generate_activation_code {
     my (%data) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
 
     if ($HASH_FORMAT == $SIMPLE_MD5) {
-        # generating something not so easy to guess (and hopefully not in rainbowtables)
-        my $hash = md5_hex(
-            time."|"
-            .$data{'expiration'}."|"
-            .$data{'mac'}."|"
-            .$data{'phone_number'});
-        # - taking out a couple of hex (avoids overflow in step below)
-        # - converting from hex to digits (easier to type on phone)
-        # then keeping first 5
-        return "$SIMPLE_MD5:". substr(hex(substr($hash, 0, 6)), 0, 5);
+        my $code;
+        do {
+            # generating something not so easy to guess (and hopefully not in rainbowtables)
+            my $hash = md5_hex(
+              (time+int(rand(10)))."|"
+              .$data{'expiration'}."|"
+              .$data{'mac'}."|"
+              .$data{'phone_number'});
+            # - taking out a couple of hex (avoids overflow in step below)
+            # then keeping first 8
+            $code = "$SIMPLE_MD5:". substr($hash, 0, 8);
+            # make sure the generated code is unique
+            $code = undef if (view_by_code($code));
+        } while (!defined($code));
+
+        return $code;
     } else {
         $logger->warn("Hash format unknown, couldn't generate activation code");
     }
 }
 
-=item _unpack_activation_code - grab the hash-format and the activation hash out of the activation code
+=head2 _unpack_activation_code - grab the hash-format and the activation hash out of the activation code
 
 Returns a list of: hash version, hash
 
 =cut
+
 sub _unpack_activation_code {
     my ($activation_code) = @_;
 
@@ -191,49 +222,54 @@ sub _unpack_activation_code {
     return;
 }
 
-=item modify_status - update the status of a given email activation record
+=head2 modify_status - update the status of a given email activation record
 
 =cut
+
 sub modify_status {
     my ($code_id, $new_status) = @_;
-    return(db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 
+    return(db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
                             'sms_activation_modify_status_sql', $new_status, $code_id));
 }
 
-=item view_by_code - view an SMS activation record by activation code. Returns an hashref
+=head2 view_by_code - view an SMS activation record by activation code. Returns an hashref
 
 =cut
+
 sub view_by_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 
+    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
                                  'sms_activation_view_by_code_sql', $activation_code);
     my $ref = $query->fetchrow_hashref();
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
-    
+
     # just get one row and finish
     $query->finish();
     return ($ref);
 }
 
-=item find_unverified_code - find an unused activation record by doing a LIKE in the code, returns an hashref
+=head2 find_unverified_code - find an unused activation record by doing a LIKE in the code, returns an hashref
 
 =cut
+
 sub find_unverified_code {
     my ($activation_code) = @_;
     my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 
-                                 'sms_activation_find_unverified_code_sql', "%".$activation_code, $UNVERIFIED);
+                                 'sms_activation_find_unverified_code_sql',
+                                 "$HASH_FORMAT:".$activation_code, $UNVERIFIED);
     my $ref = $query->fetchrow_hashref();
-    
+
     # just get one row and finish
     $query->finish();
     return ($ref);
 }
 
-=item create - create a new PIN code
+=head2 create - create a new PIN code
 
 Returns the PIN code
 
 =cut
+
 sub create {
     my ($mac, $phone_number, $provider_id) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
@@ -265,9 +301,10 @@ sub create {
     }
 }
 
-=item send_sms - Send SMS with activation code
+=head2 send_sms - Send SMS with activation code
 
 =cut
+
 sub send_sms {
     my ($activation_code, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
@@ -280,10 +317,7 @@ sub send_sms {
     # Hash merge. Note that on key collisions the result of view_by_code() will win
     %info = (%info, %{view_by_code($activation_code)});
 
-    # Strip non-digits
-    my $phone = $info{'phone_number'};
-    $phone =~ s/\D//g;
-    my $email = sprintf($info{'carrier_email_pattern'}, $phone);
+    my $email = sprintf($info{'carrier_email_pattern'}, $info{'phone_number'});
     my $msg = MIME::Lite->new(
         From        =>  $info{'from'},
         To          =>  $email,
@@ -301,16 +335,22 @@ sub send_sms {
       $msg =~ s/\n//g;
       $logger->error($msg);
     }
-    
+
     return $result;
 }
 
-=item sms_activation_create_send - Create and send PIN code
+=head2 sms_activation_create_send - Create and send PIN code
+
+The attribute %info is only meant to be used for debugging purposes.
 
 =cut
+
 sub sms_activation_create_send {
     my ($mac, $phone_number, $provider_id, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
+
+    # Strip non-digits
+    $phone_number =~ s/\D//g;
 
     my ($success, $err) = ($TRUE, 0);
     my $activation_code = create($mac, $phone_number, $provider_id);
@@ -323,7 +363,12 @@ sub sms_activation_create_send {
     return ($success, $err);
 }
 
-# returns the validated mac address or undef
+=head2 validate_code
+
+Return the validated mac address or undef
+
+=cut
+
 sub validate_code {
     my ($activation_code) = @_;
     my $logger = Log::Log4perl::get_logger('pf::sms_activation');
@@ -348,16 +393,15 @@ sub validate_code {
     return $activation_record->{'mac'};
 }
 
-
-=back
-
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2011 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

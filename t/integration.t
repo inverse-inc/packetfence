@@ -81,11 +81,11 @@ is($CHILD_ERROR, 0, "pfcmd manage deregister exit code should be 0");
 
 =head1 AUTHOR
 
-Olivier Bilodeau <obilodeau@inverse.ca>
-        
+Inverse inc. <info@inverse.ca>
+
 =head1 COPYRIGHT
-        
-Copyright (C) 2010 Inverse inc.
+
+Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
     

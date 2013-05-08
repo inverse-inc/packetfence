@@ -23,15 +23,15 @@ use pf::util;
 
 extends 'Catalyst::Model';
 
-my $dbHandler;
+our $dbHandler;
+
 
 =head1 METHODS
 
-=over
-
-=item assign
+=head2 assign
 
 =cut
+
 sub assign {
     my ( $self, $db, $user, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -39,7 +39,7 @@ sub assign {
     my $status_msg;
 
     $db = $dbHandler->quote_identifier($db);
-    
+
     # Create global PF user
     my $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@'%' IDENTIFIED BY ?";
     $dbHandler->do($sql_query, undef, $user, $password);
@@ -71,9 +71,10 @@ sub assign {
     return ( $STATUS::OK, $status_msg );
 }
 
-=item connect
+=head2 connect
 
 =cut
+
 sub connect {
     my ( $self, $db, $user, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -92,9 +93,10 @@ sub connect {
     return ( $STATUS::OK, $status_msg );
 }
 
-=item create
+=head2 create
 
 =cut
+
 sub create {
     my ( $self, $db, $root_user, $root_password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -122,9 +124,10 @@ sub create {
     return ( $STATUS::OK, $status_msg );
 }
 
-=item secureInstallation
+=head2 secureInstallation
 
 =cut
+
 sub secureInstallation {
     my ( $self, $root_user, $root_password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -162,13 +165,14 @@ sub secureInstallation {
     return ($STATUS::OK, $status_msg);
 }
 
-=item schema
+=head2 schema
 
 TODO: Check error handling for pf_run... (undef or whatever)
 
 TODO: sanitize parameters going into pf_run with strict regex
 
 =cut
+
 sub schema {
     my ( $self, $db, $root_user, $root_password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -176,10 +180,11 @@ sub schema {
     my ( $status_msg, $result );
 
     my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < $install_dir/db/pf-schema.sql";
-    eval { $result = pf_run($cmd) };
-    if ( $@ ) {
+    eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
+    if ( $@ || !defined($result) ) {
         $status_msg = "Error applying the schema to the database $db";
         $logger->warn("$status_msg | USER: $root_user");
+        $logger->warn("$@: $result");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
@@ -188,15 +193,60 @@ sub schema {
     return ( $STATUS::OK, $status_msg );
 }
 
-=back
+=head2 resetUserPassword
+
+=cut
+
+sub resetUserPassword {
+    my ($self, $user, $password) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my ($status, $status_msg);
+
+    # We need to establish connection to the database using database configuration parameters
+    my $database_ref = \%{$Config{'database'}};
+    my ($db_user, $db_password, $db_name) = @{$database_ref}{qw/user pass db/};
+    if ($db_user && $db_password && $db_name) {
+        $dbHandler = DBI->connect( "dbi:mysql:dbname=$db_name;host=localhost;port=3306", $db_user, $db_password );
+        if ( !$dbHandler ) {
+            $status_msg = "Error while changing the password of $user.";
+            $logger->warn("$status_msg | $DBI::errstr");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+    } else {
+        $status_msg = "Error while changing the password of $user.";
+        $logger->warn("$status_msg | Missing configuration parameters to connect to the database");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Making sure username/password are "ok"
+    if ( !defined($user) || !defined($password) || (length($user) == 0) || (length($password) == 0) ) {
+        $status_msg = "Error while changing the password of $user.";
+        $logger->warn("$status_msg | Invalid username or password");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    # Doing the update
+    my $sql_query = "UPDATE temporary_password SET password=? WHERE pid=?";
+    $dbHandler->do($sql_query, undef, $password, $user);
+    if ( $DBI::errstr ) {
+        $status_msg = "Error while changing the password of $user.";
+        $logger->warn("$status_msg | $DBI::errstr");
+        return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
+    }
+
+    $status_msg = "The password of $user was successfully modified.";
+    $logger->info("$status_msg");
+    return ($STATUS::OK, $status_msg);
+}
 
 =head1 AUTHORS
 
-Derek Wuelfrath <dwuelfrath@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

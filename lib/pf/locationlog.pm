@@ -17,7 +17,6 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Log::Log4perl::Level;
-use Net::MAC;
 
 use constant LOCATIONLOG => 'locationlog';
 
@@ -32,6 +31,7 @@ BEGIN {
         locationlog_history_mac
         locationlog_history_switchport
 
+        locationlog_count_all
         locationlog_view_all
         locationlog_view_all_open_mac
         locationlog_view_open
@@ -96,10 +96,11 @@ sub locationlog_db_prepare {
     $logger->debug("Preparing pf::locationlog database queries");
 
     $locationlog_statements->{'locationlog_history_mac_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time 
+        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time
         FROM locationlog
         WHERE mac=? 
-        ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
+        ORDER BY start_time DESC, ISNULL(end_time) DESC, end_time DESC
+        LIMIT 25
     ]);
 
     $locationlog_statements->{'locationlog_history_switchport_sql'} = get_db_handle()->prepare(qq[
@@ -110,7 +111,9 @@ sub locationlog_db_prepare {
     ]);
 
     $locationlog_statements->{'locationlog_history_mac_date_sql'} = get_db_handle()->prepare(qq[
-        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time 
+        SELECT mac, switch, port, vlan, connection_type, dot1x_username, ssid, start_time, end_time,
+          UNIX_TIMESTAMP(start_time) AS start_timestamp,
+          UNIX_TIMESTAMP(end_time) AS end_timestamp
         FROM locationlog
         WHERE mac=? AND start_time < from_unixtime(?) AND (end_time > from_unixtime(?) OR ISNULL(end_time)) 
         ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
@@ -123,6 +126,22 @@ sub locationlog_db_prepare {
             switch=? AND port=? AND start_time < from_unixtime(?) 
             AND (end_time > from_unixtime(?) OR isnull(end_time)) 
         ORDER BY start_time desc, ISNULL(end_time) desc, end_time desc
+    ]);
+
+    $locationlog_statements->{'locationlog_count_wired_sql'} = get_db_handle()->prepare(qq[
+        SELECT count(*) AS nb FROM (
+          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
+          FROM locationlog
+          WHERE start_time > ? AND start_time < ? AND connection_type NOT LIKE 'Wireless%' GROUP BY start_day, mac
+        ) AS wired_count
+    ]);
+
+    $locationlog_statements->{'locationlog_count_wireless_sql'} = get_db_handle()->prepare(qq[
+        SELECT count(*) AS nb FROM (
+          SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
+          FROM locationlog
+          WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%' GROUP BY start_day, mac
+        ) AS wired_count
     ]);
 
     $locationlog_statements->{'locationlog_view_all_sql'} = get_db_handle()->prepare(qq[
@@ -230,15 +249,20 @@ sub locationlog_db_prepare {
 # think about web ui and pfcmd
 sub locationlog_history_mac {
     my ( $mac, %params ) = @_;
+    $mac = clean_mac($mac);
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+
     if ( defined( $params{'date'} ) ) {
         return translate_connection_type(
             db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
                 $mac, $params{'date'}, $params{'date'})
+        );
+    } elsif ( defined( $params{'start_time'} ) && defined( $params{'end_time'} ) ) {
+        return translate_connection_type(
+            db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_history_mac_date_sql',
+                $mac, $params{'end_time'}, $params{'start_time'})
         );
     } else {
         return translate_connection_type(
@@ -263,15 +287,29 @@ sub locationlog_history_switchport {
     }
 }
 
+sub locationlog_count_all {
+    my ( $id, %params ) = @_;
+
+    my %where = %{$params{where}};
+    if ($where{start_date} && $where{end_date} && $where{value}) {
+        if ($where{value} eq 'wired') {
+            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wired_sql',
+                           $where{start_date}, $where{end_date});
+        }
+        elsif ($where{value} eq 'wireless') {
+            return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_count_wireless_sql',
+                           $where{start_date}, $where{end_date});
+        }
+    }
+}
+
 sub locationlog_view_all {
     return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_all_sql');
 }
 
 sub locationlog_view_all_open_mac {
     my ($mac) = @_;
-
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
 
     return db_data(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac);
 }
@@ -306,9 +344,7 @@ sub locationlog_view_open_switchport_only_VoIP {
 
 sub locationlog_view_open_mac {
     my ($mac) = @_;
-
-    my $tmpMAC = Net::MAC->new( 'mac' => $mac );
-    $mac = $tmpMAC->as_IEEE();
+    $mac = clean_mac($mac);
 
     my $query = db_query_execute(LOCATIONLOG, $locationlog_statements, 'locationlog_view_open_mac_sql', $mac)
         || return (0);
@@ -532,21 +568,13 @@ sub _is_locationlog_accurate {
 
 =head1 AUTHOR
 
-David LaPorte <david@davidlaporte.org>
-
-Kevin Amorin <kev@amorin.org>
-
-Dominik Gehl <dgehl@inverse.ca>
-
-Olivier Bilodeau <obilodeau@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005 David LaPorte
+Copyright (C) 2005-2013 Inverse inc.
 
-Copyright (C) 2005 Kevin Amorin
-
-Copyright (C) 2007-2008,2010 Inverse inc.
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

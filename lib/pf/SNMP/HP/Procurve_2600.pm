@@ -21,6 +21,8 @@ use Log::Log4perl;
 use Net::SNMP;
 use base ('pf::SNMP::HP');
 
+sub description { 'HP ProCurve 2600 Series' }
+
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
@@ -35,11 +37,13 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 
 =head1 AUTHOR
 
-Dominik Gehl <dgehl@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2007-2012 Inverse inc.
+Copyright (C) 2005-2013 Inverse inc.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

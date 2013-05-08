@@ -1,6 +1,13 @@
 #!/bin/bash
 #
 # Convenient little wrapper to remotely diff files
+#
+# Copyright (C) 2005-2013 Inverse inc.
+#
+# Author: Inverse inc. <info@inverse.ca>
+#
+# Licensed under the GPL
+#
 
 if [[ -z "$1" || -z "$2" ]]; then
 	echo "$0: Remote diff"

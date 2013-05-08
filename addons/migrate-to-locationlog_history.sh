@@ -12,8 +12,9 @@
 # Usage: migrate-to-locationlog_history.sh <days>
 # Where <days> is the number of days to migrate the records of.
 #
-# Copyright (C) 2009 Inverse inc.
-# Author: Olivier Bilodeau <obilodeau@inverse.ca>
+# Copyright (C) 2005-2013 Inverse inc.
+#
+# Author: Inverse inc. <info@inverse.ca>
 #
 # Licensed under the GPL
 #

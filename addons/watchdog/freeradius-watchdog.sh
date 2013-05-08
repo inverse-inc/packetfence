@@ -7,9 +7,11 @@
 #
 # TODO this test should be migrated into `bin/pfcmd service ... watch`
 #
-# Copyright 2010, 2012 Inverse inc.
-# Author: Olivier Bilodeau <obilodeau@inverse.ca>
-# Licensed under the GPLv2 or later.
+# Copyright (C) 2005-2013 Inverse inc.
+#
+# Author: Inverse inc. <info@inverse.ca>
+#
+# Licensed under the GPL
 
 # Variables
 EMAILTO="user@domain.tld"
