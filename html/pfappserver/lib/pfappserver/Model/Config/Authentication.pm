@@ -1,4 +1,5 @@
 package pfappserver::Model::Config::Authentication;
+
 =head1 NAME
 
 pfappserver::Model::Config::Authentication
@@ -21,24 +22,49 @@ extends 'pfappserver::Base::Model::Config';
 has '+itemKey' => (default => 'source');
 has '+itemsKey' => (default => 'sources');
 
+=head1 METHODS
+
+=head2 _buildCachedConfig
+
+=cut
+
 sub _buildCachedConfig { $pf::authentication::cached_authentication_config };
 
+=head2 readAll
+
+Return all authentication sources except the SQL sources.
+
+We especially don't want to allow the modification of the local SQL database.
+
+=cut
 
 sub readAll {
     my ($self) = @_;
-    return ($STATUS::OK,\@authentication_sources);
+
+    my $sql_type = pf::Authentication::Source::SQLSource->meta->get_attribute('type')->default;
+    map { print $_->{type} . "\n" } @authentication_sources;
+    my @sources = grep { $_->{type} ne $sql_type } @authentication_sources;
+
+    return ($STATUS::OK, \@sources);
 }
 
+=head2 update
+
+=cut
+
 sub update {
-    my ($self,$id,$source_obj) = @_;
+    my ($self, $id, $source_obj) = @_;
+
     my %not_params;
     @not_params{qw(rules unique class)} = ();
+
     # Update attributes
     my %assignments;
     foreach my $attr (grep { !exists $not_params{$_}  } map { $_->name } $source_obj->meta->get_all_attributes()) {
         $assignments{$attr} = $source_obj->$attr;
     }
-    $self->SUPER::update($id,\%assignments);
+
+    $self->SUPER::update($id, \%assignments);
 }
 
 sub create {

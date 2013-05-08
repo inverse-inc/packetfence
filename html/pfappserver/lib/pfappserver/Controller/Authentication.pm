@@ -39,7 +39,7 @@ sub index :Path :Args(0) {
 
     my ($sources, $types, $form);
 
-    $sources = getAuthenticationSource(undef);
+    (undef, $sources) = $c->model('Config::Authentication')->readAll();
     $types = availableAuthenticationSourceTypes();
     $form = pfappserver::Form::Authentication->new(ctx => $c,
                                                    init_object => {sources => $sources});
