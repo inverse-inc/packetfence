@@ -90,6 +90,17 @@ has_field 'redirect_url' =>
    tags => { after_element => \&help,
              help => 'The hostname must be the one of your captive portal.' },
   );
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => pf::Authentication::Source::GoogleSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::GoogleSource->meta->get_attribute('domains')->default},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'List of the domain that will be resolv with the correct ip.' },
+  );
 
 =head1 COPYRIGHT
 

@@ -6,3 +6,4 @@
 [% form.field('scope').render %]
 [% form.field('protected_resource_url').render %]
 [% form.field('redirect_url').render %]
+[% form.field('domains').render %]
