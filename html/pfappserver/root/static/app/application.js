@@ -78,55 +78,50 @@ function resetAlert(parent) {
     parent.children('.error').removeClass('error');
 }
 
-function showWarning(sibling, msg, permanent) {
-    var alert = $('.alert-block').first().clone();
-    alert.find('span').first().html(msg);
-    sibling.before(alert);
-    if (permanent)
-        alert.fadeIn('fast');
-    else
-        alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
-}
 
-function showSuccess(sibling, msg, permanent) {
-    var alert = $('.alert-success').first().clone();
-    alert.find('span').first().html(msg);
-    sibling.before(alert);
-    if (permanent)
-        alert.fadeIn('fast');
-    else
-        alert.fadeIn('fast').delay(5000).slideUp('fast', function() { $(this).remove(); });
-}
-
-function showPermanentSuccess(sibbling, msg, permanent) {
-    showSuccess(sibbling, msg, true);
-}
-
-function showError(sibling, msg, permanent) {
-    if (typeof msg == 'string') {
-        var alert = $('.alert-error').first().clone();
-        alert.find('span').first().html(msg);
-        sibling.before(alert);
-        if (permanent)
-            alert.fadeIn('fast');
-        else
-            alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
+function showAlert(type, sibling, msg, permanent, time) {
+    if(time === null) {
+        time = 50000;
     }
-    else {
+    var alert = $(type).first().clone();
+    alert.find('span').first().html(msg);
+    sibling.before(alert);
+    if (permanent)
+        alert.fadeIn('fast');
+    else
+        alert.fadeIn('fast').delay(time).slideUp('fast', function() { $(this).remove(); });
+}
+
+function showWarning(sibling, msg, permanent, time) {
+    showAlert('.alert-block',sibling, msg, permanent, time);
+}
+
+function showPermanentWarning(sibling, msg) {
+    showWarning(sibling, msg, true);
+}
+
+function showSuccess(sibling, msg, permanent, time) {
+    showAlert('.alert-success',sibling, msg, permanent, time);
+}
+
+function showPermanentSuccess(sibling, msg) {
+    showSuccess(sibling, msg, true);
+}
+
+function showError(sibling, msg, permanent, time) {
+    if(time === null) {
+        time = 10000;
+    }
+    if (typeof msg == 'string') {
+        showAlert('.alert-error',sibling, msg, permanent , time);
+    } else {
         var form = sibling.closest('form');
         $.each(msg, function(name, error) {
             var input = form.find('[name="' + name + '"]');
             var control = input.closest('.control-group');
             control.addClass('error');
             showTab(control, input);
-
-            var alert = $('.alert-error').first().clone();
-            alert.find('span').first().html(error);
-            sibling.before(alert);
-            if (permanent)
-                alert.fadeIn('fast');
-            else
-                alert.fadeIn('fast').delay(10000).slideUp('fast', function() { $(this).remove(); });
+            showAlert('.alert-error',sibling, msg, permanent , time);
         });
     }
 }
