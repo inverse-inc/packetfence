@@ -42,7 +42,6 @@ sub readAll {
     my ($self) = @_;
 
     my $sql_type = pf::Authentication::Source::SQLSource->meta->get_attribute('type')->default;
-    map { print $_->{type} . "\n" } @authentication_sources;
     my @sources = grep { $_->{type} ne $sql_type } @authentication_sources;
 
     return ($STATUS::OK, \@sources);
