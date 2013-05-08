@@ -25,6 +25,7 @@ case "$1" in
 
     remove)
         #remove user and group pf
+        invoke-rc.d packetfence stop
         userdel pf
         groupdel pf
     ;;
