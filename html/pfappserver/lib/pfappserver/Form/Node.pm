@@ -97,7 +97,7 @@ sub options_status {
     my $self = shift;
 
     # $self->status comes from pfappserver::Model::Node->availableStatus
-    my @status = map { $_ => $_ } @{$self->status} if ($self->status);
+    my @status = map { $_ => $self->_localize($_) } @{$self->status} if ($self->status);
 
     return @status;
 }
