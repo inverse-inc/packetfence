@@ -61,12 +61,16 @@ use base ('pf::SNMP');
 use POSIX;
 use Log::Log4perl;
 use Net::Telnet;
+use Try::Tiny;
+use Data::Dumper;
 
 use pf::config;
 use pf::SNMP::constants;
 use pf::util;
-
-sub description { 'Aruba Networks' }
+use pf::roles::custom;
+use pf::accounting qw(node_accounting_current_sessionid);
+use pf::util::radius qw(perform_coa perform_disconnect);
+use pf::node qw(node_attributes);
 
 =head1 SUBROUTINES
 
@@ -385,6 +389,66 @@ sub extractSsid {
     return;
 }
 
+=item returnRadiusAccessAccept
+
+Overloading L<pf::SNMP>'s implementation because AeroHIVE doesn't support
+assigning VLANs and Roles at the same time.
+
+=cut
+sub returnRadiusAccessAccept {
+    my ($this, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    my $radius_reply_ref = {};
+
+    # TODO this is experimental
+    try {
+
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $this);
+
+        # Roles are configured and the user should have one
+        if (defined($role)) {
+
+            $radius_reply_ref = {
+                $this->returnRoleAttribute => $role,
+            };
+
+            $logger->info("Returning ACCEPT with Role: $role");
+        }
+
+        # if Roles aren't configured, return VLAN information
+        else {
+
+            $radius_reply_ref = {
+                'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+                'Tunnel-Type' => $RADIUS::VLAN,
+                'Tunnel-Private-Group-ID' => $vlan,
+            };
+
+            $logger->info("Returning ACCEPT with VLAN: $vlan");
+        }
+
+    }
+    catch {
+        chomp($_);
+        $logger->debug(
+            "Exception when trying to resolve a Role for the node. Returning VLAN attributes in RADIUS Access-Accept. "
+            . "Exception: $_"
+        );
+
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+    };
+
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
+
+
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
@@ -418,6 +482,107 @@ sub deauthTechniques {
     return $method,$tech{$method};
 }
 
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
+=cut
+# TODO consider whether we should handle retries or not?
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        $logger->debug("network device supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
+
+        my $acctsessionid = node_accounting_current_sessionid($mac);
+        my $node_info = node_attributes($mac);
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+            'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
+            'Acct-Session-Id' => $acctsessionid,
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        # Roles are configured and the user should have one
+        $logger->warn(Dumper $node_info);
+        if (defined($role) && (defined($node_info->{'status'}) && $node_info->{'status'} ne 'unreg')) {
+
+            $attributes_ref = {
+                %$attributes_ref,
+                'Filter-Id' => $role,
+            };
+            $logger->warn(Dumper($connection_info));
+            $logger->warn(Dumper($attributes_ref));
+            $logger->info("Returning ACCEPT with Role: $role");
+            $response = perform_coa($connection_info, $attributes_ref);
+
+        }
+        else {
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
 =item
 
 =cut
@@ -426,11 +591,15 @@ sub deauthTechniques {
 
 =head1 AUTHOR
 
-Inverse inc. <info@inverse.ca>
+Regis Balzard <rbalzard@inverse.ca>
+
+Olivier Bilodeau <obilodeau@inverse.ca>
+
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2013 Inverse inc.
+Copyright (C) 2009-2012 Inverse inc.
 
 =head1 LICENSE
 

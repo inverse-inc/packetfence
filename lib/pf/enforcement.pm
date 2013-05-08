@@ -176,7 +176,7 @@ Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redef
 sub _should_we_reassign_vlan {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
-
+    return $TRUE;
     if ($opts{'force'}) {
         $logger->info("$mac VLAN reassignment is forced.");
         return $TRUE;

@@ -25,10 +25,11 @@ use warnings;
 
 use Log::Log4perl;
 
-use base ('pf::roles');
 use pf::config;
 use pf::node qw(node_attributes);
 use pf::violation qw(violation_count_trap);
+
+use base ('pf::roles');
 
 our $VERSION = 0.90;
 
@@ -37,6 +38,50 @@ our $VERSION = 0.90;
 =over
 
 =cut
+
+
+=item getRoleForNode
+
+Returns the proper role for a given node.
+
+=cut
+sub getRoleForNode {
+    my ($self, $mac, $switch) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($self));
+
+    # Violation first
+    my $open_violation_count = violation_count_trap($mac);
+    if ($open_violation_count != 0) {
+        $logger->info("MAC: $mac has $open_violation_count open violations(s) with action=trap; no role returned");
+        return;
+    }
+
+    # looking at the node's registration status
+    my $node_attributes = node_attributes($mac);
+    if (!defined($node_attributes)) {
+        $logger->debug("MAC: $mac doesn't have a node entry; no role returned");
+        return;
+    }
+
+    my $n_status = $node_attributes->{'status'};
+
+    if ( $n_status eq $pf::node::STATUS_UNREGISTERED ) {
+        return $switch->getRoleByName('registration');
+    } elsif ( $n_status eq $pf::node::STATUS_REGISTERED ) {
+        return $switch->getRoleByName('default');
+    } else {
+        return;
+    }
+
+#    if ($n_status eq $pf::node::STATUS_UNREGISTERED || $n_status eq $pf::node::STATUS_PENDING) {
+#        $logger->debug("MAC: $mac is of status $n_status; no role returned");
+#        return;
+#    }
+
+#    # At this point, we are registered, we don't have a violation: perform Role lookup
+#    return $self->performRoleLookup($node_attributes, $switch);
+}
+
 
 =back
 
@@ -68,3 +113,4 @@ USA.
 =cut
 
 1;
+
