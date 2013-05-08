@@ -183,7 +183,7 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) {
 sub create :Local {
     my ($self, $c) = @_;
 
-    my (@roles, $form, $form_single, $form_multiple, $form_import);
+    my (@roles, $form, $form_single, $form_multiple, $form_import, $params);
     my ($type, %data, @options);
     my ($status, $result, $message);
 
@@ -197,9 +197,16 @@ sub create :Local {
     $form_multiple = pfappserver::Form::User::Create::Multiple->new(ctx => $c);
     $form_import = pfappserver::Form::User::Create::Import->new(ctx => $c);
 
-    $form->process(params => $c->request->params);
-    $form_single->process(params => $c->request->params);
-    $form_multiple->process(params => $c->request->params);
+    if (scalar(keys %{$c->request->params}) > 1) {
+        # We consider the request parameters only if we have at least two entries.
+        # This is the result of setuping jQuery in "no Ajax cache" mode. See admin/common.js.
+        $params = $c->request->params;
+    } else {
+        $params = {};
+    }
+    $form->process(params => $params);
+    $form_single->process(params => $params);
+    $form_multiple->process(params => $params);
 
     if ($c->request->method eq 'POST') {
         # Create new user accounts
