@@ -829,9 +829,9 @@ sub node_register {
 }
 
 sub node_deregister {
-    my ($mac) = @_;
+    my ($mac, %info) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my %info;
+
     $info{'status'}    = 'unreg';
     $info{'regdate'}   = 0;
     $info{'unregdate'} = 0;
@@ -841,6 +841,7 @@ sub node_deregister {
         $logger->error("unable to de-register node $mac");
         return (0);
     }
+
     return (1);
 }
 
