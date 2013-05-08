@@ -58,7 +58,7 @@ case "$1" in
         # managing services
         # Ubuntu
         if [ -e /etc/lsb-release ]; then
-            for service in snort apache2 snmptrapfmt bind9 freeradius apparmor; do
+            for service in apache2 snmptrapfmt bind9 freeradius apparmor; do
                 if /sbin/initctl list | grep $service > /dev/null 2>&1; then
                     service $service stop  > /dev/null 2>&1
                     update-rc.d -f $service remove > /dev/null 2>&1
@@ -67,7 +67,7 @@ case "$1" in
      
         #Debian
         else
-            for service in snort apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
+            for service in apache2 snmptrapfmt bind9 freeradius isc-dhcp-server; do
                 if /usr/sbin/service --status-all | grep $service > /dev/null 2>&1; then
                     service $service stop > /dev/null 2>&1
                     update-rc.d $service remove > /dev/null 2>&1
