@@ -33,10 +33,10 @@
             <td><a href="[% c.uri_for(c.controller('Violation').action_for('view'), [ violation.id ]) %]#modalViolation">[% violation.id %]</a></td>
             <td>[% violation.desc %]</td>
             <td class="hidden-phone">[% FOREACH action IN violation.actions %]
-              <span class="label label-info">[% l(action) %]</span>
+              <span class="label label-info">[% l("${action}_action") %]</span>
               [%- END %]</td>
             <td class="hidden-phone">[% violation.vlan %]</td>
-            <td>
+            <td style="white-space: nowrap;">
               <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]">[% l('Delete') %]</a>
               [% IF profiles.size > 1 %]
               <div class="btn-group">[% END %]
