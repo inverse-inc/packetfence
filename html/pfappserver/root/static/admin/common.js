@@ -107,9 +107,12 @@ function updateSection(ajax_data) {
                 })
                 .fail(function(jqXHR) {
                     var status_msg = getStatusMsg(jqXHR);
-                    if (section.children().length == 0)
-                        section.html('<h2></h2><div></div>');
-                    showPermanentError(section.children('h1, h2, h3').first().next(), status_msg);
+                    var alert_section = section.children('h1, h2, h3').first().next();
+                    if (alert_section.length == 0) {
+                        section.prepend('<h2></h2><div></div>');
+                        alert_section = section.children().first().next();
+                    }
+                    showPermanentError(alert_section, status_msg);
                 });
         });
     }
