@@ -115,7 +115,7 @@ sub class_set_defaults {
     if($default_values) {
         foreach my $violation ( values %violations_conf ) {
             foreach my $key ( keys %$default_values ) {
-                next unless defined $violation->{$key};
+                next if defined $violation->{$key};
                 $violation->{$key} = $default_values->{$key};
             }
         }
