@@ -269,6 +269,7 @@ sub writeAuthenticationConfigFile {
             }
         }
     }
+    $cached_authentication_config->ReorderByGroup();
     my $result = $cached_authentication_config->RewriteConfig();
     unless($result) {
         $cached_authentication_config->Rollback();
@@ -431,7 +432,7 @@ sub match {
         if ($current_source->class eq 'external') {
             next;
         }
-        
+
         $logger->info("Matching in source ".ref($current_source));
         if (defined $source_id && $source_id eq $current_source->id) {
             $actions = $current_source->match($params);

@@ -66,25 +66,10 @@ sub update {
     $self->SUPER::update($id, \%assignments);
 }
 
-sub create {
+before rewriteConfig => sub {
     my ($self) = @_;
-}
-
-sub remove {
-    my ($self) = @_;
-}
-
-sub renameItem {
-    my ($self) = @_;
-}
-
-sub cleanupAfterRead {
-    my ($self) = @_;
-}
-
-sub cleanupBeforeCommit {
-    my ($self) = @_;
-}
+    $self->cachedConfig->ReorderByGroup();
+};
 
 __PACKAGE__->meta->make_immutable;
 
