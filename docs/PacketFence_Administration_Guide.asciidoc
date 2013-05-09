@@ -152,7 +152,7 @@ The following provides a list of server hardware recommendations:
 
 [options="compact"]
 * Intel or AMD CPU 3 GHz
-* 2048 MB of RAM
+* 4 GB of RAM
 * 100 GB of disk space (RAID-1 recommended)
 * 1 Network card
  - +1 for high-availability
