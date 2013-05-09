@@ -36,6 +36,7 @@ use Try::Tiny;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
+use pf::config::cached;
 
 extends 'Catalyst';
 
@@ -205,6 +206,10 @@ sub forms {
     my ($c) = @_;
     return $c->_comp_names(qw/Form F/);
 }
+
+before handle_request => sub {
+    pf::config::cached::ReloadConfigs();
+};
 
 # Logging
 # TODO define a logging strategy that would fit both catalyst and our core
