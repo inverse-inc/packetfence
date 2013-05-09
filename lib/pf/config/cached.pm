@@ -437,6 +437,33 @@ sub RewriteConfig {
 }
 
 
+=head2 ReorderByGroup
+
+=cut
+
+sub ReorderByGroup {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $config = $self->config;
+    my @sections = $config->Sections;
+    if(@sections) {
+        #Finding all non group sections
+        my @non_group = grep { !/ / } @sections;
+        if(scalar @sections !=  scalar @non_group) {
+                my @new_sections;
+            my @groups = grep { / / } @sections;
+            foreach my $section (@non_group) {
+                push @new_sections,$section, grep { /^\Q$section \E/ } @groups;
+                @groups = grep { !/^\Q$section\E/ } @groups;
+            }
+            #Push any remaining group sections
+            push @new_sections,@groups;
+            $config->{sects} = \@new_sections;
+        }
+    }
+}
+
+
 =head2 Rollback
 
 Rollback to current version of config in the cache
