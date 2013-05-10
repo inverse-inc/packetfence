@@ -508,6 +508,14 @@ do
   fi
 done
 
+for service in mysqld
+do
+  if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
+    echo "Enabling $service startup script"
+    /sbin/chkconfig --add $service > /dev/null 2>&1
+  fi
+done
+
 if [ -e /etc/logrotate.d/snort ]; then
   echo Removing /etc/logrotate.d/snort - it kills snort every night
   rm -f /etc/logrotate.d/snort
