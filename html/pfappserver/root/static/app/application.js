@@ -80,8 +80,8 @@ function resetAlert(parent) {
 
 
 function showAlert(type, sibling, msg, permanent, time) {
-    if(time === null) {
-        time = 50000;
+    if (typeof time == "undefined") {
+        time = 5000;
     }
     var alert = $(type).first().clone();
     alert.find('span').first().html(msg);
@@ -93,7 +93,7 @@ function showAlert(type, sibling, msg, permanent, time) {
 }
 
 function showWarning(sibling, msg, permanent, time) {
-    showAlert('.alert-block',sibling, msg, permanent, time);
+    showAlert('.alert-block', sibling, msg, permanent, time);
 }
 
 function showPermanentWarning(sibling, msg) {
@@ -101,7 +101,7 @@ function showPermanentWarning(sibling, msg) {
 }
 
 function showSuccess(sibling, msg, permanent, time) {
-    showAlert('.alert-success',sibling, msg, permanent, time);
+    showAlert('.alert-success', sibling, msg, permanent, time);
 }
 
 function showPermanentSuccess(sibling, msg) {
@@ -109,19 +109,20 @@ function showPermanentSuccess(sibling, msg) {
 }
 
 function showError(sibling, msg, permanent, time) {
-    if(time === null) {
+    if (typeof time == "undefined") {
         time = 10000;
     }
     if (typeof msg == 'string') {
-        showAlert('.alert-error',sibling, msg, permanent , time);
-    } else {
+        showAlert('.alert-error', sibling, msg, permanent , time);
+    }
+    else {
         var form = sibling.closest('form');
         $.each(msg, function(name, error) {
             var input = form.find('[name="' + name + '"]');
             var control = input.closest('.control-group');
             control.addClass('error');
             showTab(control, input);
-            showAlert('.alert-error',sibling, msg, permanent , time);
+            showAlert('.alert-error', sibling, msg, permanent , time);
         });
     }
 }
