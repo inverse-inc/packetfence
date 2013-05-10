@@ -15,6 +15,7 @@ extends 'pfappserver::Form::Config::Network';
 with 'pfappserver::Base::Form::Role::Help';
 
 use HTTP::Status qw(:constants is_success);
+use pf::config;
 
 has_field 'network' =>
   (
@@ -44,8 +45,8 @@ has_field 'type' =>
    required => 1,
    options => [
         { value => '',label => ''},
-        { value => 'isolation',label => 'Isolation'},
-        { value => 'registration',label => 'Registration'},
+        { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Isolation'},
+        { value => $pf::config::NET_TYPE_VLAN_ISOL, label => 'Registration'},
    ]
   );
 has_field 'next_hop' =>
