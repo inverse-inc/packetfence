@@ -646,8 +646,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/admin.perm
-%config(noreplace)      /usr/local/pf/conf/admin_ldap.conf
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
