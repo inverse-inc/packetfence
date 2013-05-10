@@ -89,7 +89,7 @@ INSERT INTO `node_category` (category_id,name,notes) VALUES ("3","gaming","Gamin
 
 CREATE TABLE node (
   mac varchar(17) NOT NULL,
-  pid varchar(255) NOT NULL default "1",
+  pid varchar(255) NOT NULL default "admin",
   category_id int default NULL,
   detect_date datetime NOT NULL default "0000-00-00 00:00:00",
   regdate datetime NOT NULL default "0000-00-00 00:00:00",
