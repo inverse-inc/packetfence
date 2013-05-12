@@ -211,6 +211,29 @@ before handle_request => sub {
     pf::config::cached::ReloadConfigs();
 };
 
+after finalize => sub {
+    my ($c) = @_;
+    if(ref($c)) {
+        my $deferred_actions = delete $c->stash->{_deferred_actions} || [];
+        foreach my $action (@$deferred_actions) {
+            eval {
+                $action->();
+            };
+            if($@) {
+                $c->log->error("Error with a deferred action: $@");
+            }
+        }
+    }
+};
+
+sub add_deferred_actions {
+    my ($c,@args) = @_;
+    if(ref($c)) {
+        my $deferred_actions = $c->stash->{_deferred_actions} ||= [];
+        push @$deferred_actions,@args;
+    }
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
 
