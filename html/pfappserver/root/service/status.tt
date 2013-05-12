@@ -9,7 +9,7 @@
       </tr>
       </thead>
     <tbody>
-      [%- FOREACH service IN services.sort %]
+      [%- FOREACH service IN services.keys.sort %]
       [% started = services.$service  %]
       <tr>
         <td>[% service %]</td>
