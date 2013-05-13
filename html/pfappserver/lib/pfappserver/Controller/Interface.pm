@@ -28,7 +28,7 @@ use namespace::autoclean;
 use pfappserver::Form::Interface;
 use pfappserver::Form::Interface::Create;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'Catalyst::Controller'; }
 
 =head1 METHODS
 
@@ -203,7 +203,7 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-sub read :Chained('object') :ParthPart('read') :Args(0) {
+sub view :Chained('object') :ParthPart('read') :Args(0) {
     my ( $self, $c ) = @_;
 
     # Retrieve interface definition
@@ -267,8 +267,8 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         $c->stash->{current_view} = 'JSON';
     }
     else {
-        $c->stash->{template} = 'interface/read.tt';
-        $c->forward('read');
+        $c->stash->{template} = 'interface/view.tt';
+        $c->forward('view');
     }
 }
 

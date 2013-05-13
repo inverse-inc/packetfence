@@ -1,4 +1,3 @@
-[% PROCESS macros.inc -%]
       <div class="modal fade hide" id="modalEditInterface"></div>
       <form id="interfaces" name="interfaces" class="form">
         <table class="table">
@@ -16,12 +15,11 @@
            [% FOREACH i IN interfaces.keys.sort %]
             <tr>
               <td><div class="switch switch-mini"><input type="checkbox" id="[% i %]" name="[% i %]"[% IF interfaces.$i.is_running %] checked="checked"[% END %]/></div></td>
-              <td><a href="[% c.uri_for(c.controller('Interface').action_for('read'), [i]) %]">[% interfaces.$i.name %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
+              <td><a href="[% c.uri_for(c.controller('Interface').action_for('view'), [i]) %]">[% interfaces.$i.name %]</a>[% IF interfaces.$i.vlan %] <span class="label">vlan [% interfaces.$i.vlan %]</span>[% END %]</td>
               <td>[% interfaces.$i.ipaddress %]</td>
               <td class="hidden-phone">[% interfaces.$i.netmask %]</td>
               <td class="hidden-phone">[% l(interfaces.$i.type) %]</td>
               <td>
-                <!--<a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('read'), [i]) %]">[% l('Edit') %]</a>-->
                 [% IF interfaces.$i.vlan -%]
                 <a class="btn btn-mini btn-danger" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>
                 [% ELSE -%]
