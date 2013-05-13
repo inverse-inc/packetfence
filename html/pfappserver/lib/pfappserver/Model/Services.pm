@@ -50,7 +50,7 @@ Naively calls `bin/pfcmd service pf start` and return output.
 sub start {
     my ($self) = @_;
     my $logger = get_logger();
-    my $result = $self->_run_pfcmd("pf","start");
+    my $result = $self->_run_pfcmd_service("pf","start");
     $logger->debug("Startup output: " . $result);
     return ($STATUS::OK, {result => $result}) if ( defined($result) );
 
@@ -77,7 +77,7 @@ Naively calls `bin/pfcmd service pf restart` and return output.
 sub restart_all {
     my ($self) = @_;
     my $logger = get_logger();
-    my $result = $self->_run_pfcmd("pf","restart");
+    my $result = $self->_run_pfcmd_service("pf","restart");
     $logger->debug("Startup output: " . $result);
     return (HTTP_ACCEPTED, {result => $result}) if ( defined($result) );
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
@@ -100,7 +100,7 @@ sub status {
     my $cmd =  "$PFCMD service pf status 2>&1";
     $logger->info("Requesting services status with: $cmd");
 
-    my @services_status = $self->_run_pfcmd("pf","status");
+    my @services_status = $self->_run_pfcmd_service("pf","status");
     $logger->debug(
         "Service status output: "
         . ( (@services_status) ? join('', @services_status) : 'NONE' )
