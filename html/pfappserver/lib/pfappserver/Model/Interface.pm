@@ -519,7 +519,9 @@ sub _interfaceCurrentlyInUse {
 
     my @result = $self->_listInterfaces($interface);
 
-    if ( scalar @result > 0 && $result[0]->{ipaddress} =~ $host ) {
+    if ( scalar @result > 0
+         && $result[0]->{ipaddress}
+         && $result[0]->{ipaddress} =~ $host ) {
         return 1;
     }
 
