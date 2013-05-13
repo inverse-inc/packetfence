@@ -138,8 +138,8 @@
 
         <div class="modal-footer">
           <a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
-          <button type="submit" class="btn btn-primary pull-left" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+          <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
         </div><!--modal-footer-->
 
       </form>
