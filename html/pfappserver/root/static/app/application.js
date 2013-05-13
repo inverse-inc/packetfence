@@ -122,7 +122,7 @@ function showError(sibling, msg, permanent, time) {
             var control = input.closest('.control-group');
             control.addClass('error');
             showTab(control, input);
-            showAlert('.alert-error', sibling, msg, permanent , time);
+            showAlert('.alert-error', sibling, error, permanent, time);
         });
     }
 }
