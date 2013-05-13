@@ -58,7 +58,7 @@ case "$1" in
         # managing services
         for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server; do
             if [ -e "/etc/init.d/"$service ] ; then
-                service $service stop  > /dev/null 2>&1
+                service $service stop  > /dev/null 2>&1 || exit 0
                 if [ -e /etc/lsb-release ]; then
                     update-rc.d -f $service remove > /dev/null 2>&1
                 else
