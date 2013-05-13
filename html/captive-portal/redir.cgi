@@ -77,7 +77,7 @@ if ($violation) {
     exit(0);
   }
 
-  $logger->info("captive portal redirect on violation vid: $vid, redirect url: ".$class->{'url'});
+  $logger->info("captive portal redirect on violation vid: $vid, redirect template: ".$class->{'template'});
 
   # The little redirect dance here is controlled by frames which are inherently alterable by the user
   # TODO: We need to validate that a user cannot request a frame with the enable button activated

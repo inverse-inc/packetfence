@@ -559,7 +559,7 @@ sub registration {
 sub is_config_documented {
 
     if (!-e $conf_dir . '/pf.conf') {
-        add_problem($WARN, 'We have been unable to load your configuration. Are you sure you ran configurator.pl?');
+        add_problem($WARN, 'We have been unable to load your configuration. Are you sure you ran configurator ?');
         return;
     }
 
