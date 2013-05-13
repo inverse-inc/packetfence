@@ -1,4 +1,14 @@
 <h2>[% l('Services') %]</h2>
+<div class="modal fade hide" id="confirmStop">
+  <div class="modal-header"><h3>Confirm Stopping the Admin Service</h3></div>
+  <div class="modal-body">
+     <div class="alert alert-danger alert-block"><strong><div>After performing this action there will be no access to the admin portal.</div> A manual restart will be required.</strong></div>
+  </div>
+    <div class="modal-footer">
+      <button class="btn" data-dismiss="modal">[% l('Cancel') %]</button>
+      <button type="button" data-dismiss="modal" class="btn btn-primary btn-danger"><i class="icon-stop"></i> [% l('Stop Service') %]</button>
+    </div>
+</div>
 <div>
   <table class="table">
     <thead>
@@ -21,10 +31,14 @@
         <td>
           <span class="pull-right">
             [% IF started -%]
-            <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop'),[service])%]">[% l('Stop') %]</a>
-            <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart'),[service])%]">[% l('Restart') %]</a>
+                [% IF service == "httpd.admin"%]
+                    <a class="btn btn-small btn-danger" data-target="#confirmStop" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),[service])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                [% ELSE -%]
+                    <a class="btn btn-small btn-danger" data-href-background="[%c.uri_for(c.controller.action_for('stop'),[service])%]"><i class="icon-fixed-width icon-stop"></i> [% l('Stop') %]</a>
+                [% END -%]
+                <a class="btn btn-small" data-href-background="[%c.uri_for(c.controller.action_for('restart'),[service])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart') %]</a>
             [% ELSE -%]
-            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller('Service').action_for('start'),[service])%]">[% l('Start') %]</a>
+            <a class="btn btn-small btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),[service])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start') %]</a>
             [% END -%]
           </span>
         </td>
@@ -34,9 +48,14 @@
   </table>
     <div class="form-actions">
       <div class="pull-right">
-        <button type="submit" class="btn btn-danger" data-href-background="[%c.uri_for(c.controller('Service').action_for('stop_all'))%]">[% l('Stop All') %]</button>
-        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller('Service').action_for('start_all'))%]">[% l('Start All') %]</button>
-        <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller('Service').action_for('restart_all'))%]">[% l('Restart All') %]</button>
+        <button type="submit" class="btn btn-danger" data-toggle="modal" data-confirm-stop-href="[%c.uri_for(c.controller.action_for('stop'),['pf'])%]" data-target="#confirmStop" ><i class="icon-fixed-width icon-stop"></i> [% l('Stop All') %]</button>
+        <button type="submit" class="btn btn-success" data-href-background="[%c.uri_for(c.controller.action_for('start'),['pf'])%]"><i class="icon-fixed-width icon-play"></i> [% l('Start All') %]</button>
+        <button type="submit" class="btn btn-warning" data-href-background="[%c.uri_for(c.controller.action_for('restart'),['pf'])%]"><i class="icon-fixed-width icon-refresh"></i> [% l('Restart All') %]</button>
       </div>
     </div>
+</div>
+
+<div id="deferred_service_alert" class="alert alert-block hide">
+  <strong>[% l('Warning!') %]</strong> [% l('Reconnecting to the Admin Service in ') %] <span></span> [%l('seconds')%]
+  <button class="btn btn-danger" data-dismiss="alert">Retry now!</button>
 </div>

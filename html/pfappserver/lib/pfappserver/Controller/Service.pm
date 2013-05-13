@@ -24,7 +24,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 SUBROUTINES
 
-=head2 object
+=head2 service
 
 Service controller dispatcher
 
@@ -35,7 +35,7 @@ sub index : Local : Path {
     $c->go('status');
 }
 
-sub object :Chained('/') :PathPart('service') :CaptureArgs(1) {
+sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
     my ( $self, $c, $service ) = @_;
     $c->stash(
         service => $service,
@@ -47,70 +47,87 @@ sub object :Chained('/') :PathPart('service') :CaptureArgs(1) {
 
 =cut
 
-sub status :Chained('object') :PathPart('') :Args(0) {
+sub status :Chained('service') :PathPart('') :Args(0) {
     my ($self, $c) = @_;
-    $self->_process_model_results($c,$c->stash->{model},'status',$c->stash->{service});
+    $self->_process_model_results($c,$c->stash->{model}->status);
+}
+
+=head2 start
+
+=cut
+
+sub start :Chained('service') :PathPart :Args(0) {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->stash->{model}->service_ctl($c->stash->{service},"start"));
 }
 
 =head2 stop
 
 =cut
 
-sub stop :Chained('object') :PathPart :Args(0) {
+sub stop :Chained('service') :PathPart :Args(0) {
     my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->stash->{model},'service_stop',$c->stash->{service});
-}
-
-=head2 start_all
-
-=cut
-
-sub start_all :Local {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model("Services"),'start',$c->stash->{service});
-}
-
-=head2 stop_all
-
-=cut
-
-sub stop_all :Local {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model("Services"),'stop_all',$c->stash->{service});
-}
-
-=head2 restart_all
-
-=cut
-
-sub restart_all :Local {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model("Services"),'restart_all',$c->stash->{service});
-}
-
-
-=head2 start
-
-=cut
-
-sub start :Chained('object') :PathPart :Args(0) {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->stash->{model},'service_start',$c->stash->{service});
+    $self->_process_model_results_as_json($c,$c->stash->{model}->service_ctl($c->stash->{service},"stop"));
 }
 
 =head2 restart
 
 =cut
 
-sub restart :Chained('object') :PathPart :Args(0) {
+sub restart :Chained('service') :PathPart :Args(0) {
     my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->stash->{model},'service_restart',$c->stash->{service});
+    $self->_process_model_results_as_json($c,$c->stash->{model}->service_ctl($c->stash->{service},"restart"));
 }
 
+=head2 pf_start
+
+=cut
+
+sub pf_start :Local :Path('pf/start') {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background(qw(pf start)));
+}
+
+=head2 pf_stop
+
+=cut
+
+sub pf_stop :Local :Path('pf/stop') {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background(qw(pf stop)));
+}
+
+=head2 pf_restart
+
+=cut
+
+sub pf_restart :Local :Path('pf/restart') {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background(qw(pf restart)));
+}
+
+=head2 httpd_admin_restart
+
+=cut
+
+sub httpd_admin_restart :Local : Path('httpd.admin/restart') {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background("httpd.admin" ,"restart"));
+}
+
+=head2 httpd_admin_stop
+
+=cut
+
+sub httpd_admin_stop :Local : Path('httpd.admin/stop') {
+    my ( $self, $c ) = @_;
+    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background("httpd.admin" ,"stop"));
+}
+
+
 sub _process_model_results_as_json {
-    my ($self,$c,$model,$func, @args) = @_;
+    my ($self,$c,$status,$result) = @_;
     $c->stash(current_view => 'JSON');
-    my ($status,$result) = $model->$func(@args);
     if(is_success($status)) {
         $c->stash(%$result);
     } else {
@@ -120,8 +137,7 @@ sub _process_model_results_as_json {
 }
 
 sub _process_model_results {
-    my ($self,$c,$model,$func, @args) = @_;
-    my ($status,$result) = $model->$func(@args);
+    my ($self,$c,$status,$result) = @_;
     if(is_success($status)) {
         $c->stash(%$result);
     } else {
