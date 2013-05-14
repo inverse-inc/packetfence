@@ -1643,8 +1643,7 @@ Scan on registration
 
 To perform a system scan before giving access to a host on the network you need to enable the `scan.registration` parameter in `pf.conf`.
 If you want to scan a device that have been auto-registered as a 802.1x connection, you need to enable `scan.dot1x` parameter in `pf.conf`. 
-The default EAP-Type that will be scanned is MS-CHAP-V2 but you can configure other EAP-Type buy adding in the `scan.dot1x_type` other EAP-Type like
-MD5-Challenge (look at dictionnary.freeradius.internal file for the list of EAP-Type).
+The default EAP-Type that will be scanned is MS-CHAP-V2 but you can configure other EAP-Type (such as MD5-Challenge) by adding them to `scan.dot1x_type` as a comma-separated list of values (look at `dictionary.freeradius.internal` file bundled with FreeRADIUS for the list of EAP-Type).
 
 It is also recommended to adjust `scan.duration` to reflect how long the scan takes. A progress bar of this duration will be shown to the user while he is waiting. By default, we set this variable to 60s.
 

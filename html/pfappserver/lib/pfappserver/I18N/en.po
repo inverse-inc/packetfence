@@ -417,6 +417,12 @@ msgstr "Engine"
 msgid "scan.registration"
 msgstr "Registration"
 
+msgid "scan.dot1x"
+msgstr "802.1x"
+
+msgid "scan.dot1x_type"
+msgstr "802.1x types"
+
 #: conf/pf.conf.defaults:430
 msgid "scan.duration"
 msgstr "Duration"
