@@ -140,7 +140,9 @@ sub response_handler {
 sub regzone {
     my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
     my ($rcode, @ans, @auth, @add);
+    my $_EXIT_CODE_EXISTS = "1";
 
+    $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
         if ( $qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o ) {
             my ($ttl, $rdata);
@@ -151,9 +153,9 @@ sub regzone {
                     next unless $rr->type eq "A";
                     my $ip = $rr->address;
                     my $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'80' 2>&1";
-                    my @lines  = pf_run($cmd);
+                    my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
                     $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'443' 2>&1";
-                    @lines  = pf_run($cmd);
+                    @lines  = pf_run($cmdi, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
                     ($ttl, $rdata) = (15, $rr->address);
                 }
             }
