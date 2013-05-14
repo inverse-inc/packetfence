@@ -807,6 +807,9 @@ msgstr "Computer name"
 
 # lib/pf/SNMP/constants.pm
 
+msgid "production"
+msgstr "Production"
+
 msgid "testing"
 msgstr "Testing"
 
