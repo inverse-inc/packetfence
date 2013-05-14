@@ -956,7 +956,8 @@ sub RenameSection {
     $self->_AddSection_Helper($new_sect);
 
     # This is done the fast way, change if data structure changes!!
-    foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
+    foreach my $key (qw(v sCMT pCMT EOT parms myparms group)) {
+        next unless exists $self->{$key}{$old_sect};
         $self->{$key}{$new_sect} = $self->{$key}{$old_sect};
     }
 
