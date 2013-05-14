@@ -56,8 +56,6 @@ has_field 'deauthMethod' =>
    type => 'Select',
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
-   required => 1,
-   messages => { required => 'Please specify the deauthentication method.' },
   );
 has_field 'uplink_dynamic' =>
   (
@@ -242,8 +240,10 @@ has_field 'SNMPPrivPasswordWrite' =>
   );
 has_field 'SNMPVersionTrap' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Version Trap',
+   element_class => ['chzn-deselect'],
+   options_method => \&options_SNMPVersion,
   );
 has_field 'SNMPCommunityTrap' =>
   (
