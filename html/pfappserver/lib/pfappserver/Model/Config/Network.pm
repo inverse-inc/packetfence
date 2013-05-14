@@ -95,8 +95,8 @@ sub getTypes {
         # skip if we don't have a network address set
         next if (!defined($interfaces_ref->{$interface}->{'network'}));
 
-        my ($status, $type) = $self->read_value($interfaces_ref->{$interface}->{'network'}, 'type');
-        if ( is_success($status) ) {
+        my $type = $self->cachedConfig->val($interfaces_ref->{$interface}->{'network'}, 'type');
+        if ( defined $type) {
             $types_ref->{$interface} = $type;
         }
     }
