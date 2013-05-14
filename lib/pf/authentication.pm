@@ -301,7 +301,8 @@ sub getAuthenticationSourceByType {
 
     my $result;
     if ($type) {
-        $result = first {$_->{type} eq $type} @authentication_sources;
+        $type = uc($type);
+        $result = first {uc($_->type) eq $type} @authentication_sources;
     }
 
     return $result;
