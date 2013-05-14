@@ -2,7 +2,7 @@ package pfappserver::Controller::Service;
 
 =head1 NAME
 
-pfappserver::Controller::Node - Catalyst Controller
+pfappserver::Controller::Service - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -22,11 +22,9 @@ use pf::services;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
-=head1 SUBROUTINES
+=head1 METHODS
 
-=head2 service
-
-Service controller dispatcher
+=head2 index
 
 =cut
 
@@ -35,8 +33,14 @@ sub index : Local : Path {
     $c->go('status');
 }
 
+=head2 service
+
+Service controller dispatcher
+
+=cut
+
 sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
-    my ( $self, $c, $service ) = @_;
+    my ($self, $c, $service) = @_;
     $c->stash(
         service => $service,
         model => $c->model("Services")
@@ -49,7 +53,7 @@ sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
 
 sub status :Chained('service') :PathPart('') :Args(0) {
     my ($self, $c) = @_;
-    $self->_process_model_results($c,$c->stash->{model}->status);
+    $self->_process_model_results($c, $c->stash->{model}->status);
 }
 
 =head2 start
@@ -57,8 +61,8 @@ sub status :Chained('service') :PathPart('') :Args(0) {
 =cut
 
 sub start :Chained('service') :PathPart :Args(0) {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->stash->{model}->service_ctl($c->stash->{service},"start"));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "start") );
 }
 
 =head2 stop
@@ -66,8 +70,8 @@ sub start :Chained('service') :PathPart :Args(0) {
 =cut
 
 sub stop :Chained('service') :PathPart :Args(0) {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->stash->{model}->service_ctl($c->stash->{service},"stop"));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "stop") );
 }
 
 =head2 restart
@@ -75,8 +79,8 @@ sub stop :Chained('service') :PathPart :Args(0) {
 =cut
 
 sub restart :Chained('service') :PathPart :Args(0) {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->stash->{model}->service_ctl($c->stash->{service},"restart"));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "restart") );
 }
 
 =head2 pf_start
@@ -84,8 +88,8 @@ sub restart :Chained('service') :PathPart :Args(0) {
 =cut
 
 sub pf_start :Local :Path('pf/start') {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background(qw(pf start)));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf start)) );
 }
 
 =head2 pf_stop
@@ -93,8 +97,8 @@ sub pf_start :Local :Path('pf/start') {
 =cut
 
 sub pf_stop :Local :Path('pf/stop') {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background(qw(pf stop)));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf stop)) );
 }
 
 =head2 pf_restart
@@ -102,8 +106,8 @@ sub pf_stop :Local :Path('pf/stop') {
 =cut
 
 sub pf_restart :Local :Path('pf/restart') {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background(qw(pf restart)));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf restart)) );
 }
 
 =head2 httpd_admin_restart
@@ -111,8 +115,8 @@ sub pf_restart :Local :Path('pf/restart') {
 =cut
 
 sub httpd_admin_restart :Local : Path('httpd.admin/restart') {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background("httpd.admin" ,"restart"));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "restart") );
 }
 
 =head2 httpd_admin_stop
@@ -120,15 +124,15 @@ sub httpd_admin_restart :Local : Path('httpd.admin/restart') {
 =cut
 
 sub httpd_admin_stop :Local : Path('httpd.admin/stop') {
-    my ( $self, $c ) = @_;
-    $self->_process_model_results_as_json($c,$c->model('Services')->service_cmd_background("httpd.admin" ,"stop"));
+    my ($self, $c) = @_;
+    $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "stop") );
 }
 
 
 sub _process_model_results_as_json {
-    my ($self,$c,$status,$result) = @_;
+    my ($self, $c, $status, $result) = @_;
     $c->stash(current_view => 'JSON');
-    if(is_success($status)) {
+    if (is_success($status)) {
         $c->stash(%$result);
     } else {
         $c->stash->{status_msg} = $result;
@@ -137,8 +141,8 @@ sub _process_model_results_as_json {
 }
 
 sub _process_model_results {
-    my ($self,$c,$status,$result) = @_;
-    if(is_success($status)) {
+    my ($self, $c, $status, $result) = @_;
+    if (is_success($status)) {
         $c->stash(%$result);
     } else {
         $c->stash(
@@ -151,7 +155,7 @@ sub _process_model_results {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2013 Inverse inc.
 
 =head1 LICENSE
 
