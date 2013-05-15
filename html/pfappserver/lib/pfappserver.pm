@@ -24,8 +24,8 @@ use Catalyst qw/
     ConfigLoader
     Static::Simple
     I18N
-    +pfappserver::Authentication::Store::PacketFence
     Authentication
+    +pfappserver::Authentication::Store::PacketFence
     Session
     Session::Store::File
     Session::State::Cookie
