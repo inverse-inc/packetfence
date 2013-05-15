@@ -29,6 +29,7 @@ Bug Fixes
 * Types in networks.conf are missing the "vlan-" prefix
 * Default pid in node table and config module must be "admin", not "1"
 * No warning when stopping httpd.admin
+* Match not performed by type in mobile-confirmation.cgi
 * Minor visual improvements to the web admin interface
 
 Version 4.0.0 released on 2013-05-08

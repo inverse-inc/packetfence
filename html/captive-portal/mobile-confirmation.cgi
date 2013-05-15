@@ -67,18 +67,19 @@ if ( $portalSession->getCgi->param("pin") ) {
     $logger->info("Valid PIN -- Registering user");
    
     my $pid = $portalSession->getSession->param("guest_pid") || "admin";
+    my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
 
     # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_ACCESS_DURATION);
+    $info{'unregdate'} = &pf::authentication::matchByType($sms_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
     
     if (defined $info{'unregdate'}) {
         $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
     }
     else {
-        $info{'unregdate'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_UNREG_DATE);
+        $info{'unregdate'} = &pf::authentication::matchByType($sms_type, {username => $pid}, $Actions::SET_UNREG_DATE);
     }
 
-    $info{'category'} = &pf::authentication::match("sms", {username => $pid}, $Actions::SET_ROLE);
+    $info{'category'} = &pf::authentication::matchByType($sms_type, {username => $pid}, $Actions::SET_ROLE);
 
 
     pf::web::web_node_register($portalSession, $pid, %info);
