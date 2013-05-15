@@ -65,14 +65,14 @@ sub authenticate {
   my $connection = Net::LDAP->new($self->{'host'});
 
   if (! defined($connection)) {
-    $logger->info("Unable to establish LDAP connection.");
+    $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
 
   if ($result->is_error) {
-    $logger->info("Invalid LDAP credentials.");
+    $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
@@ -84,12 +84,12 @@ sub authenticate {
     attrs => ['dn']
   );
   if ($result->is_error) {
-    $logger->info("Invalid LDAP search query ($filter).");      
+    $logger->error("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   if ($result->count != 1) {
-    $logger->info("Invalid LDAP search response.");
+    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{basedn} on $self->{host}:$self->{port}");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -106,6 +106,14 @@ sub authenticate {
 
 =head2 match_in_subclass
 
+C<$params> are the parameters gathered at authentication (username, SSID, connection, type, etc).
+
+C<$rule> is the rule instance that defines the conditions.
+
+C<$own_conditions> are the conditions specific to an LDAP source.
+
+Conditions that match are added to C<$matching_conditions>.
+
 =cut
 
 sub match_in_subclass {
@@ -114,26 +122,26 @@ sub match_in_subclass {
 
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
-    $logger->info("Matching rules in LDAP source.");
+    $logger->debug("Matching rules in LDAP source.");
 
     my $filter = ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
 
-    $logger->info("LDAP filter: $filter");
+    $logger->debug("LDAP filter: $filter");
 
     my $connection = Net::LDAP->new($self->{'host'});
     if (! defined($connection)) {
-        $logger->error("Unable to connect to '$self->{'host'}'");
+        $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
         return undef;
     }
 
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
 
     if ($result->is_error) {
-        $logger->error("Unable to bind with '$self->{'binddn'}'");
+        $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
         return undef;
     }
 
-    $logger->info("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    $logger->debug("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
     $result = $connection->search(
       base => $self->{'basedn'},
       filter => $filter,
@@ -142,7 +150,7 @@ sub match_in_subclass {
     );
 
     if ($result->is_error) {
-        $logger->error("Unable to execute search, we skip the rule.");
+        $logger->error("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}, we skip the rule.");
         return undef;
     }
 
@@ -151,7 +159,7 @@ sub match_in_subclass {
     if ($result->count == 1) {
         my $dn = $result->entry(0)->dn;
         $connection->unbind;
-        $logger->info("Found a match ($dn)! pushing LDAP conditions");
+        $logger->info("Found a match ($dn)");
         push @{ $matching_conditions }, @{ $own_conditions };
         return $params->{'username'};
     }
