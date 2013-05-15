@@ -16,11 +16,18 @@ has 'attribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'operator' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 1);
 
+sub description {
+    my ($self) = @_;
+
+    return join(" ", ($self->attribute, $self->operator, $self->value));
+}
+
 sub matches {
     my ($self, $attr, $v) = @_;
 
     if ($self->{'attribute'} eq $attr) {
-        if ($self->{'operator'} eq $Conditions::EQUALS) {
+        if ($self->{'operator'} eq $Conditions::EQUALS ||
+            $self->{'operator'} eq $Conditions::IS) {
             if (defined $v && $self->{'value'} eq $v) {
                 return 1;
             }
@@ -39,6 +46,10 @@ sub matches {
             if (defined $v && ($v =~ m/\Q${$self}{value}\E$/)) {
                 return 1;
             }
+        }
+        else {
+            my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+            $logger->error("Support for operator $self->{operator} is not implemented.");
         }
     }
 
