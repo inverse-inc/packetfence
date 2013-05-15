@@ -69,8 +69,7 @@ sub fetchVlanForNode {
 
     if ($this->isInlineTrigger($switch,$ifIndex,$mac,$ssid)) {
         $logger->info("Inline trigger match, the node is in inline mode");
-        my $inline = $this->getInlineVlan(
-          $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+        my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
         $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
         return ( $inline , 1 );
     }
@@ -84,9 +83,7 @@ sub fetchVlanForNode {
     }
 
     # there were no violation, now onto registration handling
-    my $registration = $this->getRegistrationVlan(
-        $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid
-    );
+    my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
         return ( $registration , 0 );
     }
@@ -319,7 +316,13 @@ sub getNormalVlan {
 
     $logger->debug("Trying to determine VLAN from role.");
     if (defined $user_name && (($connection_type & $EAP) == $EAP)) {
-        $role = &pf::authentication::match(undef, {username => $user_name, ssid => $ssid}, $Actions::SET_ROLE);
+        my $params =
+          {
+           username => $user_name,
+           connection_type => connection_type_to_str($connection_type),
+           SSID => $ssid,
+          };
+        $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
         $logger->debug("Username was defined ($user_name) - got role $role");
     } else {
         $role = $node_info->{'category'};
