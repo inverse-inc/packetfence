@@ -541,6 +541,9 @@ sub readPfConfigFiles {
                             } elsif ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) {
                                 push @inline_enforcement_nets, $int_obj;
                             }
+                            if ($int =~ m/(\w+):\d+/) {
+                                $int = $1;
+                            }
                             push @listen_ints, $int if ( $int !~ /:\d+$/ );
                         } elsif ( $type eq 'managed' || $type eq 'management' ) {
 
