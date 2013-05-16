@@ -33,6 +33,7 @@ Bug Fixes
 * Match not performed by type in mobile-confirmation.cgi
 * Authentication rule condition on connection type doesn't work
 * Authentication rule condition on SSID doesn't work
+* Access level is lost when editing a user
 * Minor visual improvements to the web admin interface
 
 Version 4.0.0 released on 2013-05-08

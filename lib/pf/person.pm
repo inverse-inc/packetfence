@@ -83,8 +83,9 @@ sub person_db_prepare {
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
-                   t.access_duration as 'access_duration', nc.name as 'category',
-                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate'
+                   t.access_duration as 'access_duration', t.access_level as 'access_level',
+                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate',
+                   nc.name as 'category'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
@@ -95,8 +96,9 @@ sub person_db_prepare {
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes, p.sponsor,
                    count(n.mac) as nodes,
                    t.password, t.valid_from as 'valid_from', t.expiration as 'expiration',
-                   t.access_duration as 'access_duration', t.category as 'category',
-                   t.sponsor as 'can_sponsor'
+                   t.access_duration as 'access_duration', t.access_level as 'access_level',
+                   t.sponsor as 'can_sponsor', t.unregdate as 'unregdate',
+                   t.category as 'category'
             FROM person p
             LEFT JOIN node n ON p.pid = n.pid
             LEFT JOIN temporary_password t ON p.pid = t.pid
