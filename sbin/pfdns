@@ -155,7 +155,7 @@ sub regzone {
                     my $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'80' 2>&1";
                     my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
                     $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'443' 2>&1";
-                    @lines  = pf_run($cmdi, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+                    @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
                     ($ttl, $rdata) = (15, $rr->address);
                 }
             }
