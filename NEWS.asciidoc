@@ -17,6 +17,7 @@ Version 4.0.1 released on 2013-05-DD
 Enhancements
 ++++++++++++
 * Line graphs now automatically switch to a month-based view when the period covers more than 90 days
+* Debian 7.0 (Wheezy) packages
 
 Bug Fixes
 +++++++++
@@ -30,6 +31,8 @@ Bug Fixes
 * Default pid in node table and config module must be "admin", not "1"
 * No warning when stopping httpd.admin
 * Match not performed by type in mobile-confirmation.cgi
+* Authentication rule condition on connection type doesn't work
+* Authentication rule condition on SSID doesn't work
 * Minor visual improvements to the web admin interface
 
 Version 4.0.0 released on 2013-05-08
