@@ -381,9 +381,9 @@ sub generate_oauth2_result {
 
    #Get the token
    my $token;
-
+   my $oauth2 = oauth2_client($provider);
    eval {
-      $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+      $token = $oauth2->get_access_token($code);
    };
 
    if ($@) {
