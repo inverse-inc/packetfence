@@ -213,6 +213,7 @@ Requires: perl(HTML::FormHandler)
 Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
+Requires: perl(Perl::Version)
 # configuration-wizard
 Requires: iproute, vconfig
 #
