@@ -465,13 +465,9 @@ sub manage_Static_Route {
             my $full_path = can_run('route')
                 or $logger->error("route is not installed! Can't add static routes to routed VLANs.");
 
-            my $cmd = "$full_path $add_del -net $network netmask " . $net{'netmask'} . " gw " . $net{'next_hop'};
-            my( $success, $error_code, $full_buf, $stdout_buf, $stderr_buf ) = run( command => $cmd, verbose => 0 );
-            if( $success ) {
-                $logger->debug("static route successfully added!");
-            } else {
-                $logger->error("static route injection failed: $cmd");
-            }
+            my $cmd = "sudo $full_path $add_del -net $network netmask " . $net{'netmask'} . " gw " . $net{'next_hop'};
+            $cmd = untaint_chain($cmd);
+            my @out = pf_run($cmd);
         }
     }
 }
