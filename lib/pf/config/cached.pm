@@ -934,9 +934,46 @@ sub _extractCHIArgs {
     return \%args;
 }
 
-=head2 RenameSection ( $old_section_name, $new_section_name)
+=head2 DeleteSection ( $sect_name, $include_groupmembers )
 
-Renames a section if it does not already exists
+Completely removes the entire section from the configuration optionally groupmembers.
+
+=cut
+
+sub DeleteSection {
+    my $self = shift;
+    my $sect = shift;
+    my $include_groupmembers = shift;
+
+    return undef if not defined $sect;
+
+    $self->_caseify(\$sect);
+
+    # This is done the fast way, change if data structure changes!!
+    delete $self->{v}{$sect};
+    delete $self->{sCMT}{$sect};
+    delete $self->{pCMT}{$sect};
+    delete $self->{EOT}{$sect};
+    delete $self->{parms}{$sect};
+    delete $self->{myparms}{$sect};
+
+    $self->{sects} = [grep {$_ ne $sect} @{$self->{sects}}];
+    $self->_touch_section($sect);
+
+    if ($include_groupmembers) {
+        foreach my $group_member ($self->GroupMembers($sect)) {
+            $self->DeleteSection($group_member,$include_groupmembers);
+        }
+    }
+
+    $self->RemoveGroupMember($sect);
+
+    return 1;
+} # end DeleteSection
+
+=head2 RenameSection ( $old_section_name, $new_section_name, $include_groupmembers)
+
+Renames a section if it does not already exists optionally including groupmembers
 
 =cut
 
@@ -944,6 +981,23 @@ sub RenameSection {
     my $self = shift;
     my $old_sect = shift;
     my $new_sect = shift;
+    my $include_groupmembers = shift;
+    return undef unless $self->CopySection($old_sect,$new_sect,$include_groupmembers);
+    return $self->DeleteSection($old_sect);
+
+} # end RenameSection
+
+=head2 CopySection ( $old_section_name, $new_section_name, $include_groupmembers)
+
+Copies one section to another optionally including groupmembers
+
+=cut
+
+sub CopySection {
+    my $self = shift;
+    my $old_sect = shift;
+    my $new_sect = shift;
+    my $include_groupmembers = shift;
 
     if (not defined $old_sect or
         not defined $new_sect or
@@ -956,15 +1010,21 @@ sub RenameSection {
     $self->_AddSection_Helper($new_sect);
 
     # This is done the fast way, change if data structure changes!!
-    foreach my $key (qw(v sCMT pCMT EOT parms myparms group)) {
+    foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
         next unless exists $self->{$key}{$old_sect};
-        $self->{$key}{$new_sect} = $self->{$key}{$old_sect};
+        $self->{$key}{$new_sect} = Config::IniFiles::_deepcopy($self->{$key}{$old_sect});
     }
 
-    $self->DeleteSection($old_sect);
+    if($include_groupmembers) {
+        foreach my $old_groupmember ($self->GroupMembers($old_sect)) {
+            my $new_groupmember = $old_groupmember;
+            $new_groupmember =~ s/\A\Q$old_sect\E/$new_sect/;
+            $self->CopySection($old_groupmember,$new_groupmember);
+        }
+    }
 
     return 1;
-} # end RenameSection
+} # end CopySection
 
 =head1 AUTHOR
 
