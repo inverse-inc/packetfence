@@ -22,6 +22,20 @@ case "$1" in
     configure)
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
+        chmod 2775 -R $PACKETFENCE/conf
+        chmod 2775 $PACKETFENCE/var/run
+        chmod 0755 $PACKETFENCE/addons/*.pl
+        chmod 0755 $PACKETFENCE/addons/*.sh
+        chmod 0755 $PACKETFENCE/addons/upgrade/*.pl
+        chmod 0755 $PACKETFENCE/addons/snort/*.pl
+        chmod 0755 $PACKETFENCE/addons/watchdog/*.sh
+        chmod 0755 $PACKETFENCE/bin/*
+        chmod 0755 $PACKETFENCE/sbin/*
+        chmod 0755 $PACKETFENCE/html/pfappserver/script/*.pl
+        chmod 0755 $PACKETFENCE/html/captive-portal/*.cgi
+        chmod 0775 $PACKETFENCE/var/dhcpd
+
+        chown pf:pf -R $PACKETFENCE
 
         # link to latest SQL schema
         if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
@@ -56,7 +70,9 @@ case "$1" in
         fi
 
         # managing services
-        for service in apache2 snmptrapfmt bind9 freeradius apparmor; do
+        set +e
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server; do
+            
             if [ -e "/etc/init.d/"$service ] ; then
                 service $service stop  > /dev/null 2>&1
                 if [ -e /etc/lsb-release ]; then
@@ -66,8 +82,10 @@ case "$1" in
                 fi
             fi
         done
+        set -e
 
         update-rc.d mysql defaults
+        update-rc.d memcached defaults
 
         # add sudo entry
         if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then

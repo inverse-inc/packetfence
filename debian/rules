@@ -146,18 +146,13 @@ binary-arch: build install
                 -X$(NAME)/conf/pfdetect_remote.conf \
                 -X$(NAME)sbin/pfdetect_remote -X$(NAME)/conf/pfarp_remote.conf \
 		-X$(NAME)sbin/pfarp_remote
-	# Everything is owned by pf:pf
-	chown pf:pf -R $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/
-	# Ubuntu dhcpd issue
-	chmod 775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
-	chmod 775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
+	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/run
+	chmod 2775 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
 	chown dhcpd:dhcpd $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd/dhcpd.leases
 	# Set setuid root on bin/pfcmd
 	chown pf:pf -R $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/
 	chown root:root $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
 	chmod ug+s $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin/pfcmd
-	# Set SGID on conf/
-	chmod g+s $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
 #	dh_perl
 #	dh_makeshlibs
 	dh_installdeb
