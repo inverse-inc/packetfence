@@ -20,6 +20,12 @@ extends 'pf::Authentication::Source';
 has '+type' => (default => 'Htpasswd');
 has 'path' => (isa => 'Str', is => 'rw', required => 1);
 
+=head1 METHODS
+
+=head2 available_attributes
+
+=cut
+
 sub available_attributes {
     my $self = shift;
 
@@ -29,11 +35,12 @@ sub available_attributes {
     return [@$super_attributes, @$own_attributes];
 }
 
-=item authenticate
+=head2 authenticate
 
 =cut
+
 sub authenticate {
-    my ( $self, $username, $password ) = @_;
+    my ($self, $username, $password) = @_;
   
     my $logger = Log::Log4perl->get_logger('pf::authentication');
     my $password_file = $self->{'path'};
@@ -53,41 +60,34 @@ sub authenticate {
     return ($TRUE, 'Successful authentication using htpasswd file.');
 }
 
-=item match_in_subclass
+=head2 match_in_subclass
 
 =cut
-sub match_in_subclass {
-    
-    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-    $logger->info("Matching rules in htpasswd file.");
 
-    # Let's match the htpasswd conditions alltogether. Normally, we
-    # should only have a condition based on the username attribute.
-    foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "username") {
-            # Let's check if our matching username is found in our htpasswd file
-            my $password_file = $self->{'path'};
-            if (-r $password_file) {
-                my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
-                if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
-                    # Username is defined in the htpasswd file
-                    # Now let's see if the condition actually matches
+sub match_in_subclass {
+    my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+
+    # First check if the username is found in the htpasswd file
+    my $password_file = $self->{'path'};
+    if (-r $password_file) {
+        my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly => 1});
+        if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
+            # Username is defined in the htpasswd file
+            # Let's match the htpasswd conditions alltogether.
+            # We should only have conditions based on the username attribute.
+            foreach my $condition (@{ $own_conditions }) {
+                if ($condition->{'attribute'} eq "username") {
                     if ( $condition->matches("username", $params->{'username'}) ) {
                         push(@{ $matching_conditions }, $condition);
                     }
-                    
-                    return $params->{'username'};
                 }
             }
+            return $params->{'username'};
         }
     }
 
     return undef;
 }
-
-=back
 
 =head1 AUTHOR
 
