@@ -22,7 +22,9 @@ case "$1" in
     configure)
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
-        chmod 2775 -R $PACKETFENCE/{conf,var,logs}
+        chmod 2775 -R $PACKETFENCE/conf
+        chmod 2775 -R $PACKETFENCE/var
+        chmod 2775 -R $PACKETFENCE/logs
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
         chmod 0755 $PACKETFENCE/addons/upgrade/*.pl

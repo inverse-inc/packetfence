@@ -22,7 +22,7 @@ stop_service_if_exists() {
 
 case "$1" in
     install)
-        if [ $(set +e;id pf &>/dev/null;echo "$?") == "0" ];then
+        if [ -z "$(getent passwd pf)" ]; then
                 echo "pf user already exist"
         else
                 useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
