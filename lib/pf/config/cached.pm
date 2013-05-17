@@ -283,6 +283,7 @@ use Readonly;
 use Sub::Name;
 use Log::Log4perl qw(get_logger);
 use List::Util qw(first);
+use List::MoreUtils qw(uniq);
 
 
 our $CACHE;
@@ -876,9 +877,13 @@ Copy configuration to a hash
 sub toHash {
     my ($self,$hash) = @_;
     %$hash = ();
+    my @default_parms;
+    if (exists $self->{default} ) {
+        @default_parms = $self->Parameters($self->{default});
+    }
     foreach my $section ($self->Sections()) {
         my %data;
-        foreach my $param ($self->Parameters($section)) {
+        foreach my $param (uniq $self->Parameters($section),@default_parms) {
             $data{$param} = $self->val($section,$param);
         }
         $hash->{$section} = \%data;
