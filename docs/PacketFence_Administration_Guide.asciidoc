@@ -166,11 +166,12 @@ PacketFence supports the following operating systems on the i386 or x86_64 archi
 [options="compact"]
 * Red Hat Enterprise Linux 6.x Server
 * Community ENTerprise Operating System (CentOS) 6.x
+* Debian 7.0 (Wheezy)
 * Ubuntu 12.04 LTS
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
-Other distributions such as Debian, Fedora and Gentoo are known to work but this document doesn't cover them.
+Other distributions such as Fedora and Gentoo are known to work but this document doesn't cover them.
 
 Services start-up
 ^^^^^^^^^^^^^^^^^
@@ -205,7 +206,7 @@ Make sure your system is up to date and your yum or apt-get database is updated.
 
   yum update
 
-On a Ubuntu 12.04 LTS system, do:
+On a Debian or Ubuntu system, do:
 
   apt-get update
   apt-get upgrade
@@ -237,12 +238,12 @@ Then disable these repositories by default. Under `/etc/yum.repos.d/` edit `rpmf
 
 Under RHEL 6.x / Centos 6.x, you must exclude perl-Apache-Test from rpmforge and openfusion repository.
 
-Edit /etc/yum.repos.d/rpmforge.repo and add on the section [rpmforge] the line:
+Edit `/etc/yum.repos.d/rpmforge.repo` and add to the section [rpmforge] the line:
 
   exclude = perl-Apache-Test*
 
 
-Edit /etc/yum.repos.d/openfusion.repo and add on the section [of] the line:
+Edit `/etc/yum.repos.d/openfusion.repo` and add to the section [of] the line:
 
   exclude = perl-Apache-Test*
 
@@ -259,17 +260,17 @@ RedHat doesn't seem to provide `perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite` 
 
   yum install perl-Net-Telnet perl-XML-Simple perl-SOAP-Lite --enablerepo=rpmforge-extras,rpmforge
 
-Ubuntu 12.04 LTS
-^^^^^^^^^^^^^^^^
+Debian and Ubuntu
+^^^^^^^^^^^^^^^^^
 
-All the PacketFence dependencies are available through the official Ubuntu repository.
+All the PacketFence dependencies are available through the official repositories.
 
 Software Download
 ~~~~~~~~~~~~~~~~~
 
 PacketFence provides a RPM repository for RHEL / CentOS instead of a single RPM file.
 
-For Ubuntu 12.04 LTS, PacketFence provides a Ubuntu package repository.
+For Debian and Ubuntu, PacketFence also provides package repositories.
 
 These repositories contain all required dependencies to install PacketFence. This provides numerous advantages:
 
@@ -281,9 +282,10 @@ These repositories contain all required dependencies to install PacketFence. Thi
 Software Installation
 ~~~~~~~~~~~~~~~~~~~~~
 
-For RHEL / CentOS:
+RHEL / CentOS
+^^^^^^^^^^^^^
 
-In order to use the repository, just create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content:
+In order to use the repository, create a file named `/etc/yum.repos.d/PacketFence.repo` with the following content:
 
   [PacketFence]
   name=PacketFence Repository
@@ -301,9 +303,14 @@ Or, if you prefer, to install only the core PacketFence without all the external
 
   yum install --enablerepo=PacketFence,epel,rpmforge,of packetfence
 
-For Ubuntu 12.04 LTS:
+Debian and Ubuntu
+^^^^^^^^^^^^^^^^^
 
-In order to use the repository, just create a file named `/etc/apt/sources.list.d/packetfence.list` with the following content:
+In order to use the repository, create a file named `/etc/apt/sources.list.d/packetfence.list` with the following content when using Debian 7.0 (Wheezy):
+
+  deb http://inverse.ca/downloads/PacketFence/debian wheezy wheezy
+
+Or when using Ubuntu 12.04 LTS:
 
   deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise
 
@@ -641,9 +648,8 @@ The inline enforcement is a very convenient method of performing access control 
 
 An important configuration parameter to have in mind when configuring inline enforcement is that the DNS reached by this users should be your actual production DNS server. The next section shows you how to configure the proper inline interface and it is there that you should refer to the proper production DNS. 
 
-Under Ubuntu 12.04 LTS and RHEL6/CentOS 6, inline enforcement uses ipset to mark nodes as registered, unregistered and isolated.
-It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try
-to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
+Inline enforcement uses `ipset` to mark nodes as registered, unregistered and isolated.
+It is also now possible to use multiple inline interfaces, a node registered on the first inline interface is mark with is couple ip:mac, so when the node try to register on an other inline interface PacketFence detect that the node is already registered on the first VLAN.
 It is also possible to enable inline.should_reauth_on_vlan_change to force user to reauthenticate when they change VLAN.
 ipset also provides a better reponse time under inline enforcement and now we just have to wait 10s after the registration to access to internet. 
 
@@ -902,7 +908,7 @@ Install Samba 3 and NOT Samba 4. You can either use the sources or use the packa
 yum install samba krb5-workstation
 ----
 
-For Ubuntu 12.04 LTS, do:
+For Debian and Ubuntu, do:
 
 ----
 apt-get install samba winbind krb5-user
@@ -945,7 +951,7 @@ When done with the Samba install, modify your `/etc/hosts` in order to add the F
  }
 ----
 
-For Ubuntu 12.04 LTS
+For Debian and Ubuntu:
 
 ----
   [logging]
@@ -985,7 +991,7 @@ Next, edit `/etc/samba/smb.conf`. Again, here is an example for our `DOMAIN.NET`
   log level = 1 winbind:5 auth:3
 ----
 
-For Ubuntu 12.04 LTS:
+For Debian and Ubuntu:
 
 ----
  [global]
@@ -1023,7 +1029,8 @@ After that, you need to start samba, and join the machine to the domain:
   # service smb start
   # chkconfig --level 345 smb on
   # net ads join -U administrator
-Note that for Ubuntu 12.04 LTS you will probably have this error:
+
+Note that for Debian and Ubuntu you will probably have this error:
 
   # kinit succeeded but ads_sasl_spnego_krb5_bind failed: Invalid credentials
   # Join to domain is not valid: Invalid credentials
@@ -1032,9 +1039,13 @@ Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
   # service winbind start
   # chkconfig --level 345 winbind on
+
 For Centos/RHEL:
+
   # chgrp pf /var/lib/samba/winbindd_privileged/
-For Ubuntu 12.04 LTS:
+
+For Debian and Ubuntu:
+
   # chgrp pf /var/run/samba/winbindd_privileged/
   # ntlm_auth --username myDomainUser
   # radtest -t mschap -x myDomainUser myDomainPassword localhost:18120 12 testing123
