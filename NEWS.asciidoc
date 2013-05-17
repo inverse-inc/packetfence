@@ -14,8 +14,14 @@ For a list of compatibility related changes see the UPGRADE.asciidoc file.
 Version 4.0.1 released on 2013-05-DD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+New Features
++++++++++++
+
+* Support for all VOIP Phones cdp compatibles on cisco switches
+
 Enhancements
 ++++++++++++
+
 * Line graphs now automatically switch to a month-based view when the period covers more than 90 days
 * Debian 7.0 (Wheezy) packages
 
@@ -26,6 +32,7 @@ Bug Fixes
 * Wrong verion of pf::vlan::custom
 * Groups in configuration files are not ordered under their respective section
 * mysqld is not enabled at startup
+* memcached is not enabled at startup
 * Access duration action doesn't honor default values in web admin
 * Types in networks.conf are missing the "vlan-" prefix
 * Default pid in node table and config module must be "admin", not "1"
@@ -36,6 +43,8 @@ Bug Fixes
 * Access level is lost when editing a user
 * Catchall rules won't work in a htpasswd source
 * Minor visual improvements to the web admin interface
+* Statics routes not added on PacketFence restart
+* Violations always take the default
 
 Version 4.0.0 released on 2013-05-08
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

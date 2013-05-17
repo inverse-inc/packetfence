@@ -509,7 +509,7 @@ do
   fi
 done
 
-for service in mysqld
+for service in mysqld memcached
 do
   if /sbin/chkconfig --list | grep $service > /dev/null 2>&1; then
     echo "Enabling $service startup script"
