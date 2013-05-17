@@ -27,7 +27,7 @@ use pf::util;
 use pf::util::radius qw(perform_coa);
 
 # CAPABILITIES
-# special features 
+# special features
 sub supportsSaveConfig { return $TRUE; }
 sub supportsCdp { return $TRUE; }
 
@@ -148,7 +148,7 @@ sub parseTrap {
         $trapHashRef->{'trapType'} = ( ( $1 == 2 ) ? "down" : "up" );
         $trapHashRef->{'trapIfIndex'} = $2;
         # CISCO-MAC-NOTIFICATION-MIB cmnHistMacChangedMsg
-    } elsif ( 
+    } elsif (
         ( $trapString
             =~ /BEGIN VARIABLEBINDINGS [^|]+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.215\.2\.0\.1\|\.1\.3\.6\.1\.4\.1\.9\.9\.215\.1\.1\.8\.1\.2\.[0-9]+ = Hex-STRING: ([0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2} [0-9A-Z]{2}) ([0-9A-Z]{2} [0-9A-Z]{2})/
         ) || ( $trapString
@@ -272,7 +272,7 @@ sub parseTrap {
         }
 
         # CISCO-PORT-SECURITY-MIB cpsSecureMacAddrViolation
-    } elsif ( 
+    } elsif (
         ( $trapString
         =~ /BEGIN VARIABLEBINDINGS .+[|]\.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.9\.9\.315\.0\.0\.1[|]\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.([0-9]+) = .+[|]\.1\.3\.6\.1\.4\.1\.9\.9\.315\.1\.2\.1\.1\.10\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/
         ) || ( $trapString
@@ -538,7 +538,7 @@ sub _setVlan {
     } else {
         my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2';    #CISCO-VLAN-MEMBERSHIP-MIB
         $logger->trace("SNMP set_request for vmVlan: $OID_vmVlan");
-        $result = $this->{_sessionWrite}->set_request( -varbindlist =>[ 
+        $result = $this->{_sessionWrite}->set_request( -varbindlist =>[
             "$OID_vmVlan.$ifIndex", Net::SNMP::INTEGER, $newVlan ] );
     }
     my $returnValue = ( defined($result) );
@@ -625,8 +625,8 @@ sub setVmVlanType {
 
 =item getMacBridgePortHash
 
-Cisco is very fancy about fetching it's VLAN information. In SNMPv3 the context 
-is used to specify a VLAN and in SNMPv1/2c an @<vlan> is appended to the 
+Cisco is very fancy about fetching it's VLAN information. In SNMPv3 the context
+is used to specify a VLAN and in SNMPv1/2c an @<vlan> is appended to the
 read-only community name when reading.
 
 =cut
@@ -946,7 +946,7 @@ sub setModeTrunk {
 
     my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
     $logger->trace("SNMP set_request for vlanTrunkPortDynamicState: $OID_vlanTrunkPortDynamicState");
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ "$OID_vlanTrunkPortDynamicState.$ifIndex", 
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ "$OID_vlanTrunkPortDynamicState.$ifIndex",
         Net::SNMP::INTEGER, $truthValue ] );
     return ( defined($result) );
 }
@@ -996,16 +996,16 @@ sub isNotUpLink {
     return ( grep( { $_ == $ifIndex } $this->getUpLinks() ) == 0 );
 }
 
-# FIXME I just refactored that method but I think we should simply get rid 
-# of the uplinks=... concept. If you've configured access-control on an 
+# FIXME I just refactored that method but I think we should simply get rid
+# of the uplinks=... concept. If you've configured access-control on an
 # uplink then it's your problem. Anyway we don't do anything on RADIUS based
-# requests. I guess this was there at first because of misconfigured up/down 
+# requests. I guess this was there at first because of misconfigured up/down
 # traps causing concerns.
 sub getUpLinks {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # not dynamic, return uplink list 
+    # not dynamic, return uplink list
     return @{ $this->{_uplink} } if ( lc(@{ $this->{_uplink} }[0]) ne 'dynamic' );
 
     # dynamic uplink lookup
@@ -1062,8 +1062,8 @@ sub getUpLinks {
 
 =item getMacAddr
 
-Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread 
-safe: 
+Warning: this method should _never_ be called in a thread. Net::Appliance::Session is not thread
+safe:
 
 L<http://www.cpanforum.com/threads/6909/>
 
@@ -1342,18 +1342,18 @@ sub getPhonesCDPAtIfIndex {
         return @phones;
     }
     my $oid_cdpCacheDeviceId = '1.3.6.1.4.1.9.9.23.1.2.1.1.6';
-    my $oid_cdpCachePlatform = '1.3.6.1.4.1.9.9.23.1.2.1.1.8';
+    my $oid_cdpCacheCapabilities = '1.3.6.1.4.1.9.9.23.1.2.1.1.9';
     if ( !$this->connectRead() ) {
         return @phones;
     }
-    $logger->trace("SNMP get_next_request for $oid_cdpCachePlatform");
+    $logger->trace("SNMP get_next_request for $oid_cdpCacheCapabilities");
     my $result = $this->{_sessionRead}->get_next_request(
-        -varbindlist => ["$oid_cdpCachePlatform.$ifIndex"] );
+        -varbindlist => ["$oid_cdpCacheCapabilities.$ifIndex"] );
     foreach my $oid ( keys %{$result} ) {
-        if ( $oid =~ /^$oid_cdpCachePlatform\.$ifIndex\.([0-9]+)$/ ) {
+        if ( $oid =~ /^$oid_cdpCacheCapabilities\.$ifIndex\.([0-9]+)$/ ) {
             my $cacheDeviceIndex = $1;
-            if ( $result->{$oid} =~ /^Cisco IP Phone/ ) {
-                $logger->trace("SNMP get_request for $oid_cdpCacheDeviceId");
+             if ( hex($result->{$oid}) & 0x00000080 ) {
+                $logger->warn("SNMP get_request for $oid_cdpCacheDeviceId");
                 my $MACresult
                     = $this->{_sessionRead}->get_request( -varbindlist =>
                         ["$oid_cdpCacheDeviceId.$ifIndex.$cacheDeviceIndex"]
@@ -1483,7 +1483,7 @@ sub copyConfig {
 
 =item saveConfig
 
-Save the running config into startup config. 
+Save the running config into startup config.
 Exact equivalent of doing a 'write mem' on the CLI.
 
 Notice that we are throwing exceptions in here so make sure to trap them!
@@ -1533,7 +1533,7 @@ sub _radiusBounceMac {
             LocalAddr => $management_network->tag('vip'),
         };
 
-        $response = perform_coa( $connection_info, 
+        $response = perform_coa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
                 'NAS-IP-Address' => $self->{'_ip'},

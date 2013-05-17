@@ -8,6 +8,8 @@ use pf::config;
 use pf::error;
 use pf::util;
 use pf::services;
+use Log::Log4perl qw(get_logger);
+use HTTP::Status qw(:constants :is);
 
 =head1 NAME
 
@@ -19,6 +21,26 @@ Catalyst Model.
 
 =over
 
+=cut
+
+our $PFCMD = File::Spec->catfile($bin_dir,'pfcmd');
+
+=item _run_pfcmd
+
+=cut
+
+sub _run_pfcmd_service {
+    my ($self,$service,$action) = @_;
+    my $logger = get_logger();
+    my $cmd = join(' ',$PFCMD,'service',( map { quotemeta } ($service,$action)),"2>&1");
+    $logger->info("About to start the services with: $cmd");
+
+    if(wantarray) {
+        return (pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) ));
+    }
+    return scalar pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+}
+
 =item start
 
 Naively calls `bin/pfcmd service pf start` and return output.
@@ -27,14 +49,9 @@ Naively calls `bin/pfcmd service pf start` and return output.
 
 sub start {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $cmd = $bin_dir . '/pfcmd service pf start 2>&1';
-    $logger->info("About to start the services with: $cmd");
-
-    my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+    my $logger = get_logger();
+    my $result = $self->_run_pfcmd_service("pf","start");
     $logger->debug("Startup output: " . $result);
-
     return ($STATUS::OK, {result => $result}) if ( defined($result) );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
@@ -48,17 +65,7 @@ Naively calls `bin/pfcmd service pf restart` and return output.
 
 sub stop_all {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $cmd = $bin_dir . '/pfcmd service pf stop 2>&1';
-    $logger->info("About to start the services with: $cmd");
-
-    my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
-    $logger->debug("Startup output: " . $result);
-
-    return ($STATUS::OK, {result => $result}) if ( defined($result) );
-
-    return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
+    return $self->service_cmd_background(qw(pf stop));
 }
 
 =item restart_all
@@ -69,16 +76,10 @@ Naively calls `bin/pfcmd service pf restart` and return output.
 
 sub restart_all {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $cmd = $bin_dir . '/pfcmd service pf restart 2>&1';
-    $logger->info("About to start the services with: $cmd");
-
-    my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+    my $logger = get_logger();
+    my $result = $self->_run_pfcmd_service("pf","restart");
     $logger->debug("Startup output: " . $result);
-
-    return ($STATUS::OK, {result => $result}) if ( defined($result) );
-
+    return (HTTP_ACCEPTED, {result => $result}) if ( defined($result) );
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
@@ -94,12 +95,12 @@ configuration.
 
 sub status {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
-    my $cmd = $bin_dir . '/pfcmd service pf status 2>&1';
+    my $cmd =  "$PFCMD service pf status 2>&1";
     $logger->info("Requesting services status with: $cmd");
 
-    my @services_status = pf_run( $cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+    my @services_status = $self->_run_pfcmd_service("pf","status");
     $logger->debug(
         "Service status output: "
         . ( (@services_status) ? join('', @services_status) : 'NONE' )
@@ -115,7 +116,6 @@ sub status {
     foreach my $service_status (@services_status) {
         chomp($service_status);
         my ($service_name, $should_be_started, $pids) = split(/\|/, $service_status);
-        next if $service_name eq 'httpd.admin';
         $services_ref->{$service_name} = ($pids) if ($should_be_started);
     }
     return ($STATUS::OK, { services => $services_ref}) if ( %$services_ref );
@@ -124,7 +124,6 @@ sub status {
 }
 
 =item service_status
-
 
 =cut
 
@@ -143,26 +142,27 @@ sub service_status {
     return ($STATUS::OK,\%status);
 }
 
-sub _service_ctl {
+sub service_ctl {
     my ($self,$service,$verb) = @_;
-    my $status = $STATUS::OK;
+    my $status = HTTP_OK;
     my $result = pf::services::service_ctl($service, $verb );
-    if($result) {
-        $result = {};
-    } else {
-        $status = $STATUS::SERVICE_UNAVAILABLE;
+    unless (defined $result) {
+        $status = HTTP_SERVICE_UNAVAILABLE;
         $result = "unable to $verb service $service";
     }
 
-    return ($status,$result);
+    return ($status,{result => $result});
 }
+
+
+
 
 =item service_restart
 =cut
 
 sub service_restart {
     my ($self,$service) = @_;
-    return $self->_service_ctl($service,'restart');
+    return $self->service_ctl($service,'restart');
 }
 
 =item service_stop
@@ -170,7 +170,7 @@ sub service_restart {
 
 sub service_stop {
     my ($self,$service) = @_;
-    return $self->_service_ctl($service,'stop');
+    return $self->service_ctl($service,'stop');
 }
 
 
@@ -179,7 +179,60 @@ sub service_stop {
 
 sub service_start {
     my ($self,$service) = @_;
-    return $self->_service_ctl($service,'start');
+    return $self->service_ctl($service,'start');
+}
+
+
+=item service_cmd
+
+=cut
+
+sub service_cmd {
+    my ($self,$service) = @_;
+}
+
+=item service_cmd_background
+
+=cut
+
+sub service_cmd_background {
+    my ($self,$service,$action) = @_;
+    my $logger = get_logger();
+    my $cmd = join(' ','setsid',$PFCMD,'service',( map { quotemeta } ($service,$action))," &>/dev/null &");
+    $logger->info("Defer the running of $cmd");
+    $self->deferAction(
+        sub {
+
+            my $result = pf_run($cmd, ( 'accepted_exit_status' => [0 .. 255] ) );
+            $logger->debug("Startup output: " . $result);
+        }
+    );
+    return (HTTP_ACCEPTED, {});
+}
+
+sub deferAction {
+    my ($self,@actions) = @_;
+    if(defined $self->{_deferred_actions}) {
+        push @{$self->{_deferred_actions}},@actions;
+    }
+}
+
+
+sub ACCEPT_CONTEXT {
+    my ($proto,$c,@args) = @_;
+    my $object;
+    if(ref($proto)) {
+        $object = $proto;
+    } else {
+        $object = $proto->new;
+    }
+    #get the _actions_after_requests array if it is not already created
+    if (exists $c->stash->{_deferred_actions}) {
+        $object->{_deferred_actions} = $c->stash->{_deferred_actions};
+    } else {
+        $object->{_deferred_actions} = $c->stash->{_deferred_actions} = [];
+    }
+    return $object;
 }
 
 =back

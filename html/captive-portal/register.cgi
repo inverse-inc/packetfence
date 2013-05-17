@@ -20,6 +20,7 @@ use URI::Escape qw(uri_escape);
 
 use pf::config;
 use pf::iplog;
+use pf::locationlog;
 use pf::node;
 use pf::nodecategory;
 use pf::Portal::Session;
@@ -38,9 +39,10 @@ Log::Log4perl::MDC->put('tid', 0);
 
 my $portalSession = pf::Portal::Session->new();
 my $cgi = $portalSession->getCgi();
+my $mac = $portalSession->getClientMac();
 
 # we need a valid MAC to identify a node
-if ( !valid_mac($portalSession->getClientMac()) ) {
+if ( !valid_mac($mac) ) {
   $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
   pf::web::generate_error_page($portalSession, i18n("error: not found in the database"));
   exit(0);
@@ -73,10 +75,17 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   }
 
   my $pid = $portalSession->getSession->param("username");
+  my $params = { username => $pid };
+  # TODO : add current_time and computer_name
+  my $locationlog_entry = locationlog_view_open_mac($mac);
+  if ($locationlog_entry) {
+      $params->{connection_type} = $locationlog_entry->{'connection_type'};
+      $params->{SSID} = $locationlog_entry->{'ssid'};
+  }
 
   # obtain node information provided by authentication module. We need to get the role (category here)
   # as web_node_register() might not work if we've reached the limit
-  my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
+  my $value = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
 
   $logger->trace("Got role $value for username $pid");
 
@@ -85,7 +94,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
       %info = (%info, (category => $value));
   }
 
-  $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+  $value = &pf::authentication::match(undef, $params, $Actions::SET_ACCESS_DURATION);
   
   if (defined $value) {
       $logger->trace("No unregdate found - computing it from access duration");
@@ -93,8 +102,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   }
   else {
       $logger->trace("Unregdate found, we use it right away");
-      $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
-     
+      $value = &pf::authentication::match(undef, $params, $Actions::SET_UNREG_DATE);
   }
 
   $logger->trace("Got unregdate $value for username $pid");

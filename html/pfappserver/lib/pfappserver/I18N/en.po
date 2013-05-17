@@ -417,6 +417,12 @@ msgstr "Engine"
 msgid "scan.registration"
 msgstr "Registration"
 
+msgid "scan.dot1x"
+msgstr "802.1x"
+
+msgid "scan.dot1x_type"
+msgstr "802.1x types"
+
 #: conf/pf.conf.defaults:430
 msgid "scan.duration"
 msgstr "Duration"
@@ -800,6 +806,9 @@ msgid "computer_name"
 msgstr "Computer name"
 
 # lib/pf/SNMP/constants.pm
+
+msgid "production"
+msgstr "Production"
 
 msgid "testing"
 msgstr "Testing"

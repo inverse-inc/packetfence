@@ -24,8 +24,8 @@ use Catalyst qw/
     ConfigLoader
     Static::Simple
     I18N
-    +pfappserver::Authentication::Store::PacketFence
     Authentication
+    +pfappserver::Authentication::Store::PacketFence
     Session
     Session::Store::File
     Session::State::Cookie
@@ -36,6 +36,7 @@ use Try::Tiny;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
+use pf::config::cached;
 
 extends 'Catalyst';
 
@@ -206,10 +207,36 @@ sub forms {
     return $c->_comp_names(qw/Form F/);
 }
 
+before handle_request => sub {
+    pf::config::cached::ReloadConfigs();
+};
+
+after finalize => sub {
+    my ($c) = @_;
+    if(ref($c)) {
+        my $deferred_actions = delete $c->stash->{_deferred_actions} || [];
+        foreach my $action (@$deferred_actions) {
+            eval {
+                $action->();
+            };
+            if($@) {
+                $c->log->error("Error with a deferred action: $@");
+            }
+        }
+    }
+};
+
+sub add_deferred_actions {
+    my ($c,@args) = @_;
+    if(ref($c)) {
+        my $deferred_actions = $c->stash->{_deferred_actions} ||= [];
+        push @$deferred_actions,@args;
+    }
+}
+
 # Logging
-# TODO define a logging strategy that would fit both catalyst and our core
-# application. For now, it's all basic and it logs to logs/packetfence.log.
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
+
 # Handle warnings from Perl as error log messages
 $SIG{__WARN__} = sub { __PACKAGE__->log->error(@_); };
 

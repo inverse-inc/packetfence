@@ -5,6 +5,8 @@ ALTER TABLE temporary_password
   ADD `unregdate` datetime NOT NULL default "0000-00-00 00:00:00" AFTER `sponsor`
 ;
 
+ALTER TABLE `node` CHANGE `pid` `pid` varchar(255) NOT NULL default "admin";
+
 UPDATE person SET pid = 'admin' WHERE pid = '1';
 
 INSERT INTO temporary_password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2038-01-01', '9999D', 4294967295, 1);

@@ -1,5 +1,3 @@
-/usr/local/pf/conf/admin.perm
-/usr/local/pf/conf/admin_ldap.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
 /usr/local/pf/conf/documentation.conf
 /usr/local/pf/conf/floating_network_device.conf

@@ -22,6 +22,22 @@ case "$1" in
     configure)
         export PACKETFENCE=/usr/local/pf
         export PERL5LIB=/usr/local/pf/lib
+        chmod 2775 -R $PACKETFENCE/conf
+        chmod 2775 -R $PACKETFENCE/var
+        chmod 2775 -R $PACKETFENCE/logs
+        chmod 0755 $PACKETFENCE/addons/*.pl
+        chmod 0755 $PACKETFENCE/addons/*.sh
+        chmod 0755 $PACKETFENCE/addons/upgrade/*.pl
+        chmod 0755 $PACKETFENCE/addons/snort/*.pl
+        chmod 0755 $PACKETFENCE/addons/watchdog/*.sh
+        chmod 0755 $PACKETFENCE/bin/*
+        chmod 0755 $PACKETFENCE/sbin/*
+        chmod 0755 $PACKETFENCE/html/pfappserver/script/*.pl
+        chmod 0755 $PACKETFENCE/html/captive-portal/*.cgi
+        chmod ug+s $PACKETFENCE/bin/pfcmd
+
+        chown pf:pf $PACKETFENCE
+        find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 chown pf:pf
 
         # link to latest SQL schema
         if [ ! -e "$PACKETFENCE/db/pf-schema.sql" ]; then
@@ -56,17 +72,30 @@ case "$1" in
         fi
 
         # managing services
-        for service in snort apache2 snmptrapfmt bind9 freeradius apparmor; do
-            service $service stop  > /dev/null 2>&1
-            update-rc.d -f $service remove > /dev/null 2>&1
+        set +e
+        for service in apache2 snmptrapfmt bind9 freeradius apparmor isc-dhcp-server; do
+            
+            if [ -e "/etc/init.d/"$service ] ; then
+                service $service stop  > /dev/null 2>&1
+                if [ -e /etc/lsb-release ]; then
+                    update-rc.d -f $service remove > /dev/null 2>&1
+                else
+                    update-rc.d $service remove > /dev/null 2>&1
+                fi
+            fi
         done
+        set -e
+
+        update-rc.d mysql defaults
+        update-rc.d memcached defaults
+
         # add sudo entry
         if (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset" /etc/sudoers > /dev/null  ) ; then
             # Comment out entry from a previous version of PF (< 4.0)
             sed -i 's/^\(pf ALL=NOPASSWD:.*\/sbin\/iptables.*\/usr\/sbin\/ipset\)/#\1/g' /etc/sudoers
         fi
-        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/usr/bin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/freeradius" /etc/sudoers > /dev/null  ) ; then
-            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/freeradius" >> /etc/sudoers
+        if ! (grep "^pf ALL=NOPASSWD:.*/sbin/iptables.*/usr/sbin/ipset.*/sbin/ip.*/sbin/vconfig.*/sbin/route.*/usr/bin/service.*/usr/bin/tee.*/usr/local/pf/sbin/pfdhcplistener.*/bin/kill.*/usr/sbin/dhcpd.*/usr/sbin/freeradius.*/usr/sbin/snort.*/usr/bin/suricata" /etc/sudoers > /dev/null  ) ; then
+            echo "pf ALL=NOPASSWD: /sbin/iptables, /usr/sbin/ipset, /sbin/ip, /sbin/vconfig, /sbin/route, /usr/sbin/service, /usr/bin/tee, /usr/local/pf/sbin/pfdhcplistener, /bin/kill, /usr/sbin/dhcpd, /usr/sbin/freeradius, /usr/sbin/snort, /usr/bin/suricata" >> /etc/sudoers
         fi
         if ! ( grep '^Defaults:pf.*!requiretty' /etc/sudoers > /dev/null ) ; then
             echo 'Defaults:pf !requiretty' >> /etc/sudoers

@@ -56,8 +56,6 @@ has_field 'deauthMethod' =>
    type => 'Select',
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
-   required => 1,
-   messages => { required => 'Please specify the deauthentication method.' },
   );
 has_field 'uplink_dynamic' =>
   (
@@ -242,8 +240,10 @@ has_field 'SNMPPrivPasswordWrite' =>
   );
 has_field 'SNMPVersionTrap' =>
   (
-   type => 'Text',
+   type => 'Select',
    label => 'Version Trap',
+   element_class => ['chzn-deselect'],
+   options_method => \&options_SNMPVersion,
   );
 has_field 'SNMPCommunityTrap' =>
   (
@@ -574,7 +574,7 @@ sub validate {
         $self->field('triggerInline')->value([{ type => $ALWAYS }]);
     }
 
-    if ($self->value->{type} ne '') {
+    if ($self->value->{type}) {
         my $type = 'pf::SNMP::'. $self->value->{type};
         if ($type->require()) {
             @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
@@ -613,7 +613,7 @@ sub validate {
     }
 
     if ($self->value->{uplink_dynamic} ne 'dynamic') {
-        unless ($self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
+        unless ($self->value->{uplink} && $self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
             $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
         }
     }

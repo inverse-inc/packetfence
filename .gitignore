@@ -9,13 +9,18 @@ conf/admin.conf
 conf/httpd.conf
 conf/named.conf
 conf/pf.conf
+conf/*.lock
 conf/nessus/
+conf/currently-at
 bin/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
 conf/user.conf
 conf/users/
 db/pf-schema.sql
+raddb/eap.conf
+raddb/radiusd.conf
+raddb/sql.conf
 
 # translations
 conf/locale/*/*/*.mo

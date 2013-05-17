@@ -283,6 +283,7 @@ use Readonly;
 use Sub::Name;
 use Log::Log4perl qw(get_logger);
 use List::Util qw(first);
+use List::MoreUtils qw(uniq);
 
 
 our $CACHE;
@@ -434,6 +435,33 @@ sub RewriteConfig {
     }
     unlockFilehandle($lock);
     return $result;
+}
+
+
+=head2 ReorderByGroup
+
+=cut
+
+sub ReorderByGroup {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $config = $self->config;
+    my @sections = $config->Sections;
+    if(@sections) {
+        #Finding all non group sections
+        my @non_group = grep { !/ / } @sections;
+        if(scalar @sections !=  scalar @non_group) {
+                my @new_sections;
+            my @groups = grep { / / } @sections;
+            foreach my $section (@non_group) {
+                push @new_sections,$section, grep { /^\Q$section \E/ } @groups;
+                @groups = grep { !/^\Q$section\E/ } @groups;
+            }
+            #Push any remaining group sections
+            push @new_sections,@groups;
+            $config->{sects} = \@new_sections;
+        }
+    }
 }
 
 
@@ -849,9 +877,13 @@ Copy configuration to a hash
 sub toHash {
     my ($self,$hash) = @_;
     %$hash = ();
+    my @default_parms;
+    if (exists $self->{default} ) {
+        @default_parms = $self->Parameters($self->{default});
+    }
     foreach my $section ($self->Sections()) {
         my %data;
-        foreach my $param ($self->Parameters($section)) {
+        foreach my $param (uniq $self->Parameters($section),@default_parms) {
             $data{$param} = $self->val($section,$param);
         }
         $hash->{$section} = \%data;
@@ -907,9 +939,46 @@ sub _extractCHIArgs {
     return \%args;
 }
 
-=head2 RenameSection ( $old_section_name, $new_section_name)
+=head2 DeleteSection ( $sect_name, $include_groupmembers )
 
-Renames a section if it does not already exists
+Completely removes the entire section from the configuration optionally groupmembers.
+
+=cut
+
+sub DeleteSection {
+    my $self = shift;
+    my $sect = shift;
+    my $include_groupmembers = shift;
+
+    return undef if not defined $sect;
+
+    $self->_caseify(\$sect);
+
+    # This is done the fast way, change if data structure changes!!
+    delete $self->{v}{$sect};
+    delete $self->{sCMT}{$sect};
+    delete $self->{pCMT}{$sect};
+    delete $self->{EOT}{$sect};
+    delete $self->{parms}{$sect};
+    delete $self->{myparms}{$sect};
+
+    $self->{sects} = [grep {$_ ne $sect} @{$self->{sects}}];
+    $self->_touch_section($sect);
+
+    if ($include_groupmembers) {
+        foreach my $group_member ($self->GroupMembers($sect)) {
+            $self->DeleteSection($group_member,$include_groupmembers);
+        }
+    }
+
+    $self->RemoveGroupMember($sect);
+
+    return 1;
+} # end DeleteSection
+
+=head2 RenameSection ( $old_section_name, $new_section_name, $include_groupmembers)
+
+Renames a section if it does not already exists optionally including groupmembers
 
 =cut
 
@@ -917,6 +986,23 @@ sub RenameSection {
     my $self = shift;
     my $old_sect = shift;
     my $new_sect = shift;
+    my $include_groupmembers = shift;
+    return undef unless $self->CopySection($old_sect,$new_sect,$include_groupmembers);
+    return $self->DeleteSection($old_sect);
+
+} # end RenameSection
+
+=head2 CopySection ( $old_section_name, $new_section_name, $include_groupmembers)
+
+Copies one section to another optionally including groupmembers
+
+=cut
+
+sub CopySection {
+    my $self = shift;
+    my $old_sect = shift;
+    my $new_sect = shift;
+    my $include_groupmembers = shift;
 
     if (not defined $old_sect or
         not defined $new_sect or
@@ -930,13 +1016,20 @@ sub RenameSection {
 
     # This is done the fast way, change if data structure changes!!
     foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
-        $self->{$key}{$new_sect} = $self->{$key}{$old_sect};
+        next unless exists $self->{$key}{$old_sect};
+        $self->{$key}{$new_sect} = Config::IniFiles::_deepcopy($self->{$key}{$old_sect});
     }
 
-    $self->DeleteSection($old_sect);
+    if($include_groupmembers) {
+        foreach my $old_groupmember ($self->GroupMembers($old_sect)) {
+            my $new_groupmember = $old_groupmember;
+            $new_groupmember =~ s/\A\Q$old_sect\E/$new_sect/;
+            $self->CopySection($old_groupmember,$new_groupmember);
+        }
+    }
 
     return 1;
-} # end RenameSection
+} # end CopySection
 
 =head1 AUTHOR
 

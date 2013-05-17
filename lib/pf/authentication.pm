@@ -269,6 +269,7 @@ sub writeAuthenticationConfigFile {
             }
         }
     }
+    $cached_authentication_config->ReorderByGroup();
     my $result = $cached_authentication_config->RewriteConfig();
     unless($result) {
         $cached_authentication_config->Rollback();
@@ -300,7 +301,8 @@ sub getAuthenticationSourceByType {
 
     my $result;
     if ($type) {
-        $result = first {$_->{type} eq $type} @authentication_sources;
+        $type = uc($type);
+        $result = first {uc($_->type) eq $type} @authentication_sources;
     }
 
     return $result;
@@ -394,7 +396,7 @@ sub username_from_email {
 sub authenticate {
     my ( $username, $password, $auth_module ) = @_;
 
-    #print "Authenticating $username with $password\n";
+    $logger->trace("Authenticating $username");
     foreach my $current_source ( @authentication_sources ) {
 
         # We skip sources we aren't interested in
@@ -406,10 +408,12 @@ sub authenticate {
 
         # First match wins!
         if ($result) {
+            $logger->debug("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
+    $logger->trace("Authentication failed for $username for all sources");
     return ($FALSE, 'Invalid username/password for all authentication sources.');
 }
 
@@ -426,13 +430,15 @@ sub match {
     my ($source_id, $params, $action) = @_;
     my $actions;
 
+    $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
+
     foreach my $current_source ( @authentication_sources ) {
 
         if ($current_source->class eq 'external') {
             next;
         }
-        
-        $logger->info("Matching in source ".ref($current_source));
+
+        $logger->debug("Matching rules ".($action?"for action $action":"")." in source ".$current_source->id." (".$current_source->type.")");
         if (defined $source_id && $source_id eq $current_source->id) {
             $actions = $current_source->match($params);
             last;
@@ -449,10 +455,18 @@ sub match {
     if (defined $action && defined $actions) {
         foreach my $current_action ( @{$actions} ) {
             if ($current_action->type eq $action) {
+                $logger->debug("Returning '".$current_action->value."' for action $action");
                 return $current_action->value;
             }
         }
+        $logger->debug("Params don't match rules for action $action");
         return undef;
+    }
+
+    if (defined $action) {
+        $logger->debug("No source matches action $action");
+    } else {
+        $logger->debug("Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
     }
 
     return $actions;

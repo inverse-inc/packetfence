@@ -74,11 +74,13 @@ has_field "${Actions::SET_ROLE}_action" =>
    options_method => \&options_roles,
   );
 
-#Adding default method for ${Actions::SET_ACCESS_DURATION}_action to always use the current value of the guests_admin_registration.default_access_duration
-
+# Adding default method for ${Actions::SET_ACCESS_DURATION}_action to always use the current value of the
+# guests_admin_registration.default_access_duration
 __PACKAGE__->meta->add_method(
     "default_${Actions::SET_ACCESS_DURATION}_action" => sub {
-        return get_abbr_time($Config{'guests_admin_registration'}{'default_access_duration'});
+        my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
+          || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
+        return get_abbr_time($duration);
     }
 );
 
@@ -173,8 +175,10 @@ in the pf.conf configuration file.
 sub options_durations {
     my $self = shift;
 
+    my $choices = $Config{'guests_admin_registration'}{'access_duration_choices'}
+      || $Default_Config{'guests_admin_registration'}{'access_duration_choices'};
     my $durations = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
+        [ split (/\s*,\s*/, $choices) ],
         $self->form->ctx->languages()->[0]
     );
     my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;

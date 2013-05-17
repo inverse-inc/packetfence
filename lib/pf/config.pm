@@ -197,7 +197,7 @@ Readonly our @VALID_TRIGGER_TYPES =>
   );
 
 $portscan_sid = 1200003;
-$default_pid  = 1;
+$default_pid  = "admin";
 
 Readonly our $WIPS_VID => '1100020';
 

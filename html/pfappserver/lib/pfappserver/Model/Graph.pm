@@ -83,13 +83,31 @@ sub timeBase {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($status, $status_msg);
 
+    my $first_time = undef;
+    my $last_time  = undef;
     my $function = \&{"pf::pfcmd::graph::graph_$graph"};
     my $interval = 'day';
-
     my @data = ();
     my @results;
+    my %series;
+
+    # Switch to a month interval if period covers more than 90 days
+    if ($startDate && $endDate) {
+        my ($start_year, $start_mon, $start_day) = split( /\-/, $startDate);
+        my ($end_year, $end_mon, $end_day) = split( /\-/, $endDate);
+        $first_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+        $last_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+
+        if ( ($last_time - $first_time) > (90 * 24 * 60 * 60) ) {
+            $interval = 'month';
+            $start_day = $end_day = 1;
+            $first_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+            $last_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+        }
+    }
+
     if ($function) {
-        eval { @results = $function->($startDate, $endDate); };
+        eval { @results = $function->($startDate, $endDate, $interval); };
         if ($@) {
             $status_msg = "Can't fetch data from database for graph $graph.";
             $logger->error($@);
@@ -101,7 +119,6 @@ sub timeBase {
         return ($STATUS::NOT_FOUND, $status_msg);
     }
 
-    my %series;
     foreach my $result (@results) {
         next if ( $result->{'mydate'} =~ /0000/ );
         my $s = $result->{'series'};
@@ -110,16 +127,7 @@ sub timeBase {
     my @fields = keys( %{ $results[0] } );
     push(@data, \@fields) if (@fields);
 
-    # Determine first and last time in all series
-    my $first_time = undef;
-    my $last_time  = undef;
-    if ($startDate && $endDate) {
-        my ($start_year, $start_mon, $start_day) = split( /\-/, $startDate);
-        my ($end_year, $end_mon, $end_day) = split( /\-/, $endDate);
-        $first_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
-        $last_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
-    }
-    else {
+    unless ($startDate && $endDate) {
         # TODO: do we check the last date of the series or simply take today as the end date?
         $last_time = localtime();
 
@@ -296,7 +304,16 @@ sub timeBase {
                                             sprintf( "%02d", $ii ),
                                             sprintf( "%02d", $i ) )
                                     );
-                                } else {
+                                }
+                                elsif ( $field eq 'count' ) {
+                                    if ($start_year == $i && $mstart == $ii || $options->{continuous}) {
+                                        push( @values, $results[$r]->{$field} );
+                                    }
+                                    else {
+                                        push( @values, 0 );
+                                    }
+                                }
+                                else {
                                     push( @values, $results[$r]->{$field} );
                                 }
                             }

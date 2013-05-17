@@ -176,11 +176,13 @@ $(function() { // DOM ready
     /* Save a rule */
     $('#section').on('submit', 'form[name="rule"]', function(event) {
         var form = $(this),
+        btn = form.find('.btn-primary'),
         modal = $('#modalRule'),
         modal_body = modal.find('.modal-body').first(),
         valid = isFormValid(form);
 
         if (valid) {
+            btn.button('loading');
             resetAlert(modal_body);
             // Don't submit hidden/template rows -- serialize will ignore disabled inputs
             form.find('tr.hidden :input').attr('disabled', 'disabled');
@@ -188,6 +190,8 @@ $(function() { // DOM ready
                 type: 'POST',
                 url: form.attr('action'),
                 data: form.serialize()
+            }).always(function() {
+                btn.button('reset');
             }).done(function(data) {
                 modal.one('hidden', function() {
                     // Refresh the rules list

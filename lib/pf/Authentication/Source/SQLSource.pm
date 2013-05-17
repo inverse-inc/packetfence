@@ -19,6 +19,12 @@ extends 'pf::Authentication::Source';
 
 has '+type' => ( default => 'SQL' );
 
+=head1 METHODS
+
+=head2 available_attributes
+
+=cut
+
 sub available_attributes {
   my $self = shift;
 
@@ -28,31 +34,37 @@ sub available_attributes {
   return [@$super_attributes, @$own_attributes];
 }
 
-=item authenticate_using_sql
+=head2 authenticate
 
 =cut
+
 sub authenticate {  
    my ( $self, $username, $password ) = @_;
 
-   my $logger = Log::Log4perl->get_logger('pf::authentication');
    my $result = pf::temporary_password::validate_password($username, $password);
 
    if ($result == $pf::temporary_password::AUTH_SUCCESS) {
-     return ($TRUE, 'Successful authentication using SQL.');
+     return ($TRUE, 'Successful authentication using SQL');
    }
 
    return ($FALSE, 'Unable to authenticate successfully using SQL.');
  }
 
-=item match
+=head2 match
+
+The SQLSource class overrides the match method of the Source parent class.
+
+It has no conditions and therefore acts as a catchall as long as the username is found
+in the temporary_password table.
+
+The actions are defined in the temporary_password table and can be modified for each user
+through the web admin interface.
 
 =cut
-sub match {
-    my ( $self, $params ) = @_;
-    my $common_attributes = $self->common_attributes();
 
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-    $logger->info("Matching rules in local SQL source.");
+sub match {
+    my ($self, $params) = @_;
+    my $common_attributes = $self->common_attributes();
 
     my $result = pf::temporary_password::view($params->{'username'});
     
@@ -96,14 +108,12 @@ sub match {
                                                         value => $category});
             push(@actions, $action);
         }
- 
+
         return \@actions;
     }
     
     return undef;
 }
-
-=back
 
 =head1 AUTHOR
 

@@ -21,10 +21,18 @@ has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
 has 'description' => (isa => 'Str', is => 'rw', required => 0);
 has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0);
 
+=head2 add_rule
+
+=cut
+
 sub add_rule {
   my ($self, $rule) = @_;
   push(@{$self->{'rules'}}, $rule);
 }
+
+=head2 available_attributes
+
+=cut
 
 sub available_attributes {
   my $self = shift;
@@ -35,11 +43,17 @@ sub available_attributes {
 
 Return all possible actions for a source. This method can be overloaded in a subclass to limit the available actions.
 
+Defined in pf::Authentication::constants.
+
 =cut
 
 sub available_actions {
     return \@Actions::ACTIONS;
 }
+
+=head2 common_attributes
+
+=cut
 
 sub common_attributes {
   my $self = shift;
@@ -51,11 +65,19 @@ sub common_attributes {
          ];
 }
 
+=head2 authenticate
+
+=cut
+
 sub authenticate {
   my $self = shift;
 
   return 0;
 }
+
+=head2 getRule
+
+=cut
 
 sub getRule {
     my ($self, $id) = @_;
@@ -93,6 +115,7 @@ sub match {
     my $common_attributes = $self->common_attributes();
 
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
 
     my @matching_rules = ();
 
@@ -102,12 +125,16 @@ sub match {
 
         foreach my $condition ( @{$rule->{'conditions'}} ) {
             if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
+                # A condition on a common attribute
                 my $r = $self->match_condition($condition, $params);
 
                 if ($r == 1) {
+                    $logger->debug("Matched condition ".join(" ", ($condition->attribute, $condition->operator, $condition->value)));
                     push(@matching_conditions, $condition);
                 }
-            } elsif (grep {$_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
+            }
+            elsif (grep {$_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
+                # A condition on a source-specific attribute
                 push(@own_conditions, $condition);
             }
         } # foreach my $condition (...)
@@ -137,20 +164,24 @@ sub match {
     return undef;
 }
 
+=head2 match_in_subclass
+
+=cut
+
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
     return undef;
 }
 
+=head2 match_condition
+
+=cut
+
 sub match_condition {
   my ($self, $condition, $params) = @_;
 
-  my $r = 0;
-
-  if (grep {$_->{value} eq $condition->attribute } @{$self->common_attributes()}) {
-    $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
-  }
+  my $r = $condition->matches($condition->attribute, $params->{$condition->attribute});
 
   return $r;
 }

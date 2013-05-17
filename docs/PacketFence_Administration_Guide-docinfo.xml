@@ -5,6 +5,13 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.0</revnumber>
+    <date>2013-05-17</date>
+    <revremark>
+    - New support for Debian
+    </revremark>
+  </revision>
+  <revision>
     <revnumber>2.9</revnumber>
     <date>2013-04-03</date>
     <revremark>

@@ -273,6 +273,8 @@ sub operators {
 Validate the following constraints :
 
  - an access duration and an unregistration date cannot be both defined
+ - an access duration or an unregistration date must be defined when setting a role
+ - one of these actions must be defined: set role, mark as sponsor, set access level
  - oauth2 sources must have a set role action
 
 =cut
@@ -287,8 +289,25 @@ sub validate {
     if (scalar @actions > 0) {
         @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
         if (scalar @actions > 0) {
-            $self->field('actions')->add_error("You can't define an access duration and a unregistration date at the same time.");
+            $self->field('actions')->add_error("You can't define an access duration and an unregistration date at the same time.");
         }
+    }
+
+    @actions = grep { $_->{type} eq $Actions::SET_ROLE } @{$self->value->{actions}};
+    if (scalar @actions > 0) {
+        @actions = grep {
+            $_->{type} eq $Actions::SET_ACCESS_DURATION || $_->{type} eq $Actions::SET_UNREG_DATE
+        } @{$self->value->{actions}};
+        if (scalar @actions == 0) {
+            $self->field('actions')->add_error("You must set an access duration or an unregistration date when setting a role.");
+        }
+    }
+
+    @actions = grep {
+        $_->{type} eq $Actions::SET_ROLE || $_->{type} eq $Actions::MARK_AS_SPONSOR || $_->{type} eq $Actions::SET_ACCESS_LEVEL
+    } @{$self->value->{actions}};
+    if (scalar @actions == 0) {
+        $self->field('actions')->add_error("You must at least set a role, mark the user as a sponsor, or set an access level.");
     }
 
     if ($self->source_type eq 'Facebook' || $self->source_type eq 'Google' || $self->source_type eq 'Github') {

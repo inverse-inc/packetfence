@@ -30,7 +30,6 @@ has_field 'allow_localdomain' =>
   (
    type => 'Checkbox',
    label => 'Allow Local Domain',
-   required => 1,
    default => pf::Authentication::Source::EmailSource->meta->get_attribute('allow_localdomain')->default,
    tags => { after_element => \&help,
              help => 'Accept self-registration with email address from the local domain' },

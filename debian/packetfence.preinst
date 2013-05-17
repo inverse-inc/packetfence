@@ -13,21 +13,30 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+stop_service_if_exists() {
+    SERVICE=$1
+    if [ $(set +e;invoke-rc.d --query $SERVICE stop &>/dev/null ; echo "$?") == "104"  ];then
+        invoke-rc.d $SERVICE stop
+    fi
+}
 
 case "$1" in
     install)
-        if grep -E "^pf:" /etc/passwd > /dev/null ; then
-                echo "pf user already exist"
-        else
+        if [ -z "$(getent passwd pf)" ]; then
                 useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
                 echo "create pf user"
+        else
+                echo "pf user already exist"
         fi
-        usermod -a -G pf dhcpd
+        if [ -e /etc/lsb-release ]; then
+            usermod -a -G pf dhcpd
+        fi
         exit 0
     ;;
     
     upgrade)
-        invoke-rc.d pfappserver stop
+        stop_service_if_exists pfappserver
+        stop_service_if_exists packetfence
         if [ -d "/usr/local/pf/html/captive-portal/wispr" ] ; then
                 rm -fr /usr/local/pf/html/captive-portal/wispr
         fi
