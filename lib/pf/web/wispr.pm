@@ -125,6 +125,34 @@ sub register {
     $info{'user_agent'} = $r->pnotes->{user_agent};
     $info{'mac'} = $r->pnotes->{mac};
 
+    # obtain node information provided by authentication module. We need to get the role (category here)
+    # as web_node_register() might not work if we've reached the limit
+    my $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ROLE);
+
+    $logger->trace("Got role $value for username $pid");
+
+    # This appends the hashes to one another. values returned by authenticator wins on key collision
+    if (defined $value) {
+        %info = (%info, (category => $value));
+    }
+
+    $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+
+    if (defined $value) {
+        $logger->trace("No unregdate found - computing it from access duration");
+        $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
+    }
+    else {
+        $logger->trace("Unregdate found, we use it right away");
+        $value = &pf::authentication::match(undef, {username => $pid}, $Actions::SET_UNREG_DATE);
+
+    }
+
+    $logger->trace("Got unregdate $value for username $pid");
+
+    if (defined $value) {
+        %info = (%info, (unregdate => $value));
+    }
     node_register( $mac, $pid, %info );
 }
 
