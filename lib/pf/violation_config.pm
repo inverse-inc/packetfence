@@ -37,6 +37,7 @@ sub readViolationConfigFile {
         $cached_violations_config = pf::config::cached->new(
             -file => $violations_config_file,
             -allowempty => 1,
+            -default => 'defaults',
             -onreload => [ reload_violation_config => sub {
                 my ($config,$name) = @_;
                 $logger->info("called $name");
@@ -48,7 +49,6 @@ sub readViolationConfigFile {
                 my $logger = get_logger();
                 $logger->info("called $name");
                 trigger_delete_all();
-                %Violation_Config = class_set_defaults(%Violation_Config);
                 foreach my $violation ( keys %Violation_Config ) {
 
                     # parse triggers if they exist
@@ -103,24 +103,6 @@ sub readViolationConfigFile {
         $cached_violations_config->ReadConfig();
     }
     return 1;
-}
-
-=head2 class_set_defaults
-
-=cut
-
-sub class_set_defaults {
-    my %violations_conf = @_;
-    my $default_values = delete $violations_conf{'defaults'} ;
-    if($default_values) {
-        foreach my $violation ( values %violations_conf ) {
-            foreach my $key ( keys %$default_values ) {
-                next if defined $violation->{$key};
-                $violation->{$key} = $default_values->{$key};
-            }
-        }
-    }
-    return (%violations_conf);
 }
 
 =head1 AUTHOR
