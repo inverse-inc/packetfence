@@ -22,7 +22,7 @@ New Features
 Enhancements
 ++++++++++++
 
-* 
+* New counters bellow line graphs of reports
 
 Bug Fixes
 +++++++++
