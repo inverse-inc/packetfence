@@ -32,6 +32,9 @@
   <IfModule !mod_mime.c>
     LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -65,6 +68,9 @@
   </IfModule>
   <IfModule !mod_mime.c>
     LoadModule mime_module modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module modules/mod_apreq2.so
   </IfModule>
 </IfDefine>
 
