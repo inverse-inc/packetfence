@@ -23,6 +23,7 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
+BEGIN { use SwitchFactoryConfig; }
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::services::dhcpd') }
@@ -48,7 +49,7 @@ my %sample_config = (
 my @return = generate_passthrough_rewrite_proxy_config(%sample_config);
 is_deeply(\@return,
     [
-        [ '  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs', 
+        [ '  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs',
         '  # Rewrite rules generated for passthrough packetfencebugs',
         '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
         '  RewriteCond %{REQUEST_URI} ^\\/bugs\\/',
@@ -118,15 +119,15 @@ ok(250 < $max_clients && $max_clients < 350, "MaxClients for 24Gb RAM");
 
 =cut
 # forcing an switchFactory instance with the test config file
-pf::SwitchFactory->getInstance( -configFile => './data/switches.conf' );
+pf::SwitchFactory->getInstance;
 
 # This tests proper config creation and also covers regression test #1354
 my ($snmpv3_users, $snmp_communities) = pf::services::snmptrapd::_fetch_trap_users_and_communities();
 is_deeply(
     [ $snmpv3_users, $snmp_communities ],
     [
-        { 
-            "0123456 readUser" => '-e 0123456 readUser MD5 authpwdread DES privpwdread', 
+        {
+            "0123456 readUser" => '-e 0123456 readUser MD5 authpwdread DES privpwdread',
             "6543210 readUser" => '-e 6543210 readUser MD5 authpwdread DES privpwdread'
         },
         { 'trapCommunity' => $TRUE, 'public' => $TRUE },
@@ -150,21 +151,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 
