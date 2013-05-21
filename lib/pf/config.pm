@@ -24,6 +24,7 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 use strict;
 use warnings;
 use pf::config::cached;
+use pf::file_paths;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
@@ -39,39 +40,33 @@ use Socket;
 
 # Categorized by feature, pay attention when modifying
 our (
-    $install_dir, $bin_dir, $conf_dir, $lib_dir, $log_dir, $generated_conf_dir, $var_dir,
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
     %guest_self_registration,
 #pf.conf.default variables
-    $default_config_file, $pf_default_file, %Default_Config, $cached_pf_default_config,
+    %Default_Config, $cached_pf_default_config,
 #pf.conf variables
-    $config_file, $pf_config_file, %Config, $cached_pf_config,
+    %Config, $cached_pf_config,
 #network.conf variables
-    $network_config_file, %ConfigNetworks, $cached_network_config,
+    %ConfigNetworks, $cached_network_config,
 #oauth2-ips.conf variables
-    $oauth_ip_file, %ConfigOAuth, $cached_oauth_ip_config,
+    %ConfigOAuth, $cached_oauth_ip_config,
 #documentation.conf variables
-    $pf_doc_file, %Doc_Config, $cached_pf_doc_config,
+    %Doc_Config, $cached_pf_doc_config,
 #floating_network_device.conf variables
-    $floating_devices_config_file, $floating_devices_file, %ConfigFloatingDevices, $cached_floating_device_config,
-#dhcp_fingerprints.conf variables
-    $dhcp_fingerprints_file, $dhcp_fingerprints_url,
-#oui.txt variables
-    $oui_file, $oui_url,
+    %ConfigFloatingDevices, $cached_floating_device_config,
 #profiles.conf variables
-    $profiles_config_file, %Profiles_Config, $cached_profiles_config,
+    %Profiles_Config, $cached_profiles_config,
 #Other configuraton files variables
-    $switches_config_file, $violations_config_file, $authentication_config_file,
-    $chi_config_file, $ui_config_file, @stored_config_files,
+    @stored_config_files,
 
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
     $portscan_sid, $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
-    $tt_compile_cache_dir
+
 );
 
 BEGIN {
@@ -80,20 +75,17 @@ BEGIN {
     @ISA = qw(Exporter);
     # Categorized by feature, pay attention when modifying
     @EXPORT = qw(
-        $install_dir $bin_dir $conf_dir $lib_dir $generated_conf_dir $var_dir $log_dir $ui_config_file
-        @listen_ints @dhcplistener_ints @ha_ints $monitor_int $pf_config_file
+        @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
         %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $IPSET_VERSION %mark_type_to_str %mark_type
         $MAC $PORT $SSID $ALWAYS
-        $default_config_file %Default_Config
-        $config_file %Config
-        $network_config_file %ConfigNetworks %ConfigOAuth
-        $dhcp_fingerprints_file $dhcp_fingerprints_url
-        $oui_file $oui_url
-        $floating_devices_file %ConfigFloatingDevices
+        %Default_Config
+        %Config
+        %ConfigNetworks %ConfigOAuth
+        %ConfigFloatingDevices
         $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
@@ -114,32 +106,24 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-        $profiles_config_file %Profiles_Config $cached_profiles_config
-        $switches_config_file
-        $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config $authentication_config_file
+        %Profiles_Config $cached_profiles_config
+        $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
-        $violations_config_file
         $OS
         %Doc_Config
-        $tt_compile_cache_dir
     );
+}
+
+sub import {
+    pf::config->export_to_level(1,@_);
+    pf::file_paths->export_to_level(1);
 }
 
 use pf::util::apache qw(url_parser);
 
 $thread = 0;
 
-# TODO bug#920 all application config data should use Readonly to avoid accidental post-startup alterration
-$install_dir = '/usr/local/pf';
-$bin_dir = File::Spec->catdir( $install_dir, "bin" );
-$conf_dir = File::Spec->catdir( $install_dir, "conf" );
-$var_dir = File::Spec->catdir( $install_dir, "var" );
-$generated_conf_dir = File::Spec->catdir( $var_dir , "conf");
-$lib_dir = File::Spec->catdir( $install_dir, "lib" );
-$log_dir = File::Spec->catdir( $install_dir, "logs" );
-$tt_compile_cache_dir = File::Spec->catdir( $var_dir, "tt_compile_cache" );
-
-Log::Log4perl->init("$conf_dir/log.conf");
+Log::Log4perl->init($log_config_file);
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
@@ -151,25 +135,6 @@ Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 
-$config_file                    = $conf_dir . "/pf.conf";           # TODO: To be deprecated. See $pf_config_file
-$default_config_file            = $conf_dir . "/pf.conf.defaults";  # TODO: To be deprecated. See $pf_default_file
-$pf_config_file                 = $config_file;                     # TODO: Adjust. See $config_file
-$pf_default_file                = $default_config_file;             # TODO: Adjust. See $default_config_file
-$pf_doc_file                    = $conf_dir . "/documentation.conf";
-$network_config_file            = $conf_dir . "/networks.conf";
-$switches_config_file           = $conf_dir . "/switches.conf";
-$violations_config_file         = $conf_dir . "/violations.conf";
-$authentication_config_file     = $conf_dir . "/authentication.conf";
-$floating_devices_config_file   = $conf_dir . "/floating_network_device.conf"; # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
-$dhcp_fingerprints_file         = $conf_dir . "/dhcp_fingerprints.conf";
-$profiles_config_file           = $conf_dir . "/profiles.conf";
-$oui_file                       = $conf_dir . "/oui.txt";
-$floating_devices_file          = $conf_dir . "/floating_network_device.conf";  # TODO: To be deprecated. See $floating_devices_config_file
-$oauth_ip_file                  = $conf_dir . "/oauth2-ips.conf";
-$chi_config_file                = $conf_dir . "/chi.conf";
-$ui_config_file                 = $conf_dir . "/ui.conf";
-$violations_config_file         = $conf_dir . "/violations.conf";
-
 @stored_config_files = (
     $pf_config_file, $network_config_file,
     $switches_config_file, $violations_config_file,
@@ -178,9 +143,6 @@ $violations_config_file         = $conf_dir . "/violations.conf";
     $oui_file, $floating_devices_file,
     $oauth_ip_file,$chi_config_file,
 );
-
-$oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
-$dhcp_fingerprints_url      = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
 Readonly our @VALID_TRIGGER_TYPES =>
   (
