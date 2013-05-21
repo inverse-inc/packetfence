@@ -47,7 +47,7 @@ sub authenticate {
   if (defined $radius) {
      my $result = $radius->check_pwd($username, $password);
 
-     if (Authen::Radius::get_error() eq 'ENONE') {
+     if ($radius->get_error() eq 'ENONE') {
 
        if ($result) {
         return ($TRUE, 'Successful authentication using RADIUS.');
