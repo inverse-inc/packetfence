@@ -241,16 +241,17 @@ sub update {
             $option = "deregister";
             $result = node_deregister($mac, %{$node_ref});
         }
-        if ($result) {
-            # Node has been registered or deregistered
-            reevaluate_access( $mac, "manage_$option" );
-        }
     }
     unless (defined $result) {
         $result = node_modify($mac, %{$node_ref});
     }
-
-    unless ($result) {
+    if ($result) {
+        if ($previous_node_ref->{status} ne $node_ref->{status}) {
+            # Node has been registered or deregistered
+            reevaluate_access($mac, "node_modify");
+        }
+    }
+    else {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $result = 'An error occurred while saving the node.';
     }
