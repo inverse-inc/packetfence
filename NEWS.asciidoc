@@ -23,11 +23,13 @@ Enhancements
 ++++++++++++
 
 * New counters bellow line graphs of reports
+* Support for anonymous bind in LDAP authentication sources
 
 Bug Fixes
 +++++++++
 
 * Re-evaluate network access when changing a node status
+* Missing unit when interval is zero
 
 Version 4.0.1 released on 2013-05-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

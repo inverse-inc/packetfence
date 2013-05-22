@@ -12,6 +12,7 @@ Form definition to create or update a LDAP user source.
 
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Authentication::Source';
+with 'pfappserver::Base::Form::Role::Help';
 
 # Form fields
 has_field 'host' =>
@@ -60,7 +61,6 @@ has_field 'scope' =>
     { value => 'sub', label => 'Subtree' },
     { value => 'children', label => 'Children' },
    ],
-#   element_class => ['chzn-select'],
   );
 has_field 'usernameattribute' =>
   (
@@ -72,15 +72,33 @@ has_field 'binddn' =>
   (
    type => 'Text',
    label => 'Bind DN',
-   required => 1,
    element_class => ['span10'],
+   tags => { after_element => \&help,
+             help => 'Leave this field empty if you want to perform an anonymous bind.' },
   );
 has_field 'password' =>
   (
    type => 'Password',
    label => 'Password',
-   required => 1,
   );
+
+=head2 validate
+
+Make sure a password is specified when a bind DN is specified.
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    $self->SUPER::validate();
+
+    if ($self->value->{binddn}) {
+        unless ($self->value->{password}) {
+            $self->field('password')->add_error('Please specify a password.');
+        }
+    }
+}
 
 =head1 COPYRIGHT
 

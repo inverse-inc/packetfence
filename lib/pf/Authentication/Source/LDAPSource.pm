@@ -28,8 +28,8 @@ has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
-has 'binddn' => (isa => 'Str', is => 'rw', required => 1);
-has 'password' => (isa => 'Str', is => 'rw', required => 1);
+has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
+has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
@@ -62,15 +62,19 @@ sub available_attributes {
 sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-  my $connection = Net::LDAP->new($self->{'host'});
+  my $connection = Net::LDAP->new($self->{'host'}, port => $self->{port});
 
   if (! defined($connection)) {
     $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
-  my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-
+  my $result;
+  if ($self->{'binddn'} && $self->{'password'}) {
+      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+  } else {
+      $result = $connection->bind;
+  }
   if ($result->is_error) {
     $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
     return ($FALSE, 'Unable to validate credentials at the moment');
@@ -178,18 +182,22 @@ sub test {
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
   # Connect
-  my $connection = Net::LDAP->new($self->{'host'});
+  my $connection = Net::LDAP->new($self->{'host'}, port => $self->{port});
 
   if (! defined($connection)) {
-    $logger->info("Unable to establish LDAP connection.");
+    $logger->warn("Unable to connect to '$self->{host}:$self->{port}'");
     return ($FALSE, "Can't connect to server");
   }
 
   # Bind
-  my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-
+  my $result;
+  if ($self->{'binddn'} && $self->{'password'}) {
+      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+  } else {
+      $result = $connection->bind;
+  }
   if ($result->is_error) {
-    $logger->info("Invalid LDAP credentials.");
+    $logger->warn("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
     return ($FALSE, 'Wrong bind DN or password');
   }
 
@@ -204,7 +212,7 @@ sub test {
   );
 
   if ($result->is_error) {
-    $logger->info("Invalid LDAP search query ($filter).");
+      $logger->warn("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}");
     return ($FALSE, 'Wrong base DN or username attribute');
   }
 
