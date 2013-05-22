@@ -11,13 +11,31 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.2 released on 2013-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
++++++++++++
+
+* 
+
+Enhancements
+++++++++++++
+
+* New counters bellow line graphs of reports
+
+Bug Fixes
++++++++++
+
+* Re-evaluate network access when changing a node status
+
 Version 4.0.1 released on 2013-05-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 +++++++++++
 
-* Support for all VoIP phones CDP compatibles on Cisco switches
+* Support for all CDP-compatible VoIP phones on Cisco switches
 
 Enhancements
 ++++++++++++
