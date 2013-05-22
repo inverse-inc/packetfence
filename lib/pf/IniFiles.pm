@@ -31,7 +31,7 @@ Completely removes the entire section from the configuration optionally groupmem
 sub DeleteSection {
     my ($self,$sect,$include_groupmembers) = shift;
 
-    return undef unless $self->DeleteSection($sect);
+    return undef unless $self->SUPER::DeleteSection($sect);
 
     if ($include_groupmembers) {
         foreach my $group_member ($self->GroupMembers($sect)) {
