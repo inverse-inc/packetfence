@@ -69,7 +69,7 @@ table.sources {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
+              <li class="nav-header">[% l('Main') %]</li>
               [% pf_section_entry('general', 'General') %]
               <!--[% pf_section_entry( 'database', 'Database') %]-->
               [% pf_section_entry( 'network', 'Network') %]
@@ -94,18 +94,18 @@ table.sources {
               <!--[% list_entry( 'node_import') %]-->
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
-              <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
+              <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
-              <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
+              <li class="nav-header">[% l('Users') %]</li>
               [% pf_section_entry( 'roles', 'Roles') %]
               [% list_entry('Authentication', 'index', 'Sources') %]
               [% list_entry('User', 'create', 'Create') %]
-              <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
+              <li class="nav-header">[% l('Compliance') %]</li>
               [% list_entry('Violation', 'index', 'Violations') %]
               [% pf_section_entry( 'soh', 'Statement of Health') %]
-              <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
+              <li class="nav-header">[% l('Identification') %]</li>
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
               [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
               [% list_entry('Configuration::MacAddress', 'index', 'MAC Addresses') %]

@@ -62,7 +62,7 @@
     <div class="span10">
         <ul class="breadcrumb">
             <li>
-                <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
+                <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >[% l('Portal Profiles and Pages') %]</a>
                 <span class="divider"><i class="icon-chevron-right"/></span>
             </li>
             <li>
@@ -70,7 +70,7 @@
                 <span class="divider"><i class="icon-chevron-right"/></span>
             </li>
             <li>
-                <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id])  %]"> Files </a>
+                <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id])  %]">[% l('Files') %]</a>
                 <span class="divider"><i class="icon-chevron-right"/></span>
             </li>
             <li class="active"> [% file_name %] </li>
@@ -84,12 +84,12 @@
       </div>
       <div>
         <label class="checkbox">
-          <input id="file-editor-show-lines" type="checkbox" /> Show Line Numbers 
+          <input id="file-editor-show-lines" type="checkbox" /> [% l('Show line numbers') %]
         </label>
         <form id="file_editor_form"  method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('save'),[id], paths ) %]" >
             <textarea rows="1" cols="1" name="file_content" style="display:none" id="file_content">[%file_content | html%]</textarea>
             <div class="pull-right">
-                <h5>&nbsp;Available Variables</h5>
+                <h5>[% l('Available Variables') %]</h5>
                 <ul id="variable_list">
                     [% FOREACH var IN ['logo', 'username', 'user_agent', 'dhcp_fingerprint', 'last_switch', 'last_port', 'last_vlan', 'last_connection_type', 'last_ssid'] %]
                         [% variable_entry(var) %]
@@ -101,7 +101,6 @@
               <a id="file-editor-save" href="#" class="btn btn-primary disabled editorToggle" data-toggle="modal" data-target="#saveFile"><i class="icon-save"></i> [% l('Save') %]</a>
               <a id="file-editor-reset" href="#" class="btn btn-danger disabled editorToggle" data-toggle="modal" data-target="#resetContent"><i class="icon-refresh"></i> [% l('Revert Changes') %]</a>
               <a id="file-editor-preview" class="btn editorToggle" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'),[id],paths) %]" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
-              <a type="button" id="cancel-link" class="btn pull-right " data-target="#cancelEdit" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id])  %]">[% l('Cancel') %]</a>
             </div>
         </form>
       </div>
