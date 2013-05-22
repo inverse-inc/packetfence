@@ -236,6 +236,44 @@ sub post_auth {
     return $radius_return_code;
 }
 
+sub prepare_xml {
+    my ($uri) = @_;
+    my $request_prefix = '<?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" soap:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><soap:Body><'.$uri.' xmlns="' . API_URI . '">';
+
+    my $request_content = '';
+    my $counter = 1;    # looks like this one is not mandatory, we still use it to keep track of keys/values
+
+    foreach my $key ( keys %RAD_REQUEST ) {
+        # RADIUS Vendor Specific Attributes (VSA) are in the form of an ARRAY which is special in SOAP...
+        if ( ref($RAD_REQUEST{$key}) eq 'ARRAY' ) {
+            my $array_content = '';
+            my $array_counter = 0;  # that one is actually important...
+            $request_content = $request_content .
+                "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
+            foreach my $array_value ( @{$RAD_REQUEST{$key}} ) {
+                $array_counter += 1;    # that one is actually important...
+                $array_content = $array_content . "<item xsi:type=\"xsd:string\">$array_value</item>";
+                $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
+            }
+            $request_content = $request_content .
+                "<soapenc:Array soapenc:arrayType=\"xsd:string[$array_counter]\" xsi:type=\"soapenc:Array\">";
+            $request_content = $request_content . $array_content;
+            $request_content = $request_content . "</soapenc:Array>";
+        } else {
+            $request_content = $request_content .
+                "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
+            $request_content = $request_content .
+                "<c-gensym$counter xsi:type=\"xsd:string\">$RAD_REQUEST{$key}</c-gensym$counter>";
+            $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
+        }
+
+    }
+
+    my $request_suffix = '</'.$uri.'></soap:Body></soap:Envelope>';
+
+    my $request = $request_prefix . $request_content . $request_suffix;
+    return $request;
+}
 =item * server_error_handler
 
 Called whenever there is a server error beyond PacketFence's control (401, 404, 500)
@@ -319,9 +357,80 @@ sub preacct {
 
 # Function to handle accounting
 sub accounting {
+    my $mac = clean_mac($RAD_REQUEST{'Calling-Station-Id'});
+    my $port = $RAD_REQUEST{'NAS-Port'};
+
+    # invalid MAC, this certainly happens on some type of RADIUS calls, we accept so it'll go on and ask other modules
+    if ( length($mac) != 17 ) {
+        &radiusd::radlog($RADIUS::L_INFO, "MAC address is empty or invalid in this request. It could be normal on certain radius calls");
+        return $RADIUS::RLM_MODULE_OK;
+    }
+
+    my $curl = WWW::Curl::Easy->new;
+    my $request = prepare_xml('radius_accounting');
+    my $response_body;
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
+#    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: text/xml; charset=UTF-8']);
+    $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
+
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+    my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
+
+    # For debugging purposes
+    #&radiusd::radlog($RADIUS::L_INFO, "curl_return_code: $curl_return_code");
+
+    # Looking at the results...
+    if ( $curl_return_code == 0 ) {
+        my $xml = new XML::Simple;
+        my $data = $xml->XMLin($response_body, NoAttr => 1);
+
+        my $elements = $data->{'soap:Body'}->{'radius_accountingResponse'}->{'soapenc:Array'}->{'item'};
+
+        # Get RADIUS return code
+        $radius_return_code = shift @$elements;
+
+        if ( !defined($radius_return_code) || !($radius_return_code > $RADIUS::RLM_MODULE_REJECT && $radius_return_code < $RADIUS::RLM_MODULE_NUMCODES) ) {
+            return invalid_answer_handler();
+        }
+
+        # Merging returned values with RAD_REPLY, right-hand side wins on conflicts
+        my $attributes = {@$elements};
+        %RAD_REPLY = (%RAD_REPLY, %$attributes); # the rest of result is the reply hash passed by the radius_authorize
+    } else {
+        return server_error_handler();
+    }
+
+    # For debugging purposes
+    #&radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
+
+#    if ( $radius_return_code == $RADIUS::RLM_MODULE_OK ) {
+#        if ( defined($RAD_REPLY{'Tunnel-Private-Group-ID'}) ) {
+#            &radiusd::radlog($RADIUS::L_AUTH, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
+#                . "to request from $mac port $port");
+#        } else {
+#            &radiusd::radlog($RADIUS::L_AUTH, "request from $mac port $port was accepted but no VLAN returned. "
+#                . "This could be normal. See server logs for details.");
+#        }
+#    } else {
+#        &radiusd::radlog($RADIUS::L_INFO, "request from $mac port $port was not accepted but a proper error code was provided. "
+#            . "Check server side logs for details");
+#    }
+#
+    &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
+
+    # Uncomment for verbose debugging with radius -X
+    # Warning: This is a native module so you shouldn't run it with radiusd in threaded mode (default)
+    # use Data::Dumper;
+    # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
+    # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
+
+    return $radius_return_code;
         # For debugging purposes only
 #       &log_request_attributes;
-
 }
 
 # Function to handle checksimul

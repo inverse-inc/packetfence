@@ -206,6 +206,51 @@ sub authorize {
     return $RAD_REPLY_REF;
 }
 
+sub accounting {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    if (defined($radius_request->{'Framed-IP-Address'}) && defined($radius_request->{'Calling-Station-Id'}) ) {
+        pf::iplog::iplog_update(clean_mac($radius_request->{'Calling-Station-Id'}),$radius_request->{'Framed-IP-Address'});
+    }
+
+    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
+    my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
+
+    # is switch object correct?
+    if (!$switch) {
+        $logger->warn(
+            "Can't instantiate switch $switch_ip. This request will be failed. "
+            ."Are you sure your switches.conf is correct?"
+        );
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+    }
+
+    # verify if switch supports this connection type
+    if (!$this->_isSwitchSupported($switch, $connection_type)) {
+        # if not supported, return
+        return $this->_switchUnsupportedReply($switch);
+    }
+
+    # switch-specific information retrieval
+    my $ssid;
+    $port = $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    if (($connection_type & $WIRELESS) == $WIRELESS) {
+        $ssid = $switch->extractSsid($radius_request);
+        $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
+    }
+
+    # determine if we need to perform automatic registration
+    my $isPhone = $switch->isPhoneAtIfIndex($mac, $port);
+
+    locationlog_synchronize($switch_ip, $port, $radius_request->{'Aruba-User-Vlan'}, $mac,
+        $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
+    );
+    $logger->warn($radius_request->{'Framed-IP-Address'});
+}
+
+
 =item * _parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
