@@ -23,6 +23,7 @@ F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<
 
 use strict;
 use warnings;
+use pf::log;
 use pf::config::cached;
 use pf::file_paths;
 use Date::Parse;
@@ -122,10 +123,6 @@ sub import {
 use pf::util::apache qw(url_parser);
 
 $thread = 0;
-
-Log::Log4perl->init($log_config_file);
-Log::Log4perl::MDC->put( 'proc', basename($0) );
-Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
 my $logger = Log::Log4perl->get_logger('pf::config');
 
