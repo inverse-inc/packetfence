@@ -29,7 +29,7 @@ Completely removes the entire section from the configuration optionally groupmem
 =cut
 
 sub DeleteSection {
-    my ($self,$sect,$include_groupmembers) = shift;
+    my ($self,$sect,$include_groupmembers) = @_;
 
     return undef unless $self->SUPER::DeleteSection($sect);
 
