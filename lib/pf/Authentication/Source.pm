@@ -111,11 +111,17 @@ Returns the actions of the first matched rule.
 =cut
 
 sub match {
-    my ( $self, $params ) = @_;
-    my $common_attributes = $self->common_attributes();
+    my ($self, $params) = @_;
 
+    my $common_attributes = $self->common_attributes();
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-    $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
+
+    # Add current date & time to the list of parameters
+    my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
+    my $current_date = sprintf("%d-%02d-%02d", $year+1900, $mon+1, $mday);
+    my $current_time = sprintf("%02d:%02d", $hour, $min);
+    $params->{current_date} = $current_date;
+    $params->{current_time} = $current_time;
 
     my @matching_rules = ();
 
