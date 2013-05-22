@@ -110,6 +110,7 @@ sub ResortSections {
         my %temp;
         @temp{@sections} = ();
         my @new_sects = grep {!exists $temp{$_} } $self->Sections;
+        $i++ if @new_sects;
         splice(@new_sects,$i,0,@sections);
         $self->{sects} = \@new_sects;
     }
