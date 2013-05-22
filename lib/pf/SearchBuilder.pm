@@ -42,7 +42,6 @@ pf::SearchBuilder
 
 use Moose;
 use namespace::autoclean;
-use lib '/usr/local/pf/lib';
 use pf::db qw(get_db_handle);
 use Scalar::Util qw(looks_like_number);
 BEGIN {
