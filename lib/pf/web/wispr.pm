@@ -30,6 +30,7 @@ use Apache2::Const;
 use pf::Portal::Session;
 use Template;
 use pf::util;
+use pf::enforcement qw(reevaluate_access);
 
 
 =head1 SUBROUTINES
@@ -154,6 +155,7 @@ sub register {
         %info = (%info, (unregdate => $value));
     }
     node_register( $mac, $pid, %info );
+    reevaluate_access( $mac, 'manage_register' );    
 }
 
 =back
