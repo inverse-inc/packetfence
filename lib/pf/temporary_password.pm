@@ -401,18 +401,18 @@ sub validate_password {
         return $AUTH_FAILED_INVALID;
     }
 
-    if($temppass_record->{'password'} eq $password) {
+    if ($temppass_record->{'password'} eq $password) {
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
         if ($temppass_record->{'valid_from'} > time) {
-            $logger->info("Password validation failed: password not yet valid");
+            $logger->info("Password validation failed for $pid: password not yet valid");
             return $AUTH_FAILED_NOT_YET_VALID;
         }
 
         # password is valid but expired
         # expiration is in unix timestamp format so an int comparison is enough
         if ($temppass_record->{'expiration'} < time) {
-            $logger->info("Password validation failed: password has expired");
+            $logger->info("Password validation failed for $pid: password has expired");
             return $AUTH_FAILED_EXPIRED;
         }
 
@@ -421,7 +421,7 @@ sub validate_password {
     }
 
     # otherwise failure
-    $logger->info("Password validation failed: passwords don't match");
+    $logger->info("Password validation failed for $pid: passwords don't match");
     return $AUTH_FAILED_INVALID;
 }
 
