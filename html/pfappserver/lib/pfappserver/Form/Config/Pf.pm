@@ -74,7 +74,7 @@ sub field_list {
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
                 my $roles = $self->ctx->model('Roles')->list();
-                my @options = map { { value => $_->{category_id}, label => $_->{name} } } @$roles;
+                my @options = map { { value => $_->{name}, label => $_->{name} } } @$roles;
                 unshift(@options, { value => '', label => ''});
                 $field->{options} = \@options;
                 last;
