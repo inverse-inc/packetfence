@@ -567,18 +567,20 @@ sub validate {
     my $self = shift;
 
     my @triggers;
+    my $always;
 
     @triggers = grep { $_->{type} eq $ALWAYS } @{$self->value->{triggerInline}};
     if (scalar @triggers > 0) {
         # If one of the inline triggers is $ALWAYS, ignore any other trigger.
         $self->field('triggerInline')->value([{ type => $ALWAYS }]);
+        $always = 1;
     }
 
     if ($self->value->{type}) {
         my $type = 'pf::SNMP::'. $self->value->{type};
         if ($type->require()) {
             @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
-            if (scalar @triggers > 0) {
+            if (scalar @triggers > 0 && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my @capabilities = $type->new()->inlineCapabilities();
                 if (scalar @capabilities > 0) {

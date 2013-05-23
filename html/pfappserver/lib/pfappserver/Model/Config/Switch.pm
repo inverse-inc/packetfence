@@ -1,4 +1,5 @@
 package pfappserver::Model::Config::Switch;
+
 =head1 NAME
 
 pfappserver::Model::Config::Switch add documentation
@@ -64,12 +65,14 @@ sub cleanupBeforeCommit {
         $switch->{uplink} = 'dynamic';
         $switch->{uplink_dynamic} = undef;
     }
-    if ($switch->{triggerInline}) {
+    if (@{$switch->{triggerInline}}) {
         # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
         my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{triggerInline}};
         $switch->{triggerInline} = join(',', @triggers);
     }
-
+    else {
+        $switch->{triggerInline} = undef;
+    }
 }
 
 =item remove
