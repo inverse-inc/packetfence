@@ -666,7 +666,7 @@ authorizenet_trankey =
 # node_import.pid
 #
 # Default pid value to assign to imported nodes.
-pid=1
+pid=admin
 #
 # node_import.category
 #
