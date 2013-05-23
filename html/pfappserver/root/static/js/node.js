@@ -24,6 +24,7 @@ Nodes.prototype.post = function(options) {
         type: 'POST',
         data: options.data
     })
+        .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);

@@ -100,6 +100,7 @@ $(function() { // DOM ready
                 .fail(function(jqXHR) {
                     var status_msg = getStatusMsg(jqXHR);
                     showError($('#section h2'), status_msg);
+                    confirm_link.button('reset');
                 });
         });
 
