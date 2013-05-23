@@ -244,10 +244,10 @@ sub accounting {
     # determine if we need to perform automatic registration
     my $isPhone = $switch->isPhoneAtIfIndex($mac, $port);
 
-    locationlog_synchronize($switch_ip, $port, $radius_request->{'Aruba-User-Vlan'}, $mac,
+    locationlog_synchronize($switch_ip, $port, $switch->extractVLAN($radius_request), $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     );
-    $logger->warn($radius_request->{'Framed-IP-Address'});
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
 
