@@ -60,23 +60,23 @@ var SwitchView = function(options) {
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
 
     // Initial creation of an inline trigger when no trigger is defined
-    options.parent.on('click', '#triggerInlineEmpty [href="#add"]', this.addInlineTrigger);
+    options.parent.on('click', '#inlineTriggerEmpty [href="#add"]', this.addInlineTrigger);
 
     // Initialize the inline trigger fields when displaying a switch
     options.parent.on('show', '#modalSwitch', function(e) {
-        $('#triggerInline tr:not(.hidden) select').each(function() {
+        $('#inlineTrigger tr:not(.hidden) select').each(function() {
             that.updateInlineTrigger($(this));
         });
     });
 
     // Update the trigger fields when adding a new trigger
-    options.parent.on('admin.added', '#triggerInline tr', function(e) {
+    options.parent.on('admin.added', '#inlineTrigger tr', function(e) {
         var attribute = $(this).find('select').first();
         that.updateInlineTrigger(attribute);
     });
 
     // Update the trigger fields when changing a trigger
-    options.parent.on('change', '#triggerInline select', function(e) {
+    options.parent.on('change', '#inlineTrigger select', function(e) {
         that.updateInlineTrigger($(this));
     });
 };
@@ -122,10 +122,10 @@ SwitchView.prototype.changeDynamicUplinks = function(e) {
 };
 
 SwitchView.prototype.addInlineTrigger = function(e) {
-    var tbody = $('#triggerInline').children('tbody');
+    var tbody = $('#inlineTrigger').children('tbody');
     var row_model = tbody.children('.hidden').first();
     if (row_model) {
-        $('#triggerInlineEmpty').addClass('hidden');
+        $('#inlineTriggerEmpty').addClass('hidden');
         var row_new = row_model.clone();
         row_new.removeClass('hidden');
         row_new.insertBefore(row_model);

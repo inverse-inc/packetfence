@@ -732,7 +732,7 @@ sub getVlanByName {
     if ($this->{'_vlans'}->{$vlanName} !~ /^\d+$/) {
         # is not resolved to a valid VLAN number
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
-                      ", not a vlan number");
+                      ", not a VLAN number");
         return;
     }   
     return $this->{'_vlans'}->{$vlanName};

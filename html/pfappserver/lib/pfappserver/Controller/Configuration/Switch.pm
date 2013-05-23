@@ -36,13 +36,15 @@ Setting the current form instance and model
 
 sub begin :Private {
     my ($self, $c) = @_;
-    my ($status, $switch_default, $roles);
-    my $model = $c->model("Config::Switch");
+    my ($model, $status, $switch_default, $roles);
+
+    $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
+
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch",placeholders => $switch_default, roles => $roles);
+    $c->stash->{current_form_instance} = $c->form("Config::Switch", placeholders => $switch_default, roles => $roles);
     $c->stash->{switch_default} = $switch_default;
 }
 

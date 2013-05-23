@@ -40,15 +40,15 @@ sub cleanupAfterRead {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink} = undef;
     }
-    if ($switch->{triggerInline}) {
+    if ($switch->{inlineTrigger}) {
         # Decompose inline triggers (see pf::vlan::isInlineTrigger)
         my @triggers = ();
-        foreach my $trigger (split(/,/, $switch->{triggerInline})) {
+        foreach my $trigger (split(/,/, $switch->{inlineTrigger})) {
             my ( $type, $value ) = split( /::/, $trigger );
             $type = lc($type);
             push(@triggers, { type => $type, value => $value });
         }
-        $switch->{triggerInline} = \@triggers;
+        $switch->{inlineTrigger} = \@triggers;
     }
 }
 
@@ -65,13 +65,13 @@ sub cleanupBeforeCommit {
         $switch->{uplink} = 'dynamic';
         $switch->{uplink_dynamic} = undef;
     }
-    if (@{$switch->{triggerInline}}) {
+    if (@{$switch->{inlineTrigger}}) {
         # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
-        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{triggerInline}};
-        $switch->{triggerInline} = join(',', @triggers);
+        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{inlineTrigger}};
+        $switch->{inlineTrigger} = join(',', @triggers);
     }
     else {
-        $switch->{triggerInline} = undef;
+        $switch->{inlineTrigger} = undef;
     }
 }
 

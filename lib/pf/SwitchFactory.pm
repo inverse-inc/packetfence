@@ -32,11 +32,11 @@ $switches_cached_config  = pf::config::cached->new(
     -default => 'default',
     -onreload => [
         on_switches_reload => sub  {
-            my ($config,$name) = @_;
+            my ($config, $name) = @_;
             $config->toHash(\%SwitchConfig);
             $config->cleanupWhitespace(\%SwitchConfig);
             foreach my $switch (values %SwitchConfig) {
-                # transforming uplink inlineTrigger in arrays
+                # transforming uplink and inlineTrigger to arrays
                 foreach my $key (qw(uplink inlineTrigger)) {
                     next unless exists $switch->{$key} && (my $value = $switch->{$key} );
                     $switch->{$key} = [split /\s*,\s*/,$value ];

@@ -49,9 +49,9 @@
         <dl>
           <dt>[% l('Set inline mode if any of the following conditions are met:') %]</dt>
           <dd>
-            <table id="triggerInline" class="table table-dynamic table-condensed">
+            <table id="inlineTrigger" class="table table-dynamic table-condensed">
               <tbody>
-                [% FOREACH trigger IN form.field('triggerInline').fields -%]
+                [% FOREACH trigger IN form.field('inlineTrigger').fields -%]
                 <tr[% ' class="hidden"' IF loop.last %]>
                   <td>
                     [% trigger.field('type').render_element %]
@@ -65,7 +65,7 @@
                 [% END -%]
               </tbody>
             </table>
-            <div id="triggerInlineEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('triggerInline').index > 1 %]">
+            <div id="inlineTriggerEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('inlineTrigger').index > 1 %]">
               <p><i class="icon-filter icon-large"></i>[% l('With no condition, the inline mode will never be activated.') %]<br/>
                 <a href="#add">[% l('Add a condition.') %]</a></p>
             </div>

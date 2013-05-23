@@ -74,19 +74,19 @@ has_field 'uplink' =>
   );
 
 ## Inline mode
-has_field 'triggerInline' =>
+has_field 'inlineTrigger' =>
   (
    type => 'Repeatable',
    num_extra => 1, # add extra row that serves as a template
   );
-has_field 'triggerInline.type' =>
+has_field 'inlineTrigger.type' =>
   (
    type => 'Select',
    widget_wrapper => 'None',
    localize_labels => 1,
-   options_method => \&options_triggerInline,
+   options_method => \&options_inlineTrigger,
   );
-has_field 'triggerInline.value' =>
+has_field 'inlineTrigger.value' =>
   (
    type => 'Hidden',
   );
@@ -334,11 +334,11 @@ has_field 'wsPwd' =>
 
 =head1 METHODS
 
-=head2 options_triggerInline
+=head2 options_inlineTrigger
 
 =cut
 
-sub options_triggerInline {
+sub options_inlineTrigger {
     my $self = shift;
 
     my @triggers = map { $_ => $self->_localize($_) } ($ALWAYS, $PORT, $MAC, $SSID);
@@ -569,17 +569,17 @@ sub validate {
     my @triggers;
     my $always;
 
-    @triggers = grep { $_->{type} eq $ALWAYS } @{$self->value->{triggerInline}};
+    @triggers = grep { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
     if (scalar @triggers > 0) {
         # If one of the inline triggers is $ALWAYS, ignore any other trigger.
-        $self->field('triggerInline')->value([{ type => $ALWAYS }]);
+        $self->field('inlineTrigger')->value([{ type => $ALWAYS }]);
         $always = 1;
     }
 
     if ($self->value->{type}) {
         my $type = 'pf::SNMP::'. $self->value->{type};
         if ($type->require()) {
-            @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
+            @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if (scalar @triggers > 0 && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my @capabilities = $type->new()->inlineCapabilities();
@@ -605,10 +605,10 @@ sub validate {
 
     unless ($self->has_errors) {
         # Valide the MAC address format of the inline triggers.
-        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{triggerInline}};
+        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{inlineTrigger}};
         foreach my $trigger (@triggers) {
             unless (valid_mac($trigger->{value})) {
-                $self->field('triggerInline')->add_error("Verify the format of the MAC address(es).");
+                $self->field('inlineTrigger')->add_error("Verify the format of the MAC address(es).");
                 last;
             }
         }
