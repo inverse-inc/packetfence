@@ -173,7 +173,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -189,15 +188,17 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =cut
 
-
 sub violations :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{items} = $result;
         $c->stash->{template} = 'node/violations.tt';
-        (undef, $c->stash->{violations}) = $c->model('Config::Violations')->readAll();
-    } else {
+        (undef, $result) = $c->model('Config::Violations')->readAll();
+        my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
+        $c->stash->{violations} = \@violations;
+    }
+    else {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
@@ -207,7 +208,6 @@ sub violations :Chained('object') :PathPart :Args(0) {
 =head2 triggerViolation
 
 =cut
-
 
 sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
     my ($self, $c, $id) = @_;
@@ -225,23 +225,9 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
     }
 }
 
-=head2 openViolation
-
-=cut
-
-
-sub openViolation :Path('open') :Args(1) {
-    my ($self, $c, $id) = @_;
-    my ($status, $result) = $c->model('Node')->openViolation($id);
-    $c->response->status($status);
-    $c->stash->{status_msg} = $result;
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head2 closeViolation
 
 =cut
-
 
 sub closeViolation :Path('close') :Args(1) {
     my ($self, $c, $id) = @_;

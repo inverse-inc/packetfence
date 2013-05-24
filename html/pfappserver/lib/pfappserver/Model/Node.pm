@@ -305,6 +305,7 @@ sub violations {
     my @violations;
     eval {
         @violations = violation_view_desc($mac);
+        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @violations;
     };
     if ($@) {
         $status_msg = "Can't fetch violations from database.";
@@ -330,21 +331,6 @@ sub addViolation {
     }
 }
 
-=head2 openViolation
-
-=cut
-
-sub openViolation {
-    my ($self, $id) = @_;
-
-    if (violation_modify($id, ( status => 'open', release_date => '0' ))) {
-        return ($STATUS::OK, 'The violation was successfully opened.');
-    }
-    else {
-        return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while opening the violation.');
-    }
-}
-
 =head2 closeViolation
 
 =cut
@@ -355,6 +341,7 @@ sub closeViolation {
     my $violation = violation_exist_id($id);
     if ($violation) {
         if (violation_force_close($violation->{mac}, $violation->{vid})) {
+            pf::enforcement::reevaluate_access($violation->{mac}, 'manage_vclose');
             return ($STATUS::OK, 'The violation was successfully closed.');
         }
     }

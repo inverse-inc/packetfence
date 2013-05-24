@@ -136,7 +136,7 @@ sub violation_db_prepare {
         qq [ select id,mac,vid,start_date,release_date,status,ticket_ref,notes from violation where status="open" ]);
 
     $violation_statements->{'violation_view_desc_sql'} = get_db_handle()->prepare(qq[
-        SELECT v.id,v.start_date,c.description,v.vid,v.status
+        SELECT v.id,v.start_date,v.release_date,c.description,v.vid,v.status
         FROM violation v
         INNER JOIN class c ON v.vid=c.vid
         WHERE v.mac=? order by start_date desc
@@ -462,7 +462,7 @@ Evaluates a candidate violation and if its valid, will add it to the node and tr
         
 Returns 1 if at least one violation is added, 0 otherwise.
 
-=cut    
+=cut
 sub violation_trigger {
     my ( $mac, $tid, $type, %data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');

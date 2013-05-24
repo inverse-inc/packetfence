@@ -32,23 +32,11 @@ Nodes.prototype.post = function(options) {
         });
 };
 
-Nodes.prototype.toggleViolation = function(options) {
-    var action = options.status? "open" : "close";
-    var url = ['/node',
-               action,
-               options.name.substr(10)];
-    $.ajax({ url: url.join('/') })
-        .always(options.always)
-        .done(options.success)
-        .fail(options.error);
-};
-
 /*
  * The NodeView class defines the DOM operations from the Web interface.
  */
 var NodeView = function(options) {
     this.nodes = options.nodes;
-    this.disableToggleViolation = false;
 
     var read = $.proxy(this.readNode, this);
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
@@ -62,8 +50,8 @@ var NodeView = function(options) {
     var read_violations = $.proxy(this.readViolations, this);
     $('body').on('show', 'a[data-toggle="tab"][href="#nodeViolations"]', read_violations);
 
-    var toggle_violation = $.proxy(this.toggleViolation, this);
-    $('body').on('switch-change', '#modalNode .switch', toggle_violation);
+    var close_violation = $.proxy(this.closeViolation, this);
+    $('body').on('click', '#modalNode [href*="/close/"]', close_violation);
 
     var trigger_violation = $.proxy(this.triggerViolation, this);
     $('body').on('click', '#modalNode #addViolation', trigger_violation);
@@ -131,36 +119,6 @@ NodeView.prototype.readViolations = function(e) {
     return true;
 };
 
-NodeView.prototype.toggleViolation = function(e) {
-    e.preventDefault();
-
-    // Ignore event if it occurs while processing a toggling
-    if (this.disableToggleViolation) return;
-    this.disableToggleViolation = true;
-
-    var that = this;
-    var btn = $(e.target);
-    var name = btn.find('input:checkbox').attr('name');
-    var status = btn.bootstrapSwitch('status');
-    var pane = $('#nodeViolations');
-    resetAlert(pane.parent());
-    this.nodes.toggleViolation({
-        name: name,
-        status: status,
-        success: function(data) {
-            showSuccess(pane.children().first(), data.status_msg);
-            that.disableToggleViolation = false;
-        },
-        error: function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(pane.children().first(), status_msg);
-            // Restore switch state
-            btn.bootstrapSwitch('setState', !status, true);
-            that.disableToggleViolation = false;
-        }
-    });
-};
-
 NodeView.prototype.updateNode = function(e) {
     e.preventDefault();
 
@@ -206,6 +164,25 @@ NodeView.prototype.deleteNode = function(e) {
             });
         },
         errorSibling: modal_body.children().first()
+    });
+};
+
+NodeView.prototype.closeViolation = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var btn = $(e.target);
+    var row = btn.closest('tr');
+    var pane = $('#nodeViolations');
+    resetAlert(pane);
+    this.nodes.get({
+        url: btn.attr("href"),
+        success: function(data) {
+            showSuccess(pane.children().first(), data.status_msg);
+            btn.remove();
+            row.addClass('muted');
+        },
+        errorSibling: pane.children().first()
     });
 };
 

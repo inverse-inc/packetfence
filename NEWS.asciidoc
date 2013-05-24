@@ -30,8 +30,10 @@ Bug Fixes
 +++++++++
 
 * Re-evaluate network access when changing a node status
+* Re-evaluate network access when closing a violation
 * Missing unit when interval is zero
 * Switch with empty inlineTrigger rises an exception
+* Web admin sets 'triggerInline' while libs expect 'inlineTrigger'
 
 Version 4.0.1 released on 2013-05-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
