@@ -165,7 +165,16 @@ sub _resolveIp {
 
     # we fetch CGI's remote address
     # if user is behind a proxy it's not sufficient since we'll get the proxy's IP
-    my $directly_connected_ip = $self->cgi->remote_addr();
+    my $directly_connected_ip;
+    if (defined($self->cgi->param('ip'))) {
+        $self->{'_session'}->param('ip', $self->cgi->param('ip'));
+        $directly_connected_ip = $self->{'_session'}->param('ip');
+    } elsif (defined($self->{'_session'}->param('ip'))) {
+        $directly_connected_ip = $self->{'_session'}->param('ip');
+    }
+    else {
+        $directly_connected_ip = $self->cgi->remote_addr();
+    }
 
     # every source IP in this table are considered to be from a proxied source
     my %proxied_lookup = %{$CAPTIVE_PORTAL{'loadbalancers_ip'}}; #load balancers first

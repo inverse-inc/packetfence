@@ -47,7 +47,7 @@ document.observe("dom:loaded", function() {
 
         <form name="login" method="post" action="/authenticate">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
-
+          <input type="hidden" name="CGISESSID" value="[% session_id %]" />
           [%# AUP %]
           <div class="input">
             <div>[% i18n("Acceptable Use Policy") %]</div>

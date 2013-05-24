@@ -126,7 +126,7 @@ sub render_template {
 
     my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
     print $portalSession->cgi->header( -cookie => $cookie );
-
+    $portalSession->stash({ 'session_id' => $portalSession->session->id});
     # print custom headers if there's some
     if ( $portalSession->stash->{headers} ) {
         my @headers = $portalSession->stash->{headers};
