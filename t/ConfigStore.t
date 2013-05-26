@@ -14,104 +14,15 @@ ConfigStore
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
-use Test::More;                      # last test to print
-use Test::NoWarnings;
 use File::Slurp qw(read_dir);
 use Test::Harness;
 use File::Spec::Functions;
-use pf::log;
 
-our @subclasses = qw(
-    pf::ConfigStore::Authentication
-    pf::ConfigStore::FloatingDevice
-    pf::ConfigStore::Interface
-    pf::ConfigStore::Network
-    pf::ConfigStore::Pf
-    pf::ConfigStore::Profile
-    pf::ConfigStore::Rules
-    pf::ConfigStore::Switch
-    pf::ConfigStore::Violations
+runtests(
+    map { $_=catfile('ConfigStore',$_) }
+    grep { /\.t$/ }
+    read_dir ('ConfigStore')
 );
-
-plan tests => 17 + @subclasses;
-
-use_ok("pf::ConfigStore");
-
-my $configStore = new_ok("pf::ConfigStore",[{configFile => './data/test.conf',default_section => 'default'}]);
-
-my @expected_sections = ('default','section1','section1 group 1','section1 group 2','section2');
-
-is_deeply( $configStore->readAllIds, \@expected_sections,"All sections found");
-
-my %section = (param1 => 'value1',param2 => 'value2');
-
-my %default_section = %{$configStore->read("default")};
-
-$configStore->create("section3",\%section);
-
-ok($configStore->hasId("section3"),"Created new section");
-
-is_deeply($configStore->read("section3"),{%section, %default_section},"Section3 Data matches");
-
-$configStore->update("section2",{param3 => 'newvalue'});
-
-ok($configStore->cachedConfig->exists("section2","param3"),"Updated parameter with a value different to the default value");
-
-$configStore->update("section2",{param3 => 'value3'});
-
-ok(!$configStore->cachedConfig->exists("section2","param3"),"Updated parameter with a value equal to the default value");
-
-$configStore->create("section4",{%section, param3 => 'value3', param4 => 'newvalue'});
-
-ok(!$configStore->cachedConfig->exists("section4","param3"),"Created section with a parameter value different than the default value");
-
-ok($configStore->cachedConfig->exists("section4","param4"),"Created section with a parameter value equal to the default value");
-
-$configStore->remove("section4");
-
-ok(!$configStore->hasId("section4"),"Removing a section");
-
-$configStore->copy("section2","section5");
-
-ok($configStore->hasId("section5"),"Copying a section");
-
-is_deeply($configStore->read("section5"), $configStore->read("section2") ,"Copying a section data matches");
-
-my $section5 = $configStore->read("section5");
-
-$configStore->renameItem("section5","section6");
-
-ok(!$configStore->hasId("section5") && $configStore->hasId("section6"),"Renaming a section");
-
-is_deeply($configStore->read("section6"), $section5 ,"Renaming a section data matches");
-
-my @resorted_sections = reverse @{$configStore->readAllIds};
-
-$configStore->sortItems(\@resorted_sections);
-
-is_deeply($configStore->readAllIds, \@resorted_sections ,"Resorting All Sections");
-
-@resorted_sections = @{$configStore->readAllIds};
-
-my $first_section = shift @resorted_sections;
-
-my $last_section = pop @resorted_sections;
-
-@resorted_sections = reverse @resorted_sections;
-
-$configStore->sortItems(\@resorted_sections);
-
-is_deeply($configStore->readAllIds, [$first_section,@resorted_sections,$last_section] ,"Resorting Some Items");
-
-#foreach my $subclass (@subclasses) {
-#    subtest "Testing basic functionality of $subclass" => sub {
-#        plan tests => 2;
-#        use_ok ($subclass);
-#        my $configStore = new_ok($subclass);
-#        $configStore
-#    };
-#}
 
 =head1 AUTHOR
 
