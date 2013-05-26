@@ -55,9 +55,14 @@ package OAUTH;
 my @oauth_domains =  pf::pfdns::constants::oauth_domain();
 foreach (@oauth_domains) { s{([^/])$}{$1\$} };
 foreach (@oauth_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
-my $allow_oauth_domains = join('|', @oauth_domains);
 
-Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => qr/ ^(?: $allow_oauth_domains ) /xo; # eXtended pattern, compile Once
+my $allow_oauth_domains = join('|', @oauth_domains) if (@oauth_domains ne '0');
+
+if (defined($allow_oauth_domains)) {
+    Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => qr/ ^(?: $allow_oauth_domains ) /xo; # eXtended pattern, compile Once
+} else {
+    Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => '';
+}
 
 =back
 

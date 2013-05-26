@@ -29,6 +29,7 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 use pf::pfdns::constants;
+use pf::web::utl;
 
 # initialization
 # --------------
@@ -80,6 +81,7 @@ my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
+my $memcached = pf::web::util::get_memcached_conf();
  
 foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
     my $ip = $Config{$interface}{'ip'};
@@ -144,10 +146,10 @@ sub regzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        if ( $qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o ) {
+        if ( $qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
-            my $query = $res->search($qname);
+            my $query = $res->search($qname) || get_memcached($qname,$memcached);
             if ($query) {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
