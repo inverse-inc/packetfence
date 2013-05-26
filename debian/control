@@ -23,7 +23,7 @@ Depends: ${misc:Depends}, vlan, make,
  libapache2-request-perl, libtie-dxhash-perl,
  make,
  iproute,
-# ipset (ipset must be installed by hand  apt-get install xtables-addons-common  xtables-addons-source)
+ ipset,
  sudo,
 # process management
  procps,
