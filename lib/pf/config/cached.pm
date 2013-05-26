@@ -270,6 +270,7 @@ When using a value that was dervived from a configuration use a sub routine to c
 use strict;
 use warnings;
 use pf::file_paths;
+use pf::log;
 use CHI;
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
