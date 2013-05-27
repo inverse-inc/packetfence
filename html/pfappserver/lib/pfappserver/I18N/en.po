@@ -728,9 +728,6 @@ msgstr "Roles"
 msgid "macaddress"
 msgstr "MAC Addresses"
 
-msgid ""
-msgstr "MAC Addresses"
-
 # lib/pf/action.pm
 
 msgid "autoreg_action"
