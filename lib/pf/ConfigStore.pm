@@ -39,9 +39,11 @@ has configFile => ( is => 'ro');
 has default_section => ( is => 'ro');
 
 
-=head1 METHODs
+=head1 METHODS
 
 =head2 _buildCachedConfig
+
+Build the pf::config::cached object
 
 =cut
 
@@ -55,12 +57,13 @@ sub _buildCachedConfig {
 
 =head2 readConfig
 
+re-read config file from disk or cached
+
 =cut
 
 sub readConfig {
     my ($self) = @_;
-    my $config = $self->cachedConfig;
-    return $config->ReadConfig();
+    return $self->cachedConfig->ReadConfig();
 }
 
 =head2 rollback
@@ -83,7 +86,6 @@ Save the cached config
 
 sub rewriteConfig {
     my ($self) = @_;
-    my $logger = get_logger();
     my $config = $self->cachedConfig;
     return $config->RewriteConfig();
 }
@@ -95,8 +97,7 @@ Get all the sections names
 =cut
 
 sub readAllIds {
-    my ($self) = @_;
-    my $config = $self->cachedConfig;
+    my ($self,$itemKey) = @_;
     my @sections = $self->_Sections();
     return \@sections;
 }
@@ -108,25 +109,24 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ( $self) = @_;
+    my ($self,$idKey) = @_;
     my $config = $self->cachedConfig;
+    my $default_section = $config->{default} if exists $config->{default};
     my @sections;
     foreach my $id ($self->_Sections()) {
-        my %section = ( $self->idKey() => $id );
-        foreach my $param ($config->Parameters($id)) {
-            $section{$param} = $config->val( $id, $param);
-        }
-        $self->cleanupAfterRead($id,\%section);
-        if ($id =~ m/defaults?/) {
-            unshift @sections, \%section;
+        my $section = $self->read($id,$idKey);
+        if (defined $default_section &&  $id eq $default_section ) {
+            unshift @sections, $section;
         } else {
-            push @sections,\%section;
+            push @sections,$section;
         }
     }
     return \@sections;
 }
 
 =head2 _Section
+
+The sections for the configurations
 
 =cut
 
@@ -144,8 +144,17 @@ If config has a section
 sub hasId {
     my ($self, $id ) = @_;
     my $config = $self->cachedConfig;
+    $id = $self->_formatId($id);
     return $config->SectionExists($id);
 }
+
+=head2 _formatId
+
+format the id
+
+=cut
+
+sub _formatId { return $_[1]; }
 
 =head2 read
 
@@ -154,16 +163,17 @@ reads a section
 =cut
 
 sub read {
-    my ($self, $id ) = @_;
+    my ($self, $id, $idKey ) = @_;
     my $data;
     my $config = $self->cachedConfig;
+    $id = $self->_formatId($id);
     if ( $config->SectionExists($id) ) {
+        $data = {};
         my @default_params = $config->Parameters($config->{default}) if exists $config->{default};
-        my %item;
+        $data->{$idKey} = $id if defined $idKey;
         foreach my $param (uniq $config->Parameters($id),@default_params) {
-            $item{$param} = $config->val( $id, $param);
+            $data->{$param} = $config->val( $id, $param);
         }
-        $data = \%item;
         $self->cleanupAfterRead($id,$data);
     }
     return $data;
@@ -181,6 +191,7 @@ sub update {
     if ($id ne 'all') {
         $self->cleanupBeforeCommit($id, $assignments);
         my $config = $self->cachedConfig;
+        $id = $self->_formatId($id);
         if ( $config->SectionExists($id) ) {
             my $default_section = $config->{default} if exists $config->{default};
             my $default_value;
@@ -216,6 +227,7 @@ sub create {
     $self->cleanupBeforeCommit($id, $assignments);
     my $config = $self->cachedConfig;
     my $result;
+    $id = $self->_formatId($id);
     if($result = !$config->SectionExists($id) ) {
         $config->AddSection($id);
         my $default_section = $config->{default} if exists $config->{default};
@@ -251,8 +263,7 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
-    my $config = $self->cachedConfig;
-    return $config->DeleteSection($id);
+    return $self->cachedConfig->DeleteSection($self->_formatId($id));
 }
 
 =head2 Copy
@@ -263,10 +274,7 @@ Copies a section
 
 sub copy {
     my ($self,$from,$to) = @_;
-    my $logger = get_logger();
-    my ($status,$status_msg);
-    my $config = $self->cachedConfig;
-    return $config->CopySection($from,$to);
+    return $self->cachedConfig->CopySection($self->_formatId($from),$self->_formatId($to));
 }
 
 =head2 renameItem
@@ -275,8 +283,7 @@ sub copy {
 
 sub renameItem {
     my ( $self, $old, $new ) = @_;
-    my $config = $self->cachedConfig;
-    return $config->RenameSection($old,$new);
+    return $self->cachedConfig->RenameSection($self->_formatId($old),$self->_formatId($new));
 }
 
 =head2 sortItems
@@ -287,8 +294,7 @@ Sorting the items
 
 sub sortItems {
     my ( $self, $sections ) = @_;
-    my $config = $self->cachedConfig;
-    return $config->ResortSections(@$sections);
+    return $self->cachedConfig->ResortSections(map { $_ = $self->_formatId($_) } @$sections);
 }
 
 =head2 cleanupAfterRead
@@ -311,10 +317,19 @@ sub expand_list {
     my ( $self,$object,@columns ) = @_;
     foreach my $column (@columns) {
         if (exists $object->{$column}) {
-            my @items = split(/\s*,\s*/,$object->{$column});
-            $object->{$column} = \@items;
+            $object->{$column} = [ $self->split_list($object->{$column}) ];
         }
     }
+}
+
+sub split_list {
+    my ($self,$list) = @_;
+    return split(/\s*,\s*/,$list);
+}
+
+sub join_list {
+    my ($self,@list) = @_;
+    return join(',',@list);
 }
 
 =head2 flatten_list
@@ -325,7 +340,7 @@ sub flatten_list {
     my ( $self,$object,@columns ) = @_;
     foreach my $column (@columns) {
         if (exists $object->{$column} && ref($object->{$column}) eq 'ARRAY') {
-            $object->{$column} = join(',',@{$object->{$column}});
+            $object->{$column} = $self->join_list(@{$object->{$column}});
         }
     }
 }
@@ -344,6 +359,16 @@ sub commit {
         $self->rollback();
     }
     return $result;
+}
+
+=head2 search
+
+=cut
+
+sub search {
+    my ($self, $field, $value) = @_;
+    return grep { exists $_->{field} && defined $_->{field} && $_->{field} eq $value  } @{$self->readAll};
+
 }
 
 __PACKAGE__->meta->make_immutable;

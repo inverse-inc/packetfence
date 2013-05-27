@@ -106,13 +106,17 @@ sub ResortSections {
     my ($self,@sections) = @_;
     my $result;
     if (all { $self->SectionExists($_) } @sections ) {
-        my $i = first_index { $self->SectionExists($_) } @sections;
+        my $first_section = $sections[0];
+        my $first_index = first_index { $_ eq $first_section } $self->Sections;
         my %temp;
         @temp{@sections} = ();
-        my @new_sects = grep {!exists $temp{$_} } $self->Sections;
-        $i++ if @new_sects;
-        splice(@new_sects,$i,0,@sections);
-        $self->{sects} = \@new_sects;
+        my @old_sections = $self->Sections;
+        my $old_length = $#old_sections;
+        my @before = grep {!exists $temp{$_} } @old_sections[0 .. $first_index];
+        $first_index++;
+        my @after = grep {!exists $temp{$_} } @old_sections[$first_index .. $#old_sections];
+        $self->{sects} = [@before,@sections,@after];
+        $result = 1;
     }
     return $result;
 } # end ResortSections

@@ -20,22 +20,8 @@ use Test::NoWarnings;
 use File::Slurp qw(read_dir);
 use Test::Harness;
 use File::Spec::Functions;
-use pf::log;
 
-our @subclasses = qw(
-    pf::ConfigStore::Authentication
-    pf::ConfigStore::FloatingDevice
-    pf::ConfigStore::Interface
-    pf::ConfigStore::Network
-    pf::ConfigStore::Pf
-    pf::ConfigStore::Profile
-    pf::ConfigStore::Rules
-    pf::ConfigStore::Switch
-    pf::ConfigStore::Violations
-    pf::ConfigStore::Group
-);
-
-plan tests => 17 + @subclasses;
+plan tests => 17;
 
 use_ok("pf::ConfigStore");
 
@@ -104,15 +90,6 @@ my $last_section = pop @resorted_sections;
 $configStore->sortItems(\@resorted_sections);
 
 is_deeply($configStore->readAllIds, [$first_section,@resorted_sections,$last_section] ,"Resorting Some Items");
-
-foreach my $subclass (@subclasses) {
-    subtest "Testing basic functionality of $subclass" => sub {
-        plan tests => 2;
-        use_ok ($subclass);
-        my $configStore = new_ok($subclass);
-        $configStore
-    };
-}
 
 =head1 AUTHOR
 

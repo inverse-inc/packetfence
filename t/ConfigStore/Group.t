@@ -14,7 +14,7 @@ Group
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 
 use Test::NoWarnings;
 use lib '/usr/local/pf/lib';
@@ -43,6 +43,12 @@ ok($group1->hasId('section3'),"section3 created in group1");
 is_deeply($group1->readAllIds,[qw(section1 section2 section3)],"group1 sections after create");
 
 is_deeply($config->readAllIds,['group1 section1','group1 section2','group2 section1','group2 section2','group1 section3'],"config sections");
+
+$group1->sortItems([qw(section3 section2 section1)]);
+
+is_deeply($group1->readAllIds,[qw(section3 section2 section1)],"group1 sections resorted");
+
+is_deeply($config->readAllIds,['group2 section1','group2 section2','group1 section3','group1 section2','group1 section1'],"config after resort sections");
 
 
 
