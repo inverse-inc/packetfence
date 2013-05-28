@@ -55,17 +55,6 @@ sub _buildCachedConfig {
 }
 
 
-=head2 readConfig
-
-re-read config file from disk or cached
-
-=cut
-
-sub readConfig {
-    my ($self) = @_;
-    return $self->cachedConfig->ReadConfig();
-}
-
 =head2 rollback
 
 Rollback changes that were made
