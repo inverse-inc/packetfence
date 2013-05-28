@@ -69,7 +69,7 @@ sub _initialize {
     $cgi->charset("UTF-8");
     $self->{'_cgi'} = $cgi;
 
-    my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || undef;
+    my $sid = $cgi->param('CGISESSID') || $cgi;
 
     $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
 
