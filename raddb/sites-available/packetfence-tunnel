@@ -24,6 +24,11 @@ session {
 
 post-auth {
         exec
+        if ( User-Name =~ /^[^\\]+[\\]+([^\\]+)/ ) {
+                update request {
+                    User-Name := "%{1}";
+            }
+        }
         packetfence
         Post-Auth-Type REJECT {
                 attr_filter.access_reject
