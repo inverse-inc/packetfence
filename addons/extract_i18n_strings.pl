@@ -14,6 +14,7 @@ can be localized.
 =cut
 
 use File::Find;
+use lib qw(/usr/local/pf/lib /usr/local/pf/html/pfappserver/lib);
 use pf::config;
 use pf::action;
 use pf::Authentication::Source;
@@ -191,7 +192,7 @@ sub parse_conf {
                 last if ($line =~ m/^EOT$/);
                 $line =~ s/\"/\\\"/g;
                 push(@desc, $line);
-            }            
+            }
         }
     }
     if (scalar @desc) {
