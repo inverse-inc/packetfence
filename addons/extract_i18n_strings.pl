@@ -43,7 +43,7 @@ sub add_string {
     unless ($strings{$string}) {
         $strings{$string} = [];
     }
-    unless (grep(/$source/, @{$strings{$string}})) {
+    unless (grep(/\Q$source\E/, @{$strings{$string}})) {
         push(@{$strings{$string}}, $source);
     }
 }
@@ -165,8 +165,8 @@ sub parse_conf {
     my $file = CONF.'/documentation.conf';
 
     my ($line, $section, @options, @desc);
-    open(CONF, $file);
-    while (defined($line = <CONF>)) {
+    open(FILE, $file);
+    while (defined($line = <FILE>)) {
         chomp $line;
         if ($line =~ m/^\[(([^\.]+).*?)\]$/) {
             if (scalar @desc) {
@@ -186,7 +186,7 @@ sub parse_conf {
         }
         elsif ($line =~ m/^description=/) {
             @desc = ();
-            while (defined($line = <CONF>)) {
+            while (defined($line = <FILE>)) {
                 chomp $line;
                 last if ($line =~ m/^EOT$/);
                 $line =~ s/\"/\\\"/g;
@@ -201,7 +201,7 @@ sub parse_conf {
     if (scalar @options) {
         map { add_string($_, "$file ($section options)") } @options;
     }
-    close(CONF);
+    close(FILE);
 }
 
 =head2 extract_modules
@@ -233,6 +233,9 @@ sub extract_modules {
     const('pf::Authentication::Source', 'common_attributes', \@values);
 
     const('pf::Authentication::constants', 'Actions', \@Actions::ACTIONS);
+
+    @values = map { @$_ } values %Conditions::OPERATORS;
+    const('pf::Authentication::constants', 'Conditions', \@values);
 
     const('pf::SNMP::constants', 'Modes', \@SNMP::MODES);
 

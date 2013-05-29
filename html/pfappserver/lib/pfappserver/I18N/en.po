@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.0.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-05-29 09:55-0400\n"
+"PO-Revision-Date: 2013-05-29 15:03-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -2722,6 +2722,10 @@ msgstr "Computer name"
 msgid "connection_type"
 msgstr "Connection type"
 
+# pf::Authentication::constants (Conditions)
+msgid "contains"
+msgstr ""
+
 # pf::Authentication::Source (common_attributes)
 msgid "current_time"
 msgstr "Current time"
@@ -2847,6 +2851,14 @@ msgstr ""
 msgid "enabled"
 msgstr ""
 
+# pf::Authentication::constants (Conditions)
+msgid "ends"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "equals"
+msgstr ""
+
 # conf/documentation.conf (general.locale options)
 msgid "es_ES"
 msgstr ""
@@ -2963,6 +2975,14 @@ msgstr ""
 msgid "high-availability"
 msgstr ""
 
+# pf::Authentication::constants (Conditions)
+msgid "higher"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "higher or equals"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "hours"
 msgstr ""
@@ -3013,6 +3033,22 @@ msgstr "Internal"
 msgid "iptables"
 msgstr ""
 
+# pf::Authentication::constants (Conditions)
+msgid "is"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "is after"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "is before"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "is not"
+msgstr ""
+
 # conf/documentation.conf (general.locale options)
 msgid "it_IT"
 msgstr ""
@@ -3027,6 +3063,14 @@ msgstr "Log message"
 
 # pf::Authentication::Source (common_attributes)
 msgid "login"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "lower"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "lower or equals"
 msgstr ""
 
 # pf::config (Inline triggers)
@@ -3424,6 +3468,10 @@ msgstr ""
 # pf::config (Inline triggers)
 msgid "ssid"
 msgstr "Wifi Network SSID"
+
+# pf::Authentication::constants (Conditions)
+msgid "starts"
+msgstr ""
 
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "suricata"
