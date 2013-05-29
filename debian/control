@@ -42,7 +42,7 @@ Depends: ${misc:Depends}, vlan, make,
  libterm-readkey-perl, libtest-perl-critic-perl, libtest-pod-perl,
  libtest-pod-coverage-perl, libthread-pool-simple-perl,
  libuniversal-require-perl, libuniversal-exports-perl, libnet-rawip-perl,
- libcgi-session-perl, libcgi-session-driver-memcached-perl, libconfig-inifiles-perl,
+ libcgi-session-perl, libcgi-session-driver-memcached-perl, libconfig-inifiles-perl (>= 2.4.0),
  libdatetime-format-dateparse-perl, libdbi-perl,
  libnet-telnet-perl, libregexp-common-perl,
  libreadonly-perl, libtemplate-perl, libterm-readkey-perl,
@@ -104,7 +104,7 @@ Description: documentation for packetfence
 
 Package: packetfence-remote-snort-sensor
 Architecture: all
-Depends: ${misc:Depends}, snort | suricata, libfile-tail-perl, libconfig-inifiles-perl,
+Depends: ${misc:Depends}, snort | suricata, libfile-tail-perl, libconfig-inifiles-perl (>= 2.4.0),
  libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
  libsoap-lite-perl, libthread-conveyor-monitored-perl, libthread-conveyor-perl
@@ -133,7 +133,7 @@ Description: C wrapper that replace perl-suid dependence
 
 Package: packetfence-remote-arp-sensor
 Architecture: all
-Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl,
+Depends: ${misc:Depends}, libfile-tail-perl, libconfig-inifiles-perl (>= 2.4.0),
  libio-socket-ssl-perl, libxml-parser-perl, libcrypt-ssleay-perl,
  libnet-pcap-perl, libcache-memcached-perl, memcached,
 # FIXME track what requires the conveyor stuff and identify it. If we can, get rid of it.
