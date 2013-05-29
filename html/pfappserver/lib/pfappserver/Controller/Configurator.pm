@@ -335,7 +335,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
             if (is_error($status)) {
                 delete $c->session->{completed}->{$c->action->name};
             } else {
-                $pf_model->rewriteConfig();
+                $pf_model->commit();
             }
             my $network_model = $c->model('Config::Network');
 
@@ -346,7 +346,7 @@ sub configuration :Chained('object') :PathPart('configuration') :Args(0) {
                 my $type = $network->{type};
                 $network_model->update($network->{network}, {'domain-name' => $type . "." . $general_domain});
             }
-            $network_model->rewriteConfig();
+            $network_model->commit();
 
         }
         if (is_error($status)) {

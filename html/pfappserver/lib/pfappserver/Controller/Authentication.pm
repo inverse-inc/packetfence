@@ -104,7 +104,7 @@ sub _commitChanges {
     my $logger = get_logger();
     my ($status,$message);
     eval {
-        ($status,$message) = $model->rewriteConfig();
+        ($status,$message) = $model->commit();
     };
     if($@) {
         $status = HTTP_INTERNAL_SERVER_ERROR;

@@ -67,14 +67,14 @@ sub assign :Path('assign') :Args(1) {
         my $db_model = $c->model('Config::Pf');
         ($status, $message) = $db_model->update('database',{'user' => $pf_user, 'pass' => $pf_password});
         if(is_success($status)) {
-            $db_model->rewriteConfig();
+            $db_model->commit();
         }
     }
     if ( is_error($status) ) {
         $c->response->status($status);
         $c->stash->{status_msg} = $message;
     } else {
-        $pf_model->rewriteConfig() if $pf_model;
+        $pf_model->commit() if $pf_model;
     }
 }
 
@@ -118,7 +118,7 @@ sub create :Path('create') :Args(1) {
         my $db_model = $c->model('Config::Pf');
         ($status, $message) = $db_model->update('database',{'db' => $db});
         if(is_success($status)) {
-            $db_model->rewriteConfig();
+            $db_model->commit();
         }
     }
     if ( is_error($status) ) {
