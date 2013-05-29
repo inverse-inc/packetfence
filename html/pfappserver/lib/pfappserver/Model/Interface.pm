@@ -473,8 +473,8 @@ sub setType {
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
-    $models->{network}->rewriteConfig();
-    $models->{interface}->rewriteConfig();
+    $models->{network}->commit();
+    $models->{interface}->commit();
 }
 
 

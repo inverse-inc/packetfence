@@ -82,6 +82,7 @@ sub pf_section :Path :Args(1) {
     my $logger = get_logger();
     if (exists $ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
+        my ($status,$status_msg);
 
         $c->stash->{section} = $section;
         $c->stash->{template} = 'configuration/section.tt';
@@ -92,29 +93,30 @@ sub pf_section :Path :Args(1) {
             $form->process(params => $c->req->params);
             $logger->info("Processed form");
             if ($form->has_errors) {
-                $c->response->status(HTTP_PRECONDITION_FAILED);
-                $c->stash(
-                    status_msg => join(" ",$form->errors), # TODO: localize error message
-                    current_view => 'JSON'
-                );
+                $status = HTTP_PRECONDITION_FAILED;
+                $status_msg = join(" ",$form->errors), # TODO: localize error message
+            } else {
+                ($status,$status_msg) = $model->update($section, $form->value);
+                if (is_success($status)) {
+                    ($status,$status_msg) = $model->commit();
+                }
             }
-            else {
-                $model->update($section, $form->value);
-                $model->rewriteConfig();
-            }
-        }
-        else {
-            my ($status,$params) = $model->read($section);
+        } else {
+            my ($status,$results) = $model->read($section);
             if (is_success($status)) {
-                $form->process(init_object => $params);
+                $form->process(init_object => $results);
                 $c->stash->{form} = $form;
-            }
-            else {
-                $c->stash->{current_view} = 'JSON';
-                $c->response->status(HTTP_BAD_REQUEST);
-                $c->stash->{status_msg} = $params;
+            } else {
+                $status_msg = $params;
             }
         }
+        if(is_error($status)) {
+            $c->stash(
+                current_view => 'JSON',
+                status_msg => $status_msg
+            );
+        }
+        $c->response->status($status);
     } else {
         $c->go('Root','default');
     }

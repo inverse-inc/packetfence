@@ -14,6 +14,7 @@ pfappserver::Model::Config::PF
 use Moose;
 use namespace::autoclean;
 use pf::config;
+use pf::ConfigStore::Pf;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -25,7 +26,7 @@ extends 'pfappserver::Base::Model::Config';
 
 =cut
 
-sub _buildCachedConfig { $cached_pf_config }
+sub _buildConfigStore { pf::ConfigStore::Pf->new ; }
 
 =item remove
 
@@ -36,44 +37,6 @@ Delete an existing item
 sub remove {
     my ($self,$id) = @_;
     return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
-}
-
-sub cleanupAfterRead {
-    my ( $self,$section, $data ) = @_;
-    my $defaults = $Default_Config{$section};
-    foreach my $key ($cached_pf_config->Parameters($section) ) {
-        my $doc_section = "$section.$key";
-        unless (exists $Doc_Config{$doc_section} && exists $data->{$key}  ) {
-            next;
-        }
-        my $doc = $Doc_Config{$doc_section};
-        my $type = $doc->{type} || "text";
-        # Value should always be defined for toggles (checkbox and select) and times (duration)
-        if ($type eq "toggle" || $type eq "time") {
-            $data->{$key} = $Default_Config{$section}{$key} unless ($data->{$key});
-        } elsif ($type eq "date") {
-            my $time = str2time($data->{$key} || $Default_Config{$section}{$key});
-            # Match date format of Form::Widget::Theme::Pf
-            $data->{$key} = POSIX::strftime("%Y-%m-%d", localtime($time));
-        } elsif ($type eq 'multi') {
-            my $value = $data->{$key};
-            my @values = split( /\s*,\s*/, $value ) if $value;
-            $data->{$key} = \@values;
-        } elsif ( defined ($data->{$key}) && $data->{$key} eq $defaults->{$key}) {
-            #remove default values
-            $data->{$key} = undef;
-        }
-    }
-
-}
-
-sub cleanupBeforeCommit {
-    my ( $self,$section, $assignment ) = @_;
-    while(my ($key,$value) = each %$assignment) {
-        if(ref($value) eq 'ARRAY') {
-            $assignment->{$key} = join(',',@$value);
-        }
-    }
 }
 
 =item help

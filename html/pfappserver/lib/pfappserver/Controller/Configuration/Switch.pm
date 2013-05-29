@@ -59,7 +59,6 @@ after list => sub {
 
     my ($status, $floatingdevice, $ip);
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
-    $floatingDeviceModel->readConfig();
     foreach my $switch (@{$c->stash->{items}}) {
         $ip = $switch->{id};
         if ($ip) {

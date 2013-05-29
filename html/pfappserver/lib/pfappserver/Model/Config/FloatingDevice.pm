@@ -17,11 +17,12 @@ use Moose;
 use namespace::autoclean;
 use pf::config::cached;
 use pf::config;
+use pf::ConfigStore::FloatingDevice;
 
 extends 'pfappserver::Base::Model::Config';
 
 
-has '+configFile' => (default => $pf::config::floating_devices_config_file);
+sub _buildConfigStore { pf::ConfigStore::FloatingDevice->new }
 
 =head2 Methods
 
@@ -33,21 +34,11 @@ has '+configFile' => (default => $pf::config::floating_devices_config_file);
 
 sub search {
     my ($self, $field, $value) = @_;
-
-    my @results;
-    $self->readConfig();
-    my ($status, $result) = $self->readAll();
-    if (is_success($status)) {
-        foreach my $floatingdevice (@{$result}) {
-            if ($floatingdevice->{$field} eq $value) {
-                push(@results, $floatingdevice);
-            }
-        }
-    }
+    my @results = $self->configStore->search($field, $value);
     if (@results) {
         return ($STATUS::OK, \@results);
     } else {
-        return ($STATUS::NOT_FOUND);
+        return ($STATUS::NOT_FOUND,"");
     }
 }
 

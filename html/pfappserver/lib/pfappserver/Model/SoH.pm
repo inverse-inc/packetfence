@@ -93,13 +93,13 @@ sub update {
             ($action ne 'violation' || $filter_ref->{vid} != $vid)) {
             # Remove trigger from previous violation
             ($tstatus, $trigger) = $configViolationsModel->deleteTrigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
-            $configViolationsModel->rewriteConfig();
+            $configViolationsModel->commit();
         }
         if ($action eq 'violation' &&
             ($filter_ref->{action} ne 'violation' || $filter_ref->{vid} != $vid)) {
             # Add trigger to new violation
             ($status, $status_msg) = $configViolationsModel->addTrigger($vid, 'soh::' . $filter_ref->{filter_id});
-            $configViolationsModel->rewriteConfig();
+            $configViolationsModel->commit();
         }
 
         if ($soh->update_filter($filter_ref->{filter_id}, $name, $action, $vid) &&
@@ -133,7 +133,7 @@ sub delete {
         $soh->delete_filter($filter_ref->{filter_id}); # rules will be automatically deleted
         if ($filter_ref->{action} eq 'violation') {
             ($status, $status_msg) = $configViolationsModel->deleteTrigger($filter_ref->{vid}, 'soh::' . $filter_ref->{filter_id});
-            $configViolationsModel->rewriteConfig();
+            $configViolationsModel->commit();
         }
     };
     if ($@) {
@@ -164,7 +164,7 @@ sub create {
             }
             if ($action eq 'violation') {
                 ($status, $status_msg) = $configViolationsModel->addTrigger($vid, 'soh::' . $id);
-                $configViolationsModel->rewriteConfig();
+                $configViolationsModel->commit();
             }
         }
         else {
