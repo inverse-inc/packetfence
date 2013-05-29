@@ -16,6 +16,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config;
 use pf::error qw(is_error is_success);
+use pf::ConfigStore::Network;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -27,7 +28,7 @@ has '+idKey' => (default => 'network');
 
 =cut
 
-sub _buildCachedConfig { $pf::config::cached_network_config }
+sub _buildConfigStore { pf::ConfigStore::Network->new }
 
 =head2 getRoutedNetworks
 
@@ -37,17 +38,7 @@ Return the routed networks for the specified network and mask.
 
 sub getRoutedNetworks {
     my ($self, $network, $netmask) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my @networks;
-    foreach my $section ( keys %ConfigNetworks ) {
-        next if ($section eq $network);
-        my $next_hop = $ConfigNetworks{$section}{next_hop};
-        if ($next_hop && $self->getNetworkAddress($next_hop, $netmask) eq $network) {
-            push @networks, $section;
-        }
-    }
-
+    my @networks = @{$self->configStore->getRoutedNetworks($network,$netmask)};
     if (scalar @networks > 0) {
         @networks = sort @networks;
         return ($STATUS::OK, \@networks);
@@ -62,14 +53,16 @@ sub getRoutedNetworks {
 
 sub getType {
     my ($self, $network) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my ($status, $type) = ($STATUS::NOT_FOUND, "");
+    my $type = $self->configStore->getType($network);
+    my $status;
+    if($type) {
     # skip if we don't have a network address set
-    if (defined($network) && exists $ConfigNetworks{$network} && exists $ConfigNetworks{$network}{type}) {
-        ($status, $type) = ($STATUS::OK, $ConfigNetworks{$network}{type});
+        $status = $STATUS::OK;
     }
-
+    else {
+        $status = $STATUS::NOT_FOUND;
+        $type = "";
+    }
     return ($status, $type);
 }
 
@@ -87,21 +80,7 @@ For example
 
 sub getTypes {
     my ( $self, $interfaces_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $types_ref = {};
-    foreach my $interface ( sort keys(%$interfaces_ref) ) {
-
-        # skip if we don't have a network address set
-        next if (!defined($interfaces_ref->{$interface}->{'network'}));
-
-        my $type = $self->cachedConfig->val($interfaces_ref->{$interface}->{'network'}, 'type');
-        if ( defined $type) {
-            $types_ref->{$interface} = $type;
-        }
-    }
-
-    return ($STATUS::OK, $types_ref);
+    return ($STATUS::OK, $self->configStore->getTypes($interfaces_ref));
 }
 
 =head2 getNetworkAddress
@@ -114,9 +93,7 @@ Returns undef on undef IP / Mask
 
 sub getNetworkAddress {
     my ($self, $ipaddress, $netmask) = @_;
-
-    return if ( !defined($ipaddress) || !defined($netmask) );
-    return Net::Netmask->new($ipaddress, $netmask)->base();
+    return $self->configStore->getNetworkAddress($ipaddress, $netmask);
 }
 
 =head2 cleanupNetworks
@@ -125,56 +102,7 @@ sub getNetworkAddress {
 
 sub cleanupNetworks {
     my ($self, $interfaces) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    my $networks = $self->readAllIds();
-    my %unused = map { $_ => 1 } @$networks;
-
-    foreach my $interface (@$interfaces) {
-
-        # Only check interface with an IP address
-        next unless $interface->{ipaddress};
-
-        # Check default network
-        my $network = $self->getNetworkAddress($interface->{ipaddress}, $interface->{netmask});
-        delete $unused{$network} if exists $unused{$network};
-
-        # Check routed networks
-        my ($status, $return) = $self->getRoutedNetworks($network, $interface->{netmask});
-        if (is_success($status)) {
-            foreach (@$return) {
-                delete $unused{$_} if exists $unused{$_};
-            }
-        }
-
-    }
-
-    foreach my $network (keys %unused) {
-        $logger->warn("Removing unused network $network");
-        $self->remove($network);
-    }
-
-    return (scalar %unused);
-}
-
-=head2 cleanupBeforeCommit
-
-Set default values before update or creating
-
-=cut
-
-sub cleanupBeforeCommit {
-    my ($self, $id, $network) = @_;
-
-    my $config = $self->cachedConfig;
-    unless ( $config->SectionExists($id) ) {
-        # Set default values when creating a new network
-        $network->{named} = 'enabled' unless ($network->{named});
-        $network->{dhcpd} = 'enabled' unless ($network->{dhcpd});
-        $network->{'domain-name'} = $network->{type} . "." . $Config{general}{domain}
-            unless $network->{'domain-name'};
-
-    }
+    return $self->configStore->cleanupNetworks($interfaces);
 }
 
 __PACKAGE__->meta->make_immutable;

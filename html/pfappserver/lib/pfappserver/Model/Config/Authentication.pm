@@ -16,6 +16,7 @@ use Moose;
 use namespace::autoclean;
 use pf::authentication;
 use HTTP::Status qw(:constants is_error is_success);
+use pf::ConfigStore::Authentication;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -28,7 +29,7 @@ has '+itemsKey' => (default => 'sources');
 
 =cut
 
-sub _buildCachedConfig { $pf::authentication::cached_authentication_config };
+sub _buildConfigStore { pf::ConfigStore::Authentication->new ;}
 
 =head2 readAll
 
@@ -40,7 +41,6 @@ We especially don't want to allow the modification of the local SQL database.
 
 sub readAll {
     my ($self) = @_;
-
     my $sql_type = pf::Authentication::Source::SQLSource->meta->get_attribute('type')->default;
     my @sources = grep { $_->{type} ne $sql_type } @authentication_sources;
 
@@ -53,9 +53,11 @@ sub readAll {
 
 sub update {
     my ($self, $id, $source_obj) = @_;
-
-    my %not_params;
-    @not_params{qw(rules unique class)} = ();
+    my %not_params = (
+        rules => undef,
+        unique => undef,
+        class => undef
+    );
 
     # Update attributes
     my %assignments;
@@ -65,11 +67,6 @@ sub update {
 
     $self->SUPER::update($id, \%assignments);
 }
-
-before rewriteConfig => sub {
-    my ($self) = @_;
-    $self->cachedConfig->ReorderByGroup();
-};
 
 __PACKAGE__->meta->make_immutable;
 
