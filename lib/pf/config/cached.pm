@@ -271,9 +271,7 @@ use strict;
 use warnings;
 use pf::file_paths;
 use pf::log;
-use CHI;
-use CHI::Driver::Memcached;
-use CHI::Driver::RawMemory;
+use pf::CHI;
 use pf::IniFiles;
 use Scalar::Util qw(refaddr);
 use Fcntl qw(:DEFAULT :flock);
@@ -697,7 +695,7 @@ Builds the CHI object
 =cut
 
 sub _cache {
-    return CHI->new(_buildCHIArgs());
+    return pf::CHI->new(namespace => __PACKAGE__ );
 }
 
 =head2 _expireIf
