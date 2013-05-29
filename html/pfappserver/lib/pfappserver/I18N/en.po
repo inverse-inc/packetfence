@@ -1,13 +1,13 @@
-# English translations for PACKAGE package.
+# English translations for PacketFence package.
 # Copyright (C) 2012-2013 Inverse inc.
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the PacketFence package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: 4.0.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2012-05-24 10:47-0400\n"
-"Last-Translator: Francis Lachapelle <flachapelle@inverse.ca>\n"
+"PO-Revision-Date: 2013-05-29 09:55-0400\n"
+"Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -15,860 +15,3573 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: root/interface/get.tt
-
-msgid "inline"
-msgstr "Inline"
-
-msgid "management"
-msgstr "Management"
-
-msgid "other"
-msgstr "Other"
-
-msgid "vlan-isolation"
-msgstr "Isolation"
-
-msgid "vlan-registration"
-msgstr "Registration"
-
-msgid "Add VLAN"
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/graph/dashboard.tt
+# html/pfappserver/root/graph/report.tt
+msgid "30 days"
 msgstr ""
 
-#: root/configurator/networks.tt
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/graph/dashboard.tt
+# html/pfappserver/root/graph/report.tt
+msgid "60 days"
+msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/graph/dashboard.tt
+# html/pfappserver/root/graph/report.tt
+msgid "7 days"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "802.1X Username"
+msgstr ""
+
+# html/pfappserver/root/admin/reports.tt
+msgid "90 days"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "A manual start from the command line will be required. Are you sure you want to continue?"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "API Authorize Path"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "API ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "API Secret"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "API Token Path"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "API URL"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "API URL of logged user"
+msgstr ""
+
+# html/pfappserver/root/user/print.tt
+msgid "Acceptable Use Policy"
+msgstr ""
+
+# html/pfappserver/root/user/print.tt
+msgid "Access Code"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "Access Token Parameter"
+msgstr ""
+
+# html/pfappserver/root/admin/reports.tt
+msgid "Accounting"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/SoH.pm
+# html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/soh/read.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Action"
+msgstr ""
+
+# conf/documentation.conf (vlan.trap_limit_action)
+msgid ""
+  "Action that PacketFence will take if the vlan.trap_limit_threshold is reached."
+  "Defaults to none. email will send an email every hour if the limit's still reached."
+  "shut will shut the port on the switch and will also send an email even if email is not"
+  "specified."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/list.tt
 msgid "Actions"
 msgstr ""
 
-#: root/configurator/configuration.tt:48
+# html/pfappserver/root/user/print.tt
+msgid "Activation"
+msgstr ""
+
+# html/pfappserver/root/violation/view.tt
+msgid "Add"
+msgstr ""
+
+# html/pfappserver/root/interface/list.tt
+msgid "Add VLAN"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Add a condition."
+msgstr ""
+
+# html/pfappserver/root/soh/index.tt
+msgid "Add filter"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/index.tt
+msgid "Add floating device"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Add profile"
+msgstr ""
+
+# html/pfappserver/root/roles/index.tt
+msgid "Add role"
+msgstr ""
+
+# html/pfappserver/root/interface/index.tt
+msgid "Add routed network"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rules_read.tt
+msgid "Add rule"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Add source"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/index.tt
+msgid "Add switch"
+msgstr ""
+
+# html/pfappserver/root/violation/list.tt
+msgid "Add violation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Address"
+msgstr ""
+
+# conf/documentation.conf (registration.range)
+msgid ""
+  "Address ranges/CIDR blocks that PF will force registration on."
+  "Gateway, network, and broadcast addresses are ignored. If this is not"
+  "defined the trapping.range will be used as the registration range."
+  "Comma-delimiter entries should be of the form:"
+  " * a.b.c.0/24"
+  " * a.b.c.0-255"
+  " * a.b.c.0-a.b.c.255"
+  " * a.b.c.d"
+msgstr ""
+
+# conf/documentation.conf (trapping.range)
+msgid ""
+  "Address ranges/CIDR blocks that PacketFence will monitor/detect/trap"
+  "on.  Gateway, network, and broadcast addresses are ignored."
+  "Comma-delimited entries should be of the form"
+  " * a.b.c.0/24"
+  " * a.b.c.0-255"
+  " * a.b.c.0-a.b.c.255"
+  " * a.b.c.d"
+msgstr ""
+
+# html/pfappserver/root/admin/login.tt
+msgid "Admin Login"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "Advanced"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons)
+msgid ""
+  "After which calls to pfcmd do we have to re-evaluate the state of a node and "
+  "re-assign VLAN or change iptables rules"
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
 msgid "Alerting"
 msgstr ""
 
-#: root/configurator/networks.tt:25 root/configurator/networks.tt:60
+# html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+msgid "All"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+msgid "Allow Local Domain"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
+msgid "Any"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+msgid "App ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+msgid "App Secret"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+msgid "App URL"
+msgstr ""
+
+# conf/documentation.conf (provisioning.category)
+msgid "Apply to node that are members of the following category"
+msgstr ""
+
+# conf/documentation.conf (scan.duration)
+msgid ""
+  "Approximate duration of a scan. User being scanned on registration are presented"
+  "a progress bar for this duration, afterwards the browser refreshes until scan is"
+  "complete."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Are you sure want to rename file?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Are you sure want to save your changes?"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Auth Password Read"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Auth Password Trap"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Auth Password Write"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Auth Protocol Read"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Auth Protocol Trap"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Auth Protocol Write"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Auto Enable"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Available Variables"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Base DN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Base Object"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Bind DN"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Browser"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Button Text"
+msgstr ""
+
+# conf/documentation.conf (node_import.voip)
+msgid "By default is an imported node a Voice over IP device or not?"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "CLI"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "CSV File"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/floatingdevice/index.tt
+# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/interface/create.tt
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/service/status.tt
+# html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/violation/list.tt
 msgid "Cancel"
 msgstr ""
 
-#: root/configurator/admin.tt:54 root/configurator/configuration.tt:58 root/configurator/database.tt:111 root/configurator/enforcement.tt:62 root/configurator/networks.tt:120
-msgid "Continue"
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Cancel Revert"
 msgstr ""
-
-#: root/configurator/networks.tt:61
-msgid "Create"
-msgstr ""
-
-#: root/configurator/database.tt:81
-msgid "Create database and tables"
-msgstr ""
-
-#: root/configurator/database.tt:72
-msgid "Create the database"
-msgstr ""
-
-#: root/configurator/database.tt:105
-msgid "Create user"
-msgstr ""
-
-#: root/configurator/networks.tt:109
-msgid "DNS Server"
-msgstr ""
-
-#: root/configurator/services.tt:47
-msgid "Daemon"
-msgstr ""
-
-#: root/configurator/networks.tt:101
-msgid "Default Gateway"
-msgstr ""
-
-#: root/interface/get.tt:22
-msgid "Delete"
-msgstr ""
-
-#: root/interface/get.tt:21 root/interface/get.tt:24
-msgid "Edit"
-msgstr ""
-
-#: root/configurator/configuration.tt:26
-msgid "General"
-msgstr ""
-
-#: root/configurator/networks.tt:11 root/configurator/networks.tt:46 root/configurator/networks.tt:95
-msgid "IP Address"
-msgstr ""
-
-#: root/configurator/database.tt:74
-msgid "Name"
-msgstr ""
-
-#: root/configurator/networks.tt:17 root/configurator/networks.tt:52 root/configurator/networks.tt:95
-msgid "Netmask"
-msgstr ""
-
-#: root/configurator/networks.tt:91
-msgid "Network Interfaces"
-msgstr ""
-
-#: root/configurator/database.tt:16
-msgid "New Password"
-msgstr ""
-
-#: root/configurator/admin.tt:35 root/configurator/database.tt:66 root/configurator/database.tt:93
-msgid "Password"
-msgstr ""
-
-#: root/configurator/database.tt:29
-msgid "Save"
-msgstr ""
-
-#: root/configurator/networks.tt:26
-msgid "Save changes"
-msgstr ""
-
-#: root/configurator/networks.tt:95 root/configurator/services.tt:48
-msgid "Status"
-msgstr ""
-
-#: root/configurator/admin.tt:7 root/configurator/configuration.tt:7 root/configurator/database.tt:38 root/configurator/enforcement.tt:7 root/configurator/networks.tt:70 root/configurator/services.tt:21
-msgid "Step"
-msgstr ""
-
-#: root/configurator/admin.tt:48 root/configurator/database.tt:106 root/configurator/database.tt:82
-msgid "Success!"
-msgstr ""
-
-#: root/configurator/database.tt:69
-msgid "Test"
-msgstr ""
-
-#: root/configurator/networks.tt:95
-msgid "Type"
-msgstr ""
-
-#: root/configurator/admin.tt:29 root/configurator/database.tt:10 root/configurator/database.tt:60 root/configurator/database.tt:87
-msgid "Username"
-msgstr ""
-
-#: root/configurator/networks.tt:39
-msgid "Virtual LAN ID"
-msgstr ""
-
-#. (join(", ", @missing)
-#: lib/pfappserver/Controller/Configurator.pm:79
-msgid "You must assign an interface to the following types: %1"
-msgstr ""
-
-#: lib/pfappserver/Controller/Graph.pm
-msgid "callingstationid"
-msgstr "MAC Address"
-
-msgid "accttotal"
-msgstr "Total"
-
-msgid "acctinput"
-msgstr "Input"
-
-msgid "acctoutput"
-msgstr "Output"
-
-#: conf/pf.conf.defaults:0
-msgid "general"
-msgstr "General"
-
-#: conf/pf.conf.defaults:5
-msgid "general.domain"
-msgstr "Domain"
-
-#: conf/pf.conf.defaults:10
-msgid "general.hostname"
-msgstr "Hostname"
-
-#: conf/pf.conf.defaults:15
-msgid "general.logo"
-msgstr "Logo"
-
-#: conf/pf.conf.defaults:20
-msgid "general.dnsservers"
-msgstr "DNS servers"
-
-#: conf/pf.conf.defaults:25
-msgid "general.dhcpservers"
-msgstr "DHCP servers"
-
-#: conf/pf.conf.defaults:31
-msgid "general.locale"
-msgstr "Locale"
-
-#: conf/pf.conf.defaults:37
-msgid "general.timezone"
-msgstr "Timezone"
-
-#: conf/pf.conf.defaults:42
-msgid "general.maintenance_interval"
-msgstr "Maintenance interval"
-
-#: conf/pf.conf.defaults:42
-msgid "general.memcached"
-msgstr "Memcached Servers"
-
-#: conf/pf.conf.defaults:45
-msgid "network"
-msgstr "Network"
-
-#: conf/pf.conf.defaults:52
-msgid "network.dhcpdetector"
-msgstr "DHCP detector"
-
-#: conf/pf.conf.defaults:58
-msgid "network.rogue_dhcp_detection"
-msgstr "Rogue DHCP detection"
-
-#: conf/pf.conf.defaults:64
-msgid "network.rogueinterval"
-msgstr "Rogue interval"
-
-#: conf/pf.conf.defaults:70
-msgid "network.dhcpoption82logger"
-msgstr "DHCP option82"
-
-#: conf/pf.conf.defaults:79
-msgid "proxies"
-msgstr "Proxies"
-
-#: conf/pf.conf.defaults:82
-msgid "trapping"
-msgstr "Trapping"
-
-#: conf/pf.conf.defaults:88
-msgid "trapping.range"
-msgstr "Addresses ranges"
-
-#: conf/pf.conf.defaults:94
-msgid "trapping.registration"
-msgstr "Registration"
-
-#: conf/pf.conf.defaults:101
-msgid "trapping.redirtimer"
-msgstr "Redirection delay"
-
-#: conf/pf.conf.defaults:112
-msgid "trapping.passthrough"
-msgstr "Passthrough"
-
-#: conf/pf.conf.defaults:124
-msgid "trapping.whitelist"
-msgstr "Whitelist"
-
-#: conf/pf.conf.defaults:130
-msgid "trapping.redirecturl"
-msgstr "Redirect URL"
-
-#: conf/pf.conf.defaults:138
-msgid "trapping.always_use_redirecturl"
-msgstr "Force redirect URL"
-
-#: conf/pf.conf.defaults:144
-msgid "trapping.detection"
-msgstr "Detection"
-
-msgid "trapping.detection_engine"
-msgstr "Detection engine"
-
-msgid "trapping.wireless_ips"
-msgstr "Wireless IPS"
-
-msgid "trapping.wireless_ips_threshold"
-msgstr "Wireless IPS threshold"
-
-#: conf/pf.conf.defaults:146
-msgid "registration"
-msgstr "Registration"
-
-#: conf/pf.conf.defaults:151
-msgid "registration.range"
-msgstr "Addresses ranges"
-
-#: conf/pf.conf.defaults:231
-msgid "registration.button_text"
-msgstr "Button text"
-
-#: conf/pf.conf.defaults:236
-msgid "registration.nbregpages"
-msgstr "Number of registration pages"
-
-#: conf/pf.conf.defaults:243
-msgid "registration.guests_self_registration"
-msgstr "Guests self-registration"
-
-#: conf/pf.conf.defaults:248
-msgid "registration.billing_engine"
-msgstr "Billing engine"
-
-msgid "registration.gaming_devices_registration"
-msgstr "Gaming devices"
-
-msgid "registration.gaming_devices_registration_role"
-msgstr "Gaming devices role"
-
-#: conf/pf.conf.defaults:250
-msgid "guests_self_registration"
-msgstr "Self registration"
-
-#: conf/pf.conf.defaults:258
-msgid "guests_self_registration.modes"
-msgstr "Modes"
-
-#: conf/pf.conf.defaults:277
-msgid "guests_self_registration.email_activation_timeout"
-msgstr "Email activation timeout"
-
-#: conf/pf.conf.defaults:282
-msgid "guests_self_registration.allow_localdomain"
-msgstr "Allow local domain"
-
-#: conf/pf.conf.defaults:290
-msgid "guests_self_registration.mandatory_fields"
-msgstr "Mandatory fields"
-
-#: conf/pf.conf.defaults:295
-msgid "guests_self_registration.guest_pid"
-msgstr "PID"
-
-#: conf/pf.conf.defaults:320
-msgid "guests_self_registration.preregistration"
-msgstr "Preregistration"
-
-msgid "guests_self_registration.sponsorship_cc"
-msgstr "Sponsorship CC"
-
-#: conf/pf.conf.defaults:323
-msgid "guests_admin_registration"
-msgstr "Admin Registration"
-
-#: conf/pf.conf.defaults:329
-msgid "guests_admin_registration.access_duration_choices"
-msgstr "Access duration choices"
-
-#: conf/pf.conf.defaults:335
-msgid "guests_admin_registration.default_access_duration"
-msgstr "Default access duration"
-
-#: conf/pf.conf.defaults:357
-msgid "passthroughs"
-msgstr "Passthroughs"
-
-#: conf/pf.conf.defaults:359
-msgid "alerting"
-msgstr "Alerting"
-
-#: conf/pf.conf.defaults:365
-msgid "alerting.emailaddr"
-msgstr "Recipient"
-
-#: conf/pf.conf.defaults:370
-msgid "alerting.fromaddr"
-msgstr "Sender"
-
-#: conf/pf.conf.defaults:376
-msgid "alerting.smtpserver"
-msgstr "SMTP server"
-
-#: conf/pf.conf.defaults:382
-msgid "alerting.subjectprefix"
-msgstr "Subject prefix"
-
-#: conf/pf.conf.defaults:387
-msgid "alerting.log"
-msgstr "Log"
-
-#: conf/pf.conf.defaults:392
-msgid "alerting.wins_server"
-msgstr "WINS server"
-
-#: conf/pf.conf.defaults:397
-msgid "alerting.admin_netbiosname"
-msgstr "Admin NetBIOS name"
-
-#: conf/pf.conf.defaults:399
-msgid "ports"
-msgstr "Ports"
-
-#: conf/pf.conf.defaults:411
-msgid "ports.admin"
-msgstr "Admin"
-
-#: conf/pf.conf.defaults:413
-msgid "scan"
-msgstr "Scan"
-
-msgid "none"
-msgstr "(None)"
-
-msgid "openvas"
-msgstr "OpenVAS"
-
-msgid "nessus"
-msgstr "Nessus"
-
-#: conf/pf.conf.defaults:418
-msgid "scan.engine"
-msgstr "Engine"
-
-#: conf/pf.conf.defaults:424
-msgid "scan.registration"
-msgstr "Registration"
-
-msgid "scan.dot1x"
-msgstr "802.1x"
-
-msgid "scan.dot1x_type"
-msgstr "802.1x types"
-
-#: conf/pf.conf.defaults:430
-msgid "scan.duration"
-msgstr "Duration"
-
-#: conf/pf.conf.defaults:437
-msgid "scan.host"
-msgstr "Host"
-
-#: conf/pf.conf.defaults:442
-msgid "scan.user"
-msgstr "User"
-
-#: conf/pf.conf.defaults:447
-msgid "scan.pass"
-msgstr "Password"
-
-#: conf/pf.conf.defaults:453
-msgid "scan.nessus_port"
-msgstr "Nessus port"
-
-#: conf/pf.conf.defaults:460
-msgid "scan.nessus_clientfile"
-msgstr "Nessus client file"
-
-#: conf/pf.conf.defaults:465
-msgid "scan.nessus_clientpolicy"
-msgstr "Nessus client policy"
-
-#: conf/pf.conf.defaults:471
-msgid "scan.openvas_port"
-msgstr "OpenVAS port"
-
-#: conf/pf.conf.defaults:476
-msgid "scan.openvas_configid"
-msgstr "OpenVAS config ID"
-
-#: conf/pf.conf.defaults:481
-msgid "scan.openvas_reportformatid"
-msgstr "OpenVAS "
-
-#: conf/pf.conf.defaults:483
-msgid "database"
-msgstr "Database"
-
-#: conf/pf.conf.defaults:488
-msgid "database.pass"
-msgstr "Password"
-
-#: conf/pf.conf.defaults:493
-msgid "database.db"
-msgstr "Database name"
-
-#: conf/pf.conf.defaults:498
-msgid "database.user"
-msgstr "User"
-
-#: conf/pf.conf.defaults:503
-msgid "database.port"
-msgstr "Port"
-
-#: conf/pf.conf.defaults:508
-msgid "database.host"
-msgstr "Hostname"
-
-#: conf/pf.conf.defaults:510
-msgid "expire"
-msgstr "Expiration"
-
-#: conf/pf.conf.defaults:518
-msgid "expire.node"
-msgstr "Node"
-
-#: conf/pf.conf.defaults:526
-msgid "expire.iplog"
-msgstr "IP/MAC logs"
-
-#: conf/pf.conf.defaults:534
-msgid "expire.traplog"
-msgstr "Trap logs"
-
-#: conf/pf.conf.defaults:544
-msgid "expire.locationlog"
-msgstr "Location logs"
-
-#: conf/pf.conf.defaults:546
-msgid "services"
-msgstr "Services"
-
-#: conf/pf.conf.defaults:551
-msgid "services.dhcpd"
-msgstr "dhcpd"
-
-#: conf/pf.conf.defaults:556
-msgid "services.named"
-msgstr "named"
-
-#: conf/pf.conf.defaults:561
-msgid "services.radiusd"
-msgstr "radiusd"
-
-#: conf/pf.conf.defaults:566
-msgid "services.snort_binary"
-msgstr "snort path"
-
-msgid "services.suricata_binary"
-msgstr "suricata path"
-
-#: conf/pf.conf.defaults:571
-msgid "services.httpd_binary"
-msgstr "httpd path"
-
-#: conf/pf.conf.defaults:576
-msgid "services.dhcpd_binary"
-msgstr "dhcpd path"
-
-#: conf/pf.conf.defaults:581
-msgid "services.named_binary"
-msgstr "named path"
-
-#: conf/pf.conf.defaults:586
-msgid "services.snmptrapd_binary"
-msgstr "smtptrapd path"
-
-#: conf/pf.conf.defaults:591
-msgid "services.radiusd_binary"
-msgstr "radiusd path"
-
-#: conf/pf.conf.defaults:596
-msgid "services.arp_binary"
-msgstr "arp path"
-
-#: conf/pf.conf.defaults:598
-msgid "vlan"
-msgstr "SNMP"
-
-#: conf/pf.conf.defaults:604
-msgid "vlan.closelocationlogonstop"
-msgstr "Close on stop"
-
-#: conf/pf.conf.defaults:610
-msgid "vlan.nbtraphandlerthreads"
-msgstr "Handler threads count"
-
-#: conf/pf.conf.defaults:615
-msgid "vlan.nbtrapparserthreads"
-msgstr "Parser threads count"
-
-#: conf/pf.conf.defaults:621
-msgid "vlan.bounce_duration"
-msgstr "Bounce duration"
-
-#: conf/pf.conf.defaults:630
-msgid "vlan.trap_limit"
-msgstr "Trap limiting"
-
-#: conf/pf.conf.defaults:636
-msgid "vlan.trap_limit_threshold"
-msgstr "Trap limiting threshold"
-
-#: conf/pf.conf.defaults:644
-msgid "vlan.trap_limit_action"
-msgstr "Trap limit action"
-
-#: conf/pf.conf.defaults:656
-msgid "inline.ports_redirect"
-msgstr "Ports redirect"
-
-msgid "inline.should_reauth_on_vlan_change"
-msgstr "Reauthenticate node"
-
-msgid "inline.interfaceSNAT"
-msgstr "SNAT Interface"
-
-#: conf/pf.conf.defaults:658
-msgid "servicewatch"
-msgstr "Service watch"
-
-#: conf/pf.conf.defaults:666
-msgid "servicewatch.email"
-msgstr "Send email"
-
-#: conf/pf.conf.defaults:674
-msgid "servicewatch.restart"
-msgstr "Restart"
-
-#: conf/pf.conf.defaults:676
-msgid "captive_portal"
-msgstr "Captive portal"
-
-#: conf/pf.conf.defaults:681
-msgid "captive_portal.network_detection"
-msgstr "Network detection"
-
-#: conf/pf.conf.defaults:691
-msgid "captive_portal.network_detection_ip"
-msgstr "IP"
-
-#: conf/pf.conf.defaults:707
-msgid "captive_portal.loadbalancers_ip"
-msgstr "Load balancers IP"
-
-msgid "captive_portal.secure_redirect"
-msgstr "Secure redirect"
-
-#: conf/pf.conf.defaults:709
-msgid "advanced"
-msgstr "Advanced"
-
-#: conf/pf.conf.defaults:714
-msgid "advanced.reevaluate_access_reasons"
-msgstr "Reevaluate access reasons"
-
-#: conf/pf.conf.defaults:716
-msgid "provisioning"
-msgstr "Provisioning"
-
-#: conf/pf.conf.defaults:721
-msgid "provisioning.autoconfig"
-msgstr "Auto-configure"
-
-#: conf/pf.conf.defaults:727
-msgid "provisioning.ssid"
-msgstr "SSID"
-
-#: conf/pf.conf.defaults:733
-msgid "provisioning.category"
-msgstr "Category"
-
-#: conf/pf.conf.defaults:735
-msgid "billing"
-msgstr "Billing"
-
-#: conf/pf.conf.defaults:740
-msgid "billing.gateway"
-msgstr "Gateway"
-
-msgid "authorize_net"
-msgstr "Authorize.net"
-
-#: conf/pf.conf.defaults:745
-msgid "billing.authorizenet_posturl"
-msgstr "Authorize.net URL"
-
-#: conf/pf.conf.defaults:750
-msgid "billing.authorizenet_login"
-msgstr "Authorize.net login"
-
-#: conf/pf.conf.defaults:755
-msgid "billing.authorizenet_trankey"
-msgstr "Authorize.net key"
-
-#: conf/pf.conf.defaults:757
-msgid "node_import"
-msgstr ""
-
-#: conf/pf.conf.defaults:762
-msgid "node_import.pid"
-msgstr ""
-
-#: conf/pf.conf.defaults:767
-msgid "node_import.category"
-msgstr ""
-
-#: conf/pf.conf.defaults:772
-msgid "node_import.voip"
-msgstr ""
-
-#: conf/pf.conf.defaults:767
-msgid "webservices"
-msgstr "Webservices"
-
-#: conf/pf.conf.defaults:767
-msgid "webservices.user"
-msgstr "Username"
-
-#: conf/pf.conf.defaults:772
-msgid "webservices.pass"
-msgstr "Password"
-
-# html/pfappserver/root/admin/configuration.tt
-
-msgid "fingerprints"
-msgstr "Fingerprints"
-
-msgid "authentication"
-msgstr "Sources"
-
-msgid "users"
-msgstr "Create"
-
-msgid "violations"
-msgstr "Violations"
-
-msgid "soh"
-msgstr "SoH Filters"
-
-msgid "useragents"
-msgstr "User Agents"
-
-msgid "roles"
-msgstr "Roles"
-
-msgid "macaddress"
-msgstr "MAC Addresses"
-
-# lib/pf/action.pm
-
-msgid "autoreg_action"
-msgstr "Register node"
-
-msgid "trap_action"
-msgstr "Trap"
-
-msgid "email_action"
-msgstr "Send email"
-
-msgid "log_action"
-msgstr "Log message"
-
-msgid "external_action"
-msgstr "External command"
-
-msgid "winpopup_action"
-msgstr "Windows popup message"
-
-msgid "close_action"
-msgstr "Close a violation"
-
-msgid "role_action"
-msgstr "Set role"
-
-msgid "unreg_action"
-msgstr "Deregister node"
-
-# lib/pf/node.pm
-
-msgid "reg"
-msgstr "registered"
-
-msgid "unreg"
-msgstr "unregistered"
-
-msgid "pending"
-msgstr "pending"
-
-msgid "grace"
-msgstr "grace"
-
-# lib/pf/Authentication/constants.pm
-
-msgid "mark_as_sponsor"
-msgstr "Mark as sponsor"
-
-msgid "set_access_level"
-msgstr "Set access level"
-
-msgid "set_role"
-msgstr "Set role"
-
-msgid "set_access_duration"
-msgstr "Set access duration"
-
-msgid "set_unreg_date"
-msgstr "Set unregistration date"
-
-# lib/pf/Authentication/Source.pm
-
-msgid "SSID"
-msgstr "SSID"
-
-msgid "current_time"
-msgstr "Current time"
-
-msgid "connection_type"
-msgstr "Connection type"
-
-msgid "computer_name"
-msgstr "Computer name"
-
-# lib/pf/SNMP/constants.pm
-
-msgid "production"
-msgstr "Production"
-
-msgid "testing"
-msgstr "Testing"
-
-# html/pfappserver/root/user/list_password.tt
-
-msgid "mail"
-msgstr "Send Email"
-
-msgid "mail_loading"
-msgstr "Sending .."
 
 # html/pfappserver/root/admin/wrapper.tt
-
+# html/pfappserver/root/configurator/wrapper.tt
 msgid "Cannot Load Content"
 msgstr "An error occured while contacting the server. Please try again later."
 
-# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Children"
+msgstr ""
 
+# conf/documentation.conf (trapping.detection_engine)
+msgid "Choose between our supported IDS engine."
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/floatingdevice/view.tt
+# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/interface/view.tt
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/roles/read.tt
+# html/pfappserver/root/soh/read.tt
+# html/pfappserver/root/user/list_password.tt
+# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/view.tt
+msgid "Close"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "Column Delimiter"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "Columns Order"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "Comma"
+msgstr ""
+
+# conf/documentation.conf (general.dhcpservers)
+msgid "Comma-delimited list of DHCP servers."
+msgstr ""
+
+# conf/documentation.conf (general.dnsservers)
+msgid "Comma-delimited list of DNS servers."
+msgstr ""
+
+# conf/documentation.conf (scan.dot1x_type)
+msgid "Comma-delimited list of EAP-Type attributes that will pass to the scan engine."
+msgstr ""
+
+# conf/documentation.conf (trapping.whitelist)
+msgid ""
+  "Comma-delimited list of MAC addresses that are immune to isolation. In "
+  "inline enforcement, the firewall is opened for them as if they were "
+  "registered. This \"feature\" will probably be reworked in the future."
+msgstr ""
+
+# conf/documentation.conf (general.memcached)
+msgid "Comma-delimited list of memcached servers."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Community Read"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Community Trap"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Community Write"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Company"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Compliance"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "Computer Name"
+msgstr ""
+
+# html/pfappserver/root/soh/read.tt
+msgid "Conditions"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Configuration"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Connection Type"
+msgstr ""
+
+# html/pfappserver/root/admin/reports.tt
+msgid "Connections"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/configurator/configuration.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/networks.tt
+msgid "Continue"
+msgstr ""
+
+# conf/documentation.conf (vlan.trap_limit)
+msgid ""
+  "Controls whether or not the trap_limit feature is enabled. Trap limiting is"
+  "a way to limit the damage done by malicious users or misbehaving switch "
+  "that sends too many traps to PacketFence causing it to be overloaded. Trap"
+  "limiting is controlled by the trap_limit_threshold and trap_limit_action "
+  "parameters. Default is enabled."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Copy"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Copy File"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/interface/create.tt
+# html/pfappserver/root/portal/profile/create.tt
+msgid "Create"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Create New File"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "Create Users"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Create database and tables"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "Create local users that trigger specific actions."
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Create the database"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Create user"
+msgstr ""
+
+# html/pfappserver/root/interface/create.tt
+msgid "Creating"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "Creating Users .."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+msgid "DNS"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "DNS Server"
+msgstr ""
+
+# html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/status.tt
+msgid "Daemon"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+msgid "Dashboard"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Deauthentication Method"
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "Default Gateway"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Default Lease Time"
+msgstr ""
+
+# conf/documentation.conf (trapping.redirecturl)
+msgid ""
+  "Default URL to redirect to on registration/mitigation release.  This"
+  "is only used if a per-violation redirecturl is not defined."
+msgstr ""
+
+# conf/documentation.conf (node_import.category)
+msgid "Default category to assign to imported nodes."
+msgstr ""
+
+# conf/documentation.conf (node_import.pid)
+msgid "Default pid value to assign to imported nodes."
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Define the authentication sources to let users access the captive portal or the admin Web interface."
+msgstr ""
+
+# html/pfappserver/root/soh/index.tt
+msgid "Define the filters which will apply to all NAP-capable clients that produce a statement of health (SoH)."
+msgstr ""
+
+# html/pfappserver/root/roles/index.tt
+msgid "Define the roles which will apply to all devices on your network."
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Definition"
+msgstr ""
+
+# conf/documentation.conf (vlan.bounce_duration)
+msgid ""
+  "Delay to wait between the shut / no-shut on a port. Some OS need a higher value"
+  "than others. Default should be reasonable for almost every OS but is too long "
+  "for the usual proprietary OS."
+msgstr ""
+
+# html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/floatingdevice/index.tt
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/configuration/switch/index.tt
+# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/interface/list.tt
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Delete"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Delete File"
+msgstr ""
+
+# html/pfappserver/root/soh/index.tt
+msgid "Delete Filter"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/index.tt
+msgid "Delete Floating Device"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Delete Profile"
+msgstr ""
+
+# html/pfappserver/root/roles/index.tt
+msgid "Delete Role"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Delete Source"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/index.tt
+msgid "Delete Switch"
+msgstr ""
+
+# html/pfappserver/root/violation/list.tt
+msgid "Delete Violation"
+msgstr ""
+
+# html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Deleting"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Describe portal profiles"
+msgstr ""
+
+# conf/documentation.conf (interface.type)
+msgid ""
+  "Describes \"type\" of named interface.  internal describes interfaces"
+  "where PacketFence will enforce network access. management (or managed)"
+  "interfaces have the administrative GUI running on them, host SNMP trap"
+  "receiver and RADIUS server. monitor is the interface that snort listens "
+  "on. dhcp-listener is an interface where the DHCP traffic is coming in "
+  "either via a network SPAN or IP-Helpers configuration. high-availability"
+  "is for an interface between two PacketFence servers dedicated to "
+  "high-availability (drbd, corosync)."
+msgstr ""
+
+# conf/documentation.conf (interface.enforcement)
+msgid ""
+  "Describes the technique PacketFence will use to enforce network access."
+  "VLAN is the out-of-band VLAN-based device isolation requiring integration"
+  "in your network environment and inline is a DHCP-based mode where"
+  "PacketFence acts as a filtering gateway."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Role.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/authentication/source/rules_read.tt
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/user/violations.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Description"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "Devices"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Dismiss Changes"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Dismiss Changes for "
+msgstr ""
+
+# conf/documentation.conf (general.domain)
+msgid "Domain name of PacketFence system."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Drop"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Dynamic Uplinks"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Dynamic Window"
+msgstr ""
+
+# html/pfappserver/root/user/print.tt
+msgid "Each account will be printed on a single page with the acceptable user policy."
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/list.tt
+msgid "Edit floating device"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+msgid "Edit switch"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Email"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+msgid "Email Activation Timeout"
+msgstr ""
+
+# html/pfappserver/root/user/print.tt
+msgid "Email address"
+msgstr ""
+
+# conf/documentation.conf (alerting.fromaddr)
+msgid ""
+  "Email address from which notifications of rogue DHCP servers, "
+  "violations with an action of \"email\", or any other "
+  "PacketFence-related message are sent."
+  "Empty means root@<server-domain-name>."
+msgstr ""
+
+# conf/documentation.conf (alerting.emailaddr)
+msgid ""
+  "Email address to which notifications of rogue DHCP servers, violations"
+  "with an action of \"email\", or any other PacketFence-related message"
+  "goes to."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+msgid "Enable Billing Engine"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Enable Password"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+msgid "Enable Self Registration"
+msgstr ""
+
+# conf/documentation.conf (registration.gaming_devices_registration)
+msgid "Enable or Disable the ability to register a gaming device using the specific portal page designed to do it"
+msgstr ""
+
+# conf/documentation.conf (provisioning.autoconfig)
+msgid "Enable or Disable the generation of a pre-built XML mobile configuration profile for iPhone, iPad, or iPod users"
+msgstr ""
+
+# conf/documentation.conf (captive_portal.network_detection)
+msgid "Enable the automatic network detection feature for registration auto-redirect"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Enabled"
+msgstr ""
+
+# conf/documentation.conf (trapping.detection)
+msgid ""
+  "Enables snort-based worm detection.  If you don't have a span"
+  "interface available, don't bother enabling it.  If you do, you'll most"
+  "definately want this on."
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.preregistration)
+msgid ""
+  "Enabling this allows guests to requests their access in advance. You"
+  "must take care of opening your external firewall up to PacketFence and"
+  "make sure your server can send emails properly (generated"
+  "username/password are sent by email)."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Encryption"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "End"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Ending IP Address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Engine ID"
+msgstr ""
+
+# html/pfappserver/root/violation/view.tt
+msgid "Enter the trigger ID"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/soh/index.tt
+msgid "Error!"
+msgstr ""
+
+# html/pfappserver/root/user/print.tt
+msgid "Expiration"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "External Sources"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "External user"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.mandatory_fields)
+msgid ""
+  "Fields required to be filled in the self-registration form. Valid values are:"
+  "firstname, lastname, organization, phone, mobileprovider, email, "
+  "sponsor_email. Basic validation of minimally required values per guest mode "
+  "is provided by default."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "File Name"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Htpasswd.pm
+msgid "File Path"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Files"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/root/soh/read.tt
+msgid "Filter"
+msgstr ""
+
+# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+msgid "Fingerprints"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Firstname"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/view.tt
+msgid "Floating Device"
+msgstr ""
+
+# conf/documentation.conf (captive_portal.secure_redirect)
+msgid "Force the captive portal to use HTTPS when redirecting captured clients."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Gateway"
+msgstr ""
+
+# html/pfappserver/root/configurator/configuration.tt
+msgid "General"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Grace"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+msgid "Graph API Token Path"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+msgid "Graph API URL"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+msgid "Graph API URL of logged user"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Kerberos.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
+# html/pfappserver/root/authentication/source/type/AD.tt
+# html/pfappserver/root/authentication/source/type/LDAP.tt
+# html/pfappserver/root/authentication/source/type/RADIUS.tt
+msgid "Host"
+msgstr ""
+
+# conf/documentation.conf (scan.host)
+msgid ""
+  "Host the scanning engine is running on.  For performance reasons, we"
+  "recommend running the scanning engine on a remote server. A passthrough will "
+  "be automagically created."
+msgstr ""
+
+# conf/documentation.conf (general.hostname)
+msgid ""
+  "Hostname of PacketFence system. This is concatenated with the domain"
+  "in Apache rewriting rules and therefore must be resolvable by clients."
+msgstr ""
+
+# conf/documentation.conf (trapping.redirtimer)
+msgid ""
+  "How long to display the progress bar during trap release. Default value is "
+  "based on VLAN enforcement techniques. Inline enforcement only users could"
+  "lower the value."
+msgstr ""
+
+# conf/documentation.conf (scan.openvas_reportformatid)
+msgid "ID of the .NBE report format on the OpenVAS server"
+msgstr ""
+
+# conf/documentation.conf (scan.openvas_configid)
+msgid "ID of the scanning configuration on the OpenVAS server"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "IP"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/interface/list.tt
+# html/pfappserver/root/node/view.tt
+msgid "IP Address"
+msgstr ""
+
+# conf/documentation.conf (interface.ip)
+msgid ""
+  "IP adress of the named interface - note that this should mirror the"
+  "OS-level configuration but it does not make any OS-level changes."
+msgstr ""
+
+# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Id"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Identification"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Identifier"
+msgstr ""
+
+# conf/documentation.conf (network.dhcpoption82logger)
+msgid ""
+  "If enabled PacketFence will monitor DHCP option82 location-based"
+  "information. This feature is only available if the dhcpdetector is"
+  "activated."
+msgstr ""
+
+# conf/documentation.conf (network.dhcpdetector)
+msgid ""
+  "If enabled, PacketFence will monitor DHCP-specific items such as rogue"
+  "DHCP services, DHCP-based OS fingerprinting, computername/hostname "
+  "resolution, and (optionnally) option-82 location-based information. "
+  "The monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both"
+  "are broadcasts, meaning a span port is not necessary.  This feature is"
+  "highly recommended if the internal network is DHCP-based."
+msgstr ""
+
+# conf/documentation.conf (trapping.registration)
+msgid ""
+  "If enabled, nodes will be required to register on first network"
+  "access.  Further registration options are configured in the "
+  "registration section."
+msgstr ""
+
+# conf/documentation.conf (trapping.wireless_ips)
+msgid "If enabled, we will act on wirelessIPS traps sent by Wireless controllers."
+msgstr ""
+
+# conf/documentation.conf (captive_portal.loadbalancers_ip)
+msgid ""
+  "If the captive portal is put behind load-balancer(s) that act at Layer 7"
+  "(HTTP level) effectively doing reverse proxying then the captive portal no"
+  "longer sees the IP of the node trying to access the portal. In that case,"
+  "the load-balancers must do SSL offloading and add a X-Forwarded-By header"
+  "in the HTTP traffic they forward to PacketFence. Most do by default. Then"
+  "in this parameter you must specify the IP of the various load balancers."
+  "This will instruct the captive portal to look for client IPs in the"
+  "X-Forwarded-For instead of the actual TCP session when it matches an IP"
+  "in the list. Format is a comma separated list of IPs. Note: Apache access"
+  "log format is not changed to automatically log the X-Forwarded-By header."
+  "Modify conf/httpd.conf.d/captive-portal-common.conf to use "
+  "loadbalanced_combined instead of combined in CustomLog statement."
+msgstr ""
+
+# conf/documentation.conf (scan.dot1x)
+msgid ""
+  "If this option is enabled, PacketFence will scan all the 802.1x"
+  "auto-registration connections."
+msgstr ""
+
+# conf/documentation.conf (scan.registration)
+msgid ""
+  "If this option is enabled, the PF system will scan each host after"
+  "registration is complete."
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/configuration/users.tt
+msgid "Import"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/user/view.tt
+msgid "Info"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Inline"
+msgstr ""
+
+# conf/documentation.conf (inline.interfaceSNAT)
+msgid ""
+  "Interface used to SNAT inline traffic. Multiple interfaces can be comma"
+  "separated."
+msgstr ""
+
+# html/pfappserver/root/interface/index.tt
+msgid "Interfaces & Networks"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Internal Sources"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Internal user"
+msgstr ""
+
+# conf/documentation.conf (general.maintenance_interval)
+msgid "Interval at which Packetfence runs its maintenance tasks."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Is a device"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Is a mobile"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Isolation"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Keep Editing"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Keep The Same"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Lastname"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "Legend"
+msgstr ""
+
+# conf/documentation.conf (general.locale)
+msgid ""
+  "Locale used for message translation"
+  "More than 1 can be specified"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Location"
+msgstr ""
+
+# conf/documentation.conf (services.radiusd_binary)
+msgid ""
+  "Location of the RADIUS binary. Only necessary to change if you are not"
+  "running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.httpd_binary)
+msgid ""
+  "Location of the apache binary. Only necessary to change if you are"
+  "not running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.arp_binary)
+msgid ""
+  "Location of the arp binary. Only necessary to change if you are not"
+  "running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.dhcpd_binary)
+msgid ""
+  "Location of the dhcpd binary. Only necessary to change if you are not"
+  "running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.named_binary)
+msgid ""
+  "Location of the named binary. Only necessary to change if you are not"
+  "running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.snmptrapd_binary)
+msgid ""
+  "Location of the snmptrapd binary. Only necessary to change if you are"
+  "not running the RPMed version. "
+msgstr ""
+
+# conf/documentation.conf (services.snort_binary)
+msgid ""
+  "Location of the snort binary. Only necessary to change if you are not"
+  "running the RPMed version."
+msgstr ""
+
+# conf/documentation.conf (services.suricata_binary)
+msgid "Location of the suricata binary."
+msgstr ""
+
+# conf/documentation.conf (alerting.log)
+msgid "Log file where \"log\" actions are sent."
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Log out"
+msgstr ""
+
+# html/pfappserver/root/admin/login.tt
+msgid "Logging in .."
+msgstr ""
+
+# html/pfappserver/root/interface/list.tt
+msgid "Logical name"
+msgstr ""
+
+# html/pfappserver/root/admin/login.tt
+msgid "Login"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+msgid "Logo"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+msgid "Logs"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/user/violations.tt
+msgid "MAC"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+msgid "MAC Address"
+msgstr ""
+
+# html/pfappserver/root/configuration/macaddress/simple_search.tt
+msgid "MAC Addresses"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "MAC Vendor"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+msgid "Main"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Max Enables"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Max Lease Time"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Role.pm
+# html/pfappserver/root/roles/index.tt
+msgid "Max nodes per user"
+msgstr ""
+
+# conf/documentation.conf (vlan.trap_limit_threshold)
+msgid ""
+  "Maximum number of SNMP traps that a switchport can send to PacketFence within "
+  "a minute without being flagged as DoS. Defaults to 100"
+msgstr ""
+
+# conf/documentation.conf (trapping.passthrough)
+msgid ""
+  "Method by which content is delivered to trapped systems. When set to "
+  "\"proxy\", PacketFence uses Apache's reverse proxy functionality and "
+  "rewrites links. Note that any link to an external resource on the "
+  "target server will not be properly rewritten. When set to \"iptables\","
+  "PacketFence creates passthroughs to the content for only those nodes"
+  "trapped with the corresponding violation.  Be aware that an iptables"
+  "passthrough is based on IP address and clients will be able to get to"
+  "ALL content on the destination site."
+  "When set to \"disabled\" passthrough is disabled."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/root/configuration/switch/list.tt
+msgid "Mode"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "Multiple"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/lib/pfappserver/Form/Role.pm
+# html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
+# html/pfappserver/lib/pfappserver/Form/SoH.pm
+# html/pfappserver/root/authentication/source/rules_read.tt
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/portal/profile/index.tt
+# html/pfappserver/root/roles/index.tt
+# html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/soh/read.tt
+msgid "Name"
+msgstr ""
+
+# conf/documentation.conf (database.db)
+msgid "Name of the mysql database used by PacketFence."
+msgstr ""
+
+# conf/documentation.conf (scan.nessus_clientpolicy)
+msgid "Name of the policy inside the NessusClient file"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+msgid "Native VLAN"
+msgstr ""
+
+# conf/documentation.conf (alerting.admin_netbiosname)
+msgid ""
+  "NetBIOS name of administrative workstation to send alerts with"
+  "\"winpopup\" action assigned."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+# html/pfappserver/root/interface/list.tt
+msgid "Netmask"
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/config/networks/view.tt
+msgid "Network"
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "Network Interfaces"
+msgstr ""
+
+# conf/documentation.conf (interface.mask)
+msgid "Network mask of the named interface."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Network type"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "New"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "New File"
+msgstr ""
+
+# html/pfappserver/root/soh/read.tt
+msgid "New Filter"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/view.tt
+msgid "New Floating Device"
+msgstr ""
+
+# html/pfappserver/root/config/networks/view.tt
+msgid "New Network"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "New Password"
+msgstr ""
+
+# html/pfappserver/root/roles/read.tt
+msgid "New Role"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rule_read.tt
+msgid "New Rule"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/read.tt
+msgid "New Source"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "New Switch"
+msgstr ""
+
+# html/pfappserver/root/interface/create.tt
+msgid "New VLAN for"
+msgstr ""
+
+# html/pfappserver/root/violation/view.tt
+msgid "New Violation"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "No IP history"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "No device found"
+msgstr ""
+
+# html/pfappserver/root/soh/index.tt
+msgid "No filter defined"
+msgstr ""
+
+# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+msgid "No fingerprint found"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "No location history"
+msgstr ""
+
+# html/pfappserver/root/configuration/macaddress/simple_search.tt
+msgid "No matching mac addresses"
+msgstr ""
+
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
+msgid "No node found"
+msgstr ""
+
+# html/pfappserver/root/roles/index.tt
+msgid "No role defined"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rules_read.tt
+msgid "No rule defined"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "No source defined"
+msgstr ""
+
+# html/pfappserver/root/user/advanced_search.tt
+# html/pfappserver/root/user/simple_search.tt
+msgid "No user found"
+msgstr ""
+
+# html/pfappserver/root/configuration/useragents/simple_search.tt
+msgid "No useragent found"
+msgstr ""
+
+# html/pfappserver/root/user/violations.tt
+msgid "No violation"
+msgstr ""
+
+# html/pfappserver/root/violation/list.tt
+msgid "No violation defined"
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+msgid "No violation history"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/reports.tt
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Nodes"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "None"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "Note"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+msgid "Notes"
+msgstr ""
+
+# conf/documentation.conf (vlan.nbtraphandlerthreads)
+msgid "Number of trap handler threads pfsetvlan should start"
+msgstr ""
+
+# conf/documentation.conf (vlan.nbtrapparserthreads)
+msgid "Number of trap parser threads pfsetvlan should start"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "OS"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "OS (DHCP)"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "One-level"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+msgid "Overview"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Owner"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/admin/login.tt
+# html/pfappserver/root/authentication/source/type/AD.tt
+# html/pfappserver/root/authentication/source/type/LDAP.tt
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/user/list_password.tt
+# html/pfappserver/root/user/print.tt
+# html/pfappserver/root/user/view.tt
+msgid "Password"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "Password Reminder"
+msgstr ""
+
+# conf/documentation.conf (database.pass)
+msgid "Password for the mysql database used by PacketFence."
+msgstr ""
+
+# conf/documentation.conf (scan.pass)
+msgid "Password to log into scanning engine with."
+msgstr ""
+
+# conf/documentation.conf (trapping.wireless_ips_threshold)
+msgid "Percentage of matching you want to alert the admin on a wirelessIPS trap."
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rule_read.tt
+msgid "Perform the following actions:"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "Phone"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Please select the type of the switch."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
+msgid "Please specify a VLAN ID."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Please specify a brief description of the violation."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Role.pm
+msgid "Please specify a name for the category."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+msgid "Please specify an identifier for the rule."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
+msgid "Please specify an identifier for the source."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Please specify an identifier for the violation."
 msgstr "Please specify an identifier for the violation."
 
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Please specify the DNS server"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Please specify the IP address of the switch."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+msgid "Please specify the MAC address of the floating device."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Please specify the corresponding VLAN for each role."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Please specify the default DHCP lease time."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Please specify the ending IP address of the DHCP scope."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Please specify the gateway."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Please specify the maximum DHCP lease time."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Please specify the netmask."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Please specify the network."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Please specify the router IP address."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Please specify the starting IP address of the DHCP scope."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
+msgid "Port"
+msgstr ""
+
+# conf/documentation.conf (ports.soap)
+msgid "Port of the soap webservice."
+msgstr ""
+
+# conf/documentation.conf (ports.admin)
+msgid "Port the administrative interface listens on."
+msgstr ""
+
+# conf/documentation.conf (database.port)
+msgid "Port the mysql server is running on."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Portal Profiles and Pages"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "Portal URL"
+msgstr ""
+
+# conf/documentation.conf (inline.ports_redirect)
+msgid ""
+  "Ports to intercept and redirect for trapped and unregistered systems.  Defaults"
+  "to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp (SSL) will work, "
+  "although users might get certificate errors if you didn't install a valid "
+  "certificate or if you don't use DNS (although IP-based certificates supposedly"
+  "exist)"
+  "Redirecting 53/udp (DNS) seems to have issues and is also not recommended."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
 # html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Preview"
+msgstr ""
 
-msgid "portal_profile_revert"
-msgstr "Revert"
+# html/pfappserver/root/user/list_password.tt
+# html/pfappserver/root/user/print.tt
+# html/pfappserver/root/user/view.tt
+msgid "Print"
+msgstr ""
 
-msgid "portal_profile_delete"
-msgstr "Delete"
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Priority"
+msgstr ""
 
-# lib/pf/config.pm
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Priv Password Read"
+msgstr ""
 
-msgid "always"
-msgstr "Always"
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Priv Password Trap"
+msgstr ""
 
-msgid "mac"
-msgstr "MAC Address"
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Priv Password Write"
+msgstr ""
 
-msgid "port"
-msgstr "Port"
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Priv Protocol Read"
+msgstr ""
 
-msgid "ssid"
-msgstr "Wifi Network SSID"
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Priv Protocol Trap"
+msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Priv Protocol Write"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Processing dropped files..."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Processing..."
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/user/view.tt
+msgid "Profile"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+msgid "Profile Description"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+msgid "Profile Name"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+msgid "Quantity"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "RADIUS"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Really delete this file?"
+msgstr ""
+
+# html/pfappserver/root/configuration/floatingdevice/index.tt
+msgid "Really delete this floating device?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Really delete this profile?"
+msgstr ""
+
+# html/pfappserver/root/roles/index.tt
+msgid "Really delete this role?"
+msgstr ""
+
+# html/pfappserver/root/soh/index.tt
+msgid "Really delete this statement of health filter?"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/index.tt
+msgid "Really delete this switch?"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Really delete this users source?"
+msgstr ""
+
+# html/pfappserver/root/violation/list.tt
+msgid "Really delete this violation?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Really dismiss changes?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Really revert all files?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Really revert this file?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Really?"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Kerberos.pm
+msgid "Realm"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Reconnecting to the Admin Service in "
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Registration"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/view.tt
+msgid "Registration Window"
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+msgid "Release"
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+msgid "Release Date"
+msgstr ""
+
+# conf/documentation.conf (scan.nessus_port)
+msgid ""
+  "Remote port of the Nessus scanning engine. Default value should be fine in "
+  "most cases."
+msgstr ""
+
+# conf/documentation.conf (scan.openvas_port)
+msgid ""
+  "Remote port of the OpenVAS scanning engine. Default value should be fine in "
+  "most cases."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Rename File"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Rename File "
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Reports"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/configuration/section.tt
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Reset"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "Reset Password"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Restart"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Restart All"
+msgstr ""
+
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
+# html/pfappserver/root/user/advanced_search.tt
+# html/pfappserver/root/user/simple_search.tt
+msgid "Results"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Retry"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/user/view.tt
+msgid "Retype the password"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Retype your password"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Revert"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Revert All Files"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Revert Changes"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Revert File"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/roles/read.tt
+msgid "Role"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Role mapping by VLAN"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Role mapping by switch role"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Roles"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Routed Network"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+msgid "Router IP"
+msgstr ""
+
+# html/pfappserver/root/config/networks/view.tt
+msgid "Routing"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rule_read.tt
+msgid "Rule"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rules_read.tt
+msgid "Rules"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
+msgid "SMS Carriers"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "SNMP"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+# pf::Authentication::Source (common_attributes)
+msgid "SSID"
+msgstr "SSID"
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "SSL"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/floatingdevice/view.tt
+# html/pfappserver/root/configuration/section.tt
+# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/interface/view.tt
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/edit.tt
+# html/pfappserver/root/portal/profile/view.tt
+# html/pfappserver/root/roles/read.tt
+# html/pfappserver/root/soh/read.tt
+# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/view.tt
+msgid "Save"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Save Profile"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "Save Search"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "Save as..."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Save file"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "Saved Searches"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/authentication/source/rule_read.tt
+# html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/floatingdevice/view.tt
+# html/pfappserver/root/configuration/switch/view.tt
+# html/pfappserver/root/interface/view.tt
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/roles/read.tt
+# html/pfappserver/root/soh/read.tt
+# html/pfappserver/root/user/view.tt
+# html/pfappserver/root/violation/view.tt
+msgid "Saving"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Saving File "
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Saving profile "
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Scope"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "Search"
+msgstr ""
+
+# html/pfappserver/root/configuration/listing.inc
+msgid "Search..."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/RADIUS.pm
+msgid "Secret"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Secret Passphrase"
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+msgid "Select a violation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "Semicolon"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+msgid "Server"
+msgstr ""
+
+# conf/documentation.conf (database.host)
+msgid "Server the mysql server is running on."
+msgstr ""
+
+# conf/documentation.conf (alerting.smtpserver)
+msgid ""
+  "Server through which to send messages to the above emailaddr.  The"
+  "default is localhost - be sure you're running an SMTP host locally if"
+  "you don't change it!"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+# html/pfappserver/root/service/status.tt
+msgid "Services"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Set inline mode if any of the following conditions are met:"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Set role"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/files.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Settings"
+msgstr ""
+
+# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+msgid "Share Unknown Fingerprints"
+msgstr ""
+
+# html/pfappserver/root/configuration/useragents/simple_search.tt
+msgid "Share Unknown User Agents"
+msgstr ""
+
+# conf/documentation.conf (services.dhcpd)
+msgid "Should DHCPd be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (inline.should_reauth_on_vlan_change)
+msgid "Should have to reauthenticate the node if vlan change"
+msgstr ""
+
+# conf/documentation.conf (services.named)
+msgid "Should named be managed by PacketFence?"
+msgstr ""
+
+# conf/documentation.conf (vlan.closelocationlogonstop)
+msgid ""
+  "Should open locationlog entries be closed when pfsetvlan is"
+  "stopped"
+msgstr ""
+
+# conf/documentation.conf (servicewatch.restart)
+msgid ""
+  "Should pfcmd service pf watch restart PF when services are not running?"
+  "You must make sure to call the watch command. Installing it in the cron is the"
+  "recommended approach:"
+  "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
+msgstr ""
+
+# conf/documentation.conf (servicewatch.email)
+msgid ""
+  "Should pfcmd service pf watch send an email when services are not running?"
+  "You must make sure to call the watch command. Installing it in the cron is the"
+  "recommended approach:"
+  "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
+msgstr ""
+
+# conf/documentation.conf (services.radiusd)
+msgid "Should radiusd be managed by PacketFence?"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/edit.tt
+msgid "Show line numbers"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "Simple"
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "Single"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Size"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+msgid "Sponsor"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.sponsorship_cc)
+msgid ""
+  "Sponsors requesting access and access confirmation emails are CC'ed to this"
+  "address. Multiple destinations can be comma separated."
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/service/status.tt
+msgid "Start"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Start All"
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/user/violations.tt
+msgid "Start Date"
+msgstr ""
+
+# html/pfappserver/root/configurator/database.tt
+msgid "Start MySQL"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Start TLS"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Network.pm
+msgid "Starting IP Address"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/root/admin/wrapper.tt
+# html/pfappserver/root/configurator/services.tt
+# html/pfappserver/root/service/status.tt
+msgid "Status"
+msgstr ""
+
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/configurator/configuration.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/configurator/enforcement.tt
+# html/pfappserver/root/configurator/networks.tt
+# html/pfappserver/root/configurator/services.tt
+msgid "Step"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Stop"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Stop All"
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Stop Anyway"
+msgstr ""
+
+# conf/documentation.conf (alerting.subjectprefix)
+msgid ""
+  "Subject prefix for email notifications of rogue DHCP servers,"
+  "violations with an action of \"email\", or any other PacketFence-related"
+  "message."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Subtree"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+# html/pfappserver/root/authentication/source/read.tt
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Success!"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Switch"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Switch/AP"
+msgstr ""
+
+# html/pfappserver/root/admin/status.tt
+msgid "System"
+msgstr ""
+
+# conf/documentation.conf (general.timezone)
+msgid ""
+  "System's timezone in string format. Supported list:"
+  "http://www.php.net/manual/en/timezones.php"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+msgid "Tab"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+msgid "Tagged VLANs"
+msgstr ""
+
+# html/pfappserver/root/violation/list.tt
+msgid "Target VLAN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Template"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/type/AD.tt
+# html/pfappserver/root/authentication/source/type/LDAP.tt
+# html/pfappserver/root/configurator/database.tt
+msgid "Test"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "The Default Profile"
+msgstr ""
+
+# conf/documentation.conf (registration.button_text)
+msgid "The button text will appear on the registration page submit button"
+msgstr ""
+
+# html/pfappserver/root/user/list_password.tt
+msgid "The following user have been created"
+msgstr ""
+
+# html/pfappserver/root/user/list_password.tt
+msgid "The following users have been created"
+msgstr ""
+
+# conf/documentation.conf (provisioning.ssid)
+msgid "The hidden SSID where the user should connect to after registration"
+msgstr ""
+
+# conf/documentation.conf (billing.authorizenet_login)
+msgid "The merchant's unique API Login ID (Provided by Authorize.net)"
+msgstr ""
+
+# conf/documentation.conf (billing.authorizenet_trankey)
+msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
+msgstr ""
+
+# conf/documentation.conf (registration.nbregpages)
+msgid ""
+  "The number of registration pages to show to the user. If higher than"
+  "1, you will have to create the pages "
+  "html/captive-portal/templates/register_2.html"
+  "..."
+  "html/captive-portal/templates/register_<nbregpages>.html"
+msgstr ""
+
+# conf/documentation.conf (billing.authorizenet_posturl)
+msgid "The payment gateway processing URL (Provided by Authorize.net)"
+msgstr ""
+
+# conf/documentation.conf (billing.gateway)
+msgid "The payment gateway to process the payments"
+msgstr ""
+
+# conf/documentation.conf (registration.gaming_devices_registration_role)
+msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
+msgstr ""
+
+# html/pfappserver/root/configuration/users.tt
+msgid "The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created."
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "The web admin interface will no longer be accessible if you stop this service."
+msgstr ""
+
+# conf/documentation.conf (webservices.pass)
+msgid "The webservices password"
+msgstr ""
+
+# conf/documentation.conf (webservices.user)
+msgid "The webservices user name"
+msgstr ""
+
+# conf/documentation.conf (guests_admin_registration.access_duration_choices)
+msgid ""
+  "These are all the choices offered in the access duration action of an"
+  "authentication source."
+msgstr ""
+
+# conf/documentation.conf (captive_portal.network_detection_ip)
+msgid ""
+  "This IP is used as the webserver who hosts the "
+  "common/network-access-detection.gif which is used to detect if network access"
+  "was enabled. It cannot be a domain name since it is used in registration or "
+  "quarantine where DNS is blackholed. It is recommended that you allow your users"
+  "to reach your PacketFence server and put your LAN's PacketFence IP. By default"
+  "we will make this reach PacketFence's website as an easy solution."
+msgstr ""
+
+# conf/documentation.conf (guests_admin_registration.default_access_duration)
+msgid "This is the default access duration value selected in the dropdown."
+msgstr ""
+
+# conf/documentation.conf (proxies)
+msgid ""
+  "This section allows you to configure locally proxied content.  We "
+  "typically use this to proxy tools like Stinger rather than having to"
+  "continually download the latest version. Ex:"
+  "tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe"
+  "The Stinger utility could then be accessed at"
+  "https://pfhostname/proxies/tools/stinger.exe."
+msgstr ""
+
+# conf/documentation.conf (passthroughs)
+msgid ""
+  "This section allows you to create passthroughs to HTML content or "
+  "remote addresses/networks."
+  "With passthrough=proxy under [trapping] it will support domain "
+  "names."
+  "With passthrough=iptables under [trapping] it will support domain "
+  "names and IP ranges. Note that this implementation is unmaintained "
+  "and might not work."
+  "Here's an example:"
+  "packetfence=http://www.packetfence.org"
+  "The above will allow 80/tcp traffic to the PacketFence domain (the"
+  "left value is arbitrary). Passthroughs can also take the form of:"
+  "test=192.168.100.10/23"
+  "which would allow full IP to all 512 destination addresses. "
+  "Unsupported in trapping.passhtrough=proxy."
+msgstr ""
+
+# conf/documentation.conf (expire.node)
+msgid ""
+  "Time before a node is removed due to inactivity."
+  "A value of 0d disables expiration."
+  "example:"
+  "node=90d"
+msgstr ""
+
+# conf/documentation.conf (expire.iplog)
+msgid ""
+  "Time which you would like to keep logs on IP/MAC information "
+  "A value of 0d disables expiration."
+  "example:"
+  "iplog=180d"
+msgstr ""
+
+# conf/documentation.conf (expire.locationlog)
+msgid ""
+  "Time which you would like to keep logs on location information."
+  "Please note that this table should not become too big since it"
+  "could degrade pfsetvlan performance."
+  "A value of 0d disables expiration."
+  "example:"
+  "locationlog=180d"
+msgstr ""
+
+# conf/documentation.conf (expire.traplog)
+msgid ""
+  "Time which you would like to keep logs on trap information "
+  "A value of 0d disables expiration."
+  "example:"
+  "traplog=180d"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/graph/dashboard.tt
+# html/pfappserver/root/graph/report.tt
+msgid "Today"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Transport"
+msgstr ""
+
+# conf/documentation.conf (network.rogue_dhcp_detection)
+msgid ""
+  "Tries to identify Rogue DHCP Servers and triggers the 1100010 violation "
+  "if one is found. This feature is only available if the dhcpdetector is "
+  "activated."
+msgstr ""
+
+# html/pfappserver/root/node/violations.tt
+msgid "Trigger"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Triggers"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+msgid "Trunk Port"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/Interface.pm
+# html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/interface/list.tt
+msgid "Type"
+msgstr ""
+
+# conf/documentation.conf (trapping.always_use_redirecturl)
+msgid ""
+  "Under most circumstances we can redirect the user to the URL he originally "
+  "intended to visit. When enabled, always_use_redirecturl forces the captive "
+  "portal to redirect the user to the URL defined in trapping.redirecturl instead."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Unregistration"
+msgstr ""
+
+# html/pfappserver/root/configuration/fingerprints/simple_search.tt
+msgid "Update Fingerprints"
+msgstr ""
+
+# html/pfappserver/root/configuration/macaddress/simple_search.tt
+msgid "Update OUI Prefixes"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Uplinks"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Upload"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "Upload failed"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "User"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "User Agent"
+msgstr ""
+
+# html/pfappserver/root/configuration/useragents/simple_search.tt
+msgid "User Agents"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "User Name Read"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "User Name Write"
+msgstr ""
+
+# html/pfappserver/root/authentication/source/read.tt
+msgid "User Sources"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "User-Agent Information"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+# html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
+# html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/admin/login.tt
+# html/pfappserver/root/configurator/admin.tt
+# html/pfappserver/root/configurator/database.tt
+# html/pfappserver/root/user/list_password.tt
+# html/pfappserver/root/user/print.tt
+msgid "Username"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
+msgid "Username Attribute"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
+msgid "Username Prefix"
+msgstr ""
+
+# conf/documentation.conf (database.user)
+msgid ""
+  "Username of the account with access to the mysql database used by"
+  "PacketFence."
+msgstr ""
+
+# conf/documentation.conf (scan.user)
+msgid "Username to log into scanning engine with."
+msgstr ""
+
+# html/pfappserver/root/admin/configuration.tt
+# html/pfappserver/root/admin/users.tt
+# html/pfappserver/root/admin/wrapper.tt
+msgid "Users"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "VLAN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Version"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Version Trap"
+msgstr ""
+
+# html/pfappserver/root/violation/preview.tt
+# html/pfappserver/root/violation/view.tt
+msgid "Violation"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Violation to close"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+# html/pfappserver/root/user/view.tt
+msgid "Violations"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Interface/Create.pm
+msgid "Virtual LAN ID"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node.pm
+msgid "Voice Over IP"
+msgstr ""
+
+# conf/documentation.conf (alerting.wins_server)
+msgid ""
+  "WINS server to  resolve NetBIOS name of administrative workstation to"
+  "IP address."
+msgstr ""
+
+# html/pfappserver/root/service/status.tt
+msgid "Warning"
+msgstr ""
+
+# html/pfappserver/root/admin/wrapper.tt
+# html/pfappserver/root/configurator/wrapper.tt
+# html/pfappserver/root/service/status.tt
+# html/pfappserver/root/user/print.tt
+msgid "Warning!"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "Web Services"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.guest_pid)
+msgid "What field should we assign to the pid of the guest? Defaults to email."
+msgstr ""
+
+# conf/documentation.conf (network.rogueinterval)
+msgid ""
+  "When rogue DHCP server detection is enabled, this parameter defines"
+  "how often to email administrators.  With its default setting of 10, "
+  "it will email administrators the details of the previous 10 DHCP"
+  "offers."
+msgstr ""
+
+# conf/documentation.conf (scan.engine)
+msgid "Which scan engine to use to perform client-side policy compliance."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Whitelisted Roles"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Violation.pm
+msgid "Window"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+msgid "Wireless SSID"
+msgstr ""
+
+# html/pfappserver/root/configuration/switch/view.tt
+msgid "With no condition, the inline mode will never be activated."
+msgstr ""
+
+# html/pfappserver/root/authentication/source/rule_read.tt
+msgid "Without condition, this rule will act as a catch-all."
+msgstr ""
+
+# html/pfappserver/root/configurator/networks.tt
+msgid "Your gateway IP address to access Internet."
+msgstr ""
+
+# html/pfappserver/root/admin/login.tt
+msgid "Your username or email address"
+msgstr ""
+
+# pf::config (VALID_TRIGGER_TYPES)
 msgid "accounting"
 msgstr "Accounting"
 
+# pf::pfcmd::report (report_nodebandwidth)
+msgid "acctinput"
+msgstr "Input"
+
+# pf::pfcmd::report (report_nodebandwidth)
+msgid "acctoutput"
+msgstr "Output"
+
+# pf::pfcmd::report (report_nodebandwidth)
+msgid "accttotal"
+msgstr "Total"
+
+# conf/documentation.conf
+msgid "advanced"
+msgstr "Advanced"
+
+# conf/documentation.conf
+msgid "advanced.reevaluate_access_reasons"
+msgstr "Reevaluate access reasons"
+
+# conf/documentation.conf
+msgid "alerting"
+msgstr "Alerting"
+
+# conf/documentation.conf
+msgid "alerting.admin_netbiosname"
+msgstr "Admin NetBIOS name"
+
+# conf/documentation.conf
+msgid "alerting.emailaddr"
+msgstr "Recipient"
+
+# conf/documentation.conf
+msgid "alerting.fromaddr"
+msgstr "Sender"
+
+# conf/documentation.conf
+msgid "alerting.log"
+msgstr "Log"
+
+# conf/documentation.conf
+msgid "alerting.smtpserver"
+msgstr "SMTP server"
+
+# conf/documentation.conf
+msgid "alerting.subjectprefix"
+msgstr "Subject prefix"
+
+# conf/documentation.conf
+msgid "alerting.wins_server"
+msgstr "WINS server"
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/root/admin/nodes.tt
+msgid "all"
+msgstr ""
+
+# pf::config (Inline triggers)
+msgid "always"
+msgstr "Always"
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+# html/pfappserver/root/admin/nodes.tt
+msgid "any"
+msgstr ""
+
+# conf/documentation.conf (billing.gateway options)
+msgid "authorize_net"
+msgstr "Authorize.net"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "autoreg_action"
+msgstr "Register node"
+
+# conf/documentation.conf
+msgid "billing"
+msgstr "Billing"
+
+# conf/documentation.conf
+msgid "billing.authorizenet_login"
+msgstr "Authorize.net login"
+
+# conf/documentation.conf
+msgid "billing.authorizenet_posturl"
+msgstr "Authorize.net URL"
+
+# conf/documentation.conf
+msgid "billing.authorizenet_trankey"
+msgstr "Authorize.net key"
+
+# conf/documentation.conf
+msgid "billing.gateway"
+msgstr "Gateway"
+
+# pf::pfcmd::report (report_nodebandwidth)
+msgid "callingstationid"
+msgstr "MAC Address"
+
+# conf/documentation.conf
+msgid "captive_portal"
+msgstr "Captive portal"
+
+# conf/documentation.conf
+msgid "captive_portal.loadbalancers_ip"
+msgstr "Load balancers IP"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection"
+msgstr "Network detection"
+
+# conf/documentation.conf
+msgid "captive_portal.network_detection_ip"
+msgstr "IP"
+
+# conf/documentation.conf
+msgid "captive_portal.secure_redirect"
+msgstr "Secure redirect"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "close_action"
+msgstr "Close a violation"
+
+# pf::Authentication::Source (common_attributes)
+msgid "computer_name"
+msgstr "Computer name"
+
+# pf::Authentication::Source (common_attributes)
+msgid "connection_type"
+msgstr "Connection type"
+
+# pf::Authentication::Source (common_attributes)
+msgid "current_time"
+msgstr "Current time"
+
+# conf/documentation.conf
+msgid "database"
+msgstr "Database"
+
+# conf/documentation.conf
+msgid "database.db"
+msgstr "Database name"
+
+# conf/documentation.conf
+msgid "database.host"
+msgstr "Hostname"
+
+# conf/documentation.conf
+msgid "database.pass"
+msgstr "Password"
+
+# conf/documentation.conf
+msgid "database.port"
+msgstr "Port"
+
+# conf/documentation.conf
+msgid "database.user"
+msgstr "User"
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "days"
+msgstr ""
+
+# conf/documentation.conf (general.locale options)
+msgid "de_DE"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "default"
+msgstr ""
+
+# html/pfappserver/root/interface/list.tt
+msgid "default network:"
+msgstr ""
+
+# pf::config (VALID_TRIGGER_TYPES)
 msgid "detect"
 msgstr "Detect"
 
+# conf/documentation.conf (interface.type options)
+msgid "dhcp-listener"
+msgstr ""
+
+# pf::pfcmd::report (SQL)
+msgid "dhcp_fingerprint"
+msgstr "Operating System Class"
+
+# conf/documentation.conf (interface.type options)
+msgid "dhcplistener"
+msgstr ""
+
+# conf/documentation.conf (captive_portal.network_detection options)
+# conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (guests_self_registration.preregistration options)
+# conf/documentation.conf (inline.should_reauth_on_vlan_change options)
+# conf/documentation.conf (network.dhcpdetector options)
+# conf/documentation.conf (network.dhcpoption82logger options)
+# conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (provisioning.autoconfig options)
+# conf/documentation.conf (registration.gaming_devices_registration options)
+# conf/documentation.conf (scan.dot1x options)
+# conf/documentation.conf (scan.registration options)
+# conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.named options)
+# conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (servicewatch.email options)
+# conf/documentation.conf (servicewatch.restart options)
+# conf/documentation.conf (trapping.always_use_redirecturl options)
+# conf/documentation.conf (trapping.detection options)
+# conf/documentation.conf (trapping.passthrough options)
+# conf/documentation.conf (trapping.registration options)
+# conf/documentation.conf (trapping.wireless_ips options)
+# conf/documentation.conf (vlan.closelocationlogonstop options)
+# conf/documentation.conf (vlan.trap_limit options)
+msgid "disabled"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.guest_pid options)
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+# conf/documentation.conf (vlan.trap_limit_action options)
+msgid "email"
+msgstr ""
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "email_action"
+msgstr "Send email"
+
+# conf/documentation.conf (general.locale options)
+msgid "en_US"
+msgstr ""
+
+# conf/documentation.conf (captive_portal.network_detection options)
+# conf/documentation.conf (captive_portal.secure_redirect options)
+# conf/documentation.conf (guests_self_registration.preregistration options)
+# conf/documentation.conf (inline.should_reauth_on_vlan_change options)
+# conf/documentation.conf (network.dhcpdetector options)
+# conf/documentation.conf (network.dhcpoption82logger options)
+# conf/documentation.conf (network.rogue_dhcp_detection options)
+# conf/documentation.conf (provisioning.autoconfig options)
+# conf/documentation.conf (registration.gaming_devices_registration options)
+# conf/documentation.conf (scan.dot1x options)
+# conf/documentation.conf (scan.registration options)
+# conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.named options)
+# conf/documentation.conf (services.radiusd options)
+# conf/documentation.conf (servicewatch.email options)
+# conf/documentation.conf (servicewatch.restart options)
+# conf/documentation.conf (trapping.always_use_redirecturl options)
+# conf/documentation.conf (trapping.detection options)
+# conf/documentation.conf (trapping.registration options)
+# conf/documentation.conf (trapping.wireless_ips options)
+# conf/documentation.conf (vlan.closelocationlogonstop options)
+# conf/documentation.conf (vlan.trap_limit options)
+msgid "enabled"
+msgstr ""
+
+# conf/documentation.conf (general.locale options)
+msgid "es_ES"
+msgstr ""
+
+# conf/documentation.conf
+msgid "expire"
+msgstr "Expiration"
+
+# conf/documentation.conf
+msgid "expire.iplog"
+msgstr "IP/MAC logs"
+
+# conf/documentation.conf
+msgid "expire.locationlog"
+msgstr "Location logs"
+
+# conf/documentation.conf
+msgid "expire.node"
+msgstr "Node"
+
+# conf/documentation.conf
+msgid "expire.traplog"
+msgstr "Trap logs"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "external_action"
+msgstr "External command"
+
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+msgid "firstname"
+msgstr ""
+
+# conf/documentation.conf (general.locale options)
+msgid "fr_FR"
+msgstr ""
+
+# conf/documentation.conf
+msgid "general"
+msgstr "General"
+
+# conf/documentation.conf
+msgid "general.dhcpservers"
+msgstr "DHCP servers"
+
+# conf/documentation.conf
+msgid "general.dnsservers"
+msgstr "DNS servers"
+
+# conf/documentation.conf
+msgid "general.domain"
+msgstr "Domain"
+
+# conf/documentation.conf
+msgid "general.hostname"
+msgstr "Hostname"
+
+# conf/documentation.conf
+msgid "general.locale"
+msgstr "Locale"
+
+# conf/documentation.conf
+msgid "general.maintenance_interval"
+msgstr "Maintenance interval"
+
+# conf/documentation.conf
+msgid "general.memcached"
+msgstr "Memcached Servers"
+
+# conf/documentation.conf
+msgid "general.timezone"
+msgstr "Timezone"
+
+# pfappserver::Model::Node (availableStatus)
+msgid "grace"
+msgstr "grace"
+
+# conf/documentation.conf
+msgid "guests_admin_registration"
+msgstr "Admin Registration"
+
+# conf/documentation.conf
+msgid "guests_admin_registration.access_duration_choices"
+msgstr "Access duration choices"
+
+# conf/documentation.conf
+msgid "guests_admin_registration.default_access_duration"
+msgstr "Default access duration"
+
+# conf/documentation.conf
+msgid "guests_self_registration"
+msgstr "Self registration"
+
+# conf/documentation.conf
+msgid "guests_self_registration.guest_pid"
+msgstr "PID"
+
+# conf/documentation.conf
+msgid "guests_self_registration.mandatory_fields"
+msgstr "Mandatory fields"
+
+# conf/documentation.conf
+msgid "guests_self_registration.preregistration"
+msgstr "Preregistration"
+
+# conf/documentation.conf
+msgid "guests_self_registration.sponsorship_cc"
+msgstr "Sponsorship CC"
+
+# conf/documentation.conf (general.locale options)
+msgid "he_IL"
+msgstr ""
+
+# conf/documentation.conf (interface.type options)
+msgid "high-availability"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "hours"
+msgstr ""
+
+# conf/documentation.conf (interface.enforcement options)
+# pf::config (Network types)
+msgid "inline"
+msgstr "Inline"
+
+# conf/documentation.conf
+msgid "inline.interfaceSNAT"
+msgstr "SNAT Interface"
+
+# conf/documentation.conf
+msgid "inline.ports_redirect"
+msgstr "Ports redirect"
+
+# conf/documentation.conf
+msgid "inline.should_reauth_on_vlan_change"
+msgstr "Reauthenticate node"
+
+# conf/documentation.conf
+msgid "interface"
+msgstr ""
+
+# conf/documentation.conf
+msgid "interface.enforcement"
+msgstr ""
+
+# conf/documentation.conf
+msgid "interface.ip"
+msgstr ""
+
+# conf/documentation.conf
+msgid "interface.mask"
+msgstr ""
+
+# conf/documentation.conf
+msgid "interface.type"
+msgstr ""
+
+# conf/documentation.conf (interface.type options)
+# pf::config (VALID_TRIGGER_TYPES)
 msgid "internal"
 msgstr "Internal"
 
+# conf/documentation.conf (trapping.passthrough options)
+msgid "iptables"
+msgstr ""
+
+# conf/documentation.conf (general.locale options)
+msgid "it_IT"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+msgid "lastname"
+msgstr ""
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "log_action"
+msgstr "Log message"
+
+# pf::Authentication::Source (common_attributes)
+msgid "login"
+msgstr ""
+
+# pf::config (Inline triggers)
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "mac"
+msgstr "MAC Address"
+
+# html/pfappserver/root/user/view.tt
+msgid "mail"
+msgstr "Send Email"
+
+# html/pfappserver/root/user/list_password.tt (options)
+msgid "mail_loading"
+msgstr "Sending .."
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "manage_deregister"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "manage_register"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "manage_vclose"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "manage_vopen"
+msgstr ""
+
+# conf/documentation.conf (interface.type options)
+msgid "managed"
+msgstr ""
+
+# conf/documentation.conf (interface.type options)
+# pf::config (Network types)
+msgid "management"
+msgstr "Management"
+
+# pf::Authentication::constants (Actions)
+msgid "mark_as_sponsor"
+msgstr "Mark as sponsor"
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "minutes"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+msgid "mobileprovider"
+msgstr ""
+
+# conf/documentation.conf (interface.type options)
+msgid "monitor"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "months"
+msgstr ""
+
+# conf/documentation.conf (scan.engine options)
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "nessus"
+msgstr "Nessus"
+
+# conf/documentation.conf
+msgid "network"
+msgstr "Network"
+
+# conf/documentation.conf
+msgid "network.dhcpdetector"
+msgstr "DHCP detector"
+
+# conf/documentation.conf
+msgid "network.dhcpoption82logger"
+msgstr "DHCP option82"
+
+# conf/documentation.conf
+msgid "network.rogue_dhcp_detection"
+msgstr "Rogue DHCP detection"
+
+# conf/documentation.conf
+msgid "network.rogueinterval"
+msgstr "Rogue interval"
+
+# conf/documentation.conf (general.locale options)
+msgid "nl_NL"
+msgstr ""
+
+# conf/documentation.conf (node_import.voip options)
+msgid "no"
+msgstr ""
+
+# conf/documentation.conf
+msgid "node_import"
+msgstr ""
+
+# conf/documentation.conf
+msgid "node_import.category"
+msgstr ""
+
+# conf/documentation.conf
+msgid "node_import.pid"
+msgstr ""
+
+# conf/documentation.conf
+msgid "node_import.voip"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "node_modify"
+msgstr ""
+
+# conf/documentation.conf (scan.engine options)
+# conf/documentation.conf (trapping.detection_engine options)
+msgid "none"
+msgstr "(None)"
+
+# conf/documentation.conf (scan.engine options)
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "openvas"
+msgstr "OpenVAS"
+
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+msgid "organization"
+msgstr ""
+
+# pf::config (VALID_TRIGGER_TYPES)
 msgid "os"
 msgstr "OS"
 
+# pf::config (Network types)
+msgid "other"
+msgstr "Other"
+
+# conf/documentation.conf
+msgid "passthroughs"
+msgstr "Passthroughs"
+
+# pfappserver::Model::Node (availableStatus)
+msgid "pending"
+msgstr "pending"
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "pfcmd_vlan"
+msgstr ""
+
+# conf/documentation.conf (guests_self_registration.guest_pid options)
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+msgid "phone"
+msgstr ""
+
+# html/pfappserver/root/node/view.tt
+# pf::config (Inline triggers)
+msgid "port"
+msgstr "Port"
+
+# conf/documentation.conf
+msgid "ports"
+msgstr "Ports"
+
+# conf/documentation.conf
+msgid "ports.admin"
+msgstr "Admin"
+
+# conf/documentation.conf
+msgid "ports.soap"
+msgstr ""
+
+# pf::SNMP::constants (Modes)
+msgid "production"
+msgstr "Production"
+
+# conf/documentation.conf
+msgid "provisioning"
+msgstr "Provisioning"
+
+# conf/documentation.conf
+msgid "provisioning.autoconfig"
+msgstr "Auto-configure"
+
+# conf/documentation.conf
+msgid "provisioning.category"
+msgstr "Category"
+
+# conf/documentation.conf
+msgid "provisioning.ssid"
+msgstr "SSID"
+
+# conf/documentation.conf
+msgid "proxies"
+msgstr "Proxies"
+
+# conf/documentation.conf (trapping.passthrough options)
+msgid "proxy"
+msgstr ""
+
+# conf/documentation.conf (general.locale options)
+msgid "pt_BR"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "redir.cgi"
+msgstr ""
+
+# pfappserver::Model::Node (availableStatus)
+msgid "reg"
+msgstr "registered"
+
+# conf/documentation.conf
+# pf::SNMP::constants (Modes)
+msgid "registration"
+msgstr "Registration"
+
+# conf/documentation.conf
+msgid "registration.button_text"
+msgstr "Button text"
+
+# conf/documentation.conf
+msgid "registration.gaming_devices_registration"
+msgstr "Gaming devices"
+
+# conf/documentation.conf
+msgid "registration.gaming_devices_registration_role"
+msgstr "Gaming devices role"
+
+# conf/documentation.conf
+msgid "registration.nbregpages"
+msgstr "Number of registration pages"
+
+# conf/documentation.conf
+msgid "registration.range"
+msgstr "Addresses ranges"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "role_action"
+msgstr "Set role"
+
+# html/pfappserver/root/interface/list.tt
+msgid "routed networks:"
+msgstr ""
+
+# conf/documentation.conf
+msgid "scan"
+msgstr "Scan"
+
+# conf/documentation.conf
+msgid "scan.dot1x"
+msgstr "802.1x"
+
+# conf/documentation.conf
+msgid "scan.dot1x_type"
+msgstr "802.1x types"
+
+# conf/documentation.conf
+msgid "scan.duration"
+msgstr "Duration"
+
+# conf/documentation.conf
+msgid "scan.engine"
+msgstr "Engine"
+
+# conf/documentation.conf
+msgid "scan.host"
+msgstr "Host"
+
+# conf/documentation.conf
+msgid "scan.nessus_clientpolicy"
+msgstr "Nessus client policy"
+
+# conf/documentation.conf
+msgid "scan.nessus_port"
+msgstr "Nessus port"
+
+# conf/documentation.conf
+msgid "scan.openvas_configid"
+msgstr "OpenVAS config ID"
+
+# conf/documentation.conf
+msgid "scan.openvas_port"
+msgstr "OpenVAS port"
+
+# conf/documentation.conf
+msgid "scan.openvas_reportformatid"
+msgstr "OpenVAS "
+
+# conf/documentation.conf
+msgid "scan.pass"
+msgstr "Password"
+
+# conf/documentation.conf
+msgid "scan.registration"
+msgstr "Registration"
+
+# conf/documentation.conf
+msgid "scan.user"
+msgstr "User"
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "seconds"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services"
+msgstr "Services"
+
+# conf/documentation.conf
+msgid "services.arp_binary"
+msgstr "arp path"
+
+# conf/documentation.conf
+msgid "services.dhcpd"
+msgstr "dhcpd"
+
+# conf/documentation.conf
+msgid "services.dhcpd_binary"
+msgstr "dhcpd path"
+
+# conf/documentation.conf
+msgid "services.httpd_binary"
+msgstr "httpd path"
+
+# conf/documentation.conf
+msgid "services.named"
+msgstr "named"
+
+# conf/documentation.conf
+msgid "services.named_binary"
+msgstr "named path"
+
+# conf/documentation.conf
+msgid "services.radiusd"
+msgstr "radiusd"
+
+# conf/documentation.conf
+msgid "services.radiusd_binary"
+msgstr "radiusd path"
+
+# conf/documentation.conf
+msgid "services.snmptrapd_binary"
+msgstr "smtptrapd path"
+
+# conf/documentation.conf
+msgid "services.snort_binary"
+msgstr "snort path"
+
+# conf/documentation.conf
+msgid "services.suricata_binary"
+msgstr "suricata path"
+
+# conf/documentation.conf
+msgid "servicewatch"
+msgstr "Service watch"
+
+# conf/documentation.conf
+msgid "servicewatch.email"
+msgstr "Send email"
+
+# conf/documentation.conf
+msgid "servicewatch.restart"
+msgstr "Restart"
+
+# pf::Authentication::constants (Actions)
+msgid "set_access_duration"
+msgstr "Set access duration"
+
+# pf::Authentication::constants (Actions)
+msgid "set_access_level"
+msgstr "Set access level"
+
+# pf::Authentication::constants (Actions)
+msgid "set_role"
+msgstr "Set role"
+
+# pf::Authentication::constants (Actions)
+msgid "set_unreg_date"
+msgstr "Set unregistration date"
+
+# conf/documentation.conf (vlan.trap_limit_action options)
+msgid "shut"
+msgstr ""
+
+# conf/documentation.conf (trapping.detection_engine options)
+msgid "snort"
+msgstr ""
+
+# pf::config (VALID_TRIGGER_TYPES)
+msgid "soh"
+msgstr "SoH Filters"
+
+# conf/documentation.conf (guests_self_registration.mandatory_fields options)
+msgid "sponsor_email"
+msgstr ""
+
+# pf::config (Inline triggers)
+msgid "ssid"
+msgstr "Wifi Network SSID"
+
+# conf/documentation.conf (trapping.detection_engine options)
+msgid "suricata"
+msgstr ""
+
+# pf::SNMP::constants (Modes)
+msgid "testing"
+msgstr "Testing"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "trap_action"
+msgstr "Trap"
+
+# conf/documentation.conf
+msgid "trapping"
+msgstr "Trapping"
+
+# conf/documentation.conf
+msgid "trapping.always_use_redirecturl"
+msgstr "Force redirect URL"
+
+# conf/documentation.conf
+msgid "trapping.detection"
+msgstr "Detection"
+
+# conf/documentation.conf
+msgid "trapping.detection_engine"
+msgstr "Detection engine"
+
+# conf/documentation.conf
+msgid "trapping.passthrough"
+msgstr "Passthrough"
+
+# conf/documentation.conf
+msgid "trapping.range"
+msgstr "Addresses ranges"
+
+# conf/documentation.conf
+msgid "trapping.redirecturl"
+msgstr "Redirect URL"
+
+# conf/documentation.conf
+msgid "trapping.redirtimer"
+msgstr "Redirection delay"
+
+# conf/documentation.conf
+msgid "trapping.registration"
+msgstr "Registration"
+
+# conf/documentation.conf
+msgid "trapping.whitelist"
+msgstr "Whitelist"
+
+# conf/documentation.conf
+msgid "trapping.wireless_ips"
+msgstr "Wireless IPS"
+
+# conf/documentation.conf
+msgid "trapping.wireless_ips_threshold"
+msgstr "Wireless IPS threshold"
+
+# pfappserver::Model::Node (availableStatus)
+msgid "unreg"
+msgstr "unregistered"
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "unreg_action"
+msgstr "Deregister node"
+
+# pf::config (VALID_TRIGGER_TYPES)
 msgid "useragent"
 msgstr "UserAgent"
 
+# pf::config (VALID_TRIGGER_TYPES)
 msgid "vendormac"
 msgstr "VendorMAC"
 
-# lib/pf/pfcmd/report.pm
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "violation_add"
+msgstr ""
 
-msgid "dhcp_fingerprint"
-msgstr "Operating System Class"
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "violation_delete"
+msgstr ""
+
+# conf/documentation.conf (advanced.reevaluate_access_reasons options)
+msgid "violation_modify"
+msgstr ""
+
+# conf/documentation.conf (interface.enforcement options)
+msgid "vlan"
+msgstr "SNMP"
+
+# pf::config (Network types)
+msgid "vlan-isolation"
+msgstr "Isolation"
+
+# pf::config (Network types)
+msgid "vlan-registration"
+msgstr "Registration"
+
+# conf/documentation.conf
+msgid "vlan.bounce_duration"
+msgstr "Bounce duration"
+
+# conf/documentation.conf
+msgid "vlan.closelocationlogonstop"
+msgstr "Close on stop"
+
+# conf/documentation.conf
+msgid "vlan.nbtraphandlerthreads"
+msgstr "Handler threads count"
+
+# conf/documentation.conf
+msgid "vlan.nbtrapparserthreads"
+msgstr "Parser threads count"
+
+# conf/documentation.conf
+msgid "vlan.trap_limit"
+msgstr "Trap limiting"
+
+# conf/documentation.conf
+msgid "vlan.trap_limit_action"
+msgstr "Trap limit action"
+
+# conf/documentation.conf
+msgid "vlan.trap_limit_threshold"
+msgstr "Trap limiting threshold"
+
+# conf/documentation.conf
+msgid "webservices"
+msgstr "Webservices"
+
+# conf/documentation.conf
+msgid "webservices.pass"
+msgstr "Password"
+
+# conf/documentation.conf
+msgid "webservices.user"
+msgstr "Username"
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "weeks"
+msgstr ""
+
+# pf::action (VIOLATION_ACTIONS)
+msgid "winpopup_action"
+msgstr "Windows popup message"
+
+# html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+msgid "years"
+msgstr ""
+
+# conf/documentation.conf (node_import.voip options)
+msgid "yes"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/files.tt
+msgid "{percent}% of {total_size}"
+msgstr ""
+
