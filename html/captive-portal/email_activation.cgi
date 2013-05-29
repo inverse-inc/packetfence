@@ -171,6 +171,7 @@ if (defined($cgi->url_param('code'))) {
     
             # If MAC is defined, it's a guest already here that we need to register
             my $node_info = node_view($node_mac);
+            $pid = $node_info->{'pid'}
             if (!defined($node_info) || ref($node_info) ne 'HASH') {
     
                 $logger->warn(
