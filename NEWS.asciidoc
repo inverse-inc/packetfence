@@ -25,6 +25,7 @@ Enhancements
 * New counters bellow line graphs of reports
 * Support for anonymous bind in LDAP authentication sources
 * Add support for date and time conditions in authentication sources
+* Add "is not" condition on connection type
 
 Bug Fixes
 +++++++++

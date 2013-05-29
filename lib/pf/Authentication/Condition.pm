@@ -61,6 +61,11 @@ sub matches {
                 return 1;
             }
         }
+        elsif ($self->{'operator'} eq $Conditions::IS_NOT) {
+            if ($self->{'value'} ne $v) {
+                return 1;
+            }
+        }
         elsif ($self->{'operator'} eq $Conditions::CONTAINS) {
             if (index($v, $self->{'value'}) >= 0) {
                 return 1;
