@@ -15,17 +15,16 @@ use strict;
 use warnings;
 # pf core libs
 use lib '/usr/local/pf/lib';
-use Log::Log4perl;
 use File::Path qw(remove_tree);
 
 our (%DATA);
 
 BEGIN {
-
-Log::Log4perl->init("./log.conf");
     use pf::file_paths;
     $pf::file_paths::chi_config_file = './data/chi.conf';
+    $pf::file_paths::log_config_file = './log.conf';
 }
+use pf::log;
 
 use Test::More tests => 6;                      # last test to print
 
