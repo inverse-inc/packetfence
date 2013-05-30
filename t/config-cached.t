@@ -16,8 +16,12 @@ use warnings;
 # pf core libs
 use lib '/usr/local/pf/lib';
 use File::Path qw(remove_tree);
+use File::Temp qw(tempfile);
+use File::Copy;
+use File::Slurp qw(read_file);
+use POSIX ":sys_wait_h";
 
-our (%DATA);
+our (%DATA,%DATA1,%DATA2,$filename);
 
 BEGIN {
     use pf::file_paths;
@@ -26,18 +30,35 @@ BEGIN {
 }
 use pf::log;
 
-use Test::More tests => 6;                      # last test to print
+use Test::More tests => 11;
 
 use Test::NoWarnings;
+use Test::Exception;
 
 use_ok("pf::config::cached");
 
+(undef, $filename) = tempfile(OPEN => 0,UNLINK => 0);
+
+copy("./data/test.conf",$filename);
+
 my $config =  pf::config::cached->new(
-    -file => './data/test.conf',
+    -file => $filename,
     -onreload => [
         reload => sub {
             my ($config,$name) = @_;
-            $config->toHash(\%DATA);
+            $config->toHash(\%DATA1);
+        }
+    ],
+    -onfilereload => [
+        reload => sub {
+            my ($config,$name) = @_;
+            $config->cache->set("DATA2",\%DATA1);
+        }
+    ],
+    -oncachereload => [
+        reload => sub {
+            my ($config,$name) = @_;
+            %DATA2 = %{$config->cache->get("DATA2")};
         }
     ],
 );
@@ -46,12 +67,53 @@ isa_ok($config,"pf::config::cached");
 
 isa_ok($config,"Config::IniFiles","Prending to be a Config::IniFiles");
 
-ok(exists $DATA{section1},"section1 exists");
+ok(exists $DATA1{section1},"\$config->toHash");
 
-ok($DATA{section1}{param1} eq 'value1',"section1.param1 eq value1");
+ok($DATA1{section1}{param1} eq 'value1',"\$config->toHash");
+
+our $pid = fork();
+if($pid == 0) {
+    $config->setval("section1","param2","newval");
+    $config->RewriteConfig;
+    exit;
+} elsif ( $pid == -1 ){
+    die;
+}
+waitpid ($pid,0);
+
+is_deeply({},\%DATA2,"on file/cache reload");
+
+$config->ReadConfig();
+
+ok("newval" eq $DATA1{"section1"}{"param2"},"on reload");
+
+is_deeply(\%DATA1,\%DATA2,"on file/cache reload");
+
+my $old_value = $config->val("section1","param1");
+
+$config->setval("section1","param1","newval");
+
+$config->Rollback;
+
+ok($config->val("section1","param1") eq  $old_value ,"Rollback");
+
+$pid = fork();
+if($pid == 0) {
+    $config->setval("section1","param1","newval");
+    $config->RewriteConfig;
+    exit;
+} elsif ( $pid == -1 ){
+    die;
+}
+waitpid ($pid,0);
+
+dies_ok(sub {$config->RewriteConfig},"Die on writing when timestamp differs");
 
 END {
-    remove_tree('/tmp/chi');
+    if($pid) {
+        unlink($filename);
+        remove_tree('/tmp/chi');
+    }
 };
 
 =head1 AUTHOR
