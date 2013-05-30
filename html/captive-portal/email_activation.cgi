@@ -55,17 +55,17 @@ if (defined($cgi->url_param('code'))) {
         $node_mac = $portalSession->getGuestNodeMac();
     }
 
-    # Email activated guests only need to prove their email was valid by clicking on the link. 
+    # Email activated guests only need to prove their email was valid by clicking on the link.
     if ($activation_record->{'type'} eq $GUEST_ACTIVATION) {
 
         # if we have a MAC, guest is on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
 
             my $pid = $activation_record->{'pid'};
-            
+
             # Setting access timeout and role (category) dynamically
             my $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
-            
+
             if (defined $expiration) {
                 $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
             }
@@ -104,17 +104,17 @@ if (defined($cgi->url_param('code'))) {
 
             # we create temporary password with default expiration / arrival date and access duration from config
             my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
-            
+
             if (!defined $access_duration) {
                 $access_duration = 0;
             }
 
             $info{'password'} = pf::temporary_password::generate($pid, undef, undef, $access_duration);
-    
+
             # send on-site guest credentials by email
             pf::web::guest::send_template_email(
                 $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION_CONFIRMED, $info{'subject'}, \%info
-            ); 
+            );
 
             # send to a success page
             pf::web::generate_generic_page($portalSession, $pf::web::guest::EMAIL_PREREG_CONFIRMED_TEMPLATE, \%info);
@@ -127,7 +127,7 @@ if (defined($cgi->url_param('code'))) {
     # Sponsor activated guests. We need the sponsor to authenticate before allowing access
     elsif ($activation_record->{'type'} eq $SPONSOR_ACTIVATION) {
 
-        # if we have a username in session it means user has already authenticated 
+        # if we have a username in session it means user has already authenticated
         # so we go ahead and allow the guest in
         if (!defined($portalSession->getSession->param("username"))) {
 
@@ -157,7 +157,7 @@ if (defined($cgi->url_param('code'))) {
         # otherwise we'll submit our authentication but with ?action=logout so it'll delete the session right away
         if (defined($cgi->url_param("action")) && $cgi->url_param("action") eq "logout") {
             $portalSession->getSession->delete();
-    
+
             pf::web::guest::generate_custom_login_page($portalSession, undef, $pf::web::guest::SPONSOR_LOGIN_TEMPLATE);
             exit(0);
         }
@@ -166,26 +166,26 @@ if (defined($cgi->url_param('code'))) {
         $logger->debug($portalSession->getSession->param('username') . " successfully authenticated. Activating sponsored guest");
 
         my ($pid, %info, $template);
-    
+
         if ( defined($node_mac) ) {
-    
+
             # If MAC is defined, it's a guest already here that we need to register
             my $node_info = node_view($node_mac);
-            $pid = $node_info->{'pid'}
+            $pid = $node_info->{'pid'};
             if (!defined($node_info) || ref($node_info) ne 'HASH') {
-    
+
                 $logger->warn(
                     "Problem finding more information about a mac address to enable guest access for mac: $node_mac"
                 );
                 pf::web::generate_error_page(
-                    $portalSession, 
+                    $portalSession,
                     i18n("There was a problem trying to find the computer to register. The problem has been logged.")
                 );
                 exit(0);
             }
-    
+
             if ($node_info->{'status'} eq $pf::node::STATUS_REGISTERED) {
-    
+
                 $logger->warn("node mac: $node_mac has already been registered.");
                 pf::web::generate_error_page($portalSession,
                     i18n_format("The device with MAC address %s has already been authorized to your network.", $node_mac),
@@ -195,7 +195,7 @@ if (defined($cgi->url_param('code'))) {
 
             # Setting access timeout and role (category) dynamically
             $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
-            
+
             if (defined $info{'unregdate'}) {
                 $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
             }
@@ -204,12 +204,12 @@ if (defined($cgi->url_param('code'))) {
             }
 
             $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
-    
+
             $logger->debug("Determined unregdate $info{'unregdate'} and category $info{'category'} for pid $pid");
 
             # register the node
             pf::web::web_node_register($portalSession, $node_info->{'pid'}, %info);
-    
+
             # populating variables used for temporary account
             $pid = $node_info->{'pid'};
             $template = $pf::web::guest::TEMPLATE_EMAIL_GUEST_ON_REGISTRATION;
@@ -218,14 +218,14 @@ if (defined($cgi->url_param('code'))) {
 
         # self-preregistered guest
         elsif (defined($activation_record->{'pid'})) {
-    
+
             # If pid is set in activation record then we are activating a guest who pre-registered
             $pid = $activation_record->{'pid'};
             $info{'pid'} = $pid;
             $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
             $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
         }
-    
+
         # TO:
         $info{'email'} = $pid;
         # username
@@ -251,7 +251,7 @@ if (defined($cgi->url_param('code'))) {
         );
 
         pf::email_activation::set_status_verified($cgi->url_param('code'));
-    
+
         # send to a success page
         pf::web::generate_generic_page(
             $portalSession, $pf::web::guest::SPONSOR_CONFIRMED_TEMPLATE
@@ -280,15 +280,15 @@ This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut

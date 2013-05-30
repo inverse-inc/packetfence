@@ -9,7 +9,7 @@ pf::web::wispr - wispr implementation in mod_perl
 
 =head1 DESCRIPTION
 
-pf::web::wispr return xml when your authentication is success or failure. 
+pf::web::wispr return xml when your authentication is success or failure.
 
 =cut
 
@@ -49,19 +49,18 @@ sub handler {
 
     my $r = (shift);
     my $req = Apache2::Request->new($r);
-    Log::Log4perl->init("$conf_dir/log.conf");
     my $logger = Log::Log4perl->get_logger('auth_handler');
 
     $logger->trace("hitting wispr");
 
     my $portalSession = pf::Portal::Session->new();
-    
+
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
-    
+
     my $response;
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });    
+    });
 
     my %info;
     my $pid;
@@ -82,7 +81,7 @@ sub handler {
                   'code_result' => "50",
                   'result' => "Authentication Success",
                  };
-        
+
         if (defined($portalSession->getGuestNodeMac)) {
             $mac = $portalSession->getGuestNodeMac;
         }
@@ -154,10 +153,8 @@ Register the node if the authentication was successfull
 
 sub register {
     my $r = (shift);
-    Log::Log4perl->init("$conf_dir/log.conf");
-    my $logger = Log::Log4perl->get_logger('auth_handler');
-
-    node_register( $r->pnotes->{mac},$r->pnotes->{pid}, %{$r->pnotes->{info}} );
+    my $mac = $r->pnotes->{mac};
+    node_register( $mac,$r->pnotes->{pid}, %{$r->pnotes->{info}} );
     reevaluate_access( $mac, 'manage_register' );
 }
 

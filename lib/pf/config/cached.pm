@@ -270,6 +270,7 @@ When using a value that was dervived from a configuration use a sub routine to c
 use strict;
 use warnings;
 use pf::file_paths;
+use Time::HiRes qw(stat time);
 use pf::log;
 use pf::CHI;
 use pf::IniFiles;
@@ -288,10 +289,15 @@ our $CACHE;
 our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
+our %ON_CACHE_RELOAD;
 our @ON_DESTROY_REFS = (
     \%ON_RELOAD,
     \%ON_FILE_RELOAD,
+    \%ON_CACHE_RELOAD,
 );
+
+our %CONFIG_DATA;
+
 use overload "%{}" => \&config, fallback => 1;
 
 our $chi_config = pf::IniFiles->new( -file => $chi_config_file);
@@ -337,12 +343,15 @@ sub new {
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
+    my $onCacheReload = delete $params{'-oncachereload'} || [];
+    my $reload_onfile;
     if($file) {
         $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
         if( defined $self) {
             #Adding the reload and filereload callbacks
             $self->addReloadCallbacks(@$onReload) if @$onReload;
             $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+            $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
             #Rereading the config to ensure the latest version
             $self->ReadConfig();
         } else {
@@ -357,6 +366,7 @@ sub new {
                     $config->SetWriteMode($WRITE_PERMISSIONS);
                     my $mode = oct($config->GetWriteMode);
                     chmod $mode, $file;
+                    $reload_onfile = 1;
                     return $config;
                 }
             );
@@ -369,11 +379,14 @@ sub new {
         push @LOADED_CONFIGS, $self;
         $ON_RELOAD{$file} = [];
         $ON_FILE_RELOAD{$file} = [];
+        $ON_CACHE_RELOAD{$file} = [];
         bless $self,$class;
         $self->addReloadCallbacks(@$onReload) if @$onReload;
         $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+        $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
         $self->_callReloadCallbacks();
-        $self->_callFileReloadCallbacks();
+        $self->_callFileReloadCallbacks() if $reload_onfile;
+        $self->_callCacheReloadCallbacks() unless $reload_onfile;
     }
     return $self;
 }
@@ -397,9 +410,7 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
-    my $cache = $self->cache;
-    my $cached_object = $cache->get_object($file);
-    if( -e $file && $cached_object && $self->_expireIf($cached_object,$file)) {
+    if( -e $file && $config->{_timestamp} < getModTimestamp($file) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
@@ -453,9 +464,24 @@ sub Rollback {
     my $old_config = $cache->get($file);
     $$self = $old_config;
     $self->_callReloadCallbacks();
+    $self->_callCacheReloadCallbacks();
 }
 
-=head2 _callReloadCallbackss
+=head2 _callCallbacks
+
+Helper function for calling the callbacks
+
+=cut
+
+sub _callCallbacks {
+    my ($self,$data) = @_;
+    my $callbacks =  $data->{$self->GetFileName};
+    foreach my $callback_data ( @$callbacks) {
+        $callback_data->[1]->($self,$callback_data->[0]);
+    }
+}
+
+=head2 _callReloadCallbacks
 
 Call all reload callbacks
 
@@ -463,14 +489,10 @@ Call all reload callbacks
 
 sub _callReloadCallbacks {
     my ($self) = @_;
-    my $file = $self->GetFileName;
-    my $on_reload = $ON_RELOAD{$file};
-    foreach my $callback_data ( @$on_reload) {
-        $callback_data->[1]->($self,$callback_data->[0]);
-    }
+    $self->_callCallbacks(\%ON_RELOAD);
 }
 
-=head2 _callFileReloadCallbackss
+=head2 _callFileReloadCallbacks
 
 Call all the file reload callbacks
 
@@ -478,11 +500,18 @@ Call all the file reload callbacks
 
 sub _callFileReloadCallbacks {
     my ($self) = @_;
-    my $file = $self->GetFileName;
-    my $on_file_reload = $ON_FILE_RELOAD{$file};
-    foreach my $callback_data ( @$on_file_reload) {
-        $callback_data->[1]->($self,$callback_data->[0]);
-    }
+    $self->_callCallbacks(\%ON_FILE_RELOAD);
+}
+
+=head2 _callCacheReloadCallbacks
+
+Call all the cache reload callbacks
+
+=cut
+
+sub _callCacheReloadCallbacks {
+    my ($self) = @_;
+    $self->_callCallbacks(\%ON_CACHE_RELOAD);
 }
 
 
@@ -602,16 +631,9 @@ sub ReadConfig {
             return $config;
         }
     );
-    if (refaddr($config) != refaddr($self->config)) {
-        $reloaded_from_cache = 1;
-    }
-    $reloaded = $reloaded_from_file || $reloaded_from_cache;
-    if($reloaded) {
-        $self->_callReloadCallbacks();
-    }
-    if($reloaded_from_file) {
-        $self->_callFileReloadCallbacks();
-    }
+    $self->_callReloadCallbacks;
+    $self->_callFileReloadCallbacks if $reloaded_from_file;
+    $self->_callCacheReloadCallbacks unless $reloaded_from_file;
     return $result;
 }
 
@@ -664,12 +686,17 @@ Will load the C<Config::IniFiles> object from cache or filesystem and update the
 sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
     my $mod_time = getModTimestamp($file);
+    my $computeWrapper = sub {
+        my $config = $computeSub->();
+        $config->{_timestamp} = time;
+        return $config;
+    };
     my $result = $self->cache->compute(
         $file,
         {
             expire_if => sub { return $expire || $self->_expireIf($_[0],$file); },
         },
-        $computeSub
+        $computeWrapper
     );
     return $result;
 }
@@ -707,12 +734,13 @@ Check to see if the config file needs to be reread
 sub _expireIf {
     my ($self,$cache_object,$file) = @_;
     my $imported_expired = 0;
+    my $timestamp = $cache_object->value->{_timestamp} || 0;
     #checking to see if the imported file needs to be reimported also
     if ( ref($self) && exists $self->{imported} ) {
         my $imported = $self->{imported};
-        $imported_expired = (defined $imported && $cache_object->created_at < getModTimestamp($imported->GetFileName));
+        $imported_expired = (defined $imported && $timestamp < getModTimestamp($imported->GetFileName));
     }
-    return ($imported_expired ||  !-e $file ||  ($cache_object->created_at < getModTimestamp($file)));
+    return ($imported_expired ||  !-e $file ||  ( $timestamp < getModTimestamp($file)));
 }
 
 =head2 getModTimestamp
@@ -722,7 +750,8 @@ Simple utility function for getting the modification timestamp
 =cut
 
 sub getModTimestamp {
-    return (stat($_[0]))[9];
+    my $timestamp = (stat($_[0]))[9];
+    return $timestamp;
 }
 
 
@@ -752,9 +781,7 @@ If callback already exists, previous callback is replaced and previous position 
 
 sub addReloadCallbacks {
     my ($self,@args) = @_;
-    my $file = $self->GetFileName;
-    my $on_reload = $ON_RELOAD{$file};
-    $self->_addCallbacks($on_reload,@args);
+    $self->_addCallbacks($ON_RELOAD{$self->GetFileName},@args);
 }
 
 =head2 _addCallbacks
@@ -789,9 +816,21 @@ If callback already exists, previous callback is replaced and previous position 
 
 sub addFileReloadCallbacks {
     my ($self,@args) = @_;
-    my $file = $self->GetFileName;
-    my $on_file_reload = $ON_FILE_RELOAD{$file};
-    $self->_addCallbacks($on_file_reload,@args);
+    $self->_addCallbacks($ON_FILE_RELOAD{$self->GetFileName},@args);
+}
+
+=head2 addCacheReloadCallbacks
+
+$self->addFileReloadCallbacks('name' => sub {...});
+Add named callbacks to the onfilereload array
+Called in insert order
+If callback already exists, previous callback is replaced and previous position is preserved
+
+=cut
+
+sub addCacheReloadCallbacks {
+    my ($self,@args) = @_;
+    $self->_addCallbacks($ON_CACHE_RELOAD{$self->GetFileName},@args);
 }
 
 =head2 DESTROY
@@ -896,18 +935,20 @@ sub _extractCHIArgs {
     my ($section) = @_;
     my %args;
     foreach my $param ($chi_config->Parameters($section)) {
-        my $value = $chi_config->val($section,$param);
-        if($param eq 'servers') {
-            $args{$param} = [split(/\s*,\s*/,$value)];
-        } elsif($param eq 'l1_cache') {
-            $args{$param} = _extractCHIArgs($value);
-        } else {
-            $args{$param} = $value;
-        }
+        $args{$param} = $chi_config->val($section,$param);
+    }
+    if(exists $args{servers} && defined $args{servers} ) {
+        my $value = $args{servers};
+        my @servers = (ref $value eq 'ARRAY') ? @$value : ($value);
+        $args{servers} = [ map {split /\s*,\s*/} @servers ];
+    }
+    foreach my $groupmember ( grep { /^\Q$section \E[^ ]+$/ } $chi_config->Sections()) {
+        my $key = $groupmember;
+        $key =~ s/^\Q$section \E//;
+        $args{$key} = _extractCHIArgs($groupmember);
     }
     return \%args;
 }
-
 
 =head1 AUTHOR
 

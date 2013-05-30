@@ -30,7 +30,7 @@ $switches_cached_config  = pf::config::cached->new(
     -file => $switches_config_file,
     -allowempty => 1,
     -default => 'default',
-    -onreload => [
+    -onfilereload => [
         on_switches_reload => sub  {
             my ($config, $name) = @_;
             $config->toHash(\%SwitchConfig);
@@ -65,6 +65,12 @@ $switches_cached_config  = pf::config::cached->new(
             }
             $SwitchConfig{'127.0.0.1'} = { %{$SwitchConfig{default}}, type => 'PacketFence', mode => 'production', uplink => ['dynamic'], SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
             $config->cache->set("SwitchConfig",\%SwitchConfig);
+        },
+    ],
+    -oncachereload => [
+        on_cache_switches_reload => sub  {
+            my ($config, $name) = @_;
+            %SwitchConfig = %{$config->cache->get("SwitchConfig")};
         },
     ]
 );
