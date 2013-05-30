@@ -70,8 +70,7 @@ sub _initialize {
     $self->{'_cgi'} = $cgi;
 
     my $sid = $cgi->param('CGISESSID') || $cgi;
-
-    $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
+    $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } ); 
 
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
@@ -169,7 +168,7 @@ sub _resolveIp {
     if (defined($self->cgi->param('ip'))) {
         $self->{'_session'}->param('ip', $self->cgi->param('ip'));
         $directly_connected_ip = $self->{'_session'}->param('ip');
-    } elsif (defined($self->{'_session'}) && defined($self->{'_session'}->param('ip'))) {
+    } elsif (defined($self->{'_session'}->param('ip'))) {
         $directly_connected_ip = $self->{'_session'}->param('ip');
     }
     else {
@@ -292,6 +291,9 @@ Returns the MAC of the captive portal client.
 =cut
 sub getClientMac {
     my ($self) = @_;
+    if (defined($self->cgi->param('mac'))) {
+        return $self->cgi->param('mac');
+    }
     return $self->{'_client_mac'};
 }
 
@@ -410,3 +412,4 @@ USA.
 =cut
 
 1;
+

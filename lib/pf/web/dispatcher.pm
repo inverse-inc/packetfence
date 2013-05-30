@@ -14,6 +14,7 @@ use Apache2::RequestRec ();
 use Apache2::Response ();
 use Apache2::RequestUtil ();
 use Apache2::ServerRec;
+use Apache2::Request;
 
 use APR::Table;
 use APR::URI;
@@ -25,6 +26,7 @@ use pf::config;
 use pf::util;
 use pf::web::constants;
 use pf::proxypassthrough::constants;
+use Data::Dumper;
 
 =head1 SUBROUTINES
 
@@ -44,7 +46,7 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 sub translate {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-    $logger->trace("hitting translator with URL: " . $r->uri);
+    $logger->warn("hitting translator with URL: " . $r->uri);
 
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
@@ -108,10 +110,13 @@ sub handler {
     } else {
         $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
     }
-
+    my $captiv_url = APR::URI->parse($r->pool,"$proto://securelogin.arubanetworks.com:8080/captive-portal");
+    $captiv_url->query($r->args);
+    my $wispr_url = APR::URI->parse($r->pool,"$proto://securelogin.arubanetworks.com:8080/wispr");
+    $wispr_url->query($r->args);
     my $stash = {
-        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
-        'login_url_wispr' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/wispr",
+        'login_url' => $captiv_url->unparse(),
+        'login_url_wispr' => $wispr_url->unparse(),
     };
 
     # prepare custom REDIRECT response
@@ -143,6 +148,9 @@ sub html_redirect {
     $logger->trace('hitting html redirector');
 
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
+
+    my $captiv_url = APR::URI->parse($r->pool,"$proto://accuroam-2.srbh.tlabs.ca/captive-portal");
+    $captiv_url->query($r->args);
     my $stash = {
         'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
     };

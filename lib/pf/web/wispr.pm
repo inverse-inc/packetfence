@@ -88,12 +88,59 @@ sub handler {
         else {
             $mac = $portalSession->getClientMac;
         }
-
+        $mac = $req->param('mac'); 
         $info{'pid'} = 'admin';
         $pid = $req->param("username") if (defined $req->param("username"));
         $r->pnotes->{pid}=$pid;
+        $r->pnotes->{user_agent}=$r->headers_in->{"User-Agent"};
         $r->pnotes->{mac} = $mac;
         %info = (%info, (pid => $pid), (user_agent => $r->headers_in->{"User-Agent"}), (mac =>  $mac));
+    }
+
+
+    my $params = { username => $pid };
+    # TODO : add current_time and computer_name
+    my $locationlog_entry = locationlog_view_open_mac($mac);
+    if ($locationlog_entry) {
+        $params->{connection_type} = $locationlog_entry->{'connection_type'};
+        $params->{SSID} = $locationlog_entry->{'ssid'};
+    }
+
+    # obtain node information provided by authentication module. We need to get the role (category here)
+    # as web_node_register() might not work if we've reached the limit
+    my $value = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+
+    $logger->warn("Got role $value for username $pid");
+
+    # This appends the hashes to one another. values returned by authenticator wins on key collision
+    if (defined $value) {
+        %info = (%info, (category => $value));
+    }
+
+    $value = &pf::authentication::match(undef, $params, $Actions::SET_ACCESS_DURATION);
+
+    if (defined $value) {
+        $logger->trace("No unregdate found - computing it from access duration");
+        $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
+    }
+    else {
+        $logger->trace("Unregdate found, we use it right away");
+        $value = &pf::authentication::match(undef, $params, $Actions::SET_UNREG_DATE);
+    }
+
+    $logger->trace("Got unregdate $value for username $pid");
+
+    if (defined $value) {
+        %info = (%info, (unregdate => $value));
+    }
+    $r->pnotes->{info}=\%info;
+    $template->process( "response_wispr.tt", $stash, \$response ) || $logger->error($template->error());
+    $r->content_type('text/xml');
+    $r->no_cache(1);
+    $r->print($response);
+    if (defined($pid)) {
+        $r->handler('modperl');
+        $r->set_handlers(PerlCleanupHandler => \&register);
     }
 
 
