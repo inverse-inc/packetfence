@@ -344,7 +344,7 @@ sub service_ctl {
             $action eq "status" && do {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") ) ) {
+                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") || ($daemon eq "snort") ) ) {
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
                     }
@@ -403,6 +403,20 @@ sub service_ctl {
                     }
                     return ($pid);
                 }
+                elsif ($daemon =~ "snort") {
+                    $pid = 0;
+                    if (-e "$install_dir/var/run/${daemon}_${monitor_int}.pid") {
+                        chomp( $pid = `cat $install_dir/var/run/${daemon}_${monitor_int}.pid`);
+                        my $ppt = new Proc::ProcessTable;
+                        my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                        if (!defined($proc)) {
+                            unlink( $install_dir . "/var/run/${daemon}_${monitor_int}.pid" );
+                            return(0);
+                        }
+                    }
+                    return ($pid);
+                }
+
             }
         }
     }
