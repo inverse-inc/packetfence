@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.0.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-05-29 15:03-0400\n"
+"PO-Revision-Date: 2013-05-30 14:20-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -2714,6 +2714,11 @@ msgstr "Secure redirect"
 msgid "close_action"
 msgstr "Close a violation"
 
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "cn"
+msgstr ""
+
 # pf::Authentication::Source (common_attributes)
 msgid "computer_name"
 msgstr "Computer name"
@@ -2770,6 +2775,11 @@ msgstr ""
 msgid "default network:"
 msgstr ""
 
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "department"
+msgstr ""
+
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "detect"
 msgstr "Detect"
@@ -2810,6 +2820,21 @@ msgstr ""
 # conf/documentation.conf (vlan.closelocationlogonstop options)
 # conf/documentation.conf (vlan.trap_limit options)
 msgid "disabled"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "displayName"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "distinguishedName"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "eduPersonPrimaryAffiliation"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid options)
@@ -2930,6 +2955,11 @@ msgstr "Memcached Servers"
 # conf/documentation.conf
 msgid "general.timezone"
 msgstr "Timezone"
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "givenName"
+msgstr ""
 
 # pfappserver::Model::Node (availableStatus)
 msgid "grace"
@@ -3061,10 +3091,6 @@ msgstr ""
 msgid "log_action"
 msgstr "Log message"
 
-# pf::Authentication::Source (common_attributes)
-msgid "login"
-msgstr ""
-
 # pf::Authentication::constants (Conditions)
 msgid "lower"
 msgstr ""
@@ -3114,6 +3140,11 @@ msgstr "Management"
 # pf::Authentication::constants (Actions)
 msgid "mark_as_sponsor"
 msgstr "Mark as sponsor"
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "memberOf"
+msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
 msgid "minutes"
@@ -3223,6 +3254,10 @@ msgstr ""
 msgid "phone"
 msgstr ""
 
+# pf::Authentication::Source::SMSSource (available_attributes)
+msgid "phonenumber"
+msgstr ""
+
 # html/pfappserver/root/node/view.tt
 # pf::config (Inline triggers)
 msgid "port"
@@ -3311,6 +3346,14 @@ msgstr "Set role"
 
 # html/pfappserver/root/interface/list.tt
 msgid "routed networks:"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+msgid "sAMAccountName"
+msgstr ""
+
+# pf::Authentication::Source::ADSource (available_attributes)
+msgid "sAMAccountType"
 msgstr ""
 
 # conf/documentation.conf
@@ -3453,6 +3496,11 @@ msgstr "Set unregistration date"
 msgid "shut"
 msgstr ""
 
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "sn"
+msgstr ""
+
 # conf/documentation.conf (trapping.detection_engine options)
 msgid "snort"
 msgstr ""
@@ -3541,9 +3589,21 @@ msgstr "unregistered"
 msgid "unreg_action"
 msgstr "Deregister node"
 
+# pf::Authentication::Source::ADSource (available_attributes)
+msgid "userAccountControl"
+msgstr ""
+
+# pf::Authentication::Source::EmailSource (available_attributes)
+msgid "user_email"
+msgstr ""
+
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "useragent"
 msgstr "UserAgent"
+
+# pf::Authentication::Source (common_attributes)
+msgid "username"
+msgstr ""
 
 # pf::config (VALID_TRIGGER_TYPES)
 msgid "vendormac"

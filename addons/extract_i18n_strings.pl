@@ -230,8 +230,34 @@ sub extract_modules {
     const('pf::action', 'VIOLATION_ACTIONS', \@values);
 
     my $attributes = pf::Authentication::Source->common_attributes();
-    @values = map { $_->{value} } @$attributes;
-    const('pf::Authentication::Source', 'common_attributes', \@values);
+    my @common = map { $_->{value} } @$attributes;
+    const('pf::Authentication::Source', 'common_attributes', \@common);
+    my $types = pf::authentication::availableAuthenticationSourceTypes();
+    foreach (@$types) {
+        my $type = "pf::Authentication::Source::${_}Source";
+        $type->require();
+        my $source = $type->new
+          ({
+            id => '',
+            usernameattribute => 'cn',
+            client_secret => '',
+            host => '',
+            realm => '',
+            secret => '',
+            basedn => '',
+            encryption => '',
+            scope => '',
+            path => '',
+            client_id => ''
+           });
+        $attributes = $source->available_attributes();
+
+        @values = map {
+            my $value = $_->{value};
+            ( grep {/$value/} @common ) ? () : $value
+        } @$attributes;
+        const($type, 'available_attributes', \@values) if (@values);
+    }
 
     const('pf::Authentication::constants', 'Actions', \@Actions::ACTIONS);
 
