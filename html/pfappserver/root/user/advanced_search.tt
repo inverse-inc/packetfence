@@ -17,6 +17,7 @@
                   [% header('firstname', 'Firstname', 'hidden-phone') %]
                   [% header('lastname', 'Lastname', 'hidden-phone') %]
                   [% header('email', 'Email') %]
+                  [% header('telephone', 'Telephone') %]
                   [% header('nodes', '# nodes') %]
                 </tr>
               </thead>
@@ -27,6 +28,7 @@
                   <td class="hidden-phone">[% user.firstname %]</td>
                   <td class="hidden-phone">[% user.lastname %]</td>
                   <td>[% user.email %]</td>
+                  <td>[% user.telephone %]</td>
                   <td>[% IF user.nodes > 0 %]<span class="badge">[% user.nodes %]</span>[% END %]</td>
                 </tr>
                 [%- END -%]

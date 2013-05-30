@@ -143,6 +143,7 @@ form {
                             <option value="name">Name</option>
                             <option value="firstname">First Name</option>
                             <option value="lastname">Last Name</option>
+                            <option value="telephone">Telephone</option>
                             <option value="email">Email</option>
                             <option value="sponser">Sponsor</option>
                             <option value="ip_address">IP address</option>
@@ -169,7 +170,8 @@ form {
                             <option value="name">Name</option>
                             <option value="firstname">First Name</option>
                             <option value="lastname">Last Name</option>
-                            <option value="pid">Email</option>
+                            <option value="email">Email</option>
+                            <option value="telephone">Telephone</option>
                             <option value="sponser">Sponsor</option>
                             <option value="ip_address">IP address</option>
                             <option value="mac">MAC address</option>

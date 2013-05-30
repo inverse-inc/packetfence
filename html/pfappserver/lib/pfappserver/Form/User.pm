@@ -72,6 +72,16 @@ has_field 'email' =>
    required => 1,
   );
 
+=head2 telephone
+
+=cut
+
+has_field 'telephone' =>
+  (
+   type => 'Uneditable',
+   label => 'Telephone',
+  );
+
 =head2 sponsor
 
 =cut
@@ -134,7 +144,7 @@ has_field 'expiration' =>
 
 has_block 'user' =>
   (
-   render_list => [qw(pid firstname lastname company email sponsor address notes)],
+   render_list => [qw(pid firstname lastname company telephone email sponsor address notes)],
   );
 
 =item templates block
