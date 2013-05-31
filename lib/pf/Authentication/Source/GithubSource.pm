@@ -13,7 +13,7 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Github');
-
+has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://github.com');
@@ -45,8 +45,6 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     return $params->{'username'};
 }
-
-
 
 =head1 AUTHOR
 

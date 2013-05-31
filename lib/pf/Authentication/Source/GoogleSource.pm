@@ -13,7 +13,7 @@ extends 'pf::Authentication::Source';
 
 has '+class' => (default => 'external');
 has '+type' => (default => 'Google');
-
+has '+unique' => (default => 1);
 has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'YOUR_API_ID.apps.googleusercontent.com');
 has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'site' => (isa => 'Str', is => 'rw', default => 'https://accounts.google.com');
@@ -46,8 +46,6 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     return $params->{'username'};
 }
-
-
 
 
 =head1 AUTHOR
