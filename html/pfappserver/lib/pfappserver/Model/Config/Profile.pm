@@ -14,8 +14,7 @@ pfappserver::Model::Config::Profile
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
-use pf::config;
+use pf::ConfigStore::Profile;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -25,7 +24,7 @@ extends 'pfappserver::Base::Model::Config';
 
 =cut
 
-sub _buildCachedConfig { $cached_profiles_config }
+sub _buildConfigStore { pf::ConfigStore::Profile->new }
 
 =head2 remove
 
