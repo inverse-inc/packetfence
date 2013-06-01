@@ -16,8 +16,6 @@ use warnings;
 use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
-use CHI::Driver::File;
-use CHI::Driver::FastMmap;
 use pf::file_paths;
 use pf::IniFiles;
 use List::MoreUtils qw(uniq);
