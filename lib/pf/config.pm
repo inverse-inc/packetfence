@@ -107,14 +107,8 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-<<<<<<< HEAD
         %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config
-=======
-        $profiles_config_file %Profiles_Config $cached_profiles_config
-        $switches_config_file
-        $cached_pf_config $cached_network_config $cached_floating_device_config $authentication_config_file
->>>>>>> Remove bind with pfdns
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
