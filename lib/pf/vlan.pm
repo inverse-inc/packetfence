@@ -486,7 +486,7 @@ Return true if a radius properties match with the inline trigger
 sub isInlineTrigger {
     my ($self, $switch, $port, $mac, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
-    if (defined($switch->{_inlineTrigger})) {
+    if (defined($switch->{_inlineTrigger}) && $switch->{_inlineTrigger} ne '') {
         foreach my $trigger (@{$switch->{_inlineTrigger}})  {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers
