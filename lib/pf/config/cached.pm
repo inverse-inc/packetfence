@@ -633,7 +633,7 @@ sub ReadConfig {
     );
     $self->_callReloadCallbacks;
     $self->_callFileReloadCallbacks if $reloaded_from_file;
-    $self->_callCacheReloadCallbacks unless $reloaded_from_file;
+    $self->_callCacheReloadCallbacks if refaddr($config) != refaddr($$self);
     return $result;
 }
 
