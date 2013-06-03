@@ -190,6 +190,8 @@ sub update {
                         !($default_section && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
                         ) {
                         $config->setval($id, $param, $value);
+                    } elsif(exists $config->{imported}) {
+                        $config->setval($id, $param, $config->{imported}->val($id, $param));
                     } else {
                         $config->delval($id, $param);
                     }
