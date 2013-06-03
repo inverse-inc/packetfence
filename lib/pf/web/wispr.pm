@@ -98,7 +98,7 @@ sub handler {
 
 
     my $params = { username => $pid };
-    # TODO : add current_time and computer_name
+
     my $locationlog_entry = locationlog_view_open_mac($mac);
     if ($locationlog_entry) {
         $params->{connection_type} = $locationlog_entry->{'connection_type'};
