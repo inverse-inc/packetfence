@@ -38,7 +38,7 @@ $switches_cached_config  = pf::config::cached->new(
             foreach my $switch (values %SwitchConfig) {
                 # transforming uplink and inlineTrigger to arrays
                 foreach my $key (qw(uplink inlineTrigger)) {
-                    next unless exists $switch->{$key} && (my $value = $switch->{$key} );
+                    my $value = $switch->{$key} || "";
                     $switch->{$key} = [split /\s*,\s*/,$value ];
                 }
                 # transforming vlans and roles to hashes
