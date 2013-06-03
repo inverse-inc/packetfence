@@ -29,7 +29,7 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 use pf::pfdns::constants;
-use pf::web::utl;
+use pf::web::util;
 
 # initialization
 # --------------
