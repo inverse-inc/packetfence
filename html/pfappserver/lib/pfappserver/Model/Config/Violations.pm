@@ -19,10 +19,11 @@ use pf::config::cached;
 use pf::config;
 use pf::violation_config;
 use HTTP::Status qw(:constants is_error is_success);
+use pf::ConfigStore::Violations;
 
 extends 'pfappserver::Base::Model::Config';
 
-has '+configFile' => (default => $pf::config::violations_config_file);
+sub _buildConfigStore { pf::ConfigStore::Violations->new }
 
 =head1 Methods
 
@@ -41,35 +42,13 @@ sub availableTemplates {
     return \@templates;
 }
 
-=head2 remove
-
-=cut
-
-sub remove {
-    my ($self,$id,$violation) = @_;
-    return ($STATUS::FORBIDDEN, "This violation can't be deleted") if (int($id) < 1500000);
-    return $self->SUPER::remove($id,$violation);
-}
-
 =head2 listTriggers
 
 =cut
 
 sub listTriggers {
     my ($self) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my ($trigger, %triggers);
-
-    my $cachedConfig = $self->cachedConfig;
-    foreach my $violation ($cachedConfig->Sections()) {
-        $trigger = $cachedConfig->val($violation, 'trigger');
-        if (defined($trigger)) {
-            my @items = grep {!exists $triggers{$_}}  split(',', $trigger);
-            @triggers{@items} = ();
-        }
-    }
-    my @list = sort keys %triggers;
-    return \@list;
+    return $self->configStore->listTriggers;
 }
 
 
@@ -79,25 +58,10 @@ sub listTriggers {
 
 sub addTrigger {
     my ( $self,$id,$trigger ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my $status_msg;
-    my ($status,$result) = $self->read($id);
+    my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
-        my $violation = $result;
-        $status_msg = "Successfully added trigger to violation";
-        if ($violation->{trigger}) {
-            my %triggers_exists;
-            @triggers_exists{@{$violation->{trigger}}} = ();
-            if (exists $triggers_exists{$trigger}) {
-                $status_msg = 'Trigger already included.';
-            } else {
-                $violation->{trigger} = [sort (@{$violation->{trigger}},$trigger)];
-            }
-        } else {
-            $violation->{trigger} = [$trigger];
-        }
-    } else {
-        $status_msg = $result;
+        my $result = $self->configStore->addTrigger($id,$trigger);
+        $status_msg = $result == 1  ? "Successfully added trigger to violation" : 'Trigger already included.';
     }
     return ($status,$status_msg);
 }
@@ -108,59 +72,12 @@ sub addTrigger {
 
 sub deleteTrigger {
     my ( $self,$id,$trigger ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    my $status_msg;
-    my ($status,$result) = $self->read($id);
+    my ($status,$status_msg) = $self->hasId($id);
     if(is_success($status)) {
-        my $violation = $result;
-        $status_msg = 'Trigger already excluded.';
-        if ($violation->{trigger}) {
-            my %triggers_exists;
-            @triggers_exists{@{$violation->{trigger}}} = ();
-            if (exists $triggers_exists{$trigger}) {
-                delete $triggers_exists{$trigger};
-                $violation->{trigger} = [sort keys %triggers_exists];
-                $status = "Successfully deleted trigger from violation";
-            }
-        }
-    } else {
-        $status_msg = $result;
+        my $result = $self->configStore->deleteTrigger($id,$trigger);
+        $status_msg = $result == 1  ? "Successfully deleted trigger from violation" : 'Trigger already excluded.';
     }
     return ($status,$status_msg);
-}
-
-=head2 cleanupAfterRead
-
-Clean up violation
-
-=cut
-
-sub cleanupAfterRead {
-    my ($self, $id, $violation) = @_;
-
-    $self->expand_list($violation, qw(actions trigger whitelisted_categories));
-    if ( exists $violation->{window} ) {
-        $violation->{'window_dynamic'} = $violation->{window};
-    }
-}
-
-=head2 cleanupBeforeCommit
-
-Clean data before update or creating
-
-=cut
-
-sub cleanupBeforeCommit {
-    my ($self, $id, $violation) = @_;
-
-    $self->flatten_list($violation, qw(actions trigger whitelisted_categories));
-
-    if ($violation->{'window_dynamic'}) {
-        $violation->{'window'} = 'dynamic';
-    }
-    delete $violation->{'window_dynamic'};
-
-    pf::violation_config::readViolationConfigFile();
 }
 
 =head1 AUTHOR
