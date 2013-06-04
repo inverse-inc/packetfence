@@ -441,7 +441,7 @@ dhcpd=enabled
 # services.named
 #
 # Should named be managed by PacketFence?
-named=enabled
+pfdns=enabled
 #
 # services.radiusd
 #
@@ -467,11 +467,6 @@ httpd_binary=/usr/sbin/httpd
 #
 # Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
 dhcpd_binary=/usr/sbin/dhcpd
-#
-# services.named_binary
-#
-# Location of the named binary. Only necessary to change if you are not running the RPMed version.
-named_binary=/usr/sbin/pfdns
 #
 # services.snmptrapd_binary
 #

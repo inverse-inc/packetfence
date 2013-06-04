@@ -454,7 +454,7 @@ sub service_list {
         } elsif ( $service eq "pfdns" ) {
             push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
-                    && isenabled($Config{'services'}{'named'}) );
+                    && isenabled($Config{'services'}{'pfdns'}) );
         }
         elsif ( $service eq 'pfdhcplistener' ) {
             push @finalServiceList, $service if ( isenabled($Config{'network'}{'dhcpdetector'}) );
