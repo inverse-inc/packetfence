@@ -730,7 +730,7 @@ sub getVlanByName {
     }
     
     if ($this->{'_vlans'}->{$vlanName} !~ /^\w+$/) {
-        # is not resolved to a valid VLAN number
+        # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
                       ", not a VLAN identifier");
         return;
@@ -754,7 +754,7 @@ sub setVlanByName {
     }
 
     if ($this->{"_".$vlanName} !~ /^\w+$/) {
-        # is not resolved to a valid VLAN number
+        # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan identifier");
         return;
     }
