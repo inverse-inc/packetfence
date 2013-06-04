@@ -52,11 +52,13 @@ sub generate_suricata_conf {
     readViolationConfigFile();
 
     my @rules;
-    foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
+    if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
+        foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
 
-        #append install_dir if the path doesn't start with /
-        $rule = " - $rule" if ( $rule !~ /^\// );
-        push @rules, " - $rule";
+            #append install_dir if the path doesn't start with /
+            $rule = " - $rule" if ( $rule !~ /^\// );
+            push @rules, " - $rule";
+        }
     }
     $tags{'suricata_rules'} = join( "\n", @rules );
     $logger->info("generating $conf_dir/suricata.yaml");
