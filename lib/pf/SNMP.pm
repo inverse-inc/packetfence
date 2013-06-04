@@ -709,7 +709,7 @@ sub getRoleByName {
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
  
-Input: vlan name (as in switches.conf)
+Input: VLAN name (as in switches.conf)
 
 =cut                    
 sub getVlanByName {
@@ -729,10 +729,10 @@ sub getVlanByName {
         return 0;
     }
     
-    if ($this->{'_vlans'}->{$vlanName} !~ /^\d+$/) {
-        # is not resolved to a valid VLAN number
+    if ($this->{'_vlans'}->{$vlanName} !~ /^\w+$/) {
+        # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
-                      ", not a VLAN number");
+                      ", not a VLAN identifier");
         return;
     }   
     return $this->{'_vlans'}->{$vlanName};
@@ -740,7 +740,7 @@ sub getVlanByName {
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
 
-Input: ifIndex, vlan name (as in switches.conf), switch lock
+Input: ifIndex, VLAN name (as in switches.conf), switch lock
 
 =cut
 sub setVlanByName {
@@ -753,9 +753,9 @@ sub setVlanByName {
         return;
     }
 
-    if ($this->{"_".$vlanName} !~ /^\d+$/) {
-        # is not resolved to a valid VLAN number
-        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+    if ($this->{"_".$vlanName} !~ /^\w+$/) {
+        # is not resolved to a valid VLAN identifier
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a VLAN identifier");
         return;
     }
     return $this->setVlan($ifIndex, $this->{"_".$vlanName}, $switch_locker_ref);
