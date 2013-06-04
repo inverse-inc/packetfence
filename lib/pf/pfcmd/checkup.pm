@@ -763,6 +763,7 @@ Checking for violations configurations
 
 sub violations {
 
+    pf::violation_config::readViolationConfigFile();
     my $deprecated_disable_seen = $FALSE;
     foreach my $violation ( keys %Violation_Config ) {
 
