@@ -82,7 +82,7 @@ sub pf_section :Path :Args(1) {
     my $logger = get_logger();
     if (exists $ALLOWED_SECTIONS{$section} ) {
         my ($params, $form);
-        my ($status,$status_msg);
+        my ($status,$status_msg,$results);
 
         $c->stash->{section} = $section;
         $c->stash->{template} = 'configuration/section.tt';
@@ -102,14 +102,15 @@ sub pf_section :Path :Args(1) {
                 }
             }
         } else {
-            my ($status,$results) = $model->read($section);
+            ($status,$results) = $model->read($section);
             if (is_success($status)) {
                 $form->process(init_object => $results);
                 $c->stash->{form} = $form;
             } else {
-                $status_msg = $params;
+                $status_msg = $results;
             }
         }
+        $c->log->info("status $status");
         if(is_error($status)) {
             $c->stash(
                 current_view => 'JSON',
