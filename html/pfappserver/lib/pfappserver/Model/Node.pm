@@ -28,6 +28,7 @@ use pf::error qw(is_error is_success);
 use pf::node;
 use pf::iplog;
 use pf::locationlog;
+use Log::Log4perl qw(get_logger);
 use pf::node;
 use pf::os;
 use pf::enforcement qw(reevaluate_access);
@@ -44,7 +45,7 @@ use pf::violation;
 sub exists {
     my ( $self, $mac ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $result) = ($STATUS::OK);
 
     eval {
@@ -79,7 +80,7 @@ sub field_names {
 sub countAll {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my $count;
@@ -103,7 +104,7 @@ sub countAll {
 sub search {
     my ( $self, %params ) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @nodes;
@@ -129,7 +130,7 @@ From pf::lookup::node::lookup_node()
 sub view {
     my ($self, $mac) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my $node = {};
@@ -225,7 +226,7 @@ See subroutine manage of pfcmd.pl
 sub update {
     my ($self, $mac, $node_ref) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $result) = ($STATUS::OK);
     my $previous_node_ref;
 
@@ -266,7 +267,7 @@ sub update {
 sub delete {
     my ($self, $mac) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg) = ($STATUS::OK);
 
     unless (node_delete($mac)) {
@@ -299,7 +300,7 @@ Return the open violations associated to the MAC.
 sub violations {
     my ($self, $mac) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     my ($status, $status_msg);
 
     my @violations;
@@ -337,16 +338,45 @@ sub addViolation {
 
 sub closeViolation {
     my ($self, $id) = @_;
+    if($self->_closeViolation($id)) {
+        return ($STATUS::OK, 'The violation was successfully closed.');
+    }
+    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
+}
 
+=head2 closeViolations
+
+=cut
+
+sub bulkCloseViolations {
+    my ($self, @macs) = @_;
+    my $count = 0;
+
+    foreach my $mac (@macs) {
+        foreach my $violation (violation_view_open_desc($mac)) {
+            $count++ if $self->_closeViolation($violation->{id});
+        }
+    }
+    return ($STATUS::OK, "$count violation(s) were closed.");
+}
+
+=head2 _closeViolation
+
+helper function for doing a force close
+
+=cut
+
+sub _closeViolation{
+    my ($self,$id) = @_;
+    my $result;
     my $violation = violation_exist_id($id);
     if ($violation) {
         if (violation_force_close($violation->{mac}, $violation->{vid})) {
             pf::enforcement::reevaluate_access($violation->{mac}, 'manage_vclose');
-            return ($STATUS::OK, 'The violation was successfully closed.');
+            $result = 1;
         }
     }
-
-    return ($STATUS::INTERNAL_SERVER_ERROR, 'An error occurred while closing the violation.');
+    return $result;
 }
 
 =head2 _graphIplogHistory
@@ -395,7 +425,7 @@ And the corresponding JavaScript:
 sub _graphIplogHistory {
     my ($node_ref, $start_time, $end_time) = @_;
 
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
 
     if ($node_ref->{iplog}->{history} && scalar @{$node_ref->{iplog}->{history}}) {
         my $now = localtime();
@@ -496,6 +526,61 @@ sub _graphIplogHistory {
         $node_ref->{iplog}->{series} = \%series;
         delete $node_ref->{iplog}->{history};
     }
+}
+
+
+=head2 bulkRegister
+
+=cut
+
+sub bulkRegister {
+    my ($self,@macs) = @_;
+    my $count = 0;
+    my ($status,$status_msg);
+    foreach my $mac (@macs) {
+        my $node = node_attributes($mac);
+        if($node->{status} eq $pf::node::STATUS_UNREGISTERED) {
+            if(node_register($mac, $node->{pid}, %{$node})) {
+                reevaluate_access($mac, "node_modify");
+                $count++;
+            }
+        }
+    }
+    return ($STATUS::OK, "$count node(s) were registered.");
+}
+
+=head2 bulkDeregister
+
+=cut
+
+sub bulkDeregister {
+    my ($self,@macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my $node = node_attributes($mac);
+        if($node->{status} eq $pf::node::STATUS_REGISTERED) {
+            if(node_deregister($mac, $node->{pid}, %{$node})) {
+                reevaluate_access($mac, "node_modify");
+                $count++;
+            }
+        }
+    }
+    return ($STATUS::OK, "$count node(s) were deregistered.");
+}
+
+=head2 bulkApplyRole
+
+=cut
+
+sub bulkApplyRole {
+    my ($self,$role,@macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my $node = node_attributes($mac);
+        $node->{category_id} = $role;
+        $count++ if node_modify($mac, %{$node});
+    }
+    return ($STATUS::OK, "Role was changed for $count node(s)");
 }
 
 =head1 AUTHOR

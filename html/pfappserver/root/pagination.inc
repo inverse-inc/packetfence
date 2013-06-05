@@ -1,6 +1,6 @@
 [% IF page_num -%]
     [% params = { by => by, direction => direction, filter => filter, per_page => per_page } %]
-    <div name="section" class="pagination pagination-right">
+    <div class="pagination pagination-right">
       <ul>
         [%-
         IF page_num > 1;

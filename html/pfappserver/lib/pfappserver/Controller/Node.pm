@@ -237,6 +237,94 @@ sub closeViolation :Path('close') :Args(1) {
     $c->stash->{current_view} = 'JSON';
 }
 
+=head2 bulk_close
+
+=cut
+
+sub bulk_close: Local {
+    my ($self, $c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkCloseViolations(@ids);
+    } else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
+=head2 bulk_register
+
+=cut
+
+sub bulk_register: Local {
+    my ($self, $c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkRegister(@ids);
+    } else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
+=head2 bulk_deregister
+
+=cut
+
+sub bulk_deregister: Local {
+    my ($self, $c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkDeregister(@ids);
+    } else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
+=head2 bulk_apply_role
+
+=cut
+
+sub bulk_apply_role: Local : Args(1) {
+    my ($self, $c, $role) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkApplyRole($role,@ids);
+    } else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

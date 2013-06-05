@@ -6,10 +6,8 @@
 var Nodes = function() {
 };
 
-Nodes.prototype.get = function(options) {
-    $.ajax({
-        url: options.url
-    })
+Nodes.prototype.doAjax = function(url_data,options) {
+    $.ajax(url_data)
         .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
@@ -18,18 +16,19 @@ Nodes.prototype.get = function(options) {
         });
 };
 
+Nodes.prototype.get = function(options) {
+    this.doAjax(options.url,options);
+};
+
 Nodes.prototype.post = function(options) {
-    $.ajax({
+    this.doAjax(
+        {
         url: options.url,
         type: 'POST',
         data: options.data
-    })
-        .always(options.always)
-        .done(options.success)
-        .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
-        });
+        },
+        options
+    );
 };
 
 /*
@@ -57,8 +56,21 @@ var NodeView = function(options) {
     $('body').on('click', '#modalNode #addViolation', trigger_violation);
 
     /* Update the advanced search form to the next page or resort the query */
-    var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
-    $('body').on('click', 'a[href*="#node/advanced_search"]', advanced_search_updater);
+    $('body').on('click', 'a[href*="#node/advanced_search"]', $.proxy(this.advancedSearchUpdater, this));
+
+    this.proxyClick($('body'),'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
+
+    this.proxyClick($('body'),'#toggle_all_items',this.toggleAllItems);
+
+    this.proxyClick($('body'),'#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a',this.submitItems);
+};
+
+NodeView.prototype.proxyFor = function(obj,action,target,method) {
+    obj.on(action,target,$.proxy(method,this));
+};
+
+NodeView.prototype.proxyClick = function(obj,target,method) {
+    this.proxyFor(obj,'click',target,method);
 };
 
 NodeView.prototype.readNode = function(e) {
@@ -222,4 +234,31 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
         form.submit();
     }
     return false;
+};
+
+NodeView.prototype.toggleAllItems = function(e) {
+    var target = $(e.currentTarget);
+    if(target.attr("data-on-off") == "off") {
+        target.attr("data-on-off","on");
+        target.html("Select All");
+        $('[name="items"]').attr("checked",false);
+    } else {
+        target.html("Unselect All");
+        target.attr("data-on-off","off");
+        $('[name="items"]').attr("checked",true);
+    }
+    return true;
+};
+
+NodeView.prototype.submitItems = function(e) {
+    var target = $(e.currentTarget);
+    var status_container = $("#section").find('h2').first();
+    this.nodes.post({
+        url: target.attr("data-target"),
+        data: $("#items").serialize(),
+        success: function(data) {
+            showSuccess(status_container, data.status_msg);
+        },
+        errorSibling: status_container
+    });
 };
