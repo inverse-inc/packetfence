@@ -111,14 +111,15 @@ sub iptables_generate {
         $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
     }
 
-    # OAuth
+    # OAuth and passthrough
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled || $facebook_enabled || $github_enabled) {
-        generate_oauth_rules(
-            $google_enabled,$facebook_enabled,$github_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
+    if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
+        generate_passthrough_rules(
+            $google_enabled,$facebook_enabled,$github_enabled,$passthrough_enabled,\$tags{'filter_forward_vlan'},\$tags{'nat_postrouting_vlan'}
         );
     }
 
@@ -160,6 +161,7 @@ sub generate_filter_if_src_to_chain {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -174,7 +176,7 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            if ($google_enabled || $facebook_enabled || $github_enabled) {
+            if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled ) {
                 $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
@@ -256,9 +258,10 @@ sub generate_inline_rules {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled||$facebook_enabled||$github_enabled) {
-        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_oauth dst,dst --jump ACCEPT\n";
+    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
     }
 
 
@@ -274,21 +277,21 @@ sub generate_inline_rules {
     }
 }
 
-=item generate_oauth_rules
+=item generate_passthrough_rules
 
-Creating the proper firewall rules to allow Google/Facebook OAuth2
+Creating the proper firewall rules to allow Google/Facebook OAuth2 and passthrough domain
 
 =cut
-sub generate_oauth_rules {
-    my ($google,$facebook,$github,$forward_rules_ref,$nat_rules_ref) = @_;
+sub generate_passthrough_rules {
+    my ($google,$facebook,$github,$passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
 
-    $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers.");
+    $logger->info("Adding Forward rules to allow connections to the OAuth2 Providers and passthrough.");
     my $reg_int = "";
 
-    if ($google||$facebook||$github) {
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_oauth dst,dst --jump ACCEPT\n";
-        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_oauth src,src --jump ACCEPT\n";
+    if ($google||$facebook||$github||$passthrough) {
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
+        $$forward_rules_ref .= "-A $FW_FILTER_FORWARD_INT_VLAN -m set --match-set pfsession_passthrough src,src --jump ACCEPT\n";
     }
 
     $logger->info("Adding NAT Masquerade statement.");
@@ -416,9 +419,10 @@ sub generate_nat_redirect_rules {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled||$facebook_enabled||$github_enabled) {
-         $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_oauth dst,dst ".
+    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
+         $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_passthrough dst,dst ".
                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
     }
     
@@ -591,120 +595,6 @@ sub generate_filter_forward_scanhost {
     return $filter_rules;
 }
 
-
-=item generate_passthrough
-
-=cut
-# TODO don't forget to also add statements to the PREROUTING nat table as in generate_inline_rules
-#
-# I also took that piece of out of generate_nat_redirect_rules() that is probably required
-#
-#my @trapvids = class_trappable();
-#foreach my $row (@trapvids) {
-# my $vid = $row->{'vid'};
-# $rules .=
-# "-A $FW_PREROUTING_INT_INLINE --protocol $protocol --destination-port $port " .
-# "--match mark --mark 0x$vid --jump REDIRECT\n"
-# ;
-#}
-#
-
-sub generate_passthrough {
-    my @self = @_;
-    my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my $filter_rules = '';
-
-    # poke passthroughs
-    my %passthroughs;
-    %passthroughs = %{ $Config{'passthroughs'} } if ( $Config{'trapping'}{'passthrough'} =~ /^iptables$/i );
-    $passthroughs{'trapping.redirecturl'} = $Config{'trapping'}{'redirecturl'} if ($Config{'trapping'}{'redirecturl'});
-    foreach my $passthrough ( keys %passthroughs ) {
-        if ( $passthroughs{$passthrough} =~ /^(http|https):\/\// ) {
-            my $destination;
-            my ($service, $host, $port, $path) =
-                $passthroughs{$passthrough} =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
-            $port =~ s/:// if $port;
-
-            $port = 80 if ( !$port && $service =~ /^http$/i );
-            $port = 443 if ( !$port && $service =~ /^https$/i );
-
-            my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
-            if ( !@addrs ) {
-                $logger->error("unable to resolve $host for passthrough");
-                next;
-            }
-            foreach my $addr (@addrs) {
-                $destination = join( ".", unpack( 'C4', $addr ) );
-                $filter_rules
-                    .= internal_append_entry(
-                    "-A FORWARD --protocol tcp --destination $destination --destination-port $port --jump ACCEPT"
-                    );
-                $logger->info("adding FILTER passthrough for $passthrough");
-            }
-        } elsif ( $passthroughs{$passthrough} =~ /^(\d{1,3}.){3}\d{1,3}(\/\d+){0,1}$/ ) {
-            $logger->info("adding FILTER passthrough for $passthrough");
-            $filter_rules .= internal_append_entry(
-                "-A FORWARD --destination " . $passthroughs{$passthrough} . " --jump ACCEPT"
-            );
-        } else {
-            $logger->error("unrecognized passthrough $passthrough");
-        }
-    }
-
-    # poke holes for content URLs
-    # can we collapse with above?
-    if ( $Config{'trapping'}{'passthrough'} eq "iptables" ) {
-        my @contents = class_view_all();
-        foreach my $content (@contents) {
-            my $vid = $content->{'vid'};
-            my $url = $content->{'url'};
-            my $max_enable_url = $content->{'max_enable_url'};
-            my $redirect_url = $content->{'redirect_url'};
-
-            foreach my $u ( $url, $max_enable_url, $redirect_url ) {
-
-                # local content or null URLs
-                next if ( !$u || $u =~ /^\// );
-                if ( $u !~ /^(http|https):\/\// ) {
-                    $logger->error("vid $vid: unrecognized content URL: $u");
-                    next;
-                }
-
-                my $destination;
-                my ( $service, $host, $port, $path ) = $u =~ /^(\w+):\/\/(.+?)(:\d+){0,1}(\/.*){0,1}$/;
-
-                $port =~ s/:// if $port;
-
-                $port = 80 if ( !$port && $service =~ /^http$/i );
-                $port = 443 if ( !$port && $service =~ /^https$/i );
-
-                my ( $name, $aliases, $addrtype, $length, @addrs ) = gethostbyname($host);
-                if ( !@addrs ) {
-                    $logger->error("unable to resolve $host for content passthrough");
-                    next;
-                }
-                foreach my $addr (@addrs) {
-                    $destination = join( ".", unpack( 'C4', $addr ) );
-                    $filter_rules .= internal_append_entry(
-                        "-A FORWARD --protocol tcp --destination $destination --destination-port $port --match mark --mark 0x$vid --jump ACCEPT"
-                    );
-                    $logger->info("adding FILTER passthrough for $destination:$port");
-                }
-            }
-        }
-    }
-
-    my @trapvids = class_trappable();
-    foreach my $row (@trapvids) {
-        my $vid = $row->{'vid'};
-        $filter_rules .= internal_append_entry("-A FORWARD --match mark --mark 0x$vid --jump DROP");
-    }
-
-    # allowed established sessions from pf box
-    $filter_rules .= "-A INPUT --match state --state RELATED,ESTABLISHED --jump ACCEPT\n";
-
-    return $filter_rules;
-}
 
 =item update_node
 

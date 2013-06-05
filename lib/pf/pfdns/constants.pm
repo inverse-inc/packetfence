@@ -17,6 +17,8 @@ use Readonly;
 
 use pf::authentication;
 use pf::config;
+use pf::class qw(class_view_all);
+use pf::util::apache qw(url_parser);
 
 =head1 SUBROUTINES
 
@@ -45,6 +47,41 @@ sub oauth_domain {
     return @domains;
 }
 
+=item passthrough
+
+Build all the permit domain for passthrough
+
+=cut
+
+sub passthrough {
+    my (%passthroughs) = %{ $Config{'passthroughs'} };
+    my @domains;
+
+    foreach my $key ( keys %passthroughs ) {
+        push(@domains, $passthroughs{$key});
+    }
+    return @domains;
+}
+
+=item passthrough_remediation
+
+Build all the permit domain for passthrough_remediation
+
+=cut
+
+sub passthrough_remediation {
+    my @remediation_rules=class_view_all();
+    my @domains;
+
+    foreach my $row (@remediation_rules) {
+        my $url = $row->{'url'};
+        next if ( ( !defined($url) ) || ( $url =~ /^\// ) );
+        my ($domainonly_url, $proto, $host, $query) = url_parser($url);
+        push(@domains, $host);
+    }
+    return @domains;
+}
+
 =back
 
 =head1 OAUTH
@@ -62,6 +99,37 @@ if (defined($allow_oauth_domains)) {
     Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => qr/ ^(?: $allow_oauth_domains ) /xo; # eXtended pattern, compile Once
 } else {
     Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => '';
+}
+
+=back
+
+=head1 PASSTHROUGH
+
+=cut
+package PASSTHROUGH;
+
+my @passthrough_domains =  pf::pfdns::constants::passthrough();
+foreach (@passthrough_domains) { s{([^/])$}{$1\$} };
+foreach (@passthrough_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
+
+my $allow_passthrough_domains = join('|', @passthrough_domains) if (@passthrough_domains ne '0');
+
+if (defined($allow_passthrough_domains)) {
+    Readonly::Scalar our $ALLOWED_PASSTHROUGH_DOMAINS => qr/ ^(?: $allow_passthrough_domains ) /xo; # eXtended pattern, compile Once
+} else {
+    Readonly::Scalar our $ALLOWED_PASSTHROUGH_DOMAINS => '';
+}
+
+my @passthrough_remediation_domains =  pf::pfdns::constants::passthrough_remediation();
+foreach (@passthrough_remediation_domains) { s{([^/])$}{$1\$} };
+foreach (@passthrough_remediation_domains) { s{(\*).(.*)}{\(\.\*\)\.$2} };
+
+my $allow_passthrough_remediation_domains = join('|', @passthrough_remediation_domains) if (@passthrough_remediation_domains ne '0');
+
+if (defined($allow_passthrough_remediation_domains)) {
+    Readonly::Scalar our $ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS => qr/ ^(?: $allow_passthrough_remediation_domains ) /xo; # eXtended pattern, compile Once
+} else {
+    Readonly::Scalar our $ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS => '';
 }
 
 =back
@@ -98,3 +166,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

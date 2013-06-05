@@ -925,20 +925,6 @@ sub _load_captive_portal {
         "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
     );
 
-    # passthrough proxy is enabled, we need to inject proper 'allow through' for pf::web::dispatcher
-    if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
-
-        my $passthrough_ref = {};
-        foreach my $key (keys %{$Config{'passthroughs'}}) {
-            my (undef, undef, $host, $query) = url_parser($Config{'passthroughs'}{$key});
-            $passthrough_ref->{$host} = $query;
-        }
-        $CAPTIVE_PORTAL{'PASSTHROUGHS'} = $passthrough_ref;
-        # pre-loading an regex for hosts so that the first passthrough pass is fast
-        my $pt_hosts = join('|', keys %$passthrough_ref);
-        $CAPTIVE_PORTAL{'PASSTHROUGH_HOSTS_RE'} = qr/^(?:$pt_hosts)$/;
-    }
-
     # process pf.conf's parameter into an IP => 1 hash
     %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =
         map { $_ => $TRUE } split(/\s*,\s*/, $Config{'captive_portal'}{'loadbalancers_ip'})

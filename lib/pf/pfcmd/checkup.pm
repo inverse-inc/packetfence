@@ -346,14 +346,6 @@ Configuration validation of the network portion of the config
 
 sub network {
 
-    # make sure trapping.passthrough=proxy if network.mode is set to vlan
-    if ( $Config{'trapping'}{'passthrough'} eq 'iptables' ) {
-        add_problem( $WARN,
-            "iptables based passthrough (trapping.passthrough) is incompatible with current PacketFence release. " .
-            "Please file a ticket if you need this feature back."
-        );
-    }
-
     # make sure that networks.conf is not empty when services.dhcpd
     # is enabled
     if (isenabled($Config{'services'}{'dhcpd'}) && ((!-e $network_config_file ) || (-z $network_config_file ))){
@@ -477,14 +469,6 @@ If some interfaces are configured to run in inline enforcement then these tests 
 =cut
 
 sub inline {
-
-    # make sure trapping.passthrough=proxy if network.mode is set to vlan
-    if ( $Config{'trapping'}{'passthrough'} eq 'proxy' ) {
-        add_problem( $WARN,
-            "Proxy passthrough (trapping.passthrough) is untested with inline enforcement and might not work. " .
-            "If you don't understand the warning you can safely ignore it you won't be affected. "
-        );
-    }
 
     my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
     if ($result ne "1\n") {

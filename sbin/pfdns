@@ -29,7 +29,7 @@ use lib INSTALL_DIR . "/lib";
 use pf::config;
 use pf::util;
 use pf::pfdns::constants;
-use pf::web::util;
+use pf::web::util qw(get_memcached get_memcached_conf);
 
 # initialization
 # --------------
@@ -81,7 +81,7 @@ my @routed_inline_nets_named;
 my @routed_isolation_nets_named;
 my @routed_registration_nets_named;
 
-my $memcached = pf::web::util::get_memcached_conf();
+my $memcached = get_memcached_conf();
  
 foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
     my $ip = $Config{$interface}{'ip'};
@@ -127,7 +127,7 @@ sub response_handler {
     foreach my $network (@routed_isolation_nets_named) {
         if ($network->contains($ip)) {
            # Should be different for isolation network.
-           return  regzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
+           return  isolzone($qname, $qclass, $qtype, $peerhost,$query,$conn);
         }
     }
 
@@ -146,7 +146,7 @@ sub regzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        if ( $qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') {
+        if ( ($qname =~ /$OAUTH::ALLOWED_OAUTH_DOMAINS/o && $OAUTH::ALLOWED_OAUTH_DOMAINS ne '') || ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') ) {
             my ($ttl, $rdata);
             my $res   = Net::DNS::Resolver->new;
             my $query = $res->search($qname) || get_memcached($qname,$memcached);
@@ -154,9 +154,50 @@ sub regzone {
                 foreach my $rr ($query->answer) {
                     next unless $rr->type eq "A";
                     my $ip = $rr->address;
-                    my $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'80' 2>&1";
+                    my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,'80' 2>&1";
                     my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-                    $cmd = "LANG=C sudo ipset --add pfsession_oauth $ip,'443' 2>&1";
+                    $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,'443' 2>&1";
+                    @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+                    ($ttl, $rdata) = (15, $rr->address);
+                }
+            }
+
+            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+            push @ans, $rr;
+            $rcode = "NOERROR";
+        }
+        elsif ($qname =~ m/(.*)/ ) {
+            my ($ttl, $rdata) = (15, $conn->{sockhost});
+            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+            push @ans, $rr;
+            $rcode = "NOERROR";
+        }
+    }else{
+        $rcode = "NXDOMAIN";
+    }
+
+    # mark the answer as authoritive (by setting the 'aa' flag
+    return ($rcode, \@ans, \@auth, \@add, { aa => 1 });
+}
+
+sub isolzone {
+    my ($qname, $qclass, $qtype, $peerhost,$query,$conn) = @_;
+    my ($rcode, @ans, @auth, @add);
+    my $_EXIT_CODE_EXISTS = "1";
+
+    $logger->trace("Requested Domain: ".$qname);
+    if ($qtype eq "A") {
+        if ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') {
+            my ($ttl, $rdata);
+            my $res   = Net::DNS::Resolver->new;
+            my $query = $res->search($qname) || get_memcached($qname,$memcached);
+            if ($query) {
+                foreach my $rr ($query->answer) {
+                    next unless $rr->type eq "A";
+                    my $ip = $rr->address;
+                    my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,'80' 2>&1";
+                    my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
+                    $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,'443' 2>&1";
                     @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
                     ($ttl, $rdata) = (15, $rr->address);
                 }
@@ -242,3 +283,4 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+

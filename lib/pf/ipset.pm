@@ -69,12 +69,13 @@ sub iptables_generate {
             }
         }
     }
-    # OAuth
+    # OAuth and passthrough
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled || $facebook_enabled || $github_enabled) {
+    if ($google_enabled || $facebook_enabled || $github_enabled || $passthrought_enabled) {
         if ($IPSET_VERSION > 4) {
             $cmd = "LANG=C sudo ipset --create pfsession_oauth hash:ip,port 2>&1";
              my @lines  = pf_run($cmd);

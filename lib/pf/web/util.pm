@@ -28,7 +28,10 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     # No export to force users to use full package name and allowing pf::web::custom to redefine us
-    @EXPORT = qw();
+    @EXPORT = qw(
+        get_memcached
+        get_memcached_conf
+    );
 }
 
 =head1 SUBROUTINES
