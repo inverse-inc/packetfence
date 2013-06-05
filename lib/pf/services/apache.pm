@@ -35,7 +35,6 @@ BEGIN {
     @ISA = qw(Exporter);
     @EXPORT = qw(
         generate_httpd_conf
-        generate_remediation_rewrite_proxy_config
     );
 }
 
