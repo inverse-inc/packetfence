@@ -79,11 +79,12 @@ if (defined($cgi->url_param('code'))) {
                 my $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
                 if (defined $expiration) {
-                    $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
+                    $expiration = access_duration($expiration);
                 }
                 else {
-                    $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+                    $expiration = &pf::authentication::match($source_id, $auth_params, $Actions::SET_UNREG_DATE);
                 }
+
 
                 my $category = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 

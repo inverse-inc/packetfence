@@ -159,8 +159,8 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
   # otherwise, use the unregdate when defined.
   $value = &pf::authentication::match($source_id, $params, $Actions::SET_ACCESS_DURATION);
   if (defined $value) {
-      $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
-      $logger->trace("Computed unrege date from access duration: $value");
+      $logger->trace("No unregdate found - computing it from access duration");
+      $value = access_duration($value);
   }
   else {
       $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);

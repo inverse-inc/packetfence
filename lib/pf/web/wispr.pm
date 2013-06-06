@@ -120,7 +120,7 @@ sub handler {
 
     if (defined $value) {
         $logger->trace("No unregdate found - computing it from access duration");
-        $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
+        $value = access_duration($value);
     }
     else {
         $logger->trace("Unregdate found, we use it right away");
