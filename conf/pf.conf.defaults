@@ -102,9 +102,8 @@ redirtimer=20s
 #
 # trapping.passthrough
 #
-# Method by which content is delivered to trapped systems. When set to "enabled", pfdns will resolv the real ip address
-# and will add the ip address in the ipset session to allow access
-# When set to "disabled" passthrough is disabled.
+# When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
+# to trapped devices.
 passthrough=disabled
 #
 # trapping.whitelist
@@ -224,12 +223,12 @@ access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 default_access_duration=12h
 
 #
-# This section allows you to create passthroughs to http and https site.
-# With passthrough=enabled under [trapping] it will support domain names.
+# This section allows you to create passthroughs to web site on ports 80 (HTTP) and 443 (HTTPS).
+# The configuration parameter [trapping.passthrough] must be enabled for passthroughs to be effective.
 #
 # Here's an example:
 # packetfence=www.packetfence.org
-# The above will allow 80/tcp 443/tcp traffic to the packetfence domain (the left value is arbitrary).
+# The above will allow 80/tcp 443/tcp traffic to the packetfence.org domain (the left-hand side value is arbitrary).
 # 
 [passthroughs]
 
