@@ -86,7 +86,7 @@ has_field 'domains' =>
    element_attr => {'placeholder' => pf::Authentication::Source::GithubSource->meta->get_attribute('domains')->default},
    element_class => ['input-xlarge'],
    tags => { after_element => \&help,
-             help => 'List of the domain that will be resolv with the correct ip.' },
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
   );
 
 =head1 COPYRIGHT
