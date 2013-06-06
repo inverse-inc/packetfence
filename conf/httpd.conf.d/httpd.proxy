@@ -1,0 +1,214 @@
+#Proxy interception configuration file
+
+#Debian specific
+<IfDefine debian>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+  </IfModule>
+  <IfModule !mod_proxy.c>
+    LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+  </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+    LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module /usr/lib/apache2/modules/mod_proxy_connect.so
+  </IfModule>
+</IfDefine>
+
+#RHEL specific
+<IfDefine rhel>
+  <IfModule !mod_perl.c>
+    LoadModule perl_module modules/mod_perl.so
+  </IfModule>
+  <IfModule !mod_log_config.c>
+    LoadModule log_config_module modules/mod_log_config.so
+  </IfModule>
+  <IfModule !mod_ssl.c>
+    LoadModule ssl_module modules/mod_ssl.so
+  </IfModule>
+  <IfModule !mod_headers.c>
+    LoadModule headers_module modules/mod_headers.so
+  </IfModule>
+  <IfModule !mod_proxy.c>
+    LoadModule proxy_module modules/mod_proxy.so
+  </IfModule>
+  <IfModule !mod_authz_host.c>
+    LoadModule authz_host_module modules/mod_authz_host.so
+  </IfModule>
+  <IfModule !mod_setenvif.c>
+    LoadModule setenvif_module modules/mod_setenvif.so
+  </IfModule>
+  <IfModule !mod_rewrite.c>
+    LoadModule rewrite_module modules/mod_rewrite.so
+  </IfModule>
+  <IfModule !mod_alias.c>
+    LoadModule alias_module modules/mod_alias.so
+  </IfModule>
+  <IfModule !mod_mime.c>
+    LoadModule mime_module modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module modules/mod_apreq2.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module modules/mod_proxy_http.so
+  </IfModule>
+  <IfModule !mod_proxy_connect.c>
+   LoadModule proxy_connect_module modules/mod_proxy_connect.so
+  </IfModule>
+</IfDefine>
+
+PerlSwitches -I/usr/local/pf/lib
+#AddHandler perl-script .cgi
+#Options +ExecCGI
+#PerlHandler ModPerl::PerlRun
+
+# Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
+Header always set X-DNS-Prefetch-Control off
+
+<Proxy *>
+  Order deny,allow
+  Allow from all
+</Proxy>
+
+<Files ~ "\.(cgi?)$">
+  SSLOptions +StdEnvVars
+</Files>
+
+SetEnvIf User-Agent ".*MSIE.*" \
+  nokeepalive ssl-unclean-shutdown \
+  downgrade-1.0 force-response-1.0
+
+TypesConfig /etc/mime.types
+
+<Perl>
+use pf::config qw();
+use Tie::DxHash;
+use pf::services::apache;
+
+sub gen_conf {
+    my %conf;
+    tie %conf, 'Tie::DxHash';
+
+    %conf = @_;
+    return \%conf;
+}
+
+my $PfConfig = \%pf::config::Config;
+my $management_network = $pf::config::management_network;
+my $install_dir = $pf::config::install_dir;
+my $var_dir = $pf::config::var_dir;
+my @internal_nets = @pf::config::internal_nets;
+my $host;
+
+$PidFile = $install_dir.'/var/run/httpd.proxy.pid';
+
+$Include = $install_dir.'/conf/httpd.conf.d/log.conf';
+
+$User = "pf";
+$Group = "pf";
+
+$PerlOptions = "+GlobalRequest";
+$ProxyRequests = "Off";
+
+if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
+    $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
+} else {
+    $ServerAdmin = "root\@".$PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'};
+}
+
+$ServerTokens = "Prod";
+$ServerSignature = "Off";
+$UseCanonicalName = "Off";
+$Timeout = "50";
+$KeepAliveTimeout = "10";
+
+$MaxClients = pf::services::apache::calculate_max_clients(pf::services::apache::get_total_system_memory());
+$StartServers = pf::services::apache::calculate_start_servers($MaxClients);
+$MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients);
+
+$HostnameLookups = "off";
+$MaxRequestsPerChild = "1000";
+$PerlInitHandler = "pf::WebAPI::InitHandler";
+
+
+$SSLPassPhraseDialog = "builtin";
+$SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
+$SSLSessionCacheTimeout = "300";
+$SSLMutex = "file:".$install_dir."/var/ssl_mutex";
+$SSLRandomSeed = "startup builtin";
+$SSLRandomSeed = "connect builtin";
+$SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL";
+
+$ErrorLog = $install_dir.'/logs/proxy_error_log';
+
+foreach my $port (split(',',$PfConfig->{'interception_proxy'}{'port'})) {
+    push (@NameVirtualHost,"*:".$port);
+}
+
+push (@NameVirtualHost,"*:444");
+
+foreach my $interface (@internal_nets) {
+    foreach my $port (split(',',$PfConfig->{'interception_proxy'}{'port'})) {
+        push (@Listen,$interface->{'Tip'}.":".$port);
+        push @{ $VirtualHost{$interface->{'Tip'}.":".$port} }, gen_conf(
+             ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$port,
+             PerlOptions       => '+GlobalRequest',
+             PerlModule        => 'pf::web::interceptproxy',
+             PerlTransHandler  => '+pf::web::interceptproxy::translate',
+             ProxyRequests     => 'On',
+             ProxyPreserveHost => 'On',
+             AllowCONNECT      => '444 443',
+             ProxyVia          => 'full',
+             ErrorLog          => $install_dir.'/logs/proxy_error_log',
+             CustomLog         => $install_dir.'/logs/proxy_access_log combined',
+        );
+    }
+}
+
+push (@Listen,"127.0.0.1:444");
+
+push @{ VirtualHost{'127.0.0.1:444'} }, gen_conf(
+    ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":444",
+    PerlOptions       => '+GlobalRequest',
+    PerlModule        => 'pf::web::interceptproxy',
+    PerlTransHandler  => '+pf::web::interceptproxy::reverse',
+    ProxyRequests     => 'Off',
+    ProxyPreserveHost => 'On',
+    ProxyVia          => 'Off',
+    ErrorLog          => $install_dir.'/logs/reverse_reproxy_error_log',
+    CustomLog         => $install_dir.'/logs/reverse_proxy_access_log combined',
+    SSLEngine         => 'on',
+    SSLProxyEngine    => 'on',
+    Include           => $var_dir.'/conf/ssl-certificates.conf',
+);
+
+</Perl>
