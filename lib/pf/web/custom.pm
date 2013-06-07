@@ -91,6 +91,56 @@ To set the particular session variable use the following:
 #    return _sanitize_and_register($session, $mac, $pid, %info);
 #};
 
+package pf::web::guest;
+
+*pf::web::guest::generate_selfregistration_page = sub {
+    my ( $portalSession, $error_code, $error_args_ref ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web::guest');
+
+    $logger->info('generate_selfregistration_page');
+
+    $portalSession->stash({
+        post_uri => "$WEB::URL_SIGNUP?mode=guest-register",
+
+        firstname => $portalSession->cgi->param("firstname") || '',
+        lastname => $portalSession->cgi->param("lastname") || '',
+        organization => $portalSession->cgi->param("organization") || '',
+        phone => $portalSession->cgi->param("phone") || '',
+        mobileprovider => $portalSession->cgi->param("mobileprovider") || '',
+        email => lc($portalSession->cgi->param("email") || ''),
+        sponsor_email => lc($portalSession->cgi->param("sponsor_email") || ''),
+
+        sms_carriers => sms_carrier_view_all(),
+        email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
+        sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
+        sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),
+
+        is_preregistration => $portalSession->session->param('preregistration'),
+    });
+
+    if ( isenabled($portalSession->getProfile->getBillingEngine) ) {
+        $portalSession->stash->{'auth_billing'} = 1;
+    }
+
+    # External authentication
+    $portalSession->stash->{'oauth2_google'}
+      = is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_facebook'}
+      = is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_github'}
+      = is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes);
+
+
+    # Error management
+    if (defined($error_code) && $error_code != 0) {
+        # ideally we'll set the array_ref always and won't need the following
+        $error_args_ref = [] if (!defined($error_args_ref));
+        $portalSession->stash->{'txt_validation_error'} = i18n_format($GUEST::ERRORS{$error_code}, @$error_args_ref);
+    }
+
+    render_template($portalSession, $pf::web::guest::SELF_REGISTRATION_TEMPLATE);
+    exit;
+};
 
 =item inject variables for templates
 
@@ -145,3 +195,4 @@ USA.
 =cut
 
 1;
+

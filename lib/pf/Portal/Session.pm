@@ -65,10 +65,15 @@ sub new {
 sub _initialize {
     my ($self) = @_;
 
+#    $self->{'_cgi'} = new CGI;
+#    $self->{'_cgi'}->charset("UTF-8");
+
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
     $self->{'_cgi'} = $cgi;
 
+#    $self->{'_session'} = new CGI::Session( "driver:memcached", $self->getCgi, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
+    #my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || undef;
     my $sid = $cgi->param('CGISESSID') || $cgi;
     $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } ); 
 

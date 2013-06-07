@@ -132,6 +132,9 @@ Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
+$ENV{PERL_LWP_ENV_PROXY}=1;
+
 @stored_config_files = (
     $pf_config_file, $network_config_file,
     $switches_config_file, $violations_config_file,

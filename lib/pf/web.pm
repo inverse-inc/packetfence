@@ -36,6 +36,7 @@ use Log::Log4perl;
 use Readonly;
 use Template;
 use URI::Escape qw(uri_escape uri_unescape);
+use Data::Dumper;
 
 BEGIN {
     use Exporter ();
@@ -58,6 +59,9 @@ use pf::web::constants;
 
 Readonly our $LOGIN_TEMPLATE => 'login.html';
 Readonly our $VIOLATION_TEMPLATE => 'remediation.html';
+
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
+$ENV{PERL_LWP_ENV_PROXY}=1;
 
 =head1 SUBROUTINES
 
@@ -112,6 +116,7 @@ sub render_template {
         'logo' => $portalSession->getProfile->getLogo,
         'i18n' => \&i18n,
         'i18n_format' => \&i18n_format,
+        'session_id' => $portalSession->session->id,
     });
 
     my @list_help_info;
@@ -124,9 +129,8 @@ sub render_template {
     # lastly add user-defined stash elements
     $portalSession->stash( pf::web::stash_template_vars() );
 
-    my $cookie = $portalSession->cgi->cookie( CGISESSID => $portalSession->session->id );
+    my $cookie = $portalSession->cgi->cookie( -name => 'CGISESSID', -value => $portalSession->session->id );
     print $portalSession->cgi->header( -cookie => $cookie );
-    $portalSession->stash({ 'session_id' => $portalSession->session->id});
     # print custom headers if there's some
     if ( $portalSession->stash->{headers} ) {
         my @headers = $portalSession->stash->{headers};
@@ -377,7 +381,7 @@ sub generate_oauth2_result {
 
    my $code = $portalSession->getCgi()->url_param('code');
 
-   $logger->debug("API CODE: $code");
+   $logger->info("API CODE: $code");
 
    #Get the token
    my $token;
@@ -385,6 +389,9 @@ sub generate_oauth2_result {
    eval {
       $token = $oauth2->get_access_token($code);
    };
+   $logger->warn(Dumper $oauth2);
+   $logger->warn(Dumper $token);
+   $logger->warn(Dumper $@);
 
    if ($@) {
        $logger->info("OAuth2: failed to receive the token from the provider, redireting to login page");
@@ -722,16 +729,30 @@ sub oauth2_client {
         my $source_id = $portalSession->getProfile->getSourceByType($type);
         my $source = pf::authentication::getAuthenticationSource($source_id);
         if ($source) {
-            Net::OAuth2::Client->new(
-                $source->{'client_id'},
-                $source->{'client_secret'},
-                site => $source->{'site'},
-                authorize_path => $source->{'authorize_path'},
-                access_token_path => $source->{'access_token_path'},
-                access_token_method => $source->{'access_token_method'},
-                access_token_param => $source->{'access_token_param'},
-                scope => $source->{'scope'}
-          )->web_server(redirect_uri => $source->{'redirect_url'} );
+            Net::OAuth2::Profile::WebServer->new
+                ( name           => 'Google Contacts'
+                , client_id      => $source->{'client_id'}
+                , client_secret  => $source->{'client_secret'}
+                , site           => $source->{'site'}
+                , scope          => $source->{'scope'}
+                , authorize_path    => $source->{'authorize_path'}
+                , access_token_path => $source->{'access_token_path'}
+                , redirect_uri => $source->{'redirect_url'}
+                , protected_resource_url
+                      =>  $source->{'protected_resource_url'}
+               );
+
+
+#            Net::OAuth2::Client->new(
+#                $source->{'client_id'},
+#                $source->{'client_secret'},
+#                site => $source->{'site'},
+#                authorize_path => $source->{'authorize_path'},
+#                access_token_path => $source->{'access_token_path'},
+#                access_token_method => $source->{'access_token_method'},
+#                access_token_param => $source->{'access_token_param'},
+#                scope => $source->{'scope'}
+#          )->web_server(redirect_uri => $source->{'redirect_url'} );
         }
     }
 }
@@ -776,3 +797,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

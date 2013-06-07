@@ -118,6 +118,15 @@ sub generate_selfregistration_page {
         is_preregistration => $portalSession->session->param('preregistration'),
     });
 
+    # External authentication
+    $portalSession->stash->{'oauth2_google'}
+      = is_in_list($SELFREG_MODE_GOOGLE, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_facebook'}
+      = is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'oauth2_github'}
+      = is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes);
+
+
     # Error management
     if (defined($error_code) && $error_code != 0) {
         # ideally we'll set the array_ref always and won't need the following
@@ -476,3 +485,4 @@ USA.
 =cut
 
 1;
+
