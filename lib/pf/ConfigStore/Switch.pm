@@ -11,16 +11,15 @@ pf::ConfigStore::Switch;
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
-use pf::config::cached;
 use pf::config;
 use Log::Log4perl qw(get_logger);
 use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pf::ConfigStore';
 
-has '+configFile' => (default => $pf::config::switches_config_file);
+sub configFile { $pf::config::switches_config_file };
 
 =head2 Methods
 

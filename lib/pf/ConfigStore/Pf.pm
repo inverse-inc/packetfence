@@ -11,7 +11,7 @@ pf::ConfigStore::PF
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 use pf::config;
 

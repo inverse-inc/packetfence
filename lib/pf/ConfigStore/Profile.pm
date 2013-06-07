@@ -12,13 +12,14 @@ pf::ConfigStore::Profile
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 use pf::config;
 
 use pf::ConfigStore;
 
 extends 'pf::ConfigStore';
+with 'pf::ConfigStore::Role::ValidGenericID';
 
 =head1 METHODS
 

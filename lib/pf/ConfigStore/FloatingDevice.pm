@@ -13,15 +13,13 @@ pf::ConfigStore::FloatingDevice
 =cut
 
 use HTTP::Status qw(:constants is_error is_success);
-use Moose;
+use Moo;
 use namespace::autoclean;
-use pf::config::cached;
-use pf::config;
-
+use pf::file_paths;
 extends 'pf::ConfigStore';
 
 
-has '+configFile' => (default => $pf::config::floating_devices_config_file);
+sub configFile { $pf::file_paths::floating_devices_config_file }
 
 
 __PACKAGE__->meta->make_immutable;

@@ -11,12 +11,13 @@ pf::ConfigStore::Switch;
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 use pf::config;
+
 extends 'pf::ConfigStore::Group';
 
-has '+group' => (default => 'interface');
+sub group { 'interface' };
 
 =head2 Methods
 

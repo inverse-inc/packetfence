@@ -12,7 +12,7 @@ pf::ConfigStore::Authentication
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 use pf::authentication;
 use HTTP::Status qw(:constants is_error is_success);

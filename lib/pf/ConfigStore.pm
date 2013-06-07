@@ -14,7 +14,7 @@ Is the Base class for accessing pf::config::cached
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 use pf::config::cached;
 use Log::Log4perl qw(get_logger);
@@ -30,7 +30,7 @@ has cachedConfig =>
   (
    is => 'ro',
    lazy => 1,
-   isa => 'pf::config::cached',
+   isa => sub {pf::config::cached->isa($_[0])},
    builder => '_buildCachedConfig'
 );
 
@@ -48,6 +48,14 @@ validates id
 =cut
 
 sub validId { 1; }
+
+=head2 validParam
+
+validate parameter
+
+=cut
+
+sub validParam { 1; }
 
 =head2 _buildCachedConfig
 
@@ -225,14 +233,16 @@ sub create {
     $self->cleanupBeforeCommit($id, $assignments);
     my $config = $self->cachedConfig;
     my $result;
-    $id = $self->_formatId($id);
-    if($result = !$config->SectionExists($id) ) {
-        $config->AddSection($id);
-        my $default_section = $config->{default} if exists $config->{default};
-        my $default_value;
-        while ( my ($param, $value) = each %$assignments ) {
-            next if $default_section &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
-            $config->newval( $id, $param, defined $value ? $value : '' );
+    if ($self->validId($id)) {
+        $id = $self->_formatId($id);
+        if($result = !$config->SectionExists($id) ) {
+            $config->AddSection($id);
+            my $default_section = $config->{default} if exists $config->{default};
+            my $default_value;
+            while ( my ($param, $value) = each %$assignments ) {
+                next if $default_section &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
+                $config->newval( $id, $param, defined $value ? $value : '' );
+            }
         }
     }
     return $result;
@@ -272,7 +282,11 @@ Copies a section
 
 sub copy {
     my ($self,$from,$to) = @_;
-    return $self->cachedConfig->CopySection($self->_formatId($from),$self->_formatId($to));
+    my $result;
+    if ($self->validId($to)) {
+        $result = $self->cachedConfig->CopySection($self->_formatId($from),$self->_formatId($to));
+    }
+    return $result;
 }
 
 =head2 renameItem
@@ -281,7 +295,11 @@ sub copy {
 
 sub renameItem {
     my ( $self, $old, $new ) = @_;
-    return $self->cachedConfig->RenameSection($self->_formatId($old),$self->_formatId($new));
+    my $result;
+    if ($self->validId($new)) {
+        $result = $self->cachedConfig->RenameSection($self->_formatId($old),$self->_formatId($new));
+    }
+    return $result;
 }
 
 =head2 sortItems

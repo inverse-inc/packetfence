@@ -12,17 +12,14 @@ pf::ConfigStore::Violations
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 
-use pf::config::cached;
-use pf::config;
-use pf::ConfigStore;
 use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
-has '+configFile' => (default => $pf::config::violations_config_file);
+sub _buildCachedConfig { $pf::violation_config::cached_violations_config };
 
 =head1 Methods
 

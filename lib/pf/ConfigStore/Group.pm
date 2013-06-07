@@ -12,10 +12,8 @@ Is the Generic class for the cached config
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
-use pf::config::cached;
-use HTTP::Status qw(:constants is_error is_success);
 
 BEGIN {extends 'pf::ConfigStore';}
 
@@ -27,7 +25,7 @@ BEGIN {extends 'pf::ConfigStore';}
 
 =cut
 
-has group => ( is=> 'ro', isa => 'Str');
+has group => ( is=> 'ro' );
 
 =back
 

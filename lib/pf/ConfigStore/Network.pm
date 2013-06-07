@@ -12,7 +12,7 @@ pf::ConfigStore::Network
 
 =cut
 
-use Moose;
+use Moo;
 use namespace::autoclean;
 use pf::config;
 
