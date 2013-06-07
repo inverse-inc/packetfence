@@ -190,25 +190,6 @@ form {
               </div>
             </div>
           </form>
-            <button class="btn btn-primary" id="toggle_all_items">[%l('Select All')%]</button>
-          <div class="btn-group">
-            <button class="btn btn-danger">[% l('Actions') %]</button>
-            <a class="btn btn-danger dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a id="clear_violations" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_close'))  %]" >[% l('Clear Violation') %]</a></li>
-              <li><a id="bulk_register" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_register'))  %]" >[% l('Register') %]</a></li>
-              <li><a id="bulk_deregister" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
-              <li class="divider"></li>
-              <li class="dropdown-submenu">
-                <a tabindex="-1">[%l('Apply Roles')%]</a>
-                <ul class="dropdown-menu" id="apply_roles">
-                  [%FOREACH role IN roles%]
-                  <li><a data-target="[% c.uri_for(c.controller('Node').action_for('bulk_apply_role'),[role.category_id])  %]">[% role.name %]</a></li>
-                  [%END%]
-                </ul>
-              </li>
-            </ul>
-          </div>
           <div class="loader span12"><p><img src="[% c.uri_for('/static/app/loader-48.gif') %]"></p></div>
           <div class="row-fluid" id="section">
           </div>

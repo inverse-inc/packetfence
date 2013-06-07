@@ -159,13 +159,10 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) {
 sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
-    my $roles;
-    my ($status,$saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
-    ($status,$roles) = $c->model('Roles')->list();
+    my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
     $c->stash(
         saved_searches => $saved_searches,
-        saved_search_form => $c->form("SavedSearch"),
-        roles => $roles
+        saved_search_form => $c->form("SavedSearch")
     );
 }
 

@@ -60,17 +60,17 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'),'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
 
-    this.proxyClick($('body'),'#toggle_all_items',this.toggleAllItems);
+    this.proxyClick($('body'),'#toggle_all_items', this.toggleAllItems);
 
-    this.proxyClick($('body'),'#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a',this.submitItems);
+    this.proxyClick($('body'),'#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
 };
 
-NodeView.prototype.proxyFor = function(obj,action,target,method) {
-    obj.on(action,target,$.proxy(method,this));
+NodeView.prototype.proxyFor = function(obj, action, target, method) {
+    obj.on(action, target, $.proxy(method, this));
 };
 
-NodeView.prototype.proxyClick = function(obj,target,method) {
-    this.proxyFor(obj,'click',target,method);
+NodeView.prototype.proxyClick = function(obj, target, method) {
+    this.proxyFor(obj, 'click', target, method);
 };
 
 NodeView.prototype.readNode = function(e) {
@@ -238,15 +238,7 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
 
 NodeView.prototype.toggleAllItems = function(e) {
     var target = $(e.currentTarget);
-    if(target.attr("data-on-off") == "off") {
-        target.attr("data-on-off","on");
-        target.html("Select All");
-        $('[name="items"]').attr("checked",false);
-    } else {
-        target.html("Unselect All");
-        target.attr("data-on-off","off");
-        $('[name="items"]').attr("checked",true);
-    }
+    $('[name="items"]').attr("checked", target.is(':checked'));
     return true;
 };
 

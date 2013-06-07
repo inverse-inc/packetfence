@@ -44,13 +44,27 @@ sub index :Path :Args(0) {
 
 sub simple_search :SimpleSearch('Node') :Local :Args() { }
 
+=head2 after _list_items
+
+The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
+
+=cut
+
+after _list_items => sub {
+    my ($self, $c) = @_;
+
+    my ($status,$roles) = $c->model('Roles')->list();
+    $c->stash(roles => $roles);
+};
+
+
 =head2 advanced_search
 
 =cut
 
 sub advanced_search :Local :Args() {
     my ($self, $c, @args) = @_;
-    my ($status,$status_msg,$result);
+    my ($status, $status_msg, $result);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -61,16 +75,19 @@ sub advanced_search :Local :Args() {
         $c->stash(
             current_view => 'JSON',
         );
-    } else {
+    }
+    else {
         my $query = $form->value;
-        ($status,$result) = $model->search($query);
-        if(is_success($status)) {
-            $c->stash( form => $form);
-            $c->stash( $result);
+        ($status, $result) = $model->search($query);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
         }
     }
+    (undef, $result) = $c->model('Roles')->list();
     $c->stash(
         status_msg => $status_msg,
+        roles => $result
     );
     $c->response->status($status);
 }
