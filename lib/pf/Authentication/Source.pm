@@ -130,7 +130,7 @@ sub match {
         my @own_conditions = ();
 
         foreach my $condition ( @{$rule->{'conditions'}} ) {
-            if (grep {$_->{value} eq $condition->attribute } @$common_attributes) {
+            if (grep { $_->{value} eq $condition->attribute } @$common_attributes) {
                 # A condition on a common attribute
                 my $r = $self->match_condition($condition, $params);
 
@@ -139,7 +139,7 @@ sub match {
                     push(@matching_conditions, $condition);
                 }
             }
-            elsif (grep {$_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
+            elsif (grep { $_->{value} eq $condition->attribute } @{$self->available_attributes()}) {
                 # A condition on a source-specific attribute
                 push(@own_conditions, $condition);
             }

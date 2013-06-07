@@ -92,16 +92,17 @@ sub read {
 =cut
 
 sub _make_actions {
-    my ( $self, $user ) = @_;
-    my %FIELD_TO_ACTION = (
-        'can_sponsor'  => $Actions::MARK_AS_SPONSOR,
-        'access_level' => $Actions::SET_ACCESS_LEVEL ,
-        'category'     => $Actions::SET_ROLE ,
-        'unregdate'    => $Actions::SET_UNREG_DATE ,
-        'access_duration' => $Actions::SET_ACCESS_DURATION ,
-    );
-    my @actions = map +{  type=>$FIELD_TO_ACTION{$_}, value => $user->{$_} }   , grep {$user->{$_}} keys %FIELD_TO_ACTION;
+    my ($self, $user) = @_;
 
+    my %FIELD_TO_ACTION = (
+        'can_sponsor'     => $Actions::MARK_AS_SPONSOR,
+        'access_level'    => $Actions::SET_ACCESS_LEVEL,
+        'category'        => $Actions::SET_ROLE,
+        'unregdate'       => $Actions::SET_UNREG_DATE,
+        'access_duration' => $Actions::SET_ACCESS_DURATION,
+    );
+
+    my @actions = map +{ type => $FIELD_TO_ACTION{$_}, value => $user->{$_} }, grep { $user->{$_} } keys %FIELD_TO_ACTION;
     $user->{actions} = \@actions;
 }
 
@@ -343,7 +344,7 @@ sub createSingle {
                            );
     if ($result) {
         $logger->info("Created user account $pid. Sponsored by $user");
-        # The registration window is add to the actions
+        # Add the registration window to the actions
         push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
         push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
         $result = pf::temporary_password::generate($pid,
@@ -395,7 +396,7 @@ sub createMultiple {
                                );
         if ($result) {
             # Create/update password
-            # The registration window is add to the actions
+            # Add the registration window to the actions
             push(@{$data->{actions}}, { type => 'valid_from', value => $data->{valid_from} });
             push(@{$data->{actions}}, { type => 'expiration', value => $data->{expiration} });
             $result = pf::temporary_password::generate($pid,

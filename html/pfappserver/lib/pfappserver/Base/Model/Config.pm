@@ -102,7 +102,7 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ( $self) = @_;
+    my ($self) = @_;
     my $logger = get_logger();
     my ($status, $status_msg);
     my $config = $self->configStore;
@@ -116,7 +116,7 @@ If config has a section
 =cut
 
 sub hasId {
-    my ($self, $id ) = @_;
+    my ($self, $id) = @_;
     my $logger = get_logger();
     my ($status, $status_msg);
     my $config = $self->configStore;

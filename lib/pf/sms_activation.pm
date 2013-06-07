@@ -109,7 +109,7 @@ sub sms_activation_db_prepare {
 #    );
 
     $sms_activation_statements->{'sms_activation_change_status_old_same_mac_phone_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE sms_activation SET status=? WHERE mac = ? AND phone_number = ? AND status = ? ]
+        qq [ UPDATE sms_activation SET status = ? WHERE mac = ? AND phone_number = ? AND status = ? ]
     );
 
     $sms_activation_db_prepared = 1;

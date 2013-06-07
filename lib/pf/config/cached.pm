@@ -1,4 +1,5 @@
 package pf::config::cached;
+
 =head1 NAME
 
 pf::config::cached

@@ -39,8 +39,9 @@ our $VERSION = 1.03;
 =cut
 
 =item * new - get a new instance of the pf::radius object
- 
+
 =cut
+
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::radius");
     $logger->debug("instantiating new pf::radius object");
@@ -57,6 +58,7 @@ to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk in S
 See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
 
 =cut
+
 # WARNING: You cannot change the return structure of this sub unless you also update its clients (like the SOAP 802.1x 
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
@@ -151,8 +153,8 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
     }
 
-    # grab vlan
-    my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    # Fetch VLAN depending on node status
+    my ($vlan, $wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {

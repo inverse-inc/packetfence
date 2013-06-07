@@ -524,7 +524,7 @@ sub violation_trigger {
         }
 
         # if violation is of action autoreg and the node is already registered 
-        if (action_exist($vid, $pf::action::AUTOREG) && is_node_registered($mac)) {
+        if (pf::action::action_exist($vid, $pf::action::AUTOREG) && is_node_registered($mac)) {
             $logger->debug(
                 "violation $vid triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
                 "Not adding violation."

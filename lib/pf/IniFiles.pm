@@ -1,4 +1,5 @@
 package pf::IniFiles;
+
 =head1 NAME
 
 pf::IniFiles add documentation

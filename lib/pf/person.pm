@@ -238,7 +238,7 @@ sub person_count_all {
 sub person_custom_search {
     my ($sql) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->debug($sql);
+
     $person_statements->{'person_custom_search'} = $sql;
     return db_data(PERSON, $person_statements, 'person_custom_search');
 }
@@ -257,11 +257,12 @@ sub person_view_all {
                 .= " HAVING p.pid='" . $params{'where'}{'value'} . "'";
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
+            my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
             $person_view_all_sql .= " HAVING"
-              . " pid LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
-              . " OR p.firstname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
-              . " OR p.lastname LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%')
-              . " OR p.email LIKE " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+              . " pid LIKE $like"
+              . " OR p.firstname LIKE $like"
+              . " OR p.lastname LIKE $like"
+              . " OR p.email LIKE $like";
         }
     }
     if ( defined( $params{'orderby'} ) ) {

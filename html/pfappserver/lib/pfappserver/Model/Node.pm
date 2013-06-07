@@ -272,7 +272,7 @@ sub delete {
 
     unless (node_delete($mac)) {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
-        $status_msg = "The node can't be deleted.";
+        $status_msg = "The node can't be delete because it's still active.";
     }
 
     return ($status, $status_msg);

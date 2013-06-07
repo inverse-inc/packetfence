@@ -139,7 +139,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
               $portalSession, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_EMAIL }
           );
       }
-    }
+    } # Email
 
     # SMS
     elsif ( $auth_return && defined($cgi->param('by_sms')) && is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ) {
@@ -170,7 +170,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
           pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms", $err, $errargs_ref);
           exit(0);
       }
-    }
+    } # SMS
 
     # SPONSOR
     elsif ( $auth_return && defined($cgi->param('by_sponsor')) && is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
@@ -229,13 +229,12 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
               $portalSession, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_SPONSOR }
           );
       }
-    }
+    } # SPONSOR
 
     # Registration form was invalid, return to guest self-registration page and show error message
     if ($auth_return != $TRUE) {
         $logger->info("Missing information for self-registration");
-        pf::web::guest::generate_selfregistration_page($portalSession, $err, $errargs_ref
-        );
+        pf::web::guest::generate_selfregistration_page($portalSession, $err, $errargs_ref);
         exit(0);
     }
 }

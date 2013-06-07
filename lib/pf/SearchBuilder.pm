@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 package pf::SearchBuilder;
+
 =head1 NAME
 
 pf::SearchBuilder An SQL select query builder inspired by Fey
