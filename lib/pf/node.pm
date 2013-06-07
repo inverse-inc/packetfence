@@ -639,7 +639,10 @@ sub node_view_all {
             $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
-            $node_view_all_sql .= " HAVING node.mac like " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+            my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+            $node_view_all_sql .= " HAVING node.mac LIKE $like"
+                . " OR node.computername LIKE $like"
+                . " OR node.pid LIKE $like";
         }
     }
     if ( defined( $params{'orderby'} ) ) {
@@ -780,7 +783,7 @@ sub node_register {
     if ($auto_registered) {
        my $node_info = node_view($mac);
        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq 'reg') {
-        $info{'pid'}     = $pid;
+        $info{'pid'} = $pid;
         if ( !node_modify( $mac, %info ) ) {
             $logger->error("modify of node $mac failed");
             return (0);
