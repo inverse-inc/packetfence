@@ -41,6 +41,14 @@ has default_section => ( is => 'ro');
 
 =head1 METHODS
 
+=head2 validId
+
+validates id
+
+=cut
+
+sub validId { 1; }
+
 =head2 _buildCachedConfig
 
 Build the pf::config::cached object
@@ -53,7 +61,6 @@ sub _buildCachedConfig {
     push @args, -default => $self->default_section if defined $self->default_section;
     return pf::config::cached->new(@args);
 }
-
 
 =head2 rollback
 
@@ -190,7 +197,7 @@ sub update {
                         !($default_section && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
                         ) {
                         $config->setval($id, $param, $value);
-                    } elsif(exists $config->{imported}) {
+                    } elsif(exists $config->{imported} && defined $config->{imported}) {
                         $config->setval($id, $param, $config->{imported}->val($id, $param));
                     } else {
                         $config->delval($id, $param);
