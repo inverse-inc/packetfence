@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.0.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-05-30 14:20-0400\n"
+"PO-Revision-Date: 2013-06-07 15:16-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -109,6 +109,7 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/configuration/users.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
@@ -359,6 +360,10 @@ msgid "Choose between our supported IDS engine."
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+msgid "Clear Violation"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
@@ -507,6 +512,10 @@ msgstr ""
 msgid "Create user"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "Created user"
+msgstr ""
+
 # html/pfappserver/root/interface/create.tt
 msgid "Creating"
 msgstr ""
@@ -633,6 +642,10 @@ msgstr ""
 # html/pfappserver/root/config/networks/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Deleting"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Deregister"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/index.tt
@@ -822,10 +835,6 @@ msgstr ""
 
 # html/pfappserver/root/configuration/authentication.tt
 msgid "External Sources"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "External user"
 msgstr ""
 
 # conf/documentation.conf (guests_self_registration.mandatory_fields)
@@ -1050,10 +1059,6 @@ msgstr ""
 
 # html/pfappserver/root/configuration/authentication.tt
 msgid "Internal Sources"
-msgstr ""
-
-# html/pfappserver/root/admin/users.tt
-msgid "Internal user"
 msgstr ""
 
 # conf/documentation.conf (general.maintenance_interval)
@@ -1543,6 +1548,10 @@ msgstr ""
 msgid "Please specify the default DHCP lease time."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/User.pm
+msgid "Please specify the end date of the registration window."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the ending IP address of the DHCP scope."
 msgstr ""
@@ -1565,6 +1574,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
 msgid "Please specify the router IP address."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+msgid "Please specify the start date of the registration window."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
@@ -1735,6 +1748,10 @@ msgstr ""
 
 # html/pfappserver/root/service/status.tt
 msgid "Reconnecting to the Admin Service in "
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Register"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
@@ -2196,6 +2213,10 @@ msgstr ""
 
 # html/pfappserver/root/violation/list.tt
 msgid "Target VLAN"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/User.pm
+msgid "Telephone"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
