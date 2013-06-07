@@ -9,6 +9,8 @@ interceptproxy.pm
 use strict;
 use warnings;
 
+use Apache2::Reload;
+
 use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use Apache2::RequestRec ();
 use Apache2::RequestUtil;
@@ -49,7 +51,7 @@ sub translate {
     #in case of a Get request to another site than the captive portal, we redirect the request to the captive portal
     if ( $parsed_request->scheme eq 'http' ) {
         if ($parsed_portal->hostname ne $parsed_request->hostname) {
-            $logger->info("HTTP request redirect");
+            $logger->trace("HTTP request redirect to captive portal");
             $r->err_headers_out->set('Location' => $parsed_portal->unparse);
             $r->content_type('text/html');
             $r->no_cache(1);
@@ -59,7 +61,7 @@ sub translate {
 
     #in case of a CONNECT request we redirect the request to the reverse proxy
      elsif ( $parsed_portal->hostname ne $parsed_request->scheme ) {
-            $logger->info("CONNECT request to reverseproxy");
+            $logger->trace("CONNECT request to reverseproxy");
             $r->parsed_uri->hostname('127.0.0.1');
             $r->parsed_uri->port('444');
             $r->uri('127.0.0.1:444');
@@ -83,7 +85,7 @@ sub translate {
             pf::web::util::session(\%session_id,$session_cook);
             $session_id{remote_ip} = $r->connection->remote_ip;
             my $uri = $parsed_portal->unparse;
-            $logger->info("http request redirect to captive portal");
+            $logger->trace("http request redirect to captive portal, we have the cookie");
             $r->err_headers_out->set('Location' => $uri);
             $r->content_type('text/html');
             $r->no_cache(1);
@@ -91,19 +93,20 @@ sub translate {
         }
         #if there is no cookie then proxy to captive portal
         else {
-            $logger->warn($r->uri);
+            $logger->trace("No cookie then proxy to the captive portal");
             $parsed_portal->scheme(undef);
             $parsed_portal->scheme('http');
             $logger->warn("DEBUG: ".$parsed_portal->unparse.$parsed_request->rpath);
             $r->pnotes( 'url_to_mod_proxy' => $parsed_portal->unparse.$parsed_request->rpath );
        }
     } else {
-
-    #If it is a connect request -> forward to the reverse proxy
+        #If it is a connect request -> forward to the reverse proxy
+        $logger->trace("CONNECT request to the captive portal :".$r->uri);
         $r->parsed_uri->hostname('127.0.0.1');
         $r->parsed_uri->port('444');
         my $url = "127.0.0.1:444";
         $r->uri($url);
+        $logger->warn("CONNECT request to the captive portal :".$r->uri);
         $r->pnotes( 'url_to_mod_proxy' => $r->uri );
     }
     #Forward to mod_proxy
@@ -193,7 +196,7 @@ Reverse proxy TransHandler
 sub reverse {
     my $r = shift;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
-
+    $logger->trace("Reverse proxy :".$r->uri);
     my $parsed_request = APR::URI->parse($r->pool, $r->uri);
     my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
     my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
@@ -208,7 +211,7 @@ sub reverse {
         pf::web::util::session(\%session_id,$session_cook);
         if ($session_id{remote_ip}) {
             $r->headers_in->set('X-Forwarded-For' => $session_id{remote_ip});
-            $r->headers_in->set('Host' => $Config{'general'}{'hostname'});
+            $r->headers_in->set('Host' => $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'});
             my $url = "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
             $parsed_portal->scheme('https');
             my $url_proxy = $parsed_portal->unparse.$r->uri;
@@ -260,4 +263,3 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 USA.
 =cut
 1;
-
