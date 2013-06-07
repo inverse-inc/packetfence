@@ -620,7 +620,6 @@ sub ReadConfig {
     my $result = 1;
     my $logger = get_logger();
     $logger->trace("ReadConfig for $file");
-    my $imported = $config->{imported} if exists $config->{imported};
     $$self = $self->computeFromPath(
         $file,
         sub {
