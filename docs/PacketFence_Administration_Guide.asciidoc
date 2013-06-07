@@ -2052,6 +2052,7 @@ OAuth2 Authentication
 The captive portal of PacketFence allows a guest/user to register using his Google, Facebook or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
+This list is available in each OAuth2 authentication source.
 
 Google
 ^^^^^^

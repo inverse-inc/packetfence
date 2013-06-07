@@ -81,7 +81,7 @@ sub iptables_generate {
              my @lines  = pf_run($cmd);
         }
         else {
-            $logger->warn("We doesnt support ipset under version 4");
+            $logger->warn("We do not support ipset lower than version 4");
         }
     }
     $self->SUPER::iptables_generate();
