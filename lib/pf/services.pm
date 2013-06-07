@@ -48,13 +48,14 @@ use pf::SwitchFactory;
 use pf::violation_config;
 
 Readonly our @ALL_SERVICES => (
+<<<<<<< HEAD
     'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
-    'httpd.webservices', 'httpd.admin', 'httpd.portal', 'snmptrapd',
+    'httpd.webservices', 'httpd.admin', 'httpd.portal','httpd.proxy','snmptrapd',
     'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
 Readonly our @APACHE_SERVICES => (
-    'httpd.webservices', 'httpd.admin', 'httpd.portal'
+    'httpd.webservices', 'httpd.admin', 'httpd.portal', 'httpd.proxy'
 );
 
 my $services = join("|", @ALL_SERVICES);
@@ -82,6 +83,7 @@ $service_launchers{'httpd'} = "%1\$s -f $conf_dir/httpd.conf";
 $service_launchers{'httpd.webservices'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.webservices -D$OS";
 $service_launchers{'httpd.admin'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.admin -D$OS";
 $service_launchers{'httpd.portal'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.portal -D$OS";
+$service_launchers{'httpd.proxy'} = "%1\$s -f $conf_dir/httpd.conf.d/httpd.proxy -D$OS";
 
 $service_launchers{'pfdetect'} = "%1\$s -d -p $install_dir/var/alert &";
 $service_launchers{'pfmon'} = '%1$s -d &';
@@ -152,6 +154,7 @@ sub service_ctl {
                         'httpd' => \&generate_httpd_conf,
                         'httpd.webservices' => \&generate_httpd_conf,
                         'httpd.portal' => \&generate_httpd_conf,
+                        'httpd.proxy' => \&generate_httpd_conf,
                         'httpd.admin' => \&generate_httpd_conf,
                         'radiusd' => \&generate_radiusd_conf,
                         'snmptrapd' => \&generate_snmptrapd_conf
@@ -166,7 +169,7 @@ sub service_ctl {
                 # valid daemon and flags are set
                 if (grep({ $daemon eq $_ } @ALL_SERVICES) && defined($service_launchers{$daemon})) {
 
-                    if ( !( ($daemon eq 'pfdhcplistener' ) || ($daemon eq 'httpd') || ($daemon eq 'httpd.webservices') || ($daemon eq 'httpd.admin') || ($daemon eq 'httpd.portal') ) ) {
+                    if ( !( ($daemon eq 'pfdhcplistener' ) || ($daemon eq 'httpd') || ($daemon eq 'httpd.webservices') || ($daemon eq 'httpd.admin') || ($daemon eq 'httpd.portal') || ($daemon eq 'httpd.proxy') ) ) {
                         if ( $daemon eq 'dhcpd' ) {
 
                             # create var/dhcpd/dhcpd.leases if it doesn't exist
@@ -341,7 +344,7 @@ sub service_ctl {
             $action eq "status" && do {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") || ($daemon eq "snort") ) ) {
+                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") || ($daemon eq "httpd.proxy") || ($daemon eq "snort") ) ) {
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
                     }
@@ -455,6 +458,9 @@ sub service_list {
             push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'pfdns'}) );
+        } elsif ( $service eq "httpd.proxy" ) {
+            push @finalServiceList, $service
+                if ( defined($Config{'interception_proxy'}{'port'}) );
         }
         elsif ( $service eq 'pfdhcplistener' ) {
             push @finalServiceList, $service if ( isenabled($Config{'network'}{'dhcpdetector'}) );

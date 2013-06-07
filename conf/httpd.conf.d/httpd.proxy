@@ -87,21 +87,11 @@
 </IfDefine>
 
 PerlSwitches -I/usr/local/pf/lib
-#AddHandler perl-script .cgi
-#Options +ExecCGI
-#PerlHandler ModPerl::PerlRun
+PerlModule APR::Table
 
 # Prevent Browsers (Chrome and Firefox) to cache DNS while under the captive portal
 Header always set X-DNS-Prefetch-Control off
 
-<Proxy *>
-  Order deny,allow
-  Allow from all
-</Proxy>
-
-<Files ~ "\.(cgi?)$">
-  SSLOptions +StdEnvVars
-</Files>
 
 SetEnvIf User-Agent ".*MSIE.*" \
   nokeepalive ssl-unclean-shutdown \
@@ -136,9 +126,6 @@ $Include = $install_dir.'/conf/httpd.conf.d/log.conf';
 $User = "pf";
 $Group = "pf";
 
-$PerlOptions = "+GlobalRequest";
-$ProxyRequests = "Off";
-
 if (defined($PfConfig->{'alerting'}{'fromaddr'}) && $PfConfig->{'alerting'}{'fromaddr'} ne '') {
     $ServerAdmin = $PfConfig->{'alerting'}{'fromaddr'};
 } else {
@@ -157,24 +144,33 @@ $MinSpareServers = pf::services::apache::calculate_min_spare_servers($MaxClients
 
 $HostnameLookups = "off";
 $MaxRequestsPerChild = "1000";
-$PerlInitHandler = "pf::WebAPI::InitHandler";
 
-
-$SSLPassPhraseDialog = "builtin";
-$SSLSessionCache = "dbm:".$install_dir."/var/ssl_scache";
-$SSLSessionCacheTimeout = "300";
-$SSLMutex = "file:".$install_dir."/var/ssl_mutex";
-$SSLRandomSeed = "startup builtin";
-$SSLRandomSeed = "connect builtin";
-$SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL";
 
 $ErrorLog = $install_dir.'/logs/proxy_error_log';
+$CustomLog = $install_dir.'/logs/proxy_access_log combined';
 
 foreach my $port (split(',',$PfConfig->{'interception_proxy'}{'port'})) {
     push (@NameVirtualHost,"*:".$port);
 }
 
 push (@NameVirtualHost,"*:444");
+push (@Listen,"127.0.0.1:444");
+push @{ $VirtualHost{'*:444'} }, gen_conf(
+    ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":444",
+    PerlOptions       => '+GlobalRequest',
+    SSLEngine         => 'on',
+    SSLProxyEngine    => 'on',
+    Include           => $var_dir.'/conf/ssl-certificates.conf',
+    PerlModule        => 'pf::web::interceptproxy',
+    PerlTransHandler  => '+pf::web::interceptproxy::reverse',
+    ProxyRequests     => 'off',
+    ProxyPreserveHost => 'on',
+    ProxyVia          => 'off',
+    LogLevel          => 'debug',
+    ErrorLog          => $install_dir.'/logs/reverse_reproxy_error_log',
+    CustomLog         => $install_dir.'/logs/reverse_proxy_access_log combined',
+);
+
 
 foreach my $interface (@internal_nets) {
     foreach my $port (split(',',$PfConfig->{'interception_proxy'}{'port'})) {
@@ -193,22 +189,5 @@ foreach my $interface (@internal_nets) {
         );
     }
 }
-
-push (@Listen,"127.0.0.1:444");
-
-push @{ VirtualHost{'127.0.0.1:444'} }, gen_conf(
-    ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":444",
-    PerlOptions       => '+GlobalRequest',
-    PerlModule        => 'pf::web::interceptproxy',
-    PerlTransHandler  => '+pf::web::interceptproxy::reverse',
-    ProxyRequests     => 'Off',
-    ProxyPreserveHost => 'On',
-    ProxyVia          => 'Off',
-    ErrorLog          => $install_dir.'/logs/reverse_reproxy_error_log',
-    CustomLog         => $install_dir.'/logs/reverse_proxy_access_log combined',
-    SSLEngine         => 'on',
-    SSLProxyEngine    => 'on',
-    Include           => $var_dir.'/conf/ssl-certificates.conf',
-);
 
 </Perl>
