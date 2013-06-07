@@ -580,7 +580,11 @@ sub node_count_all {
             }
             elsif ( $params{'where'}{'type'} eq 'any' ) {
                 if (exists($params{'where'}{'like'})) {
-                    push(@where, "mac LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'));
+                    my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+                    my $where_any .= "(mac LIKE $like"
+                                   . " OR computername LIKE $like"
+                                   . " OR pid LIKE $like)";
+                    push(@where, $where_any);
                 }
             }
         }

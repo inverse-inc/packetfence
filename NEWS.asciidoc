@@ -26,6 +26,7 @@ Enhancements
 * Support for anonymous bind in LDAP authentication sources
 * Add support for date and time conditions in authentication sources
 * Add "is not" condition on connection type
+* Extend simple search of nodes to match MAC, owner and computer name
 
 Bug Fixes
 +++++++++
