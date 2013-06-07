@@ -24,7 +24,7 @@
               <tbody>
                 [%- FOREACH user IN items -%]
                 <tr>
-                  <td><i class="icon-[% IF user.password %]briefcase[% ELSE %]user[% END %]"></i> <a href="[% c.uri_for(c.controller('User').action_for('view'), [ user.pid ]) %]">[% user.pid %]</a></td>
+                  <td><a href="[% c.uri_for(c.controller('User').action_for('view'), [ user.pid ]) %]">[% user.pid %] [% IF user.password %]<i class="icon-pencil"></i>[% END %]</a></td>
                   <td class="hidden-phone">[% user.firstname %]</td>
                   <td class="hidden-phone">[% user.lastname %]</td>
                   <td>[% user.email %]</td>

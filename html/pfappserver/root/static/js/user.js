@@ -253,7 +253,7 @@ UserView.prototype.readNode = function(e) {
             modalUser.one('hidden',function(event){
                 modalNode.modal('show');
             });
-            modalNode.on('shown', function(event) {
+            modalNode.one('shown', function(event) {
                 var modal = $(this);
                 modal.find('.chzn-select').chosen();
                 modal.find('.chzn-deselect').chosen({allow_single_deselect: true});

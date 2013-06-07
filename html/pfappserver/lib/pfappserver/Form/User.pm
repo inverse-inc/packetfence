@@ -119,7 +119,7 @@ has_field 'notes' =>
 has_field 'valid_from' =>
   (
    type => 'DatePicker',
-   required => 1,
+   messages => { required => 'Please specify the start date of the registration window.' },
   );
 
 =head2 expiration
@@ -129,7 +129,7 @@ has_field 'valid_from' =>
 has_field 'expiration' =>
   (
    type => 'DatePicker',
-   required => 1,
+   messages => { required => 'Please specify the end date of the registration window.' },
   );
 
 =head2 Blocks
@@ -182,8 +182,9 @@ When editing a local/SQL user, set as required the arrival date.
 sub update_fields {
     my $self = shift;
 
-    if ($self->{init_object} && exists $self->{init_object}->{password}) {
+    if ($self->{init_object} && $self->{init_object}->{password}) {
         $self->field('valid_from')->required(1);
+        $self->field('expiration')->required(1);
     }
 
     # Call the theme implementation of the method

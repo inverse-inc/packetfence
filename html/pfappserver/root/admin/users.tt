@@ -83,17 +83,16 @@ form {
                 </ul>
               </div>
             </div>
-            <div class="row-fluid">
+            <!--<div class="row-fluid">
               <div class="span12">
                 <div class="sidebar-nav">
                   <ul class="nav nav-list">
                     <li class="nav-header">[% l('Legend') %]</li>
-                    <li><i class="icon-user"></i> [% l('Internal user') %]</li>
-                    <li><i class="icon-briefcase"></i> [% l('External user') %]</li>
+                    <li><i class="icon-pencil"></i> [% l('Created user') %]</li>
                   </ul>
                 </div>
               </div>
-            </div>
+            </div>-->
           </div><!--/.well -->
         </div><!--/span-->
         <div class="span10">
