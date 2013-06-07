@@ -108,7 +108,7 @@ BEGIN {
         $LOG4PERL_RELOAD_TIMER
         init_config
         %Profiles_Config $cached_profiles_config
-        $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config
+        $cached_pf_config $cached_network_config $cached_floating_device_config
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
