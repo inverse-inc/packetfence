@@ -13,13 +13,13 @@ pf::ConfigStore::Switch;
 
 use Moo;
 use namespace::autoclean;
-use pf::config;
+use pf::file_paths;
 use Log::Log4perl qw(get_logger);
 use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::config::switches_config_file };
+sub configFile { $pf::file_paths::switches_config_file };
 
 =head2 Methods
 
