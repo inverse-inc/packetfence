@@ -40,7 +40,7 @@ sub read {
         $status_msg = $soh->filter($filter_id);
         unless ($status_msg) {
             $status = $STATUS::NOT_FOUND;
-            $status_msg = "Filter ($filter_id) not found.";
+            $status_msg = ["Filter ([_1]) not found.",$filter_id];
         }
     };
     if ($@) {

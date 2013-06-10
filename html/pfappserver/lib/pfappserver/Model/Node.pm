@@ -52,12 +52,12 @@ sub exists {
         $result = node_exist($mac);
     };
     if ($@) {
-        $result = "Can't validate node ($mac) from database.";
+        $result = ["Can't validate node ([_1]) from database.",$mac];
         $status = $STATUS::INTERNAL_SERVER_ERROR;
         $logger->error($@);
     }
     unless ($result) {
-        $result = "Node $mac was not found.";
+        $result = ["Node [_1] was not found.",$mac];
         $status = $STATUS::NOT_FOUND;
         $logger->warn($result);
     }
@@ -209,7 +209,7 @@ sub view {
         #    }
     };
     if ($@) {
-        $status_msg = "Can't retrieve node ($mac) from database.";
+        $status_msg = ["Can't retrieve node ([_1]) from database.",$mac];
         $logger->error($@);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -357,7 +357,7 @@ sub bulkCloseViolations {
             $count++ if $self->_closeViolation($violation->{id});
         }
     }
-    return ($STATUS::OK, "$count violation(s) were closed.");
+    return ($STATUS::OK, ["[_1] violation(s) were closed.",$count]);
 }
 
 =head2 _closeViolation
@@ -546,7 +546,7 @@ sub bulkRegister {
             }
         }
     }
-    return ($STATUS::OK, "$count node(s) were registered.");
+    return ($STATUS::OK, ["[_1] node(s) were registered.",$count]);
 }
 
 =head2 bulkDeregister
@@ -565,7 +565,7 @@ sub bulkDeregister {
             }
         }
     }
-    return ($STATUS::OK, "$count node(s) were deregistered.");
+    return ($STATUS::OK, ["[_1] node(s) were deregistered.",$count]);
 }
 
 =head2 bulkApplyRole
@@ -580,7 +580,7 @@ sub bulkApplyRole {
         $node->{category_id} = $role;
         $count++ if node_modify($mac, %{$node});
     }
-    return ($STATUS::OK, "Role was changed for $count node(s)");
+    return ($STATUS::OK, ["Role was changed for [_1] node(s)",$count]);
 }
 
 =head1 AUTHOR

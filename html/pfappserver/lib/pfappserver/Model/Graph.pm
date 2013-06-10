@@ -109,7 +109,7 @@ sub timeBase {
     if ($function) {
         eval { @results = $function->($startDate, $endDate, $interval); };
         if ($@) {
-            $status_msg = "Can't fetch data from database for graph $graph.";
+            $status_msg = ["Can't fetch data from database for graph [_1].",$graph];
             $logger->error($@);
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }

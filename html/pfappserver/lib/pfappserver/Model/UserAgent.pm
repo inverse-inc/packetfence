@@ -26,8 +26,6 @@ use pf::util;
 
 =head1 METHODS
 
-=over
-
 =head2 field_names
 
 =cut
@@ -39,6 +37,7 @@ sub field_names {
 =head2 countAll
 
 =cut
+
 sub countAll {
     my ( $self,  %params ) = @_;
 
@@ -60,6 +59,7 @@ sub countAll {
 =head2 search
 
 =cut
+
 sub search {
     my ( $self, %params ) = @_;
 
@@ -71,16 +71,12 @@ sub search {
         @items = node_useragent_view_all_searchable( %params);
     };
     if ($@) {
-        $status_msg = "Can't fetch useragents from database. $@";
-        $logger->error($status_msg);
+        $status_msg = ["Can't fetch useragents from database. [_1]",$@];
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
-
     return ($STATUS::OK, \@items);
 }
 
-
-=back
 
 =head1 COPYRIGHT
 

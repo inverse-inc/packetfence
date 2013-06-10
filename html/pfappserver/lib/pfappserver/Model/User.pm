@@ -497,7 +497,7 @@ sub importCSV {
         }
         unless ($csv->eof) {
             $logger->warn("Problem with CSV file importation: " . $csv->error_diag());
-            ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, "Problem with importation: " . $csv->error_diag());
+            ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, ["Problem with importation: [_1]" , $csv->error_diag()]);
         }
         else {
             my @sorted_users = sort { $a->{pid} cmp $b->{pid} } @users;
