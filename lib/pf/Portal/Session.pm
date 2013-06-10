@@ -173,7 +173,7 @@ sub _resolveIp {
     if (defined($self->cgi->param('ip'))) {
         $self->{'_session'}->param('ip', $self->cgi->param('ip'));
         $directly_connected_ip = $self->{'_session'}->param('ip');
-    } elsif (defined($self->{'_session'}->param('ip'))) {
+    } elsif ( defined($self->{'_session'}) && defined($self->{'_session'}->param('ip') ) ) {
         $directly_connected_ip = $self->{'_session'}->param('ip');
     }
     else {
