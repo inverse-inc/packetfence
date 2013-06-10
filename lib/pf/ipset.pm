@@ -77,7 +77,7 @@ sub iptables_generate {
 
     if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
         if ($IPSET_VERSION > 4) {
-            $cmd = "LANG=C sudo ipset --create pfsession_oauth hash:ip,port 2>&1";
+            $cmd = "LANG=C sudo ipset --create pfsession_passthrough hash:ip,port 2>&1";
              my @lines  = pf_run($cmd);
         }
         else {
