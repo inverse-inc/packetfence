@@ -233,6 +233,17 @@ sub add_deferred_actions {
     }
 }
 
+
+sub pf_localize {
+    my ($c,@args) = @_;
+    if(@args == 1 && ref($args[0]) eq 'ARRAY') {
+        my $args_ref = $args[0];
+        my $text = shift @$args_ref;
+        @args = ($text,$args_ref);
+    }
+    return $c->localize(@args);
+}
+
 # Logging
 __PACKAGE__->log(Log::Log4perl::Catalyst->new(INSTALL_DIR . '/conf/log.conf'));
 
