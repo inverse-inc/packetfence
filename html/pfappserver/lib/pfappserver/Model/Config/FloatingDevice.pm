@@ -38,7 +38,7 @@ sub search {
     if (@results) {
         return ($STATUS::OK, \@results);
     } else {
-        return ($STATUS::NOT_FOUND,"");
+        return ($STATUS::NOT_FOUND,["[_1] matching [_2] not found"],$field,$value);
     }
 }
 

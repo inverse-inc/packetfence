@@ -23,7 +23,7 @@ extends 'Catalyst::Model';
 
 =head1 METHODS
 
-=head2
+=head2 _round
 
 =cut
 
@@ -55,12 +55,12 @@ sub countAll {
             @results = $function->(undef, ( where => $params )); };
         if ($@) {
             $logger->error($@);
-            $status_msg = "Can't count data from database for module $module.";
+            $status_msg = ["Can't count data from database for module [_1].",$module];
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
     }
     else {
-        $status_msg = "No such sub $function";
+        $status_msg = ["No such sub [_1]",$function];
         return ($STATUS::NOT_FOUND, $status_msg);
     }
 
@@ -115,7 +115,7 @@ sub timeBase {
         }
     }
     else {
-        $status_msg = "No such sub $function";
+        $status_msg = ["No such sub [_1]",$function];
         return ($STATUS::NOT_FOUND, $status_msg);
     }
 
@@ -381,6 +381,7 @@ sub timeBase {
 =head2 _format_timeBase
 
 =cut
+
 sub _format_timeBase {
     my $data = shift;
 
@@ -441,6 +442,7 @@ sub _format_timeBase {
 See bin/pfcmd (report)
 
 =cut
+
 sub ratioBase {
     my ( $self, $report, $startDate, $endDate, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -453,12 +455,12 @@ sub ratioBase {
         eval { @results = $function->($startDate, $endDate); };
         if ($@) {
             $logger->error($@);
-            $status_msg = "Can't fetch data from database for report $report.";
+            $status_msg = ["Can't fetch data from database for report [_1].",$report];
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
     }
     else {
-        $status_msg = "No such sub $function";
+        $status_msg = ["No such sub [_1]",$function];
         return ($STATUS::NOT_FOUND, $status_msg);
     }
 
@@ -473,6 +475,7 @@ sub ratioBase {
 =head2 _format_ratioBase
 
 =cut
+
 sub _format_ratioBase {
     my ($data, $description_field, $count_field, $value_field) = @_;
 

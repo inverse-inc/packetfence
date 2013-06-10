@@ -43,7 +43,7 @@ sub getRoutedNetworks {
         @networks = sort @networks;
         return ($STATUS::OK, \@networks);
     } else {
-        return ($STATUS::NOT_FOUND, "No routes for $network/$netmask found");
+        return ($STATUS::NOT_FOUND, "No routes for [_1]/[_2] found",$network,$netmask);
     }
 }
 

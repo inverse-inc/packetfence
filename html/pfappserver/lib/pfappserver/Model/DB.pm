@@ -45,7 +45,7 @@ sub assign {
     $dbHandler->do($sql_query, undef, $user, $password);
     if ( $DBI::errstr ) {
         $status_msg = "Error creating the user $user on database $db";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $logger->warn("$DBI::errstr");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
@@ -53,21 +53,20 @@ sub assign {
     $sql_query = "GRANT SELECT,INSERT,UPDATE,DELETE,EXECUTE,LOCK TABLES ON $db.* TO ?\@localhost IDENTIFIED BY ?";
     $dbHandler->do($sql_query, undef, $user, $password);
     if ( $DBI::errstr ) {
-        $status_msg = "Error creating the user $user on database $db";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
+        $logger->warn("$DBI::errstr");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     # Apply the new privileges
     $dbHandler->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
-        $status_msg = "Error creating the user $user on database $db";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error creating the user [_1] on database [_2]",$user,$db];
+        $logger->warn("$DBI::errstr");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
-    $status_msg = "Successfully created the user $user on database $db";
-    $logger->info("$status_msg");
+    $status_msg = ["Successfully created the user [_1] on database [_2]",$user,$db];
     return ( $STATUS::OK, $status_msg );
 }
 
@@ -83,13 +82,12 @@ sub connect {
 
     $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306", $user, $password );
     if ( !$dbHandler ) {
-        $status_msg = "Error in connection to the database $db with user $user";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error in connection to the database [_1] with user [_2]",$db,$user];
+        $logger->warn("$DBI::errstr");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
-    $status_msg = "Successfully connected to the database $db with user $user";
-    $logger->info("$status_msg");
+    $status_msg = ["Successfully connected to the database [_1] with user [_2]",$db,$user];
     return ( $STATUS::OK, $status_msg );
 }
 
@@ -106,21 +104,20 @@ sub create {
     # Instantiate a DBI driver
     my $dbDriver = DBI->install_driver("mysql");
     if ( !$dbDriver ) {
-        $status_msg = "Error in creating the database $db";
-        $logger->warn("$status_msg | USER: $root_user | $DBI::errstr");
+        $status_msg = ["Error in creating the database [_1]",$db];
+        $logger->warn($DBI::errstr);
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     # Create the requested database
     $result = $dbDriver->func('createdb', $db, 'localhost', $root_user, $root_password, 'admin');
     if ( !$result ) {
-        $status_msg = "Error in creating the database $db";
-        $logger->warn("$status_msg | USER: $root_user | $DBI::errstr");
+        $status_msg = ["Error in creating the database [_1]",$db];
+        $logger->warn($DBI::errstr);
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
-    $status_msg = "Successfully created the database $db";
-    $logger->info("$status_msg | USER: $root_user");
+    $status_msg = ["Successfully created the database [_1]",$db];
     return ( $STATUS::OK, $status_msg );
 }
 
@@ -138,8 +135,8 @@ sub secureInstallation {
     my $sql_query = "UPDATE user SET Password=PASSWORD(?) WHERE User=?";
     $dbHandler->do($sql_query, undef, $root_password, $root_user);
     if ( $DBI::errstr ) {
-        $status_msg = "Error changing root user $root_user password";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error changing root user [_1] password",$root_user ];
+        $logger->warn($DBI::errstr);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
@@ -147,21 +144,21 @@ sub secureInstallation {
     $sql_query = "DELETE FROM user WHERE User=? AND Host='%'";
     $dbHandler->do($sql_query, undef, $root_user);
     if ( $DBI::errstr ) {
-        $status_msg = "Error setting correct permissions to root user $root_user";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error setting correct permissions to root user [_1]",$root_user ];
+        $logger->warn($DBI::errstr);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
     # Apply the new privileges
     $dbHandler->do("FLUSH PRIVILEGES");
     if ( $DBI::errstr ) {
-        $status_msg = "Error applying new privileges to root user $root_user";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error applying new privileges to root user [_1]",$root_user ];
+        $logger->warn($DBI::errstr);
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
     $status_msg = "Successfully secured mysql installation";
-    $logger->info("$status_msg");
+    $logger->info($status_msg);
     return ($STATUS::OK, $status_msg);
 }
 
@@ -182,14 +179,12 @@ sub schema {
     my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < $install_dir/db/pf-schema.sql";
     eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
     if ( $@ || !defined($result) ) {
-        $status_msg = "Error applying the schema to the database $db";
-        $logger->warn("$status_msg | USER: $root_user");
+        $status_msg = ["Error applying the schema to the database [_1]",$db ];
         $logger->warn("$@: $result");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
 
-    $status_msg = "Successfully applied the schema to the database $db";
-    $logger->info("$status_msg | USER: $root_user");
+    $status_msg = ["Successfully applied the schema to the database [_1]",$db ];
     return ( $STATUS::OK, $status_msg );
 }
 
@@ -209,20 +204,20 @@ sub resetUserPassword {
     if ($db_user && $db_password && $db_name) {
         $dbHandler = DBI->connect( "dbi:mysql:dbname=$db_name;host=localhost;port=3306", $db_user, $db_password );
         if ( !$dbHandler ) {
-            $status_msg = "Error while changing the password of $user.";
-            $logger->warn("$status_msg | $DBI::errstr");
+            $status_msg = ["Error while changing the password of [_1].",$user];
+            $logger->warn($DBI::errstr);
             return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
         }
     } else {
-        $status_msg = "Error while changing the password of $user.";
-        $logger->warn("$status_msg | Missing configuration parameters to connect to the database");
+        $status_msg = ["Error while changing the password of [_1].",$user];
+        $logger->warn($DBI::errstr);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
     # Making sure username/password are "ok"
     if ( !defined($user) || !defined($password) || (length($user) == 0) || (length($password) == 0) ) {
-        $status_msg = "Error while changing the password of $user.";
-        $logger->warn("$status_msg | Invalid username or password");
+        $status_msg = ["Error while changing the password of [_1].",$user];
+        $logger->warn($DBI::errstr);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
@@ -230,13 +225,12 @@ sub resetUserPassword {
     my $sql_query = "UPDATE temporary_password SET password=? WHERE pid=?";
     $dbHandler->do($sql_query, undef, $password, $user);
     if ( $DBI::errstr ) {
-        $status_msg = "Error while changing the password of $user.";
-        $logger->warn("$status_msg | $DBI::errstr");
+        $status_msg = ["Error while changing the password of [_1].",$user];
+        $logger->warn($DBI::errstr);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    $status_msg = "The password of $user was successfully modified.";
-    $logger->info("$status_msg");
+    $status_msg = ["The password of [_1] was successfully modified.",$user];
     return ($STATUS::OK, $status_msg);
 }
 
