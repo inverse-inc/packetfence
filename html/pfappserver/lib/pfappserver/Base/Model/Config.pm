@@ -78,7 +78,7 @@ sub rollback {
     my ($status, $status_msg);
     my $config = $self->configStore;
     $config->Rollback();
-    return (HTTP_OK);
+    return (HTTP_OK,"Config rollbacked");
 }
 
 =head2 readAllIds
@@ -103,7 +103,6 @@ Get all the sections as an array of hash refs
 
 sub readAll {
     my ($self) = @_;
-    my $logger = get_logger();
     my ($status, $status_msg);
     my $config = $self->configStore;
     return (HTTP_OK, $config->readAll($self->idKey));
@@ -117,18 +116,15 @@ If config has a section
 
 sub hasId {
     my ($self, $id) = @_;
-    my $logger = get_logger();
     my ($status, $status_msg);
     my $config = $self->configStore;
     if ( $config->hasId($id) ) {
         $status = HTTP_OK;
-        $status_msg = "\"$id\" found";
+        $status_msg = ["[_1] exists",$id];
     } else {
         $status = HTTP_NOT_FOUND;
-        $status_msg = "\"$id\" does not exists";
-        $logger->warn($status_msg);
+        $status_msg = ["[_1] does not exists",$id];
     }
-    $logger->info($status_msg);
     return ($status,$status_msg);
 }
 
@@ -140,19 +136,13 @@ reads a section
 
 sub read {
     my ($self, $id ) = @_;
-
-    my $logger = get_logger();
-    my $status;
-    my $config = $self->configStore;
-    my $result;
-    if ( $result =  $config->read($id,$self->idKey) ) {
-        $status = HTTP_OK;
-    } else {
-        $status = HTTP_NOT_FOUND;
-        $result = "\"$id\" does not exists";
-        $logger->warn("$result");
+    my ($status,$result) = $self->hasId($id);
+    if(is_success($status)) {
+        unless ($result =  $self->configStore->read($id,$self->idKey) ) {
+            $result = ["error reading [_1]",$id];
+            $status =  HTTP_PRECONDITION_FAILED;
+        }
     }
-
     return ($status, $result);
 }
 
@@ -164,17 +154,16 @@ Update/edit/modify an existing section
 
 sub update {
     my ($self, $id, $assignments) = @_;
-    my $logger = get_logger();
-    my ($status, $status_msg) = (HTTP_OK, "");
-    delete $assignments->{$self->idKey};
-    my $config = $self->configStore;
-    if ($config->update($id,$assignments)) {
-        $status_msg = "\"$id\" successfully modified";
-    } else {
-        $status_msg = "\"$id\" does not exists";
-        $status =  HTTP_NOT_FOUND;
+    my ($status,$status_msg) = $self->hasId($id);
+    if(is_success($status)) {
+        delete $assignments->{$self->idKey};
+        if ($self->configStore->update($id,$assignments)) {
+            $status_msg = ["[_1] successfully modified",$id];
+        } else {
+            $status = HTTP_INTERNAL_SERVER_ERROR;
+            $status_msg = ["error modifying [_1]",$id];
+        }
     }
-    $logger->info($status_msg);
     return ($status, $status_msg);
 }
 
@@ -187,17 +176,15 @@ To create
 
 sub create {
     my ($self, $id, $assignments) = @_;
-    my $logger = get_logger();
     my ($status, $status_msg) = (HTTP_OK, "");
     delete $assignments->{$self->idKey};
     my $config = $self->configStore;
     if ($config->create($id,$assignments)) {
-        $status_msg = "\"$id\" successfully created";
+        $status_msg = ["[_1] successfully created",$id];
     } else {
-        $status_msg = "\"$id\" already exists";
+        $status_msg = ["[_1] already exists",$id];
         $status =  HTTP_PRECONDITION_FAILED;
     }
-    $logger->info($status_msg);
     return ($status, $status_msg);
 }
 
@@ -207,7 +194,6 @@ sub create {
 
 sub update_or_create {
     my ($self, $id, $assignments) = @_;
-    my $logger = get_logger();
     if ( $self->configStore->hasId($id) ) {
         return $self->update($id, $assignments);
     } else {
@@ -223,19 +209,13 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
-    my $logger = get_logger();
-    my ($status,$status_msg);
-    my $config = $self->configStore;
-    if ( $config->remove($id) ) {
-        $status_msg = "\"$id\" successfully deleted";
-        $status = HTTP_OK;
-    } else {
-        $status = HTTP_NOT_FOUND;
-        $status_msg = "\"$id\" does not exists";
-        $logger->warn("$status_msg");
+    my ($status,$status_msg) = $self->hasId($id);
+    if(is_success($status)) {
+        unless($self->configStore->remove($id)) {
+            $status_msg = ["error removing [_1]",$id];
+            $status =  HTTP_PRECONDITION_FAILED;
+        }
     }
-
-    $logger->info("$status_msg");
     return ($status, $status_msg);
 }
 
@@ -247,19 +227,15 @@ Copies a section
 
 sub copy {
     my ($self,$from,$to) = @_;
-    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->configStore;
-
     if ( $config->copy($from,$to) ) {
         $status = HTTP_OK;
-        $status_msg = "\"$from\" successfully copied to $to";
+        $status_msg = ['"[_1]" successfully copied to [_2]',$from,$to];
     } else {
-        $status_msg = "\"$to\" already exists";
+        $status_msg = ['"[_]" already exists',$to];
         $status = HTTP_PRECONDITION_FAILED;
     }
-
-    $logger->info("$status_msg");
     return ($status, $status_msg);
 }
 
@@ -269,19 +245,15 @@ sub copy {
 
 sub renameItem {
     my ( $self, $old, $new ) = @_;
-    my $logger = get_logger();
     my ($status,$status_msg);
     my $config = $self->configStore;
     if ( $config->renameItem($old,$new) ) {
-        $status_msg = "\"$old\" successfully renamed to $new";
+        $status_msg = ["[_1] successfully renamed to [_2]",$old,$new];
         $status = HTTP_OK;
     } else {
         $status = HTTP_NOT_FOUND;
-        $status_msg = "\"$old\" does not exists";
-        $logger->warn("$status_msg");
+        $status_msg = ["[_1] does not exists",$old];
     }
-
-    $logger->info("$status_msg");
     return ($status,$status_msg);
 }
 
@@ -293,7 +265,6 @@ Sorting the items
 
 sub sortItems {
     my ( $self, $items ) = @_;
-    my $logger = get_logger();
     my ($status,$status_msg);
     my $idKey  = $self->idKey;
     my $config = $self->configStore;
@@ -315,7 +286,6 @@ sub sortItems {
 
 sub commit {
     my ($self) = @_;
-    my $logger = get_logger();
     my ($status,$status_msg);
     if($self->configStore->commit()) {
         $status = HTTP_OK;
@@ -325,7 +295,6 @@ sub commit {
         $status = HTTP_INTERNAL_SERVER_ERROR;
         $status_msg = $@;
     }
-    $logger->info($status_msg);
     return ($status,$status_msg);
 }
 

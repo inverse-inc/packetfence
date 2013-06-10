@@ -34,6 +34,7 @@ __PACKAGE__->config(namespace => '');
 The root page (/)
 
 =cut
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -55,6 +56,7 @@ sub index :Path :Args(0) {
 Standard 404 error page
 
 =cut
+
 sub default :Path {
     my ( $self, $c ) = @_;
     $c->response->body( 'Page not found' );
@@ -66,6 +68,7 @@ sub default :Path {
 Attempt to render a view, if needed.
 
 =cut
+
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
 
@@ -73,10 +76,13 @@ sub end : ActionClass('RenderView') {
         for my $error ( @{ $c->error } ) {
             $c->log->error($error);
         }
-        $c->stash->{status_msg} = 'An error condition has occured. See server side logs for details.';
+        $c->stash->{status_msg} = $c->pf_localize('An error condition has occured. See server side logs for details.');
         $c->response->status(500);
         $c->clear_errors;
+    } elsif(exists $c->stash->{status_msg}) {
+        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
     }
+
 }
 
 =back
