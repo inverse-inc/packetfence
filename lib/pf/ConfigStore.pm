@@ -240,7 +240,7 @@ sub create {
             my $default_section = $config->{default} if exists $config->{default};
             my $default_value;
             while ( my ($param, $value) = each %$assignments ) {
-                next if $default_section &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
+                next if $default_section &&  ( !defined $value || ( ($default_value = $config->val($default_section,$param)) && $default_value eq $value));
                 $config->newval( $id, $param, defined $value ? $value : '' );
             }
         }
