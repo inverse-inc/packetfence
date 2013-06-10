@@ -16,6 +16,7 @@ use warnings;
 use base qw(CHI);
 use CHI::Driver::Memcached;
 use CHI::Driver::RawMemory;
+#use pf::CHI::Driver::Role::Memcached::Clear;
 use pf::file_paths;
 use pf::IniFiles;
 use List::MoreUtils qw(uniq);
@@ -29,8 +30,10 @@ sub chiConfigFromIniFile {
         $args{$key} = sectionData($chi_config,$key);
     }
     foreach my $storage (values %{$args{storage}}) {
-        if(exists $storage->{servers}) {
-            $storage->{servers} = [split /\s*,\s*/,$storage->{servers}];
+        foreach my $param (qw(servers traits)) {
+            if(exists $storage->{$param}) {
+                $storage->{$param} = [split /\s*,\s*/,$storage->{$param}];
+            }
         }
     }
     return \%args;
@@ -42,14 +45,14 @@ sub sectionData {
     foreach my $param ($config->Parameters($section)) {
         $args{$param} = $config->val($section,$param);
     }
-    my @sections = map { s/^$section ([^ ]+).*$//;$1 } grep { /^$section / } $config->Sections;
+    my @sections = uniq map { s/^$section ([^ ]+).*$//;$1 } grep { /^$section / } $config->Sections;
     foreach my $name (@sections) {
         $args{$name} = sectionData($config,"$section $name");
     }
     return \%args;
 }
 
-__PACKAGE__->config(chiConfigFromIniFile);
+__PACKAGE__->config(chiConfigFromIniFile());
 
 =head1 AUTHOR
 
