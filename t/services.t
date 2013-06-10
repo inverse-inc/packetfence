@@ -13,7 +13,7 @@ Exercizing pf::services and sub modules components.
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 16;
 use Log::Log4perl;
 use File::Basename qw(basename);
 use lib '/usr/local/pf/lib';
@@ -38,64 +38,6 @@ use pf::config;
 =item pf::services::apache
 
 =cut
-
-# generate_passthrough_rewrite_proxy_config
-my %sample_config = (
-    "packetfencebugs" => 'http://www.packetfence.org/bugs/',
-    "invalid" => "bad-url.ca",
-    "inverse" => "http://www.inverse.ca/"
-);
-my @return = generate_passthrough_rewrite_proxy_config(%sample_config);
-is_deeply(\@return,
-    [
-        [ '  # AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs',
-        '  # Rewrite rules generated for passthrough packetfencebugs',
-        '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
-        '  RewriteCond %{REQUEST_URI} ^\\/bugs\\/',
-        '  RewriteRule ^/(.*)$ http\\:\\/\\/www\\.packetfence\\.org/$1 [P]',
-        '  # Rewrite rules generated for passthrough inverse',
-        '  RewriteCond %{HTTP_HOST} ^www\\.inverse\\.ca$',
-        '  RewriteCond %{REQUEST_URI} ^\\/',
-        '  RewriteRule ^/(.*)$ http\\:\\/\\/www\\.inverse\\.ca/$1 [P]',
-        '  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Passthroughs'],
-        [ '  # NO auto-generated mod_rewrite rules for PacketFence Passthroughs' ]
-    ],
-    "Correct passthrough configuration generated"
-);
-
-# generate_passthrough_rewrite_proxy_config
-my @sample_config = (
-    {
-        "vid" => '101',
-        "url" => 'http://www.packetfence.org/'
-    },
-    {
-        "vid" => '102',
-        "url" => 'bad-url.ca'
-    },
-    {
-        "vid" => '103',
-        "url" => '/content/local'
-    },
-    {
-        "vid" => '104',
-        "url" => 'http://www.packetfence.org/tests/conficker.html'
-    }
-);
-my $return = generate_remediation_rewrite_proxy_config(@sample_config);
-is_deeply($return, [
-    '  # AUTO-GENERATED mod_rewrite rules for PacketFence Remediation',
-    '  # Rewrite rules generated for violation 101 external\'s URL',
-    '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
-    '  RewriteCond %{REQUEST_URI} ^\\/',
-    '  RewriteRule ^/(.*)$ http\\:\\/\\/www\\.packetfence\\.org/$1 [P]',
-    '  # Rewrite rules generated for violation 104 external\'s URL',
-    '  RewriteCond %{HTTP_HOST} ^www\\.packetfence\\.org$',
-    '  RewriteCond %{REQUEST_URI} ^\\/tests\\/conficker\\.html',
-    '  RewriteRule ^/(.*)$ http\\:\\/\\/www\\.packetfence\\.org/$1 [P]',
-    '  # End of AUTO-GENERATED mod_rewrite rules for PacketFence Remediation',
-    ], "Correct remediation reverse proxying configuration generated"
-);
 
 # performance config tests for a couple of RAM values
 my $max_clients = pf::services::apache::calculate_max_clients(2048 * 1024);
