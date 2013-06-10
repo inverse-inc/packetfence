@@ -31,6 +31,14 @@ use pf::node qw(node_attributes node_view node_modify);
 use pf::useragent;
 use pf::web;
 
+# Guest related
+Readonly our $SELFREG_MODE_EMAIL => 'email';
+Readonly our $SELFREG_MODE_SMS => 'sms';
+Readonly our $SELFREG_MODE_SPONSOR => 'sponsor';
+Readonly our $SELFREG_MODE_GOOGLE => 'google';
+Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
+Readonly our $SELFREG_MODE_GITHUB => 'github';
+
 =head1 WARNING
 
 What we are doing here is a little bit tricky: We are redefining subs in pf::web. 
