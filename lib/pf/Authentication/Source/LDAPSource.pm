@@ -13,7 +13,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Condition;
 
 use Net::LDAP;
-use List::Util qw(shuffle);
+use List::Util;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -64,9 +64,8 @@ sub available_attributes {
 sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-  my ( $connection, $LDAPServer) ;
 
-  ($connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
+  my ($connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
 
   if (! defined($connection)) {
     $logger->error("Unable to connect to an LDAP server.");
@@ -125,7 +124,7 @@ sub _connect {
 
   # the next line tries to load balance the connections
   my @LDAPServers = split(/,/, $self->{'host'});
-  shuffle @LDAPServers if $self->{'shuffle'};
+  List::Util::shuffle @LDAPServers if $self->{'shuffle'};
 
   TRYSERVER:
   foreach my $LDAPServer ( @LDAPServers ) {
@@ -134,7 +133,7 @@ sub _connect {
     my $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
     $connection = Net::LDAP->new($LDAPServer, port => ( $LDAPServerPort // $self->{'port'} ) );
     if (! defined($connection)) {
-      $logger->warn("Unable to connect to '$LDAPServer'");
+      $logger->warn("Unable to connect to $LDAPServer");
       next TRYSERVER;
     }
     $logger->debug("using ldap connection to $LDAPServer");
@@ -143,7 +142,7 @@ sub _connect {
   # if the connection is still undefined after trying every server, we fail and set 
   # category to undef.
   if (! defined($connection)) {
-    $logger->error("Unable to connect to any LDAPServer");
+    $logger->error("Unable to connect to any LDAP Server");
   }
   return undef;
 }
