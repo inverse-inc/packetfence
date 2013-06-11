@@ -42,6 +42,15 @@ has_field 'encryption' =>
    required => 1,
    element_class => ['input-small'],
   );
+has_field 'round_robin' =>
+  (
+   type => 'Checkbox',
+   label => 'Use round robin',
+   required => 1,
+   default => pf::Authentication::Source::LDAPSource->meta->get_attribute('round_robin')->default,
+   tags => { after_element => \&help,
+             help => 'Try your servers in round robin order' },
+  );
 has_field 'basedn' =>
   (
    type => 'Text',
