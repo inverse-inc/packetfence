@@ -13,6 +13,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Condition;
 
 use Net::LDAP;
+use List::Util qw(shuffle);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -27,6 +28,7 @@ use constant {
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
+has 'round_robin' => (isa => 'Bool', is => 'rw', default => 1);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
 has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
 has 'password' => (isa => 'Maybe[Str]', is => 'rw');
@@ -62,10 +64,12 @@ sub available_attributes {
 sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-  my $connection = Net::LDAP->new($self->{'host'}, port => $self->{port});
+  my ( $connection, $LDAPServer) ;
+
+  ($connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{host});
 
   if (! defined($connection)) {
-    $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
+    $logger->error("Unable to connect to an LDAP server.");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
@@ -76,7 +80,7 @@ sub authenticate {
       $result = $connection->bind;
   }
   if ($result->is_error) {
-    $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
+    $logger->error("Unable to bind with '$self->{binddn}' on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
@@ -88,12 +92,12 @@ sub authenticate {
     attrs => ['dn']
   );
   if ($result->is_error) {
-    $logger->error("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}");
+    $logger->error("Unable to execute search $filter from $self->{basedn} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   if ($result->count != 1) {
-    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{basedn} on $self->{host}:$self->{port}");
+    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{basedn} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -107,6 +111,43 @@ sub authenticate {
 
   return ($TRUE, 'Successful authentication using LDAP.');
 }
+
+
+=item _connect  
+Try every server in @LDAPSERVER in turn.                                                                          
+Returns the connection object and a valid LDAP server or undef if all connections fail
+=cut
+
+sub _connect {
+  my $self = shift;
+  my $connection;
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+  # the next line tries to load balance the connections
+  my @LDAPServers = split(/,/, $self->{host});
+  shuffle @LDAPServers if $self->{round_robin};
+
+  TRYSERVER:
+  foreach my $LDAPServer ( @LDAPServers ) {
+
+    # check to see if the hostname includes a port (e.g. server:port) 
+    my $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
+    $connection = Net::LDAP->new($LDAPServer, port => $self->{port});
+    if (! defined($connection)) {
+      $logger->warn("Unable to connect to '$LDAPServer'");
+      next TRYSERVER;
+    }
+    $logger->debug("using ldap connection to $LDAPServer");
+    return ( $connection, $LDAPServer, ( $LDAPServerPort // $self->{port} ) );
+  }
+  # if the connection is still undefined after trying every server, we fail and set 
+  # category to undef.
+  if (! defined($connection)) {
+    $logger->error("Unable to connect to any LDAPServer");
+  }
+  return undef;
+}
+
 
 =head2 match_in_subclass
 
