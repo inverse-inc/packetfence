@@ -14,6 +14,7 @@ pf::ConfigStore::Switch;
 use Moo;
 use namespace::autoclean;
 use pf::file_paths;
+use pf::log;
 use Log::Log4perl qw(get_logger);
 use HTTP::Status qw(:constants is_error is_success);
 
@@ -39,16 +40,16 @@ sub cleanupAfterRead {
         $switch->{uplink_dynamic} = 'dynamic';
         $switch->{uplink} = undef;
     }
-    if ($switch->{triggerInline}) {
-        # Decompose inline triggers (see pf::vlan::isInlineTrigger)
-        my @triggers = ();
-        foreach my $trigger (split(/,/, $switch->{triggerInline})) {
-            my ( $type, $value ) = split( /::/, $trigger );
-            $type = lc($type);
-            push(@triggers, { type => $type, value => $value });
-        }
-        $switch->{triggerInline} = \@triggers;
+    $self->expand_list($switch,'inlineTrigger');
+    if (exists $switch->{inlineTrigger}) {
+        $switch->{inlineTrigger} = [ map { _splitInlineTrigger($_) } @{$switch->{inlineTrigger}}  ];
     }
+}
+
+sub _splitInlineTrigger {
+    my ($trigger) = @_;
+    my ( $type, $value ) = split( /::/, $trigger );
+    return { type=> $type,value => $value };
 }
 
 =item cleanupBeforeCommit
@@ -64,12 +65,11 @@ sub cleanupBeforeCommit {
         $switch->{uplink} = 'dynamic';
         $switch->{uplink_dynamic} = undef;
     }
-    if ($switch->{triggerInline}) {
+    if (exists $switch->{inlineTrigger}) {
         # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
-        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{triggerInline}};
-        $switch->{triggerInline} = join(',', @triggers);
+        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{inlineTrigger}};
+        $switch->{inlineTrigger} = join(',', @triggers);
     }
-
 }
 
 =item remove
