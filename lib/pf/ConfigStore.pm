@@ -199,10 +199,11 @@ sub update {
         if ( $config->SectionExists($id) ) {
             my $default_section = $config->{default} if exists $config->{default};
             my $default_value;
+            my $use_default = $default_section && $id ne $default_section;
             while ( my ($param, $value) = each %$assignments ) {
                 if ( $config->exists($id, $param) ) {
                     if(defined($value) &&
-                        !($default_section && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
+                        !($use_default && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
                         ) {
                         $config->setval($id, $param, $value);
                     } elsif(exists $config->{imported} && defined $config->{imported}) {
@@ -211,7 +212,7 @@ sub update {
                         $config->delval($id, $param);
                     }
                 } elsif(defined($value)) {
-                    next if $default_section &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
+                    next if $use_default &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
                     $config->newval($id, $param, $value);
                 }
             }
@@ -240,7 +241,7 @@ sub create {
             my $default_section = $config->{default} if exists $config->{default};
             my $default_value;
             while ( my ($param, $value) = each %$assignments ) {
-                next if $default_section &&  ( !defined $value || ( ($default_value = $config->val($default_section,$param)) && $default_value eq $value));
+                next if $value && $default_section &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
                 $config->newval( $id, $param, defined $value ? $value : '' );
             }
         }
