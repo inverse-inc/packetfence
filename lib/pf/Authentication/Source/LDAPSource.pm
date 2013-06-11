@@ -50,8 +50,8 @@ sub available_attributes {
     ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
 
   # We check if our username attribute is present, if not we add it.
-  if (not grep {$_->{value} eq $self->usernameattribute} @ldap_attributes ) {
-    push (@ldap_attributes, { value => $self->{usernameattribute}, type => $Conditions::STRING });
+  if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
+    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::STRING });
   }
 
   return [@$super_attributes, @ldap_attributes];
@@ -66,7 +66,7 @@ sub authenticate {
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
   my ( $connection, $LDAPServer) ;
 
-  ($connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{host});
+  ($connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
 
   if (! defined($connection)) {
     $logger->error("Unable to connect to an LDAP server.");
@@ -80,7 +80,7 @@ sub authenticate {
       $result = $connection->bind;
   }
   if ($result->is_error) {
-    $logger->error("Unable to bind with '$self->{binddn}' on $LDAPServer:$LDAPServerPort");
+    $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
@@ -92,12 +92,12 @@ sub authenticate {
     attrs => ['dn']
   );
   if ($result->is_error) {
-    $logger->error("Unable to execute search $filter from $self->{basedn} on $LDAPServer:$LDAPServerPort");
+    $logger->error("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   if ($result->count != 1) {
-    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{basedn} on $LDAPServer:$LDAPServerPort");
+    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -124,21 +124,21 @@ sub _connect {
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   # the next line tries to load balance the connections
-  my @LDAPServers = split(/,/, $self->{host});
-  shuffle @LDAPServers if $self->{round_robin};
+  my @LDAPServers = split(/,/, $self->{'host'});
+  shuffle @LDAPServers if $self->{'round_robin'};
 
   TRYSERVER:
   foreach my $LDAPServer ( @LDAPServers ) {
 
     # check to see if the hostname includes a port (e.g. server:port) 
     my $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
-    $connection = Net::LDAP->new($LDAPServer, port => $self->{port});
+    $connection = Net::LDAP->new($LDAPServer, port => $self->{'port'});
     if (! defined($connection)) {
       $logger->warn("Unable to connect to '$LDAPServer'");
       next TRYSERVER;
     }
     $logger->debug("using ldap connection to $LDAPServer");
-    return ( $connection, $LDAPServer, ( $LDAPServerPort // $self->{port} ) );
+    return ( $connection, $LDAPServer, ( $LDAPServerPort // $self->{'port'} ) );
   }
   # if the connection is still undefined after trying every server, we fail and set 
   # category to undef.
@@ -173,16 +173,16 @@ sub match_in_subclass {
 
     $logger->debug("LDAP filter: $filter");
 
-    my $connection = Net::LDAP->new($self->{'host'});
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
     if (! defined($connection)) {
-        $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
+        $logger->error("Unable to connect to an LDAP server.");
         return undef;
     }
 
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
 
     if ($result->is_error) {
-        $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
+        $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
         return undef;
     }
 
@@ -195,7 +195,7 @@ sub match_in_subclass {
     );
 
     if ($result->is_error) {
-        $logger->error("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}, we skip the rule.");
+        $logger->error("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         return undef;
     }
 
@@ -223,10 +223,10 @@ sub test {
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
   # Connect
-  my $connection = Net::LDAP->new($self->{'host'}, port => $self->{port});
+  my ( $connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
 
   if (! defined($connection)) {
-    $logger->warn("Unable to connect to '$self->{host}:$self->{port}'");
+    $logger->warn("Unable to connect to $LDAPServer:$LDAPServerPort");
     return ($FALSE, "Can't connect to server");
   }
 
@@ -238,7 +238,7 @@ sub test {
       $result = $connection->bind;
   }
   if ($result->is_error) {
-    $logger->warn("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
+    $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Wrong bind DN or password');
   }
 
@@ -253,7 +253,7 @@ sub test {
   );
 
   if ($result->is_error) {
-      $logger->warn("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}");
+      $logger->warn("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Wrong base DN or username attribute');
   }
 
@@ -322,16 +322,16 @@ sub username_from_email {
 
     my $filter = "(mail=$email)";
 
-    my $connection = Net::LDAP->new($self->{'host'});
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
     if (! defined($connection)) {
-      $logger->error("Unable to connect to '$self->{'host'}'");
+      $logger->error("Unable to connect to $self->{'host'}");
       return undef;
     }
 
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
 
     if ($result->is_error) {
-      $logger->error("Unable to bind with '$self->{'binddn'}'");
+      $logger->error("Unable to bind with $self->{'binddn'}");
       return undef;
     }
 
