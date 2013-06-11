@@ -112,9 +112,9 @@ sub authenticate {
 }
 
 
-=item _connect  
-Try every server in @LDAPSERVER in turn.                                                                          
-Returns the connection object and a valid LDAP server and port or undef 
+=item _connect
+Try every server in @LDAPSERVER in turn.
+Returns the connection object and a valid LDAP server and port or undef
 if all connections fail
 =cut
 
@@ -124,7 +124,7 @@ sub _connect {
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
   my @LDAPServers = split(/,/, $self->{'host'});
-  # uncomment the next line if you want the servers to be tried in random order 
+  # uncomment the next line if you want the servers to be tried in random order
   # to spread out the connections amongst a set of servers
   #@LDAPServers = List::Util::shuffle @LDAPServers;
 
@@ -132,11 +132,11 @@ sub _connect {
   foreach my $LDAPServer ( @LDAPServers ) {
     # check to see if the hostname includes a port (e.g. server:port)
     my $LDAPServerPort;
-    if ( $LDAPServer =~ /:/ ) { 
+    if ( $LDAPServer =~ /:/ ) {
     	$LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
-    
+
     if ( $self->{'encryption'} eq SSL ) {
         $connection = Net::LDAPS->new($LDAPServer, port =>  $LDAPServerPort );
     } else {
@@ -152,7 +152,7 @@ sub _connect {
       my $mesg = $connection->start_tls();
       if ( $mesg->code() ) { $logger->error($mesg->error()) and return undef; }
     }
-    
+
     $logger->debug("using ldap connection to $LDAPServer");
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
