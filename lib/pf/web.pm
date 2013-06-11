@@ -88,6 +88,7 @@ Pass message id through gettext then sprintf it.
 Meant to be called from the TT templates.
 
 =cut
+
 sub i18n_format {
     my ($msgid, @args) = @_;
 
@@ -99,6 +100,7 @@ sub i18n_format {
 Cuts in the session cookies and template rendering boiler plate.
 
 =cut
+
 sub render_template {
     my ($portalSession, $template, $r) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -144,8 +146,6 @@ sub render_template {
     return $TRUE;
 }
 
-
-
 =item stash_template_vars
 
 Sub meant to be overridden in L<pf::web::custom> to inject new variables for
@@ -158,6 +158,7 @@ For example, to add a helpdesk phone number variable:
 Afterwards it is available globally, in every template.
 
 =cut
+
 sub stash_template_vars {
     my ($portalSession, $template) = @_;
     return {};
@@ -189,6 +190,7 @@ Validating that the node supports mobile configuration provisioning, that it's c
 and that the node's category matches the configuration.
 
 =cut
+
 sub supports_mobileconfig_provisioning {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
@@ -217,6 +219,7 @@ sub supports_mobileconfig_provisioning {
 Offers a page that links to the proper provisioning XML.
 
 =cut
+
 sub generate_mobileconfig_provisioning_page {
     my ( $portalSession ) = @_;
     render_template($portalSession, 'release_with_xmlconfig.html');
@@ -227,6 +230,7 @@ sub generate_mobileconfig_provisioning_page {
 Generate the proper .mobileconfig XML to automatically configure Wireless for iOS devices.
 
 =cut
+
 sub generate_apple_mobileconfig_provisioning_xml {
     my ( $portalSession ) = @_;
 
@@ -318,6 +322,7 @@ sub generate_redirect_page {
 Called when someone clicked on /aup which is the pop=up URL for mobile phones.
 
 =cut
+
 sub generate_aup_standalone_page {
     my ( $portalSession ) = @_;
     render_template($portalSession, 'aup.html');
@@ -350,6 +355,7 @@ sub generate_error_page {
 Handle the redirect to the proper OAuth2 Provider
 
 =cut
+
 sub generate_oauth2_page {
    my ( $portalSession, $err ) = @_;
    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -365,6 +371,7 @@ sub generate_oauth2_page {
 Handle the redirect to the proper OAuth2 Provider
 
 =cut
+
 sub generate_oauth2_result {
    my ( $portalSession, $provider ) = @_;
    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -420,6 +427,7 @@ sub generate_oauth2_result {
 =item generate_violation_page
 
 =cut
+
 sub generate_violation_page {
     my ( $portalSession, $template ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -460,6 +468,7 @@ This sub is meant to be redefined by pf::web::custom to fit your specific needs.
 See F<pf::web::custom> for examples.
 
 =cut
+
 sub web_node_register {
     my ( $portalSession, $pid, %info ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -504,6 +513,7 @@ sub _sanitize_and_register {
 Records User-Agent for the provided node and triggers violations.
 
 =cut
+
 sub web_node_record_user_agent {
     my ( $mac, $user_agent ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
@@ -533,6 +543,7 @@ sub web_node_record_user_agent {
     return (0, "Error string" ) on form validation problems
 
 =cut
+
 sub validate_form {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
@@ -557,6 +568,7 @@ sub validate_form {
     return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
 
 =cut
+
 sub web_user_authenticate {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
@@ -566,7 +578,8 @@ sub web_user_authenticate {
 
     # validate login and password
     my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
-                                                               $portalSession->cgi->param("password"));
+                                                               $portalSession->cgi->param("password"),
+                                                               @{$portalSession->getProfile->getSources});
 
     if (defined($return) && $return == 1) {
         # save login into session
@@ -613,6 +626,7 @@ sub generate_registration_page {
 Shows a page to user saying registration is pending.
 
 =cut
+
 sub generate_pending_page {
     my ( $portalSession ) = @_;
 
@@ -641,6 +655,7 @@ This was done in several different locations making maintenance more difficult t
 It was regrouped here.
 
 =cut
+
 sub end_portal_session {
     my ( $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -681,6 +696,7 @@ sub end_portal_session {
 Present a generic page. Template and arguments provided to template passed as arguments
 
 =cut
+
 # TODO we could even deprecate that since people calling this here
 # could stash to portalSession first.
 sub generate_generic_page {
