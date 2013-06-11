@@ -394,18 +394,30 @@ sub username_from_email {
 =cut
 
 sub authenticate {
-    my ( $username, $password, $auth_module ) = @_;
+    my ( $username, $password, @source_ids ) = @_;
+    my @sources;
+    if (@source_ids) {
+        my %inlist = map {$_ => undef} @source_ids;
+        @sources = grep { exists $inlist{$_->id} } @authentication_sources;
+    } else {
+        @sources = @authentication_sources;
+    }
+    return _authenticate_from_sources($username, $password,@sources);
+}
+
+=item _authenticate_from_sources
+
+=cut
+
+sub _authenticate_from_sources {
+    my ( $username, $password, @sources ) = @_;
 
     $logger->trace("Authenticating $username");
-    foreach my $current_source ( @authentication_sources ) {
-
-        # We skip sources we aren't interested in
-        #if ( defined $auth_module && !($auth_module eq $current_source->{'type'}) ) {
-        #  next;
-        #}
-
-        my ($result, $message) = $current_source->authenticate($username, $password);
-
+    foreach my $current_source ( @sources) {
+        my ($result, $message);
+        eval {
+            ($result, $message) = $current_source->authenticate($username, $password);
+        };
         # First match wins!
         if ($result) {
             $logger->debug("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
