@@ -28,7 +28,7 @@ use constant {
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
-has 'round_robin' => (isa => 'Bool', is => 'rw', default => 1);
+has 'shuffle' => (isa => 'Bool', is => 'rw', default => 1);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
 has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
 has 'password' => (isa => 'Maybe[Str]', is => 'rw');
@@ -125,14 +125,14 @@ sub _connect {
 
   # the next line tries to load balance the connections
   my @LDAPServers = split(/,/, $self->{'host'});
-  shuffle @LDAPServers if $self->{'round_robin'};
+  shuffle @LDAPServers if $self->{'shuffle'};
 
   TRYSERVER:
   foreach my $LDAPServer ( @LDAPServers ) {
 
     # check to see if the hostname includes a port (e.g. server:port) 
     my $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
-    $connection = Net::LDAP->new($LDAPServer, port => $self->{'port'});
+    $connection = Net::LDAP->new($LDAPServer, port => ( $LDAPServerPort // $self->{'port'} ) );
     if (! defined($connection)) {
       $logger->warn("Unable to connect to '$LDAPServer'");
       next TRYSERVER;

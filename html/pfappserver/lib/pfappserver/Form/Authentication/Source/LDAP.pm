@@ -42,14 +42,14 @@ has_field 'encryption' =>
    required => 1,
    element_class => ['input-small'],
   );
-has_field 'round_robin' =>
+has_field 'shuffle' =>
   (
    type => 'Checkbox',
-   label => 'Use round robin',
+   label => 'Load Balance',
    required => 1,
-   default => pf::Authentication::Source::LDAPSource->meta->get_attribute('round_robin')->default,
+   default => pf::Authentication::Source::LDAPSource->meta->get_attribute('shuffle')->default,
    tags => { after_element => \&help,
-             help => 'Try your servers in round robin order' },
+             help => 'Try your servers in random order to spread the load.' },
   );
 has_field 'basedn' =>
   (
