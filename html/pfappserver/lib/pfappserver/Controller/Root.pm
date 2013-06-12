@@ -72,15 +72,18 @@ Attempt to render a view, if needed.
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
 
-    if ( scalar @{$c->error}) {
+    if (scalar @{$c->error}) {
         for my $error ( @{ $c->error } ) {
             $c->log->error($error);
         }
         $c->stash->{status_msg} = $c->pf_localize('An error condition has occured. See server side logs for details.');
         $c->response->status(500);
         $c->clear_errors;
-    } elsif(exists $c->stash->{status_msg}) {
-        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
+    }
+    elsif (exists $c->stash->{status_msg} ) {
+        unless (ref $c->stash->{status_msg} eq 'HASH') {
+            $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
+        }
     }
 
 }
