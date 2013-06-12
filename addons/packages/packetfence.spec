@@ -215,6 +215,7 @@ Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
+Requires: per(Moo)
 # configuration-wizard
 Requires: iproute, vconfig
 #
