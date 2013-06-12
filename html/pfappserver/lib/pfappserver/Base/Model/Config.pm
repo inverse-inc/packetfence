@@ -34,6 +34,8 @@ has configStore => (
    builder => '_buildConfigStore'
 );
 
+has configStoreClass => (is => 'ro');
+
 =head2 idKey
 
 The key of the id attribute
@@ -301,6 +303,11 @@ sub commit {
 sub ACCEPT_CONTEXT {
     my ( $self,$c,%args) = @_;
     return $self->new(\%args);
+}
+
+sub _buildConfigStore {
+    my ($self) = @_;
+    return $self->configStoreClass->new;
 }
 
 
