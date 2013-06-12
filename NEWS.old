@@ -8,7 +8,7 @@ Interested in contributing to the project? Check the following link:
 
 http://www.packetfence.org/support/community.html
 
-This is a list of noteworthy changes across releases. 
+This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE file.
 
@@ -57,57 +57,57 @@ Bug Fixes
 Version 3.6.0 released on 2012-10-25
 
 New Hardware
- * New module for Cisco Catalyst 3750G to fix offset issues
+ * New module for Cisco Catalyst 3750G to fix offset issues
  * Support for Cisco Catalyst 2960G in 802.1X / MAC-Authentication
 
 Documentation
- * Clarify routed VLAN requirements (Patch from Brian Candler)
- * Adding a quick install guide for Cisco Catalyst 2960
+ * Clarify routed VLAN requirements (Patch from Brian Candler)
+ * Adding a quick install guide for Cisco Catalyst 2960
 
 New Features
- * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
- * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
- * Radius Inline feature
- * LLDP support for Cisco switches
- * Better WISPR support (Integrating with Accuris Networks' AccuROAM WISPr Client)
+ * Integrating with Wireless IDS for Aruba, Motorola, and Ruckus controllers.
+ * Adding OAuth2 as a valid authentication on the captive-portal (Google/Facebook/GitHub)
+ * Radius Inline feature
+ * LLDP support for Cisco switches
+ * Better WISPR support (Integrating with Accuris Networks' AccuROAM WISPr Client)
 
 Enhancements
- * Code cleanups (#1380,#1484,#1485)
- * Important simplification of the Captive Portal code to make it harder to introduce problems
- * Adding default OCSP/CRL Proxies (#1329)
- * New parameter to control captive portal interception: secure_redirect
- * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
- * Minor refactoring in the RADIUS perl modules
- * Removed 127.0.0.1 switch from the config and added in the code
- * Inline Mode now using ipset instead of just iptables
- * Selection of a preferred deauthentication method for a switch
- * Handling the MySQL startup in the web configurator (#1574)
- * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
- * Changing port of the configuration from 3000 to 1444 (#1506)
- * Debian packages improvements
- * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
- * Improved the relevance of exit status in pfcmd_vlan (#1493)
- * New report for the Top 25 Sponsors
- * Make sure DHCP listenes on configured interfaces for routed reg/isol VLANs
+ * Code cleanups (#1380,#1484,#1485)
+ * Important simplification of the Captive Portal code to make it harder to introduce problems
+ * Adding default OCSP/CRL Proxies (#1329)
+ * New parameter to control captive portal interception: secure_redirect
+ * Support for Perl 5.12+ (no longer relies on perl-suid, #1438)
+ * Minor refactoring in the RADIUS perl modules
+ * Removed 127.0.0.1 switch from the config and added in the code
+ * Inline Mode now using ipset instead of just iptables
+ * Selection of a preferred deauthentication method for a switch
+ * Handling the MySQL startup in the web configurator (#1574)
+ * Disabling radutmp from the packetfence RADIUS virtual server (#1576)
+ * Changing port of the configuration from 3000 to 1444 (#1506)
+ * Debian packages improvements
+ * Cometic fixes to RADIUS configs (radiusd.conf and packetfence-tunnel)
+ * Improved the relevance of exit status in pfcmd_vlan (#1493)
+ * New report for the Top 25 Sponsors
+ * Make sure DHCP listenes on configured interfaces for routed reg/isol VLANs
 
 Bug Fixes
- * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
- * Translation of captive portal error messages
- * Side effect fixes of captive portal rework (#1366)
- * No more domain in our gettext po resources files (#1433)
- * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
- * Better POD for Nortel ERS5500 switches (#1450)
- * Allow dash in Role mappings (#1442)
- * Enforce inline network if you define an inline interface in pf.conf (#1584)
- * Adding radius.log into the logrotate script (#1526)
- * Tweaking some accounting queries for performance (#1534)
- * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
- * Guest management page doesn't load on Internet Explorer 7 (#1404)
- * Debian: issues with translations (#1465)
- * Debian: SSH and Telnet based deauthentication (#1511)
- * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
- * Typo in Admin Guide (#1383, Thanks to Alberto Chavez)
- * Additional fixes to pfdhcplistener process management
+ * Epic fight with MAC OSX DNS caching while using Inline Mode (#1535)
+ * Translation of captive portal error messages
+ * Side effect fixes of captive portal rework (#1366)
+ * No more domain in our gettext po resources files (#1433)
+ * Obtaining a node mark fixed for Debian/CentOS 6 (#1424)
+ * Better POD for Nortel ERS5500 switches (#1450)
+ * Allow dash in Role mappings (#1442)
+ * Enforce inline network if you define an inline interface in pf.conf (#1584)
+ * Adding radius.log into the logrotate script (#1526)
+ * Tweaking some accounting queries for performance (#1534)
+ * Regression in pfdhcplistener process management (introduced in 3.5.1, #1545)
+ * Guest management page doesn't load on Internet Explorer 7 (#1404)
+ * Debian: issues with translations (#1465)
+ * Debian: SSH and Telnet based deauthentication (#1511)
+ * Translations: SoH admin page now properly show UTF-8 characters (partial #1531)
+ * Typo in Admin Guide (#1383, Thanks to Alberto Chavez)
+ * Additional fixes to pfdhcplistener process management
 
 --------------------------------------------------------------------------------
 Version 3.5.1 released on 2012-09-05
@@ -147,11 +147,11 @@ New Hardware
  * Netgear GS110 series support (SNMP Link up/down)
  * Cisco Aironet in Wireless Directory Services (WDS) mode
 
-New Features 
+New Features
  * Remediation module for SourceFire 3D (addons/sourcefire)
  * Adding portal profile feature that allow to present a custom captive portal depending
    on the SSID you connect to. Refer to Administration Guide for further details
- * Adding a new action to close another violation 
+ * Adding a new action to close another violation
  * Adding a new web based configurator that helps the installation and configuration process
    of a new PacketFence installation
  * Adding support for Suricata IDS (#1141)
@@ -197,7 +197,7 @@ Security
 New Hardware
  * H3C S5120 series supports MAC-Authentication and 802.1X with or without VoIP
  * Added Role support for all Cisco Wireless (WLC) models
- * Brocade 6400 series supports MAC-Authentication and 802.1X with or without VoIP
+ * Brocade 6400 series supports MAC-Authentication and 802.1X with or without VoIP
  * Brocade RF Switches support (Wireless controller)
 
 New Features
@@ -228,7 +228,7 @@ Bug Fixes
 
 Translations
  * Updated Spanish (es) translation (Thanks to Juan Camilo Valencia)
- * Updated Dutch (nl) translation (Tnanks to zappo) 
+ * Updated Dutch (nl) translation (Tnanks to zappo)
 
 --------------------------------------------------------------------------------
 Version 3.3.2 released on 2012-04-23
@@ -321,7 +321,7 @@ Enhancements
  * Code and tests refactoring
  * Minor documentation update for Aruba Controllers
  * Performance: avoiding some redundant operations on startup
- * A DHCP listener will run by default on the management interface 
+ * A DHCP listener will run by default on the management interface
  * pfcmd_vlan is now able to run arbitrary methods on network devices
  * Debug statement with the resolved SSID now available to troubleshoot SSID problems live
  * Added getSwitchLocation to pfcmd_vlan which fetches SNMP sysLocation on switch (#1250, Thanks to Maikel!)
@@ -400,7 +400,7 @@ Enhancements
 Bug Fixes
  * Slashes (/) not allowed in person id (#1322)
  * Inline: isolation not properly enforced by firewall if registration is disabled (#1330)
- * Several small fixes in pfdhcplistener 
+ * Several small fixes in pfdhcplistener
  * Inline: NAT out behavior of PacketFence was changed for the best
  * Keep IP to MAC associations across restarts (#1343)
  * Interface enforcement is now configurable through Web UI / CLI (#1335)
@@ -535,17 +535,17 @@ New Hardware Support
  * Avaya Wireless Controller support
  * Dlink DWL Access-Point support
  * LG-Ericsson iPecs 4500 support for port-security and MAC Authentication/802.1X
- * Netgear FGS Series support for port-security 
+ * Netgear FGS Series support for port-security
 
 New features
- * Major update to the captive portal look and feel! More modern and 
+ * Major update to the captive portal look and feel! More modern and
    professional. Cleaner XHTML/CSS makes customization a lot easier than before.
-   Also, all user-visible URLs are now clean and short (no more cgi-bin/... 
+   Also, all user-visible URLs are now clean and short (no more cgi-bin/...
    clutter). (#980, #982, #1114)
  * Flexible guest handling (covering temporary passwords, self-registration,
    pre-registration, extension API, etc.)
- * Introduced in-line support: firewall based access control with captive 
-   portal. Use this complementary technique when you cannot use VLAN 
+ * Introduced in-line support: firewall based access control with captive
+   portal. Use this complementary technique when you cannot use VLAN
    enforcement. (#1227)
  * Ability to view log files from the Web Administration interface (#1080)
  * PacketFence now takes care of the local firewall configuration on the server
@@ -578,9 +578,9 @@ Enhancements
  * Added ldap port option to Web Admin LDAP (AD) authentication
  * New controllerIp network device parameter will make it simpler to support
    wireless hardware working in bridged mode
- * New DHCP fingerprints for Mac OS X Lion, Fedora 14, Polycom, Aastra, 
-   LifeSize, Nortel, Polycom and Snom Conferencing and VoIP, Ubuntu 11.04, 
-   Belkin Wireless Router, HP ProCurve switches, Androids, Zebra, Kyocera, HP 
+ * New DHCP fingerprints for Mac OS X Lion, Fedora 14, Polycom, Aastra,
+   LifeSize, Nortel, Polycom and Snom Conferencing and VoIP, Ubuntu 11.04,
+   Belkin Wireless Router, HP ProCurve switches, Androids, Zebra, Kyocera, HP
    and Xerox printers, NEC Projectors, Polycom Video Conferencing and Paradox
    Card Access module
  * Developer documentation to add Floating Network Devices support to switches
@@ -639,13 +639,13 @@ Enhancements
  * Increased responsiveness of VLAN assignments by reducing the available node
    information (got rid of unused fields)
  * Nortel module now warns in the logs about a common stacking Nortel problem
- * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android, 
+ * New DHCP fingerprint for Cisco/Linksys, Aruba, 3Com switch, HTC Android,
    Polycom, Konica Minolta MFP's and HP Printers
  * Warning avoidance
  * New FreeRADIUS and pfdhcplistener watchdog scripts in addons/watchdog/
  * Admin Guide: cleanup of the MySQL optimization, more logging in Samba config
  * New binding allowing to offer different captive portal for mobile devices
- * Admin Guide's FAQ and Troubleshooting sections has been migrated to the 
+ * Admin Guide's FAQ and Troubleshooting sections has been migrated to the
    PacketFence website
 
 Bug fixes
@@ -658,7 +658,7 @@ Bug fixes
  * Fixed Nortel switches problems on some models / firmwares
  * Fixed installer errors (#1217)
  * Increased PHP memory to PHP's default: 128M. Mitigates #962.
- * Fixed race condition when trying to categorize auto-registered nodes based 
+ * Fixed race condition when trying to categorize auto-registered nodes based
    on DHCP fingerprint (#1216)
 
 Translations
@@ -669,7 +669,7 @@ Version 2.2.0 released on 2011-05-03
 
 New Hardware Support
 - Motorola RF Switches (Wireless Controllers)
-- 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and 
+- 3Com Switches 4200G, E4800G and E5500G now supports MAC Authentication and
   802.1X
 - Dlink DGS 3100 Switches
 
@@ -678,15 +678,15 @@ New features
   (javascript-based)
 - Easier integration and configuration of FreeRADIUS 2.x using our new
   packetfence-freeradius2 RPM
-- Apache configuration is automatically adjusted on startup based on system 
+- Apache configuration is automatically adjusted on startup based on system
   resources to avoid performance degradation on heavy workloads (#1204)
 - New reports: Nodes per SSID (#1126) and Connection-Type (#1125)
-- User-Agent violation support completely re-written. It is now easier than 
+- User-Agent violation support completely re-written. It is now easier than
   ever to block devices or old browsers from your network. (#769, #1192)
 - Administrators can now modify and preview remediation pages from the Web Admin
-- VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use 
+- VoIP autodetection in Wired 802.1X and Wired MAC Authentication can now use
   CDP / LLDP if available (#1175)
-- Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from 
+- Kerberos Authentication on the Captive Portal (Thanks to Brad Lhotsky from
   NIH)
 
 Enhancements
@@ -721,25 +721,25 @@ Documentation
 - Minor corrections to the Administration Guide (#743)
 
 Bug Fixes
-- Fixed an important problem with VoIP in Wired 802.1X and Wired MAC 
+- Fixed an important problem with VoIP in Wired 802.1X and Wired MAC
   Authenication modes (#1202)
 - Fixed important Nortel support regressions (introduced in 2.1.0: #1183, #1195)
-- Fixed an issue with the Meru module: If the controller sent SNMP traps to 
-  PacketFence a thread would crash. Hopefully this configuration is not 
+- Fixed an issue with the Meru module: If the controller sent SNMP traps to
+  PacketFence a thread would crash. Hopefully this configuration is not
   required and is rarely done. Regression prevention tests have been added.
-- Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs 
+- Fixed an issue with pfcmd-initiated VLAN re-evaluation if you assign VLANs
   based on a client's connection-type (which is not the default)
 - Fixed DHCP fingerprint sharing upload form
 - Violation grace no longer ignores time modifiers like minutes (#1154)
 - Fixed OS id not visible when dhcp-fingerprint view is filtered (#1180)
-- Fixed rare case of Web Admin user account corruption causing homepage to 
+- Fixed rare case of Web Admin user account corruption causing homepage to
   become status/dashboard instead of status/dashboard.php (#1196)
 - Warning avoidance in Extreme Network modules
 - installer and configurator scripts no longer output passwords on the terminal
   (#1021)
 - Fixed warnings and improved error reporting in our FreeRADIUS module (#1176)
 - Fixed broken person lookups if username is an email address (#1206)
-- Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was 
+- Fixed Web Admin which referred to an inexistent Meru MC3000 module (it was
   renamed Meru::MC in 2.0.1)
 - Fixed overly aggressive Web Administration password validation (#1209)
 
@@ -763,14 +763,14 @@ Enhancements
 - Improvements to our Nortel support
 - Developer documentation update
 - Friendlier startup error messages
-- More configuration validation on startup and in 'pfcmd checkup' (#1025, 
+- More configuration validation on startup and in 'pfcmd checkup' (#1025,
   #1193)
 - Improved support for Desktop Linux clients (#1188)
-- New DHCP fingerprints for Cisco, UniData and Nortel IP Phones, Cisco Small 
-  Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS, 
-  Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson and Sharp smartphones, 
+- New DHCP fingerprints for Cisco, UniData and Nortel IP Phones, Cisco Small
+  Business switch, Netgear router, Generic Linux, Gentoo, Meego, LaCie NAS,
+  Xyratex NAS, iPod/iPad, Samsung, LG, Sony Ericsson and Sharp smartphones,
   Samsung, HTC and Pantech Android phones, APC and Tripplite UPS, some Generic
-  Thin Clients, HP, Xerox and Brother printers, Mac OS X and finally last but 
+  Thin Clients, HP, Xerox and Brother printers, Mac OS X and finally last but
   not least a what-is-believed to be a Palm OS fingerprint!
 - Improved test suite
 - Miscellaneous code cleanup (#1165)
@@ -780,12 +780,12 @@ Enhancements
 - Improvements to Captive Portal library utilities
 
 Bug fixes
-- Fixed an issue where warnings were not sent in Wired MAC Authentication if a 
+- Fixed an issue where warnings were not sent in Wired MAC Authentication if a
   device was isolated behind a VoIP phone
 - Removed misleading warnings on startup (#767)
 - fixed SNMPv3 sample configuration (Thanks to Nate Renbarger)
 - Allows apache2 as a valid httpd daemon name (#1185, Thanks to Jesper)
-- Violation with action autoreg is only triggered if node is not registered 
+- Violation with action autoreg is only triggered if node is not registered
   (#1026)
 - Fixed errors when editing a node with an unknown connection type (#1177)
 - No more warnings in node lookup (#1173)
@@ -795,15 +795,15 @@ Bug fixes
 - Fixed a configurator issue that could cause broken configuration files (#776)
 
 Translations
-- New Brazilian Portuguese (pt_BR) translation (Thanks to Brivaldo Junior of 
+- New Brazilian Portuguese (pt_BR) translation (Thanks to Brivaldo Junior of
   Federal University of Mato Grosso do Sul)
 
 --------------------------------------------------------------------------------
 Version 2.0.1 released on 2011-01-26
 
 New Hardware Support
-- Xirrus WiFi Arrays support (feature sponsored by the University of Mary 
-  Hardin-Baylor) 
+- Xirrus WiFi Arrays support (feature sponsored by the University of Mary
+  Hardin-Baylor)
 - Broaden Meru Controllers support
 - Extricom EXSW Wireless Switches (Controllers) support
 
@@ -821,7 +821,7 @@ Bug fixes
 - Improved error handling in pfdhcplistener (#1150)
 - Fixed problems with configurator.pl generating erroneous configuration (#1148)
 - installer.pl now warns on empty MySQL root password (#1146)
-- Fixed node view database queries that were reporting wrong values under 
+- Fixed node view database queries that were reporting wrong values under
   unknown circumstances (#1162)
 - Removed some unnecessary warnings (#1065)
 
@@ -837,27 +837,27 @@ New Hardware Support
 
 New Features
 - Simplification of the Wireless, Wired 802.1X and Wired MAC Authentication
-  configuration. Because of a new FreeRADIUS module and a Web Service interface, 
-  everything is now using standard PacketFence proccesses and configuration 
+  configuration. Because of a new FreeRADIUS module and a Web Service interface,
+  everything is now using standard PacketFence proccesses and configuration
   files.
 - VoIP devices authorization over RADIUS (#1008)
 - Proxy interception. PacketFence can now operate in an environment where there
   is a client-side proxy configured. Check proxy-bypass in addons/ for details.
   (#1035)
-- Passthroughs support! You can now configure PacketFence to let your users 
+- Passthroughs support! You can now configure PacketFence to let your users
   reach specific websites even if they are in registration or isolation. (#772)
   (feature sponsored by Shippensburg University)
 - New pf::web::custom extension point to customize the captive portal's code
   without the usual maintenance burden on upgrades (#1045)
 - Bulk importation of nodes through CLI or Admin Web interface
 - New parameter in switches.conf to ease FreeRADIUS integration
-- Optional automatic configuration of FreeRADIUS' clients using switches.conf 
+- Optional automatic configuration of FreeRADIUS' clients using switches.conf
   (see addons/freeradius-integration/README for details)
-- New 'pending' status for node. Allows for a wide range of captive portal 
+- New 'pending' status for node. Allows for a wide range of captive portal
   workflows where an administrator approves network access (by email, SMS...)
 
 Enhancements
-- New information available in Node Lookup (Connection Type, SSID, 802.1X 
+- New information available in Node Lookup (Connection Type, SSID, 802.1X
   User-Name, ...)
 - FreeRADIUS module improvements (#1034) and major revamping
 - Easier installation process using yum groupinstall (#1089)
@@ -869,8 +869,8 @@ Enhancements
 - Usability improvements (#1006, #820, #1075)
 - Migrated to the new Emerging Threats rules for snort and added rules for
   botnets, malware, shellcode, trojan and worm by default (#1102)
-- New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys, 
-  Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson 
+- New DHCP fingerprints (HP ProCurve Wireless, Ricoh MFP, Cisco/Linksys,
+  Netgear, D-Link, Trendnet, Belkin Home Wireless Routers, Sony Ericsson
   Android, Aruba Access Point, Avaya IP Phone, Gentoo Linux and Fedora Linux 13)
 - pfcmd_vlan's logging is now consistent with the rest of the system (#874)
 - configurator.pl now handles DNS and DHCP basic configuration (#1112)
@@ -879,9 +879,9 @@ Documentation
 - Merged Installation and Administration guides into a more coherent document
 - New documentation about DHCP and DNS services. Now easier to manage! (#1113)
 - New documentation about running in a routed environment
-- Improved documentation about Snort, Oinkmaster, and log rotation in Admin 
+- Improved documentation about Snort, Oinkmaster, and log rotation in Admin
   Guide
-- Improved documentation on violations (external remediation pages and 
+- Improved documentation on violations (external remediation pages and
   redirect_url) in the Administration Guide
 
 Bug fixes
@@ -893,19 +893,19 @@ Bug fixes
 - Wrong URL in the provided oinkmaster.conf (#1101)
 - MAC addresses of format xxxx.xxxx.xxxx properly recognized in pf::util
 
-Special thanks to University of Oregon who, from early on, were running the 
+Special thanks to University of Oregon who, from early on, were running the
 bleeding edge and provided invaluable feedback and contributions!
 
 --------------------------------------------------------------------------------
 Version 1.9.1 released on 2010-09-22
 
 New Hardware Support
-- Extreme XOS Port Security (MAC address lockdown) and Voice over IP support 
+- Extreme XOS Port Security (MAC address lockdown) and Voice over IP support
   (feature sponsored by Extreme Networks)
 - Nortel ERS 2500 Series Port security and Voice over IP support
 
 New Features
-- Basic Access Control in the Web Administration interface (#965, Thanks to 
+- Basic Access Control in the Web Administration interface (#965, Thanks to
   eSubnet Enterprises for their initial contribution)
 - New parameters in switches.conf to manage Web Services enabled switches
 
@@ -915,11 +915,11 @@ Enhancements
 - Improved Nessus failed scan error reporting (partial fix for #1032)
 - Better error reporting on Cisco ISR 1800
 - Added some documentation for Cisco (2960, 3550) and Aruba in the SNMP modules
-- Documented performance optimization regarding blocking non-browser requests in 
+- Documented performance optimization regarding blocking non-browser requests in
   the captive portal (#1072)
 - Avoiding unnecessary load where a lot of non-trap violation are used (#857)
-- Updated (for clarification purpose) documentation for Cisco stacked and 
-  4500 Series switches. (#1037) 
+- Updated (for clarification purpose) documentation for Cisco stacked and
+  4500 Series switches. (#1037)
 - Error handling and error messages improvements (#1052)
 - Updated documentation for FreeRadius 1.x and added some for 2.x. (#1036)
 
@@ -941,10 +941,10 @@ New Hardware Support
 - Cisco Integrated Services Routers (ISR) 1800 Series
 - Cisco Catalyst 3750 Series
 - Cisco Catalyst 4500 Series
-- Foundry FastIron 4802 Port security and Voice over IP support (feature 
+- Foundry FastIron 4802 Port security and Voice over IP support (feature
   sponsored by an entity who preferred to remain anonymous)
 - HP Procurve 3400cl (tested by roelof)
-- SMC SMC8824M and SMC8848M in Port Security (feature sponsored by Seattle 
+- SMC SMC8824M and SMC8848M in Port Security (feature sponsored by Seattle
   Pacific University developed with the help of SMC)
 
 New Features
@@ -960,7 +960,7 @@ Enhancements
 - pfsetvlan is more resistant to configuration mistakes and reports them (#766)
 - Net-SNMP 5.4 support (#940 Thanks to Maikel)
 - Freeradius 2.x support (#1007)
-- @ character now allowed in person id (pid). This is very common in Active 
+- @ character now allowed in person id (pid). This is very common in Active
   Directory environment.
 - New admin authentication mechanism added (disabled by default)
 - New debugging features (disabled by default)
@@ -971,7 +971,7 @@ Enhancements
 
 Documentation improvements
 - Install guide more accurate
-- Added directions to configure PacketFence in a routed environment to the 
+- Added directions to configure PacketFence in a routed environment to the
   admin guide
 - Updated the High-Availability section with details about DRBD and HeartBeat v1
 - More MySQL tips (#951)
@@ -984,7 +984,7 @@ Bug fixes
 - Proper violation description shown in violation edit (#922)
 - Fixed RPM spec to create package packetfence-remote-snort-sensor again (#888)
 - Fixed PacketFence RPM upgrade bug if your version is lower than 1.8.5 (#931)
-- Fixed rare port-security problems with stacked switches or switches with 
+- Fixed rare port-security problems with stacked switches or switches with
   large ifIndex (#921)
 - Fixed problems with DHCP Fingerprint submission
 - Fixed call to non-existing script lookup_node.pl in pfdhcplistener (#858)
@@ -1020,11 +1020,11 @@ New Features
 Bugfix
 - Fixed issues with SSH as CLI transport
 - Fixed broken 802.1x behaviour (closes #839, #841)
-- Fixed pfmon Out of Memory! crash when trappable network is very large ie: /8  
+- Fixed pfmon Out of Memory! crash when trappable network is very large ie: /8
   (closes #861)
-- Fixed a problem when adding or editing a Cisco Catalyst 2970, 3500XL and 
+- Fixed a problem when adding or editing a Cisco Catalyst 2970, 3500XL and
   Wireless Controller 4400 from the Web Admin interface (closes #836)
-- Fixed SNMPv3 configuration from Web Admin interface and pfcmd. Missing 
+- Fixed SNMPv3 configuration from Web Admin interface and pfcmd. Missing
   SNMPUserNameTrap parameter. Did not affect flat file config. (closes #853)
 - Fixed missing library requirement when using PacketFence with routed VLANs
   (closes #838)
@@ -1039,7 +1039,7 @@ Version 1.8.5 released on 2009-10-28
 New Hardware Support
 - Amer SS2R24i switch in linkUp/linkDown mode
 - 3Com Switch 4200G and SuperStack 4500 in port-security mode
-- Enterasys D2, Matrix N3 and SecureStack C3 in linkUp/linkDown and maclock 
+- Enterasys D2, Matrix N3 and SecureStack C3 in linkUp/linkDown and maclock
   (port-security)
 - Extreme Networks Summit X250e in linkUp/linkDown mode
 
@@ -1048,11 +1048,11 @@ New Features
 - PacketFence is now distributed as a yum repository (avoids having the
   installer pull a lot of cpan modules and jpgraph)
 - normal/correct VLAN default behaviour changed (see UPGRADE for details)
-- PacketFence is now able to automatically create static routes for routed 
+- PacketFence is now able to automatically create static routes for routed
   registration and isolation VLANs (closes #794)
 - significant performance improvement in 802.1X mode (wired and wireless) or
   in MAC authentication on wireless networks
-- massive documentation update (how to configure hardware, new install method, 
+- massive documentation update (how to configure hardware, new install method,
   new support packages and more...)
 - blocking misbehaving user-agents on captive portal (avoid unnecessary load)
 - logging priority (INFO, WARN, ERROR) shown in log files
@@ -1065,7 +1065,7 @@ Bugfix
 - whitelisting MAC addresses more consistent across violation types (#801)
 - init script more robust (#805)
 - using temporary redirects instead of permanent ones (#757)
-- fixed crashes in corner cases (violations without triggers, config not 
+- fixed crashes in corner cases (violations without triggers, config not
   upgraded, etc.)
 - fixed SNMPv3 trap-handling for HP ProCurve
 - fixed maclock (port-security) support on Enterasys
@@ -1114,7 +1114,7 @@ Version 1.8.2
 
 --------------------------------------------------------------------------------
 Version 1.8.1
-- added support for SMC TigerStack 6224M (thanks to Chinasee B. 
+- added support for SMC TigerStack 6224M (thanks to Chinasee B.
   <chinasee.b@psu.ac.th>)
 - switch configuration (switches.conf) can now be done from the CLI and from the
   Web interface
@@ -1155,28 +1155,28 @@ Version 1.8.1
 - added support for wireless access points and controllers
 - temporarily disabled support for ARP-based registration (please consult the
   May 2008 archive of the packetfence-devel mailing list for more information)
-- many bug fixes and general enhancements 
+- many bug fixes and general enhancements
 
 ===============================================================================
 
 1.8.5
         added support for Amer SS2R24i switch in linkUp/linkDown
           mode
-        PacketFence is now distributed as a yum repository (avoids 
+        PacketFence is now distributed as a yum repository (avoids
           having the installer pull a lot of cpan modules and jpgraph)
-        normal/correct VLAN returned by custom_getCorrectVlan is 
+        normal/correct VLAN returned by custom_getCorrectVlan is
           now based on switch (switches.conf) instead of node
         new UPGRADE document that documents things to look out for
           when upgrading versions
-        added support for 3Com Switch 4200G and SS4500 in 
+        added support for 3Com Switch 4200G and SS4500 in
           port-security mode
         added support for Extreme Networks Summit X250e in
           linkUp/linkDown mode
-	fixed SNMPv3 trap-handling for HP Procurve
-	  (http://www.packetfence.org/mantis/view.php?id=744)
+fixed SNMPv3 trap-handling for HP Procurve
+(http://www.packetfence.org/mantis/view.php?id=744)
         SECURITY: fixed sensitive information leak in admin login.
           When password were considered invalid they were displayed
-        misc cleanups (more warning messages, reduced code 
+        misc cleanups (more warning messages, reduced code
           duplication)
 
 1.8.4
@@ -1193,7 +1193,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=721)
         enhanced presentation in more_info.php
           (http://www.packetfence.org/mantis/view.php?id=722)
-        added check that documentation.conf and pf.conf.defaults 
+        added check that documentation.conf and pf.conf.defaults
           contain same set of options
           (http://www.packetfence.org/mantis/view.php?id=723)
         added access to nessusclient file scan from web admin GUI
@@ -1271,7 +1271,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=607)
         GET instead of POST requests in reports.php
           (http://www.packetfence.org/mantis/view.php?id=531)
-        fixed issue in pfsetvlan when a switch was removed 
+        fixed issue in pfsetvlan when a switch was removed
           from the switch config
           (http://www.packetfence.org/mantis/view.php?id=690)
         added new fields to person table
@@ -1357,7 +1357,7 @@ Version 1.8.1
         added Test::POD tests
         fixed uninitialized variable when calling pfdetect -h
           (http://www.packetfence.org/mantis/view.php?id=638)
-        fixed uninitialized variable when calling 
+        fixed uninitialized variable when calling
           pfdhcplistener -h
           (http://www.packetfence.org/mantis/view.php?id=640)
         fixed code execution in util.pm when calling pfmon -h
@@ -1383,7 +1383,7 @@ Version 1.8.1
         take snort startup dependency on pfdetect in pfcmd
           into account
           (http://www.packetfence.org/mantis/view.php?id=648)
-        fixed read_dhcp_fingerprints_conf() and 
+        fixed read_dhcp_fingerprints_conf() and
           read_violations_conf() calls during service stop
           (http://www.packetfence.org/mantis/view.php?id=649)
         fixed error messages layout in adduser.php
@@ -1402,7 +1402,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=656)
         fixed insecure dependency while restarting snort
           (http://www.packetfence.org/mantis/view.php?id=657)
-        changed dhcp lease time config variables from 'text' 
+        changed dhcp lease time config variables from 'text'
           to 'time'
           (http://www.packetfence.org/mantis/view.php?id=658)
         fixed number of rows in dashboard customization
@@ -1450,7 +1450,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=684)
         node/add.php shows status option list
           (http://www.packetfence.org/mantis/view.php?id=686)
-        fixed issues in OS report graphs when no nodes are 
+        fixed issues in OS report graphs when no nodes are
           present
           (http://www.packetfence.org/mantis/view.php?id=685)
         fixed issues with violation add
@@ -1491,7 +1491,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=564)
         updated web admin gui help file content
           (http://www.packetfence.org/mantis/view.php?id=556)
-        fixed pfcmd report os and report osclass crashes when 
+        fixed pfcmd report os and report osclass crashes when
           no nodes were present
           (http://www.packetfence.org/mantis/view.php?id=566)
         fixed issues in grapher when no nodes were present
@@ -1500,18 +1500,18 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=567)
         added support for SMC TigerStack 6224M
           (thanks to Chinasee B. <chinasee.b@psu.ac.th>)
-        show switches section in web admin GUI only in VLAN 
+        show switches section in web admin GUI only in VLAN
           isolation mode
           (http://www.packetfence.org/mantis/view.php?id=571)
         moved interface configuration into separate HTML page
           (http://www.packetfence.org/mantis/view.php?id=573)
         switchconfig get all is now nicely sorted
         added networkconfig CLI and web admin GUI
-        added support for starting and configuring DHCPd in 
+        added support for starting and configuring DHCPd in
           VLAN isolation mode
           (http://www.packetfence.org/mantis/view.php?id=568)
           (http://www.packetfence.org/mantis/view.php?id=570)
-        added support for starting and configuring named in 
+        added support for starting and configuring named in
           VLAN isolation mode
           (http://www.packetfence.org/mantis/view.php?id=569)
           (http://www.packetfence.org/mantis/view.php?id=572)
@@ -1523,7 +1523,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=578)
         configurator had issues with VLAN interfaces
           (http://www.packetfence.org/mantis/view.php?id=582)
-        in installer.pl make sure that perl modules could be 
+        in installer.pl make sure that perl modules could be
           installed
           (http://www.packetfence.org/mantis/view.php?id=583)
         removed legacy vlan.bind
@@ -1554,7 +1554,7 @@ Version 1.8.1
         removed start/stop symlinks from RPM
         fixed httpd restart and tainted mode issues
           (http://www.packetfence.org/mantis/view.php?id=599)
-        allow to (de)activate named and dhcpd per network 
+        allow to (de)activate named and dhcpd per network
           section
           (http://www.packetfence.org/mantis/view.php?id=601)
         fixed oinkmaster.conf file
@@ -1639,7 +1639,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=430)
         re-organize PacketFence binaries
           (http://www.packetfence.org/mantis/view.php?id=441)
-        flip.pl should not any more be declared as config 
+        flip.pl should not any more be declared as config
           file in packetfence.spec
           (http://www.packetfence.org/mantis/view.php?id=442)
         removed PF daemon paths from [services] in conf file
@@ -1666,7 +1666,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=488)
         trapping.registration=disabled and VLAN isolation
           (http://www.packetfence.org/mantis/view.php?id=486)
-        warn when scan.registration=enabled and 
+        warn when scan.registration=enabled and
           trapping.registration=disabled
           (http://www.packetfence.org/mantis/view.php?id=489)
         replaced Net::RawIP
@@ -1711,7 +1711,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=526)
         added security checks to pfcmd violation add
           (http://www.packetfence.org/mantis/view.php?id=527)
-        removed possibility to edit violation ID in 
+        removed possibility to edit violation ID in
           violation/edit.php
           (http://www.packetfence.org/mantis/view.php?id=528)
         show violation type dropdown in violation/edit.php
@@ -1720,7 +1720,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=530)
         fixed default status/reports page
           (http://www.packetfence.org/mantis/view.php?id=532)
-        prefixed SNMP config variables in switches.conf with 
+        prefixed SNMP config variables in switches.conf with
           SNMP
           (http://www.packetfence.org/mantis/view.php?id=537)
         added example SNMP v3 switch config to switches.conf
@@ -1753,7 +1753,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=548)
 
 1.7.6
-        violations created through bin/pfdetect do not lead to 
+        violations created through bin/pfdetect do not lead to
           VLAN change
           (http://www.packetfence.org/mantis/view.php?id=496)
         issues with MAC addresses in capital
@@ -1787,7 +1787,7 @@ Version 1.8.1
         pfsetvlan should check that MAC field is filled before
           calling custom_isClientAlive
           (http://www.packetfence.org/mantis/view.php?id=444)
-        add executables used in installer.pl to dependencies 
+        add executables used in installer.pl to dependencies
           in packetfence.spec
           (http://www.packetfence.org/mantis/view.php?id=445)
         CGI session should contain authentication type used
@@ -1880,7 +1880,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=413)
         testSecureMACs should be part of recovery.pl
           (http://www.packetfence.org/mantis/view.php?id=414)
-        violation_delete should be part of default 
+        violation_delete should be part of default
           adjustswitchportvlan reasons
           (http://www.packetfence.org/mantis/view.php?id=371)
         node status can be 'grace'
@@ -1923,7 +1923,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=364)
         destination_url parameter lost during registration
           (http://www.packetfence.org/mantis/view.php?id=369)
-        violation_add should be part of default 
+        violation_add should be part of default
           adjustswitchportvlan reasons
           (http://www.packetfence.org/mantis/view.php?id=370)
         recovery.pl uses obsolete getPhonesAtIfIndex
@@ -1932,7 +1932,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=373)
         node_pid and registration status
           (http://www.packetfence.org/mantis/view.php?id=374)
-        added support for Dlink::DES_3526 
+        added support for Dlink::DES_3526
           (contributed by Treker Chen)
         automatically hide scan section if necessary
           (http://www.packetfence.org/mantis/view.php?id=376)
@@ -1942,42 +1942,42 @@ Version 1.8.1
         added support for HP::Procurve_4100
         pfcmd service watch and restart of services
           (http://www.packetfence.org/mantis/view.php?id=377)
-	When instantiating a switch, pfsetvlan does not read 
-	  macSearchesMaxNb and macSearchesSleepInterval for 
-	  the switch
-	  (http://www.packetfence.org/mantis/view.php?id=378)
+When instantiating a switch, pfsetvlan does not read
+macSearchesMaxNb and macSearchesSleepInterval for
+the switch
+(http://www.packetfence.org/mantis/view.php?id=378)
 
 1.7.2
         added RHEL5 to supported operating systems
         stopped to distribute jpgraph with PF; the installer
           will now download jpgraph
-        `pfcmd service pf status` now indicates 
-          - if service should be started according to 
+        `pfcmd service pf status` now indicates
+          - if service should be started according to
             configuration file
           - all pids (in case several processus are running)
         clean PID files in /usr/local/pf/var when necessary
           after service stop
         unified pfcmd service and pfcmd control
         replaced bin/pfwatcher with pfcmd service pf watch
-        added trapping.redirlocal parameter which is used by 
+        added trapping.redirlocal parameter which is used by
           bin/ip2interface.pl
         removed conf/ssl/server.crt and conf/ssl/server.key from
           distribution and added code to generate them to installer.pl
         added DHCP fingerprint update to configurator.pl
         configurator.pl reference to registration.authentication
           (http://www.packetfence.org/mantis/view.php?id=342)
-        port 162 is opened on internal interface instead of management 
+        port 162 is opened on internal interface instead of management
           interface
           (http://www.packetfence.org/mantis/view.php?id=344)
         removed configurator.pl reference to arp.listendevice
         perl-IPTables-IPv4 conflicts with PacketFence RPM
           (http://www.packetfence.org/mantis/view.php?id=348)
-        added authorizedips variable to each interface to customize 
+        added authorizedips variable to each interface to customize
           IPTables rules
           (http://www.packetfence.org/mantis/view.php?id=345)
         representation of adjustswitchportvlan reasons in web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=343)
-        default values for multi config options are correctly shown in 
+        default values for multi config options are correctly shown in
           web admin GUI
           (http://www.packetfence.org/mantis/view.php?id=350)
         added functionality to reset switch ports in case of desaster
@@ -2058,7 +2058,7 @@ Version 1.8.1
         added autodiscover script
         added sample iptables.pre configuration file to allow
           reception of SNMP traps
-        show database and scan passwords in password fields in 
+        show database and scan passwords in password fields in
           web admin GUI
         fixed issue in node_cleanup SQL query
         added missing test/connect_and_read.pl script
@@ -2079,7 +2079,7 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=122)
         admin/screenshots
           (http://www.packetfence.org/mantis/view.php?id=125)
-        in UI if var/session doesn't exist or is not writable - user 
+        in UI if var/session doesn't exist or is not writable - user
           can not login and no error is given
           (http://www.packetfence.org/mantis/view.php?id=140)
         class/violation.php
@@ -2099,10 +2099,10 @@ Version 1.8.1
         problems with File::Tail in setVlanOnTrapd
           (http://www.packetfence.org/mantis/view.php?id=229)
         added remote DHCP listener to SPEC file
-        status::reports:: history (IP/MAC) column names are not 
+        status::reports:: history (IP/MAC) column names are not
           correctly shown
           (http://www.packetfence.org/mantis/view.php?id=231)
-        Web link http://www.packetfence.org/install.html does 
+        Web link http://www.packetfence.org/install.html does
           not exist
           (http://www.packetfence.org/mantis/view.php?id=230)
         status::reports:: location history (IP/MAC) column
@@ -2194,7 +2194,7 @@ Version 1.8.1
         monitorpfsetvlan.pl script
           (http://www.packetfence.org/mantis/view.php?id=290)
         added support for 3COM NJ220 switch
-	allow port security to work with VoIP phones
+allow port security to work with VoIP phones
           (http://www.packetfence.org/mantis/view.php?id=285)
         templates/local.conf and apache version
           (http://www.packetfence.org/mantis/view.php?id=298)
@@ -2212,19 +2212,19 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=303)
         allow date-time range queries for MAC/IP history
           (http://www.packetfence.org/mantis/view.php?id=304)
-        ip2mac uses invalid iplog_history_ip call 
+        ip2mac uses invalid iplog_history_ip call
           (http://www.packetfence.org/mantis/view.php?id=305)
-        mac2ip uses invalid iplog_history_ip call 
+        mac2ip uses invalid iplog_history_ip call
           (http://www.packetfence.org/mantis/view.php?id=306)
         insertion of VLAN in registration data
           (http://www.packetfence.org/mantis/view.php?id=308)
-        RewriteRule prevents a user from being directed to an 
+        RewriteRule prevents a user from being directed to an
         https site
           (http://www.packetfence.org/mantis/view.php?id=309)
         add notes field to node table
           (http://www.packetfence.org/mantis/view.php?id=310)
-        add email alert when PC behind VoIP phone has been 
-	isolated
+        add email alert when PC behind VoIP phone has been
+isolated
           (http://www.packetfence.org/mantis/view.php?id=311)
         issues in hasPhoneAtIfIndex
           (https://support.inverse.ca/mantis/view.php?id=2257)
@@ -2237,7 +2237,7 @@ Version 1.8.1
 
 1.7.0 RC1
         several bugfixes / 1.6.2
-        integration of VLAN isolation 
+        integration of VLAN isolation
           (http://www.packetfence.org/mantis/view.php?id=9)
         ability to execute Snort on separate machine
           (http://www.packetfence.org/mantis/view.php?id=100)
@@ -2253,330 +2253,330 @@ Version 1.8.1
           (http://www.packetfence.org/mantis/view.php?id=208)
 
 1.6.2
-	removed bogus sanity_checks from pfcmd
-	added spam violation
-	renamed iptables.preload to iptables.pre
-	added iptables.post
-	expire_mode=session is now a valid configuration
-	updated stinger URL
-	added passthrough for symantec scanner
-	added threadid to pflogger output
-	added interface to rogue DHCP messages
-	properly escaped references to trigger table for mysql5 users
-	changed "Schedule" tab to "Scan"
-	fixed issue with pretty print column headers in class tabs
-	fixed init script status function
-	replaced PopCalendarXP with a GPLed alternative
-	updated the GUI dashbaord so you can remove all elements
-	fixed dhcp fingerprint submission through the 'class' page
-	fixed searching within 'status/reports'
-	added optimization for ip2mac (086)
-	added snort to startup list in services.pm (121)
-	many changes to the pfmon threads & db_connection process to be able to reconnect on dead db handle and avoid timeout issues...
+removed bogus sanity_checks from pfcmd
+added spam violation
+renamed iptables.preload to iptables.pre
+added iptables.post
+expire_mode=session is now a valid configuration
+updated stinger URL
+added passthrough for symantec scanner
+added threadid to pflogger output
+added interface to rogue DHCP messages
+properly escaped references to trigger table for mysql5 users
+changed "Schedule" tab to "Scan"
+fixed issue with pretty print column headers in class tabs
+fixed init script status function
+replaced PopCalendarXP with a GPLed alternative
+updated the GUI dashbaord so you can remove all elements
+fixed dhcp fingerprint submission through the 'class' page
+fixed searching within 'status/reports'
+added optimization for ip2mac (086)
+added snort to startup list in services.pm (121)
+many changes to the pfmon threads & db_connection process to be able to reconnect on dead db handle and avoid timeout issues...
         pfdetect handles sigpipe that db_connect dbh->ping() throws now
-	pfdetect calls db_connect with function list to support reconnect
-	pfdetect now uses perl signal handlers insead of POSIX
-	updated snort rule locations in violations.conf
-	included example oinkmaster.conf file in contrib
-	added passthroughs to local.rules for chat services that use non-standard IRC ports
-	changed default node expire from 180d to 90d
-	please add the following to /etc/my.cnf:
+pfdetect calls db_connect with function list to support reconnect
+pfdetect now uses perl signal handlers insead of POSIX
+updated snort rule locations in violations.conf
+included example oinkmaster.conf file in contrib
+added passthroughs to local.rules for chat services that use non-standard IRC ports
+changed default node expire from 180d to 90d
+please add the following to /etc/my.cnf:
 
-	[mysqld]
-	# don't close session
-	wait_timeout = 86400  
-	# default 28800
+[mysqld]
+# don't close session
+wait_timeout = 86400
+# default 28800
 
 
 1.6.1
-	fixed admin->remediation page (0000087)
-	gateway no longer shows up in the Probable Static report
-	added additional DHCP fingerprints (thanks to Eric Kollmann)
-	fixed x-axis of monthly graphs
-	added additional sanity_check warning for large internal IP space
-	added backticks to "trigger" table to allow for proper import
-	set default action for IRC violation to "trap,email,log"
-	corrected redirect "looping" bug
-	registration of PIDs with spaces should now work
-	added "session" as an registration.expire_mode
-	added session_expire parameter
-	added sessionauth configuration template
-	added Snort 2.6 warning to installer.pl
-	fixed double count of statics in os/osclass report totals
-	moved cleanup thread in pfmon after listen_arp
-	added GUI bug reporting
-	fixed unknownprint submission
+fixed admin->remediation page (0000087)
+gateway no longer shows up in the Probable Static report
+added additional DHCP fingerprints (thanks to Eric Kollmann)
+fixed x-axis of monthly graphs
+added additional sanity_check warning for large internal IP space
+added backticks to "trigger" table to allow for proper import
+set default action for IRC violation to "trap,email,log"
+corrected redirect "looping" bug
+registration of PIDs with spaces should now work
+added "session" as an registration.expire_mode
+added session_expire parameter
+added sessionauth configuration template
+added Snort 2.6 warning to installer.pl
+fixed double count of statics in os/osclass report totals
+moved cleanup thread in pfmon after listen_arp
+added GUI bug reporting
+fixed unknownprint submission
 
 1.6.0 (Butterball)
-	register.cgi reg exp change on user agent
-	added DHCP fingerprints
-	register.cgi bug fix for freemac
-	lots of misc bug fixes
+register.cgi reg exp change on user agent
+added DHCP fingerprints
+register.cgi bug fix for freemac
+lots of misc bug fixes
 
 1.6.0 rc3 (Franklin)
-	schedule ui fixes
-	ui user login file check
-	ui admin tab updates
-	index.cgi bug fix (058)
-	named bug fix (056)
-	registration.window = registration.skip_window (057)
-	violation_view sql bug fix
-	addition of ticket_ref column in violation
-	bug fix to user_agent string during registration
-	valid_ip bug fix
-	index.php addition
-	
+schedule ui fixes
+ui user login file check
+ui admin tab updates
+index.cgi bug fix (058)
+named bug fix (056)
+registration.window = registration.skip_window (057)
+violation_view sql bug fix
+addition of ticket_ref column in violation
+bug fix to user_agent string during registration
+valid_ip bug fix
+index.php addition
+
 
 1.6.0 rc2 (gizzard)
-	clean up to registeration.html template
-	bug fix to dhcp_listener
-	cleanup in conf/users (043)
-	register.cgi uses trigger fix (042)
-	IE bug fix (044)
-	added code to pfmon cleanup() to preform consistency check against DB (045)
-	cgi debugging code removal (049 & 050)
+clean up to registeration.html template
+bug fix to dhcp_listener
+cleanup in conf/users (043)
+register.cgi uses trigger fix (042)
+IE bug fix (044)
+added code to pfmon cleanup() to preform consistency check against DB (045)
+cgi debugging code removal (049 & 050)
         config.pm normalize time fix (048)
-	pfcmd cgi bug fix (051)
-	fixed /32 bug in trapping range
+pfcmd cgi bug fix (051)
+fixed /32 bug in trapping range
 
 1.6.0 rc1 (dinde)
-	bug fix to pfcmd violation add (028)
-	clean up to violations.conf (024 & 030)
-	action.pm netbiosname change (029)
-	documentation links added to config files (031)
-	max_enables bug fix (026)
-	snort restart bug fix (023)
-	web.pm bug fix (033)
-	pfcmd help additions
-	edit.php bug fix (035)
-	results.php bug fix (036)
-	pfcmd schedule bug fix (038)
-	pfcmd schedule add bug fix (034)
+bug fix to pfcmd violation add (028)
+clean up to violations.conf (024 & 030)
+action.pm netbiosname change (029)
+documentation links added to config files (031)
+max_enables bug fix (026)
+snort restart bug fix (023)
+web.pm bug fix (033)
+pfcmd help additions
+edit.php bug fix (035)
+results.php bug fix (036)
+pfcmd schedule bug fix (038)
+pfcmd schedule add bug fix (034)
 
 1.6.0 beta4 (poult)
-	pfdetect db_connect move
-	many many many bug fixes to account for the new method of using chained use statments
+pfdetect db_connect move
+many many many bug fixes to account for the new method of using chained use statments
 
 1.6.0 beta3 (Tryptophan)
-	updated unknownprints report to resolve vendor from OUI
-	fixed bug in get_internal_ips() and strobe
-	trigger support for disabled violations
-	fixed NAT (router, NATed AP) TTL-based detection
+updated unknownprints report to resolve vendor from OUI
+fixed bug in get_internal_ips() and strobe
+trigger support for disabled violations
+fixed NAT (router, NATed AP) TTL-based detection
         cleaned up thread variables in pfmon
-	added support for ARP & DHCP listening on multiple interfaces
+added support for ARP & DHCP listening on multiple interfaces
         changes to arp_listen to support new @listen_devs
-	fixed bugs with timer to 3rdparty move
-	changed trigger code and table to support tid ranges (tid_start-tid_end)
-	reformatted dhcp_fingerprints.conf to allow for integration with triggers
-	support for banning operating systems (see violations.conf)
-	"pfcmd reload <fingerprints|violations>" allows reload of DB tables w/o restart
-	"pfcmd update <fingerprints|oui>" allows update of lookup tables from canonical source
+fixed bugs with timer to 3rdparty move
+changed trigger code and table to support tid ranges (tid_start-tid_end)
+reformatted dhcp_fingerprints.conf to allow for integration with triggers
+support for banning operating systems (see violations.conf)
+"pfcmd reload <fingerprints|violations>" allows reload of DB tables w/o restart
+"pfcmd update <fingerprints|oui>" allows update of lookup tables from canonical source
         added inactive and openviolations report types
         lib/pf reshuffle: moved pfcmd-specific components into subdir, renamed dhcp_fingerprint.pm to os.pm
-	renamed report types to be more consistent - see pfcmd usage for new names
-	fixed vendor parsing in oui.txt
-	added graphs aggregated on day/month/year intervals - see pfcmd usage for graph types (typically only used by GUI)
-	added mrtg_wrapper.pl to contrib directory for plug-and-play MRTG integration
-	pfcmd freemac/register/deregister added to eliminate SUID bit from CGI scripts
-	fixed optional date field to IP history report
-	updated help for pfcmd to make things more readable
-	network numbers are now excluded from the trappable_ip preload hash
-	updated packetfence.init script
-	added additional help support to pfcmd
-	modules exports/etc are now done properly
-	updated sanity_check to validate toggle pf.conf values against documentation.conf
-	normalize time values and allow second,minute,hour,day,week (s,m,h,d,w) modifiers
-	dashboard is now customizable with "nuggets" of information and graphs
-	trigger module updated for schedule ui tab
-	added indexes to OS tables
+renamed report types to be more consistent - see pfcmd usage for new names
+fixed vendor parsing in oui.txt
+added graphs aggregated on day/month/year intervals - see pfcmd usage for graph types (typically only used by GUI)
+added mrtg_wrapper.pl to contrib directory for plug-and-play MRTG integration
+pfcmd freemac/register/deregister added to eliminate SUID bit from CGI scripts
+fixed optional date field to IP history report
+updated help for pfcmd to make things more readable
+network numbers are now excluded from the trappable_ip preload hash
+updated packetfence.init script
+added additional help support to pfcmd
+modules exports/etc are now done properly
+updated sanity_check to validate toggle pf.conf values against documentation.conf
+normalize time values and allow second,minute,hour,day,week (s,m,h,d,w) modifiers
+dashboard is now customizable with "nuggets" of information and graphs
+trigger module updated for schedule ui tab
+added indexes to OS tables
 
 1.6.0 beta2 (Gobble Gobble)
-	added Kazaa and Gnutella violations
-	added additional IRC trojan triggers
-	parse_web_conf reg exp bug fix
-	iptables NAT bugfix
-	iptables MASQ to SNAT
-	dnsservers addition to dhcpd.conf
-	dhcpd.conf default lease time changes
-	update_hashes bug fix new_node
-	added update_3rd_party_confs to update bleeding snort and oui files
-	DHCP ranges can now be of 192.168.0.100-200 form
-	fixed bogus reference to "authentication=" in documentation.conf and templates/pf.conf
-	configurator upgrade registration.authentication to registration.auth
-	NAT & external interface santity check
-	removal of httpd.conf release.cgi comment
-	new option registration.button text will display on registration page
-	trigger_scan bug fixes due to new 1.6.0 code changes
-	fixed new node add in update_hashes
-	added support for individual ips in preload_network_range
-	updated documentation.conf with new options
-	configurable DHCP lease times for reg/unreg/iso scopes
-	better reporting of typos in pf.conf
+added Kazaa and Gnutella violations
+added additional IRC trojan triggers
+parse_web_conf reg exp bug fix
+iptables NAT bugfix
+iptables MASQ to SNAT
+dnsservers addition to dhcpd.conf
+dhcpd.conf default lease time changes
+update_hashes bug fix new_node
+added update_3rd_party_confs to update bleeding snort and oui files
+DHCP ranges can now be of 192.168.0.100-200 form
+fixed bogus reference to "authentication=" in documentation.conf and templates/pf.conf
+configurator upgrade registration.authentication to registration.auth
+NAT & external interface santity check
+removal of httpd.conf release.cgi comment
+new option registration.button text will display on registration page
+trigger_scan bug fixes due to new 1.6.0 code changes
+fixed new node add in update_hashes
+added support for individual ips in preload_network_range
+updated documentation.conf with new options
+configurable DHCP lease times for reg/unreg/iso scopes
+better reporting of typos in pf.conf
 
 1.6.0 beta1 (Turkey Day)
-	scan table has been replaced with trigger table.
-	rewrote update_hashes to support DHCP mode
-	bug fixes to nodecache module
-	bug fix to util::inrange() function when /32 is used
-	option registration ip range (pf.conf registration.range) added
-	changes to preload.pm, util.pm, pfmon to support reg range.
-	bug fix to get_interface_macs() to support down interfaces
-	change to trappable_ip to use more efficient grep then foreach enumeration
-	network/broadcast addresses no longer considered trappable
-	fixed configurator.pl bug with dnsservers
-	added additional sanity checks into pfcmd  
-	pflogger() bug fix to openlog (Peter Bates)
-	cleanup to node.pm to remove unused node_violator(),nodes_violators()
-	Cleanup up violations.conf - gave proper credit to the Bleeding Snort folks
-	created pf.defaults.conf, deleted redundant data from pf.conf
-	mac2ip bug fix to order results (Robert Kerr)
-	inrange_ip bug fix (Rober Kerr)
-	inrange_ip additions for /32, and individual IPs
-	violations.conf format has now changed.
-	configurator.pl admin port bug fix
-	snortrule & scanids have been replaced with trigger.
+scan table has been replaced with trigger table.
+rewrote update_hashes to support DHCP mode
+bug fixes to nodecache module
+bug fix to util::inrange() function when /32 is used
+option registration ip range (pf.conf registration.range) added
+changes to preload.pm, util.pm, pfmon to support reg range.
+bug fix to get_interface_macs() to support down interfaces
+change to trappable_ip to use more efficient grep then foreach enumeration
+network/broadcast addresses no longer considered trappable
+fixed configurator.pl bug with dnsservers
+added additional sanity checks into pfcmd
+pflogger() bug fix to openlog (Peter Bates)
+cleanup to node.pm to remove unused node_violator(),nodes_violators()
+Cleanup up violations.conf - gave proper credit to the Bleeding Snort folks
+created pf.defaults.conf, deleted redundant data from pf.conf
+mac2ip bug fix to order results (Robert Kerr)
+inrange_ip bug fix (Rober Kerr)
+inrange_ip additions for /32, and individual IPs
+violations.conf format has now changed.
+configurator.pl admin port bug fix
+snortrule & scanids have been replaced with trigger.
 
-	    trigger=detect::2000032,scan::11808
+trigger=detect::2000032,scan::11808
 
-	where 2000032 is the snort id and 11808 is the nussus plugin number 
-		
-	New 1.6 features:
-		Registration Ranges
-		DHCP mode
-		Triggers
-		Config Defaults
-		Multiple Authentication Registration
+where 2000032 is the snort id and 11808 is the nussus plugin number
 
-	please update your existing database with upgrade-1.6.0
-		mysql -p pf < db/upgrade-1.6.0.sql
+New 1.6 features:
+Registration Ranges
+DHCP mode
+Triggers
+Config Defaults
+Multiple Authentication Registration
+
+please update your existing database with upgrade-1.6.0
+mysql -p pf < db/upgrade-1.6.0.sql
 
 1.5.1
-	configuration.php more_info path change
-	additional reports active os, unknown fingerprints 
-	report.pm code cleanup
-	fixed the CHANGES (Robert Kerr)
-	rnamed node_unmark to unmark_node in register_node
-	unmark_node bug fix 
-	added new DHCP prints
-	templates configurator default changes (Dominik Gehl) 
+configuration.php more_info path change
+additional reports active os, unknown fingerprints
+report.pm code cleanup
+fixed the CHANGES (Robert Kerr)
+rnamed node_unmark to unmark_node in register_node
+unmark_node bug fix
+added new DHCP prints
+templates configurator default changes (Dominik Gehl)
 
 1.5.0 release (Animal House)
-	small schema changes (Dominik Gehl):
+small schema changes (Dominik Gehl):
 
-		alter table action add primary key(vid,action);
-		alter table violation add key status (status);
-		alter table dhcp_fingerprint add primary key dhcp_fingerprint(dhcp_fingerprint);
+alter table action add primary key(vid,action);
+alter table violation add key status (status);
+alter table dhcp_fingerprint add primary key dhcp_fingerprint(dhcp_fingerprint);
 
-	added dhcp fingerprints (Mike Cochrane)
-	
+added dhcp fingerprints (Mike Cochrane)
+
 1.5.1
-	configuration.php more_info path change
-	additional reports active os, unknown fingerprints 
-	report.pm code cleanup
-	fixed the CHANGES (Robert Kerr)
-	rnamed node_unmark to unmark_node in register_node
-	unmark_node bug fix 
-	added new DHCP prints
-	templates configurator default changes (Dominik Gehl) 
+configuration.php more_info path change
+additional reports active os, unknown fingerprints
+report.pm code cleanup
+fixed the CHANGES (Robert Kerr)
+rnamed node_unmark to unmark_node in register_node
+unmark_node bug fix
+added new DHCP prints
+templates configurator default changes (Dominik Gehl)
 
 1.5.0 release (Animal House)
-	small schema changes (Dominik Gehl):
+small schema changes (Dominik Gehl):
 
-		alter table action add primary key(vid,action);
-		alter table violation add key status (status);
-		alter table dhcp_fingerprint add primary key dhcp_fingerprint(dhcp_fingerprint);
+alter table action add primary key(vid,action);
+alter table violation add key status (status);
+alter table dhcp_fingerprint add primary key dhcp_fingerprint(dhcp_fingerprint);
 
-	added dhcp fingerprints (Mike Cochrane)
-	bug fix to nodecache delete_node()
-	deleted debugging statement from trappable_ip
-	removed time filter option in reporting
-	removed old template options arp.probe_interval and arp.mode
-	change the default values for arp.timeout,arp.gw_timeout,arp.dhcp_timeout
-	updates and bug fixes to scan.pm
-	pfcmd schedule now IP will now output all scan results to /html/admin/schdule/depot/dump-IP-DATE
-	removed scan_results tab in ui and graphs tab in reports
-	renamed depot to results
-	configurator.pl changes to default monitor,net
-	getlocalmac() bug fix
-	header.php changes to accommodate spaces in key values
-	addition tab class->fingerprint added
-	node view dhcp_fingerprint is now linked to class->fingerprint
-	all UI calls to pfcmd are now done through env vars
-	listeners are now allowed through iptables INPUT
-	administrative GUI now separated from user content
-	fixed small bug with arp stuffing using old trapping.blackholemac
-	fixed small bug with arp isolation
-	violation array is now unique
-	fixed violation_add() to now force_close portscan if known sid is added
-	various updates to documentation.conf
-	index.cgi fix to initial class_db
-	remove unmark_node() from violation_force_close().
-	dhcp listener now uses chaddr instead of source mac for reporting
-	reg report was actually showing regactive
-	references to expiry are now expire in pf.conf
-	pfcmd now takes commands via ARGS query string param
-	pfmailer bug fix
-	exporter.php bug fix
-	index.cgi path fix
-	additions to violations.conf
-	scan key(sid,vid) is now scan primary key(sid,vid) (Dominik Gehl)
-	bug fix to hello() to arp non trappable IPs also
-	many update to documentation.conf (Dominik Gehl)
-	cleanup of scan.php (Dominik Gehl)
-	isolation bug fix on gratuitous arps
-	grace_period bug fix to template/index.cgi
-	cleanup to os.php and class.php (Dominik Gehl)
-	bug fix to installer.pl mysql user create
-	MAJOR cleanup to rearp() code
-	optimized rearp() to now handle chatty router(s) much better
+added dhcp fingerprints (Mike Cochrane)
+bug fix to nodecache delete_node()
+deleted debugging statement from trappable_ip
+removed time filter option in reporting
+removed old template options arp.probe_interval and arp.mode
+change the default values for arp.timeout,arp.gw_timeout,arp.dhcp_timeout
+updates and bug fixes to scan.pm
+pfcmd schedule now IP will now output all scan results to /html/admin/schdule/depot/dump-IP-DATE
+removed scan_results tab in ui and graphs tab in reports
+renamed depot to results
+configurator.pl changes to default monitor,net
+getlocalmac() bug fix
+header.php changes to accommodate spaces in key values
+addition tab class->fingerprint added
+node view dhcp_fingerprint is now linked to class->fingerprint
+all UI calls to pfcmd are now done through env vars
+listeners are now allowed through iptables INPUT
+administrative GUI now separated from user content
+fixed small bug with arp stuffing using old trapping.blackholemac
+fixed small bug with arp isolation
+violation array is now unique
+fixed violation_add() to now force_close portscan if known sid is added
+various updates to documentation.conf
+index.cgi fix to initial class_db
+remove unmark_node() from violation_force_close().
+dhcp listener now uses chaddr instead of source mac for reporting
+reg report was actually showing regactive
+references to expiry are now expire in pf.conf
+pfcmd now takes commands via ARGS query string param
+pfmailer bug fix
+exporter.php bug fix
+index.cgi path fix
+additions to violations.conf
+scan key(sid,vid) is now scan primary key(sid,vid) (Dominik Gehl)
+bug fix to hello() to arp non trappable IPs also
+many update to documentation.conf (Dominik Gehl)
+cleanup of scan.php (Dominik Gehl)
+isolation bug fix on gratuitous arps
+grace_period bug fix to template/index.cgi
+cleanup to os.php and class.php (Dominik Gehl)
+bug fix to installer.pl mysql user create
+MAJOR cleanup to rearp() code
+optimized rearp() to now handle chatty router(s) much better
 
-		customizable port (ports.admin)
-		common images/elements moved to /common - existing violations may need to be manually updated
-		be sure to update general.logo to /common/packetfence.gif
+customizable port (ports.admin)
+common images/elements moved to /common - existing violations may need to be manually updated
+be sure to update general.logo to /common/packetfence.gif
 
 1.5 rc2 (big willie style)
-	fqdn hostname and hello from outbound mail (Robert Kerr)
-	scan to schedule name changes (Mike Cochrane)
-	scan.php updates (Mike Cochrane)
-	pfcmd person edit vid changes (Mike Cochrane)
-	passive-span is now monitor_int 
-	added rxbot bleeding edge sig
-	changed NAT sigs to TTL 2-63,65-127,129-254
-	added sanity_check function to check for common problems
-	additional dhcp sigs added
-	person_modify/person_add bug fix
-	UI.conf person view/edit/delete update
-	arp_time updated on all host arps now
-	left join on dhcp_fingerprints for reports
-	changed "pfcmd pidlookup" to  "pfcmd lookup person"
-	added "pfcmd lookup node" - lists useful info about node (os, browser, owner, oui vendor resolution, etc)
-	added x.x.x.x-y.y.y.y to trappable_ip (Robert Kerr)
-	deleted from $ENV variables in pfcmd
-	some login updates (Dominik Gehl)
-	minor changes to admin code to work under PHP5
-	new report - "pfcmd report os_class"
+fqdn hostname and hello from outbound mail (Robert Kerr)
+scan to schedule name changes (Mike Cochrane)
+scan.php updates (Mike Cochrane)
+pfcmd person edit vid changes (Mike Cochrane)
+passive-span is now monitor_int
+added rxbot bleeding edge sig
+changed NAT sigs to TTL 2-63,65-127,129-254
+added sanity_check function to check for common problems
+additional dhcp sigs added
+person_modify/person_add bug fix
+UI.conf person view/edit/delete update
+arp_time updated on all host arps now
+left join on dhcp_fingerprints for reports
+changed "pfcmd pidlookup" to "pfcmd lookup person"
+added "pfcmd lookup node" - lists useful info about node (os, browser, owner, oui vendor resolution, etc)
+added x.x.x.x-y.y.y.y to trappable_ip (Robert Kerr)
+deleted from $ENV variables in pfcmd
+some login updates (Dominik Gehl)
+minor changes to admin code to work under PHP5
+new report - "pfcmd report os_class"
 
 1.5 rc1 (big willie)
-	logging changes to violation_add
-	uncomment rawip in action.pm (Thanks to Mike Cochrane)
-	nessusd definition in services.pm (Thanks to Mike Cochrane)
-	./restart fix to to service.pm     
-	small installer bug fixes	
-	addition of ndp.cgi to cgi-bin.  in 1.6 this will support remote violation additions.
-	pfcmd help now matches up with schema (Thanks to Robert Kerr)
-	move of nessus.pm to scan.pm
-	various bug fixes in configurator (Thanks to Dominik Gehl)
-	modified spec file to include configurator templates (Dominik Gehl)
-	added some missing help files (Dominik Gehl)
-	updated ldap.conf to 0.26 compatible syntax (Dominik Gehl)
-	added CentOS 4.1 support (Dominik Gehl)
-	fixes to configuration.php to correct bad options behavior (Dominik Gehl)
-	changes to violations.conf, all violations now set to enabled action=email,log
-	added defaults to violation_add to set start_time=now, status=open when not defined
-	Added unique row to violations for better edit/delete control.
+logging changes to violation_add
+uncomment rawip in action.pm (Thanks to Mike Cochrane)
+nessusd definition in services.pm (Thanks to Mike Cochrane)
+./restart fix to to service.pm
+small installer bug fixes
+addition of ndp.cgi to cgi-bin. in 1.6 this will support remote violation additions.
+pfcmd help now matches up with schema (Thanks to Robert Kerr)
+move of nessus.pm to scan.pm
+various bug fixes in configurator (Thanks to Dominik Gehl)
+modified spec file to include configurator templates (Dominik Gehl)
+added some missing help files (Dominik Gehl)
+updated ldap.conf to 0.26 compatible syntax (Dominik Gehl)
+added CentOS 4.1 support (Dominik Gehl)
+fixes to configuration.php to correct bad options behavior (Dominik Gehl)
+changes to violations.conf, all violations now set to enabled action=email,log
+added defaults to violation_add to set start_time=now, status=open when not defined
+Added unique row to violations for better edit/delete control.
 
-	DB Schema change, beta users please do the following:
-          echo 'alter table violation add id int NOT NULL AUTO_INCREMENT Primary Key first;                                     
+DB Schema change, beta users please do the following:
+          echo 'alter table violation add id int NOT NULL AUTO_INCREMENT Primary Key first;
                 drop table nessusid;
                 drop table nessus;
                 CREATE TABLE scan (
@@ -2586,48 +2586,48 @@ Version 1.8.1
                   CONSTRAINT `0_62` FOREIGN KEY (`vid`) REFERENCES `class` (`vid`) ON DELETE CASCADE ON UPDATE CASCADE
                 ) TYPE=InnoDB;' | mysql -p pf
 
-	nessus.x is now called scan.x for later support of general scanning devices
-	scanning on registration has been tested in 1.5 tree.
-	total rewrite of interface code - it now actually makes sense
-	*lots* of PHP tweaks (Dominik Gehl), running on E_ALL is no longer so noisy
-	added some more DHCP fingerprints (Robert Kerr)
-	changed scan to schedule in the UI and pfcmd
-	node auto registration (think TiVo or Xbox) is now working
-	fixed registration "skip" bug
-	fixed violation add small bug from pfcmd
+nessus.x is now called scan.x for later support of general scanning devices
+scanning on registration has been tested in 1.5 tree.
+total rewrite of interface code - it now actually makes sense
+*lots* of PHP tweaks (Dominik Gehl), running on E_ALL is no longer so noisy
+added some more DHCP fingerprints (Robert Kerr)
+changed scan to schedule in the UI and pfcmd
+node auto registration (think TiVo or Xbox) is now working
+fixed registration "skip" bug
+fixed violation add small bug from pfcmd
  
-1.5 beta 3 (willie) 
-	added index on iplog for (mac,ip,end_time)
-	added expire functionality for iplog and node  iplog_timeframe=60 node_timefram=60 (days)
-	pfmon cleanup() changes to run intensive functions every 10*arp_timeout
-	node.pm cleanup
-	violation_modify rewrite
-	pfcmd ui/class/nessus changes
-	moved iplog-last_seen to node-last_arp for beta 2 users please do the following:
-		alter table node add last_arp datetime NOT NULL default "0000-00-00 00:00:00" after computername; 
-		alter table iplog drop last_seen;
-	   for 1.4.4 users just run the ./installer which will upgrade your schema
-	changed table nessusid to nessus  
-	added nessus.pm module
- 	redir cgi bug fixes
-	httpd.conf redir bug fix
-	configurator.pl now has support for template configs
-	unreg and isolated interfaces were removed.  they will be renamed in 1.6
+1.5 beta 3 (willie)
+added index on iplog for (mac,ip,end_time)
+added expire functionality for iplog and node iplog_timeframe=60 node_timefram=60 (days)
+pfmon cleanup() changes to run intensive functions every 10*arp_timeout
+node.pm cleanup
+violation_modify rewrite
+pfcmd ui/class/nessus changes
+moved iplog-last_seen to node-last_arp for beta 2 users please do the following:
+alter table node add last_arp datetime NOT NULL default "0000-00-00 00:00:00" after computername;
+alter table iplog drop last_seen;
+for 1.4.4 users just run the ./installer which will upgrade your schema
+changed table nessusid to nessus
+added nessus.pm module
+  redir cgi bug fixes
+httpd.conf redir bug fix
+configurator.pl now has support for template configs
+unreg and isolated interfaces were removed. they will be renamed in 1.6
 
 1.5 beta 2 (small willie)
-	violation.pm bug fixes
-	support for snort spp_portscan2
-	changed default violation actions to email/log
-	UI violation bug fixes
-	UI report bug fixes
-	action_add() bug fix on non trap actions	
-	ip2mac bug fixes and cleanup
-	class_modify bug fixes
-	cgi interface to pfcmd, httpd.conf changes also
-	bug fix on httpd.conf mod_write rules	
-	pflogger now can figure out calling function 	
-	fixed content index.cgi permissions issue
-	 
+violation.pm bug fixes
+support for snort spp_portscan2
+changed default violation actions to email/log
+UI violation bug fixes
+UI report bug fixes
+action_add() bug fix on non trap actions
+ip2mac bug fixes and cleanup
+class_modify bug fixes
+cgi interface to pfcmd, httpd.conf changes also
+bug fix on httpd.conf mod_write rules
+pflogger now can figure out calling function
+fixed content index.cgi permissions issue
+
 
 1.5 beta1 (tiny willie)
 
@@ -2652,7 +2652,7 @@ Additional Features:
         static ip/arp detection (beta)
         basic arp poisoning detection
         conf files are cleaner do to a move from Config::Simple to Config:InI
-        much cleaner code :)    
+        much cleaner code :)
 
 1.4.4
 
@@ -2662,38 +2662,38 @@ UI nessus addition
 
 The packetfence.spec file has been tweaked alot make sure uninstall is clean.
 
-documentation.conf is now included 
+documentation.conf is now included
 
 regex bug in violations.conf fixed
 
-new logic to install correct snort  (fixes old FC3 library error)
+new logic to install correct snort (fixes old FC3 library error)
 
-upgraded mysql to 4.1 (fixes another FC3 bug) 
+upgraded mysql to 4.1 (fixes another FC3 bug)
 
-changed installer/spec file package deps and installer doc. 
-misc installer cleanup.  
+changed installer/spec file package deps and installer doc.
+misc installer cleanup.
 
 added nessus modules and dependencies to installer
 
-Apache/PHP was bombing on FC3 - changed PHP handler and enabled 
+Apache/PHP was bombing on FC3 - changed PHP handler and enabled
 pf/session dir for session handling.
  
-fixed bug where apache auth config was appended even if registration 
+fixed bug where apache auth config was appended even if registration
 was disabled.
 
 changed default value of named to "disabled".
 
 changed stuffing to disabled.
 
-deleted default expiry_window and window values. 
+deleted default expiry_window and window values.
 
-added msdownload SSL proxy crap.  
+added msdownload SSL proxy crap.
 
 changed iptables log messages to clarify passthrough.
 
-fixed problem where *all* violations were adding iptables rules, 
-not just those with trap actions.  
+fixed problem where *all* violations were adding iptables rules,
+not just those with trap actions.
 
-pf.conf defaults to using a non-root account (user will need to edit 
-account/password - I didn't bother doing that) and installer creates 
-one.  installer creates admin GUI account (ships with no admin.conf)
+pf.conf defaults to using a non-root account (user will need to edit
+account/password - I didn't bother doing that) and installer creates
+one. installer creates admin GUI account (ships with no admin.conf)

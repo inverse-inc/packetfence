@@ -80,6 +80,19 @@ has_field 'redirect_url' =>
              help => 'The hostname must be the one of your captive portal.' },
   );
 
+has_field 'domains' =>
+  (
+   type => 'Text',
+   label => 'Authorized domains',
+   required => 1,
+   default => pf::Authentication::Source::FacebookSource->meta->get_attribute('domains')->default,
+   element_attr => {'placeholder' => pf::Authentication::Source::FacebookSource->meta->get_attribute('domains')->default},
+   element_class => ['input-xlarge'],
+   tags => { after_element => \&help,
+             help => 'Comma separated list of domains that will be resolve with the correct IP addresses.' },
+  );
+
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.

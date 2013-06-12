@@ -17,7 +17,7 @@ have been warned.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<log.conf>, F<pf.conf>,
-F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<floating_network_device.conf>, F<oauth2-ips.conf>.
+F<pf.conf.defaults>, F<networks.conf>, F<dhcp_fingerprints.conf>, F<oui.txt>, F<floating_network_device.conf>.
 
 =cut
 
@@ -51,8 +51,8 @@ our (
     %Config, $cached_pf_config,
 #network.conf variables
     %ConfigNetworks, $cached_network_config,
-#oauth2-ips.conf variables
-    %ConfigOAuth, $cached_oauth_ip_config,
+#oauth2 variables
+    %ConfigOAuth,
 #documentation.conf variables
     %Doc_Config, $cached_pf_doc_config,
 #floating_network_device.conf variables
@@ -108,7 +108,7 @@ BEGIN {
         $LOG4PERL_RELOAD_TIMER
         init_config
         %Profiles_Config $cached_profiles_config
-        $cached_pf_config $cached_network_config $cached_floating_device_config $cached_oauth_ip_config
+        $cached_pf_config $cached_network_config $cached_floating_device_config
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
         %Doc_Config
@@ -138,7 +138,7 @@ Readonly::Scalar our $NO => 'no';
     $authentication_config_file, $floating_devices_config_file,
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
-    $oauth_ip_file,$chi_config_file,
+    $chi_config_file,
 );
 
 Readonly our @VALID_TRIGGER_TYPES =>
@@ -387,7 +387,6 @@ sub init_config {
     readProfileConfigFile();
     readNetworkConfigFile();
     readFloatingNetworkDeviceFile();
-    readOAuthFile();
 }
 
 =item ipset_version -  check the ipset version on the system
@@ -684,27 +683,6 @@ sub readFloatingNetworkDeviceFile {
     }
 }
 
-=item readOAuthFile - oauth2-ips.conf
-
-=cut
-
-sub readOAuthFile {
-    $cached_oauth_ip_config = pf::config::cached->new(
-        -file => $oauth_ip_file,
-        -allowempty => 1,
-        -onreload => [reload_oauth_config => sub {
-            my ($config) = @_;
-            $config->toHash(\%ConfigOAuth);
-            $config->cleanupWhitespace(\%ConfigOAuth);
-        }]
-    );
-
-    if(@Config::IniFiles::errors) {
-        $logger->logcroak( join( "\n", @Config::IniFiles::errors ) );
-    }
-
-}
-
 =item normalize_time - formats date
 
 Months and years are approximate. Do not use for anything serious about time.
@@ -946,20 +924,6 @@ sub _load_captive_portal {
         "PROFILE_TEMPLATE_DIR" => "$install_dir/html/captive-portal/profile-templates",
         "ADMIN_TEMPLATE_DIR" => "$install_dir/html/admin/templates",
     );
-
-    # passthrough proxy is enabled, we need to inject proper 'allow through' for pf::web::dispatcher
-    if ( $Config{'trapping'}{'passthrough'} eq "proxy" ) {
-
-        my $passthrough_ref = {};
-        foreach my $key (keys %{$Config{'passthroughs'}}) {
-            my (undef, undef, $host, $query) = url_parser($Config{'passthroughs'}{$key});
-            $passthrough_ref->{$host} = $query;
-        }
-        $CAPTIVE_PORTAL{'PASSTHROUGHS'} = $passthrough_ref;
-        # pre-loading an regex for hosts so that the first passthrough pass is fast
-        my $pt_hosts = join('|', keys %$passthrough_ref);
-        $CAPTIVE_PORTAL{'PASSTHROUGH_HOSTS_RE'} = qr/^(?:$pt_hosts)$/;
-    }
 
     # process pf.conf's parameter into an IP => 1 hash
     %{$CAPTIVE_PORTAL{'loadbalancers_ip'}} =

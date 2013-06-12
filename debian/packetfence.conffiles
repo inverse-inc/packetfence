@@ -30,11 +30,6 @@
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/iptables.conf
 /usr/local/pf/conf/listener.msg
-/usr/local/pf/conf/named-inline.ca
-/usr/local/pf/conf/named-isolation.ca
-/usr/local/pf/conf/named-registration.ca
-/usr/local/pf/conf/named.conf.pre_bind97
-/usr/local/pf/conf/named.conf.bind97
 /usr/local/pf/conf/popup.msg
 /usr/local/pf/conf/snmptrapd.conf
 /usr/local/pf/conf/snort.conf
