@@ -26,6 +26,7 @@ use pf::Authentication::Source;
 
 use pf::Authentication::Source::ADSource;
 use pf::Authentication::Source::EmailSource;
+use pf::Authentication::Source::SponsorEmailSource;
 use pf::Authentication::Source::HtpasswdSource;
 use pf::Authentication::Source::KerberosSource;
 use pf::Authentication::Source::LDAPSource;
@@ -75,17 +76,18 @@ BEGIN {
 }
 
 our %TYPE_TO_SOURCE = (
-    'sql'      => pf::Authentication::Source::SQLSource->meta->name,
-    'ad'       => pf::Authentication::Source::ADSource->meta->name,
-    'htpasswd' => pf::Authentication::Source::HtpasswdSource->meta->name,
-    'kerberos' => pf::Authentication::Source::KerberosSource->meta->name,
-    'ldap'     => pf::Authentication::Source::LDAPSource->meta->name,
-    'radius'   => pf::Authentication::Source::RADIUSSource->meta->name,
-    'email'    => pf::Authentication::Source::EmailSource->meta->name,
-    'sms'      => pf::Authentication::Source::SMSSource->meta->name,
-    'facebook' => pf::Authentication::Source::FacebookSource->meta->name,
-    'google'   => pf::Authentication::Source::GoogleSource->meta->name,
-    'github'   => pf::Authentication::Source::GithubSource->meta->name
+    'sql'           => pf::Authentication::Source::SQLSource->meta->name,
+    'ad'            => pf::Authentication::Source::ADSource->meta->name,
+    'htpasswd'      => pf::Authentication::Source::HtpasswdSource->meta->name,
+    'kerberos'      => pf::Authentication::Source::KerberosSource->meta->name,
+    'ldap'          => pf::Authentication::Source::LDAPSource->meta->name,
+    'radius'        => pf::Authentication::Source::RADIUSSource->meta->name,
+    'email'         => pf::Authentication::Source::EmailSource->meta->name,
+    'sponsoremail'  => pf::Authentication::Source::SponsorEmailSource->meta->name,
+    'sms'           => pf::Authentication::Source::SMSSource->meta->name,
+    'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
+    'google'        => pf::Authentication::Source::GoogleSource->meta->name,
+    'github'        => pf::Authentication::Source::GithubSource->meta->name
 );
 
 our $logger = get_logger();
