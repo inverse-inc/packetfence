@@ -20,6 +20,12 @@ has '+unique' => (default => 1);
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'allow_localdomain' => (isa => 'Bool', is => 'rw', default => 1);
 
+=head2 available_attributes
+
+Allow to make a condition on the user's email address.
+
+=cut
+
 sub available_attributes {
   my $self = shift;
 

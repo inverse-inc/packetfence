@@ -49,11 +49,19 @@ if (defined($cgi->url_param('code'))) {
         exit(0);
     }
 
-    # if we have a MAC, guest is on-site and we set that mac in session
+    # if we have a MAC, guest is on-site and we set that MAC in the session
     if ( defined($activation_record->{'mac'}) ) {
         $portalSession->setGuestNodeMac($activation_record->{'mac'});
         $node_mac = $portalSession->getGuestNodeMac();
     }
+
+    my $pid = $activation_record->{'pid'};
+    my $email = $activation_record->{'email'};
+    my $auth_params =
+      {
+       'username' => $pid,
+       'user_email' => $email
+      };
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ($activation_record->{'type'} eq $GUEST_ACTIVATION) {
@@ -61,21 +69,19 @@ if (defined($cgi->url_param('code'))) {
         # if we have a MAC, guest is on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
 
-            my $pid = $activation_record->{'pid'};
-
             # Setting access timeout and role (category) dynamically
-            my $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            my $expiration = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_ACCESS_DURATION);
 
             if (defined $expiration) {
                 $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
             }
             else {
-                $expiration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+                $expiration = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_UNREG_DATE);
             }
 
-            my $category = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
+            my $category = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_ROLE);
 
-            $logger->debug("Determined unregdate $expiration and category $category for pid $pid");
+            $logger->debug("Determined unregdate $expiration and category $category for email $email");
 
             # change the unregdate of the node associated with the submitted code
             # FIXME
@@ -94,16 +100,16 @@ if (defined($cgi->url_param('code'))) {
         # generate a password and send an email with an access code
         else {
 
-            my $pid = $activation_record->{'pid'};
-            my %info = (
-                'email' => $pid,
-                'pid' => $pid,
-            );
-            $info{'subject'} = i18n("%s: Guest access confirmed!", $Config{'general'}{'domain'});
-            $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
+            my %info =
+              (
+               'pid' => $pid,
+               'email' => $email,
+               'subject' => i18n("%s: Guest access confirmed!", $Config{'general'}{'domain'}),
+               'currentdate' => POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
+              );
 
             # we create temporary password with default expiration / arrival date and access duration from config
-            my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            my $access_duration = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_ACCESS_DURATION);
 
             if (!defined $access_duration) {
                 $access_duration = 0;
