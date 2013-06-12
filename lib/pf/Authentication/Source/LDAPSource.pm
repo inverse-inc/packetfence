@@ -65,7 +65,7 @@ sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
-  my ($connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
+  my ($connection, $LDAPServer, $LDAPServerPort ) = self->_connect();
 
   if (! defined($connection)) {
     $logger->error("Unable to connect to an LDAP server.");
@@ -124,20 +124,23 @@ sub _connect {
 
   # the next line tries to load balance the connections
   my @LDAPServers = split(/,/, $self->{'host'});
-  List::Util::shuffle @LDAPServers if $self->{'shuffle'};
+  @LDAPServers = List::Util::shuffle @LDAPServers if $self->{'shuffle'};
 
   TRYSERVER:
   foreach my $LDAPServer ( @LDAPServers ) {
-
-    # check to see if the hostname includes a port (e.g. server:port) 
-    my $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
-    $connection = Net::LDAP->new($LDAPServer, port => ( $LDAPServerPort // $self->{'port'} ) );
+    # check to see if the hostname includes a port (e.g. server:port)
+    my $LDAPServerPort;
+    if ( $LDAPServer =~ /:/ ) { 
+    	$LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
+    }
+    $LDAPServerPort //=  $self->{'port'} ;
+    $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort );
     if (! defined($connection)) {
       $logger->warn("Unable to connect to $LDAPServer");
       next TRYSERVER;
     }
     $logger->debug("using ldap connection to $LDAPServer");
-    return ( $connection, $LDAPServer, ( $LDAPServerPort // $self->{'port'} ) );
+    return ( $connection, $LDAPServer, $LDAPServerPort );
   }
   # if the connection is still undefined after trying every server, we fail and set 
   # category to undef.
@@ -172,7 +175,7 @@ sub match_in_subclass {
 
     $logger->debug("LDAP filter: $filter");
 
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
         $logger->error("Unable to connect to an LDAP server.");
         return undef;
@@ -222,7 +225,7 @@ sub test {
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
   # Connect
-  my ( $connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
+  my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (! defined($connection)) {
     $logger->warn("Unable to connect to $LDAPServer:$LDAPServerPort");
@@ -321,7 +324,7 @@ sub username_from_email {
 
     my $filter = "(mail=$email)";
 
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = _connect($self->{'host'});
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
       $logger->error("Unable to connect to $self->{'host'}");
       return undef;
