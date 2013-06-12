@@ -46,7 +46,6 @@ has_field 'shuffle' =>
   (
    type => 'Checkbox',
    label => 'Load Balance',
-   required => 1,
    default => pf::Authentication::Source::LDAPSource->meta->get_attribute('shuffle')->default,
    tags => { after_element => \&help,
              help => 'Try your servers in random order to spread the load.' },

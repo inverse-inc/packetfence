@@ -1,7 +1,7 @@
         <div class="control-group">
           <label class="control-label">[% l('Host') %]</label>
           <div class="controls">
-            [% form.field('host').render_element %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %]
+            [% form.field('host').render_element %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %] Load Balance [% form.field('shuffle').render_element %]
           </div>
         </div>
 [% form.field('basedn').render %]
@@ -9,7 +9,7 @@
 [% form.field('usernameattribute').render %]
 [% form.field('binddn').render %]
         <div class="control-group">
-          <label class="control-label">[% l('Password') %]</label>
+          <label class="control-label">[% l('Password') %] <i class="icon-exclamation-sign"></i></label>
           <div class="controls">
             [% form.field('password').render_element %]
             <a class="btn" id="testSource" href="[% c.uri_for(c.controller('Authentication::Source').action_for('test'), [source.type]) %]">[% l('Test') %]</a>
