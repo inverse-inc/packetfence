@@ -8,7 +8,7 @@
             <h2>
               [% l('Results') %]
               <div class="btn-group">
-                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                <a id="bulk_actions" class="btn btn-small dropdown-toggle disabled" data-toggle="dropdown" href="#"><span class="caret"></span></a>
                 <ul class="dropdown-menu">
                   <li><a id="clear_violations" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_close'))  %]" >[% l('Clear Violation') %]</a></li>
                   <li><a id="bulk_register" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_register'))  %]" >[% l('Register') %]</a></li>

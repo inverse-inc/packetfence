@@ -58,11 +58,13 @@ var NodeView = function(options) {
     /* Update the advanced search form to the next page or resort the query */
     $('body').on('click', 'a[href*="#node/advanced_search"]', $.proxy(this.advancedSearchUpdater, this));
 
-    this.proxyClick($('body'),'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
+    this.proxyClick($('body'), 'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
 
-    this.proxyClick($('body'),'#toggle_all_items', this.toggleAllItems);
+    this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
 
-    this.proxyClick($('body'),'#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
+    this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
+
+    this.proxyClick($('body'), '#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -223,10 +225,10 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
     var link = $(e.currentTarget);
     var form = $('#advancedSearch');
     var href = link.attr("href");
-    if(href) {
+    if (href) {
         href = href.replace(/^.*#node\/advanced_search\//,'');
         var values = href.split("/");
-        for(var i =0;i<values.length;i+=2) {
+        for (var i =0;i<values.length;i+=2) {
             var name = values[i];
             var value = values[i + 1];
             form.find('[name="' + name + '"]:not(:disabled)').val(value);
@@ -234,6 +236,15 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
         form.submit();
     }
     return false;
+};
+
+NodeView.prototype.toggleActionsButton = function(e) {
+    var button = $('#bulk_actions');
+    var checked = $('[name="items"]:checked').length > 0;
+    if (checked)
+        button.removeClass('disabled');
+    else
+        button.addClass('disabled');
 };
 
 NodeView.prototype.toggleAllItems = function(e) {
