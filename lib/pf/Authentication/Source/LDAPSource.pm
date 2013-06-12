@@ -13,6 +13,7 @@ use pf::Authentication::constants;
 use pf::Authentication::Condition;
 
 use Net::LDAP;
+use Net::LDAPS;
 use List::Util;
 
 use Moose;
@@ -22,7 +23,7 @@ extends 'pf::Authentication::Source';
 use constant {
     NONE => "none",
     SSL => "ssl",
-    TLS => "tls",
+    TLS => "starttls",
 };
 
 has '+type' => (default => 'LDAP');
@@ -134,16 +135,21 @@ sub _connect {
     	$LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
-    $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort );
+    
+    if ( $self->{'encryption'} eq SSL ) {
+        $connection = Net::LDAPS->new($LDAPServer, port =>  $LDAPServerPort );
+    } else {
+        $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort );
+    }
     if (! defined($connection)) {
       $logger->warn("Unable to connect to $LDAPServer");
       next TRYSERVER;
     }
+    $connection->start_tls() if $self->{'encryption'} eq TLS;
     $logger->debug("using ldap connection to $LDAPServer");
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
-  # if the connection is still undefined after trying every server, we fail and set 
-  # category to undef.
+  # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
     $logger->error("Unable to connect to any LDAP Server");
   }
