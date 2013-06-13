@@ -67,7 +67,9 @@ sub cleanupBeforeCommit {
     }
     if (exists $switch->{inlineTrigger}) {
         # Build string definition for inline triggers (see pf::vlan::isInlineTrigger)
-        my @triggers = map { $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{inlineTrigger}};
+        my $has_always;
+        my @triggers = map { $has_always = 1 if $_->{type} eq 'always';  $_->{type} . '::' . ($_->{value} || '1') } @{$switch->{inlineTrigger}};
+        @triggers = ('always::1') if $has_always;
         $switch->{inlineTrigger} = join(',', @triggers);
     }
 }

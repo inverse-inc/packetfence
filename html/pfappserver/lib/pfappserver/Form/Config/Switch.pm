@@ -20,6 +20,7 @@ use File::Spec::Functions;
 use pf::config;
 use pf::SNMP::constants;
 use pf::util;
+use List::MoreUtils qw(any);
 
 has 'roles' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
@@ -567,32 +568,21 @@ sub validate {
     my $self = shift;
 
     my @triggers;
-    my $always;
-
-    @triggers = grep { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
-    if (scalar @triggers > 0) {
-        # If one of the inline triggers is $ALWAYS, ignore any other trigger.
-        $self->field('inlineTrigger')->value([{ type => $ALWAYS }]);
-        $always = 1;
-    }
+    my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
         my $type = 'pf::SNMP::'. $self->value->{type};
         if ($type->require()) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
-            if (scalar @triggers > 0 && !$always) {
+            if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
-                my @capabilities = $type->new()->inlineCapabilities();
-                if (scalar @capabilities > 0) {
-                    my %unsupported = ();
-                    foreach my $trigger (@triggers) {
-                        unless (grep { $_ eq $trigger } @capabilities) {
-                            $unsupported{$trigger} = 1;
-                        }
-                    }
-                    if (scalar %unsupported > 0) {
+                my %capabilities;
+                @capabilities{$type->new()->inlineCapabilities()} = ();
+                if (keys %capabilities) {
+                    my @unsupported = grep {!exists $capabilities{$_} } @triggers;
+                    if (@unsupported) {
                         $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
-                                                        . join(', ', keys %unsupported));
+                                                        . join(', ', @unsupported));
                     }
                 } else {
                     $self->field('type')->add_error("The chosen type doesn't support inline mode.");
