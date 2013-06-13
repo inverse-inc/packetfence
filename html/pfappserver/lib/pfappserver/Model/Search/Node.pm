@@ -275,7 +275,7 @@ sub add_joins {
     my ($self,$builder,$params) = @_;
     foreach my $name (map { $_->{name} } @{$params->{searches}}) {
         $builder->from(@{$COLUMN_MAP{$name}{'joins'}})
-            if( exists $COLUMN_MAP{$name} && $COLUMN_MAP{$name}{'joins'});
+            if( exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'});
     }
 }
 
