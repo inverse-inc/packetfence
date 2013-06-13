@@ -80,7 +80,7 @@ sub end : ActionClass('RenderView') {
         $c->response->status(500);
         $c->clear_errors;
     }
-    elsif (exists $c->stash->{status_msg} ) {
+    elsif (exists $c->stash->{status_msg} && defined $c->stash->{status_msg} ) {
         unless (ref $c->stash->{status_msg} eq 'HASH') {
             $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
         }
