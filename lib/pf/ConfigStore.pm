@@ -193,33 +193,38 @@ sub update {
     my ($self, $id, $assignments) = @_;
     my $result;
     if ($id ne 'all') {
-        $self->cleanupBeforeCommit($id, $assignments);
         my $config = $self->cachedConfig;
-        $id = $self->_formatId($id);
-        if ( $config->SectionExists($id) ) {
-            my $default_section = $config->{default} if exists $config->{default};
-            my $default_value;
-            my $use_default = $default_section && $id ne $default_section;
-            while ( my ($param, $value) = each %$assignments ) {
-                if ( $config->exists($id, $param) ) {
-                    if(defined($value) &&
-                        !($use_default && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
-                        ) {
-                        $config->setval($id, $param, $value);
-                    } elsif(exists $config->{imported} && defined $config->{imported}) {
-                        $config->setval($id, $param, $config->{imported}->val($id, $param));
-                    } else {
-                        $config->delval($id, $param);
-                    }
-                } elsif(defined($value)) {
-                    next if $use_default &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
-                    $config->newval($id, $param, $value);
-                }
-            }
-            $result = 1;
+        my $real_id = $self->_formatId($id);
+        if ( $result = $config->SectionExists($real_id) ) {
+            $self->cleanupBeforeCommit($id, $assignments);
+            $self->_update_section($real_id, $assignments);
         }
     }
     return $result;
+}
+
+sub _update_section {
+    my ($self, $id, $assignments) = @_;
+    my $config = $self->cachedConfig;
+    my $default_section = $config->{default} if exists $config->{default};
+    my $default_value;
+    my $use_default = $default_section && $id ne $default_section;
+    while ( my ($param, $value) = each %$assignments ) {
+        if ( $config->exists($id, $param) ) {
+            if(defined($value) &&
+                !($use_default && ($default_value = $config->val($default_section,$param)) && $default_value eq $value)
+                ) {
+                $config->setval($id, $param, $value);
+            } elsif(exists $config->{imported} && defined $config->{imported}) {
+                $config->setval($id, $param, $config->{imported}->val($id, $param));
+            } else {
+                $config->delval($id, $param);
+            }
+        } elsif($value) {
+            next if $use_default &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
+            $config->newval($id, $param, $value);
+        }
+    }
 }
 
 
@@ -231,19 +236,14 @@ To create new section
 
 sub create {
     my ($self, $id, $assignments) = @_;
-    $self->cleanupBeforeCommit($id, $assignments);
     my $config = $self->cachedConfig;
     my $result;
     if ($self->validId($id)) {
-        $id = $self->_formatId($id);
+        my $real_id = $self->_formatId($id);
         if($result = !$config->SectionExists($id) ) {
-            $config->AddSection($id);
-            my $default_section = $config->{default} if exists $config->{default};
-            my $default_value;
-            while ( my ($param, $value) = each %$assignments ) {
-                next if $value && $default_section &&  ($default_value = $config->val($default_section,$param)) && $default_value eq $value;
-                $config->newval( $id, $param, defined $value ? $value : '' );
-            }
+            $self->cleanupBeforeCommit($id, $assignments);
+            $config->AddSection($real_id);
+            $self->_update_section($real_id, $assignments);
         }
     }
     return $result;
