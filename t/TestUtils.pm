@@ -68,6 +68,10 @@ our @unit_failing_tests = qw(
     network-devices/wired.t
 );
 
+our @config_store_test = qw(
+    ConfigStore/Base.t ConfigStore/Group.t
+);
+
 =head2 use_test_db
 
 Will override pf::config's globals regarding what database to connect to
