@@ -14,10 +14,11 @@ use pf::Authentication::constants;
 use pf::Authentication::Action;
 use pf::Authentication::Source;
 
-use Moose;
+use Moo;
+use pf::Moo::Util
 extends 'pf::Authentication::Source';
 
-has '+type' => ( default => 'SQL' );
+has '+type' => ( default => Val('SQL' ));
 
 =head1 METHODS
 
@@ -28,7 +29,7 @@ has '+type' => ( default => 'SQL' );
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes; 
+  my $super_attributes = $self->SUPER::available_attributes;
   my $own_attributes = [{ value => "username", type => $Conditions::STRING }];
 
   return [@$super_attributes, @$own_attributes];
@@ -38,7 +39,7 @@ sub available_attributes {
 
 =cut
 
-sub authenticate {  
+sub authenticate {
    my ( $self, $username, $password ) = @_;
 
    my $result = pf::temporary_password::validate_password($username, $password);
@@ -67,7 +68,7 @@ sub match {
     my $common_attributes = $self->common_attributes();
 
     my $result = pf::temporary_password::view($params->{'username'});
-    
+
     # User is defined in SQL source, let's build the actions and return that
     if (defined $result) {
 
@@ -87,21 +88,21 @@ sub match {
                                                         value => $access_level});
             push(@actions, $action);
         }
-        
+
         my $sponsor = $result->{'sponsor'};
         if ($sponsor == 1) {
             $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
                                                         value => 1});
             push(@actions, $action);
         }
-        
+
         my $unregdate = $result->{'unregdate'};
         if (defined $unregdate) {
             $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
                                                         value => $unregdate});
             push(@actions, $action);
         }
-       
+
         my $category = $result->{'category'};
         if (defined $category) {
             $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
@@ -111,7 +112,7 @@ sub match {
 
         return \@actions;
     }
-    
+
     return undef;
 }
 

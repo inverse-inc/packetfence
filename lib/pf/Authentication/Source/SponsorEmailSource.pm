@@ -10,12 +10,13 @@ pf::Authentication::Source::SponsorEmailSource
 
 use pf::Authentication::constants;
 
-use Moose;
+use Moo;
+use pf::Moo::Util
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => 'external');
-has '+type' => (default => 'SponsorEmail');
-has '+unique' => (default => 1);
+has '+class' => (default => Val('external'));
+has '+type' => (default => Val('SponsorEmail'));
+has '+unique' => (default => Val(1));
 
 =head2 available_attributes
 

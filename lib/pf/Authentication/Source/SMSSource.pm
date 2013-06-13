@@ -12,13 +12,14 @@ use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
 use Log::Log4perl qw(get_logger);
-use Moose;
+use Moo;
+use pf::Moo::Util
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => 'external');
-has '+type' => (default => 'SMS');
-has '+unique' => (default => 1);
-has 'sms_carriers' => (isa => 'ArrayRef', is => 'rw', default => sub {[]});
+has '+class' => (default => Val('external'));
+has '+type' => (default => Val('SMS'));
+has '+unique' => (default => Val(1));
+has 'sms_carriers' => (isa => ArrayRef, is => 'rw', default => Val(sub {[]}));
 
 =head1 METHODS
 

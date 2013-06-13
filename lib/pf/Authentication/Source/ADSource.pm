@@ -10,11 +10,15 @@ pf::Authentication::Source::ADSource
 
 use pf::Authentication::constants;
 use pf::Authentication::Source::LDAPSource;
+use Moo;
+use pf::Moo::Util;
 
-use Moose;
 extends 'pf::Authentication::Source::LDAPSource';
 
-has '+type' => ( default => 'AD' );
+has '+type' => ( default => Val('AD') );
+
+has 'test' => ( is => 'ro',isa => HashRef);
+
 
 sub available_attributes {
   my $self = shift;
@@ -25,11 +29,9 @@ sub available_attributes {
      { value => "sAMAccountType", type => $Conditions::STRING },
      { value => "userAccountControl", type => $Conditions::STRING },
     ];
-  
+
   return [@$super_attributes, @$ad_attributes];
 }
-
-=back
 
 =head1 AUTHOR
 

@@ -8,21 +8,22 @@ pf::Authentication::Source::FacebookSource
 
 =cut
 
-use Moose;
+use Moo;
+use pf::Moo::Util;
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => 'external');
-has '+type' => (default => 'Facebook');
-has '+unique' => (default => 1);
-has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
-has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
-has 'site' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com');
-has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/oauth/access_token');
-has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
-has 'scope' => (isa => 'Str', is => 'rw', default => 'email');
-has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://graph.facebook.com/me');
-has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/facebook');
-has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'www.facebook.com');
+has '+class' => (default => Val('external'));
+has '+type' => (default => Val('Facebook'));
+has '+unique' => (default => Val(1));
+has 'client_id' => (isa => Str, is => 'rw', required => 1);
+has 'client_secret' => (isa => Str, is => 'rw', required => 1);
+has 'site' => (isa => Str, is => 'rw', default => Val('https://graph.facebook.com'));
+has 'access_token_path' => (isa => Str, is => 'rw', default => Val('/oauth/access_token'));
+has 'access_token_param' => (isa => Str, is => 'rw', default => Val('access_token'));
+has 'scope' => (isa => Str, is => 'rw', default => Val('email'));
+has 'protected_resource_url' => (isa => Str, is => 'rw', default => Val('https://graph.facebook.com/me'));
+has 'redirect_url' => (isa => Str, is => 'rw', required => 1, default => Val('https://<hostname>/oauth2/facebook'));
+has 'domains' => (isa => Str, is => 'rw', required => 1, default => Val('www.facebook.com'));
 
 =head2 available_actions
 

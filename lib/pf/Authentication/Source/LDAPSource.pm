@@ -14,7 +14,8 @@ use pf::Authentication::Condition;
 
 use Net::LDAP;
 
-use Moose;
+use Moo;
+use pf::Moo::Util;
 extends 'pf::Authentication::Source';
 
 # available encryption
@@ -24,15 +25,15 @@ use constant {
     TLS => "tls",
 };
 
-has '+type' => (default => 'LDAP');
-has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
-has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
-has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
-has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
-has 'password' => (isa => 'Maybe[Str]', is => 'rw');
-has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
-has 'scope' => (isa => 'Str', is => 'rw', required => 1);
-has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
+has '+type' => (default => Val('LDAP'));
+has 'host' => (isa => Maybe[Str], is => 'rw', default => Val('127.0.0.1'));
+has 'port' => (isa => Maybe[Str], is => 'rw', default => Val(389));
+has 'basedn' => (isa => Str, is => 'rw', required => 1);
+has 'binddn' => (isa => Maybe[Str],is => 'rw');
+has 'password' => (isa => Maybe[Str], is => 'rw');
+has 'encryption' => (isa => Str, is => 'rw', required => 1);
+has 'scope' => (isa => Str, is => 'rw', required => 1);
+has 'usernameattribute' => (isa => Str, is => 'rw', required => 1);
 
 =head1 METHODS
 
