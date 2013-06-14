@@ -24,7 +24,6 @@ use Locale::gettext;
 use Log::Log4perl;
 use Readonly;
 
-use pf::config;
 use pf::util;
 use pf::iplog qw(ip2mac);
 use pf::node qw(node_attributes node_view node_modify);
