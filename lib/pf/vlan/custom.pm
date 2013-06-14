@@ -46,33 +46,36 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 #    #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
 #    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
 #    my $logger = Log::Log4perl->get_logger();
+#    my $role = "";
 #
-#    # custom example: admin category
-#    # return customVlan5 to nodes in the admin category
-#    if (defined($node_info->{'category'}) && lc($node_info->{'category'}) eq "admin") {
-#        return $switch->getVlanByName('customVlan5');
-#    }
-#
-#    # custom example: simple guest user 
-#    # return guestVlan for pid=guest
-#    if (defined($node_info->{pid}) && $node_info->{pid} =~ /^guest$/i) {
-#        return $switch->getVlanByName('guestVlan');
+#    $logger->debug("Trying to determine VLAN from role.");
+#    if (defined $user_name && (($connection_type & $EAP) == $EAP)) {
+#        my $params =
+#          {
+#           username => $user_name,
+#           connection_type => connection_type_to_str($connection_type),
+#           SSID => $ssid,
+#          };
+#        $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+#        $logger->debug("Username was defined ($user_name) - got role $role");
+#    } else {
+#        $role = $node_info->{'category'};
+#        $logger->debug("Username was NOT defined - got role $role");
 #    }
 #
 #    # custom example: enforce a node's bypass VLAN 
 #    # If node record has a bypass_vlan prefer it over normalVlan 
 #    # Note: It might be made the default behavior one day
-#    if (defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '') {
-#        return $node_info->{'bypass_vlan'};
-#    }
-#    
-#    # custom example: VLAN by SSID
-#    # return customVlan1 if SSID is 'PacketFenceRocks'
-#    if (defined($ssid) && $ssid eq 'PacketFenceRocks') {
-#        return $switch->getVlanByName('customVlan1');
-#    }  
-#        
-#    return $switch->getVlanByName('normalVlan');
+#    #if (defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '') {
+#    #    return $node_info->{'bypass_vlan'};
+#    #}
+#
+#    # custom example: reject non guest users on guest SSID
+#    # if ( defined $ssid && $ssid =~ /guest/ ) {
+#    #   return -1 if $role ne 'guest';
+#    # }
+#
+#    return $switch->getVlanByName($role);
 #}
 
 =item shouldAutoRegister
