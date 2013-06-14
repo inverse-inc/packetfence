@@ -61,7 +61,7 @@ Bug Fixes
 +++++++++
 
 * Default values override defined values in violations.conf
-* Wrong verion of pf::vlan::custom
+* Wrong version of pf::vlan::custom
 * Groups in configuration files are not ordered under their respective section
 * mysqld is not enabled at startup
 * memcached is not enabled at startup
