@@ -14,43 +14,41 @@ use pf::Authentication::Source;
 
 use Authen::Krb5::Simple;
 
-use Moo;
-use pf::Moo::Util
+use Moose;
 extends 'pf::Authentication::Source';
 
-has '+type' => ( default => Val('Kerberos' ));
-has 'host' => (isa => Str, is => 'rw', required => 1);
-has 'realm' => (isa => Str, is => 'rw', required => 1);
+has '+type' => ( default => 'Kerberos' );
+has 'host' => (isa => 'Str', is => 'rw', required => 1);
+has 'realm' => (isa => 'Str', is => 'rw', required => 1);
 
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
+  my $super_attributes = $self->SUPER::available_attributes; 
   my $own_attributes = [ { value => "username", type => $Conditions::STRING } ];
 
   return [@$super_attributes, @$own_attributes];
 }
 
-=head2 authenticate
+=item authenticate
 
 =cut
-
 sub authenticate_using_kerberos {
-
+  
   my ( $self, $username, $password ) = @_;
-
+  
   my $kerberos = Authen::Krb5::Simple->new( realm => $self->{'realm'} );
-
+  
   if ($kerberos->authenticate($username, $password)) {
     return ($TRUE, 'Successful authentication using Kerberos.');
   } else {
     return ($FALSE, 'Invalid login or password');
   }
-
+  
   return ($FALSE, 'Unable to connect to Kerberos server');
 }
 
-=head2 match_in_subclass
+=item match_in_subclass
 
 =cut
 
@@ -59,7 +57,9 @@ sub match_in_subclass {
 
     return $params->{'username'};
 }
+ 
 
+=back
 
 =head1 AUTHOR
 

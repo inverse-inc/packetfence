@@ -8,22 +8,21 @@ pf::Authentication::Source::GithubSource
 
 =cut
 
-use Moo;
-use pf::Moo::Util
+use Moose;
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => Val('external'));
-has '+type' => (default => Val('Github'));
-has '+unique' => (default => Val(1));
-has 'client_id' => (isa => Str, is => 'rw', required => 1);
-has 'client_secret' => (isa => Str, is => 'rw', required => 1);
-has 'site' => (isa => Str, is => 'rw', default => Val('https://github.com'));
-has 'authorize_path' => (isa => Str, is => 'rw', default => Val('/login/oauth/authorize'));
-has 'access_token_path' => (isa => Str, is => 'rw', default => Val('/login/oauth/access_token'));
-has 'access_token_param' => (isa => Str, is => 'rw', default => Val('access_token'));
-has 'protected_resource_url' => (isa => Str, is => 'rw', default => Val('https://api.github.com/user'));
-has 'redirect_url' => (isa => Str, is => 'rw', required => 1, default => Val('https://<hostname>/oauth2/github'));
-has 'domains' => (isa => Str, is => 'rw', required => 1, default => Val('api.github.com'));
+has '+class' => (default => 'external');
+has '+type' => (default => 'Github');
+has '+unique' => (default => 1);
+has 'client_id' => (isa => 'Str', is => 'rw', required => 1);
+has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
+has 'site' => (isa => 'Str', is => 'rw', default => 'https://github.com');
+has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/login/oauth/authorize');
+has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/login/oauth/access_token');
+has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'access_token');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://api.github.com/user');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/github');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => 'api.github.com');
 
 =head2 available_actions
 

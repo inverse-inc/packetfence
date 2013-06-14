@@ -11,15 +11,14 @@ pf::Authentication::Source::EmailSource
 use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
-use Moo;
-use pf::Moo::Util;
+use Moose;
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => Val('external'));
-has '+type' => (default => Val('Email'));
-has '+unique' => (default => Val(1));
-has 'email_activation_timeout' => (isa => Str, is => 'rw', default => Val('10m'));
-has 'allow_localdomain' => (isa => Bool, is => 'rw', default => Val(1));
+has '+class' => (default => 'external');
+has '+type' => (default => 'Email');
+has '+unique' => (default => 1);
+has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
+has 'allow_localdomain' => (isa => 'Bool', is => 'rw', default => 1);
 
 =head2 available_attributes
 
