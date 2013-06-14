@@ -146,7 +146,13 @@ sub _connect {
       $logger->warn("Unable to connect to $LDAPServer");
       next TRYSERVER;
     }
-    $connection->start_tls() if $self->{'encryption'} eq TLS;
+
+    # try TLS if required, return undef if it fails
+    if ( $self->{'encryption'} eq TLS ) {
+      my $mesg = $connection->start_tls();
+      if ( $mesg->code() ) { $logger->error($mesg->error()) and return undef; }
+    }
+    
     $logger->debug("using ldap connection to $LDAPServer");
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
@@ -235,7 +241,7 @@ sub test {
   my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (! defined($connection)) {
-    $logger->warn("Unable to connect to $LDAPServer:$LDAPServerPort");
+    $logger->warn("Unable to connect to any LDAP server");
     return ($FALSE, "Can't connect to server");
   }
 
