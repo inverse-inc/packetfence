@@ -181,7 +181,6 @@ PacketFence takes care of handling the operation of the following services:
 [options="compact"]
 * Web server (httpd)
 * DHCP server (dhcpd)
-* DNS server (named)
 * FreeRADIUS server (radiusd)
 * Snort/Suricata Network IDS (snort/suricata)
 * Firewall (iptables)
@@ -693,15 +692,6 @@ When starting PacketFence generates the DHCP and DNS configuration files by read
 
 The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcpd.conf` as a template.
 
-The DNS configuration files are generated this way:
-
-[options="compact"]
-* `var/conf/named.conf` generated from `conf/named.conf`
-* `var/named/named-inline.ca` generated from `conf/named-inline.ca`
-* `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
-* `var/named/named-registration.ca` generated from `conf/named-registration.ca`
-
-The DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/named/named-inline.ca`, `var/named/named-isolation.ca` and `var/named/named-registration.ca`).
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~

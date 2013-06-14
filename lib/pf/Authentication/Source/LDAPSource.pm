@@ -14,8 +14,7 @@ use pf::Authentication::Condition;
 
 use Net::LDAP;
 
-use Moo;
-use pf::Moo::Util;
+use Moose;
 extends 'pf::Authentication::Source';
 
 # available encryption
@@ -25,15 +24,15 @@ use constant {
     TLS => "tls",
 };
 
-has '+type' => (default => Val('LDAP'));
-has 'host' => (isa => Maybe[Str], is => 'rw', default => Val('127.0.0.1'));
-has 'port' => (isa => Maybe[Str], is => 'rw', default => Val(389));
-has 'basedn' => (isa => Str, is => 'rw', required => 1);
-has 'binddn' => (isa => Maybe[Str],is => 'rw');
-has 'password' => (isa => Maybe[Str], is => 'rw');
-has 'encryption' => (isa => Str, is => 'rw', required => 1);
-has 'scope' => (isa => Str, is => 'rw', required => 1);
-has 'usernameattribute' => (isa => Str, is => 'rw', required => 1);
+has '+type' => (default => 'LDAP');
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
+has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
+has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
+has 'password' => (isa => 'Maybe[Str]', is => 'rw');
+has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
+has 'scope' => (isa => 'Str', is => 'rw', required => 1);
+has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
 
 =head1 METHODS
 
@@ -46,7 +45,7 @@ sub available_attributes {
 
   my $super_attributes = $self->SUPER::available_attributes;
   my @ldap_attributes = map { { value => $_, type => $Conditions::STRING } }
-    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail", "postOfficeBox");
+    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->usernameattribute} @ldap_attributes ) {

@@ -48,9 +48,9 @@ use pf::SwitchFactory;
 use pf::violation_config;
 
 Readonly our @ALL_SERVICES => (
-    'pfdns', 'dhcpd', 'snort', 'suricata', 'radiusd',
+    'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
     'httpd.webservices', 'httpd.admin', 'httpd.portal', 'snmptrapd',
-    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+    'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
 Readonly our @APACHE_SERVICES => (

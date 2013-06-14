@@ -13,28 +13,26 @@ use pf::Authentication::constants;
 
 use Authen::Radius;
 
-use Moo;
-use pf::Moo::Util
+use Moose;
 extends 'pf::Authentication::Source';
 
-has '+type' => ( default => Val('RADIUS' ));
-has 'host' => (isa => Maybe[Str], is => 'rw', default => Val('127.0.0.1'));
-has 'port' => (isa => Maybe[Int], is => 'rw', default => Val(1812));
-has 'secret' => (isa => Str, is => 'rw', required => 1);
+has '+type' => ( default => 'RADIUS' );
+has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
+has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 1812);
+has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes;
+  my $super_attributes = $self->SUPER::available_attributes; 
   my $own_attributes = [{ value => "username", type => $Conditions::STRING }];
 
   return [@$super_attributes, @$own_attributes];
 }
 
-=head2  authenticate
+=item  authenticate
 
 =cut
-
 sub authenticate {
 
   my ( $self, $username, $password ) = @_;
@@ -42,7 +40,7 @@ sub authenticate {
   my $logger = Log::Log4perl->get_logger('pf::authentication');
 
   my $radius = new Authen::Radius(
-    Host => "$self->{'host'}:$self->{'port'}",
+    Host => "$self->{'host'}:$self->{'port'}", 
     Secret => $self->{'secret'},
   );
 
@@ -69,6 +67,8 @@ sub match_in_subclass {
 
     return $params->{'username'};
 }
+
+=back
 
 =head1 AUTHOR
 

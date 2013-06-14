@@ -8,23 +8,22 @@ pf::Authentication::Source::GoogleSource
 
 =cut
 
-use Moo;
-use pf::Moo::Util
+use Moose;
 extends 'pf::Authentication::Source';
 
-has '+class' => (default => Val('external'));
-has '+type' => (default => Val('Google'));
-has '+unique' => (default => Val(1));
-has 'client_id' => (isa => Str, is => 'rw', required => 1, default => Val('YOUR_API_ID.apps.googleusercontent.com'));
-has 'client_secret' => (isa => Str, is => 'rw', required => 1);
-has 'site' => (isa => Str, is => 'rw', default => Val('https://accounts.google.com'));
-has 'authorize_path' => (isa => Str, is => 'rw', default => Val('/o/oauth2/auth'));
-has 'access_token_path' => (isa => Str, is => 'rw', default => Val('/o/oauth2/token'));
-has 'access_token_param' => (isa => Str, is => 'rw', default => Val('oauth_token'));
-has 'scope' => (isa => Str, is => 'rw', default => Val('https://www.googleapis.com/auth/userinfo.email'));
-has 'protected_resource_url' => (isa => Str, is => 'rw', default => Val('https://www.googleapis.com/oauth2/v2/userinfo'));
-has 'redirect_url' => (isa => Str, is => 'rw', required => 1, default => Val('https://<hostname>/oauth2/google'));
-has 'domains' => (isa => Str, is => 'rw', required => 1, default => Val('*.google.com'));
+has '+class' => (default => 'external');
+has '+type' => (default => 'Google');
+has '+unique' => (default => 1);
+has 'client_id' => (isa => 'Str', is => 'rw', required => 1, default => 'YOUR_API_ID.apps.googleusercontent.com');
+has 'client_secret' => (isa => 'Str', is => 'rw', required => 1);
+has 'site' => (isa => 'Str', is => 'rw', default => 'https://accounts.google.com');
+has 'authorize_path' => (isa => 'Str', is => 'rw', default => '/o/oauth2/auth');
+has 'access_token_path' => (isa => 'Str', is => 'rw', default => '/o/oauth2/token');
+has 'access_token_param' => (isa => 'Str', is => 'rw', default => 'oauth_token');
+has 'scope' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/auth/userinfo.email');
+has 'protected_resource_url' => (isa => 'Str', is => 'rw', default => 'https://www.googleapis.com/oauth2/v2/userinfo');
+has 'redirect_url' => (isa => 'Str', is => 'rw', required => 1, default => 'https://<hostname>/oauth2/google');
+has 'domains' => (isa => 'Str', is => 'rw', required => 1, default => '*.google.com');
 
 =head2 available_actions
 
