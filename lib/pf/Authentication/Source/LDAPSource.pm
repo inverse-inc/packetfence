@@ -65,7 +65,7 @@ sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
-  my ($connection, $LDAPServer, $LDAPServerPort ) = self->_connect();
+  my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (! defined($connection)) {
     $logger->error("Unable to connect to an LDAP server.");
@@ -254,7 +254,7 @@ sub test {
   }
   if ($result->is_error) {
     $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Wrong bind DN or password');
+    return ($FALSE, "Unable to bind to $LDAPServer with these settings");
   }
 
   # Search
