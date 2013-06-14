@@ -956,7 +956,7 @@ Make sure that portal profiles, if defined, have a filter and no unsupported par
 # TODO: We might want to check if specified auth module(s) are valid... to do so, we'll have to separate the auth thing from the extension check.
 sub portal_profiles {
 
-    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description)/;
+    my $profile_params = qr/(?:filter|logo|guest_self_reg|guest_modes|template_path|billing_engine|description|sources)/;
 
     foreach my $portal_profile ( $cached_profiles_config->Sections) {
 

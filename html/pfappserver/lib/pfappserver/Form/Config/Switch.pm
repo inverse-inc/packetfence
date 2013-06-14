@@ -168,6 +168,12 @@ has_block 'snmp' =>
                    'SNMPPrivPasswordTrap',
                   ],
   );
+
+has_block 'definition' =>
+  (
+   tag => 'div',
+   render_list => [ qw(id type mode deauthMethod uplink_dynamic uplink controllerIp) ],
+  );
 has_field 'SNMPVersion' =>
   (
    type => 'Select',
@@ -332,6 +338,17 @@ has_field 'wsPwd' =>
    type => 'Text',
    label => 'Password',
   );
+
+has_field controllerIp =>
+  (
+    type => 'IPAddress',
+    label => 'Controller IP Address',
+    tags => {
+        after_element => \&help_list,
+        help => 'Only for Wi-fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+    },
+  );
+
 
 =head1 METHODS
 

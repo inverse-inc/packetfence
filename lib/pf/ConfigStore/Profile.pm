@@ -51,7 +51,7 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
-    $self->expand_list($profile, qw(guest_modes sources));
+    $self->expand_list($profile, qw(sources));
 }
 
 =head2 cleanupBeforeCommit
@@ -62,7 +62,7 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $profile) = @_;
-    $self->flatten_list($profile, qw(guest_modes sources));
+    $self->flatten_list($profile, qw(sources));
 }
 
 __PACKAGE__->meta->make_immutable;

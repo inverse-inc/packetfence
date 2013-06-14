@@ -10,16 +10,17 @@ We must at least always have one rule defined, the fallback one.
 
 =cut
 
-use Moose;
+use Moo;
+use pf::Moo::Util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
 
-has 'id' => (isa => 'Str', is => 'rw', required => 1);
-has 'unique' => (isa => 'Bool', is => 'ro', default => 0);
-has 'class' => (isa => 'Str', is => 'ro', default => 'internal');
-has 'type' => (isa => 'Str', is => 'ro', default => 'generic', required => 1);
-has 'description' => (isa => 'Str', is => 'rw', required => 0);
-has 'rules' => (isa => 'ArrayRef', is => 'rw', required => 0);
+has 'id' => (isa => Str, is => 'rw', required => 1);
+has 'unique' => (isa => Bool, is => 'ro', default => Val(0));
+has 'class' => (isa => Str, is => 'ro', default => Val('internal'));
+has 'type' => (isa => Str, is => 'ro', default => Val('generic'), required => 1);
+has 'description' => (isa => Str, is => 'rw', required => 0);
+has 'rules' => (isa => ArrayRef, is => 'rw', required => 0);
 
 =head2 add_rule
 
@@ -191,8 +192,6 @@ sub match_condition {
 
   return $r;
 }
-
-=back
 
 =head1 AUTHOR
 
