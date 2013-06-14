@@ -1901,7 +1901,7 @@ The Statement of Health (SoH) is product that has been developed by Microsoft. I
 Installation
 ^^^^^^^^^^^^
 
-By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/etc/raddb/eap.conf`.
+By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/usr/local/pf/conf/radiusd/eap.conf`.
 
   soh=yes
   soh-virtual-server = "soh-server"
@@ -2833,7 +2833,7 @@ Since we provide a working RPM package that contains pre-built RADIUS configurat
 Configuration
 ~~~~~~~~~~~~~
 
-In /etc/raddb/sites-enabled/default
+In /usr/local/pf/raddb/sites-enabled/default
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
@@ -2862,7 +2862,7 @@ post-auth {
 }
 ----
 
-In /etc/raddb/sites-enabled/inner-tunnel
+In /usr/local/pf/raddb/sites-enabled/inner-tunnel
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
@@ -2890,7 +2890,7 @@ post-auth {
 }
 ----
 
-In /etc/raddb/users
+In /usr/local/pf/raddb/users
 ^^^^^^^^^^^^^^^^^^^
 
 Add the following lines where we define that non-EAP messages should, by default, lead to an authentication acceptation.
@@ -2904,10 +2904,10 @@ Optional: Wired or Wireless 802.1X configuration
 
 Generate cryptographic material for the EAP tunnel (802.1X) to work. Run as root:
 
-  cd /etc/raddb/certs
+  cd /usr/local/pf/raddb/certs
   make
 
-In /etc/raddb/eap.conf
+In /usr/local/pf/conf/radiusd/eap.conf
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure this file looks like:
