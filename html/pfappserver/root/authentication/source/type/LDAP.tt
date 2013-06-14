@@ -1,7 +1,7 @@
         <div class="control-group">
           <label class="control-label">[% l('Host') %]</label>
           <div class="controls">
-            [% form.field('host').render_element %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %] Load Balance [% form.field('shuffle').render_element %]
+            [% form.field('host').render_element %]:[% form.field('port').render_element %] [% form.field('encryption').render_element %] 
           </div>
         </div>
 [% form.field('basedn').render %]
