@@ -71,7 +71,6 @@ Attempt to render a view, if needed.
 
 sub end : ActionClass('RenderView') {
     my ( $self, $c ) = @_;
-
     if (scalar @{$c->error}) {
         for my $error ( @{ $c->error } ) {
             $c->log->error($error);
@@ -81,11 +80,8 @@ sub end : ActionClass('RenderView') {
         $c->clear_errors;
     }
     elsif (exists $c->stash->{status_msg} && defined $c->stash->{status_msg} ) {
-        unless (ref $c->stash->{status_msg} eq 'HASH') {
-            $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
-        }
+        $c->stash->{status_msg} = $c->pf_localize($c->stash->{status_msg});
     }
-
 }
 
 =back

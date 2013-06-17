@@ -169,7 +169,7 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) {
     }
 
     $c->response->status($status);
-    $c->stash->{status_msg} = $c->loc($message);
+    $c->stash->{status_msg} = $message;
     $c->stash->{current_view} = 'JSON';
 }
 

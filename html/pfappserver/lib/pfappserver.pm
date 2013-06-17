@@ -235,11 +235,13 @@ sub add_deferred_actions {
 
 
 sub pf_localize {
-    my ($c,@args) = @_;
-    if(@args == 1 && ref($args[0]) eq 'ARRAY') {
-        my $args_ref = $args[0];
-        my $text = shift @$args_ref;
-        @args = ($text,$args_ref);
+    my ($c,$msg) = @_;
+    my @args;
+    if (ref($msg) eq 'ARRAY') {
+        my $text = shift @$msg;
+        @args = ($text,$msg);
+    } else {
+        @args = ($msg);
     }
     return $c->localize(@args);
 }

@@ -136,7 +136,7 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
             }
 
             $c->response->status($status);
-            $c->stash->{status_msg} = $c->loc($result);
+            $c->stash->{status_msg} = $result;
         }
         $c->stash->{current_view} = 'JSON';
     }
@@ -258,7 +258,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
             # Update interface
             my $data = $form->value;
             ($status, $result) = $c->model('Interface')->update($c->stash->{interface}, $data);
-            $result = $c->loc($result);
         }
         if (is_error($status)) {
             $c->response->status($status);
