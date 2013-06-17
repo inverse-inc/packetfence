@@ -58,6 +58,10 @@ has_field 'sources' =>
     'element_attr' => {'data-placeholder' => 'Click to add'},
   );
 
+has_block data => (
+    render_list => [qw(id description filter guest_self_reg billing_engine)],
+);
+
 =head1 METHODS
 
 =head2 options_guest_modes
