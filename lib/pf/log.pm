@@ -17,10 +17,16 @@ use Log::Log4perl;
 use pf::file_paths;
 use File::Basename qw(basename);
 use threads;
+use base qw(Exporter);
 
+our @EXPORT = qw(get_logger);
+
+Log::Log4perl->wrapper_register(__PACKAGE__);
 Log::Log4perl->init($log_config_file);
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
+
+sub get_logger { Log::Log4perl->get_logger(@_); }
 
 
 =head1 AUTHOR
