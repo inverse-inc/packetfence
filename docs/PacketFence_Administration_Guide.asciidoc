@@ -122,7 +122,6 @@ Depending on your setup you may have to install additional components like:
 
 [options="compact"]
 * DHCP server (ISC DHCP)
-* DNS server (BIND)
 * RADIUS server (FreeRADIUS)
 * NIDS (Snort/Suricata)
 
@@ -137,7 +136,6 @@ The following table provides recommendations for the required components, togeth
 |MySQL server     |MySQL 5.1
 |Web server       |Apache 2.2
 |DHCP server      |DHCP 3
-|DNS server       |BIND 9
 |RADIUS server    |FreeRADIUS 2.1.12
 |Snort            |Snort 2.8 or 2.9
 |Suricata         |Suricata 1.4.1
@@ -293,7 +291,7 @@ In order to use the repository, create a file named `/etc/yum.repos.d/PacketFenc
   enabled=0
 
 Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (DNS server, database
+dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
   yum groupinstall --enablerepo=PacketFence,epel,rpmforge,of Packetfence-complete
@@ -314,7 +312,7 @@ Or when using Ubuntu 12.04 LTS:
   deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise
 
 Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (DNS server, Database
+dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
   sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
@@ -329,7 +327,7 @@ In order to use ipset in inline mode, you must install two news dependencies and
 Configuration
 -------------
 
-In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP, ISC DNS, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server on which PacketFence is being installed.
+In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server on which PacketFence is being installed.
 
 First Step
 ~~~~~~~~~~
@@ -667,7 +665,7 @@ This technique is covered in details in the <<_technical_introduction_to_hybrid_
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration, Isolation and Inline VLANs. This is done by editing the network interfaces from the configuration module of the administration Web interface (see the <<_first_step,First Step section>>).
+PacketFence automatically generates the DHCP configuration files for Registration, Isolation and Inline VLANs. This is done by editing the network interfaces from the configuration module of the administration Web interface (see the <<_first_step,First Step section>>).
 
 network:: Network subnet
 netmask:: Network mask
@@ -688,10 +686,9 @@ Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it to e
 nat::
 Is PacketFence route or NAT the traffic for this network ? (yes/no) NAT enabled by default, set to no to route
 
-When starting PacketFence generates the DHCP and DNS configuration files by reading the information provided in `networks.conf`:
+When starting PacketFence generates the DHCP configuration files by reading the information provided in `networks.conf`:
 
 The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcpd.conf` as a template.
-
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~
