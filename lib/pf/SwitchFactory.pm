@@ -24,15 +24,18 @@ use pf::config;
 use pf::config::cached;
 use pf::util;
 
-our ($singleton, %SwitchConfig, $switches_cached_config);
+our ($singleton, %SwitchConfig, $switches_overlay_cached_config, $switches_cached_config);
 
 $switches_cached_config = pf::config::cached->new(
+    -file => $switches_config_file,
+    -allowempty => 1,
+    -default => 'default',
+);
+
+$switches_overlay_cached_config = pf::config::cached->new(
     -file => $switches_overlay_file,
     -allowempty => 1,
-    -import => pf::config::cached->new(
-        -file => $switches_config_file,
-        -allowempty => 1,
-    ),
+    -import => $switches_cached_config,
     -default => 'default',
     -onfilereload => [
         on_switches_reload => sub  {
