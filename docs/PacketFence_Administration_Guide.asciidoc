@@ -2850,7 +2850,7 @@ post-auth {
 ----
 
 In /usr/local/pf/raddb/sites-enabled/inner-tunnel
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
 
