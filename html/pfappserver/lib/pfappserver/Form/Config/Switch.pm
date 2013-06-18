@@ -183,6 +183,7 @@ has_block 'snmp' =>
 
 has_block 'advance' =>
   (
+<<<<<<< HEAD
    tag => 'div',
    render_list => [ qw(macSearchesMaxNb macSearchesSleepInterval) ],
   );
