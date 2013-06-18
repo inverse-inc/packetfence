@@ -46,6 +46,7 @@ apply
          my ( $value, $field ) = @_;
          return $field->get_message('switch_id');
      },
+     transform => sub {  clean_mac( $_[0] )  }
     }
    ]
   );
