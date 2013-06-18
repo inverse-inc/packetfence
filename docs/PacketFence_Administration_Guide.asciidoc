@@ -2821,7 +2821,7 @@ Configuration
 ~~~~~~~~~~~~~
 
 In /usr/local/pf/raddb/sites-enabled/default
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
 
@@ -2878,7 +2878,7 @@ post-auth {
 ----
 
 In /usr/local/pf/raddb/users
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the following lines where we define that non-EAP messages should, by default, lead to an authentication acceptation.
 
@@ -2895,7 +2895,7 @@ Generate cryptographic material for the EAP tunnel (802.1X) to work. Run as root
   make
 
 In /usr/local/pf/conf/radiusd/eap.conf
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure this file looks like:
 
