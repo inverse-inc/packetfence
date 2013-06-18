@@ -29,7 +29,6 @@ use pf::file_paths;
 use Date::Parse;
 use File::Basename qw(basename);
 use File::Spec;
-use Log::Log4perl;
 use Net::Interface;
 use Net::Netmask;
 use POSIX;

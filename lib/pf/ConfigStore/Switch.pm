@@ -15,7 +15,6 @@ use Moo;
 use namespace::autoclean;
 use pf::file_paths;
 use pf::log;
-use Log::Log4perl qw(get_logger);
 use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pf::ConfigStore';

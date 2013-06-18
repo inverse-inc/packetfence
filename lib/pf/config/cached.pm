@@ -281,7 +281,6 @@ use Storable;
 use File::Flock;
 use Readonly;
 use Sub::Name;
-use Log::Log4perl qw(get_logger);
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
 

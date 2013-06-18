@@ -17,7 +17,6 @@ portal from the same server.
 use strict;
 use warnings;
 
-use Log::Log4perl qw(get_logger);
 use pf::log;
 
 =head1 METHODS
