@@ -22,6 +22,9 @@ use pf::log;
 use pf::config::cached;
 use pf::util;
 use pf::file_paths;
+use Data::Swap;
+use Time::HiRes qw(gettimeofday);
+use Benchmark qw(:all);
 
 our ($singleton, %SwitchConfig, $switches_overlay_cached_config, $switches_cached_config);
 
@@ -76,7 +79,10 @@ $switches_overlay_cached_config = pf::config::cached->new(
     -oncachereload => [
         on_cached_overlay_reload => sub  {
             my ($config, $name) = @_;
-            %SwitchConfig = %{$config->cache->get("SwitchConfig")};
+            my $data = $config->cache->get("SwitchConfig");
+            if($data) {
+                %SwitchConfig = %$data;
+            }
         },
     ]
 );
