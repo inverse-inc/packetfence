@@ -22,7 +22,6 @@ use pf::log;
 use pf::config::cached;
 use pf::util;
 use pf::file_paths;
-use Data::Swap;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
