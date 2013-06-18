@@ -19,30 +19,78 @@ use base qw(Exporter);
 
 our @EXPORT = qw(Str Num Class Bool ArrayRef Val Maybe HashRef Int);
 
+=head2 _new_array
+
+=cut
+
 sub _new_array { [] }
+
+=head2 NewArray
+
+=cut
 
 sub NewArray { \&_new_array }
 
+=head2 Num
+
+=cut
+
 sub Num { \&Scalar::Util::looks_like_number }
+
+=head2 _isa_int
+
+=cut
 
 sub _isa_int {
     my $num = $_[0];
     return Scalar::Util::looks_like_number($num) && $num =~ /[+-]?\d+/;
 }
 
+=head2 Int
+
+=cut
+
 sub Int { \&_isa_int }
+
+=head2 _isa_string
+
+=cut
 
 sub _isa_string { ref($_[0]) eq '' }
 
+=head2 Str
+
+=cut
+
 sub Str { \&_isa_string  }
+
+=head2 Class
+
+=cut
 
 sub Class { my $class = $_[0]; sub { $class->isa($_[0]) } }
 
+=head2 _isa_boolean
+
+=cut
+
 sub _isa_boolean { my $b = $_[0]; ! $b || $b == 1 }
+
+=head2 Bool
+
+=cut
 
 sub Bool { \&_isa_boolean }
 
+=head2 _isa_array_ref
+
+=cut
+
 sub _isa_array_ref { ref($_[0]) eq 'ARRAY' }
+
+=head2 ArrayRef
+
+=cut
 
 sub ArrayRef(;$) {
     if (@_) {
@@ -53,7 +101,15 @@ sub ArrayRef(;$) {
     }
 }
 
+=head2 _isa_hash_ref
+
+=cut
+
 sub _isa_hash_ref { ref($_[0]) eq 'HASH' }
+
+=head2 HashRef
+
+=cut
 
 sub HashRef(;$) {
     if (@_) {
@@ -64,7 +120,15 @@ sub HashRef(;$) {
     }
 }
 
+=head2 Val
+
+=cut
+
 sub Val { my $val = $_[0]; sub {$val} }
+
+=head2 Maybe
+
+=cut
 
 sub Maybe($) { my $checker = $_[0];  sub { !defined $_[0] || $checker->($_[0])  } }
 
