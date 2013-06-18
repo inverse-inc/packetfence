@@ -26,9 +26,13 @@ use pf::util;
 
 our ($singleton, %SwitchConfig, $switches_cached_config);
 
-$switches_cached_config  = pf::config::cached->new(
-    -file => $switches_config_file,
+$switches_cached_config = pf::config::cached->new(
+    -file => $switches_overlay_file,
     -allowempty => 1,
+    -import => pf::config::cached->new(
+        -file => $switches_config_file,
+        -allowempty => 1,
+    ),
     -default => 'default',
     -onfilereload => [
         on_switches_reload => sub  {
@@ -68,7 +72,7 @@ $switches_cached_config  = pf::config::cached->new(
         },
     ],
     -oncachereload => [
-        on_cache_switches_reload => sub  {
+        on_cached_overlay_reload => sub  {
             my ($config, $name) = @_;
             %SwitchConfig = %{$config->cache->get("SwitchConfig")};
         },

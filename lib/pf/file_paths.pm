@@ -45,7 +45,8 @@ our (
     $profiles_config_file, %Profiles_Config, $cached_profiles_config,
     #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
-    $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file
+    $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
+    $switches_overlay_file
 );
 
 BEGIN {
@@ -70,6 +71,7 @@ BEGIN {
         $profiles_config_file %Profiles_Config $cached_profiles_config
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
+        $switches_overlay_file
     );
 }
 
@@ -108,6 +110,7 @@ $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf
 $oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url      = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
+$switches_overlay_file   = catfile($var_dir, "switches.conf");
 
 
 =head1 AUTHOR
