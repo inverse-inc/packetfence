@@ -13,13 +13,13 @@ pf::ConfigStore::Switch;
 
 use Moo;
 use namespace::autoclean;
-use pf::file_paths;
+use pf::SwitchFactory;
 use pf::log;
 use HTTP::Status qw(:constants is_error is_success);
 
 extends 'pf::ConfigStore';
 
-sub configFile { $pf::file_paths::switches_config_file };
+sub _buildCachedConfig { $pf::SwitchFactory::switches_cached_config };
 
 =head2 Methods
 
