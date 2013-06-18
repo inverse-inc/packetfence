@@ -46,7 +46,11 @@ apply
          my ( $value, $field ) = @_;
          return $field->get_message('switch_id');
      },
-     transform => sub {  clean_mac( $_[0] )  }
+     transform => sub {
+        my ($val) = @_;
+        return clean_mac( $val ) if valid_mac($val);
+        return $val;
+     }
     }
    ]
   );
