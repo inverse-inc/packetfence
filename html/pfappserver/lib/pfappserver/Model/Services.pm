@@ -8,7 +8,7 @@ use pf::config;
 use pf::error;
 use pf::util;
 use pf::services;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use HTTP::Status qw(:constants :is);
 
 =head1 NAME

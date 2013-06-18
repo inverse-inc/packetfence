@@ -17,7 +17,7 @@ Is the Base class for accessing pf::config::cached
 use Moo;
 use namespace::autoclean;
 use pf::config::cached;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use List::MoreUtils qw(uniq);
 
 =head1 FIELDS

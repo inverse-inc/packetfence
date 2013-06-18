@@ -19,7 +19,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 use URI::Escape;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 
 use pf::os;
 use pf::util qw(load_oui download_oui);

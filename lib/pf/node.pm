@@ -19,8 +19,6 @@ Read the F<pf.conf> configuration file.
 
 use strict;
 use warnings;
-use Log::Log4perl qw(get_logger);
-use Log::Log4perl::Level;
 use Readonly;
 
 use constant NODE => 'node';
@@ -74,6 +72,7 @@ BEGIN {
     );
 }
 
+use pf::log;
 use pf::config;
 use pf::db;
 use pf::nodecategory;

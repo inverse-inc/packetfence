@@ -18,7 +18,7 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use pf::authentication;
 use pfappserver::Form::Authentication;
 

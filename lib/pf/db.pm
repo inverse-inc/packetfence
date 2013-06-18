@@ -22,7 +22,7 @@ use warnings;
 use DBI;
 use File::Basename;
 #get_logger() is equivalent to get_logger(__PACKAGE__)
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use threads;
 use pf::config;
 

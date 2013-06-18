@@ -14,7 +14,7 @@ pf::violation_config
 
 use strict;
 use warnings;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use Try::Tiny;
 
 use pf::config;

@@ -28,7 +28,7 @@ use pf::error qw(is_error is_success);
 use pf::node;
 use pf::iplog;
 use pf::locationlog;
-use Log::Log4perl qw(get_logger);
+use pf::log;
 use pf::node;
 use pf::os;
 use pf::enforcement qw(reevaluate_access);

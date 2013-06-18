@@ -18,11 +18,10 @@ use warnings;
 
 use Carp;
 use UNIVERSAL::require;
-use Log::Log4perl qw(get_logger);
-
-use pf::config;
+use pf::log;
 use pf::config::cached;
 use pf::util;
+use pf::file_paths;
 
 our ($singleton, %SwitchConfig, $switches_overlay_cached_config, $switches_cached_config);
 

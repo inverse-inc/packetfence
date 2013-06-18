@@ -13,7 +13,7 @@ pf::authentication
 use strict;
 use warnings;
 
-use Log::Log4perl qw(get_logger);
+use pf::log;
 
 use pf::config;
 use pf::config::cached;
