@@ -64,6 +64,10 @@ has_block data => (
     render_list => [qw(id description logo guest_self_reg billing_engine sources)],
 );
 
+
+sub options_sources {
+    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
+}
 =head1 METHODS
 
 =head2 options_guest_modes
