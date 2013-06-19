@@ -37,6 +37,7 @@ use threads;
 use Try::Tiny;
 use File::Which;
 use Socket;
+use List::MoreUtils qw(any);
 
 # Categorized by feature, pay attention when modifying
 our (
@@ -57,7 +58,7 @@ our (
 #floating_network_device.conf variables
     %ConfigFloatingDevices, $cached_floating_device_config,
 #profiles.conf variables
-    %Profiles_Config, $cached_profiles_config,
+    %Profile_Filters, %Profiles_Config, $cached_profiles_config,
 #Other configuraton files variables
     @stored_config_files,
 
@@ -106,7 +107,7 @@ BEGIN {
         is_in_list
         $LOG4PERL_RELOAD_TIMER
         init_config
-        %Profiles_Config $cached_profiles_config
+        %Profile_Filters %Profiles_Config $cached_profiles_config
         $cached_pf_config $cached_network_config $cached_floating_device_config
         $cached_pf_default_config $cached_pf_doc_config @stored_config_files
         $OS
@@ -595,22 +596,23 @@ sub readProfileConfigFile {
                 $config->cleanupWhitespace(\%Profiles_Config);
                 # check for portal profile guest self registration options in case they're disabled in default profile
                 $guest_self_registration{'enabled'} = $FALSE;
-                # check for portal profile guest self registration options in case they're disabled in default profile
-                foreach my $portalprofile ( $config->Sections) {
-                    # marking guest_self_registration as globally enabled if needed by one of the portal profiles
-                    if ( isenabled($Profiles_Config{$portalprofile}{'guest_self_reg'}) ) {
+                while (my ($profile_id,$profile) = each %Profiles_Config) {
+                    $Profile_Filters{$profile->{filter}} = $profile_id if exists $profile->{filter} && $profile->{filter};
+                    if ( isenabled($profile->{'guest_self_reg'}) ) {
                         $guest_self_registration{'enabled'} = $TRUE;
                     }
 
                     # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
                     # no auth method == guest self registration
-                    if ( !defined($Profiles_Config{$portalprofile}{'auth'}) ) {
+                    if ( isenabled($profile->{'auth'}) ) {
                         $guest_self_registration{'enabled'} = $TRUE;
                     }
 
+                    $profile->{'sources'} = [split(/\s*,\s*/,$profile->{'sources'} || "")];
+
                     # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
-                    my $guest_modes = $Profiles_Config{$portalprofile}{'guest_modes'};
-                    _set_guest_self_registration($guest_modes) if ( defined $guest_modes );
+                    #my $guest_modes = $profile->{'guest_modes'};
+                    #_set_guest_self_registration($guest_modes) if ( defined $guest_modes );
                 }
             }]
     );
@@ -867,7 +869,7 @@ Returns true or false values based on if item was found or not.
 sub is_in_list {
     my ($item, $list) = @_;
     my @list = split( /\s*,\s*/, $list );
-    return $TRUE if ( scalar grep({ $_ eq $item } @list) );
+    return $TRUE if any { $_ eq $item } @list;
     return $FALSE;
 }
 
