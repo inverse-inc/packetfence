@@ -93,6 +93,7 @@ our %TYPE_TO_SOURCE = (
 our $logger = get_logger();
 
 
+$cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
 
 readAuthenticationConfigFile();
 
@@ -201,14 +202,46 @@ sub readAuthenticationConfigFile {
 
                         $current_source->add_rule($current_rule);
                     }
-
                     push(@authentication_sources, $current_source);
                 }
+                update_profiles_guest_modes();
             }]
         );
     } else {
         $cached_authentication_config->ReadConfig();
+        update_profiles_guest_modes();
     }
+}
+
+
+sub update_profiles_guest_modes {
+    my ($config,$name) = @_;
+    while (my ($id,$profile) = each %Profiles_Config) {
+        my $guest_modes = _guest_modes_from_sources($profile->{sources});
+        $profile->{guest_modes} = $guest_modes;
+        _set_guest_self_registration($guest_modes);
+    }
+}
+
+sub _set_guest_self_registration {
+    my ($modes) = @_;
+    for my $mode (
+        $SELFREG_MODE_EMAIL,
+        $SELFREG_MODE_SMS,
+        $SELFREG_MODE_SPONSOR,
+        $SELFREG_MODE_GOOGLE,
+        $SELFREG_MODE_FACEBOOK,
+        $SELFREG_MODE_GITHUB,) {
+        $guest_self_registration{$mode} = $TRUE
+            if is_in_list( $mode,$modes);
+    }
+}
+
+sub _guest_modes_from_sources {
+    my ($sources) = @_;
+    $sources ||= [];
+    my %is_in = map {$_ => undef } @$sources;
+    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources);
 }
 
 =item writeAuthenticationConfigFile
