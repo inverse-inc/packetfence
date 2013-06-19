@@ -26,6 +26,8 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
+use pf::ConfigStore::SwitchOverlay;
+use pf::ConfigStore::Switch;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
@@ -239,7 +241,6 @@ sub _parseRequest {
     return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $source_ip);
 }
 
-
 sub extractApMacFromRadiusRequest {
     my ($radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -256,7 +257,6 @@ sub extractApMacFromRadiusRequest {
         }
     }
 
-    return;
 }
 
 
