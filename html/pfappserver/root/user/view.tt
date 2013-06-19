@@ -119,7 +119,7 @@
                     <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span>
                     <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a>
                   </td>
-                  <td>[% node.computer_name %]</td>
+                  <td>[% node.computername %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                 </tr>
                 [% END %]
