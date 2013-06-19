@@ -171,7 +171,7 @@ has_block 'snmp' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(type mode deauthMethod uplink_dynamic uplink controllerIp controllerPort) ],
+   render_list => [ qw(type mode deauthMethod uplink_dynamic uplink controllerIp) ],
   );
 has_field 'SNMPVersion' =>
   (
