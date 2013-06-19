@@ -344,7 +344,7 @@ has_field controllerIp =>
     label => 'Controller IP Address',
     tags => {
         after_element => \&help_list,
-        help => 'Only for Wi-fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
+        help => 'Use instead this IP address for de-authentication requests. Normally used for WiFi only'
     },
   );
 
