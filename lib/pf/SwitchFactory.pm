@@ -25,6 +25,7 @@ use pf::file_paths;
 use Data::Swap;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
+use List::Util qw(first);
 
 our ($singleton, %SwitchConfig, $switches_overlay_cached_config, $switches_cached_config);
 
@@ -128,9 +129,10 @@ sub new {
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $this, $requestedSwitch ) = @_;
-    if ( !exists $SwitchConfig{$requestedSwitch} ) {
-        $logger->error("ERROR ! Unknown switch $requestedSwitch");
+    my ( $this, @requestedSwitches ) = @_;
+    my $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
+    unless ($requestedSwitch) {
+        $logger->error("ERROR ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
     my $switch_data = $SwitchConfig{$requestedSwitch};
