@@ -428,6 +428,11 @@ locationlog=0D
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
 #
+# services.pfdns
+#
+# Should pfdns be managed by PacketFence?
+pfdns=enabled
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
