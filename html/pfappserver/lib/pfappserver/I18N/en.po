@@ -1132,12 +1132,6 @@ msgid ""
   "running the RPMed version."
 msgstr ""
 
-# conf/documentation.conf (services.named_binary)
-msgid ""
-  "Location of the named binary. Only necessary to change if you are not"
-  "running the RPMed version."
-msgstr ""
-
 # conf/documentation.conf (services.snmptrapd_binary)
 msgid ""
   "Location of the snmptrapd binary. Only necessary to change if you are"
@@ -2054,8 +2048,8 @@ msgstr ""
 msgid "Should have to reauthenticate the node if vlan change"
 msgstr ""
 
-# conf/documentation.conf (services.named)
-msgid "Should named be managed by PacketFence?"
+# conf/documentation.conf (services.pfdns)
+msgid "Should pfdns be managed by PacketFence?"
 msgstr ""
 
 # conf/documentation.conf (vlan.closelocationlogonstop)
@@ -2829,7 +2823,7 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
-# conf/documentation.conf (services.named options)
+# conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
@@ -2884,7 +2878,7 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
-# conf/documentation.conf (services.named options)
+# conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
@@ -3458,12 +3452,8 @@ msgid "services.httpd_binary"
 msgstr "httpd path"
 
 # conf/documentation.conf
-msgid "services.named"
-msgstr "named"
-
-# conf/documentation.conf
-msgid "services.named_binary"
-msgstr "named path"
+msgid "services.pfdns"
+msgstr "pfdns"
 
 # conf/documentation.conf
 msgid "services.radiusd"

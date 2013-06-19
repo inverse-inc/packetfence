@@ -445,7 +445,7 @@ msgid "services.dhcpd"
 msgstr ""
 
 #: conf/pf.conf.defaults:556
-msgid "services.named"
+msgid "services.pfdns"
 msgstr ""
 
 #: conf/pf.conf.defaults:561
