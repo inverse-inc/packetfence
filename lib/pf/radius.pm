@@ -26,6 +26,8 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
+use pf::ConfigStore::SwitchOverlay;
+use pf::ConfigStore::Switch;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
@@ -65,13 +67,18 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
+    my $switch_overlay = pf::ConfigStore::SwitchOverlay->new;
+    my $switch_config = pf::ConfigStore::Switch->new;
 
-    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id) = $this->_parseRequest($radius_request);
+    my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id) = $this->_parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
         "mac => $mac, port => $port, username => $user_name");
-
+    if($switch_config->hasId($switch_mac)) {
+        $switch_overlay->update_or_create($switch_mac,{controllerIp => $switch_ip});
+        $switch_overlay->commit();
+    }
     my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
@@ -96,7 +103,7 @@ sub authorize {
     node_mac_wakeup($mac);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_mac,$switch_ip);
 
     # is switch object correct?
     if (!$switch) {
@@ -221,7 +228,8 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 sub _parseRequest {
     my ($this, $radius_request) = @_;
 
-    my $mac = clean_mac($radius_request->{'Calling-Station-Id'});
+    my $ap_mac = clean_mac($radius_request->{'Called-Station-Id'});
+    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
     my $user_name = $radius_request->{'User-Name'};
@@ -237,7 +245,7 @@ sub _parseRequest {
     if (defined($radius_request->{'NAS-Port-Id'})) {
         $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
-    return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name, $nas_port_id);
+    return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $ap_mac, $nas_port_id);
 }
 
 =item * _doWeActOnThisCall
@@ -333,7 +341,6 @@ sub _identifyConnectionType {
             } else {
                 return $WIRELESS_MAC_AUTH;
             }
-
         } elsif ($nas_port_type =~ /^Ethernet/ ) {
 
             if ($eap_type) {
@@ -477,7 +484,7 @@ sub _shouldRewriteAccessAccept {
 
 Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
 
-Return type should match L<pf::radius::authorize>'s return type. See its
+Return type should match L<pf::radius::authorize()>'s return type. See its
 documentation for details.
 
 This is meant to be overridden in L<pf::radius::custom>.
