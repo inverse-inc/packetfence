@@ -397,25 +397,13 @@ has_field controllerIp =>
 has_field controllerPort =>
   (
     type => 'PosInteger',
-<<<<<<< HEAD
-<<<<<<< HEAD
     label => 'Controller Port',
-=======
-    label => 'Controller IP Address',
->>>>>>> 9f7be1a... Allow the switch id to be either an ipaddress or mac and add controller port
-=======
-    label => 'Controller Port',
->>>>>>> 6616126... Removed id from the render list of definition updated
     tags => {
         after_element => \&help_list,
         help => 'Only for Wi-fi , if the deauth request must be send to another device than the access point then set the ip of the controller'
     },
   );
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 9f7be1a... Allow the switch id to be either an ipaddress or mac and add controller port
 =head1 METHODS
 
 =head2 options_inlineTrigger
