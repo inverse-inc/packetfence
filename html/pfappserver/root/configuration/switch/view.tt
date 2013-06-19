@@ -23,11 +23,7 @@
 
       <div class="tab-pane fade in active" id="switchDefinition">
         [% form.field('id').render UNLESS item %]
-        [% form.field('type').render %]
-        [% form.field('mode').render %]
-        [% form.field('deauthMethod').render %]
-        [% form.field('uplink_dynamic').render %]
-        [% form.field('uplink').render %]
+        [% form.block('definition').render %]
       </div><!-- tab-pane -->
 
       <div class="tab-pane fade" id="switchRoles">
