@@ -20,7 +20,7 @@ use Carp;
 use UNIVERSAL::require;
 use Log::Log4perl qw(get_logger);
 
-use pf::config;
+use pf::file_paths;
 use pf::config::cached;
 use pf::util;
 
