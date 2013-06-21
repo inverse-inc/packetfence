@@ -293,7 +293,7 @@ Readonly::Scalar our $NO_VLAN => 0;
 # Guest related
 Readonly our $SELFREG_MODE_EMAIL => 'email';
 Readonly our $SELFREG_MODE_SMS => 'sms';
-Readonly our $SELFREG_MODE_SPONSOR => 'sponsor';
+Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
 Readonly our $SELFREG_MODE_GOOGLE => 'google';
 Readonly our $SELFREG_MODE_FACEBOOK => 'facebook';
 Readonly our $SELFREG_MODE_GITHUB => 'github';
