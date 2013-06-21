@@ -238,6 +238,7 @@ sub new {
         '_wsTransport'              => undef,
         '_radiusSecret'             => undef,
         '_controllerIp'             => undef,
+        '_controllerPort'           => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_VoIPEnabled'              => undef,
@@ -309,6 +310,8 @@ sub new {
             $this->{_radiusSecret} = $argv{$_};
         } elsif (/^-?controllerIp$/i) {
             $this->{_controllerIp} = $argv{$_}? lc($argv{$_}) : undef;
+        } elsif (/^-?controllerPort$/i) {
+            $this->{_controllerPort} = $argv{$_};
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
