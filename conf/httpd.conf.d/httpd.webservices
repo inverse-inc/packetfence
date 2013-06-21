@@ -110,11 +110,13 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
     }
     @Listen =  ("127.0.0.1:".$PfConfig->{'ports'}{'soap'},$host.":".$PfConfig->{'ports'}{'soap'});
 
+    push (@NameVirtualHost,"127.0.0.1:".$PfConfig->{'ports'}{'soap'});
+    push (@NameVirtualHost,$host.":".$PfConfig->{'ports'}{'soap'});
 
     #Generate Virtualhost for management interface (ssl enabled and auth enabled)
     push @{ $VirtualHost{$host.":".$PfConfig->{'ports'}{'soap'}} },
         {
-             ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'soap'},
+             ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
              DocumentRoot        => $install_dir.'/html/pfappserver/lib',
              ErrorLog            => $install_dir.'/logs/webservices_error_log',
              CustomLog           => $install_dir.'/logs/webservices_access_log combined',
@@ -135,13 +137,14 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
 
 } else {
     $Listen = "127.0.0.1:".$PfConfig->{'ports'}{'soap'};
+    push (@NameVirtualHost,"127.0.0.1:".$PfConfig->{'ports'}{'soap'});
 }
 
 #Generate the default soap listener on localhost
 
 push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'soap'}"} },
     {
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$PfConfig->{'ports'}{'soap'},
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
          ErrorLog            => $install_dir.'/logs/webservices_error_log',
          CustomLog           => $install_dir.'/logs/webservices_access_log combined',
@@ -151,5 +154,4 @@ push @{ $VirtualHost{"127.0.0.1:$PfConfig->{'ports'}{'soap'}"} },
 
 
 </Perl>
-
 
