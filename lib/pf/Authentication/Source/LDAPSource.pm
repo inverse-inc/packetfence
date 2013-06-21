@@ -112,7 +112,7 @@ sub authenticate {
 }
 
 
-=item _connect
+=head2 _connect
 Try every server in @LDAPSERVER in turn.
 Returns the connection object and a valid LDAP server and port or undef
 if all connections fail
@@ -123,7 +123,7 @@ sub _connect {
   my $connection;
   my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-  my @LDAPServers = split(/,/, $self->{'host'});
+  my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
   # uncomment the next line if you want the servers to be tried in random order
   # to spread out the connections amongst a set of servers
   #@LDAPServers = List::Util::shuffle @LDAPServers;
