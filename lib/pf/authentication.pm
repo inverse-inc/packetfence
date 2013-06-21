@@ -409,7 +409,8 @@ sub username_from_email {
         my $classname = $source->meta->name;
 
         if ($classname eq 'pf::Authentication::Source::ADSource' ||
-            $classname eq 'pf::Authentication::Source::LDAPSource') {
+            $classname eq 'pf::Authentication::Source::LDAPSource' ||
+            $classname eq 'pf::Authentication::Source::SQLSource' ) {
 
             my $username = $source->username_from_email($email);
 

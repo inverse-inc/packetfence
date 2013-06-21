@@ -69,7 +69,7 @@ BEGIN {
 
     @EXPORT_OK = qw(
         view add modify
-        create
+        create match_by_mail
         validate_password
         $AUTH_SUCCESS $AUTH_FAILED_INVALID $AUTH_FAILED_EXPIRED $AUTH_FAILED_NOT_YET_VALID
     );
@@ -138,6 +138,12 @@ sub temporary_password_db_prepare {
 
     $temporary_password_statements->{'temporary_password_reset_password_sql'} = get_db_handle()->prepare(qq[
         UPDATE temporary_password SET password = ? WHERE pid = ?
+    ]);
+
+    $temporary_password_statements->{'temporary_password_match_by_mail_sql'} = get_db_handle()->prepare(qq[
+        SELECT pid
+        FROM person
+        WHERE email = ?
     ]);
 
     $temporary_password_db_prepared = 1;
@@ -443,6 +449,28 @@ sub reset_password {
     db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
     ) || return;
+}
+
+=item match_by_mail
+
+Return the username
+
+=cut
+
+sub match_by_mail {
+    my ($mail) = @_;
+    my $query = db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_match_by_mail_sql', $mail
+    ) || return;
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    if (defined($ref)) {
+        return ($ref->{pid});
+    } else {
+        return undef;
+    }
 }
 
 
