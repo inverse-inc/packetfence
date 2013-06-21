@@ -432,16 +432,18 @@ It performs a write test to make sure that the write actually works.
 =cut
 
 sub connectWriteTo {
-    my ($this, $ip, $sessionKey) = @_;
+    my ($this, $ip, $sessionKey,$port) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     # if connection already exists, no need to connect again
     return 1 if ( defined( $this->{$sessionKey} ) );
+    $port ||= 161;
 
     $logger->debug( "opening SNMP v" . $this->{_SNMPVersion} . " write connection to $ip" );
     if ( $this->{_SNMPVersion} eq '3' ) {
         ( $this->{$sessionKey}, $this->{_error} ) = Net::SNMP->session(
             -hostname     => $ip,
+            -port         => $port,
             -version      => $this->{_SNMPVersion},
             -timeout      => 2,
             -retries      => 1,
@@ -454,6 +456,7 @@ sub connectWriteTo {
     } else {
         ( $this->{$sessionKey}, $this->{_error} ) = Net::SNMP->session(
             -hostname  => $ip,
+            -port      => $port,
             -version   => $this->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
@@ -511,7 +514,7 @@ Uses connectWriteTo with IP from configuration internally.
 
 sub connectWrite {
     my $this   = shift;
-    return $this->connectWriteTo($this->{_ip}, '_sessionWrite');
+    return $this->connectWriteTo($this->{_ip}, '_sessionWrite',$this->{_controllerPort});
 }
 
 =item connectWriteToController
@@ -522,7 +525,7 @@ Establishes an SNMP write connection to the controller of the network device as 
 
 sub connectWriteToController {
     my $this   = shift;
-    return $this->connectWriteTo($this->{_controllerIp}, '_sessionControllerWrite');
+    return $this->connectWriteTo($this->{_controllerIp}, '_sessionControllerWrite',$this->{_controllerPort});
 }
 
 =item disconnectWriteTo
