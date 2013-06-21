@@ -129,11 +129,11 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 #if node is pending show pending page
 my $node_info = node_view($mac);
 if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
-  # we drop HTTPS for pending so we can perform our Internet detection and avoid all sort of certificate errors
   if(pf::sms_activation::sms_activation_has_entry($mac)) {
     node_deregister($mac);
     pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms");
   } elsif ($portalSession->getCgi->https()) {
+  # we drop HTTPS for pending so we can perform our Internet detection and avoid all sort of certificate errors
     print $portalSession->getCgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
         .'/captive-portal?destination_url=' . uri_escape($portalSession->getDestinationUrl)
