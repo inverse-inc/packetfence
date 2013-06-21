@@ -44,6 +44,8 @@ $switches_overlay_cached_config = pf::config::cached->new(
             my ($config, $name) = @_;
             $config->toHash(\%SwitchConfig);
             $config->cleanupWhitespace(\%SwitchConfig);
+            my @leftover = grep { !$switches_cached_config->SectionExists($_) }   $config->Sections();
+            delete @SwitchConfig{@leftover};
             foreach my $switch (values %SwitchConfig) {
                 # transforming uplink and inlineTrigger to arrays
                 foreach my $key (qw(uplink inlineTrigger)) {
