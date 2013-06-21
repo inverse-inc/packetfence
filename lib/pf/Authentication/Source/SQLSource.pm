@@ -115,6 +115,19 @@ sub match {
     return undef;
 }
 
+=head2 username_from_email
+
+=cut
+
+sub username_from_email {
+    my ( $self, $email ) = @_;
+
+    my $logger = Log::Log4perl->get_logger('pf::authentication');
+
+    return pf::temporary_password::match_by_mail($email);
+
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
