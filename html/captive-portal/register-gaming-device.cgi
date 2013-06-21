@@ -80,7 +80,7 @@ elsif (exists $params{'device_mac'}) {
     $portalSession->stash->{device_mac} = $device_mac;
 
     # Get role for gaming device
-    my $role = $Config{'registratrion'}{'gaming_devices_registration_role'};
+    my $role = $Config{'registration'}{'gaming_devices_registration_role'};
     if ($role) {
         $logger->trace("Gaming devices role is $role (from pf.conf)");
     }
