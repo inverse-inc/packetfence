@@ -14,7 +14,6 @@ pf::pfcmd::cmd::pf
 use strict;
 use warnings;
 use base qw(pf::pfcmd::cmd::subcmd);
-use pf::pfcmd::cmd::pf::help;
 
 sub unknown_cmd { 'pf::pfcmd::cmd::pf::help' }
 
