@@ -19,6 +19,11 @@ use Pod::Find qw(pod_where);
 
 sub run {
     my ($self) = @_;
+    $self->runHelp;
+}
+
+sub runHelp {
+    my ($self) = @_;
     my $package = ref($self) || $self;
     pod2usage( -input => pod_where({-inc => 1}, $package) );
 }
