@@ -1,32 +1,23 @@
-package pf::pfcmd::cmd::help;
+package pf::cmd::pf::class::help;
 =head1 NAME
 
-pf::pfcmd::cmd::help add documentation
+pf::cmd::pf::class::help add documentation
 
 =cut
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
-pf::pfcmd::cmd::help
+pfcmd class view <vid>
+
+view violation classification - to edit, use violations.conf and "pfcmd reload violations"
+
+=head1 DESCRIPTION
 
 =cut
 
 use strict;
 use warnings;
-use base qw(pf::pfcmd::cmd);
-use Pod::Usage;
-use Pod::Find qw(pod_where);
-
-sub run {
-    my ($self) = @_;
-    $self->runHelp;
-}
-
-sub runHelp {
-    my ($self) = @_;
-    my $package = ref($self) || $self;
-    pod2usage( -input => pod_where({-inc => 1}, $package) );
-}
+use base qw(pf::cmd::help);
 
 =head1 AUTHOR
 

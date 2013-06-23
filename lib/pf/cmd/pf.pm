@@ -1,23 +1,23 @@
-package pf::pfcmd::cmd::pf;
+package pf::cmd::pf;
 =head1 NAME
 
-pf::pfcmd::cmd::pf add documentation
+pf::cmd::pf add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfcmd::cmd::pf
+pf::cmd::pf
 
 =cut
 
 use strict;
 use warnings;
-use base qw(pf::pfcmd::cmd::subcmd);
+use base qw(pf::cmd::subcmd);
 
-sub unknown_cmd { 'pf::pfcmd::cmd::pf::help' }
+sub unknown_cmd { 'pf::cmd::pf::help' }
 
-sub default_cmd { 'pf::pfcmd::cmd::pf::help' }
+sub default_cmd { 'pf::cmd::pf::help' }
 
 =head1 AUTHOR
 

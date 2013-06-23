@@ -16,9 +16,9 @@ use warnings;
 use constant INSTALL_DIR => '/usr/local/pf';
 use lib INSTALL_DIR . "/lib";
 
-use pf::pfcmd::cmd::pf;
+use pf::cmd::pf;
 
-exit pf::pfcmd::cmd::pf->new(@ARGV)->run();
+exit pf::cmd::pf->new(@ARGV)->run();
 
 
 =head1 AUTHOR

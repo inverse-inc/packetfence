@@ -1,4 +1,4 @@
-package pf::pfcmd::cmd::pf::help;
+package pf::cmd::pf::help;
 =head1 NAME
 
 pfcmd - PacketFence command line interface
@@ -54,14 +54,14 @@ Please view "pfcmd help <command>" for details on each option
 
 =head1 DESCRIPTION
 
-pf::pfcmd::cmd::pf::help
+pf::cmd::pf::help
 
 =cut
 
 use strict;
 use warnings;
 
-use base qw(pf::pfcmd::cmd::help pf::pfcmd::cmd::subcmd);
+use base qw(pf::cmd::help pf::cmd::subcmd);
 
 sub run {
     my ($self) = @_;
@@ -69,9 +69,7 @@ sub run {
     if(!defined $cmd || $cmd eq 'help') {
         return $self->runHelp;
     }
-    my $helpcmd = "pf::pfcmd::cmd::pf::${cmd}::help";
-    $self->loadSubCmd($helpcmd);
-    return $helpcmd->new->run;
+    return $self->runSubCmd("pf::cmd::pf::${cmd}::help");
 }
 
 =head1 AUTHOR

@@ -1,46 +1,23 @@
-package pf::pfcmd::cmd::subcmd;
+package pf::cmd::pf::class;
 =head1 NAME
 
-pf::pfcmd::cmd::subcmd add documentation
+pf::cmd::pf::class add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfcmd::cmd::subcmd
-
-
-=head1 TODO
-
-Have the module loaded dynamically
+pf::cmd::pf::class
 
 =cut
 
 use strict;
 use warnings;
-use base qw(pf::pfcmd::cmd);
-use Module::Load;
+use base qw(pf::cmd::subcmd);
 
-sub run {
-    my ($self) = @_;
-    my ($cmd,@args);
-    if(@{$self->{args}}) {
-        @args = @{$self->{args}};
-        my $action = shift @args;
-        $cmd = $self->get_cmd($action);
-    } else {
-        $cmd = $self->default_cmd;
-    }
-    load $cmd;
-    return $cmd->new(@args)->run;
-}
+sub unknown_cmd { 'pf::cmd::pf::class::help' }
 
-sub get_cmd {
-    my ($self,$action) = @_;
-    my $base = ref($self) || $self;
-    return "${base}::${action}" if defined $action;
-    return $self->unknown_cmd;
-}
+sub default_cmd { 'pf::cmd::pf::class::help' }
 
 
 =head1 AUTHOR

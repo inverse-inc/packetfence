@@ -1,23 +1,42 @@
-package pf::pfcmd::cmd;
+package pf::cmd::pf::checkup;
 =head1 NAME
 
-pf::pfcmd::cmd add documentation
+pf::cmd::checkup add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::pfcmd::cmd
+pf::cmd::checkup
 
 =cut
 
 use strict;
 use warnings;
+use pf::services;
+use pf::config;
+use pf::pfcmd::checkup;
+use base qw(pf::cmd);
+sub run {
 
-sub new {
-    my ($class,@args) = @_;
-    my $self = bless {args => [@args]},$class;
-    return $self;
+    my @problems = pf::pfcmd::checkup::sanity_check(pf::services::service_list(@pf::services::ALL_SERVICES));
+    foreach my $entry (@problems) {
+        chomp $entry->{$pf::pfcmd::checkup::MESSAGE};
+        print $entry->{$pf::pfcmd::checkup::SEVERITY}  . " - " . $entry->{$pf::pfcmd::checkup::MESSAGE} . "\n";
+    }
+
+    # if there is a fatal problem, exit with status 255
+    foreach my $entry (@problems) {
+        if ($entry->{$pf::pfcmd::checkup::SEVERITY} eq $pf::pfcmd::checkup::FATAL) {
+            exit(255);
+        }
+    }
+
+    if (@problems) {
+        return $TRUE;
+    } else {
+        return $FALSE;
+    }
 }
 
 =head1 AUTHOR
