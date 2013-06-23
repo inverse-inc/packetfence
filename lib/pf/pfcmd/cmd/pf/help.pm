@@ -7,46 +7,48 @@ pfcmd - PacketFence command line interface
 
 pfcmd <command> [options]
 
- Command:
- checkup                     | perform a sanity checkup and report any problems
- class                       | view violation classes
- config                      | query, set, or get help on pf.conf configuration paramaters
- configfiles                 | push or pull configfiles into/from database
- floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
- fingerprint                 | view DHCP Fingerprints
- graph                       | trending graphs
- history                     | IP/MAC history
- ifoctetshistorymac          | accounting history
- ifoctetshistoryswitch       | accounting history
- ifoctetshistoryuser         | accounting history
- import                      | bulk import of information into the database
- interfaceconfig             | query/modify interface configuration parameters
- ipmachistory                | IP/MAC history
- locationhistorymac          | Switch/Port history
- locationhistoryswitch       | Switch/Port history
- lookup                      | node or pid lookup against local data store
- manage                      | manage node entries
- networkconfig               | query/modify network configuration parameters
- node                        | node manipulation
- nodeaccounting              | RADIUS Accounting Information
- nodecategory                | nodecategory manipulation
- nodeuseragent               | View User-Agent information associated to a node
- person                      | person manipulation
- reload                      | rebuild fingerprint or violations tables without restart
- report                      | current usage reports
- schedule                    | Nessus scan scheduling
- service                     | start/stop/restart and get PF daemon status
- switchconfig                | query/modify switches.conf configuration parameters
- switchlocation              | view switchport description and location
- traplog                     | update traplog RRD files and graphs or obtain
- switch IPs
- trigger                     | view and throw triggers
- ui                          | used by web UI to create menu hierarchies and dashboard
- update                      | download canonical fingerprint or OUI data
- useragent                   | view User-Agent fingerprint information
- version                     | output version information
- violation                   | violation manipulation
- violationconfig             | query/modify violations.conf configuration parameters
+ Commands
+  checkup                     | perform a sanity checkup and report any problems
+  class                       | view violation classes
+  config                      | query, set, or get help on pf.conf configuration paramaters
+  configfiles                 | push or pull configfiles into/from database
+  floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+  fingerprint                 | view DHCP Fingerprints
+  graph                       | trending graphs
+  history                     | IP/MAC history
+  ifoctetshistorymac          | accounting history
+  ifoctetshistoryswitch       | accounting history
+  ifoctetshistoryuser         | accounting history
+  import                      | bulk import of information into the database
+  interfaceconfig             | query/modify interface configuration parameters
+  ipmachistory                | IP/MAC history
+  locationhistorymac          | Switch/Port history
+  locationhistoryswitch       | Switch/Port history
+  lookup                      | node or pid lookup against local data store
+  manage                      | manage node entries
+  networkconfig               | query/modify network configuration parameters
+  node                        | node manipulation
+  nodeaccounting              | RADIUS Accounting Information
+  nodecategory                | nodecategory manipulation
+  nodeuseragent               | View User-Agent information associated to a node
+  person                      | person manipulation
+  reload                      | rebuild fingerprint or violations tables without restart
+  report                      | current usage reports
+  schedule                    | Nessus scan scheduling
+  service                     | start/stop/restart and get PF daemon status
+  switchconfig                | query/modify switches.conf configuration parameters
+  switchlocation              | view switchport description and location
+  traplog                     | update traplog RRD files and graphs or obtain
+  switch IPs
+  trigger                     | view and throw triggers
+  ui                          | used by web UI to create menu hierarchies and dashboard
+  update                      | download canonical fingerprint or OUI data
+  useragent                   | view User-Agent fingerprint information
+  version                     | output version information
+  violation                   | violation manipulation
+  violationconfig             | query/modify violations.conf configuration parameters
+
+Please view "pfcmd help <command>" for details on each option
 
 =cut
 
@@ -59,7 +61,18 @@ pf::pfcmd::cmd::pf::help
 use strict;
 use warnings;
 
-use base qw(pf::pfcmd::cmd::help);
+use base qw(pf::pfcmd::cmd::help pf::pfcmd::cmd::subcmd);
+
+sub run {
+    my ($self) = @_;
+    my ($cmd) = @{$self->{args}};
+    if(!defined $cmd || $cmd eq 'help') {
+        return $self->runHelp;
+    }
+    my $helpcmd = "pf::pfcmd::cmd::pf::${cmd}::help";
+    $self->loadSubCmd($helpcmd);
+    return $helpcmd->new->run;
+}
 
 =head1 AUTHOR
 
