@@ -9,12 +9,17 @@ pf::pfcmd::cmd::subcmd add documentation
 
 pf::pfcmd::cmd::subcmd
 
+
+=head1 TODO
+
+Have the module loaded dynamically
+
 =cut
 
 use strict;
 use warnings;
 use base qw(pf::pfcmd::cmd);
-
+use Module::Load;
 
 sub run {
     my ($self) = @_;
@@ -26,6 +31,7 @@ sub run {
     } else {
         $cmd = $self->default_cmd;
     }
+    load $cmd;
     return $cmd->new(@args)->run;
 }
 
