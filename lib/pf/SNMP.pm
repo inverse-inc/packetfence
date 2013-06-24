@@ -201,7 +201,7 @@ sub new {
     my ( $class, %argv ) = @_;
     my $this = bless {
         '_error'                    => undef,
-        '_ip'                       => undef,
+        '_id'                       => undef,
         '_macSearchesMaxNb'         => undef,
         '_macSearchesSleepInterval' => undef,
         '_mode'                     => undef,
@@ -245,6 +245,9 @@ sub new {
         '_roles'                    => undef,
         '_inlineTrigger'            => undef,
         '_deauthMethod'             => undef,
+        '_switchIp'                 => undef,
+        '_ip'                       => undef,
+        '_switchMac'                => undef,
     }, $class;
 
     foreach ( keys %argv ) {
@@ -254,8 +257,8 @@ sub new {
             $this->{_SNMPCommunityTrap} = $argv{$_};
         } elsif (/^-?SNMPCommunityWrite$/i) {
             $this->{_SNMPCommunityWrite} = $argv{$_};
-        } elsif (/^-?ip$/i) {
-            $this->{_ip} = $argv{$_};
+        } elsif (/^-?id$/i) {
+            $this->{_id} = $argv{$_};
         } elsif (/^-?macSearchesMaxNb$/i) {
             $this->{_macSearchesMaxNb} = $argv{$_};
         } elsif (/^-?macSearchesSleepInterval$/i) {
@@ -330,6 +333,10 @@ sub new {
             $this->{_inlineTrigger} = $argv{$_};
         } elsif (/^-?deauthMethod$/i) {
             $this->{_deauthMethod} = $argv{$_};
+        } elsif (/^-?(switchIp|ip)$/i) {
+            $this->{_ip} = $this->{_switchIp} = $argv{$_};
+        } elsif (/^-?switchMac$/i) {
+            $this->{_switchMac} = $argv{$_};
         }
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {
@@ -362,7 +369,7 @@ sub connectRead {
     }
     $logger->debug( "opening SNMP v"
             . $this->{_SNMPVersion}
-            . " read connection to $this->{_ip}" );
+            . " read connection to $this->{_id}" );
     if ( $this->{_SNMPVersion} eq '3' ) {
         ( $this->{_sessionRead}, $this->{_error} ) = Net::SNMP->session(
             -hostname     => $this->{_ip},
@@ -728,7 +735,7 @@ sub getRoleByName {
     return $this->{'_roles'}->{$roleName} if (defined($this->{'_roles'}->{$roleName}));
 
     # otherwise log and return undef
-    $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $this->{_ip});
+    $logger->warn("No parameter ${roleName}Role found in conf/switches.conf for the switch " . $this->{_id});
     return;
 }
 
