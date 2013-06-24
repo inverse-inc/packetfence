@@ -25,69 +25,10 @@ use pf::file_paths;
 use Time::HiRes qw(gettimeofday);
 use Benchmark qw(:all);
 use List::Util qw(first);
+use pf::ConfigStore::Switch;
+use pf::ConfigStore::SwitchOverlay;
 
-our ($singleton, %SwitchConfig, $switches_overlay_cached_config, $switches_cached_config);
-
-$switches_cached_config = pf::config::cached->new(
-    -file => $switches_config_file,
-    -allowempty => 1,
-    -default => 'default',
-);
-
-$switches_overlay_cached_config = pf::config::cached->new(
-    -file => $switches_overlay_file,
-    -allowempty => 1,
-    -import => $switches_cached_config,
-    -default => 'default',
-    -onfilereload => [
-        on_switches_reload => sub  {
-            my ($config, $name) = @_;
-            $config->toHash(\%SwitchConfig);
-            $config->cleanupWhitespace(\%SwitchConfig);
-            my @leftover = grep { !$switches_cached_config->SectionExists($_) }   $config->Sections();
-            delete @SwitchConfig{@leftover};
-            foreach my $switch (values %SwitchConfig) {
-                # transforming uplink and inlineTrigger to arrays
-                foreach my $key (qw(uplink inlineTrigger)) {
-                    my $value = $switch->{$key} || "";
-                    $switch->{$key} = [split /\s*,\s*/,$value ];
-                }
-                # transforming vlans and roles to hashes
-                my %merged = ( Vlan => {}, Role => {});
-                foreach my $key ( grep { /(Vlan|Role)$/ } keys %{$switch}) {
-                    next unless my $value = $switch->{$key};
-                    if (my ($type_key,$type) = ($key =~ /^(.+)(Vlan|Role)$/)) {
-                        $merged{$type}{$type_key} = $value;
-                    }
-                }
-                $switch->{roles} = $merged{Role};
-                $switch->{vlans} = $merged{Vlan};
-                $switch->{VoIPEnabled} =  ($switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i ? 1 : 0);
-                $switch->{mode} =  lc($switch->{mode});
-                $switch->{'wsUser'} ||= $switch->{'htaccessUser'};
-                $switch->{'wsPwd'}  ||= $switch->{'htaccessPwd'} || '';
-                foreach my $cli_default (qw(EnablePwd Pwd User)) {
-                    $switch->{"cli${cli_default}"}  ||= $switch->{"telnet${cli_default}"};
-                }
-                foreach my $snmpDefault (qw(communityRead communityTrap communityWrite version)) {
-                    my $snmpkey = "SNMP" . ucfirst($snmpDefault);
-                    $switch->{$snmpkey}  ||= $switch->{$snmpDefault};
-                }
-            }
-            $SwitchConfig{'127.0.0.1'} = { %{$SwitchConfig{default}}, type => 'PacketFence', mode => 'production', uplink => ['dynamic'], SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
-            $config->cache->set("SwitchConfig",\%SwitchConfig);
-        },
-    ],
-    -oncachereload => [
-        on_cached_overlay_reload => sub  {
-            my ($config, $name) = @_;
-            my $data = $config->cache->get("SwitchConfig");
-            if($data) {
-                %SwitchConfig = %$data;
-            }
-        },
-    ]
-);
+our ($singleton);
 
 =head1 METHODS
 
@@ -130,8 +71,37 @@ sub new {
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $this, @requestedSwitches ) = @_;
-    my $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
+    my ( $this, $switchId ) = @_;
+    my @requestedSwitches;
+    my $requestedSwitch;
+    my $switch_ip;
+    my $switch_mac;
+    my $switch_overlay = pf::ConfigStore::SwitchOverlay->new;
+    my $switch_config = pf::ConfigStore::Switch->new;
+
+    if(ref($switchId) eq 'HASH') {
+        if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
+            $switch_mac = $switchId->{switch_mac};
+            push @requestedSwitches,$switch_mac;
+        } elsif(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
+            $switch_ip = $switchId->{switch_ip};
+            push @requestedSwitches,$switch_ip;
+        }
+    } else {
+        @requestedSwitches = $switchId;
+        if(valid_ip($switchId)) {
+            $switch_ip = $switchId;
+        } elsif (valid_mac($switchId)) {
+            $switch_mac = $switchId;
+        }
+    }
+
+    if($switch_config->hasId($switch_mac)) {
+        $switch_overlay->update_or_create($switch_mac,{controllerIp => $switch_ip});
+        $switch_overlay->commit();
+    }
+
+    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
     unless ($requestedSwitch) {
         $logger->error("ERROR ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
@@ -155,7 +125,12 @@ sub instantiate {
     }
 
     $logger->debug("creating new $type object");
-    return $type->new( 'ip' => $requestedSwitch, %$switch_data);
+    return $type->new(
+         id => $requestedSwitch,
+         switchIp => $switch_ip,
+         switchMac => $switch_mac,
+         %$switch_data
+    );
 }
 
 sub config {
