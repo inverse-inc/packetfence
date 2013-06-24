@@ -26,8 +26,6 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
-use pf::ConfigStore::SwitchOverlay;
-use pf::ConfigStore::Switch;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
