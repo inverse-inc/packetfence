@@ -1,26 +1,34 @@
-#!/usr/bin/perl
+package pf::cmd::pf::class::view;
 =head1 NAME
 
-pfcmd2 add documentation
+pf::cmd::pf::class::view add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pfcmd2
+pf::cmd::pf::class::view
 
 =cut
 
 use strict;
 use warnings;
-use constant INSTALL_DIR => '/usr/local/pf';
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
+use base qw(pf::cmd);
+use pf::class;
 
-use pf::cmd::pf;
+sub run {
+    my ($self) = @_;
+    my ($id) = (@{$self->{args}});
+    my $function;
+    if ( $id && $id !~ /all/ ) {
+        $function = \&class_view;
+    } else {
+        $function = \&class_view_all;
+    }
+    return $self->print_results( $function, $id ) ;
+}
 
-exit pf::cmd::pf->new(@ARGV)->run();
-
+sub field_order_ui { "class view" }
 
 =head1 AUTHOR
 
@@ -34,7 +42,7 @@ Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
 
-This program is free software; you can redistribute it and/or
+This program is free software; you can redistribute it and::or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
@@ -50,4 +58,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
+1;
 
