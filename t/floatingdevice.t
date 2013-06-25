@@ -15,7 +15,7 @@ use Test::MockModule;
 use Test::MockObject::Extends;
 
 use lib '/usr/local/pf/lib';
-BEGIN {use SwitchFactoryConfig;}
+BEGIN {use FilePaths;}
 BEGIN { use pf::SNMP; }
 BEGIN {
     use_ok('pf::floatingdevice');

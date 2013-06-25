@@ -25,7 +25,7 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
-BEGIN { use SwitchFactoryConfig; }
+BEGIN {use FilePaths;}
 
 use pf::config;
 use pf::SwitchFactory;

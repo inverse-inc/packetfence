@@ -12,7 +12,7 @@ use Test::MockObject::Extends;
 use Test::More tests => 6;
 
 use lib '/usr/local/pf/lib';
-BEGIN { use SwitchFactoryConfig; }
+BEGIN { use FilePaths; }
 use pf::config;
 use pf::SwitchFactory;
 

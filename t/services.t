@@ -23,7 +23,7 @@ my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
 
-BEGIN { use SwitchFactoryConfig; }
+BEGIN {use FilePaths;}
 BEGIN { use_ok('pf::services') }
 BEGIN { use_ok('pf::services::apache') }
 BEGIN { use_ok('pf::services::dhcpd') }
