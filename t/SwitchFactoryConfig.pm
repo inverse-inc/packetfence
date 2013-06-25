@@ -18,6 +18,9 @@ use warnings;
 BEGIN {
     use pf::file_paths;
     $pf::file_paths::switches_config_file = './data/switches.conf';
+    $pf::file_paths::switches_overlay_file = './data/switches_overlay.conf';
+    $pf::file_paths::chi_config_file = './data/chi.conf';
+
 }
 
 =head1 AUTHOR
