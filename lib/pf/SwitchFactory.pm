@@ -97,7 +97,13 @@ sub instantiate {
     }
 
     if($switch_config->hasId($switch_mac)) {
-        $switch_overlay->update_or_create($switch_mac,{controllerIp => $switch_ip});
+        $switch_overlay->update_or_create(
+            $switch_mac,
+            {
+                controllerIp => $switch_ip,
+                ip => $switch_ip
+            }
+        );
         $switch_overlay->commit();
     }
 
