@@ -59,6 +59,7 @@ sub sendLocalReAssignVlanTrap {
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1',
             "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER,    $ifIndex,
             "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER,    $connection_type,
+            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {
@@ -82,6 +83,7 @@ sub sendLocalDesAssociateTrap {
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2',
             "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
             "1.3.6.1.4.1.29464.1.4", Net::SNMP::INTEGER,           $connection_type,
+            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {
@@ -110,6 +112,7 @@ sub sendLocalFirewallRequestTrap {
         -varbindlist => [
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.3',
             "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
+            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {
