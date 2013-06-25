@@ -8,14 +8,14 @@ pf::enforcement - taking security decisions
 
 =head1 DESCRIPTION
 
-pf::enforcement provides the means to re-evaluate the security posture of a node 
+pf::enforcement provides the means to re-evaluate the security posture of a node
 and trigger the appropriate required changes.
 
 =head1 DEVELOPER NOTES
 
 Notice that this module doesn't export all its subs like our other modules do.
-This is an attempt to shift our paradigm towards calling with package names 
-and avoid the double naming. 
+This is an attempt to shift our paradigm towards calling with package names
+and avoid the double naming.
 
 Remove this note when it will be no longer relevant. ;)
 
@@ -55,6 +55,7 @@ This will check a node's status and perform changes to access control if necessa
 Triggered by pfcmd.
 
 =cut
+
 sub reevaluate_access {
     my ( $mac, $function, %opts ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
@@ -86,7 +87,7 @@ sub reevaluate_access {
                 my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
                 if ($trapSender) {
                     $logger->debug("sending a local firewallRequest trap to force firewall change");
-                    $trapSender->sendLocalFirewallRequestTrap('127.0.0.1', $mac);
+                    $trapSender->sendLocalFirewallRequestTrap($trapSender, $mac);
                 } else {
                     $logger->error("Can't instantiate switch 127.0.0.1! It's critical for internal messages!");
                 }
@@ -107,34 +108,36 @@ sub reevaluate_access {
 Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
 
 =cut
+
 sub _vlan_reevaluation {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
 
     if ( _should_we_reassign_vlan($mac, $locationlog_entry, %opts) ) {
 
-        my $switch_ip = $locationlog_entry->{'switch'} || 'unknown';
+        my $switch_id = $locationlog_entry->{'switch'} || 'unknown';
         my $ifIndex = $locationlog_entry->{'port'} || 'unknown';
         my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'});
         $logger->info(
-            "switch port for $mac is $switch_ip ifIndex $ifIndex "
+            "switch port for $mac is $switch_id ifIndex $ifIndex "
             . "connection type: " . $connection_type_explained{$conn_type}
         );
 
         # TODO avoidable load?
         my $trapSender = pf::SwitchFactory->getInstance()->instantiate('127.0.0.1');
+        my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_id);
         if ($trapSender) {
             if ($conn_type == $UNKNOWN) {
                 $logger->warn("Unknown connection type! We won't perform VLAN reassignment since node never connected");
 
             } elsif ($conn_type == $WIRED_SNMP_TRAPS) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch, $ifIndex, $conn_type);
 
             } elsif ($conn_type == $WIRELESS_MAC_AUTH) {
                 $logger->debug("sending a local desAssociate trap to force deassociation "
                     . "(client will reconnect getting a new VLAN)");
-                $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type);
+                $trapSender->sendLocalDesAssociateTrap($switch, $mac, $conn_type);
 
             } elsif ($conn_type == $WIRELESS_802_1X) {
                 $logger->debug(
@@ -144,15 +147,15 @@ sub _vlan_reevaluation {
                     "trying to dissociate a wireless 802.1x user, this might not work depending on hardware support. "
                     . "If its your case please file a bug"
                 );
-                $trapSender->sendLocalDesAssociateTrap($switch_ip, $mac, $conn_type)
+                $trapSender->sendLocalDesAssociateTrap($switch, $mac, $conn_type)
 
             } elsif ($conn_type == $WIRED_802_1X) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch, $ifIndex, $conn_type);
 
             } elsif ($conn_type == $WIRED_MAC_AUTH) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch, $ifIndex, $conn_type);
             }
         } else {
             $logger->error("Can't instantiate switch 127.0.0.1! Check your configuration!");
@@ -169,16 +172,18 @@ Returns true or false whether or not we should request vlan adjustment
 Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
 
 =cut
+
 sub _should_we_reassign_vlan {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
 
     if ($opts{'force'}) {
         $logger->info("$mac VLAN reassignment is forced.");
-        return $TRUE; 
+        return $TRUE;
     }
 
     my $switch_ip = $locationlog_entry->{'switch'};
+    my $switch_mac = $locationlog_entry->{'switch_mac'};
     my $ifIndex = $locationlog_entry->{'port'};
     my $currentVlan = $locationlog_entry->{'vlan'};
     my $connection_type = str_to_connection_type($locationlog_entry->{'connection_type'});
@@ -189,7 +194,7 @@ sub _should_we_reassign_vlan {
 
     my $vlan_obj = new pf::vlan::custom();
     # TODO avoidable load?
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_mac,$switch_ip);
     if (!$switch) {
         $logger->error("Can't instantiate switch $switch_ip! Check your configuration!");
         return $FALSE;

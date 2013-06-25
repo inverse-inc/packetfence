@@ -659,18 +659,18 @@ sub setVlan {
     }
 
     #closes old locationlog entries and create a new one if required
-    locationlog_synchronize($this->{_ip}, $ifIndex, $newVlan, $presentPCMac, $NO_VOIP, $WIRED_SNMP_TRAPS);
+    locationlog_synchronize($this->{_id}, $this->{_switchIp}, $this->{_switchMac} , $ifIndex, $newVlan, $presentPCMac, $NO_VOIP, $WIRED_SNMP_TRAPS);
 
     if ( $vlan == $newVlan ) {
         $logger->info(
-            "Should set " . $this->{_ip} . " ifIndex $ifIndex to VLAN $newVlan "
+            "Should set " . $this->{_id} . " ifIndex $ifIndex to VLAN $newVlan "
             . "but it is already in this VLAN -> Do nothing"
         );
         return 1;
     }
 
     #and finally set the VLAN
-    $logger->info("setting VLAN at " . $this->{_ip} . " ifIndex $ifIndex from $vlan to $newVlan");
+    $logger->info("setting VLAN at " . $this->{_id} . " ifIndex $ifIndex from $vlan to $newVlan");
     return $this->_setVlan( $ifIndex, $newVlan, $vlan, $switch_locker_ref );
 }
 

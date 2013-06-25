@@ -106,6 +106,8 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
+    my $switch_id =  $switch->{_id};
+
     # verify if switch supports this connection type
     if (!$this->_isSwitchSupported($switch, $connection_type)) {
         # if not supported, return
@@ -145,7 +147,7 @@ sub authorize {
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
-        $logger->warn("Should perform access control on switch $switch_ip for mac $mac but the switch "
+        $logger->warn("Should perform access control on switch $switch_id for mac $mac but the switch "
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
@@ -175,7 +177,7 @@ sub authorize {
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
-    locationlog_synchronize($switch_ip, $port, $vlan, $mac,
+    locationlog_synchronize($switch_id, $switch_ip, $switch_mac, $port, $vlan, $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
@@ -387,7 +389,7 @@ sub _authorizeVoip {
     }
 
     locationlog_synchronize(
-        $switch->{_id}, $port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid
+        $switch->{_id}, $switch->{_switchIp}, $switch->{_switchMac}, $port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid
     );
 
     my %RAD_REPLY = $switch->getVoipVsa();

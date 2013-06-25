@@ -184,10 +184,8 @@ my @completeThreadList;
 
 my %switch_locker : shared;
 
-foreach my $switch_ip ( sort keys %{ $switchFactory->config } ) {
-    if ( $switch_ip ne 'default' ) {
-        $switch_locker{$switch_ip} = &share( {} );
-    }
+foreach my $switch_id ( grep { $_ ne 'default' } keys %{ $switchFactory->config } ) {
+    $switch_locker{$switch_id} = &share( {} );
 }
 
 add_new_threads_to_list( "signalHandlerThreadListQueued", $Config{'vlan'}{'nbtraphandlerthreads'} );
@@ -554,37 +552,37 @@ sub parseTrap {
         #test if this is a 'normal' trap (i.e. a trap sent from a switch
         #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
         my $switch;
-        my $switch_ip;
+        my $switch_id;
         my $isLocalTrap = ( ( $1 eq '127.0.0.1' ) || ( $3 =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/ ) );
         $lockLogger->trace("locking - trying to lock switchFactory_locker in parseTrap");
         if ($isLocalTrap) {
             lock $switchFactory_locker;
             $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
-            $switch_ip = $2;
-            $logger->info("local (127.0.0.1) trap for switch $switch_ip");
-            add_to_switch_locker($switch_ip);
-            $switch = $switchFactory->instantiate($switch_ip);
+            $switch_id = $2;
+            $logger->info("local (127.0.0.1) trap for switch $switch_id");
+            add_to_switch_locker($switch_id);
+            $switch = $switchFactory->instantiate($switch_id);
         } else {
             lock $switchFactory_locker;
             $lockLogger->trace("locking - obtained lock on switchFactory_locker in parseTrap");
             my %config = %{ $switchFactory->config };
-            $switch_ip = $1;
-            if ( !exists $config{$switch_ip} ) {
-                $logger->warn("We have received a trap from switch $switch_ip. This switch is UNREGISTERED. Flush the trap");
+            $switch_id = $1;
+            if ( !exists $config{$switch_id} ) {
+                $logger->warn("We have received a trap from switch $switch_id. This switch is UNREGISTERED. Flush the trap");
                 return;
             }
-            if ( $config{$switch_ip}{'mode'} eq 'ignore' ) {
-                $logger->info("We have received a trap from switch $switch_ip. This switch is in 'ignore' mode. Flush the trap");
+            if ( $config{$switch_id}{'mode'} eq 'ignore' ) {
+                $logger->info("We have received a trap from switch $switch_id. This switch is in 'ignore' mode. Flush the trap");
                 return;
             }
-            add_to_switch_locker($switch_ip);
-            $switch = $switchFactory->instantiate($switch_ip);
+            add_to_switch_locker($switch_id);
+            $switch = $switchFactory->instantiate($switch_id);
         }
         $lockLogger->trace(
             "locking - unlocked switchFactory_locker in parseTrap");
 
         if (!$switch) {
-            $logger->error("Can not instantiate switch $switch_ip !");
+            $logger->error("Can not instantiate switch $switch_id !");
         } else {
             my $trapHashRef;
             # TODO push this out in pf::SNMP::PacketFence, no?
@@ -653,6 +651,10 @@ sub parseTrap {
                 } else {
                     $trapHashRef->{'trapType'} = 'unknown';
                 }
+                if($trapLine =~ /\|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"/) {
+                    $trapHashRef->{'switchId'} = $1;
+                }
+
             } else {
                 $trapHashRef = $switch->parseTrap($3);
 
@@ -664,7 +666,7 @@ sub parseTrap {
             my $trapType = $trapHashRef->{'trapType'};
 
             if ( $trapType eq 'wirelessIPS' ) {
-                my $switch_ip = $switch->{_ip};
+                my $switch_id = $switch->{_id};
                 my $trapMac = $trapHashRef->{'trapMac'};
 
                 handle_wireless_ips(clean_mac($trapMac));
@@ -672,7 +674,7 @@ sub parseTrap {
                 return;
 
             } elsif ( $trapType ne 'unknown' ) {
-                my $switch_ip     = $switch->{_ip};
+                my $switch_id     = $switch->{_id};
                 my $switch_port   = $trapHashRef->{'trapIfIndex'};
                 my $trapVlan      = '';
                 my $trapOperation = '';
@@ -721,7 +723,7 @@ sub parseTrap {
                     $trapConnectionType = $trapHashRef->{'trapConnectionType'};
                 }
 
-                return "$switch_ip|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
+                return "$switch_id|$switch_port|$trapType|$trapVlan|$trapOperation|$trapMac|$trapSSID|$trapClientUserName|$trapIfIndex|$trapConnectionType";
             } else {
                 $logger->info("ignoring unknown trap: $trapLine");
             }
@@ -1518,10 +1520,10 @@ sub handleTrap {
             if (scalar(@macArray) == 0) {
                 if ($nbAttempts >= $switch->{_macSearchesMaxNb}) {
                     $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
-                        ."on switch ".$switch->{_ip}." ".$switch->{_macSearchesMaxNb}." times and failed");
+                        ."on switch ".$switch->{_id}." ".$switch->{_macSearchesMaxNb}." times and failed");
                 } else {
                     $logger->warn("Tried to grab MAC address at ifIndex $switch_port "
-                        ."on switch ".$switch->{_ip}." for 2 minutes and failed");
+                        ."on switch ".$switch->{_id}." for 2 minutes and failed");
                 }
             }
 
@@ -1591,12 +1593,12 @@ sub handleTrap {
         $command = "deauthenticateDot1x" if ($connection_type == $WIRELESS_802_1X);
 
         $logger->info("$trapType trap received on $switch_ip for wireless client $trapMac");
-        my $switchIp = $switch->{_ip};
+        my $switchId = $switch->{_id};
         my ($switchdeauthMethod, $deauthTechniques) = $switch->deauthTechniques($switch->{_deauthMethod});
         if (($switchdeauthMethod eq $SNMP::SSH) || ($switchdeauthMethod eq $SNMP::TELNET)) {
             # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
             # http://www.cpanforum.com/threads/6909
-            pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchIp -mac $trapMac");
+            pf_run("/usr/local/pf/bin/pfcmd_vlan -$command -switch $switchId -mac $trapMac");
         }
         else {
            $deauthTechniques->($switch,$trapMac);
@@ -1626,7 +1628,7 @@ sub handleTrap {
                 my $mac = $locationlog[0]->{'mac'};
 
                 if ( $switch->isPortSecurityEnabled($switch_port) ) {
-                    $logger->info( "security traps are configured on " . $switch->{_ip}
+                    $logger->info( "security traps are configured on " . $switch->{_id}
                         . " ifIndex $switch_port. Re-assigning VLAN for $mac"
                     );
 
@@ -1636,7 +1638,7 @@ sub handleTrap {
                     # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
                     if ( !$hasPhone ) {
                         $logger->info(
-                            "no VoIP phone is currently connected at " . $switch->{_ip} . " ifIndex $switch_port. " .
+                            "no VoIP phone is currently connected at " . $switch->{_id} . " ifIndex $switch_port. " .
                             "Flipping port admin status"
                         );
                         $switch->bouncePort( $switch_port );
@@ -1653,7 +1655,7 @@ sub handleTrap {
                             $message{'message'} .= "Owner: " . $node_info->{'pid'} . "\n";
                             $message{'message'} .= "Computer Name: " . $node_info->{'computername'} . "\n";
                             $message{'message'} .= "Notes: " . $node_info->{'notes'} . "\n";
-                            $message{'message'} .= "Switch: " . $switch->{_ip} . "\n";
+                            $message{'message'} .= "Switch: " . $switch->{_id} . "\n";
                             $message{'message'} .= "Port (ifIndex): " . $switch_port . "\n\n";
                             $message{'message'} .= "The violation details are\n";
 
@@ -1670,7 +1672,7 @@ sub handleTrap {
                     }
                 } else {
                     $logger->info(
-                        "no security traps are configured on " . $switch->{_ip} . " ifIndex $switch_port. " .
+                        "no security traps are configured on " . $switch->{_id} . " ifIndex $switch_port. " .
                         "Flipping port admin status"
                     );
                     $switch->bouncePort( $switch_port );
@@ -1705,8 +1707,10 @@ sub handleTrap {
 
         # }}}2
     } elsif ( $trapType eq 'roaming' ) {
-        my $switchIp = $switch->{_ip};
-        locationlog_synchronize($switchIp, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID );
+        my $switchId  = $switch->{_id};
+        my $switchMac = $switch->{_switchMac};
+        my $switchIp  = $switch->{_ip};
+        locationlog_synchronize($switchId, $switchIp, $switchMac, $trapIfIndex, $trapVlan, $trapMac, $NO_VOIP, $trapConnectionType, $trapClientUserName, $trapSSID );
 
     }
 
