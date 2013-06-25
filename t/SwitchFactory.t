@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use diagnostics;
 
-use Test::More tests => 35;
+use Test::More tests => 37;
 use lib '/usr/local/pf/lib';
 
 BEGIN {
@@ -17,7 +17,9 @@ my $switchFactory = pf::SwitchFactory->getInstance;
 my $switch;
 $switch = $switchFactory->instantiate('192.168.0.1');
 isa_ok( $switch, 'pf::SNMP::Cisco::Catalyst_2900XL' );
-is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1' );
+is( $switch->{_id}, '192.168.0.1', 'The id of the switch 192.168.0.1' );
+is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1 old name' );
+is( $switch->{_switchIp}, '192.168.0.1', 'IP Address of 192.168.0.1 new name' );
 is_deeply( $switch->{_uplink}, [qw(23)], 'Uplink of 192.168.0.1' );
 is( $switch->{_SNMPVersion}, '2c', 'SNMP version of 192.168.0.1' );
 is( $switch->{_SNMPCommunityTrap},
