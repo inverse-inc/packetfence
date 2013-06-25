@@ -637,6 +637,9 @@ sub parseTrap {
                 } else {
                     $trapHashRef->{'trapType'} = 'unknown';
                 }
+                if($trapLine =~ /\|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"/) {
+                    $trapHashRef->{'switchId'} = $1;
+                }
 
             } else {
                 $trapHashRef = $switch->parseTrap($3);

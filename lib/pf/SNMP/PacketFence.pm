@@ -48,6 +48,7 @@ sub connectWrite {
 sub sendLocalReAssignVlanTrap {
     my ($this, $switch, $ifIndex, $connection_type) = @_;
     my $switch_ip = $switch->{_ip};
+    my $switch_id = $switch->{_id};
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectWrite() ) {
         return 0;
@@ -59,6 +60,7 @@ sub sendLocalReAssignVlanTrap {
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.1',
             "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER,    $ifIndex,
             "1.3.6.1.2.1.2.2.1.1.$ifIndex", Net::SNMP::INTEGER,    $connection_type,
+            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {
@@ -71,6 +73,7 @@ sub sendLocalReAssignVlanTrap {
 sub sendLocalDesAssociateTrap {
     my ($this, $switch, $mac, $connection_type) = @_;
     my $switch_ip = $switch->{_ip};
+    my $switch_id = $switch->{_id};
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectWrite() ) {
         return 0;
@@ -82,6 +85,7 @@ sub sendLocalDesAssociateTrap {
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.2',
             "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
             "1.3.6.1.4.1.29464.1.4", Net::SNMP::INTEGER,           $connection_type,
+            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {
@@ -100,6 +104,7 @@ Sends a local trap meant to trigger firewall changes in pfsetvlan
 sub sendLocalFirewallRequestTrap {
     my ($this, $switch, $mac) = @_;
     my $switch_ip = $switch->{_ip};
+    my $switch_id = $switch->{_id};
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectWrite() ) {
         return 0;
@@ -110,6 +115,7 @@ sub sendLocalFirewallRequestTrap {
         -varbindlist => [
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.3',
             "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
+            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {

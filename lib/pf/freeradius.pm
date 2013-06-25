@@ -44,7 +44,6 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::db;
-#use pf::ConfigStore::SwitchOverlay;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
