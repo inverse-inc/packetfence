@@ -60,7 +60,8 @@ sub new {
     my $logger = get_logger();
     $logger->debug("instantiating new SwitchFactory object");
     my ( $class, %argv ) = @_;
-    return bless \$singleton, $class;
+    my $self;
+    return bless \$self, $class;
 }
 
 =item instantiate - create new pf::SNMP (or subclass) object
