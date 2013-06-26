@@ -133,7 +133,7 @@ sub _connect {
     # check to see if the hostname includes a port (e.g. server:port)
     my $LDAPServerPort;
     if ( $LDAPServer =~ /:/ ) {
-    	$LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
+        $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
     }
     $LDAPServerPort //=  $self->{'port'} ;
 
