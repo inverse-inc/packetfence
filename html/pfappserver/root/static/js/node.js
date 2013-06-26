@@ -250,6 +250,7 @@ NodeView.prototype.toggleActionsButton = function(e) {
 NodeView.prototype.toggleAllItems = function(e) {
     var target = $(e.currentTarget);
     $('[name="items"]').attr("checked", target.is(':checked'));
+    this.toggleActionsButton();
     return true;
 };
 
