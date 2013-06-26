@@ -202,6 +202,7 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     'Ethernet-NoEAP'        => $WIRED_MAC_AUTH,
     'SNMP-Traps'            => $WIRED_SNMP_TRAPS,
     'Inline'                => $INLINE,
+    'WIRED_MAC_AUTH'        => $WIRED_MAC_AUTH,
 );
 %connection_group = (
     'Wireless'              => $WIRELESS,
@@ -214,7 +215,7 @@ Readonly our $WEB_ADMIN_ALL => 4294967295;
     $WIRELESS_802_1X => 'Wireless-802.11-EAP',
     $WIRELESS_MAC_AUTH => 'Wireless-802.11-NoEAP',
     $WIRED_802_1X => 'Ethernet-EAP',
-    $WIRED_MAC_AUTH => 'Ethernet-NoEAP',
+    $WIRED_MAC_AUTH => 'WIRED_MAC_AUTH',
     $WIRED_SNMP_TRAPS => 'SNMP-Traps',
     $INLINE => 'Inline',
     $UNKNOWN => '',

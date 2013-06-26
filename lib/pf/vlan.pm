@@ -315,7 +315,13 @@ sub getNormalVlan {
     my $role = "";
 
     $logger->debug("Trying to determine VLAN from role.");
-    if (defined $user_name && (($connection_type & $EAP) == $EAP)) {
+
+    # Try MAC_AUTH, then other EAP methods and finally anything else.
+    if ( ( $connection_type & $WIRED_MAC_AUTH ) == $WIRED_MAC_AUTH ) {
+        $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
+        $role = $node_info->{'category'};
+    }
+    elsif (defined $user_name && (($connection_type & $EAP) == $EAP)) {
         my $params =
           {
            username => $user_name,
