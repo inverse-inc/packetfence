@@ -799,6 +799,7 @@ fi
 %doc                    /usr/local/pf/UPGRADE.asciidoc
 %doc                    /usr/local/pf/UPGRADE.old
 %dir                    /usr/local/pf/var
+%config(noreplace)      /usr/local/pf/var/switches.conf
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
 %dir                    /usr/local/pf/raddb
