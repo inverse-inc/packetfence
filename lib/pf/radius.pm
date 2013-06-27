@@ -82,7 +82,7 @@ sub authorize {
     }
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, "
-        . "connection_type => " . connection_type_to_str($connection_type) . " "
+        . "connection_type => " . connection_type_to_str($connection_type) . ","
         . "switch_mac => $switch_mac, mac => $mac, port => $port, username => $user_name");
 
     #add node if necessary
@@ -221,7 +221,7 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 
 sub _parseRequest {
     my ($this, $radius_request) = @_;
-    my $ap_mac = clean_mac($radius_request->{'Called-Station-Id'});
+    my $ap_mac = extractApMacFromRadiusRequest($radius_request);
     my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
@@ -238,6 +238,27 @@ sub _parseRequest {
     }
     return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
 }
+
+
+sub extractApMacFromRadiusRequest {
+    my ($radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    # it's put in Called-Station-Id
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        if ($radius_request->{'Called-Station-Id'} =~ /^
+            # below is MAC Address with supported separators: :, - or nothing
+            ([a-f0-9]{2}([-:]?[a-f0-9]{2}){5})
+        /ix) {
+            return clean_mac($1);
+        } else {
+            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
+        }
+    }
+
+    return;
+}
+
 
 =item * _doWeActOnThisCall
 
