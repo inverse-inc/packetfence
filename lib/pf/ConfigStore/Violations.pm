@@ -19,9 +19,10 @@ use pf::violation_config;
 
 extends 'pf::ConfigStore';
 
-readViolationConfigFile();
-
-sub _buildCachedConfig { $pf::violation_config::cached_violations_config };
+sub _buildCachedConfig {
+    readViolationConfigFile();
+    $pf::violation_config::cached_violations_config
+};
 
 =head1 Methods
 
