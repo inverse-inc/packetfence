@@ -84,12 +84,13 @@ sub instantiate {
         if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
             $switch_mac = $switchId->{switch_mac};
             push @requestedSwitches,$switch_mac;
-        } elsif(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
+        } 
+        if(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
             $switch_ip = $switchId->{switch_ip};
             push @requestedSwitches,$switch_ip;
         }
     } else {
-        @requestedSwitches = $switchId;
+        @requestedSwitches = ($switchId);
         if(valid_ip($switchId)) {
             $switch_ip = $switchId;
         } elsif (valid_mac($switchId)) {
