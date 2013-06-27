@@ -71,17 +71,13 @@ table.sources {
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Main') %]</li>
               [% pf_section_entry('general', 'General') %]
-              <!--[% pf_section_entry( 'database', 'Database') %]-->
               [% pf_section_entry( 'network', 'Network') %]
-              <!--[% pf_section_entry( 'proxies', 'Proxy') %]-->
               [% pf_section_entry( 'trapping', 'Trapping') %]
               [% pf_section_entry( 'registration', 'registration') %]
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
               [% pf_section_entry( 'guests_admin_registration', 'Admin Registration') %]
               [% pf_section_entry( 'billing', 'Billing') %]
-              <!--[% list_entry( 'passthroughs') %]-->
               [% pf_section_entry( 'alerting', 'Alerting') %]
-              <!--[% pf_section_entry( 'ports', 'Ports') %]-->
               [% pf_section_entry( 'scan', 'Scan') %]
               [% pf_section_entry( 'expire', 'Expiration') %]
               [% pf_section_entry( 'services', 'Services') %]
@@ -91,7 +87,6 @@ table.sources {
               [% pf_section_entry( 'captive_portal', 'Captive portal') %]
               [% pf_section_entry( 'advanced', 'Advanced') %]
               [% pf_section_entry( 'provisioning', 'Provisioning') %]
-              <!--[% list_entry( 'node_import') %]-->
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
               <li class="nav-header">[% l('Network') %]<li>
