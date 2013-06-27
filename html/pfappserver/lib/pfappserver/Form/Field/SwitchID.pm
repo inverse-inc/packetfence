@@ -34,26 +34,28 @@ sub get_class_messages {
 }
 
 apply
-  (
-   [
+[
     {
-     check => sub {
-         my ( $value, $field ) = @_;
-         return 1 if ($field->accept && grep { $_ eq $value } @{$field->accept});
-         return valid_ip( $value ) || valid_mac( $value );
-     },
-     message => sub {
-         my ( $value, $field ) = @_;
-         return $field->get_message('switch_id');
-     },
-     transform => sub {
-        my ($val) = @_;
-        return clean_mac( $val ) if valid_mac($val);
-        return $val;
-     }
+        check => sub {
+            my ( $value, $field ) = @_;
+            return 1 if ($field->accept && grep { $_ eq $value } @{$field->accept});
+            return valid_ip( $value ) || valid_mac( $value );
+        }
+    },
+    {
+        message => sub {
+            my ( $value, $field ) = @_;
+            return $field->get_message('switch_id');
+        },
+    },
+    {
+        transform => sub {
+            my ($val) = @_;
+            return clean_mac( $val ) if valid_mac($val);
+            return $val;
+        }
     }
-   ]
-  );
+];
 
 =head1 COPYRIGHT
 
