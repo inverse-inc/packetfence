@@ -42,7 +42,7 @@ if (!(-e $filename)) {
     exit 0;
 }
 
-if ( ! $unregdate =~ /^\d{4}-\d\d-\d\d$/; ) {
+if ( ! $unregdate =~ /^\d{4}-\d\d-\d\d$/ ) {
     print "Invalid unregdate format $unregdate. Should be of this format YYYY-MM-DD\n";
     exit 0;
 }
