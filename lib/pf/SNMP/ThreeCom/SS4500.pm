@@ -406,7 +406,7 @@ sub _authorizeMacWithTelnet {
         $session->waitfor('/>/');
     };
     if ($@) {
-        $logger->warn("ERROR: Can not connect to switch " . $this->{'_ip'} . " using Telnet");
+        $logger->warn("ERROR: Can not connect to switch " . $this->{'_id'} . " using Telnet");
         return 0;
     }
 

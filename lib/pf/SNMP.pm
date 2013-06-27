@@ -395,7 +395,7 @@ sub connectRead {
         $logger->error( "error creating SNMP v"
                 . $this->{_SNMPVersion}
                 . " read connection to "
-                . $this->{_ip} . ": "
+                . $this->{_id} . ": "
                 . $this->{_error} );
         return 0;
     } else {
@@ -407,7 +407,7 @@ sub connectRead {
             $logger->error( "error creating SNMP v"
                     . $this->{_SNMPVersion}
                     . " read connection to "
-                    . $this->{_ip} . ": "
+                    . $this->{_id} . ": "
                     . $this->{_sessionRead}->error() );
             $this->{_sessionRead} = undef;
             return 0;
@@ -426,7 +426,7 @@ sub disconnectRead {
     if ( !defined( $this->{_sessionRead} ) ) {
         return 1;
     }
-    $logger->debug( "closing SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}" );
+    $logger->debug( "closing SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_id}" );
     $this->{_sessionRead}->close;
     return 1;
 }
@@ -637,13 +637,13 @@ sub setVlan {
         if ( $newVlan == $macDetectionVlan ) {
             $logger->warn(
                 "MAC detection VLAN " . $macDetectionVlan
-                . " is not defined on switch " . $this->{_ip}
+                . " is not defined on switch " . $this->{_id}
                 . " -> Do nothing"
             );
             return 1;
         }
         $logger->warn(
-            "new VLAN $newVlan is not defined on switch " . $this->{_ip}
+            "new VLAN $newVlan is not defined on switch " . $this->{_id}
             . " -> replacing VLAN $newVlan with MAC detection VLAN "
             . $macDetectionVlan
         );
@@ -651,7 +651,7 @@ sub setVlan {
         if ( !$this->isDefinedVlan($newVlan) ) {
             $logger->warn(
                 "MAC detection VLAN " . $macDetectionVlan
-                . " is also not defined on switch " . $this->{_ip}
+                . " is also not defined on switch " . $this->{_id}
                 . " -> Do nothing"
             );
             return 1;
@@ -751,20 +751,20 @@ sub getVlanByName {
 
     if (!defined($this->{'_vlans'}) || !defined($this->{'_vlans'}->{$vlanName})) {
         # VLAN name doesn't exist
-        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip});
+        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_id});
         return;
     }
 
     if ($vlanName eq "inline" && length($this->{'_vlans'}->{$vlanName}) == 0) {
         # VLAN empty, return 0 for Inline
-        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip} .
+        $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_id} .
                       ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
 
     if ($this->{'_vlans'}->{$vlanName} !~ /^\w+$/) {
         # is not resolved to a valid VLAN identifier
-        $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_id} .
                       ", not a VLAN identifier");
         return;
     }
@@ -855,11 +855,11 @@ sub getSwitchLocation {
     $logger->trace("SNMP get_request for sysLocation: $OID_sysLocation");
     my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_sysLocation"] );
     if ( !defined($result) ) {
-        $logger->error("couldn't fetch sysLocation on $this->{_ip}: " . $this->{_sessionWrite}->error());
+        $logger->error("couldn't fetch sysLocation on $this->{_id}: " . $this->{_sessionWrite}->error());
         return;
     }
     if (!defined($result->{"$OID_sysLocation"})) {
-        $logger->error("no result for sysLocation on $this->{_ip}");
+        $logger->error("no result for sysLocation on $this->{_id}");
     }
     return $result->{"$OID_sysLocation"};
 }
@@ -872,7 +872,7 @@ sub setAlias {
     my ( $this, $ifIndex, $alias ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->info( "setting "
-            . $this->{_ip}
+            . $this->{_id}
             . " ifIndex $ifIndex ifAlias from "
             . $this->getAlias($ifIndex)
             . " to $alias" );
@@ -1073,7 +1073,7 @@ sub setVlanAllPort {
     my @ports;
 
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    $logger->info("setting all ports of switch $this->{_ip} to VLAN $vlan");
+    $logger->info("setting all ports of switch $this->{_id} to VLAN $vlan");
     if ( !$this->isProductionMode() ) {
         $logger->info(
             "not in production mode ... we won't change any port VLAN");
@@ -1087,7 +1087,7 @@ sub setVlanAllPort {
     my @managedIfIndexes = $this->getManagedIfIndexes();
     foreach my $ifIndex (@managedIfIndexes) {
         $logger->debug(
-            "setting " . $this->{_ip} . " ifIndex $ifIndex to VLAN $vlan" );
+            "setting " . $this->{_id} . " ifIndex $ifIndex to VLAN $vlan" );
         if ($vlan =~ /^\d+$/) {
             # if vlan is an integer, then assume its a vlan number
             $this->setVlan( $ifIndex, $vlan, $switch_locker_ref );
@@ -1112,7 +1112,7 @@ sub getMacAtIfIndex {
     # we try to get the MAC macSearchesMaxNb times or for 2 minutes whichever comes first
     do {
         sleep($this->{_macSearchesSleepInterval}) unless ( $i == 0 );
-        $logger->debug( "attempt " . ( $i + 1 ) . " to obtain mac at " . $this->{_ip} . " ifIndex $ifIndex" );
+        $logger->debug( "attempt " . ( $i + 1 ) . " to obtain mac at " . $this->{_id} . " ifIndex $ifIndex" );
         @macArray = $this->_getMacAtIfIndex($ifIndex);
         $i++;
     } while (
@@ -1124,10 +1124,10 @@ sub getMacAtIfIndex {
     if (scalar(@macArray) == 0) {
         if ($i >= $this->{_macSearchesMaxNb}) {
             $logger->warn("Tried to grab MAC address at ifIndex $ifIndex "
-                ."on switch ".$this->{_ip}." 30 times and failed");
+                ."on switch ".$this->{_id}." 30 times and failed");
         } else {
             $logger->warn("Tried to grab MAC address at ifIndex $ifIndex "
-                ."on switch ".$this->{_ip}." for 2 minutes and failed");
+                ."on switch ".$this->{_id}." for 2 minutes and failed");
         }
     }
     return @macArray;
@@ -1390,7 +1390,7 @@ sub getPhonesDPAtIfIndex {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on network device $this->{_ip}: no phones returned" );
+        $logger->debug( "VoIP not enabled on network device $this->{_id}: no phones returned" );
         return;
     }
 
@@ -1428,7 +1428,7 @@ sub hasPhoneAtIfIndex {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch " . $this->{_ip} );
+        $logger->debug( "VoIP not enabled on switch " . $this->{_id} );
         return 0;
     }
 
@@ -1442,7 +1442,7 @@ sub hasPhoneAtIfIndex {
 
     $logger->info(
         "determining through discovery protocols if "
-        . $this->{_ip} . " ifIndex $ifIndex has VoIP phone connected"
+        . $this->{_id} . " ifIndex $ifIndex has VoIP phone connected"
     );
     return ( scalar( $this->getPhonesDPAtIfIndex($ifIndex) ) > 0 );
 }
@@ -1451,7 +1451,7 @@ sub isPhoneAtIfIndex {
     my ( $this, $mac, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on switch " . $this->{_ip} );
+        $logger->debug( "VoIP not enabled on switch " . $this->{_id} );
         return 0;
     }
     if ( $this->isFakeVoIPMac($mac) ) {
@@ -2157,7 +2157,7 @@ sub getMacAddrVlan {
             $macVlan{$mac}{'ifIndex'} = $ifIndex;
         } elsif ( $macCount > 1 ) {
             $logger->warn(
-                "ALERT: There is a hub on switch $this->{'_ip'} port $ifIndex. We found $macCount MACs on this port !"
+                "ALERT: There is a hub on switch $this->{'_id'} port $ifIndex. We found $macCount MACs on this port !"
             );
         }
     }
@@ -2314,7 +2314,7 @@ sub getUpLinks {
 
     if ( lc(@{ $this->{_uplink} }[0]) eq 'dynamic' ) {
         $logger->warn( "Warning: for switch "
-                . $this->{_ip}
+                . $this->{_id}
                 . ", 'uplink = Dynamic' in config file but this is not supported !"
         );
         return -1;
@@ -2647,7 +2647,7 @@ sub radiusDisconnect {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS Disconnect-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS Disconnect-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
         return;
     }

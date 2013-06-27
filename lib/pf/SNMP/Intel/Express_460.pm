@@ -101,12 +101,12 @@ sub _setVlan {
     my $result;
 
     $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_ip}
+            . $this->{_id}
             . "} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_ip} } };
+        lock %{ $switch_locker_ref->{ $this->{_id} } };
         $logger->trace( "locking - \$switch_locker{"
-                . $this->{_ip}
+                . $this->{_id}
                 . "} locked in _setVlan" );
 
         # get current egress ports
@@ -187,7 +187,7 @@ sub _setVlan {
         }
     }
     $logger->trace( "locking - \$switch_locker{"
-            . $this->{_ip}
+            . $this->{_id}
             . "} unlocked in _setVlan" );
     return 1;
 }

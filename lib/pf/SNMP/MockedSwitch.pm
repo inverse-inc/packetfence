@@ -108,7 +108,7 @@ sub connectRead {
         return 1;
     }
 
-    $logger->debug("opening fake SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}");
+    $logger->debug("opening fake SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_id}");
     if ( $this->{_SNMPVersion} eq '3' ) {
 
         usleep(CONNECT_V3_READ_DELAY);
@@ -204,7 +204,7 @@ sub disconnectRead {
         return 1;
     }
 
-    $logger->debug( "closing fake SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_ip}" );
+    $logger->debug( "closing fake SNMP v" . $this->{_SNMPVersion} . " read connection to $this->{_id}" );
     usleep(DISCONNECT_DELAY);
     delete ($this->{_sessionRead});
     return 1;
@@ -383,7 +383,7 @@ sub setAlias {
     my ( $this, $ifIndex, $alias ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     $logger->info( "setting "
-            . $this->{_ip}
+            . $this->{_id}
             . " ifIndex $ifIndex ifAlias from "
             . $this->getAlias($ifIndex)
             . " to $alias" );
@@ -1666,7 +1666,7 @@ sub getVlans {
             $vlans->{$1} = $result->{$key};
         }
     } else {
-        $logger->info( "result is not defined at switch " . $this->{_ip} );
+        $logger->info( "result is not defined at switch " . $this->{_id} );
     }
     return $vlans;
 }
@@ -1733,14 +1733,14 @@ sub getUpLinks {
                 } else {
                     $logger->debug(
                         "Problem while determining dynamic uplinks for switch "
-                            . $this->{_ip}
+                            . $this->{_id}
                             . ": can not read cdpCachePlateform." );
                     return -1;
                 }
             } else {
                 $logger->debug(
                     "Problem while determining dynamic uplinks for switch "
-                        . $this->{_ip}
+                        . $this->{_id}
                         . ": based on the config file, uplinks are dynamic but CDP is not enabled on this switch."
                 );
                 return -1;
@@ -1748,7 +1748,7 @@ sub getUpLinks {
         } else {
             $logger->debug(
                       "Problem while determining dynamic uplinks for switch "
-                    . $this->{_ip}
+                    . $this->{_id}
                     . ": can not read cdpGlobalRun." );
             return -1;
         }
@@ -1898,7 +1898,7 @@ sub getPhonesDPAtIfIndex {
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     if ( !$this->isVoIPEnabled() ) {
-        $logger->debug( "VoIP not enabled on network device $this->{_ip}: no phones returned" );
+        $logger->debug( "VoIP not enabled on network device $this->{_id}: no phones returned" );
         return;
     }
 
@@ -1933,7 +1933,7 @@ sub getPhonesCDPAtIfIndex {
     my @phones;
     if ( !$this->isVoIPEnabled() ) {
         $logger->debug( "VoIP not enabled on switch "
-                . $this->{_ip}
+                . $this->{_id}
                 . ". getPhonesCDPAtIfIndex will return empty list." );
         return @phones;
     }

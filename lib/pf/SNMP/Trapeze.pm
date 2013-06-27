@@ -145,7 +145,7 @@ sub deauthenticateMacDefault {
 
     if (!$session->in_privileged_mode()) {
         if (!$session->enable($this->{_cliEnablePwd})) {
-            $logger->error("Cannot get into privileged mode on ".$this->{'ip'}.
+            $logger->error("Cannot get into privileged mode on ".$this->{'_id'}.
                            ". Are you sure you provided enable password in configuration?");
             $session->close();
             return;
