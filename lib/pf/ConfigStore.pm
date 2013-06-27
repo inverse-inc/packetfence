@@ -240,7 +240,7 @@ sub create {
     my $result;
     if ($self->validId($id)) {
         my $real_id = $self->_formatId($id);
-        if($result = !$config->SectionExists($id) ) {
+        if($result = !$config->SectionExists($real_id) ) {
             $self->cleanupBeforeCommit($id, $assignments);
             $config->AddSection($real_id);
             $self->_update_section($real_id, $assignments);
@@ -256,7 +256,7 @@ sub create {
 sub update_or_create {
     my ($self, $id, $assignments) = @_;
     my $config = $self->cachedConfig;
-    if ( $config->SectionExists($id) ) {
+    if ( $self->hasId($id) ) {
         return $self->update($id, $assignments);
     } else {
         return $self->create($id, $assignments);
