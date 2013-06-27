@@ -563,7 +563,7 @@ sub _listInterfaces {
                           ([\w\.]+)       # interface name, including the VLAN
                           (?:\@([^:]+))?  # master interface name
                           .+
-                          \sstate\s(\S+)  # interface state (UP or DOWN)
+                          \sstate\s(\S+)  # interface state (UP or DOWN or "something else")
                           .+ether\s(\S+)  # netmask address
                          /mgx) {
             my ($ifindex, $name, $master, $state, $hwaddr, $ipaddress, $netmask) = ($1, $2, $3, $4, $5);
@@ -572,7 +572,7 @@ sub _listInterfaces {
                ifindex => $ifindex,
                name => $name,
                master => $master,
-               is_running => ($state eq 'UP'),
+               is_running => ($state ne 'DOWN'),
                hwaddr => $hwaddr
               };
             eval { $addr = pf_run(sprintf $cmd->{addr}, $name) };
