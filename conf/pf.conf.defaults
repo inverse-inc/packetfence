@@ -151,6 +151,11 @@ wireless_ips=disabled
 #
 wireless_ips_threshold=90
 
+#
+# trapping.urls
+#
+passthroughs=
+
 [registration]
 #
 # registration.range
