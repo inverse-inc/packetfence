@@ -558,6 +558,7 @@ sub readPfConfigFiles {
                         }
                     }
                 }
+                $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
 
                 _load_captive_portal();
             }]

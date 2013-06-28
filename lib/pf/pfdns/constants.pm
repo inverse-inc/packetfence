@@ -10,6 +10,7 @@ This file is splitted by packages and refering to the constant requires you to
 specify the package.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -24,7 +25,7 @@ use pf::util::apache qw(url_parser);
 
 =cut
 
-=item oauth_domain
+=head2 oauth_domain
 
 Build all the permit domain for oauth authentication
 
@@ -47,23 +48,15 @@ sub oauth_domain {
     return @domains;
 }
 
-=item passthrough
+=head2 passthrough
 
 Build all the permit domain for passthrough
 
 =cut
 
-sub passthrough {
-    my (%passthroughs) = %{ $Config{'passthroughs'} };
-    my @domains;
+sub passthrough { @{ $Config{trapping}{passthroughs} }; }
 
-    foreach my $key ( keys %passthroughs ) {
-        push(@domains, $passthroughs{$key});
-    }
-    return @domains;
-}
-
-=item passthrough_remediation
+=head2 passthrough_remediation
 
 Build all the permit domain for passthrough_remediation
 
@@ -82,11 +75,10 @@ sub passthrough_remediation {
     return @domains;
 }
 
-=back
-
 =head1 OAUTH
 
 =cut
+
 package OAUTH;
 
 my @oauth_domains =  pf::pfdns::constants::oauth_domain();
@@ -101,11 +93,11 @@ if (defined($allow_oauth_domains)) {
     Readonly::Scalar our $ALLOWED_OAUTH_DOMAINS => '';
 }
 
-=back
 
 =head1 PASSTHROUGH
 
 =cut
+
 package PASSTHROUGH;
 
 my @passthrough_domains =  pf::pfdns::constants::passthrough();
@@ -132,7 +124,6 @@ if (defined($allow_passthrough_remediation_domains)) {
     Readonly::Scalar our $ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS => '';
 }
 
-=back
 
 =head1 AUTHOR
 

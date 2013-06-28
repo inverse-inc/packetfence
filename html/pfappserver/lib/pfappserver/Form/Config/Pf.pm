@@ -56,6 +56,11 @@ sub field_list {
                 $field->{element_class} = ['input-xxlarge'];
                 last;
             };
+            $type eq 'list' && do {
+                $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
+                last;
+            };
             $type eq 'numeric' && do {
                 $field->{type} = 'PosInteger';
                 last;

@@ -45,6 +45,7 @@ sub cleanupAfterRead {
         }
         my $doc = $Doc_Config{$doc_section};
         my $type = $doc->{type} || "text";
+        my $subtype = $doc->{subtype};
         # Value should always be defined for toggles (checkbox and select) and times (duration)
         if ($type eq "toggle" || $type eq "time") {
             $data->{$key} = $Default_Config{$section}{$key} unless ($data->{$key});
@@ -56,6 +57,9 @@ sub cleanupAfterRead {
             my $value = $data->{$key};
             my @values = split( /\s*,\s*/, $value ) if $value;
             $data->{$key} = \@values;
+        } elsif ($type eq 'list') {
+            my $value = $data->{$key};
+            $data->{$key} = join("\n",split( /\s*,\s*/, $value )) if $value;
         } elsif ( defined ($data->{$key}) && $data->{$key} eq $defaults->{$key}) {
             #remove default values
             $data->{$key} = undef;
@@ -69,6 +73,15 @@ sub cleanupBeforeCommit {
     while(my ($key,$value) = each %$assignment) {
         if(ref($value) eq 'ARRAY') {
             $assignment->{$key} = join(',',@$value);
+        }
+        my $doc_section = "$section.$key";
+        if (exists $Doc_Config{$doc_section} ) {
+            my $doc = $Doc_Config{$doc_section};
+            my $type = $doc->{type} || "text";
+            if($type eq 'list') {
+                my $value = $assignment->{$key};
+                $assignment->{$key} = join(",",split( /\v+/, $value )) if $value;
+            }
         }
     }
 }
