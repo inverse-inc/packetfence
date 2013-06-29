@@ -117,7 +117,7 @@ Services managed by PacketFence:
   httpd.webservices| Apache Webservices
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
-  named            | DNS daemon (bind)
+  pfdns            | DNS daemon
   pf               | all services that should be running based on your config
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
