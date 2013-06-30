@@ -48,7 +48,6 @@ use pf::SwitchFactory;
 use pf::violation_config;
 
 Readonly our @ALL_SERVICES => (
-<<<<<<< HEAD
     'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
     'httpd.webservices', 'httpd.admin', 'httpd.portal','httpd.proxy','snmptrapd',
     'pfsetvlan', 'pfdhcplistener', 'pfmon'
