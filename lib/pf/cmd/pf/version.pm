@@ -9,6 +9,12 @@ pf::cmd::pf::version add documentation
 
 pf::cmd::pf::version
 
+=head1 SYNOPSIS
+
+pfcmd version
+
+output version information
+
 =cut
 
 use strict;
@@ -19,7 +25,7 @@ use pf::log;
 
 use base qw(pf::cmd);
 
-sub run {
+sub _run {
     # TODO: move this code into library code and have pf::config hold the value somewhere.
     # Then report the version in Web Services API calls like for the Extreme Switches' appName
     my ( $pfrelease_fh, $release );
