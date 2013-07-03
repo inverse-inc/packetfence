@@ -26,10 +26,10 @@ sub new {
 
 sub run {
     my ($self) = @_;
-    if (@{$self->{args}}) {
-        $self->showHelp;
-    } else {
+    if ($self->checkArgs) {
         $self->_run;
+    } else {
+        $self->showHelp;
     }
 }
 
@@ -37,6 +37,11 @@ sub showHelp {
     my ($self,$package) = @_;
     $package ||= ref($self) || $self;
     pod2usage( -input => pod_where({-inc => 1}, $package) );
+}
+
+sub checkArgs {
+    my ($self) = @_;
+    return @{$self->{args}} == 0;
 }
 
 =head1 AUTHOR
