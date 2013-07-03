@@ -12,6 +12,11 @@ pf::cmd
 
 use strict;
 use warnings;
+BEGIN {
+    $Pod::Usage::Formatter = 'Pod::Text::Termcap';
+}
+use Pod::Usage;
+use Pod::Find qw(pod_where);
 
 sub new {
     my ($class,$args) = @_;
@@ -19,61 +24,19 @@ sub new {
     return $self;
 }
 
-my $delimiter = '|';
-
-use pf::config::ui;
-
-sub print_results {
-    my ($self, $function, $key, %params ) = @_;
-    my $count  = $ENV{PER_PAGE};
-    my $offset = $ENV{PAGE_NUM};
-    if ( $offset && $offset > 0 ) {
-        $offset = $offset - 1;
-        $offset = $offset * $count;
+sub run {
+    my ($self) = @_;
+    if (@{$self->{args}}) {
+        $self->showHelp;
+    } else {
+        $self->_run;
     }
+}
 
-    my $total;
-    my @results;
-    # calling a function looked up dynamically: first test coderef existence
-        # then execute the method (looking up using main::..)
-    @results = &{$function}($key, %params);
-    $total = scalar(@results);
-    if ($count) {
-        $offset = scalar(@results) if ( $offset > scalar(@results) );
-        $count = scalar(@results) - $offset
-            if ( $offset + $count > scalar(@results) );
-        @results = splice( @results, $offset, $count );
-    }
-
-    my @fields = pf::config::ui->instance->field_order($self->field_order_ui);
-    push @fields, keys( %{ $results[0] } ) if ( !scalar(@fields) );
-
-    if ( scalar(@fields) ) {
-        print join( $delimiter, @fields ) . "\n";
-        foreach my $row (@results) {
-            next
-                if ( defined( $row->{'mydate'} )
-                && $row->{'mydate'} =~ /^00/ );
-            my @values = ();
-            foreach my $field (@fields) {
-                my $value = $row->{$field};
-                if ( defined($value) && $value !~ /^0000-00-00 00:00:00$/ ) {
-
-                    # little hack to reverse dates
-                    if ( $value =~ /^(\d+)\/(\d+)$/ ) {
-                        $value = "$2/$1";
-                    } elsif ( $value =~ /^(\d+)\/(\d+)\/(\d+)$/ ) {
-                        $value = "$2/$3/$1";
-                    }
-                    push @values, $value;
-                } else {
-                    push @values, "";
-                }
-            }
-            print join( $delimiter, @values ) . "\n";
-        }
-    }
-    return ($total);
+sub showHelp {
+    my ($self,$package) = @_;
+    $package ||= ref($self) || $self;
+    pod2usage( -input => pod_where({-inc => 1}, $package) );
 }
 
 =head1 AUTHOR
