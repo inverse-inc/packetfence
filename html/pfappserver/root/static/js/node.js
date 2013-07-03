@@ -262,6 +262,7 @@ NodeView.prototype.submitItems = function(e) {
         data: $("#items").serialize(),
         success: function(data) {
             showSuccess(status_container, data.status_msg);
+            $(window).hashchange();
         },
         errorSibling: status_container
     });
