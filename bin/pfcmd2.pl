@@ -13,13 +13,12 @@ pfcmd2
 
 use strict;
 use warnings;
-use constant INSTALL_DIR => '/usr/local/pf';
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use pf::cmd::pf;
 
-exit pf::cmd::pf->new(@ARGV)->run();
+exit pf::cmd::pf->new({args => \@ARGV})->run();
 
 
 =head1 AUTHOR

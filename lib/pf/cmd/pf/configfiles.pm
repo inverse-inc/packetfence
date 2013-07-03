@@ -3,7 +3,17 @@ package pf::cmd::pf::configfiles;
 
 pf::cmd::pf::configfiles add documentation
 
-=cut
+=head1 SYNOPSIS
+
+pfcmd configfiles <push|pull>
+
+push configfiles into database or pull them from database
+
+examples:
+
+  pfcmd configfiles push
+  pfcmd configfiles pull
+
 
 =head1 DESCRIPTION
 

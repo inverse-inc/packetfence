@@ -3,7 +3,12 @@ package pf::cmd::pf::reload;
 
 pf::cmd::pf::reload add documentation
 
-=cut
+=head1 SYNOPSIS
+
+pfcmd reload <fingerprints|violations>
+
+reload fingerprints or violations database tables without restart
+
 
 =head1 DESCRIPTION
 
@@ -15,11 +20,6 @@ use strict;
 use warnings;
 
 use base qw(pf::cmd::subcmd);
-
-sub unknown_cmd { 'pf::cmd::pf::class::help' }
-
-sub default_cmd { 'pf::cmd::pf::class::help' }
-
 
 =head1 AUTHOR
 

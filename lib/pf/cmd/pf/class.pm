@@ -3,7 +3,12 @@ package pf::cmd::pf::class;
 
 pf::cmd::pf::class add documentation
 
-=cut
+=head1 SYNOPSIS
+
+pfcmd class view <vid>
+
+view violation classification - to edit, use violations.conf and "pfcmd reload violations"
+
 
 =head1 DESCRIPTION
 
@@ -14,11 +19,6 @@ pf::cmd::pf::class
 use strict;
 use warnings;
 use base qw(pf::cmd::subcmd);
-
-sub unknown_cmd { 'pf::cmd::pf::class::help' }
-
-sub default_cmd { 'pf::cmd::pf::class::help' }
-
 
 =head1 AUTHOR
 
