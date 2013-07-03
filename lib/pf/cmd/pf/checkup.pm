@@ -3,7 +3,11 @@ package pf::cmd::pf::checkup;
 
 pf::cmd::checkup add documentation
 
-=cut
+=head1 SYNOPSIS
+
+Usage: pfcmd checkup
+
+perform a sanity checkup and report any problems or warnings
 
 =head1 DESCRIPTION
 
@@ -17,8 +21,8 @@ use pf::services;
 use pf::config;
 use pf::pfcmd::checkup;
 use base qw(pf::cmd);
-sub run {
-
+sub _run {
+    my ($self) = @_;
     my @problems = pf::pfcmd::checkup::sanity_check(pf::services::service_list(@pf::services::ALL_SERVICES));
     foreach my $entry (@problems) {
         chomp $entry->{$pf::pfcmd::checkup::MESSAGE};
