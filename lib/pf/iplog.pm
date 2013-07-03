@@ -52,7 +52,7 @@ BEGIN {
 
 use pf::config;
 use pf::db;
-use pf::node qw(node_add_simple node_exist);
+use pf::node qw(node_add_simple node_exist node_view);
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
