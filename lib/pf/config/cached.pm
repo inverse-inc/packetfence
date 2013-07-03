@@ -598,7 +598,11 @@ will create the name of the lock file
 
 sub _makeFileLock {
     my ($file) = @_;
-    return "$file.lock";
+    if ($file =~ m/^(\Q$install_dir\E.*)$/) {
+        $file = $1;
+    }
+    my $new_file = "$file.lock";
+    return $new_file;
 }
 
 
