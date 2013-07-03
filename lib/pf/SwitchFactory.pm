@@ -84,7 +84,7 @@ sub instantiate {
         if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
             $switch_mac = $switchId->{switch_mac};
             push @requestedSwitches,$switch_mac;
-        } 
+        }
         if(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
             $switch_ip = $switchId->{switch_ip};
             push @requestedSwitches,$switch_ip;
@@ -99,14 +99,19 @@ sub instantiate {
     }
 
     if($switch_config->hasId($switch_mac)) {
-        $switch_overlay->update_or_create(
-            $switch_mac,
-            {
-                controllerIp => $switch_ip,
-                ip => $switch_ip
-            }
-        );
-        $switch_overlay->commit();
+        my $switch = $switch_config->read($switch_mac);
+        if($switch_ip && ( not defined $switch->{_ip} || $switch_ip ne $switch->{_ip} )) {
+            $switch_overlay->remove($switch->{_ip}) if defined $switch->{_ip};
+            $switch_overlay->update_or_create(
+                $switch_mac,
+                {
+                    controllerIp => $switch_ip,
+                    ip => $switch_ip
+                }
+            );
+            $switch_overlay->copy($switch_mac, $switch_ip);
+            $switch_overlay->commit();
+        }
     }
 
     $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
