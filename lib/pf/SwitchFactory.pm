@@ -98,7 +98,7 @@ sub instantiate {
         }
     }
 
-    if($switch_config->hasId($switch_mac)) {
+    if($switch_config->hasId($switch_mac) && ref($switchId) eq 'HASH') {
         my $switch = $switch_config->read($switch_mac);
         my $controllerIp = $switchId->{controllerIp};
         if($controllerIp && (  !defined $switch->{_controllerIp} || $controllerIp ne $switch->{_controllerIp} )) {
