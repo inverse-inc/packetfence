@@ -100,7 +100,7 @@ sub instantiate {
 
     if($switch_config->hasId($switch_mac)) {
         my $switch = $switch_config->read($switch_mac);
-        if($switch_ip && ( not defined $switch->{_ip} || $switch_ip ne $switch->{_ip} )) {
+        if($switch_ip && (  !defined $switch->{_ip} || $switch_ip ne $switch->{_ip} )) {
             $switch_overlay->remove($switch->{_ip}) if defined $switch->{_ip};
             $switch_overlay->update_or_create(
                 $switch_mac,
