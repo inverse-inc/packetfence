@@ -111,6 +111,7 @@ sub instantiate {
                 }
             );
             $switch_overlay_config->copy($switch_mac, $controllerIp);
+            $switch_overlay_config->update($controllerIp,{id=>$switch_mac});
             $switch_overlay_config->commit();
         }
     }
