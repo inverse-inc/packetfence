@@ -361,6 +361,7 @@ sub new {
                 sub {
                     my $lock = lockFileForReading($file);
                     my $config = pf::IniFiles->new(%params);
+                    die "$file cannot be loaded" unless $config;
                     unlockFilehandle($lock);
                     $config->SetFileName($file);
                     $config->SetWriteMode($WRITE_PERMISSIONS);
