@@ -50,6 +50,28 @@ replacing earlier implementations.
 no warnings 'redefine';
 package pf::web;
 
+=item validate_form
+
+    return (0, 0) for first attempt
+    return (1) for valid form
+    return (0, "Error string" ) on form validation problems
+
+=cut
+
+*pf::web::validate_form  = sub {
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    $logger->trace("form validation attempt");
+
+    my $cgi = $portalSession->getCgi();
+    # acceptable use pocliy accepted?
+    if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
+        return ( 0 , 'You need to accept the terms before proceeding any further.' );
+    }
+
+    return (1);
+};
+
 # sample constant
 #Readonly::Scalar our $GUEST_SESSION_DURATION => 60 * 60 * 24 * 7; # read 7 days
 
