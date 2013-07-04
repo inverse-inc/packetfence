@@ -1,0 +1,34 @@
+[% title = i18n("scan: scan in progress") %]
+[% INCLUDE header.html %]
+<script type="text/javascript">
+var waitTime=[% timer %];
+var action = function() {
+  hidebar();
+  $('toReplace').innerHTML = "[% i18n("Unable to detect network connectivity. Try restarting your web browser or opening a new tab to see if your access has been succesfully enabled.") | html %]";
+};
+
+var txt_ie = "[% i18n("Some versions of Internet Explorer may take a while before redirection occur.") | html %]";
+// once the page is loaded
+document.observe("dom:loaded", function() {
+
+  // Opera is known to be broken with network detection so we warn the users
+  if (Prototype.Browser.Opera) {
+    $('browser_notes').innerHTML = "[% i18n("There are known issues with the automatic redirection on Opera browsers. Please open a new browser window from time to time to see if your access was enabled.") | html %]";
+  }
+
+  detectNetworkAccess.delay([% refresh_timer %], 
+    [% refresh_timer %], "[% destination_url %]", "[% redirect_url %]", "[% external_ip %]"
+  );
+});
+</script>
+
+        <div id='about'>
+          <img src="/content/images/lock.png" alt="You are not authorized" />
+          <h1>[% title %]</h1>
+          <p>[% txt_message %]</p>
+        </div>
+
+[%# DO NOT REMOVE! REQUIRED FOR NETWORK ACCESS DETECTION %]
+<div id="internet-detection" style="display: none;"><img id="netdetect"/></div>
+
+[% INCLUDE footer.html %]

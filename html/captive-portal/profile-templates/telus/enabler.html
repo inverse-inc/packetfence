@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?xml-stylesheet href="#internalStyle" type="text/css"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>[% i18n("release: enabling network") %]</title>
+    <link href="/content/styles.css" media="screen" rel="stylesheet" type="text/css" />
+    <link href="/content/responsive.css" media="screen" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <form name="network" action="/release" method="post" target="_top">
+      <input type="hidden" name="destination_url" value="[% destination_url %]" />
+      <input type="hidden" name="violation_id" value="[% violation_id %]" />
+      <div id="footer" class="input">
+        <input type="submit" class="btn" value="[% enable_text %]" />
+      </div>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html 
+    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+
+    [%# WELCOME TEXT %]
+    <div id="about">
+        <img src="/content/images/registration.png" alt="Registration" />
+        <h1>[% i18n("Guest Registration") %]</h1>
+        <p>[% i18n("guest network disclaimer") %]</p>
+        <hr/>
+    </div>
+
+    [%# ERROR %]
+    [% IF txt_validation_error.defined %]<div class="error"><p>[% i18n(txt_validation_error) %]</p></div>[% END %]
+
+    <form name="billing" method="post" action="/pay">
+        <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+        [%# TIERS CHOICE %]
+            <div class="input">
+        [% FOREACH tier IN tiers.keys.sort %]
+                [% IF loop.first() %]<span>[% i18n("Internet Access Package") %]</span>[% END %]
+                <input name="tier" type="radio"[% IF selected_tier == tiers.$tier.id %] checked="checked"[% END %]
+                    value="[% i18n(tiers.$tier.id) | html %]"
+                />
+                <b>[% i18n(tiers.$tier.name) | html %] - $[% i18n(tiers.$tier.price) | html %]</b><br/>
+                <em>[% i18n(tiers.$tier.description) | html %]</em><br/>
+        [% END %]
+            </div>
+
+        [%# CREDIT CARD INFORMATIONS %]
+        <div class="input">
+            <span>[% i18n("Firstname") %]</span>
+            <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
+            <span>[% i18n("Lastname") %]</span>
+            <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
+            <span>[% i18n("Email") %]</span>
+            <input class="field" name="email" type="text" value="[% email | html %]" />
+        </div>
+        <div class="input">
+            <img src="/content/images/creditcards.png">
+        </div>
+        <div class="input">
+            <span>[% i18n("Credit Card Number") %]</span>
+            <input class="field" name="ccnumber" type="text" value="[% ccnumber | html %]" />
+            <span>[% i18n("Credit Card Expiration Date") %] [% i18n("(MMYY)") %]</span>
+            <input class="field" name="ccexpiration" type="text" value="[% ccexpiration | html %]" />
+            <span>[% i18n("Credit Card Verification Number") %]</span>
+            <input class="field" name="ccverification" type="text" value="[% ccverification | html %]" />
+        </div>
+        <div class="input" style="margin: 0px; padding: 0px;">
+            <img src="/content/images/authorize.net.gif" style="vertical-align: middle; margin: 0px; padding: 0px;">
+        </div>
+
+        [%# AUP %]
+        <div class="input" style="margin-top: 0px">
+            <div>[% i18n("Acceptable Use Policy") %]</div>
+            <div id="aup" class="notmobile">
+                [% INCLUDE aup_text.html %]
+            </div>
+            <div class="notmobile">
+                <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]
+            </div>
+            <div class="mobile">
+                <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+            </div>
+        </div>
+
+        [%# SUBMIT %]
+        <div class="input">
+            <input type="submit" class="btn" name="submit" value="[% i18n("Continue") %]" />
+        </div>
+
+    </form>
+
+[% INCLUDE footer.html %]

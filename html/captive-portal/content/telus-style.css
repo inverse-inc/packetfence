@@ -1,0 +1,39 @@
+* {
+    margin:0;
+    padding:0;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
+body {
+    text-align:center;  /* For IE6 Shenanigans */
+    background-color:#FFFFFF;
+}
+
+#wrapper {
+    width:999px;
+    margin:0 auto;
+    text-align:left;
+}
+
+#header {
+    background:#ffffff url('images/telus-header.png') no-repeat;
+    height:259px;
+}
+
+#page {
+    background:#f5f6f7;
+    padding:243px 0px 50px 118px;
+}
+
+.checkbox {
+    border:0px;
+    background:#ffffff;
+}
+
+.submit_button {
+    background:url('images/telus-submit.png') no-repeat;
+    cursor:pointer;
+    width:135px;
+    height:45px;
+    border:none;
+}

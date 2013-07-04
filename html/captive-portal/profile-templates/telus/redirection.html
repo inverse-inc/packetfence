@@ -1,0 +1,16 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html
+    body_attributes = "onload=\"window.location.href ='$login_url';\"";
+%]
+
+        <meta http-equiv="refresh" content="0;URL='[% login_url %]'">
+        <div id="about">
+          <img src="/content/images/unlock.png" alt="Access granted" />
+          <h1>[% i18n("Access to the guest network granted") %]</h1>
+          <p>
+            [% i18n_format('If you are not redirected automatically, follow the <a href="%s">PacketFence portal</a>', login_url) %].
+          </p>
+          <hr/>
+        </div>
+
+[% INCLUDE footer.html %]

@@ -1,0 +1,19 @@
+[% title = i18n("Registration") %]
+[% INCLUDE header.html %]
+
+
+    [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+
+    <form name="registration" method="post" action="[%URL_GAMING_REGISTRATION%]">
+      <div class="input">
+        <span>[% i18n("Gaming Device MAC address") %]</span>
+	    <input class="field" name="device_mac" id="device_mac" type="text" value="[%device_mac%]" />
+      </div>
+      [%# submit %]
+      <div class="input">
+        <button type="submit" class="btn" name="submit" value="Register">[% i18n('Register') %] </button>
+        <button type="submit" class="btn" name="cancel" value="Cancel">[% i18n('Cancel') %] </button>
+      </div>
+    </form>
+
+[% INCLUDE footer.html %]
