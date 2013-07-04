@@ -769,7 +769,6 @@ sub signalHandlerThreadListQueued {
                 "new enqueue or dequeue operation happened and threadList_queued is not empty"
             );
             startTrapHandlers();
-            pf::config::cached::ReloadConfigs();
         }
     }
 }
@@ -911,6 +910,7 @@ sub startTrapHandlers {
 
 # sub handleTrap {{{1
 sub handleTrap {
+    pf::config::cached::ReloadConfigs();
 
     # initialize {{{2
     my ( $switch_ip, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac, $trapSSID , $trapClientUserName, $trapIfIndex, $trapConnectionType) = @_;
