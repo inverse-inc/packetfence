@@ -65,8 +65,7 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-
-    my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id) = $this->_parseRequest($radius_request);
+    my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id, $source_ip) = $this->_parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
@@ -95,7 +94,7 @@ sub authorize {
     node_mac_wakeup($mac);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip});
+    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
 
     # is switch object correct?
     if (!$switch) {
@@ -236,7 +235,8 @@ sub _parseRequest {
     if (defined($radius_request->{'NAS-Port-Id'})) {
         $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
-    return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
+    my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
+    return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $source_ip);
 }
 
 
