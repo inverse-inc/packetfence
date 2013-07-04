@@ -77,7 +77,7 @@ sub instantiate {
     my $requestedSwitch;
     my $switch_ip;
     my $switch_mac;
-    my $switch_overlay = pf::ConfigStore::SwitchOverlay->new;
+    my $switch_overlay_config = pf::ConfigStore::SwitchOverlay->new;
     my $switch_config = pf::ConfigStore::Switch->new;
 
     if(ref($switchId) eq 'HASH') {
@@ -99,19 +99,19 @@ sub instantiate {
     }
 
     if($switch_config->hasId($switch_mac) && ref($switchId) eq 'HASH') {
-        my $switch = $switch_config->read($switch_mac);
+        my $switch = $switch_overlay_config->read($switch_mac);
         my $controllerIp = $switchId->{controllerIp};
-        if($controllerIp && (  !defined $switch->{_controllerIp} || $controllerIp ne $switch->{_controllerIp} )) {
-            $switch_overlay->remove($switch->{_controllerIp}) if defined $switch->{_controllerIp};
-            $switch_overlay->update_or_create(
+        if($controllerIp && (  !defined $switch->{controllerIp} || $controllerIp ne $switch->{controllerIp} )) {
+            $switch_overlay_config->remove($switch->{controllerIp}) if defined $switch->{controllerIp};
+            $switch_overlay_config->update_or_create(
                 $switch_mac,
                 {
                     controllerIp => $controllerIp,
                     ip => $controllerIp
                 }
             );
-            $switch_overlay->copy($switch_mac, $controllerIp);
-            $switch_overlay->commit();
+            $switch_overlay_config->copy($switch_mac, $controllerIp);
+            $switch_overlay_config->commit();
         }
     }
 
