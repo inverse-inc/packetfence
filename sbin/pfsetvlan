@@ -893,6 +893,7 @@ sub startTrapHandlers {
 
 # sub handleTrap {{{1
 sub handleTrap {
+    pf::config::cached::ReloadConfigs();
 
     # initialize {{{2
     my ( $switch_id, $switch_port, $trapType, $trapVlan, $trapOperation, $trapMac, $trapSSID , $trapClientUserName, $trapIfIndex, $trapConnectionType) = @_;
