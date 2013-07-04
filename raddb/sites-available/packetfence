@@ -9,6 +9,9 @@ authorize {
         files
         expiration
         logintime
+        update request {
+            FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+        }
 	packetfence
 }
 
