@@ -13,7 +13,7 @@ pf::cmd::config_store
 
 use strict;
 use warnings;
-use base qw(pf::cmd::cmd_action);
+use base qw(pf::cmd::action_cmd);
 
 sub action_clone {
     my ($self) = @_;
@@ -23,8 +23,8 @@ sub action_clone {
     return $configStore->commit;
 }
 
-sub action_view {
-
+sub action_get {
+    my ($self) = @_;
 }
 
 sub action_delete {
@@ -34,15 +34,17 @@ sub action_delete {
     $configStore->remove($id);
 }
 
-sub action_create {
-
+sub action_add {
+    my ($self) = @_;
 }
 
 sub action_edit {
-
+    my ($self) = @_;
 }
 
 sub configStore { $_[0]->configStoreName->new }
+
+sub configStoreName { die "Did not override configStoreName" }
 
 =head1 AUTHOR
 

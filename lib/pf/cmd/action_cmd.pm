@@ -1,13 +1,13 @@
-package pf::cmd::cmd_action;
+package pf::cmd::action_cmd;
 =head1 NAME
 
-pf::cmd::cmd_action add documentation
+pf::cmd::action_cmd add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::cmd::cmd_action
+pf::cmd::action_cmd
 
 =cut
 
@@ -27,6 +27,11 @@ sub checkArgs {
 
 sub parseArgs {
     my ($self,@args) = @_;
+    my $action = $self->{action};
+    my $parse_action = "parse_$action";
+    if ($self->can($parse_action)) {
+        return $self->$parse_action;
+    }
     $self->{action_args} = \@args;
     return 1;
 }
