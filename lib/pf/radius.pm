@@ -71,7 +71,7 @@ sub authorize {
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
         "mac => $mac, port => $port, username => $user_name");
     my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
-
+C
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
     # meaning: the return should be decided by _doWeActOnThisCall, not always $RADIUS::RLM_MODULE_NOOP
     my $weActOnThisCall = $this->_doWeActOnThisCall($connection_type, $switch_ip, $mac, $port, $user_name);
@@ -214,9 +214,9 @@ sub accounting {
         pf::iplog::iplog_update(clean_mac($radius_request->{'Calling-Station-Id'}),$radius_request->{'Framed-IP-Address'});
     }
 
-    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
+    my ($nas_port_type,  $switch_mac, $switch_ip, $eap_type, $mac, $port, $user_name, $source_ip) = $this->_parseRequest($radius_request);
     my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
 
     # is switch object correct?
     if (!$switch) {
