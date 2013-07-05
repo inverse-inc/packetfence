@@ -347,7 +347,7 @@ sub parse_dhcp_request {
     }
 
     if ($is_inline_vlan) {
-        locationlog_synchronize($interface_ip, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
+        locationlog_synchronize($interface_ip,$interface_ip,undef, $NO_PORT, $interface_vlan, $dhcp->{'chaddr'}, $NO_VOIP, $INLINE);
         $accessControl->performInlineEnforcement($dhcp->{'chaddr'});
     }
 }
