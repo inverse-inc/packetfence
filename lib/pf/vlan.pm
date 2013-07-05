@@ -407,7 +407,7 @@ sub getNodeInfoForAutoReg {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $switch_ip, $switch_port, $mac, $vlan,
+    my ($this, $switch_id, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
