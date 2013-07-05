@@ -2554,6 +2554,8 @@ sub getVoipVsa {
     return;
 }
 
+
+
 =item enablePortConfigAsTrunk - sets port as multi-Vlan port
 
 =cut
@@ -2818,6 +2820,11 @@ return IfIndexByNasPortId
 sub getIfIndexByNasPortId {
     my ($this ) = @_;
     return $FALSE;
+}
+
+sub synchronize_locationlog {
+    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid) = @_;
+    locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid);
 }
 
 =back
