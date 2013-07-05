@@ -39,17 +39,17 @@ Tested on Controller 600 with RADIUS Disconnect running firmware 6.0.x
 
 =item Telnet deauthentication broken on firmware 6.x
 
-We had reports that Telnet-based deauthentication is no longer working with 
-the firmware 6 series. 
+We had reports that Telnet-based deauthentication is no longer working with
+the firmware 6 series.
 
 Although this is not a PacketFence issue, upgrading PacketFence to 3.1.0 will
-work-around this situation since we use a new RADIUS-based technique to 
+work-around this situation since we use a new RADIUS-based technique to
 perform deauthentication on Aruba.
 
-Reported on firmware 6.1.3.1. Let us know if you have a 6.x version and you 
+Reported on firmware 6.1.3.1. Let us know if you have a 6.x version and you
 are unaffected.
 
-=back 
+=back
 
 =cut
 
@@ -87,6 +87,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =item getVersion - obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -116,10 +117,10 @@ sub parseTrap {
     if ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.2\.1017[|].+[|]\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.52\.[0-9]+ = $SNMP::MAC_ADDRESS_FORMAT/) {
         $trapHashRef->{'trapType'}    = 'dot11Deauthentication';
         $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
-    
+
     } elsif ( $trapString =~ /\.1\.3\.6\.1\.4\.1\.14823\.2\.3\.1\.11\.1\.1\.5\.0 = $SNMP::MAC_ADDRESS_FORMAT/ ) {
         $trapHashRef->{'trapType'}    = 'wirelessIPS';
-        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1); 
+        $trapHashRef->{'trapMac'} = parse_mac_from_trap($1);
     } else {
         $logger->debug("trap currently not handled");
         $trapHashRef->{'trapType'} = 'unknown';
@@ -127,13 +128,14 @@ sub parseTrap {
     return $trapHashRef;
 }
 
-=item deauthenticateMacDefault 
+=item deauthenticateMacDefault
 
 De-authenticate a MAC address from wireless network (including 802.1x).
 
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -147,7 +149,7 @@ sub deauthenticateMacDefault {
     return $self->radiusDisconnect($mac);
 }
 
-=item _deauthenticateMacWithTelnet 
+=item _deauthenticateMacWithTelnet
 
 DEPRECATED
 
@@ -156,6 +158,7 @@ De-authenticate a MAC address from wireless network (including 802.1x)
 Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthenticateMAC and call accordingly.
 
 =cut
+
 sub _deauthenticateMacWithTelnet {
     my ( $this, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -166,7 +169,7 @@ sub _deauthenticateMacWithTelnet {
     }
 
     if ( !$this->connectRead() ) {
-        $logger->error("Can not connect using SNMP to Aruba Controller " . $this->{_ip});
+        $logger->error("Can not connect using SNMP to Aruba Controller " . $this->{_id});
         return 1;
     }
 
@@ -221,13 +224,13 @@ sub _deauthenticateMacWithTelnet {
 #                    $count++;
 #                }
 #           }
-#        }  
+#        }
 #    } else {
 #        $logger->error("was not able to find user authentication type for mac $mac, unable to deauthenticate");
 #    }
 #}
 
-=item _dot1xDeauthenticateMAC 
+=item _dot1xDeauthenticateMAC
 
 DEPRECATED
 
@@ -236,13 +239,14 @@ De-authenticate a MAC from controller when user is in 802.1x mode using Telnet.
 * Private: don't call outside of same object, use _deauthenticateMacWithTelnet externally *
 
 =cut
+
 sub _dot1xDeauthenticateMAC {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $session = $this->getTelnetSession;
     if (!$session) {
-        $logger->error("Can't connect to Aruba Controller ".$this->{'_ip'}." using ".$this->{_cliTransport});
+        $logger->error("Can't connect to Aruba Controller ".$this->{'_id'}." using ".$this->{_cliTransport});
         return;
     }
 
@@ -255,24 +259,25 @@ sub _dot1xDeauthenticateMAC {
 
 }
 
-=item _deauthenticateMAC 
+=item _deauthenticateMAC
 
 DEPRECATED
 
 De-authenticate a MAC from controller if user is not in 802.1x mode using Telnet
 
-Here we used to specify MAC and IP in the OID but it doesn't work in a lot of 
-cases. As soon as the client stops doing activity for a little while, the IP 
-is forgotten but you can still access the good BSSID with 0.0.0.0 appended at 
+Here we used to specify MAC and IP in the OID but it doesn't work in a lot of
+cases. As soon as the client stops doing activity for a little while, the IP
+is forgotten but you can still access the good BSSID with 0.0.0.0 appended at
 the end of the OID (no IP).
 
 What we are doing now is fetching the table instead of only one entry and
-issuing deauth on the matching MAC in OID format. Worked in my tests with 
+issuing deauth on the matching MAC in OID format. Worked in my tests with
 and without an IP in the table.
 
 * Private: don't call outside of same object, use _deauthenticateMacWithTelnet externally *
 
 =cut
+
 sub _deauthenticateMAC {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -285,7 +290,7 @@ sub _deauthenticateMAC {
 
         my $session = $this->getTelnetSession;
         if (!$session) {
-            $logger->error("Can't connect to Aruba Controller ".$this->{'_ip'}." using ".$this->{_cliTransport});
+            $logger->error("Can't connect to Aruba Controller ".$this->{'_id'}." using ".$this->{_cliTransport});
             return;
         }
 
@@ -296,7 +301,7 @@ sub _deauthenticateMAC {
         my $macOID = mac2oid($mac);
 
         foreach my $macIpToBSSID (keys %{$result}) {
-            if ($macIpToBSSID =~ /^$OID_nUserApBSSID\.$macOID/) { 
+            if ($macIpToBSSID =~ /^$OID_nUserApBSSID\.$macOID/) {
                 # TODO: move over clean_mac or valid_mac?
                 if ($result->{$macIpToBSSID} =~ /0x([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})([A-Z0-9]{2})/i) {
                     my $apSSID = uc("$1:$2:$3:$4:$5:$6");
@@ -333,7 +338,7 @@ sub getTelnetSession {
     my $session;
     eval {
         $session = Net::Telnet->new(
-            Host    => $this->{_ip},
+            Host    => $this->{_controllerIp} || $this->{_ip},
             Timeout => 5,
             Prompt  => '/[\$%#>]$/'
         );
@@ -363,6 +368,7 @@ Find RADIUS SSID parameter out of RADIUS REQUEST parameters
 Aruba specific parser. See pf::SNMP for base implementation.
 
 =cut
+
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -384,6 +390,7 @@ sub extractSsid {
 What RADIUS Attribute (usually VSA) should the role returned into.
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
 
@@ -410,7 +417,6 @@ sub deauthTechniques {
     }
     return $method,$tech{$method};
 }
-
 
 =item
 
