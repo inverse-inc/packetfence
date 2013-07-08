@@ -1,39 +1,183 @@
-* {
-    margin:0;
-    padding:0;
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+@font-face {
+  font-family: 'tultralightregular';
+  src: url("/content/fonts/tultralight-regular-webfont.eot");
+  src: url("/content/fonts/tultralight-regular-webfont.eot?#iefix") format("embedded-opentype"), url("/content/fonts/tultralight-regular-webfont.woff") format("woff"), url("/content/fonts/tultralight-regular-webfont.ttf") format("truetype"), url("/content/fonts/tultralight-regular-webfont.svg#tultralightregular") format("svg");
+  font-weight: normal;
+  font-style: normal;
 }
 
-body {
-    text-align:center;  /* For IE6 Shenanigans */
-    background-color:#FFFFFF;
+@font-face {
+  font-family: 'tthinregular';
+  src: url("/content/fonts/tthin-regular-webfont.eot");
+  src: url("/content/fonts/tthin-regular-webfont.eot?#iefix") format("embedded-opentype"), url("/content/fonts/tthin-regular-webfont.woff") format("woff"), url("/content/fonts/tthin-regular-webfont.ttf") format("truetype"), url("/content/fonts/tthin-regular-webfont.svg#tthinregular") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'tlightregular';
+  src: url("/content/fonts/tlight-regular-webfont.eot");
+  src: url("/content/fonts/tlight-regular-webfont.eot?#iefix") format("embedded-opentype"), url("/content/fonts/tlight-regular-webfont.woff") format("woff"), url("/content/fonts/tlight-regular-webfont.ttf") format("truetype"), url("/content/fonts/tlight-regular-webfont.svg#tlightregular") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'tromanregular';
+  src: url("/content/fonts/troman-regular-webfont.eot");
+  src: url("/content/fonts/troman-regular-webfont.eot?#iefix") format("embedded-opentype"), url("/content/fonts/troman-regular-webfont.woff") format("woff"), url("/content/fonts/troman-regular-webfont.ttf") format("truetype"), url("/content/fonts/troman-regular-webfont.svg#tromanregular") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+    font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #f5f6f7;
+    padding: 0;
+    margin: 0;
+    color: #595859;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: none;
 }
 
 #wrapper {
-    width:999px;
-    margin:0 auto;
-    text-align:left;
+    margin: 0 auto;
+    text-align: left;
 }
 
 #header {
-    background:#ffffff url('images/telus-header.png') no-repeat;
-    height:259px;
+    background-color: #fff;
+    padding: 23px 23px 0px 23px;
+}
+
+#header .logo {
+    width: 125px;
+}
+
+#header .splash {
+    display: none;
+    float: right;
+    padding-top: 0px;
+}
+
+#header h1 {
+    font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 27px;
+    font-weight: normal;
+    padding: 17px 0px 0px;
+}
+
+#header p {
+    font-size: 17px;
+    line-height: 24px;
+    padding-bottom: 17px;
+}
+
+hr {
+    border: 0;
+    height: 0;
+    clear: both;
 }
 
 #page {
-    background:#f5f6f7;
-    padding:243px 0px 50px 118px;
+    clear: both;
+    padding: 23px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#page form .input {
+    padding-bottom: 23px;
 }
 
 .checkbox {
-    border:0px;
-    background:#ffffff;
+    border: 0px;
+    background: #fff;
 }
 
-.submit_button {
-    background:url('images/telus-submit.png') no-repeat;
-    cursor:pointer;
-    width:135px;
-    height:45px;
-    border:none;
+.btn {
+    padding: 10px 12px 14px 12px;
+    font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    width: 100%;
+    min-width: 128px;
+    color: white;
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #b3ff66), color-stop(1%, #b3ff66), color-stop(1%, #66cc00), color-stop(90%, #66cc00), color-stop(90%, #57a708), color-stop(100%, #57a708));
+    background-image: -webkit-linear-gradient(#b3ff66, #b3ff66 1%, #66cc00 1%, #66cc00 90%, #57a708 90%, #57a708);
+    background-image: -moz-linear-gradient(#b3ff66, #b3ff66 1%, #66cc00 1%, #66cc00 90%, #57a708 90%, #57a708);
+    background-image: -o-linear-gradient(#b3ff66, #b3ff66 1%, #66cc00 1%, #66cc00 90%, #57a708 90%, #57a708);
+    background-image: linear-gradient(#b3ff66, #b3ff66 1%, #66cc00 1%, #66cc00 90%, #57a708 90%, #57a708);
+    background-color: #66cc00;
+    font-size: 21px;
+    line-height: 21px;
+    text-align: center;
+    text-shadow: rgba(89, 88, 89, 0.2) 0 1px 0;
+    border: none;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    -ms-border-radius: 3px;
+    -o-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0px 2px 0px 0 rgba(51, 51, 51, 0.13);
+    -moz-box-shadow: 0px 2px 0px 0 rgba(51, 51, 51, 0.13);
+    box-shadow: 0px 2px 0px 0 rgba(51, 51, 51, 0.13);
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn:hover {
+    text-decoration: none;
+    color: white;
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #c5f199), color-stop(1%, #c5f199), color-stop(1%, #8be234), color-stop(90%, #8be234), color-stop(90%, #66cc00), color-stop(100%, #66cc00));
+    background-image: -webkit-linear-gradient(#c5f199, #c5f199 1%, #8be234 1%, #8be234 90%, #66cc00 90%, #66cc00);
+    background-image: -moz-linear-gradient(#c5f199, #c5f199 1%, #8be234 1%, #8be234 90%, #66cc00 90%, #66cc00);
+    background-image: -o-linear-gradient(#c5f199, #c5f199 1%, #8be234 1%, #8be234 90%, #66cc00 90%, #66cc00);
+    background-image: linear-gradient(#c5f199, #c5f199 1%, #8be234 1%, #8be234 90%, #66cc00 90%, #66cc00);
+    background-color: #8be234;
+}
+
+@media (min-width: 768px) {
+    #header {
+        min-height: 261px;
+    }
+
+    #header .logo {
+        width: 194px;
+    }
+
+    #header .splash {
+        display: block;
+        padding-top: 10px;
+    }
+
+    #header h1, #header p {
+        margin-left: 72px;
+    }
+
+    #header h1 {
+        font-size: 37px;
+        padding: 37px 0px 17px;
+    }
+
+    #header p {
+        font-size: 17px;
+        line-height: 24px;
+        padding-bottom: 17px;
+    }
+
+    #page {
+        padding: 243px 0px 50px 72px;
+        position: relative;
+    }
+
+    #page form {
+        padding-left: 23px;
+    }
+
+    .btn {
+        font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        width: 128px;
+        min-width: 128px;
+    }
 }
