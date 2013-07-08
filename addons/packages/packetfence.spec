@@ -752,6 +752,8 @@ fi
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
                         /usr/local/pf/html/captive-portal/content/images/*
+%dir                    /usr/local/pf/html/captive-portal/content/fonts
+                        /usr/local/pf/html/captive-portal/content/fonts/*
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %config(noreplace)      /usr/local/pf/html/captive-portal/profile-templates/*
