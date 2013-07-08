@@ -72,7 +72,7 @@ sub new {
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $this, $switchId ) = @_;
+    my ( $self, $switchId ) = @_;
     my @requestedSwitches;
     my $requestedSwitch;
     my $switch_ip;
