@@ -94,7 +94,7 @@ sub pf_section :Path :Args(1) {
             $logger->info("Processed form");
             if ($form->has_errors) {
                 $status = HTTP_PRECONDITION_FAILED;
-                $status_msg = join(" ",$form->errors), # TODO: localize error message
+                $status_msg = $form->field_errors;
             } else {
                 ($status,$status_msg) = $model->update($section, $form->value);
                 if (is_success($status)) {

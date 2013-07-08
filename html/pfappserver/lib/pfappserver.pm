@@ -237,11 +237,13 @@ sub add_deferred_actions {
 sub pf_localize {
     my ($c,$msg) = @_;
     my @args;
-    if (ref($msg) eq 'ARRAY') {
+    my $ref_type = ref($msg);
+    return $msg if $ref_type eq 'HASH';
+    unless ($ref_type) {
+        @args = ($msg);
+    } else {
         my $text = shift @$msg;
         @args = ($text,$msg);
-    } else {
-        @args = ($msg);
     }
     return $c->localize(@args);
 }

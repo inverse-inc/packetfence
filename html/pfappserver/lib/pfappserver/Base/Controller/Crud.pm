@@ -31,7 +31,7 @@ sub create : Local: Args(0) {
         $form->process(params => $c->request->params);
         if ($form->has_errors) {
             $status = HTTP_BAD_REQUEST;
-            $status_msg = join(' ',$form->errors);
+            $status_msg = $form->field_errors;
         }
         else {
             my $item = $form->value;
@@ -100,7 +100,7 @@ sub update :Chained('object') :PathPart :Args(0) {
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
-        $status_msg = join(' ',$form->errors);
+        $status_msg = $form->field_errors;
     } else {
         my $model = $self->getModel($c);
         my $idKey = $model->idKey;
