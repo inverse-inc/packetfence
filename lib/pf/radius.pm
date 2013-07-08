@@ -176,7 +176,7 @@ sub authorize {
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
-    locationlog_synchronize($switch_id, $switch_ip, $switch_mac, $port, $vlan, $mac,
+    $switch->synchronize_locationlog($port, $vlan, $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
@@ -408,10 +408,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-
-    locationlog_synchronize(
-        $switch->{_id}, $switch->{_switchIp}, $switch->{_switchMac}, $port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid
-    );
+    $switch->synchronize_locationlog($port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid);
 
     my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();

@@ -333,8 +333,10 @@ sub new {
             $this->{_inlineTrigger} = $argv{$_};
         } elsif (/^-?deauthMethod$/i) {
             $this->{_deauthMethod} = $argv{$_};
-        } elsif (/^-?(switchIp|ip)$/i) {
-            $this->{_ip} = $this->{_switchIp} = $argv{$_};
+        } elsif (/^-?(ip)$/i) {
+            $this->{_ip} = $argv{$_};
+        } elsif (/^-?(switchIp)$/i) {
+            $this->{_switchIp} = $argv{$_};
         } elsif (/^-?switchMac$/i) {
             $this->{_switchMac} = $argv{$_};
         }
@@ -521,7 +523,7 @@ Uses connectWriteTo with IP from configuration internally.
 
 sub connectWrite {
     my $this   = shift;
-    return $this->connectWriteTo($this->{_ip}, '_sessionWrite',$this->{_controllerPort});
+    return $this->connectWriteTo( $this->{_ip}, '_sessionWrite');
 }
 
 =item connectWriteToController
@@ -659,7 +661,7 @@ sub setVlan {
     }
 
     #closes old locationlog entries and create a new one if required
-    locationlog_synchronize($this->{_id}, $this->{_switchIp}, $this->{_switchMac} , $ifIndex, $newVlan, $presentPCMac, $NO_VOIP, $WIRED_SNMP_TRAPS);
+    $this->synchronize_locationlog($ifIndex, $newVlan, $presentPCMac, $NO_VOIP, $WIRED_SNMP_TRAPS);
 
     if ( $vlan == $newVlan ) {
         $logger->info(
@@ -2628,6 +2630,8 @@ sub getDeauthSnmpConnectionKey {
         return '_sessionWrite';
     }
 }
+
+#sub ip { my $this = shift; return $this->{_controllerIp} || $this->{_ip}; }
 
 =item radiusDisconnect
 
