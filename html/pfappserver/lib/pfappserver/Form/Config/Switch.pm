@@ -58,6 +58,11 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
+has_field 'VoIPEnabled' =>
+  (
+   type => 'Toggle',
+   label => 'VoIP',
+  );
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -171,7 +176,7 @@ has_block 'snmp' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(type mode deauthMethod uplink_dynamic uplink controllerIp) ],
+   render_list => [ qw(type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
   );
 has_field 'SNMPVersion' =>
   (
