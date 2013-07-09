@@ -19,11 +19,12 @@ use pf::switchlocation;
 
 sub checkArgs {
     my ($self) = @_;
-    my ($id) = @{$self->{args}};
-    if ($id) {
+    my ($id,$ifIndex) = @{$self->{args}};
+    if (defined $id) {
+        my %params = (ifIndex => $ifIndex);
         $self->{function} = \&switchlocation_view_switchport;
         $self->{key} = $id;
-        $self->{params} = {};
+        $self->{params} = \%params;
         return 1;
     }
     return 0;
