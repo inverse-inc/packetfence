@@ -18,16 +18,20 @@ use pf::os qw(dhcp_fingerprint_view dhcp_fingerprint_view_all);
 use pf::config::ui;
 
 
-sub parseArgs {
+sub checkArgs {
     my ($self) = @_;
     my ($id) = @{$self->{args}};
     my $function;
+    my %params;
     if(defined $id && $id ne 'all') {
         $function = \&dhcp_fingerprint_view;
     } else {
         $function = \&dhcp_fingerprint_view_all;
     }
-    return ($function,$id);
+    $self->{function} = $function;
+    $self->{key} = $id;
+    $self->{params} = \%params;
+    return 1;
 }
 
 sub field_ui { "fingerprint view" }
