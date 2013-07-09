@@ -123,6 +123,7 @@ hr {
 }
 
 .btn {
+    cursor: pointer;
     padding: 10px 12px 14px 12px;
     font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
     width: 100%;

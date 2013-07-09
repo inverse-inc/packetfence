@@ -1,42 +1,12 @@
 [% title = i18n("Login") %]
 [% INCLUDE header.html %]
 
-<script type="text/javascript">
-document.observe("dom:loaded", function() {
-
-        // Don't propagate mouse clicks on disabled buttons and links
-        $$(".btn").each(function(e) {
-                e.on("click", function(event) {
-                        if (Event.element(event).hasClassName('disabled')) {
-                                Event.stop(event);
-                                return false;
-                        }
-                        return true;
-                });
-        });
-
-        // Toggle the disable state of the buttons and links when the user
-        // accepts or refuses the AUP
-        $$("input[name='aup_signed']").each(function(e) {
-                e.on("change", function(event) {
-                        var accepted = e.checked;
-                        $$(".btn").each(function(btn) {
-                                if (accepted)
-                                        btn.removeClassName('disabled');
-                                else
-                                        btn.addClassName('disabled');
-                        });
-                });
-        });
-
-});
-</script>
-
         [%# Error %]
         [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
 
         <form name="login" method="post" action="/authenticate">
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
+          <input type="hidden" name="CGISESSID" value="[% session_id %]" />
 
           [%# AUP %]
           <div class="input">
@@ -49,7 +19,7 @@ document.observe("dom:loaded", function() {
           
           [%# submit %]
           <div>
-            <input type="submit" class="btn disabled" name="submit" value="Submit" />
+            <input type="submit" class="btn" name="submit" value="Submit" />
           </div>
         </form>
 
