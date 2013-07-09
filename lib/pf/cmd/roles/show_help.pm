@@ -13,20 +13,16 @@ pf::cmd::roles::show_help
 
 use strict;
 use warnings;
-use Pod::Usage qw(pod2usage);
-use Pod::Text::Termcap;
-@Pod::Usage::ISA = ('Pod::Text::Termcap');
+use Pod::Usage;
 use Pod::Find qw(pod_where);
-use Role::Tiny;
+use base qw(Exporter);
+
+our @EXPORT = qw(showHelp);
 
 sub showHelp {
     my ($self,$package) = @_;
     $package ||= ref($self) || $self;
-    my $location = pod_where({-inc => 1}, $package);
-    pod2usage({
-        -message => $self->{help_msg} ,
-        -input => $location
-    });
+    pod2usage( -input => pod_where({-inc => 1}, $package) );
 }
 
 
