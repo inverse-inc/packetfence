@@ -13,7 +13,9 @@ pf::cmd::roles::show_parent_help
 
 use strict;
 use warnings;
-use Role::Tiny;
+use base qw(Exporter);
+
+our @EXPORT = qw(showHelp);
 
 sub showHelp {
     my ($self) = @_;
