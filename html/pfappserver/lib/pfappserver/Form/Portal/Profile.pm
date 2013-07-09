@@ -13,6 +13,7 @@ Portal profile.
 use pf::authentication;
 
 use HTML::FormHandler::Moose;
+use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
 
 # Form fields
@@ -29,8 +30,16 @@ has_field 'description' =>
    label => 'Profile Description',
    required => 1,
   );
+has_field 'filter' => (
+    type => 'Repeatable',
+    inflate_default_method => sub {
+        [
+            map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
+            @{$_[1]}
+        ]
+    }
+);
 
-has_field 'filter' => ( type => 'Repeatable' );
 has_field 'filter.contains' => ( type => '+ProfileFilter',label => 'Filter' );
 
 
