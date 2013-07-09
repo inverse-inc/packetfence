@@ -163,6 +163,11 @@ hr {
     background-color: #8be234;
 }
 
+#PBouter {
+    margin: 0 auto;
+    text-align: center;
+}
+
 @media (min-width: 657px) {
     #header {
         min-height: 261px;
@@ -198,7 +203,8 @@ hr {
     }
 
     #page .error,
-    #page form {
+    #page form,
+    #about {
         padding-left: 23px;
     }
 
