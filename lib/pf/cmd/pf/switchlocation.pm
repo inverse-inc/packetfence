@@ -10,6 +10,7 @@ pfcmd switchlocation view <ip> <ifIndex>
 show switchlocation information stored in database
 
 examples:
+
   pfcmd switchlocation view 192.168.70.1 3
 
 =head1 DESCRIPTION
