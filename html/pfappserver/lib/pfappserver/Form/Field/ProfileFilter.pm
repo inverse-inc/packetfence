@@ -27,6 +27,8 @@ has '+wrapper_class' => (builder => 'filter_wrapper_class');
 
 sub filter_wrapper_class {[qw(compound-input-btn-group)] }
 
+apply => [ { transform => sub{ __PACKAGE__->filter_deflate($_[0]) } } ];
+
 has_field 'match' =>
   (
    type => 'Text',
