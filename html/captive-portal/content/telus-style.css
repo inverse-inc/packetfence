@@ -88,8 +88,33 @@ hr {
     right: 0;
 }
 
+.aup #page {
+    position: relative;
+}
+
 #page form .input {
     padding-bottom: 23px;
+}
+
+.mobile {
+  display: none;
+}
+
+.error p {
+    color: red;
+}
+
+#aup {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  margin: 0;
+  margin-bottom: 23px;
+  padding: 0 10px;
+  overflow-y: auto;
+  text-align: left;
+  text-transform: none;
+  text-shadow: none;
+  height: 150px;
 }
 
 .checkbox {
@@ -137,7 +162,7 @@ hr {
     background-color: #8be234;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 657px) {
     #header {
         min-height: 261px;
     }
@@ -167,10 +192,11 @@ hr {
     }
 
     #page {
-        padding: 243px 0px 50px 72px;
+        padding: 23px 23px 50px 72px;
         position: relative;
     }
 
+    #page .error,
     #page form {
         padding-left: 23px;
     }

@@ -40,7 +40,11 @@ document.observe("dom:loaded", function() {
 
           [%# AUP %]
           <div class="input">
-            <input name="aup_signed" class="checkbox" type="checkbox" /> I agree with the Terms of Service and the Acceptable Terms Policy
+            <div id="aup" class="notmobile">
+              [% INCLUDE aup_text.html %]
+            </div>
+            <div class="notmobile"><label><input name="aup_signed" type="checkbox" /> I agree with the Terms of Service and the Acceptable Terms Policy</label></div>
+           <div class="mobile"><input name="aup_signed" type="checkbox" />I have read and accept the <a href="/aup" target="_blank">Terms of Service and the Acceptable Terms Policy</a></div>
           </div>
           
           [%# submit %]
