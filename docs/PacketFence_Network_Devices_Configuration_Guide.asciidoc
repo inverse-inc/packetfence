@@ -586,6 +586,8 @@ linkUP/linkDown SNMP traps
 
 Global config settings: 
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps snmp linkdown linkup 
   snmp-server enable traps mac-notification 
   snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
@@ -696,6 +698,8 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 
 Global config settings _with VoIP_:
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps snmp linkdown linkup 
   snmp-server enable traps mac-notification 
   snmp-server host 192.168.1.5 trap version 2c public snmp mac-notification 
@@ -721,6 +725,8 @@ Port­Security for IOS earlier than 12.2(46)SE 
 
 Global config settings:
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps port-security 
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
@@ -768,6 +774,8 @@ violation, and then authorize the phone MAC address on the network.
 
 Global config settings:
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps port-security 
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
@@ -928,6 +936,8 @@ Port-­Security
 
 Global config settings 
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps port-security 
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
@@ -973,6 +983,8 @@ We need to secure bogus MAC addresses on ports in order for the switch to send a
 
 Global config settings 
 
+  snmp-server community public RO
+  snmp-server community private RW
   snmp-server enable traps port-security 
   snmp-server enable traps port-security trap-rate 1 
   snmp-server host 192.168.1.5 version 2c public port-security 
