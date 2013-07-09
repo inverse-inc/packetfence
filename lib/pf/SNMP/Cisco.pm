@@ -38,6 +38,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -554,6 +555,7 @@ sub _setVlan {
 =item setTrunkPortNativeVlan - sets PVID on a trunk port
 
 =cut
+
 sub setTrunkPortNativeVlan {
     my ( $this, $ifIndex, $newVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -630,6 +632,7 @@ is used to specify a VLAN and in SNMPv1/2c an @<vlan> is appended to the
 read-only community name when reading.
 
 =cut
+
 sub getMacBridgePortHash {
     my $this              = shift;
     my $vlan              = shift || '';
@@ -928,6 +931,7 @@ sub isTrunkPort {
 =item setModeTrunk - sets a port as mode access or mode trunk
 
 =cut
+
 sub setModeTrunk {
     my ( $this, $ifIndex, $enable ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1068,6 +1072,7 @@ safe:
 L<http://www.cpanforum.com/threads/6909/>
 
 =cut
+
 sub getMacAddr {
     my ( $this, @managedPorts ) = @_;
     my $command;
@@ -1393,6 +1398,7 @@ Notice that we are throwing exceptions in here so make sure to trap them!
 Inspired by: http://www.notarus.net/networking/cisco_snmp_config.html#wrmem
 
 =cut
+
 sub copyConfig {
     my ( $this, $src_type, $dest_type, $uri ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1489,6 +1495,7 @@ Exact equivalent of doing a 'write mem' on the CLI.
 Notice that we are throwing exceptions in here so make sure to trap them!
 
 =cut
+
 sub saveConfig {
     my ($this) = @_;
     $this->copyConfig($CISCO::RUNNING_CONFIG, $CISCO::STARTUP_CONFIG);
@@ -1503,6 +1510,7 @@ Uses L<pf::util::dhcp> for the low-level RADIUS stuff.
 At proof of concept stage. For now using SNMP is still preferred way to bounce a port.
 
 =cut
+
 sub _radiusBounceMac {
     my ( $self, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -1514,7 +1522,7 @@ sub _radiusBounceMac {
 
     if (!defined($self->{'_radiusSecret'})) {
         $logger->warn(
-            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+            "Unable to perform RADIUS CoA-Request on $self->{'_id'}: RADIUS Shared Secret not configured"
         );
         return;
     }
@@ -1528,7 +1536,7 @@ sub _radiusBounceMac {
     my $response;
     try {
         my $connection_info = {
-            nas_ip => $self->{'_ip'},
+            nas_ip => $self->{'_controllerIp'} || $self->{'_ip'},
             secret => $self->{'_radiusSecret'},
             LocalAddr => $management_network->tag('vip'),
         };
@@ -1536,7 +1544,7 @@ sub _radiusBounceMac {
         $response = perform_coa( $connection_info,
             {
                 'Acct-Terminate-Cause' => 'Admin-Reset',
-                'NAS-IP-Address' => $self->{'_ip'},
+                'NAS-IP-Address' => $self->{'_switchIp'},
                 'Calling-Station-Id' => $mac,
             },
             [{ 'vendor' => 'Cisco', 'attribute' => 'Cisco-AVPair', 'value' => 'subscriber:command=bounce-host-port' }],
