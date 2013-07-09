@@ -142,6 +142,7 @@ sub instantiate {
     $logger->debug("creating new $type object");
     return $type->new(
          id => $requestedSwitch,
+         ip => $switch_ip,
          switchIp => $switch_ip,
          switchMac => $switch_mac,
          %$switch_data
