@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 
-sub run {
+sub _run {
     my ($self) = @_;
     return $self->print_results;
 }
@@ -23,10 +23,13 @@ sub run {
 our $delimiter = '|';
 our $count  = $ENV{PER_PAGE};
 our $offset = $ENV{PAGE_NUM};
+use pf::config::ui;
 
 sub print_results {
     my ($self) = @_;
-    my ($function, $key, %params ) = $self->parseArgs;
+    my $function = $self->{function};
+    my $key = $self->{key};
+    my %params = %{$self->{params}};
     my $total;
     my @results;
     # calling a function looked up dynamically: first test coderef existence
@@ -74,6 +77,11 @@ sub print_results {
         }
     }
     return ($total);
+}
+
+sub showHelp {
+    my ($self) = @_;
+    $self->SUPER::showHelp(ref($self->{parentCmd}) || $self->{parentCmd});
 }
 
 sub field_order {
