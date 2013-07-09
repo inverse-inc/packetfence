@@ -29,12 +29,11 @@ has_field 'description' =>
    label => 'Profile Description',
    required => 1,
   );
-has_field 'filter' =>
-  (
-   type => 'ProfileFilter',
-   label => 'Filter',
-   required => 1,
-  );
+
+has_field 'filter' => ( type => 'Repeatable' );
+has_field 'filter.contains' => ( type => '+ProfileFilter',label => 'Filter' );
+
+
 has_field 'guest_self_reg' =>
   (
    type => 'Toggle',
