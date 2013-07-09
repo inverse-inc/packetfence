@@ -608,7 +608,10 @@ sub readProfileConfigFile {
                 # check for portal profile guest self registration options in case they're disabled in default profile
                 $guest_self_registration{'enabled'} = $FALSE;
                 while (my ($profile_id,$profile) = each %Profiles_Config) {
-                    $Profile_Filters{$profile->{filter}} = $profile_id if exists $profile->{filter} && $profile->{filter};
+                    $profile->{'filter'} = [split(/\s*,\s*/,$profile->{'filter'} || "")];
+                    foreach my $filter (@{$profile->{'filter'}}) {
+                        $Profile_Filters{$filter} = $profile_id;
+                    }
                     if ( isenabled($profile->{'guest_self_reg'}) ) {
                         $guest_self_registration{'enabled'} = $TRUE;
                     }
