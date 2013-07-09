@@ -12,11 +12,7 @@ pf::cmd
 
 use strict;
 use warnings;
-BEGIN {
-    $Pod::Usage::Formatter = 'Pod::Text::Termcap';
-}
-use Pod::Usage;
-use Pod::Find qw(pod_where);
+use pf::cmd::roles::show_help;
 
 sub new {
     my ($class,$args) = @_;
@@ -31,12 +27,6 @@ sub run {
     } else {
         $self->showHelp;
     }
-}
-
-sub showHelp {
-    my ($self,$package) = @_;
-    $package ||= ref($self) || $self;
-    pod2usage( -input => pod_where({-inc => 1}, $package) );
 }
 
 sub checkArgs {
