@@ -167,14 +167,44 @@ has_block 'snmp' =>
                    'SNMPPrivPasswordWrite',
                    'SNMPVersionTrap',
                    'SNMPCommunityTrap',
+                   'SNMPUserNameTrap',
                    'SNMPAuthProtocolTrap',
                    'SNMPAuthPasswordTrap',
                    'SNMPPrivProtocolTrap',
                    'SNMPPrivPasswordTrap',
+                   'advance',
                   ],
   );
 
-has_block 'definition' =>
+has_block 'advance' =>
+  (
+   tag => 'div',
+   render_list => [ qw(macSearchesMaxNb macSearchesSleepInterval) ],
+  );
+
+has_field macSearchesMaxNb =>
+  (
+   type => 'PosInteger',
+   label => 'Maximum MAC addresses',
+   default => 30,
+   tags => {
+       after_element => \&help_list,
+       help => 'The maximum MAC addresses retrived from the port'
+   },
+  );
+
+has_field macSearchesSleepInterval  =>
+  (
+   type => 'PosInteger',
+   label => 'Sleep interval',
+   default => 2,
+   tags => {
+       after_element => \&help_list,
+       help => 'Sleep interval for between queries for MAC addresses'
+   },
+  );
+
+has_block definition =>
   (
    render_list => [ qw(type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
   );
@@ -260,6 +290,11 @@ has_field 'SNMPCommunityTrap' =>
   (
    type => 'Text',
    label => 'Community Trap',
+  );
+has_field 'SNMPUserNameTrap' =>
+  (
+   type => 'Text',
+   label => 'User Name Trap',
   );
 has_field 'SNMPAuthProtocolTrap' =>
   (
