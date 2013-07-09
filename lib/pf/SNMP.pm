@@ -2663,14 +2663,12 @@ sub radiusDisconnect {
     # Where should we send the RADIUS Disconnect-Request?
     # to network device by default
     my $send_disconnect_to = $self->{'_ip'};
+    my $nas_ip_address = $self->{_switchIp};
     # but if controllerIp is set, we send there
     if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
         $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
         $send_disconnect_to = $self->{'_controllerIp'};
     }
-    # allowing client code to override where we connect with NAS-IP-Address
-    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
-        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
 
     my $response;
     try {
@@ -2687,7 +2685,7 @@ sub radiusDisconnect {
         # Standard Attributes
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
-            'NAS-IP-Address' => $send_disconnect_to,
+            'NAS-IP-Address' => $nas_ip_address,
         };
 
         # merging additional attributes provided by caller to the standard attributes
