@@ -62,6 +62,8 @@ use warnings;
 use pf::cmd::subcmd;
 use base qw(pf::cmd::subcmd);
 
+sub helpCmd { "pf::cmd::pf::help" }
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

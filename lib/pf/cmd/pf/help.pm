@@ -61,15 +61,15 @@ pf::cmd::pf::help
 use strict;
 use warnings;
 
-use base qw(pf::cmd::help pf::cmd::subcmd);
+use base qw(pf::cmd::help);
 
 sub run {
     my ($self) = @_;
     my ($cmd) = $self->args;
     if(!defined $cmd || $cmd eq 'help') {
-        return $self->runHelp;
+        return $self->SUPER::run;
     }
-    return $self->runSubCmd("pf::cmd::pf::${cmd}::help");
+    return $self->showHelp("pf::cmd::pf::${cmd}");
 }
 
 =head1 AUTHOR
