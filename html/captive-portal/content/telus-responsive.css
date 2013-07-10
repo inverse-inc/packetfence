@@ -1,41 +1,88 @@
+@media (min-width: 657px) {
+    #header {
+        min-height: 261px;
+    }
+
+    #header .logo {
+        width: 194px;
+    }
+
+    #header .splash {
+        display: block;
+        padding-top: 10px;
+    }
+
+    #header h1, #header p {
+        margin-left: 72px;
+    }
+
+    #header h1 {
+        font-size: 37px;
+        padding: 37px 0px 17px;
+    }
+
+    #header p {
+        font-size: 17px;
+        line-height: 24px;
+        padding-bottom: 17px;
+    }
+
+    #page {
+        padding: 23px 23px 50px 72px;
+        position: relative;
+    }
+
+    #page .error,
+    #page form,
+    #about {
+        padding-left: 23px;
+    }
+
+    .btn {
+        font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        width: 128px;
+        min-width: 128px;
+    }
+}
+
 @media (max-width: 656px) {
-  div#container {
-    width: 100%;
-  }
-  div#content,
-  div#footer {
-    padding: 5px;
-  }
-  div#about h1,
-  div#about p,
-  div#about ul {
-    padding-left: 0px;
-  }
-  div#header img {
-    width: 275px;
-  }
-  div.input {
-    margin: 0px;
-    padding-bottom: 0px;
-  }
-  div.input span {
-    padding-bottom: 0px;
-  }
-  div.input div#aup {
-    background-color: transparent;
-    border: 0px;
-    height: auto;
-  }
-  div.input div#aup div {
-    text-align: right;
-  }
-  div#content {
-    padding-bottom: 20px;
-  }
-  .mobile {
-    display: inherit;
-  }
-  .notmobile {
-    display: none;
-  }
+    div#container {
+        width: 100%;
+    }
+    div#content,
+    div#footer {
+        padding: 5px;
+    }
+    div#about h1,
+    div#about p,
+    div#about ul {
+        padding-left: 0px;
+    }
+    div#header img {
+        width: 275px;
+    }
+    div.input {
+        margin: 0px;
+        padding-bottom: 0px;
+    }
+    div.input span {
+        padding-bottom: 0px;
+    }
+    div.input div#aup {
+        background-color: transparent;
+        border: 0px;
+        height: auto;
+    }
+    div.input div#aup div {
+        text-align: right;
+    }
+    div#content {
+        padding-bottom: 20px;
+    }
+    .mobile {
+        display: inherit;
+    }
+    .notmobile {
+        display: none;
+    }
 }

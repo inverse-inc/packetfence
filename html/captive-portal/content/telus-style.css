@@ -63,7 +63,7 @@ html, body {
 
 #header h1 {
     font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 27px;
+    font-size: 26px;
     font-weight: normal;
     padding: 17px 0px 0px;
 }
@@ -83,14 +83,6 @@ hr {
 #page {
     clear: both;
     padding: 23px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-}
-
-.aup #page {
-    position: relative;
 }
 
 #page form .input {
@@ -98,7 +90,7 @@ hr {
 }
 
 .mobile {
-  display: none;
+    display: none;
 }
 
 .error p {
@@ -106,16 +98,16 @@ hr {
 }
 
 #aup {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  margin: 0;
-  margin-bottom: 23px;
-  padding: 0 10px;
-  overflow-y: auto;
-  text-align: left;
-  text-transform: none;
-  text-shadow: none;
-  height: 150px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    margin: 0;
+    margin-bottom: 23px;
+    padding: 0 10px;
+    overflow-y: auto;
+    text-align: left;
+    text-transform: none;
+    text-shadow: none;
+    height: 150px;
 }
 
 .checkbox {
@@ -167,51 +159,4 @@ hr {
 #PBouter {
     margin: 0 auto;
     text-align: center;
-}
-
-@media (min-width: 657px) {
-    #header {
-        min-height: 261px;
-    }
-
-    #header .logo {
-        width: 194px;
-    }
-
-    #header .splash {
-        display: block;
-        padding-top: 10px;
-    }
-
-    #header h1, #header p {
-        margin-left: 72px;
-    }
-
-    #header h1 {
-        font-size: 37px;
-        padding: 37px 0px 17px;
-    }
-
-    #header p {
-        font-size: 17px;
-        line-height: 24px;
-        padding-bottom: 17px;
-    }
-
-    #page {
-        padding: 23px 23px 50px 72px;
-        position: relative;
-    }
-
-    #page .error,
-    #page form,
-    #about {
-        padding-left: 23px;
-    }
-
-    .btn {
-        font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        width: 128px;
-        min-width: 128px;
-    }
 }
