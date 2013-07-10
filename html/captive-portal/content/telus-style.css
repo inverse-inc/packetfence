@@ -32,6 +32,7 @@
 
 html, body {
     font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
     background-color: #f5f6f7;
     padding: 0;
     margin: 0;
