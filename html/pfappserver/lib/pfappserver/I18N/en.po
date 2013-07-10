@@ -3465,7 +3465,7 @@ msgstr "radiusd path"
 
 # conf/documentation.conf
 msgid "services.snmptrapd_binary"
-msgstr "smtptrapd path"
+msgstr "snmptrapd path"
 
 # conf/documentation.conf
 msgid "services.snort_binary"
@@ -3493,7 +3493,7 @@ msgstr "Set access duration"
 
 # pf::Authentication::constants (Actions)
 msgid "set_access_level"
-msgstr "Set access level"
+msgstr "Set access level of Web admin"
 
 # pf::Authentication::constants (Actions)
 msgid "set_role"
