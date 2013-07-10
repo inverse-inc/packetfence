@@ -30,6 +30,31 @@ use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 sub description { 'Cisco Catalyst 4500 Series' }
 
+=item getIfIndexByNasPortId
+
+Fetch the ifindex on the switch by NAS-Port-Id radius attribute
+
+=cut
+ 
+sub getIfIndexiByNasPortId {
+    my ($this, $ifDesc_param) = @_;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
+    my $ifDescHashRef;
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    foreach my $key ( keys %{$result} ) {
+        my $ifDesc = $result->{$key};
+        if ( $ifDesc =~ /$ifDesc_param$/i ) {
+            $key =~ /^$OID_ifDesc\.(\d+)$/;
+            return $1;
+        }
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

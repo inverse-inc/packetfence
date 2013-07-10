@@ -2800,6 +2800,17 @@ sub deauthenticateMacDefault {
     return $FALSE;
 }
 
+=item GetIfIndexByNasPortId
+
+return IfIndexByNasPortId
+
+=cut
+
+sub getIfIndexiByNasPortId {
+    my ($this ) = @_;
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR

@@ -66,7 +66,7 @@ sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
+    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id) = $this->_parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
@@ -115,7 +115,7 @@ sub authorize {
 
     # switch-specific information retrieval
     my $ssid;
-    $port = $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    $port = $switch->getIfIndexiByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
     if (($connection_type & $WIRELESS) == $WIRELESS) {
         $ssid = $switch->extractSsid($radius_request);
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
@@ -232,7 +232,11 @@ sub _parseRequest {
         $eap_type = $radius_request->{'EAP-Type'};
     }
 
-    return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name);
+    my $nas_port_id;
+    if (defined($radius_request->{'NAS-Port-Id'})) {
+        $nas_port_id = $radius_request->{'NAS-Port-Id'};
+    }
+    return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name, $nas_port_id);
 }
 
 =item * _doWeActOnThisCall
