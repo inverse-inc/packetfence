@@ -31,7 +31,11 @@ sub run {
 
 sub checkArgs {
     my ($self) = @_;
-    return @{$self->{args}} == 0;
+    return $self->args == 0;
+}
+
+sub args {
+    return @{$_[0]->{args} || []};
 }
 
 =head1 AUTHOR
