@@ -219,7 +219,7 @@ Adding a field and giving PacketFence read-only access
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this case, PacketFence can show the contents of the table using both
-`pfcmd` and the Web Admin GUI, but won't be able to modify the contents of the field.
+`pfcmd` but won't be able to modify the contents of the field.
 
 Start by modifying the database table using an `SQL ALTER TABLE` query.
 
@@ -229,10 +229,6 @@ added the field to the node table, then edit `/usr/local/pf/lib/pf/node.pm`. You
 using these queries. If your new field should be used in reports, the dashboard or graphs, you'll also
 have to modify the queries in `/usr/local/pf/lib/pf/pfcmd/graph.pm`, `/usr/local/pf/lib/pf/pfcmd/report.pm`
 and `/usr/local/pf/lib/pf/pfcmd/dashboard.pm`.
-
-Last, but not least, you'll have to modify the file `/usr/local/pf/conf/ui.conf`.
-In this file, you can also give a nice looking name to your field for showing
-up in the Web Admin GUI.
 
 
 Adding a field and giving PacketFence read-write access

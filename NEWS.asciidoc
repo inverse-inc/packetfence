@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.0.2 released on 2013-MM-DD
+Version 4.0.2 released on 2013-07-DD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -22,16 +22,17 @@ New Features
 Enhancements
 ++++++++++++
 
-* Removed bind for pfdns
-* Rewrite Oauth2 support (based on ipset session)
+* Replaced bind with pfdns - PacketFence's own DNS server
+* Rewrote Oauth2 support (based on ipset sessions)
 * New counters bellow line graphs of reports
 * Support for anonymous bind in LDAP authentication sources
-* Add support for date and time conditions in authentication sources
-* Add "is not" condition on connection type
+* Added support for date and time conditions in authentication sources
+* Added "is not" condition on connection type
 * Extend simple search of nodes to match MAC, owner and computer name
 * Added search and display of the a user's telephone number
 * Can now have multiple authentication sources for Google, Facebook
 * Increased speed of loading configuration from the cache
+* Each portal profiles can now use a list of authentication sources
 
 Bug Fixes
 +++++++++
