@@ -135,9 +135,9 @@ sub create :Chained('object') :PathPart('create') :Args(0) {
                 ($status, $result) = $c->model('Interface')->update($interface, $data);
             }
 
-            $c->response->status($status);
-            $c->stash->{status_msg} = $result;
         }
+        $c->response->status($status);
+        $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
     }
     else {
