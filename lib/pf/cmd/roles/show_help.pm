@@ -17,6 +17,11 @@ use Pod::Usage;
 use Pod::Find qw(pod_where);
 use base qw(Exporter);
 
+BEGIN {
+    $Pod::Usage::Formatter = 'Pod::Text::Termcap';
+}
+
+
 our @EXPORT = qw(showHelp);
 
 sub showHelp {
