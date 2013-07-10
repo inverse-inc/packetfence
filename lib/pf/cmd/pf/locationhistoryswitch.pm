@@ -29,7 +29,7 @@ use pf::cmd::roles::show_help;
 
 sub checkArgs {
     my ($self) = @_;
-    my ($switch,$ifIndex,@date_args) = @{$self->{args}};
+    my ($switch,$ifIndex,@date_args) = $self->args;
     if (defined $switch) {
         my %params = (ifIndex => $ifIndex);
         my $date = join(' ',@date_args);

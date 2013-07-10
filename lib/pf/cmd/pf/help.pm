@@ -65,7 +65,7 @@ use base qw(pf::cmd::help pf::cmd::subcmd);
 
 sub run {
     my ($self) = @_;
-    my ($cmd) = @{$self->{args}};
+    my ($cmd) = $self->args;
     if(!defined $cmd || $cmd eq 'help') {
         return $self->runHelp;
     }

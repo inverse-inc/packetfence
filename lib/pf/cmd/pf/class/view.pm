@@ -18,7 +18,7 @@ use pf::class;
 
 sub run {
     my ($self) = @_;
-    my ($id) = (@{$self->{args}});
+    my ($id) = $self->args;
     my $function;
     if ( $id && $id !~ /all/ ) {
         $function = \&class_view;

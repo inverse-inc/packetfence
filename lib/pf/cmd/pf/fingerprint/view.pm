@@ -20,7 +20,7 @@ use pf::config::ui;
 
 sub checkArgs {
     my ($self) = @_;
-    my ($id) = @{$self->{args}};
+    my ($id) = $self->args;
     my $function;
     my %params;
     if(defined $id && $id ne 'all') {

@@ -17,7 +17,7 @@ use base qw(pf::cmd);
 
 sub checkArgs {
     my ($self) = @_;
-    my ($action,@args) = @{$self->{args}};
+    my ($action,@args) = $self->args;
     if($self->is_valid_action($action)) {
         $self->{action} = $action;
         return $self->parseArgs(@args);
