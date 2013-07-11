@@ -127,6 +127,7 @@ sub _sanitize_and_register {
         $info{'auto_registered'} = 1;
         $logger->info("performing node registration MAC: $mac pid: $pid");
         node_register( $mac, $pid, %info );
+        reevaluate_access( $mac, 'manage_register' );
         $result = $TRUE;
         $msg = "The MAC address %s has been successfully registered.";
     }
