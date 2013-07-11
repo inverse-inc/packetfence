@@ -27,7 +27,7 @@ use pf::locationlog;
 use Date::Parse;
 use pf::cmd::roles::show_help;
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     my ($switch,$ifIndex,@date_args) = $self->args;
     if (defined $switch) {

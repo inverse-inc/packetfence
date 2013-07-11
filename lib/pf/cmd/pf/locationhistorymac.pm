@@ -25,7 +25,7 @@ use base qw(pf::cmd::display);
 use pf::cmd::roles::show_help;
 use pf::locationlog;
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     my ($key,@date_args) = $self->args;
     if($key) {

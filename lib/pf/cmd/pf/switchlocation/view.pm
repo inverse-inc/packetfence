@@ -17,7 +17,7 @@ use base qw(pf::cmd::display);
 use pf::switchlocation;
 
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     my ($id,$ifIndex) = $self->args;
     if (defined $id) {

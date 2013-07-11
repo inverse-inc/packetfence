@@ -18,7 +18,7 @@ use pf::os qw(dhcp_fingerprint_view dhcp_fingerprint_view_all);
 use pf::config::ui;
 
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     my ($id) = $self->args;
     my $function;

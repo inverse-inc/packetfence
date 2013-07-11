@@ -15,17 +15,17 @@ use strict;
 use warnings;
 use base qw(pf::cmd);
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     my ($action,@args) = $self->args;
     if($self->is_valid_action($action)) {
         $self->{action} = $action;
-        return $self->parseArgs(@args);
+        return $self->_parseArgs(@args);
     }
     return 0;
 }
 
-sub parseArgs {
+sub _parseArgs {
     my ($self,@args) = @_;
     my $action = $self->{action};
     my $parse_action = "parse_$action";

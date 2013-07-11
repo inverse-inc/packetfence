@@ -25,7 +25,7 @@ use pf::ifoctetslog;
 use base qw(pf::cmd::display);
 use pf::cmd::roles::show_help;
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     my ($switch,$ifIndex,$start_time,$end_time) = $self->args;
     if ($switch) {
