@@ -811,7 +811,7 @@ sub switches {
                 add_problem( $WARN, "switches.conf | Switch type ($type) is invalid for switch $section" );
             }
         # check for valid switch IP
-        unless ( valid_mac_or_id($section) ) {
+        unless ( valid_mac_or_ip($section) ) {
             add_problem( $WARN, "switches.conf | Switch IP is invalid for switch $section" );
         }
 
