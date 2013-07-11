@@ -22,14 +22,14 @@ sub new {
 
 sub run {
     my ($self) = @_;
-    if ($self->checkArgs) {
+    if ($self->parseArgs) {
         $self->_run;
     } else {
         $self->showHelp;
     }
 }
 
-sub checkArgs {
+sub parseArgs {
     my ($self) = @_;
     return $self->args == 0;
 }
