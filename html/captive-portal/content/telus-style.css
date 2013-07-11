@@ -85,8 +85,28 @@ hr {
     padding: 23px;
 }
 
-#page form .input {
+#page .input {
     padding-bottom: 23px;
+}
+
+label {
+    display: block;
+    padding-bottom: 17px;
+}
+
+input[type="text"] {
+  display: inline-block;
+  width: 262px;
+  height: 18px;
+  padding: 4px 6px;
+  margin-bottom: 9px;
+  font-size: 13px;
+  line-height: 18px;
+  color: #555555;
+  vertical-align: middle;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
 }
 
 .mobile {
@@ -118,6 +138,7 @@ hr {
 .btn {
     cursor: pointer;
     padding: 10px 12px 14px 12px;
+    margin: 0;
     font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
     width: 100%;
     min-width: 128px;

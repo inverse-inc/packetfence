@@ -32,52 +32,29 @@
         position: relative;
     }
 
-    #page .error,
-    #page form,
+    .error,
+    .input,
     #about {
         padding-left: 23px;
     }
 
-    .btn {
+    input[type="text"] {
+        width: 200px;
+    }
+
+    input.btn {
         font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: normal;
+    }
+
+    .btn {
         width: 128px;
-        min-width: 128px;
     }
 }
 
 @media (max-width: 656px) {
-    div#container {
-        width: 100%;
-    }
-    div#content,
-    div#footer {
-        padding: 5px;
-    }
-    div#about h1,
-    div#about p,
-    div#about ul {
-        padding-left: 0px;
-    }
     div#header img {
         width: 275px;
-    }
-    div.input {
-        margin: 0px;
-        padding-bottom: 0px;
-    }
-    div.input span {
-        padding-bottom: 0px;
-    }
-    div.input div#aup {
-        background-color: transparent;
-        border: 0px;
-        height: auto;
-    }
-    div.input div#aup div {
-        text-align: right;
-    }
-    div#content {
-        padding-bottom: 20px;
     }
     .mobile {
         display: inherit;

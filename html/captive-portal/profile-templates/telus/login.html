@@ -8,17 +8,20 @@
           <input type="hidden" name="destination_url" value="[% destination_url %]" />
           <input type="hidden" name="CGISESSID" value="[% session_id %]" />
 
+          <div class="input">
+            <label for="email">Enter your email address to obtain TELUS wireless access.</label>
+            <input type="text" id="email" name="email" value="[% email | html %]" placeholder="Email address" />
+          </div>
+
           [%# AUP %]
           <div class="input">
-            <div id="aup" class="notmobile">
-              [% INCLUDE aup_text.html %]
-            </div>
-            <div class="notmobile"><label><input name="aup_signed" type="checkbox" /> I agree with the Terms of Service and the Acceptable Terms Policy</label></div>
-           <div class="mobile"><input name="aup_signed" type="checkbox" />I have read and accept the <a href="/aup" target="_blank">Terms of Service and the Acceptable Terms Policy</a></div>
+           <div>
+             <input name="aup_signed" type="checkbox" />I agree with the <a href="/aup">Service Terms</a> and authorize TELUS to use my email to send me product updates, promotions and collect feedback.
+           </div>
           </div>
           
           [%# submit %]
-          <div>
+          <div class="input">
             <input type="submit" class="btn" name="submit" value="Submit" />
           </div>
         </form>
