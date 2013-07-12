@@ -16,6 +16,7 @@ use Moose;
 use namespace::autoclean;
 use pf::config;
 use pf::error qw(is_error is_success);
+use pf::util qw(sort_ip);
 use pf::ConfigStore::Network;
 
 extends 'pfappserver::Base::Model::Config';
@@ -40,7 +41,7 @@ sub getRoutedNetworks {
     my ($self, $network, $netmask) = @_;
     my @networks = @{$self->configStore->getRoutedNetworks($network,$netmask)};
     if (scalar @networks > 0) {
-        @networks = sort @networks;
+        @networks = sort_ip @networks;
         return ($STATUS::OK, \@networks);
     } else {
         return ($STATUS::NOT_FOUND, "No routes for [_1]/[_2] found",$network,$netmask);
