@@ -17,6 +17,7 @@ use namespace::autoclean;
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
+    with 'pfappserver::Base::Controller::Crud::Clone';
 }
 
 __PACKAGE__->config(
@@ -74,7 +75,7 @@ after list => sub {
 
 =cut
 
-after create => sub {
+after qw(create clone) => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'configuration/switch/view.tt';
