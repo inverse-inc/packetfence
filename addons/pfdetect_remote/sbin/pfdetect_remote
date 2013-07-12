@@ -65,6 +65,9 @@ my $snortpipe = $args{p};
 my $script    = File::Basename::basename($0);
 my $portscan_sid = 1200003;
 
+#Prevent error from LWP : ensure it connects to servers that have a valid certificate matching the expected hostname
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
+
 my ($sid, $descr, $date, $srcmac, $srcip, $dstip);
 
 daemonize() if ($daemonize);
@@ -111,7 +114,7 @@ while (defined($currentLine=$fh->read)) {
   eval {
     my $soap = new SOAP::Lite(
       uri => 'http://www.packetfence.org/PFAPI',
-      proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/webapi'
+      proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST
     );
     my $result = $soap->event_add($date, $srcip, "detect", $sid);
     if ($result->fault) {

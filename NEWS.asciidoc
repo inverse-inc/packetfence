@@ -48,6 +48,7 @@ Bug Fixes
 * Maximum number of nodes per user is not respected by role
 * Routed networks are not properly sorted (#1666)
 * Can't edit notes of a node (#1667)
+* pfdetect_remote and pfarp_remote fix
 
 Version 4.0.1 released on 2013-05-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
