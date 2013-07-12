@@ -16,7 +16,6 @@ pfdetect -p <snortpipe> [options]
 
 use Getopt::Std;
 use File::Basename;
-use File::Tail;
 use FileHandle;
 use POSIX qw(:signal_h);
 use SOAP::Lite;
@@ -80,34 +79,34 @@ my $ADMIN_USER = $cfg->val('server','user');
 my $ADMIN_PWD = $cfg->val('server','password');
 my $PF_HOST = $cfg->val('server','host');
 
-my $fh = new File::Tail ('name' => $snortpipe,
-        'interval' => 2,
-        'reset_tail' => 0,
-        'maxinterval' => 2);
-syslog("info", "listening on $snortpipe");
-
 my $currentLine;
-while (defined($currentLine=$fh->read)) {
+if ( !open( $currentLine, '<', "$snortpipe" ) ) {
+    syslog("info", "unable to open snort pipe ($snortpipe): $!");
+} else {
+    syslog("info", "listening on $snortpipe");
+}
 
-  syslog("info", "alert received: $currentLine");
+while (<$currentLine>) {
+
+  syslog("info", "alert received: $_");
   if ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+(.+?)\s+.+?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}\s+\-\>\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+){0,1}/) {
     $date  = $1;
     $sid   = $2;
     $descr = $3;
     $srcip = $4;
     $dstip = $6;
-  } elsif ($currentLine =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+  } elsif ($_ =~ /^(.+?)\s+\[\*\*\]\s+\[\d+:(\d+):\d+\]\s+Portscan\s+detected\s+from\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
     $date   = $1;
     $sid    = $portscan_sid;
     $srcip  = $3;
     $descr = "PORTSCAN";
-  } elsif ($currentLine =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+  } elsif ($_ =~ /^(.+?)\[\*\*\] \[\d+:(\d+):\d+\]\s+\(spp_portscan2\) Portscan detected from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
     $date  = $1;
     $sid   = $portscan_sid;
     $srcip = $3;
     $descr = "PORTSCAN";
   } else {
-    syslog("warning", "unknown input: $currentLine ");
+    syslog("warning", "unknown input: $_ ");
     next;
   }
 
