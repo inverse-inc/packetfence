@@ -15,7 +15,7 @@
                   <li><a id="bulk_deregister" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
                   <li class="divider"></li>
                   <li class="dropdown-submenu">
-                    <a tabindex="-1">[% l('Apply Roles') %]</a>
+                    <a tabindex="-1">[% l('Apply Role') %]</a>
                     <ul class="dropdown-menu" id="apply_roles">
                       [% FOREACH role IN roles %]
                       <li><a data-target="[% c.uri_for(c.controller('Node').action_for('bulk_apply_role'),[role.category_id])  %]">[% role.name %]</a></li>

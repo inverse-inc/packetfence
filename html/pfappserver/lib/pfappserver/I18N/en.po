@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 4.0.2\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-06-07 15:16-0400\n"
+"PO-Revision-Date: 2013-07-12 11:57-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -109,7 +109,6 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/configuration/users.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
@@ -243,6 +242,11 @@ msgstr ""
 msgid "App URL"
 msgstr ""
 
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
+msgid "Apply Role"
+msgstr ""
+
 # conf/documentation.conf (provisioning.category)
 msgid "Apply to node that are members of the following category"
 msgstr ""
@@ -286,6 +290,12 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Auth Protocol Write"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Facebook.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
+# html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
+msgid "Authorized domains"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -359,7 +369,8 @@ msgstr ""
 msgid "Choose between our supported IDS engine."
 msgstr ""
 
-# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
 msgid "Clear Violation"
 msgstr ""
 
@@ -408,6 +419,14 @@ msgid ""
   "Comma-delimited list of MAC addresses that are immune to isolation. In "
   "inline enforcement, the firewall is opened for them as if they were "
   "registered. This \"feature\" will probably be reworked in the future."
+msgstr ""
+
+# conf/documentation.conf (trapping.passthroughs)
+msgid ""
+  "Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to "
+  "web sites."
+  "The configuration parameter \"passthrough\" must be enabled for passthroughs "
+  "to be effective."
 msgstr ""
 
 # conf/documentation.conf (general.memcached)
@@ -463,6 +482,10 @@ msgstr ""
 # html/pfappserver/root/configurator/enforcement.tt
 # html/pfappserver/root/configurator/networks.tt
 msgid "Continue"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Controller IP Address"
 msgstr ""
 
 # conf/documentation.conf (vlan.trap_limit)
@@ -551,6 +574,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Default Lease Time"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Default Profile"
 msgstr ""
 
 # conf/documentation.conf (trapping.redirecturl)
@@ -644,7 +671,8 @@ msgstr ""
 msgid "Deleting"
 msgstr ""
 
-# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
 msgid "Deregister"
 msgstr ""
 
@@ -1211,23 +1239,14 @@ msgstr ""
 msgid "Max nodes per user"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Maximum MAC addresses"
+msgstr ""
+
 # conf/documentation.conf (vlan.trap_limit_threshold)
 msgid ""
   "Maximum number of SNMP traps that a switchport can send to PacketFence within "
   "a minute without being flagged as DoS. Defaults to 100"
-msgstr ""
-
-# conf/documentation.conf (trapping.passthrough)
-msgid ""
-  "Method by which content is delivered to trapped systems. When set to "
-  "\"proxy\", PacketFence uses Apache's reverse proxy functionality and "
-  "rewrites links. Note that any link to an external resource on the "
-  "target server will not be properly rewritten. When set to \"iptables\","
-  "PacketFence creates passthroughs to the content for only those nodes"
-  "trapped with the corresponding violation.  Be aware that an iptables"
-  "passthrough is based on IP address and clients will be able to get to"
-  "ALL content on the destination site."
-  "When set to \"disabled\" passthrough is disabled."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1421,6 +1440,7 @@ msgstr ""
 msgid "Note"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -1744,7 +1764,8 @@ msgstr ""
 msgid "Reconnecting to the Admin Service in "
 msgstr ""
 
-# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
 msgid "Register"
 msgstr ""
 
@@ -2048,10 +2069,6 @@ msgstr ""
 msgid "Should have to reauthenticate the node if vlan change"
 msgstr ""
 
-# conf/documentation.conf (services.pfdns)
-msgid "Should pfdns be managed by PacketFence?"
-msgstr ""
-
 # conf/documentation.conf (vlan.closelocationlogonstop)
 msgid ""
   "Should open locationlog entries be closed when pfsetvlan is"
@@ -2074,6 +2091,10 @@ msgid ""
   "*/5 * * * * /usr/local/pf/bin/pfcmd service pf watch"
 msgstr ""
 
+# conf/documentation.conf (services.pfdns)
+msgid "Should pfdns be managed by PacketFence?"
+msgstr ""
+
 # conf/documentation.conf (services.radiusd)
 msgid "Should radiusd be managed by PacketFence?"
 msgstr ""
@@ -2093,6 +2114,10 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
 msgid "Size"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "Sleep interval"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -2223,10 +2248,6 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-# html/pfappserver/root/portal/profile/index.tt
-msgid "The Default Profile"
-msgstr ""
-
 # conf/documentation.conf (registration.button_text)
 msgid "The button text will appear on the registration page submit button"
 msgstr ""
@@ -2316,24 +2337,6 @@ msgid ""
   "tools/stinger.exe=http://download.nai.com/products/mcafee-avert/stinger.exe"
   "The Stinger utility could then be accessed at"
   "https://pfhostname/proxies/tools/stinger.exe."
-msgstr ""
-
-# conf/documentation.conf (passthroughs)
-msgid ""
-  "This section allows you to create passthroughs to HTML content or "
-  "remote addresses/networks."
-  "With passthrough=proxy under [trapping] it will support domain "
-  "names."
-  "With passthrough=iptables under [trapping] it will support domain "
-  "names and IP ranges. Note that this implementation is unmaintained "
-  "and might not work."
-  "Here's an example:"
-  "packetfence=http://www.packetfence.org"
-  "The above will allow 80/tcp traffic to the PacketFence domain (the"
-  "left value is arbitrary). Passthroughs can also take the form of:"
-  "test=192.168.100.10/23"
-  "which would allow full IP to all 512 destination addresses. "
-  "Unsupported in trapping.passhtrough=proxy."
 msgstr ""
 
 # conf/documentation.conf (expire.node)
@@ -2456,6 +2459,10 @@ msgid "User Name Read"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "User Name Trap"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "User Name Write"
 msgstr ""
 
@@ -2534,6 +2541,10 @@ msgstr ""
 msgid "Virtual LAN ID"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+msgid "VoIP"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Voice Over IP"
 msgstr ""
@@ -2561,6 +2572,12 @@ msgstr ""
 
 # conf/documentation.conf (guests_self_registration.guest_pid)
 msgid "What field should we assign to the pid of the guest? Defaults to email."
+msgstr ""
+
+# conf/documentation.conf (trapping.passthrough)
+msgid ""
+  "When enabled, PacketFence uses pfdns to resolve real IP addresses and allow "
+  "trapped devices to reach the web sites defined as passthroughs."
 msgstr ""
 
 # conf/documentation.conf (network.rogueinterval)
@@ -2884,6 +2901,7 @@ msgstr ""
 # conf/documentation.conf (servicewatch.restart options)
 # conf/documentation.conf (trapping.always_use_redirecturl options)
 # conf/documentation.conf (trapping.detection options)
+# conf/documentation.conf (trapping.passthrough options)
 # conf/documentation.conf (trapping.registration options)
 # conf/documentation.conf (trapping.wireless_ips options)
 # conf/documentation.conf (vlan.closelocationlogonstop options)
@@ -3074,10 +3092,6 @@ msgstr ""
 msgid "internal"
 msgstr "Internal"
 
-# conf/documentation.conf (trapping.passthrough options)
-msgid "iptables"
-msgstr ""
-
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -3120,6 +3134,8 @@ msgid "mac"
 msgstr "MAC Address"
 
 # html/pfappserver/root/user/view.tt
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "mail"
 msgstr "Send Email"
 
@@ -3252,10 +3268,6 @@ msgstr "OS"
 msgid "other"
 msgstr "Other"
 
-# conf/documentation.conf
-msgid "passthroughs"
-msgstr "Passthroughs"
-
 # pfappserver::Model::Node (availableStatus)
 msgid "pending"
 msgstr "pending"
@@ -3313,10 +3325,6 @@ msgstr "SSID"
 # conf/documentation.conf
 msgid "proxies"
 msgstr "Proxies"
-
-# conf/documentation.conf (trapping.passthrough options)
-msgid "proxy"
-msgstr ""
 
 # conf/documentation.conf (general.locale options)
 msgid "pt_BR"
@@ -3565,6 +3573,10 @@ msgid "trapping.passthrough"
 msgstr "Passthrough"
 
 # conf/documentation.conf
+msgid "trapping.passthroughs"
+msgstr "Passthroughs"
+
+# conf/documentation.conf
 msgid "trapping.range"
 msgstr "Addresses ranges"
 
@@ -3592,10 +3604,6 @@ msgstr "Wireless IPS"
 msgid "trapping.wireless_ips_threshold"
 msgstr "Wireless IPS threshold"
 
-# conf/documentation.conf
-msgid "trapping.passthroughs"
-msgstr "Passthroughs"
-
 # pfappserver::Model::Node (availableStatus)
 msgid "unreg"
 msgstr "unregistered"
@@ -3609,6 +3617,7 @@ msgid "userAccountControl"
 msgstr ""
 
 # pf::Authentication::Source::EmailSource (available_attributes)
+# pf::Authentication::Source::SponsorEmailSource (available_attributes)
 msgid "user_email"
 msgstr ""
 
