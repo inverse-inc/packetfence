@@ -46,6 +46,11 @@ has_field 'unregdate' =>
    type => '+DateTimePicker',
    label => 'Unregistration',
   );
+has_field 'notes' =>
+  (
+   type => 'TextArea',
+   label => 'Notes',
+  );
 has_field 'vendor' =>
   (
    type => 'Uneditable',
