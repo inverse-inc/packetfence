@@ -263,10 +263,11 @@ sub bulk_close: Local {
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
     my $request = $c->request;
-    if($request->method eq 'POST') {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $c->model('Node')->bulkCloseViolations(@ids);
-    } else {
+    }
+    else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
@@ -285,10 +286,11 @@ sub bulk_register: Local {
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
     my $request = $c->request;
-    if($request->method eq 'POST') {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $c->model('Node')->bulkRegister(@ids);
-    } else {
+    }
+    else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
@@ -307,10 +309,11 @@ sub bulk_deregister: Local {
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
     my $request = $c->request;
-    if($request->method eq 'POST') {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $c->model('Node')->bulkDeregister(@ids);
-    } else {
+    }
+    else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
@@ -329,10 +332,11 @@ sub bulk_apply_role: Local : Args(1) {
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
     my $request = $c->request;
-    if($request->method eq 'POST') {
+    if ($request->method eq 'POST') {
         my @ids = $request->param('items');
         ($status, $status_msg) = $c->model('Node')->bulkApplyRole($role,@ids);
-    } else {
+    }
+    else {
         $status = HTTP_BAD_REQUEST;
         $status_msg = "";
     }
