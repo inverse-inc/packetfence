@@ -246,7 +246,7 @@ as
 
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
-Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
+Requires: perl >= 5.8.0, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
 Requires: perl(SOAP::Lite)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -255,7 +255,7 @@ BuildArch: noarch
 
 %description -n %{real_name}-remote-snort-sensor
 The %{real_name}-remote-snort-sensor package contains the files needed
-for sending snort alerts from a remote snort sensor to a PacketFence
+for sending snort or suricata alerts from a remote sensor to a PacketFence
 server.
 
 
