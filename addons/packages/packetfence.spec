@@ -845,6 +845,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Fri Jul 12 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.2-1
+- New release 4.0.2
+
 * Thu May 8 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.0-1
 - New release 4.0.0
 
