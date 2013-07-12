@@ -551,7 +551,7 @@ sub radiusDisconnect {
 
         # Roles are configured and the user should have one
         $logger->warn(Dumper $node_info);
-        if (defined($role) && (defined($node_info->{'status'}) && $node_info->{'status'} ne 'unreg')) {
+        if (defined($role) && (defined($node_info->{'status'}) ) ) {
 
             $attributes_ref = {
                 %$attributes_ref,
