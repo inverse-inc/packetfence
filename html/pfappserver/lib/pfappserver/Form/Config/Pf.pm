@@ -56,6 +56,11 @@ sub field_list {
                 $field->{element_class} = ['input-xxlarge'];
                 last;
             };
+            $type eq 'list' && do {
+                $field->{type} = 'TextArea';
+                $field->{element_class} = ['input-xxlarge'];
+                last;
+            };
             $type eq 'numeric' && do {
                 $field->{type} = 'PosInteger';
                 last;
@@ -74,8 +79,7 @@ sub field_list {
                 $field->{element_class} = ['chzn-deselect', 'input'];
                 $field->{element_attr} = {'data-placeholder' => 'Select a role'};
                 my $roles = $self->ctx->model('Roles')->list();
-                my @options = map { { value => $_->{category_id}, label => $_->{name} } } @$roles;
-                unshift(@options, { value => '', label => ''});
+                my @options = ({ value => '', label => ''}, map { { value => $_->{name}, label => $_->{name} } } @$roles);
                 $field->{options} = \@options;
                 last;
             };

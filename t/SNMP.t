@@ -14,6 +14,7 @@ Log::Log4perl->init("./log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
+BEGIN { use SwitchFactoryConfig; }
 
 use pf::SwitchFactory;
 
@@ -51,8 +52,8 @@ is($SNMP->generateFakeMac($non_voip, 13),
     $fake_mac_prefix.$fake_mac_non_voip."00:00:13",
     "Generate fake MAC non-VoIP normal case");
 
-is($SNMP->generateFakeMac($non_voip, 10001), 
-    $fake_mac_prefix.$fake_mac_non_voip."01:00:01", 
+is($SNMP->generateFakeMac($non_voip, 10001),
+    $fake_mac_prefix.$fake_mac_non_voip."01:00:01",
     "Generate fake MAC non-VoIP big ifIndex case");
 
 is($SNMP->generateFakeMac($non_voip, 1110001),
@@ -87,31 +88,31 @@ ok(!$SNMP->isFakeVoIPMac($real_mac),
 
 # extractSsid
 my $radius_request = { 'Called-Station-Id' => 'aa-bb-cc-dd-ee-ff:Secure SSID' };
-is($SNMP->extractSsid($radius_request), 'Secure SSID', 
+is($SNMP->extractSsid($radius_request), 'Secure SSID',
     "Extract SSID from Called-Station-Id format xx-xx-xx-xx-xx-xx:SSID");
 
 $radius_request = { 'Called-Station-Id' => 'aa:bb:cc:dd:ee:ff:Secure SSID' };
-is($SNMP->extractSsid($radius_request), 'Secure SSID', 
+is($SNMP->extractSsid($radius_request), 'Secure SSID',
     "Extract SSID from Called-Station-Id format xx:xx:xx:xx:xx:xx:SSID");
 
 $radius_request = { 'Called-Station-Id' => 'aabbccddeeff:Secure SSID' };
-is($SNMP->extractSsid($radius_request), 'Secure SSID', 
+is($SNMP->extractSsid($radius_request), 'Secure SSID',
     "Extract SSID from Called-Station-Id format xxxxxxxxxxxx:SSID");
 
 # Switch object tests
 # BE CAREFUL: if you change the configuration files, tests will break!
 # getting a switch instance (pf::SNMP::PacketFence but still inherit most subs from pf::SNMP)
-my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
+my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('127.0.0.1');
 
 # setVlanByName
-ok(!defined($switch->setVlanByName(1001, 'inexistantVlan', {})), 
+ok(!defined($switch->setVlanByName(1001, 'inexistantVlan', {})),
     "call setVlanByName with a vlan that doesn't exist in switches.conf");
 
-ok(!defined($switch->setVlanByName(1001, 'customVlan1', {})), 
+ok(!defined($switch->setVlanByName(1001, 'customVlan1', {})),
     "call setVlanByName with a vlan that exists but with a non-numeric value");
- 
-ok(!defined($switch->setVlanByName(1001, 'customVlan2', {})), 
+
+ok(!defined($switch->setVlanByName(1001, 'customVlan2', {})),
     "call setVlanByName with a vlan that exists but with an undef value");
 
 # TODO: one day we should do a positive test for setVlanByName (mocking setVlan)
@@ -146,21 +147,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

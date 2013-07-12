@@ -12,6 +12,7 @@ use Test::MockObject::Extends;
 use Test::More tests => 6;
 
 use lib '/usr/local/pf/lib';
+BEGIN { use SwitchFactoryConfig; }
 use pf::config;
 use pf::SwitchFactory;
 
@@ -21,7 +22,7 @@ BEGIN {
 }
 
 # create the object
-my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
+my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('10.0.0.3');
 
 # test the object
@@ -41,7 +42,7 @@ my %NasPortIfIndex = (
 
 # here we hardcode the dot1d to ifIndex table in a mocked call so we can run the test offline
 $switch = Test::MockObject::Extends->new( $switch );
-$switch->mock('getIfIndexForThisDot1dBasePort', 
+$switch->mock('getIfIndexForThisDot1dBasePort',
     sub {
         my ($this, $dot1dBasePort) = @_;
         my %hardcoded_table = (
@@ -50,7 +51,7 @@ $switch->mock('getIfIndexForThisDot1dBasePort',
             15 => 4227257, 16 => 4227265, 17 => 4227273, 18 => 4227281, 19 => 4227289, 20 => 4227297, 21 => 4227305,
             22 => 4227313, 23 => 4227321, 24 => 4227329,
         );
-        return $hardcoded_table{$dot1dBasePort}; 
+        return $hardcoded_table{$dot1dBasePort};
     }
 );
 
@@ -67,21 +68,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

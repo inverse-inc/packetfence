@@ -89,8 +89,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
 
     my ($form);
 
-    $form = pfappserver::Form::User->new(ctx => $c,
-                                         init_object => $c->stash->{user});
+    $form = pfappserver::Form::User->new(ctx => $c, init_object => $c->stash->{user});
     $form->process();
     $form->field('actions')->add_extra unless @{$c->stash->{user}{actions}}; # an action must be chosen
     $c->stash->{form} = $form;
@@ -121,7 +120,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
     my ($form, $status, $message);
 
-    $form = pfappserver::Form::User->new(ctx => $c);
+    $form = pfappserver::Form::User->new(ctx => $c, init_object => $c->stash->{user});
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
@@ -170,7 +169,7 @@ sub reset :Chained('object') :PathPart('reset') :Args(0) {
     }
 
     $c->response->status($status);
-    $c->stash->{status_msg} = $c->loc($message);
+    $c->stash->{status_msg} = $message;
     $c->stash->{current_view} = 'JSON';
 }
 

@@ -5,6 +5,11 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.1</revnumber>
+    <date>2013-07-12</date>
+    <revremark>Removed references to bind (replaced by pfdns).</revremark>
+  </revision>
+  <revision>
     <revnumber>3.0</revnumber>
     <date>2013-05-17</date>
     <revremark>

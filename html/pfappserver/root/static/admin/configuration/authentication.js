@@ -82,15 +82,19 @@ $(function() { // DOM ready
     $('#section').on('submit', 'form[name="source"]', function(e) {
         e.preventDefault();
 
-        var form = $(this);
+        var form = $(this),
+        btn = form.find('.btn-primary'),
         valid = isFormValid(form);
 
         if (valid) {
+            btn.button('loading');
             resetAlert($('#section'));
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'),
                 data: form.serialize()
+            }).always(function() {
+                btn.button('reset');
             }).done(function(data, textStatus, jqXHR) {
                 $('#section').fadeOut('fast', function() {
                     // Refresh the complete section

@@ -16,40 +16,84 @@ has 'attribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'operator' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 1);
 
+=head1 METHODS
+
+=head2 description
+
+=cut
+
 sub description {
     my ($self) = @_;
 
     return join(" ", ($self->attribute, $self->operator, $self->value));
 }
 
+=head2 matches
+
+=cut
+
 sub matches {
     my ($self, $attr, $v) = @_;
 
-    if ($self->{'attribute'} eq $attr) {
+    if (defined $v) {
+
+        my ($time, $time_v);
+
+        if ($self->{'attribute'} eq 'current_time') {
+            my ($hour, $min) = $self->{'value'} =~ m/(\d+):(\d+)/;
+            my ($vhour, $vmin) = $v =~ m/(\d+):(\d+)/;
+            $time = int(sprintf("%d%02d", $hour, $min));
+            $time_v = int(sprintf("%d%02d", $vhour, $vmin));
+        }
+        elsif ($self->{'attribute'} eq 'current_date') {
+            my ($year, $mon, $day) = $self->{'value'} =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
+            my ($vyear, $vmon, $vday) = $self->{'value'} =~ m/(\d{4})-(\d{,2})-(\d{,2})/;
+            $time = int(sprintf("%d%02d%02d", $year, $mon, $day));
+            $time_v = int(sprintf("%d%02d%02d", $vyear, $vmon, $vday));
+        }
+
+        my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+        $logger->trace(sprintf("Matching condition '%s %s %s' for value '$v'", $self->{'attribute'}, $self->{'operator'}, $self->{'value'}, $v));
+
         if ($self->{'operator'} eq $Conditions::EQUALS ||
             $self->{'operator'} eq $Conditions::IS) {
-            if (defined $v && $self->{'value'} eq $v) {
+            if ($self->{'value'} eq $v) {
+                return 1;
+            }
+        }
+        elsif ($self->{'operator'} eq $Conditions::IS_NOT) {
+            if ($self->{'value'} ne $v) {
                 return 1;
             }
         }
         elsif ($self->{'operator'} eq $Conditions::CONTAINS) {
-            if (defined $v && index($v, $self->{'value'}) >= 0) {
+            if (index($v, $self->{'value'}) >= 0) {
                 return 1;
             }
         }
         elsif ($self->{'operator'} eq $Conditions::STARTS) {
-            if (defined $v && index($v, $self->{'value'}) == 0) {
+            if (index($v, $self->{'value'}) == 0) {
                 return 1;
             }
         }
         elsif ($self->{'operator'} eq $Conditions::ENDS) {
-            if (defined $v && ($v =~ m/\Q${$self}{value}\E$/)) {
+            if (($v =~ m/\Q${$self}{value}\E$/)) {
+                return 1;
+            }
+        }
+        elsif ($self->{'operator'} eq $Conditions::IS_BEFORE) {
+            if ($time_v < $time) {
+                return 1;
+            }
+        }
+        elsif ($self->{'operator'} eq $Conditions::IS_AFTER) {
+            if ($time_v > $time) {
                 return 1;
             }
         }
         else {
             my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-            $logger->error("Support for operator $self->{operator} is not implemented.");
+            $logger->error("Support for operator " . $self->{operator} . " is not implemented.");
         }
     }
 

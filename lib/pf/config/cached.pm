@@ -1,4 +1,5 @@
 package pf::config::cached;
+
 =head1 NAME
 
 pf::config::cached
@@ -269,19 +270,17 @@ When using a value that was dervived from a configuration use a sub routine to c
 
 use strict;
 use warnings;
-use constant INSTALL_DIR => '/usr/local/pf';
-use lib INSTALL_DIR . "/lib";
-use CHI;
-use CHI::Driver::Memcached;
-use CHI::Driver::RawMemory;
-use Config::IniFiles;
+use pf::file_paths;
+use Time::HiRes qw(stat time);
+use pf::log;
+use pf::CHI;
+use pf::IniFiles;
 use Scalar::Util qw(refaddr);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
 use Readonly;
 use Sub::Name;
-use Log::Log4perl qw(get_logger);
 use List::Util qw(first);
 use List::MoreUtils qw(uniq);
 
@@ -290,13 +289,18 @@ our $CACHE;
 our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
+our %ON_CACHE_RELOAD;
 our @ON_DESTROY_REFS = (
     \%ON_RELOAD,
     \%ON_FILE_RELOAD,
+    \%ON_CACHE_RELOAD,
 );
+
+our %CONFIG_DATA;
+
 use overload "%{}" => \&config, fallback => 1;
 
-our $chi_config = Config::IniFiles->new( -file => INSTALL_DIR . "/conf/chi.conf");
+our $chi_config = pf::IniFiles->new( -file => $chi_config_file);
 
 Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
 
@@ -339,12 +343,15 @@ sub new {
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
+    my $onCacheReload = delete $params{'-oncachereload'} || [];
+    my $reload_onfile;
     if($file) {
         $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
         if( defined $self) {
             #Adding the reload and filereload callbacks
             $self->addReloadCallbacks(@$onReload) if @$onReload;
             $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+            $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
             #Rereading the config to ensure the latest version
             $self->ReadConfig();
         } else {
@@ -353,12 +360,14 @@ sub new {
                 $file,
                 sub {
                     my $lock = lockFileForReading($file);
-                    my $config = Config::IniFiles->new(%params);
+                    my $config = pf::IniFiles->new(%params);
+                    die "$file cannot be loaded" unless $config;
                     unlockFilehandle($lock);
                     $config->SetFileName($file);
                     $config->SetWriteMode($WRITE_PERMISSIONS);
                     my $mode = oct($config->GetWriteMode);
                     chmod $mode, $file;
+                    $reload_onfile = 1;
                     return $config;
                 }
             );
@@ -371,11 +380,14 @@ sub new {
         push @LOADED_CONFIGS, $self;
         $ON_RELOAD{$file} = [];
         $ON_FILE_RELOAD{$file} = [];
+        $ON_CACHE_RELOAD{$file} = [];
         bless $self,$class;
         $self->addReloadCallbacks(@$onReload) if @$onReload;
         $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
+        $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
         $self->_callReloadCallbacks();
-        $self->_callFileReloadCallbacks();
+        $self->_callFileReloadCallbacks() if $reload_onfile;
+        $self->_callCacheReloadCallbacks() unless $reload_onfile;
     }
     return $self;
 }
@@ -399,9 +411,7 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
-    my $cache = $self->cache;
-    my $cached_object = $cache->get_object($file);
-    if( -e $file && $cached_object && $self->_expireIf($cached_object,$file)) {
+    if( -e $file && $config->{_timestamp} < getModTimestamp($file) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
@@ -438,32 +448,6 @@ sub RewriteConfig {
 }
 
 
-=head2 ReorderByGroup
-
-=cut
-
-sub ReorderByGroup {
-    my ($self) = @_;
-    my $logger = get_logger();
-    my $config = $self->config;
-    my @sections = $config->Sections;
-    if(@sections) {
-        #Finding all non group sections
-        my @non_group = grep { !/ / } @sections;
-        if(scalar @sections !=  scalar @non_group) {
-                my @new_sections;
-            my @groups = grep { / / } @sections;
-            foreach my $section (@non_group) {
-                push @new_sections,$section, grep { /^\Q$section \E/ } @groups;
-                @groups = grep { !/^\Q$section\E/ } @groups;
-            }
-            #Push any remaining group sections
-            push @new_sections,@groups;
-            $config->{sects} = \@new_sections;
-        }
-    }
-}
-
 
 =head2 Rollback
 
@@ -481,9 +465,24 @@ sub Rollback {
     my $old_config = $cache->get($file);
     $$self = $old_config;
     $self->_callReloadCallbacks();
+    $self->_callCacheReloadCallbacks();
 }
 
-=head2 _callReloadCallbackss
+=head2 _callCallbacks
+
+Helper function for calling the callbacks
+
+=cut
+
+sub _callCallbacks {
+    my ($self,$data) = @_;
+    my $callbacks =  $data->{$self->GetFileName};
+    foreach my $callback_data ( @$callbacks) {
+        $callback_data->[1]->($self,$callback_data->[0]);
+    }
+}
+
+=head2 _callReloadCallbacks
 
 Call all reload callbacks
 
@@ -491,14 +490,10 @@ Call all reload callbacks
 
 sub _callReloadCallbacks {
     my ($self) = @_;
-    my $file = $self->GetFileName;
-    my $on_reload = $ON_RELOAD{$file};
-    foreach my $callback_data ( @$on_reload) {
-        $callback_data->[1]->($self,$callback_data->[0]);
-    }
+    $self->_callCallbacks(\%ON_RELOAD);
 }
 
-=head2 _callFileReloadCallbackss
+=head2 _callFileReloadCallbacks
 
 Call all the file reload callbacks
 
@@ -506,11 +501,18 @@ Call all the file reload callbacks
 
 sub _callFileReloadCallbacks {
     my ($self) = @_;
-    my $file = $self->GetFileName;
-    my $on_file_reload = $ON_FILE_RELOAD{$file};
-    foreach my $callback_data ( @$on_file_reload) {
-        $callback_data->[1]->($self,$callback_data->[0]);
-    }
+    $self->_callCallbacks(\%ON_FILE_RELOAD);
+}
+
+=head2 _callCacheReloadCallbacks
+
+Call all the cache reload callbacks
+
+=cut
+
+sub _callCacheReloadCallbacks {
+    my ($self) = @_;
+    $self->_callCallbacks(\%ON_CACHE_RELOAD);
 }
 
 
@@ -618,7 +620,6 @@ sub ReadConfig {
     my $result = 1;
     my $logger = get_logger();
     $logger->trace("ReadConfig for $file");
-    my $imported = $config->{imported} if exists $config->{imported};
     $$self = $self->computeFromPath(
         $file,
         sub {
@@ -630,16 +631,9 @@ sub ReadConfig {
             return $config;
         }
     );
-    if (refaddr($config) != refaddr($self->config)) {
-        $reloaded_from_cache = 1;
-    }
-    $reloaded = $reloaded_from_file || $reloaded_from_cache;
-    if($reloaded) {
-        $self->_callReloadCallbacks();
-    }
-    if($reloaded_from_file) {
-        $self->_callFileReloadCallbacks();
-    }
+    $self->_callReloadCallbacks;
+    $self->_callFileReloadCallbacks if $reloaded_from_file;
+    $self->_callCacheReloadCallbacks if refaddr($config) != refaddr($$self);
     return $result;
 }
 
@@ -672,7 +666,7 @@ sub AUTOLOAD {
     my ($self) = @_;
     my $command = our $AUTOLOAD;
     $command =~ s/.*://;
-    if(Config::IniFiles->can($command) ) {
+    if(pf::IniFiles->can($command) ) {
         no strict qw{refs};
         *$AUTOLOAD = sub  {
             my ($self,@args) = @_;
@@ -692,12 +686,17 @@ Will load the C<Config::IniFiles> object from cache or filesystem and update the
 sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
     my $mod_time = getModTimestamp($file);
+    my $computeWrapper = sub {
+        my $config = $computeSub->();
+        $config->{_timestamp} = time;
+        return $config;
+    };
     my $result = $self->cache->compute(
         $file,
         {
             expire_if => sub { return $expire || $self->_expireIf($_[0],$file); },
         },
-        $computeSub
+        $computeWrapper
     );
     return $result;
 }
@@ -723,7 +722,7 @@ Builds the CHI object
 =cut
 
 sub _cache {
-    return CHI->new(_buildCHIArgs());
+    return pf::CHI->new(namespace => __PACKAGE__ );
 }
 
 =head2 _expireIf
@@ -735,12 +734,13 @@ Check to see if the config file needs to be reread
 sub _expireIf {
     my ($self,$cache_object,$file) = @_;
     my $imported_expired = 0;
+    my $timestamp = $cache_object->value->{_timestamp} || 0;
     #checking to see if the imported file needs to be reimported also
     if ( ref($self) && exists $self->{imported} ) {
         my $imported = $self->{imported};
-        $imported_expired = (defined $imported && $cache_object->created_at < getModTimestamp($imported->GetFileName));
+        $imported_expired = (defined $imported && $timestamp < getModTimestamp($imported->GetFileName));
     }
-    return ($imported_expired ||  !-e $file ||  ($cache_object->created_at < getModTimestamp($file)));
+    return ($imported_expired ||  !-e $file ||  ( $timestamp < getModTimestamp($file)));
 }
 
 =head2 getModTimestamp
@@ -750,7 +750,8 @@ Simple utility function for getting the modification timestamp
 =cut
 
 sub getModTimestamp {
-    return (stat($_[0]))[9];
+    my $timestamp = (stat($_[0]))[9];
+    return $timestamp;
 }
 
 
@@ -780,9 +781,7 @@ If callback already exists, previous callback is replaced and previous position 
 
 sub addReloadCallbacks {
     my ($self,@args) = @_;
-    my $file = $self->GetFileName;
-    my $on_reload = $ON_RELOAD{$file};
-    $self->_addCallbacks($on_reload,@args);
+    $self->_addCallbacks($ON_RELOAD{$self->GetFileName},@args);
 }
 
 =head2 _addCallbacks
@@ -817,9 +816,21 @@ If callback already exists, previous callback is replaced and previous position 
 
 sub addFileReloadCallbacks {
     my ($self,@args) = @_;
-    my $file = $self->GetFileName;
-    my $on_file_reload = $ON_FILE_RELOAD{$file};
-    $self->_addCallbacks($on_file_reload,@args);
+    $self->_addCallbacks($ON_FILE_RELOAD{$self->GetFileName},@args);
+}
+
+=head2 addCacheReloadCallbacks
+
+$self->addFileReloadCallbacks('name' => sub {...});
+Add named callbacks to the onfilereload array
+Called in insert order
+If callback already exists, previous callback is replaced and previous position is preserved
+
+=cut
+
+sub addCacheReloadCallbacks {
+    my ($self,@args) = @_;
+    $self->_addCallbacks($ON_CACHE_RELOAD{$self->GetFileName},@args);
 }
 
 =head2 DESTROY
@@ -856,16 +867,13 @@ sub unloadConfig {
 
 =head2 isa
 
-Fake being a Config::IniFiles
+Fake being a pf::IniFiles
 
 =cut
 
 sub isa {
-    my ($proto,$arg) = @_;
-    if ($arg eq 'Config::IniFiles') {
-        return 1;
-    }
-    return $proto->SUPER::isa($arg);
+    my ($self,@args) = @_;
+    return $self->SUPER::isa(@args) || pf::IniFiles->isa(@args);
 }
 
 =head2 toHash
@@ -927,109 +935,20 @@ sub _extractCHIArgs {
     my ($section) = @_;
     my %args;
     foreach my $param ($chi_config->Parameters($section)) {
-        my $value = $chi_config->val($section,$param);
-        if($param eq 'servers') {
-            $args{$param} = [split(/\s*,\s*/,$value)];
-        } elsif($param eq 'l1_cache') {
-            $args{$param} = _extractCHIArgs($value);
-        } else {
-            $args{$param} = $value;
-        }
+        $args{$param} = $chi_config->val($section,$param);
+    }
+    if(exists $args{servers} && defined $args{servers} ) {
+        my $value = $args{servers};
+        my @servers = (ref $value eq 'ARRAY') ? @$value : ($value);
+        $args{servers} = [ map {split /\s*,\s*/} @servers ];
+    }
+    foreach my $groupmember ( grep { /^\Q$section \E[^ ]+$/ } $chi_config->Sections()) {
+        my $key = $groupmember;
+        $key =~ s/^\Q$section \E//;
+        $args{$key} = _extractCHIArgs($groupmember);
     }
     return \%args;
 }
-
-=head2 DeleteSection ( $sect_name, $include_groupmembers )
-
-Completely removes the entire section from the configuration optionally groupmembers.
-
-=cut
-
-sub DeleteSection {
-    my $self = shift;
-    my $sect = shift;
-    my $include_groupmembers = shift;
-
-    return undef if not defined $sect;
-
-    $self->_caseify(\$sect);
-
-    # This is done the fast way, change if data structure changes!!
-    delete $self->{v}{$sect};
-    delete $self->{sCMT}{$sect};
-    delete $self->{pCMT}{$sect};
-    delete $self->{EOT}{$sect};
-    delete $self->{parms}{$sect};
-    delete $self->{myparms}{$sect};
-
-    $self->{sects} = [grep {$_ ne $sect} @{$self->{sects}}];
-    $self->_touch_section($sect);
-
-    if ($include_groupmembers) {
-        foreach my $group_member ($self->GroupMembers($sect)) {
-            $self->DeleteSection($group_member,$include_groupmembers);
-        }
-    }
-
-    $self->RemoveGroupMember($sect);
-
-    return 1;
-} # end DeleteSection
-
-=head2 RenameSection ( $old_section_name, $new_section_name, $include_groupmembers)
-
-Renames a section if it does not already exists optionally including groupmembers
-
-=cut
-
-sub RenameSection {
-    my $self = shift;
-    my $old_sect = shift;
-    my $new_sect = shift;
-    my $include_groupmembers = shift;
-    return undef unless $self->CopySection($old_sect,$new_sect,$include_groupmembers);
-    return $self->DeleteSection($old_sect);
-
-} # end RenameSection
-
-=head2 CopySection ( $old_section_name, $new_section_name, $include_groupmembers)
-
-Copies one section to another optionally including groupmembers
-
-=cut
-
-sub CopySection {
-    my $self = shift;
-    my $old_sect = shift;
-    my $new_sect = shift;
-    my $include_groupmembers = shift;
-
-    if (not defined $old_sect or
-        not defined $new_sect or
-        !$self->SectionExists($old_sect) or
-        $self->SectionExists($new_sect)) {
-        return undef;
-    }
-
-    $self->_caseify(\$new_sect);
-    $self->_AddSection_Helper($new_sect);
-
-    # This is done the fast way, change if data structure changes!!
-    foreach my $key (qw(v sCMT pCMT EOT parms myparms)) {
-        next unless exists $self->{$key}{$old_sect};
-        $self->{$key}{$new_sect} = Config::IniFiles::_deepcopy($self->{$key}{$old_sect});
-    }
-
-    if($include_groupmembers) {
-        foreach my $old_groupmember ($self->GroupMembers($old_sect)) {
-            my $new_groupmember = $old_groupmember;
-            $new_groupmember =~ s/\A\Q$old_sect\E/$new_sect/;
-            $self->CopySection($old_groupmember,$new_groupmember);
-        }
-    }
-
-    return 1;
-} # end CopySection
 
 =head1 AUTHOR
 

@@ -120,7 +120,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
         else {
             $c->res->status(HTTP_CREATED);
             $c->stash->{status_msg} = $message;
-            $c->model('Config::Pf')->rewriteConfig();
+            $c->model('Config::Pf')->commit();
         }
     }
     else {

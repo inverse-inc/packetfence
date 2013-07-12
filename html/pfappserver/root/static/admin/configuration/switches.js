@@ -46,7 +46,7 @@ var SwitchView = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readSwitch, this);
-    options.parent.on('click', '#switches [href$="/read"], #createSwitch', read);
+    options.parent.on('click', '#switches [href$="/read"], #switches [href$="/clone"], #createSwitch', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateSwitch, this);
@@ -60,23 +60,23 @@ var SwitchView = function(options) {
     options.parent.on('change', 'form[name="modalSwitch"] input[name="uplink_dynamic"]', this.changeDynamicUplinks);
 
     // Initial creation of an inline trigger when no trigger is defined
-    options.parent.on('click', '#triggerInlineEmpty [href="#add"]', this.addInlineTrigger);
+    options.parent.on('click', '#inlineTriggerEmpty [href="#add"]', this.addInlineTrigger);
 
     // Initialize the inline trigger fields when displaying a switch
     options.parent.on('show', '#modalSwitch', function(e) {
-        $('#triggerInline tr:not(.hidden) select').each(function() {
+        $('#inlineTrigger tr:not(.hidden) select').each(function() {
             that.updateInlineTrigger($(this));
         });
     });
 
     // Update the trigger fields when adding a new trigger
-    options.parent.on('admin.added', '#triggerInline tr', function(e) {
+    options.parent.on('admin.added', '#inlineTrigger tr', function(e) {
         var attribute = $(this).find('select').first();
         that.updateInlineTrigger(attribute);
     });
 
     // Update the trigger fields when changing a trigger
-    options.parent.on('change', '#triggerInline select', function(e) {
+    options.parent.on('change', '#inlineTrigger select', function(e) {
         that.updateInlineTrigger($(this));
     });
 };
@@ -122,10 +122,10 @@ SwitchView.prototype.changeDynamicUplinks = function(e) {
 };
 
 SwitchView.prototype.addInlineTrigger = function(e) {
-    var tbody = $('#triggerInline').children('tbody');
+    var tbody = $('#inlineTrigger').children('tbody');
     var row_model = tbody.children('.hidden').first();
     if (row_model) {
-        $('#triggerInlineEmpty').addClass('hidden');
+        $('#inlineTriggerEmpty').addClass('hidden');
         var row_new = row_model.clone();
         row_new.removeClass('hidden');
         row_new.insertBefore(row_model);
@@ -164,11 +164,13 @@ SwitchView.prototype.updateSwitch = function(e) {
 
     var that = this;
     var form = $(e.target);
+    var btn = form.find('.btn-primary');
     var modal = form.closest('.modal');
     var valid = isFormValid(form);
     if (valid) {
         var modal_body = modal.find('.modal-body').first();
         resetAlert(modal_body);
+        btn.button('loading');
         form.find('tr.hidden :input').attr('disabled', 'disabled');
         this.switches.post({
             url: form.attr('action'),
@@ -176,6 +178,7 @@ SwitchView.prototype.updateSwitch = function(e) {
             always: function() {
                 // Restore hidden/template rows
                 form.find('tr.hidden :input').removeAttr('disabled');
+                btn.button('reset');
             },
             success: function(data) {
                 modal.modal('toggle');

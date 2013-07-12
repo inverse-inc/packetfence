@@ -13,10 +13,9 @@ pfappserver::Model::Config::Rules
 
 use Moose;
 use namespace::autoclean;
-use pf::authentication;
-use HTTP::Status qw(:constants is_error is_success);
+use pf::ConfigStore::Authentication;
 
-extends 'pfappserver::Base::Model::Config::Group';
+extends 'pfappserver::Base::Model::Config';
 
 has '+idKey' => (default => 'rule_id');
 
@@ -26,11 +25,11 @@ has '+itemsKey' => (default => 'rules');
 
 =over
 
-=item _buildCachedConfig
+=item _buildConfigStore
 
 =cut
 
-sub _buildCachedConfig { $pf::authentication::cached_authentication_config }
+sub _buildConfigStore { return pf::ConfigStore::Authentication->new;}
 
 __PACKAGE__->meta->make_immutable;
 

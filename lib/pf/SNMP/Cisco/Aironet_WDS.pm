@@ -1,12 +1,12 @@
 package pf::SNMP::Cisco::Aironet_WDS;
 =head1 NAME
 
-pf::SNMP::Cisco::Aironet_WDS - Object oriented module to parse SNMP traps 
+pf::SNMP::Cisco::Aironet_WDS - Object oriented module to parse SNMP traps
 and manage Cisco Aironet configured in Wireless Domain Services (WDS) mode.
 
 =head1 STATUS
 
-This module implements some changes on top of L<pf::SNMP::Cisco::WLC>. 
+This module implements some changes on top of L<pf::SNMP::Cisco::WLC>.
 You should also consult the documentation over there if you experience issues.
 
 =over
@@ -25,12 +25,12 @@ Tested on an Aironet WDS on IOS 12.3.8JEC3
 
 =item deauthentication requires SSH access
 
-Even though we perform the deauthentication with RFC3576 through Packet of 
-Disconnect (PoD). SSH access is still required. 
+Even though we perform the deauthentication with RFC3576 through Packet of
+Disconnect (PoD). SSH access is still required.
 
 Due to a Cisco issue, deauthentication attempts made directly to the
-WDS node, even though accepted, do not fully deauthenticate the client. It 
-feels like the crypto caches aren't properly invalidated which cause 
+WDS node, even though accepted, do not fully deauthenticate the client. It
+feels like the crypto caches aren't properly invalidated which cause
 subsequent re-association from the client never to trigger AAA.
 
 As a work-around, we connect to the WDS to obtain the current Access-Point
@@ -44,6 +44,7 @@ For more information see: https://supportforums.cisco.com/thread/2148888
 =back
 
 =cut
+
 use strict;
 use warnings;
 
@@ -60,10 +61,16 @@ use pf::util qw(format_mac_as_cisco);
 
 =over
 
+=item description
+
+=cut
+
+sub description { 'Cisco Aironet (WDS)' }
+
 =item deauthenticateMacDefault
-    
+
 De-authenticate a MAC address from wireless network (including 802.1x).
-    
+
 Diverges from L<pf::SNMP::Cisco::WLC> in the following aspects:
 
 =over
@@ -75,6 +82,7 @@ Diverges from L<pf::SNMP::Cisco::WLC> in the following aspects:
 =back
 
 =cut
+
 # The Service-Type entry was causing the WDS enabled Aironet to crash (IOS 12.3.8JEC3)
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
@@ -94,21 +102,22 @@ sub deauthenticateMacDefault {
 
     $logger->debug("deauthenticate $mac on AP $ap_ip using RADIUS Disconnect-Request deauth method");
     my $mac_for_deauth = format_mac_as_cisco($mac);
-    return $self->radiusDisconnect($mac, { 
-        'NAS-IP-Address' => $ap_ip, 
-        'Calling-Station-Id' => $mac_for_deauth, 
+    return $self->radiusDisconnect($mac, {
+        'NAS-IP-Address' => $ap_ip,
+        'Calling-Station-Id' => $mac_for_deauth,
     });
 }
 
 =item getCurrentApFromMac
 
-Warning: this method should _never_ be called in a thread. 
+Warning: this method should _never_ be called in a thread.
 Net::Appliance::Session is L<not thread safe|http://www.cpanforum.com/threads/6909/>.
 Experienced when using SSH.
 
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub getCurrentApFromMac {
     my ( $self, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -149,15 +158,15 @@ sub getCurrentApFromMac {
 
     # interpreting the result
     # Here's a sample of the results
-    #    > show wlccp wds mn detail mac-address 0021.9105.FF11  
+    #    > show wlccp wds mn detail mac-address 0021.9105.FF11
     #    MAC: 0021.9105.ff11,  IP-ADDR: 192.168.0.181,  State: REGISTERED
-    #    Cur-AP: 0018.19bd.ba13, 10.11.61.252  
+    #    Cur-AP: 0018.19bd.ba13, 10.11.61.252
     #    BSS: 0018.7331.09c0, SSID: WIFIBC1
     #    Vlan: 192
     #    Ntwrk-ID Assigned by AAA:   -
     #    Key Mgmt: None,  Authentication: EAP
     #    Posture Token:
-    #    Up-time: 00:25:30, Lifetime: 214 
+    #    Up-time: 00:25:30, Lifetime: 214
     my $cur_ap_ip;
     foreach my $line (@output) {
         if ($line =~ /^Cur-AP: [0-9a-f]{4}\.[0-9a-f]{4}\.[0-9a-f]{4}, ([0-9.]*)/) {
@@ -187,6 +196,7 @@ sub getCurrentApFromMac {
 Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair VSA.
 
 =cut
+
 # Same as in pf::SNMP::Cisco::Aironet. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
     my ($self, $radius_request) = @_;

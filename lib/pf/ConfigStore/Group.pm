@@ -1,20 +1,59 @@
-package pfappserver::Form;
+package pf::ConfigStore::Group;
 =head1 NAME
 
-/usr/local/pf/html/pfappserver/lib/pfappserver add documentation
+pf::ConfigStore::Group
 
 =cut
 
 =head1 DESCRIPTION
 
-Form
+pf::ConfigStore::Group
+Is the Generic class for the cached config
 
 =cut
 
-use Moose;
-extends qw/Catalyst::Component/;
+use Moo;
+use namespace::autoclean;
+
+BEGIN {extends 'pf::ConfigStore';}
+
+=head2 Fields
+
+=over
+
+=item group
+
+=cut
+
+has group => ( is=> 'ro' );
+
+=back
+
+=head2 Methods
+
+=over
+
+=item _Sections
+
+=cut
+
+sub _Sections {
+    my ($self) = @_;
+    my $group = $self->group;
+    return grep { s/^\Q$group\E // }  $self->cachedConfig->Sections($group);
+}
+
+=item _formatId
+
+=cut
+
+sub _formatId {
+   my ($self,$id) = @_;
+   return $self->group . " " . $id;
+}
 
 __PACKAGE__->meta->make_immutable;
+
 =back
 
 =head1 COPYRIGHT

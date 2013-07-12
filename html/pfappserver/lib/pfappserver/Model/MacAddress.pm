@@ -133,7 +133,7 @@ sub search {
     if ($@) {
         $status_msg = "Error $@";
         $logger->error($status_msg);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        return ( $STATUS::INTERNAL_SERVER_ERROR, ["Error [_1]",$@]);
     }
 
     return ( $STATUS::OK, $items );

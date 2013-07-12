@@ -13,7 +13,6 @@ to generate or validate some configuration files.
 =head1 CONFIGURATION AND ENVIRONMENT
 
 Read the following configuration files: F<dhcpd_vlan.conf>,
-F<named-vlan.conf>, F<named-isolation.ca>, F<named-registration.ca>,
 F<networks.conf>, F<violations.conf> and F<switches.conf>.
 
 Generate the following configuration files: F<dhcpd.conf>, F<named.conf>,
@@ -41,7 +40,6 @@ use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_view_all class_merge);
 use pf::services::apache;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
-use pf::services::named qw(generate_named_conf);
 use pf::services::radiusd qw(generate_radiusd_conf);
 use pf::services::snmptrapd qw(generate_snmptrapd_conf);
 use pf::services::snort qw(generate_snort_conf);
@@ -50,9 +48,9 @@ use pf::SwitchFactory;
 use pf::violation_config;
 
 Readonly our @ALL_SERVICES => (
-    'named', 'dhcpd', 'snort', 'suricata', 'radiusd',
+    'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
     'httpd.webservices', 'httpd.admin', 'httpd.portal', 'snmptrapd',
-    'pfdetect', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
+    'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
 Readonly our @APACHE_SERVICES => (
@@ -91,7 +89,7 @@ $service_launchers{'pfdhcplistener'} = 'sudo %1$s -i %2$s -d &';
 $service_launchers{'pfsetvlan'} = '%1$s -d &';
 # TODO the following join on @listen_ints will cause problems with dynamic config reloading
 $service_launchers{'dhcpd'} = "sudo %1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints);
-$service_launchers{'named'} = "%1\$s -u pf -c $generated_conf_dir/named.conf";
+$service_launchers{'pfdns'} = '%1$s -d &';
 $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
 $service_launchers{'radiusd'} = "sudo %1\$s -d $install_dir/raddb/";
 
@@ -142,13 +140,12 @@ sub service_ctl {
                     return $FALSE;
                 }
 
-                if ( $daemon =~ /(named|dhcpd|snort|suricata|httpd|snmptrapd|radiusd)/ && !$quick )
+                if ( $daemon =~ /(dhcpd|snort|suricata|httpd|snmptrapd|radiusd)/ && !$quick )
                 {
                     my $confname = "generate_" . $daemon . "_conf";
                     $logger->info(
                         "Generating configuration file for $binary ($confname)");
                     my %serviceHash = (
-                        'named' => \&generate_named_conf,
                         'dhcpd' => \&generate_dhcpd_conf,
                         'snort' => \&generate_snort_conf,
                         'suricata' => \&generate_suricata_conf,
@@ -344,7 +341,7 @@ sub service_ctl {
             $action eq "status" && do {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") ) ) {
+                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") || ($daemon eq "snort") ) ) {
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
                     }
@@ -394,9 +391,31 @@ sub service_ctl {
                     $pid = 0;
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
+                        my $ppt = new Proc::ProcessTable;
+                        my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                        if (!defined($proc)) {
+                            unlink( $install_dir . "/var/run/$binary.pid" );
+                            return(0);
+                        }
                     }
                     return ($pid);
                 }
+                elsif ($daemon =~ "snort") {
+                    $pid = 0;
+                    if (defined $monitor_int) {
+                        if (-e "$install_dir/var/run/${daemon}_${monitor_int}.pid") {
+                            chomp( $pid = `cat $install_dir/var/run/${daemon}_${monitor_int}.pid`);
+                            my $ppt = new Proc::ProcessTable;
+                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            if (!defined($proc)) {
+                                unlink( $install_dir . "/var/run/${daemon}_${monitor_int}.pid" );
+                                return(0);
+                            }
+                        }
+                    }
+                    return ($pid);
+                }
+
             }
         }
     }
@@ -432,10 +451,10 @@ sub service_list {
             push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
                     && isenabled($Config{'services'}{'dhcpd'}) );
-        } elsif ( $service eq "named" ) {
+        } elsif ( $service eq "pfdns" ) {
             push @finalServiceList, $service
                 if ( (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled())
-                    && isenabled($Config{'services'}{'named'}) );
+                    && isenabled($Config{'services'}{'pfdns'}) );
         }
         elsif ( $service eq 'pfdhcplistener' ) {
             push @finalServiceList, $service if ( isenabled($Config{'network'}{'dhcpdetector'}) );

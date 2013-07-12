@@ -11,13 +11,50 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.2 released on 2013-07-12
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enhancements
+++++++++++++
+
+* Replaced bind with pfdns - PacketFence's own DNS server
+* Rewrote Oauth2 support (based on ipset sessions)
+* New counters bellow line graphs of reports
+* Support for anonymous bind in LDAP authentication sources
+* Added support for date and time conditions in authentication sources
+* Added "is not" condition on connection type
+* Extend simple search of nodes to match MAC, owner and computer name
+* Added search and display of the a user's telephone number
+* Can now have multiple external authentication sources
+* Increased speed of loading configuration from the cache
+* Each portal profiles can now use a list of authentication sources
+* A switch definition can now be easily cloned
+* Switches are now ordered by IP address
+
+Bug Fixes
++++++++++
+
+* Re-evaluate network access when changing a node status
+* Re-evaluate network access when closing a violation
+* Missing unit when interval is zero
+* Switch with empty inlineTrigger rises an exception
+* Web admin sets 'triggerInline' while libs expect 'inlineTrigger'
+* Condition on user email doesn't work for email sources
+* Sponsors can't be validated
+* Node search by person name is broken (#1652)
+* Can't enable VoIP from switch configuration form (#1663)
+* Maximum number of nodes per user is not respected by role
+* Routed networks are not properly sorted (#1666)
+* Can't edit notes of a node (#1667)
+* pfdetect_remote and pfarp_remote fix
+
 Version 4.0.1 released on 2013-05-17
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
 +++++++++++
 
-* Support for all VoIP phones CDP compatibles on Cisco switches
+* Support for all CDP-compatible VoIP phones on Cisco switches
 
 Enhancements
 ++++++++++++
@@ -29,7 +66,7 @@ Bug Fixes
 +++++++++
 
 * Default values override defined values in violations.conf
-* Wrong verion of pf::vlan::custom
+* Wrong version of pf::vlan::custom
 * Groups in configuration files are not ordered under their respective section
 * mysqld is not enabled at startup
 * memcached is not enabled at startup

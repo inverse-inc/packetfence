@@ -15,14 +15,15 @@ use Test::MockModule;
 use Test::MockObject::Extends;
 
 use lib '/usr/local/pf/lib';
-use pf::config;
-use pf::SwitchFactory;
-
+BEGIN {use SwitchFactoryConfig;}
 BEGIN { use pf::SNMP; }
 BEGIN {
     use_ok('pf::floatingdevice');
     use_ok('pf::floatingdevice::custom');
 }
+use pf::config;
+use pf::SwitchFactory;
+
 
 # test the object
 my $fd = new pf::floatingdevice();
@@ -34,7 +35,7 @@ can_ok($fd, qw(
     disablePortConfig
 ));
 
-my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
+my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('10.0.0.1');
 my $switch_port = '10001';
 my $switch_locker;
@@ -115,21 +116,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

@@ -62,7 +62,7 @@ my $now = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time) );
 my %macHash = (
     'status' => 'reg',
     'regdate' => "$now",
-    'notes' => 'auto-registered by Dany Heroux'
+    'notes' => 'Imported by script'
 );
 
 my $csv = Text::CSV->new({ binary => 1 });
@@ -85,6 +85,7 @@ while (my $row = $csv->getline($io)) {
             $macHash{'pid'} = $pid;
             $macHash{'category'} = $category;
             $macHash{'unregdate'} = 0;
+            node_add_simple($mac);
             node_modify( $mac, %macHash );
         } else {
             print "MAC: $mac\tCategory: $category\tPID: $pid\t == Test Mode\n";

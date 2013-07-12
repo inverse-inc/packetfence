@@ -100,17 +100,6 @@ registration=enabled
 # lower the value.
 redirtimer=20s
 #
-# trapping.passthrough
-#
-# Method by which content is delivered to trapped systems. When set to "proxy", PacketFence uses Apache's reverse proxy 
-# functionality and rewrites links. Note that any link to an external resource on the target server will not be properly
-# rewritten.
-# When set to "iptables", PacketFence creates passthroughs to the content for only those nodes trapped with the 
-# corresponding violation.  Be aware that an iptables passthrough is based on IP address and clients will be able to 
-# get to ALL content on the destination site.
-# When set to "disabled" passthrough is disabled.
-passthrough=disabled
-#
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
@@ -155,6 +144,19 @@ wireless_ips=disabled
 # Set the threshold for wids
 #
 wireless_ips_threshold=90
+
+#
+# trapping.passthrough
+#
+# When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
+# to trapped devices. Don´t forget to enable ip_forward on your server.
+passthrough=disabled
+#
+# trapping.passthroughs
+#
+# Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to web sites.
+#
+passthroughs=
 
 [registration]
 #
@@ -226,21 +228,6 @@ access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 # This is the default access duration value selected in the dropdown on the 
 # guest management interface.
 default_access_duration=12h
-
-#
-# This section allows you to create passthroughs to HTML content or remote addresses/networks.
-# With passthrough=proxy under [trapping] it will support domain names.
-# With passthrough=iptables under [trapping] it will support domain names and IP ranges. Note that this implementation 
-# is unmaintained and might not work.
-#
-# Here's an example:
-# packetfence=http://www.packetfence.org
-# The above will allow 80/tcp traffic to the packetfence domain (the left value is arbitrary).
-# Passthroughs can also take the form of:
-# test=192.168.100.10/23
-# which would allow full IP to all 512 destination addresses. Unsupported in trapping.passhtrough=proxy.
-# 
-[passthroughs]
 
 [alerting]
 #
@@ -438,10 +425,10 @@ locationlog=0D
 # Should DHCPd be managed by PacketFence?
 dhcpd=enabled
 #
-# services.named
+# services.pfdns
 #
-# Should named be managed by PacketFence?
-named=enabled
+# Should pfdns be managed by PacketFence?
+pfdns=enabled
 #
 # services.radiusd
 #
@@ -467,11 +454,6 @@ httpd_binary=/usr/sbin/httpd
 #
 # Location of the dhcpd binary. Only necessary to change if you are not running the RPMed version.
 dhcpd_binary=/usr/sbin/dhcpd
-#
-# services.named_binary
-#
-# Location of the named binary. Only necessary to change if you are not running the RPMed version.
-named_binary=/usr/sbin/named
 #
 # services.snmptrapd_binary
 #
@@ -666,7 +648,7 @@ authorizenet_trankey =
 # node_import.pid
 #
 # Default pid value to assign to imported nodes.
-pid=1
+pid=admin
 #
 # node_import.category
 #

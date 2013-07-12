@@ -13,12 +13,11 @@ provide several differently configured (behavior and template) captive
 portal from the same server.
 
 =cut
+
 use strict;
 use warnings;
 
-use Log::Log4perl;
-
-use pf::config;
+use pf::log;
 
 =head1 METHODS
 
@@ -30,9 +29,10 @@ No one should call ->new by himself. L<pf::Portal::ProfileFactory> should
 be used instead.
 
 =cut
+
 sub new {
     my ( $class, $args_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $logger = get_logger();
     $logger->debug("instantiating new ". __PACKAGE__ . " object");
 
     # XXX if complex init is required, it should be done in a sub and the
@@ -51,6 +51,7 @@ sub new {
 Returns the name of the captive portal profile.
 
 =cut
+
 sub getName {
     my ($self) = @_;
     return $self->{'_name'};
@@ -63,6 +64,7 @@ sub getName {
 Returns the logo for the current captive portal profile.
 
 =cut
+
 sub getLogo {
     my ($self) = @_;
     return $self->{'_logo'};
@@ -75,6 +77,7 @@ sub getLogo {
 Returns either enabled or disabled depending on if the current captive portal profile allows guest self-registration.
 
 =cut
+
 sub getGuestSelfReg {
     my ($self) = @_;
     return $self->{'_guest_self_reg'};
@@ -87,6 +90,7 @@ sub getGuestSelfReg {
 Returns the available enabled modes for guest self-registration for the current captive portal profile.
 
 =cut
+
 sub getGuestModes {
     my ($self) = @_;
     return $self->{'_guest_modes'};
@@ -101,6 +105,7 @@ Returns the path for custom templates for the current captive portal profile.
 Relative to html/captive-portal/templates/
 
 =cut
+
 sub getTemplatePath {
     my ($self) = @_;
     return $self->{'_template_path'};
@@ -113,6 +118,7 @@ sub getTemplatePath {
 Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
 
 =cut
+
 sub getBillingEngine {
     my ($self) = @_;
     return $self->{'_billing_engine'};
@@ -125,12 +131,26 @@ sub getBillingEngine {
 Returns either enabled or disabled according to the billing engine state for the current captive portal profile.
 
 =cut
+
 sub getDescripton {
     my ($self) = @_;
     return $self->{'_description'};
 }
 
 *description = \&getDescripton;
+
+=item getSources
+
+Returns the available enabled modes for guest self-registration for the current captive portal profile.
+
+=cut
+
+sub getSources {
+    my ($self) = @_;
+    return $self->{'_sources'};
+}
+
+*sources = \&getSources;
 
 =back
 

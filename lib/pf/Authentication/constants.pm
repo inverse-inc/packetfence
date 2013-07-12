@@ -47,6 +47,7 @@ Readonly::Scalar our $HIGHER => 'higher';
 Readonly::Scalar our $HIGHER_OR_EQUALS => 'higher or equals';
 Readonly::Scalar our $IS_BEFORE => 'is before';
 Readonly::Scalar our $IS => 'is';
+Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 
 =item STRING, NUMBER, DATE, TIME
@@ -75,7 +76,7 @@ Readonly::Hash our %OPERATORS =>
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
-   $CONNECTION => [$IS],
+   $CONNECTION => [$IS, $IS_NOT],
   );
 
 =back

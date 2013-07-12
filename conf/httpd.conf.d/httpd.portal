@@ -32,6 +32,9 @@
   <IfModule !mod_mime.c>
     LoadModule mime_module /usr/lib/apache2/modules/mod_mime.so
   </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module /usr/lib/apache2/modules/mod_apreq2.so
+  </IfModule>
 </IfDefine>
 
 #RHEL specific
@@ -65,6 +68,9 @@
   </IfModule>
   <IfModule !mod_mime.c>
     LoadModule mime_module modules/mod_mime.so
+  </IfModule>
+  <IfModule !mod_apreq2.c>
+    LoadModule apreq_module modules/mod_apreq2.so
   </IfModule>
 </IfDefine>
 
@@ -150,39 +156,39 @@ $SSLRandomSeed = "startup builtin";
 $SSLRandomSeed = "connect builtin";
 $SSLCipherSuite = "ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL";
 
-$ErrorLog = $install_dir.'/logs/captiveportal_error_log';
-
-@NameVirtualHost = ("*:80","*:443");
+$ErrorLog = $install_dir.'/logs/portal_error_log';
 
 foreach my $interface (@internal_nets) {
     push (@Listen,$interface->{'Tip'}.":80");
     push (@Listen,$interface->{'Tip'}.":443");
-    push @{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
-         DocumentRoot        => $install_dir.'/html/captive-portal',
-         ErrorLog            => $install_dir.'/logs/portal_error_log',
-         CustomLog           => $install_dir.'/logs/portal_access_log combined',
-         Include             => $var_dir.'/conf/captive-portal-common.conf',
-         Include             => $var_dir.'/conf/block-unwanted.conf',
-         Include             => $var_dir.'/conf/ocsp-crl.conf',
-         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-    );
-    push @{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
-         DocumentRoot        => $install_dir.'/html/captive-portal',
-         ErrorLog            => $install_dir.'/logs/portal_error_log',
-         CustomLog           => $install_dir.'/logs/portal_access_log combined',
-         SSLEngine           => 'on',
-         Include             => $var_dir.'/conf/ssl-certificates.conf',
-         Include             => $var_dir.'/conf/captive-portal-common.conf',
-         Include             => $var_dir.'/conf/block-unwanted.conf',
-         Include             => $var_dir.'/conf/ocsp-crl.conf',
-         Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
-         ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-         ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
-    );
+    push (@NameVirtualHost,$interface->{'Tip'}.":80");
+    push (@NameVirtualHost,$interface->{'Tip'}.":443");
+    push (@{ $VirtualHost{$interface->{'Tip'}.":80"} }, gen_conf(
+         ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => $install_dir.'/html/captive-portal',
+         ErrorLog => $install_dir.'/logs/portal_error_log',
+         CustomLog => $install_dir.'/logs/portal_access_log combined',
+         Include => $var_dir.'/conf/captive-portal-common.conf',
+         Include => $var_dir.'/conf/block-unwanted.conf',
+         Include => $var_dir.'/conf/ocsp-crl.conf',
+         Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
+         ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+    ));
+    push (@{ $VirtualHost{$interface->{'Tip'}.":443"} }, gen_conf(
+         ServerName => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
+         DocumentRoot => $install_dir.'/html/captive-portal',
+         ErrorLog => $install_dir.'/logs/portal_error_log',
+         CustomLog => $install_dir.'/logs/portal_access_log combined',
+         SSLEngine => 'on',
+         Include => $var_dir.'/conf/ssl-certificates.conf',
+         Include => $var_dir.'/conf/captive-portal-common.conf',
+         Include => $var_dir.'/conf/block-unwanted.conf',
+         Include => $var_dir.'/conf/ocsp-crl.conf',
+         Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
+         ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+         ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
+    ));
 }
 
 if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
@@ -194,9 +200,11 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
 
     push (@Listen,$host.":80");
     push (@Listen,$host.":443");
+    push (@NameVirtualHost,$host.":80");
+    push (@NameVirtualHost,$host.":443");
 
     push @{ $VirtualHost{$host.":80"} }, gen_conf(
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":80",
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
          ErrorLog            => $install_dir.'/logs/portal_error_log',
          CustomLog           => $install_dir.'/logs/portal_access_log combined',
@@ -208,7 +216,7 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
     );
     push @{ $VirtualHost{$host.":443"} }, gen_conf(
-         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":443",
+         ServerName          => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'},
          DocumentRoot        => $install_dir.'/html/pfappserver/lib',
          ErrorLog            => $install_dir.'/logs/portal_error_log',
          CustomLog           => $install_dir.'/logs/portal_access_log combined',

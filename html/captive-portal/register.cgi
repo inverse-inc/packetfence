@@ -87,27 +87,25 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
   # as web_node_register() might not work if we've reached the limit
   my $value = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
 
-  $logger->trace("Got role $value for username $pid");
+  $logger->trace("Got role '$value' for username $pid");
 
   # This appends the hashes to one another. values returned by authenticator wins on key collision
   if (defined $value) {
       %info = (%info, (category => $value));
   }
 
+  # If an access duration is defined, use it to compute the unregistration date;
+  # otherwise, use the unregdate when defined.
   $value = &pf::authentication::match(undef, $params, $Actions::SET_ACCESS_DURATION);
-  
   if (defined $value) {
-      $logger->trace("No unregdate found - computing it from access duration");
       $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
+      $logger->trace("Computed unrege date from access duration: $value");
   }
   else {
-      $logger->trace("Unregdate found, we use it right away");
       $value = &pf::authentication::match(undef, $params, $Actions::SET_UNREG_DATE);
   }
-
-  $logger->trace("Got unregdate $value for username $pid");
-
   if (defined $value) {
+      $logger->trace("Got unregdate $value for username $pid");
       %info = (%info, (unregdate => $value));
   }
 

@@ -83,17 +83,16 @@ form {
                 </ul>
               </div>
             </div>
-            <div class="row-fluid">
+            <!--<div class="row-fluid">
               <div class="span12">
                 <div class="sidebar-nav">
                   <ul class="nav nav-list">
                     <li class="nav-header">[% l('Legend') %]</li>
-                    <li><i class="icon-user"></i> [% l('Internal user') %]</li>
-                    <li><i class="icon-briefcase"></i> [% l('External user') %]</li>
+                    <li><i class="icon-pencil"></i> [% l('Created user') %]</li>
                   </ul>
                 </div>
               </div>
-            </div>
+            </div>-->
           </div><!--/.well -->
         </div><!--/span-->
         <div class="span10">
@@ -143,6 +142,7 @@ form {
                             <option value="name">Name</option>
                             <option value="firstname">First Name</option>
                             <option value="lastname">Last Name</option>
+                            <option value="telephone">Telephone</option>
                             <option value="email">Email</option>
                             <option value="sponser">Sponsor</option>
                             <option value="ip_address">IP address</option>
@@ -169,7 +169,8 @@ form {
                             <option value="name">Name</option>
                             <option value="firstname">First Name</option>
                             <option value="lastname">Last Name</option>
-                            <option value="pid">Email</option>
+                            <option value="email">Email</option>
+                            <option value="telephone">Telephone</option>
                             <option value="sponser">Sponsor</option>
                             <option value="ip_address">IP address</option>
                             <option value="mac">MAC address</option>

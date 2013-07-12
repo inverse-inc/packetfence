@@ -14,9 +14,12 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
+use pf::util qw(sort_ip);
+
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
+    with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
 __PACKAGE__->config(
@@ -36,19 +39,21 @@ Setting the current form instance and model
 
 sub begin :Private {
     my ($self, $c) = @_;
-    my ($status, $switch_default, $roles);
-    my $model = $c->model("Config::Switch");
+    my ($model, $status, $switch_default, $roles);
+
+    $model = $c->model("Config::Switch");
     ($status, $switch_default) = $model->read('default');
     ($status, $roles) = $c->model('Roles')->list;
     $roles = undef unless(is_success($status));
+
     $c->stash->{current_model_instance} = $model;
-    $c->stash->{current_form_instance} = $c->form("Config::Switch",placeholders => $switch_default, roles => $roles);
+    $c->stash->{current_form_instance} = $c->form("Config::Switch", placeholders => $switch_default, roles => $roles);
     $c->stash->{switch_default} = $switch_default;
 }
 
 =head2 after list
 
-Check which switch is also defined as a floating device
+Check which switch is also defined as a floating device and sort switches by IP addresses.
 
 =cut
 
@@ -56,27 +61,36 @@ after list => sub {
     my ($self, $c) = @_;
 
     my ($status, $floatingdevice, $ip);
+    my @ips = ();
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
-    $floatingDeviceModel->readConfig();
     foreach my $switch (@{$c->stash->{items}}) {
         $ip = $switch->{id};
         if ($ip) {
+            push(@ips, $ip);
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $ip);
             if (is_success($status)) {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
     }
+
+    # Sort switches by IP address
+    my $i = 1;
+    my %sorted_ips = map { $_ => $i++ } sort_ip(@ips);
+    my @switches = sort { $sorted_ips{$a->{id}} <=> $sorted_ips{$b->{id}} } @{$c->stash->{items}};
+
+    $c->stash->{items} = \@switches;
 };
 
 =head2 after create
 
 =cut
 
-after create => sub {
+after qw(create clone) => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'configuration/switch/view.tt';
+        $c->stash->{action_uri} = $c->uri_for($self->action_for('create'));
     }
 };
 

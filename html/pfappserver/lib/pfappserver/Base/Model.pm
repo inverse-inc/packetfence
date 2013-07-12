@@ -2,14 +2,14 @@ package pfappserver::Base::Model;
 
 =head1 NAME
 
-pfappserver::Base::Model::Config
+pfappserver::Base::Model
 
 =cut
 
 =head1 DESCRIPTION
 
-pfappserver::Base::Model::Config
-Is the Generic class for the cached config
+pfappserver::Base::Model
+The base class for the Catalyst Models
 
 =cut
 

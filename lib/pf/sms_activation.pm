@@ -83,6 +83,10 @@ sub sms_activation_db_prepare {
         WHERE code_id = ?
     ]);
 
+    $sms_activation_statements->{'sms_activation_has_entry_sql'} = get_db_handle()->prepare(qq[
+        SELECT 1 FROM sms_activation WHERE mac = ? and expiration >= NOW()
+    ]);
+
     $sms_activation_statements->{'sms_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
         SELECT code_id, mac, phone_number, carrier_id, activation_code, expiration, status FROM sms_activation
         WHERE activation_code = ? AND status = ?
@@ -109,7 +113,7 @@ sub sms_activation_db_prepare {
 #    );
 
     $sms_activation_statements->{'sms_activation_change_status_old_same_mac_phone_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE sms_activation SET status=? WHERE mac = ? AND phone_number = ? AND status = ? ]
+        qq [ UPDATE sms_activation SET status = ? WHERE mac = ? AND phone_number = ? AND status = ? ]
     );
 
     $sms_activation_db_prepared = 1;
@@ -254,7 +258,7 @@ sub view_by_code {
 
 sub find_unverified_code {
     my ($activation_code) = @_;
-    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 
+    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
                                  'sms_activation_find_unverified_code_sql',
                                  "$HASH_FORMAT:".$activation_code, $UNVERIFIED);
     my $ref = $query->fetchrow_hashref();
@@ -391,6 +395,14 @@ sub validate_code {
     $logger->info("Phone: ".$activation_record->{'phone_number'}." successfully verified! "
         . "Node authorized: ".$activation_record->{'mac'});
     return $activation_record->{'mac'};
+}
+
+sub sms_activation_has_entry {
+    my ($mac) = @_;
+    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,'sms_activation_has_entry_sql',$mac);
+    my $rows = $query->rows;
+    $query->finish;
+    return $rows;
 }
 
 =head1 AUTHOR

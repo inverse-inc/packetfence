@@ -20,6 +20,7 @@ use File::Spec::Functions;
 use pf::config;
 use pf::SNMP::constants;
 use pf::util;
+use List::MoreUtils qw(any);
 
 has 'roles' => ( is => 'ro' );
 has 'placeholders' => ( is => 'ro' );
@@ -57,6 +58,11 @@ has_field 'deauthMethod' =>
    label => 'Deauthentication Method',
    element_class => ['chzn-deselect'],
   );
+has_field 'VoIPEnabled' =>
+  (
+   type => 'Toggle',
+   label => 'VoIP',
+  );
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',
@@ -74,19 +80,19 @@ has_field 'uplink' =>
   );
 
 ## Inline mode
-has_field 'triggerInline' =>
+has_field 'inlineTrigger' =>
   (
    type => 'Repeatable',
    num_extra => 1, # add extra row that serves as a template
   );
-has_field 'triggerInline.type' =>
+has_field 'inlineTrigger.type' =>
   (
    type => 'Select',
    widget_wrapper => 'None',
    localize_labels => 1,
-   options_method => \&options_triggerInline,
+   options_method => \&options_inlineTrigger,
   );
-has_field 'triggerInline.value' =>
+has_field 'inlineTrigger.value' =>
   (
    type => 'Hidden',
   );
@@ -161,11 +167,46 @@ has_block 'snmp' =>
                    'SNMPPrivPasswordWrite',
                    'SNMPVersionTrap',
                    'SNMPCommunityTrap',
+                   'SNMPUserNameTrap',
                    'SNMPAuthProtocolTrap',
                    'SNMPAuthPasswordTrap',
                    'SNMPPrivProtocolTrap',
                    'SNMPPrivPasswordTrap',
+                   'advance',
                   ],
+  );
+
+has_block 'advance' =>
+  (
+   tag => 'div',
+   render_list => [ qw(macSearchesMaxNb macSearchesSleepInterval) ],
+  );
+
+has_field macSearchesMaxNb =>
+  (
+   type => 'PosInteger',
+   label => 'Maximum MAC addresses',
+   default => 30,
+   tags => {
+       after_element => \&help,
+       help => 'Maximum number of MAC addresses retrived from a port'
+   },
+  );
+
+has_field macSearchesSleepInterval  =>
+  (
+   type => 'PosInteger',
+   label => 'Sleep interval',
+   default => 2,
+   tags => {
+       after_element => \&help,
+       help => 'Sleep interval between queries of MAC addresses'
+   },
+  );
+
+has_block definition =>
+  (
+   render_list => [ qw(type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
   );
 has_field 'SNMPVersion' =>
   (
@@ -250,6 +291,11 @@ has_field 'SNMPCommunityTrap' =>
    type => 'Text',
    label => 'Community Trap',
   );
+has_field 'SNMPUserNameTrap' =>
+  (
+   type => 'Text',
+   label => 'User Name Trap',
+  );
 has_field 'SNMPAuthProtocolTrap' =>
   (
    type => 'Text',
@@ -332,13 +378,23 @@ has_field 'wsPwd' =>
    label => 'Password',
   );
 
+has_field controllerIp =>
+  (
+    type => 'IPAddress',
+    label => 'Controller IP Address',
+    tags => {
+        after_element => \&help,
+        help => 'Use instead this IP address for de-authentication requests. Normally used for WiFi only'
+    },
+  );
+
 =head1 METHODS
 
-=head2 options_triggerInline
+=head2 options_inlineTrigger
 
 =cut
 
-sub options_triggerInline {
+sub options_inlineTrigger {
     my $self = shift;
 
     my @triggers = map { $_ => $self->_localize($_) } ($ALWAYS, $PORT, $MAC, $SSID);
@@ -567,30 +623,21 @@ sub validate {
     my $self = shift;
 
     my @triggers;
-
-    @triggers = grep { $_->{type} eq $ALWAYS } @{$self->value->{triggerInline}};
-    if (scalar @triggers > 0) {
-        # If one of the inline triggers is $ALWAYS, ignore any other trigger.
-        $self->field('triggerInline')->value([{ type => $ALWAYS }]);
-    }
+    my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
         my $type = 'pf::SNMP::'. $self->value->{type};
         if ($type->require()) {
-            @triggers = map { $_->{type} } @{$self->value->{triggerInline}};
-            if (scalar @triggers > 0) {
+            @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
+            if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
-                my @capabilities = $type->new()->inlineCapabilities();
-                if (scalar @capabilities > 0) {
-                    my %unsupported = ();
-                    foreach my $trigger (@triggers) {
-                        unless (grep { $_ eq $trigger } @capabilities) {
-                            $unsupported{$trigger} = 1;
-                        }
-                    }
-                    if (scalar %unsupported > 0) {
+                my %capabilities;
+                @capabilities{$type->new()->inlineCapabilities()} = ();
+                if (keys %capabilities) {
+                    my @unsupported = grep {!exists $capabilities{$_} } @triggers;
+                    if (@unsupported) {
                         $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
-                                                        . join(', ', keys %unsupported));
+                                                        . join(', ', @unsupported));
                     }
                 } else {
                     $self->field('type')->add_error("The chosen type doesn't support inline mode.");
@@ -603,10 +650,10 @@ sub validate {
 
     unless ($self->has_errors) {
         # Valide the MAC address format of the inline triggers.
-        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{triggerInline}};
+        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{inlineTrigger}};
         foreach my $trigger (@triggers) {
             unless (valid_mac($trigger->{value})) {
-                $self->field('triggerInline')->add_error("Verify the format of the MAC address(es).");
+                $self->field('inlineTrigger')->add_error("Verify the format of the MAC address(es).");
                 last;
             }
         }

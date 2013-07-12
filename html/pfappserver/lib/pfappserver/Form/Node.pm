@@ -21,7 +21,7 @@ has 'status' => ( is => 'ro' );
 has_field 'pid' =>
   (
    type => 'Uneditable',
-   label => 'Identifier',
+   label => 'Owner',
   );
 has_field 'status' =>
   (
@@ -46,6 +46,11 @@ has_field 'unregdate' =>
    type => '+DateTimePicker',
    label => 'Unregistration',
   );
+has_field 'notes' =>
+  (
+   type => 'TextArea',
+   label => 'Notes',
+  );
 has_field 'vendor' =>
   (
    type => 'Uneditable',
@@ -59,7 +64,7 @@ has_field 'computername' =>
 has_field 'voip' =>
   (
    type => 'Checkbox',
-   label => 'Is Voice Over IP',
+   label => 'Voice Over IP',
    checkbox_value => 'yes',
   );
 has_field 'last_dot1x_username' =>

@@ -329,14 +329,6 @@ sub getNormalVlan {
         $logger->debug("Username was NOT defined - got role $role");
     }
 
-    return $switch->getVlanByName($role);
-
-    # custom example: simple guest user 
-    # return guestVlan for pid=guest
-    #if (defined($node_info->{pid}) && $node_info->{pid} =~ /^guest$/i) {
-    #    return $switch->getVlanByName('guest');
-    #}
-
     # custom example: enforce a node's bypass VLAN 
     # If node record has a bypass_vlan prefer it over normalVlan 
     # Note: It might be made the default behavior one day
@@ -344,7 +336,12 @@ sub getNormalVlan {
     #    return $node_info->{'bypass_vlan'};
     #}
 
-    #return $switch->getVlanByName('normal');
+    # custom example: reject non guest users on guest SSID
+    # if ( defined $ssid && $ssid =~ /guest/ ) {
+    #   return -1 if $role ne 'guest';
+    # }
+
+    return $switch->getVlanByName($role);
 }
 
 =item getInlineVlan
@@ -486,7 +483,7 @@ Return true if a radius properties match with the inline trigger
 sub isInlineTrigger {
     my ($self, $switch, $port, $mac, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
-    if (defined($switch->{_inlineTrigger})) {
+    if (defined($switch->{_inlineTrigger}) && $switch->{_inlineTrigger} ne '') {
         foreach my $trigger (@{$switch->{_inlineTrigger}})  {
 
             # TODO we should refactor this into objects where trigger types provide their own matchers

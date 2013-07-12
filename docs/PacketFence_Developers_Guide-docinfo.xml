@@ -5,6 +5,11 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.1</revnumber>
+    <date>2013-07-10</date>
+    <revremark>Removed references to ui.conf.</revremark>
+  </revision>
+  <revision>
     <revnumber>3.0</revnumber>
     <date>2012-09-05</date>
     <revremark>Port to asciidoc.</revremark>

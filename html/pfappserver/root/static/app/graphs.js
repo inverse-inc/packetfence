@@ -24,6 +24,7 @@ function graphLineData(holder, labels, series) {
     valuesx = [],
     valuesy = [],
     legend = [],
+    sums = [],
     i = 0,
     j = 0;
 
@@ -32,10 +33,12 @@ function graphLineData(holder, labels, series) {
         legend.push(name);
         valuesx[i] = [];
         valuesy[i] = [];
+        sums[name] = 0;
         if (series[name].length > count) count = series[name].length;
         for (j = 0; j < labels.length; j++) {
             valuesx[i][j] = j;
             valuesy[i][j] = series[name][j];
+            sums[name] += series[name][j];
             if (valuesy[i][j] > max) max = valuesy[i][j];
         }
         i++;
@@ -163,6 +166,31 @@ function graphLineData(holder, labels, series) {
         last = cur;
     }
 
+    // Display counters
+    var counters = legend.slice(0); // clone legend
+    counters.sort(function(a, b) {
+        return sums[b] - sums[a];
+    });
+    counters.splice(5);
+    var w = (width-margin-5*(counters.length-1))/counters.length,
+    grey = '60-#333-#666';
+    grey = '#eee';
+    x = margin/2, h += height;
+    for (i = 0; i < counters.length; i++) {
+        var clr = Raphael.color(colors[legend.indexOf(counters[i])]);
+        var clrlt = 'hsb(' + (clr.h) + ', ' + (clr.s) + ', ' + (clr.v + .1) + ')';
+        var clrltr = 'hsb(' + (clr.h) + ', ' + (clr.s) + ', ' + 0.9 + ')';
+        var box = r.set();
+        box.push(r.rect(x, h, w, 50, 5)
+                 .attr({fill: "30-"+clr+"-"+clr+":70-"+clrlt, stroke: "none"}));
+        r.text(x + w/2, h + 12, counters[i].toUpperCase())
+            .attr({"font-size": "10px", "font-weight": "800", fill: clrltr});
+        r.text(x + w/2, h + 32, sums[counters[i]])
+            .attr({"font-size": "24px", "font-weight": "800", fill: '#fff'});
+        x += box.getBBox().width + 5;
+    }
+
+    // Increase height of containing div and svg
     div.css({ height: (height+h)+'px' });
     var svg = div.children('svg');
     if (svg.length) svg.attr('height', (height+h));

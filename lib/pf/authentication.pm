@@ -26,6 +26,7 @@ use pf::Authentication::Source;
 
 use pf::Authentication::Source::ADSource;
 use pf::Authentication::Source::EmailSource;
+use pf::Authentication::Source::SponsorEmailSource;
 use pf::Authentication::Source::HtpasswdSource;
 use pf::Authentication::Source::KerberosSource;
 use pf::Authentication::Source::LDAPSource;
@@ -75,22 +76,24 @@ BEGIN {
 }
 
 our %TYPE_TO_SOURCE = (
-    'sql'      => pf::Authentication::Source::SQLSource->meta->name,
-    'ad'       => pf::Authentication::Source::ADSource->meta->name,
-    'htpasswd' => pf::Authentication::Source::HtpasswdSource->meta->name,
-    'kerberos' => pf::Authentication::Source::KerberosSource->meta->name,
-    'ldap'     => pf::Authentication::Source::LDAPSource->meta->name,
-    'radius'   => pf::Authentication::Source::RADIUSSource->meta->name,
-    'email'    => pf::Authentication::Source::EmailSource->meta->name,
-    'sms'      => pf::Authentication::Source::SMSSource->meta->name,
-    'facebook' => pf::Authentication::Source::FacebookSource->meta->name,
-    'google'   => pf::Authentication::Source::GoogleSource->meta->name,
-    'github'   => pf::Authentication::Source::GithubSource->meta->name
+    'sql'           => pf::Authentication::Source::SQLSource->meta->name,
+    'ad'            => pf::Authentication::Source::ADSource->meta->name,
+    'htpasswd'      => pf::Authentication::Source::HtpasswdSource->meta->name,
+    'kerberos'      => pf::Authentication::Source::KerberosSource->meta->name,
+    'ldap'          => pf::Authentication::Source::LDAPSource->meta->name,
+    'radius'        => pf::Authentication::Source::RADIUSSource->meta->name,
+    'email'         => pf::Authentication::Source::EmailSource->meta->name,
+    'sponsoremail'  => pf::Authentication::Source::SponsorEmailSource->meta->name,
+    'sms'           => pf::Authentication::Source::SMSSource->meta->name,
+    'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
+    'google'        => pf::Authentication::Source::GoogleSource->meta->name,
+    'github'        => pf::Authentication::Source::GithubSource->meta->name
 );
 
 our $logger = get_logger();
 
 
+$cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
 
 readAuthenticationConfigFile();
 
@@ -199,14 +202,46 @@ sub readAuthenticationConfigFile {
 
                         $current_source->add_rule($current_rule);
                     }
-
                     push(@authentication_sources, $current_source);
                 }
+                update_profiles_guest_modes();
             }]
         );
     } else {
         $cached_authentication_config->ReadConfig();
+        update_profiles_guest_modes();
     }
+}
+
+
+sub update_profiles_guest_modes {
+    my ($config,$name) = @_;
+    while (my ($id,$profile) = each %Profiles_Config) {
+        my $guest_modes = _guest_modes_from_sources($profile->{sources});
+        $profile->{guest_modes} = $guest_modes;
+        _set_guest_self_registration($guest_modes);
+    }
+}
+
+sub _set_guest_self_registration {
+    my ($modes) = @_;
+    for my $mode (
+        $SELFREG_MODE_EMAIL,
+        $SELFREG_MODE_SMS,
+        $SELFREG_MODE_SPONSOR,
+        $SELFREG_MODE_GOOGLE,
+        $SELFREG_MODE_FACEBOOK,
+        $SELFREG_MODE_GITHUB,) {
+        $guest_self_registration{$mode} = $TRUE
+            if is_in_list( $mode,$modes);
+    }
+}
+
+sub _guest_modes_from_sources {
+    my ($sources) = @_;
+    $sources ||= [];
+    my %is_in = map {$_ => undef } @$sources;
+    return join(',', map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources);
 }
 
 =item writeAuthenticationConfigFile
@@ -374,7 +409,8 @@ sub username_from_email {
         my $classname = $source->meta->name;
 
         if ($classname eq 'pf::Authentication::Source::ADSource' ||
-            $classname eq 'pf::Authentication::Source::LDAPSource') {
+            $classname eq 'pf::Authentication::Source::LDAPSource' ||
+            $classname eq 'pf::Authentication::Source::SQLSource' ) {
 
             my $username = $source->username_from_email($email);
 
@@ -394,18 +430,30 @@ sub username_from_email {
 =cut
 
 sub authenticate {
-    my ( $username, $password, $auth_module ) = @_;
+    my ( $username, $password, @source_ids ) = @_;
+    my @sources;
+    if (@source_ids) {
+        my %inlist = map {$_ => undef} @source_ids;
+        @sources = grep { exists $inlist{$_->id} } @authentication_sources;
+    } else {
+        @sources = @authentication_sources;
+    }
+    return _authenticate_from_sources($username, $password,@sources);
+}
+
+=item _authenticate_from_sources
+
+=cut
+
+sub _authenticate_from_sources {
+    my ( $username, $password, @sources ) = @_;
 
     $logger->trace("Authenticating $username");
-    foreach my $current_source ( @authentication_sources ) {
-
-        # We skip sources we aren't interested in
-        #if ( defined $auth_module && !($auth_module eq $current_source->{'type'}) ) {
-        #  next;
-        #}
-
-        my ($result, $message) = $current_source->authenticate($username, $password);
-
+    foreach my $current_source ( @sources) {
+        my ($result, $message);
+        eval {
+            ($result, $message) = $current_source->authenticate($username, $password);
+        };
         # First match wins!
         if ($result) {
             $logger->debug("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");

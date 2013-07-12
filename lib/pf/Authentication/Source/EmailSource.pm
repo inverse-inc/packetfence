@@ -20,10 +20,16 @@ has '+unique' => (default => 1);
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
 has 'allow_localdomain' => (isa => 'Bool', is => 'rw', default => 1);
 
+=head2 available_attributes
+
+Allow to make a condition on the user's email address.
+
+=cut
+
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes; 
+  my $super_attributes = $self->SUPER::available_attributes;
   my $own_attributes = [{ value => "user_email", type => $Conditions::STRING }];
 
   return [@$super_attributes, @$own_attributes];
@@ -37,8 +43,6 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     return $params->{'username'};
 }
-
-=back
 
 =head1 AUTHOR
 

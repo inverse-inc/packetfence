@@ -71,7 +71,7 @@ sub duration_deflate {
     my $interval = $value->{interval};
     my $unit = $value->{unit};
 
-    return $interval.$unit if ($interval && $unit);
+    return $interval.$unit if (defined $interval && defined $unit);
 }
 
 =head1 COPYRIGHT

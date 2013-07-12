@@ -15,6 +15,7 @@
             <td class="hidden-phone">[% switch.type %]</td>
             <td class="hidden-phone">[% l(switch.mode) %]</td>
             <td>
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
               [% IF switch.id != 'default' %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
             </td>
           </tr>

@@ -6,3 +6,4 @@
 [% form.field('access_token_param').render %]
 [% form.field('protected_resource_url').render %]
 [% form.field('redirect_url').render %]
+[% form.field('domains').render %]

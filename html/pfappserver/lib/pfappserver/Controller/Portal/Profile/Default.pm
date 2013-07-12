@@ -121,13 +121,14 @@ sub remove :Chained('object') :PathPart :Args(0) {
 
 =cut
 
-sub end : ActionClass('RenderView') {
+sub end: Private {
     my ($self,$c) = @_;
     if(! exists($c->stash->{template})) {
         $c->stash(
             template => 'portal/profile/' . $c->action->name . '.tt'
         );
     }
+    $c->forward('Controller::Root','end');
 }
 
 =back

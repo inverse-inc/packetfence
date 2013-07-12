@@ -8,7 +8,6 @@ use Moose;
 use namespace::autoclean;
 
 use Catalyst::Runtime 5.80;
-use pfappserver::Form;
 use Log::Log4perl::Catalyst;
 
 # Set flags and add plugins for the application
@@ -232,6 +231,21 @@ sub add_deferred_actions {
         my $deferred_actions = $c->stash->{_deferred_actions} ||= [];
         push @$deferred_actions,@args;
     }
+}
+
+
+sub pf_localize {
+    my ($c,$msg) = @_;
+    my @args;
+    my $ref_type = ref($msg);
+    return $msg if $ref_type eq 'HASH';
+    unless ($ref_type) {
+        @args = ($msg);
+    } else {
+        my $text = shift @$msg;
+        @args = ($text,$msg);
+    }
+    return $c->localize(@args);
 }
 
 # Logging

@@ -40,8 +40,7 @@ sub create {
     # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_success($status) ) {
-        $status_msg = "Interface VLAN $interface already exists";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface VLAN [_1] already exists",$interface];
         return ($STATUS::OK, $status_msg);
     }
 
@@ -50,7 +49,7 @@ sub create {
     # Check if physical interface exists
     ($status, $status_msg) = $self->exists($physical_interface);
     if ( is_error($status) ) {
-        $status_msg = "Physical interface $physical_interface does not exists so can't create VLAN interface on it";
+        $status_msg = ["Physical interface [_1] does not exists so can't create VLAN interface on it",$physical_interface];
         $logger->warn($status_msg);
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
@@ -59,7 +58,7 @@ sub create {
     my $cmd = "LANG=C sudo vconfig add $physical_interface $vlan_id";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
-        $status_msg = "Error in creating interface VLAN $interface";
+        $status_msg = ["Error in creating interface VLAN [_1]",$interface];
         $logger->error($status_msg);
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
@@ -68,7 +67,7 @@ sub create {
     # Enable the newly created virtual interface
     $self->up($interface);
 
-    return ($STATUS::CREATED, "Interface VLAN $interface successfully created");
+    return ($STATUS::CREATED, ["Interface VLAN [_1] successfully created",$interface]);
 }
 
 =head2 delete
@@ -83,7 +82,7 @@ sub delete {
     my ($status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
-    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+    return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
     # Retrieve interface definition
@@ -92,22 +91,19 @@ sub delete {
 
     # Check if requested interface exists
     if (!defined $interface_ref) {
-        $status_msg = "Interface VLAN $interface does not exists";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface VLAN [_1] does not exists",$interface];
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
     # Check if requested interface is virtual
     if ( !$self->_interfaceVirtual($interface) ) {
-        $status_msg = "Interface $interface is not a virtual interface and cannot be deleted";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface [_1] is not a virtual interface and cannot be deleted",$interface];
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
     # Check if requested interface isn't currently in use
     if ( $self->_interfaceCurrentlyInUse($interface, $host) ) {
-        $status_msg = "Interface VLAN $interface is currently in use for the configuration";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface VLAN [_1] is currently in use for the configuration",$interface];
         return ($STATUS::FORBIDDEN, $status_msg);
     }
 
@@ -115,8 +111,8 @@ sub delete {
     my $cmd = "LANG=C sudo vconfig rem $interface";
     eval { $status = pf_run($cmd) };
     if ( $@ || !$status ) {
-        $status_msg = "Error in deletion of interface VLAN $interface";
-        $logger->error($status_msg);
+        $status_msg = ["Error in deletion of interface VLAN [_1]",$interface];
+        $logger->error("Error in deletion of interface VLAN $interface");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
@@ -130,7 +126,7 @@ sub delete {
         $models->{network}->commit();
     }
 
-    return ($STATUS::OK, "Interface VLAN $interface successfully deleted");
+    return ($STATUS::OK, ["Interface VLAN [_1] successfully deleted",$interface]);
 }
 
 =head2 down
@@ -144,28 +140,26 @@ sub down {
     my ($status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
-    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+    return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
     # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
-        $status_msg = "Interface $interface does not exists";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface [_1] does not exists",$interface ];
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
     # Check if requested interface isn't already disabled
     if ( !$self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface is already disabled";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface [_1] is already disabled",$interface];
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
     # Check if requested interface isn't currently in use
     if ( $self->_interfaceCurrentlyInUse($interface, $host) ) {
-        $status_msg = "Interface $interface is currently in use for the configuration";
-        $logger->warn("$status_msg | Is the interface correctly plugged in?");
+        $status_msg = ["Interface [_1] is currently in use for the configuration",$interface];
+        $logger->warn("Is the interface correctly plugged in?");
         return ($STATUS::FORBIDDEN, $status_msg);
     }
 
@@ -173,20 +167,20 @@ sub down {
     my $cmd = sprintf "LANG=C sudo ip link set %s down", $interface;
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
-        $status_msg = "Can't disable interface $interface: $status";
-        $logger->error($status_msg);
+        $status_msg = ["Can't disable interface [_1] : [_2]",$interface , $status];
+        $logger->error("Can't disable interface $interface : $status");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
     # Check if interface is disabled
     # This check is necessary since the previous call (modification of the flag) does not return error or ok
     if ( $self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface has not been disabled. Should check server side logs for details";
-        $logger->error($status_msg);
+        $status_msg = ["Interface [_1] has not been disabled. Should check server side logs for details",$interface];
+        $logger->error("Interface $interface has not been disabled. Should check server side logs for details");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, "Interface $interface successfully disabled");
+    return ($STATUS::OK, ["Interface [_1] successfully disabled",$interface]);
 }
 
 =head2 exists
@@ -198,8 +192,8 @@ sub exists {
 
     my @result = $self->_listInterfaces($interface);
 
-    return ($STATUS::OK, "Interface $interface exists") if (scalar @result > 0);
-    return ($STATUS::NOT_FOUND, "Interface $interface does not exists");
+    return ($STATUS::OK, ["Interface [_1] exists",$interface]) if (scalar @result > 0);
+    return ($STATUS::NOT_FOUND, ["Interface [_1] does not exists",$interface]);
 }
 
 =head2 get
@@ -280,14 +274,14 @@ sub update {
     $netmask = $interface_ref->{netmask};
 
     # This method does not handle the 'all' interface neither the 'lo' one
-    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+    return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
     # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
-        $status_msg = "Interface $interface does not exists";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface [_1] does not exists",$interface];
+        $logger->warn("Interface $interface does not exists");
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
@@ -316,8 +310,8 @@ sub update {
             $cmd = sprintf "LANG=C sudo ip addr del %s dev %s", $interface_before->{address}, $interface_before->{name};
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
-                $status_msg = "Can't delete previous IP address of interface $interface (".$interface_before->{address}.")";
-                $logger->error($status_msg);
+                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$interface_before->{address}];
+                $logger->error("Can't delete previous IP address of interface $interface");
                 $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
             }
@@ -334,7 +328,7 @@ sub update {
             $cmd = sprintf "LANG=C sudo ip addr add %s/%i broadcast %s dev %s", $ipaddress, $netmask, $broadcast, $interface;
             eval { $status = pf_run($cmd) };
             if ( $@ || $status ) {
-                $status_msg = "Can't delete previous IP address of interface $interface ($ipaddress)";
+                $status_msg = ["Can't delete previous IP address of interface [_1] ([_2])",$interface,$ipaddress];
                 $logger->error($status);
                 $logger->error("$cmd: $status");
                 return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
@@ -355,7 +349,7 @@ sub update {
     $interface_ref->{network} = $new_network;
     $self->setType($interface, $interface_ref);
 
-    return ($STATUS::OK, "Interface $interface successfully edited");
+    return ($STATUS::OK, ["Interface [_1] successfully edited",$interface]);
 }
 
 =head2 isActive
@@ -473,8 +467,8 @@ sub setType {
             $models->{network}->update_or_create($interface_ref->{network}, $network_ref);
         }
     }
-    $models->{network}->rewriteConfig();
-    $models->{interface}->rewriteConfig();
+    $models->{network}->commit();
+    $models->{interface}->commit();
 }
 
 
@@ -569,7 +563,7 @@ sub _listInterfaces {
                           ([\w\.]+)       # interface name, including the VLAN
                           (?:\@([^:]+))?  # master interface name
                           .+
-                          \sstate\s(\S+)  # interface state (UP or DOWN)
+                          \sstate\s(\S+)  # interface state (UP or DOWN or "something else")
                           .+ether\s(\S+)  # netmask address
                          /mgx) {
             my ($ifindex, $name, $master, $state, $hwaddr, $ipaddress, $netmask) = ($1, $2, $3, $4, $5);
@@ -578,7 +572,7 @@ sub _listInterfaces {
                ifindex => $ifindex,
                name => $name,
                master => $master,
-               is_running => ($state eq 'UP'),
+               is_running => ($state ne 'DOWN'),
                hwaddr => $hwaddr
               };
             eval { $addr = pf_run(sprintf $cmd->{addr}, $name) };
@@ -643,41 +637,39 @@ sub up {
     my ($status, $status_msg);
 
     # This method does not handle the 'all' interface neither the 'lo' one
-    return ($STATUS::FORBIDDEN, "This method does not handle interface $interface")
+    return ($STATUS::FORBIDDEN, ["This method does not handle interface [_1]",$interface])
         if ( ($interface eq 'all') || ($interface eq 'lo') );
 
     # Check if requested interface exists
     ($status, $status_msg) = $self->exists($interface);
     if ( is_error($status) ) {
-        $status_msg = "Interface $interface does not exists";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface [_1] does not exists",$interface] ;
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
     # Check if requested interface isn't already enabled
     if ( $self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface is already enabled";
-        $logger->warn($status_msg);
+        $status_msg = ["Interface [_1] is already enabled",$interface];
         return ($STATUS::PRECONDITION_FAILED, $status_msg);
     }
 
     my $cmd = sprintf "LANG=C sudo ip link set %s up", $interface;
     eval { $status = pf_run($cmd) };
     if ( $@ ) {
-        $status_msg = "Can't enable interface $interface";
-        $logger->error($status_msg);
+        $status_msg = ["Can't enable interface [_1]",$interface];
+        $logger->error("Can't enable interface $interface");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
     # Check if interface is enabled
     # This check is necessary since the previous call (modification of the flag) does not return error or ok
     if ( !$self->_interfaceActive($interface) ) {
-        $status_msg = "Interface $interface has not been enabled. Should check server side logs for details";
-        $logger->error("$status_msg | Is the interface correctly plugged in?");
+        $status_msg = ["Interface [_1] has not been enabled. Should check server side logs for details",$interface];
+        $logger->error(" Is the interface correctly plugged in?");
         return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
     }
 
-    return ($STATUS::OK, "Interface $interface successfully enabled");
+    return ($STATUS::OK, ["Interface [_1] successfully enabled",$interface]);
 }
 
 

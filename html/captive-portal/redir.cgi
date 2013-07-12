@@ -27,9 +27,11 @@ use pf::scan qw($SCAN_VID);
 use pf::util;
 use pf::violation;
 use pf::web;
+use pf::web::guest;
 use pf::web::billing 1.00;
 # called last to allow redefinitions
 use pf::web::custom;
+use pf::sms_activation;
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('redir.cgi');
@@ -61,7 +63,7 @@ if (pf::web::supports_mobileconfig_provisioning($portalSession)) {
   $portalSession->getSession->param("do_not_deauth", $TRUE);
 }
 
-# check violation 
+# check violation
 #
 my $violation = violation_view_top($mac);
 if ($violation) {
@@ -116,7 +118,7 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
     $logger->info("$mac redirected to authentication page");
     pf::web::generate_login_page($portalSession);
     exit(0);
-  } 
+  }
   else {
     $logger->info("$mac redirected to multi-page registration process");
     pf::web::generate_registration_page($portalSession);
@@ -127,8 +129,11 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 #if node is pending show pending page
 my $node_info = node_view($mac);
 if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
+  if(pf::sms_activation::sms_activation_has_entry($mac)) {
+    node_deregister($mac);
+    pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms");
+  } elsif ($portalSession->getCgi->https()) {
   # we drop HTTPS for pending so we can perform our Internet detection and avoid all sort of certificate errors
-  if ($portalSession->getCgi->https()) {
     print $portalSession->getCgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
         .'/captive-portal?destination_url=' . uri_escape($portalSession->getDestinationUrl)
@@ -142,7 +147,7 @@ if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) 
 # NODES IN AN UKNOWN STATE
 # aka you shouldn't be here but if you are we need to handle you.
 
-# Here we are using a cache to prevent malicious or accidental DoS of the captive portal 
+# Here we are using a cache to prevent malicious or accidental DoS of the captive portal
 # through too many access reevaluation requests (since this is rather expensive especially in VLAN mode)
 my $cached_lost_device = $main::lost_devices_cache->get($mac);
 
@@ -159,7 +164,7 @@ if ( !defined($cached_lost_device) || $cached_lost_device <= 5 ) {
     pf::enforcement::reevaluate_access( $mac, 'redir.cgi', (force => $TRUE) );
 }
 
-pf::web::generate_error_page($portalSession, 
+pf::web::generate_error_page($portalSession,
   i18n("Your network should be enabled within a minute or two. If it is not reboot your computer.")
 );
 
@@ -177,15 +182,15 @@ This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut

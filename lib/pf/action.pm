@@ -60,7 +60,7 @@ BEGIN {
 
         action_add           action_exist
         action_view          action_view_all
-        action_delete        action_delete_all 
+        action_delete        action_delete_all
         action_execute       action_log
         action_close
     );

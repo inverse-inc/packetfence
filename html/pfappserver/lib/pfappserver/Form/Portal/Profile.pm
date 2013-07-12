@@ -42,14 +42,6 @@ has_field 'guest_self_reg' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
   );
-has_field 'guest_modes' =>
-  (
-    'type' => 'Select',
-    'label' => 'Modes',
-    'multiple'=> 1,
-    'element_class' => ['chzn-select', 'input-xlarge'],
-    'element_attr' => {'data-placeholder' => 'Click to add'},
-  );
 has_field 'billing_engine' =>
   (
    type => 'Toggle',
@@ -57,6 +49,18 @@ has_field 'billing_engine' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
   );
+has_field 'sources' =>
+  (
+    'type' => 'Select',
+    'label' => 'Sources',
+    'multiple'=> 1,
+    'element_class' => ['chzn-select', 'chzn-select-sortable'],
+    'element_attr' => {'data-placeholder' => 'Click to add'},
+  );
+
+has_block data => (
+    render_list => [qw(id description filter guest_self_reg billing_engine)],
+);
 
 =head1 METHODS
 
@@ -69,6 +73,10 @@ sub options_guest_modes {
 
     my $types = availableAuthenticationSourceTypes('external');
     return map { { value => $_, label => $_ } } @$types;
+}
+
+sub options_sources {
+    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
 }
 
 =head1 COPYRIGHT

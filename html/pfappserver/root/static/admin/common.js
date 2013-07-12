@@ -341,20 +341,25 @@ $(function () { // DOM ready
                     });
                 });
 
-                dst.closest('table').trigger('admin.ordered');
+                dst.closest('table, ul').trigger('admin.ordered');
             }
         });
     });
 
     /* Activate dynamic tables (rows can be added and removed) */
     $('body').on('click', '.table-dynamic [href="#add"]', function(event) {
-        var tbody = $(this).closest('tbody');
-        var row = $(this).closest('tr');
+        var table = $(this).closest('table');
+        var tbody = table.children('tbody');
+        var row = tbody.find(this).closest('tr');
         var row_model = tbody.children('.hidden').first();
         if (row_model) {
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
-            row_new.insertAfter(row);
+            if(row.length > 0) {
+                row_new.insertAfter(row);
+            } else {
+                tbody.append(row_new);
+            }
             row_new.trigger('admin.added');
         }
         // Update indexes

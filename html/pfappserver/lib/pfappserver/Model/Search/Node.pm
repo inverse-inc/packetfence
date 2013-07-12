@@ -1,4 +1,5 @@
 package pfappserver::Model::Search::Node;
+
 =head1 NAME
 
 pfappserver::Model::Search::Node add documentation
@@ -249,14 +250,14 @@ sub add_date_range {
             $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
         }
         if ($start) {
-            $builder->where({ table=>'locationlog', name => 'start_time' }, '>=' ,$start);
+            $builder->where({ table =>'locationlog', name => 'start_time' }, '>=' ,$start);
         }
         if($end) {
             $builder
                 ->where('(')
-                ->where({ table=>'locationlog', name => 'end_time' }, '<=' ,$end)
+                ->where({ table =>'locationlog', name => 'end_time' }, '<=' ,$end)
                 ->or()
-                ->where({ table=>'locationlog', name => 'end_time' }, 'IS NULL')
+                ->where({ table =>'locationlog', name => 'end_time' }, 'IS NULL')
                 ->where(')');
         }
     }
@@ -274,7 +275,7 @@ sub add_joins {
     my ($self,$builder,$params) = @_;
     foreach my $name (map { $_->{name} } @{$params->{searches}}) {
         $builder->from(@{$COLUMN_MAP{$name}{'joins'}})
-            if( exists $COLUMN_MAP{$name} && $COLUMN_MAP{$name}{'joins'});
+            if( exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'});
     }
 }
 

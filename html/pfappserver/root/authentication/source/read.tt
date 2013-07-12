@@ -19,8 +19,7 @@
         [% IF source.id %][% INCLUDE "authentication/source/rules_read.tt" %][% END -%]
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
+          <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           [% IF source.id %]<button type="reset" class="btn">[% l('Reset') %]</button>[% END %]
-          <a class="btn pull-right" href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]#authentication">[% l('Cancel') %]</a>
         </div>
       </form>

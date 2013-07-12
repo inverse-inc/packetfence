@@ -33,6 +33,7 @@ use pf::roles::custom $ROLE_API_LEVEL;
 use pf::SNMP::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
+use List::MoreUtils qw(any);
 
 =head1 SUBROUTINES
 
@@ -45,6 +46,7 @@ use pf::util::radius qw(perform_disconnect);
 Returns 1 if switch type supports floating network devices
 
 =cut
+
 sub supportsFloatingDevice {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -53,11 +55,12 @@ sub supportsFloatingDevice {
     return $FALSE;
 }
 
-=item supportsWiredMacAuth 
+=item supportsWiredMacAuth
 
 Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
 
 =cut
+
 sub supportsWiredMacAuth {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -72,6 +75,7 @@ sub supportsWiredMacAuth {
 =item supportsWiredDot1x - Returns 1 if switch type supports Wired 802.1X
 
 =cut
+
 sub supportsWiredDot1x {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -83,11 +87,12 @@ sub supportsWiredDot1x {
     return $FALSE;
 }
 
-=item supportsWirelessMacAuth 
+=item supportsWirelessMacAuth
 
 Returns 1 if switch type supports Wireless MAC Authentication (RADIUS Authentication)
 
 =cut
+
 sub supportsWirelessMacAuth {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -102,6 +107,7 @@ sub supportsWirelessMacAuth {
 =item supportsWirelessDot1x - Returns 1 if switch type supports Wireless 802.1X (aka WPA-Enterprise)
 
 =cut
+
 sub supportsWirelessDot1x {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -116,6 +122,7 @@ sub supportsWirelessDot1x {
 =item supportsRadiusVoip
 
 =cut
+
 sub supportsRadiusVoip {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -127,9 +134,10 @@ sub supportsRadiusVoip {
     return $FALSE;
 }
 
-=item supportsRoleBasedEnforcement 
+=item supportsRoleBasedEnforcement
 
 =cut
+
 sub supportsRoleBasedEnforcement {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -145,6 +153,7 @@ sub supportsRoleBasedEnforcement {
 =item supportsSaveConfig
 
 =cut
+
 sub supportsSaveConfig {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -156,6 +165,7 @@ sub supportsSaveConfig {
 Does the network device supports Cisco Discovery Protocol (CDP)
 
 =cut
+
 sub supportsCdp {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -167,6 +177,7 @@ sub supportsCdp {
 Does the network device supports Link-Layer Discovery Protocol (LLDP)
 
 =cut
+
 sub supportsLldp {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -176,6 +187,7 @@ sub supportsLldp {
 =item supportsRadiusDynamicVlanAssignment
 
 =cut
+
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 =item inlineCapabilities
@@ -184,7 +196,6 @@ sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
 
 # inline capabilities
 sub inlineCapabilities { return; }
-
 
 sub new {
     my ( $class, %argv ) = @_;
@@ -227,6 +238,7 @@ sub new {
         '_wsTransport'              => undef,
         '_radiusSecret'             => undef,
         '_controllerIp'             => undef,
+        '_controllerPort'           => undef,
         '_uplink'                   => undef,
         '_vlans'                    => undef,
         '_VoIPEnabled'              => undef,
@@ -298,6 +310,8 @@ sub new {
             $this->{_radiusSecret} = $argv{$_};
         } elsif (/^-?controllerIp$/i) {
             $this->{_controllerIp} = $argv{$_}? lc($argv{$_}) : undef;
+        } elsif (/^-?controllerPort$/i) {
+            $this->{_controllerPort} = $argv{$_};
         } elsif (/^-?uplink$/i) {
             $this->{_uplink} = $argv{$_};
         } elsif (/^-?SNMPEngineID$/i) {
@@ -320,7 +334,7 @@ sub new {
         # customVlan members are now dynamically generated. 0 to 99 supported.
         elsif (/^-?(\w+)Vlan$/i) {
             $this->{'_'.$1.'Vlan'} = $argv{$_};
-        } 
+        }
 
     }
     return $this;
@@ -328,7 +342,7 @@ sub new {
 
 =item isUpLink - determine is a given ifIndex is connected to another switch
 
-=cut 
+=cut
 
 sub isUpLink {
     my ( $this, $ifIndex ) = @_;
@@ -416,17 +430,20 @@ Establishes an SNMP Write connection to a given IP and installs the session obje
 It performs a write test to make sure that the write actually works.
 
 =cut
+
 sub connectWriteTo {
-    my ($this, $ip, $sessionKey) = @_;
+    my ($this, $ip, $sessionKey,$port) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     # if connection already exists, no need to connect again
     return 1 if ( defined( $this->{$sessionKey} ) );
+    $port ||= 161;
 
     $logger->debug( "opening SNMP v" . $this->{_SNMPVersion} . " write connection to $ip" );
     if ( $this->{_SNMPVersion} eq '3' ) {
         ( $this->{$sessionKey}, $this->{_error} ) = Net::SNMP->session(
             -hostname     => $ip,
+            -port         => $port,
             -version      => $this->{_SNMPVersion},
             -timeout      => 2,
             -retries      => 1,
@@ -439,6 +456,7 @@ sub connectWriteTo {
     } else {
         ( $this->{$sessionKey}, $this->{_error} ) = Net::SNMP->session(
             -hostname  => $ip,
+            -port      => $port,
             -version   => $this->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
@@ -457,7 +475,7 @@ sub connectWriteTo {
         my $result = $this->{$sessionKey}->get_request( -varbindlist => [$oid_sysLocation] );
         if ( !defined($result) ) {
             $logger->error(
-                "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: " 
+                "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: "
                 . $this->{$sessionKey}->error()
             );
             $this->{$sessionKey} = undef;
@@ -475,7 +493,7 @@ sub connectWriteTo {
             );
             if ( !defined($result) ) {
                 $logger->error(
-                    "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: " 
+                    "error creating SNMP v" . $this->{_SNMPVersion} . " write connection to $ip: "
                     . $this->{$sessionKey}->error()
                     . " it looks like you specified a read-only community instead of a read-write one"
                 );
@@ -493,9 +511,10 @@ Establishes a default SNMP Write connection to the network device.
 Uses connectWriteTo with IP from configuration internally.
 
 =cut
+
 sub connectWrite {
     my $this   = shift;
-    return $this->connectWriteTo($this->{_ip}, '_sessionWrite');
+    return $this->connectWriteTo($this->{_ip}, '_sessionWrite',$this->{_controllerPort});
 }
 
 =item connectWriteToController
@@ -503,9 +522,10 @@ sub connectWrite {
 Establishes an SNMP write connection to the controller of the network device as defined in controllerIp.
 
 =cut
+
 sub connectWriteToController {
     my $this   = shift;
-    return $this->connectWriteTo($this->{_controllerIp}, '_sessionControllerWrite');
+    return $this->connectWriteTo($this->{_controllerIp}, '_sessionControllerWrite',$this->{_controllerPort});
 }
 
 =item disconnectWriteTo
@@ -513,13 +533,14 @@ sub connectWriteToController {
 Closes an SNMP Write connection. Requires sessionKey stored in object (as when calling connectWriteTo).
 
 =cut
+
 sub disconnectWriteTo {
     my ($this, $sessionKey) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     return 1 if ( !defined( $this->{$sessionKey} ) );
 
-    $logger->debug( 
+    $logger->debug(
         "closing SNMP v" . $this->{_SNMPVersion} . " write connection to " . $this->{$sessionKey}->hostname()
     );
 
@@ -533,6 +554,7 @@ sub disconnectWriteTo {
 Closes the default SNMP connection to the network device's IP.
 
 =cut
+
 sub disconnectWrite {
     my $this = shift;
 
@@ -544,6 +566,7 @@ sub disconnectWrite {
 Closes the SNMP connection to the network device's controller.
 
 =cut
+
 sub disconnectWriteToController {
     my $this = shift;
 
@@ -586,7 +609,7 @@ sub setVlan {
     }
 
     # VLAN -1 handling
-    # TODO at some point we should create a new blackhole / blacklist API 
+    # TODO at some point we should create a new blackhole / blacklist API
     # it would take advantage of per-switch features
     if ($newVlan == -1) {
         $logger->warn("VLAN -1 is not supported in SNMP-Traps mode. Returning the switch's mac-detection VLAN.");
@@ -594,7 +617,7 @@ sub setVlan {
     }
 
     # unmanaged VLAN
-    if (!$this->isManagedVlan($newVlan)) {   
+    if (!$this->isManagedVlan($newVlan)) {
         $logger->warn(
             "new VLAN $newVlan is not a managed VLAN -> replacing VLAN $newVlan with MAC detection VLAN "
             . $macDetectionVlan
@@ -649,6 +672,7 @@ sub setVlan {
 TODO: not implemented, currently only a nameholder
 
 =cut
+
 sub setVlanWithName {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -692,6 +716,7 @@ sub _setVlanByOnlyModifyingPvid {
 Get the switch-specific role of a given global role in switches.conf
 
 =cut
+
 sub getRoleByName {
     my ($this, $roleName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -708,10 +733,11 @@ sub getRoleByName {
 }
 
 =item getVlanByName - get the VLAN number of a given name in switches.conf
- 
-Input: vlan name (as in switches.conf)
 
-=cut                    
+Input: VLAN name (as in switches.conf)
+
+=cut
+
 sub getVlanByName {
     my ($this, $vlanName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -728,21 +754,22 @@ sub getVlanByName {
                       ". Please ignore if your intentions were to use the native VLAN");
         return 0;
     }
-    
-    if ($this->{'_vlans'}->{$vlanName} !~ /^\d+$/) {
-        # is not resolved to a valid VLAN number
+
+    if ($this->{'_vlans'}->{$vlanName} !~ /^\w+$/) {
+        # is not resolved to a valid VLAN identifier
         $logger->warn("VLAN $vlanName is not properly configured in switches.conf for the switch " . $this->{_ip} .
-                      ", not a vlan number");
+                      ", not a VLAN identifier");
         return;
-    }   
+    }
     return $this->{'_vlans'}->{$vlanName};
 }
 
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
 
-Input: ifIndex, vlan name (as in switches.conf), switch lock
+Input: ifIndex, VLAN name (as in switches.conf), switch lock
 
 =cut
+
 sub setVlanByName {
     my ($this, $ifIndex, $vlanName, $switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -753,9 +780,9 @@ sub setVlanByName {
         return;
     }
 
-    if ($this->{"_".$vlanName} !~ /^\d+$/) {
-        # is not resolved to a valid VLAN number
-        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a vlan number");
+    if ($this->{"_".$vlanName} !~ /^\w+$/) {
+        # is not resolved to a valid VLAN identifier
+        $logger->warn("VLAN $vlanName is not properly configured in switches.conf, not a VLAN identifier");
         return;
     }
     return $this->setVlan($ifIndex, $this->{"_".$vlanName}, $switch_locker_ref);
@@ -781,7 +808,7 @@ sub getIfOperStatus {
 
 =item setMacDetectionVlan - set the port VLAN to the MAC detection VLAN
 
-=cut 
+=cut
 
 sub setMacDetectionVlan {
     my ( $this, $ifIndex, $switch_locker_ref,
@@ -815,7 +842,7 @@ sub getAlias {
 sub getSwitchLocation {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    return if ( !$this->connectRead() ); 
+    return if ( !$this->connectRead() );
 
     my $OID_sysLocation = '1.3.6.1.2.1.1.6.0';
     $logger->trace("SNMP get_request for sysLocation: $OID_sysLocation");
@@ -829,7 +856,6 @@ sub getSwitchLocation {
     }
     return $result->{"$OID_sysLocation"};
 }
-        
 
 =item setAlias - set the port description
 
@@ -932,7 +958,7 @@ sub getManagedIfIndexes {
         my $portVlan = $vlanHashRef->{$ifIndex};
         if ( defined $portVlan ) {    # skip port with no VLAN
 
-            if ( grep( { $_ == $portVlan } values %{ $this->{_vlans} } ) != 0 )
+            if ( $this->isManagedVlan($portVlan))
             {                         # skip port in a non-managed VLAN
                 push @managedIfIndexes, $ifIndex;
             } else {
@@ -952,15 +978,11 @@ sub getManagedIfIndexes {
 =item isManagedVlan - is the VLAN in the list of VLANs managed by the switch?
 
 =cut
+
 sub isManagedVlan {
     my ($this, $vlan) = @_;
-
-    # can I find $vlan in _vlans ?
-    if (grep({$_ == $vlan} values %{$this->{_vlans}}) == 0) {
-        #unmanaged VLAN
-        return $FALSE;
-    }
-    return $TRUE;
+    my $vlans = $this->{_vlans};
+    return (defined $vlans && any {$_ == $vlan} values %$vlans) ? $TRUE : $FALSE;
 }
 
 =item getMode - get the mode
@@ -1019,10 +1041,11 @@ sub isDiscoveryMode {
 
 =item isVoIPEnabled
 
-Default implementation returns a false value and will log a warning if user 
+Default implementation returns a false value and will log a warning if user
 configured it's switches.conf to do VoIP.
 
 =cut
+
 sub isVoIPEnabled {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -1103,11 +1126,11 @@ sub getMacAtIfIndex {
     return @macArray;
 }
 
-=item getSysName - return the administratively-assigned name of the switch. By convention, this is the switch's 
+=item getSysName - return the administratively-assigned name of the switch. By convention, this is the switch's
 fully-qualified domain name
-    
+
 =cut
-        
+
 sub getSysName {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1119,11 +1142,11 @@ sub getSysName {
     my $result = $this->{_sessionRead}->get_request( -varbindlist => [$OID_sysName] );
     if ( exists( $result->{$OID_sysName} )
         && ( $result->{$OID_sysName} ne 'noSuchInstance' ) )
-    {                      
+    {
         return $result->{$OID_sysName};
-    }   
+    }
     return '';
-}       
+}
 
 =item getIfDesc - return ifDesc given ifIndex
 
@@ -1216,10 +1239,11 @@ sub setAdminStatus {
 
 =item bouncePort
 
-Performs a shut / no-shut on the port. 
+Performs a shut / no-shut on the port.
 Usually used to force the operating system to do a new DHCP Request after a VLAN change.
 
 =cut
+
 sub bouncePort {
     my ($this, $ifIndex) = @_;
 
@@ -1247,12 +1271,13 @@ sub isPortSecurityEnabled {
 
 =item setPortSecurityEnableByIfIndex
 
-Will disable or enable port-security on a given ifIndex based on the $trueFalse value provided. 
+Will disable or enable port-security on a given ifIndex based on the $trueFalse value provided.
 $TRUE will enable, $FALSE will disable.
 
 This version here is a fallback stub, provide your implementation in a switch module.
 
 =cut
+
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $trueFalse ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1282,6 +1307,7 @@ sub setPortSecurityViolationActionByIfIndex {
 Unless you require something more complex, this is usually a wrapper to setPortSecurityEnableByIfIndex($ifIndex, $TRUE)
 
 =cut
+
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
 
@@ -1293,6 +1319,7 @@ sub enablePortSecurityByIfIndex {
 Unless you require something more complex, this is usually a wrapper to setPortSecurityEnableByIfIndex($ifIndex, $FALSE)
 
 =cut
+
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
 
@@ -1305,7 +1332,7 @@ sub setModeTrunk {
 
     $logger->error("Function not implemented for switch type " . ref($this));
     return ( 0 == 1 );
-}   
+}
 
 sub setTaggedVlans {
     my ( $this, $ifIndex, $taggedVlans ) = @_;
@@ -1313,7 +1340,7 @@ sub setTaggedVlans {
 
     $logger->error("Function not implemented for switch type " . ref($this));
     return ( 0 == 1 );
-}   
+}
 
 sub removeAllTaggedVlans {
     my ( $this, $ifIndex ) = @_;
@@ -1321,7 +1348,7 @@ sub removeAllTaggedVlans {
 
     $logger->error("Function not implemented for switch type " . ref($this));
     return ( 0 == 1 );
-}   
+}
 
 sub isTrunkPort {
     my ( $this, $ifIndex ) = @_;
@@ -1348,6 +1375,7 @@ Obtain phones from discovery protocol at ifIndex.
 Polls from all supported sources and will filter out duplicates.
 
 =cut
+
 # TODO one day, with Moose roles, the CDP / LLDP role will require the proper
 # implementations of getPhonesCDPAtIfIndex / getPhonesLLDPAtIfIndex
 sub getPhonesDPAtIfIndex {
@@ -1377,7 +1405,7 @@ sub getPhonesDPAtIfIndex {
     if (%phones) {
         $logger->info("We found an IP phone through discovery protocols for ifIndex $ifIndex");
     } else {
-        $logger->info("Could not find any IP phones through discovery protocols for ifIndex $ifIndex");   
+        $logger->info("Could not find any IP phones through discovery protocols for ifIndex $ifIndex");
     }
     return keys %phones;
 }
@@ -1387,6 +1415,7 @@ sub getPhonesDPAtIfIndex {
 Is there at least one IP Phone on the given ifIndex.
 
 =cut
+
 sub hasPhoneAtIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1508,18 +1537,19 @@ When the third implementation came that needed this feature I decided to extract
 it's quite generic.
 
 =cut
+
 sub authorizeCurrentMacWithNewVlan {
     my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
 
     return $this->_authorizeCurrentMacWithNewVlan($ifIndex, $newVlan, $oldVlan);
 }
 
-
 =item _authorizeCurrentMacWithNewVlan
 
 Actual implementation of authorizeCurrentMacWithNewVlan
 
 =cut
+
 sub _authorizeCurrentMacWithNewVlan {
     my ($this, $ifIndex, $newVlan, $oldVlan) = @_;
 
@@ -1595,8 +1625,8 @@ sub getRegExpFromList {
                             } )
                     ) . "]";
             } else {
-                $regexp 
-                    .= '(' 
+                $regexp
+                    .= '('
                     . $portNbStarts[$j] . "["
                     . join(
                     '',
@@ -1617,6 +1647,7 @@ sub getRegExpFromList {
 The input must be the untranslated raw result of an snmp get_table
 
 =cut
+
 # TODO move out to a util package
 sub getBitAtPosition {
    my ($this, $bitStream, $position) = @_;
@@ -1628,6 +1659,7 @@ sub getBitAtPosition {
 Replaces the specified bit in a packed bitmask and returns the modified bitmask, re-packed
 
 =cut
+
 # TODO move out to a util package
 sub modifyBitmask {
     my ( $this, $bitMask, $offset, $replacement ) = @_;
@@ -1636,13 +1668,14 @@ sub modifyBitmask {
     return pack( 'B*', $bitMaskString );
 }
 
-=item flipBits 
+=item flipBits
 
 Replaces the specified bits in a packed bitmask and returns the modified bitmask, re-packed
 
 It's a multi flip version of modifyBitmask
 
 =cut
+
 # TODO move out to a util package
 sub flipBits {
     my ( $this, $bitMask, $replacement, @bitsToFlip ) = @_;
@@ -1658,10 +1691,11 @@ sub flipBits {
 The output is a packed binary representation useful to snmp::set_request
 
 =cut
+
 # TODO move out to a util package
 sub createPortListWithOneItem {
     my ($this, $position) = @_;
-    
+
     # output zeros up to position -1 and put a 1 in position
     my $numZeros = $position - 1;
     return pack("B*",0 x $numZeros . 1);
@@ -1672,6 +1706,7 @@ sub createPortListWithOneItem {
 Works on byte blocks since perl's bitewise not operates at the arithmetic level and some hardware have so many ports that I could overflow integers.
 
 =cut
+
 # TODO move out to a util package
 sub reverseBitmask {
     my ($this, $bitMask) = @_;
@@ -2020,7 +2055,7 @@ sub getHubs {
 
                 # the port is not a upLink
                 my $portVlan = $this->getVlan($ifIndex);
-                if ( grep( { $_ == $portVlan } values %{ $this->{_vlans} } ) != 0 ) {
+                if ( $this->isManagedVlan($portVlan) ) {
 
                     # the port is in a VLAN we manage
                     push @{ $hubPorts->{$ifIndex} }, $mac;
@@ -2093,7 +2128,7 @@ sub getMacAddrVlan {
         foreach my $key ( keys %{$result} ) {
             if ( grep( { $_ == $result->{$key} } @upLinks ) == 0 ) {
                 my $portVlan = $this->getVlan( $result->{$key} );
-                if ( grep( { $_ == $portVlan } values %{ $this->{_vlans} } ) != 0 )
+                if ( $this->isManagedVlan($portVlan) )
                 {    # the port is in a VLAN we manage
                     push @{ $ifIndexMac{ $result->{$key} } }, $key;
                 }
@@ -2291,19 +2326,19 @@ sub getVlanFdbId {
     return $vlan;
 }
 
-sub isIfLinkUpDownTrapEnable { 
+sub isIfLinkUpDownTrapEnable {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     if ( !$this->connectRead() ) {
         return 0;
     }
     my $OID_ifLinkUpDownTrapEnable = '1.3.6.1.2.1.31.1.1.1.14'; # from IF-MIB
-    $logger->trace("SNMP get_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable"); 
+    $logger->trace("SNMP get_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable");
     my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_ifLinkUpDownTrapEnable.$ifIndex" ] );
     return ( exists( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} )
                 && ( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} ne 'noSuchInstance' )
                 && ( $result->{"$OID_ifLinkUpDownTrapEnable.$ifIndex"} == 1 ) );
-}       
+}
 
 sub setIfLinkUpDownTrapEnable {
     my ( $this, $ifIndex, $enable ) = @_;
@@ -2312,7 +2347,7 @@ sub setIfLinkUpDownTrapEnable {
     if ( !$this->isProductionMode() ) {
         $logger->info("not in production mode ... we won't change this port ifLinkUpDownTrapEnable");
         return 1;
-    }   
+    }
 
     if ( !$this->connectWrite() ) {
         return 0;
@@ -2322,7 +2357,7 @@ sub setIfLinkUpDownTrapEnable {
     my $truthValue = $enable ? $SNMP::TRUE : $SNMP::FALSE;
 
     $logger->trace("SNMP set_request for ifLinkUpDownTrapEnable: $OID_ifLinkUpDownTrapEnable");
-    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
+    my $result = $this->{_sessionWrite}->set_request( -varbindlist => [
         "$OID_ifLinkUpDownTrapEnable.$ifIndex", Net::SNMP::INTEGER, $truthValue
     ]);
 
@@ -2334,6 +2369,7 @@ sub setIfLinkUpDownTrapEnable {
 Disables LinkUp / LinkDown SNMP traps on a given ifIndex
 
 =cut
+
 sub disableIfLinkUpDownTraps {
     my ($this, $ifIndex) = @_;
 
@@ -2345,6 +2381,7 @@ sub disableIfLinkUpDownTraps {
 Enables LinkUp / LinkDown SNMP traps on a given ifIndex
 
 =cut
+
 sub enableIfLinkUpDownTraps {
     my ($this, $ifIndex) = @_;
 
@@ -2358,6 +2395,7 @@ mac - mac address to deauthenticate
 is_dot1x - set to 1 if special dot1x de-authentication is required
 
 =cut
+
 sub deauthenticateMac {
     my ($this, $mac, $is_dot1x) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2372,6 +2410,7 @@ Forces 802.1x re-authentication of a given ifIndex
 ifIndex - ifIndex to force re-authentication on
 
 =cut
+
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
 
@@ -2380,17 +2419,18 @@ sub dot1xPortReauthenticate {
 
 =item _dot1xPortReauthenticate
 
-Actual implementation. 
+Actual implementation.
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
+
 sub _dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info("Trying generic MIB to force 802.1x port re-authentication. Your mileage may vary. "
         . "If it doesn't work open a bug report with your hardware type.");
- 
+
     my $oid_dot1xPaePortReauthenticate = "1.0.8802.1.1.1.1.1.2.1.5"; # from IEEE8021-PAE-MIB
 
     if (!$this->connectWrite()) {
@@ -2409,13 +2449,14 @@ sub _dot1xPortReauthenticate {
     return (defined($result));
 }
 
-=item NasPortToIfIndex 
+=item NasPortToIfIndex
 
 Translate RADIUS NAS-Port into the physical port ifIndex
 
 Default fallback implementation: we just return the NAS-Port as ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $nas_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2428,9 +2469,10 @@ sub NasPortToIfIndex {
 
 Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
 
-Default behavior is to bounce the port 
+Default behavior is to bounce the port
 
 =cut
+
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2445,7 +2487,6 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     # this should be a choice exposed in configuration and not hidden in code
     $this->bouncePort($ifIndex);
 }
-
 
 =item extractSsid
 
@@ -2462,6 +2503,7 @@ We support also:
   "xxxxxxxxxxxx:SSID"
 
 =cut
+
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2488,12 +2530,12 @@ sub extractSsid {
     return;
 }
 
-
 =item getVoipVSA
 
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 =cut
+
 sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2508,6 +2550,7 @@ sub getVoipVsa {
 =item enablePortConfigAsTrunk - sets port as multi-Vlan port
 
 =cut
+
 sub enablePortConfigAsTrunk {
     my ($this, $mac, $switch_port, $switch_locker_ref, $taggedVlans)  = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2530,6 +2573,7 @@ sub enablePortConfigAsTrunk {
 =item disablePortConfigAsTrunk - sets port as non multi-Vlan port
 
 =cut
+
 sub disablePortConfigAsTrunk {
     my ($this, $switch_port, $switch_locker_ref) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2554,12 +2598,13 @@ sub disablePortConfigAsTrunk {
 
 =item getDeauthSnmpConnectionKey
 
-Handles if deauthentication should be performed against controller or actual network device. 
+Handles if deauthentication should be performed against controller or actual network device.
 Performs the actual SNMP Write connection and returns sessionWrite hash key to use.
 
 See L<pf::SNMP::Dlink::DWS_3026> for a usage example.
 
 =cut
+
 sub getDeauthSnmpConnectionKey {
     my $this = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2584,6 +2629,7 @@ Optionally you can provide other attributes as an hashref.
 Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
+
 # TODO consider whether we should handle retries or not?
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
@@ -2610,14 +2656,14 @@ sub radiusDisconnect {
         $send_disconnect_to = $self->{'_controllerIp'};
     }
     # allowing client code to override where we connect with NAS-IP-Address
-    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'} 
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
 
     my $response;
     try {
         my $connection_info = {
             nas_ip => $send_disconnect_to,
-            secret => $self->{'_radiusSecret'}, 
+            secret => $self->{'_radiusSecret'},
             LocalAddr => $management_network->tag('vip'),
         };
 
@@ -2643,7 +2689,7 @@ sub radiusDisconnect {
     return if (!defined($response));
 
     return $TRUE if ($response->{'Code'} eq 'Disconnect-ACK');
-    
+
     $logger->warn(
         "Unable to perform RADIUS Disconnect-Request."
         . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
@@ -2659,6 +2705,7 @@ Prepares the RADIUS Access-Accept reponse for the network device.
 Default implementation.
 
 =cut
+
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -2728,6 +2775,7 @@ sub deauthTechniques {
 return Default Deauthentication Method
 
 =cut
+
 sub supporteddeauthTechniques {
     my ( $this ) = @_;
 
@@ -2742,12 +2790,24 @@ sub supporteddeauthTechniques {
 return Default Deauthentication Default technique
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
     $logger->warn("Unimplemented! First, make sure your configuration is ok. "
         . "If it is then we don't support your hardware. Open a bug report with your hardware type.");
+    return $FALSE;
+}
+
+=item GetIfIndexByNasPortId
+
+return IfIndexByNasPortId
+
+=cut
+
+sub getIfIndexiByNasPortId {
+    my ($this ) = @_;
     return $FALSE;
 }
 

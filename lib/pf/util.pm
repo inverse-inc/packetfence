@@ -35,7 +35,7 @@ BEGIN {
     @EXPORT = qw(
         valid_date valid_ip reverse_ip clean_ip
         clean_mac valid_mac mac2nb macoui2nb whitelisted_mac trappable_mac format_mac_for_acct format_mac_as_cisco
-        ip2interface ip2device ip2int int2ip
+        ip2interface ip2device ip2int int2ip sort_ip
         isenabled isdisabled isempty
         getlocalmac
         get_all_internal_ips get_internal_nets get_routed_isolation_nets get_routed_registration_nets get_inline_nets
@@ -458,6 +458,21 @@ sub ip2int {
 
 sub int2ip {
     return ( join( ".", unpack( "C4", pack( "N", shift ) ) ) );
+}
+
+=item sort_ip
+
+Sorts an array of IP addresses
+
+=cut
+
+sub sort_ip {
+    my @addresses = @_;
+
+    my %num = map { $_ => ip2int($_) } @addresses;
+    my @sorted_addresses = sort { $num{$a} <=> $num{$b} } @addresses;
+
+    return @sorted_addresses;
 }
 
 sub get_all_internal_ips {

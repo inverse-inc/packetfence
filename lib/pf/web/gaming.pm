@@ -19,7 +19,6 @@ use HTML::Entities;
 use Readonly;
 
 use pf::config;
-use pf::enforcement qw(reevaluate_access);
 use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
 use pf::web;
@@ -125,8 +124,10 @@ sub _sanitize_and_register {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my ($result,$msg);
     if (valid_mac($mac)) {
+        $info{'auto_registered'} = 1;
         $logger->info("performing node registration MAC: $mac pid: $pid");
         node_register( $mac, $pid, %info );
+        reevaluate_access( $mac, 'manage_register' );
         $result = $TRUE;
         $msg = "The MAC address %s has been successfully registered.";
     }

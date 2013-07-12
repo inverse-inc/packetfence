@@ -6,40 +6,29 @@
 var Nodes = function() {
 };
 
-Nodes.prototype.get = function(options) {
-    $.ajax({
-        url: options.url
-    })
+Nodes.prototype.doAjax = function(url_data,options) {
+    $.ajax(url_data)
         .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
             showError(options.errorSibling, status_msg);
         });
+};
+
+Nodes.prototype.get = function(options) {
+    this.doAjax(options.url,options);
 };
 
 Nodes.prototype.post = function(options) {
-    $.ajax({
+    this.doAjax(
+        {
         url: options.url,
         type: 'POST',
         data: options.data
-    })
-        .done(options.success)
-        .fail(function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(options.errorSibling, status_msg);
-        });
-};
-
-Nodes.prototype.toggleViolation = function(options) {
-    var action = options.status? "open" : "close";
-    var url = ['/node',
-               action,
-               options.name.substr(10)];
-    $.ajax({ url: url.join('/') })
-        .always(options.always)
-        .done(options.success)
-        .fail(options.error);
+        },
+        options
+    );
 };
 
 /*
@@ -47,7 +36,6 @@ Nodes.prototype.toggleViolation = function(options) {
  */
 var NodeView = function(options) {
     this.nodes = options.nodes;
-    this.disableToggleViolation = false;
 
     var read = $.proxy(this.readNode, this);
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
@@ -61,15 +49,30 @@ var NodeView = function(options) {
     var read_violations = $.proxy(this.readViolations, this);
     $('body').on('show', 'a[data-toggle="tab"][href="#nodeViolations"]', read_violations);
 
-    var toggle_violation = $.proxy(this.toggleViolation, this);
-    $('body').on('switch-change', '#modalNode .switch', toggle_violation);
+    var close_violation = $.proxy(this.closeViolation, this);
+    $('body').on('click', '#modalNode [href*="/close/"]', close_violation);
 
     var trigger_violation = $.proxy(this.triggerViolation, this);
     $('body').on('click', '#modalNode #addViolation', trigger_violation);
 
     /* Update the advanced search form to the next page or resort the query */
-    var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
-    $('body').on('click', 'a[href*="#node/advanced_search"]', advanced_search_updater);
+    $('body').on('click', 'a[href*="#node/advanced_search"]', $.proxy(this.advancedSearchUpdater, this));
+
+    this.proxyClick($('body'), 'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
+
+    this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
+
+    this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
+
+    this.proxyClick($('body'), '#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
+};
+
+NodeView.prototype.proxyFor = function(obj, action, target, method) {
+    obj.on(action, target, $.proxy(method, this));
+};
+
+NodeView.prototype.proxyClick = function(obj, target, method) {
+    this.proxyFor(obj, 'click', target, method);
 };
 
 NodeView.prototype.readNode = function(e) {
@@ -130,36 +133,6 @@ NodeView.prototype.readViolations = function(e) {
     return true;
 };
 
-NodeView.prototype.toggleViolation = function(e) {
-    e.preventDefault();
-
-    // Ignore event if it occurs while processing a toggling
-    if (this.disableToggleViolation) return;
-    this.disableToggleViolation = true;
-
-    var that = this;
-    var btn = $(e.target);
-    var name = btn.find('input:checkbox').attr('name');
-    var status = btn.bootstrapSwitch('status');
-    var pane = $('#nodeViolations');
-    resetAlert(pane.parent());
-    this.nodes.toggleViolation({
-        name: name,
-        status: status,
-        success: function(data) {
-            showSuccess(pane.children().first(), data.status_msg);
-            that.disableToggleViolation = false;
-        },
-        error: function(jqXHR) {
-            var status_msg = getStatusMsg(jqXHR);
-            showError(pane.children().first(), status_msg);
-            // Restore switch state
-            btn.bootstrapSwitch('setState', !status, true);
-            that.disableToggleViolation = false;
-        }
-    });
-};
-
 NodeView.prototype.updateNode = function(e) {
     e.preventDefault();
 
@@ -208,6 +181,25 @@ NodeView.prototype.deleteNode = function(e) {
     });
 };
 
+NodeView.prototype.closeViolation = function(e) {
+    e.preventDefault();
+
+    var that = this;
+    var btn = $(e.target);
+    var row = btn.closest('tr');
+    var pane = $('#nodeViolations');
+    resetAlert(pane);
+    this.nodes.get({
+        url: btn.attr("href"),
+        success: function(data) {
+            showSuccess(pane.children().first(), data.status_msg);
+            btn.remove();
+            row.addClass('muted');
+        },
+        errorSibling: pane.children().first()
+    });
+};
+
 NodeView.prototype.triggerViolation = function(e) {
     e.preventDefault();
 
@@ -233,10 +225,10 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
     var link = $(e.currentTarget);
     var form = $('#advancedSearch');
     var href = link.attr("href");
-    if(href) {
+    if (href) {
         href = href.replace(/^.*#node\/advanced_search\//,'');
         var values = href.split("/");
-        for(var i =0;i<values.length;i+=2) {
+        for (var i =0;i<values.length;i+=2) {
             var name = values[i];
             var value = values[i + 1];
             form.find('[name="' + name + '"]:not(:disabled)').val(value);
@@ -244,4 +236,34 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
         form.submit();
     }
     return false;
+};
+
+NodeView.prototype.toggleActionsButton = function(e) {
+    var button = $('#bulk_actions');
+    var checked = $('[name="items"]:checked').length > 0;
+    if (checked)
+        button.removeClass('disabled');
+    else
+        button.addClass('disabled');
+};
+
+NodeView.prototype.toggleAllItems = function(e) {
+    var target = $(e.currentTarget);
+    $('[name="items"]').attr("checked", target.is(':checked'));
+    this.toggleActionsButton();
+    return true;
+};
+
+NodeView.prototype.submitItems = function(e) {
+    var target = $(e.currentTarget);
+    var status_container = $("#section").find('h2').first();
+    this.nodes.post({
+        url: target.attr("data-target"),
+        data: $("#items").serialize(),
+        success: function(data) {
+            showSuccess(status_container, data.status_msg);
+            $(window).hashchange();
+        },
+        errorSibling: status_container
+    });
 };

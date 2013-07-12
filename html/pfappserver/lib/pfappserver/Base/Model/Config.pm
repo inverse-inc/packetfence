@@ -23,17 +23,18 @@ BEGIN { extends 'Catalyst::Model'; }
 
 =head1 FIELDS
 
-=head2 cachedConfig
+=head2 configStore
 
 =cut
 
-has cachedConfig =>
-  (
+has configStore => (
    is => 'ro',
    lazy => 1,
-   isa => 'pf::config::cached',
-   builder => '_buildCachedConfig'
+   isa => 'pf::ConfigStore',
+   builder => '_buildConfigStore'
 );
+
+has configStoreClass => (is => 'ro');
 
 =head2 idKey
 
@@ -66,30 +67,7 @@ has itemsKey => ( is => 'ro', default => 'items');
 has configFile => ( is => 'ro');
 
 
-=head1 METHODs
-
-=head2 _buildCachedConfig
-
-=cut
-
-sub _buildCachedConfig {
-    my ($self) = @_;
-    return pf::config::cached->new(-file => $self->configFile, -allowempty => 1);
-}
-
-
-=head2 readConfig
-
-=cut
-
-sub readConfig {
-    my ($self) = @_;
-    my $logger = get_logger();
-    my ($status, $status_msg);
-    my $config = $self->cachedConfig;
-    $config->ReadConfig();
-    return (HTTP_OK);
-}
+=head1 METHODS
 
 =head2 rollback
 
@@ -100,32 +78,9 @@ Rollback changes that were made
 sub rollback {
     my ($self) = @_;
     my ($status, $status_msg);
-    my $config = $self->cachedConfig;
+    my $config = $self->configStore;
     $config->Rollback();
-    return (HTTP_OK);
-}
-
-=head2 rewriteConfig
-
-Save the cached config
-
-=cut
-
-sub rewriteConfig {
-    my ($self) = @_;
-    my $logger = get_logger();
-    my ($status, $status_msg);
-    my $config = $self->cachedConfig;
-
-    unless ($config->RewriteConfig()) {
-        $status_msg = "Error Writing Config";
-        $logger->warn("$status_msg");
-        return (HTTP_INTERNAL_SERVER_ERROR, $status_msg);
-    }
-
-    $status_msg = "Configuration file successfully saved";
-    $logger->info("$status_msg");
-    return (HTTP_OK, $status_msg);
+    return (HTTP_OK,"Config rollbacked");
 }
 
 =head2 readAllIds
@@ -137,9 +92,9 @@ Get all the sections names
 sub readAllIds {
     my ($self) = @_;
     my ($status, $status_msg);
-    my $config = $self->cachedConfig;
-    my @sections = $self->_Sections();
-    return (HTTP_OK, \@sections);
+    my $config = $self->configStore;
+    my @sections = $config->_Sections();
+    return (HTTP_OK, [$config->_Sections()]);
 }
 
 =head2 readAll
@@ -149,33 +104,10 @@ Get all the sections as an array of hash refs
 =cut
 
 sub readAll {
-    my ( $self) = @_;
-    my $logger = get_logger();
-    my ($status, $status_msg);
-    my $config = $self->cachedConfig;
-    my @sections;
-    foreach my $id ($self->_Sections()) {
-        my %section = ( $self->idKey() => $id );
-        foreach my $param ($config->Parameters($id)) {
-            $section{$param} = $config->val( $id, $param);
-        }
-        $self->cleanupAfterRead($id,\%section);
-        if ($id =~ m/defaults?/) {
-            unshift @sections, \%section;
-        } else {
-            push @sections,\%section;
-        }
-    }
-    return (HTTP_OK, \@sections);
-}
-
-=head2 _Sections
-
-=cut
-
-sub _Sections {
     my ($self) = @_;
-    return $self->cachedConfig->Sections();
+    my ($status, $status_msg);
+    my $config = $self->configStore;
+    return (HTTP_OK, $config->readAll($self->idKey));
 }
 
 =head2 hasId
@@ -185,19 +117,16 @@ If config has a section
 =cut
 
 sub hasId {
-    my ($self, $id ) = @_;
-    my $logger = get_logger();
+    my ($self, $id) = @_;
     my ($status, $status_msg);
-    my $config = $self->cachedConfig;
-    if ( $config->SectionExists($id) ) {
+    my $config = $self->configStore;
+    if ( $config->hasId($id) ) {
         $status = HTTP_OK;
-        $status_msg = "\"$id\" found";
+        $status_msg = ["[_1] exists",$id];
     } else {
         $status = HTTP_NOT_FOUND;
-        $status_msg = "\"$id\" does not exists";
-        $logger->warn($status_msg);
+        $status_msg = ["[_1] does not exists",$id];
     }
-    $logger->info($status_msg);
     return ($status,$status_msg);
 }
 
@@ -209,25 +138,13 @@ reads a section
 
 sub read {
     my ($self, $id ) = @_;
-
-    my $logger = get_logger();
-    my ($status, $result);
-    my $config = $self->cachedConfig;
-
-    if ( $config->SectionExists($id) ) {
-        my %item = defined($self->idKey) ? ($self->idKey => $id) : ();
-        foreach my $param ($config->Parameters($id)) {
-            $item{$param} = $config->val( $id, $param);
+    my ($status,$result) = $self->hasId($id);
+    if(is_success($status)) {
+        unless ($result =  $self->configStore->read($id,$self->idKey) ) {
+            $result = ["error reading [_1]",$id];
+            $status =  HTTP_PRECONDITION_FAILED;
         }
-        $status = HTTP_OK;
-        $result = \%item;
-        $self->cleanupAfterRead($id,$result);
-    } else {
-        $status = HTTP_NOT_FOUND;
-        $result = "\"$id\" does not exists";
-        $logger->warn("$result");
     }
-
     return ($status, $result);
 }
 
@@ -239,36 +156,15 @@ Update/edit/modify an existing section
 
 sub update {
     my ($self, $id, $assignments) = @_;
-    my $logger = get_logger();
-
-    my ($status, $status_msg) = (HTTP_OK, "");
-    if ($id eq 'all') {
-        $status = HTTP_FORBIDDEN;
-        $status_msg = "This method does not handle \"$id\"";
-    }
-    else {
-        $self->cleanupBeforeCommit($id, $assignments);
-        my $config = $self->cachedConfig;
+    my ($status,$status_msg) = $self->hasId($id);
+    if(is_success($status)) {
         delete $assignments->{$self->idKey};
-        if ( $config->SectionExists($id) ) {
-            while ( my ($param, $value) = each %$assignments ) {
-                if ( $config->exists($id, $param) ) {
-                    if(defined($value)) {
-                        $config->setval($id, $param, $value);
-                    } else {
-                        $config->delval($id, $param);
-                    }
-                } elsif(defined($value)) {
-                    $config->newval($id, $param, $value);
-                }
-            }
-            $status_msg = "\"$id\" successfully modified";
+        if ($self->configStore->update($id,$assignments)) {
+            $status_msg = ["[_1] successfully modified",$id];
         } else {
-            $status_msg = "\"$id\" does not exists";
-            $status =  HTTP_NOT_FOUND;
-            $logger->warn("$status_msg");
+            $status = HTTP_INTERNAL_SERVER_ERROR;
+            $status_msg = ["error modifying [_1]",$id];
         }
-        $logger->info("$status_msg");
     }
     return ($status, $status_msg);
 }
@@ -282,24 +178,15 @@ To create
 
 sub create {
     my ($self, $id, $assignments) = @_;
-    my $logger = get_logger();
-
-    my ($status, $status_msg);
-    $self->cleanupBeforeCommit($id, $assignments);
-    my $config = $self->cachedConfig;
-
-    if ( !$config->SectionExists($id) ) {
-        $config->AddSection($id);
-        delete $assignments->{$self->idKey};
-        while ( my ($param, $value) = each %$assignments ) {
-            $config->newval( $id, $param, defined $value ? $value : '' );
-        }
-        ($status,$status_msg) = (HTTP_OK,"\"$id\" successfully created");
+    my ($status, $status_msg) = (HTTP_OK, "");
+    delete $assignments->{$self->idKey};
+    my $config = $self->configStore;
+    if ($config->create($id,$assignments)) {
+        $status_msg = ["[_1] successfully created",$id];
     } else {
-        ($status,$status_msg) = (HTTP_PRECONDITION_FAILED,"\"$id\" already exists");
-        $logger->warn("$status_msg");
+        $status_msg = ["[_1] already exists",$id];
+        $status =  HTTP_PRECONDITION_FAILED;
     }
-    $logger->info("$status_msg");
     return ($status, $status_msg);
 }
 
@@ -309,15 +196,12 @@ sub create {
 
 sub update_or_create {
     my ($self, $id, $assignments) = @_;
-    my $logger = get_logger();
-    my $config = $self->cachedConfig;
-    if ( $config->SectionExists($id) ) {
+    if ( $self->configStore->hasId($id) ) {
         return $self->update($id, $assignments);
     } else {
         return $self->create($id, $assignments);
     }
 }
-
 
 =head2 remove
 
@@ -327,21 +211,33 @@ Removes an existing item
 
 sub remove {
     my ($self, $id) = @_;
-    my $logger = get_logger();
-    my ($status,$status_msg);
-    my $config = $self->cachedConfig;
-
-    if ( $config->SectionExists($id) ) {
-        $config->DeleteSection($id);
-        $status_msg = "\"$id\" successfully deleted";
-        $status = HTTP_OK;
-    } else {
-        $status = HTTP_NOT_FOUND;
-        $status_msg = "\"$id\" does not exists";
-        $logger->warn("$status_msg");
+    my ($status,$status_msg) = $self->hasId($id);
+    if(is_success($status)) {
+        unless($self->configStore->remove($id)) {
+            $status_msg = ["error removing [_1]",$id];
+            $status =  HTTP_PRECONDITION_FAILED;
+        }
     }
+    return ($status, $status_msg);
+}
 
-    $logger->info("$status_msg");
+=head2 Copy
+
+Copies a section
+
+=cut
+
+sub copy {
+    my ($self,$from,$to) = @_;
+    my ($status,$status_msg);
+    my $config = $self->configStore;
+    if ( $config->copy($from,$to) ) {
+        $status = HTTP_OK;
+        $status_msg = ['"[_1]" successfully copied to [_2]',$from,$to];
+    } else {
+        $status_msg = ['"[_]" already exists',$to];
+        $status = HTTP_PRECONDITION_FAILED;
+    }
     return ($status, $status_msg);
 }
 
@@ -351,20 +247,15 @@ sub remove {
 
 sub renameItem {
     my ( $self, $old, $new ) = @_;
-    my $logger = get_logger();
     my ($status,$status_msg);
-    my $config = $self->cachedConfig;
-    if ( $config->SectionExists($old) ) {
-        $config->RenameSection($old,$new);
-        $status_msg = "\"$old\" successfully renamed to $new";
+    my $config = $self->configStore;
+    if ( $config->renameItem($old,$new) ) {
+        $status_msg = ["[_1] successfully renamed to [_2]",$old,$new];
         $status = HTTP_OK;
     } else {
         $status = HTTP_NOT_FOUND;
-        $status_msg = "\"$old\" does not exists";
-        $logger->warn("$status_msg");
+        $status_msg = ["[_1] does not exists",$old];
     }
-
-    $logger->info("$status_msg");
     return ($status,$status_msg);
 }
 
@@ -376,66 +267,19 @@ Sorting the items
 
 sub sortItems {
     my ( $self, $items ) = @_;
-    my $logger = get_logger();
-    my $idKey  = $self->idKey;
-    my $config = $self->cachedConfig;
-    my @sections = map {$_->{$idKey} } @$items;
-    my @invalid_sections = grep {!$config->SectionExists($_)} @sections;
-
     my ($status,$status_msg);
-    unless (@invalid_sections) {
-        my $temp_name  = 'temp_name!@#$%^&*()-=';
-        foreach my $item (@sections) {
-            $config->RenameSection($item,$temp_name);
-            $config->RenameSection($temp_name,$item);
-        }
+    my $idKey  = $self->idKey;
+    my $config = $self->configStore;
+    my @sections = map {$_->{$idKey} } @$items;
+    if ( $config->sortItems(\@sections)) {
         $status = HTTP_OK;
-        $status_msg = "Successfully resorted";
+        $status_msg = "Items re-sorted successfully";
     } else {
         $status = HTTP_BAD_REQUEST;
-        $status_msg = join(' ',@invalid_sections,"Items do not exists");
+        $status_msg = "Items cannot be resorted";
     }
 
     return ($status,$status_msg);
-}
-
-=head2 cleanupAfterRead
-
-=cut
-
-sub cleanupAfterRead { }
-
-=head2 cleanupBeforeCommit
-
-=cut
-
-sub cleanupBeforeCommit { }
-
-=head2 expand_list
-
-=cut
-
-sub expand_list {
-    my ( $self,$object,@columns ) = @_;
-    foreach my $column (@columns) {
-        if (exists $object->{$column}) {
-            my @items = split(/\s*,\s*/,$object->{$column});
-            $object->{$column} = \@items;
-        }
-    }
-}
-
-=head2 flatten_list
-
-=cut
-
-sub flatten_list {
-    my ( $self,$object,@columns ) = @_;
-    foreach my $column (@columns) {
-        if (exists $object->{$column} && ref($object->{$column}) eq 'ARRAY') {
-            $object->{$column} = join(',',@{$object->{$column}});
-        }
-    }
 }
 
 =head2 commit
@@ -444,25 +288,26 @@ sub flatten_list {
 
 sub commit {
     my ($self) = @_;
-    my $logger = get_logger();
     my ($status,$status_msg);
-    eval {
-        ($status,$status_msg) = $self->rewriteConfig();
-    };
-    if($@) {
+    if($self->configStore->commit()) {
+        $status = HTTP_OK;
+        $status_msg = "Changes successfully commited";
+    }
+    else {
         $status = HTTP_INTERNAL_SERVER_ERROR;
         $status_msg = $@;
     }
-    if(is_error($status)) {
-        $self->rollback();
-    }
-    $logger->info($status_msg);
     return ($status,$status_msg);
 }
 
 sub ACCEPT_CONTEXT {
     my ( $self,$c,%args) = @_;
     return $self->new(\%args);
+}
+
+sub _buildConfigStore {
+    my ($self) = @_;
+    return $self->configStoreClass->new;
 }
 
 

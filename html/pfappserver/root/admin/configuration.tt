@@ -69,19 +69,15 @@ table.sources {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="nav-header"><i class="icon-home"></i> [% l('Main') %]</li>
+              <li class="nav-header">[% l('Main') %]</li>
               [% pf_section_entry('general', 'General') %]
-              <!--[% pf_section_entry( 'database', 'Database') %]-->
               [% pf_section_entry( 'network', 'Network') %]
-              <!--[% pf_section_entry( 'proxies', 'Proxy') %]-->
               [% pf_section_entry( 'trapping', 'Trapping') %]
               [% pf_section_entry( 'registration', 'registration') %]
               [% pf_section_entry( 'guests_self_registration', 'Self Registration') %]
               [% pf_section_entry( 'guests_admin_registration', 'Admin Registration') %]
               [% pf_section_entry( 'billing', 'Billing') %]
-              <!--[% list_entry( 'passthroughs') %]-->
               [% pf_section_entry( 'alerting', 'Alerting') %]
-              <!--[% pf_section_entry( 'ports', 'Ports') %]-->
               [% pf_section_entry( 'scan', 'Scan') %]
               [% pf_section_entry( 'expire', 'Expiration') %]
               [% pf_section_entry( 'services', 'Services') %]
@@ -91,21 +87,20 @@ table.sources {
               [% pf_section_entry( 'captive_portal', 'Captive portal') %]
               [% pf_section_entry( 'advanced', 'Advanced') %]
               [% pf_section_entry( 'provisioning', 'Provisioning') %]
-              <!--[% list_entry( 'node_import') %]-->
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
-              <li class="nav-header"><i class="icon-random"></i> [% l('Network') %]<li>
+              <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
-              <li class="nav-header"><i class="icon-user"></i> [% l('Users') %]</li>
+              <li class="nav-header">[% l('Users') %]</li>
               [% pf_section_entry( 'roles', 'Roles') %]
               [% list_entry('Authentication', 'index', 'Sources') %]
               [% list_entry('User', 'create', 'Create') %]
-              <li class="nav-header"><i class="icon-check"></i> [% l('Compliance') %]</li>
+              <li class="nav-header">[% l('Compliance') %]</li>
               [% list_entry('Violation', 'index', 'Violations') %]
               [% pf_section_entry( 'soh', 'Statement of Health') %]
-              <li class="nav-header"><i class="icon-eye-open"></i> [% l('Identification') %]</li>
+              <li class="nav-header">[% l('Identification') %]</li>
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
               [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
               [% list_entry('Configuration::MacAddress', 'index', 'MAC Addresses') %]

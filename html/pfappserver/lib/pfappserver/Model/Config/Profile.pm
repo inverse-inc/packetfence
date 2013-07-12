@@ -14,8 +14,7 @@ pfappserver::Model::Config::Profile
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
-use pf::config;
+use pf::ConfigStore::Profile;
 
 extends 'pfappserver::Base::Model::Config';
 
@@ -25,7 +24,7 @@ extends 'pfappserver::Base::Model::Config';
 
 =cut
 
-sub _buildCachedConfig { $cached_profiles_config }
+has '+configStoreClass' => (default => 'pf::ConfigStore::Profile');
 
 =head2 remove
 
@@ -39,30 +38,6 @@ sub remove {
         return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
     }
     return $self->SUPER::remove($id);
-}
-
-=head2 cleanupAfterRead
-
-Clean up switch data
-
-=cut
-
-sub cleanupAfterRead {
-    my ($self,$id, $profile) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $self->expand_list($profile, qw(guest_modes));
-}
-
-=head2 cleanupBeforeCommit
-
-Clean data before update or creating
-
-=cut
-
-sub cleanupBeforeCommit {
-    my ($self, $id, $profile) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $self->flatten_list($profile, qw(guest_modes));
 }
 
 __PACKAGE__->meta->make_immutable;

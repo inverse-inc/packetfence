@@ -148,7 +148,7 @@ sub service_ctl {
     my $result = pf::services::service_ctl($service, $verb );
     unless (defined $result) {
         $status = HTTP_SERVICE_UNAVAILABLE;
-        $result = "unable to $verb service $service";
+        $result = ["unable to [_1] service [_2]",$verb,$service];
     }
 
     return ($status,{result => $result});

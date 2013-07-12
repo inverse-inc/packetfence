@@ -74,7 +74,7 @@ sub getVersion {
     }
 }
 
-=item parseTrap - interpret traps and populate a trap hash 
+=item parseTrap - interpret traps and populate a trap hash
 
 =cut
 
@@ -114,7 +114,7 @@ sub deauthenticateMacDefault {
         return;
     }
 
-    # Query the controller to get the index of the MAc in the coDeviceWirelessClientStatusTable 
+    # Query the controller to get the index of the MAc in the coDeviceWirelessClientStatusTable
     # CAUTION: we need to use the sessionWrite in order to have access to that table
     $logger->trace("SNMP get_table for coDevWirCliStaMACAddress: $OID_coDevWirCliStaMACAddress");
     my $result = $this->{$performDeauthOn}->get_table(-baseoid => "$OID_coDevWirCliStaMACAddress");
@@ -152,6 +152,7 @@ Find RADIUS SSID parameter out of RADIUS REQUEST parameters
 HP / Colubris specific parser. See pf::SNMP for base implementation.
 
 =cut
+
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -184,6 +185,14 @@ sub _deauthenticateMacWithSSH {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     my $session;
+    my @addition_ops;
+    if (defined $this->{_controllerPort} && $this->{_cliTransport} eq 'SSH' ) {
+        @addition_ops = (
+            connect_options => {
+                ops => [ '-p' => $this->{_controllerPort}  ]
+            }
+        );
+    }
     eval {
         $session = Net::Appliance::Session->new(
             Host      => $this->{_controllerIp},
@@ -191,6 +200,7 @@ sub _deauthenticateMacWithSSH {
             Transport => $this->{_cliTransport},
             Platform => 'HP',
             Source   => $lib_dir.'/pf/SNMP/HP/nas-pb.yml',
+            @addition_ops
         );
         $session->connect(
             Name     => $this->{_cliUser},

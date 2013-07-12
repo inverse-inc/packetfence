@@ -122,7 +122,6 @@ Depending on your setup you may have to install additional components like:
 
 [options="compact"]
 * DHCP server (ISC DHCP)
-* DNS server (BIND)
 * RADIUS server (FreeRADIUS)
 * NIDS (Snort/Suricata)
 
@@ -137,7 +136,6 @@ The following table provides recommendations for the required components, togeth
 |MySQL server     |MySQL 5.1
 |Web server       |Apache 2.2
 |DHCP server      |DHCP 3
-|DNS server       |BIND 9
 |RADIUS server    |FreeRADIUS 2.1.12
 |Snort            |Snort 2.8 or 2.9
 |Suricata         |Suricata 1.4.1
@@ -181,7 +179,6 @@ PacketFence takes care of handling the operation of the following services:
 [options="compact"]
 * Web server (httpd)
 * DHCP server (dhcpd)
-* DNS server (named)
 * FreeRADIUS server (radiusd)
 * Snort/Suricata Network IDS (snort/suricata)
 * Firewall (iptables)
@@ -294,7 +291,7 @@ In order to use the repository, create a file named `/etc/yum.repos.d/PacketFenc
   enabled=0
 
 Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (DNS server, database
+dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
   yum groupinstall --enablerepo=PacketFence,epel,rpmforge,of Packetfence-complete
@@ -315,7 +312,7 @@ Or when using Ubuntu 12.04 LTS:
   deb http://inverse.ca/downloads/PacketFence/ubuntu precise precise
 
 Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (DNS server, Database
+dependencies, and the required external services (Database
 server, DHCP server, RADIUS server) using:
 
   sudo apt-key adv --keyserver keys.gnupg.net --recv-key 0x810273C4
@@ -330,7 +327,7 @@ In order to use ipset in inline mode, you must install two news dependencies and
 Configuration
 -------------
 
-In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP, ISC DNS, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server on which PacketFence is being installed.
+In this section, you'll learn how to configure PacketFence. PacketFence will use MySQL, Apache, ISC DHCP, iptables and FreeRADIUS. As previously mentioned, we assume that those components run on the same server on which PacketFence is being installed.
 
 First Step
 ~~~~~~~~~~
@@ -418,12 +415,15 @@ PacketFence can authenticate users that register devices via the captive portal 
 
 * Active Directory
 * Apache htpasswd file
+* Email
 * Facebook (OAuth 2)
 * Github (OAuth 2)
 * Google (OAuth 2)
 * Kerberos
 * LDAP
 * RADIUS
+* SMS
+* Sponsored Email
 
 Moreover, PacketFence can also authenticate users defined in its own internal SQL database. Authentication sources can be created from PacketFence administrative GUI - from the *Configuration -> Users -> Sources* section. Alternatively (but not recommended), authentication sources, rules, conditions and actions can be configured from `conf/authentication.conf`.
 
@@ -432,6 +432,8 @@ Each authentication sources you define will have a set of rules, conditions and 
 Multiple authentication sources can be defined, and will be tested in the order specified (note that they can be reordered from the GUI by dragging it around). Eeach source can have multiple rules, which will also be tested in the order specified. Rules can also be reordered, just like sources. Finally, conditions can be defined for a rule to match certain criterias. If the criterias match (one ore more), action are then applied and rules testing stop, across all sources as this is a "first match wins" operation.
 
 When no condition is defined, the rule will be considered as a fallback. When a fallback is defined, all actions will be applied fory any users that match in the authentication source.
+
+Once a source is defined, it can be used from *Configuration -> Main -> Portal Profiles and Pages*. Each portal profile has a list of authentication sources to use.
 
 Example
 ^^^^^^^
@@ -668,7 +670,7 @@ This technique is covered in details in the <<_technical_introduction_to_hybrid_
 DHCP and DNS Server Configuration (networks.conf)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PacketFence automatically generates the DHCP and DNS configuration files for Registration, Isolation and Inline VLANs. This is done by editing the network interfaces from the configuration module of the administration Web interface (see the <<_first_step,First Step section>>).
+PacketFence automatically generates the DHCP configuration files for Registration, Isolation and Inline VLANs. This is done by editing the network interfaces from the configuration module of the administration Web interface (see the <<_first_step,First Step section>>).
 
 network:: Network subnet
 netmask:: Network mask
@@ -689,19 +691,9 @@ Is PacketFence the DHCP server for this network ? (Enabled/Disabled) set it to e
 nat::
 Is PacketFence route or NAT the traffic for this network ? (yes/no) NAT enabled by default, set to no to route
 
-When starting PacketFence generates the DHCP and DNS configuration files by reading the information provided in `networks.conf`:
+When starting PacketFence generates the DHCP configuration files by reading the information provided in `networks.conf`:
 
 The DHCP configuration file is written to `var/conf/dhcpd.conf` using `conf/dhcpd.conf` as a template.
-
-The DNS configuration files are generated this way:
-
-[options="compact"]
-* `var/conf/named.conf` generated from `conf/named.conf`
-* `var/named/named-inline.ca` generated from `conf/named-inline.ca`
-* `var/named/named-isolation.ca` generated from `conf/named-isolation.ca`
-* `var/named/named-registration.ca` generated from `conf/named-registration.ca`
-
-The DNS zone files are automatically populated. Simply ensure that the information are right in the generated config files (`var/named/named-inline.ca`, `var/named/named-isolation.ca` and `var/named/named-registration.ca`).
 
 Production DHCP access
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -1423,7 +1415,7 @@ In order to have the inline mode properly working, you need to enable IP forward
   # Controls IP packet forwarding
   net.ipv4.ip_forward = 1
 
-Save the file, and issue a `sysctl -p` to update the OS config.
+Save the file, and execute `sysctl -p` to reload the kernel parameters.
 
 Optional components
 -------------------
@@ -1901,7 +1893,7 @@ The Statement of Health (SoH) is product that has been developed by Microsoft. I
 Installation
 ^^^^^^^^^^^^
 
-By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/etc/raddb/eap.conf`.
+By default, we turn SoH off. To enable its support, simply uncomment the following lines in `/usr/local/pf/conf/radiusd/eap.conf`.
 
   soh=yes
   soh-virtual-server = "soh-server"
@@ -2041,8 +2033,8 @@ Here are the different configuration parameters that can be set for each portal 
   description = the description of your portal profile
   filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
   guest_self_reg = either enabled or disabled
-  guest_modes = the availables guest self-registration modes (sms|email|sponsor|google|facebook|github)
   billing_engine = either enabled or disabled
+  sources = comma-separated list of authentications sources (IDs) to use
 
 Portal profiles should be managed from PacketFence's Web administrative GUI - from the *Configuration -> Portal Profiles and Pages* section. Adding a portal profile from that interface will correctly copy templates over - which can then be modified as you wish.
 
@@ -2051,7 +2043,15 @@ OAuth2 Authentication
 
 The captive portal of PacketFence allows a guest/user to register using his Google, Facebook or Github account.
 
-For each providers, we maintain an allowed IP list to punch holes into the firewall so the user can hit the provider login page.  This file is located in `conf/oauth2-ips`.  You might need to maintain it quite often, as well as the different DNS zones also located in `conf`.
+For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
+This list is available in each OAuth2 authentication source.
+
+In order to have oauth2 working properly, you need to enable IP forwarding on your servers. To do it permanently, look in the `/etc/sysctl.conf`, and set the following line:
+
+  # Controls IP packet forwarding
+  net.ipv4.ip_forward = 1
+
+Save the file, and issue a `sysctl -p` to update the OS config.
 
 Google
 ^^^^^^
@@ -2832,8 +2832,8 @@ Since we provide a working RPM package that contains pre-built RADIUS configurat
 Configuration
 ~~~~~~~~~~~~~
 
-In /etc/raddb/sites-enabled/default
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In /usr/local/pf/raddb/sites-enabled/default
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
 
@@ -2861,8 +2861,8 @@ post-auth {
 }
 ----
 
-In /etc/raddb/sites-enabled/inner-tunnel
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In /usr/local/pf/raddb/sites-enabled/inner-tunnel
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure the `authorize{}`, `authenticate{}` and `post-auth{}` sections look like this:
 
@@ -2889,8 +2889,8 @@ post-auth {
 }
 ----
 
-In /etc/raddb/users
-^^^^^^^^^^^^^^^^^^^
+In /usr/local/pf/raddb/users
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the following lines where we define that non-EAP messages should, by default, lead to an authentication acceptation.
 
@@ -2903,11 +2903,11 @@ Optional: Wired or Wireless 802.1X configuration
 
 Generate cryptographic material for the EAP tunnel (802.1X) to work. Run as root:
 
-  cd /etc/raddb/certs
+  cd /usr/local/pf/raddb/certs
   make
 
-In /etc/raddb/eap.conf
-^^^^^^^^^^^^^^^^^^^^^^
+In /usr/local/pf/conf/radiusd/eap.conf
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Make sure this file looks like:
 

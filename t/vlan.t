@@ -25,14 +25,15 @@ Log::Log4perl->init("log.conf");
 my $logger = Log::Log4perl->get_logger( basename($0) );
 Log::Log4perl::MDC->put( 'proc', basename($0) );
 Log::Log4perl::MDC->put( 'tid',  0 );
+BEGIN { use SwitchFactoryConfig; }
 
 use pf::config;
 use pf::SwitchFactory;
 use pf::SNMP::constants;
 
 BEGIN { use pf::violation; }
-BEGIN { 
-    use_ok('pf::vlan'); 
+BEGIN {
+    use_ok('pf::vlan');
     use_ok('pf::vlan::custom');
 }
 
@@ -42,7 +43,7 @@ isa_ok($vlan_obj, 'pf::vlan');
 
 # subs
 can_ok($vlan_obj, qw(
-    fetchVlanForNode 
+    fetchVlanForNode
     doWeActOnThisTrap
     getViolationVlan
     getRegistrationVlan
@@ -55,7 +56,7 @@ can_ok($vlan_obj, qw(
 $Config{'trapping'}{'registration'} = 'enabled';
 
 # setup a fake switch object
-my $switchFactory = new pf::SwitchFactory( -configFile => './data/switches.conf' );
+my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('192.168.0.1');
 
 # redefining violation functions (we stay in pf::vlan's context because methods are imported there from pf::violation)
@@ -81,7 +82,7 @@ $mock->mock('violation_count_trap', sub { return (0); });
 
 # mocking used node method calls
 $mock->mock('node_exist', sub { return (1); });
-$mock->mock('node_attributes', sub { 
+$mock->mock('node_attributes', sub {
     return { mac => 'aa:bb:cc:dd:ee:ff', pid => 1, detect_date => '', regdate => '', unregdate => '', category => 'default',
         lastskip => '', status => 'reg', user_agent => '', computername => '', notes => '', last_arp => '',
         last_dhcp => '', dhcp_fingerprint => '', switch => '', port => '', bypass_vlan => 1, nbopenviolations => ''}
@@ -152,21 +153,21 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
 

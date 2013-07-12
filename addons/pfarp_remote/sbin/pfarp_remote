@@ -64,6 +64,9 @@ my $daemonize = $args{d};
 my $interface = $args{i};
 my $script    = File::Basename::basename($0);
 
+#Prevent error from LWP : ensure it connects to servers that have a valid certificate matching the expected hostname
+$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}=0;
+
 my ($dstmac, $srcmac, $srcip, $dstip);
 
 daemonize() if ($daemonize);
@@ -195,7 +198,7 @@ sub soap_send {
       eval {
         my $soap = new SOAP::Lite(
           uri => 'http://www.packetfence.org/PFAPI',
-          proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST . '/webapi'
+          proxy => 'https://' . $ADMIN_USER . ':' . $ADMIN_PWD . '@' . $PF_HOST
         );
         my $result = $soap->update_iplog($srcmac,$srcip);
         if ($result->fault) {

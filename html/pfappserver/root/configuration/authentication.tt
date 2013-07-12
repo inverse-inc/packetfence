@@ -27,11 +27,9 @@
 [% IF form.field('sources').num_fields -%]
 
   <h4>[% l('Internal Sources') %]</h4>
-  <form name="authentication" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Authentication').action_for('update')) %]">
-    <table class="sources table table-sortable admin_ordered">
+    <table class="table sources">
       <thead>
         <tr>
-          <th class="hidden-phone" width="20px"></th>
           <th>[% l('Name') %]</th>
           <th class="hidden-phone">[% l('Description') %]</th>
           <th>[% l('Type') %]</th>
@@ -43,7 +41,6 @@
         [% IF source.field('class').value == 'internal' %]
         [% is_sql = (source.field('type').value == 'SQL') %]
         <tr>
-          <td class="hidden-phone sort-handle">[% i = i + 1 ; i %]</td>
           <td>[% source.field('id').render_element %][% IF is_sql %][% source.field('id').value %][% ELSE %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a>[% END %]</td>
           <td class="hidden-phone">[% source.field('description').value %]</td>
           <td>[% l(source.field('type').value) %]</td>
@@ -51,16 +48,13 @@
         </tr>
         [% END -%]
         [% END -%]
-        <tr><td colspan="3"></td><td class="hidden-phone" colspan="2"></td></tr>
       </tbody>
     </table>
-  </form>
 
   <h4>[% l('External Sources') %]</h4>
-  <table class="sources table">
+  <table class="table sources">
     <thead>
       <tr>
-        <th class="hidden-phone" width="20px"></th>
         <th>[% l('Name') %]</th>
         <th class="hidden-phone">[% l('Description') %]</th>
         <th>[% l('Type') %]</th>
@@ -71,7 +65,6 @@
       [% FOREACH source IN form.field('sources').fields %]
       [% IF source.field('class').value == 'external' %]
       <tr>
-        <td class="hidden-phone"></td>
         <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
         <td class="hidden-phone">[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
@@ -79,7 +72,6 @@
       </tr>
       [% END -%]
       [% END -%]
-        <tr><td colspan="3"></td><td class="hidden-phone" colspan="2"></td></tr>
     </tbody>
   </table>
 

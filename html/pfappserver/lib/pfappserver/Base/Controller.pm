@@ -120,6 +120,7 @@ sub _list_items {
     my %params = ( limit => $limit_clause );
 
     if ( exists( $c->stash->{'filter'} ) ) {
+        # A simple search
         $filter = $c->stash->{'filter'};
         $params{'where'} = { type => 'any', like => $filter };
         $c->stash->{filter} = $filter;

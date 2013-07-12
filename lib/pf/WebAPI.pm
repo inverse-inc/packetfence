@@ -1,4 +1,5 @@
 package pf::WebAPI;
+
 =head1 NAME
 
 WebAPI - Apache mod_perl wrapper to PFAPI (below).
@@ -46,6 +47,7 @@ sub log_faults {
 }
 
 package PFAPI;
+
 =head1 NAME
 
 PFAPI - Web Services handler exposing PacketFence features

@@ -13,6 +13,8 @@ use pf::Authentication::constants;
 use pf::Authentication::Condition;
 
 use Net::LDAP;
+use Net::LDAPS;
+use List::Util;
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -21,15 +23,15 @@ extends 'pf::Authentication::Source';
 use constant {
     NONE => "none",
     SSL => "ssl",
-    TLS => "tls",
+    TLS => "starttls",
 };
 
 has '+type' => (default => 'LDAP');
 has 'host' => (isa => 'Maybe[Str]', is => 'rw', default => '127.0.0.1');
 has 'port' => (isa => 'Maybe[Int]', is => 'rw', default => 389);
 has 'basedn' => (isa => 'Str', is => 'rw', required => 1);
-has 'binddn' => (isa => 'Str', is => 'rw', required => 1);
-has 'password' => (isa => 'Str', is => 'rw', required => 1);
+has 'binddn' => (isa => 'Maybe[Str]', is => 'rw');
+has 'password' => (isa => 'Maybe[Str]', is => 'rw');
 has 'encryption' => (isa => 'Str', is => 'rw', required => 1);
 has 'scope' => (isa => 'Str', is => 'rw', required => 1);
 has 'usernameattribute' => (isa => 'Str', is => 'rw', required => 1);
@@ -45,11 +47,11 @@ sub available_attributes {
 
   my $super_attributes = $self->SUPER::available_attributes;
   my @ldap_attributes = map { { value => $_, type => $Conditions::STRING } }
-    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation");
+    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
 
   # We check if our username attribute is present, if not we add it.
-  if (not grep {$_->{value} eq $self->usernameattribute} @ldap_attributes ) {
-    push (@ldap_attributes, { value => $self->{usernameattribute}, type => $Conditions::STRING });
+  if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
+    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::STRING });
   }
 
   return [@$super_attributes, @ldap_attributes];
@@ -62,17 +64,22 @@ sub available_attributes {
 sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-  my $connection = Net::LDAP->new($self->{'host'});
+
+  my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (! defined($connection)) {
-    $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
+    $logger->error("Unable to connect to an LDAP server.");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
-  my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-
+  my $result;
+  if ($self->{'binddn'} && $self->{'password'}) {
+      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+  } else {
+      $result = $connection->bind;
+  }
   if ($result->is_error) {
-    $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
+    $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
@@ -84,12 +91,12 @@ sub authenticate {
     attrs => ['dn']
   );
   if ($result->is_error) {
-    $logger->error("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}");
+    $logger->error("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   if ($result->count != 1) {
-    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{basedn} on $self->{host}:$self->{port}");
+    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -103,6 +110,59 @@ sub authenticate {
 
   return ($TRUE, 'Successful authentication using LDAP.');
 }
+
+
+=head2 _connect
+Try every server in @LDAPSERVER in turn.
+Returns the connection object and a valid LDAP server and port or undef
+if all connections fail
+=cut
+
+sub _connect {
+  my $self = shift;
+  my $connection;
+  my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+  my @LDAPServers = split(/\s*,\s*/, $self->{'host'});
+  # uncomment the next line if you want the servers to be tried in random order
+  # to spread out the connections amongst a set of servers
+  #@LDAPServers = List::Util::shuffle @LDAPServers;
+
+  TRYSERVER:
+  foreach my $LDAPServer ( @LDAPServers ) {
+    # check to see if the hostname includes a port (e.g. server:port)
+    my $LDAPServerPort;
+    if ( $LDAPServer =~ /:/ ) {
+        $LDAPServerPort = ( split(/:/,$LDAPServer) )[-1];
+    }
+    $LDAPServerPort //=  $self->{'port'} ;
+
+    if ( $self->{'encryption'} eq SSL ) {
+        $connection = Net::LDAPS->new($LDAPServer, port =>  $LDAPServerPort );
+    } else {
+        $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort );
+    }
+    if (! defined($connection)) {
+      $logger->warn("Unable to connect to $LDAPServer");
+      next TRYSERVER;
+    }
+
+    # try TLS if required, return undef if it fails
+    if ( $self->{'encryption'} eq TLS ) {
+      my $mesg = $connection->start_tls();
+      if ( $mesg->code() ) { $logger->error($mesg->error()) and return undef; }
+    }
+
+    $logger->debug("using ldap connection to $LDAPServer");
+    return ( $connection, $LDAPServer, $LDAPServerPort );
+  }
+  # if the connection is still undefined after trying every server, we fail and return undef.
+  if (! defined($connection)) {
+    $logger->error("Unable to connect to any LDAP Server");
+  }
+  return undef;
+}
+
 
 =head2 match_in_subclass
 
@@ -128,16 +188,16 @@ sub match_in_subclass {
 
     $logger->debug("LDAP filter: $filter");
 
-    my $connection = Net::LDAP->new($self->{'host'});
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
-        $logger->error("Unable to connect to '$self->{host}:$self->{port}'");
+        $logger->error("Unable to connect to an LDAP server.");
         return undef;
     }
 
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
 
     if ($result->is_error) {
-        $logger->error("Unable to bind with '$self->{binddn}' on $self->{host}:$self->{port}");
+        $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
         return undef;
     }
 
@@ -150,7 +210,7 @@ sub match_in_subclass {
     );
 
     if ($result->is_error) {
-        $logger->error("Unable to execute search $filter from $self->{basedn} on $self->{host}:$self->{port}, we skip the rule.");
+        $logger->error("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         return undef;
     }
 
@@ -178,19 +238,23 @@ sub test {
   my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
   # Connect
-  my $connection = Net::LDAP->new($self->{'host'});
+  my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (! defined($connection)) {
-    $logger->info("Unable to establish LDAP connection.");
+    $logger->warn("Unable to connect to any LDAP server");
     return ($FALSE, "Can't connect to server");
   }
 
   # Bind
-  my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-
+  my $result;
+  if ($self->{'binddn'} && $self->{'password'}) {
+      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+  } else {
+      $result = $connection->bind;
+  }
   if ($result->is_error) {
-    $logger->info("Invalid LDAP credentials.");
-    return ($FALSE, 'Wrong bind DN or password');
+    $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+    return ($FALSE, "Unable to bind to $LDAPServer with these settings");
   }
 
   # Search
@@ -204,7 +268,7 @@ sub test {
   );
 
   if ($result->is_error) {
-    $logger->info("Invalid LDAP search query ($filter).");
+      $logger->warn("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Wrong base DN or username attribute');
   }
 
@@ -273,16 +337,16 @@ sub username_from_email {
 
     my $filter = "(mail=$email)";
 
-    my $connection = Net::LDAP->new($self->{'host'});
+    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
-      $logger->error("Unable to connect to '$self->{'host'}'");
+      $logger->error("Unable to connect to $self->{'host'}");
       return undef;
     }
 
     my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
 
     if ($result->is_error) {
-      $logger->error("Unable to bind with '$self->{'binddn'}'");
+      $logger->error("Unable to bind with $self->{'binddn'}");
       return undef;
     }
 

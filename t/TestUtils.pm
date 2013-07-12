@@ -68,6 +68,10 @@ our @unit_failing_tests = qw(
     network-devices/wired.t
 );
 
+our @config_store_test = qw(
+    ConfigStore/Base.t ConfigStore/Group.t
+);
+
 =head2 use_test_db
 
 Will override pf::config's globals regarding what database to connect to
@@ -116,7 +120,7 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) && ($File::Find::name ne "/usr/local/pf/bin/pfcmd"));
+            push(@list, $File::Find::name) if ((-f $File::Find::name) && ($File::Find::name ne "/usr/local/pf/bin/pfcmd") && ($File::Find::name ne "/usr/local/pf/sbin/pfdns"));
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 

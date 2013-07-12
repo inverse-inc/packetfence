@@ -26,8 +26,7 @@ sub make_builder {
     new pf::SearchBuilder;
     my $builder = new pf::SearchBuilder;
     return $builder
-    ->select(qw(
-            pid firstname lastname email telephone company address notes sponsor),
+    ->select(qw(pid firstname lastname email telephone company address notes sponsor),
             (map { { table => 'temporary_password', name => $_  } } qw(valid_from expiration access_duration category password)),
             L_("count(node.mac) as nodes"),
             L_("concat(firstname,' ', lastname) as person_name"),

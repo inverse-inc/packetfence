@@ -55,7 +55,7 @@ Source: http://www.packetfence.org/downloads/PacketFence/src/%{real_name}-%{vers
 %global logfiles packetfence.log catalyst.log snmptrapd.log access_log error_log admin_access_log admin_error_log admin_debug_log pfdetect pfmon
 %global logdir /usr/local/pf/logs
 
-BuildRequires: gettext, httpd, rpm-macros-rpmforge, bind
+BuildRequires: gettext, httpd, rpm-macros-rpmforge
 BuildRequires: perl(Parse::RecDescent)
 # Required to build documentation
 # See docs/docbook/README.asciidoc for more info about installing requirements.
@@ -90,7 +90,7 @@ Requires: libpcap, libxml2, zlib, zlib-devel, glibc-common,
 Requires: httpd, mod_ssl
 Requires: mod_perl
 requires: libapreq2
-Requires: dhcp, bind
+Requires: dhcp
 Requires: memcached
 # FreeRADIUS version >= 2.1.12 and the name changed between the RHEL 5 and 6 releases
 %{?el5:Requires: freeradius2 >= 2.1.12, freeradius2-mysql, freeradius2-perl, freeradius2-ldap, freeradius2-utils }
@@ -145,6 +145,9 @@ Requires: perl(Net::Netmask)
 Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
+# pfdns
+Requires: perl(Net::DNS)
+Requires: perl(Net::DNS::Nameserver)
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware
@@ -214,6 +217,8 @@ Requires: perl(Cache::Memcached)
 Requires: perl(CHI::Driver::Memcached)
 Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
+Requires: perl(Cache::FastMmap)
+Requires: perl(Moo) >= 1.0
 # configuration-wizard
 Requires: iproute, vconfig
 #
@@ -241,7 +246,7 @@ as
 
 %package -n %{real_name}-remote-snort-sensor
 Group: System Environment/Daemons
-Requires: perl >= 5.8.0, snort, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
+Requires: perl >= 5.8.0, perl(File::Tail), perl(Config::IniFiles), perl(IO::Socket::SSL), perl(XML::Parser), perl(Crypt::SSLeay), perl(LWP::Protocol::https)
 Requires: perl(SOAP::Lite)
 Conflicts: %{real_name}
 AutoReqProv: 0
@@ -250,7 +255,7 @@ BuildArch: noarch
 
 %description -n %{real_name}-remote-snort-sensor
 The %{real_name}-remote-snort-sensor package contains the files needed
-for sending snort alerts from a remote snort sensor to a PacketFence
+for sending snort or suricata alerts from a remote sensor to a PacketFence
 server.
 
 
@@ -330,7 +335,6 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/dhcpd
-%{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/named
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/run
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/rrd 
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/session
@@ -412,16 +416,6 @@ cd $RPM_BUILD_ROOT/usr/local/pf/conf
 #else
 #  ln -s httpd.conf.pre_apache22 ./httpd.conf
 #fi
-
-#named.conf symlink
-#We added the support fort BIND 9.7+ for getting rid of the session-keyfile error
-cd $RPM_BUILD_ROOT/usr/local/pf/conf
-if ( /usr/sbin/named -v | egrep 'BIND\ 9.[7-9]' > /dev/null )
-then
-    ln -s named.conf.bind97 ./named.conf
-else
-    ln -s named.conf.pre_bind97 ./named.conf
-fi
 
 #radius sites-enabled symlinks
 #We standardize the way to use site-available/sites-enabled for the RADIUS server
@@ -720,19 +714,6 @@ fi
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
-%config(noreplace)	/usr/local/pf/conf/named-akamai.net
-%config(noreplace)      /usr/local/pf/conf/named-facebook.com
-%config(noreplace)      /usr/local/pf/conf/named-fbcdn.net
-%config(noreplace)	/usr/local/pf/conf/named-github.com
-%config(noreplace)      /usr/local/pf/conf/named-google.ca
-%config(noreplace)      /usr/local/pf/conf/named-google.com
-%config(noreplace)      /usr/local/pf/conf/named-inline.ca
-%config(noreplace)      /usr/local/pf/conf/named-isolation.ca
-%config(noreplace)      /usr/local/pf/conf/named-registration.ca
-%config                 /usr/local/pf/conf/named.conf
-%config                 /usr/local/pf/conf/named.conf.pre_bind97
-%config                 /usr/local/pf/conf/named.conf.bind97
-%config(noreplace)      /usr/local/pf/conf/oauth2-ips.conf
 %config(noreplace)      /usr/local/pf/conf/popup.msg
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
@@ -780,6 +761,8 @@ fi
 %config(noreplace)      /usr/local/pf/lib/pf/lookup/person.pm
 %dir                    /usr/local/pf/lib/pf/pfcmd
                         /usr/local/pf/lib/pf/pfcmd/*
+%dir                    /usr/local/pf/lib/pf/pfdns
+                        /usr/local/pf/lib/pf/pfdns/*
 %dir                    /usr/local/pf/lib/pf/Portal
                         /usr/local/pf/lib/pf/Portal/*
 %dir                    /usr/local/pf/lib/pf/radius
@@ -808,6 +791,7 @@ fi
 %dir                    /usr/local/pf/sbin
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcplistener
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfmon
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfsetvlan
 %doc                    /usr/local/pf/UPGRADE.asciidoc
@@ -815,7 +799,6 @@ fi
 %dir                    /usr/local/pf/var
 %dir                    /usr/local/pf/var/conf
 %dir                    /usr/local/pf/var/dhcpd
-%dir                    /usr/local/pf/var/named
 %dir                    /usr/local/pf/raddb
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf
@@ -862,6 +845,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Fri Jul 12 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.2-1
+- New release 4.0.2
+
 * Thu May 8 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.0-1
 - New release 4.0.0
 

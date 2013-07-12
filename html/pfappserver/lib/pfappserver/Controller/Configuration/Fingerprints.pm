@@ -94,7 +94,7 @@ sub upload :Local :Args(0) {
             'http://www.packetfence.org/fingerprintsv2.php',
             Content => $content
         );
-        if($response->content =~ /Thank you for submitting the following fingerprints/) {
+        if ($response->content =~ /Thank you for submitting the following fingerprints/) {
             $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
         }
         else {

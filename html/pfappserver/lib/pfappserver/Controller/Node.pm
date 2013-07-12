@@ -44,13 +44,27 @@ sub index :Path :Args(0) {
 
 sub simple_search :SimpleSearch('Node') :Local :Args() { }
 
+=head2 after _list_items
+
+The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
+
+=cut
+
+after _list_items => sub {
+    my ($self, $c) = @_;
+
+    my ($status,$roles) = $c->model('Roles')->list();
+    $c->stash(roles => $roles);
+};
+
+
 =head2 advanced_search
 
 =cut
 
 sub advanced_search :Local :Args() {
     my ($self, $c, @args) = @_;
-    my ($status,$status_msg,$result);
+    my ($status, $status_msg, $result);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -61,16 +75,19 @@ sub advanced_search :Local :Args() {
         $c->stash(
             current_view => 'JSON',
         );
-    } else {
+    }
+    else {
         my $query = $form->value;
-        ($status,$result) = $model->search($query);
-        if(is_success($status)) {
-            $c->stash( form => $form);
-            $c->stash( $result);
+        ($status, $result) = $model->search($query);
+        if (is_success($status)) {
+            $c->stash(form => $form);
+            $c->stash($result);
         }
     }
+    (undef, $result) = $c->model('Roles')->list();
     $c->stash(
         status_msg => $status_msg,
+        roles => $result
     );
     $c->response->status($status);
 }
@@ -173,7 +190,6 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-
 sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
@@ -189,15 +205,17 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =cut
 
-
 sub violations :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
         $c->stash->{items} = $result;
         $c->stash->{template} = 'node/violations.tt';
-        (undef, $c->stash->{violations}) = $c->model('Config::Violations')->readAll();
-    } else {
+        (undef, $result) = $c->model('Config::Violations')->readAll();
+        my @violations = grep { $_->{id} ne 'defaults' } @$result; # remove defaults
+        $c->stash->{violations} = \@violations;
+    }
+    else {
         $c->response->status($status);
         $c->stash->{status_msg} = $result;
         $c->stash->{current_view} = 'JSON';
@@ -207,7 +225,6 @@ sub violations :Chained('object') :PathPart :Args(0) {
 =head2 triggerViolation
 
 =cut
-
 
 sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
     my ($self, $c, $id) = @_;
@@ -225,23 +242,9 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
     }
 }
 
-=head2 openViolation
-
-=cut
-
-
-sub openViolation :Path('open') :Args(1) {
-    my ($self, $c, $id) = @_;
-    my ($status, $result) = $c->model('Node')->openViolation($id);
-    $c->response->status($status);
-    $c->stash->{status_msg} = $result;
-    $c->stash->{current_view} = 'JSON';
-}
-
 =head2 closeViolation
 
 =cut
-
 
 sub closeViolation :Path('close') :Args(1) {
     my ($self, $c, $id) = @_;
@@ -249,6 +252,98 @@ sub closeViolation :Path('close') :Args(1) {
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
+}
+
+=head2 bulk_close
+
+=cut
+
+sub bulk_close: Local {
+    my ($self, $c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkCloseViolations(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
+=head2 bulk_register
+
+=cut
+
+sub bulk_register: Local {
+    my ($self, $c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkRegister(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
+=head2 bulk_deregister
+
+=cut
+
+sub bulk_deregister: Local {
+    my ($self, $c) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkDeregister(@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
+}
+
+=head2 bulk_apply_role
+
+=cut
+
+sub bulk_apply_role: Local : Args(1) {
+    my ($self, $c, $role) = @_;
+    $c->stash->{current_view} = 'JSON';
+    my ($status, $status_msg);
+    my $request = $c->request;
+    if ($request->method eq 'POST') {
+        my @ids = $request->param('items');
+        ($status, $status_msg) = $c->model('Node')->bulkApplyRole($role,@ids);
+    }
+    else {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = "";
+    }
+    $c->response->status($status);
+    $c->stash(
+        status_msg => $status_msg,
+    );
 }
 
 =head1 AUTHOR

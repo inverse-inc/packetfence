@@ -81,8 +81,8 @@ if ( $portalSession->getCgi->param("pin") ) {
 
     $info{'category'} = &pf::authentication::matchByType($sms_type, {username => $pid}, $Actions::SET_ROLE);
 
-
     pf::web::web_node_register($portalSession, $pid, %info);
+
     # clear state that redirects to the Enter PIN page
     $portalSession->getSession->clear(["guest_pid"]);
 

@@ -73,7 +73,7 @@ sub checkForUpgrade {
     open( $filehandler, '<', "$install_dir/conf/pf-release" );
     chomp(my $pf_release = <$filehandler>);
     close( $filehandler );
-    $logger->info("$currently_at $pf_release");
+    $logger->info("Currently at $currently_at, running release $pf_release");
 
     if ( (!$currently_at) || ($currently_at eq $pf_release) ) {
         $logger->info("Configuration process");

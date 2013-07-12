@@ -21,7 +21,9 @@ use Log::Log4perl;
 
 use pf::config;
 use pf::node;
+use pf::authentication;
 use pf::Portal::Profile;
+use List::Util qw(first);
 
 =head1 SUBROUTINES
 
@@ -44,25 +46,17 @@ sub instantiate {
     #     reload in there in the future
     # XXX also take the given mac and lookup the SSID on it and return proper
     #     portal object
-    my @portal_profiles = $cached_profiles_config->Sections;
-    if (@portal_profiles) {
-        # Fetch filter for every configured portal-profiles
-        # Structure: FILTER => NAME OF PROFILE
-        my %filters;
-        foreach my $portalprofile ( @portal_profiles) {
-            $filters{$Profiles_Config{$portalprofile}{'filter'}} = $portalprofile;
-        }
-        # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
-        # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
-        my $node_info = node_view($mac);
-        my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)), @{$node_info}{'last_ssid','last_vlan'});
-        my @filtered_profiles =
-            map { $filters{$_}  }
-              grep { defined $_ && exists $filters{$_}  }
-              @filter_ids;
+    # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
+    # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
+    my $node_info = node_view($mac);
+    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)), @{$node_info}{'last_ssid','last_vlan'});
+    my $filtered_profile =
+        first {exists $Profiles_Config{$_}}
+        map { $Profile_Filters{$_}  }
+          grep { defined $_ && exists $Profile_Filters{$_}  } #
+          @filter_ids;
 
-        return pf::Portal::Profile->new(_custom_profile($filtered_profiles[0])) if (@filtered_profiles);
-    }
+    return pf::Portal::Profile->new(_custom_profile($filtered_profile)) if $filtered_profile;
 
     return pf::Portal::Profile->new(_default_profile());
 }
@@ -78,9 +72,17 @@ sub _custom_profile {
         'template_path' => $name,
         'description' => $profile->{'description'} || '',
         map { $_ =>  ($profile->{$_} || $defaults->{$_} ) }
-        qw (logo guest_self_reg guest_modes billing_engine filter)
+        qw (logo guest_self_reg guest_modes sources billing_engine filter)
     );
+    $results{guest_modes} = _guest_modes_from_sources($results{sources});
     return \%results;
+}
+
+sub _guest_modes_from_sources {
+    my ($sources) = @_;
+    $sources ||= [];
+    my %is_in = map {$_ => undef } @$sources;
+    my @guest_modes = map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources;
 }
 
 =head1 AUTHOR

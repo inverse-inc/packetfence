@@ -54,7 +54,7 @@ sub translate {
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
         #Because of chrome captiv portal detection we have to test if the request come from http request
         my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
-        if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /\/access/ && $parsed->path !~ /\/access/) {
+        if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /$WEB::ALLOWED_RESOURCES/o && $parsed->path !~ /$WEB::ALLOWED_RESOURCES/o) {
             #Generate a page with a refresh tag
             $r->handler('modperl');
             $r->set_handlers( PerlResponseHandler => \&html_redirect );
@@ -71,43 +71,11 @@ sub translate {
         return Apache2::Const::OK;
     }
 
-    # passthrough
-    # if the regex is not defined, we skip, this allow us to skip an expensive Config test
-    if (defined $CAPTIVE_PORTAL{'PASSTHROUGH_HOSTS_RE'} ) {
-        # DECLINED tells Apache to continue further mod_rewrite / alias processing
-        return Apache2::Const::DECLINED if (_matches_passthrough($r));
-    }
-
     # fallback to a redirection: inject local redirection handler
     $r->handler('modperl');
     $r->set_handlers( PerlResponseHandler => \&handler );
     # OK tells Apache to stop further mod_rewrite / alias processing
     return Apache2::Const::OK;
-}
-
-=item _matches_passthrough
-
-Should the current request be allowed through based on passthrough configuration?
-
-=cut
-sub _matches_passthrough {
-    my ($r) = @_;
-
-    # first match any of the hosts (allows us to quickly discard w/o looping)
-    if ( $r->hostname =~ /$CAPTIVE_PORTAL{'PASSTHROUGH_HOSTS_RE'}/ ) {
-
-        # find the right host, then match it's URI against request's URI
-        foreach my $host (keys %{$CAPTIVE_PORTAL{'PASSTHROUGHS'}}) {
-            if ($r->hostname =~ /^$host$/) {
-
-                # if we got an URL match too, allow!
-                # Note that we are only anchoring at the beginning of the URL
-                return $TRUE
-                    if ($r->uri =~ /^$CAPTIVE_PORTAL{'PASSTHROUGHS'}{$host}/);
-            }
-        }
-    }
-    return $FALSE;
 }
 
 =item handler

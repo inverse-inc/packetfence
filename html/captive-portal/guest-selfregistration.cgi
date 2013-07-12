@@ -61,7 +61,7 @@ elsif ( !$is_valid_mac ) {
 }
 # forced pre-registration overrides anything previously set (or not set)
 if (defined($cgi->url_param("preregistration")) && $cgi->url_param("preregistration") eq 'forced') {
-    $session->param("preregistration", $TRUE); 
+    $session->param("preregistration", $TRUE);
 }
 
 # Clearing the MAC if in pre-registration
@@ -119,12 +119,12 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'pid'}, 
-          ( $session->param("preregistration") 
+          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'pid'},
+          ( $session->param("preregistration")
               ? $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION
-              : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION 
+              : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION
           ),
-          $pf::email_activation::GUEST_ACTIVATION, 
+          $pf::email_activation::GUEST_ACTIVATION,
           %info
       );
 
@@ -139,7 +139,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
               $portalSession, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_EMAIL }
           );
       }
-    }
+    } # Email
 
     # SMS
     elsif ( $auth_return && defined($cgi->param('by_sms')) && is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ) {
@@ -167,10 +167,19 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
           ));
 
           $logger->info("redirecting to mobile confirmation page");
+
+          my %info;
+          my $pid = $session->param('guest_pid');
+          my $type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
+          $info{'pid'} = $pid;
+          $info{'category'} = &pf::authentication::matchByType($type, {username => $pid}, $Actions::SET_ROLE);
+          $info{'status'} = $pf::node::STATUS_PENDING;
+          # modify the node
+          node_modify($portalSession->getClientMac(), %info);
           pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms", $err, $errargs_ref);
           exit(0);
       }
-    }
+    } # SMS
 
     # SPONSOR
     elsif ( $auth_return && defined($cgi->param('by_sponsor')) && is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
@@ -211,7 +220,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'sponsor'}, 
+          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'sponsor'},
           $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
           $pf::email_activation::SPONSOR_ACTIVATION,
           %info
@@ -229,13 +238,12 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
               $portalSession, $pf::web::guest::PREREGISTRATION_CONFIRMED_TEMPLATE, { 'mode' => $SELFREG_MODE_SPONSOR }
           );
       }
-    }
+    } # SPONSOR
 
     # Registration form was invalid, return to guest self-registration page and show error message
     if ($auth_return != $TRUE) {
         $logger->info("Missing information for self-registration");
-        pf::web::guest::generate_selfregistration_page($portalSession, $err, $errargs_ref
-        );
+        pf::web::guest::generate_selfregistration_page($portalSession, $err, $errargs_ref);
         exit(0);
     }
 }
@@ -261,15 +269,15 @@ This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut

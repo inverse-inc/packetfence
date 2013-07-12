@@ -21,11 +21,10 @@ use pf::nodecategory;
 
 =head1 METHODS
 
-=over
-
 =head2 exists
 
 =cut
+
 sub exists {
     my ( $self, $id ) = @_;
 
@@ -53,6 +52,7 @@ sub exists {
 =head2 list
 
 =cut
+
 sub list {
     my ( $self ) = @_;
 
@@ -86,7 +86,7 @@ sub read {
         $status_msg = nodecategory_view($role_id);
         unless ($status_msg) {
             $status = $STATUS::NOT_FOUND;
-            $status_msg = "Role ($role_id) not found.";
+            $status_msg = ["Role ([_1]) not found.",$role_id];
         }
     };
     if ($@) {
@@ -163,8 +163,6 @@ sub update {
 
     return ($status, $status_msg);
 }
-
-=back
 
 =head1 COPYRIGHT
 

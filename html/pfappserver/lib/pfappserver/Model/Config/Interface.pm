@@ -13,23 +13,20 @@ pfappserver::Model::Config::Switch;
 
 use Moose;
 use namespace::autoclean;
-use pf::config::cached;
-use pf::config;
-use HTTP::Status qw(:constants is_error is_success);
+use pf::ConfigStore::Interface;
 
-extends 'pfappserver::Base::Model::Config::Group';
+extends 'pfappserver::Base::Model::Config';
 
-has '+group' => (default => 'interface');
 
 =head2 Methods
 
 =over
 
-=item _buildCachedConfig
+=item _buildConfigStore
 
 =cut
 
-sub _buildCachedConfig { $pf::config::cached_pf_config }
+sub _buildConfigStore { pf::ConfigStore::Interface->new; }
 
 __PACKAGE__->meta->make_immutable;
 

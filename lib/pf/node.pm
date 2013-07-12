@@ -101,7 +101,11 @@ sub node_db_prepare {
 
     $node_statements->{'node_exist_sql'} = get_db_handle()->prepare(qq[ select mac from node where mac=? ]);
 
-    $node_statements->{'node_pid_sql'} = get_db_handle()->prepare( qq[ select count(*) from node where status='reg' and pid=? ]);
+    $node_statements->{'node_pid_sql'} = get_db_handle()->prepare( qq[
+        SELECT count(*)
+        FROM node
+        WHERE status = 'reg' AND pid = ? AND category_id = ?
+    ]);
 
     $node_statements->{'node_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO node (
@@ -333,11 +337,11 @@ sub node_exist {
 }
 
 #
-# return number of nodes match that PID
+# return number of nodes for the specified pid and role id
 #
 sub node_pid {
-    my ($pid) = @_;
-    my $query = db_query_execute(NODE, $node_statements, 'node_pid_sql', $pid) || return (0);
+    my ($pid, $category_id) = @_;
+    my $query = db_query_execute(NODE, $node_statements, 'node_pid_sql', $pid, $category_id) || return (0);
     my ($count) = $query->fetchrow_array();
     $query->finish();
     return ($count);
@@ -580,7 +584,11 @@ sub node_count_all {
             }
             elsif ( $params{'where'}{'type'} eq 'any' ) {
                 if (exists($params{'where'}{'like'})) {
-                    push(@where, "mac LIKE " . get_db_handle()->quote('%' . $params{'where'}{'like'} . '%'));
+                    my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+                    my $where_any .= "(mac LIKE $like"
+                                   . " OR computername LIKE $like"
+                                   . " OR pid LIKE $like)";
+                    push(@where, $where_any);
                 }
             }
         }
@@ -639,7 +647,10 @@ sub node_view_all {
             $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
-            $node_view_all_sql .= " HAVING node.mac like " . get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+            my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+            $node_view_all_sql .= " HAVING node.mac LIKE $like"
+                . " OR node.computername LIKE $like"
+                . " OR node.pid LIKE $like";
         }
     }
     if ( defined( $params{'orderby'} ) ) {
@@ -780,7 +791,7 @@ sub node_register {
     if ($auto_registered) {
        my $node_info = node_view($mac);
        if (defined($node_info) && (ref($node_info) eq 'HASH') && $node_info->{'status'} eq 'reg') {
-        $info{'pid'}     = $pid;
+        $info{'pid'} = $pid;
         if ( !node_modify( $mac, %info ) ) {
             $logger->error("modify of node $mac failed");
             return (0);
@@ -1052,9 +1063,9 @@ sub _node_category_handling {
 
 =item is_max_reg_nodes_reached
 
-Performs the enforcement of the maximum number of registered nodes allowed per user.
+Performs the enforcement of the maximum number of registered nodes allowed per user for a specific role.
 
-Two techniques so far: a global maxnodes parameter and a per-category maximum.
+The MAC address is currently not used.
 
 =cut
 
@@ -1065,30 +1076,32 @@ sub is_max_reg_nodes_reached {
     # default_pid is a special case: no limit for this user
     return $FALSE if ($pid eq $default_pid);
 
-    my $nb_nodes_for_pid = node_pid($pid);
-
     # per-category max node per pid limit
     if ( defined($category) || defined($category_id) ) {
-
         my $category_info;
+        my $nb_nodes;
+        my $max_for_category;
         if ($category) {
             $category_info = nodecategory_view_by_name($category);
         } else {
             $category_info = nodecategory_view($category_id);
         }
-        if ( defined($category_info->{'max_nodes_per_pid'}) ) {
 
-            my $max_nodes_for_category = $category_info->{'max_nodes_per_pid'};
-            if ( $max_nodes_for_category == 0 || $nb_nodes_for_pid < $max_nodes_for_category ) {
+        if ( defined($category_info->{'max_nodes_per_pid'}) ) {
+            $nb_nodes = node_pid($pid, $category_info->{'category_id'});
+            $max_for_category = $category_info->{'max_nodes_per_pid'};
+            if ( $max_for_category == 0 || $nb_nodes < $max_for_category ) {
                 return $FALSE;
             }
         }
+        $logger->info("per-role max nodes per-user limit reached: $nb_nodes are already registered to pid $pid for role "
+                     . $category_info->{'name'});
+    }
+    else {
+        # fallback to maximum reached
+        $logger->warn("No role specified or found for pid $pid (MAC $mac); assume maximum number of registered nodes is reached");
     }
 
-    # fallback to maximum reached
-    $logger->info(
-                  "per-category max nodes per-user limit reached: $nb_nodes_for_pid are already registered to $pid for category $category"
-                 );
     return $TRUE;
 }
 

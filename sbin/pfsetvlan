@@ -492,7 +492,7 @@ sub signalHandlerTrapListQueued {
                                           "longer configured on the port. Flush the trap");
 
                         } elsif (( $trapType eq 'mac' )
-                                 && (grep( { $_ == $trapVlan } @{ $switch->{_vlans} } ) == 0 ) ) {
+                                 && !$switch->isManagedVlan($trapVlan)) {
                             $logger->info(
                                 "$trapType trap for VLAN $trapVlan on $switch_ip ifIndex $switch_port. We don't manage this VLAN. Flush the trap"
                             );
