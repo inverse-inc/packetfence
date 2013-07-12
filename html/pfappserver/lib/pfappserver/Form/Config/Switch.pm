@@ -188,8 +188,8 @@ has_field macSearchesMaxNb =>
    label => 'Maximum MAC addresses',
    default => 30,
    tags => {
-       after_element => \&help_list,
-       help => 'The maximum MAC addresses retrived from the port'
+       after_element => \&help,
+       help => 'Maximum number of MAC addresses retrived from a port'
    },
   );
 
@@ -199,8 +199,8 @@ has_field macSearchesSleepInterval  =>
    label => 'Sleep interval',
    default => 2,
    tags => {
-       after_element => \&help_list,
-       help => 'Sleep interval for between queries for MAC addresses'
+       after_element => \&help,
+       help => 'Sleep interval between queries of MAC addresses'
    },
   );
 
@@ -383,7 +383,7 @@ has_field controllerIp =>
     type => 'IPAddress',
     label => 'Controller IP Address',
     tags => {
-        after_element => \&help_list,
+        after_element => \&help,
         help => 'Use instead this IP address for de-authentication requests. Normally used for WiFi only'
     },
   );
