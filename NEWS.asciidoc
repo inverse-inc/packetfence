@@ -34,6 +34,7 @@ Enhancements
 * Increased speed of loading configuration from the cache
 * Each portal profiles can now use a list of authentication sources
 * A switch definition can now be easily cloned
+* Switches are now ordered by IP address
 
 Bug Fixes
 +++++++++

@@ -14,6 +14,8 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
 
+use pf::util qw(sort_ip);
+
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
@@ -51,7 +53,7 @@ sub begin :Private {
 
 =head2 after list
 
-Check which switch is also defined as a floating device
+Check which switch is also defined as a floating device and sort switches by IP addresses.
 
 =cut
 
@@ -59,16 +61,25 @@ after list => sub {
     my ($self, $c) = @_;
 
     my ($status, $floatingdevice, $ip);
+    my @ips = ();
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
     foreach my $switch (@{$c->stash->{items}}) {
         $ip = $switch->{id};
         if ($ip) {
+            push(@ips, $ip);
             ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $ip);
             if (is_success($status)) {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
     }
+
+    # Sort switches by IP address
+    my $i = 1;
+    my %sorted_ips = map { $_ => $i++ } sort_ip(@ips);
+    my @switches = sort { $sorted_ips{$a->{id}} <=> $sorted_ips{$b->{id}} } @{$c->stash->{items}};
+
+    $c->stash->{items} = \@switches;
 };
 
 =head2 after create
