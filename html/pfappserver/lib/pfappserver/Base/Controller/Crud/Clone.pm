@@ -1,11 +1,11 @@
-package pfappserver::Base::Controller::Crud::Copy;
+package pfappserver::Base::Controller::Crud::Clone;
 =head1 NAME
 
-pfappserver::Base::Controller::Crud::Copy
+pfappserver::Base::Controller::Crud::Clone
 
 =head1 DESCRIPTION
 
-Copy role for Crud controller
+Clone role for Crud controller
 
 =cut
 
@@ -17,29 +17,28 @@ use namespace::autoclean;
 
 =head1 METHODS
 
-=head2 copy
+=head2 clone
 
-copy action for crud style controllers
+clone action for crud style controllers
 
 =cut
 
-sub copy :Chained('object') :PathPart('copy') :Args(1) {
+sub clone :Chained('object') :PathPart('clone') :Args(0) {
     my ( $self, $c, $to ) = @_;
-    my $model = $self->getModel($c);
-    my $idKey = $model->idKey;
-    my $from = $c->stash->{$idKey};
-    my ($status,$status_msg) = $model->hasId($to);
-    if(is_success($status)) {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = "$to already exists";
+    if ($c->request->method eq 'POST') {
+        $self->_processCreatePost($c);
     } else {
-        ($status,$status_msg) = $model->copy($from,$to);
+        my $model = $self->getModel($c);
+        my $itemKey = $model->itemKey;
+        my $idKey = $model->idKey;
+        my $item = $c->stash->{$itemKey};
+        delete $item->{$idKey};
+        my $form = $self->getForm($c);
+        $form->process(init_object => $item);
+        $c->stash(
+            form     => $form,
+        );
     }
-    $c->stash(
-        status_msg   => $status_msg,
-        current_view => 'JSON',
-    );
-    $c->response->status($status);
 }
 
 =head1 COPYRIGHT
