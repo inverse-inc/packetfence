@@ -37,7 +37,7 @@
       <tr style="font-weight: normal">
         <td class="hidden-phone"></td>
         <td><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), ['default']) %]">[% l('default') %]</a></td>
-        <td>[% l('The Default Profile') %]</td>
+        <td>[% l('Default Profile') %]</td>
         <td></td>
       </tr>
     </thead>
