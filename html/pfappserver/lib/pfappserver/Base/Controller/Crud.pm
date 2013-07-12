@@ -23,38 +23,43 @@ use namespace::autoclean;
 
 sub create : Local: Args(0) {
     my ($self,$c) = @_;
-    my $form = $self->getForm($c);
-    my $model = $self->getModel($c);
     if ($c->request->method eq 'POST') {
-        $c->stash( current_view => 'JSON');
-        my ($status, $status_msg);
-        $form->process(params => $c->request->params);
-        if ($form->has_errors) {
-            $status = HTTP_BAD_REQUEST;
-            $status_msg = $form->field_errors;
-        }
-        else {
-            my $item = $form->value;
-            my $idKey = $model->idKey;
-            my $itemKey = $model->itemKey;
-            my $id = $item->{$idKey};
-            $c->stash(
-                $itemKey => $item,
-                $idKey   => $id
-            );
-            ($status, $status_msg) = $model->create($id, $item);
-        }
-        $c->response->status($status);
-        $c->stash->{status_msg} = $status_msg;
+        $self->_processCreatePost($c);
         # check if exists
         # Create the source from the update action
     } else {
         # Show an empty form
         $c->stash(
-            form => $form,
+            form => $self->getForm($c)
         );
         $c->forward('view');
     }
+}
+
+sub _processCreatePost {
+    my ($self,$c) =@_;
+    my $form = $self->getForm($c);
+    my $model = $self->getModel($c);
+    $c->stash( current_view => 'JSON');
+    my ($status, $status_msg);
+    $form->process(params => $c->request->params);
+    if ($form->has_errors) {
+        $status = HTTP_BAD_REQUEST;
+        $status_msg = $form->field_errors;
+    }
+    else {
+        my $item = $form->value;
+        my $idKey = $model->idKey;
+        my $itemKey = $model->itemKey;
+        my $id = $item->{$idKey};
+        $c->stash(
+            $itemKey => $item,
+            $idKey   => $id
+        );
+        ($status, $status_msg) = $model->create($id, $item);
+    }
+    $c->response->status($status);
+    $c->stash->{status_msg} = $status_msg;
 }
 
 =head2 _setup_object
