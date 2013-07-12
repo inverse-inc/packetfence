@@ -3594,7 +3594,7 @@ msgstr "Wireless IPS threshold"
 
 # conf/documentation.conf
 msgid "trapping.passthroughs"
-msgstr "Pass throughs"
+msgstr "Passthroughs"
 
 # pfappserver::Model::Node (availableStatus)
 msgid "unreg"

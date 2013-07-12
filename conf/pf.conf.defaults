@@ -100,12 +100,6 @@ registration=enabled
 # lower the value.
 redirtimer=20s
 #
-# trapping.passthrough
-#
-# When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
-# to trapped devices. Don´t forget to enable ip_forward on your server.
-passthrough=disabled
-#
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
@@ -152,7 +146,15 @@ wireless_ips=disabled
 wireless_ips_threshold=90
 
 #
-# trapping.urls
+# trapping.passthrough
+#
+# When enabled, pfdns will resolve the real IP addresses of passthroughs and add them in the ipset session to give access
+# to trapped devices. Don´t forget to enable ip_forward on your server.
+passthrough=disabled
+#
+# trapping.passthroughs
+#
+# Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to web sites.
 #
 passthroughs=
 
@@ -226,16 +228,6 @@ access_duration_choices=1h,3h,12h,1D,2D,3D,5D
 # This is the default access duration value selected in the dropdown on the 
 # guest management interface.
 default_access_duration=12h
-
-#
-# This section allows you to create passthroughs to web site on ports 80 (HTTP) and 443 (HTTPS).
-# The configuration parameter [trapping.passthrough] must be enabled for passthroughs to be effective.
-#
-# Here's an example:
-# packetfence=www.packetfence.org
-# The above will allow 80/tcp 443/tcp traffic to the packetfence.org domain (the left-hand side value is arbitrary).
-# 
-[passthroughs]
 
 [alerting]
 #
