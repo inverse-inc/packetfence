@@ -59,7 +59,7 @@ sub exists {
     unless ($result) {
         $result = ["Node [_1] was not found.",$mac];
         $status = $STATUS::NOT_FOUND;
-        $logger->warn($result);
+        $logger->warn("Node $mac was not found.");
     }
 
     return ($status, $result);
