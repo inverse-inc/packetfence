@@ -23,7 +23,6 @@ sub _run {
 our $delimiter = '|';
 our $count  = $ENV{PER_PAGE};
 our $offset = $ENV{PAGE_NUM};
-use pf::config::ui;
 
 sub print_results {
     my ($self) = @_;
@@ -86,6 +85,8 @@ sub showHelp {
 
 sub field_order {
     my ($self) = @_;
+    require pf::config::ui;
+    import pf::config::ui;
     return pf::config::ui->instance->field_order($self->field_ui);
 }
 
