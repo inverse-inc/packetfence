@@ -942,7 +942,7 @@ and enabled are all positive values for PacketFence.
 
 sub isenabled {
     my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
         return (1);
     } else {
         return (0);

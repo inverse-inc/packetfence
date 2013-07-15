@@ -13,6 +13,7 @@ value matches the checkbox_value attribute.
 
 use Moose;
 extends 'HTML::FormHandler::Field::Checkbox';
+use pf::config;
 use namespace::autoclean;
 
 has '+checkbox_value' => ( default => 'Y' );
@@ -23,18 +24,15 @@ has '+deflate_value_method'=> ( default => sub { \&toggle_deflate } );
 sub toggle_inflate {
     my ($self, $value) = @_;
 
-    return $self->{unchecked_value} if ($value ne $self->{checkbox_value});
-    return $value;
+    return $self->{checkbox_value} if (pf::config::isenabled($value));
+    return $self->{unchecked_value};
 }
 
 sub toggle_deflate {
     my ($self, $value) = @_;
 
-    if ($value ne $self->{checkbox_value}) {
-        return $self->{unchecked_value};
-    }
-
-    return $value;
+    return $self->{checkbox_value} if (pf::config::isenabled($value));
+    return $self->{unchecked_value};
 }
 
 =head1 COPYRIGHT
