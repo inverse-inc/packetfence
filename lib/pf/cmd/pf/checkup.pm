@@ -5,7 +5,7 @@ pf::cmd::checkup add documentation
 
 =head1 SYNOPSIS
 
-Usage: pfcmd checkup
+pfcmd checkup
 
 perform a sanity checkup and report any problems or warnings
 

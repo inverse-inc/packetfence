@@ -1,13 +1,13 @@
 #!/usr/bin/perl
 =head1 NAME
 
-pfcmd2 add documentation
+pfcmd
 
 =cut
 
 =head1 DESCRIPTION
 
-pfcmd2
+driver script for pfcmd
 
 =cut
 
@@ -17,7 +17,6 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use pf::cmd::pf;
-
 exit pf::cmd::pf->new({args => \@ARGV})->run();
 
 

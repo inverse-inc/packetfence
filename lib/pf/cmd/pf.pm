@@ -38,8 +38,7 @@ pfcmd <command> [options]
   service                     | start/stop/restart and get PF daemon status
   switchconfig                | query/modify switches.conf configuration parameters
   switchlocation              | view switchport description and location
-  traplog                     | update traplog RRD files and graphs or obtain
-  switch IPs
+  traplog                     | update traplog RRD files and graphs or obtain switch IPs
   trigger                     | view and throw triggers
   ui                          | used by web UI to create menu hierarchies and dashboard
   update                      | download canonical fingerprint or OUI data
@@ -60,6 +59,7 @@ pf::cmd::pf
 use strict;
 use warnings;
 use pf::cmd::subcmd;
+use pf::cmd::pf::help;
 use base qw(pf::cmd::subcmd);
 
 sub helpActionCmd { "pf::cmd::pf::help" }
