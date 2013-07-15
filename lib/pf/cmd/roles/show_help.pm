@@ -13,13 +13,12 @@ pf::cmd::roles::show_help
 
 use strict;
 use warnings;
-use Pod::Usage;
+use Pod::Usage qw(pod2usage);
+use Pod::Text::Termcap;
+@Pod::Usage::ISA = ('Pod::Text::Termcap');
 use Pod::Find qw(pod_where);
 use base qw(Exporter);
 
-BEGIN {
-    $Pod::Usage::Formatter = 'Pod::Text::Termcap';
-}
 
 
 our @EXPORT = qw(showHelp);
@@ -27,7 +26,7 @@ our @EXPORT = qw(showHelp);
 sub showHelp {
     my ($self,$package) = @_;
     $package ||= ref($self) || $self;
-    pod2usage( -input => pod_where({-inc => 1}, $package) );
+    pod2usage( { -width => 200 , -input => pod_where({-inc => 1}, $package) } );
 }
 
 
