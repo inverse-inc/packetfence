@@ -137,11 +137,10 @@ input[type="text"] {
 
 .btn {
     cursor: pointer;
-    padding: 10px 12px 14px 12px;
+    padding: 10px 0px 14px 0px;
     margin: 0;
     font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
     width: 100%;
-    min-width: 128px;
     color: white;
     background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #b3ff66), color-stop(1%, #b3ff66), color-stop(1%, #66cc00), color-stop(90%, #66cc00), color-stop(90%, #57a708), color-stop(100%, #57a708));
     background-image: -webkit-linear-gradient(#b3ff66, #b3ff66 1%, #66cc00 1%, #66cc00 90%, #57a708 90%, #57a708);
