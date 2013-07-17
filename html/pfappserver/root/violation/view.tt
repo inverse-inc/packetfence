@@ -1,5 +1,8 @@
+[% UNLESS action_uri%]
+[% SET action_uri = c.req.uri %]
+[% END %]
 <form name="violation" class="form-horizontal" action="[% action_uri %]">
-  [%- IF item %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
+  [%- IF item.id %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
     <h3>[% IF item %]<i>[% l('Violation') %]</i> [% item.desc || item.id %][% ELSE %][% l('New Violation') %][% END %]</h3>
@@ -18,7 +21,7 @@
 
       <div class="tab-pane fade in active" id="violationDefinition">
         [% form.field('enabled').render %]
-        [% form.field('id').render UNLESS item %]
+        [% form.field('id').render UNLESS item.id %]
         [% form.field('desc').render %]
         [% form.field('actions').render %]
         [% form.field('vclose').render %]

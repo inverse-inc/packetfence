@@ -25,6 +25,7 @@ use pfappserver::Form::Violation;
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
+    with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
 __PACKAGE__->config(
@@ -100,7 +101,7 @@ after view => sub {
 
 =cut
 
-after create => sub {
+after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'violation/view.tt';
