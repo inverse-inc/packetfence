@@ -20,6 +20,7 @@ use warnings;
 
 use Log::Log4perl;
 use POSIX;
+use Try::Tiny;
 
 use base ('pf::SNMP');
 
@@ -29,6 +30,7 @@ sub description { 'Hostapd' }
 # importing switch constants
 use pf::SNMP::constants;
 use pf::util;
+use pf::util::radius qw(perform_disconnect);
 
 =head1 SUBROUTINES
 
