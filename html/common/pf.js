@@ -21,7 +21,7 @@ function fetchNodeStatus() {
       method: 'post',
       parameters: { json: 'true' },
       requestHeaders: {Accept: 'application/json'},
-    
+
       onSuccess: function(transport) {
         if (transport.responseJSON) {
           var response = transport.responseText.evalJSON(true);
@@ -29,13 +29,13 @@ function fetchNodeStatus() {
         }
       },
 
-      onFailure: function(transport){ 
+      onFailure: function(transport){
         // TODO return transport instead?
         return null;
       }
 
     });
-} 
+}
 
 /**
  networkAccessCallback
@@ -84,7 +84,7 @@ function performRedirect(destination_url) {
  Known to work with Internet Explorer 8 / 9, Firefox 3.6 / 4, Chrome 9 / 10, Safari 5.
 
  Firefox 3.5+: We are sending a special HTTP Header (X-DNS-Prefetch-Control off) to prevent the caching of DNS entries
- for more details see: 
+ for more details see:
  - https://developer.mozilla.org/En/Controlling_DNS_prefetching
  - http://dev.chromium.org/developers/design-documents/dns-prefetching
 
@@ -92,22 +92,39 @@ function performRedirect(destination_url) {
  http://my.cn.opera.com/community/forums/topic.dml?id=880632&t=1298063094
  */
 function detectNetworkAccess(retry_delay, destination_url, redirect_url, external_ip) {
-  
-    // stop-condition
-    if (!network_redirected) {
-
-        // onload will be fired if image loads successfully meaning network access works
-        $('netdetect').onload = function() {
+    "use strict";
+    var errorDetected;
+    var loaded;
+    var netdetect = $('netdetect');
+    netdetect.onerror = function() {
+        errorDetected = true;
+        loaded = false;
+    };
+    netdetect.onload = function() {
+        errorDetected = false;
+        loaded = true;
+    };
+    var checker;
+    var initNetDetect = function() {
+        errorDetected = loaded = undefined;
+        netdetect.src = "http://" + external_ip + "/common/network-access-detection.gif?r=" + Date.now();
+        setTimeout(checker,retry_delay);
+    };
+    checker = function() {
+        if(errorDetected === true) {
+            initNetDetect();
+        } else if (loaded === true) {
             networkAccessCallback(destination_url, redirect_url);
+        } else {
+            //Check the width or height of the image since we do not know if it is loaded
+            if(netdetect.width || netdetect.height) {
+                networkAccessCallback(destination_url, redirect_url);
+            } else {
+                initNetDetect();
+            }
         }
-        // the image src with caching prevention
-        // Note: it is very important to change the source AFTER setting the onload otherwise its not as reliable
-        // see: http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
-        $('netdetect').src = "http://" + external_ip + "/common/network-access-detection.gif?r=" + Date.now();
-
-        // recurse
-        detectNetworkAccess.delay(retry_delay, retry_delay, destination_url, redirect_url, external_ip);
     }
+    initNetDetect();
 }
 
 /**
@@ -132,7 +149,7 @@ function confirmToQuit (e) {
 /**
  addConfirmToQuit
 
- Call this when you have users to get a warning before leaving a page. 
+ Call this when you have users to get a warning before leaving a page.
  Add it to the onchange of form fields.
  */
 function addConfirmToQuit() {
