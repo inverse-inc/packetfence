@@ -60,13 +60,17 @@ package pf::web;
 
 *pf::web::validate_form  = sub {
     my ( $portalSession ) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::web');
-    $logger->trace("form validation attempt");
 
     my $cgi = $portalSession->getCgi();
+
     # acceptable use pocliy accepted?
     if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
-        return ( 0 , 'You need to accept the terms before proceeding any further.' );
+        return ( 0 , 'You must accept the Service Terms to receive access.' );
+    }
+
+    # email specified?
+    if (!defined($cgi->param('email')) || !pf::web::util::is_email_valid($cgi->param('email'))) {
+        return ( 0, 'You must enter a valid email address to receive access.' );
     }
 
     return (1);
