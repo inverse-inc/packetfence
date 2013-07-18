@@ -5,10 +5,10 @@
 // V 1.1 - CHANGED THE action() FUNCTION SO HIDING THE BAR IS SELECTABLE.
 // V 1.2 - ADDED FUNCTIONALITY TO CONTROL WHEN YOU CLICK THE TIMERBAR.
 
-var loadedcolor='darkgray' ;       // PROGRESS BAR COLOR
-var unloadedcolor='lightgrey';     // COLOR OF UNLOADED AREA
-var bordercolor='navy';            // COLOR OF THE BORDER
-var barheight=15;                  // HEIGHT OF PROGRESS BAR IN PIXELS
+var loadedcolor='#666' ;       // PROGRESS BAR COLOR
+var unloadedcolor='#e2e2e2';     // COLOR OF UNLOADED AREA
+var bordercolor='#e2e2e2';            // COLOR OF THE BORDER
+var barheight=21;                  // HEIGHT OF PROGRESS BAR IN PIXELS
 var barwidth=264;                  // WIDTH OF THE BAR IN PIXELS
 
 // THE FUNCTION BELOW CONTAINS THE ACTION(S) TAKEN ONCE BAR REACHES 100%.
@@ -64,14 +64,14 @@ txt+='</div>';
 document.write(txt);
 
 function incrCount(){
-loaded++;
-if(loaded<0)loaded=0;
-if(loaded>=waitTime*10){
-clearInterval(Pid);
-loaded=waitTime*10;
-setTimeout('action()',100);
-}
-resizeEl(PBdone, 0, blocksize*loaded, barheight-2, 0);
+    loaded++;
+    if(loaded<0)loaded=0;
+    if(loaded>=waitTime*10){
+        clearInterval(Pid);
+        loaded=waitTime*10;
+        setTimeout('action()',100);
+    }
+    resizeEl(PBdone, 0, blocksize*loaded, barheight-2, 0);
 }
 
 function hidebar(){
