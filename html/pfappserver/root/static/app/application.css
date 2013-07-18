@@ -105,7 +105,7 @@ body {
 #navbar .brand img {
   display: none;
 }
-.navbar .nav {
+#navbar .nav {
   top: 83px;
 }
 .navbar-inverse .brand,
