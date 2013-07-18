@@ -664,3 +664,9 @@ voip=no
 user = 
 pass =
 
+[interception_proxy]
+#
+# intercept_proxy.port
+#
+# Define the proxy port to intercept in vlan and in inline enforcement
+port= 

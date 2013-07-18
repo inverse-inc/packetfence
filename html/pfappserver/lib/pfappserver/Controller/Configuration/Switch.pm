@@ -63,23 +63,20 @@ after list => sub {
     my ($status, $floatingdevice, $ip);
     my @ips = ();
     my $floatingDeviceModel = $c->model('Config::FloatingDevice');
+    my %switches;
     foreach my $switch (@{$c->stash->{items}}) {
-        $ip = $switch->{id};
-        if ($ip) {
-            push(@ips, $ip);
-            ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $ip);
+        my $id = $switch->{id};
+        if ($id) {
+            push(@ips, $id) if $id ne 'default';
+            $switches{$id} = $switch;
+            ($status, $floatingdevice) = $floatingDeviceModel->search('ip', $id);
             if (is_success($status)) {
                 $switch->{floatingdevice} = pop @$floatingdevice;
             }
         }
     }
 
-    # Sort switches by IP address
-    my $i = 1;
-    my %sorted_ips = map { $_ => $i++ } sort_ip(@ips);
-    my @switches = sort { $sorted_ips{$a->{id}} <=> $sorted_ips{$b->{id}} } @{$c->stash->{items}};
-
-    $c->stash->{items} = \@switches;
+    $c->stash->{items} = [@switches{'default',sort_ip(@ips)}];
 };
 
 =head2 after create

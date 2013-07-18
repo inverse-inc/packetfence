@@ -45,7 +45,7 @@ var FloatingDeviceView = function(options) {
 
     // Display the floatingdevice in a modal
     var read = $.proxy(this.readFloatingDevice, this);
-    options.parent.on('click', '#floatingdevices [href$="/read"], #createFloatingDevice', read);
+    options.parent.on('click', '#floatingdevices [href$="/read"], #floatingdevices [href$="/clone"], #createFloatingDevice', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateFloatingDevice, this);

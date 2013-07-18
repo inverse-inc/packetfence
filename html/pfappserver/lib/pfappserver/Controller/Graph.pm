@@ -134,7 +134,7 @@ sub _graphLine :Private {
                    range => $self->_range($c, $section),
                    labels => $result->{labels},
                    series => $result->{series},
-                   graphtype => 'line',
+                   graphtype => scalar @{$result->{labels}} > 1 ? 'line' : 'bar',
                    template => 'graph/line.tt',
                    current_view => 'HTML',
                   });
@@ -214,8 +214,8 @@ sub _graphCounter :Private {
 sub _dashboardCounters :Private {
     my ( $self, $c ) = @_;
 
-    my $start = $c->session->{$DASHBOARD}->{start};
-    my $end = $c->session->{$DASHBOARD}->{end};
+    my $start = $c->session->{$DASHBOARD}->{start} . ' 00:00:00';
+    my $end = $c->session->{$DASHBOARD}->{end} . ' 23:59:59';
 
     my $counters =
       {

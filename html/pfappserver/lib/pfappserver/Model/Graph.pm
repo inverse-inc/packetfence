@@ -96,7 +96,7 @@ sub timeBase {
         my ($start_year, $start_mon, $start_day) = split( /\-/, $startDate);
         my ($end_year, $end_mon, $end_day) = split( /\-/, $endDate);
         $first_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
-        $last_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+        $last_time = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T23:59:59.0000000" );
 
         if ( ($last_time - $first_time) > (90 * 24 * 60 * 60) ) {
             $interval = 'month';
@@ -107,15 +107,15 @@ sub timeBase {
     }
 
     if ($function) {
-        eval { @results = $function->($startDate, $endDate, $interval); };
+        eval { @results = $function->("$startDate 00:00:00", "$endDate 23:59:59", $interval); };
         if ($@) {
-            $status_msg = ["Can't fetch data from database for graph [_1].",$graph];
+            $status_msg = ["Can't fetch data from database for graph [_1].", $graph];
             $logger->error($@);
             return ($STATUS::INTERNAL_SERVER_ERROR, $status_msg);
         }
     }
     else {
-        $status_msg = ["No such sub [_1]",$function];
+        $status_msg = ["No such sub [_1]", $function];
         return ($STATUS::NOT_FOUND, $status_msg);
     }
 
@@ -145,8 +145,7 @@ sub timeBase {
             } elsif ( $interval eq "year" ) {
                 $start_year = $results[0]->{'mydate'};
             }
-            my $start_time = Date::Parse::str2time(
-                                                   "$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
+            my $start_time = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
             if ( ( !defined($first_time) ) || ( $start_time < $first_time ) ) {
                 $first_time = $start_time;
             }
@@ -179,7 +178,7 @@ sub timeBase {
         my $start_time = Date::Parse::str2time(
             "$start_year-$start_mon-$start_day" . "T00:00:00.0000000" );
         my $end_time = Date::Parse::str2time(
-            "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+            "$end_year-$end_mon-$end_day" . "T23:59:59.0000000" );
         if ( $start_time > $first_time ) {
             my $new_record;
             foreach my $field (@fields) {
@@ -224,11 +223,9 @@ sub timeBase {
                 my ( $end_year, $end_mon, $end_day )
                     = split( /\//, $results[ $r + 1 ]->{'mydate'} );
                 my $start_time
-                    = Date::Parse::str2time(
-                          "$start_year-$start_mon-$start_day"
-                        . "T00:00:00.0000000" );
-                my $end_time = Date::Parse::str2time(
-                    "$end_year-$end_mon-$end_day" . "T00:00:00.0000000" );
+                  = Date::Parse::str2time("$start_year-$start_mon-$start_day" . "T00:00:00.0000000");
+                my $end_time
+                  = Date::Parse::str2time("$end_year-$end_mon-$end_day" . "T00:00:00.0000000");
                 for (my $current_time = $start_time;
                      $current_time < $end_time;
                      $current_time += 86400)

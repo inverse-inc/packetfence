@@ -54,7 +54,7 @@ outputs:
       enabled: yes
       filename: alert
       append: yes
-      filetype: unix_stream
+      filetype: regular
 
   # alert output for use with Barnyard2
   - unified2-alert:

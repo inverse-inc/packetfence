@@ -264,7 +264,13 @@ function graphBarData(holder, size, labels, series) {
     txtattr = { font: "12px 'Fontin Sans', Fontin-Sans, sans-serif" };
 
     // Print legend at top
-    var colors = Raphael.g.colors;
+    var colors = Raphael.g.colors,
+    white = Raphael.color("white");
+    // Generate more colors if necessary
+    for (i = colors.length, j = 0; i < legend.length; i++, j++) {
+        colors[i] = Raphael.color(colors[j]);
+        colors[i] = 'hsb(' + (1 - colors[i].h) + ', ' + colors[i].s + ', ' + colors[i].v + ')';
+    }
     var x = 15, h = 5, j = 0, lines = [];
     for (i = 0, lines[j] = r.set(); i < legend.length; ++i) {
  	var clr = colors[i];
@@ -310,6 +316,18 @@ function graphBarData(holder, size, labels, series) {
                                type: "soft"
                            }
                           );
+    chart.customLabel = function (labels) {
+        labels = labels || [];
+        this.labels = r.set();
+        for (var i = 0; i < this.bars[0].length; i++) {
+            x = this.bars[0][i].x;
+            y = this.bars[0][i].y + this.bars[0][i].h + 10;
+            r.text(x, y, labels[i]).attr(txtattr);
+        }
+        h += 10;
+        return this;
+    };
+    chart.customLabel(labels);
     chart.hover(fin, fout);
 
     $('#'+holder).css({ height: (height+h)+'px' });

@@ -81,8 +81,8 @@ Delete an existing item
 
 sub remove {
     my ($self,$id) = @_;
-    if($id eq 'all') {
-        return ($STATUS::INTERNAL_SERVER_ERROR, "Cannot delete this item");
+    if($id eq 'default') {
+        return undef;
     }
     return $self->SUPER::remove($id);
 }

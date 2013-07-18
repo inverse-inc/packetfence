@@ -37,6 +37,7 @@
               [%- END %]</td>
             <td class="hidden-phone">[% violation.vlan %]</td>
             <td style="white-space: nowrap;">
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller('Violation').action_for('clone'), [ violation.id ]) %]#modalViolation">[% l('Clone') %]</a>
               <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]">[% l('Delete') %]</a>
               [% IF profiles.size > 1 %]
               <div class="btn-group">[% END %]

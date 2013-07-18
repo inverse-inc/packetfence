@@ -21,6 +21,8 @@ use warnings;
 use pf::config;
 use pf::util;
 use pf::web;
+use Apache::Session::Generate::MD5;
+use Apache::Session::Flex;
 use Cache::Memcached;
 
 BEGIN {
@@ -271,6 +273,54 @@ sub del_memcached {
         compress_threshold => 10_000,
     ) unless defined $memd;
     $memd->delete($key);
+}
+
+=item
+
+generate or retreive an apache session
+
+=cut
+
+sub session {
+    my ($session, $id) = @_;
+    eval {
+        tie %{$session}, 'Apache::Session::Flex', $id, {
+                          Store => 'Memcached',
+                          Lock => 'Null',
+                          Generate => 'MD5',
+                          Serialize => 'Storable',
+                          Servers => get_memcached_conf(),
+                          };
+    } or session($session, undef);
+
+    return $session;
+}
+
+=item
+
+retreive packetfence cookie
+
+=cut
+
+sub getcookie {
+    my ($cookies) =@_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $cleaned_cookies = '';
+    if ( defined($cookies) ) {
+        foreach (split(';', $cookies)) {
+            if (/([^,; ]+)=([^,; ]+)/) {
+                if ($1 eq 'packetfence'){
+                    $cleaned_cookies .= $2;
+                }
+            }
+        }
+        if ($cleaned_cookies ne '') {
+            return $cleaned_cookies;
+        }
+    }
+    else {
+        return $FALSE;
+    }
 }
 
 =back
