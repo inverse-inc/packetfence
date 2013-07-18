@@ -28,6 +28,7 @@ Bug Fixes
 +++++++++
 
 * Form toggle fields don't support all variations
+* Counters and graphs for today are empty
 
 Version 4.0.2 released on 2013-07-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,7 +46,7 @@ Enhancements
 * Added search and display of the a user's telephone number
 * Can now have multiple external authentication sources
 * Increased speed of loading configuration from the cache
-* Each portal profiles can now use a list of authentication sources
+* Each portal profile can now use a list of authentication sources
 * A switch definition can now be easily cloned
 * Switches are now ordered by IP address
 
