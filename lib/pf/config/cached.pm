@@ -631,9 +631,10 @@ sub ReadConfig {
             return $config;
         }
     );
-    $self->_callReloadCallbacks;
+    $reloaded_from_cache = refaddr($config) != refaddr($$self);
+    $self->_callReloadCallbacks if ($reloaded_from_cache || $reloaded_from_file);
     $self->_callFileReloadCallbacks if $reloaded_from_file;
-    $self->_callCacheReloadCallbacks if refaddr($config) != refaddr($$self);
+    $self->_callCacheReloadCallbacks if $reloaded_from_cache;
     return $result;
 }
 
@@ -687,6 +688,7 @@ sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
     my $mod_time = getModTimestamp($file);
     my $computeWrapper = sub {
+        print "Called $file\n";
         my $config = $computeSub->();
         $config->{_timestamp} = time;
         return $config;
@@ -698,6 +700,8 @@ sub computeFromPath {
         },
         $computeWrapper
     );
+    $computeWrapper = undef;
+    $computeWrapper = undef;
     return $result;
 }
 
@@ -722,7 +726,14 @@ Builds the CHI object
 =cut
 
 sub _cache {
-    return pf::CHI->new(namespace => __PACKAGE__ );
+    return CHI->new(
+        namespace => __PACKAGE__,
+        'driver' => 'Memcached',
+        'servers' => [ '127.0.0.1:11211' ],
+        'l1_cache' => {
+            driver => 'RawMemory', global => 1
+        },
+    );
 }
 
 =head2 _expireIf
@@ -750,6 +761,7 @@ Simple utility function for getting the modification timestamp
 =cut
 
 sub getModTimestamp {
+#    print "getModTimestamp\n";
     my $timestamp = (stat($_[0]))[9];
     return $timestamp;
 }
@@ -921,7 +933,14 @@ Builds CHI arguments
 =cut
 
 sub _buildCHIArgs {
-    my $args = _extractCHIArgs("default");
+    my $args = {
+        namespace => __PACKAGE__,
+        'driver' => 'Memcached',
+        'servers' => [ '127.0.0.1:11211' ],
+        'l1_cache' => {
+            driver => 'RawMemory', global => 1
+        },
+    };
     return %$args;
 }
 
