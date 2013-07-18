@@ -213,6 +213,12 @@ has_block definition =>
   (
    render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
   );
+
+has_block wrix =>
+  (
+   render_list => [],
+  );
+
 has_field 'SNMPVersion' =>
   (
    type => 'Select',
