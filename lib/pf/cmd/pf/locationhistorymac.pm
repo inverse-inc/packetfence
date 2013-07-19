@@ -22,13 +22,13 @@ pf::cmd::pf::locationhistorymac
 use strict;
 use warnings;
 use base qw(pf::cmd::display);
-use pf::cmd::roles::show_help;
-use pf::locationlog;
 
 sub parseArgs {
     my ($self) = @_;
     my ($key,@date_args) = $self->args;
     if($key) {
+        require pf::locationlog;
+        import pf::locationlog;
         my %params;
         $params{date} = str2time(join(' ',@date_args));
         $params{mac} = $key;

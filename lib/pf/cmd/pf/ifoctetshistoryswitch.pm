@@ -21,14 +21,14 @@ pf::cmd::pf::ifoctetshistoryswitch
 
 use strict;
 use warnings;
-use pf::ifoctetslog;
 use base qw(pf::cmd::display);
-use pf::cmd::roles::show_help;
 
 sub parseArgs {
     my ($self) = @_;
     my ($switch,$ifIndex,$start_time,$end_time) = $self->args;
     if ($switch) {
+        require pf::ifoctetslog;
+        import pf::ifoctetslog;
         my %params = (ifIndex => $ifIndex);
         $params{'start_time'} = str2time( $start_time) if defined $start_time;
         $params{'end_time'} = str2time( $end_time) if defined $end_time;

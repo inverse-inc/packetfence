@@ -58,7 +58,6 @@ pf::cmd::pf
 
 use strict;
 use warnings;
-use pf::cmd::subcmd;
 use pf::cmd::pf::help;
 use base qw(pf::cmd::subcmd);
 

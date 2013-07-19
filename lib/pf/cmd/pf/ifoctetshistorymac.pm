@@ -23,13 +23,13 @@ pf::cmd::pf::ifoctetshistorymac
 use strict;
 use warnings;
 use base qw(pf::cmd::display);
-use pf::cmd::roles::show_help;
-use pf::ifoctetslog;
 
 sub parseArgs {
     my ($self) = @_;
     my ($key,@dates) = $self->args;
     if (defined $key) {
+        require pf::ifoctetslog;
+        import pf::ifoctetslog;
         my %params;
         if(@dates == 2) {
             $params{'start_time'} = str2time( $dates[0]);

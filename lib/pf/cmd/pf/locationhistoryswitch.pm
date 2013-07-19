@@ -23,14 +23,14 @@ pf::cmd::pf::locationhistoryswitch
 use strict;
 use warnings;
 use base qw(pf::cmd::display);
-use pf::locationlog;
 use Date::Parse;
-use pf::cmd::roles::show_help;
 
 sub parseArgs {
     my ($self) = @_;
     my ($switch,$ifIndex,@date_args) = $self->args;
     if (defined $switch) {
+        require pf::locationlog;
+        import pf::locationlog;
         my %params = (ifIndex => $ifIndex);
         my $date = join(' ',@date_args);
         $params{'date'} = str2time($date) if $date;
