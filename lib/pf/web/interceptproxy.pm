@@ -9,6 +9,8 @@ interceptproxy.pm
 use strict;
 use warnings;
 
+use Apache2::Reload;
+
 use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
 use Apache2::RequestRec ();
 use Apache2::RequestUtil;
@@ -22,6 +24,7 @@ use URI::Escape qw(uri_escape);
 use pf::config;
 use pf::util;
 use pf::web::util;
+#use pf::web::constants;
 
 use constant BUFF_LEN => 1024;
 
@@ -240,7 +243,7 @@ sub reverse {
 
 =head1 AUTHOR
 
-Inverse inc. <info@inverse.ca>
+Fabrice Durand <fdurand@inverse.ca>
 
 =head1 COPYRIGHT
 Copyright (C) 2012 Inverse inc.
