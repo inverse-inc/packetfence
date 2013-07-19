@@ -869,7 +869,7 @@ Returns true or false values based on if item was found or not.
 
 sub is_in_list {
     my ($item, $list) = @_;
-    my @list = split( /\s*,\s*/, $list );
+    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
     return $TRUE if any { $_ eq $item } @list;
     return $FALSE;
 }
