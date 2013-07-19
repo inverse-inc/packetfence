@@ -9,7 +9,8 @@ var loadedcolor='#666' ;       // PROGRESS BAR COLOR
 var unloadedcolor='#e2e2e2';     // COLOR OF UNLOADED AREA
 var bordercolor='#e2e2e2';            // COLOR OF THE BORDER
 var barheight=21;                  // HEIGHT OF PROGRESS BAR IN PIXELS
-var barwidth=264;                  // WIDTH OF THE BAR IN PIXELS
+var barwidth = document.documentElement.clientWidth - 
+    ((document.documentElement.clientWidth > 320)? 162:56);
 
 // THE FUNCTION BELOW CONTAINS THE ACTION(S) TAKEN ONCE BAR REACHES 100%.
 // IF NO ACTION IS DESIRED, TAKE EVERYTHING OUT FROM BETWEEN THE CURLY BRACES ({})
