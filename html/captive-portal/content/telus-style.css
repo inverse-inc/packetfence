@@ -117,17 +117,16 @@ input[type="text"] {
     color: red;
 }
 
-#aup {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    margin: 0;
-    margin-bottom: 23px;
-    padding: 0 10px;
-    overflow-y: auto;
-    text-align: left;
-    text-transform: none;
-    text-shadow: none;
-    height: 150px;
+.aup h1, .aup h2 {
+    font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.aup h3 {
+    font-family: "tthinregular", "Helvetica Neue Thin", Helvetica, Arial, sans-serif;
+}
+
+.aup h2, .aup h3 {
+    color: #49166d;
 }
 
 .checkbox {
