@@ -42,6 +42,7 @@ use pf::util;
 use pf::util::dhcp;
 use pf::violation qw(violation_trigger);
 use pf::ipset;
+use List::MoreUtils qw(any);
 
 # initialization
 # --------------
@@ -100,24 +101,19 @@ daemonize() if ($daemonize);
 
 # start dhcp monitor
 if ( isenabled( $Config{'network'}{'dhcpdetector'} ) ) {
-    my @devices = @listen_ints;
-    push @devices, @dhcplistener_ints;
-    foreach my $dev (@devices) {
-        if ( $dev eq $interface ) {
-
-            # are we listening on an inline interface ?
-            if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0) {
-                $logger->debug("DHCP detector on an inline interface");
-                $is_inline_vlan = $TRUE;
-                $accessControl = new pf::inline::custom();
-            }
-
-            $interface_ip = $Config{"interface $interface"}{'ip'};
-            $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
-
-            $logger->info("DHCP detector on $interface enabled");
-            dhcp_detector();
+    if (any { $_ eq $interface } @listen_ints, @dhcplistener_ints ) {
+        # are we listening on an inline interface ?
+        if (grep( { $_->tag("int") eq $interface} @inline_enforcement_nets) != 0) {
+            $logger->debug("DHCP detector on an inline interface");
+            $is_inline_vlan = $TRUE;
+            $accessControl = new pf::inline::custom();
         }
+
+        $interface_ip = $Config{"interface $interface"}{'ip'};
+        $interface_vlan = get_vlan_from_int($interface) || $NO_VLAN;
+
+        $logger->info("DHCP detector on $interface enabled");
+        dhcp_detector();
     }
     $logger->warn(
         "pfdhcplistener for $interface finished - this is bad. " .
