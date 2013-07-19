@@ -688,7 +688,6 @@ sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
     my $mod_time = getModTimestamp($file);
     my $computeWrapper = sub {
-        print "Called $file\n";
         my $config = $computeSub->();
         $config->{_timestamp} = time;
         return $config;
