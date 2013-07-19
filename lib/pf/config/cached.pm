@@ -700,7 +700,7 @@ sub computeFromPath {
         $computeWrapper
     );
     $computeWrapper = undef;
-    $computeWrapper = undef;
+    $computeSub = undef;
     return $result;
 }
 
@@ -725,14 +725,7 @@ Builds the CHI object
 =cut
 
 sub _cache {
-    return CHI->new(
-        namespace => __PACKAGE__,
-        'driver' => 'Memcached',
-        'servers' => [ '127.0.0.1:11211' ],
-        'l1_cache' => {
-            driver => 'RawMemory', global => 1
-        },
-    );
+    return pf::CHI->new(namespace => 'configfiles' );
 }
 
 =head2 _expireIf
@@ -760,7 +753,6 @@ Simple utility function for getting the modification timestamp
 =cut
 
 sub getModTimestamp {
-#    print "getModTimestamp\n";
     my $timestamp = (stat($_[0]))[9];
     return $timestamp;
 }
@@ -923,49 +915,6 @@ sub cleanupWhitespace {
             $data->{$key} =~ s/\s+$//;
         }
     }
-}
-
-=head2 _buildCHIArgs
-
-Builds CHI arguments
-
-=cut
-
-sub _buildCHIArgs {
-    my $args = {
-        namespace => __PACKAGE__,
-        'driver' => 'Memcached',
-        'servers' => [ '127.0.0.1:11211' ],
-        'l1_cache' => {
-            driver => 'RawMemory', global => 1
-        },
-    };
-    return %$args;
-}
-
-=head2 _extractCHIArgs
-
-Helper function for creating CHI arguments from chi.conf
-
-=cut
-
-sub _extractCHIArgs {
-    my ($section) = @_;
-    my %args;
-    foreach my $param ($chi_config->Parameters($section)) {
-        $args{$param} = $chi_config->val($section,$param);
-    }
-    if(exists $args{servers} && defined $args{servers} ) {
-        my $value = $args{servers};
-        my @servers = (ref $value eq 'ARRAY') ? @$value : ($value);
-        $args{servers} = [ map {split /\s*,\s*/} @servers ];
-    }
-    foreach my $groupmember ( grep { /^\Q$section \E[^ ]+$/ } $chi_config->Sections()) {
-        my $key = $groupmember;
-        $key =~ s/^\Q$section \E//;
-        $args{$key} = _extractCHIArgs($groupmember);
-    }
-    return \%args;
 }
 
 =head1 AUTHOR
