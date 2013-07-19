@@ -101,11 +101,11 @@ my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
 my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
 
-if ( !exists( $switchFactory->{_config}{$switch_ip} ) ) {
+if ( !exists( $switchFactory->config->{$switch_ip} ) ) {
     $logger->logdie("switch $switch_ip not found in switch.conf");
 }
 
-my $switchType = $switchFactory->{_config}{$switch_ip}{'type'};
+my $switchType = $switchFactory->config->{$switch_ip}{'type'};
 if (!(  $switchType
         =~ /Cisco::Catalyst_29(50|60|70)|Cisco::Catalyst_35(50|60)/
     )

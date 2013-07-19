@@ -25,7 +25,7 @@ use pf::services::snmptrapd;
 
 use Log::Log4perl;
 
-use pf::config;     
+use pf::config;
 use pf::SwitchFactory;
 use pf::util;
 
@@ -38,7 +38,7 @@ sub generate_snmptrapd_conf_orig {
     my %SNMPCommunities;
     my $switchFactory = pf::SwitchFactory->getInstance();
     # TODO we can probably make this more performant if we use the hashref instead of re-creating a new one?
-    my %switchConfig = %{ $switchFactory->{_config} };
+    my %switchConfig = %{ $switchFactory->config };
 
     foreach my $key ( sort keys %switchConfig ) {
         # FIXME shouldn't we always add the default one?
@@ -68,7 +68,7 @@ sub generate_snmptrapd_conf_orig {
         }
     }
 
-    foreach my $userName ( sort keys %SNMPv3Users ) { 
+    foreach my $userName ( sort keys %SNMPv3Users ) {
         $tags{'userLines'} .= "createUser " . $SNMPv3Users{$userName} . "\n";
         $tags{'authLines'} .= "authUser log $userName priv\n";
     }
@@ -96,20 +96,20 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut

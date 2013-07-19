@@ -33,7 +33,7 @@ pfcmd_vlan command [options]
    -setAlias            set the description of the specified switch port
    -setDefaultVlan      set the switch port to the default VLAN
    -setIfAdminStatus    set the admin status of the specified switch port
-   -setVlan             set VLAN on the specified switch port 
+   -setVlan             set VLAN on the specified switch port
    -setVlanAllPort      set VLAN on all non-UpLink ports of the specified switch
 
  Options:
@@ -229,14 +229,14 @@ if ($reevaluateAccess) {
     pf::enforcement::reevaluate_access( $mac, 'pfcmd_vlan' );
 
 # Warning: powerfully dangerous method below (reconsider if unstrusted users have access to pfcmd_vlan)
-# This executes a specified method call passed on the command line on a 
+# This executes a specified method call passed on the command line on a
 # proper switch object with the parameters supplied.
 } elsif ($runSwitchMethod) {
 
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
 
@@ -260,7 +260,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -280,7 +280,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -297,7 +297,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -315,7 +315,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -376,15 +376,15 @@ if ($reevaluateAccess) {
                         }
                     }
                 }
-                if ( $type eq $switchFactory->{_config}{$switchDescRegExp}{'type'} ) {
+                if ( $type eq $switchFactory->config->{$switchDescRegExp}{'type'} ) {
                     $version   = $switch->getVersion();
                     $versionOk = $switch->isNewerVersionThan( $switch->getMinOSVersion() );
                 }
             }
         }
         print "$switchDescRegExp, $type, $version, ";
-        if ( $type ne $switchFactory->{_config}{$switchDescRegExp}{'type'} ) {
-            print "typeProblem, configuration file tells us " . $switchFactory->{_config}{$switchDescRegExp}{'type'};
+        if ( $type ne $switchFactory->config->{$switchDescRegExp}{'type'} ) {
+            print "typeProblem, configuration file tells us " . $switchFactory->config->{$switchDescRegExp}{'type'};
         } else {
             if ( !$versionOk ) {
                 print "versionProblem: minOSVersion is " . $switch->getMinOSVersion();
@@ -402,7 +402,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -426,7 +426,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -465,7 +465,7 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("the switch argument is necessary");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -475,7 +475,7 @@ if ($reevaluateAccess) {
         $logger->debug("start handling 'deauthenticate' command");
         $switch->deauthenticateMac($mac);
         $logger->debug("finished handling 'deauthenticate' command");
-    }   
+    }
 
 } elsif ($deauthenticateDot1x) {
 
@@ -487,7 +487,7 @@ if ($reevaluateAccess) {
     if ($switchDescRegExp eq '') {
         exit_wrong_args("the switch argument is necessary");
     }
-    if (!exists( $switchFactory->{_config}{$switchDescRegExp})) {
+    if (!exists( $switchFactory->config->{$switchDescRegExp})) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
@@ -534,17 +534,17 @@ if ($reevaluateAccess) {
     if ( $switchDescRegExp eq '' ) {
         exit_wrong_args("you must specify the switch");
     }
-    if ( !exists( $switchFactory->{_config}{$switchDescRegExp} ) ) {
+    if ( !exists( $switchFactory->config->{$switchDescRegExp} ) ) {
         exit_wrong_args("unknown switch $switchDescRegExp");
     }
     my $switch = $switchFactory->instantiate($switchDescRegExp);
     if (!$switch) {
         print "Can not instantiate switch $switchDescRegExp ! See log files for details\n";
-    } else {    
+    } else {
         if ($getMac) {
-    
+
             $logger->debug("start handling 'getMac' command");
-    
+
             foreach my $currentMac ( $switch->getMacAtIfIndex($ifIndex) ) {
                 print "$currentMac";
                 if ($showMacVendor) {
@@ -560,7 +560,7 @@ if ($reevaluateAccess) {
                 print "\n";
             }
             $logger->debug("finished handling 'getMac' command");
-    
+
         # FIXME: error handling please? all the calls below will generate warnings if the methods return undef or 0
         # illegal concatenation of undef and str
         } elsif ($getIfOperStatus) {
@@ -581,11 +581,11 @@ if ($reevaluateAccess) {
             my @locationlog_entry = locationlog_view_open_switchport_no_VoIP($switch->{'_ip'}, $ifIndex);
             if (@locationlog_entry) {
                 my $conn_type = str_to_connection_type($locationlog_entry[0]->{'connection_type'});
-        
+
                 if ($conn_type != $UNKNOWN) {
                     $logger->info(
                         "sending local reAssignVlan trap to force VLAN re-evaluation on " .
-                        "switch ".$switch->{_ip}." ifIndex $ifIndex " . 
+                        "switch ".$switch->{_ip}." ifIndex $ifIndex " .
                         "connection type: ".$connection_type_explained{$conn_type}
                     );
                     my $trapSender = $switchFactory->instantiate('127.0.0.1');
@@ -671,7 +671,7 @@ if ($reevaluateAccess) {
        exit_wrong_args("The MAC argument is necessary");
     }
     $logger->debug("start handling 'getLocation' command");
-    my %Config = %{ $switchFactory->{_config} };
+    my %Config = %{ $switchFactory->config };
 
     #remove unwanted switches
     if ( $switchDescRegExp eq '' ) {
@@ -699,7 +699,7 @@ if ($reevaluateAccess) {
         if ( ( $key ne 'default' ) && ( $key ne '127.0.0.1') ) {
             $switch_ip = $key;
             my $switch = $switchFactory->instantiate($switch_ip);
-            if (!$switch) { 
+            if (!$switch) {
                 print "Can not instantiate switch $switch_ip ! See log files for details\n";
             } else {
                 $ifIndex = $switch->getIfIndexForThisMac($mac);
