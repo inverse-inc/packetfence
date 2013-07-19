@@ -17,11 +17,7 @@ use Pod::Usage qw(pod2usage);
 use Pod::Text::Termcap;
 @Pod::Usage::ISA = ('Pod::Text::Termcap');
 use Pod::Find qw(pod_where);
-use base qw(Exporter);
-
-
-
-our @EXPORT = qw(showHelp);
+use Role::Tiny;
 
 sub showHelp {
     my ($self,$package) = @_;

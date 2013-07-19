@@ -12,7 +12,8 @@ pf::cmd
 
 use strict;
 use warnings;
-use pf::cmd::roles::show_help;
+use Role::Tiny::With;
+with 'pf::cmd::roles::show_help';
 
 sub new {
     my ($class,$args) = @_;
