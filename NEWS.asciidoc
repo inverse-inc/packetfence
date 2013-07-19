@@ -30,6 +30,7 @@ Bug Fixes
 * Form toggle fields don't support all variations
 * Counters and graphs for today are empty
 * Maintenance interval is not respected in pfmon
+* Optgroup labels in select menus are hidden when build multiple times
 
 Version 4.0.2 released on 2013-07-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

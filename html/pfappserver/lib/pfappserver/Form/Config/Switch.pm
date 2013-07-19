@@ -38,7 +38,7 @@ has_field 'type' =>
   (
    type => 'Select',
    label => 'Type',
-   element_class => ['chzn-deselect'],
+   element_class => ['chzn-select'],
    required_when => { 'id' => sub { $_[0] ne 'default' } },
    messages => { required => 'Please select the type of the switch.' },
   );
@@ -469,8 +469,13 @@ sub update_fields {
         foreach my $field ($self->fields) {
             if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
                 if ($field->type eq 'Select') {
-                    my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
-                    $field->element_attr({ 'data-placeholder' => $val });
+                    if ($field->name eq 'type') {
+                        $field->default($self->placeholders->{$field->name});
+                    }
+                    else {
+                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
+                        $field->element_attr({ 'data-placeholder' => $val });
+                    }
                 }
                 elsif ($field->name ne 'id') {
                     $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
@@ -544,7 +549,7 @@ sub options_type {
                          options => \@switches };
     }
 
-    return ({ group => '' }, @modules);
+    return @modules;
 }
 
 =head2 options_mode
