@@ -5,12 +5,23 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.0.3
+---------------------------------------
+
+You need to downgrade the version of perl-Net-DNS and perl-Net-DNS-Nameserver to
+version 0.65-4 in order to fix the issue with pfdns crashing.
+
 Upgrading from a version prior to 4.0.2
 ---------------------------------------
 
 This release only fixes various bugs and doesn't need the database schema to be
 modified. Simply update the file /usr/local/pf/conf/currently-at to match the new
 release number.
+
+LDAP SSL and STARTTLS is now correctly implemented.
+Make sure the server you specify in authentication.conf supports the encryption type 
+requested on the port configured. Failure to do so will break LDAP and Active Directory 
+authentication.
 
 Upgrading from a version prior to 4.0.1
 ---------------------------------------

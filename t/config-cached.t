@@ -27,6 +27,7 @@ BEGIN {
     use pf::file_paths;
     $pf::file_paths::chi_config_file = './data/chi.conf';
     $pf::file_paths::log_config_file = './log.conf';
+    remove_tree('/tmp/chi');
 }
 use pf::log;
 
@@ -41,24 +42,31 @@ use_ok("pf::config::cached");
 
 copy("./data/test.conf",$filename);
 
+my $onreload_count = 0;
+my $onfilereload_count = 0;
+my $oncachereload_count = 0;
+
 my $config =  pf::config::cached->new(
     -file => $filename,
     -onreload => [
         reload => sub {
             my ($config,$name) = @_;
             $config->toHash(\%DATA1);
+            $onreload_count++;
         }
     ],
     -onfilereload => [
         reload => sub {
             my ($config,$name) = @_;
             $config->cache->set("DATA2",\%DATA1);
+            $onfilereload_count++;
         }
     ],
     -oncachereload => [
         reload => sub {
             my ($config,$name) = @_;
             %DATA2 = %{$config->cache->get("DATA2")};
+            $oncachereload_count++;
         }
     ],
 );

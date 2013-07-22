@@ -558,7 +558,16 @@ sub readPfConfigFiles {
                         }
                     }
                 }
-                $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
+                $Config{trapping}{passthroughs} = [
+                    split(/\s*,\s*/,$Config{trapping}{passthroughs} || ''),
+                    qw(
+                        crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
+                        crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
+                        crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
+                        ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
+                        ocsp.verisign.com
+                    )
+                ];
 
                 _load_captive_portal();
             }]
@@ -869,7 +878,7 @@ Returns true or false values based on if item was found or not.
 
 sub is_in_list {
     my ($item, $list) = @_;
-    my @list = split( /\s*,\s*/, $list );
+    my @list = (ref($list) eq 'ARRAY') ? @$list : split( /\s*,\s*/, $list );
     return $TRUE if any { $_ eq $item } @list;
     return $FALSE;
 }
@@ -942,7 +951,7 @@ and enabled are all positive values for PacketFence.
 
 sub isenabled {
     my ($enabled) = @_;
-    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled)\s*$/i ) {
+    if ( $enabled && $enabled =~ /^\s*(y|yes|true|enable|enabled|1)\s*$/i ) {
         return (1);
     } else {
         return (0);

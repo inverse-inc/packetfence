@@ -1,3 +1,467 @@
+commit 201e3b705c68c081fddbaee47af3fdb498a32c52
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 15:09:30 2013 -0400
+
+    Return matching source when authenticating user
+
+M	lib/pf/web.pm
+
+commit 4a4e0f961e49fd9d12fbb231cfb1045d9c3d6971
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 15:08:31 2013 -0400
+
+    Bump version to 4.0.3
+
+M	ChangeLog
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	debian/changelog
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 3e99d2cb2aa826cd2b3b7e1ec0c00bcb1eec7924
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 14:41:35 2013 -0400
+
+    Update NEWS.asciidoc
+
+M	NEWS.asciidoc
+
+commit f062395cdeeb7bccc9dae2600b433176a14ee73b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 14:15:15 2013 -0400
+
+    Respect auth source when matching actions
+    
+    We must use the source that performed the authentication when matching
+    the actions such as "set role" and "set access duration".
+
+M	html/captive-portal/register.cgi
+
+commit aedce4387221657bf7cf31339c0c2aa040513727
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 22 14:08:10 2013 -0400
+
+    Update UPGRADE.asciidoc
+
+M	UPGRADE.asciidoc
+
+commit b78d592315828fa1f07d515ad649d16b4644c154
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 22 13:36:19 2013 -0400
+
+    Fix version in spec file for perl-Net-DNS-Nameserver
+
+M	addons/packages/packetfence.spec
+
+commit e0de0cee16af0ab20fb0f2ef2ca8897c466acf30
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 22 12:59:27 2013 -0400
+
+    Update UPGRADE.asciidoc for perl-Net-DNS and perl-Net-DNS-Nameserver downgrade
+
+M	UPGRADE.asciidoc
+
+commit fa2a0f75cd152111e011b3a70be2a754f2477144
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 11:08:08 2013 -0400
+
+    Add release number in top navigation bar
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/root/admin/wrapper.tt
+M	lib/pf/CHI.pm
+
+commit 7ac25cfe45c3d3d9a9fa55e939755643f86eeded
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 11:05:35 2013 -0400
+
+    Add placeholders to the violation editor
+
+M	html/pfappserver/lib/pfappserver/Controller/Violation.pm
+M	html/pfappserver/lib/pfappserver/Form/Violation.pm
+
+commit c2e8fb48cf75bf634fd77a7c5a49088ced65bfd3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 22 11:03:15 2013 -0400
+
+    Fix pfdns crash because of Net::DNS perl module
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit db512d1fee01b02b57726bd44d39aa4350f60570
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 22 10:54:57 2013 -0400
+
+    Added constant passthroughs
+
+M	lib/pf/config.pm
+
+commit d61d397eff8f2ab015f4ce4a9455c03f92c8954f
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Jul 22 09:59:19 2013 -0400
+
+    modified:   NEWS.asciidoc
+    modified:   UPGRADE.asciidoc
+    
+    Updated to mention the correctly implemented LDAP SSL and STARTTLS
+    support.
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+
+commit cfd4ae8a7984eaac634830b027aa470c5a3077e8
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 09:07:32 2013 -0400
+
+    Add missing enforcement module in gaming module
+
+M	lib/pf/web/gaming.pm
+
+commit 46edaae98fb245e47258b0fe1472b4f43f719f9e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 19 16:38:49 2013 -0400
+
+    is_in_list accepts an array ref or a comma seperated string
+
+M	lib/pf/config.pm
+
+commit 3ca7205b356c07038ecd0401493b9ae22d8e5ade
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 19 16:18:08 2013 -0400
+
+    Fixed the guest_modes not being populated from the sources
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 36adc1dd68cdb2ccc69f77026282dd42d8a27ddd
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 16:02:37 2013 -0400
+
+    Revert "Rewrite of feature proxy interception fir packetfence 4"
+    
+    This reverts commit afb18bde7c5cb8d8a822b1b208ef0dee89e1dc79.
+
+M	conf/documentation.conf
+D	conf/httpd.conf.d/httpd.proxy
+M	conf/iptables.conf
+M	conf/pf.conf.defaults
+M	lib/pf/Portal/Session.pm
+M	lib/pf/iptables.pm
+D	lib/pf/web/interceptproxy.pm
+M	lib/pf/web/util.pm
+
+commit d37050c44bbf19ba0f1118ec9874858844ca5694
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 16:02:06 2013 -0400
+
+    Revert "Manage httpd.proxy service"
+    
+    This reverts commit ffcce37d267ec94fa3555587fc03df052a48812a.
+
+M	addons/packages/packetfence.spec
+M	conf/httpd.conf.d/httpd.proxy
+M	debian/control
+M	lib/pf/services.pm
+M	lib/pf/web/interceptproxy.pm
+
+commit 9e3d66ac07d5034f5511afb37745d1facdb03782
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 16:01:19 2013 -0400
+
+    Revert "Fix pfcmd help and remove rebase stuff"
+    
+    This reverts commit dc1761de9fe86c12d1f6f0593d45031d293384a8.
+
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/services.pm
+
+commit 32e71c338dec3a53a2f7998194bdd7dc39b9b484
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 16:01:02 2013 -0400
+
+    Revert "Fix for test"
+    
+    This reverts commit caf43d03361c1665cb28a32b00a77bcb26a2ecdb.
+
+M	lib/pf/web/interceptproxy.pm
+
+commit 3a08ae672346c94dcaeec955fe5ec63f5317e0c6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 14:51:05 2013 -0400
+
+    Net::DNS minimum version fix
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit 3db49a083e8b2f8bcb9025a2413273abe18db0af
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 19 14:21:04 2013 -0400
+
+    Updated config-cached tests
+
+M	t/config-cached.t
+M	t/data/chi.conf
+
+commit dbc2c9f1d8266ab58a43f6faa68f8922b9bfece1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 19 14:20:02 2013 -0400
+
+    Refactored the looking up of the a valid managed interface
+
+M	sbin/pfdhcplistener
+
+commit c1022dbb72aedb768f2609ea63bfce4dbb363874
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 19 14:16:28 2013 -0400
+
+    Renamed the pf::CHI namespace from pf::config::cached to configfiles
+
+M	conf/chi.conf
+M	lib/pf/config/cached.pm
+
+commit 968e28c3e59c1bca540829a21c75b795cc039f86
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 19 12:44:08 2013 -0400
+
+    Refactored to use $self->config instead of $self->{_config}
+
+M	addons/accounting.pl
+M	addons/connect_and_read.pl
+M	addons/convertToPortSecurity.pl
+M	addons/network-save-configs.pl
+M	addons/recovery.pl
+M	bin/pfcmd_vlan
+M	t/benchmarks/pf-services-snmptrapd.pl
+
+commit 4936a6198433b690f3f2ff0a074c37e0259a7980
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Jul 19 10:02:24 2013 -0400
+
+    Switch editor - type group labels are not visible
+    
+    This bug occured only when building the select menu of the switch type
+    multiple times, ie the menu was correctly displayed only the first time
+    the switch editor was called.
+    
+    This commit also fixes an error in the log related to HTML::FormHandler.
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
+M	html/pfappserver/root/static/admin/configuration/switches.js
+
+commit caf43d03361c1665cb28a32b00a77bcb26a2ecdb
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 09:25:47 2013 -0400
+
+    Fix for test
+
+M	lib/pf/web/interceptproxy.pm
+
+commit 524742b5b52bf7d3fdfd345a8c2ce1beb7b8762f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jul 18 23:18:00 2013 -0400
+
+    removed print statement
+
+M	lib/pf/config/cached.pm
+
+commit 6c6762b19515c43c2ecce16f9ad5d21080688d5d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jul 18 19:44:09 2013 -0400
+
+    Will not do callback on every ReadConfig
+
+M	lib/pf/config/cached.pm
+
+commit 3a2f107212c4fac5d45e2448bf2ea849417d5b71
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Jul 18 16:10:48 2013 -0400
+
+    Remove multiplicator in maintenance interval
+
+M	NEWS.asciidoc
+M	sbin/pfmon
+
+commit 706cebc9ff2a3b9c2064cfbfb4ffc8eb4764e05f
+Author: Loick Pelet <lpelet.inverse@gmail.com>
+Date:   Thu Jul 18 15:46:10 2013 -0400
+
+    example added
+
+M	addons/import-node-csv.pl
+
+commit 8f3d3009b528c0a7deb5c0bd2c1ea075f944390e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jul 18 14:44:38 2013 -0400
+
+    Added parseTrap and getVersion function in Hostapd.pm
+
+M	lib/pf/SNMP/Hostapd.pm
+
+commit dc1761de9fe86c12d1f6f0593d45031d293384a8
+Author: Fabrice Durand <oeufdure@chubuntu.(none)>
+Date:   Sun Jun 30 15:23:53 2013 -0400
+
+    Fix pfcmd help and remove rebase stuff
+
+M	lib/pf/pfcmd/help.pm
+M	lib/pf/services.pm
+
+commit ffcce37d267ec94fa3555587fc03df052a48812a
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 7 14:29:20 2013 -0400
+
+    Manage httpd.proxy service
+    Apache configuration file in perl
+    Packaging RPM/DEB
+
+M	addons/packages/packetfence.spec
+M	conf/httpd.conf.d/httpd.proxy
+M	debian/control
+M	lib/pf/services.pm
+M	lib/pf/web/interceptproxy.pm
+
+commit afb18bde7c5cb8d8a822b1b208ef0dee89e1dc79
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 6 16:13:50 2013 -0400
+
+    Rewrite of feature proxy interception fir packetfence 4
+
+M	conf/documentation.conf
+A	conf/httpd.conf.d/httpd.proxy
+M	conf/iptables.conf
+M	conf/pf.conf.defaults
+M	lib/pf/Portal/Session.pm
+M	lib/pf/iptables.pm
+A	lib/pf/web/interceptproxy.pm
+M	lib/pf/web/util.pm
+
+commit 62276a00297641c832f84e0ce6998a9716175943
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Jul 18 10:17:01 2013 -0400
+
+    Fix counters and graphs for today on dashboard
+
+M	NEWS.asciidoc
+D	html/common/graphs.js
+M	html/pfappserver/lib/pfappserver/Controller/Graph.pm
+M	html/pfappserver/lib/pfappserver/Model/Graph.pm
+M	html/pfappserver/root/static/app/graphs.js
+
+commit 514f27b9d203d8aca59438fe901cda9a9e2b5869
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jul 17 13:58:43 2013 -0400
+
+    Missing lib for hostapd support
+
+M	lib/pf/SNMP/Hostapd.pm
+
+commit 631adae8cc8268cf52bdc260dd818b68175fc81c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 17 13:24:53 2013 -0400
+
+    Added the ability to clone a violation
+
+M	html/pfappserver/lib/pfappserver/Controller/Violation.pm
+M	html/pfappserver/root/violation/list.tt
+M	html/pfappserver/root/violation/view.tt
+
+commit e9181c6739e2c7a06fffddb62f32ce52b5eea161
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jul 17 13:14:14 2013 -0400
+
+    Support for hostapd access point
+
+A	addons/hostapd/hostapd.sh
+A	lib/pf/SNMP/Hostapd.pm
+
+commit 9d8f4a639f8ff5959b4f28046f893d0a2e50813e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 17 11:14:49 2013 -0400
+
+    Added the abilty to clone floatingdevices
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/FloatingDevice.pm
+M	html/pfappserver/root/configuration/floatingdevice/list.tt
+M	html/pfappserver/root/configuration/floatingdevice/view.tt
+M	html/pfappserver/root/static/admin/configuration/floatingdevices.js
+
+commit 11e83d33b93ea8f2367018cf52f4888a0714f357
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 16 14:52:22 2013 -0400
+
+    Don't sort the default switch
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/Switch.pm
+
+commit 3262ec804e6b26c06ab44bba5d76255b5de0b651
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 16 14:47:36 2013 -0400
+
+    Refactored sort_ip using schwartzian transform pattern
+
+M	lib/pf/util.pm
+
+commit d299ec51d9e8aa4172996e01ec58c83d4e521752
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 15 10:34:37 2013 -0400
+
+    Form toggle fields don't support all variations
+    
+    An toggle parameter shown in the Web admin used to be "Y" to be
+    displayed as enabled. Now it can match more strings as we use the
+    "isenabled" subroutine from pf::config.
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Form/Field/Toggle.pm
+M	lib/pf/config.pm
+
+commit a11a8346766d04380f487d8773e8b0949d5ee973
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 12 17:53:43 2013 -0400
+
+    Improved success message when deleting
+
+M	html/pfappserver/lib/pfappserver/Base/Model/Config.pm
+
+commit eda8db200db53089d4f93e2f6082601a49fdb1e5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 12 17:53:02 2013 -0400
+
+    Default section cannot be removed
+
+M	lib/pf/ConfigStore/Switch.pm
+
+commit ff90a8c83ba2fa4c2d3bd6204643936443466025
+Author: Loick Pelet <lpelet.inverse@gmail.com>
+Date:   Fri Jul 12 16:11:09 2013 -0400
+
+    change filetype to regular for the alert fifo file
+
+M	conf/suricata.yaml
+
+commit c840364a6c74517a0b529c585fb33a60a802ca5c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Jul 12 15:57:17 2013 -0400
+
+    Update debian/changelog for release 4.0.2
+
+M	debian/changelog
+
+commit 2ab8c916bb2ef1007aabaf0f45f55843c1bd157d
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Jul 12 15:55:06 2013 -0400
+
+    Update ChangeLog
+
+M	ChangeLog
+
 commit 41a796bdaf7ecc38a630393309113f9ca37df99e
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Fri Jul 12 14:54:29 2013 -0400

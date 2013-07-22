@@ -146,8 +146,8 @@ Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 # pfdns
-Requires: perl(Net::DNS)
-Requires: perl(Net::DNS::Nameserver)
+Requires: perl(Net::DNS) = 0.65-4
+Requires: perl(Net::DNS::Nameserver) = 749
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware
@@ -845,6 +845,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Mon Jul 22 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.3-1
+- New release 4.0.3
+
 * Fri Jul 12 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.2-1
 - New release 4.0.2
 

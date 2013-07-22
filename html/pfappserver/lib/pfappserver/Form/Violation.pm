@@ -27,6 +27,7 @@ has 'violations' => ( is => 'ro' );
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro' );
 has 'roles' => (is => 'ro', default => sub {[]});
+has 'placeholders' => ( is => 'ro' );
 
 # Form fields
 has_field 'enabled' =>
@@ -191,6 +192,39 @@ around 'has_errors'  => sub {
 
     return $self->$orig;
 };
+
+=head2 update_fields
+
+For violations other than the default, add placeholders with values from default violation.
+
+=cut
+
+sub update_fields {
+    my $self = shift;
+
+    unless ($self->{init_object} && $self->init_object->{id} eq 'defaults') {
+        if ($self->placeholders) {
+            foreach my $field ($self->fields) {
+                if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
+                    if (!ref $self->placeholders->{$field->name}
+                        && $field->type eq 'Select'
+                        && $field->options->[0]->{'value'} eq '') {
+                        # Add a placeholder for select menus that can be unselected
+                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
+                        $field->element_attr({ 'data-placeholder' => $val });
+                    }
+                    elsif ($field->name !~ m/^(id|enabled|desc)$/ && $field->type eq 'Text') {
+                        # Add a placeholder for text fields other than 'id', 'enabled' and 'desc'
+                        $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
+                    }
+                }
+            }
+        }
+    }
+
+    $self->SUPER::update_fields();
+}
+
 
 =head2 options_actions
 

@@ -82,7 +82,7 @@ my $logger = Log::Log4perl->get_logger('');
 
 my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
-my %Config = %{ $switchFactory->{_config} };
+my %Config = %{ $switchFactory->config };
 
 foreach my $switch_ip ( sort keys %Config ) {
     if ( ( $switch_ip ne '127.0.0.1' ) && ( $switch_ip ne 'default' ) ) {

@@ -216,6 +216,8 @@ sub remove {
         unless($self->configStore->remove($id)) {
             $status_msg = ["error removing [_1]",$id];
             $status =  HTTP_PRECONDITION_FAILED;
+        } else {
+            $status_msg = ["removed [_1]",$id];
         }
     }
     return ($status, $status_msg);

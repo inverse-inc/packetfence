@@ -91,6 +91,7 @@ SwitchView.prototype.readSwitch = function(e) {
     loader.show();
     section.fadeTo('fast', 0.5);
     modal.empty();
+    $('.chzn-drop').remove(); // fixes a chzn bug with optgroups
     this.switches.get({
         url: $(e.target).attr('href'),
         always: function() {

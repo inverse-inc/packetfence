@@ -130,10 +130,10 @@ my $logger = Log::Log4perl->get_logger('');
 my $switchFactory = new pf::SwitchFactory( -configFile => CONF_FILE );
 
 my @switchDescriptions;
-foreach my $key ( sort keys %{ $switchFactory->{_config} } ) {
+foreach my $key ( keys %{ $switchFactory->config } ) {
     if (( $key ne 'default' )
         && ( $key ne '127.0.0.1' )
-        && ( $switchFactory->{_config}->{$key}->{type} ne
+        && ( $switchFactory->config->{$key}->{type} ne
             'Cisco::Aironet_1242' )
         )
     {

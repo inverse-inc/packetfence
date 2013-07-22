@@ -25,6 +25,7 @@ use pfappserver::Form::Violation;
 BEGIN {
     extends 'pfappserver::Base::Controller';
     with 'pfappserver::Base::Controller::Crud::Config';
+    with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
 __PACKAGE__->config(
@@ -44,7 +45,7 @@ Setting the current form instance and model
 sub begin :Private {
     my ($self, $c) = @_;
     my ($status, $result);
-    my ($model, $violations, $roles, $triggers, $templates);
+    my ($model, $violations, $violation_default, $roles, $triggers, $templates);
 
     $model =  $c->model('Config::Violations');
     ($status, $result) = $model->readAll();
@@ -56,18 +57,21 @@ sub begin :Private {
     if (is_success($status)) {
         push(@roles, @$result);
     }
+    ($status, $violation_default) = $model->read('defaults');
     $triggers = $model->listTriggers();
     $templates = $model->availableTemplates();
     $c->stash(
         trigger_types => \@pf::config::VALID_TRIGGER_TYPES,
         current_model_instance => $model,
-        current_form_instance => $c->form("Violation" =>
-            violations => $violations,
-            roles => \@roles,
-            triggers => $triggers,
-            templates => $templates,
-        )
-    )
+        current_form_instance =>
+              $c->form("Violation",
+                       violations => $violations,
+                       placeholders => $violation_default,
+                       roles => \@roles,
+                       triggers => $triggers,
+                       templates => $templates,
+                      )
+             )
 }
 
 =head2 index
@@ -100,7 +104,7 @@ after view => sub {
 
 =cut
 
-after create => sub {
+after [qw(create clone)] => sub {
     my ($self, $c) = @_;
     if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
         $c->stash->{template} = 'violation/view.tt';

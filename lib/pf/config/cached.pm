@@ -631,9 +631,10 @@ sub ReadConfig {
             return $config;
         }
     );
-    $self->_callReloadCallbacks;
+    $reloaded_from_cache = refaddr($config) != refaddr($$self);
+    $self->_callReloadCallbacks if ($reloaded_from_cache || $reloaded_from_file);
     $self->_callFileReloadCallbacks if $reloaded_from_file;
-    $self->_callCacheReloadCallbacks if refaddr($config) != refaddr($$self);
+    $self->_callCacheReloadCallbacks if $reloaded_from_cache;
     return $result;
 }
 
@@ -698,6 +699,8 @@ sub computeFromPath {
         },
         $computeWrapper
     );
+    $computeWrapper = undef;
+    $computeSub = undef;
     return $result;
 }
 
@@ -722,7 +725,7 @@ Builds the CHI object
 =cut
 
 sub _cache {
-    return pf::CHI->new(namespace => __PACKAGE__ );
+    return pf::CHI->new(namespace => 'configfiles' );
 }
 
 =head2 _expireIf
@@ -912,42 +915,6 @@ sub cleanupWhitespace {
             $data->{$key} =~ s/\s+$//;
         }
     }
-}
-
-=head2 _buildCHIArgs
-
-Builds CHI arguments
-
-=cut
-
-sub _buildCHIArgs {
-    my $args = _extractCHIArgs("default");
-    return %$args;
-}
-
-=head2 _extractCHIArgs
-
-Helper function for creating CHI arguments from chi.conf
-
-=cut
-
-sub _extractCHIArgs {
-    my ($section) = @_;
-    my %args;
-    foreach my $param ($chi_config->Parameters($section)) {
-        $args{$param} = $chi_config->val($section,$param);
-    }
-    if(exists $args{servers} && defined $args{servers} ) {
-        my $value = $args{servers};
-        my @servers = (ref $value eq 'ARRAY') ? @$value : ($value);
-        $args{servers} = [ map {split /\s*,\s*/} @servers ];
-    }
-    foreach my $groupmember ( grep { /^\Q$section \E[^ ]+$/ } $chi_config->Sections()) {
-        my $key = $groupmember;
-        $key =~ s/^\Q$section \E//;
-        $args{$key} = _extractCHIArgs($groupmember);
-    }
-    return \%args;
 }
 
 =head1 AUTHOR

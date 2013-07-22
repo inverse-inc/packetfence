@@ -205,33 +205,28 @@ sub cleanup {
     Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
     $logger->info("Starting cleanup thread");
 
-    my $counter = 0;
     while (1) {
-        $counter = ( $counter + 1 ) % 10;
+        # run these functions every $maintenance_interval
+        $logger->info("running expire check");
+        iplog_cleanup( $Config{'expire'}{'iplog'} )
+          if ( $Config{'expire'}{'iplog'} );
+        locationlog_cleanup( $Config{'expire'}{'locationlog'} )
+          if ( $Config{'expire'}{'locationlog'} );
+        node_cleanup( $Config{'expire'}{'node'} )
+          if ( $Config{'expire'}{'node'} );
+        traplog_cleanup( $Config{'expire'}{'traplog'} )
+          if ( $Config{'expire'}{'traplog'} );
 
-        # run these functions every $maintenance_interval * 10
-        if ( $counter == 0 ) {
-            $logger->info("running expire check");
-            iplog_cleanup( $Config{'expire'}{'iplog'} )
-                if ( $Config{'expire'}{'iplog'} );
-            locationlog_cleanup( $Config{'expire'}{'locationlog'} )
-                if ( $Config{'expire'}{'locationlog'} );
-            node_cleanup( $Config{'expire'}{'node'} )
-                if ( $Config{'expire'}{'node'} );
-            traplog_cleanup( $Config{'expire'}{'traplog'} )
-                if ( $Config{'expire'}{'traplog'} );
+        $logger->info("checking registered nodes for expiration");
+        nodes_maintenance();
 
-            $logger->info("checking registered nodes for expiration");
-            nodes_maintenance();
+        $logger->info("checking violations for expiration");
+        violation_maintenance();
 
-            $logger->info("checking violations for expiration");
-            violation_maintenance();
-
-            $logger->info("checking accounting data for potential bandwidth abuse");
-            acct_maintenance();
-            #reload all cached configs after each iteration
-            pf::config::cached::ReloadConfigs();
-        }
+        $logger->info("checking accounting data for potential bandwidth abuse");
+        acct_maintenance();
+        #reload all cached configs after each iteration
+        pf::config::cached::ReloadConfigs();
 
         sleep $Config{'general'}{'maintenance_interval'};
     }

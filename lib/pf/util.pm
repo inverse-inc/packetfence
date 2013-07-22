@@ -467,12 +467,10 @@ Sorts an array of IP addresses
 =cut
 
 sub sort_ip {
-    my @addresses = @_;
-
-    my %num = map { $_ => ip2int($_) } @addresses;
-    my @sorted_addresses = sort { $num{$a} <=> $num{$b} } @addresses;
-
-    return @sorted_addresses;
+    return
+        map { $_->[0] }
+        sort { $a->[1] <=> $b->[1] }
+        map { [$_,ip2int($_)] } @_;
 }
 
 sub get_all_internal_ips {

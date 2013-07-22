@@ -61,7 +61,11 @@ sub instantiate {
     return pf::Portal::Profile->new(_default_profile());
 }
 
-sub _default_profile { return {%{$Profiles_Config{default} }, name => 'default' ,template_path => '/'}; }
+sub _default_profile {
+    my %default = %{$Profiles_Config{default}};
+
+    return {%default, name => 'default' ,template_path => '/', guest_modes => _guest_modes_from_sources($default{sources})};
+}
 
 sub _custom_profile {
     my ($name) = @_;
@@ -83,6 +87,7 @@ sub _guest_modes_from_sources {
     $sources ||= [];
     my %is_in = map {$_ => undef } @$sources;
     my @guest_modes = map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources;
+    return \@guest_modes;
 }
 
 =head1 AUTHOR

@@ -577,15 +577,15 @@ sub web_user_authenticate {
     my $session = $portalSession->getSession();
 
     # validate login and password
-    my ($return, $message) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
-                                                               $portalSession->cgi->param("password"),
-                                                               @{$portalSession->getProfile->getSources});
+    my ($return, $message, $source) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
+                                                                        $portalSession->cgi->param("password"),
+                                                                        @{$portalSession->getProfile->getSources});
 
     if (defined($return) && $return == 1) {
         # save login into session
         $portalSession->session->param( "username", $portalSession->cgi->param("username") );
     }
-    return ($return, $message);
+    return ($return, $message, $source);
 }
 
 sub generate_registration_page {

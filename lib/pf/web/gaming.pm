@@ -19,6 +19,7 @@ use HTML::Entities;
 use Readonly;
 
 use pf::config;
+use pf::enforcement qw(reevaluate_access);
 use pf::node qw(node_register is_max_reg_nodes_reached);
 use pf::util;
 use pf::web;
