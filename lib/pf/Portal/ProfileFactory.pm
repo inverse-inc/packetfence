@@ -40,7 +40,7 @@ sub instantiate {
     # We apply portal profiles based on the SSID and VLAN, we check the last_ssid for the given MAC and try to match
     # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile.
     my $node_info = node_view($mac);
-    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)), @{$node_info}{'last_ssid','last_vlan'});
+    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan switch)), @{$node_info}{'last_ssid','last_vlan','last_switch'});
     my $filtered_profile =
         first {exists $Profiles_Config{$_}}
         map { $Profile_Filters{$_}  }
