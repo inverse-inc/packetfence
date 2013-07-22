@@ -1,3 +1,26 @@
+commit 201e3b705c68c081fddbaee47af3fdb498a32c52
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 15:09:30 2013 -0400
+
+    Return matching source when authenticating user
+
+M	lib/pf/web.pm
+
+commit 4a4e0f961e49fd9d12fbb231cfb1045d9c3d6971
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 15:08:31 2013 -0400
+
+    Bump version to 4.0.3
+
+M	ChangeLog
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	debian/changelog
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
 commit 3e99d2cb2aa826cd2b3b7e1ec0c00bcb1eec7924
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Mon Jul 22 14:41:35 2013 -0400
