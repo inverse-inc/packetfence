@@ -172,9 +172,9 @@ sub _resolveIp {
     my $directly_connected_ip;
     if (defined($self->cgi->param('ip'))) {
         $self->{'_session'}->param('ip', $self->cgi->param('ip'));
-        $directly_connected_ip = $self->{'_session'}->param('ip');
+        $directly_connected_ip = HTML::Entities::encode($self->{'_session'}->param('ip'));
     } elsif ( defined($self->{'_session'}) && defined($self->{'_session'}->param('ip') ) ) {
-        $directly_connected_ip = $self->{'_session'}->param('ip');
+        $directly_connected_ip = HTML::Entities::encode($self->{'_session'}->param('ip'));
     }
     else {
         $directly_connected_ip = $self->cgi->remote_addr();
@@ -299,7 +299,7 @@ sub getClientMac {
     if (defined($self->cgi->param('mac'))) {
         return $self->cgi->param('mac');
     }
-    return $self->{'_client_mac'};
+    return HTML::Entities::encode($self->{'_client_mac'});
 }
 
 =item getDestinationUrl
