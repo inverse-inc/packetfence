@@ -118,6 +118,7 @@ PacketFence supports the following devices:
 |Extricom         |EXSW Wireless Switches      |Extricom::EXSW
 |Foundry          |FastIron 4802               |Foundry::FastIron_4802
 |H3C              |S5120 Series                |H3C::S5120
+|hostapd          |hostapd daemon              |Hostapd
 |HP               |E4800G Switch series        |HP::E4800G
 |                 |E5500G Switch series        |HP::E5500G
 |                 |MSM 710 Mobility Controller |HP::Controller_MSM710

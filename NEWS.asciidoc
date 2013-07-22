@@ -34,6 +34,7 @@ Bug Fixes
 * Optgroup labels in select menus are hidden when build multiple times
 * Callbacks are performed on every ReadConfig
 * Guest modes don't show up on captive portal
+* Authentication source is not respected when matching actions in register.cgi
 
 Version 4.0.2 released on 2013-07-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
