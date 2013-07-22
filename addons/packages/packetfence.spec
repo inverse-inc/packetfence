@@ -146,8 +146,8 @@ Requires: perl(Net::Pcap) >= 0.16
 # pfdhcplistener
 Requires: perl(NetPacket) >= 1.2.0
 # pfdns
-Requires: perl(Net::DNS) >= 0.71
-Requires: perl(Net::DNS::Nameserver)
+Requires: perl(Net::DNS) = 0.65-4
+Requires: perl(Net::DNS::Nameserver) = 0.65-4
 # RADIUS CoA support
 Requires: perl(Net::Radius::Dictionary), perl(Net::Radius::Packet)
 # SNMP to network hardware

@@ -84,7 +84,7 @@ Depends: ${misc:Depends}, vlan, make,
 # oauth2
  libnet-oauth2-perl,
 # pfdns
- libnet-dns-perl (>=0.71),
+ libnet-dns-perl (=0.66-3),
 # used by Captive Portal authentication modules
  libauthen-radius-perl, libauthen-krb5-simple-perl,
 # required for perl 5.12+ (made perl setuid optional) and most distros went without it
