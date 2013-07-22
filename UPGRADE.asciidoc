@@ -5,6 +5,12 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.0.3
+---------------------------------------
+
+You need to downgrade the version of perl-Net-DNS and perl-Net-DNS-Nameserver to
+version 0.65-4 to fix the issue with pfdns crash.
+
 Upgrading from a version prior to 4.0.2
 ---------------------------------------
 
