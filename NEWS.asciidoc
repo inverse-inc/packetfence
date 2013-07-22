@@ -22,7 +22,8 @@ New Features
 Enhancements
 ++++++++++++
 
-* 
+* Add buttons to clone a switch, a floating device, and a violation
+* Add version number in the top navigation bar
 
 Bug Fixes
 +++++++++
