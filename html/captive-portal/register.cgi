@@ -67,7 +67,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
     exit(0);
   }
 
-  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
+  my ($auth_return, $error, $source) = pf::web::web_user_authenticate($portalSession);
   if ($auth_return != 1) {
     $logger->trace("authentication failed for " . $portalSession->getClientMac());
     pf::web::generate_login_page($portalSession, $error);
@@ -85,7 +85,7 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 
   # obtain node information provided by authentication module. We need to get the role (category here)
   # as web_node_register() might not work if we've reached the limit
-  my $value = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+  my $value = &pf::authentication::match($source, $params, $Actions::SET_ROLE);
 
   $logger->trace("Got role '$value' for username $pid");
 
@@ -96,13 +96,13 @@ if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
 
   # If an access duration is defined, use it to compute the unregistration date;
   # otherwise, use the unregdate when defined.
-  $value = &pf::authentication::match(undef, $params, $Actions::SET_ACCESS_DURATION);
+  $value = &pf::authentication::match($source, $params, $Actions::SET_ACCESS_DURATION);
   if (defined $value) {
       $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
       $logger->trace("Computed unrege date from access duration: $value");
   }
   else {
-      $value = &pf::authentication::match(undef, $params, $Actions::SET_UNREG_DATE);
+      $value = &pf::authentication::match($source, $params, $Actions::SET_UNREG_DATE);
   }
   if (defined $value) {
       $logger->trace("Got unregdate $value for username $pid");
