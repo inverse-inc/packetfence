@@ -51,6 +51,7 @@ Enhancements
 * Each portal profile can now use a list of authentication sources
 * A switch definition can now be easily cloned
 * Switches are now ordered by IP address
+* LDAP SSL and STARTTLS now works as expected.
 
 Bug Fixes
 +++++++++
