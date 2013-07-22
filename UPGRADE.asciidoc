@@ -9,7 +9,7 @@ Upgrading from a version prior to 4.0.3
 ---------------------------------------
 
 You need to downgrade the version of perl-Net-DNS and perl-Net-DNS-Nameserver to
-version 0.65-4 to fix the issue with pfdns crash.
+version 0.65-4 in order to fix the issue with pfdns crashing.
 
 Upgrading from a version prior to 4.0.2
 ---------------------------------------
