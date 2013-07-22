@@ -13,7 +13,7 @@ var action = function() {
   
 var txt_ie = "[% i18n("Some versions of Internet Explorer may take a while before redirection occur.") | html %]";
 // once the page is loaded
-document.observe("n0dom:loaded", function() {
+document.observe("dom:loaded", function() {
   [% IF auto_redirect == "enabled" %]
   // Opera is known to be broken with network detection so we warn the users
   if (Prototype.Browser.Opera) {
