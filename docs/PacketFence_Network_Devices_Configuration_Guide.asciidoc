@@ -1071,13 +1071,39 @@ On each interface:
 DGS3100/3200 
 ^^^^^^^^^^^^
 
-Global config settings 
+Enable MAC notification:
 
-  To be contributed... 
+  enable mac_notification
+  config mac_notification interval 1 historysize 1
+  config mac_notification ports 1:1-1:24 enable
+
+Enable linkup/linkdown notification:
+
+  enable snmp traps 
+  enable snmp linkchange_traps
+
+Add SNMP host:
+
+  create snmp host 192.168.1.5 v2c  public
+
+Enable MAC base access control:
+
+  enable mac_based_access_control
+  config mac_based_access_control authorization attributes radius enable local disable
+  config mac_based_access_control method radius
+  config mac_based_access_control password useStrongerSecret
+  config mac_based_access_control password_type manual_string
+  config mac_based_access_control max_users no_limit
+  config mac_based_access_control trap state enable
+  config mac_based_access_control log state enable
 
 On each interface: 
 
-  To be contributed... 
+  config mac_based_access_control ports 1:1 state enable
+  config mac_based_access_control ports 1:1 max_users 128
+  config mac_based_access_control ports 1:1 aging_time 1440
+  config mac_based_access_control ports 1:1 block_time 300
+  config mac_based_access_control ports 1:1 mode host_based
 
 Dell 
 ~~~~
@@ -2304,6 +2330,46 @@ WLAN SSIDs: profiles and virtual AP
      virtual-ap "Inverse-Guest"
      virtual-ap "Inverse-Secure"
      ids-profile "ids-disabled"
+
+All Aruba Instant OS
+^^^^^^^^^^^^^^^^^^^^
+
+Add your packetfence instance to your configuration:
+
+wlan auth-server packetfence
+
+  ip 192.168.1.5
+  port 1812
+  acctport 1813
+  timeout 10
+  retry-count 5
+  key useStrongerSecret
+  nas-ip [Aruba Virtual Controller IP]
+  rfc3576
+
+
+Add dynamic vlan rules and mac auth to your ssid profile:
+
+wlan ssid-profile SSID
+
+  index 0 
+  type employee
+  essid ESSID
+  wpa-passphrase WPA-Passphrase
+  opmode wpa2-psk-aes
+  max-authentication-failures 0
+  vlan 1
+  auth-server packetfence
+  set-vlan Tunnel-Private-Group-Id contains 1 1
+  set-vlan Tunnel-Private-Group-Id contains 4 4
+  rf-band all
+  captive-portal disable
+  mac-authentication
+  dtim-period 1
+  inactivity-timeout 1000
+  broadcast-filter none
+  radius-reauth-interval 5
+  dmo-channel-utilization-threshold 90
 
 Belair Networks (now Ericsson)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
