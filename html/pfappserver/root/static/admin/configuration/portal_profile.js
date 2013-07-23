@@ -208,6 +208,40 @@ function initCreatePage(element) {
     });
 }
 
+function initReadPage(element) {
+    $('#sources-table-dynamic').on('admin.added','tr', function(event) {
+        var row = $(this);
+        var siblings = row.siblings(':not(.hidden)');
+        var selected_options = siblings.find("select option:selected");
+        var select = row.find("select");
+        select.find("option:selected").removeAttr("selected");
+        var options = select.find('option[value!=""]');
+        try {
+            options.each(function(index,element) {
+                var selector = '[value="' + element.value   + '"]';
+                if(selected_options.filter(selector).length == 0) {
+                    $(element).attr("selected","selected");
+                    throw "";
+                }
+            });
+        }
+        catch(e) {};
+        var rows = row.siblings(':not(.hidden)').andSelf();
+        if( rows.length == options.length){
+            rows.find('[href="#add"]').addClass('hidden');
+        }
+    });
+    $('#sources-table-dynamic').on('admin.deleted','tbody', function(event) {
+        var tbody = $(this);
+        var rows = tbody.children(':not(.hidden)');
+        var row = rows.first();
+        var options = row.find("select option");
+        if( rows.length < options.length){
+            rows.find('[href="#add"]').removeClass('hidden');
+        }
+    });
+}
+
 function initTemplatesPage(element) {
     initCopyModal(element);
     initCollapse(element);
@@ -223,12 +257,13 @@ $('#section').on('section.loaded',function(event) {
         {id : "#portal_profile_file_editor", initializer: initEditorPage},
         {id : "#portal_profile_files", initializer: initTemplatesPage },
         {id : "#portal_profile_index", initializer: initIndexPage },
-        {id : "#portal_profile_create", initializer: initCreatePage }
+        {id : "#portal_profile_create", initializer: initCreatePage },
+        {id : "#portal_profile_read", initializer: initReadPage }
     ];
     for (var i = 0; i < initializers.length; i++) {
         var initializer = initializers[i];
         var element = $(initializer.id);
-        if (element.length > 0) {
+        if (element.length) {
             portalProfileGlobalInit(element);
             initializer.initializer(element);
         }
