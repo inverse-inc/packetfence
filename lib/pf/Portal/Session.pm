@@ -153,7 +153,7 @@ sub _getDestinationUrl {
     # set default if destination_url not set
     return $Config{'trapping'}{'redirecturl'} if (!defined($self->cgi->param("destination_url")));
 
-    return decode_entities(uri_unescape($self->cgi->param("destination_url")));
+    return encode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
 =item _resolveIp
@@ -172,9 +172,9 @@ sub _resolveIp {
     my $directly_connected_ip;
     if (defined($self->cgi->param('ip'))) {
         $self->{'_session'}->param('ip', $self->cgi->param('ip'));
-        $directly_connected_ip = HTML::Entities::encode($self->{'_session'}->param('ip'));
+        $directly_connected_ip = encode_entities($self->{'_session'}->param('ip'));
     } elsif ( defined($self->{'_session'}) && defined($self->{'_session'}->param('ip') ) ) {
-        $directly_connected_ip = HTML::Entities::encode($self->{'_session'}->param('ip'));
+        $directly_connected_ip = encode_entities($self->{'_session'}->param('ip'));
     }
     else {
         $directly_connected_ip = $self->cgi->remote_addr();
@@ -297,9 +297,9 @@ Returns the MAC of the captive portal client.
 sub getClientMac {
     my ($self) = @_;
     if (defined($self->cgi->param('mac'))) {
-        return $self->cgi->param('mac');
+        return encode_entities($self->cgi->param('mac'));
     }
-    return HTML::Entities::encode($self->{'_client_mac'});
+    return encode_entities($self->{'_client_mac'});
 }
 
 =item getDestinationUrl
