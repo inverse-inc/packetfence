@@ -37,6 +37,7 @@ use pf::Authentication::Source::FacebookSource;
 use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
 use List::Util qw(first);
+use List::MoreUtils qw(none any);
 
 # The results...
 #
@@ -354,15 +355,16 @@ sub deleteAuthenticationSource {
     my $id = shift;
 
     my $result = 0;
-    for (my $i = 0; $i < scalar(@authentication_sources); $i++) {
-        my $source = $authentication_sources[$i];
-        if ($source->{id} eq $id) {
-            splice(@authentication_sources, $i, 1);
-            $result = 1;
-            last;
+    if (none { any {$_ eq $id} @{$_->{sources}} } values %Profiles_Config) {
+        for (my $i = 0; $i < scalar(@authentication_sources); $i++) {
+            my $source = $authentication_sources[$i];
+            if ($source->{id} eq $id) {
+                splice(@authentication_sources, $i, 1);
+                $result = 1;
+                last;
+            }
         }
     }
-
     return $result;
 }
 
