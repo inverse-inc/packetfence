@@ -45,8 +45,8 @@ has_field 'type' =>
    required => 1,
    options => [
         { value => '',label => ''},
-        { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Isolation'},
-        { value => $pf::config::NET_TYPE_VLAN_ISOL, label => 'Registration'},
+        { value => $pf::config::NET_TYPE_VLAN_ISOL, label => 'Isolation'},
+        { value => $pf::config::NET_TYPE_VLAN_REG, label => 'Registration'},
    ]
   );
 has_field 'next_hop' =>
