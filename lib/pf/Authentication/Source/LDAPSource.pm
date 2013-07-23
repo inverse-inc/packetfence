@@ -15,6 +15,7 @@ use pf::Authentication::Condition;
 use Net::LDAP;
 use Net::LDAPS;
 use List::Util;
+use Net::LDAP::Util qw(escape_filter_value);
 
 use Moose;
 extends 'pf::Authentication::Source';
@@ -46,7 +47,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = map { { value => $_, type => $Conditions::STRING } }
+  my @ldap_attributes = map { { value => $_, type => $Conditions::SUBSTRING } }
     ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
 
   # We check if our username attribute is present, if not we add it.
@@ -303,12 +304,18 @@ sub ldap_filter_for_conditions {
 
   foreach my $condition (@{$conditions})  {
     my $str = "";
+    my $operator = $condition->{'operator'};
+    my $value = escape_filter_value($condition->{'value'});
+    my $attribute = $condition->{'attribute'};
 
-    # FIXME - we should escape things properly
-    if ($condition->{'operator'} eq $Conditions::EQUALS) {
-      $str = "$condition->{'attribute'}=$condition->{'value'}";
-    } elsif ($condition->{'operator'} eq $Conditions::CONTAINS) {
-      $str = "$condition->{'attribute'}=*$condition->{'value'}*";
+    if ($operator eq $Conditions::EQUALS) {
+      $str = "${attribute}=${value}";
+    } elsif ($operator eq $Conditions::CONTAINS) {
+      $str = "${attribute}=*${value}*";
+    } elsif ($operator eq $Conditions::STARTS) {
+      $str = "${attribute}=*${value}";
+    } elsif ($operator eq $Conditions::ENDS) {
+      $str = "${attribute}=*${value}";
     }
 
     if (scalar @{$conditions} == 1) {
