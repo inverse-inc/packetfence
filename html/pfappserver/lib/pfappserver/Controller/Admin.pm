@@ -16,7 +16,7 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
-use pf::config;
+use pf::file_paths;
 use pfappserver::Form::SavedSearch;
 
 BEGIN {
@@ -134,13 +134,12 @@ sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
 
     # Stash version number from conf/pf-release
     my $cache = pf::CHI->new(namespace => 'configfiles' );
-    my $filename = "$install_dir/conf/pf-release";
+    my $filename = "$conf_dir/pf-release";
     my $release = $cache->compute($filename, undef, sub {
                                       my $filehandler;
                                       open( $filehandler, '<', $filename );
                                       chomp(my $pf_release = <$filehandler>);
                                       close( $filehandler );
-                                      $pf_release =~ s/PacketFence/Version/g;
                                       return $pf_release;
                                   });
     $c->stash->{'pf_release'} = $release;
