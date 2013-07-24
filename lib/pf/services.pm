@@ -175,6 +175,7 @@ sub service_ctl {
                             manage_Static_Route(1);
 
                         } elsif ( $daemon eq 'radiusd' ) {
+                            my $pid = service_ctl( $daemon, "status" );
                             # TODO: push all these per-daemon initialization into pf::services::...
                             require pf::freeradius;
                             pf::freeradius::freeradius_populate_nas_config();
@@ -342,11 +343,21 @@ sub service_ctl {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
                 if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") || ($daemon eq "snort") ) ) {
-                    if (-e "$install_dir/var/run/$daemon.pid") {
-                        chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
+                    my $pid_file = "$install_dir/var/run/$daemon.pid";
+                    if (-e $pid_file) {
+                        chomp( $pid = `cat $pid_file`);
                     }
                     $pid = 0 if ( !$pid );
                     $logger->info("pidof -x $binary returned $pid");
+                    if($pid && $pid =~ /^(.*)$/) {
+                        $pid = $1;
+                        unless (kill( 0,$pid)) {
+                            $pid = 0;
+                            $logger->info("removing stale pid file $pid_file");
+                            unlink $pid_file;
+                        }
+                    }
+
                     return ($pid);
                 }
                 # Handle the pfdhcplistener case. Grab exact interfaces where pfdhcplistner should run,
