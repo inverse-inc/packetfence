@@ -38,10 +38,10 @@ sub supported_features {
 sub check_password {
   my ( $self, $password ) = @_;
 
-  my ($result, $message) = &pf::authentication::authenticate($self->_user, $password);
+  my ($result, $message, $source_id) = &pf::authentication::authenticate($self->_user, $password);
 
   if ($result) {
-      my $value = &pf::authentication::match(undef, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
+      my $value = &pf::authentication::match($source_id, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
 
       if (defined $value && $value == $WEB_ADMIN_ALL) {
           return $TRUE;
