@@ -127,7 +127,7 @@ sub freeradius_populate_nas_config {
         $logger->info("Problem emptying FreeRADIUS nas clients table.");
     }
 
-    foreach my $switch (sort keys %SwitchConfig) {
+    foreach my $switch (keys %SwitchConfig) {
 
         # we skip the 'default' entry or the local switch
         if ($switch eq 'default' || $switch eq '127.0.0.1') { next; }
