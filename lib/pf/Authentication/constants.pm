@@ -41,6 +41,7 @@ Readonly::Scalar our $EQUALS => 'equals';
 Readonly::Scalar our $CONTAINS => 'contains';
 Readonly::Scalar our $STARTS => 'starts';
 Readonly::Scalar our $ENDS => 'ends';
+Readonly::Scalar our $MATCHES => 'matches regexp';
 Readonly::Scalar our $LOWER => 'lower';
 Readonly::Scalar our $LOWER_OR_EQUALS => 'lower or equals';
 Readonly::Scalar our $HIGHER => 'higher';
@@ -50,13 +51,12 @@ Readonly::Scalar our $IS => 'is';
 Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
 
-=item STRING, NUMBER, DATE, TIME
+=item SUBSTRING, NUMBER, DATE, TIME
 
 Datatypes of conditions attributes (rules of authentication sources)
 
 =cut
 
-Readonly::Scalar our $STRING => 'string';
 Readonly::Scalar our $SUBSTRING => 'substring';
 Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
@@ -71,8 +71,7 @@ Allowed operators for each attribute datatype
 
 Readonly::Hash our %OPERATORS =>
   (
-   $SUBSTRING => [$STARTS, $EQUALS, $CONTAINS, $ENDS],
-   $STRING => [$EQUALS],
+   $SUBSTRING => [$STARTS, $EQUALS, $CONTAINS, $ENDS, $MATCHES],
    $NUMBER => [$LOWER, $LOWER_OR_EQUALS, $EQUALS, $HIGHER, $HIGHER_OR_EQUALS],
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],

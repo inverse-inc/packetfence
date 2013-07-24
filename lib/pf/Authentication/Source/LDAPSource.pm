@@ -52,7 +52,7 @@ sub available_attributes {
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
-    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::STRING });
+    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::SUBSTRING });
   }
 
   return [@$super_attributes, @ldap_attributes];
@@ -97,7 +97,7 @@ sub authenticate {
   }
 
   if ($result->count != 1) {
-    $logger->warn("Unexpected number of entries found ($result->count) with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $logger->warn("Unexpected number of entries found (".$result->count.") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -114,9 +114,11 @@ sub authenticate {
 
 
 =head2 _connect
+
 Try every server in @LDAPSERVER in turn.
 Returns the connection object and a valid LDAP server and port or undef
 if all connections fail
+
 =cut
 
 sub _connect {
@@ -183,9 +185,9 @@ sub match_in_subclass {
 
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
 
-    $logger->debug("Matching rules in LDAP source.");
+    $logger->debug("Matching rules in LDAP source");
 
-    my $filter = ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
 
     $logger->debug("LDAP filter: $filter");
 
@@ -203,11 +205,12 @@ sub match_in_subclass {
     }
 
     $logger->debug("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     $result = $connection->search(
       base => $self->{'basedn'},
       filter => $filter,
       scope => $self->{'scope'},
-      attrs => ['dn']
+      attrs => \@attributes
     );
 
     if ($result->is_error) {
@@ -215,14 +218,36 @@ sub match_in_subclass {
         return undef;
     }
 
-    # If we found a result, we push all conditions as matched ones.
-    # That is normal, as we used them all to build our LDAP filter.
+    $logger->debug("Found ".$result->count." results");
     if ($result->count == 1) {
-        my $dn = $result->entry(0)->dn;
+        my $entry = $result->pop_entry();
+        my $entry_matches = 1;
         $connection->unbind;
-        $logger->info("Found a match ($dn)");
-        push @{ $matching_conditions }, @{ $own_conditions };
-        return $params->{'username'};
+
+        # Perform match on regexp conditions since they were not included in the LDAP filter
+        foreach my $condition (grep { $_->{'operator'} eq $Conditions::MATCHES } @{$own_conditions}) {
+            my $attribute = $entry->get_value($condition->{'attribute'});
+            my $value = $condition->{'value'};
+            if ($attribute && $attribute =~ m/$condition->{'value'}/) {
+                $entry_matches = 1;
+                last if ($rule->match eq $Rules::ANY)
+            }
+            else {
+                $entry_matches = 0;
+                if ($rule->match eq $Rules::ALL) {
+                    last;
+                }
+            }
+        }
+
+        if ($entry_matches) {
+            # If we found a result, we push all conditions as matched ones.
+            # That is normal, as we used them all to build our LDAP filter.
+            my $dn = $entry->dn;
+            $logger->info("Found a match ($dn)");
+            push @{ $matching_conditions }, @{ $own_conditions };
+            return $params->{'username'};
+        }
     }
 
     return undef;
@@ -284,7 +309,7 @@ from a rule.
 =cut
 
 sub ldap_filter_for_conditions {
-  my ($conditions, $match, $usernameattribute, $params) = @_;
+  my ($self, $conditions, $match, $usernameattribute, $params) = @_;
 
   # We first check if it's a catch all, if it is, we only
   # check for the usernameattribute - to match it in the source
@@ -294,6 +319,7 @@ sub ldap_filter_for_conditions {
     }
 
   my $expression = '(';
+  my @ldap_conditions;
 
   if ($match eq $Rules::ANY) {
     $expression .= '|';
@@ -313,20 +339,22 @@ sub ldap_filter_for_conditions {
     } elsif ($operator eq $Conditions::CONTAINS) {
       $str = "${attribute}=*${value}*";
     } elsif ($operator eq $Conditions::STARTS) {
-      $str = "${attribute}=*${value}";
+      $str = "${attribute}=${value}*";
     } elsif ($operator eq $Conditions::ENDS) {
       $str = "${attribute}=*${value}";
     }
 
-    if (scalar @{$conditions} == 1) {
-      $expression = '(' . $str;
-    }
-    else {
-      $expression .= '(' . $str . ')';
+    if (length $str) {
+        push(@ldap_conditions, $str);
     }
   }
 
-  $expression .= ')';
+  if (scalar @ldap_conditions < 2) {
+      $expression = '';
+  }
+  if (scalar @ldap_conditions) {
+      $expression .= '(' . join(')(', @ldap_conditions) . ')';
+  }
 
   $expression = '(&(' . $usernameattribute . '=' . $params->{'username'} . ')' . $expression .')';
 
