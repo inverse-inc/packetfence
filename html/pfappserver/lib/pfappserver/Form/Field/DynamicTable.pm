@@ -20,6 +20,7 @@ has '+widget' => (default => 'DynamicTable' );
 has '+num_extra' => (default => 1);
 has '+widget_wrapper' => (default => '+Simple');
 has '+do_wrapper' => (default => 1);
+has '+do_label' => (default => 1);
 has 'sortable' => (is=>'rw' , default => 0);
 has '+init_contains' => ( default => sub {
     {
