@@ -161,7 +161,7 @@ sub match {
         # For now, we return the first matching rule. We might change this in the future
         # so let's keep the @matching_rules array for now.
         if (scalar @matching_rules == 1) {
-            $logger->info("Matched rule ($rule->{'id'}), returning actions.");
+            $logger->info("Matched rule (".$rule->{'id'}.") in source ".$self->id.", returning actions.");
             return $rule->{'actions'};
         }
 

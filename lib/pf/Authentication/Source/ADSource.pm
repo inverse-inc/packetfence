@@ -21,9 +21,9 @@ sub available_attributes {
   my $super_attributes = $self->SUPER::available_attributes;
   my $ad_attributes =
     [
-     { value => "sAMAccountName", type => $Conditions::STRING },
-     { value => "sAMAccountType", type => $Conditions::STRING },
-     { value => "userAccountControl", type => $Conditions::STRING },
+     { value => "sAMAccountName", type => $Conditions::SUBSTRING },
+     { value => "sAMAccountType", type => $Conditions::SUBSTRING },
+     { value => "userAccountControl", type => $Conditions::SUBSTRING },
     ];
   
   return [@$super_attributes, @$ad_attributes];

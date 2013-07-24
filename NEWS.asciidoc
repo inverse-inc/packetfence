@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.4 released on 2013-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
++++++++++++
+
+* 
+
+Enhancements
+++++++++++++
+
+* Added new regexp operator for strings in authentication rules
+
+Bug Fixes
++++++++++
+
+* 
+
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -22,8 +40,8 @@ New Features
 Enhancements
 ++++++++++++
 
-* Add buttons to clone a switch, a floating device, and a violation
-* Add version number in the top navigation bar
+* New buttons to clone a switch, a floating device, and a violation
+* New version number in the top navigation bar
 
 Bug Fixes
 +++++++++

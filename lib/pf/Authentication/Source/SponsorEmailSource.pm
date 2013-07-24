@@ -27,7 +27,7 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my $own_attributes = [{ value => "user_email", type => $Conditions::STRING }];
+  my $own_attributes = [{ value => "user_email", type => $Conditions::SUBSTRING }];
 
   return [@$super_attributes, @$own_attributes];
 }
