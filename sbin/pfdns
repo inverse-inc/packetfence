@@ -194,32 +194,10 @@ sub isolzone {
 
     $logger->trace("Requested Domain: ".$qname);
     if ($qtype eq "A") {
-        if ($qname =~ /$PASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') {
-            my ($ttl, $rdata);
-            my $res   = Net::DNS::Resolver->new;
-            my $query = $res->search($qname) || get_memcached($qname,$memcached);
-            if ($query) {
-                foreach my $rr ($query->answer) {
-                    next unless $rr->type eq "A";
-                    my $ip = $rr->address;
-                    my $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,$HTTP_PORT 2>&1";
-                    my @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-                    $cmd = "LANG=C sudo ipset --add pfsession_passthrough $ip,$HTTPS_PORT 2>&1";
-                    @lines  = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
-                    ($ttl, $rdata) = ($TTL, $rr->address);
-                }
-            }
-
-            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-            push @ans, $rr;
-            $rcode = "NOERROR";
-        }
-        else {
-            my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
-            my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
-            push @ans, $rr;
-            $rcode = "NOERROR";
-        }
+        my ($ttl, $rdata) = ($TTL, $conn->{sockhost});
+        my $rr = new Net::DNS::RR("$qname $ttl $qclass $qtype $rdata");
+        push @ans, $rr;
+        $rcode = "NOERROR";
     }else{
         $rcode = "NXDOMAIN";
     }

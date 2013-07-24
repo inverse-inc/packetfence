@@ -559,14 +559,15 @@ sub readPfConfigFiles {
                         }
                     }
                 }
-                $Config{trapping}{passthroughs} = [
+                $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
+                $Config{trapping}{proxy_passthroughs} = [
                     split(/\s*,\s*/,$Config{trapping}{passthroughs} || ''),
                     qw(
                         crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
                         crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
                         crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
                         ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                        ocsp.verisign.com
+                        ocsp.verisign.com ctldl.windowsupdate.com
                     )
                 ];
 

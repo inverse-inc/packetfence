@@ -14,6 +14,8 @@ use Apache2::RequestRec ();
 use Apache2::Response ();
 use Apache2::RequestUtil ();
 use Apache2::ServerRec;
+#Use to detect if it´s a http or https connection
+use Apache::SSLLookup;
 
 use APR::Table;
 use APR::URI;
@@ -24,6 +26,7 @@ use URI::Escape qw(uri_escape);
 use pf::config;
 use pf::util;
 use pf::web::constants;
+use pf::proxypassthrough::constants;
 
 =head1 SUBROUTINES
 
@@ -41,9 +44,20 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 
 =cut
 sub translate {
-    my ($r) = shift;
+    my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace("hitting translator with URL: " . $r->uri);
+
+    # Test if the hostname is include in the proxy_passthroughs configuration
+    # In this case forward to mad_proxy
+    if ( ( $r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o) || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o) ) {
+        my $parsed_request = APR::URI->parse($r->pool, $r->uri);
+        $parsed_request->hostname($r->hostname);
+        $parsed_request->scheme('http');
+        $parsed_request->scheme('https') if $r->is_https;
+        $parsed_request->path($r->uri);
+        return proxy_redirect($r, $parsed_request->unparse);
+    }
 
     # be careful w/ performance here
     # Warning: we might want to revisit the /o (compile Once) if we ever want
@@ -147,6 +161,21 @@ sub html_redirect {
     return Apache2::Const::OK;
 }
 
+=item proxy_redirect
+
+Mod_proxy redirect
+
+=cut
+
+sub proxy_redirect {
+        my ($r, $url) = @_;
+        my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+        $r->set_handlers(PerlResponseHandler => []);
+        $r->filename("proxy:".$url);
+        $r->proxyreq(2);
+        $r->handler('proxy-server');
+        return Apache2::Const::OK;
+}
 
 =back
 

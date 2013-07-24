@@ -17,6 +17,9 @@
   <IfModule !mod_proxy.c>
     LoadModule proxy_module /usr/lib/apache2/modules/mod_proxy.so
   </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module /usr/lib/apache2/modules/mod_proxy_http.so
+  </IfModule>
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
   </IfModule>
@@ -53,6 +56,9 @@
   </IfModule>
   <IfModule !mod_proxy.c>
     LoadModule proxy_module modules/mod_proxy.so
+  </IfModule>
+  <IfModule !proxy_http.c>
+    LoadModule proxy_http_module modules/mod_proxy_http.so
   </IfModule>
   <IfModule !mod_authz_host.c>
     LoadModule authz_host_module modules/mod_authz_host.so
@@ -170,7 +176,6 @@ foreach my $interface (@internal_nets) {
          CustomLog => $install_dir.'/logs/portal_access_log combined',
          Include => $var_dir.'/conf/captive-portal-common.conf',
          Include => $var_dir.'/conf/block-unwanted.conf',
-         Include => $var_dir.'/conf/ocsp-crl.conf',
          Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
          ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
          ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
@@ -181,10 +186,10 @@ foreach my $interface (@internal_nets) {
          ErrorLog => $install_dir.'/logs/portal_error_log',
          CustomLog => $install_dir.'/logs/portal_access_log combined',
          SSLEngine => 'on',
+         SSLProxyEngine    => 'on',
          Include => $var_dir.'/conf/ssl-certificates.conf',
          Include => $var_dir.'/conf/captive-portal-common.conf',
          Include => $var_dir.'/conf/block-unwanted.conf',
-         Include => $var_dir.'/conf/ocsp-crl.conf',
          Include => $var_dir.'/conf/captive-portal-cleanurls.conf',
          ProxyPassReverse => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
          ProxyPass => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
@@ -210,7 +215,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          CustomLog           => $install_dir.'/logs/portal_access_log combined',
          Include             => $var_dir.'/conf/captive-portal-common.conf',
          Include             => $var_dir.'/conf/block-unwanted.conf',
-         Include             => $var_dir.'/conf/ocsp-crl.conf',
          Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
          ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
          ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
@@ -224,7 +228,6 @@ if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '')
          Include             => $var_dir.'/conf/ssl-certificates.conf',
          Include             => $var_dir.'/conf/captive-portal-common.conf',
          Include             => $var_dir.'/conf/block-unwanted.conf',
-         Include             => $var_dir.'/conf/ocsp-crl.conf',
          Include             => $var_dir.'/conf/captive-portal-cleanurls.conf',
          ProxyPassReverse    => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
          ProxyPass           => '/proxies/tools/stinger.exe http://download.nai.com/products/mcafee-avert/stng260.exe',
