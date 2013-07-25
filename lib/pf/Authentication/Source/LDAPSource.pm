@@ -313,23 +313,12 @@ sub ldap_filter_for_conditions {
 
   # We first check if it's a catch all, if it is, we only
   # check for the usernameattribute - to match it in the source
-  if (scalar @{$conditions} == 0)
-    {
-      return '(' . $usernameattribute . '=' . $params->{'username'} . ')';
-    }
 
-  my $expression = '(';
   my @ldap_conditions;
-
-  if ($match eq $Rules::ANY) {
-    $expression .= '|';
-  }
-  else {
-    $expression .= '&';
-  }
-
+  my $logical_op = ($match eq $Rules::ANY) ? '|' :   '&';
+  my $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
   foreach my $condition (@{$conditions})  {
-    my $str = "";
+    my $str;
     my $operator = $condition->{'operator'};
     my $value = escape_filter_value($condition->{'value'});
     my $attribute = $condition->{'attribute'};
@@ -344,19 +333,17 @@ sub ldap_filter_for_conditions {
       $str = "${attribute}=*${value}";
     }
 
-    if (length $str) {
+    if ($str) {
         push(@ldap_conditions, $str);
     }
   }
-
-  if (scalar @ldap_conditions < 2) {
-      $expression = '';
+  if (@ldap_conditions) {
+      my $subexpressions = join('',map { "($_)" } @ldap_conditions);
+      if (@ldap_conditions > 1) {
+          $subexpressions = "(${logical_op}${subexpressions})";
+      }
+      $expression = "(&${expression}${subexpressions})";
   }
-  if (scalar @ldap_conditions) {
-      $expression .= '(' . join(')(', @ldap_conditions) . ')';
-  }
-
-  $expression = '(&(' . $usernameattribute . '=' . $params->{'username'} . ')' . $expression .')';
 
   return $expression;
 }
