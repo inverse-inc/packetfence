@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 # Database maintenance and backup
 #
@@ -20,10 +19,37 @@ DB_USER='pf';
 # make sure access to this file is properly secured! (chmod a=,u=rwx)
 DB_PWD='';
 DB_NAME='pf';
-BACKUP_DIRECTORY='/root/backup'
+PF_DIRECTORY='/usr/local/pf/'
+BACKUP_DIRECTORY='/root/backup/'
 BACKUP_DB_FILENAME='packetfence-db-dump'
+BACKUP_PF_FILENAME=packetfence-files-dump-`date +%F_%Hh%M`.tgz
 ARCHIVE_DIRECTORY=$BACKUP_DIRECTORY
 ARCHIVE_DB_FILENAME='packetfence-archive'
+
+
+# Create the backup directory
+
+    if [ ! -d "$BACKUP_DIRECTORY" ]; then
+        mkdir -p $BACKUP_DIRECTORY
+                echo -e "$BACKUP_DIRECTORY , created. \n"
+        else
+                echo -e "$BACKUP_DIRECTORY , folder already created. \n"
+    fi
+
+#               echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP days have been removed. \n"
+#               echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME-`date +%F_%Hh%M` ", file already created. \n"
+#               echo -e $BACKUP_PF_FILENAME-`date +%F_%Hh%M` "have been created in  $BACK_DIRECTORY \n"
+#
+         Backup pf File
+     if [ ! -f $BACKUP_DIRECTORY.$BACKUP_PF_FILENAME ]; then
+         tar cvzf $BACKUP_DIRECTORY$BACKUP_PF_FILENAME $PF_DIRECTORY
+                echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
+                find $BACKUP_DIRECTORY -name "$BACKUP_PF_FILENAME-*" -mtime +$NB_DAYS_TO_KEEP -print0 | xargs -0r rm -f
+                echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP days have been removed. \n"
+        else
+                echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME ", file already created. \n"
+     fi
+
 
 # is MySQL running? meaning we are the live packetfence
 if [ -f /var/run/mysqld/mysqld.pid ]; then
@@ -36,12 +62,12 @@ if [ -f /var/run/mysqld/mysqld.pid ]; then
    # lets optimize on Sunday
    DOW=`date +%w`
    if [ $DOW -eq 0 ]
-   then 
+   then
         TABLENAMES=`mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "SHOW TABLES\G;"|grep 'Tables_in_'|sed -n 's/.*Tables_in_.*: \([_0-9A-Za-z]*\).*/\1/p'`
 
         # loop through the tables and optimize them
         for TABLENAME in $TABLENAMES
-        do  
+        do
             mysql -u $DB_USER -p$DB_PWD -D $DB_NAME -e "OPTIMIZE TABLE $TABLENAME;"
         done
     fi
