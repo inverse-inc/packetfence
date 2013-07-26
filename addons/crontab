@@ -1,0 +1,15 @@
+# Crontab 20130711_1
+#
+# This script clears location_log/ location_log_history
+# clears the accounting information
+30 00 * * * [ -f /var/run/mysqld/mysqld.pid ] && /usr/local/pf/addons/database-backup-and-maintenance.sh
+#
+# This script cleans /tmp/cgisess_*
+*/30 * * * * find /tmp -name "cgisess_*" -mmin +30 -exec rm -f {} \;
+#
+# Sync
+*/15 * * * *  if [ ! -f /var/run/mysqld/mysqld.pid ]; then rsync --delete -ogDprtuv --exclude=var/session/* --exclude=logs/* 10.10.10.186:/usr/local/pf /usr/local; fi
+#
+# Watchdog
+*/1 * * * * [ -f /var/run/mysqld/mysqld.pid ] &&  [ -z $(/sbin/pidof -x pfdns) ] && /usr/local/pf/bin/pfcmd service pfdns restart
+*/1 * * * * [ -f /var/run/mysqld/mysqld.pid ] &&  [ -z $(/sbin/pidof -x radiusd) ] && /usr/local/pf/bin/pfcmd service radiusd restart
