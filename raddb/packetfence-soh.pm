@@ -139,6 +139,7 @@ sub authorize {
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
     #    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
+        $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: text/xml; charset=UTF-8']);
         $curl->setopt(CURLOPT_POSTFIELDS, $request);
         $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
