@@ -398,8 +398,7 @@ sub send_email {
       $result = $msg->last_send_successful();
     }
     catch {
-      chomp($_);
-      $logger->error("Can't send email to ".$info{'email'}.": $_");
+      $logger->error("Can't send email to ".$info{'email'});
     };
     
     return $result;

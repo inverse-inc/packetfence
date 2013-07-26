@@ -800,9 +800,8 @@ sub node_register {
            return 1;
        }
     }
-
+    else {
     # do not check for max_node if it's for auto-register
-    if (!$auto_registered) {
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}, $info{'category_id'}) ) {
             $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
             return (0);

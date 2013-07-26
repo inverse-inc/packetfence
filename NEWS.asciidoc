@@ -27,7 +27,7 @@ Enhancements
 Bug Fixes
 +++++++++
 
-* 
+* External authentication sources of portal profiles are not respected
 
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

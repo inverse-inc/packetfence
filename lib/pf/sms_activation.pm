@@ -84,7 +84,7 @@ sub sms_activation_db_prepare {
     ]);
 
     $sms_activation_statements->{'sms_activation_has_entry_sql'} = get_db_handle()->prepare(qq[
-        SELECT 1 FROM sms_activation WHERE mac = ? and expiration >= NOW()
+        SELECT 1 FROM sms_activation WHERE mac = ? AND expiration >= NOW() AND status = ?
     ]);
 
     $sms_activation_statements->{'sms_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
@@ -399,7 +399,7 @@ sub validate_code {
 
 sub sms_activation_has_entry {
     my ($mac) = @_;
-    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,'sms_activation_has_entry_sql',$mac);
+    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 'sms_activation_has_entry_sql', $mac, $UNVERIFIED);
     my $rows = $query->rows;
     $query->finish;
     return $rows;

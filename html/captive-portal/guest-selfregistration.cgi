@@ -77,41 +77,53 @@ else {
 
 if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::guest::GUEST_REGISTRATION) {
 
+    my %info;
+
     # is form valid?
     my ($auth_return, $err, $errargs_ref) = pf::web::guest::validate_selfregistration($portalSession);
 
+    #
     # Email
-    if ( $auth_return && defined($cgi->param('by_email')) && is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ) {
+    #
+    if ( $auth_return && defined($cgi->param('by_email'))
+         && is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ) {
+
       # User chose to register by email
       $logger->info( "registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest by email" );
 
+      my $pid = $session->param('guest_pid');
+      my $email = $session->param("email");
+      $info{'pid'} = $pid;
+
+      # fetch role for this user
+      my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+      my $source_id = $portalSession->getProfile()->getSourceByType($email_type);
+      my $auth_params =
+        {
+         'username' => $pid,
+         'user_email' => $email
+        };
+      $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+
       # form valid, adding person (using modify in case person already exists)
-      person_modify($session->param('guest_pid'), (
+      person_modify($pid, (
           'firstname'   => $session->param("firstname"),
           'lastname'    => $session->param("lastname"),
           'company'     => $session->param('company'),
-          'email'       => $session->param("email"),
+          'email'       => $email,
           'telephone'   => $session->param("phone"),
           'notes'       => 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
       ));
-      $logger->info("Adding guest person " . $session->param('guest_pid'));
-
-      # grab additional info about the node
-      my %info;
-      my $pid = $session->param('guest_pid');
-      my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-      $info{'pid'} = $pid;
-      $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
 
       # if we are on-site: register the node
       if (!$session->param("preregistration")) {
           # Use the activation timeout to set the unregistration date
-          my $source = &pf::authentication::getAuthenticationSourceByType($email_type);
+          my $source = &pf::authentication::getAuthenticationSource($source_id);
           my $timeout = normalize_time($source->{email_activation_timeout});
           $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
-          $logger->debug("Registration for guest ".$info{'pid'}." is valid until ".$info{'unregdate'});
+          $logger->debug("Registration for guest ".$pid." is valid until ".$info{'unregdate'});
 
-          pf::web::web_node_register($portalSession, $info{'pid'}, %info);
+          pf::web::web_node_register($portalSession, $pid, %info);
       }
 
       # add more info for the activation email
@@ -119,7 +131,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'pid'},
+          $portalSession->getGuestNodeMac(), $pid, $email,
           ( $session->param("preregistration")
               ? $pf::web::guest::TEMPLATE_EMAIL_EMAIL_PREREGISTRATION
               : $pf::web::guest::TEMPLATE_EMAIL_GUEST_ACTIVATION
@@ -141,8 +153,12 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
       }
     } # Email
 
+    #
     # SMS
-    elsif ( $auth_return && defined($cgi->param('by_sms')) && is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ) {
+    #
+    elsif ( $auth_return && defined($cgi->param('by_sms'))
+            && is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ) {
+
       if ($session->param("preregistration")) {
           pf::web::generate_error_page($portalSession, i18n("Registration in advance by SMS is not supported."));
           exit(0);
@@ -155,57 +171,89 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
                                                                        $cgi->param("mobileprovider") );
       if ($auth_return) {
 
+          my $pid = $session->param('guest_pid');
+          my $phone = $session->param("phone");
+          $info{'pid'} = $pid;
+
           # form valid, adding person (using modify in case person already exists)
           $logger->info("Adding guest person " . $session->param('guest_pid') . "(" . $session->param("phone") . ")");
-          person_modify($session->param('guest_pid'), (
+          person_modify($pid, (
               'firstname' => $session->param("firstname"),
               'lastname' => $session->param("lastname"),
               'company' => $session->param('company'),
               'email' => $session->param("email"),
-              'telephone' => $session->param("phone"),
+              'telephone' => $phone,
               'notes' => 'sms confirmation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time),
           ));
 
           $logger->info("redirecting to mobile confirmation page");
 
-          my %info;
-          my $pid = $session->param('guest_pid');
-          my $type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-          $info{'pid'} = $pid;
-          $info{'category'} = &pf::authentication::matchByType($type, {username => $pid}, $Actions::SET_ROLE);
+          # fetch role for this user
+          my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
+          my $source_id = $portalSession->getProfile->getSourceByType($sms_type);
+          my $auth_params =
+            {
+             'username' => $pid,
+             'phonenumber' => $phone
+            };
+          $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+
+          # set node in pending mode with the appropriate role
           $info{'status'} = $pf::node::STATUS_PENDING;
-          # modify the node
           node_modify($portalSession->getClientMac(), %info);
+
+          # show form for PIN number
           pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms", $err, $errargs_ref);
           exit(0);
       }
     } # SMS
 
-    # SPONSOR
-    elsif ( $auth_return && defined($cgi->param('by_sponsor')) && is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
+    #
+    # Sponsor
+    #
+    elsif ( $auth_return && defined($cgi->param('by_sponsor'))
+            && is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
       # User chose to register through a sponsor
-      $logger->info(
-          "registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest through a sponsor"
-      );
+      $logger->info("registering " . ( $session->param("preregistration") ? 'a remote' : $portalSession->getClientMac() ) . " guest through a sponsor");
+
+      my $pid = $session->param('guest_pid');
+      my $email = $session->param("email");
+      $info{'pid'} = $pid;
 
       # form valid, adding person (using modify in case person already exists)
-      person_modify($session->param('guest_pid'), (
+      person_modify($pid, (
           'firstname' => $session->param("firstname"),
           'lastname' => $session->param("lastname"),
           'company' => $session->param('company'),
-          'email' => $session->param("email"),
+          'email' => $email,
           'telephone' => $session->param("phone"),
           'sponsor' => $session->param("sponsor"),
           'notes' => 'sponsored guest. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time)
       ));
       $logger->info("Adding guest person " . $session->param('guest_pid'));
 
-      # grab additional info about the node
-      my %info;
-      my $pid = $session->param('guest_pid');
-      my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-      $info{'pid'} = $pid;
-      $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
+      my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
+      my $source_id = $portalSession->getProfile->getSourceByType($sponsor_type);
+      my $auth_params =
+        {
+         'username' => $pid,
+         'user_email' => $email
+        };
+
+      # fetch role for this user
+      $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+
+      # Setting access timeout and role (category) dynamically
+      $info{'unregdate'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ACCESS_DURATION);
+
+      if (defined $info{'unregdate'}) {
+          $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+      }
+      else {
+          $info{'unregdate'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_UNREG_DATE);
+      }
+
+      # set node in pending mode
       $info{'status'} = $pf::node::STATUS_PENDING;
 
       if (!$session->param("preregistration")) {
@@ -220,7 +268,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # TODO this portion of the code should be throttled to prevent malicious intents (spamming)
       ($auth_return, $err, $errargs_ref) = pf::email_activation::create_and_email_activation_code(
-          $portalSession->getGuestNodeMac(), $info{'pid'}, $info{'sponsor'},
+          $portalSession->getGuestNodeMac(), $pid, $info{'sponsor'},
           $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_ACTIVATION,
           $pf::email_activation::SPONSOR_ACTIVATION,
           %info

@@ -324,7 +324,7 @@ sub getAuthenticationSource {
 
     my $result;
     if (defined $id) {
-        $result = first {$_->{id} eq $id} @authentication_sources;
+        $result = first {$_->{'id'} eq $id} @authentication_sources;
     } else {
         $result = \@authentication_sources;
     }
@@ -425,8 +425,6 @@ sub username_from_email {
     return undef;
 }
 
-
-
 =item authenticate
 
 =cut
@@ -435,12 +433,12 @@ sub authenticate {
     my ( $username, $password, @source_ids ) = @_;
     my @sources;
     if (@source_ids) {
-        my %inlist = map {$_ => undef} @source_ids;
+        my %inlist = map { $_ => undef } @source_ids;
         @sources = grep { exists $inlist{$_->id} } @authentication_sources;
     } else {
         @sources = @authentication_sources;
     }
-    return _authenticate_from_sources($username, $password,@sources);
+    return _authenticate_from_sources($username, $password, @sources);
 }
 
 =item _authenticate_from_sources
@@ -450,9 +448,10 @@ sub authenticate {
 sub _authenticate_from_sources {
     my ( $username, $password, @sources ) = @_;
 
-    $logger->trace("Authenticating $username");
-    foreach my $current_source ( @sources) {
+    $logger->debug("Authenticating '$username'");
+    foreach my $current_source (@sources) {
         my ($result, $message);
+        $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
         eval {
             ($result, $message) = $current_source->authenticate($username, $password);
         };
@@ -463,7 +462,7 @@ sub _authenticate_from_sources {
         }
     }
 
-    $logger->trace("Authentication failed for $username for all sources");
+    $logger->trace("Authentication failed for '$username' for all sources");
     return ($FALSE, 'Invalid username/password for all authentication sources.');
 }
 
@@ -483,16 +482,11 @@ sub match {
     $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
 
     foreach my $current_source ( @authentication_sources ) {
-
-        if ($current_source->class eq 'external') {
-            next;
-        }
-
-        $logger->debug("Matching rules ".($action?"for action $action":"")." in source ".$current_source->id." (".$current_source->type.")");
         if (defined $source_id && $source_id eq $current_source->id) {
             $actions = $current_source->match($params);
             last;
-        } elsif (!defined $source_id) {
+        }
+        elsif (!defined $source_id) {
             $actions = $current_source->match($params);
 
             # First match in a source wins, and we stop looping
@@ -520,27 +514,6 @@ sub match {
     }
 
     return $actions;
-}
-
-sub matchByType {
-    my ($type, $params, $action) = @_;
-
-    my $actions;
-    my $source = getAuthenticationSourceByType($type);
-    if ($source) {
-        $actions = $source->match($params);
-    }
-
-    if (defined $action && defined $actions) {
-        foreach my $current_action ( @{$actions} ) {
-            if ($current_action->type eq $action) {
-                return $current_action->value;
-            }
-        }
-        return undef;
-    }
-
-  return $actions;
 }
 
 =back

@@ -17,6 +17,7 @@ portal from the same server.
 use strict;
 use warnings;
 
+use List::Util qw(first);
 use pf::log;
 
 =head1 METHODS
@@ -141,7 +142,7 @@ sub getDescripton {
 
 =item getSources
 
-Returns the available enabled modes for guest self-registration for the current captive portal profile.
+Returns the authentication sources IDs for the current captive portal profile.
 
 =cut
 
@@ -151,6 +152,22 @@ sub getSources {
 }
 
 *sources = \&getSources;
+
+sub getSourceByType {
+    my ($self, $type) = @_;
+    my $result;
+    if ($type) {
+        $type = uc($type);
+        $result = first {uc(pf::authentication::getAuthenticationSource($_)->{'type'}) eq $type} @{$self->getSources()};
+    }
+
+    unless ($result) {
+        my $logger = get_logger();
+        $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $self->getName));
+    }
+
+    return $result;
+}
 
 =back
 
