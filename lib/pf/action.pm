@@ -266,8 +266,7 @@ sub action_log {
 
 sub action_trap {
     my ($mac, $vid) = @_;
-
-    # Nothing here, trapping is handled by pf::enforcement (called by pfcmd on violation changes)
+    pf::enforcement::reevaluate_access( $mac, "manage_vopen");
 }
 
 sub action_winpopup {
