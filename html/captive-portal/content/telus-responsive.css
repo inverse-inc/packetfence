@@ -27,14 +27,8 @@
     }
 
     #page {
-        padding: 23px 23px 50px 72px;
+        padding: 23px 95px 50px 95px;
         position: relative;
-    }
-
-    .error,
-    .input,
-    #about {
-        padding-left: 23px;
     }
 
     input[type="text"] {

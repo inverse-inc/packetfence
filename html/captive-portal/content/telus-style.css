@@ -74,6 +74,11 @@ html, body {
     padding-bottom: 17px;
 }
 
+#billc28 {
+    font-size: 10px;
+    float: right;
+}
+
 hr {
     border: 0;
     height: 0;
