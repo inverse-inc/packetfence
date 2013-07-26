@@ -68,7 +68,7 @@ install: build
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/users
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf/ssl
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/raddb/sites-enabled
-	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
+	install -d -m2700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/logs
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/conf
 	install -d -m2770 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/var
 	install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/var/dhcpd
