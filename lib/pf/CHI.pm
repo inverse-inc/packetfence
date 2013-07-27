@@ -22,9 +22,9 @@ use pf::file_paths;
 use pf::IniFiles;
 use List::MoreUtils qw(uniq);
 
-our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
-
 sub chiConfigFromIniFile {
+    our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1) or die;
+
     my %args;
     my @keys = uniq map { s/ .*$//; $_; } $chi_config->Sections;
     foreach my $key (@keys) {
