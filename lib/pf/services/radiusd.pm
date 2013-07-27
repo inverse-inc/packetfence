@@ -11,12 +11,12 @@ according to what PacketFence needs to accomplish.
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-Read the following configuration files: 
+Read the following configuration files:
 F<conf/radiusd/radiusd.conf>
 F<conf/radiusd/eap.conf>
 F<conf/radiusd/sql.conf>
 
-Generates the following configuration files: 
+Generates the following configuration files:
 F<var/radiusd/radiusd.conf>
 F<var/radiusd/eap.conf/>
 F<var/radiusd/sql.conf>
@@ -32,6 +32,7 @@ use Readonly;
 
 use pf::config;
 use pf::util;
+use pf::ConfigStore::SwitchOverlay;
 
 BEGIN {
     use Exporter ();
@@ -60,9 +61,9 @@ sub generate_radiusd_conf {
     generate_radiusd_eapconf();
     generate_radiusd_sqlconf();
 
-    #Build the nas table for RADIUS    
+    #Build the nas table for RADIUS
     require pf::freeradius;
-    pf::freeradius::freeradius_populate_nas_config();
+    pf::freeradius::freeradius_populate_nas_config(\%SwitchConfig);
 
     return 1;
 }
@@ -80,8 +81,8 @@ sub generate_radiusd_mainconf {
     $tags{'install_dir'} = $install_dir;
     $tags{'management_ip'} = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
     $tags{'arch'} = `uname -m` eq "x86_64" ? "64" : "";
-    
-    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );    
+
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
 }
 
 =item * generate_radiusd_eapconf
