@@ -44,7 +44,7 @@ BEGIN {
 use pf::config;
 use pf::config::cached;
 use pf::db;
-use pf::ConfigStore::SwitchOverlay;
+#use pf::ConfigStore::SwitchOverlay;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $freeradius_db_prepared = 0;
@@ -122,17 +122,18 @@ Populates the radius_nas table with switches in switches.conf.
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my ($switch_config) = @_;
 
     if (!_delete_all_nas()) {
         $logger->info("Problem emptying FreeRADIUS nas clients table.");
     }
 
-    foreach my $switch (keys %SwitchConfig) {
+    foreach my $switch (keys %$switch_config) {
 
         # we skip the 'default' entry or the local switch
         if ($switch eq 'default' || $switch eq '127.0.0.1') { next; }
 
-        my $sw_radiussecret = $SwitchConfig{$switch}{'radiusSecret'};
+        my $sw_radiussecret = $switch_config->{$switch}{'radiusSecret'};
 
         # skipping unless switch's radiusSecret exists and is not all whitespace
         unless (defined $sw_radiussecret && $sw_radiussecret =~ /\S/ ) {
@@ -141,7 +142,7 @@ sub freeradius_populate_nas_config {
         }
 
         # insert NAS
-        _insert_nas( $switch, $switch, $sw_radiussecret, $switch . " (" . $SwitchConfig{$switch}{'type'} .")");
+        _insert_nas( $switch, $switch, $sw_radiussecret, $switch . " (" . $switch_config->{$switch}{'type'} .")");
     }
 }
 

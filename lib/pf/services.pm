@@ -178,7 +178,8 @@ sub service_ctl {
                             my $pid = service_ctl( $daemon, "status" );
                             # TODO: push all these per-daemon initialization into pf::services::...
                             require pf::freeradius;
-                            pf::freeradius::freeradius_populate_nas_config();
+                            require pf::ConfigStore::SwitchOverlay;
+                            pf::freeradius::freeradius_populate_nas_config(\%pf::ConfigStore::SwitchOverlay::SwitchConfig);
 
                         }
                         if ($service_launchers{$daemon} =~ /^(.+)$/) {
@@ -417,7 +418,7 @@ sub service_ctl {
                         if (-e "$install_dir/var/run/${daemon}_${monitor_int}.pid") {
                             chomp( $pid = `cat $install_dir/var/run/${daemon}_${monitor_int}.pid`);
                             my $ppt = new Proc::ProcessTable;
-                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            my $proc = first { defined($_) } grep { defined $_ && $_->pid == $pid } @{ $ppt->table };
                             if (!defined($proc)) {
                                 unlink( $install_dir . "/var/run/${daemon}_${monitor_int}.pid" );
                                 return(0);
