@@ -16,6 +16,7 @@ use namespace::autoclean;
 use pf::log;
 use pf::file_paths;
 use pf::ConfigStore::Switch;
+use pf::freeradius;
 use HTTP::Status qw(:constants is_error is_success);
 our (%SwitchConfig, $switches_overlay_cached_config);
 
@@ -62,6 +63,7 @@ $switches_overlay_cached_config = pf::config::cached->new(
                 }
             }
             $SwitchConfig{'127.0.0.1'} = { %{$SwitchConfig{default}}, type => 'PacketFence', mode => 'production', uplink => ['dynamic'], SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
+            freeradius_populate_nas_config(\%SwitchConfig);
             $config->cache->set("SwitchConfig",\%SwitchConfig);
         },
     ],
