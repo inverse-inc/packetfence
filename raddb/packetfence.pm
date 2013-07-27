@@ -233,7 +233,6 @@ sub post_auth {
         # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
         # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     };
-
     return $radius_return_code;
 }
 
