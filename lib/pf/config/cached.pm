@@ -300,8 +300,6 @@ our %CONFIG_DATA;
 
 use overload "%{}" => \&config, fallback => 1;
 
-our $chi_config = pf::IniFiles->new( -file => $chi_config_file);
-
 Readonly::Scalar our $WRITE_PERMISSIONS => '0664';
 
 =head1 METHODS
