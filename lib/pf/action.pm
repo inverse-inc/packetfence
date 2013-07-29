@@ -174,6 +174,7 @@ sub action_execute {
     my $logger = Log::Log4perl::get_logger('pf::action');
     my $leave_open = 0;
     my @actions = class_view_actions($vid);
+    @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
         my $action = $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
