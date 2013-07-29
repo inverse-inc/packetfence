@@ -153,7 +153,7 @@ sub _getDestinationUrl {
     # set default if destination_url not set
     return $Config{'trapping'}{'redirecturl'} if (!defined($self->cgi->param("destination_url")));
 
-    return encode_entities(uri_unescape($self->cgi->param("destination_url")));
+    return decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
 =item _resolveIp
