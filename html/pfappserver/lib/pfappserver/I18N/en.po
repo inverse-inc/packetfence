@@ -425,7 +425,14 @@ msgstr ""
 msgid ""
   "Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to "
   "web sites."
-  "The configuration parameter \"passthrough\" must be enabled for passthroughs "
+  "The configuration parameter \"passthrough\" must be enabled for Passthroughs "
+  "to be effective."
+msgstr ""
+
+## conf/documentation.conf (trapping.proxy_passthroughs)
+msgid ""
+  "Comma-delimited list of domains to be used with apache passthroughs."
+  "The configuration parameter \"passthrough\" must be enabled for Proxy Passthroughs"
   "to be effective."
 msgstr ""
 
@@ -2576,8 +2583,8 @@ msgstr ""
 
 # conf/documentation.conf (trapping.passthrough)
 msgid ""
-  "When enabled, PacketFence uses pfdns to resolve real IP addresses and allow "
-  "trapped devices to reach the web sites defined as passthroughs."
+  "When enabled, PacketFence uses pfdns if you set Passthroughs or apache mod-proxy"
+  "if you set Proxy passthroughs to allow trapped devices to reach the web sites."
 msgstr ""
 
 # conf/documentation.conf (network.rogueinterval)
@@ -3575,6 +3582,10 @@ msgstr "Passthrough"
 # conf/documentation.conf
 msgid "trapping.passthroughs"
 msgstr "Passthroughs"
+
+# conf/documentation.conf
+msgid "trapping.proxy_passthroughs"
+msgstr "Proxy Passthroughs"
 
 # conf/documentation.conf
 msgid "trapping.range"
