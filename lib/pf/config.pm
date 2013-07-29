@@ -561,7 +561,7 @@ sub readPfConfigFiles {
                 }
                 $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
                 $Config{trapping}{proxy_passthroughs} = [
-                    split(/\s*,\s*/,$Config{trapping}{passthroughs} || ''),
+                    split(/\s*,\s*/,$Config{trapping}{proxy_passthroughs} || ''),
                     qw(
                         crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
                         crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
