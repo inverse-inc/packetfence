@@ -23,6 +23,7 @@ Enhancements
 ++++++++++++
 
 * Added new regexp operator for strings in authentication rules
+* Automatic landing on the sign-in page if no internal/oauth authentication source is used by the portal profile
 
 Bug Fixes
 +++++++++

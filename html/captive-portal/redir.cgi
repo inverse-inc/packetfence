@@ -109,11 +109,11 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
     exit(0);
   }
   # Redirect to the guests self registration page if configured to do so
-  #elsif ( $portalSession->getProfile->getAuth eq 'guests_self_registration_only') {
-  #  $logger->info("$mac redirected to guests self registration page");
-  #  pf::web::guest::generate_selfregistration_page($portalSession);
-  #  exit(0);
-  #}
+  elsif ( $portalSession->getProfile->guestRegistrationOnly) {
+      $logger->info("$mac redirected to guests self registration page");
+      pf::web::guest::generate_selfregistration_page($portalSession);
+      exit(0);
+  }
   elsif ($Config{'registration'}{'nbregpages'} == 0) {
     $logger->info("$mac redirected to authentication page");
     pf::web::generate_login_page($portalSession);
