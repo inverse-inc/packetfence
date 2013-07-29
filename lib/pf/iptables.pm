@@ -124,11 +124,12 @@ sub iptables_generate {
     }
 
     # per-feature firewall rules
-    # self-registered guest by email or sponsored
+    # self-registered guest by email or sponsored or gaming registration
+    my $gaming_enabled = isenabled($Config{'registration'}{'gaming_devices_registration'});
     my $guests_enabled = $guest_self_registration{'enabled'};
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
-    if ($guests_enabled && ($email_enabled || $sponsor_enabled)) {
+    if ( ($guests_enabled && ($email_enabled || $sponsor_enabled) ) || $gaming_enabled ) {
         $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;
