@@ -386,6 +386,9 @@ $(function () { // DOM ready
             // Update sort handle if the table is sortable
             //var empty = true;
             var rows = tbody.children(':not(.hidden)');
+            if(table.hasClass("table-sortable") ) {
+                rows = rows.filter(":has(.sort-handle)");
+            }
             updateSortableTable(rows);
             var count = rows.length;
             if (count < 2) {
