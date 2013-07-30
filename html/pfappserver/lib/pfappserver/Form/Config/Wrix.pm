@@ -14,659 +14,192 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Base::Form::Role::Help';
 
-use File::Find qw(find);
-use File::Spec::Functions;
-
-use pf::config;
-use pf::SNMP::constants;
-use pf::util;
-use List::MoreUtils qw(any);
-
 ## Definition
 has_field 'id' =>
   (
-   type => 'IPAddress',
-   label => 'IP Address',
-   accept => ['default'],
+   type => 'Text',
    required => 1,
-   messages => { required => 'Please specify the IP address of the switch.' },
+   messages => { required => 'The ID of the Switch'}
   );
-has_field 'type' =>
+has_field 'Provider_Identifier' =>
   (
-   type => 'Select',
-   label => 'Type',
-   element_class => ['chzn-select'],
-   required_when => { 'id' => sub { $_[0] ne 'default' } },
-   messages => { required => 'Please select the type of the switch.' },
-  );
-has_field 'mode' =>
-  (
-   type => 'Select',
-   label => 'Mode',
+   type => 'Text',
    required => 1,
-   tags => { after_element => \&help_list,
-             help => '<dt>Testing</dt><dd>pfsetvlan writes in the log files what it would normally do, but it
-doesn’t do anything.</dd><dt>Registration</dt><dd>pfsetvlan automatically-register all MAC addresses seen on the switch
-ports. As in testing mode, no VLAN changes are done.</dd><dt>Production</dt><dd>pfsetvlan sends the SNMP writes to change the VLAN on the switch ports.</dd>' },
   );
-has_field 'deauthMethod' =>
+has_field 'Location_Identifier' =>
   (
-   type => 'Select',
-   label => 'Deauthentication Method',
-   element_class => ['chzn-deselect'],
+   type => 'Text',
+   required => 1,
   );
-has_field 'VoIPEnabled' =>
+has_field 'Service_Provider_Brand' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_block 'identification' =>
+  (
+    render_list => [qw(Provider_Identifier Location_Identifier Service_Provider_Brand)]
+  );
+has_field 'Location_Type' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Sub_Location_Type' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Engish_Location_Name' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Location_Address1' =>
+  (
+   type => 'Text',
+   required => 1,
+   label => 'Location Address 1'
+  );
+
+has_field 'Location_Address2' =>
+  (
+   type => 'Text',
+   label => 'Location Address 2'
+  );
+has_field 'Engish_Location_City' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Location_Zip_Postal_Code' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Location_State_Province_Name' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Location_Country_Name' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_field 'Location_Phone_Number' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+has_block 'location'  =>
+  (
+    render_list => [qw(
+        Location_Type Sub_Location_Type Engish_Location_Name Location_Address1
+        Location_Address2 Engish_Location_City Location_Zip_Postal_Code
+        Location_State_Province_Name Location_Country_Name Location_Phone_Number  Location_URL Coverage_Area
+    )]
+  );
+
+has_field 'SSID_Open_Auth' =>
+  (
+   type => 'Text',
+  );
+has_field 'SSID_Broadcasted' =>
   (
    type => 'Toggle',
-   label => 'VoIP',
   );
-has_field 'uplink_dynamic' =>
-  (
-   type => 'Checkbox',
-   label => 'Dynamic Uplinks',
-   checkbox_value => 'dynamic',
-   tags => { after_element => \&help,
-             help => 'Dynamically lookup uplinks' },
-  );
-has_field 'uplink' =>
+has_field 'WEP_Key' =>
   (
    type => 'Text',
-   label => 'Uplinks',
-   tags => { after_element => \&help,
-             help => 'Comma-separated list of the switch uplinks' },
   );
-
-## Inline mode
-has_field 'inlineTrigger' =>
-  (
-   type => 'Repeatable',
-   num_extra => 1, # add extra row that serves as a template
-  );
-has_field 'inlineTrigger.type' =>
-  (
-   type => 'Select',
-   widget_wrapper => 'None',
-   localize_labels => 1,
-   options_method => \&options_inlineTrigger,
-  );
-has_field 'inlineTrigger.value' =>
-  (
-   type => 'Hidden',
-  );
-has_block 'triggers' =>
-  (
-   tag => 'div',
-   render_list => [
-                   map( { ("${_}_trigger") } ($ALWAYS, $PORT, $MAC, $SSID)),
-                  ],
-   attr => { id => 'templates' },
-   class => [ 'hidden' ],
-  );
-has_field "${ALWAYS}_trigger" =>
-  (
-   type => 'Hidden',
-   default => 1,
-  );
-has_field "${PORT}_trigger" =>
-  (
-   type => 'PosInteger',
-   do_label => 0,
-   wrapper => 0,
-   element_class => ['input-mini'],
-  );
-has_field "${MAC}_trigger" =>
-  (
-   type => 'MACAddress',
-   do_label => 0,
-   wrapper => 0,
-   #element_class => ['span5'],
-  );
-has_field "${SSID}_trigger" =>
+has_field 'WEP_Key_Entry_Method' =>
   (
    type => 'Text',
-   do_label => 0,
-   wrapper => 0,
-   #element_class => ['span5'],
   );
-
-## RADIUS
-has_block 'radius' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'radiusSecret',
-                  ],
-  );
-has_field 'radiusSecret' =>
+has_field 'WEP_Key_Size' =>
   (
    type => 'Text',
-   label => 'Secret Passphrase',
   );
-
-## SNMP
-has_block 'snmp' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'SNMPVersion',
-                   'SNMPCommunityRead',
-                   'SNMPCommunityWrite',
-                   'SNMPEngineID',
-                   'SNMPUserNameRead',
-                   'SNMPAuthProtocolRead',
-                   'SNMPAuthPasswordRead',
-                   'SNMPPrivProtocolRead',
-                   'SNMPPrivPasswordRead',
-                   'SNMPUserNameWrite',
-                   'SNMPAuthProtocolWrite',
-                   'SNMPAuthPasswordWrite',
-                   'SNMPPrivProtocolWrite',
-                   'SNMPPrivPasswordWrite',
-                   'SNMPVersionTrap',
-                   'SNMPCommunityTrap',
-                   'SNMPUserNameTrap',
-                   'SNMPAuthProtocolTrap',
-                   'SNMPAuthPasswordTrap',
-                   'SNMPPrivProtocolTrap',
-                   'SNMPPrivPasswordTrap',
-                   'advance',
-                  ],
-  );
-
-has_block 'advance' =>
-  (
-   tag => 'div',
-   render_list => [ qw(macSearchesMaxNb macSearchesSleepInterval) ],
-  );
-
-has_field macSearchesMaxNb =>
-  (
-   type => 'PosInteger',
-   label => 'Maximum MAC addresses',
-   default => 30,
-   tags => {
-       after_element => \&help,
-       help => 'Maximum number of MAC addresses retrived from a port'
-   },
-  );
-
-has_field macSearchesSleepInterval  =>
-  (
-   type => 'PosInteger',
-   label => 'Sleep interval',
-   default => 2,
-   tags => {
-       after_element => \&help,
-       help => 'Sleep interval between queries of MAC addresses'
-   },
-  );
-
-has_block definition =>
-  (
-   render_list => [ qw(type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
-  );
-has_field 'SNMPVersion' =>
-  (
-   type => 'Select',
-   label => 'Version',
-   element_class => ['chzn-deselect'],
-  );
-has_field 'SNMPCommunityRead' =>
+has_field 'SSID_1X' =>
   (
    type => 'Text',
-   label => 'Community Read',
   );
-has_field 'SNMPCommunityWrite' =>
+has_field 'SSID_1X_Broadcasted' =>
   (
-   type => 'Text',
-   label => 'Community Write',
+   type => 'Toggle',
   );
-has_field 'SNMPEngineID' =>
+has_field 'Security_Protocol_1X' =>
   (
-   type => 'Text',
-   label => 'Engine ID',
+    type => 'Select',
+    default => 'NONE',
+    options => [
+      { value => 'NONE', label => 'None' },
+      { value => 'WPA-Enterprise', label => 'WPA Enterprise' },
+      { value => 'WPA2', label => 'WPA2' },
+      { value => 'EAP-PEAP', label => 'EAP PEAP' },
+      { value => 'EAP-TTLS', label => 'EAP TTLS' },
+      { value => 'EAP_SIM', label => 'EAP SIM' },
+      { value => 'EAP-AKA', label => 'EAP AKA' },
+    ],
   );
-has_field 'SNMPUserNameRead' =>
+ has_field 'Restricted_Access' =>
   (
-   type => 'Text',
-   label => 'User Name Read',
+    type => 'Toggle',
   );
-has_field 'SNMPAuthProtocolRead' =>
+ has_field 'Client_Support' =>
   (
-   type => 'Text',
-   label => 'Auth Protocol Read',
+    type => 'Text',
   );
-has_field 'SNMPAuthPasswordRead' =>
+
+ has_block 'ssid' =>
   (
-   type => 'Text',
-   label => 'Auth Password Read',
+    render_list => [qw(
+      SSID_Open_Auth SSID_Broadcasted WEP_Key WEP_Key_Entry_Method
+      WEP_Key_Size SSID_1X SSID_1X_Broadcasted Security_Protocol_1X
+      Restricted_Access Client_Support MAC_Address
+    )],
   );
-has_field 'SNMPPrivProtocolRead' =>
+
+ has_field 'Location_URL' =>
   (
-   type => 'Text',
-   label => 'Priv Protocol Read',
+    type => 'Text',
   );
-has_field 'SNMPPrivPasswordRead' =>
+ has_field 'Coverage_Area' =>
   (
-   type => 'Text',
-   label => 'Priv Password Read',
+    type => 'Text',
   );
-has_field 'SNMPUserNameWrite' =>
+ our @HOURS = qw(Open_Monday Open_Tuesday Open_Wednesday Open_Thursday Open_Friday Open_Saturday Open_Sunday);
+ has_field \@HOURS =>
   (
-   type => 'Text',
-   label => 'User Name Write',
+    type => 'Text',
+    maxlength => 13,
   );
-has_field 'SNMPAuthProtocolWrite' =>
+  has_block hours =>
   (
-   type => 'Text',
-   label => 'Auth Protocol Write',
+    render_list => ['UTC_Timezone', @HOURS]
   );
-has_field 'SNMPAuthPasswordWrite' =>
+ has_field 'Longitude' =>
   (
-   type => 'Text',
-   label => 'Auth Password Write',
+    type => 'Float',
   );
-has_field 'SNMPPrivProtocolWrite' =>
+ has_field 'Latitude' =>
   (
-   type => 'Text',
-   label => 'Priv Protocol Write',
+    type => 'Float',
   );
-has_field 'SNMPPrivPasswordWrite' =>
+  has_block lat_long =>
   (
-   type => 'Text',
-   label => 'Priv Password Write',
+    render_list => [qw( Longitude Latitude  )]
   );
-has_field 'SNMPVersionTrap' =>
+ has_field 'UTC_Timezone' =>
   (
-   type => 'Select',
-   label => 'Version Trap',
-   element_class => ['chzn-deselect'],
-   options_method => \&options_SNMPVersion,
+    type => 'Select',
   );
-has_field 'SNMPCommunityTrap' =>
+ has_field 'MAC_Address' =>
   (
-   type => 'Text',
-   label => 'Community Trap',
-  );
-has_field 'SNMPUserNameTrap' =>
-  (
-   type => 'Text',
-   label => 'User Name Trap',
-  );
-has_field 'SNMPAuthProtocolTrap' =>
-  (
-   type => 'Text',
-   label => 'Auth Protocol Trap',
-  );
-has_field 'SNMPAuthPasswordTrap' =>
-  (
-   type => 'Text',
-   label => 'Auth Password Trap',
-  );
-has_field 'SNMPPrivProtocolTrap' =>
-  (
-   type => 'Text',
-   label => 'Priv Protocol Trap',
-  );
-has_field 'SNMPPrivPasswordTrap' =>
-  (
-   type => 'Text',
-   label => 'Priv Password Trap',
+    type => 'Text',
   );
 
-## CLI
-has_block 'cli' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'cliTransport',
-                   'cliUser',
-                   'cliPwd',
-                   'cliEnablePwd',
-                  ],
-  );
-has_field 'cliTransport' =>
-  (
-   type => 'Select',
-   label => 'Transport',
-   element_class => ['chzn-deselect'],
-  );
-has_field 'cliUser' =>
-  (
-   type => 'Text',
-   label => 'Username',
-  );
-has_field 'cliPwd' =>
-  (
-   type => 'Text',
-   label => 'Password',
-  );
-
-has_field 'cliEnablePwd' =>
-  (
-   type => 'Text',
-   label => 'Enable Password',
-  );
-
-## Web Services
-has_block 'ws' =>
-  (
-   tag => 'div',
-   render_list => [
-                   'wsTransport',
-                   'wsUser',
-                   'wsPwd',
-                  ],
-  );
-has_field 'wsTransport' =>
-  (
-   type => 'Select',
-   label => 'Transport',
-   element_class => ['chzn-deselect'],
-  );
-has_field 'wsUser' =>
-  (
-   type => 'Text',
-   label => 'Username',
-  );
-has_field 'wsPwd' =>
-  (
-   type => 'Text',
-   label => 'Password',
-  );
-
-has_field controllerIp =>
-  (
-    type => 'IPAddress',
-    label => 'Controller IP Address',
-    tags => {
-        after_element => \&help,
-        help => 'Use instead this IP address for de-authentication requests. Normally used for WiFi only'
-    },
-  );
-
-=head1 METHODS
-
-=head2 options_inlineTrigger
-
-=cut
-
-sub options_inlineTrigger {
-    my $self = shift;
-
-    my @triggers = map { $_ => $self->_localize($_) } ($ALWAYS, $PORT, $MAC, $SSID);
-
-    return @triggers;
-}
-
-=head2 field_list
-
-Dynamically build text fields for the roles/vlans mapping.
-
-=cut
-
-sub field_list {
-    my $self = shift;
-
-    my $list = [];
-
-    # Add VLAN & role mapping for default roles
-    foreach my $role (@SNMP::ROLES) {
-        my $field =
-          {
-           type => 'Text',
-           label => $role,
-          };
-        push(@$list, $role.'Role' => $field);
-
-        # The VLAN mapping for default roles is mandatory for the default switch
-        $field =
-          {
-           type => 'Text',
-           label => $role,
-           required_when => { 'id' => sub { $_[0] eq 'default' } },
-           messages => { required => 'Please specify the corresponding VLAN for each role.' }
-          };
-        push(@$list, $role.'Vlan' => $field);
-    }
-
-    # Add VLAN & role mapping for custom roles
-    if (defined $self->roles) {
-        foreach my $role (map { $_->{name} } @{$self->roles}) {
-            my $field =
-              {
-               type => 'Text',
-               label => $role,
-              };
-            push(@$list, $role.'Vlan' => $field);
-            push(@$list, $role.'Role' => $field);
-        }
-    }
-
-    return $list;
-}
-
-=head2 update_fields
-
-When editing the default switch, set as required the VLANs mapping of the base roles.
-
-For other switches, add placeholders with values from default switch.
-
-=cut
-
-sub update_fields {
-    my $self = shift;
-
-    if ($self->{init_object} && $self->init_object->{id} eq 'default') {
-        foreach my $role (@SNMP::ROLES) {
-            $self->field($role.'Vlan')->required(1);
-        }
-    }
-    elsif ($self->placeholders) {
-        foreach my $field ($self->fields) {
-            if ($self->placeholders->{$field->name} && length $self->placeholders->{$field->name}) {
-                if ($field->type eq 'Select') {
-                    if ($field->name eq 'type') {
-                        $field->default($self->placeholders->{$field->name});
-                    }
-                    else {
-                        my $val = sprintf "%s (%s)", $self->_localize('Default'), $self->placeholders->{$field->name};
-                        $field->element_attr({ 'data-placeholder' => $val });
-                    }
-                }
-                elsif ($field->name ne 'id') {
-                    $field->element_attr({ placeholder => $self->placeholders->{$field->name} });
-                }
-            }
-        }
-    }
-
-    $self->SUPER::update_fields();
-}
-
-=head2 build_block_list
-
-Dynamically build the block list of the roles mapping.
-
-=cut
-
-sub build_block_list {
-    my $self = shift;
-
-    my (@vlans, @roles);
-    if ($self->form->roles) {
-        @vlans = map { $_.'Vlan' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-        @roles = map { $_.'Role' } @SNMP::ROLES, map { $_->{name} } @{$self->form->roles};
-    }
-
-    return
-      [
-       { name => 'vlans',
-         render_list => \@vlans,
-       },
-       { name => 'roles',
-         render_list => \@roles,
-       }
-      ];
-}
-
-=head2 options_type
-
-Dynamically extract the descriptions from the various SNMP modules.
-
-=cut
-
-sub options_type {
-    my $self = shift;
-
-    my %paths = ();
-    my $wanted = sub {
-        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/SNMP\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
-            $pack =~ s/\//::/g; $switch =~ s/\//::/g;
-
-            # Parent folder is the vendor name
-            my @p = split /::/, $switch;
-            my $vendor = shift @p;
-
-            # Only switch types with a 'description' subroutine are displayed
-            require $module;
-            if ($pack->can('description')) {
-                $paths{$vendor} = {} unless ($paths{$vendor});
-                $paths{$vendor}->{$switch} = $pack->description;
-            }
-        }
-    };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/SNMP"));
-
-    # Sort vendors and switches for display
-    my @modules;
-    foreach my $vendor (sort keys %paths) {
-        my @switches = map {{ value => $_, label => $paths{$vendor}->{$_} }} sort keys %{$paths{$vendor}};
-        push @modules, { group => $vendor,
-                         options => \@switches };
-    }
-
-    return @modules;
-}
-
-=head2 options_mode
-
-=cut
-
-sub options_mode {
-    my $self = shift;
-
-    my @modes = map { $_ => $self->_localize($_) } @SNMP::MODES;
-
-    return \@modes;
-}
-
-=head2 options_deauthMethod
-
-=cut
-
-sub options_deauthMethod {
-    my $self = shift;
-
-    my @methods = map { $_ => $_ } @SNMP::METHODS;
-
-    return ('' => '', @methods);
-}
-
-=head2 options_vclose
-
-=cut
-
-sub options_SNMPVersion {
-    my $self = shift;
-
-    my @versions = map { $_ => "v$_" } @SNMP::VERSIONS;
-
-    return ('' => '', @versions);
-}
-
-=head2 options_cliTransport
-
-=cut
-
-sub options_cliTransport {
-    my $self = shift;
-
-    my @transports = map { $_ => $_ } qw/Telnet SSH Serial/;
-
-    return ('' => '', @transports);
-}
-
-=head2 options_wsTransport
-
-=cut
-
-sub options_wsTransport {
-    my $self = shift;
-
-    my @transports = map { $_ => $_ } qw/HTTP HTTPS/;
-
-    return ('' => '', @transports);
-}
-
-=head2 validate
-
-If one of the inline triggers is $ALWAYS, ignore any other trigger.
-
-Make sure the selected switch type supports the selected inline triggers.
-
-Validate the MAC address format of the inline triggers.
-
-Validate the list of uplink ports.
-
-=cut
-
-sub validate {
-    my $self = shift;
-
-    my @triggers;
-    my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
-
-    if ($self->value->{type}) {
-        my $type = 'pf::SNMP::'. $self->value->{type};
-        if ($type->require()) {
-            @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
-            if ( @triggers && !$always) {
-                # Make sure the selected switch type supports the selected inline triggers.
-                my %capabilities;
-                @capabilities{$type->new()->inlineCapabilities()} = ();
-                if (keys %capabilities) {
-                    my @unsupported = grep {!exists $capabilities{$_} } @triggers;
-                    if (@unsupported) {
-                        $self->field('type')->add_error("The chosen type doesn't support the following trigger(s): "
-                                                        . join(', ', @unsupported));
-                    }
-                } else {
-                    $self->field('type')->add_error("The chosen type doesn't support inline mode.");
-                }
-            }
-        } else {
-            $self->field('type')->add_error("The chosen type is not supported.");
-        }
-    }
-
-    unless ($self->has_errors) {
-        # Valide the MAC address format of the inline triggers.
-        @triggers = grep { $_->{type} eq $MAC } @{$self->value->{inlineTrigger}};
-        foreach my $trigger (@triggers) {
-            unless (valid_mac($trigger->{value})) {
-                $self->field('inlineTrigger')->add_error("Verify the format of the MAC address(es).");
-                last;
-            }
-        }
-    }
-
-    if ($self->value->{uplink_dynamic} ne 'dynamic') {
-        unless ($self->value->{uplink} && $self->value->{uplink} =~ m/^(\d(,\s*)?)*$/) {
-            $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
-        }
-    }
-}
 
 =head1 COPYRIGHT
 
