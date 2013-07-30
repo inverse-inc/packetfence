@@ -163,7 +163,7 @@ Requires: perl(Net::Nessus::XMLRPC) >= 0.40
 Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
-Requires: perl(SOAP::Lite)
+Requires: perl(SOAP::Lite) >= 1.0
 Requires: perl(WWW::Curl)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
