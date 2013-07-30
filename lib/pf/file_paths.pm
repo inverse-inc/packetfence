@@ -47,6 +47,7 @@ our (
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files
+    $wrix_config_file
 );
 
 BEGIN {
@@ -73,6 +74,7 @@ BEGIN {
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files
         @log_files
+        $wrix_config_file
     );
 }
 
@@ -107,6 +109,7 @@ $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
+$wrix_config_file = catfile($conf_dir, "wrix.conf");
 
 $oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
 $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
