@@ -1,0 +1,24 @@
+      <div class="modal fade hide" id="modalSwitch">
+      </div>
+
+      <div class="modal fade hide" id="deleteSwitch">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Switch') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this switch?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Switches')  %]</h2>
+
+      [% INCLUDE configuration/switch/list.tt %]
+
+      <div class="form-actions">
+        <a id="createSwitch" class="btn" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('create')) %]">[% l('Add switch') %]</a>
+      </div>

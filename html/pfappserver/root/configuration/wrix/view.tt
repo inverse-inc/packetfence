@@ -1,0 +1,49 @@
+<form name="modalWrix" class="form-horizontal form-condensed" action="[% c.req.uri %]" method="post">
+  [%- IF item.id.defined %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">&times;</a>
+    <h3>[% IF item.id.defined %]<i>[% l('Wrix Information') %]</i> [% item.id %][% ELSE %][% l('New Wrix Information') %][% END %]</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#wrixIdentification" data-toggle="tab">[% l('Identification') %]</a></li>
+      <li><a href="#wrixLocation" data-toggle="tab">[% l('Location') %]</a></li>
+      <li><a href="#wrixSSID" data-toggle="tab">[% l('SSID') %]</a></li>
+      <li><a href="#wrixHours" data-toggle="tab">[% l('Hours') %]</a></li>
+      <li><a href="#wrixLatLong" data-toggle="tab">[% l('Longitude/Latitude') %]</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+      <div class="tab-pane fade in active" id="wrixIdentification">
+        [% form.field('id').render UNLESS item && item.id.defined %]
+        [% form.block('identification').render %]
+      </div><!-- tab-pane -->
+
+      <div class="tab-pane fade" id="wrixLocation">
+        [% form.block('location').render %]
+      </div><!-- tab-pane -->
+
+      <div class="tab-pane fade" id="wrixSSID">
+        [% form.block('ssid').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="wrixHours">
+        [% form.block('hours').render %]
+      </div><!--tab-pane-->
+
+      <div class="tab-pane fade" id="wrixLatLong">
+        [% form.block('lat_long').render %]
+      </div><!--tab-pane-->
+
+    </div><!--tab-content-->
+  </div><!--modal-body-->
+
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
+    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+  </div>
+
+</form>
