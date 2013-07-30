@@ -154,6 +154,12 @@ sub getSources {
 
 *sources = \&getSources;
 
+=item getSourceByType
+
+Returns the first source ID for the requested source type for the current captive portal profile.
+
+=cut
+
 sub getSourceByType {
     my ($self, $type) = @_;
     my $result;

@@ -124,12 +124,11 @@ sub sms_activation_db_prepare {
 =cut
 
 sub sms_carrier_view_all {
+    my $source = shift;
     my $query;
 
     # Check if a SMS authentication source is defined; if so, use the carriers list
     # from this source
-    my $type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-    my $source = pf::authentication::getAuthenticationSourceByType($type);
     if ($source) {
         my $list = join(',', @{$source->sms_carriers});
         sms_activation_db_prepare() unless ($sms_activation_db_prepared);

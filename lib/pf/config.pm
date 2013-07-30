@@ -583,20 +583,6 @@ sub readPfConfigFiles {
 
 }
 
-sub _set_guest_self_registration {
-    my ($modes) = @_;
-    for my $mode (
-        $SELFREG_MODE_EMAIL,
-        $SELFREG_MODE_SMS,
-        $SELFREG_MODE_SPONSOR,
-        $SELFREG_MODE_GOOGLE,
-        $SELFREG_MODE_FACEBOOK,
-        $SELFREG_MODE_GITHUB,) {
-        $guest_self_registration{$mode} = $TRUE
-            if is_in_list( $mode,$modes);
-    }
-}
-
 sub readProfileConfigFile {
     $cached_profiles_config = pf::config::cached->new(
             -file => $profiles_config_file,
@@ -607,26 +593,15 @@ sub readProfileConfigFile {
                 $config->cleanupWhitespace(\%Profiles_Config);
                 # check for portal profile guest self registration options in case they're disabled in default profile
                 $guest_self_registration{'enabled'} = $FALSE;
-                while (my ($profile_id,$profile) = each %Profiles_Config) {
-                    $profile->{'filter'} = [split(/\s*,\s*/,$profile->{'filter'} || "")];
+                while (my ($profile_id, $profile) = each %Profiles_Config) {
+                    $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;
                     }
                     if ( isenabled($profile->{'guest_self_reg'}) ) {
                         $guest_self_registration{'enabled'} = $TRUE;
                     }
-
-                    # marking guest_self_registration as globally enabled if one of the portal profile doesn't defined auth method
-                    # no auth method == guest self registration
-                    if ( isenabled($profile->{'auth'}) ) {
-                        $guest_self_registration{'enabled'} = $TRUE;
-                    }
-
-                    $profile->{'sources'} = [split(/\s*,\s*/,$profile->{'sources'} || "")];
-
-                    # marking different guest_self_registration modes as globally enabled if needed by one of the portal profiles
-                    #my $guest_modes = $profile->{'guest_modes'};
-                    #_set_guest_self_registration($guest_modes) if ( defined $guest_modes );
+                    $profile->{'sources'} = [split(/\s*,\s*/, $profile->{'sources'} || "")];
                 }
             }]
     );

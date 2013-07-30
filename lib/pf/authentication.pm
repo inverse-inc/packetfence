@@ -227,14 +227,15 @@ sub update_profiles_guest_modes {
 sub _set_guest_self_registration {
     my ($modes) = @_;
     for my $mode (
-        $SELFREG_MODE_EMAIL,
-        $SELFREG_MODE_SMS,
-        $SELFREG_MODE_SPONSOR,
-        $SELFREG_MODE_GOOGLE,
-        $SELFREG_MODE_FACEBOOK,
-        $SELFREG_MODE_GITHUB,) {
+                  $SELFREG_MODE_EMAIL,
+                  $SELFREG_MODE_SMS,
+                  $SELFREG_MODE_SPONSOR,
+                  $SELFREG_MODE_GOOGLE,
+                  $SELFREG_MODE_FACEBOOK,
+                  $SELFREG_MODE_GITHUB,
+                 ) {
         $guest_self_registration{$mode} = $TRUE
-            if is_in_list( $mode,$modes);
+          if is_in_list( $mode,$modes);
     }
 }
 
@@ -327,18 +328,6 @@ sub getAuthenticationSource {
         $result = first {$_->{'id'} eq $id} @authentication_sources;
     } else {
         $result = \@authentication_sources;
-    }
-
-    return $result;
-}
-
-sub getAuthenticationSourceByType {
-    my $type = shift;
-
-    my $result;
-    if ($type) {
-        $type = uc($type);
-        $result = first {uc($_->type) eq $type} @authentication_sources;
     }
 
     return $result;

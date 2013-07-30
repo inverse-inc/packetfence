@@ -96,6 +96,9 @@ sub generate_selfregistration_page {
 
     $logger->info('generate_selfregistration_page');
 
+    my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
+    my $source_id = $portalSession->getProfile->getSourceByType($sms_type);
+
     $portalSession->stash({
         post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
 
@@ -107,7 +110,7 @@ sub generate_selfregistration_page {
         email => lc($portalSession->cgi->param("email") || ''),
         sponsor_email => lc($portalSession->cgi->param("sponsor_email") || ''),
 
-        sms_carriers => sms_carrier_view_all(),
+        sms_carriers => sms_carrier_view_all(pf::authentication::getAuthenticationSource($source_id)),
         email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
         sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
         sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),
@@ -180,7 +183,8 @@ sub validate_selfregistration {
     }
 
     my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-    my $source = &pf::authentication::getAuthenticationSourceByType($email_type);
+    my $source_id = $portalSession->getProfile->getSourceByType($email_type);
+    my $source = pf::authentication::getAuthenticationSource($source_id);
     if ($source) {
         unless (isenabled($source->{allow_localdomain})) {
             # You should not register as a guest if you are part of the local network

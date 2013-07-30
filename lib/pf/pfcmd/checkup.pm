@@ -127,7 +127,6 @@ sub sanity_check {
     portal_profiles();
     guests();
     unsupported();
-    oauth2();
 
     return @problems;
 }
@@ -590,7 +589,7 @@ sub is_config_documented {
     #than what is documented in documentation.conf
     foreach my $section (keys %Config) {
         next if ( ($section eq "proxies") || ($section eq "passthroughs") || ($section eq "")
-                  || ($section =~ /^(services|interface|oauth2|nessus_category_policy)/));
+                  || ($section =~ /^(services|interface|nessus_category_policy)/));
 
         foreach my $item  (keys %{$Config{$section}}) {
             if ( !defined( $Doc_Config{"$section.$item"} ) ) {
@@ -920,7 +919,9 @@ sub guests {
 
     # if we are going to send emails we must warn that MIME::Lite::TT must be installed
     my $guests_enabled = isenabled($Config{'registration'}{'guests_self_registration'});
-    my $guest_require_email = ($guest_self_registration{$SELFREG_MODE_SMS} || $guest_self_registration{$SELFREG_MODE_SPONSOR});
+    my $guest_require_email = ($guest_self_registration{$SELFREG_MODE_EMAIL} ||
+                               $guest_self_registration{$SELFREG_MODE_SMS} ||
+                               $guest_self_registration{$SELFREG_MODE_SPONSOR});
     if ($guests_enabled && $guest_require_email) {
         my $import_succesfull = try { require MIME::Lite::TT; };
         if (!$import_succesfull) {
@@ -969,34 +970,6 @@ sub portal_profiles {
         }
     }
 }
-
-=item oauth2
-
-Make sure that if you enable OAuth2 for Google/Facebook that you have the provider information defined in pf.conf
-
-=cut
-
-sub oauth2 {
-
-    my $google_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
-    if ($guest_self_registration{$SELFREG_MODE_GOOGLE}) {
-          add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Google" )
-            if ( !defined(pf::authentication::getAuthenticationSourceByType($google_type)) );
-    }
-
-    my $facebook_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
-    if ($guest_self_registration{$SELFREG_MODE_FACEBOOK}) {
-         add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to Facebook" )
-        if ( !defined(pf::authentication::getAuthenticationSourceByType($facebook_type)) );
-    }
-
-    my $github_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
-    if ($guest_self_registration{$SELFREG_MODE_GITHUB}) {
-         add_problem ( $FATAL, "missing the oauth2 provider configuration for OAuth2 authentication to GitHub" )
-        if ( !defined(pf::authentication::getAuthenticationSourceByType($github_type)) );
-    }
-}
-
 
 =back
 

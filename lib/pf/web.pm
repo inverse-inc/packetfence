@@ -363,7 +363,7 @@ sub generate_oauth2_page {
    # Generate the proper Client
    my $provider = $portalSession->getCgi()->url_param('provider');
 
-   print $portalSession->cgi->redirect(oauth2_client($provider)->authorize_url);
+   print $portalSession->cgi->redirect(oauth2_client($portalSession, $provider)->authorize_url);
 }
 
 =item generate_oauth2_result
@@ -404,7 +404,8 @@ sub generate_oauth2_result {
    } elsif (lc($provider) eq 'google') {
        $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
    }
-   my $source = &pf::authentication::getAuthenticationSourceByType($type);
+   my $source_id = $portalSession->getProfile->getSourceByType($type);
+   my $source = pf::authentication::getAuthenticationSource($source_id);
    $response = $token->get($source->{'protected_resource_url'});
    if ($response->is_success) {
         # Grab JSON content
@@ -707,7 +708,7 @@ sub generate_generic_page {
 }
 
 sub oauth2_client {
-    my $provider = shift;
+    my ($portalSession, $provider) = @_;
     my $type;
     {
         if (lc($provider) eq 'facebook') {
@@ -719,7 +720,8 @@ sub oauth2_client {
         }
     }
     if ($type) {
-        my $source = &pf::authentication::getAuthenticationSourceByType($type);
+        my $source_id = $portalSession->getProfile->getSourceByType($type);
+        my $source = pf::authentication::getAuthenticationSource($source_id);
         if ($source) {
             Net::OAuth2::Client->new(
                 $source->{'client_id'},
