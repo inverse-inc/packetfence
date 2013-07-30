@@ -148,6 +148,26 @@ server dynamic_client_server {
             }
         }
 
+        if ("%{sql: SELECT count(*) FROM radius_nas WHERE '%{Packet-Src-IP-Address}' = nasname}" == 1) {
+            update control {
+                #
+                #  Echo the IP.
+                FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
+
+                #
+                #  Do multiple SELECT statements to grab
+                #  the various definitions.
+                FreeRADIUS-Client-Shortname = "%{sql: SELECT shortname FROM radius_nas WHERE '%{Packet-Src-IP-Address}' = nasname}}"
+
+                FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE '%{Packet-Src-IP-Address}' = nasname}}"
+
+                FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE '%{Packet-Src-IP-Address}' = nasname}}"
+
+
+            }
+            ok
+        }
+
 		# Do an LDAP lookup in the elements OU, check to see if
 		# the Packet-Src-IP-Address object has a "ou"
 		# attribute, if it does continue.  Change "ACME.COM" to
