@@ -63,21 +63,27 @@ sub instantiate {
 
 sub _default_profile {
     my %default = %{$Profiles_Config{default}};
-
-    return {%default, name => 'default' ,template_path => '/', guest_modes => _guest_modes_from_sources($default{sources})};
+    my %results =
+      (
+       %default,
+       name => 'default',
+       template_path => '/',
+       guest_modes => _guest_modes_from_sources($default{sources})
+      );
+    return \%results;
 }
 
 sub _custom_profile {
     my ($name) = @_;
     my $defaults = _default_profile();
     my $profile = $Profiles_Config{$name};
-    my %results = (
-        'name' => $name,
-        'template_path' => $name,
-        'description' => $profile->{'description'} || '',
-        map { $_ =>  ($profile->{$_} || $defaults->{$_} ) }
-        qw (logo guest_self_reg guest_modes sources billing_engine filter)
-    );
+    my %results =
+      (
+       'name' => $name,
+       'template_path' => $name,
+       'description' => $profile->{'description'} || '',
+       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources billing_engine filter)
+      );
     $results{guest_modes} = _guest_modes_from_sources($results{sources});
     return \%results;
 }
@@ -85,8 +91,12 @@ sub _custom_profile {
 sub _guest_modes_from_sources {
     my ($sources) = @_;
     $sources ||= [];
-    my %is_in = map {$_ => undef } @$sources;
-    my @guest_modes = map { lc($_->type)} grep { exists $is_in{$_->id} && $_->class eq 'external'} @authentication_sources;
+    my %is_in = map { $_ => undef } @$sources;
+    my @guest_modes =
+      map { lc($_->type) }
+        grep { exists $is_in{$_->id} && $_->class eq 'external' }
+          @authentication_sources;
+
     return \@guest_modes;
 }
 

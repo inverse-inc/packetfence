@@ -2032,7 +2032,6 @@ Here are the different configuration parameters that can be set for each portal 
   [profilename1]
   description = the description of your portal profile
   filter = the name of the SSID for which you'd like to apply the profile, or the VLAN number
-  guest_self_reg = either enabled or disabled
   billing_engine = either enabled or disabled
   sources = comma-separated list of authentications sources (IDs) to use
 

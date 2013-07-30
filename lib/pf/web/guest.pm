@@ -110,7 +110,7 @@ sub generate_selfregistration_page {
         email => lc($portalSession->cgi->param("email") || ''),
         sponsor_email => lc($portalSession->cgi->param("sponsor_email") || ''),
 
-        sms_carriers => sms_carrier_view_all(pf::authentication::getAuthenticationSource($source_id)),
+        sms_carriers => sms_carrier_view_all($source_id? pf::authentication::getAuthenticationSource($source_id) : undef),
         email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
         sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
         sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),

@@ -277,10 +277,9 @@ sub generate_login_page {
     my ( $portalSession, $err ) = @_;
 
     # Activate signup link if self_reg is enabled and we have at least one proper mode enabled
-    if (isenabled($portalSession->getProfile->getGuestSelfReg) &&
-       ( is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ||
+    if ( is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes) ||
          is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes) ||
-         is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) ) {
+         is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes) ) {
         $portalSession->stash->{'guest_allowed'} = 1;
     } else {
         $portalSession->stash->{'guest_allowed'} = 0;

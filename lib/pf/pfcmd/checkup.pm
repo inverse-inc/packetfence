@@ -950,7 +950,9 @@ sub unsupported {
 
 =item portal_profiles
 
-Make sure that portal profiles, if defined, have a filter and no unsupported parameters
+Make sure that portal profiles, if defined, have a filter and no unsupported parameters.
+
+Make sure only one external authentication source is selected for each type.
 
 =cut
 
@@ -967,6 +969,15 @@ sub portal_profiles {
         foreach my $key ( keys %{$Profiles_Config{$portal_profile}} ) {
             add_problem( $WARN, "invalid parameter $key for profile $portal_profile" )
                 if ( $key !~ /$profile_params/ );
+        }
+
+        my %external;
+        foreach my $source (map { pf::authentication::getAuthenticationSource($_) } @{$Profiles_Config{$portal_profile}{'sources'}} ) {
+            my $type = $source->{'type'};
+            $external{$type} = 0 unless (defined $external{$type});
+            $external{$type}++;
+            add_problem ( $FATAL, "many authentication sources of type $type are selected for profile $portal_profile" )
+              if ($external{$type} > 1);
         }
     }
 }

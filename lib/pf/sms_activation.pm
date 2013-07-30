@@ -130,7 +130,7 @@ sub sms_carrier_view_all {
     # Check if a SMS authentication source is defined; if so, use the carriers list
     # from this source
     if ($source) {
-        my $list = join(',', @{$source->sms_carriers});
+        my $list = join(',', @{$source->{'sms_carriers'}});
         sms_activation_db_prepare() unless ($sms_activation_db_prepared);
         $sms_activation_statements->{'sms_activation_carrier_view_sql'} =~ s/\?/$list/;
         $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,

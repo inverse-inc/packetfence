@@ -235,7 +235,7 @@ sub _set_guest_self_registration {
                   $SELFREG_MODE_GITHUB,
                  ) {
         $guest_self_registration{$mode} = $TRUE
-          if is_in_list( $mode,$modes);
+          if is_in_list($mode, $modes);
     }
 }
 

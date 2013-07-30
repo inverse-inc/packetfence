@@ -24,11 +24,13 @@ Enhancements
 
 * Added new regexp operator for strings in authentication rules
 * Automatic landing on the sign-in page if no internal/oauth authentication source is used by the portal profile
+* Self-registration is now enabled when a profile has at least one external authentication source
 
 Bug Fixes
 +++++++++
 
 * External authentication sources of portal profiles are not respected
+* A portal profile can have multiple external authentication sources of the same type
 
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
