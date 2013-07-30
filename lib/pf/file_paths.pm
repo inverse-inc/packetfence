@@ -47,7 +47,8 @@ our (
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files
-    $wrix_config_file
+    $wrix_config_file,
+    @stored_config_files
 );
 
 BEGIN {
@@ -75,6 +76,7 @@ BEGIN {
         @stored_config_files
         @log_files
         $wrix_config_file
+        @stored_config_files
     );
 }
 
@@ -118,6 +120,15 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     map { catfile($log_dir,$_) }
     qw( access_log error_log admin_access_log admin_error_log packetfence.log catalyst.log )
 ;
+
+@stored_config_files = (
+    $pf_config_file, $network_config_file,
+    $switches_config_file, $violations_config_file,
+    $authentication_config_file, $floating_devices_config_file,
+    $dhcp_fingerprints_file, $profiles_config_file,
+    $oui_file, $floating_devices_file,
+    $chi_config_file,
+);
 
 @stored_config_files = (
     $pf_config_file, $network_config_file,
