@@ -91,7 +91,7 @@ $mock->mock('node_attributes', sub {
 # TODO: complete the test suite with more tests above the other cases
 my $switch_vlan_override = $switchFactory->instantiate('10.0.0.2');
 ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode('aa:bb:cc:dd:ee:ff', $switch_vlan_override, '1001');
-is($vlan, 15, "determine vlan for registered user on custom switch");
+is($vlan, 1, "determine vlan for registered user on custom switch");
 
 # mocked node_attributes returns unreg node
 $mock->mock('node_attributes', sub {
