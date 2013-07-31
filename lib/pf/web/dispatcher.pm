@@ -50,7 +50,7 @@ sub translate {
 
     # Test if the hostname is include in the proxy_passthroughs configuration
     # In this case forward to mad_proxy
-    if ( ( $r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o) || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o) ) {
+    if ( ( $r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_DOMAINS ne '') || ($r->hostname =~ /$PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS/o && $PROXYPASSTHROUGH::ALLOWED_PASSTHROUGH_REMEDIATION_DOMAINS ne '') ) {
         my $parsed_request = APR::URI->parse($r->pool, $r->uri);
         $parsed_request->hostname($r->hostname);
         $parsed_request->scheme('http');
