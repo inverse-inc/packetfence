@@ -20,7 +20,8 @@ around wrap_field => sub {
     my ($orig, $self, $result, $rendered_widget ) = @_;
     my $class = $self->get_tag("dynamic_row_class");
     $class = " class=\"$class\"" if $class;
-    return "<tr${class}><td>" . $self->$orig($result, $rendered_widget) . '</td></tr>';
+    return "<tr${class}><td>" . $self->$orig($result, $rendered_widget) .
+         '</td><td><div class="btn-group"><a class="btn-icon" href="#delete"><i class="icon-minus-sign"></i></a><a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a></div></td></tr>';
 };
 
 use namespace::autoclean;
