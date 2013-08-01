@@ -36,6 +36,12 @@
           [% FOREACH field IN  form.fields %]
           [% field.render %]
           [% END %]
+          <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
+            <p>
+                <i class="icon-filter icon-large"></i>[% l('With no sources defined all sources will be used.') %]<br/>
+                <a href="#add">[% l('Add a source.') %]</a>
+            </p>
+          </div>
           <div class="form-actions">
             <a data-target="#saveProfile" data-toggle="modal" class="btn btn-primary">[% l('Save') %]</a>
             <button type="reset" class="btn">[% l('Reset') %]</button>

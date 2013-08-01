@@ -206,6 +206,7 @@ function initCreatePage(element) {
         submitFormHideModalGoToLocation(modal, form);
         return false;
     });
+    initReadPage(element);
 }
 
 function initReadPage(element) {
