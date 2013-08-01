@@ -32,7 +32,6 @@ Bug Fixes
 * Crash of FreeRADIUS with SOAP::Lite prior to version 1.0
 * Wrong permissions on the logs files causes an error with the log action of violations
 * Error with violations with tainted chain in pfmailer and action_log subroutines
-* Fix reevaluate access on action trap in violation
 * Triggering a violation with a trap action doesn't reevaluate access
 * authentication.conf and profiles.conf are overwritten when updating PacketFence
 
