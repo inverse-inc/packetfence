@@ -402,6 +402,17 @@ sub mail :Local :AdminRole('USERS_UPDATE') {
     $c->stash->{current_view} = 'JSON';
 }
 
+before [qw(delete)] => sub {
+   my ($self,$c,$role) = @_;
+   unless(user_has_role($c->user,"USERS")) {
+        $c->log->info("Here");
+        $c->response->status(HTTP_UNAUTHORIZED);
+        $c->stash->{status_msg} = "You shall not pass";
+        $c->stash->{current_view} = 'JSON';
+        $c->detach();
+    }
+};
+
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.
