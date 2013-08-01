@@ -171,6 +171,31 @@ function updateDynamicRows(rows) {
     });
 }
 
+function updateDynamicRowsAfterRemove(table) {
+    var tbody = table.children("tbody");
+    var rows = tbody.children(':not(.hidden)');
+    if(table.hasClass("table-sortable") ) {
+        rows = rows.filter(":has(.sort-handle)");
+    }
+    updateDynamicRows(rows);
+    var count = rows.length;
+    if (count < 2) {
+        var id = '#' + table.attr('id') + 'Empty';
+        if ($(id).length) {
+            // The table can be empty
+            if (count == 0) {
+                if (tbody.prev('thead').length)
+                    table.remove();
+                $(id).removeClass('hidden');
+            }
+        }
+        else if (count == 1) {
+            // The table can't be empty
+            tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
+        }
+    }
+}
+
 $(function () { // DOM ready
 
     /* redirect to URL specified in the location header */
@@ -388,31 +413,13 @@ $(function () { // DOM ready
             $(this).remove();
             // Update sort handle if the table is sortable
             //var empty = true;
-            var rows = tbody.children(':not(.hidden)');
-            if(table.hasClass("table-sortable") ) {
-                rows = rows.filter(":has(.sort-handle)");
-            }
-            updateDynamicRows(rows);
-            var count = rows.length;
-            if (count < 2) {
-                var id = '#' + table.attr('id') + 'Empty';
-                if ($(id).length) {
-                    // The table can be empty
-                    if (count == 0) {
-                        if (tbody.prev('thead').length)
-                            table.remove();
-                        $(id).removeClass('hidden');
-                    }
-                }
-                else if (count == 1) {
-                    // The table can't be empty
-                    tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
-                }
-            }
+            updateDynamicRowsAfterRemove(table);
             tbody.trigger('admin.deleted');
         });
         return false;
     });
+
+
 
 
     /* Activate links that trigger an ajax request and return a JSON status message */
