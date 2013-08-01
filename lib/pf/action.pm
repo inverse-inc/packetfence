@@ -174,28 +174,29 @@ sub action_execute {
     my $logger = Log::Log4perl::get_logger('pf::action');
     my $leave_open = 0;
     my @actions = class_view_actions($vid);
+    # Sort the actions in reverse order in order to always finish with the autoreg action
     @actions = sort { $b->{action} cmp $a->{action} } @actions;
     foreach my $row (@actions) {
-        my $action = $row->{'action'};
+        my $action = lc $row->{'action'};
         $logger->info("executing action '$action' on class $vid");
-        if ( $action =~ /^trap$/i ) {
+        if ( $action eq $TRAP ) {
             $leave_open = 1;
             action_trap( $mac, $vid );
-        } elsif ( $action =~ /^email$/i ) {
+        } elsif ( $action eq $EMAIL ) {
             action_email( $mac, $vid, $notes );
-        } elsif ( $action =~ /^log$/i ) {
+        } elsif ( $action eq $LOG ) {
             action_log( $mac, $vid );
-        } elsif ( $action =~ /^external(\d+)$/i ) {
+        } elsif ( $action =~ /^$EXTERNAL(\d+)$/ ) {
             action_api( $mac, $vid, $1 );
-        } elsif ( $action =~ /^winpopup$/i ) {
+        } elsif ( $action eq $WINPOPUP ) {
             action_winpopup( $mac, $vid );
-        } elsif ( $action =~ /^autoreg$/i ) {
+        } elsif ( $action eq $AUTOREG ) {
             action_autoregister($mac, $vid);
-        } elsif ( $action =~ /^close$/i ) {
+        } elsif ( $action eq $CLOSE ) {
             action_close( $mac, $vid );
-        } elsif ( $action =~ /^role$/i ) {
+        } elsif ( $action eq $ROLE ) {
             action_role( $mac, $vid );
-        } elsif ( $action =~ /^unreg$/i ) {
+        } elsif ( $action eq $UNREG ) {
             action_unreg( $mac, $vid );
         } else {
             $logger->error( "unknown action '$action' for class $vid", 1 );
