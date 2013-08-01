@@ -15,8 +15,10 @@ use pf::authentication;
 use HTML::FormHandler::Moose;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
+use pf::config;
 
 # Form fields
+sub build_do_form_wrapper {0}
 has_field 'id' =>
   (
    type => 'Text',
@@ -30,22 +32,6 @@ has_field 'description' =>
    label => 'Profile Description',
    required => 1,
   );
-has_field 'filter' =>
-  (
-   type => 'Repeatable',
-   inflate_default_method => sub {
-       [
-        map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
-        @{$_[1]}
-       ]
-   }
-  );
-
-has_field 'filter.contains' =>
-  (
-   type => '+ProfileFilter',
-   label => 'Filter'
-  );
 has_field 'billing_engine' =>
   (
    type => 'Toggle',
@@ -53,17 +39,36 @@ has_field 'billing_engine' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
   );
+has_field 'filter' =>
+  (
+    type => 'DynamicTable',
+    'num_when_empty' => 2,
+    'label' => 'Filters',
+    inflate_default_method => sub {
+        [
+            map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
+            @{$_[1]}
+        ]
+    }
+  );
+has_field 'filter.contains' =>
+  (
+    type => '+ProfileFilter',
+    label => 'Filter',
+    widget_wrapper => 'DynamicTableRow',
+  );
 has_field 'sources' =>
   (
-    'type' => 'Select',
+    'type' => 'DynamicTable',
+    'sortable' => 1,
     'label' => 'Sources',
-    'multiple'=> 1,
-    'element_class' => ['chzn-select', 'input-xlarge'],
-    'element_attr' => {'data-placeholder' => 'Click to add'},
   );
-has_block data =>
+has_field 'sources.contains' =>
   (
-   render_list => [qw(id description filter billing_engine)],
+    type => 'Select',
+    label => 'Source',
+    options_method => \&options_sources,
+    widget_wrapper => 'DynamicTableRow',
   );
 
 =head1 METHODS
@@ -72,9 +77,17 @@ has_block data =>
 
 =cut
 
-sub options_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
+sub options_guest_modes {
+    my $self = shift;
+
+    my $types = availableAuthenticationSourceTypes('external');
+    return  map { { value => $_, label => $_ } } @$types;
 }
+
+sub options_sources {
+    return {value => '', label => $_  }, map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
+}
+
 
 =head2 validate
 

@@ -46,16 +46,16 @@ has_field 'billing_engine' =>
   );
 has_field 'sources' =>
   (
-    'type' => 'Select',
+    'type' => 'DynamicTable',
+    'sortable' => 1,
     'label' => 'Sources',
-    'multiple'=> 1,
-    'element_class' => ['chzn-select', 'input-xlarge'],
-    'element_attr' => {'data-placeholder' => 'Click to add'},
   );
-
-has_block data =>
+has_field 'sources.contains' =>
   (
-   render_list => [qw(id description logo billing_engine)],
+    type => 'Select',
+    label => 'Source',
+    options_method => \&options_sources,
+    widget_wrapper => 'DynamicTableRow',
   );
 
 
@@ -66,7 +66,7 @@ has_block data =>
 =cut
 
 sub options_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
+    return {value => '', label => $_  }, map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
 }
 
 =head2 validate
