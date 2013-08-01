@@ -40,7 +40,7 @@ sub BUILD {
     $self->add_wrapper_class(qw(table table-dynamic table-condensed));
     $self->add_wrapper_class(qw(table-sortable)) if $self->sortable;
     $self->set_tag("wrapper_tag",$self->wrapper_tag);
-    $self->set_wrapper_attr("id",$self->id . "-table-dynamic");
+    $self->set_wrapper_attr("id",$self->id);
 }
 
 sub add_delete {
