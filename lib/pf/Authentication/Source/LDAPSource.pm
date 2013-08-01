@@ -381,7 +381,7 @@ sub username_from_email {
     );
 
     if ($result->is_error) {
-      $logger->error("Unable to execute search, we skip the rule.");
+      $logger->error("Unable to execute search: " . $result->error);
       next;
     }
 
