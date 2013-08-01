@@ -2,7 +2,8 @@ package pfappserver::View::HTML;
 
 use strict;
 use warnings;
-use pf::config;
+use pf::file_paths;
+use pf::user_roles;
 
 use base 'Catalyst::View::TT';
 
@@ -14,6 +15,7 @@ __PACKAGE__->config(
         js => \&js_filter,
     },
     render_die => 1,
+    expose_methods => [qw(has_role)],
     COMPILE_DIR => $tt_compile_cache_dir
 );
 
@@ -51,6 +53,15 @@ sub js_filter {
     $string =~ s/(\\|'|"|\/)/\\$1/g;
 
     return $string;
+}
+
+=head2 has_role
+
+=cut
+
+sub has_role {
+    my ($self, $c, $role) = @_;
+    return user_has_role($c->user,$role);
 }
 
 =head1 COPYRIGHT
