@@ -141,7 +141,7 @@ function pfOnHashChange(updater, default_url) {
 }
 
 /* Update sort handles and inputs indexes of sortable table */
-function updateSortableTable(rows) {
+function updateDynamicRows(rows) {
     rows.each(function(index, element) {
         $(this).find('.sort-handle').first().text(index +1);
         $(this).find(':input').each(function() {
@@ -330,7 +330,7 @@ $(function () { // DOM ready
 
                 // Update indexes
                 var rows = dst.siblings(':not(.hidden)').andSelf();
-                updateSortableTable(rows);
+                updateDynamicRows(rows);
                 dst.closest('table, ul').trigger('admin.ordered');
             }
         });
@@ -358,7 +358,10 @@ $(function () { // DOM ready
                 row_new.insertBefore(row_model);
             }
             var rows = tbody.children(':not(.hidden)');
-            updateSortableTable(rows);
+            if(table.hasClass("table-sortable") ) {
+                rows = rows.filter(":has(.sort-handle)");
+            }
+            updateDynamicRows(rows);
             var count = rows.length;
             if (count >= 2) {
                 var table = tbody.closest('table');
@@ -389,7 +392,7 @@ $(function () { // DOM ready
             if(table.hasClass("table-sortable") ) {
                 rows = rows.filter(":has(.sort-handle)");
             }
-            updateSortableTable(rows);
+            updateDynamicRows(rows);
             var count = rows.length;
             if (count < 2) {
                 var id = '#' + table.attr('id') + 'Empty';
