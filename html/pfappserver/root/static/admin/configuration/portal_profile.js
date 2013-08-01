@@ -232,6 +232,7 @@ function initReadPage(element) {
             rows.find('[href="#add"]').addClass('hidden');
         }
     });
+    updateDynamicRowsAfterRemove($('#filter'));
     $('#sources').on('admin.deleted','tbody', function(event) {
         var tbody = $(this);
         var rows = tbody.children(':not(.hidden)');
