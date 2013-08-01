@@ -363,7 +363,7 @@ sub mac2oid {
 sub pfmailer {
     my (%data)     = @_;
     my $logger     = Log::Log4perl::get_logger('pf::util');
-    my $smtpserver = $Config{'alerting'}{'smtpserver'};
+    my $smtpserver = untaint_chain($Config{'alerting'}{'smtpserver'});
     my @to = split( /\s*,\s*/, $Config{'alerting'}{'emailaddr'} );
     my $from = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn;
     my $subject
