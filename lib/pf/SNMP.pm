@@ -2759,9 +2759,9 @@ Return the reference to the deauth technique or the default deauth technique.
 sub deauthTechniques {
     my ($this, $method) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
-    my $default = $SNMP::DEFAULT;
+    my $default = $SNMP::SNMP;
     my %tech = (
-        $SNMP::DEFAULT => \&deauthenticateMacDefault,
+        $SNMP::SNMP => \&deauthenticateMacDefault,
     );
 
     if (!defined($method) || !defined($tech{$method})) {
