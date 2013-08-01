@@ -14,31 +14,27 @@ For a list of compatibility related changes see the UPGRADE.asciidoc file.
 Version 4.0.4 released on 2013-MM-DD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-New Features
-+++++++++++
-
-* 
-
 Enhancements
 ++++++++++++
 
 * Added new regexp operator for strings in authentication rules
 * Automatic landing on the sign-in page if no internal/oauth authentication source is used by the portal profile
 * Self-registration is now enabled when a profile has at least one external authentication source
-* Reorder action violation to set role before auto registration
-* Added hostapd configuration in PacketFence_Network_Devices_Configuration_Guide
+* Sort actions of a violation in reverse order to set the role before auto registration
+* Added hostapd configuration in the Network Devices Configuration Guide
 
 Bug Fixes
 +++++++++
 
 * External authentication sources of portal profiles are not respected
 * A portal profile can have multiple external authentication sources of the same type
-* Open the port 443 on the management interface when gaming registration is enable
-* Update perl SOAP::Lite to 1.0 to prevent freeradius crash
-* Update permissions on the logs files to remove error on log action in violation
-* Untaint chain in pfmailer and action_log to prevent error with violations
+* Port 443 on the management interface is not open when gaming registration is enable
+* Crash of FreeRADIUS with SOAP::Lite prior to version 1.0
+* Wrong permissions on the logs files causes an error with the log action of violations
+* Error with violations with tainted chain in pfmailer and action_log subroutines
 * Fix reevaluate access on action trap in violation
-* Set configuration file in spec file and debian build file to prevent this file to be overwrite
+* Triggering a violation with a trap action doesn't reevaluate access
+* authentication.conf and profiles.conf are overwritten when updating PacketFence
 
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
