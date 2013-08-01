@@ -15,7 +15,9 @@ use pf::authentication;
 use HTML::FormHandler::Moose;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
+
 use pf::config;
+use List::MoreUtils qw(uniq);
 
 # Form fields
 sub build_do_form_wrapper {0}
@@ -41,34 +43,34 @@ has_field 'billing_engine' =>
   );
 has_field 'filter' =>
   (
-    type => 'DynamicTable',
-    'num_when_empty' => 2,
-    'label' => 'Filters',
-    inflate_default_method => sub {
-        [
-            map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
-            @{$_[1]}
-        ]
-    }
+   type => 'DynamicTable',
+   'num_when_empty' => 2,
+   'label' => 'Filters',
+   inflate_default_method => sub {
+       [
+        map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
+        @{$_[1]}
+       ]
+   }
   );
 has_field 'filter.contains' =>
   (
-    type => '+ProfileFilter',
-    label => 'Filter',
-    widget_wrapper => 'DynamicTableRow',
+   type => '+ProfileFilter',
+   label => 'Filter',
+   widget_wrapper => 'DynamicTableRow',
   );
 has_field 'sources' =>
   (
-    'type' => 'DynamicTable',
-    'sortable' => 1,
-    'label' => 'Sources',
+   'type' => 'DynamicTable',
+   'sortable' => 1,
+   'label' => 'Sources',
   );
 has_field 'sources.contains' =>
   (
-    type => 'Select',
-    label => 'Source',
-    options_method => \&options_sources,
-    widget_wrapper => 'DynamicTableRow',
+   type => 'Select',
+   label => 'Source',
+   options_method => \&options_sources,
+   widget_wrapper => 'DynamicTableRow',
   );
 
 =head1 METHODS
@@ -77,29 +79,24 @@ has_field 'sources.contains' =>
 
 =cut
 
-sub options_guest_modes {
-    my $self = shift;
-
-    my $types = availableAuthenticationSourceTypes('external');
-    return  map { { value => $_, label => $_ } } @$types;
-}
-
 sub options_sources {
-    return {value => '', label => $_  }, map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
+    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
 }
 
 
 =head2 validate
 
-Make sure only one external authentication source is selected for each type.
+Remove duplicates and make sure only one external authentication source is selected for each type.
 
 =cut
 
 sub validate {
     my $self = shift;
 
+    my @all = uniq @{$self->value->{'sources'}};
+    $self->field('sources')->value(\@all);
     my %external;
-    foreach my $source_id (@{$self->value->{'sources'}}) {
+    foreach my $source_id (@all) {
         my $source = &pf::authentication::getAuthenticationSource($source_id);
         $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
         $external{$source->{'type'}}++;

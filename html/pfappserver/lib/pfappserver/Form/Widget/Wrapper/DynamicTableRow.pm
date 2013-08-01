@@ -1,4 +1,5 @@
 package pfappserver::Form::Widget::Wrapper::DynamicTableRow;
+
 =head1 NAME
 
 pfappserver::Form::Widget::Wrapper::Table add documentation
@@ -14,7 +15,6 @@ pfappserver::Form::Widget::Wrapper::Table
 use Moose::Role;
 with 'HTML::FormHandler::Widget::Wrapper::Bootstrap';
 use HTML::FormHandler::Render::Util ('process_attrs');
-use pf::log;
 
 around wrap_field => sub {
     my ($orig, $self, $result, $rendered_widget ) = @_;

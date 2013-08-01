@@ -1,4 +1,5 @@
 package pfappserver::Form::Widget::Field::DynamicTable;
+
 =head1 NAME
 
 pfappserver::Form::Widget::Field::DynamicTable add documentation
@@ -13,18 +14,17 @@ pfappserver::Form::Widget::Field::DynamicTable
 
 use Moose::Role;
 with 'HTML::FormHandler::Widget::Field::Repeatable';
-use pf::log;
 
 sub render_subfield {
     my ( $self, $result, $subfield ) = @_;
     my $subresult = $result->field( $subfield->name );
 
     return "" unless $subresult
-        or ( $self->has_flag( "is_repeatable")
+        or ( $self->has_flag("is_repeatable")
             and $subfield->name < $self->num_when_empty
         );
 
-    if($self->num_fields == ($subfield->name + 1)) {
+    if ($self->num_fields == ($subfield->name + 1)) {
         $subfield->set_tag("dynamic_row_class","hidden");
         set_disabled($subfield);
     }
@@ -34,7 +34,7 @@ sub render_subfield {
 
 sub set_disabled {
     my ($field) = @_;
-    if($field->can("fields")) {
+    if ($field->can("fields")) {
         foreach my $subfield ($field->fields) {
             set_disabled($subfield);
         }
