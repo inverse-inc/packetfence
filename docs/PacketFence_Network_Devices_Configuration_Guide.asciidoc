@@ -2666,7 +2666,7 @@ Configure your SSID using uci command:
   uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
   uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
   uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client=192.168.1.5 useStrongerSecret
+  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
   uci add_list wireless.@wifi-iface[0].macfilter=2
 
 [float]
@@ -2687,14 +2687,14 @@ Configure your SSID using uci command:
   uci add_list wireless.@wifi-iface[0].vlan_file=/etc/config/hostapd.vlan
   uci add_list wireless.@wifi-iface[0].vlan_tagged_interface=eth0
   uci add_list wireless.@wifi-iface[0].radius_das_port=3799
-  uci add_list wireless.@wifi-iface[0].radius_das_client=192.168.1.5 useStrongerSecret
+  uci add_list wireless.@wifi-iface[0].radius_das_client='192.168.1.5 useStrongerSecret'
   uci add_list wireless.@wifi-iface[0].encryption=wpa2
   uci add_list wireless.@wifi-iface[0].acct_server=192.168.1.5
   uci add_list wireless.@wifi-iface[0].acct_port=1813
   uci add_list wireless.@wifi-iface[0].acct_secret=s3cr3t
   uci add_list wireless.@wifi-iface[0].nasid=ubiquiti
 
-Then launch wifi command to enable your configuration
+Then launch 'uci commit wireless' and 'wifi' command to enable your configuration
 
 Hostapd (software)
 ^^^^^^^^^^^^^^^^^^

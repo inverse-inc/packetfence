@@ -25,12 +25,20 @@ Enhancements
 * Added new regexp operator for strings in authentication rules
 * Automatic landing on the sign-in page if no internal/oauth authentication source is used by the portal profile
 * Self-registration is now enabled when a profile has at least one external authentication source
+* Reorder action violation to set role before auto registration
+* Added hostapd configuration in PacketFence_Network_Devices_Configuration_Guide
 
 Bug Fixes
 +++++++++
 
 * External authentication sources of portal profiles are not respected
 * A portal profile can have multiple external authentication sources of the same type
+* Open the port 443 on the management interface when gaming registration is enable
+* Update perl SOAP::Lite to 1.0 to prevent freeradius crash
+* Update permissions on the logs files to remove error on log action in violation
+* Untaint chain in pfmailer and action_log to prevent error with violations
+* Fix reevaluate access on action trap in violation
+* Set configuration file in spec file and debian build file to prevent this file to be overwrite
 
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
