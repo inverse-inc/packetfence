@@ -40,7 +40,7 @@ $(function () {
     $('body').on('click', '.btn-group .btn', function(event) {
         var btn = $(this);
         var name = btn.attr('name');
-        var input = btn.prevAll('input[name="' + name + '"]');
+        var input = btn.siblings('input[name="' + name + '"]');
         input.val(btn.attr('value'));
     });
 

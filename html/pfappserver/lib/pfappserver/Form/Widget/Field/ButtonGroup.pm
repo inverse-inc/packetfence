@@ -27,7 +27,8 @@ sub render_element {
     my ( $self, $result ) = @_;
     $result ||= $self->result;
 
-    my $output = $self->render_element_hidden();
+    my $output = "";
+    my $hidden = 0;
 
     foreach my $option ( @{ $self->{options} } ) {
         if ( my $label = $option->{group} ) {
@@ -44,6 +45,10 @@ sub render_element {
         }
         else {
             $output .= $self->render_option( $option, $result );
+        }
+        unless ($hidden) {
+            $output .= $self->render_element_hidden();
+            $hidden = 1;
         }
     }
     $self->reset_options_index;
