@@ -48,11 +48,12 @@ html, body {
 
 #header {
     background-color: #fff;
+    min-height: 261px;
     padding: 23px 23px 0px 23px;
 }
 
 #header .logo {
-    width: 125px;
+    width: 194px;
 }
 
 #header .splash {
@@ -62,15 +63,19 @@ html, body {
 
 #header h1 {
     font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 26px;
+    font-size: 37px;
     font-weight: normal;
-    padding: 17px 0px 0px;
+    padding: 17px 0px 17px;
 }
 
 #header p {
     font-size: 17px;
     line-height: 24px;
     padding-bottom: 17px;
+}
+
+#header h1, #header p {
+    margin-left: 72px;
 }
 
 #billc28 {
@@ -86,7 +91,8 @@ hr {
 
 #page {
     clear: both;
-    padding: 23px;
+    padding: 23px 95px 50px 95px;
+    position: relative;
 }
 
 #page .input {
@@ -100,7 +106,7 @@ label {
 
 input[type="text"] {
   display: inline-block;
-  width: 262px;
+  width: 200px;
   height: 18px;
   padding: 4px 6px;
   margin-bottom: 9px;
@@ -142,8 +148,10 @@ input[type="text"] {
     cursor: pointer;
     padding: 10px 0px 14px 0px;
     margin: 0;
-    font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    width: 100%;
+    font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    width: 128px;
+    min-width: 128px;
     color: white;
     background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #b3ff66), color-stop(1%, #b3ff66), color-stop(1%, #66cc00), color-stop(90%, #66cc00), color-stop(90%, #57a708), color-stop(100%, #57a708));
     background-image: -webkit-linear-gradient(#b3ff66, #b3ff66 1%, #66cc00 1%, #66cc00 90%, #57a708 90%, #57a708);

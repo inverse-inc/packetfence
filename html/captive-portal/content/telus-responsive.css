@@ -1,23 +1,19 @@
-@media (min-width: 657px) {
-    #header {
-        min-height: 261px;
-    }
-
+@media (max-width: 656px) {
     #header .logo {
-        width: 194px;
+        width: 275px;
     }
 
-    #header .splash {
-        display: block;
+    #header {
+        min-height: 100px;
     }
 
     #header h1, #header p {
-        margin-left: 72px;
+        margin-left: 0;
     }
 
     #header h1 {
-        font-size: 37px;
-        padding: 37px 0px 17px;
+        font-size: 26px;
+        padding: 17px 0px 0px;
     }
 
     #header p {
@@ -27,33 +23,22 @@
     }
 
     #page {
-        padding: 23px 95px 50px 95px;
-        position: relative;
+        padding: 23px;
     }
 
     input[type="text"] {
-        width: 200px;
-    }
-
-    input.btn {
-        font-family: "tultralightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        font-weight: normal;
+        width: 262px;
     }
 
     .btn {
-        width: 128px;
-        min-width: 128px;
+        font-family: "tlightregular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        width: 100%;
     }
-}
 
-@media (max-width: 656px) {
-    div#header img {
-        width: 275px;
-    }
     .mobile {
-        display: inherit;
+        display: inherit !important;
     }
     .notmobile {
-        display: none;
+        display: none !important;
     }
 }
