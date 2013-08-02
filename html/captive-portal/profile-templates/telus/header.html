@@ -12,12 +12,23 @@
     <link href="/content/telus-responsive.css" media="screen" rel="stylesheet" type="text/css" />
     <script src="/common/prototype.js" type="text/javascript"></script>
     <script src="/common/pf.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      document.observe("dom:loaded", function() {
+      var svg = !!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect;
+      if (!svg) {
+        $$('img[src$=".svg"]').each(function(i) {
+          i.setAttribute('src', i.getAttribute('src').replace(/svg$/, 'png'));
+          i.setAttribute('src', i.getAttribute('src').replace(/svg$/, 'png'));
+        });
+      }
+      });
+    </script>
   </head>
   <body [% body_attributes %]>
     <div id="wrapper">
       <div id="header">
         <img class="logo" src="/content/images/TELUS-logo.svg" alt="TELUS"/>
-        <img class="splash" src="/content/images/TELUS-splash.png"/>
+        <img class="splash notmobile" src="/content/images/TELUS-splash.png" alt="splash"/>
         <h1>Welcome to TELUS Wi-Fi</h1>
         <p>TELUS keeps you connected to wi-fi on your smartphone, tablet or laptop when on&nbsp;the&nbsp;go.</p>
         <hr/>
