@@ -300,25 +300,6 @@ sub extractApMacFromRadiusRequest {
         }
     }
 
-}
-
-
-sub extractApMacFromRadiusRequest {
-    my ($radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    # it's put in Called-Station-Id
-    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
-    if (defined($radius_request->{'Called-Station-Id'})) {
-        if ($radius_request->{'Called-Station-Id'} =~ /^
-            # below is MAC Address with supported separators: :, - or nothing
-            ([a-f0-9]{2}([-:]?[a-f0-9]{2}){5})
-        /ix) {
-            return clean_mac($1);
-        } else {
-            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
-        }
-    }
-
     return;
 }
 
