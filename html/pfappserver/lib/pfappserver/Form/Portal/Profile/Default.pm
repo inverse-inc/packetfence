@@ -81,6 +81,7 @@ sub validate {
     my %external;
     foreach my $source_id (@{$self->value->{'sources'}}) {
         my $source = &pf::authentication::getAuthenticationSource($source_id);
+        next unless $source && $source->class eq 'external';
         $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
         $external{$source->{'type'}}++;
         if ($external{$source->{'type'}} > 1) {
