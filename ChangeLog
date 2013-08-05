@@ -1,3 +1,26 @@
+commit 553088a6001e41dead148d676d4f76e4010e08d9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Aug 5 14:35:18 2013 -0400
+
+    Will allow multiple internal sources again not only 1 external source of each type
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	lib/pf/pfcmd/checkup.pm
+
+commit 77a65b8dea3f4f4c014ef5200434f7318f405758
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 5 11:13:07 2013 -0400
+
+    Bump to version 4.0.4
+
+M	ChangeLog
+M	NEWS.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/pf-release
+M	debian/changelog
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
 commit 864cb8955b16d757a80976a35b1aa6cb3fbd7963
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Mon Aug 5 10:52:26 2013 -0400
