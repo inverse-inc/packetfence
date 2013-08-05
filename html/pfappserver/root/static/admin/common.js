@@ -141,24 +141,59 @@ function pfOnHashChange(updater, default_url) {
 }
 
 /* Update sort handles and inputs indexes of sortable table */
-function updateSortableTable(rows) {
+function updateDynamicRows(rows) {
     rows.each(function(index, element) {
         $(this).find('.sort-handle').first().text(index +1);
         $(this).find(':input').each(function() {
             var input = $(this);
             var name = input.attr('name');
             var id = input.attr('id');
-            input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
-            input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+            if(name) {
+                input.attr('name', name.replace(/\.[0-9]+/, '.' + index ));
+            }
+            if(id) {
+                input.attr('id', id.replace(/\.[0-9]+/, '.' + index ));
+            }
             if (this.tagName == 'SELECT') {
                 $(this).find('option').each(function() {
                     var option = $(this);
                     var id = option.attr('id');
-                    option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                    if(id) {
+                        option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
+                    }
+                    var name = option.attr('name');
+                    if(name) {
+                        option.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
+                    }
                 });
             }
         });
     });
+}
+
+function updateDynamicRowsAfterRemove(table) {
+    var tbody = table.children("tbody");
+    var rows = tbody.children(':not(.hidden)');
+    if(table.hasClass("table-sortable") ) {
+        rows = rows.filter(":has(.sort-handle)");
+    }
+    updateDynamicRows(rows);
+    var count = rows.length;
+    if (count < 2) {
+        var id = '#' + table.attr('id') + 'Empty';
+        if ($(id).length) {
+            // The table can be empty
+            if (count == 0) {
+                if (tbody.prev('thead').length)
+                    table.remove();
+                $(id).removeClass('hidden');
+            }
+        }
+        else if (count == 1) {
+            // The table can't be empty
+            tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
+        }
+    }
 }
 
 $(function () { // DOM ready
@@ -320,27 +355,7 @@ $(function () { // DOM ready
 
                 // Update indexes
                 var rows = dst.siblings(':not(.hidden)').andSelf();
-                rows.each(function(index, element) {
-                    $(this).find('.sort-handle').first().text(index +1);
-                    $(this).find(':input').each(function() {
-                        var input = $(this);
-                        var name = input.attr('name');
-                        var id = input.attr('id');
-                        if (name)
-                            input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
-                        if (id)
-                            input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
-                        if (this.tagName == 'SELECT') {
-                            $(this).find('option').each(function() {
-                                var option = $(this);
-                                var id = option.attr('id');
-                                if (id)
-                                    option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
-                            });
-                        }
-                    });
-                });
-
+                updateDynamicRows(rows);
                 dst.closest('table, ul').trigger('admin.ordered');
             }
         });
@@ -348,86 +363,63 @@ $(function () { // DOM ready
 
     /* Activate dynamic tables (rows can be added and removed) */
     $('body').on('click', '.table-dynamic [href="#add"]', function(event) {
-        var table = $(this).closest('table');
+        $(this).trigger("addrow");
+        return false;
+    });
+
+    $('body').on('addrow', '.table-dynamic', function(event) {
+        var table = $(this);
+        var row = table.find(event.target).closest('tr');
+
         var tbody = table.children('tbody');
-        var row = tbody.find(this).closest('tr');
         var row_model = tbody.children('.hidden').first();
         if (row_model) {
             var row_new = row_model.clone();
             row_new.removeClass('hidden');
+            row_new.find(':input').removeAttr("disabled");
             if(row.length > 0) {
                 row_new.insertAfter(row);
             } else {
-                tbody.append(row_new);
+                row_new.insertBefore(row_model);
+            }
+            var rows = tbody.children(':not(.hidden)');
+            if(table.hasClass("table-sortable") ) {
+                rows = rows.filter(":has(.sort-handle)");
+            }
+            updateDynamicRows(rows);
+            var count = rows.length;
+            if (count >= 2) {
+                var table = tbody.closest('table');
+                var id = '#' + table.attr('id') + 'Empty';
+                if ($(id).length) {
+                    $(id).addClass('hidden');
+                }
+                tbody.children(':not(.hidden)').find('[href="#delete"]').removeClass('hidden');
             }
             row_new.trigger('admin.added');
         }
-        // Update indexes
-        var count = 0;
-        tbody.children(':not(.hidden)').each(function(index, element) {
-            count++;
-            var that = $(this);
-            that.find('.sort-handle').first().text(index + 1);
-            that.find(':input').each(function() {
-                var input = $(this);
-                var name = input.attr('name');
-                var id = input.attr('id');
-                if (name)
-                    input.attr('name', name.replace(/\.[0-9]+\./, '.' + index + '.'));
-                if (id)
-                    input.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
-                if (this.tagName == 'SELECT') {
-                    $(this).find('option').each(function() {
-                        var option = $(this);
-                        var id = option.attr('id');
-                        if (id)
-                            option.attr('id', id.replace(/\.[0-9]+\./, '.' + index + '.'));
-                    });
-                }
-            });
-            $(this).find('[href="#delete"]').removeClass('hidden');
-        });
         return false;
     });
 
     $('body').on('click', '.table-dynamic [href="#delete"]', function(event) {
-        var tbody = $(this).closest('tbody');
-        $(this).closest('tr').fadeOut('fast', function() {
+        $(this).trigger("deleterow");
+        return false;
+    });
+    $('body').on('deleterow', '.table-dynamic', function(event) {
+        var table = $(this);
+        var row = table.find(event.target).closest('tr');
+        var tbody = table.children('tbody');
+        row.fadeOut('fast', function() {
             $(this).remove();
             // Update sort handle if the table is sortable
             //var empty = true;
-            var count = 0;
-            tbody.children(':not(.hidden)').each(function(index, element) {
-                if ($(this).hasClass('ui-droppable') || $(this).hasClass('ui-draggable'))
-                    // This is sortable table; don't count rows without a sort handle
-                    $(this).find('.sort-handle').each(function() {
-                        $(this).text(index + 1);
-                        //empty = false;
-                        count++;
-                    });
-                else
-                    // This is not a sortable table; count all visible rows
-                    count++;
-            });
-            if (count < 2) {
-                var table = tbody.closest('table');
-                var id = '#' + table.attr('id') + 'Empty';
-                if ($(id).length) {
-                    // The table can be empty
-                    if (count == 0) {
-                        if (tbody.prev('thead').length)
-                            table.remove();
-                        $(id).removeClass('hidden');
-                    }
-                }
-                else if (count == 1) {
-                    // The table can't be empty
-                    tbody.children(':not(.hidden)').find('[href="#delete"]').addClass('hidden');
-                }
-            }
+            updateDynamicRowsAfterRemove(table);
+            tbody.trigger('admin.deleted');
         });
         return false;
     });
+
+
 
 
     /* Activate links that trigger an ajax request and return a JSON status message */

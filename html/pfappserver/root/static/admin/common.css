@@ -34,6 +34,13 @@ table .action {
 .compound-input-btn-group .btn-group {
     display: inline;
 }
+/* format control group for tables */
+.table .control-group {
+    margin-bottom: 0;
+}
+.table .btn-group {
+    vertical-align: top;
+}
 
 .loader {
     position: fixed;

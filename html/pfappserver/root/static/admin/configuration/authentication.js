@@ -221,15 +221,7 @@ $(function() { // DOM ready
 
     /* Initial creation of a rule condition when no condition is defined */
     $('body').on('click', '#ruleConditionsEmpty [href="#add"]', function(event) {
-        var tbody = $('#ruleConditions').children('tbody');
-        var row_model = tbody.children('.hidden').first();
-        if (row_model) {
-            $('#ruleConditionsEmpty').addClass('hidden');
-            var row_new = row_model.clone();
-            row_new.removeClass('hidden');
-            row_new.insertBefore(row_model);
-            row_new.trigger('admin.added');
-        }
+        $('#ruleConditions').trigger("addrow");
         return false;
     });
 

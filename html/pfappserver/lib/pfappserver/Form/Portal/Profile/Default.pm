@@ -37,13 +37,6 @@ has_field 'logo' =>
    label => 'Logo',
    required => 1,
   );
-has_field 'guest_self_reg' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Self Registration',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-  );
 has_field 'billing_engine' =>
   (
    type => 'Toggle',
@@ -53,37 +46,52 @@ has_field 'billing_engine' =>
   );
 has_field 'sources' =>
   (
-    'type' => 'Select',
+    'type' => 'DynamicTable',
+    'sortable' => 1,
     'label' => 'Sources',
-    'multiple'=> 1,
-    'element_class' => ['chzn-select', 'input-xlarge'],
-    'element_attr' => {'data-placeholder' => 'Click to add'},
+  );
+has_field 'sources.contains' =>
+  (
+    type => 'Select',
+    label => 'Source',
+    options_method => \&options_sources,
+    widget_wrapper => 'DynamicTableRow',
   );
 
-has_block data => (
-    render_list => [qw(id description logo guest_self_reg billing_engine)],
-);
 
-
-sub options_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
-}
 =head1 METHODS
 
-=head2 options_guest_modes
+=head2 options_sources
 
 =cut
 
-sub options_guest_modes {
+sub options_sources {
+    return {value => '', label => $_  }, map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
+}
+
+=head2 validate
+
+Make sure only one external authentication source is selected for each type.
+
+=cut
+
+sub validate {
     my $self = shift;
 
-    my $types = availableAuthenticationSourceTypes('external');
-    return map { { value => lc $_, label => $_ } } @$types;
+    my %external;
+    foreach my $source_id (@{$self->value->{'sources'}}) {
+        my $source = &pf::authentication::getAuthenticationSource($source_id);
+        $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
+        $external{$source->{'type'}}++;
+        if ($external{$source->{'type'}} > 1) {
+            $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
+        }
+    }
 }
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

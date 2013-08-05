@@ -84,7 +84,7 @@ sub sms_activation_db_prepare {
     ]);
 
     $sms_activation_statements->{'sms_activation_has_entry_sql'} = get_db_handle()->prepare(qq[
-        SELECT 1 FROM sms_activation WHERE mac = ? and expiration >= NOW()
+        SELECT 1 FROM sms_activation WHERE mac = ? AND expiration >= NOW() AND status = ?
     ]);
 
     $sms_activation_statements->{'sms_activation_find_unverified_code_sql'} = get_db_handle()->prepare(qq[
@@ -124,14 +124,13 @@ sub sms_activation_db_prepare {
 =cut
 
 sub sms_carrier_view_all {
+    my $source = shift;
     my $query;
 
     # Check if a SMS authentication source is defined; if so, use the carriers list
     # from this source
-    my $type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-    my $source = pf::authentication::getAuthenticationSourceByType($type);
     if ($source) {
-        my $list = join(',', @{$source->sms_carriers});
+        my $list = join(',', @{$source->{'sms_carriers'}});
         sms_activation_db_prepare() unless ($sms_activation_db_prepared);
         $sms_activation_statements->{'sms_activation_carrier_view_sql'} =~ s/\?/$list/;
         $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,
@@ -399,7 +398,7 @@ sub validate_code {
 
 sub sms_activation_has_entry {
     my ($mac) = @_;
-    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements,'sms_activation_has_entry_sql',$mac);
+    my $query = db_query_execute(SMS_ACTIVATION, $sms_activation_statements, 'sms_activation_has_entry_sql', $mac, $UNVERIFIED);
     my $rows = $query->rows;
     $query->finish;
     return $rows;

@@ -330,7 +330,7 @@ sub _identifyConnectionType {
                 return $WIRELESS_MAC_AUTH;
             }
     
-        } elsif ($nas_port_type =~ /^Ethernet$/) {
+        } elsif ($nas_port_type eq 'Ethernet' ) {
 
             if ($eap_type) {
 
@@ -338,8 +338,8 @@ sub _identifyConnectionType {
                 # this is still MAC Authentication so we need to cheat a little bit here
                 # TODO: consider moving this logic later once the switch is initialized so we can ask it
                 # (supportsEAPMacAuth?)
-                $mac =~ s/://g;
-                if ($mac eq $user_name) {
+                $mac =~ s/[^[:xdigit:]]//g;
+                if (lc $mac eq lc $user_name) {
                     return $WIRED_MAC_AUTH;
                 } else {
                     return $WIRED_802_1X;

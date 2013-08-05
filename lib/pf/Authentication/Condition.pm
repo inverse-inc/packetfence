@@ -81,6 +81,11 @@ sub matches {
                 return 1;
             }
         }
+        elsif ($self->{'operator'} eq $Conditions::MATCHES) {
+            if (($v =~ m/${$self}{value}/)) {
+                return 1;
+            }
+        }
         elsif ($self->{'operator'} eq $Conditions::IS_BEFORE) {
             if ($time_v < $time) {
                 return 1;

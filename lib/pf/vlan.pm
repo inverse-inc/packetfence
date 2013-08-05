@@ -281,10 +281,9 @@ sub getRegistrationVlan {
 
 Returns normal vlan
 
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
-version doesn't do the right thing for you. By default it will return the 
-normal vlan for the given switch if defined, otherwise it will return the normal
-vlan for the whole network.
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default version doesn't do the right thing for you. 
+It will try to match a role based on a username (if provided) or on the node MAC address and return the according
+VLAN for the given switch.
 
 Return values:
 
@@ -301,7 +300,8 @@ Return values:
 =back
 
 =cut
-# Note: if you add more examples here, remember to sync them in pf::vlan::custom
+# Developers note: If you modify this sub, make sure to replicate the change in pf::vlan::custom for consistency
+# purposes.
 sub getNormalVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
@@ -311,35 +311,44 @@ sub getNormalVlan {
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
-    my $logger = Log::Log4perl->get_logger();
-    my $role = "";
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
-    $logger->debug("Trying to determine VLAN from role.");
-    if (defined $user_name && (($connection_type & $EAP) == $EAP)) {
-        my $params =
-          {
-           username => $user_name,
-           connection_type => connection_type_to_str($connection_type),
-           SSID => $ssid,
-          };
-        $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
-        $logger->debug("Username was defined ($user_name) - got role $role");
-    } else {
-        $role = $node_info->{'category'};
-        $logger->debug("Username was NOT defined - got role $role");
+    # Bypass VLAN is configured in node record so we return accordingly
+    if ( defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '' ) {
+        $logger->info("Bypass VLAN '" . $node_info->{'bypass_vlan'} . "' is configured in node $mac record.");
+        return $node_info->{'bypass_vlan'};
     }
 
-    # custom example: enforce a node's bypass VLAN 
-    # If node record has a bypass_vlan prefer it over normalVlan 
-    # Note: It might be made the default behavior one day
-    #if (defined($node_info->{'bypass_vlan'}) && $node_info->{'bypass_vlan'} ne '') {
-    #    return $node_info->{'bypass_vlan'};
-    #}
+    $logger->debug("Trying to determine VLAN from role.");
 
-    # custom example: reject non guest users on guest SSID
-    # if ( defined $ssid && $ssid =~ /guest/ ) {
-    #   return -1 if $role ne 'guest';
-    # }
+    my $role = "";
+
+    # Try MAC_AUTH, then other EAP methods and finally anything else.
+    if ( ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
+        $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
+        $role = $node_info->{'category'};
+    }
+    # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
+    # the role based on the rules defined in the different authentication sources.
+    # FIRST HIT MATCH
+    elsif ( defined $user_name && (($connection_type & $EAP) == $EAP) ) {
+        $logger->debug("EAP connection with a username. Trying to match rules from authentication sources.");
+        my $params = {
+            username => $user_name,
+            connection_type => connection_type_to_str($connection_type),
+            SSID => $ssid,
+        };
+        $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+    }
+
+    # If a user based role has been found by matching authentication sources rules, we return it
+    if ( defined($role) && $role ne '' ) {
+        $logger->info("Username was defined '$user_name' - returning user based role '$role'");
+    # Otherwise, we return the node based role matched with the node MAC address
+    } else {
+        $role = $node_info->{'category'};
+        $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
+    }
 
     return $switch->getVlanByName($role);
 }

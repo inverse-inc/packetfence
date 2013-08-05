@@ -800,9 +800,8 @@ sub node_register {
            return 1;
        }
     }
-
+    else {
     # do not check for max_node if it's for auto-register
-    if (!$auto_registered) {
         if ( is_max_reg_nodes_reached($mac, $pid, $info{'category'}, $info{'category_id'}) ) {
             $logger->error( "max nodes per pid met or exceeded - registration of $mac to $pid failed" );
             return (0);
@@ -829,10 +828,12 @@ sub node_register {
     if ( $auto_registered && defined($Config{'scan'}{'dot1x'}) ) {
         my @dot1x_type = split(',',$Config{'scan'}{'dot1x_type'});
         my %params = map { $_ => 1 } @dot1x_type;
-        if(exists($params{$info{'eap_type'}})) {
-            # triggering a violation used to communicate the scan to the user
-            if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
-                violation_add( $mac, $SCAN_VID );
+        if (defined($info{'eap_type'})) {
+            if(exists($params{$info{'eap_type'}})) {
+                # triggering a violation used to communicate the scan to the user
+                if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
+                    violation_add( $mac, $SCAN_VID );
+                }
             }
         }
     }

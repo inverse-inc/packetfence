@@ -19,6 +19,11 @@
                 <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
               </td>
               <td>
+                [% IF loop.last %]
+                    [% CALL condition.field('attribute').set_element_attr("disabled","disabled") %]
+                    [% CALL condition.field('operator').set_element_attr("disabled","disabled") %]
+                    [% CALL condition.field('value').set_element_attr("disabled","disabled") %]
+                [% END %]
                 [% condition.field('attribute').render_element %]
                 [% condition.field('operator').render_element %]
                 [% condition.field('value').render_element %]
@@ -47,17 +52,22 @@
         <table id="ruleActions" class="table table-dynamic table-sortable table-condensed">
           <tbody>
             [% FOREACH action IN form.field('actions').fields -%]
-            <tr[% ' class="hidden"' IF loop.last %]>
+            [% is_last = loop.last%]
+            <tr[% ' class="hidden"' IF is_last %]>
               <td class="sort-handle">
-                <span>[% IF loop.last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
+                <span>[% IF is_last %]1[% ELSE %][% loop.index + 1 %][% END %]</span>
               </td>
               <td>
+                [% IF is_last %]
+                [% CALL action.field('type').set_element_attr("disabled","disabled")%]
+                [% CALL action.field('value').set_element_attr("disabled","disabled")%]
+                [% END %]
                 [% action.field('type').render_element %]
                 [% action.field('value').render_element %]
               </td>
               <td class="action">
                 <a class="btn-icon" href="#add"><i class="icon-plus-sign"></i></a>
-                <a class="btn-icon[% ' hidden' IF loop.size == 2 %]" href="#delete"><i class="icon-minus-sign"></i></a>
+                <a class="btn-icon[% ' hidden' IF loop.size == 2 && not is_last %]" href="#delete"><i class="icon-minus-sign"></i></a>
               </td>
             </tr>
             [% END -%]

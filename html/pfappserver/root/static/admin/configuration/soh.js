@@ -74,9 +74,11 @@
         confirm_btn.off('click');
         confirm_btn.click(function(e) {
             e.preventDefault();
+            confirm_btn.button('loading');
             $.ajax(url)
                 .always(function() {
                     modal.modal('hide');
+                    confirm_btn.button('reset');
                 })
                 .done(function(data) {
                     row.remove();
@@ -124,14 +126,18 @@
         var form = $(this);
         var modal = $('#modalFilter');
         var modal_body = modal.find('.modal-body');
+        var btn = modal.find('.btn-primary').first();
         var valid = isFormValid(form);
         if (valid) {
             // Don't submit hidden/template rows -- serialize will ignore disabled inputs
             form.find('tr.hidden :input').attr('disabled', 'disabled');
+            btn.button('loading');
             $.ajax({
                 type: 'POST',
                 url: form.attr('action'),
                 data: form.serialize()
+            }).always(function() {
+                btn.button('reset');
             }).done(function() {
                 modal.on('hidden', function() {
                     // Refresh the section

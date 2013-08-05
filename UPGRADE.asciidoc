@@ -5,6 +5,13 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.0.4
+---------------------------------------
+
+The parameter guest_self_reg in the profiles.conf file is no longer necessary.
+The self-registration is now automatically enabled if at least one external 
+authentication source is selected (Email, SMS, SponsorEmail, or Oauth2).
+
 Upgrading from a version prior to 4.0.3
 ---------------------------------------
 

@@ -163,7 +163,7 @@ Requires: perl(Net::Nessus::XMLRPC) >= 0.40
 Requires: perl(Readonly), perl(Readonly::XS)
 Requires: perl(Regexp::Common)
 Requires: rrdtool, perl-rrdtool
-Requires: perl(SOAP::Lite)
+Requires: perl(SOAP::Lite) >= 1.0
 Requires: perl(WWW::Curl)
 # Template::Toolkit - captive portal template system
 Requires: perl(Template)
@@ -330,7 +330,7 @@ gcc -g0 src/pfcmd.c -o bin/pfcmd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/radiusd
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/users
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/conf/ssl
-%{__install} -d $RPM_BUILD_ROOT%logdir
+%{__install} -d -m2775 $RPM_BUILD_ROOT%logdir
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 $RPM_BUILD_ROOT/usr/local/pf/var
 %{__install} -d $RPM_BUILD_ROOT/usr/local/pf/var/conf
@@ -647,6 +647,7 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
+%config(noreplace)      /usr/local/pf/conf/profiles.conf
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -845,6 +846,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Mon Aug 5 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.4-1
+- New release 4.0.4
+
 * Mon Jul 22 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.3-1
 - New release 4.0.3
 

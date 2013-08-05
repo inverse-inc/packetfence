@@ -11,6 +11,39 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.4 released on 2013-08-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Portal profiles can now have multiple filters
+
+Enhancements
+++++++++++++
+
+* Added new regexp operator for strings in authentication rules
+* Automatic landing on the sign-in page if no internal/oauth authentication source is used by the portal profile
+* Self-registration is now enabled when a profile has at least one external authentication source
+* Authentication sources of portal profiles are now displayed in a sortable table
+* Sort actions of a violation in reverse order to set the role before auto registration
+* Added hostapd configuration in the Network Devices Configuration Guide
+* Version number is now sent when submiting dhcp and useragents fingerprints
+
+Bug Fixes
++++++++++
+
+* External authentication sources of portal profiles are not respected
+* A portal profile can have multiple external authentication sources of the same type
+* Port 443 on the management interface is not open when gaming registration is enable
+* Crash of FreeRADIUS with SOAP::Lite prior to version 1.0
+* Wrong permissions on the logs files causes an error with the log action of violations
+* Error with violations with tainted chain in pfmailer and action_log subroutines
+* Triggering a violation with a trap action doesn't reevaluate access
+* authentication.conf and profiles.conf are overwritten when updating PacketFence
+* First element of button groups is not properly displayed
+* Sponsors are not extracted from LDAP sources
+
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -22,8 +55,8 @@ New Features
 Enhancements
 ++++++++++++
 
-* Add buttons to clone a switch, a floating device, and a violation
-* Add version number in the top navigation bar
+* New buttons to clone a switch, a floating device, and a violation
+* New version number in the top navigation bar
 
 Bug Fixes
 +++++++++

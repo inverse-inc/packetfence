@@ -1,3 +1,660 @@
+commit 864cb8955b16d757a80976a35b1aa6cb3fbd7963
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 5 10:52:26 2013 -0400
+
+    Improve error log of the LDAP auth source
+
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit 49394860be7d63501740782ec4113911152c8cd7
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 5 10:18:53 2013 -0400
+
+    Fix LDAP search in LDAPSource::username_from_email
+
+M	NEWS.asciidoc
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit f1353d3d4a15b08eb2cc9ca648851b836a09c983
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 5 09:35:34 2013 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit 7c4aa732054fcc0bb0eab174eae42da689734e7f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 5 09:27:36 2013 -0400
+
+    Add version number when submiting fingerprints
+
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/Fingerprints.pm
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/UserAgents.pm
+A	html/pfappserver/lib/pfappserver/Model/Admin.pm
+
+commit 6b14208b370a97a6fac1f07258d6071364f313d4
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 2 10:04:49 2013 -0400
+
+    Improve display of the DynamicTable field widget
+
+M	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+M	html/pfappserver/root/static/admin/common.css
+
+commit 84e8ed544ff818d20023e07f8924f1fbefa72af3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 2 10:01:15 2013 -0400
+
+    Fix display of btn groups
+    
+    The hidden input field is now inserted after the first element to handle
+    the CSS applied to the first element.
+
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/ButtonGroup.pm
+M	html/pfappserver/root/static/app/application.js
+
+commit f02eeae780a683f96dd61ea5d5dad3234ba70a70
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 2 09:22:35 2013 -0400
+
+    Change right
+
+M	addons/git-init.sh
+
+commit f989609d189dbca68f7431de7e806b76a4b339eb
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 2 09:21:17 2013 -0400
+
+    Insert a script to create a git repo in /usr/local/pf to follow all the changes
+
+A	addons/git-init.sh
+
+commit 6a8026a9f3a36b45cbb19af0095b629d46eafe67
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Aug 1 15:58:42 2013 -0400
+
+    $SNMP::DEFAULT is not defined
+
+M	lib/pf/SNMP.pm
+
+commit d9b2f7ea02287275291c4e19ef8b44080d28fbd1
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Aug 1 15:27:35 2013 -0400
+
+    Fixed syntax in pfdetect remote
+
+M	addons/pfdetect_remote/sbin/pfdetect_remote
+
+commit a17f0097a7fd2b2682054e251577a1ff41bc4ca8
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Aug 1 14:13:46 2013 -0400
+
+    Improve validation of portal profile form
+
+M	html/pfappserver/lib/pfappserver/Form/Field/DynamicTable.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/DynamicTable.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+M	html/pfappserver/root/portal/profile/create.tt
+M	html/pfappserver/root/portal/profile/view.tt
+
+commit b413d388ef040fd2818a556fdf0bb65a81752cf0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 12:26:49 2013 -0400
+
+    Update the filter ensure the delete button is not being shown
+
+M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 83fd7d33853d547b41a93dc1a424479b990f096d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 12:24:27 2013 -0400
+
+    Refactored updating row after remove to a function
+
+M	html/pfappserver/root/static/admin/common.js
+
+commit c7da75435556e206c935044f6ef00cc53c3fb688
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 11:39:07 2013 -0400
+
+    Will add sort handle when parent is sortable
+
+M	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+
+commit 7d3431b7a5a497cccf2e9613d982e61ec239e61a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 11:27:27 2013 -0400
+
+    Fixed sourceEmpty not being displayed
+
+M	html/pfappserver/root/portal/profile/create.tt
+M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit fa102b811c9dfba76c1dd351902e8300a3e85572
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 11:00:28 2013 -0400
+
+    Fixed saving of profile filters and sources using dynamictable
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+M	html/pfappserver/root/portal/profile/view.tt
+M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 83de33c7c240d169b47b96660f67332c3d750b3b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 10:59:20 2013 -0400
+
+    Will only update tr rows that have sort-handles
+
+M	html/pfappserver/root/static/admin/common.js
+
+commit 4f2c8a280e5ad0e49e924f4452d38cab6b1b5f87
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 10:57:18 2013 -0400
+
+    Place add and delete buttons in it's own cell
+
+M	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+
+commit a5cf88eac5bd359d15a55b76151e03cc7e3fcabb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 1 10:56:28 2013 -0400
+
+    Id of table will same as field name
+
+M	html/pfappserver/lib/pfappserver/Form/Field/DynamicTable.pm
+
+commit c83f37bcfdf19923ff712124b4ff1cfa6f3e8608
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Aug 1 10:39:23 2013 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit 9cf52b4a64f96509c8567b301a322a1cefe2327b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Aug 1 10:38:29 2013 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit 6e00a7a863ecae09449e461f635510b9a283c1eb
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Aug 1 10:36:26 2013 -0400
+
+    Use constants in pf::action
+
+M	lib/pf/action.pm
+
+commit 66baecb106e2b720e1c78ef470353db7d75f86c7
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Aug 1 10:20:31 2013 -0400
+
+    Improve error log of the LDAP auth source
+
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit 41346cd8000cf575bae921f28b3bde5461f26710
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Aug 1 09:10:59 2013 -0400
+
+    Update NEWS file and Network devices guide
+
+M	NEWS.asciidoc
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit a49742a03799e0d578d39b136419a3f797a9b999
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Aug 1 08:09:45 2013 -0400
+
+    Fixed action mail in violation
+
+M	lib/pf/util.pm
+
+commit 01e57e8b9377ed9f7b86e5a386341ea1059abc16
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Jul 30 16:11:48 2013 -0400
+
+    Validate the external auth sources of a profile
+    
+    We no longer let the user save a profile with multiple external
+    authentication sources of the same type.
+    
+    We also removed the "enable self-registration" checkbox.
+    Self-registration is automatically enabled when at least one external
+    authentication source is selected.
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/profiles.conf
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	html/captive-portal/guest-selfregistration.cgi
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+M	lib/pf/Portal/Profile.pm
+M	lib/pf/Portal/ProfileFactory.pm
+M	lib/pf/authentication.pm
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/sms_activation.pm
+M	lib/pf/web.pm
+M	lib/pf/web/guest.pm
+
+commit c07b2d9f103ef215e8adaf8c918aea7d98800e82
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Jul 30 11:33:38 2013 -0400
+
+    Respect external auth sources of portal profiles
+    
+    Get ridded of pf::authentication::getAuthenticationSourceByType and
+    fixed oauth using the proper auth source with respect to the portal
+    profile.
+
+M	lib/pf/Portal/Profile.pm
+M	lib/pf/authentication.pm
+M	lib/pf/config.pm
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/sms_activation.pm
+M	lib/pf/web.pm
+M	lib/pf/web/guest.pm
+
+commit 842a3c0af479c0fda5737f939fd6104d0b53d643
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 30 10:59:42 2013 -0400
+
+    Fix regression with hiding delete for tables that cannot be empty
+
+M	html/pfappserver/root/static/admin/common.js
+
+commit e7d997c0069bec5c68583269b9dcfb2d30be1257
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jul 30 10:27:40 2013 -0400
+
+    Fixed test
+
+M	t/vlan.t
+
+commit 21a8cf7f34b95fdff182037b0f525e2e39ddf855
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Jul 30 10:10:08 2013 -0400
+
+    Added version of SOAP::Lite in spec file and debian control file
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit b2a13cf226f73ae2f29f8ddce477807374ec44b6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 29 15:33:17 2013 -0400
+
+    enabled port 443 on admin interface if gaming registration is enabled
+
+M	lib/pf/iptables.pm
+
+commit d192a2aca0335efa0e25bc35d4d3a38b485af018
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 29 14:40:13 2013 -0400
+
+    Automatic landing to the sign-in page
+    
+    When only email/sms/sponsor email sources are used by the portal
+    profile, we can automatically redirect the user to the signin page.
+
+M	NEWS.asciidoc
+M	html/captive-portal/redir.cgi
+M	lib/pf/Portal/Profile.pm
+
+commit bf4f87992f036f245ade6416d4fd189feeb7d644
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 29 08:44:57 2013 -0400
+
+    untaint logfile and test if eap_type is define
+
+M	lib/pf/action.pm
+M	lib/pf/node.pm
+
+commit 26d7232fe02b070c70ff89d48d56a63916aabf75
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 29 08:25:01 2013 -0400
+
+    Revert action order
+
+M	lib/pf/action.pm
+
+commit 8944d5b31f898073ec393fed73da2b2d46a4c65b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Jul 26 16:35:31 2013 -0400
+
+    Respect external auth sources of portal profiles
+    
+    When self-registering, we now lookup for the external authentication
+    source of the current portal profile.
+    
+    Also, when registering through a sponsor, we set the role and the
+    unregistration date of the node using the actions of the authentication
+    source of the current portal profile.. This way, when the sponsor activates
+    the node, we simply change the node status to "registered".
+
+M	NEWS.asciidoc
+M	html/captive-portal/email_activation.cgi
+M	html/captive-portal/guest-selfregistration.cgi
+M	html/captive-portal/mobile-confirmation.cgi
+M	html/captive-portal/oauth2.cgi
+M	lib/pf/Portal/Profile.pm
+M	lib/pf/authentication.pm
+M	lib/pf/email_activation.pm
+M	lib/pf/node.pm
+M	lib/pf/sms_activation.pm
+
+commit 4a4db3acf02e94848a361f8454ad874c4b076719
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 26 15:30:32 2013 -0400
+
+    Change the sticky bit on logs directory
+
+M	addons/packages/packetfence.spec
+M	debian/rules
+
+commit 36bb66df8a0c8b4512a1c9d92f4792790b2bb46a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 26 15:03:26 2013 -0400
+
+    Ensure the log files are owned by pf:pf and the file is group readable
+
+M	conf/log.conf
+
+commit deb21038455114842423756ba390c1a4935d75b7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 26 11:15:23 2013 -0400
+
+    Add the content type header
+
+M	raddb/packetfence-soh.pm
+
+commit 4861189ba7faf680eef257d5b1c157d7260fe0de
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Jul 26 11:04:18 2013 -0400
+
+    Add the content type header
+
+M	raddb/packetfence.pm
+
+commit 09a4ad8a20fbbd6b2be2807651ba0f0db4af4ebb
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 26 10:25:28 2013 -0400
+
+    Fix conf files in Centos and debian packaging
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+
+commit b999f343e0422ae2916b1697f28494579f3d300b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 26 10:13:17 2013 -0400
+
+    Fix reevaluate access when we set a violation on a node in the gui
+
+M	lib/pf/action.pm
+
+commit 3bb55b43b79ede8a8ee1a5a3288bfc1c5a7edf8f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jul 25 15:49:04 2013 -0400
+
+    Fixed filters when multiple conditions are requested
+
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit 6657b053cc0b7044468d7c73444a2856a2b4d67d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jul 25 10:59:59 2013 -0400
+
+    Catch die for authorize
+
+M	raddb/packetfence-soh.pm
+
+commit ea16e4ba50d467d76a3f02b4776e79a7570c794c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Jul 25 10:39:12 2013 -0400
+
+    Catch die for post_auth
+
+M	raddb/packetfence.pm
+
+commit f2d2b6da36216b47a10d1fbfccdab2c0f3a0bf0d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 24 16:46:54 2013 -0400
+
+    Remove any stale pid when starting radius or perform a status
+
+M	lib/pf/services.pm
+
+commit 4fb31685c555a0037fda5f0e8db7febfe54a88ec
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 24 14:44:33 2013 -0400
+
+    Default will show label
+
+M	html/pfappserver/lib/pfappserver/Form/Field/DynamicTable.pm
+
+commit ae59e533975432006412174028b2deff2a57cdbb
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Jul 24 14:20:15 2013 -0400
+
+    Respect auth source when matching actions
+    
+    See commit f062395
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+
+commit cf52cfc861d076fb0744811f2264ec61f732670c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Jul 24 14:18:08 2013 -0400
+
+    New regexp operator for strings in auth rules
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+M	lib/pf/Authentication/Condition.pm
+M	lib/pf/Authentication/Source.pm
+M	lib/pf/Authentication/Source/ADSource.pm
+M	lib/pf/Authentication/Source/EmailSource.pm
+M	lib/pf/Authentication/Source/KerberosSource.pm
+M	lib/pf/Authentication/Source/LDAPSource.pm
+M	lib/pf/Authentication/Source/RADIUSSource.pm
+M	lib/pf/Authentication/Source/SMSSource.pm
+M	lib/pf/Authentication/Source/SQLSource.pm
+M	lib/pf/Authentication/Source/SponsorEmailSource.pm
+M	lib/pf/Authentication/constants.pm
+
+commit b8db3de485f8d698646b72a8d67be35437076a36
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Jul 24 14:02:26 2013 -0400
+
+    Fix PF version in the top navigation bar
+
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+
+commit ec6a664c390541278390832718bf6fbada4b6f77
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 18:49:28 2013 -0400
+
+    Added DynamicTable field
+
+A	html/pfappserver/lib/pfappserver/Form/Field/DynamicTable.pm
+A	html/pfappserver/lib/pfappserver/Form/Widget/Field/DynamicTable.pm
+A	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+
+commit 556759d751c310185185ea5484f37d82435304a4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 18:48:12 2013 -0400
+
+    Added portal_profile_read initializer
+
+M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 2c013e4354835ce9dc74ad4a38fd9e7e84fb77c2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 18:44:24 2013 -0400
+
+    Refactor to use addrow trigger
+
+M	html/pfappserver/root/static/admin/configuration/authentication.js
+
+commit dc483f32476d59d746a8e9f742dc9d21ad40dfae
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 9 15:52:00 2013 -0400
+
+    Added inflation of the ProfileFilter
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+
+commit a16047b028b1bd9188c5b333c196e3b52cfeb4f8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 9 15:22:18 2013 -0400
+
+    Reverting back changes
+
+M	html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+
+commit d0c5b81c040474aebd42f9557dfb8dd1cba3d1bc
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 9 12:14:03 2013 -0400
+
+    Saving work
+
+M	html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+
+commit 75e61d826d777d9812eb3927829d679308947f1a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 9 12:13:36 2013 -0400
+
+    Made filter a repeatable field
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+
+commit 262c599168ef3e09ad60f1f7e55af84339ad152a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 9 12:11:30 2013 -0400
+
+    Inflate/Deflate filters values
+
+M	lib/pf/ConfigStore/Profile.pm
+
+commit 4ba6482a393721f74a1bbfbd7263c3abac3e3a7e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 9 11:54:35 2013 -0400
+
+    Allow multiple filters to be defined in the config
+
+M	lib/pf/config.pm
+
+commit 512d5df4e42d8d7bd40534014908a66d9851a63e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 10:09:06 2013 -0400
+
+    Added support for contains, starts, and ends searches
+
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit 675e6f5d864f1c9e3d707b8cc6faa13230c4f388
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 16:03:43 2013 -0400
+
+    Will not delete source if it is being used by a profile
+
+M	lib/pf/authentication.pm
+
+commit 0fcffd3235aa4d82f4fa844563c0779f59818274
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 15:32:55 2013 -0400
+
+    Made Source id readonly
+
+M	html/pfappserver/root/authentication/source/read.tt
+
+commit e9c7534e217fb3773a62c5b80a57524b3ce55890
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 14:19:39 2013 -0400
+
+    set the template row input fields to disabled
+
+M	html/pfappserver/root/authentication/source/rule_read.tt
+
+commit a3c9961392d93731b9096c8d2f74c4b98548ea7b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 14:00:37 2013 -0400
+
+    Refactored
+    Check if id or name atrribute exists before try to update the attribute
+    After adding a row will remove the disabled attribute from all input types
+    Added triggers addrow and deleterow for table-dynamic
+
+M	html/pfappserver/root/static/admin/common.js
+
+commit 1cf535d53930e2ae3feecf3735b2f18910decba4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 13:00:52 2013 -0400
+
+    Use the hidden role
+
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/ButtonGroup.pm
+
+commit e072233d8755d9575951486eec3e030004c09151
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Jul 23 12:20:25 2013 -0400
+
+    Disable btn when saving or deleting a SoH filter
+
+M	html/pfappserver/root/soh/index.tt
+M	html/pfappserver/root/static/admin/configuration/soh.js
+
+commit 10cb7a0b587b8b378ba7131597ee5005550dbf94
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Jul 23 10:51:23 2013 -0400
+
+    Fix the labels for Routed Networks Types
+
+M	html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
+
+commit 500a945048d20f8bb3d4809a219e7f7729072ff5
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Tue Jul 23 00:21:42 2013 -0400
+
+    Added document for Dlink and Aruba equipment.
+    Thanks to xinity for the contribution, and sorry for the delay ;)
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 1a3c9675bc11613e74356a11d4703a18c33ecf96
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jul 22 23:18:00 2013 -0400
+
+    Rework roles assignation.
+
+M	lib/pf/vlan.pm
+M	lib/pf/vlan/custom.pm
+
+commit 19e24ea049557b4fc1b41ca0b52bbe2834663041
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Jul 22 15:24:55 2013 -0400
+
+    Update Network configuration guide for Hostapd
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit 3a35a1ff4fec635e396fe8ee0aa9da8c84ac50cd
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Jul 22 15:13:42 2013 -0400
+
+    Update ChangeLog
+
+M	ChangeLog
+
 commit 201e3b705c68c081fddbaee47af3fdb498a32c52
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Mon Jul 22 15:09:30 2013 -0400
@@ -872,6 +1529,38 @@ Date:   Thu Jun 27 00:20:00 2013 -0400
     Changing the way PacketFence detect if an interface is running
 
 M	html/pfappserver/lib/pfappserver/Model/Interface.pm
+
+commit 17fc9c147eaa0940b279ac057a8ec55d3dfeeac9
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Wed Jun 26 17:00:25 2013 -0400
+
+    A series of changes to address shortcomings in our MAB EAP support.
+    
+    modified:   lib/pf/config.pm
+    
+        Changed so that an EAP WIRED_MAC_AUTH shows as such in the logs rather
+        than as ETHERNET-noEAP
+    
+    modified:   lib/pf/radius.pm
+    
+        Changed so that MAC_AUTH detection will work even if MAC separators are
+        other than ':'.
+        Comparison between username and mac is now case insensitive.
+    
+    modified:   lib/pf/vlan.pm
+    
+        Changed so that EAP WIRED_MAC_AUTH will get the role from node-info.
+        This case failed before as it matched the EAP connection type and so we
+        tried every authentication source with a MAC for username.
+    
+    modified:   lib/pf/vlan/custom.pm
+    
+        Changes reflect new lib/pf/vlan.pm.
+
+M	lib/pf/config.pm
+M	lib/pf/radius.pm
+M	lib/pf/vlan.pm
+M	lib/pf/vlan/custom.pm
 
 commit eeb0e2c59b3c669b1204445fa23d7ca2c25257df
 Author: James Rouzier <jrouzier@inverse.ca>

@@ -17,6 +17,8 @@ portal from the same server.
 use strict;
 use warnings;
 
+use List::Util qw(first);
+use pf::config qw($TRUE $FALSE);
 use pf::log;
 
 =head1 METHODS
@@ -71,19 +73,6 @@ sub getLogo {
 }
 
 *logo = \&getLogo;
-
-=item getGuestSelfReg
-
-Returns either enabled or disabled depending on if the current captive portal profile allows guest self-registration.
-
-=cut
-
-sub getGuestSelfReg {
-    my ($self) = @_;
-    return $self->{'_guest_self_reg'};
-}
-
-*guest_self_reg = \&getGuestSelfReg;
 
 =item getGuestModes
 
@@ -141,7 +130,7 @@ sub getDescripton {
 
 =item getSources
 
-Returns the available enabled modes for guest self-registration for the current captive portal profile.
+Returns the authentication sources IDs for the current captive portal profile.
 
 =cut
 
@@ -151,6 +140,50 @@ sub getSources {
 }
 
 *sources = \&getSources;
+
+=item getSourceByType
+
+Returns the first source ID for the requested source type for the current captive portal profile.
+
+=cut
+
+sub getSourceByType {
+    my ($self, $type) = @_;
+    my $result;
+    if ($type) {
+        $type = uc($type);
+        $result = first {uc(pf::authentication::getAuthenticationSource($_)->{'type'}) eq $type} @{$self->getSources()};
+    }
+
+    unless ($result) {
+        my $logger = get_logger();
+        $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $self->getName));
+    }
+
+    return $result;
+}
+
+=item guestRegistrationOnly
+
+Returns true if the profile only uses "sign-in" authentication sources (SMS, email or sponsor).
+
+=cut
+
+sub guestRegistrationOnly {
+    my ($self) = @_;
+
+    my %registration_types =
+      (
+       pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default => undef,
+       pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default => undef,
+       pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default => undef,
+      );
+
+    my $result = first { !exists $registration_types{$_} }
+      map { pf::authentication::getAuthenticationSource($_)->{'type'} } @{$self->getSources()};
+
+    return ($result? $FALSE : $TRUE);
+}
 
 =back
 
