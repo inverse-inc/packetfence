@@ -8,7 +8,7 @@ pf::radius - Module that deals with everything RADIUS related
 
 The pf::radius module contains the functions necessary for answering RADIUS queries.
 RADIUS is the network access component known as AAA used in 802.1x, MAC authentication, etc.
-This module acts as a proxy between our FreeRADIUS perl module's SOAP requests 
+This module acts as a proxy between our FreeRADIUS perl module's SOAP requests
 (packetfence.pm) and PacketFence core modules.
 
 All the behavior contained here can be overridden in lib/pf/radius/custom.pm.
@@ -52,14 +52,14 @@ sub new {
 
 =item * authorize - handling the RADIUS authorize call
 
-Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant 
+Returns an arrayref (tuple) with element 0 being a response code for Radius and second element an hash meant
 to fill the Radius reply (RAD_REPLY). The arrayref is to workaround a quirk in SOAP::Lite and have everything in result()
 
 See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMETERS_AND_AUTOBINDING
 
 =cut
 
-# WARNING: You cannot change the return structure of this sub unless you also update its clients (like the SOAP 802.1x 
+# WARNING: You cannot change the return structure of this sub unless you also update its clients (like the SOAP 802.1x
 # module). This is because of the way perl mangles a returned hash as a list. Clients would get confused if you add a
 # scalar return without updating the clients.
 sub authorize {
@@ -82,7 +82,7 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Not acting on this request") ];
     }
 
-    $logger->info("handling radius autz request: from switch_ip => $switch_ip, " 
+    $logger->info("handling radius autz request: from switch_ip => $switch_ip, "
         . "connection_type => " . connection_type_to_str($connection_type) . " "
         . "mac => $mac, port => $port, username => $user_name");
 
@@ -108,7 +108,7 @@ sub authorize {
     }
 
     # verify if switch supports this connection type
-    if (!$this->_isSwitchSupported($switch, $connection_type)) { 
+    if (!$this->_isSwitchSupported($switch, $connection_type)) {
         # if not supported, return
         return $this->_switchUnsupportedReply($switch);
     }
@@ -176,14 +176,14 @@ sub authorize {
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
-    locationlog_synchronize($switch_ip, $port, $vlan, $mac, 
+    locationlog_synchronize($switch_ip, $port, $vlan, $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
-            "Switch doesn't support Dynamic VLAN assignment. " . 
+            "Switch doesn't support Dynamic VLAN assignment. " .
             "Setting VLAN with SNMP on " . $switch->{_ip} . " ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
@@ -208,7 +208,7 @@ sub authorize {
 
 =item * _parseRequest
 
-Takes FreeRADIUS' RAD_REQUEST hash and process it to return 
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
   NAS Port type (Ethernet, Wireless, etc.)
   Network Device IP
   EAP
@@ -217,6 +217,7 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
   User-Name
 
 =cut
+
 sub _parseRequest {
     my ($this, $radius_request) = @_;
 
@@ -246,6 +247,7 @@ Is this request of any interest?
 returns 0 for no, 1 for yes
 
 =cut
+
 sub _doWeActOnThisCall {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -266,7 +268,7 @@ sub _doWeActOnThisCall {
             $do_we_act = $this->_doWeActOnThisCallWired($connection_type, $switch_ip, $mac, $port, $user_name);
         } else {
             $do_we_act = 0;
-        } 
+        }
 
     } else {
         # we won't act on an unknown request type
@@ -282,6 +284,7 @@ Is this wireless request of any interest?
 returns 0 for no, 1 for yes
 
 =cut
+
 sub _doWeActOnThisCallWireless {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -294,10 +297,11 @@ sub _doWeActOnThisCallWireless {
 =item * _doWeActOnThisCallWired - is this wired request of any interest?
 
 Pass all the info you can
-        
+
 returns 0 for no, 1 for yes
-    
+
 =cut
+
 sub _doWeActOnThisCallWired {
     my ($this, $connection_type, $switch_ip, $mac, $port, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -307,7 +311,6 @@ sub _doWeActOnThisCallWired {
     return 1;
 }
 
-
 =item * _identifyConnectionType
 
 Identify the connection type based information provided by RADIUS call
@@ -315,22 +318,23 @@ Identify the connection type based information provided by RADIUS call
 Returns the constants $WIRED or $WIRELESS. Undef if unable to identify.
 
 =cut
+
 sub _identifyConnectionType {
     my ($this, $nas_port_type, $eap_type, $mac, $user_name) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $eap_type = 0 if (not defined($eap_type));
     if (defined($nas_port_type)) {
-    
-        if ($nas_port_type =~ /^Wireless-802\.11$/) {
+
+        if ($nas_port_type =~ /^Wireless-802\.11/) {
 
             if ($eap_type) {
                 return $WIRELESS_802_1X;
             } else {
                 return $WIRELESS_MAC_AUTH;
             }
-    
-        } elsif ($nas_port_type eq 'Ethernet' ) {
+
+        } elsif ($nas_port_type =~ /^Ethernet/ ) {
 
             if ($eap_type) {
 
@@ -363,13 +367,14 @@ sub _identifyConnectionType {
 
 =item * _authorizeVoip - RADIUS authorization of VoIP
 
-All of the parameters from the authorize method call are passed just in case someone who override this sub 
-need it. However, connection_type is passed instead of nas_port_type and eap_type and the switch object 
+All of the parameters from the authorize method call are passed just in case someone who override this sub
+need it. However, connection_type is passed instead of nas_port_type and eap_type and the switch object
 instead of switch_ip.
 
 Returns the same structure as authorize(), see it's POD doc for details.
 
 =cut
+
 sub _authorizeVoip {
     my ($this, $connection_type, $switch, $mac, $port, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -380,7 +385,7 @@ sub _authorizeVoip {
         $switch->disconnectWrite();
 
         return [
-            $RADIUS::RLM_MODULE_FAIL, 
+            $RADIUS::RLM_MODULE_FAIL,
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
@@ -398,6 +403,7 @@ sub _authorizeVoip {
 =item * _translateNasPortToIfIndex - convert the number in NAS-Port into an ifIndex only when relevant
 
 =cut
+
 sub _translateNasPortToIfIndex {
     my ($this, $conn_type, $switch, $port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -417,6 +423,7 @@ sub _translateNasPortToIfIndex {
 Determines if switch is supported by current connection type.
 
 =cut
+
 sub _isSwitchSupported {
     my ($this, $switch, $conn_type) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -439,6 +446,7 @@ sub _isSwitchSupported {
 =item * _switchUnsupportedReply - what is sent to RADIUS when a switch is unsupported
 
 =cut
+
 sub _switchUnsupportedReply {
     my ($this, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -451,12 +459,13 @@ sub _switchUnsupportedReply {
 
 =item * _shouldRewriteAccessAccept
 
-If this returns true we will call _rewriteAccessAccept() and overwrite the 
+If this returns true we will call _rewriteAccessAccept() and overwrite the
 Access-Accept attributes by it's return value.
 
 This is meant to be overridden in L<pf::radius::custom>.
 
 =cut
+
 sub _shouldRewriteAccessAccept {
     my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -468,12 +477,13 @@ sub _shouldRewriteAccessAccept {
 
 Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
 
-Return type should match L<pf::radius::authorize()>'s return type. See its 
+Return type should match L<pf::radius::authorize>'s return type. See its
 documentation for details.
 
 This is meant to be overridden in L<pf::radius::custom>.
 
 =cut
+
 sub _rewriteAccessAccept {
     my ($this, $RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
