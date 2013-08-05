@@ -42,6 +42,7 @@ Bug Fixes
 * Triggering a violation with a trap action doesn't reevaluate access
 * authentication.conf and profiles.conf are overwritten when updating PacketFence
 * First element of button groups is not properly displayed
+* Sponsors are not extracted from LDAP sources
 
 Version 4.0.3 released on 2013-07-22
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

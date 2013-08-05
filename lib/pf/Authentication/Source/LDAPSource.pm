@@ -377,7 +377,7 @@ sub username_from_email {
       base => $self->{'basedn'},
       filter => $filter,
       scope => $self->{'scope'},
-      attrs => $self->{'usernameattribute'}
+      attrs => [$self->{'usernameattribute'}]
     );
 
     if ($result->is_error) {
