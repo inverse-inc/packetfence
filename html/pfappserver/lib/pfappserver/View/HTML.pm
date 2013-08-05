@@ -3,7 +3,7 @@ package pfappserver::View::HTML;
 use strict;
 use warnings;
 use pf::file_paths;
-use pf::user_roles;
+use pf::admin_roles;
 
 use base 'Catalyst::View::TT';
 
@@ -61,7 +61,7 @@ sub js_filter {
 
 sub has_role {
     my ($self, $c, $role) = @_;
-    return user_has_role($c->user,$role);
+    return admin_has_role($c->user,$role);
 }
 
 =head1 COPYRIGHT

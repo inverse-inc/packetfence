@@ -1,13 +1,13 @@
-package pf::user_roles;
+package pf::admin_roles;
 =head1 NAME
 
-pf::user_roles add documentation
+pf::admin_roles add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::user_roles
+pf::admin_roles
 
 =cut
 
@@ -15,9 +15,9 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
-our @EXPORT = qw(user_has_role);
+our @EXPORT = qw(admin_has_role);
 
-sub user_has_role {
+sub admin_has_role {
     my ($user,$role) = @_;
     return $user eq 'admin';
 }
