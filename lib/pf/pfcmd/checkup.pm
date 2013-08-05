@@ -972,7 +972,7 @@ sub portal_profiles {
         }
 
         my %external;
-        foreach my $source (map { pf::authentication::getAuthenticationSource($_) } @{$Profiles_Config{$portal_profile}{'sources'}} ) {
+        foreach my $source ( grep { $_ && $_->class eq 'external' } map { pf::authentication::getAuthenticationSource($_) } @{$Profiles_Config{$portal_profile}{'sources'}} ) {
             my $type = $source->{'type'};
             $external{$type} = 0 unless (defined $external{$type});
             $external{$type}++;
