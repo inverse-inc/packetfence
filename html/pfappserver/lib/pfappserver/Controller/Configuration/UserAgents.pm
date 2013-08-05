@@ -56,26 +56,35 @@ sub upload :Local :Args(0) {
     } report_unknownuseragents_all();
     if (%data) {
         require IO::Compress::Gzip;
-        import IO::Compress::Gzip qw(gzip);
+        import IO::Compress::Gzip qw(gzip $GzipError);
         require MIME::Base64;
         import MIME::Base64 qw(encode_base64);
-        my $content =
-            encode_base64(
-            gzip( PHP::Serialization::serialize( \%data ) ) );
-        require LWP::UserAgent;
-        my $browser  = LWP::UserAgent->new;
-        my $response = $browser->post(
-            'http://www.packetfence.org/useragents.php',
-            {
-                useragent_fingerprints => $content,
-                'ref' => $c->uri_for($c->action)
+        my $content = PHP::Serialization::serialize(\%data);
+        my $gziped;
+        if (gzip(\$content, \$gziped)) {
+            my $release = $c->model('Admin')->pf_release();
+            require LWP::UserAgent;
+            my $browser  = LWP::UserAgent->new;
+            my $response = $browser->post(
+              'http://www.packetfence.org/useragentsv2.php',
+              {
+                useragent_fingerprints => encode_base64($gziped),
+                'ref' => $c->uri_for($c->action),
+                pf_release => $release
+              }
+            );
+            if ($response->content =~ /Thank you for submitting the following fingerprints/) {
+                $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
             }
-        );
-        if ($response->content =~ /Thank you for submitting the following fingerprints/) {
-            $c->stash->{status_msg} = "Thank you for submitting your fingerprints";
+            else {
+                $c->stash->{status_msg} = "Error uploading user-agent fingerprints";
+                $c->log->debug($response->content);
+                $status = HTTP_INTERNAL_SERVER_ERROR;
+            }
         }
         else {
-            $c->stash->{status_msg} = "Error uploading user-agent fingerprints";
+            $c->stash->{status_msg} = "Error while compressing the data";
+            $c->log->error("Error while compressing the data: ".$IO::Compress::Gzip::GzipError);
             $status = HTTP_INTERNAL_SERVER_ERROR;
         }
     }

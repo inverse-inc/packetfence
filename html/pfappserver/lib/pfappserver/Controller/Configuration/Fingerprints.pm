@@ -74,20 +74,22 @@ sub upload :Local :Args(0) {
 
     my @field_name = qw(dhcp_fingerprint vendor computername user_agent);
     my $status = HTTP_OK;
-    my $content = join(
-        "&",
-        (   map {
-                    my $obj = $_;
-                    map {
-                        $FIELD_MAP{$_} . "=" . uri_escape( $obj->{$_}  )
-                        }
-                        qw(dhcp_fingerprint vendor computername user_agent)
-                } report_unknownprints_all()
-        )
-    );
+    my $content =
+      join("&", (map
+                 {
+                     my $obj = $_;
+                     map
+                       {
+                           $FIELD_MAP{$_} . "=" . uri_escape($obj->{$_})
+                       } qw(dhcp_fingerprint vendor computername user_agent)
+                   } report_unknownprints_all()
+                )
+          );
     if ($content) {
-        $content  .= '&ref='. uri_escape($c->uri_for($c->action->name)) .
-                     '&submit=Submit%20Fingerprints';
+        my $release = $c->model('Admin')->pf_release();
+        $content .= '&ref=' . uri_escape($c->uri_for($c->action->name)) .
+                    '&pf_release=' . uri_escape($release) .
+                    '&submit=Submit%20Fingerprints';
         require LWP::UserAgent;
         my $browser  = LWP::UserAgent->new;
         my $response = $browser->post(

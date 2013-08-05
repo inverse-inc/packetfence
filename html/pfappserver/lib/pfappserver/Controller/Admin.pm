@@ -16,7 +16,6 @@ use warnings;
 use HTTP::Status qw(:constants is_error is_success);
 use namespace::autoclean;
 use Moose;
-use pf::file_paths;
 use pfappserver::Form::SavedSearch;
 
 BEGIN {
@@ -132,17 +131,7 @@ Administrator controller dispatcher
 sub object :Chained('/') :PathPart('admin') :CaptureArgs(0) {
     my ( $self, $c ) = @_;
 
-    # Stash version number from conf/pf-release
-    my $cache = pf::CHI->new(namespace => 'configfiles' );
-    my $filename = "$conf_dir/pf-release";
-    my $release = $cache->compute($filename, undef, sub {
-                                      my $filehandler;
-                                      open( $filehandler, '<', $filename );
-                                      chomp(my $pf_release = <$filehandler>);
-                                      close( $filehandler );
-                                      return $pf_release;
-                                  });
-    $c->stash->{'pf_release'} = $release;
+    $c->stash->{'pf_release'} = $c->model('Admin')->pf_release();
 }
 
 =head2 status
