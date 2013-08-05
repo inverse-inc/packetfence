@@ -294,8 +294,8 @@ sub test {
   );
 
   if ($result->is_error) {
-      $logger->warn("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, 'Wrong base DN or username attribute');
+      $logger->warn("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort: ".$result->error);
+      return ($FALSE, 'Wrong base DN or username attribute');
   }
 
   return ($TRUE, 'Success');
