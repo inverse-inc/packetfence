@@ -2,6 +2,7 @@
         <thead>
           <tr>
             <th>[% l('IP Address') %]</th>
+            <th class="hidden-phone">[% l('Description') %]</th>
             <th class="hidden-phone">[% l('Type') %]</th>
             <th class="hidden-phone">[% l('Mode') %]</th>
             <th></th>
@@ -12,6 +13,7 @@
           <tr>
             <td><a href="[% c.uri_for(c.controller('Configuration::Switch').action_for('view'), [ switch.id ]) %]">[% switch.id %]</a>
             [% IF switch.floatingdevice && switch.floatingdevice.id %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('view'), [ switch.floatingdevice.id ]) %]">[% l('Edit floating device') %]</a>[% END %]</td>
+            <td class="hidden-phone">[% switch.description %]</td>
             <td class="hidden-phone">[% switch.type %]</td>
             <td class="hidden-phone">[% l(switch.mode) %]</td>
             <td>

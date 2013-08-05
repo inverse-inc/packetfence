@@ -34,6 +34,11 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the IP address of the switch.' },
   );
+has_field 'description' =>
+  (
+   type => 'Text',
+   required_when => { 'id' => sub { $_[0] ne 'default' } },
+  );
 has_field 'type' =>
   (
    type => 'Select',
@@ -206,7 +211,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
+   render_list => [ qw(description type mode deauthMethod VoIPEnabled uplink_dynamic uplink controllerIp) ],
   );
 has_field 'SNMPVersion' =>
   (
