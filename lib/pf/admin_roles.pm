@@ -15,13 +15,12 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
-our @EXPORT = qw(admin_can @ADMIN_ACTIONS);
+use pf::file_paths;
+use List::MoreUtils qw(any);
+use pf::config::cached;
 
-sub admin_can {
-    my ($user,$role) = @_;
-    return $user eq 'admin';
-}
-
+our @EXPORT = qw(admin_can @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
+our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     SERVICES
     REPORTS
@@ -37,6 +36,46 @@ our @ADMIN_ACTIONS = qw(
     VIOLATIONS_ADD
     VIOLATIONS_MODIFY
     VIOLATIONS_REMOVE
+);
+
+sub admin_can {
+    my ($roles,$action) = @_;
+    return any { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$action} } @$roles;
+}
+
+sub reloadConfig {
+    my ($config,$name) = @_;
+    my %temp;
+    $config->toHash(\%temp);
+    $config->cleanupWhitespace(\%temp);
+    %ADMIN_ROLES = ();
+    while(my ($role,$data) = each %temp) {
+        my $actions = $data->{actions} || '';
+        my %action_data = map {$_ => undef} split /\s*,\s*/,$actions;
+        $ADMIN_ROLES{$role} = \%action_data;
+    }
+    $ADMIN_ROLES{NONE} = {};
+    $ADMIN_ROLES{ALL} = { map {$_ => undef} @ADMIN_ACTIONS };
+    $config->cache->set("ADMIN_ROLES",\%ADMIN_ROLES);
+}
+
+our $cached_adminroles_config = pf::config::cached->new(
+    -file => $admin_roles_config_file,
+    -allowempty => 1,
+    -onfilereload => [
+        file_reload_violation_config => \&reloadConfig
+    ],
+    -oncachereload => [
+        cache_reload_violation_config => sub {
+            my ($config,$name) = @_;
+            my $data = $config->cache->get("ADMIN_ROLES");
+            if($data) {
+                %ADMIN_ROLES = %$data;
+            } else {
+                reloadConfig($config,$name);
+            }
+        }
+    ],
 );
 
 =head1 AUTHOR
