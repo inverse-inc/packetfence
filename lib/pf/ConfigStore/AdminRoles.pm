@@ -16,12 +16,13 @@ use HTTP::Status qw(:constants is_error is_success);
 use Moo;
 use namespace::autoclean;
 use pf::file_paths;
+use pf::admin_roles;
 extends 'pf::ConfigStore';
-
 
 sub expandableParams { return (qw(actions)); }
 
-sub configFile { $pf::file_paths::admin_roles_config_file }
+sub _buildCachedConfig { $cached_adminroles_config }
+
 =head2 cleanupAfterRead
 
 Clean up switch data
@@ -29,8 +30,8 @@ Clean up switch data
 =cut
 
 sub cleanupAfterRead {
-    my ($self, $id, $profile) = @_;
-    $self->expand_list($profile,$self->expandableParams);
+    my ($self, $id, $item) = @_;
+    $self->expand_list($item,$self->expandableParams);
 }
 
 =head2 cleanupBeforeCommit
@@ -40,8 +41,8 @@ Clean data before update or creating
 =cut
 
 sub cleanupBeforeCommit {
-    my ($self, $id, $profile) = @_;
-    $self->flatten_list($profile,$self->expandableParams);
+    my ($self, $id, $item) = @_;
+    $self->flatten_list($item,$self->expandableParams);
 }
 
 
