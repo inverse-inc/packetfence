@@ -15,7 +15,7 @@ __PACKAGE__->config(
         js => \&js_filter,
     },
     render_die => 1,
-    expose_methods => [qw(has_role)],
+    expose_methods => [qw(can_access)],
     COMPILE_DIR => $tt_compile_cache_dir
 );
 
@@ -55,13 +55,13 @@ sub js_filter {
     return $string;
 }
 
-=head2 has_role
+=head2 can_access
 
 =cut
 
-sub has_role {
+sub can_access {
     my ($self, $c, $role) = @_;
-    return admin_has_role($c->user,$role);
+    return admin_can($c->user,$role);
 }
 
 =head1 COPYRIGHT
