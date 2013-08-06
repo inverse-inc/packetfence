@@ -82,31 +82,37 @@ sub _initialize {
     $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
 
     $self->{'_client_ip'} = $self->_resolveIp();
-    $self->{'_client_mac'} = ip2mac($self->getClientIp);
+    $self->{'_client_mac'} =  $self->_restoreFromSession("_client_mac",sub {
+            return $self->getClientMac;
+        }
+    );
 
     $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->{'_guest_node_mac'} = undef;
+    $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+            return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+        }
+    );
 
-    $self->_initializeProfile();
     $self->_initializeStash();
     $self->_initializeI18n();
 }
 
-=item _initializeProfile
+=item _restoreFromSession
 
-Grab the profile from either the session or create it if it does not exists
+Restore an item from the session if it does not exists compute the value
 
 =cut
 
-sub _initializeProfile {
-    my ($self) = @_;
-    my $profile = $self->session->param("profile");
-    unless ($profile) {
-        $profile = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
-        $self->session->param("profile",$profile);
+sub _restoreFromSession {
+    my ($self,$key,$compute) = @_;
+    my $value = $self->session->param($key);
+    unless ($value) {
+        $value = $compute->();
+        $self->session->param($key,$value);
     }
-    $self->{'_profile'} = $profile;
+    return $value;
 }
 
 =item _initializeStash
