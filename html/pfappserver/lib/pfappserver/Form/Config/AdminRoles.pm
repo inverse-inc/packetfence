@@ -24,6 +24,12 @@ has_field 'id' =>
    required => 1,
    messages => { required => 'Please specify the name of the admin role.' },
   );
+has_field 'description' =>
+  (
+   type => 'Text',
+   required => 1,
+   messages => { required => 'Please specify the description of the admin role.' },
+  );
 has_field 'actions' =>
   (
    type => 'DynamicTable',
@@ -39,7 +45,7 @@ has_field 'actions.contains' =>
   );
 has_block definition =>
   (
-   render_list => [ qw(actions)]
+   render_list => [ qw( description actions)]
   );
 sub build_do_form_wrapper{ 0 }
 

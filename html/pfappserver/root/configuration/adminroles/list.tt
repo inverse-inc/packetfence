@@ -1,7 +1,8 @@
       <table id="adminroles" class="table items">
         <thead>
           <tr>
-            <th>[% l('Role') %]</th>
+            <th>[% l('Role Name') %]</th>
+            <th>[% l('Description') %]</th>
             <th></th>
           </tr>
         </thead>
@@ -9,6 +10,7 @@
           [% FOREACH adminrole IN items %]
           <tr>
             <td><a href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('view'), [ adminrole.id ]) %]">[% adminrole.id %]</a></td>
+            <td>[% adminrole.description | html%]</td>
             <td>
               <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('clone'), [ adminrole.id]) %]">[% l('Clone') %]</a>
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('remove'), [ adminrole.id ]) %]">[% l('Delete') %]</a>
