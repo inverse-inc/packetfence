@@ -12,6 +12,7 @@ pf::Portal::Session wraps several parameter we often need from the captive
 portal.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -36,6 +37,7 @@ use pf::web::util;
 =head1 CONSTANTS
 
 =cut
+
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
 =head1 METHODS
@@ -45,6 +47,7 @@ Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 =item new
 
 =cut
+
 sub new {
     my ( $class, %argv ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -59,6 +62,7 @@ sub new {
 =item _initialize
 
 =cut
+
 # Warning: this task must be the least expensive possible since it will be
 # run on every portal hit. We should profile then re-architect to store
 # in session expensive components to look for.
@@ -75,7 +79,7 @@ sub _initialize {
 #    $self->{'_session'} = new CGI::Session( "driver:memcached", $self->getCgi, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
     #my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || undef;
     my $sid = $cgi->param('CGISESSID') || $cgi;
-    $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } ); 
+    $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
 
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
@@ -84,10 +88,25 @@ sub _initialize {
 
     $self->{'_guest_node_mac'} = undef;
 
-    $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
-
+    $self->_initializeProfile();
     $self->_initializeStash();
     $self->_initializeI18n();
+}
+
+=item _initializeProfile
+
+Grab the profile from either the session or create it if it does not exists
+
+=cut
+
+sub _initializeProfile {
+    my ($self) = @_;
+    my $profile = $self->session->param("profile");
+    unless ($profile) {
+        $profile = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+        $self->session->param("profile",$profile);
+    }
+    $self->{'_profile'} = $profile;
 }
 
 =item _initializeStash
@@ -96,6 +115,7 @@ Initialize a catalyst-style stash variable that is passed to the template
 when rendering.
 
 =cut
+
 sub _initializeStash {
     my ($self) = @_;
 
@@ -107,6 +127,7 @@ sub _initializeStash {
 =item _initializeI18n
 
 =cut
+
 sub _initializeI18n {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -147,6 +168,7 @@ sub _initializeI18n {
 Returns destination_url properly parsed, defended against XSS and with configured value if not defined.
 
 =cut
+
 sub _getDestinationUrl {
     my ($self) = @_;
 
@@ -162,6 +184,7 @@ Returns the IP address of the client reaching the captive portal.
 Either directly connected or through a proxy.
 
 =cut
+
 sub _resolveIp {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -221,6 +244,7 @@ One can also use a syntax like this:
 Also, it is prepopulated with the Web constants from pf::web::constants.
 
 =cut
+
 sub stash {
     my ( $self, $hashref ) = @_;
 
@@ -232,12 +256,12 @@ sub stash {
     return $self->{'stash'};
 }
 
-
 =item getCgi
 
 Returns the CGI object.
 
 =cut
+
 sub getCgi {
     my ($self) = @_;
     return $self->{'_cgi'};
@@ -250,6 +274,7 @@ Returns the CGI object. Allows for more perl-ish syntax:
    $portalSession->cgi->param...
 
 =cut
+
 sub cgi {
     my ($self) = @_;
     return $self->{'_cgi'};
@@ -260,6 +285,7 @@ sub cgi {
 Returns the CGI::Session object.
 
 =cut
+
 sub getSession {
     my ($self) = @_;
     return $self->{'_session'};
@@ -272,6 +298,7 @@ Returns the CGI::Session object. Allows for more perl-ish syntax:
    $portalSession->session->param...
 
 =cut
+
 sub session {
     my ($self) = @_;
     return $self->{'_session'};
@@ -284,6 +311,7 @@ lookups for Proxy bypass and load balancers instead of looking at local TCP
 from CGI.
 
 =cut
+
 sub getClientIp {
     my ($self) = @_;
     return $self->{'_client_ip'};
@@ -294,6 +322,7 @@ sub getClientIp {
 Returns the MAC of the captive portal client.
 
 =cut
+
 sub getClientMac {
     my ($self) = @_;
     if (defined($self->cgi->param('mac'))) {
@@ -307,6 +336,7 @@ sub getClientMac {
 Returns the original destination URL requested by the client.
 
 =cut
+
 # TODO we could store this in session and return from session if it exists
 sub getDestinationUrl {
     my ($self) = @_;
@@ -318,6 +348,7 @@ sub getDestinationUrl {
 Sets the destination url.
 
 =cut
+
 # TODO get rid of this when destination url for billing-engine (different destination url for each tier) will be implemented
 sub setDestinationUrl {
     my ($self, $new_destination_url) = @_;
@@ -330,6 +361,7 @@ sub setDestinationUrl {
 Returns the proper captive portal profile for the current session.
 
 =cut
+
 sub getProfile {
     my ($self) = @_;
     return $self->{'_profile'};
@@ -340,6 +372,7 @@ sub getProfile {
 Return the guest node mac address in the case of an email activation.
 
 =cut
+
 sub getGuestNodeMac {
     my ($self) = @_;
     return $self->{'_guest_node_mac'};
@@ -350,6 +383,7 @@ sub getGuestNodeMac {
 Sets the guest node mac address in the case of an email activation.
 
 =cut
+
 sub setGuestNodeMac {
     my ($self, $guest_node_mac) = @_;
 
@@ -359,6 +393,7 @@ sub setGuestNodeMac {
 =item getTemplateIncludePath
 
 =cut
+
 sub getTemplateIncludePath {
     my ($self) = @_;
     my $profile = $self->getProfile;
@@ -376,6 +411,7 @@ Ex: Accept-Language: en-US,en;q=0.8,fr;q=0.6,fr-CA;q=0.4,no;q=0.2,es;q=0.2
 will return qw(en_US en fr fr_CA no es)
 
 =cut
+
 sub getRequestLanguages {
     my ($self) = @_;
     my $s = $self->getCgi->http('Accept-language');
