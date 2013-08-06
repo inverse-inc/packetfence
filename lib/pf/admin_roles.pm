@@ -40,6 +40,7 @@ our @ADMIN_ACTIONS = qw(
 
 sub admin_can {
     my ($roles,$action) = @_;
+    return 0 if any {$_ eq 'NONE'};
     return any { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$action} } @$roles;
 }
 
