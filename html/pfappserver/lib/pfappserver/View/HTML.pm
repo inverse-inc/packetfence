@@ -60,8 +60,8 @@ sub js_filter {
 =cut
 
 sub can_access {
-    my ($self, $c, $role) = @_;
-    return admin_can($c->user,$role);
+    my ($self, $c, $action) = @_;
+    return admin_can([$c->user->roles],$action);
 }
 
 =head1 COPYRIGHT
