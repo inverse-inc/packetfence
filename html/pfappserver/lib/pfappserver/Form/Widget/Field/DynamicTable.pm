@@ -23,13 +23,14 @@ sub render_subfield {
         or ( $self->has_flag("is_repeatable")
             and $subfield->name < $self->num_when_empty
         );
-
+    my $extra = '';
     if ($self->num_fields == ($subfield->name + 1)) {
         $subfield->set_tag("dynamic_row_class","hidden");
         set_disabled($subfield);
+        $extra = "<tr><td colspan='3'></td></tr>" if $self->sortable;
     }
 
-    return $subfield->render($subresult);
+    return $subfield->render($subresult) . $extra;
 }
 
 sub set_disabled {
