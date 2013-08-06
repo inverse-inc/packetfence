@@ -47,7 +47,8 @@ our (
     #Other configuraton files variables
     $switches_config_file, $violations_config_file, $authentication_config_file,
     $chi_config_file, $ui_config_file, $floating_devices_file, $log_config_file,
-    @stored_config_files, @log_files
+    @stored_config_files, @log_files,
+    $admin_roles_config_file
 );
 
 BEGIN {
@@ -72,8 +73,8 @@ BEGIN {
         $profiles_config_file %Profiles_Config $cached_profiles_config
         $switches_config_file $violations_config_file $authentication_config_file
         $chi_config_file $ui_config_file $floating_devices_file $log_config_file
-        @stored_config_files
-        @log_files
+        @stored_config_files @log_files
+        $admin_roles_config_file
     );
 }
 
@@ -104,6 +105,7 @@ $profiles_config_file   = catfile($conf_dir, "profiles.conf");
 $floating_devices_file  = catfile($conf_dir, "floating_network_device.conf");  # TODO: To be deprecated. See $floating_devices_config_file
 $violations_config_file = catfile($conf_dir, "violations.conf");
 $dhcp_fingerprints_file = catfile($conf_dir, "dhcp_fingerprints.conf");
+$admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 
 $violations_config_file       = catfile($conf_dir, "violations.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");

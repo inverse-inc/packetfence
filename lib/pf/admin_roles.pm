@@ -15,12 +15,29 @@ use strict;
 use warnings;
 
 use base qw(Exporter);
-our @EXPORT = qw(admin_has_role);
+our @EXPORT = qw(admin_can @ADMIN_ACTIONS);
 
-sub admin_has_role {
+sub admin_can {
     my ($user,$role) = @_;
     return $user eq 'admin';
 }
+
+our @ADMIN_ACTIONS = qw(
+    SERVICES
+    REPORTS
+    USERS_VIEW
+    USERS_ADD
+    USERS_MODIFY
+    USERS_REMOVE
+    NODES_VIEW
+    NODES_ADD
+    NODES_MODIFY
+    NODES_REMOVE
+    VIOLATIONS_VIEW
+    VIOLATIONS_ADD
+    VIOLATIONS_MODIFY
+    VIOLATIONS_REMOVE
+);
 
 =head1 AUTHOR
 

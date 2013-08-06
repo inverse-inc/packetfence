@@ -1,0 +1,24 @@
+      <div class="modal fade hide" id="modalAdminRoles">
+      </div>
+
+      <div class="modal fade hide" id="deleteAdminRoles">
+        <div class="modal-header">
+          <a class="close" data-dismiss="modal">&times;</a>
+          <h3><i>[% l('Delete Admin Role') %]</i> <span></span></h3>
+        </div>
+        <div class="modal-body">
+          <p>[% l('Really delete this admin role?') %]</p>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">[% l('Cancel') %]</a>
+          <a href="#" class="btn btn-primary btn-danger"><i class="icon-trash"></i> [% l('Delete') %]</a>
+        </div>
+      </div>
+
+      <h2>[% l('Admin Roles')  %]</h2>
+
+      [% INCLUDE configuration/adminroles/list.tt %]
+
+      <div class="form-actions">
+        <a id="createAdminRoles" class="btn" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('create')) %]">[% l('Add admin role') %]</a>
+      </div>

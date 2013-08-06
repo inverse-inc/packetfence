@@ -23,7 +23,6 @@ use pfappserver::Form::User::Create;
 use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
-use pf::user_roles;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -367,7 +366,7 @@ sub mail :Local {
 
 before [qw(delete)] => sub {
    my ($self,$c,$role) = @_;
-   unless(user_has_role($c->user,"USERS")) {
+   unless(admin_can($c->user,"USERS_REMOVE")) {
         $c->log->info("Here");
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->stash->{status_msg} = "You shall not pass";

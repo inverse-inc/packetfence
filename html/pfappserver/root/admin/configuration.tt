@@ -13,6 +13,7 @@
         'admin/configuration/interfaces',
         'admin/configuration/switches',
         'admin/configuration/floatingdevices',
+        'admin/configuration/adminroles',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
         'admin/configuration/violations',
