@@ -395,21 +395,18 @@ sub username_from_email {
 
     foreach my $source ( @authentication_sources ) {
 
-        my $classname = $source->meta->name;
-
-        if ($classname eq 'pf::Authentication::Source::ADSource' ||
-            $classname eq 'pf::Authentication::Source::LDAPSource' ||
-            $classname eq 'pf::Authentication::Source::SQLSource' ) {
+        if ($source->isa('pf::Authentication::Source::LDAPSource') ||
+            $source->isa('pf::Authentication::Source::SQLSource' )) {
 
             my $username = $source->username_from_email($email);
 
             if (defined $username) {
-                return $username;
+                return ($username,$source->id);
             }
         }
     }
 
-    return undef;
+    return ;
 }
 
 =item authenticate
