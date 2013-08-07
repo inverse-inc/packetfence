@@ -210,6 +210,20 @@ sub authorize {
     return $RAD_REPLY_REF;
 }
 
+=item accounting_stop
+
+=cut
+sub accounting_stop {
+    my ($this, $radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(ref($this));
+
+    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
+
+    #$logger->debug("accounting stop: $user_name => $mac");
+
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting stop ok") ];
+}
+
 =item * _parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return

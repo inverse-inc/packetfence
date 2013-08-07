@@ -95,6 +95,21 @@ sub radius_authorize {
   return $return;
 }
 
+sub radius_accounting_stop {
+  my ($class, %radius_request) = @_;
+  my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+
+  my $radius = new pf::radius::custom();
+  my $return;
+  eval {
+      $return = $radius->accounting_stop(\%radius_request);
+  };
+  if ($@) {
+      $logger->logdie("radius accounting stop failed with error: $@");
+  }
+  return $return;
+}
+
 sub soh_authorize {
   my ($class, %radius_request) = @_;
   my $logger = Log::Log4perl->get_logger('pf::WebAPI');
