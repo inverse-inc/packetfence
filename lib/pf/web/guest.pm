@@ -225,11 +225,11 @@ sub validate_sponsor {
     my $cgi = $portalSession->getCgi();
 
     # validate that this email can sponsor network accesses
-    my $username = &pf::authentication::username_from_email( lc($cgi->param('sponsor_email')) );
+    my ($username,$source_id) = &pf::authentication::username_from_email( lc($cgi->param('sponsor_email')) );
 
     if (defined $username) {
 
-        my $value = &pf::authentication::match(undef, {username => $username}, $Actions::MARK_AS_SPONSOR);
+        my $value = &pf::authentication::match($source_id, {username => $username}, $Actions::MARK_AS_SPONSOR);
 
         # all sponsor checks have passed
         if (defined $value) {
