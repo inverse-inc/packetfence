@@ -64,6 +64,7 @@ BEGIN {
             availableAuthenticationSourceTypes
             newAuthenticationSource
             getAuthenticationSource
+            getAllAuthenticationSources
             deleteAuthenticationSource
             writeAuthenticationConfigFile
        );
@@ -322,16 +323,13 @@ Returns an instance of pf::Authentication::Source::* for the given id
 
 sub getAuthenticationSource {
     my $id = shift;
-
-    my $result;
     if (defined $id) {
-        $result = first {$_->{'id'} eq $id} @authentication_sources;
-    } else {
-        $result = \@authentication_sources;
+        return first {$_->{'id'} eq $id} @authentication_sources;
     }
-
-    return $result;
 }
+
+
+sub getAllAuthenticationSources { return \@authentication_sources }
 
 =item deleteAuthenticationSource
 
