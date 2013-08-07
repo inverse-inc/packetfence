@@ -80,8 +80,10 @@ sub checkForUpgrade {
         return $CONFIGURATION;
     } else {
         $currently_at =~ s/PacketFence //;
+        $currently_at =~ s/-/_/;
         $pf_release =~ s/PacketFence //;
-        if($currently_at =~ Perl::Version::MATCH ) {
+        $pf_release =~ s/-/_/;
+        if ($currently_at =~ Perl::Version::MATCH) {
             my $current_version = Perl::Version->new($currently_at);
             my $release_version = Perl::Version->new($pf_release);
             if($current_version->revision < $release_version->revision || $current_version->version < $release_version->version) {
