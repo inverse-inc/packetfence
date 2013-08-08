@@ -260,6 +260,12 @@ sub generate_inline_rules {
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
+    # Allow remote conformity scan server to reach unregistered devices in inline mode
+    if ( defined($Config{'scan'}{'host'}) && $Config{'scan'}{'host'} ne "127.0.0.1" ) {
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --source $Config{'scan'}{'host'} --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --destination $Config{'scan'}{'host'} --jump ACCEPT\n";
+    }
+
     if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
     }
