@@ -23,6 +23,10 @@ Enhancements
 ++++++++++++
 
 * Improved validation of sponsor's email
+* Self-registration by sponsor now works without having to define an email authentication source
+* Fetching VLAN for dot1x connections is now limited to internal authentication sources
+* Splitted internal and external classes in dropdown menu of authentication types
+* Show error message when trying to delete a source used by the portal profiles
 
 Bug Fixes
 +++++++++
