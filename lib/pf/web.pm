@@ -579,7 +579,7 @@ sub web_user_authenticate {
     # validate login and password
     my ($return, $message, $source) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
                                                                         $portalSession->cgi->param("password"),
-                                                                        @{$portalSession->getProfile->getSources});
+                                                                        @{$portalSession->getProfile->getInternalSources});
 
     if (defined($return) && $return == 1) {
         # save login into session

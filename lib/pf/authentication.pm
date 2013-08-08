@@ -317,7 +317,7 @@ sub writeAuthenticationConfigFile {
 
 =item getAuthenticationSource
 
-Returns an instance of pf::Authentication::Source::* for the given id
+Return an instance of pf::Authentication::Source::* for the given id
 
 =cut
 
@@ -328,8 +328,23 @@ sub getAuthenticationSource {
     }
 }
 
+=item getAllAuthenticationSources
+
+Return instances of pf::Authentication::Source for all defined sources
+
+=cut
 
 sub getAllAuthenticationSources { return \@authentication_sources }
+
+=item getInternalAuthenticationSources
+
+Return instances of pf::Authentication::Source for internal sources
+
+=cut
+
+sub getInternalAuthenticationSources {
+    return grep { $_->{'class'} eq 'internal' } @authentication_sources;
+}
 
 =item deleteAuthenticationSource
 
@@ -414,8 +429,9 @@ sub username_from_email {
 =cut
 
 sub authenticate {
-    my ( $username, $password, @source_ids ) = @_;
+    my ($username, $password, @source_ids) = @_;
     my @sources;
+
     if (@source_ids) {
         my %inlist = map { $_ => undef } @source_ids;
         @sources = grep { exists $inlist{$_->id} } @authentication_sources;

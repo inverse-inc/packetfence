@@ -141,6 +141,30 @@ sub getSources {
 
 *sources = \&getSources;
 
+=item getInternalSources
+
+Returns the internal authentication sources IDs for the current captive portal profile.
+
+=cut
+
+sub getInternalSources {
+    my ($self) = @_;
+
+    return grep { pf::authentication::getAuthenticationSource($_)->{'class'} eq 'internal' } @{$self->getSources()};
+}
+
+=item getExternalSources
+
+Returns the external authentication sources IDs for the current captive portal profile.
+
+=cut
+
+sub getExternalSources {
+    my ($self) = @_;
+
+    return grep { pf::authentication::getAuthenticationSource($_)->{'class'} eq 'external' } @{$self->getSources()};
+}
+
 =item getSourceByType
 
 Returns the first source ID for the requested source type for the current captive portal profile.

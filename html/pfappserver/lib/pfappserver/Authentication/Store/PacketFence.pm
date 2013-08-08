@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 package pfappserver::Authentication::Store::PacketFence;
+
 use base qw/Class::Accessor::Fast/;
 use strict;
 use warnings;
