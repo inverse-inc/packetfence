@@ -75,7 +75,8 @@ sub login :Local :Args(0) {
         eval {
             if ($c->authenticate( {username => $c->req->params->{'username'},
                                    password => $c->req->params->{'password'}} )) {
-                $c->log->info("login: " . $c->req->params->{'username'});
+                $c->session->{user_roles} = [$c->user->roles]; #saving the roles to the session
+                $c->persist_user();#To save the updated _roles data
                 $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
             }
             else {
