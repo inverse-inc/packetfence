@@ -112,8 +112,8 @@ sub availableAuthenticationSourceTypes {
 
     my @types;
     foreach my $module (values %TYPE_TO_SOURCE) {
-        if (!defined $class && $module->meta->get_attribute('type')->default ne 'SQL' ||
-            defined $class && $module->meta->find_attribute_by_name('class')->default eq $class) {
+        next if ($module->meta->get_attribute('type')->default eq 'SQL');
+        if (!defined $class || $module->meta->find_attribute_by_name('class')->default eq $class) {
             push(@types, $module->meta->get_attribute('type')->default);
         }
     }

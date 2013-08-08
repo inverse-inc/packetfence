@@ -35,6 +35,14 @@ a.active {
 .form-condensed .control-group {
     margin-bottom: 2px;
 }
+/* steal dropdown header from bootstrap 3.0 */
+.dropdown-header {
+    display: block;
+    padding: 3px 20px;
+    font-size: 12px;
+    line-height: 1.428571429;
+    color: #999999;
+}
 /* mixing noneditable fields in forms, inspired from .uneditable-input */
 form .uneditable {
     display: inline-block;
