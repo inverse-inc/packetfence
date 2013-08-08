@@ -22,12 +22,13 @@ New Features
 Enhancements
 ++++++++++++
 
-* 
+* Improved validation of sponsor's email
 
 Bug Fixes
 +++++++++
 
 * Authentication is not limited to internal sources
+* Custom proxy passthroughs are not loaded
 
 Version 4.0.4 released on 2013-08-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
