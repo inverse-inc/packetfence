@@ -89,13 +89,13 @@ sub fetchVlanForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my $vlan = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
+    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (!defined($vlan)) {
         $logger->warn("Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
     }
     $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $vlan");
-    return ( $vlan, 0 );
+    return ( $vlan, 0, $user_role );
 }
 
 =item doWeActOnThisTrap  
@@ -350,7 +350,7 @@ sub getNormalVlan {
         $logger->info("Username was NOT defined or unable to match a role - returning node based role '$role'");
     }
 
-    return $switch->getVlanByName($role);
+    return ($switch->getVlanByName($role), $role);
 }
 
 =item getInlineVlan

@@ -217,7 +217,7 @@ assigning VLANs and Roles at the same time.
 
 =cut
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     my $radius_reply_ref = {};

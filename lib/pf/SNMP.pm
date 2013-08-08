@@ -2707,7 +2707,7 @@ Default implementation.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline) = @_;
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     # Inline Vs. VLAN enforcement
@@ -2725,9 +2725,11 @@ sub returnRadiusAccessAccept {
     try {
         if ($self->supportsRoleBasedEnforcement()) {
             $logger->debug("network device supports roles. Evaluating role to be returned");
-            my $roleResolver = pf::roles::custom->instance();
-            my $role = $roleResolver->getRoleForNode($mac, $self);
-            if (defined($role)) {
+            my $role = "";
+            if ( defined($user_role) && $user_role ne "" ) {
+                $role = $self->getRoleByName($user_role);
+            }
+            if ( defined($role) && $role ne "" ) {
                 $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
                 $logger->info(
                     "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
