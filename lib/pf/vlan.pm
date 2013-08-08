@@ -338,7 +338,7 @@ sub getNormalVlan {
             connection_type => connection_type_to_str($connection_type),
             SSID => $ssid,
         };
-        $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+        $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), $params, $Actions::SET_ROLE);
     }
 
     # If a user based role has been found by matching authentication sources rules, we return it
