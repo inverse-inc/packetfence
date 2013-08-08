@@ -1378,6 +1378,17 @@ gateway=192.168.1.5
 ip=192.168.1.1
 ----
 
+NOTE: If you are running in an high-available setup (with a cluster IP), make sure to add the `vip` parameter to the configured `management` interface so that RADIUS dynamic auth messages can reach the network equipment correctly.
+
+----
+[interface eth0]
+mask=255.255.255.0
+type=management
+gateway=192.168.1.1
+ip=192.168.1.5
+vip=192.168.1.6
+----
+
 networks.conf
 ~~~~~~~~~~~~~
 
