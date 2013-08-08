@@ -85,7 +85,7 @@ if (defined($allow_passthrough_remediation_domains)) {
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 

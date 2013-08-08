@@ -96,7 +96,7 @@ if (defined($allow_passthrough_domains)) {
 
 =head1 AUTHOR
 
-Fabrice Durand <fdurand@inverse.ca>
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
