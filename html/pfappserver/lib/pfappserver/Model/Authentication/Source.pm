@@ -76,13 +76,18 @@ sub update {
 sub delete {
     my ($self, $source_obj) = @_;
 
-    deleteAuthenticationSource($source_obj->id);
-    # Write configuration file to disk
-    eval {
-        writeAuthenticationConfigFile();
-    };
-    if($@) {
-        return ($STATUS::INTERNAL_SERVER_ERROR, $@);
+    my $count = deleteAuthenticationSource($source_obj->id);
+    if ($count > 0) {
+        # Write configuration file to disk
+        eval {
+            writeAuthenticationConfigFile();
+        };
+        if ($@) {
+            return ($STATUS::INTERNAL_SERVER_ERROR, $@);
+        }
+    }
+    else {
+        return ($STATUS::FORBIDDEN, "The source is used by portal profiles.");
     }
 
     return ($STATUS::OK, "The user source was successfully deleted.");
