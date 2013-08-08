@@ -22,7 +22,6 @@ use CGI;
 use pf::config;
 
 BEGIN { use_ok('pf::web') }
-BEGIN { use_ok('pf::web::admin') }
 BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::dispatcher') }
