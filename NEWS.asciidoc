@@ -28,7 +28,7 @@ Bug Fixes
 +++++++++
 
 * Authentication is not limited to internal sources
-* Custom proxy passthroughs are not loaded
+* DynamicTable widget doesn't allow to drag'n'drop under last row
 
 Version 4.0.4 released on 2013-08-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
