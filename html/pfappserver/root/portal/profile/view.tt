@@ -38,7 +38,7 @@
           [% END %]
           <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
             <p>
-                <i class="icon-filter icon-large"></i>[% l('With no source selected, the sources of the default profile will be used.') %]<br/>
+                <i class="icon-group icon-large"></i>[% l('With no source selected, the sources of the default profile will be used.') %]<br/>
                 <a href="#add">[% l('Add a source.') %]</a>
             </p>
           </div>
