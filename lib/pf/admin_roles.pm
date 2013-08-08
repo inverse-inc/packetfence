@@ -16,7 +16,7 @@ use warnings;
 
 use base qw(Exporter);
 use pf::file_paths;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any all);
 use pf::config::cached;
 
 our @EXPORT = qw(admin_can @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
@@ -39,9 +39,9 @@ our @ADMIN_ACTIONS = qw(
 );
 
 sub admin_can {
-    my ($roles,$action) = @_;
-    return 0 if any {$_ eq 'NONE'};
-    return any { exists $ADMIN_ROLES{$_} && exists $ADMIN_ROLES{$_}{$action} } @$roles;
+    my ($roles,@actions) = @_;
+    return 0 if any {$_ eq 'NONE'} @$roles;
+    return any { my $role = $_; exists $ADMIN_ROLES{$role} && all {exists $ADMIN_ROLES{$role}{$_} } @actions } @$roles;
 }
 
 sub reloadConfig {
