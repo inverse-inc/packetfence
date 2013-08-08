@@ -29,6 +29,7 @@ Bug Fixes
 
 * Authentication is not limited to internal sources
 * DynamicTable widget doesn't allow to drag'n'drop under last row
+* Connections on port 443 are not accepted for self-registration (#1679)
 
 Version 4.0.4 released on 2013-08-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
