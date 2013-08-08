@@ -712,7 +712,6 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
-%config                 /usr/local/pf/conf/httpd.conf.d/ocsp-crl.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
