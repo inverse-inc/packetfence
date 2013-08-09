@@ -89,6 +89,7 @@ table.sources {
               [% pf_section_entry( 'provisioning', 'Provisioning') %]
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
+              [% pf_section_entry('adminroles', 'Admin Access') %]
               <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]

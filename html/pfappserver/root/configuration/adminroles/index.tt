@@ -15,9 +15,13 @@
         </div>
       </div>
 
-      <h2>[% l('Admin Roles')  %]</h2>
+      <h2>[% l('Admin Roles') %]</h2>
 
       [% INCLUDE configuration/adminroles/list.tt %]
+
+      <div id="noRole" class="unwell[% ' hidden' IF items.size %]">
+        <i class="icon-unlock icon-large"></i><p>[% l('No role defined') %]</p>
+      </div>
 
       <div class="form-actions">
         <a id="createAdminRoles" class="btn" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('create')) %]">[% l('Add admin role') %]</a>

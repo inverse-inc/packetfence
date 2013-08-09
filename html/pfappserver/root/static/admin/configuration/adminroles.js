@@ -104,24 +104,15 @@ AdminRolesView.prototype.updateAdminRoles = function(e) {
                 form.find('tr.hidden :input').removeAttr('disabled');
             },
             success: function(data) {
-                modal.modal('toggle');
-                showSuccess(that.parent.find('.table.items').first(), data.status_msg);
-                that.list();
+                modal.on('hidden', function() {
+                    $('#noRole:visible').addClass('hidden');
+                    $('#adminroles').replaceWith(data);
+                });
+                modal.modal('hide');
             },
             errorSibling: modal_body.children().first()
         });
     }
-};
-
-AdminRolesView.prototype.list = function() {
-    this.adminroles.get({
-        url: '/configuration/adminroles/list',
-        success: function(data) {
-            var table = $('#adminroles');
-            table.html(data);
-        },
-        errorSibling: $('#adminroles')
-    });
 };
 
 AdminRolesView.prototype.deleteAdminRoles = function(e) {
@@ -133,8 +124,14 @@ AdminRolesView.prototype.deleteAdminRoles = function(e) {
     this.adminroles.get({
         url: url,
         success: function(data) {
-            showSuccess($('#adminroles'), data.status_msg);
-            row.fadeOut('slow', function() { $(this).remove(); });
+            var table = $('#adminroles');
+            showSuccess(table, data.status_msg);
+            row.remove();
+            if (table.find('tbody tr').length == 0) {
+                // No more filters
+                table.addClass('hidden');
+                $('#noRole').removeClass('hidden');
+            }
         },
         errorSibling: $('#adminroles')
     });

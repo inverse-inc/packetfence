@@ -1,4 +1,4 @@
-      <table id="adminroles" class="table items">
+      <table id="adminroles" class="table items[% ' hidden' UNLESS items.size %]">
         <thead>
           <tr>
             <th>[% l('Role Name') %]</th>
