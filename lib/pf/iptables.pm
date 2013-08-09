@@ -296,7 +296,15 @@ sub generate_passthrough_rules {
 
     $logger->info("Adding NAT Masquerade statement.");
     my $mgmt_int = $management_network->tag("int");
-    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int --jump MASQUERADE";
+    my $SNAT_ip;
+    if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+            $SNAT_ip = $management_network->{'Tvip'};
+        } else {
+            $SNAT_ip = $management_network->{'Tip'};
+       }
+    }
+    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip";
 
 }
 
