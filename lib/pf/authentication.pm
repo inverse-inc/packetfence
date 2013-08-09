@@ -483,26 +483,16 @@ sub match {
     $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
 
     if (ref($source_id) eq 'ARRAY') {
-        @sources = map { getAuthenticationSource($_) } @{$source_id};
+        @sources = @{$source_id};
         $source_id = undef;
     }
     else {
-        @sources = @authentication_sources;
+        @sources = first { $_->id eq $source_id  } @authentication_sources;
     }
 
     foreach my $current_source ( @sources ) {
-        if (defined $source_id && $source_id eq $current_source->id) {
-            $actions = $current_source->match($params);
-            last;
-        }
-        elsif (!defined $source_id) {
-            $actions = $current_source->match($params);
-
-            # First match in a source wins, and we stop looping
-            if (defined $actions) {
-                last;
-            }
-        }
+        # First match in a source wins, and we stop looping
+        last if defined( $actions = $current_source->match($params));
     }
 
     if (defined $action && defined $actions) {
