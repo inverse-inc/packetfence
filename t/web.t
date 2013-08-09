@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 24;
+use Test::More tests => 23;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
