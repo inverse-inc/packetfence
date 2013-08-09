@@ -10,7 +10,12 @@
 
   <div class="modal-body">
         [% form.field('id').render UNLESS item && item.id.defined %]
-        [% form.block('definition').render %]
+        [% form.field('description').render %]
+        <div class="control-group">
+          <label class="control-label" for="actions">[% l('Actions') %]</label>
+          <div class="controls">
+            [% form.field('actions').render %]
+        </div>
   </div><!--modal-body-->
 
   <div class="modal-footer">

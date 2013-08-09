@@ -2,11 +2,11 @@ package pfappserver::Form::Config::AdminRoles;
 
 =head1 NAME
 
-pfappserver::Form::Config::AdminRoles - Web form for a floating device
+pfappserver::Form::Config::AdminRoles - Web form for an admin role
 
 =head1 DESCRIPTION
 
-Form definition to create or update a floating network device.
+Form definition to create or update an admin role
 
 =cut
 
@@ -34,18 +34,14 @@ has_field 'actions' =>
   (
    type => 'DynamicTable',
    label => 'Actions',
+   do_label => 0,
    'num_when_empty' => 2,
   );
 has_field 'actions.contains' =>
   (
    type => 'Select',
-   label => 'Actions',
    options_method => \&options_actions,
    widget_wrapper => 'DynamicTableRow',
-  );
-has_block definition =>
-  (
-   render_list => [ qw(description actions)]
   );
 sub build_do_form_wrapper{ 0 }
 
