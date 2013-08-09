@@ -14,8 +14,6 @@ use Apache2::RequestRec ();
 use Apache2::Response ();
 use Apache2::RequestUtil ();
 use Apache2::ServerRec;
-#Use to detect if it´s a http or https connection
-use Apache::SSLLookup;
 
 use APR::Table;
 use APR::URI;

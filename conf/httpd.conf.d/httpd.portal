@@ -107,6 +107,7 @@ TypesConfig /etc/mime.types
 use pf::config qw();
 use Tie::DxHash;
 use pf::services::apache;
+use Apache::SSLLookup;
 
 sub gen_conf {
     my %conf;
