@@ -292,6 +292,7 @@ Readonly::Scalar our $NO_PORT => 0;
 Readonly::Scalar our $NO_VLAN => 0;
 
 # Guest related
+# The values matches the external authentication sources types
 Readonly our $SELFREG_MODE_EMAIL => 'email';
 Readonly our $SELFREG_MODE_SMS => 'sms';
 Readonly our $SELFREG_MODE_SPONSOR => 'sponsoremail';
@@ -559,16 +560,29 @@ sub readPfConfigFiles {
                         }
                     }
                 }
-                $Config{trapping}{passthroughs} = [
-                    split(/\s*,\s*/,$Config{trapping}{passthroughs} || ''),
-                    qw(
-                        crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
-                        crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
-                        crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
-                        ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
-                        ocsp.verisign.com
-                    )
-                ];
+                $Config{trapping}{passthroughs} = [split(/\s*,\s*/,$Config{trapping}{passthroughs} || '') ];
+                if (isenabled($Config{'trapping'}{'passthrough'})) {
+                    $Config{trapping}{proxy_passthroughs} = [
+                        split(/\s*,\s*/,$Config{trapping}{proxy_passthroughs} || ''),
+                        qw(
+                            crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
+                            crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
+                            crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
+                            ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
+                            ocsp.verisign.com ctldl.windowsupdate.com
+                        )
+                    ];
+                } else {
+                    $Config{trapping}{proxy_passthroughs} = [
+                        qw(
+                            crl.geotrust.com ocsp.geotrust.com crl.thawte.com ocsp.thawte.com
+                            crl.comodoca.com ocsp.comodoca.com crl.incommon.org ocsp.incommon.org
+                            crl.usertrust.com ocsp.usertrust.com mscrl.microsoft.com crl.microsoft.com
+                            ocsp.apple.com ocsp.digicert.com ocsp.entrust.com srvintl-crl.verisign.com
+                            ocsp.verisign.com ctldl.windowsupdate.com
+                        )
+                    ];
+                }
 
                 _load_captive_portal();
             }]
@@ -591,15 +605,10 @@ sub readProfileConfigFile {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
-                # check for portal profile guest self registration options in case they're disabled in default profile
-                $guest_self_registration{'enabled'} = $FALSE;
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
                     $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;
-                    }
-                    if ( isenabled($profile->{'guest_self_reg'}) ) {
-                        $guest_self_registration{'enabled'} = $TRUE;
                     }
                     $profile->{'sources'} = [split(/\s*,\s*/, $profile->{'sources'} || "")];
                 }

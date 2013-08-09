@@ -157,6 +157,11 @@ passthrough=disabled
 # Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to web sites.
 #
 passthroughs=
+#
+# trapping.proxy_passthroughs
+#
+# Comma-delimited list of domains to be use for apache passthrough
+proxy_passthroughs=
 
 [registration]
 #

@@ -118,6 +118,7 @@ Requires: perl(IPTables::ChainMgr)
 Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
 requires: perl(Proc::ProcessTable)
+requires: perl(Apache::SSLLookup)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
@@ -711,7 +712,6 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
-%config                 /usr/local/pf/conf/httpd.conf.d/ocsp-crl.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
@@ -846,6 +846,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Fri Aug 9 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.5-1
+- New release 4.0.5
+
 * Mon Aug 5 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.4-1
 - New release 4.0.4
 

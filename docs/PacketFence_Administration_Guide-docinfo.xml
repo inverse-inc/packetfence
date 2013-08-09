@@ -5,6 +5,11 @@
 
 <revhistory>
   <revision>
+    <revnumber>3.2</revnumber>
+    <date>2013-08-09</date>
+    <revremark>Adding documentation for passthroughs</revremark>
+  </revision>
+  <revision>
     <revnumber>3.1</revnumber>
     <date>2013-07-12</date>
     <revremark>Removed references to bind (replaced by pfdns).</revremark>

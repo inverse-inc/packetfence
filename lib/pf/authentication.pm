@@ -64,6 +64,7 @@ BEGIN {
             availableAuthenticationSourceTypes
             newAuthenticationSource
             getAuthenticationSource
+            getAllAuthenticationSources
             deleteAuthenticationSource
             writeAuthenticationConfigFile
        );
@@ -111,8 +112,8 @@ sub availableAuthenticationSourceTypes {
 
     my @types;
     foreach my $module (values %TYPE_TO_SOURCE) {
-        if (!defined $class && $module->meta->get_attribute('type')->default ne 'SQL' ||
-            defined $class && $module->meta->find_attribute_by_name('class')->default eq $class) {
+        next if ($module->meta->get_attribute('type')->default eq 'SQL');
+        if (!defined $class || $module->meta->find_attribute_by_name('class')->default eq $class) {
             push(@types, $module->meta->get_attribute('type')->default);
         }
     }
@@ -316,21 +317,33 @@ sub writeAuthenticationConfigFile {
 
 =item getAuthenticationSource
 
-Returns an instance of pf::Authentication::Source::* for the given id
+Return an instance of pf::Authentication::Source::* for the given id
 
 =cut
 
 sub getAuthenticationSource {
     my $id = shift;
-
-    my $result;
     if (defined $id) {
-        $result = first {$_->{'id'} eq $id} @authentication_sources;
-    } else {
-        $result = \@authentication_sources;
+        return first {$_->{'id'} eq $id} @authentication_sources;
     }
+}
 
-    return $result;
+=item getAllAuthenticationSources
+
+Return instances of pf::Authentication::Source for all defined sources
+
+=cut
+
+sub getAllAuthenticationSources { return \@authentication_sources }
+
+=item getInternalAuthenticationSources
+
+Return instances of pf::Authentication::Source for internal sources
+
+=cut
+
+sub getInternalAuthenticationSources {
+    return grep { $_->{'class'} eq 'internal' } @authentication_sources;
 }
 
 =item deleteAuthenticationSource
@@ -397,21 +410,18 @@ sub username_from_email {
 
     foreach my $source ( @authentication_sources ) {
 
-        my $classname = $source->meta->name;
-
-        if ($classname eq 'pf::Authentication::Source::ADSource' ||
-            $classname eq 'pf::Authentication::Source::LDAPSource' ||
-            $classname eq 'pf::Authentication::Source::SQLSource' ) {
+        if ($source->isa('pf::Authentication::Source::LDAPSource') ||
+            $source->isa('pf::Authentication::Source::SQLSource' )) {
 
             my $username = $source->username_from_email($email);
 
             if (defined $username) {
-                return $username;
+                return ($username,$source->id);
             }
         }
     }
 
-    return undef;
+    return ;
 }
 
 =item authenticate
@@ -419,8 +429,9 @@ sub username_from_email {
 =cut
 
 sub authenticate {
-    my ( $username, $password, @source_ids ) = @_;
+    my ($username, $password, @source_ids) = @_;
     my @sources;
+
     if (@source_ids) {
         my %inlist = map { $_ => undef } @source_ids;
         @sources = grep { exists $inlist{$_->id} } @authentication_sources;

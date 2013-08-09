@@ -207,7 +207,7 @@ Disabled by default.
 =cut
 
 sub returnRadiusAccessAccept {
-    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid) = @_;
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
 
     # VLAN enforcement

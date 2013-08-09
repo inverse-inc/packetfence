@@ -13,7 +13,7 @@ use warnings;
 use diagnostics;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 24;
+use Test::More tests => 23;
 use Test::MockObject::Extends;
 use Test::NoWarnings;
 
@@ -22,7 +22,6 @@ use CGI;
 use pf::config;
 
 BEGIN { use_ok('pf::web') }
-BEGIN { use_ok('pf::web::admin') }
 BEGIN { use_ok('pf::web::constants') }
 BEGIN { use_ok('pf::web::custom') }
 BEGIN { use_ok('pf::web::dispatcher') }

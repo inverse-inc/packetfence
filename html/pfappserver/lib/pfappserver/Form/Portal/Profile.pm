@@ -15,6 +15,7 @@ use pf::authentication;
 use HTML::FormHandler::Moose;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
+with 'pfappserver::Form::Portal::Common';
 
 use pf::config;
 use List::MoreUtils qw(uniq);
@@ -75,38 +76,7 @@ has_field 'sources.contains' =>
 
 =head1 METHODS
 
-=head2 options_sources
 
-=cut
-
-sub options_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAuthenticationSource()};
-}
-
-
-=head2 validate
-
-Remove duplicates and make sure only one external authentication source is selected for each type.
-
-=cut
-
-sub validate {
-    my $self = shift;
-
-    my @all = uniq @{$self->value->{'sources'}};
-    $self->field('sources')->value(\@all);
-    my %external;
-    foreach my $source_id (@all) {
-        my $source = &pf::authentication::getAuthenticationSource($source_id);
-        next unless $source && $source->class eq 'external';
-        $external{$source->{'type'}} = 0 unless (defined $external{$source->{'type'}});
-        $external{$source->{'type'}}++;
-        if ($external{$source->{'type'}} > 1) {
-            $self->field('sources')->add_error('Only one authentication source of each external type can be selected.');
-            last;
-        }
-    }
-}
 
 =head1 COPYRIGHT
 

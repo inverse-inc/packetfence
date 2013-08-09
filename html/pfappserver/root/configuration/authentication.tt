@@ -18,6 +18,7 @@
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
 <p>[% l('Define the authentication sources to let users access the captive portal or the admin Web interface.') %]</p>
+<p>[% l('Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
   <button class="close" data-dismiss="alert">&times;</button>
@@ -27,9 +28,11 @@
 [% IF form.field('sources').num_fields -%]
 
   <h4>[% l('Internal Sources') %]</h4>
-    <table class="table sources">
+  <form name="authentication" class="form-horizontal" method="post" action="[% c.uri_for(c.controller('Authentication').action_for('update')) %]">
+    <table class="table sources table-sortable admin_ordered">
       <thead>
         <tr>
+          <th class="hidden-phone" width="20px"></th>
           <th>[% l('Name') %]</th>
           <th class="hidden-phone">[% l('Description') %]</th>
           <th>[% l('Type') %]</th>
@@ -41,6 +44,7 @@
         [% IF source.field('class').value == 'internal' %]
         [% is_sql = (source.field('type').value == 'SQL') %]
         <tr>
+          <td class="hidden-phone sort-handle">[% i = i + 1 ; i %]</td>
           <td>[% source.field('id').render_element %][% IF is_sql %][% source.field('id').value %][% ELSE %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a>[% END %]</td>
           <td class="hidden-phone">[% source.field('description').value %]</td>
           <td>[% l(source.field('type').value) %]</td>
@@ -48,13 +52,16 @@
         </tr>
         [% END -%]
         [% END -%]
+        <tr><td colspan="3"></td><td class="hidden-phone" colspan="2"></td></tr>
       </tbody>
     </table>
+  </form>
 
   <h4>[% l('External Sources') %]</h4>
   <table class="table sources">
     <thead>
       <tr>
+        <th class="hidden-phone" width="20px"></th>
         <th>[% l('Name') %]</th>
         <th class="hidden-phone">[% l('Description') %]</th>
         <th>[% l('Type') %]</th>
@@ -65,6 +72,7 @@
       [% FOREACH source IN form.field('sources').fields %]
       [% IF source.field('class').value == 'external' %]
       <tr>
+          <td class="hidden-phone"></td>
         <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
         <td class="hidden-phone">[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
@@ -85,7 +93,13 @@
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
-      [% FOREACH type IN types.sort -%]
+      <li class="dropdown-header">[% l('Internal') %]</li>
+      [% FOREACH type IN internal_types.sort -%]
+      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+      [% END -%]
+      <li class="divider"></li>
+      <li class="dropdown-header">[% l('External') %]</li>
+      [% FOREACH type IN external_types.sort -%]
       <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
       [% END -%]
     </ul>

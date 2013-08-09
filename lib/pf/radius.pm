@@ -115,7 +115,7 @@ sub authorize {
 
     # switch-specific information retrieval
     my $ssid;
-    $port = $switch->getIfIndexiByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
     if (($connection_type & $WIRELESS) == $WIRELESS) {
         $ssid = $switch->extractSsid($radius_request);
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
@@ -154,7 +154,7 @@ sub authorize {
     }
 
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -191,7 +191,7 @@ sub authorize {
         $switch->_setVlan( $port, $vlan, undef, {} );
     }
 
-    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline);
+    my $RAD_REPLY_REF = $switch->returnRadiusAccessAccept($vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role);
 
     if ($this->_shouldRewriteAccessAccept($RAD_REPLY_REF, $vlan, $mac, $port, $connection_type, $user_name, $ssid)) {
         $RAD_REPLY_REF = $this->_rewriteAccessAccept(

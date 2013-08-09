@@ -33,22 +33,13 @@ Create a new pf::Portal::Profile instance based on parameters given.
 
 =cut
 
-# XXX incomplete
 sub instantiate {
-    my ( $self, $mac, $profile_type ) = @_;
+    my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-#    $logger->debug("creating new portal profile of type $profile_type");
-    # XXX handles only default profile for now
-    # XXX add complex configuration loading and returning here, then add
-    #     getters in ::Profile. Configuration should stay in pf::config
-    #     and we only consume it especially since we will support config
-    #     reload in there in the future
-    # XXX also take the given mac and lookup the SSID on it and return proper
-    #     portal object
-    # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
-    # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
-    my $node_info = node_view($mac);
+    # We apply portal profiles based on the SSID and VLAN, we check the last_ssid for the given MAC and try to match
+    # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile.
+    my $node_info = $options || node_view($mac);
     my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)), @{$node_info}{'last_ssid','last_vlan'});
     my $filtered_profile =
         first {exists $Profiles_Config{$_}}

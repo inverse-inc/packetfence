@@ -126,10 +126,9 @@ sub iptables_generate {
     # per-feature firewall rules
     # self-registered guest by email or sponsored or gaming registration
     my $gaming_enabled = isenabled($Config{'registration'}{'gaming_devices_registration'});
-    my $guests_enabled = $guest_self_registration{'enabled'};
     my $email_enabled = $guest_self_registration{$SELFREG_MODE_EMAIL};
     my $sponsor_enabled = $guest_self_registration{$SELFREG_MODE_SPONSOR};
-    if ( ($guests_enabled && ($email_enabled || $sponsor_enabled) ) || $gaming_enabled ) {
+    if ( $email_enabled || $sponsor_enabled || $gaming_enabled ) {
         $tags{'input_mgmt_guest_rules'} =
             "-A $FW_FILTER_INPUT_MGMT --protocol tcp --match tcp --dport 443 --jump ACCEPT"
         ;
@@ -261,6 +260,12 @@ sub generate_inline_rules {
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
     my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
+    # Allow remote conformity scan server to reach unregistered devices in inline mode
+    if ( defined($Config{'scan'}{'host'}) && $Config{'scan'}{'host'} ne "127.0.0.1" ) {
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --source $Config{'scan'}{'host'} --jump ACCEPT\n";
+        $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --destination $Config{'scan'}{'host'} --jump ACCEPT\n";
+    }
+
     if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
         $$filter_rules_ref .= "-A $FW_FILTER_FORWARD_INT_INLINE --match mark --mark 0x$IPTABLES_MARK_UNREG -m set --match-set pfsession_passthrough dst,dst --jump ACCEPT\n";
     }
@@ -297,7 +302,15 @@ sub generate_passthrough_rules {
 
     $logger->info("Adding NAT Masquerade statement.");
     my $mgmt_int = $management_network->tag("int");
-    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int --jump MASQUERADE";
+    my $SNAT_ip;
+    if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
+        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
+            $SNAT_ip = $management_network->{'Tvip'};
+        } else {
+            $SNAT_ip = $management_network->{'Tip'};
+       }
+    }
+    $$nat_rules_ref .= "-A POSTROUTING -o $mgmt_int -j SNAT --to $SNAT_ip";
 
 }
 

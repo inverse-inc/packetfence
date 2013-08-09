@@ -37,16 +37,18 @@ Show list of authentication sources. Allow user to order the list.
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
 
-    my ($sources, $types, $form);
+    my ($sources, $internal_types, $external_types, $form);
 
     (undef, $sources) = $c->model('Config::Authentication')->readAll();
-    $types = availableAuthenticationSourceTypes();
+    $internal_types = availableAuthenticationSourceTypes('internal');
+    $external_types = availableAuthenticationSourceTypes('external');
     $form = pfappserver::Form::Authentication->new(ctx => $c,
                                                    init_object => {sources => $sources});
     $form->process();
 
     $c->stash(
-        types => $types,
+        internal_types => $internal_types,
+        external_types => $external_types,
         form => $form,
         template => 'configuration/authentication.tt'
     );
