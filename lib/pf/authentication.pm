@@ -95,8 +95,6 @@ our %TYPE_TO_SOURCE = (
 our $logger = get_logger();
 
 
-$cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
-
 readAuthenticationConfigFile();
 
 =item availableAuthenticationSourceTypes
@@ -206,12 +204,14 @@ sub readAuthenticationConfigFile {
                     }
                     push(@authentication_sources, $current_source);
                 }
-                update_profiles_guest_modes();
+                update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
             }]
         );
+        $cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
+
     } else {
         $cached_authentication_config->ReadConfig();
-        update_profiles_guest_modes();
+        update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
     }
 }
 
