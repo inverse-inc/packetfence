@@ -1128,6 +1128,27 @@ There are other log files in `/usr/local/pf/logs/` that could be relevant depend
 
 The logging system's configuration file is `/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it.
 
+Passthrough
+~~~~~~~~~~~
+
+In order to use the passthrough feature in PacketFence, you need to enable it from the GUI in
+Configuration -> Trapping and check Passthrough.
+
+There are two solutions for passthrough -  one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
+
+*DNS passthrough:
+Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section,
+then when PacketFence will receive a DNS request for this domain, it will answer the real IP address
+and punch a hole in the firewall (using iptables) to allow access. Be careful with this method, PacketFence must be the
+default gateway of your device.
+
+*mod_proxy passthrough:
+Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section,
+PacketFence will answer for this FQDN the IP address of the captive portal and when a device hits
+the captive portal, PacketFence will detect that this FQDN  has a passthrough configuration and will forward the traffic to mod_proxy.
+
+These two methods can be used together but DNS-based passthroughs have higher priority. 
+
 Configuration by example
 ------------------------
 

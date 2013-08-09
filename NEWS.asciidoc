@@ -17,7 +17,7 @@ Version 4.0.5 released on 2013-MM-DD
 New Features
 ++++++++++++
 
-* 
+* Passthrough with Apache's mod_proxy module
 
 Enhancements
 ++++++++++++
@@ -34,6 +34,7 @@ Bug Fixes
 * Authentication is not limited to internal sources
 * DynamicTable widget doesn't allow to drag'n'drop under last row
 * Connections on port 443 are not accepted for self-registration (#1679)
+* Use virtual ip when available for SNAT
 
 Version 4.0.4 released on 2013-08-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
