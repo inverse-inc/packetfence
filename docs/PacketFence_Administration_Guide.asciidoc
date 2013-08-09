@@ -1132,10 +1132,10 @@ Passthrough
 ~~~~~~~~~~~
 
 In order to use the passthrough feature in PacketFence, you need to enable it from the GUI in
-Configuration -> Trapping and check Passthrough.
+*Configuration -> Trapping* and check *Passthrough*.
 
 There are two solutions for passthrough -  one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
-When enabled, PacketFence will use pfdns if you set Passthroughs or Apache mod-proxy if you set Proxy Passthroughs to allow trapped devices to reach web sites.
+When enabled, PacketFence will use pfdns if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach web sites.
 
 *DNS passthrough:
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section,

@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.0.5 released on 2013-MM-DD
+Version 4.0.5 released on 2013-08-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -32,12 +32,12 @@ Enhancements
 Bug Fixes
 +++++++++
 
-* Authentication is not limited to internal sources
-* DynamicTable widget doesn't allow to drag'n'drop under last row
-* Connections on port 443 are not accepted for self-registration (#1679)
+* Authentication is now limited to internal sources
+* DynamicTable widget now allows to drag'n'drop under last row
+* Connections on port 443 are now accepted for self-registration (#1679)
 * Use virtual ip when available for SNAT
 * Remote conformity scan engines (Nessus/OpenVAS) can now scan devices in unregistrated state on inline networks
-* Returned configured per switch role (if configured) for "Role mapping by switch role" rather than sending the user role.
+* Returned per-switch role (if configured) for "Role mapping by switch role" rather than sending the user role
 
 Version 4.0.4 released on 2013-08-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
