@@ -115,7 +115,7 @@ sub authorize {
 
     # switch-specific information retrieval
     my $ssid;
-    $port = $switch->getIfIndexiByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
+    $port = $switch->getIfIndexByNasPortId($nas_port_id) || $this->_translateNasPortToIfIndex($connection_type, $switch, $port);
     if (($connection_type & $WIRELESS) == $WIRELESS) {
         $ssid = $switch->extractSsid($radius_request);
         $logger->debug("SSID resolved to: $ssid") if (defined($ssid));
