@@ -38,7 +38,7 @@ sub supported_features {
 sub check_password {
   my ( $self, $password ) = @_;
 
-  my @internal_sources_id = map { $_->{'id'} } pf::authentication::getInternalAuthenticationSources();
+  my @internal_sources_id = map { $_->{'id'} } @{pf::authentication::getInternalAuthenticationSources()};
   my ($result, $message, $source_id) = &pf::authentication::authenticate($self->_user, $password, @internal_sources_id);
 
   if ($result) {

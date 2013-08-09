@@ -343,7 +343,8 @@ Return instances of pf::Authentication::Source for internal sources
 =cut
 
 sub getInternalAuthenticationSources {
-    return grep { $_->{'class'} eq 'internal' } @authentication_sources;
+    my @internal = grep { $_->{'class'} eq 'internal' } @authentication_sources;
+    return \@internal;
 }
 
 =item deleteAuthenticationSource
@@ -477,11 +478,19 @@ If action is set, it'll return the value of the action immediately.
 
 sub match {
     my ($source_id, $params, $action) = @_;
-    my $actions;
+    my ($actions, @sources);
 
     $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
 
-    foreach my $current_source ( @authentication_sources ) {
+    if (ref($source_id) eq 'ARRAY') {
+        @sources = map { getAuthenticationSource($_) } @{$source_id};
+        $source_id = undef;
+    }
+    else {
+        @sources = @authentication_sources;
+    }
+
+    foreach my $current_source ( @sources ) {
         if (defined $source_id && $source_id eq $current_source->id) {
             $actions = $current_source->match($params);
             last;
