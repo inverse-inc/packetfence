@@ -1134,21 +1134,16 @@ Passthrough
 In order to use the passthrough feature in PacketFence, you need to enable it from the GUI in
 *Configuration -> Trapping* and check *Passthrough*.
 
-There are two solutions for passthrough -  one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
+There are two solutions for passthroughs - one using DNS resolution and iptables and the other one using Apache's mod_proxy module.
 When enabled, PacketFence will use pfdns if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach web sites.
 
 *DNS passthrough:
-Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section,
-then when PacketFence will receive a DNS request for this domain, it will answer the real IP address
-and punch a hole in the firewall (using iptables) to allow access. Be careful with this method, PacketFence must be the
-default gateway of your device.
+Add a new FQDN (should be a wildcard domain like *.google.com) in the *Passthroughs* section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
 
 *mod_proxy passthrough:
-Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section,
-PacketFence will answer for this FQDN the IP address of the captive portal and when a device hits
-the captive portal, PacketFence will detect that this FQDN  has a passthrough configuration and will forward the traffic to mod_proxy.
+Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
 
-These two methods can be used together but DNS-based passthroughs have higher priority. 
+These two methods can be used together but DNS-based passthroughs have higher priority.
 
 Configuration by example
 ------------------------
