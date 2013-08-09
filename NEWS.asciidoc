@@ -27,6 +27,7 @@ Enhancements
 * Fetching VLAN for dot1x connections is now limited to internal authentication sources
 * Splitted internal and external classes in dropdown menu of authentication types
 * Show error message when trying to delete a source used by the portal profiles
+* Documentation of the vip parameter for management interface
 
 Bug Fixes
 +++++++++
@@ -35,6 +36,8 @@ Bug Fixes
 * DynamicTable widget doesn't allow to drag'n'drop under last row
 * Connections on port 443 are not accepted for self-registration (#1679)
 * Use virtual ip when available for SNAT
+* Remote conformity scan engines (Nessus/OpenVAS) can now scan devices in unregistrated state on inline networks
+* Returned configured per switch role (if configured) for "Role mapping by switch role" rather than sending the user role.
 
 Version 4.0.4 released on 2013-08-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
