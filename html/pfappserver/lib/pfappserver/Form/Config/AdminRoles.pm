@@ -45,7 +45,7 @@ has_field 'actions.contains' =>
   );
 has_block definition =>
   (
-   render_list => [ qw( description actions)]
+   render_list => [ qw(description actions)]
   );
 sub build_do_form_wrapper{ 0 }
 

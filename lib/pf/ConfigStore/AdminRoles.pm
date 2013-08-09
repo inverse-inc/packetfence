@@ -25,24 +25,24 @@ sub _buildCachedConfig { $cached_adminroles_config }
 
 =head2 cleanupAfterRead
 
-Clean up switch data
+Expand list of actions
 
 =cut
 
 sub cleanupAfterRead {
     my ($self, $id, $item) = @_;
-    $self->expand_list($item,$self->expandableParams);
+    $self->expand_list($item, $self->expandableParams);
 }
 
 =head2 cleanupBeforeCommit
 
-Clean data before update or creating
+Flatten list of actions before updating or creating
 
 =cut
 
 sub cleanupBeforeCommit {
     my ($self, $id, $item) = @_;
-    $self->flatten_list($item,$self->expandableParams);
+    $self->flatten_list($item, $self->expandableParams);
 }
 
 

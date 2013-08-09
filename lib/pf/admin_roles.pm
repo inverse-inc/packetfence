@@ -1,4 +1,5 @@
 package pf::admin_roles;
+
 =head1 NAME
 
 pf::admin_roles add documentation
@@ -39,25 +40,30 @@ our @ADMIN_ACTIONS = qw(
 );
 
 sub admin_can {
-    my ($roles,@actions) = @_;
+    my ($roles, @actions) = @_;
+
     return 0 if any {$_ eq 'NONE'} @$roles;
-    return any { my $role = $_; exists $ADMIN_ROLES{$role} && all {exists $ADMIN_ROLES{$role}{$_} } @actions } @$roles;
+    return any {
+        my $role = $_;
+        exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{$_} } @actions
+    } @$roles;
 }
 
 sub reloadConfig {
     my ($config,$name) = @_;
+
     my %temp;
     $config->toHash(\%temp);
     $config->cleanupWhitespace(\%temp);
     %ADMIN_ROLES = ();
-    while(my ($role,$data) = each %temp) {
+    while (my ($role,$data) = each %temp) {
         my $actions = $data->{actions} || '';
-        my %action_data = map {$_ => undef} split /\s*,\s*/,$actions;
+        my %action_data = map {$_ => undef} split /\s*,\s*/, $actions;
         $ADMIN_ROLES{$role} = \%action_data;
     }
     $ADMIN_ROLES{NONE} = {};
     $ADMIN_ROLES{ALL} = { map {$_ => undef} @ADMIN_ACTIONS };
-    $config->cache->set("ADMIN_ROLES",\%ADMIN_ROLES);
+    $config->cache->set("ADMIN_ROLES", \%ADMIN_ROLES);
 }
 
 our $cached_adminroles_config = pf::config::cached->new(
@@ -70,7 +76,7 @@ our $cached_adminroles_config = pf::config::cached->new(
         cache_reload_violation_config => sub {
             my ($config,$name) = @_;
             my $data = $config->cache->get("ADMIN_ROLES");
-            if($data) {
+            if ($data) {
                 %ADMIN_ROLES = %$data;
             } else {
                 reloadConfig($config,$name);

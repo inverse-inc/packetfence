@@ -6,7 +6,7 @@ pfappserver::Controller::Configuration::AdminRoles - Catalyst Controller
 
 =head1 DESCRIPTION
 
-Controller for floating device management.
+Controller for admin roles management.
 
 =cut
 
@@ -23,15 +23,18 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
-__PACKAGE__->config(
-    action => {
-#Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configuration/adminroles', CaptureArgs => 1 }
-    },
-    action_args => {
-#Setting the global model and form for all actions
-        '*' => { model => "Config::AdminRoles",form => "Config::AdminRoles" },
-    },
+__PACKAGE__->config
+  (
+   action =>
+   {
+    # Reconfigure the object action from pfappserver::Base::Controller::Crud
+    object => { Chained => '/', PathPart => 'configuration/adminroles', CaptureArgs => 1 }
+   },
+   action_args =>
+   {
+    # Setting the global model and form for all actions
+    '*' => { model => "Config::AdminRoles", form => "Config::AdminRoles" },
+   },
 );
 
 =head1 METHODS
