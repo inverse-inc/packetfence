@@ -2859,7 +2859,7 @@ return IfIndexByNasPortId
 
 =cut
 
-sub getIfIndexiByNasPortId {
+sub getIfIndexByNasPortId {
     my ($this ) = @_;
     return $FALSE;
 }
