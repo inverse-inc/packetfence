@@ -51,8 +51,17 @@ Check which floating device is also defined as a switch
 
 after [qw(create clone)] => sub {
     my ($self, $c) = @_;
-    if (!(is_success($c->response->status) && $c->request->method eq 'POST' )) {
+    if (!(is_success($c->response->status) && $c->request->method eq 'POST')) {
         $c->stash->{template} = 'configuration/adminroles/view.tt';
+    }
+};
+
+after [qw(create clone update)] => sub {
+    my ($self, $c) = @_;
+    if (is_success($c->response->status) && $c->request->method eq 'POST') {
+        $c->stash->{current_view} = 'HTML';
+        $c->stash->{template} = 'configuration/adminroles/list.tt';
+        $c->forward('list');
     }
 };
 
