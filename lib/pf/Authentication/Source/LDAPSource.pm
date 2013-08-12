@@ -96,8 +96,11 @@ sub authenticate {
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
-  if ($result->count != 1) {
-    $logger->warn("Unexpected number of entries found (".$result->count.") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+  if ($result->count == 0) {
+    $logger->warn("No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    return ($FALSE, 'Invalid login or password');
+  } elsif ($result->count >= 1) {
+    $logger->warn("Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -106,6 +109,7 @@ sub authenticate {
   $result = $connection->bind($user->dn, password => $password);
 
   if ($result->is_error) {
+    $logger->warn("User cannot " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
   }
 
