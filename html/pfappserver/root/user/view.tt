@@ -16,8 +16,8 @@
             <li><a href="#userPassword" data-toggle="tab">[% l('Password') %]</a></li>
             <li><a href="#userActions" data-toggle="tab">[% l('Actions') %]</a></li>
             [% END -%]
-            <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
-            <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            [% IF can_access("NODES_READ") %]<li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>[% END %]
+            [% IF can_access("VIOLATIONS_READ") %]<li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>[% END %]
           </ul>
 
           <div class="tab-content">

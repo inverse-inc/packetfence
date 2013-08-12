@@ -69,6 +69,7 @@ table.sources {
         <div class="span2">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
+              [%- IF can_access("CONFIGURATION_MAIN_READ") %]
               <li class="nav-header">[% l('Main') %]</li>
               [% pf_section_entry('general', 'General') %]
               [% pf_section_entry( 'network', 'Network') %]
@@ -90,20 +91,35 @@ table.sources {
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
               [% pf_section_entry('adminroles', 'Admin Access') %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_NETWORK_READ") %]
               <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
+              [%- END %]
+              [%- IF can_access("USERS_ROLES_READ") || can_access("USERS_SOURCES_READ") %]
               <li class="nav-header">[% l('Users') %]</li>
+              [%- IF can_access("USERS_ROLES_READ") %]
               [% pf_section_entry( 'roles', 'Roles') %]
+              [%- END %]
+              [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry('Authentication', 'index', 'Sources') %]
+              [%- IF can_access("VIOLATIONS_READ") || can_access("SOH_READ") %]
               <li class="nav-header">[% l('Compliance') %]</li>
+              [%- IF can_access("VIOLATIONS_READ") %]
               [% list_entry('Violation', 'index', 'Violations') %]
+              [%- END %]
+              [%- IF can_access("SOH_READ") %]
               [% pf_section_entry( 'soh', 'Statement of Health') %]
+              [%- END %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_IDENTIFICATION_READ") %]
               <li class="nav-header">[% l('Identification') %]</li>
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
               [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
               [% list_entry('Configuration::MacAddress', 'index', 'MAC Addresses') %]
+              [%- END %]
             </ul>
           </div><!--/.well -->
         </div><!--/span-->

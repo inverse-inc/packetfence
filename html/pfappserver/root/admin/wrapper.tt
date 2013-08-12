@@ -51,26 +51,45 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href="#"><img src="[% c.uri_for('/static/app/packetfence.white.png') %]"/></a>
-          [% IF c.user_exists -%]
+          [%- IF c.user_exists %]
           <div class="nav-collapse">
             <ul class="nav">
               <li[% ' class="active"' IF c.action.name == 'status' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('status')) %]">[% l('Status') %]</a>
               </li>
+              [%- IF can_access("REPORTS") %]
               <li[% ' class="active"' IF c.action.name == 'reports' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('reports')) %]">[% l('Reports') %]</a>
               </li>
+              [%- END %]
+              [%- IF can_access("NODES_READ") %]
               <li[% ' class="active"' IF c.action.name == 'nodes' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('nodes')) %]">[% l('Nodes') %]</a>
               </li>
-              [% IF can_access("USERS_VIEW") %]
+              [%- END %]
+              [%- IF can_access("USERS_READ") %]
               <li[% ' class="active"' IF c.action.name == 'users' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('users')) %]">[% l('Users') %]</a>
               </li>
-              [% END %]
+              [%- END %]
+              [%- IF can_access("CONFIGURATION_MAIN_READ") ||
+                     can_access("CONFIGURATION_NETWORK_READ") ||
+                     can_access("USERS_READ") ||
+                     can_access("USERS_ROLES_READ") ||
+                     can_access("USERS_SOURCES_READ") ||
+                     can_access("VIOLATIONS_READ") ||
+                     can_access("VIOLATIONS_CREATE") ||
+                     can_access("VIOLATIONS_UPDATE") ||
+                     can_access("VIOLATIONS_DELETE") ||
+                     can_access("VIOLATIONS_READ") ||
+                     can_access("SOH_READ") ||
+                     can_access("FINGERPRINTS_READ") ||
+                     can_access("USERAGENTS_READ") ||
+                     can_access("MAC_READ") %]
               <li[% ' class="active"' IF c.action.name == 'configuration' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]">[% l('Configuration') %]</a>
               </li>
+              [%- END %]
             </ul>
             <ul class="nav pull-right">
               <li class="dropdown">

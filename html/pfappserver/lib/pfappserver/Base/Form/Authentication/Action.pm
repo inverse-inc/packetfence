@@ -91,7 +91,7 @@ sub field_list {
                            wrapper => 0,
                            multiple => 1,
                            element_class => ['chzn-select'],
-                           element_attr => {'data-placeholder' => 'Click to add a role' },
+                           element_attr => {'data-placeholder' => 'Click to add a access right' },
                            options_method => \&options_access_level,
                           }
                          );
