@@ -563,9 +563,8 @@ sub validate_form {
 
 =item web_user_authenticate
 
-    return (1, pf::web::auth subclass) for successfull authentication
-    return (0, undef) for inability to check credentials
-    return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
+    return (1, message string, source id string) for successfull authentication
+    return (0, message string, undef) otherwise
 
 =cut
 
@@ -577,15 +576,15 @@ sub web_user_authenticate {
     my $session = $portalSession->getSession();
 
     # validate login and password
-    my ($return, $message, $source) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
-                                                                        $portalSession->cgi->param("password"),
-                                                                        @{$portalSession->getProfile->getInternalSources});
+    my ($return, $message, $source_id) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
+                                                                           $portalSession->cgi->param("password"),
+                                                                           @{$portalSession->getProfile->getInternalSources});
 
     if (defined($return) && $return == 1) {
         # save login into session
         $portalSession->session->param( "username", $portalSession->cgi->param("username") );
     }
-    return ($return, $message, $source);
+    return ($return, $message, $source_id);
 }
 
 sub generate_registration_page {

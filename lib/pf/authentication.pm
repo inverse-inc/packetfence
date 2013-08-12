@@ -469,10 +469,10 @@ sub _authenticate_from_sources {
 
 =item match
 
-This method tries to match a set of params in a specific source. If source_id is
-undef, all sources will be tried. If action is undef, all actions will be returned.
+This method tries to match a set of params in one or multiple sources.
 
-If action is set, it'll return the value of the action immediately.
+If action is undef, all actions will be returned.
+If action is set, it will return the value of the action immediately.
 
 =cut
 
