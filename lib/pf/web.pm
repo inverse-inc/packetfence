@@ -383,11 +383,11 @@ sub generate_oauth2_result {
    my $token;
 
    eval {
-      $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+      $token = oauth2_client($portalSession, $provider)->get_access_token($portalSession->getCgi()->url_param('code'));
    };
 
    if ($@) {
-       $logger->info("OAuth2: failed to receive the token from the provider, redireting to login page");
+       $logger->warn("OAuth2: failed to receive the token from the provider: $@");
        generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to get the token") );
        return 0;
    }
