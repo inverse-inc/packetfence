@@ -1,3 +1,112 @@
+commit c123e126a4b98a9a377cf10521f178c9b2db5910
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 12 11:57:05 2013 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit 404deb3e186dc03161ffef8c2d7d26fdcf4e53dc
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Aug 12 11:43:43 2013 -0400
+
+    Remove incorrect array dereference
+
+M	lib/pf/web.pm
+
+commit 3d0ecc3395730912a9a17401a5ecd5e985e6bd7b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 12 11:37:56 2013 -0400
+
+    Restore ProfileFactory to previous state
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 6e1fcd5c661a3adeea70a7c0bef3e801260116a1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 12 11:33:34 2013 -0400
+
+    WISPr: respect authentication source
+
+M	html/captive-portal/register.cgi
+M	lib/pf/authentication.pm
+M	lib/pf/web.pm
+M	lib/pf/web/wispr.pm
+
+commit 9c52b4e1c2cb263de6677c8fa24bf2aeb48fc35b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 12 10:58:40 2013 -0400
+
+    Fix OAuth2 authentication
+
+M	lib/pf/web.pm
+
+commit da3634a29aabb0eee665929427883ecebb254ae2
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 17:47:22 2013 -0400
+
+    Bump to version 4.0.5-2
+
+M	conf/pf-release
+
+commit 17ab0853a347d3838f3ba25007290d755c1f03fc
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Aug 9 19:17:05 2013 -0400
+
+    Fixed the call to update_profiles_guest_modes by adding the proper parameters to it
+
+M	lib/pf/authentication.pm
+
+commit f32963b2dbe2b0cc828b73cfc4e56466a03e6184
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Aug 9 18:57:10 2013 -0400
+
+    match function expects a source_id or an array ref of source objects
+
+M	lib/pf/authentication.pm
+
+commit 8d3a7b314817c6dc998edfab8b58732410942b4f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 16:34:06 2013 -0400
+
+    Fix auth::match to handle multiple sources
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+M	lib/pf/authentication.pm
+
+commit 509a7f0b0dbf32ed1db23e0874f3213ea07eb231
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 9 14:54:47 2013 -0400
+
+    Fix syntax
+
+M	lib/pf/SNMP/MockedSwitch.pm
+
+commit 9378252275947f4a57770ad00d562c586fa1efaa
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 14:26:38 2013 -0400
+
+    Improve Administration Guide
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit f100940f94c2e3f40c1465002b95fa508dc50dc6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 14:21:43 2013 -0400
+
+    Update documentation for releae 4.0.5
+
+M	ChangeLog
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	addons/packages/packetfence.spec
+M	conf/documentation.conf
+M	debian/changelog
+M	docs/PacketFence_Administration_Guide-docinfo.xml
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
 commit 51985fbf88e38a94b79e18b98b76c585ec3dd759
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
 Date:   Fri Aug 9 13:53:02 2013 -0400

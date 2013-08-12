@@ -74,7 +74,7 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
 
-    my ($return, $message) = &pf::web::web_user_authenticate($portalSession);
+    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession);
     if ($return) {
         $logger->info("Authentification success for wispr client");
         $stash = {
@@ -107,7 +107,7 @@ sub handler {
 
     # obtain node information provided by authentication module. We need to get the role (category here)
     # as web_node_register() might not work if we've reached the limit
-    my $value = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+    my $value = &pf::authentication::match($source_id, $params, $Actions::SET_ROLE);
 
     $logger->warn("Got role $value for username $pid");
 
@@ -116,7 +116,7 @@ sub handler {
         %info = (%info, (category => $value));
     }
 
-    $value = &pf::authentication::match(undef, $params, $Actions::SET_ACCESS_DURATION);
+    $value = &pf::authentication::match($source_id, $params, $Actions::SET_ACCESS_DURATION);
 
     if (defined $value) {
         $logger->trace("No unregdate found - computing it from access duration");
@@ -124,7 +124,7 @@ sub handler {
     }
     else {
         $logger->trace("Unregdate found, we use it right away");
-        $value = &pf::authentication::match(undef, $params, $Actions::SET_UNREG_DATE);
+        $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
     }
 
     $logger->trace("Got unregdate $value for username $pid");

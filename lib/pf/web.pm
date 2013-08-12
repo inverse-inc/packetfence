@@ -383,11 +383,11 @@ sub generate_oauth2_result {
    my $token;
 
    eval {
-      $token = oauth2_client($provider)->get_access_token($portalSession->getCgi()->url_param('code'));
+      $token = oauth2_client($portalSession, $provider)->get_access_token($portalSession->getCgi()->url_param('code'));
    };
 
    if ($@) {
-       $logger->info("OAuth2: failed to receive the token from the provider, redireting to login page");
+       $logger->warn("OAuth2: failed to receive the token from the provider: $@");
        generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to get the token") );
        return 0;
    }
@@ -563,9 +563,8 @@ sub validate_form {
 
 =item web_user_authenticate
 
-    return (1, pf::web::auth subclass) for successfull authentication
-    return (0, undef) for inability to check credentials
-    return (0, pf::web::auth subclass) otherwise (pf::web::auth can give detailed error)
+    return (1, message string, source id string) for successfull authentication
+    return (0, message string, undef) otherwise
 
 =cut
 
@@ -577,15 +576,15 @@ sub web_user_authenticate {
     my $session = $portalSession->getSession();
 
     # validate login and password
-    my ($return, $message, $source) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
-                                                                        $portalSession->cgi->param("password"),
-                                                                        @{$portalSession->getProfile->getInternalSources});
+    my ($return, $message, $source_id) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
+                                                                           $portalSession->cgi->param("password"),
+                                                                           $portalSession->getProfile->getInternalSources);
 
     if (defined($return) && $return == 1) {
         # save login into session
         $portalSession->session->param( "username", $portalSession->cgi->param("username") );
     }
-    return ($return, $message, $source);
+    return ($return, $message, $source_id);
 }
 
 sub generate_registration_page {

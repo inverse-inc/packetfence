@@ -11,6 +11,16 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.5-2 released on 2013-08-12
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Fixed authentication with multiple sources
+* Fixed oauth2
+* Authentication source is now respected when using WISPr
+
 Version 4.0.5 released on 2013-08-09
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -95,8 +95,6 @@ our %TYPE_TO_SOURCE = (
 our $logger = get_logger();
 
 
-$cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
-
 readAuthenticationConfigFile();
 
 =item availableAuthenticationSourceTypes
@@ -206,12 +204,14 @@ sub readAuthenticationConfigFile {
                     }
                     push(@authentication_sources, $current_source);
                 }
-                update_profiles_guest_modes();
+                update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
             }]
         );
+        $cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
+
     } else {
         $cached_authentication_config->ReadConfig();
-        update_profiles_guest_modes();
+        update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
     }
 }
 
@@ -343,7 +343,8 @@ Return instances of pf::Authentication::Source for internal sources
 =cut
 
 sub getInternalAuthenticationSources {
-    return grep { $_->{'class'} eq 'internal' } @authentication_sources;
+    my @internal = grep { $_->{'class'} eq 'internal' } @authentication_sources;
+    return \@internal;
 }
 
 =item deleteAuthenticationSource
@@ -468,32 +469,30 @@ sub _authenticate_from_sources {
 
 =item match
 
-This method tries to match a set of params in a specific source. If source_id is
-undef, all sources will be tried. If action is undef, all actions will be returned.
+This method tries to match a set of params in one or multiple sources.
 
-If action is set, it'll return the value of the action immediately.
+If action is undef, all actions will be returned.
+If action is set, it will return the value of the action immediately.
 
 =cut
 
 sub match {
     my ($source_id, $params, $action) = @_;
-    my $actions;
+    my ($actions, @sources);
 
     $logger->debug("Match called with parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
 
-    foreach my $current_source ( @authentication_sources ) {
-        if (defined $source_id && $source_id eq $current_source->id) {
-            $actions = $current_source->match($params);
-            last;
-        }
-        elsif (!defined $source_id) {
-            $actions = $current_source->match($params);
+    if (ref($source_id) eq 'ARRAY') {
+        @sources = @{$source_id};
+        $source_id = undef;
+    }
+    else {
+        @sources = first { $_->id eq $source_id  } @authentication_sources;
+    }
 
-            # First match in a source wins, and we stop looping
-            if (defined $actions) {
-                last;
-            }
-        }
+    foreach my $current_source ( @sources ) {
+        # First match in a source wins, and we stop looping
+        last if defined( $actions = $current_source->match($params));
     }
 
     if (defined $action && defined $actions) {
