@@ -99,7 +99,7 @@ sub authenticate {
   if ($result->count == 0) {
     $logger->warn("No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
-  } elsif ($result->count >= 1) {
+  } elsif ($result->count > 1) {
     $logger->warn("Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
   }
