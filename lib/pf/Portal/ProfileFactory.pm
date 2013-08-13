@@ -47,8 +47,16 @@ sub instantiate {
           grep { defined $_ && exists $Profile_Filters{$_}  } #
           @filter_ids;
 
-    return pf::Portal::Profile->new(_custom_profile($filtered_profile)) if $filtered_profile;
+    return _from_custom_profile($filtered_profile) if $filtered_profile;
 
+    return _from_default_profile();
+}
+
+sub _from_custom_profile {
+    return pf::Portal::Profile->new(_custom_profile($_[0]));
+}
+
+sub _from_default_profile {
     return pf::Portal::Profile->new(_default_profile());
 }
 
