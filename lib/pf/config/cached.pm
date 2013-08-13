@@ -953,6 +953,11 @@ sub cleanupWhitespace {
     }
 }
 
+sub clearAllConfigs {
+    my ($class) = @_;
+    $class->cache->remove_multi(\@stored_config_files);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
