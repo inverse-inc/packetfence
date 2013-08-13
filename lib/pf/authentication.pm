@@ -51,6 +51,7 @@ use List::MoreUtils qw(none any);
 #
 #
 our @authentication_sources = ();
+our %authentication_lookup;
 our $cached_authentication_config;
 
 BEGIN {
@@ -149,8 +150,9 @@ sub readAuthenticationConfigFile {
     unless ($cached_authentication_config) {
         $cached_authentication_config = pf::config::cached->new (
             -file => $authentication_config_file,
-            -onreload => [ reload_authentication_config => sub {
+            -onfilereload => [ reload_authentication_config => sub {
                 @authentication_sources = ();
+                %authentication_lookup = ();
                 my ($config,$name) = @_;
                 my %cfg;
                 $config->toHash(\%cfg);
@@ -203,11 +205,21 @@ sub readAuthenticationConfigFile {
                         $current_source->add_rule($current_rule);
                     }
                     push(@authentication_sources, $current_source);
+                    $authentication_lookup{$source_id} = $current_source;
                 }
+                $config->cache->set("authentication_lookup",\%authentication_lookup);
+                $config->cache->set("authentication_sources",\@authentication_sources);
                 update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
-            }]
+            }],
+            -oncachereload => [
+                on_cache_authentication_reload => sub  {
+                    my ($config, $name) = @_;
+                    %authentication_lookup = %{$config->cache->get("authentication_lookup")};
+                    @authentication_sources = @{$config->cache->get("authentication_sources")};
+                },
+            ]
         );
-        $cached_profiles_config->addReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
+        $cached_profiles_config->addPostReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
 
     } else {
         $cached_authentication_config->ReadConfig();
@@ -323,8 +335,8 @@ Return an instance of pf::Authentication::Source::* for the given id
 
 sub getAuthenticationSource {
     my $id = shift;
-    if (defined $id) {
-        return first {$_->{'id'} eq $id} @authentication_sources;
+    if (exists $authentication_lookup{$id}) {
+        return $authentication_lookup{$id};
     }
 }
 
