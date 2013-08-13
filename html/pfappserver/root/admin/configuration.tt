@@ -114,11 +114,17 @@ table.sources {
               [% pf_section_entry( 'soh', 'Statement of Health') %]
               [%- END %]
               [%- END %]
-              [%- IF can_access("CONFIGURATION_IDENTIFICATION_READ") %]
+              [%- IF can_access("FINGERPRINTS_READ") || can_access("USERAGENTS_READ") || can_access("MAC_READ") %]
               <li class="nav-header">[% l('Identification') %]</li>
+              [%- IF can_access("FINGERPRINTS_READ") %]
               [% list_entry('Configuration::FingerPrints', 'index', 'Fingerprints') %]
+              [%- END %]
+              [%- IF can_access("USERAGENTS_READ") %]
               [% list_entry('Configuration::UserAgents', 'index', 'User Agents') %]
+              [%- END %]
+              [%- IF can_access("MAC_READ") %]
               [% list_entry('Configuration::MacAddress', 'index', 'MAC Addresses') %]
+              [%- END %]
               [%- END %]
             </ul>
           </div><!--/.well -->
