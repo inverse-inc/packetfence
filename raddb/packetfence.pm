@@ -328,13 +328,6 @@ sub preacct {
 
 # Function to handle accounting
 sub accounting {
-        # For debugging purposes only
-#       &log_request_attributes;
-
-}
-
-# Function to handle accounting stop
-sub accounting_stop {
     # For debugging purposes only
     #&log_request_attributes;
 
@@ -347,8 +340,11 @@ sub accounting_stop {
         return $RADIUS::RLM_MODULE_OK;
     }
 
+    # We only perform a SOAP call on "stop" type
+    return $RADIUS::RLM_MODULE_OK unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop');
+
     my $curl = WWW::Curl::Easy->new;
-    my $request = prepare_xml('radius_accounting_stop');
+    my $request = prepare_xml('radius_accounting');
     my $response_body;
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
@@ -368,7 +364,7 @@ sub accounting_stop {
         my $xml = new XML::Simple;
         my $data = $xml->XMLin($response_body, NoAttr => 1);
 
-        my $elements = $data->{'soap:Body'}->{'radius_accounting_stopResponse'}->{'soapenc:Array'}->{'item'};
+        my $elements = $data->{'soap:Body'}->{'radius_accountingResponse'}->{'soapenc:Array'}->{'item'};
 
         # Get RADIUS return code
         $radius_return_code = shift @$elements;
@@ -386,19 +382,6 @@ sub accounting_stop {
 
     # For debugging purposes
     #&radiusd::radlog($RADIUS::L_INFO, "radius_return_code: $radius_return_code");
-
-    if ( $radius_return_code == $RADIUS::RLM_MODULE_OK ) {
-        if ( defined($RAD_REPLY{'Tunnel-Private-Group-ID'}) ) {
-            &radiusd::radlog($RADIUS::L_AUTH, "Returning vlan ".$RAD_REPLY{'Tunnel-Private-Group-ID'}." "
-                . "to request from $mac port $port");
-        } else {
-            &radiusd::radlog($RADIUS::L_AUTH, "request from $mac port $port was accepted but no VLAN returned. "
-                . "This could be normal. See server logs for details.");
-        }
-    } else {
-        &radiusd::radlog($RADIUS::L_INFO, "request from $mac port $port was not accepted but a proper error code was provided. "
-            . "Check server side logs for details");
-    }
 
     &radiusd::radlog($RADIUS::L_DBG, "PacketFence RESULT RESPONSE CODE: $radius_return_code (2 means OK)");
 

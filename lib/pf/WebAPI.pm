@@ -95,17 +95,17 @@ sub radius_authorize {
   return $return;
 }
 
-sub radius_accounting_stop {
+sub radius_accounting {
   my ($class, %radius_request) = @_;
   my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
   my $radius = new pf::radius::custom();
   my $return;
   eval {
-      $return = $radius->accounting_stop(\%radius_request);
+      $return = $radius->accounting(\%radius_request);
   };
   if ($@) {
-      $logger->logdie("radius accounting stop failed with error: $@");
+      $logger->logdie("radius accounting failed with error: $@");
   }
   return $return;
 }

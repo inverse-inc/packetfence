@@ -210,18 +210,18 @@ sub authorize {
     return $RAD_REPLY_REF;
 }
 
-=item accounting_stop
+=item accounting
 
 =cut
-sub accounting_stop {
+sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
 
-    #$logger->debug("accounting stop: $user_name => $mac");
+    #$logger->debug("accounting: $user_name => $mac) => " . $radius_request->{'Acct-Session-Time'});
 
-    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting stop ok") ];
+    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
 
 =item * _parseRequest
