@@ -24,9 +24,7 @@ use POSIX ":sys_wait_h";
 our (%DATA,%DATA1,%DATA2,%DATA3,$filename);
 
 BEGIN {
-    use pf::file_paths;
-    $pf::file_paths::chi_config_file = './data/chi.conf';
-    $pf::file_paths::log_config_file = './log.conf';
+    use PfFilePaths;
     remove_tree('/tmp/chi');
 }
 use pf::log;
