@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use List::Util qw(first);
+use List::MoreUtils qw(all none);
 use pf::config qw($TRUE $FALSE);
 use pf::log;
 
@@ -148,9 +149,7 @@ Returns the internal authentication sources IDs for the current captive portal p
 =cut
 
 sub getInternalSources {
-    my ($self) = @_;
-
-    return grep { pf::authentication::getAuthenticationSource($_)->{'class'} eq 'internal' } @{$self->getSources()};
+    return grep { $_->{'class'} eq 'internal' } $_[0]->getSourcesAsObjects();
 }
 
 =item getExternalSources
@@ -160,9 +159,18 @@ Returns the external authentication sources IDs for the current captive portal p
 =cut
 
 sub getExternalSources {
-    my ($self) = @_;
+    return grep { $_->{'class'} eq 'external' } $_[0]->getSourcesAsObjects();
+}
 
-    return grep { pf::authentication::getAuthenticationSource($_)->{'class'} eq 'external' } @{$self->getSources()};
+=item getSourcesAsObjects
+
+Returns the external authentication sources IDs for the current captive portal profile.
+
+=cut
+
+sub getSourcesAsObjects {
+    my ($self) = @_;
+    return grep {defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()};
 }
 
 =item getSourceByType
@@ -176,7 +184,7 @@ sub getSourceByType {
     my $result;
     if ($type) {
         $type = uc($type);
-        $result = first {uc(pf::authentication::getAuthenticationSource($_)->{'type'}) eq $type} @{$self->getSources()};
+        $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
     }
 
     unless ($result) {
@@ -195,7 +203,6 @@ Returns true if the profile only uses "sign-in" authentication sources (SMS, ema
 
 sub guestRegistrationOnly {
     my ($self) = @_;
-
     my %registration_types =
       (
        pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default => undef,
@@ -203,10 +210,9 @@ sub guestRegistrationOnly {
        pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default => undef,
       );
 
-    my $result = first { !exists $registration_types{$_} }
-      map { pf::authentication::getAuthenticationSource($_)->{'type'} } @{$self->getSources()};
+    my $result = none { exists $registration_types{$_->{'type'} } } $self->getSourcesAsObjects;
 
-    return ($result? $FALSE : $TRUE);
+    return ($result ? $FALSE : $TRUE);
 }
 
 =back
