@@ -141,7 +141,7 @@ sub locationlog_db_prepare {
           SELECT mac, DATE_FORMAT(start_time,"%Y/%m/%d") AS start_day
           FROM locationlog
           WHERE start_time > ? AND start_time < ? AND connection_type LIKE 'Wireless%' GROUP BY start_day, mac
-        ) AS wired_count
+        ) AS wireless_count
     ]);
 
     $locationlog_statements->{'locationlog_view_all_sql'} = get_db_handle()->prepare(qq[

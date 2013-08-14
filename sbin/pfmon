@@ -225,6 +225,7 @@ sub cleanup {
 
         $logger->info("checking accounting data for potential bandwidth abuse");
         acct_maintenance();
+
         #reload all cached configs after each iteration
         pf::config::cached::ReloadConfigs();
 
