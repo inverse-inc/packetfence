@@ -1,4 +1,5 @@
 package pfappserver::Form::Portal::Common;
+
 =head1 NAME
 
 pfappserver::Form::Portal::Common add documentation
@@ -16,6 +17,7 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 use pf::authentication;
+
 =head2 options_sources
 
 =cut
