@@ -78,8 +78,9 @@ if ($form_return != 1) {
 
 # Check if the email address matches an existing account
 my $sql_type = pf::Authentication::Source::SQLSource->meta->get_attribute('type')->default;
-my $source = pf::authentication::getAuthenticationSourceByType($sql_type);
-if (defined $source) {
+my $source_id = $portalSession->getProfile()->getSourceByType($sql_type);
+if (defined $source_id) {
+    my $source = pf::authentication::getAuthenticationSource($source_id);
     my $username = $source->username_from_email($info{'pid'});
     if (defined $username) {
         $info{'pid'} = $params->{'username'} = $username;
