@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.6 released on 2013-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* 
+
+Enhancements
+++++++++++++
+
+* Improved display of filters and sources (DynamicTable) in portal profile editor
+
+Bug Fixes
++++++++++
+
+* Fixed SQL query of connection types report in Web admin
+
 Version 4.0.5-2 released on 2013-08-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
