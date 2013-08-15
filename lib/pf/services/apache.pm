@@ -91,7 +91,7 @@ sub generate_httpd_conf {
     # Guest related URLs allowed through Apache ACL's
     $tags{'allowed_from_all_urls'} = '';
     # signup and preregister if pre-registration is allowed
-    my $guest_regist_allowed = $guest_self_registration{'enabled'};
+    my $guest_regist_allowed = scalar keys %guest_self_registration;
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
         # | is for a regexp "or" as this is pulled from a 'Location ~' statement
         $tags{'allowed_from_all_urls'} .= "|$WEB::URL_SIGNUP|$WEB::CGI_SIGNUP|$WEB::URL_PREREGISTER";
@@ -128,6 +128,7 @@ Find out how much processes Apache should take based on system's characteristics
 See Apache's documentation for MaxClients.
 
 =cut
+
 sub calculate_max_clients {
     my ($total_ram) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services::apache');
@@ -155,6 +156,7 @@ Find out how much idle processes Apache should always have at hand.
 See Apache's documentation for MinSpareServers.
 
 =cut
+
 sub calculate_min_spare_servers {
     my ($max_clients) = @_;
 
@@ -169,6 +171,7 @@ Find out how much processes Apache should start.
 See Apache's documentation for StartServers.
 
 =cut
+
 sub calculate_start_servers {
     my ($max_clients) = @_;
 
@@ -181,6 +184,7 @@ sub calculate_start_servers {
 Automatically generates Apache's Alias statements so the captive portal works.
 
 =cut
+
 sub _generate_aliases {
     my $aliases = "";
     my ($path, $filesystem);
