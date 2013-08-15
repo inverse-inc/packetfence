@@ -23,7 +23,6 @@ use Log::Log4perl qw(get_logger);
 use pf::config;
 use pf::config::cached;
 use pf::util;
-use Scalar::Util qw(tainted);
 
 our ($singleton, %SwitchConfig, $switches_cached_config);
 
@@ -37,9 +36,6 @@ $switches_cached_config  = pf::config::cached->new(
             $config->toHash(\%SwitchConfig);
             $config->cleanupWhitespace(\%SwitchConfig);
             foreach my $switch (values %SwitchConfig) {
-                while(my ($key,$val) = each %$switch) {
-                    print "$key : $val is tainted\n" if tainted ($val);
-                }
                 # transforming uplink and inlineTrigger to arrays
                 foreach my $key (qw(uplink inlineTrigger)) {
                     my $value = $switch->{$key} || "";
