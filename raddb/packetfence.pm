@@ -340,8 +340,11 @@ sub accounting {
         return $RADIUS::RLM_MODULE_OK;
     }
 
-    # We only perform a SOAP call on "stop" type
-    return $RADIUS::RLM_MODULE_OK unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop');
+    # We only perform a SOAP call on stop/update types
+    unless ($RAD_REQUEST{'Acct-Status-Type'} eq 'Stop' ||
+            $RAD_REQUEST{'Acct-Status-Type'} eq 'Interim-Update') {
+        return $RADIUS::RLM_MODULE_OK;
+    }
 
     my $curl = WWW::Curl::Easy->new;
     my $request = prepare_xml('radius_accounting');
