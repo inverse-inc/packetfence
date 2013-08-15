@@ -1,22 +1,17 @@
-      <table id="switches" class="table items">
+      <table id="items" class="table items">
         <thead>
           <tr>
-            <th>[% l('IP Address') %]</th>
-            <th class="hidden-phone">[% l('Type') %]</th>
-            <th class="hidden-phone">[% l('Mode') %]</th>
+            <th>[% l('Wrix Identifer') %]</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          [% FOREACH switch IN items %]
+          [% FOREACH item IN items %]
           <tr>
-            <td><a href="[% c.uri_for(c.controller('Configuration::Switch').action_for('view'), [ switch.id ]) %]">[% switch.id %]</a>
-            [% IF switch.floatingdevice && switch.floatingdevice.id %] <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('view'), [ switch.floatingdevice.id ]) %]">[% l('Edit floating device') %]</a>[% END %]</td>
-            <td class="hidden-phone">[% switch.type %]</td>
-            <td class="hidden-phone">[% l(switch.mode) %]</td>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a>
             <td>
-              <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
-              [% IF switch.id != 'default' %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
             </td>
           </tr>
           [% END -%]
