@@ -19,7 +19,9 @@ use strict;
 use warnings;
 
 use Log::Log4perl;
+use Readonly;
 
+use pf::authentication;
 use pf::config;
 use pf::locationlog;
 use pf::node;
@@ -30,6 +32,8 @@ use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 use List::Util qw(first);
+
+Readonly our $EXPIRATION_VID => 1200002;
 
 our $VERSION = 1.03;
 
@@ -184,6 +188,18 @@ sub authorize {
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
+    # Compute role and update the node table
+    my $params =
+      {
+       username => $user_name,
+       connection_type => connection_type_to_str($connection_type),
+       SSID => $ssid,
+      };
+    my $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
+    if ($role) {
+        node_modify($mac, (category => $role));
+    }
+
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
@@ -217,9 +233,34 @@ sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
-    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
+    my $isStop = $radius_request->{'Acct-Status-Type'} eq 'Stop';
+    my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
 
-    #$logger->debug("accounting: $user_name => $mac) => " . $radius_request->{'Acct-Session-Time'});
+    if ($isStop || $isUpdate) {
+        # On accounting stop/update, check the usage duration of the node
+        my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
+
+        if ($mac && $user_name) {
+            my $session_time = int $radius_request->{'Acct-Session-Time'};
+            if ($session_time > 0) {
+                my $node_attributes = node_attributes($mac);
+                if (defined $node_attributes->{'timeleft'}) {
+                    my $timeleft = $node_attributes->{'timeleft'} - $session_time;
+                    $timeleft = 0 if ($timeleft < 0);
+                    # Only update the node table on a Stop
+                    if ($isStop && node_modify($mac, ('pid' => $user_name, 'timeleft' => $timeleft))) {
+                        $logger->info("Session stopped for $user_name ($mac): duration was $session_time secs ($timeleft secs left)");
+                    }
+                    elsif ($isUpdate) {
+                        $logger->info("Session status for $user_name ($mac): duration is $session_time secs ($timeleft secs left)");
+                    }
+                    if ($timeleft == 0) {
+                        violation_add($mac, $EXPIRATION_VID);
+                    }
+                }
+            }
+        }
+    }
 
     return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
 }
