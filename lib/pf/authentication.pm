@@ -230,6 +230,7 @@ sub readAuthenticationConfigFile {
 
 sub update_profiles_guest_modes {
     my ($config,$name) = @_;
+    %guest_self_registration = ();
     while (my ($id,$profile) = each %Profiles_Config) {
         my $guest_modes = _guest_modes_from_sources($profile->{sources});
         $profile->{guest_modes} = $guest_modes;
