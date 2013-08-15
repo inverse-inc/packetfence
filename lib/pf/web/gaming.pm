@@ -56,7 +56,7 @@ Readonly our @GAMING_OUI => (
     '00:1E:35:' ,  #          Nintendo-Wii
     '00:1B:7A:' ,  #          Ninetndo-Wii
     '00:22:48:' ,  #          Microsoft-Xbox
-	'7C:1E:52:' ,  #          Microsoft-Xbox
+    '7C:1E:52:' ,  #          Microsoft-Xbox
     '7C:ED:8D:' ,  #          Microsoft-Xbox
 );
 
