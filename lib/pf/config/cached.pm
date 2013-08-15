@@ -275,7 +275,7 @@ use Time::HiRes qw(stat time);
 use pf::log;
 use pf::CHI;
 use pf::IniFiles;
-use Scalar::Util qw(refaddr);
+use Scalar::Util qw(refaddr reftype tainted);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
@@ -915,6 +915,13 @@ sub isa {
     return $self->SUPER::isa(@args) || pf::IniFiles->isa(@args);
 }
 
+sub untaint_value {
+    my $val = shift;
+    if(defined $val && $val =~ /^(.*)$/) {
+        return $1;
+    }
+}
+
 =head2 toHash
 
 Copy configuration to a hash
@@ -931,10 +938,33 @@ sub toHash {
     foreach my $section ($self->Sections()) {
         my %data;
         foreach my $param (uniq $self->Parameters($section),@default_parms) {
-            $data{$param} = $self->val($section,$param);
+            $data{$param} = untaint_value ($self->val($section,$param));
         }
         $hash->{$section} = \%data;
     }
+}
+
+sub fromCacheUntainted {
+    my ($self,$key) = @_;
+    return untaint($self->cache->get($key));
+}
+
+sub untaint {
+    my $val = $_[0];
+    if (tainted ($val)) {
+        $val = untaint_value($val);
+    } elsif( my $type = reftype($val)) {
+        if($type eq 'ARRAY') {
+            foreach my $element (@$val) {
+                $element = untaint($element);
+            }
+        } elsif ($type eq 'HASH') {
+            foreach my $element (values %$val) {
+                $element = untaint($element);
+            }
+        }
+    }
+    return $val;
 }
 
 =head2 cleanupWhitespace
