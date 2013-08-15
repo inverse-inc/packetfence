@@ -50,6 +50,11 @@ has_field 'unregdate' =>
    type => '+DateTimePicker',
    label => 'Unregistration',
   );
+has_field 'timeleft' =>
+  (
+   type => 'PosInteger',
+   label => 'Access Time',
+  );
 has_field 'notes' =>
   (
    type => 'TextArea',

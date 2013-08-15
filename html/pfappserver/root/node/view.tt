@@ -29,6 +29,10 @@
             [% form.field('category_id').render %]
             [% form.field('regdate').render %]
             [% form.field('unregdate').render %]
+            <div class="control-group">
+              <label class="control-label">[% l('Access Duration') %]</label>
+              <div class="controls">[% form.field('timeleft').render_element %] seconds</div>
+            </div>
 
             <div class="control-group">
               <label class="control-label">[% l('IP Address') %]</label>
