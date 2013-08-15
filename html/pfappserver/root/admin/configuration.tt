@@ -12,6 +12,7 @@
         'admin/searches',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
+        'admin/configuration/items',
         'admin/configuration/floatingdevices',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
@@ -92,6 +93,7 @@ table.sources {
               <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]
+              [% list_entry('Configuration::Wrix', 'index', 'Wrix') %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               <li class="nav-header">[% l('Users') %]</li>
               [% pf_section_entry( 'roles', 'Roles') %]
