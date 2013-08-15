@@ -12,6 +12,7 @@
         'admin/searches',
         'admin/configuration/interfaces',
         'admin/configuration/switches',
+        'admin/configuration/items',
         'admin/configuration/floatingdevices',
         'admin/configuration/adminroles',
         'admin/configuration/authentication',
@@ -108,6 +109,7 @@ table.sources {
               [%- IF can_access("SWITCHES_READ") %]
               [% pf_section_entry( 'switches', 'Switches') %]
               [%- END %]
+              [% list_entry('Configuration::Wrix', 'index', 'Wrix') %]
               [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
               [%- END %]
