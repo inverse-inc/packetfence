@@ -72,13 +72,8 @@ sub authenticate {
     $logger->error("Unable to connect to an LDAP server.");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
+  my $result = $self->bind_with_credentials($connection);
 
-  my $result;
-  if ($self->{'binddn'} && $self->{'password'}) {
-      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-  } else {
-      $result = $connection->bind;
-  }
   if ($result->is_error) {
     $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
@@ -201,7 +196,7 @@ sub match_in_subclass {
         return undef;
     }
 
-    my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
         $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
@@ -276,12 +271,7 @@ sub test {
   }
 
   # Bind
-  my $result;
-  if ($self->{'binddn'} && $self->{'password'}) {
-      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-  } else {
-      $result = $connection->bind;
-  }
+  my $result = $self->bind_with_credentials($connection);
   if ($result->is_error) {
     $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, "Unable to bind to $LDAPServer with these settings");
@@ -369,7 +359,7 @@ sub username_from_email {
       return undef;
     }
 
-    my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
       $logger->error("Unable to bind with $self->{'binddn'}");
@@ -398,6 +388,18 @@ sub username_from_email {
 
     $logger->info("No match found for filter: $filter");
     return undef;
+}
+
+
+sub bind_with_credentials {
+    my ($self,$connection) = @_;
+    my $result;
+    if ($self->{'binddn'} && $self->{'password'}) {
+        $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    } else {
+        $result = $connection->bind;
+    }
+    return $result;
 }
 
 =head1 AUTHOR
