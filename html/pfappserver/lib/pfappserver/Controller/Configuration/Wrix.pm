@@ -12,6 +12,7 @@ pfappserver::Controller::Configuration::Wrix - Catalyst Controller
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;  # automatically turns on strict and warnings
 use namespace::autoclean;
+use DateTime;
 
 use pf::util qw(sort_ip);
 
@@ -43,6 +44,19 @@ Usage: /configuration/wrix/
 sub index :Path :Args(0) {
     my ($self, $c) = @_;
     $c->forward('list');
+}
+
+sub export :Local {
+    my ($self,$c) = @_;
+    my $form = $self->getForm($c);
+    my @columns = grep { $_ ne 'id' }  map { $_->name  } $form->fields;
+    $c->forward('list');
+
+    $c->stash->{current_view} = 'CSV';
+    $c->stash(
+        'now' => DateTime->now,
+        'columns' => \@columns,
+    );
 }
 
 =head1 COPYRIGHT
