@@ -16,6 +16,7 @@
       </div>
 
       <h2>[% l('Wrix')  %]</h2>
+      <div class="pull-right"><a href="[%c.uri_for(c.controller.action_for('export'))%]">Export</a></div>
 
       [% INCLUDE configuration/wrix/list.tt %]
 
