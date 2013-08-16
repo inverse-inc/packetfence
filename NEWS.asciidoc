@@ -29,6 +29,7 @@ Bug Fixes
 +++++++++
 
 * Fixed SQL query of connection types report in Web admin
+* Fixed issue with anonymous bind failing with searches
 
 Version 4.0.5-2 released on 2013-08-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
