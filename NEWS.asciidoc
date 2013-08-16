@@ -23,6 +23,7 @@ Enhancements
 ++++++++++++
 
 * Improved display of filters and sources (DynamicTable) in portal profile editor
+* Ensure the vlan naming scheme is set on start up
 
 Bug Fixes
 +++++++++
