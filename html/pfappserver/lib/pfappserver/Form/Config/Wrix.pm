@@ -50,7 +50,7 @@ has_field 'Sub_Location_Type' =>
    type => 'Text',
    required => 1,
   );
-has_field 'Engish_Location_Name' =>
+has_field 'English_Location_Name' =>
   (
    type => 'Text',
    required => 1,
@@ -67,7 +67,7 @@ has_field 'Location_Address2' =>
    type => 'Text',
    label => 'Location Address 2'
   );
-has_field 'Engish_Location_City' =>
+has_field 'English_Location_City' =>
   (
    type => 'Text',
    required => 1,
@@ -143,13 +143,13 @@ has_field 'Security_Protocol_1X' =>
       { value => 'EAP-AKA', label => 'EAP AKA' },
     ],
   );
- has_field 'Restricted_Access' =>
-  (
-    type => 'Toggle',
-  );
  has_field 'Client_Support' =>
   (
     type => 'Text',
+  );
+ has_field 'Restricted_Access' =>
+  (
+    type => 'Toggle',
   );
 
  has_block 'ssid' =>
