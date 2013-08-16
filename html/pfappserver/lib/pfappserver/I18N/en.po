@@ -3459,6 +3459,10 @@ msgid "services.dhcpd"
 msgstr "dhcpd"
 
 # conf/documentation.conf
+msgid "services.iptables"
+msgstr "iptables"
+
+# conf/documentation.conf
 msgid "services.dhcpd_binary"
 msgstr "dhcpd path"
 
