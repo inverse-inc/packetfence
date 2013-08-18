@@ -78,7 +78,7 @@ has_field 'email' =>
 
 has_field 'telephone' =>
   (
-   type => 'Uneditable',
+   type => 'Text',
    label => 'Telephone',
   );
 
