@@ -7,7 +7,7 @@ Once you will be on-site, authenticate using the following credentials to our ca
 Username: [% username %]
 Password: [% password %]
 
-This username and password will be valid starting [% valid_from %]. Once authenticated the access will be valid for [% duration %].
+This username and password will be valid starting [% valid_from %]. [% txt_expiration %] [% txt_duration %]
 
 Please ignore this request if you have not requested network access.
 --
