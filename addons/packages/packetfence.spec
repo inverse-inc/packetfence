@@ -688,11 +688,9 @@ fi
 %config(noreplace)      /usr/local/pf/conf/networks.conf
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
-#%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
 %config(noreplace)      /usr/local/pf/conf/profiles.conf
-#%config                 /usr/local/pf/conf/services.conf
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
