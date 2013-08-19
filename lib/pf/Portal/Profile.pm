@@ -142,40 +142,42 @@ sub getSources {
 
 *sources = \&getSources;
 
-=item getInternalSources
-
-Returns the internal authentication sources IDs for the current captive portal profile.
-
-=cut
-
-sub getInternalSources {
-    return grep { $_->{'class'} eq 'internal' } $_[0]->getSourcesAsObjects();
-}
-
-=item getExternalSources
-
-Returns the external authentication sources IDs for the current captive portal profile.
-
-=cut
-
-sub getExternalSources {
-    return grep { $_->{'class'} eq 'external' } $_[0]->getSourcesAsObjects();
-}
-
 =item getSourcesAsObjects
 
-Returns the external authentication sources IDs for the current captive portal profile.
+Returns the authentication sources objects for the current captive portal profile.
 
 =cut
 
 sub getSourcesAsObjects {
     my ($self) = @_;
-    return grep {defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()};
+    return grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()};
+}
+
+=item getInternalSources
+
+Returns the internal authentication sources objects for the current captive portal profile.
+
+=cut
+
+sub getInternalSources {
+    my ($self) = @_;
+    return grep { $_->{'class'} eq 'internal' } $self->getSourcesAsObjects();
+}
+
+=item getExternalSources
+
+Returns the external authentication sources objects for the current captive portal profile.
+
+=cut
+
+sub getExternalSources {
+    my ($self) = @_;
+    return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
 }
 
 =item getSourceByType
 
-Returns the first source ID for the requested source type for the current captive portal profile.
+Returns the first source object for the requested source type for the current captive portal profile.
 
 =cut
 
@@ -203,6 +205,9 @@ Returns true if the profile only uses "sign-in" authentication sources (SMS, ema
 
 sub guestRegistrationOnly {
     my ($self) = @_;
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if (@sources == 0);
+
     my %registration_types =
       (
        pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default => undef,
@@ -210,9 +215,9 @@ sub guestRegistrationOnly {
        pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default => undef,
       );
 
-    my $result = none { exists $registration_types{$_->{'type'} } } $self->getSourcesAsObjects;
+    my $result = all { exists $registration_types{$_->{'type'}} } @sources;
 
-    return ($result ? $FALSE : $TRUE);
+    return $result;
 }
 
 =back
