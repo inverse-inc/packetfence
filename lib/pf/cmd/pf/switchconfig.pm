@@ -22,6 +22,12 @@ sub action_get {
     my ($action,$id) = $self->args;
 }
 
+sub parse_get {
+    my ($self) = @_;
+    my ($action,$id) = $self->args;
+    return defined $id;
+}
+
 sub action_add {
     my ($self) = @_;
     print "add\n";
@@ -38,7 +44,7 @@ sub action_delete {
         pf::configfile::configfile_import($switches_config_file);
         print "\"$id\" succesfully deleted\n";
     } else {
-        print STDERR"\"$id\" switch can't be deleted\n";
+        print STDERR "\"$id\" switch can't be deleted\n";
     }
 }
 
@@ -50,6 +56,7 @@ sub parse_delete {
 
 sub action_edit {
     my ($self) = @_;
+    my ($action,$id) = $self->args;
 }
 
 sub switchconfig {
