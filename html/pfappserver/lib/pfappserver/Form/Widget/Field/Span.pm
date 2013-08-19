@@ -25,7 +25,7 @@ sub render_element {
     $output .= ' id="' . $self->id . '"';
     $output .= process_attrs($self->element_attributes($result));
     $output .= '>'; # the shipped version is incorrectly closing the span tag
-    $output .= $self->value if $self->value;
+    $output .= $self->value if defined $self->value;
     $output .= '</span>';
     return $output;
 }
