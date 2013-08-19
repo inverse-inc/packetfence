@@ -89,7 +89,7 @@ Warning: The list of subroutine is incomplete
 Sub to present to a guest so that it can self-register (guest.html).
 
 =cut
-
+no warnings 'redefine';
 sub generate_selfregistration_page {
     my ( $portalSession, $error_code, $error_args_ref ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web::guest');
