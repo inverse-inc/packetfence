@@ -62,6 +62,11 @@ sub _from_default_profile {
 
 sub _default_profile {
     my %default = %{$Profiles_Config{default}};
+    unless (defined $default{'sources'} && @{$default{'sources'}} > 0) {
+        # When no authentication source is selected, use all authentication sources
+        my @sources = map { $_->id } @{pf::authentication::getAllAuthenticationSources()};
+        $default{'sources'} = \@sources;
+    }
     my %results =
       (
        %default,
