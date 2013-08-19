@@ -110,7 +110,7 @@ if (defined($cgi->url_param('code'))) {
                   (
                    'pid' => $pid,
                    'email' => $email,
-                   'subject' => i18n("%s: Guest access confirmed!", $Config{'general'}{'domain'}),
+                   'subject' => i18n_format("%s: Guest access confirmed!", $Config{'general'}{'domain'}),
                    'currentdate' => POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime )
                   );
 
