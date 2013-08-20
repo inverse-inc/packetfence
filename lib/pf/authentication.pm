@@ -339,6 +339,7 @@ sub getAuthenticationSource {
     if (exists $authentication_lookup{$id}) {
         return $authentication_lookup{$id};
     }
+    return undef;
 }
 
 =item getAllAuthenticationSources
@@ -497,32 +498,29 @@ sub match {
 
     if (ref($source_id) eq 'ARRAY') {
         @sources = @{$source_id};
-        $source_id = undef;
+    } else {
+        my $source = getAuthenticationSource($source_id);
+        if(defined $source) {
+            @sources = ($source);
+        }
     }
-    else {
-        @sources = first { $_->id eq $source_id  } @authentication_sources;
-    }
-
-    foreach my $current_source ( @sources ) {
-        # First match in a source wins, and we stop looping
-        last if defined( $actions = $current_source->match($params));
-    }
+    my $source = first { defined ($actions = $_->match($params)) } @sources;
 
     if (defined $action && defined $actions) {
-        foreach my $current_action ( @{$actions} ) {
-            if ($current_action->type eq $action) {
-                $logger->debug("Returning '".$current_action->value."' for action $action");
-                return $current_action->value;
-            }
+        my $found_action = first { $_->type eq $action } @{$actions};
+        if (defined $found_action) {
+            $logger->debug("Returning '".$found_action->value."' for action $action on source ". $source->id);
+            return $found_action->value
         }
-        $logger->debug("Params don't match rules for action $action");
+        $logger->debug("Params don't match rules for action $action on source " . $source->id);
         return undef;
     }
 
     if (defined $action) {
         $logger->debug("No source matches action $action");
-    } else {
-        $logger->debug("Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
+    } elsif (defined $source) {
+        $actions ||= [];
+        $logger->debug("Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ) . " for source " . $source->id);
     }
 
     return $actions;
