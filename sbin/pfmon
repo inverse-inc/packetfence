@@ -21,9 +21,7 @@ use Getopt::Std;
 use Net::Pcap 0.16;
 use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
-use threads;
-use threads::shared;
-use POSIX qw(:signal_h);
+use POSIX qw(:signal_h pause);
 use Pod::Usage;
 
 use constant INSTALL_DIR => '/usr/local/pf';
@@ -55,28 +53,10 @@ my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
 Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
 Log::Log4perl::MDC->put( 'tid',  threads->self->tid() );
 
-# init signal handlers
-POSIX::sigaction(
-    &POSIX::SIGHUP,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfmon: could not set SIGHUP handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGTERM,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfmon: could not set SIGTERM handler: $!");
-
-POSIX::sigaction(
-    &POSIX::SIGINT,
-    POSIX::SigAction->new(
-        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
-    )
-) or $logger->logdie("pfmon: could not set SIGINT handler: $!");
-
+$SIG{HUP} = \&normal_sighandler;
+$SIG{INT} = \&normal_sighandler;
+$SIG{TERM} = \&normal_sighandler;
+$SIG{ALRM} = sub {};
 
 my %args;
 getopts( 'dhvr', \%args );
@@ -86,30 +66,18 @@ pod2usage( -verbose => 1 ) if ( $args{h} );
 my $daemonize = $args{d};
 my $verbose   = $args{v};
 my $restart   = $args{r};
-
-my @kids;
+our $running = 1;
 
 # standard signals and daemonize
 daemonize() if ($daemonize);
 
-# thread off the cleanup function
-push @kids, threads->create( \&cleanup );
-
-$kids[$#kids]->join();
-$logger->error("cleanup thread finished - this is bad");
+# run the cleanup
+cleanup();
 
 END {
     if ( !$args{h} ) {
         deletepid();
         $logger->info("stopping pfmon");
-
-        # wake up the arpgun... then kill him
-        foreach my $kid (@kids) {
-            $kid->detach;
-        }
-
-        # killing kids ain't fun, but somebody's got to do it...
-        kill 15, -$$;
     }
 }
 
@@ -201,11 +169,7 @@ sub listen_arp {
 }
 
 sub cleanup {
-    my $logger = Log::Log4perl::get_logger('pfmon::cleanup');
-    Log::Log4perl::MDC->put( 'tid', threads->self->tid() );
-    $logger->info("Starting cleanup thread");
-
-    while (1) {
+    while ($running) {
         # run these functions every $maintenance_interval
         $logger->info("running expire check");
         iplog_cleanup( $Config{'expire'}{'iplog'} )
@@ -228,8 +192,8 @@ sub cleanup {
 
         #reload all cached configs after each iteration
         pf::config::cached::ReloadConfigs();
-
-        sleep $Config{'general'}{'maintenance_interval'};
+        alarm $Config{'general'}{'maintenance_interval'};
+        pause;
     }
 }
 
@@ -269,10 +233,7 @@ sub daemonize {
 }
 
 sub normal_sighandler {
-    deletepid();
-    if ( threads->self->tid() == 0 ) {
-        $logger->logdie( "pfmon: caught SIG" . $_[0] . " - terminating" );
-    }
+    $running = 0;
 }
 
 =back
