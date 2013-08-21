@@ -45,16 +45,19 @@ has_field 'billing_engine' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
   );
+has_block 'definition' =>
+  (
+   render_list => [ qw(id description logo billing_engine) ],
+  );
 has_field 'sources' =>
   (
     'type' => 'DynamicTable',
     'sortable' => 1,
-    'label' => 'Sources',
+    'do_label' => 0,
   );
 has_field 'sources.contains' =>
   (
     type => 'Select',
-    label => 'Source',
     options_method => \&options_sources,
     widget_wrapper => 'DynamicTableRow',
   );

@@ -1,4 +1,5 @@
 package pf::pfcmd::report;
+
 =head1 NAME
 
 pf::pfcmd::report - all about reports
@@ -193,15 +194,11 @@ sub report_db_prepare {
             ROUND(COUNT(*)/
                 (SELECT COUNT(*)
                     FROM locationlog
-                        INNER JOIN node ON node.mac = locationlog.mac
-                        INNER JOIN iplog ON node.mac = iplog.mac
-                    WHERE iplog.start_time BETWEEN ? AND ?
+                    WHERE start_time BETWEEN ? AND ?
                 )*100,1
             ) AS percent
         FROM locationlog
-            INNER JOIN node ON node.mac = locationlog.mac
-            INNER JOIN iplog ON node.mac = iplog.mac
-        WHERE iplog.start_time BETWEEN ? AND ?
+        WHERE start_time BETWEEN ? AND ?
         GROUP BY connection_type
     ]);
 

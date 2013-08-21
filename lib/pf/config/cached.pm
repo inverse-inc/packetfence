@@ -275,7 +275,7 @@ use Time::HiRes qw(stat time);
 use pf::log;
 use pf::CHI;
 use pf::IniFiles;
-use Scalar::Util qw(refaddr);
+use Scalar::Util qw(refaddr reftype tainted);
 use Fcntl qw(:DEFAULT :flock);
 use Storable;
 use File::Flock;
@@ -290,6 +290,7 @@ our @LOADED_CONFIGS;
 our %ON_RELOAD;
 our %ON_FILE_RELOAD;
 our %ON_CACHE_RELOAD;
+our %ON_POST_RELOAD;
 our @ON_DESTROY_REFS = (
     \%ON_RELOAD,
     \%ON_FILE_RELOAD,
@@ -344,6 +345,7 @@ sub new {
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
     my $onCacheReload = delete $params{'-oncachereload'} || [];
+    my $onPostReload = delete $params{'-onpostreload'} || [];
     my $reload_onfile;
     if($file) {
         $self = first { $_->GetFileName eq $file} @LOADED_CONFIGS;
@@ -352,6 +354,7 @@ sub new {
             $self->addReloadCallbacks(@$onReload) if @$onReload;
             $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
             $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
+            $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
             #Rereading the config to ensure the latest version
             $self->ReadConfig();
         } else {
@@ -381,13 +384,13 @@ sub new {
         $ON_RELOAD{$file} = [];
         $ON_FILE_RELOAD{$file} = [];
         $ON_CACHE_RELOAD{$file} = [];
+        $ON_POST_RELOAD{$file} = [];
         bless $self,$class;
         $self->addReloadCallbacks(@$onReload) if @$onReload;
         $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
         $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
-        $self->_callReloadCallbacks();
-        $self->_callFileReloadCallbacks() if $reload_onfile;
-        $self->_callCacheReloadCallbacks() unless $reload_onfile;
+        $self->addPostReloadCallbacks(@$onPostReload) if @$onPostReload;
+        $self->doCallbacks($reload_onfile,!$reload_onfile);
     }
     return $self;
 }
@@ -440,8 +443,7 @@ sub RewriteConfig {
         $config->SetWriteMode($WRITE_PERMISSIONS);
         my $mode = oct($config->GetWriteMode);
         chmod $mode, $file;
-        $self->_callReloadCallbacks();
-        $self->_callFileReloadCallbacks();
+        $self->doCallbacks(1,0);
     }
     unlockFilehandle($lock);
     return $result;
@@ -464,8 +466,7 @@ sub Rollback {
     $cache->l1_cache->remove($file);
     my $old_config = $cache->get($file);
     $$self = $old_config;
-    $self->_callReloadCallbacks();
-    $self->_callCacheReloadCallbacks();
+    $self->doCallbacks(0,1);
 }
 
 =head2 _callCallbacks
@@ -513,6 +514,28 @@ Call all the cache reload callbacks
 sub _callCacheReloadCallbacks {
     my ($self) = @_;
     $self->_callCallbacks(\%ON_CACHE_RELOAD);
+}
+
+=head2 _callPostReloadCallbacks
+
+Call all reload callbacks
+
+=cut
+
+sub _callPostReloadCallbacks {
+    my ($self) = @_;
+    $self->_callCallbacks(\%ON_POST_RELOAD);
+}
+
+sub doCallbacks {
+    my ($self,$file_reloaded,$cache_reloaded) = @_;
+    my $was_reloaded;
+    if($was_reloaded = $file_reloaded || $cache_reloaded) {
+        $self->_callReloadCallbacks if $was_reloaded;
+        $self->_callFileReloadCallbacks if $file_reloaded;
+        $self->_callCacheReloadCallbacks if $cache_reloaded;
+        $self->_callPostReloadCallbacks if $was_reloaded;
+    }
 }
 
 
@@ -632,9 +655,7 @@ sub ReadConfig {
         }
     );
     $reloaded_from_cache = refaddr($config) != refaddr($$self);
-    $self->_callReloadCallbacks if ($reloaded_from_cache || $reloaded_from_file);
-    $self->_callFileReloadCallbacks if $reloaded_from_file;
-    $self->_callCacheReloadCallbacks if $reloaded_from_cache;
+    $self->doCallbacks($reloaded_from_file,$reloaded_from_cache);
     return $result;
 }
 
@@ -794,16 +815,17 @@ Internal helper method for adding callbacks
 =cut
 
 sub _addCallbacks {
-    my ($self,$callback_array,$name,$callback,@args) = @_;
-    my $callback_data = first { $_->[0] eq $name  } @$callback_array;
-    #Adding a name to the anonymous function for debug and tracing purposes
-    $callback = subname $name,$callback;
-    if ($callback_data) {
-        $callback_data->[1] = $callback;
-    } else {
-        push @$callback_array ,[$name, $callback];
-    }
-    if (@args) {
+    my ($self,$callback_array,@args) = @_;
+    if (@args > 1) {
+        my ($name,$callback) = splice(@args,0,2);
+        my $callback_data = first { $_->[0] eq $name  } @$callback_array;
+        #Adding a name to the anonymous function for debug and tracing purposes
+        $callback = subname $name,$callback;
+        if ($callback_data) {
+            $callback_data->[1] = $callback;
+        } else {
+            push @$callback_array ,[$name, $callback];
+        }
         $self->_addCallbacks($callback_array,@args);
     }
 }
@@ -834,6 +856,20 @@ If callback already exists, previous callback is replaced and previous position 
 sub addCacheReloadCallbacks {
     my ($self,@args) = @_;
     $self->_addCallbacks($ON_CACHE_RELOAD{$self->GetFileName},@args);
+}
+
+=head2 addPostReloadCallbacks
+
+$self->addPostReloadCallbacks('name' => sub {...});
+Add named callbacks to the onpostreload array
+Called in insert order
+If callback already exists, previous callback is replaced and previous position is preserved
+
+=cut
+
+sub addPostReloadCallbacks {
+    my ($self,@args) = @_;
+    $self->_addCallbacks($ON_POST_RELOAD{$self->GetFileName},@args);
 }
 
 =head2 DESTROY
@@ -879,6 +915,13 @@ sub isa {
     return $self->SUPER::isa(@args) || pf::IniFiles->isa(@args);
 }
 
+sub untaint_value {
+    my $val = shift;
+    if(defined $val && $val =~ /^(.*)$/) {
+        return $1;
+    }
+}
+
 =head2 toHash
 
 Copy configuration to a hash
@@ -895,10 +938,33 @@ sub toHash {
     foreach my $section ($self->Sections()) {
         my %data;
         foreach my $param (uniq $self->Parameters($section),@default_parms) {
-            $data{$param} = $self->val($section,$param);
+            $data{$param} = untaint_value ($self->val($section,$param));
         }
         $hash->{$section} = \%data;
     }
+}
+
+sub fromCacheUntainted {
+    my ($self,$key) = @_;
+    return untaint($self->cache->get($key));
+}
+
+sub untaint {
+    my $val = $_[0];
+    if (tainted ($val)) {
+        $val = untaint_value($val);
+    } elsif( my $type = reftype($val)) {
+        if($type eq 'ARRAY') {
+            foreach my $element (@$val) {
+                $element = untaint($element);
+            }
+        } elsif ($type eq 'HASH') {
+            foreach my $element (values %$val) {
+                $element = untaint($element);
+            }
+        }
+    }
+    return $val;
 }
 
 =head2 cleanupWhitespace
@@ -915,6 +981,11 @@ sub cleanupWhitespace {
             $data->{$key} =~ s/\s+$//;
         }
     }
+}
+
+sub clearAllConfigs {
+    my ($class) = @_;
+    $class->cache->remove_multi(\@stored_config_files);
 }
 
 =head1 AUTHOR

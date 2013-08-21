@@ -31,16 +31,16 @@ Completely removes the entire section from the configuration optionally groupmem
 
 sub DeleteSection {
     my ($self,$sect,$include_groupmembers) = @_;
-
-    return undef unless $self->SUPER::DeleteSection($sect);
-
-    if ($include_groupmembers) {
-        foreach my $group_member ($self->GroupMembers($sect)) {
-            $self->DeleteSection($group_member,$include_groupmembers);
+    return unless $self->SectionExists($sect);
+    my $result =  $self->SUPER::DeleteSection($sect);
+    if ($result) {
+        if ($include_groupmembers) {
+            foreach my $group_member ($self->GroupMembers($sect)) {
+                $self->DeleteSection($group_member,$include_groupmembers);
+            }
         }
     }
-
-    return 1;
+    return $result;
 } # end DeleteSection
 
 =head2 RenameSection ( $old_section_name, $new_section_name, $include_groupmembers)

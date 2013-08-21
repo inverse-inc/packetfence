@@ -58,10 +58,11 @@ $info{'pid'} = "admin";
 $info{'user_agent'} = $cgi->user_agent;
 
 if (defined($cgi->url_param('provider'))) {
-    $logger->info("Sending " . $portalSession->getClientMac() . "to OAuth2 - Provider:" . $cgi->url_param('provider') );
+    $logger->info("Sending " . $portalSession->getClientMac() . " to OAuth2 - Provider:" . $cgi->url_param('provider') );
     pf::web::generate_oauth2_page( $portalSession );
     exit(0);
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "google") {
+    # Handle OAuth2 response from Google
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "google" );
     $source_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
 
@@ -71,7 +72,7 @@ if (defined($cgi->url_param('provider'))) {
         exit(0);
     }
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "facebook") {
-#Handle OAuth2 response from Facebook
+    # Handle OAuth2 response from Facebook
     my ($code,$username,$err) = pf::web::generate_oauth2_result( $portalSession, "facebook" );
     $source_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
 
@@ -81,7 +82,7 @@ if (defined($cgi->url_param('provider'))) {
        exit(0);
     }
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "github") {
-#Handle OAuth2 response from Github
+    # Handle OAuth2 response from Github
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "github" );
     $source_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
 

@@ -29,6 +29,7 @@ use pf::util;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
+use List::Util qw(first);
 
 our $VERSION = 1.03;
 
@@ -153,8 +154,11 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
     }
 
+    # Extract the realm
+    my $realm = $radius_request->{'Realm'};
+
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $realm);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
@@ -233,9 +237,10 @@ sub _parseRequest {
         $eap_type = $radius_request->{'EAP-Type'};
     }
 
+    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Cisco-NAS-Port NAS-Port-Id);
     my $nas_port_id;
-    if (defined($radius_request->{'NAS-Port-Id'})) {
-        $nas_port_id = $radius_request->{'NAS-Port-Id'};
+    if ($nas_port_id_key) {
+        $nas_port_id = $radius_request->{$nas_port_id_key};
     }
     return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name, $nas_port_id);
 }

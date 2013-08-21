@@ -11,6 +11,35 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.6 released on 2013-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* 
+
+Enhancements
+++++++++++++
+
+* Improved display of filters and sources (DynamicTable) in portal profile editor
+* Ensure the vlan naming scheme is set on start up
+* When no authentication source is associated to the default portal profile, all available sources are used
+* Phone number is now editable from the user editor
+* Updated fingerprints of gaming devices (Xbox)
+
+Bug Fixes
++++++++++
+
+* Fixed retrieval of user role for gaming devices
+* Fixed SQL query of connection types report in Web admin
+* Fixed issue with anonymous LDAP bind failing with searches
+* Fixed email subject when self-registering by email
+* Fixed empty variables of preregistration email template
+* Fixed detection of guest-only authentication sources when no source is associated to the portal
+* Fixed various caching issues
+* Fixed various logged warnings
+
 Version 4.0.5-2 released on 2013-08-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

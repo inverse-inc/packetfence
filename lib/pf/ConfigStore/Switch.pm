@@ -81,7 +81,7 @@ Delete an existing item
 
 sub remove {
     my ($self,$id) = @_;
-    if($id eq 'default') {
+    if( defined $id && $id eq 'default') {
         return undef;
     }
     return $self->SUPER::remove($id);

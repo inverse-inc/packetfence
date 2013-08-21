@@ -65,7 +65,6 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
     ($status, $result) = $c->model('User')->read($c, [$pid]);
     if (is_success($status)) {
         $c->stash->{user} = pop @{$result};
-
         # Fetch associated nodes
         ($status, $result) = $c->model('User')->nodes($pid);
         if (is_success($status)) {

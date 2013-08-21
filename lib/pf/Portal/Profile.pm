@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use List::Util qw(first);
+use List::MoreUtils qw(all none);
 use pf::config qw($TRUE $FALSE);
 use pf::log;
 
@@ -141,33 +142,42 @@ sub getSources {
 
 *sources = \&getSources;
 
+=item getSourcesAsObjects
+
+Returns the authentication sources objects for the current captive portal profile.
+
+=cut
+
+sub getSourcesAsObjects {
+    my ($self) = @_;
+    return grep { defined $_ } map { pf::authentication::getAuthenticationSource($_) } @{$self->getSources()};
+}
+
 =item getInternalSources
 
-Returns the internal authentication sources IDs for the current captive portal profile.
+Returns the internal authentication sources objects for the current captive portal profile.
 
 =cut
 
 sub getInternalSources {
     my ($self) = @_;
-
-    return grep { pf::authentication::getAuthenticationSource($_)->{'class'} eq 'internal' } @{$self->getSources()};
+    return grep { $_->{'class'} eq 'internal' } $self->getSourcesAsObjects();
 }
 
 =item getExternalSources
 
-Returns the external authentication sources IDs for the current captive portal profile.
+Returns the external authentication sources objects for the current captive portal profile.
 
 =cut
 
 sub getExternalSources {
     my ($self) = @_;
-
-    return grep { pf::authentication::getAuthenticationSource($_)->{'class'} eq 'external' } @{$self->getSources()};
+    return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
 }
 
 =item getSourceByType
 
-Returns the first source ID for the requested source type for the current captive portal profile.
+Returns the first source object for the requested source type for the current captive portal profile.
 
 =cut
 
@@ -176,7 +186,7 @@ sub getSourceByType {
     my $result;
     if ($type) {
         $type = uc($type);
-        $result = first {uc(pf::authentication::getAuthenticationSource($_)->{'type'}) eq $type} @{$self->getSources()};
+        $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
     }
 
     unless ($result) {
@@ -195,6 +205,8 @@ Returns true if the profile only uses "sign-in" authentication sources (SMS, ema
 
 sub guestRegistrationOnly {
     my ($self) = @_;
+    my @sources = $self->getSourcesAsObjects();
+    return $FALSE if (@sources == 0);
 
     my %registration_types =
       (
@@ -203,10 +215,9 @@ sub guestRegistrationOnly {
        pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default => undef,
       );
 
-    my $result = first { !exists $registration_types{$_} }
-      map { pf::authentication::getAuthenticationSource($_)->{'type'} } @{$self->getSources()};
+    my $result = all { exists $registration_types{$_->{'type'}} } @sources;
 
-    return ($result? $FALSE : $TRUE);
+    return $result;
 }
 
 =back

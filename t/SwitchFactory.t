@@ -8,7 +8,7 @@ use Test::More tests => 35;
 use lib '/usr/local/pf/lib';
 
 BEGIN {
-    use SwitchFactoryConfig;
+    use PfFilePaths;
     use_ok('pf::SwitchFactory');
 }
 

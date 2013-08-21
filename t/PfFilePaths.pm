@@ -1,14 +1,14 @@
-package SwitchFactoryConfig;
+package PfFilePath;
 =head1 NAME
 
-SwitchFactoryConfig
+PfFilePath
 
 =cut
 
 =head1 DESCRIPTION
 
-SwitchFactoryConfig
-Overrides the $pf::file_paths::switches_config_file to point to the test config
+PfFilePath
+Overrides the the location of config files to help with testing
 
 =cut
 
@@ -18,6 +18,10 @@ use warnings;
 BEGIN {
     use pf::file_paths;
     $pf::file_paths::switches_config_file = './data/switches.conf';
+    $pf::file_paths::chi_config_file = './data/chi.conf';
+    $pf::file_paths::profiles_config_file = './data/profiles.conf';
+    $pf::file_paths::authentication_config_file = './data/authentication.conf';
+    $pf::file_paths::log_config_file = './log.conf';
 }
 
 =head1 AUTHOR
