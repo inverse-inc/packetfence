@@ -66,7 +66,7 @@ getRegistrationVlan or getNormalVlan.
 =cut
 
 sub fetchVlanForNode {
-    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $radius_request, $realm) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
 
     my $node_info = node_attributes($mac);
@@ -119,7 +119,7 @@ sub fetchVlanForNode {
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
-    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request);
+    my ($vlan, $user_role) = $this->getNormalVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm);
     if (!defined($vlan)) {
         $logger->warn("[$mac] Resolved VLAN for node is not properly defined: Replacing with macDetectionVlan");
         $vlan = $switch->getVlanByName('macDetection');
@@ -342,7 +342,7 @@ sub getNormalVlan {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
-    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request) = @_;
+    my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid, $radius_request, $realm) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $profile = pf::Portal::ProfileFactory->instantiate($mac);
 
@@ -410,7 +410,7 @@ sub getNormalVlan {
                 $value = access_duration($value);
             }
             else {
-                $value = &pf::authentication::match([@sources], $params, $Actions::SET_UNREG_DATE);
+                $value = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources($realm), $params, $Actions::SET_UNREG_DATE);
             }
             if (defined $value) {
                 my %info = (
