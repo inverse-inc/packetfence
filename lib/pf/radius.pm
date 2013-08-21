@@ -154,8 +154,11 @@ sub authorize {
         return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Switch is not in production, so we allow this request") ];
     }
 
+    # Extract the realm
+    my $realm = $radius_request->{'Realm'};
+
     # Fetch VLAN depending on node status
-    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid);
+    my ($vlan, $wasInline, $user_role) = $vlan_obj->fetchVlanForNode($mac, $switch, $port, $connection_type, $user_name, $ssid, $realm);
 
     # should this node be kicked out?
     if (defined($vlan) && $vlan == -1) {
