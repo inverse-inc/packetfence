@@ -19,7 +19,7 @@ use warnings;
 use strict;
 use Getopt::Std;
 use Net::Pcap 0.16;
-use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
+#use English qw( ‐no_match_vars ); # no match avoids regex performance penalty
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause);
 use Pod::Usage;
@@ -45,7 +45,7 @@ use pf::violation qw(violation_maintenance);
 # initialization
 # --------------
 # assign process name (see #1464)
-$PROGRAM_NAME = basename($PROGRAM_NAME);
+our $PROGRAM_NAME = basename($0);
 
 # log4perl init
 Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
@@ -171,27 +171,34 @@ sub listen_arp {
 sub cleanup {
     while ($running) {
         # run these functions every $maintenance_interval
-        $logger->info("running expire check");
-        iplog_cleanup( $Config{'expire'}{'iplog'} )
-          if ( $Config{'expire'}{'iplog'} );
-        locationlog_cleanup( $Config{'expire'}{'locationlog'} )
-          if ( $Config{'expire'}{'locationlog'} );
-        node_cleanup( $Config{'expire'}{'node'} )
-          if ( $Config{'expire'}{'node'} );
-        traplog_cleanup( $Config{'expire'}{'traplog'} )
-          if ( $Config{'expire'}{'traplog'} );
+        eval {
+            $logger->info("running expire check");
+            iplog_cleanup( $Config{'expire'}{'iplog'} )
+              if ( $Config{'expire'}{'iplog'} );
+            locationlog_cleanup( $Config{'expire'}{'locationlog'} )
+              if ( $Config{'expire'}{'locationlog'} );
+            node_cleanup( $Config{'expire'}{'node'} )
+              if ( $Config{'expire'}{'node'} );
+            traplog_cleanup( $Config{'expire'}{'traplog'} )
+              if ( $Config{'expire'}{'traplog'} );
 
-        $logger->info("checking registered nodes for expiration");
-        nodes_maintenance();
+            $logger->info("checking registered nodes for expiration");
+            nodes_maintenance();
 
-        $logger->info("checking violations for expiration");
-        violation_maintenance();
+            $logger->info("checking violations for expiration");
+            violation_maintenance();
 
-        $logger->info("checking accounting data for potential bandwidth abuse");
-        acct_maintenance();
+            $logger->info("checking accounting data for potential bandwidth abuse");
+            acct_maintenance();
 
-        #reload all cached configs after each iteration
-        pf::config::cached::ReloadConfigs();
+            #reload all cached configs after each iteration
+            pf::config::cached::ReloadConfigs();
+        };
+        if ($@) {
+            $logger->error("Error restarting pfmon: $@");
+            deletepid();
+            exec "${install_dir}/sbin/pfmon", @ARGV;
+        }
         alarm $Config{'general'}{'maintenance_interval'};
         pause;
     }
