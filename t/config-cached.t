@@ -29,7 +29,7 @@ BEGIN {
 }
 use pf::log;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 use Test::NoWarnings;
 use Test::Exception;
@@ -78,13 +78,15 @@ my $config =  pf::config::cached->new(
 
 isa_ok($config,"pf::config::cached");
 
-isa_ok($config,"Config::IniFiles","Prending to be a Config::IniFiles");
+isa_ok($config,"Config::IniFiles","Pretending to be a Config::IniFiles");
 
 ok(exists $DATA1{section1},"\$config->toHash");
 
 ok($DATA1{section1}{param1} eq 'value1',"\$config->toHash");
 
 is_deeply(\%DATA1,\%DATA3,"on post file reload");
+
+is_deeply({},\%DATA2,"on cache reload was not called");
 
 our $pid = fork();
 if($pid == 0) {
@@ -96,13 +98,11 @@ if($pid == 0) {
 }
 waitpid ($pid,0);
 
-is_deeply({},\%DATA2,"on file/cache reload");
-
 $config->ReadConfig();
 
-ok("newval" eq $DATA1{"section1"}{"param2"},"on reload");
+ok("newval" eq $DATA1{"section1"}{"param2"},"on reload was called");
 
-is_deeply(\%DATA1,\%DATA2,"on file/cache reload");
+is_deeply(\%DATA1,\%DATA2,"on cache reload was called");
 
 is_deeply(\%DATA1,\%DATA3,"on post file reload");
 
@@ -114,7 +114,9 @@ $config->Rollback;
 
 ok($config->val("section1","param1") eq  $old_value ,"Rollback");
 
-is_deeply(\%DATA1,\%DATA3,"on post file reload");
+is_deeply(\%DATA1,\%DATA2,"on cache reload after rollback");
+
+is_deeply(\%DATA1,\%DATA3,"on post file reload after rollback");
 
 $pid = fork();
 if($pid == 0) {

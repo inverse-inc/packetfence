@@ -19,6 +19,7 @@ use warnings;
 
 use Config::IniFiles;
 use base qw(Config::IniFiles);
+use Time::HiRes qw(stat time);
 
 *errors = \@Config::IniFiles::errors;
 use List::MoreUtils qw(all first_index);
@@ -144,6 +145,53 @@ sub ReorderByGroup {
             $self->{sects} = \@new_sections;
         }
     }
+}
+
+=head1 IsExpired
+
+=cut
+
+sub IsExpired {
+    my ($self,$no_check_imported) = @_;
+    my $imported_expired = 0;
+    if(!$no_check_imported && exists $self->{imported}) {
+        my $imported = $self->{imported};
+        $imported_expired = $imported->IsExpired() if defined $imported;
+    }
+    return ($imported_expired || ($self->GetLastModTimestamp != $self->GetCurrentModTimestamp ));
+}
+
+=head2 SetLastModTimestamp
+
+Sets the current typestamp of the file
+
+=cut
+
+sub SetLastModTimestamp {
+    my ($self) = @_;
+    $self->{_last_timestamp} = $self->GetCurrentModTimestamp();
+}
+
+
+=head2 GetLastModTimestamp
+
+Gets the mod typestamp of the file
+
+=cut
+
+sub GetLastModTimestamp { $_[0]->{_last_timestamp}; }
+
+=head2 GetCurrentModTimestamp
+
+Gets the current typestamp of the file
+
+=cut
+
+sub GetCurrentModTimestamp {
+    my ($self) = @_;
+    my $timestamp = (stat($self->GetFileName))[9];
+    $timestamp = -1 unless defined $timestamp;
+    return $timestamp;
 }
 
 

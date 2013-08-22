@@ -414,7 +414,7 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
-    if( -e $file && $config->{_timestamp} < getModTimestamp($file) ) {
+    if( $config->IsExpired(1) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
@@ -707,16 +707,15 @@ Will load the C<Config::IniFiles> object from cache or filesystem and update the
 
 sub computeFromPath {
     my ($self,$file,$computeSub,$expire) = @_;
-    my $mod_time = getModTimestamp($file);
     my $computeWrapper = sub {
         my $config = $computeSub->();
-        $config->{_timestamp} = time;
+        $config->SetLastModTimestamp();
         return $config;
     };
     my $result = $self->cache->compute(
         $file,
         {
-            expire_if => sub { return $expire || $self->_expireIf($_[0],$file); },
+            expire_if => sub { return $expire || $_[0]->value->IsExpired(); },
         },
         $computeWrapper
     );
@@ -748,36 +747,6 @@ Builds the CHI object
 sub _cache {
     return pf::CHI->new(namespace => 'configfiles' );
 }
-
-=head2 _expireIf
-
-Check to see if the config file needs to be reread
-
-=cut
-
-sub _expireIf {
-    my ($self,$cache_object,$file) = @_;
-    my $imported_expired = 0;
-    my $timestamp = $cache_object->value->{_timestamp} || 0;
-    #checking to see if the imported file needs to be reimported also
-    if ( ref($self) && exists $self->{imported} ) {
-        my $imported = $self->{imported};
-        $imported_expired = (defined $imported && $timestamp < getModTimestamp($imported->GetFileName));
-    }
-    return ($imported_expired ||  !-e $file ||  ( $timestamp < getModTimestamp($file)));
-}
-
-=head2 getModTimestamp
-
-Simple utility function for getting the modification timestamp
-
-=cut
-
-sub getModTimestamp {
-    my $timestamp = (stat($_[0]))[9];
-    return $timestamp;
-}
-
 
 =head2 ReloadConfigs
 
