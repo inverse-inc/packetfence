@@ -5,6 +5,12 @@ h3, .aup {
 </style>
 
 <style type="text/css" media="print">
+.row-fluid .offset2:first-child {
+        margin-left: 0;
+}
+.row-fluid .span8 {
+        width: auto;
+}
 hr {
   border: 0;
   border-bottom: 1px dashed #000;
@@ -18,6 +24,14 @@ h3, .aup {
 dd.aup {
         font-size: 9pt;
         line-height: 9pt;
+}
+.dl-horizontal dt {
+        float: none;
+        text-align: left;
+        width: auto;
+}
+.dl-horizontal dd {
+        margin-left: 0;
 }
 .page-break {
         display:block;
