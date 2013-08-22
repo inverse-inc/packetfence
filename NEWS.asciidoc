@@ -28,6 +28,7 @@ Enhancements
 * Phone number is now editable from the user editor
 * Updated fingerprints of gaming devices (Xbox)
 * Moved pfmon to a single process daemon and the ability to restart itself upon error
+* Added new test tool pftest
 
 Bug Fixes
 +++++++++
@@ -41,6 +42,7 @@ Bug Fixes
 * Fixed stylesheet for Firefox and IE when printing user access credentials
 * Fixed various caching issues
 * Fixed various logged warnings
+* Fixed various authentication issues
 
 Version 4.0.5-2 released on 2013-08-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
