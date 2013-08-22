@@ -220,6 +220,8 @@ Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
 Requires: perl(Moo) >= 1.0
+Requires: perl(Term::ANSIColor)
+Requires: perl(IO::Interactive)
 # configuration-wizard
 Requires: iproute, vconfig
 #
