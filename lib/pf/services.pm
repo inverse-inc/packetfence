@@ -289,7 +289,7 @@ sub service_ctl {
                         }
                     }
                 } else {
-                    my $pids = service_ctl( $daemon, "status" );
+                    my $pids = service_ctl( $daemon, "status", 1 );
                     my @pid = split(' ', $pids);
                     foreach my $pid (@pid) {
                         if ($pid) {
@@ -392,7 +392,7 @@ sub service_ctl {
                     # result, you can have more than one pfdhcplistener per interface ?!
                     # return 0 if ($dead_flag);
                     $pid = join(" ", values %int_to_pid);
-                    if ( $pid =~ m/\d+/) {
+                    if ( $quick  || !$dead_flag) {
                         return $pid;
                     } else {
                         return 0;
