@@ -10,6 +10,7 @@ pftest <cmd> [options]
 
  Commands
   authentication              | checks authentication sources
+  mysql                       | runs the mysql tuner
 
 =head1 DESCRIPTION
 
