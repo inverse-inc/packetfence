@@ -21,6 +21,7 @@ use Term::ANSIColor;
 use IO::Interactive qw(is_interactive);
 
 sub parseArgs { $_[0]->args >= 2 }
+our $indent = "  ";
 
 sub _run {
     my ($self) = @_;
@@ -35,7 +36,6 @@ sub _run {
         @sources = @pf::authentication::authentication_sources;
     }
 
-    my $indent = "  ";
 
     print "Testing authentication for \"$user\"\n\n";
     eval {
@@ -56,8 +56,9 @@ sub _run {
                 print color 'green' if $show_color;
                 print $indent ,"Matched against ",$source->id,"\n";
                 if(ref($actions)) {
+                    local $indent = $indent x 2;
                     foreach my $action (@$actions) {
-                        print $indent x 2,$action->type," : ",$action->value,"\n";
+                        print $indent ,$action->type," : ",$action->value,"\n";
                     }
                 }
             } else {
