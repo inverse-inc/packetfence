@@ -441,29 +441,20 @@ sub username_from_email {
 
 =item authenticate
 
+Authenticate a user given an optional list of authentication sources. If no source is specified, all defined
+authentication sources are used.
+
 =cut
 
 sub authenticate {
-    my ($username, $password, @source_ids) = @_;
-    my @sources;
+    my ($username, $password, @sources) = @_;
 
-    if (@source_ids) {
-        my %inlist = map { $_ => undef } @source_ids;
-        @sources = grep { exists $inlist{$_->id} } @authentication_sources;
-    } else {
+    unless (@sources) {
         @sources = @authentication_sources;
     }
-    return _authenticate_from_sources($username, $password, @sources);
-}
 
-=item _authenticate_from_sources
+    $logger->debug("Authenticating '$username' from sources ".join(', ', map { $_->id } @sources));
 
-=cut
-
-sub _authenticate_from_sources {
-    my ( $username, $password, @sources ) = @_;
-
-    $logger->debug("Authenticating '$username'");
     foreach my $current_source (@sources) {
         my ($result, $message);
         $logger->trace("Trying to authenticate '$username' with source '".$current_source->id."'");
@@ -472,12 +463,12 @@ sub _authenticate_from_sources {
         };
         # First match wins!
         if ($result) {
-            $logger->debug("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
+            $logger->info("Authentication successful for $username in source ".$current_source->id." (".$current_source->type.")");
             return ($result, $message, $current_source->id);
         }
     }
 
-    $logger->trace("Authentication failed for '$username' for all sources");
+    $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
     return ($FALSE, 'Invalid username/password for all authentication sources.');
 }
 
