@@ -19,7 +19,7 @@ use base qw(pf::cmd);
 
 sub run {
     my ($self) = @_;
-    $self->showHelp(ref($self->{parentCmd}) || $self->{parentCmd});
+    $self->{parentCmd}->showHelp;
 }
 
 =head1 AUTHOR

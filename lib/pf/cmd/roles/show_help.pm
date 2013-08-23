@@ -22,7 +22,7 @@ use Role::Tiny;
 sub showHelp {
     my ($self,$package) = @_;
     $package ||= ref($self) || $self;
-    pod2usage( { -width => 200 , -input => pod_where({-inc => 1}, $package) } );
+    pod2usage( { -message => $self->{help_msg} ,  -input => pod_where({-inc => 1}, $package) } );
 }
 
 

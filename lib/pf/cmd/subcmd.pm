@@ -46,6 +46,11 @@ sub parseArgs {
             $cmd = $module;
         };
         if($@) {
+            if ($@ =~ /Compilation failed/) {
+                $self->{help_msg} = "module $module cannot be loaded";
+            } else {
+                $self->{help_msg} = "unknown command $action";
+            }
             $cmd = $self->unknownActionCmd;
         }
     } else {
