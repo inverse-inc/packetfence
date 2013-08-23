@@ -66,8 +66,7 @@ BuildRequires: perl(Parse::RecDescent)
 
 PacketFence is an open source network access control (NAC) system.
 It can be used to effectively secure networks, from small to very large
-heterogeneous networks. PacketFence provides features such
-as
+heterogeneous networks. PacketFence provides features such as
 * registration of new network devices
 * detection of abnormal network activities
 * isolation of problematic devices
@@ -298,7 +297,7 @@ mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
-for TRANSLATION in de en es fr he_IL it nl pt_BR; do 
+for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
     /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
@@ -680,6 +679,10 @@ fi
 %dir                    /usr/local/pf/conf/locale/nl/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/pl_PL
+%dir                    /usr/local/pf/conf/locale/pl_PL/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/pl_PL/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/pl_PL/LC_MESSAGES/packetfence.mo
 %dir                    /usr/local/pf/conf/locale/pt_BR
 %dir                    /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
