@@ -35,6 +35,7 @@ use warnings;
 
 use WWW::Curl::Easy;
 use XML::Simple;
+use HTML::Entities;
 
 use lib '/usr/local/pf/lib/';
 
@@ -114,6 +115,7 @@ sub authorize {
                 $request_content = $request_content .
                     "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
                 foreach my $array_value ( @{$RAD_REQUEST{$key}} ) {
+                    encode_entities($array_value);
                     $array_counter += 1;    # that one is actually important...
                     $array_content = $array_content . "<item xsi:type=\"xsd:string\">$array_value</item>";
                     $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
@@ -123,10 +125,11 @@ sub authorize {
                 $request_content = $request_content . $array_content;
                 $request_content = $request_content . "</soapenc:Array>";
             } else {
+                my $value = encode_entities($RAD_REQUEST{$key});
                 $request_content = $request_content .
                     "<c-gensym$counter xsi:type=\"xsd:string\">$key</c-gensym$counter>";
                 $request_content = $request_content .
-                    "<c-gensym$counter xsi:type=\"xsd:string\">$RAD_REQUEST{$key}</c-gensym$counter>";
+                    "<c-gensym$counter xsi:type=\"xsd:string\">$value</c-gensym$counter>";
                 $counter += 1;  # looks like this one is not mandatory, we still use it to keep track of keys/values
             }
         }
