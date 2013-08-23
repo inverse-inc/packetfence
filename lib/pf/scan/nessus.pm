@@ -84,16 +84,16 @@ sub startScan {
     my $user                = $this->{_user};
     my $pass                = $this->{_pass};
     my $nessus_clientpolicy = $this->{_policy};
-    my $n = Net::Nessus::XMLRPC->new ('https://'.$host.':'.$port.'/',$user,$pass);
+    my $n = Net::Nessus::XMLRPC->new('https://'.$host.':'.$port.'/', $user, $pass);
 
     # select nessus policy on the server, set scan name and launch the scan
-    my $polid=$n->policy_get_id($nessus_clientpolicy);
+    my $polid = $n->policy_get_id($nessus_clientpolicy);
     if ($polid eq "") {
         $logger->warn("Nessus policy doesnt exist ".$nessus_clientpolicy);
         return 1;
     }
-    my $scanname="pf-".$hostaddr."-".$nessus_clientpolicy;
-    my $scanid=$n->scan_new($polid,$scanname,$hostaddr);
+    my $scanname = "pf-".$hostaddr."-".$nessus_clientpolicy;
+    my $scanid = $n->scan_new($polid, $scanname, $hostaddr);
     if ( $scanid eq "") {
         $logger->warn("Nessus scan doesnt start");
         return 1;

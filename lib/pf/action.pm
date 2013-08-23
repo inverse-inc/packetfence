@@ -268,7 +268,7 @@ sub action_log {
 
 sub action_trap {
     my ($mac, $vid) = @_;
-    pf::enforcement::reevaluate_access( $mac, "manage_vopen");
+    pf::enforcement::reevaluate_access($mac, "manage_vopen");
 }
 
 sub action_winpopup {

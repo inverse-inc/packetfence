@@ -40,7 +40,7 @@ Build all the permit domain for passthrough_remediation
 =cut
 
 sub proxy_passthrough_remediation {
-    my @remediation_rules=class_view_all();
+    my @remediation_rules = class_view_all();
     my @domains;
 
     foreach my $row (@remediation_rules) {
