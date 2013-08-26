@@ -2035,13 +2035,14 @@ sub handle_wireless_ips {
 sub getSwitch {
     my ($switch_id) = @_;
     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
+    my $switch;
     my $lockLogger = Log::Log4perl->get_logger('pfsetvlan::locking');
     {
         lock $switchFactory_locker;
     #    $pf::ConfigStore::SwitchOverlay::switches_overlay_cached_config->ReadConfig();
         $lockLogger->trace("locking - obtained lock on switchFactory_locker");
         pf::config::cached::ReloadConfigs();
-        my $switch = $switchFactory->instantiate($switch_id);
+        $switch = $switchFactory->instantiate($switch_id);
         if($switch) {
             add_to_switch_locker($switch->{_id});
         } else {
@@ -2049,6 +2050,7 @@ sub getSwitch {
         }
     }
     $lockLogger->trace("locking - unlocked switchFactory_locker");
+    return $switch;
 }
 
 =head2 add_to_switch_locker
