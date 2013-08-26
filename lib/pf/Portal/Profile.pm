@@ -189,11 +189,6 @@ sub getSourceByType {
         $result = first {uc($_->{'type'}) eq $type} $self->getSourcesAsObjects;
     }
 
-    unless ($result) {
-        my $logger = get_logger();
-        $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $self->getName));
-    }
-
     return $result;
 }
 

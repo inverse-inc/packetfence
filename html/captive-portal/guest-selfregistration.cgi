@@ -97,13 +97,13 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
       # fetch role for this user
       my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-      my $source_id = $portalSession->getProfile()->getSourceByType($email_type);
+      my $source = $portalSession->getProfile()->getSourceByType($email_type);
       my $auth_params =
         {
          'username' => $pid,
          'user_email' => $email
         };
-      $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+      $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
       # form valid, adding person (using modify in case person already exists)
       person_modify($pid, (
@@ -118,7 +118,6 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
       # if we are on-site: register the node
       if (!$session->param("preregistration")) {
           # Use the activation timeout to set the unregistration date
-          my $source = &pf::authentication::getAuthenticationSource($source_id);
           my $timeout = normalize_time($source->{email_activation_timeout});
           $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
           $logger->debug("Registration for guest ".$pid." is valid until ".$info{'unregdate'});
@@ -190,13 +189,13 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
           # fetch role for this user
           my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-          my $source_id = $portalSession->getProfile->getSourceByType($sms_type);
+          my $source = $portalSession->getProfile->getSourceByType($sms_type);
           my $auth_params =
             {
              'username' => $pid,
              'phonenumber' => $phone
             };
-          $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+          $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
           # set node in pending mode with the appropriate role
           $info{'status'} = $pf::node::STATUS_PENDING;
@@ -233,7 +232,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
       $logger->info("Adding guest person " . $session->param('guest_pid'));
 
       my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
-      my $source_id = $portalSession->getProfile->getSourceByType($sponsor_type);
+      my $source = $portalSession->getProfile->getSourceByType($sponsor_type);
       my $auth_params =
         {
          'username' => $pid,
@@ -241,16 +240,16 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
         };
 
       # fetch role for this user
-      $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+      $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
       # Setting access timeout and role (category) dynamically
-      $info{'unregdate'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ACCESS_DURATION);
+      $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
       if (defined $info{'unregdate'}) {
           $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
       }
       else {
-          $info{'unregdate'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_UNREG_DATE);
+          $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
       }
 
       # set node in pending mode

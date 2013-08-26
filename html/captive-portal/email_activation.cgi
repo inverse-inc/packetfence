@@ -68,24 +68,24 @@ if (defined($cgi->url_param('code'))) {
     if ($activation_record->{'type'} eq $GUEST_ACTIVATION) {
 
         my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-        my $source_id = $portalSession->getProfile->getSourceByType($email_type);
+        my $source = $portalSession->getProfile->getSourceByType($email_type);
 
-        if ($source_id) {
+        if ($source) {
 
             # if we have a MAC, guest was on-site and we need to proceed with registration
             if ( defined($node_mac) && valid_mac($node_mac) ) {
 
                 # Setting access timeout and role (category) dynamically
-                my $expiration = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ACCESS_DURATION);
+                my $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
                 if (defined $expiration) {
                     $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
                 }
                 else {
-                    $expiration = &pf::authentication::match($source_id, $auth_params, $Actions::SET_UNREG_DATE);
+                    $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
                 }
 
-                my $category = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
+                my $category = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
                 $logger->debug("Determined unregdate $expiration and category $category for email $email");
 
@@ -115,7 +115,7 @@ if (defined($cgi->url_param('code'))) {
                   );
 
                 # we create a temporary password using the actions from the email authentication source;
-                my $actions = &pf::authentication::match($source_id, $auth_params);
+                my $actions = &pf::authentication::match($source->{id}, $auth_params);
                 $info{'password'} = pf::temporary_password::generate($pid, undef, $actions);
 
                 # send on-site guest credentials by email
@@ -142,9 +142,9 @@ if (defined($cgi->url_param('code'))) {
     elsif ($activation_record->{'type'} eq $SPONSOR_ACTIVATION) {
 
         my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
-        my $source_id = $portalSession->getProfile->getSourceByType($sponsor_type);
+        my $source = $portalSession->getProfile->getSourceByType($sponsor_type);
 
-        if ($source_id) {
+        if ($source) {
 
             # if we have a username in session it means user has already authenticated
             # so we go ahead and allow the guest in
@@ -238,7 +238,7 @@ if (defined($cgi->url_param('code'))) {
             # we create a temporary password using the actions from the sponsor authentication source;
             # NOTE: When sponsoring a network access, the new user will be created (in the temporary_password table) using
             # the actions of the sponsor authentication source of the portal profile on which the *sponsor* has landed.
-            my $actions = &pf::authentication::match($source_id, { username => $pid, user_email => $pid });
+            my $actions = &pf::authentication::match($source->{id}, { username => $pid, user_email => $pid });
             $info{'password'} = pf::temporary_password::generate($pid, undef, $actions);
 
             # prepare welcome email for a guest who registered locally

@@ -491,7 +491,7 @@ sub match {
         @sources = @{$source_id};
     } else {
         my $source = getAuthenticationSource($source_id);
-        if(defined $source) {
+        if (defined $source) {
             @sources = ($source);
         }
     }
