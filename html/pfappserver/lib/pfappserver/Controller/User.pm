@@ -308,6 +308,7 @@ sub advanced_search :Local :Args() {
             $c->stash( form => $form);
             $c->stash( $result);
         }
+        $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
     $c->stash(
         status_msg => $status_msg,
