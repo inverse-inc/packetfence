@@ -27,8 +27,9 @@ Enhancements
 * When no authentication source is associated to the default portal profile, all available sources are used
 * Phone number is now editable from the user editor
 * Updated fingerprints of gaming devices (Xbox)
-* Moved pfmon to a single process daemon and the ability to restart itself upon error
-* Added new test tool pftest
+* Moved pfmon to a single process daemon and added the ability to restart itself upon error
+* Added new test tool bin/pftest
+* Improved SQL query in pf::node when matching a valid MAC
 
 Bug Fixes
 +++++++++
