@@ -612,8 +612,8 @@ sub parseTrap {
                 } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.2   # metadata
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"                       # mac
-                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)\                        # connection_type
-                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"                       # switch id
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)                         # connection_type
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"\                      # switch id
                     END\ VARIABLEBINDINGS/x) {
                     # WARNING: using trap operation for something it is not meant to
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
@@ -638,8 +638,8 @@ sub parseTrap {
 
                 } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.3   # metadata
-                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"\                      # mac
-                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"                       # switch id
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"                       # mac
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"\                      # switch id
                     END\ VARIABLEBINDINGS/x) {
                     # WARNING: using trap operation for something it is not meant to
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
