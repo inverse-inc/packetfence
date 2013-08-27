@@ -177,7 +177,7 @@ function graphLineData(holder, labels, series) {
     grey = '#eee';
     x = margin/2, h += height;
     for (i = 0; i < counters.length; i++) {
-        var clr = Raphael.color(colors[legend.indexOf(counters[i])]);
+        var clr = Raphael.color(colors[jQuery.inArray(counters[i], legend)]);
         var clrlt = 'hsb(' + (clr.h) + ', ' + (clr.s) + ', ' + (clr.v + .1) + ')';
         var clrltr = 'hsb(' + (clr.h) + ', ' + (clr.s) + ', ' + 0.9 + ')';
         var box = r.set();
