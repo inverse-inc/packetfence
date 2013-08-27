@@ -25,6 +25,7 @@ use Net::MAC::Vendor;
 use Net::SMTP;
 use POSIX();
 use File::Spec::Functions;
+use File::Slurp qw(read_dir);
 
 our ( %local_mac );
 
@@ -52,7 +53,7 @@ BEGIN {
         pf_run pfmailer
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
-        untaint_chain
+        untaint_chain read_dir_recursive
     );
 }
 
@@ -1112,6 +1113,21 @@ sub untaint_chain {
     if ($chain =~ /^(.+)$/) {
         return $1;
     }
+}
+
+sub read_dir_recursive {
+    my ($root_path) = @_;
+    my @files;
+    foreach my $entry (read_dir($root_path)) {
+        my $full_path = catfile($root_path, $entry);
+        if (-d $full_path) {
+            push @files, map {catfile($entry, $_) } _readDirRecursive($full_path);
+        }
+        elsif ($entry !~ m/^\./) {
+            push @files, $entry;
+        }
+    }
+    return @files;
 }
 
 =back
