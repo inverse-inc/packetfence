@@ -12,10 +12,10 @@ NOTE: always remember that this file is only part of the story, lib/pf/pfcmd.pm 
 
 =head1 MANUAL PRECOMPILE
 
-The grammar is usually compiled by the RPM install process 
+The grammar is usually compiled by the RPM install process
 however if you do any modifications on your own you might want to precompile it again youself.
 
-To do so, from /usr/local/pf/, run: 
+To do so, from /usr/local/pf/, run:
 
   /usr/bin/perl -w -e "use strict; use warnings; use Parse::RecDescent; use lib \"./lib\"; use pf::pfcmd::pfcmd; Parse::RecDescent->Precompile(\$grammar, \"pfcmd_pregrammar\");"
 
@@ -60,7 +60,7 @@ $grammar = q {
 
    person_options : 'add' pid person_edit_options(?)  | 'edit' pid person_edit_options | 'delete' value
 
-   node_options : 'add' macaddr node_edit_options | 'edit' macaddr node_edit_options 
+   node_options : 'add' macaddr node_edit_options | 'edit' macaddr node_edit_options
 
    # nodecategory add is without an id and edit is with one
    nodecategory_options : 'add' nodecategory_edit_options | 'edit' /\d+/ nodecategory_edit_options | 'delete' /\d+/
@@ -75,7 +75,11 @@ $grammar = q {
 
    violationconfig_options: ('add' | 'edit') ('defaults'|/\d+/) violationconfig_edit_options
 
-   violation_options : 'add' violation_edit_options | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/ 
+   violation_options : 'add' violation_edit_options output_type  | 'edit' /\d+/ violation_edit_options | 'delete' /\d+/
+
+   output_type : output_type_json(?)
+
+   output_type_json : 'json'
 
    schedule_options : 'now' host_range edit_options(?) | 'add' host_range edit_options | 'edit' /\d+/ edit_options
 
@@ -128,8 +132,8 @@ $grammar = q {
    networkconfig_assignment : networkconfig_view_field '=' value
                 {push @{$main::cmd{$item[0]}}, [$item{networkconfig_view_field},$item{value}] }
 
-   switchconfig_assignment : 
-       switchconfig_view_field '=' value 
+   switchconfig_assignment :
+       switchconfig_view_field '=' value
            {push @{$main::cmd{$item[0]}}, [$item{switchconfig_view_field},$item{value}] }
        |
        switchconfig_password_field '=' password

@@ -278,7 +278,7 @@ sub manage {
     } elsif ( $option eq "vopen" ) {
         return 3 if ( !$id );
         require pf::violation;
-        print pf::violation::violation_add( $mac, $id );
+        print (pf::violation::violation_add( $mac, $id ) ? 1 : 0);
     }
     require pf::enforcement;
     pf::enforcement::reevaluate_access( $mac, $function );
@@ -1930,9 +1930,13 @@ sub command_param {
         if (!exists(&{$main::{$function}})) {
             print "No such sub: $function at line ".__LINE__.".\n";
         } else {
+            my $output  = $cmd{$options}[3];
             # execute coderef main::$function sub
             $logger->info( "pfcmd calling $function for " . $params{mac} );
-            &{$main::{$function}}($params{mac}, $params{vid}, %params);
+            my ($result) = &{$main::{$function}}($params{mac}, $params{vid}, %params);
+            if($result > 0 && defined $output && $output eq 'json') {
+                print "{ \"id\" : \"$result\" }\n"
+            }
         }
     } else {
         if ( $function eq "violation_delete" ) {
