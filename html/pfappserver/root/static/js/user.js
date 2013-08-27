@@ -106,6 +106,7 @@ UserView.prototype.readUser = function(e) {
             section.fadeTo('fast', 1.0);
         },
         success: function(data) {
+            $('#modalUser').remove();
             $('body').append(data);
             var modal = $("#modalUser");
             modal.find('.datepicker').datepicker({ autoclose: true });
@@ -115,9 +116,6 @@ UserView.prototype.readUser = function(e) {
             modal.on('shown', function() {
                 modal.find(':input:visible').first().focus();
                 modal.find('[data-toggle="tooltip"]').tooltip({placement: 'top'});
-            });
-            modal.on('hidden', function (eventObject) {
-                $(this).remove();
             });
             modal.modal({ show: true });
         },
@@ -250,31 +248,10 @@ UserView.prototype.readNode = function(e) {
         success: function(data) {
             $('body').append(data);
             var modalNode = $("#modalNode");
-            modalUser.one('hidden',function(event){
+            modalUser.one('hidden', function(e){
                 modalNode.modal('show');
             });
-            modalNode.one('shown', function(event) {
-                var modal = $(this);
-                modal.find('.chzn-select').chosen();
-                modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
-                modal.find('.timepicker-default').each(function() {
-                    // Keep the placeholder visible if the input has no value
-                    var that = $(this);
-                    var defaultTime = that.val().length? 'value' : false;
-                    that.timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
-                    that.on('hidden', function (e) {
-                        // Stop the hidden event bubbling up to the modal
-                        e.stopPropagation();
-                    });
-                });
-                modal.find('.datepicker').datepicker({ autoclose: true });
-                modal.find('a[href="#nodeHistory"]').on('shown', function () {
-                    if ($('#nodeHistory .chart').children().length == 0)
-                        drawGraphs();
-                });
-            });
-            modalNode.one('hidden', function (eventObject) {
-                $(this).remove();
+            modalNode.one('hidden', function (e) {
                 modalUser.modal('show');
             });
             modalUser.modal('hide');

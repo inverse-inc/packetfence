@@ -47,7 +47,7 @@ sub read {
     # Fetch user information
     foreach my $pid (@$pids) {
         my $user = person_view($pid);
-        if ($user) {
+        if ($user && $user->{pid}) {
             if ($user->{valid_from}) {
                 # Formulate activation date
                 $user->{valid_from} =~ s/ \d{2}:\d{2}:\d{2}$//;

@@ -30,6 +30,7 @@ Enhancements
 * Moved pfmon to a single process daemon and added the ability to restart itself upon error
 * Added new test tool bin/pftest
 * Improved SQL query in pf::node when matching a valid MAC
+* Allow change of owner in node editor
 
 Bug Fixes
 +++++++++
