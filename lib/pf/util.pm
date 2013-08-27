@@ -1115,6 +1115,12 @@ sub untaint_chain {
     }
 }
 
+=item read_dir_recursive
+
+ Reads all the files in a directory recusivley
+
+=cut
+
 sub read_dir_recursive {
     my ($root_path) = @_;
     my @files;
