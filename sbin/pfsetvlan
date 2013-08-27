@@ -545,6 +545,7 @@ sub parseTrap {
 
     $logger->debug("parsing trap $trapLine");
     if ( $trapLine =~ /$TRAP_PATTERN/ ) {
+        my $newTrapLine = $3;
 
         #test if this is a 'normal' trap (i.e. a trap sent from a switch
         #or a local trap (INVERSE-PACKETFENCE-NOTIFICATION-MIB)
@@ -553,6 +554,9 @@ sub parseTrap {
         my $isLocalTrap = ( ( $1 eq '127.0.0.1' ) || ( $3 =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1/ ) );
         if ($isLocalTrap) {
             $switch_id = $2;
+            if($trapLine =~ /\.1\.3\.6\.1\.4\.1\.29464\.1\.5 = STRING: \"(.+)\"/) {
+                $switch_id = $1;
+            }
             $logger->info("local (127.0.0.1) trap for switch $switch_id");
             $switch = getSwitch($switch_id);
         } else {
@@ -573,7 +577,7 @@ sub parseTrap {
             my $trapHashRef;
             # TODO push this out in pf::SNMP::PacketFence, no?
             if ($isLocalTrap) {
-                my $trapLine = $3;
+                $trapLine = $newTrapLine;
                 if ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                       # metadata
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.1  # metadata
                     \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+)\ =\ INTEGER:\ \d+                    # ifIndex
@@ -606,8 +610,36 @@ sub parseTrap {
                     };
 
                 } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
+                    \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.2   # metadata
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"                       # mac
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.4\ =\ INTEGER:\ (\d+)\                        # connection_type
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"                       # switch id
+                    END\ VARIABLEBINDINGS/x) {
+                    # WARNING: using trap operation for something it is not meant to
+                    # WARNING: always leave trapIfIndex because the trapLine parser expects it
+                    $trapHashRef = {
+                        'trapType'      => 'desAssociate',
+                        'trapIfIndex'   => 'WIFI',
+                        'trapMac'       => $1,
+                        'trapOperation' => $2
+                    };
+
+                } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.3   # metadata
                     \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"\                      # mac
+                    END\ VARIABLEBINDINGS/x) {
+                    # WARNING: using trap operation for something it is not meant to
+                    # WARNING: always leave trapIfIndex because the trapLine parser expects it
+                    $trapHashRef = {
+                        'trapType'      => 'firewallRequest',
+                        'trapIfIndex'   => 'NA',
+                        'trapMac'       => $1,
+                    };
+
+                } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
+                    \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.3   # metadata
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"\                      # mac
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"                       # switch id
                     END\ VARIABLEBINDINGS/x) {
                     # WARNING: using trap operation for something it is not meant to
                     # WARNING: always leave trapIfIndex because the trapLine parser expects it
@@ -637,12 +669,9 @@ sub parseTrap {
                 } else {
                     $trapHashRef->{'trapType'} = 'unknown';
                 }
-                if($trapLine =~ /\|\.1\.3\.6\.1\.4\.1\.29464\.1\.5\ =\ STRING:\ \"(.+)\"/) {
-                    $trapHashRef->{'switchId'} = $1;
-                }
 
             } else {
-                $trapHashRef = $switch->parseTrap($3);
+                $trapHashRef = $switch->parseTrap($newTrapLine);
 
                 # skip traps coming from switch ifIndex that reached traps limit threshold
                 return if ( perform_trap_limiting($switch, $trapHashRef->{'trapIfIndex'}) );
