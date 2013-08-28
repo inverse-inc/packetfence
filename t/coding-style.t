@@ -31,7 +31,7 @@ plan tests => scalar @files * 1 + 1;
 # lookout for TABS
 foreach my $file (@files) {
 
-    open(my $fh, '<', $file) or die $!;
+    open(my $fh, '<', $file) or die "Can't open $file: $!";
 
     my $tabFound = 0;
     while (<$fh>) {
