@@ -31,6 +31,7 @@ Enhancements
 * Added new test tool bin/pftest
 * Improved SQL query in pf::node when matching a valid MAC
 * Allow change of owner in node editor
+* Give then option for iptables not to be managed by iptables
 
 Bug Fixes
 +++++++++
