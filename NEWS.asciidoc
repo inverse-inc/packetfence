@@ -35,6 +35,7 @@ Enhancements
 Bug Fixes
 +++++++++
 
+* Fixed XML encoding of RADIUS attributes in SOAP request.
 * Fixed retrieval of user role for gaming devices
 * Fixed SQL query of connection types report in Web admin
 * Fixed issue with anonymous LDAP bind failing with searches
