@@ -36,11 +36,7 @@ ARCHIVE_DB_FILENAME='packetfence-archive'
                 echo -e "$BACKUP_DIRECTORY , folder already created. \n"
     fi
 
-#               echo -e "$BACKUP_PF_FILENAME older than $NB_DAYS_TO_KEEP days have been removed. \n"
-#               echo -e $BACKUP_DIRECTORY$BACKUP_PF_FILENAME-`date +%F_%Hh%M` ", file already created. \n"
-#               echo -e $BACKUP_PF_FILENAME-`date +%F_%Hh%M` "have been created in  $BACK_DIRECTORY \n"
-#
-         Backup pf File
+# Backup pf File
      if [ ! -f $BACKUP_DIRECTORY.$BACKUP_PF_FILENAME ]; then
          tar cvzf $BACKUP_DIRECTORY$BACKUP_PF_FILENAME $PF_DIRECTORY
                 echo -e $BACKUP_PF_FILENAME "have been created in  $BACKUP_DIRECTORY \n"
