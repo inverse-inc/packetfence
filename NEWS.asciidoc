@@ -32,6 +32,7 @@ Enhancements
 * Improved SQL query in pf::node when matching a valid MAC
 * Allow change of owner in node editor
 * Give then option for iptables not to be managed by iptables
+* Allow advanced search of users and nodes by notes
 
 Bug Fixes
 +++++++++
@@ -45,7 +46,8 @@ Bug Fixes
 * Fixed detection of guest-only authentication sources when no source is associated to the portal
 * Fixed stylesheet for Firefox and IE when printing user access credentials
 * Fixed display of IP address in advanced search of nodes
-* Fixed search by violation in advanced search of nodes
+* Fixed advanced search of nodes by violation
+* Fixed advanced search of users by sponsor
 * Fixed various caching issues
 * Fixed various logged warnings
 * Fixed various authentication issues

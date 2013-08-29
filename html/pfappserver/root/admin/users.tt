@@ -138,22 +138,23 @@ form {
                       <tr class="hidden dynamic-row">
                         <td>
                           <select name="searches.0.name" disabled="disabled" class="span4">
-                            <option value="username">User Name</option>
-                            <option value="name">Name</option>
-                            <option value="firstname">First Name</option>
-                            <option value="lastname">Last Name</option>
-                            <option value="telephone">Telephone</option>
-                            <option value="email">Email</option>
-                            <option value="sponser">Sponsor</option>
-                            <option value="ip_address">IP address</option>
-                            <option value="mac">MAC address</option>
+                            <option value="username">[% l('User Name') %]</option>
+                            <option value="name">[% l('Name') %]</option>
+                            <option value="firstname">[% l('First Name') %]</option>
+                            <option value="lastname">[% l('Last Name') %]</option>
+                            <option value="email">[% l('Email') %]</option>
+                            <option value="telephone">[% l('Telephone') %]</option>
+                            <option value="sponsor">[% l('Sponsor') %]</option>
+                            <option value="notes">[% l('Notes') %]</option>
+                            <option value="ip_address">[% l('IP address') %]</option>
+                            <option value="mac">[% l('MAC address') %]</option>
                           </select>
                           <select name="searches.0.op" disabled="disabled" class="span2" >
-                            <option value="equal">is</option>
-                            <option value="not_equal">is not</option>
-                            <option value="starts_with">starts with</option>
-                            <option value="ends_with">ends with</option>
-                            <option value="like">matches</option>
+                            <option value="equal">[% l('is') %]</option>
+                            <option value="not_equal">[% l('is not') %]</option>
+                            <option value="starts_with">[% l('starts with') %]</option>
+                            <option value="ends_with">[% l('ends with') %]</option>
+                            <option value="like">[% l('matches') %]</option>
                           </select>
                           <input name="searches.0.value" disabled="disabled" type="text" class="span6" placeholder="String...">
                         </td>
@@ -165,22 +166,23 @@ form {
                       <tr class="dynamic-row">
                         <td>
                           <select name="searches.0.name" class="span4">
-                            <option value="username">User Name</option>
-                            <option value="name">Name</option>
-                            <option value="firstname">First Name</option>
-                            <option value="lastname">Last Name</option>
-                            <option value="email">Email</option>
-                            <option value="telephone">Telephone</option>
-                            <option value="sponser">Sponsor</option>
-                            <option value="ip_address">IP address</option>
-                            <option value="mac">MAC address</option>
+                            <option value="username">[% l('User Name') %]</option>
+                            <option value="name">[% l('Name') %]</option>
+                            <option value="firstname">[% l('First Name') %]</option>
+                            <option value="lastname">[% l('Last Name') %]</option>
+                            <option value="email">[% l('Email') %]</option>
+                            <option value="telephone">[% l('Telephone') %]</option>
+                            <option value="sponsor">[% l('Sponsor') %]</option>
+                            <option value="notes">[% l('Notes') %]</option>
+                            <option value="ip_address">[% l('IP address') %]</option>
+                            <option value="mac">[% l('MAC address') %]</option>
                           </select>
                           <select name="searches.0.op" class="span2" >
-                            <option value="equal">is</option>
-                            <option value="not_equal">is not</option>
-                            <option value="starts_with">starts with</option>
-                            <option value="ends_with">ends with</option>
-                            <option value="like">matches</option>
+                            <option value="equal">[% l('is') %]</option>
+                            <option value="not_equal">[% l('is not') %]</option>
+                            <option value="starts_with">[% l('starts with') %]</option>
+                            <option value="ends_with">[% l('ends with') %]</option>
+                            <option value="like">[% l('matches') %]</option>
                           </select>
                           <input name="searches.0.value" type="text" class="span6" placeholder="String...">
                         </td>
