@@ -28,28 +28,28 @@ extends 'pfappserver::Base::Model::Search';
 =cut
 
 sub search {
-    my ($self,$params) = @_;
+    my ($self, $params) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $builder = $self->make_builder;
-    $self->setup_query($builder,$params);
-    my $results = $self->do_query($builder,$params);
-    return(HTTP_OK,$results);
+    $self->setup_query($builder, $params);
+    my $results = $self->do_query($builder, $params);
+    return(HTTP_OK, $results);
 }
 
 sub setup_query {
-    my ($self,$builder,$params) = @_;
-    $self->add_joins($builder,$params);
-    $self->add_searches($builder,$params);
-    $self->add_date_range($builder,$params,@{$params}{qw(start end)});
-    $self->add_limit($builder,$params);
-    $self->add_order_by($builder,$params);
+    my ($self, $builder, $params) = @_;
+    $self->add_joins($builder, $params);
+    $self->add_searches($builder, $params);
+    $self->add_date_range($builder, $params, @{$params}{qw(start end)});
+    $self->add_limit($builder, $params);
+    $self->add_order_by($builder, $params);
 }
 
 sub do_query {
-    my ($self,$builder,$params) = @_;
+    my ($self, $builder, $params) = @_;
     my %results = %$params;
     my $sql = $builder->sql;
-    my ($per_page,$page_num,$by,$direction) = @{$params}{qw(per_page page_num by direction)};
+    my ($per_page, $page_num, $by, $direction) = @{$params}{qw(per_page page_num by direction)};
     $per_page ||= 25;
     $page_num ||= 1;
     $direction ||= 'ASC';
@@ -74,7 +74,7 @@ sub add_searches {
     } else {
         $all_or_any = 'and';
     }
-    if(@searches) {
+    if (@searches) {
         $builder->where('(');
         $builder->where($all_or_any)->where(@$_) for @searches;
         $builder->where(')');
@@ -89,8 +89,9 @@ sub make_builder {
             detect_date regdate unregdate lastskip
             user_agent computername
             last_arp last_dhcp notes),
-            L_("IF(ISNULL(node_category.name), '', node_category.name)",'category'),
-            L_("IFNULL(os_type.description, ' ')",'dhcp_fingerprint')
+            L_('iplog.ip', 'last_ip'),
+            L_("IF(ISNULL(node_category.name), '', node_category.name)", 'category'),
+            L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint')
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -129,6 +130,33 @@ sub make_builder {
                     ],
                 },
                 {
+                    'table' => 'iplog',
+                    'join' => 'LEFT',
+                    'on' =>
+                    [
+                        [
+                            {
+                                'table'  => 'iplog',
+                                'name'   => 'mac',
+                            },
+                            '=',
+                            {
+                                'table'  => 'node',
+                                'name'   => 'mac',
+                            }
+                        ],
+                     [ 'AND' ],
+                        [
+                            {
+                                'table'  => 'iplog',
+                                'name'   => 'end_time',
+                            },
+                            '=',
+                            '0000-00-00 00:00:00',
+                         ],
+                    ],
+                },
+                {
                     'table' => 'os_type',
                     'join' => 'LEFT',
                     'using' => 'os_id',
@@ -150,6 +178,10 @@ my %COLUMN_MAP = (
     node_category => {
         table => 'node_category',
         name  => 'name',
+    },
+    dhcp_fingerprint   => {
+       table => 'os_type',
+       name  => 'description',
     },
     switch_ip   => {
        table => 'locationlog',
@@ -175,29 +207,9 @@ my %COLUMN_MAP = (
            },
        ]
     },
-    node_ip   => {
+    last_ip   => {
        table => 'iplog',
        name  => 'ip',
-       joins => [
-          {
-              'table'  => 'iplog',
-              'join' => 'LEFT',
-              'on' =>
-              [
-                  [
-                      {
-                          'table' => 'iplog',
-                          'name'  => 'mac',
-                      },
-                      '=',
-                      {
-                          'table' => 'node',
-                          'name'  => 'mac',
-                      }
-                  ]
-              ],
-          },
-       ]
     },
     violation   => {
         table => 'class',
@@ -218,7 +230,16 @@ my %COLUMN_MAP = (
                             'table' => 'node',
                             'name'  => 'mac',
                         }
-                    ]
+                    ],
+                    [ 'AND' ],
+                    [
+                        {
+                            'table' => 'violation',
+                            'name'  => 'status',
+                        },
+                        '=',
+                        'open',
+                     ],
                 ],
             },
             {
@@ -244,18 +265,18 @@ my %COLUMN_MAP = (
 );
 
 sub add_date_range {
-    my ($self,$builder,$params,$start,$end) = @_;
-    if($start || $end) {
+    my ($self, $builder, $params, $start, $end) = @_;
+    if ($start || $end) {
         unless (grep { $_->{name} eq 'switch_ip'} @{$params->{searches}}) {
             $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
         }
         if ($start) {
             $builder->where({ table =>'locationlog', name => 'start_time' }, '>=' ,$start);
         }
-        if($end) {
+        if ($end) {
             $builder
                 ->where('(')
-                ->where({ table =>'locationlog', name => 'end_time' }, '<=' ,$end)
+                ->where({ table =>'locationlog', name => 'end_time' }, '<=' , $end)
                 ->or()
                 ->where({ table =>'locationlog', name => 'end_time' }, 'IS NULL')
                 ->where(')');
@@ -275,7 +296,7 @@ sub add_joins {
     my ($self,$builder,$params) = @_;
     foreach my $name (map { $_->{name} } @{$params->{searches}}) {
         $builder->from(@{$COLUMN_MAP{$name}{'joins'}})
-            if( exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'});
+            if (exists $COLUMN_MAP{$name} && ref($COLUMN_MAP{$name}) eq 'HASH' && $COLUMN_MAP{$name}{'joins'});
     }
 }
 

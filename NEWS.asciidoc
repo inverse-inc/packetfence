@@ -44,6 +44,8 @@ Bug Fixes
 * Fixed empty variables of preregistration email template
 * Fixed detection of guest-only authentication sources when no source is associated to the portal
 * Fixed stylesheet for Firefox and IE when printing user access credentials
+* Fixed display of IP address in advanced search of nodes
+* Fixed search by violation in advanced search of nodes
 * Fixed various caching issues
 * Fixed various logged warnings
 * Fixed various authentication issues
