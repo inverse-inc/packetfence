@@ -650,7 +650,6 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
-%config(noreplace)      /usr/local/pf/conf/profiles.conf
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -696,7 +695,6 @@ fi
 %config                 /usr/local/pf/conf/oui.txt
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
-%config(noreplace)      /usr/local/pf/conf/profiles.conf
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
@@ -720,6 +718,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/popup.msg
+%config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
