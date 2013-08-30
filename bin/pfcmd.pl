@@ -1930,12 +1930,22 @@ sub command_param {
         if (!exists(&{$main::{$function}})) {
             print "No such sub: $function at line ".__LINE__.".\n";
         } else {
+            require JSON;
             my $output  = $cmd{$options}[3];
             # execute coderef main::$function sub
             $logger->info( "pfcmd calling $function for " . $params{mac} );
             my ($result) = &{$main::{$function}}($params{mac}, $params{vid}, %params);
-            if($result > 0 && defined $output && $output eq 'json') {
-                print "{ \"id\" : \"$result\" }\n"
+            if(defined $output && $output eq 'json') {
+                my %json;
+                $json{'id'} = $result if $result > 0;
+                $json{'warnings'} = [violation_last_warnings()];
+                $json{'errors'} = [violation_last_errors()];
+                print JSON::to_json(\%json);
+            } else {
+                my @warnings = violation_last_warnings();
+                my @errors = violation_last_errors();
+                print STDERR join("\n","Warnings:",@warnings),"\n" if @warnings;
+                print STDERR join("\n","Errors:",@errors),"\n" if @errors;
             }
         }
     } else {
