@@ -171,6 +171,7 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
   }
   if (defined $value) {
       %info = (%info, (unregdate => $value));
+  }
   my $nodeattributes = node_attributes($portalSession->getClientMac);
   if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
       $cgi->param("do_not_deauth", $TRUE);
