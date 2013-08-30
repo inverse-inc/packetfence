@@ -469,7 +469,7 @@ sub authenticate {
     }
 
     $logger->trace("Authentication failed for '$username' for all ".scalar(@sources)." sources");
-    return ($FALSE, 'Invalid username/password for all authentication sources.');
+    return ($FALSE, 'Wrong username or password.');
 }
 
 =item match

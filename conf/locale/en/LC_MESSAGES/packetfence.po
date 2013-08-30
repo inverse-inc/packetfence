@@ -93,6 +93,9 @@ msgstr "To complete the registration process, you will need to authenticate usin
 msgid "Authentication"
 msgstr ""
 
+msgid "Wrong username or password."
+msgstr ""
+
 msgid "or"
 msgstr ""
 
