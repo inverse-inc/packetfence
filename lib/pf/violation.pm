@@ -63,9 +63,14 @@ BEGIN {
         violation_exist_id
         violation_view_last_closed
         violation_maintenance
+        violation_add_warnings
+        violation_clear_warnings
+        violation_last_warnings
+        violation_add_errors
+        violation_clear_errors
+        violation_last_errors
     );
 }
-
 use pf::action;
 use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::class qw(class_view);
@@ -80,6 +85,9 @@ our $violation_db_prepared = 0;
 # in this hash reference we hold the database statements. We pass it to the query handler and he will repopulate
 # the hash if required
 our $violation_statements = {};
+
+our @ERRORS;
+our @WARNINGS;
 
 =head1 SUBROUTINES
 
@@ -399,6 +407,8 @@ sub violation_add {
     my ( $mac, $vid, %data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
     return (0) if ( !$vid );
+    violation_clear_warnings();
+    violation_clear_errors();
 
     #print Dumper(%data);
     #defaults
@@ -410,7 +420,9 @@ sub violation_add {
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
     if ( my $violation =  violation_exist_open( $mac, $vid ) ) {
-        $logger->info("violation $vid already exists for $mac, not adding again");
+        my $msg = "violation $vid already exists for $mac, not adding again";
+        $logger->info($msg);
+        violation_add_warnings($msg);
         return ($violation);
     }
 
@@ -420,17 +432,17 @@ sub violation_add {
 
         # don't add a hostscan if violation exists
         if ( $vid == $portscan_sid ) {
-            $logger->warn(
-                "hostscan detected from $mac, but violation $latest_vid exists - ignoring"
-            );
+            my $msg = "hostscan detected from $mac, but violation $latest_vid exists - ignoring";
+            $logger->warn($msg);
+            violation_add_warnings($msg);
             return ($latest_violation->{id});
         }
 
         #replace UNKNOWN hostscan with known violation
         if ( $latest_vid == $portscan_sid ) {
-            $logger->info(
-                "violation $vid detected for $mac - updating existing hostscan entry"
-            );
+            my $msg = "violation $vid detected for $mac - updating existing hostscan entry";
+            $logger->warn($msg);
+            $logger->info($msg);
             violation_force_close( $mac, $portscan_sid );
         }
     }
@@ -443,10 +455,14 @@ sub violation_add {
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ( $remaining_time > 0 ) {
-            $logger->info("$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.");
+            my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
+            violation_add_errors($msg);
+            $logger->info($msg);
             return (-1);
         } else {
-            $logger->info("grace expired on violation $vid for node $mac");
+            my $msg = "grace expired on violation $vid for node $mac";
+            $logger->warn($msg);
+            $logger->info($msg);
         }
     }
 
@@ -458,9 +474,51 @@ sub violation_add {
         $logger->info("violation $vid added for $mac");
         pf::action::action_execute( $mac, $vid, $data{notes} );
         return ($last_id);
+    } else {
+        my $msg = "unknown error adding violation $vid for $mac";
+        violation_add_errors($msg);
+        $logger->error($msg);
     }
     return (0);
 }
+
+=item violation_add_warnings
+
+=cut
+
+sub violation_add_warnings { push @WARNINGS,@_; }
+
+
+=item violation_clear_warnings
+
+=cut
+
+sub violation_clear_warnings { @WARNINGS = (); }
+
+=item violation_last_warnings
+
+=cut
+
+sub violation_last_warnings { @WARNINGS }
+
+=item violation_add_errors
+
+=cut
+
+sub violation_add_errors { push @ERRORS,@_; }
+
+
+=item violation_clear_errors
+
+=cut
+
+sub violation_clear_errors { @ERRORS = (); }
+
+=item violation_last_errors
+
+=cut
+
+sub violation_last_errors { @ERRORS }
 
 =item * violation_trigger
 
