@@ -55,6 +55,7 @@ sub handler {
 
     
     my $response;
+    my $type;
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });    
