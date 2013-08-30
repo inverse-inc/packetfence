@@ -647,6 +647,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/admin_roles.conf
+%config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
