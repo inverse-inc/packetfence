@@ -116,6 +116,7 @@ sub register_node {
 
 sub is_gaming_mac {
     my ($mac) = @_;
+    $mac =~ s/O/0/i;
     foreach my $oui (@GAMING_OUI) {
         return 1 if $mac =~ /^\Q$oui\E/i;
     }
