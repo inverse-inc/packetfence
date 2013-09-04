@@ -18,6 +18,7 @@ use constant SOAP_PORT => '9090'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
 use WWW::Curl::Easy;
 use XML::Simple;
+use HTML::Entities;
 use base qw(Exporter);
 our @EXPORT = qw(send_soap_request build_soap_request);
 
@@ -119,6 +120,7 @@ sub build_soap_elements {
 
 sub build_soap_string {
     my ($name,$value) = @_;
+    $value = encode_entities($value);
     return "<$name xsi:type=\"xsd:string\">$value</$name>";
 }
 
