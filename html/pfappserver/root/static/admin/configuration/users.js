@@ -12,6 +12,8 @@
     $('#section').on('submit', 'form[name="users"]', function(event) {
         var form = $(this),
         btn = form.find('[type="submit"]'),
+        href = $('.nav-tabs .active a').attr('href'),
+        pos = href.lastIndexOf('#'),
         disabled_inputs = form.find('.hidden :input, .tab-pane:not(.active) :input'),
         valid;
 
@@ -20,7 +22,7 @@
         disabled_inputs.attr('disabled', 'disabled');
 
         // Identify the type of creation (single, multiple or import) from the selected tab
-        form.find('input[name="type"]').val($('.nav-tabs .active a').attr('href').substring(1));
+        form.find('input[name="type"]').val(href.substr(++pos));
         valid = isFormValid(form);
 
         if (valid) {
