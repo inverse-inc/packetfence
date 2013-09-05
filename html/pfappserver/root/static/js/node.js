@@ -125,7 +125,7 @@ NodeView.prototype.showNode = function(e) {
     modal.find('#pid').typeahead({
         source: $.proxy(that.searchUser, that),
         minLength: 2,
-        items: 20,
+        items: 11,
         matcher: function(item) { return true; },
     });
     modal.on('hidden', function (e) {
