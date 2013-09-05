@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.0.6 released on 2013-MM-DD
+Version 4.0.6 released on 2013-09-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -23,21 +23,21 @@ Enhancements
 ++++++++++++
 
 * Improved display of filters and sources (DynamicTable) in portal profile editor
-* Ensure the vlan naming scheme is set on start up
+* Ensure the VLAN naming scheme is set on start up
 * When no authentication source is associated to the default portal profile, all available sources are used
 * Phone number is now editable from the user editor
 * Updated fingerprints of gaming devices (Xbox)
 * Moved pfmon to a single process daemon and added the ability to restart itself upon error
 * Added new test tool bin/pftest
 * Improved SQL query in pf::node when matching a valid MAC
-* Allow change of owner in node editor
-* Give then option for iptables not to be managed by iptables
-* Allow advanced search of users and nodes by notes
+* Allow change of owner in node editor (with auto-completion)
+* iptables management by packetfence is now optional
+* Allow advanced search of users and nodes by notes (#1701)
 
 Bug Fixes
 +++++++++
 
-* Fixed XML encoding of RADIUS attributes in SOAP request.
+* Fixed XML encoding of RADIUS attributes in SOAP request
 * Fixed retrieval of user role for gaming devices
 * Fixed SQL query of connection types report in Web admin
 * Fixed issue with anonymous LDAP bind failing with searches
@@ -50,7 +50,7 @@ Bug Fixes
 * Fixed advanced search of users by sponsor
 * Fixed various caching issues
 * Fixed various logged warnings
-* Fixed various authentication issues
+* Fixed various authentication issues (#1693, #1695)
 
 Version 4.0.5-2 released on 2013-08-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

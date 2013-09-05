@@ -1,3 +1,9 @@
+packetfence (4.0.6) unstable; urgency=low
+
+  * Version 4.0.6
+
+ -- Francis Lachapelle <flachapelle@inverse.ca> Thu, 5 Sep 2013 12:00:00 -0400
+
 packetfence (4.0.5) unstable; urgency=low
 
   * Version 4.0.5
