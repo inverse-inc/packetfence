@@ -76,8 +76,6 @@ sub lookup_node {
             $status = "registered";
         } elsif ( $status eq "unreg" ) {
             $status = "unregistered";
-        } elsif ( $status eq "grace" ) {
-            $status = "grace";
         }
         $owner = "unregistered" if ( $owner eq '1' );
         $return .= "Owner          : $owner\n"  if ($owner);

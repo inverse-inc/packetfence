@@ -30,7 +30,6 @@ use constant NODE => 'node';
 Readonly::Scalar our $STATUS_REGISTERED => 'reg';
 Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
 Readonly::Scalar our $STATUS_PENDING => 'pending';
-Readonly::Scalar our $STATUS_GRACE => 'grace';
 
 BEGIN {
     use Exporter ();

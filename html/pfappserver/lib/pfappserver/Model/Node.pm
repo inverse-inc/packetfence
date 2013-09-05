@@ -287,8 +287,7 @@ sub availableStatus {
 
     return [ $pf::node::STATUS_REGISTERED,
              $pf::node::STATUS_UNREGISTERED,
-             $pf::node::STATUS_PENDING,
-             $pf::node::STATUS_GRACE ];
+             $pf::node::STATUS_PENDING ];
 }
 
 =head2 violations
