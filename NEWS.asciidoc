@@ -33,7 +33,7 @@ Enhancements
 * Allow change of owner in node editor (with auto-completion)
 * iptables management by packetfence is now optional
 * Allow advanced search of users and nodes by notes (#1701)
-* Added better error/warning messages when performing a violation add with pfcmd
+* Added better error/warning messages when adding a violation with pfcmd
 * Output the violation id for pfcmd violation add command when the json option is supplied
 
 Bug Fixes
