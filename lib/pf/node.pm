@@ -834,7 +834,7 @@ sub node_register {
         my @dot1x_type = split(',',$Config{'scan'}{'dot1x_type'});
         my %params = map { $_ => 1 } @dot1x_type;
         if (defined($info{'eap_type'})) {
-            if(exists($params{$info{'eap_type'}})) {
+            if (exists($params{$info{'eap_type'}})) {
                 # triggering a violation used to communicate the scan to the user
                 if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
                     violation_add( $mac, $SCAN_VID );

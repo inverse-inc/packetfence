@@ -382,7 +382,7 @@ sub username_from_email {
     if ($result->count == 1) {
       my $username = $result->entry->get_value( $self->{'usernameattribute'} );
       $connection->unbind;
-      $logger->info("LDAP:found a match in username_from_email ($username)");
+      $logger->info("LDAP:found a match in username_from_email ($email => $username)");
       return $username;
     }
 
