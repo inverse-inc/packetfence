@@ -1,4 +1,5 @@
 package pf::log;
+
 =head1 NAME
 
 pf::log add documentation

@@ -65,7 +65,6 @@ sub object :Chained('/') :PathPart('user') :CaptureArgs(1) {
     ($status, $result) = $c->model('User')->read($c, [$pid]);
     if (is_success($status)) {
         $c->stash->{user} = pop @{$result};
-
         # Fetch associated nodes
         ($status, $result) = $c->model('User')->nodes($pid);
         if (is_success($status)) {
@@ -309,6 +308,7 @@ sub advanced_search :Local :Args() {
             $c->stash( form => $form);
             $c->stash( $result);
         }
+        $c->stash(current_view => 'JSON') if ($c->request->params->{'json'});
     }
     $c->stash(
         status_msg => $status_msg,

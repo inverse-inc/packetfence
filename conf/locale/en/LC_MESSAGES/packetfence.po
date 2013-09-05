@@ -1,4 +1,4 @@
-# Copyright (C) 2006-2012 Inverse inc.
+# Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
 #
 # Translators:
@@ -33,6 +33,9 @@ msgstr "Italiano"
 
 msgid "nl_NL"
 msgstr "Dutch"
+
+msgid "pl_PL"
+msgstr "Polski"
 
 msgid "pt_BR"
 msgstr "Português"
@@ -88,6 +91,9 @@ msgid "register: to complete"
 msgstr "To complete the registration process, you will need to authenticate using your username and password."
 
 msgid "Authentication"
+msgstr ""
+
+msgid "Wrong username or password."
 msgstr ""
 
 msgid "or"

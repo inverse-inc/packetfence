@@ -48,7 +48,7 @@ if (!valid_mac($portalSession->getClientMac())) {
 }
 
 my $mac = $portalSession->getClientMac();
-$logger->info("$mac being redirected");
+$logger->info("$mac being redirected (" . $portalSession->getProfile()->getName() . " profile)");
 
 # recording user agent for this mac in node table
 # TODO: this validation will not be required if shipped CGI module is > 3.45, see bug #850
@@ -69,7 +69,7 @@ my $violation = violation_view_top($mac);
 if ($violation) {
   # There is a violation, redirect the user
   # FIXME: there is not enough validation below
-  my $vid=$violation->{'vid'};
+  my $vid = $violation->{'vid'};
   my $class = class_view($vid);
 
   # detect if a system scan is in progress, if so redirect to scan in progress page
@@ -129,10 +129,11 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 #if node is pending show pending page
 my $node_info = node_view($mac);
 if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
-  if(pf::sms_activation::sms_activation_has_entry($mac)) {
+  if (pf::sms_activation::sms_activation_has_entry($mac)) {
     node_deregister($mac);
     pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms");
-  } elsif ($portalSession->getCgi->https()) {
+  }
+  elsif ($portalSession->getCgi->https()) {
   # we drop HTTPS for pending so we can perform our Internet detection and avoid all sort of certificate errors
     print $portalSession->getCgi->redirect(
         "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}

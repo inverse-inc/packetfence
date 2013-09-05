@@ -226,7 +226,7 @@ EOT
 sub help_violation {
     print STDERR << "EOT";
 Usage: pfcmd violation <view|edit|delete> id [assignments]
-             violation add [assignments]
+             violation add assignments [json]
 
 manipulate violation entries. the id is DIFFERENT from vid.  The ID is just
 a unique identifier for this specific violation, not the ID contained in violations.conf

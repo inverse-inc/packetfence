@@ -47,13 +47,26 @@ sub instantiate {
           grep { defined $_ && exists $Profile_Filters{$_}  } #
           @filter_ids;
 
-    return pf::Portal::Profile->new(_custom_profile($filtered_profile)) if $filtered_profile;
+    return _from_custom_profile($filtered_profile) if $filtered_profile;
 
+    return _from_default_profile();
+}
+
+sub _from_custom_profile {
+    return pf::Portal::Profile->new(_custom_profile($_[0]));
+}
+
+sub _from_default_profile {
     return pf::Portal::Profile->new(_default_profile());
 }
 
 sub _default_profile {
     my %default = %{$Profiles_Config{default}};
+    unless (defined $default{'sources'} && @{$default{'sources'}} > 0) {
+        # When no authentication source is selected, use all authentication sources
+        my @sources = map { $_->id } @{pf::authentication::getAllAuthenticationSources()};
+        $default{'sources'} = \@sources;
+    }
     my %results =
       (
        %default,

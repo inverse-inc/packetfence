@@ -70,7 +70,7 @@ $switches_cached_config  = pf::config::cached->new(
     -oncachereload => [
         on_cache_switches_reload => sub  {
             my ($config, $name) = @_;
-            %SwitchConfig = %{$config->cache->get("SwitchConfig")};
+            %SwitchConfig = %{$config->fromCacheUntainted("SwitchConfig")};
         },
     ]
 );

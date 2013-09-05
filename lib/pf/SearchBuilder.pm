@@ -138,18 +138,18 @@ my $sql = $builder->sql();
 =cut
 
 sub L_ {
-    my ($lit,$as) = @_;
+    my ($lit, $as) = @_;
     my $column = {literal => $lit};
-    if(defined $as) {
+    if (defined $as) {
         $column->{as} = $as;
     }
     return $column;
 }
 
 sub where {
-    my ($self,@args) = @_;
+    my ($self, @args) = @_;
     my @clauses;
-    if(@args == 1) {
+    if (@args == 1) {
         @clauses = $self->_single_where_clause(@args);
     } else {
         @clauses = $self->_where_clause(@args);
@@ -419,7 +419,7 @@ sub format_column {
     my ($self,$column) = @_;
     my $dbh = $self->dbh();
     my $type = ref $column;
-    if($type eq 'SCALAR') {
+    if ($type eq 'SCALAR') {
         $column = L_($$column);
     } elsif ($type eq '') {
         $column = {name => $column};
@@ -495,14 +495,14 @@ sub format_from {
 }
 
 sub format_from_on {
-    my ($self,@args) = @_;
+    my ($self, @args) = @_;
     return
-        map {$self->_format_from_on($_)}
-        map {@$_} @args;
+        map { $self->_format_from_on($_) }
+        map { @$_} @args;
 }
 
 sub _format_from_on {
-    my ($self,$arg) = @_;
+    my ($self, $arg) = @_;
     my $clause = '';
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $type = ref($arg);
@@ -512,6 +512,10 @@ sub _format_from_on {
         $clause = $$arg;
     } elsif (exists $OP_GROUP_MAP{$arg}) {
         $clause = $arg;
+    } elsif (exists $WHERE_SINGLE_OPS{lc($arg)}) {
+        $clause = $arg;
+    } elsif (length $type == 0) {
+        $clause = $self->dbh->quote($arg);
     } elsif ($arg->isa('pf::SearchBuilder::Clause')) {
         $clause = $arg->clause;
     }
@@ -593,7 +597,7 @@ Some syntax sugar for where('and')
 =cut
 
 sub and {
-    my ($self,@args) = @_;
+    my ($self, @args) = @_;
     return $self->where(@args);
 }
 

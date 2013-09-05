@@ -440,6 +440,11 @@ pfdns=enabled
 # Should radiusd be managed by PacketFence?
 radiusd=enabled
 #
+# services.iptables
+#
+# Should iptables be managed by PacketFence?
+iptables=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 

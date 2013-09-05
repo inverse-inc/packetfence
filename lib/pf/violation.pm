@@ -8,7 +8,7 @@ pf::violation - module for violation management.
 
 =head1 DESCRIPTION
 
-pf::violation contains the functions necessary to manage violations: creation, 
+pf::violation contains the functions necessary to manage violations: creation,
 deletion, expiration, read info, ...
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -25,8 +25,8 @@ use POSIX;
 
 # Violation status constants
 #TODO port all hard-coded strings to these constants
-#but first I need to resolve the exporting problems.. 
-#ex: when trying to use these from node I get subroutines redefinitions 
+#but first I need to resolve the exporting problems..
+#ex: when trying to use these from node I get subroutines redefinitions
 #    and if I use full package names, there is no safety that the constant was defined in the first place..
 Readonly::Scalar our $STATUS_OPEN => 'open';
 
@@ -39,7 +39,7 @@ BEGIN {
     @EXPORT = qw(
         violation_db_prepare
         $violation_db_prepared
-        
+
         violation_force_close
         violation_close
         violation_view
@@ -63,9 +63,14 @@ BEGIN {
         violation_exist_id
         violation_view_last_closed
         violation_maintenance
+        violation_add_warnings
+        violation_clear_warnings
+        violation_last_warnings
+        violation_add_errors
+        violation_clear_errors
+        violation_last_errors
     );
 }
-
 use pf::action;
 use pf::accounting qw($ACCOUNTING_TRIGGER_RE);
 use pf::class qw(class_view);
@@ -81,7 +86,12 @@ our $violation_db_prepared = 0;
 # the hash if required
 our $violation_statements = {};
 
+our @ERRORS;
+our @WARNINGS;
+
 =head1 SUBROUTINES
+
+=over
 
 This list is incomplete.
 
@@ -118,7 +128,7 @@ sub violation_db_prepare {
 
     $violation_statements->{'violation_view_all_sql'} = get_db_handle()->prepare(qq[
         SELECT violation.id,violation.mac,node.computername,violation.vid,violation.start_date,violation.release_date,violation.status,violation.ticket_ref,violation.notes
-        FROM violation,node 
+        FROM violation,node
         WHERE violation.mac=node.mac
         ORDER BY start_date DESC
     ]);
@@ -143,9 +153,9 @@ sub violation_db_prepare {
     ]);
 
     $violation_statements->{'violation_view_top_sql'} = get_db_handle()->prepare(qq[
-        SELECT id, mac, v.vid, start_date, release_date, status, ticket_ref, notes 
-        FROM violation v, class c 
-        WHERE v.vid=c.vid AND mac=? AND status="open" 
+        SELECT id, mac, v.vid, start_date, release_date, status, ticket_ref, notes
+        FROM violation v, class c
+        WHERE v.vid=c.vid AND mac=? AND status="open"
         ORDER BY priority ASC LIMIT 1
     ]);
 
@@ -174,7 +184,7 @@ sub violation_db_prepare {
 
     $violation_statements->{'violation_last_closed_sql'} = get_db_handle()->prepare(
         qq [ select mac,vid,release_date from violation where mac = ? AND vid = ? AND status = "closed" ORDER BY release_date DESC LIMIT 1 ]);
-    
+
     $violation_statements->{'violation_exist_acct_sql'} = get_db_handle()->prepare(
         qq [ select id from violation where mac = ? AND vid = ? AND release_date >= ? AND release_date <= NOW()]);
 
@@ -374,6 +384,7 @@ Returns a list of MACs which have at least one opened violation.
 Since trap violations stay open, this has the intended effect of getting all MACs which should be isolated.
 
 =cut
+
 sub violation_view_open_uniq {
     return db_data(VIOLATION, $violation_statements, 'violation_view_open_uniq_sql');
 }
@@ -396,6 +407,8 @@ sub violation_add {
     my ( $mac, $vid, %data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
     return (0) if ( !$vid );
+    violation_clear_warnings();
+    violation_clear_errors();
 
     #print Dumper(%data);
     #defaults
@@ -406,9 +419,11 @@ sub violation_add {
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
-    if ( violation_exist_open( $mac, $vid ) ) {
-        $logger->info("violation $vid already exists for $mac, not adding again");
-        return (1);
+    if ( my $violation =  violation_exist_open( $mac, $vid ) ) {
+        my $msg = "violation $vid already exists for $mac, not adding again";
+        $logger->info($msg);
+        violation_add_warnings($msg);
+        return ($violation);
     }
 
     my $latest_violation = ( violation_view_open($mac) )[0];
@@ -417,17 +432,17 @@ sub violation_add {
 
         # don't add a hostscan if violation exists
         if ( $vid == $portscan_sid ) {
-            $logger->warn(
-                "hostscan detected from $mac, but violation $latest_vid exists - ignoring"
-            );
-            return (1);
+            my $msg = "hostscan detected from $mac, but violation $latest_vid exists - ignoring";
+            $logger->warn($msg);
+            violation_add_warnings($msg);
+            return ($latest_violation->{id});
         }
 
         #replace UNKNOWN hostscan with known violation
         if ( $latest_vid == $portscan_sid ) {
-            $logger->info(
-                "violation $vid detected for $mac - updating existing hostscan entry"
-            );
+            my $msg = "violation $vid detected for $mac - updating existing hostscan entry";
+            $logger->warn($msg);
+            $logger->info($msg);
             violation_force_close( $mac, $portscan_sid );
         }
     }
@@ -440,29 +455,79 @@ sub violation_add {
         # check if we are under the grace period of a previous violation
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ( $remaining_time > 0 ) {
-            $logger->info("$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.");
-            return (1);
+            my $msg = "$remaining_time grace remaining on violation $vid for node $mac. Not adding violation.";
+            violation_add_errors($msg);
+            $logger->info($msg);
+            return (-1);
         } else {
-            $logger->info("grace expired on violation $vid for node $mac");
+            my $msg = "grace expired on violation $vid for node $mac";
+            $logger->warn($msg);
+            $logger->info($msg);
         }
     }
 
     # insert violation into db
-    db_query_execute(VIOLATION, $violation_statements, 'violation_add_sql',
-        $mac, $vid, $data{start_date}, $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes})
-        || return (0);
-    $logger->info("violation $vid added for $mac");
-    pf::action::action_execute( $mac, $vid, $data{notes} );
-    return (1);
+    my $result = db_query_execute(VIOLATION, $violation_statements, 'violation_add_sql',
+        $mac, $vid, $data{start_date}, $data{release_date}, $data{status}, $data{ticket_ref}, $data{notes});
+    if ($result) {
+        my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
+        $logger->info("violation $vid added for $mac");
+        pf::action::action_execute( $mac, $vid, $data{notes} );
+        return ($last_id);
+    } else {
+        my $msg = "unknown error adding violation $vid for $mac";
+        violation_add_errors($msg);
+        $logger->error($msg);
+    }
+    return (0);
 }
 
-=item * violation_trigger 
+=item violation_add_warnings
 
-Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required 
-        
+=cut
+
+sub violation_add_warnings { push @WARNINGS,@_; }
+
+
+=item violation_clear_warnings
+
+=cut
+
+sub violation_clear_warnings { @WARNINGS = (); }
+
+=item violation_last_warnings
+
+=cut
+
+sub violation_last_warnings { @WARNINGS }
+
+=item violation_add_errors
+
+=cut
+
+sub violation_add_errors { push @ERRORS,@_; }
+
+
+=item violation_clear_errors
+
+=cut
+
+sub violation_clear_errors { @ERRORS = (); }
+
+=item violation_last_errors
+
+=cut
+
+sub violation_last_errors { @ERRORS }
+
+=item * violation_trigger
+
+Evaluates a candidate violation and if its valid, will add it to the node and trigger a VLAN change if required
+
 Returns 1 if at least one violation is added, 0 otherwise.
 
 =cut
+
 sub violation_trigger {
     my ( $mac, $tid, $type, %data ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
@@ -472,12 +537,12 @@ sub violation_trigger {
     if (whitelisted_mac($mac)) {
         $logger->info("violation not added, $mac is whitelisted! trigger ${type}::${tid}");
         return 0;
-    } 
+    }
 
     if (!valid_mac($mac)) {
         $logger->info("violation not added, MAC $mac is invalid! trigger ${type}::${tid}");
         return 0;
-    } 
+    }
 
     if (!trappable_mac($mac)) {
         $logger->info("violation not added, MAC $mac is not trappable! trigger ${type}::${tid}");
@@ -517,13 +582,13 @@ sub violation_trigger {
         my ($remaining_time) = violation_grace( $mac, $vid );
         if ($remaining_time > 0) {
             $logger->info(
-                "$remaining_time grace remaining on violation $vid (trigger ${type}::${tid}) for node $mac. " . 
+                "$remaining_time grace remaining on violation $vid (trigger ${type}::${tid}) for node $mac. " .
                 "Not adding violation."
             );
             next;
         }
 
-        # if violation is of action autoreg and the node is already registered 
+        # if violation is of action autoreg and the node is already registered
         if (pf::action::action_exist($vid, $pf::action::AUTOREG) && is_node_registered($mac)) {
             $logger->debug(
                 "violation $vid triggered with action $pf::action::AUTOREG but node $mac is already registered. " .
@@ -533,8 +598,8 @@ sub violation_trigger {
         }
         # Compute the release date
         my $date = 0;
-        
-        # Check if we have a window defined for the violation, and act properly 
+
+        # Check if we have a window defined for the violation, and act properly
         # TODO: Handle the "dynamic" keyword
         my $class = class_view($vid);
 
@@ -562,7 +627,7 @@ sub violation_trigger {
             }
             # no interval given so we assume from beginning of time (10 years)
           }
-        } 
+        }
 
         $logger->info("calling '$bin_dir/pfcmd violation add vid=$vid,mac=$mac,release_date=$date' (trigger ${type}::${tid})");
         # running pfcmd because it will call an access re-evaluation if needed
@@ -622,6 +687,7 @@ sub violation_force_close {
 =item * violation_exist_acct - check if a closed violation exists within the accounting interval window
 
 =cut
+
 sub violation_exist_acct {
     my ( $mac, $vid, $interval ) = @_;
     my $ceil;
@@ -648,6 +714,7 @@ sub violation_exist_acct {
 =item * violation_view_last_closed - grab the last closed violation within the accounting interval window
 
 =cut
+
 sub violation_view_last_closed {
     my ( $mac, $vid ) = @_;
 
@@ -657,6 +724,7 @@ sub violation_view_last_closed {
 =item * _is_node_category_whitelisted - is a node immune to a given violation based on its category
 
 =cut
+
 sub _is_node_category_whitelisted {
     my ($trigger_info, $mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
@@ -686,11 +754,12 @@ sub _is_node_category_whitelisted {
     return $category_found;
 }
 
-=item violation_maintenance 
+=item violation_maintenance
 
 Check if we should close violations based on release_date
 
 =cut
+
 sub violation_maintenance {
     my $logger = Log::Log4perl::get_logger('pf::violation');
 
@@ -702,7 +771,7 @@ sub violation_maintenance {
         my $currentMac = $row->{mac};
         my $currentVid = $row->{vid};
         my $result = violation_force_close($currentMac,$currentVid);
-        
+
         # If close is a success, reevaluate the Access for the node
         if ($result) {
             pf::enforcement::reevaluate_access( $currentMac, "manage_vclose" );

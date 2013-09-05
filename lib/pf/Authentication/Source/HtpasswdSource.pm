@@ -29,7 +29,7 @@ has 'path' => (isa => 'Str', is => 'rw', required => 1);
 sub available_attributes {
     my $self = shift;
 
-    my $super_attributes = $self->SUPER::available_attributes; 
+    my $super_attributes = $self->SUPER::available_attributes;
     my $own_attributes = [{ value => 'username', type => $Conditions::SUBSTRING }];
 
     return [@$super_attributes, @$own_attributes];
@@ -41,19 +41,19 @@ sub available_attributes {
 
 sub authenticate {
     my ($self, $username, $password) = @_;
-  
+
     my $logger = Log::Log4perl->get_logger('pf::authentication');
     my $password_file = $self->{'path'};
-  
+
     if (! -r $password_file) {
         $logger->error("unable to read password file '$password_file'");
         return ($FALSE, 'Unable to validate credentials at the moment');
     }
-  
+
     my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly   => 1});
-    if ( (!defined($htpasswd->htCheckPassword($username, $password))) 
+    if ( (!defined($htpasswd->htCheckPassword($username, $password)))
          or ($htpasswd->htCheckPassword($username, $password) == 0) ) {
-    
+
         return ($FALSE, 'Invalid login or password');
     }
 
@@ -66,6 +66,7 @@ sub authenticate {
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
+    local $_;
 
     # First check if the username is found in the htpasswd file
     my $password_file = $self->{'path'};

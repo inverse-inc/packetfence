@@ -72,13 +72,8 @@ sub authenticate {
     $logger->error("Unable to connect to an LDAP server.");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
+  my $result = $self->bind_with_credentials($connection);
 
-  my $result;
-  if ($self->{'binddn'} && $self->{'password'}) {
-      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-  } else {
-      $result = $connection->bind;
-  }
   if ($result->is_error) {
     $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
@@ -96,8 +91,11 @@ sub authenticate {
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
-  if ($result->count != 1) {
-    $logger->warn("Unexpected number of entries found (".$result->count.") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+  if ($result->count == 0) {
+    $logger->warn("No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    return ($FALSE, 'Invalid login or password');
+  } elsif ($result->count > 1) {
+    $logger->warn("Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -106,6 +104,7 @@ sub authenticate {
   $result = $connection->bind($user->dn, password => $password);
 
   if ($result->is_error) {
+    $logger->warn("User cannot " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -197,7 +196,7 @@ sub match_in_subclass {
         return undef;
     }
 
-    my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
         $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
@@ -272,12 +271,7 @@ sub test {
   }
 
   # Bind
-  my $result;
-  if ($self->{'binddn'} && $self->{'password'}) {
-      $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
-  } else {
-      $result = $connection->bind;
-  }
+  my $result = $self->bind_with_credentials($connection);
   if ($result->is_error) {
     $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, "Unable to bind to $LDAPServer with these settings");
@@ -365,7 +359,7 @@ sub username_from_email {
       return undef;
     }
 
-    my $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
       $logger->error("Unable to bind with $self->{'binddn'}");
@@ -388,12 +382,24 @@ sub username_from_email {
     if ($result->count == 1) {
       my $username = $result->entry->get_value( $self->{'usernameattribute'} );
       $connection->unbind;
-      $logger->info("LDAP:found a match in username_from_email ($username)");
+      $logger->info("LDAP:found a match in username_from_email ($email => $username)");
       return $username;
     }
 
     $logger->info("No match found for filter: $filter");
     return undef;
+}
+
+
+sub bind_with_credentials {
+    my ($self,$connection) = @_;
+    my $result;
+    if ($self->{'binddn'} && $self->{'password'}) {
+        $result = $connection->bind($self->{'binddn'}, password => $self->{'password'});
+    } else {
+        $result = $connection->bind;
+    }
+    return $result;
 }
 
 =head1 AUTHOR

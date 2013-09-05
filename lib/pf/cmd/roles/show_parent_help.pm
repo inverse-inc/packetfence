@@ -1,23 +1,23 @@
-package SwitchFactoryConfig;
+package pf::cmd::roles::show_parent_help;
 =head1 NAME
 
-SwitchFactoryConfig
+pf::cmd::roles::show_parent_help add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-SwitchFactoryConfig
-Overrides the $pf::file_paths::switches_config_file to point to the test config
+pf::cmd::roles::show_parent_help
 
 =cut
 
 use strict;
 use warnings;
+use Role::Tiny;
 
-BEGIN {
-    use pf::file_paths;
-    $pf::file_paths::switches_config_file = './data/switches.conf';
+sub showHelp {
+    my ($self) = @_;
+    $self->{parentCmd}->showHelp();
 }
 
 =head1 AUTHOR

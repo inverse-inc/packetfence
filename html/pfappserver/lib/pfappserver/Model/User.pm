@@ -47,7 +47,7 @@ sub read {
     # Fetch user information
     foreach my $pid (@$pids) {
         my $user = person_view($pid);
-        if ($user) {
+        if ($user && $user->{pid}) {
             if ($user->{valid_from}) {
                 # Formulate activation date
                 $user->{valid_from} =~ s/ \d{2}:\d{2}:\d{2}$//;
@@ -302,7 +302,7 @@ sub delete {
     eval {
         my $result = person_delete($pid); # entry from temporary_password will be automatically deleted
         unless ($result) {
-            ($status, $status_msg) = ($STATUS::INTERNAL_SERVER_ERROR, "The user still has registered nodes and can't be deleted.");
+            ($status, $status_msg) = ($STATUS::INTERNAL_SERVER_ERROR, "The user still owns nodes and can't be deleted.");
         }
     };
     if ($@) {

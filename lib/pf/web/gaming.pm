@@ -56,6 +56,8 @@ Readonly our @GAMING_OUI => (
     '00:1E:35:' ,  #          Nintendo-Wii
     '00:1B:7A:' ,  #          Ninetndo-Wii
     '00:22:48:' ,  #          Microsoft-Xbox
+    '7C:1E:52:' ,  #          Microsoft-Xbox
+    '7C:ED:8D:' ,  #          Microsoft-Xbox
 );
 
 =head1 SUBROUTINES
@@ -114,6 +116,7 @@ sub register_node {
 
 sub is_gaming_mac {
     my ($mac) = @_;
+    $mac =~ s/O/0/i;
     foreach my $oui (@GAMING_OUI) {
         return 1 if $mac =~ /^\Q$oui\E/i;
     }

@@ -21,17 +21,15 @@ use File::Copy;
 use File::Slurp qw(read_file);
 use POSIX ":sys_wait_h";
 
-our (%DATA,%DATA1,%DATA2,$filename);
+our (%DATA,%DATA1,%DATA2,%DATA3,$filename);
 
 BEGIN {
-    use pf::file_paths;
-    $pf::file_paths::chi_config_file = './data/chi.conf';
-    $pf::file_paths::log_config_file = './log.conf';
+    use PfFilePaths;
     remove_tree('/tmp/chi');
 }
 use pf::log;
 
-use Test::More tests => 11;
+use Test::More tests => 15;
 
 use Test::NoWarnings;
 use Test::Exception;
@@ -45,6 +43,7 @@ copy("./data/test.conf",$filename);
 my $onreload_count = 0;
 my $onfilereload_count = 0;
 my $oncachereload_count = 0;
+my $onpostreload_count = 0;
 
 my $config =  pf::config::cached->new(
     -file => $filename,
@@ -69,15 +68,25 @@ my $config =  pf::config::cached->new(
             $oncachereload_count++;
         }
     ],
+    -onpostreload => [
+        reload => sub {
+            my ($config,$name) = @_;
+            $config->toHash(\%DATA3);
+        }
+    ],
 );
 
 isa_ok($config,"pf::config::cached");
 
-isa_ok($config,"Config::IniFiles","Prending to be a Config::IniFiles");
+isa_ok($config,"Config::IniFiles","Pretending to be a Config::IniFiles");
 
 ok(exists $DATA1{section1},"\$config->toHash");
 
 ok($DATA1{section1}{param1} eq 'value1',"\$config->toHash");
+
+is_deeply(\%DATA1,\%DATA3,"on post file reload");
+
+is_deeply({},\%DATA2,"on cache reload was not called");
 
 our $pid = fork();
 if($pid == 0) {
@@ -89,13 +98,13 @@ if($pid == 0) {
 }
 waitpid ($pid,0);
 
-is_deeply({},\%DATA2,"on file/cache reload");
-
 $config->ReadConfig();
 
-ok("newval" eq $DATA1{"section1"}{"param2"},"on reload");
+ok("newval" eq $DATA1{"section1"}{"param2"},"on reload was called");
 
-is_deeply(\%DATA1,\%DATA2,"on file/cache reload");
+is_deeply(\%DATA1,\%DATA2,"on cache reload was called");
+
+is_deeply(\%DATA1,\%DATA3,"on post file reload");
 
 my $old_value = $config->val("section1","param1");
 
@@ -104,6 +113,10 @@ $config->setval("section1","param1","newval");
 $config->Rollback;
 
 ok($config->val("section1","param1") eq  $old_value ,"Rollback");
+
+is_deeply(\%DATA1,\%DATA2,"on cache reload after rollback");
+
+is_deeply(\%DATA1,\%DATA3,"on post file reload after rollback");
 
 $pid = fork();
 if($pid == 0) {

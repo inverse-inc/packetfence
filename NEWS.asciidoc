@@ -11,6 +11,49 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.0.6 released on 2013-09-05
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* New Polish (pl_PL) translation (thanks to Maciej Uhlig <maciej.uhlig@us.edu.pl>)
+
+Enhancements
+++++++++++++
+
+* Improved display of filters and sources (DynamicTable) in portal profile editor
+* Ensure the VLAN naming scheme is set on start up
+* When no authentication source is associated to the default portal profile, all available sources are used
+* Phone number is now editable from the user editor
+* Updated fingerprints of gaming devices (Xbox)
+* Moved pfmon to a single process daemon and added the ability to restart itself upon error
+* Added new test tool bin/pftest
+* Improved SQL query in pf::node when matching a valid MAC
+* Allow change of owner in node editor (with auto-completion)
+* iptables management by packetfence is now optional
+* Allow advanced search of users and nodes by notes (#1701)
+* Added better error/warning messages when adding a violation with pfcmd
+* Output the violation id for pfcmd violation add command when the json option is supplied
+
+Bug Fixes
++++++++++
+
+* Fixed XML encoding of RADIUS attributes in SOAP request
+* Fixed retrieval of user role for gaming devices
+* Fixed SQL query of connection types report in Web admin
+* Fixed issue with anonymous LDAP bind failing with searches
+* Fixed email subject when self-registering by email
+* Fixed empty variables of preregistration email template
+* Fixed detection of guest-only authentication sources when no source is associated to the portal
+* Fixed stylesheet for Firefox and IE when printing user access credentials
+* Fixed display of IP address in advanced search of nodes
+* Fixed advanced search of nodes by violation
+* Fixed advanced search of users by sponsor
+* Fixed various caching issues
+* Fixed various logged warnings
+* Fixed various authentication issues (#1693, #1695)
+
 Version 4.0.5-2 released on 2013-08-12
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

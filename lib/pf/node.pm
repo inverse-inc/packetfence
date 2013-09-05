@@ -30,7 +30,6 @@ use constant NODE => 'node';
 Readonly::Scalar our $STATUS_REGISTERED => 'reg';
 Readonly::Scalar our $STATUS_UNREGISTERED => 'unreg';
 Readonly::Scalar our $STATUS_PENDING => 'pending';
-Readonly::Scalar our $STATUS_GRACE => 'grace';
 
 BEGIN {
     use Exporter ();
@@ -647,10 +646,16 @@ sub node_view_all {
             $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
-            my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
-            $node_view_all_sql .= " HAVING node.mac LIKE $like"
-                . " OR node.computername LIKE $like"
-                . " OR node.pid LIKE $like";
+            if (valid_mac($params{'where'}{'like'})) {
+                my $mac = get_db_handle->quote($params{'where'}{'like'});
+                $node_view_all_sql .= " HAVING node.mac = $mac";
+            }
+            else {
+                my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+                $node_view_all_sql .= " HAVING node.mac LIKE $like"
+                  . " OR node.computername LIKE $like"
+                  . " OR node.pid LIKE $like";
+            }
         }
     }
     if ( defined( $params{'orderby'} ) ) {
@@ -829,7 +834,7 @@ sub node_register {
         my @dot1x_type = split(',',$Config{'scan'}{'dot1x_type'});
         my %params = map { $_ => 1 } @dot1x_type;
         if (defined($info{'eap_type'})) {
-            if(exists($params{$info{'eap_type'}})) {
+            if (exists($params{$info{'eap_type'}})) {
                 # triggering a violation used to communicate the scan to the user
                 if ( isenabled($Config{'scan'}{'registration'}) && $Config{'scan'}{'engine'} ne 'none' ) {
                     violation_add( $mac, $SCAN_VID );

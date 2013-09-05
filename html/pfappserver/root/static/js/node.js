@@ -40,6 +40,9 @@ var NodeView = function(options) {
     var read = $.proxy(this.readNode, this);
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
+    var show = $.proxy(this.showNode, this);
+    $('body').on('show', '#modalNode', show);
+
     var update = $.proxy(this.updateNode, this);
     $('body').on('submit', '#modalNode form[name="modalNode"]', update);
 
@@ -78,6 +81,7 @@ NodeView.prototype.proxyClick = function(obj, target, method) {
 NodeView.prototype.readNode = function(e) {
     e.preventDefault();
 
+    var that = this;
     var section = $('#section');
     var loader = section.prev('.loader');
     loader.show();
@@ -92,32 +96,70 @@ NodeView.prototype.readNode = function(e) {
         success: function(data) {
             $('body').append(data);
             var modal = $("#modalNode");
-            modal.on('shown', function() {
-                modal.find('.chzn-select').chosen();
-                modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
-                modal.find('.timepicker-default').each(function() {
-                    // Keep the placeholder visible if the input has no value
-                    var that = $(this);
-                    var defaultTime = that.val().length? 'value' : false;
-                    that.timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
-                    that.on('hidden', function (e) {
-                        // Stop the hidden event bubbling up to the modal
-                        e.stopPropagation();
-                    });
-                });
-                modal.find('.datepicker').datepicker({ autoclose: true });
-                modal.find('[data-toggle="tooltip"]').tooltip({placement: 'right'}).click(function(e) {
-                    e.preventDefault;
-                    return false;
-                });
-            });
-            modal.on('hidden', function (e) {
-                if ($(e.target).hasClass('modal'))
-                    $(this).remove();
-            });
             modal.modal({ show: true });
         },
         errorSibling: section.find('h2').first()
+    });
+};
+
+NodeView.prototype.showNode = function(e) {
+    var that = this;
+    var modal = $("#modalNode");
+    modal.find('.chzn-select').chosen();
+    modal.find('.chzn-deselect').chosen({allow_single_deselect: true});
+    modal.find('.timepicker-default').each(function() {
+        // Keep the placeholder visible if the input has no value
+        var $this = $(this);
+        var defaultTime = $this.val().length? 'value' : false;
+        $this.timepicker({ defaultTime: defaultTime, showSeconds: false, showMeridian: false });
+        $this.on('hidden', function (e) {
+            // Stop the hidden event bubbling up to the modal
+            e.stopPropagation();
+        });
+    });
+    modal.find('.datepicker').datepicker({ autoclose: true });
+    modal.find('[data-toggle="tooltip"]').tooltip({placement: 'right'}).click(function(e) {
+        e.preventDefault;
+        return false;
+    });
+    modal.find('#pid').typeahead({
+        source: $.proxy(that.searchUser, that),
+        minLength: 2,
+        items: 11,
+        matcher: function(item) { return true; },
+    });
+    modal.on('hidden', function (e) {
+        if ($(e.target).hasClass('modal')) {
+            $(this).remove();
+        }
+    });
+};
+
+NodeView.prototype.searchUser = function(query, process) {
+    this.nodes.post({
+        url: '/user/advanced_search',
+        data: {
+            'json': 1,
+            'all_or_any': 'any',
+            'searches.0.name': 'username',
+            'searches.0.op': 'like',
+            'searches.0.value': query,
+            'searches.1.name': 'email',
+            'searches.1.op': 'like',
+            'searches.1.value': query
+        },
+        success: function(data) {
+            var results = $.map(data.items, function(i) {
+                return i.pid;
+            });
+            var input = $('#modalNode #pid');
+            var control = input.closest('.control-group');
+            if (results.length == 0)
+                control.addClass('error');
+            else
+                control.removeClass('error');
+            process(results);
+        },
     });
 };
 

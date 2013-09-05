@@ -318,7 +318,7 @@ sub generate_redirect_page {
 
 =item generate_aup_standalone_page
 
-Called when someone clicked on /aup which is the pop=up URL for mobile phones.
+Called when someone clicked on /aup which is the pop-up URL for mobile phones.
 
 =cut
 
@@ -403,24 +403,29 @@ sub generate_oauth2_result {
    } elsif (lc($provider) eq 'google') {
        $type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
    }
-   my $source_id = $portalSession->getProfile->getSourceByType($type);
-   my $source = pf::authentication::getAuthenticationSource($source_id);
-   $response = $token->get($source->{'protected_resource_url'});
-   if ($response->is_success) {
-        # Grab JSON content
-        my $json = new JSON;
-        my $json_text = $json->decode($response->content());
-        if ($provider eq 'google' || $provider eq 'github' ) {
-            $logger->info("OAuth2 successfull, register and release for email $json_text->{email}");
-            return ($TRUE,$json_text->{email});
-        } elsif ($provider eq 'facebook') {
-            $logger->info("OAuth2 successfull, register and release for username $json_text->{username}");
-            return ($TRUE,$json_text->{username});
-        }
+   my $source = $portalSession->getProfile->getSourceByType($type);
+   if ($source) {
+       $response = $token->get($source->{'protected_resource_url'});
+       if ($response->is_success) {
+           # Grab JSON content
+           my $json = new JSON;
+           my $json_text = $json->decode($response->content());
+           if ($provider eq 'google' || $provider eq 'github' ) {
+               $logger->info("OAuth2 successfull, register and release for email $json_text->{email}");
+               return ($TRUE,$json_text->{email});
+           } elsif ($provider eq 'facebook') {
+               $logger->info("OAuth2 successfull, register and release for username $json_text->{username}");
+               return ($TRUE,$json_text->{username});
+           }
+       } else {
+           $logger->info("OAuth2: failed to validate the token, redireting to login page");
+           generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to validate the token, please retry") );
+           return 0;
+       }
    } else {
-        $logger->info("OAuth2: failed to validate the token, redireting to login page");
-        generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to validate the token, please retry") );
-        return 0;
+       $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->getProfile->getName));
+       generate_login_page( $portalSession, i18n("OAuth2 Error: Failed to get the token") );
+       return 0;
    }
 }
 
@@ -707,6 +712,8 @@ sub generate_generic_page {
 
 sub oauth2_client {
     my ($portalSession, $provider) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
     my $type;
     {
         if (lc($provider) eq 'facebook') {
@@ -718,8 +725,7 @@ sub oauth2_client {
         }
     }
     if ($type) {
-        my $source_id = $portalSession->getProfile->getSourceByType($type);
-        my $source = pf::authentication::getAuthenticationSource($source_id);
+        my $source = $portalSession->getProfile->getSourceByType($type);
         if ($source) {
             Net::OAuth2::Client->new(
                 $source->{'client_id'},
@@ -731,6 +737,9 @@ sub oauth2_client {
                 access_token_param => $source->{'access_token_param'},
                 scope => $source->{'scope'}
           )->web_server(redirect_uri => $source->{'redirect_url'} );
+        }
+        else {
+            $logger->error(sprintf("No source of type '%s' defined for profile '%s'", $type, $portalSession->getProfile->getName));
         }
     }
 }

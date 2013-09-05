@@ -22,7 +22,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
     action_args => {
-        advanced_search => { model=> 'Search::Node', form => 'AdvancedSearch' },
+        advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },
     }
 );
 
@@ -55,6 +55,7 @@ after _list_items => sub {
 
     my ($status,$roles) = $c->model('Roles')->list();
     $c->stash(roles => $roles);
+
 };
 
 
@@ -72,9 +73,7 @@ sub advanced_search :Local :Args() {
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $status_msg = $form->field_errors;
-        $c->stash(
-            current_view => 'JSON',
-        );
+        $c->stash(current_view => 'JSON');
     }
     else {
         my $query = $form->value;

@@ -42,11 +42,15 @@ has_field 'billing_engine' =>
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
   );
+has_block 'definition' =>
+  (
+   render_list => [ qw(id description billing_engine) ],
+  );
 has_field 'filter' =>
   (
    type => 'DynamicTable',
    'num_when_empty' => 2,
-   'label' => 'Filters',
+   'do_label' => 0,
    inflate_default_method => sub {
        [
         map { pfappserver::Form::Field::ProfileFilter->filter_inflate($_) }
@@ -64,12 +68,11 @@ has_field 'sources' =>
   (
    'type' => 'DynamicTable',
    'sortable' => 1,
-   'label' => 'Sources',
+   'do_label' => 0,
   );
 has_field 'sources.contains' =>
   (
    type => 'Select',
-   label => 'Source',
    options_method => \&options_sources,
    widget_wrapper => 'DynamicTableRow',
   );

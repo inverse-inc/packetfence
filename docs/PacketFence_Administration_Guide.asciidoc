@@ -198,6 +198,7 @@ Install your distribution with minimal installation and no additional packages. 
 [options="compact"]
 * Disable Firewall
 * Disable SELinux
+* Disable AppArmor
 
 Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
 
@@ -1551,10 +1552,8 @@ Specifies if a host can self remediate the violation (enable network button) or 
 `grace`::
 Amount of time before the violation can reoccur. This is useful to allow hosts time (in the example 2 minutes) to download tools to fix their issue, or shutoff their peer-to-peer application.
 `window`::
-Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can
-use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
-accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the
-current month.)
+Amount of time before a violation will be closed automatically.  Instead of allowing people to reactivate the network, you may want to open a violation for a defined amount of time instead.  You can use the allowed time modifiers or the dynamic keyword.  Note that the dynamic keyword only works for accounting violations.  Dynamic will open the violation according to the time you set in the
+accounting violation (ie. You have an accounting violation for 10GB/month.  If you bust the bandwidth after 3 days, the violation will open and the release date will be set for the last day of the current month.)
 `vclose`::
 When selecting the "close" action, triggering the violation will close the one you select in the vclose field. This is an experimentalworkflow for Mobile Device Management (MDM).
 `target_category`::
@@ -1872,9 +1871,9 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   preregistration=disabled
   sponsorship_cc=
 
-These parameters can also be configured from the *Configuration -> Self Registration* section.
+These parameters can also be configured from the *Configuration -> Self Registration* section of the Web admin interface.
 
-Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles and Pages*. To disable the self-registration feature, simply remove all modes from the portal profile definition. 
+Available registration modes are defined on a per-portal-profile basis. These are configurable from *Configuration -> Portal Profiles and Pages*. To disable the self-registration feature, simply remove all self-registration sources from the portal profile definition. Notice however that if your default portal profile has no source, it will use all authentication sources.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 

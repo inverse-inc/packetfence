@@ -85,7 +85,7 @@ __PACKAGE__->config(
 
     'View::JSON' => {
        # TODO to discuss: always add to exposed stash or use a standard 'resultset' instead?
-       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success) ], # defaults to everything
+       expose_stash    => [ qw(status status_msg error interfaces networks switches config services success items) ], # defaults to everything
     },
 
     'Plugin::Authentication' => {

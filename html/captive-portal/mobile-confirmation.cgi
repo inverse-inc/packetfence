@@ -68,27 +68,33 @@ if ( $portalSession->getCgi->param("pin") ) {
    
     my $pid = $portalSession->getSession->param("guest_pid") || "admin";
     my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-    my $source_id = $portalSession->getProfile->getSourceByType($sms_type);
+    my $source = $portalSession->getProfile->getSourceByType($sms_type);
     my $auth_params = { 'username' => $pid };
 
-    # Setting access timeout and role (category) dynamically
-    $info{'unregdate'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ACCESS_DURATION);
+    if ($source) {
+        # Setting access timeout and role (category) dynamically
+        $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
-    if (defined $info{'unregdate'}) {
-        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+        if (defined $info{'unregdate'}) {
+            $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+        }
+        else {
+            $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
+        }
+
+        $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
+
+        pf::web::web_node_register($portalSession, $pid, %info);
+
+        # clear state that redirects to the Enter PIN page
+        $portalSession->getSession->clear(["guest_pid"]);
+
+        pf::web::end_portal_session($portalSession);
     }
     else {
-        $info{'unregdate'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_UNREG_DATE);
+        $logger->warn("No active sms source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
+        print $portalSession->getCgi->redirect($Config{'trapping'}{'redirecturl'});
     }
-
-    $info{'category'} = &pf::authentication::match($source_id, $auth_params, $Actions::SET_ROLE);
-
-    pf::web::web_node_register($portalSession, $pid, %info);
-
-    # clear state that redirects to the Enter PIN page
-    $portalSession->getSession->clear(["guest_pid"]);
-
-    pf::web::end_portal_session($portalSession);
 
 } elsif ($portalSession->getCgi->param("action_confirm")) {
     # No PIN specified

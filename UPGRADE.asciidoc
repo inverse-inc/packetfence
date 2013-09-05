@@ -5,6 +5,18 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.0.6
+---------------------------------------
+
+Changes to authentication API
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The method pf::authentication::authenticate now expects an array of pf::authentication::Source objects
+instead of an array of source IDs.
+
+The methods getSourceByType, getInternalSources, and getExternalSources of the module pf::Portal::Profile
+now return pf::authentication::Source objects instead of source IDs.
+
 Upgrading from a version prior to 4.0.5
 ---------------------------------------
 

@@ -1,16 +1,15 @@
-# Copyright (C) 2006-2012 Inverse inc.
+# Copyright (C) 2006-2013 Inverse inc.
 # This file is distributed under the same license as the PacketFence project.
-# 
-# Translators:
-# Brivaldo Junior <condector@gmail.com>, 2011.
-# Diego de Souza Lopes <djkakaroto@gmail.com>, 2011, 2012.
 #
+# Translators:
+# Brivaldo Junior <condector@gmail.com>, 2011
+# djkakaroto <djkakaroto@gmail.com>, 2011, 2012, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "Report-Msgid-Bugs-To: http://www.packetfence.org/bugs/\n"
-"PO-Revision-Date: 2013-02-19 22:23+0000\n"
-"Last-Translator: djkakaroto <djkakaroto@gmail.com>\n"
+"PO-Revision-Date: 2013-09-05 14:52+0000\n"
+"Last-Translator: inverse <info@inverse.ca>\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/projects/p/packetfence/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,6 +34,9 @@ msgstr "Italiano"
 
 msgid "nl_NL"
 msgstr "Dutch"
+
+msgid "pl_PL"
+msgstr "Polski"
 
 msgid "pt_BR"
 msgstr "Português"
@@ -91,6 +93,9 @@ msgstr "Para completar o processo de registro, você deve se autenticar usando s
 
 msgid "Authentication"
 msgstr "Autenticação"
+
+msgid "Wrong username or password."
+msgstr ""
 
 msgid "or"
 msgstr "ou"
@@ -552,8 +557,8 @@ msgid ""
 msgstr "Se o usuário possuir scripting desligado, o usuário não será redirecionado automaticamente. Por favor, ative o scripting ou abra uma nova janela do navegador de tempos em tempos para ver se o seu acesso foi ativado."
 
 msgid ""
-"Unable to detect network connectivity. Try opening a web page to see if your"
-" access has been succesfully enabled."
+"Unable to detect network connectivity. Try restarting your web browser or "
+"opening a new tab to see if your access has been succesfully enabled."
 msgstr "Incapaz de detectar a conectividade da rede. Tente abrir uma página web para ver se o seu acesso foi habilitado com sucesso."
 
 msgid ""

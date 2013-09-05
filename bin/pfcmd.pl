@@ -278,7 +278,7 @@ sub manage {
     } elsif ( $option eq "vopen" ) {
         return 3 if ( !$id );
         require pf::violation;
-        print pf::violation::violation_add( $mac, $id );
+        print (pf::violation::violation_add( $mac, $id ) ? 1 : 0);
     }
     require pf::enforcement;
     pf::enforcement::reevaluate_access( $mac, $function );
@@ -1269,11 +1269,13 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            $logger->info("saving current iptables to var/iptables.bak");
-            require pf::inline::custom;
-            my $iptables = pf::inline::custom->new();
-            my $technique = $iptables->{_technique};
-            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
+            if(isenabled($Config{services}{iptables})) {
+                $logger->info("saving current iptables to var/iptables.bak");
+                require pf::inline::custom;
+                my $iptables = pf::inline::custom->new();
+                my $technique = $iptables->{_technique};
+                $technique->iptables_save( $install_dir . '/var/iptables.bak' );
+            }
         }
     }
 
@@ -1283,11 +1285,13 @@ sub service {
         require pf::os;
         pf::os::import_dhcp_fingerprints();
         pf::services::read_violations_conf();
-        print "iptables|$command\n";
-        require pf::inline::custom;
-        my $iptables = pf::inline::custom->new();
-        my $technique = $iptables->{_technique};
-        $technique->iptables_generate();
+        if(isenabled($Config{services}{iptables})) {
+            print "iptables|$command\n";
+            require pf::inline::custom;
+            my $iptables = pf::inline::custom->new();
+            my $technique = $iptables->{_technique};
+            $technique->iptables_generate();
+        }
     }
 
     foreach my $srv (@services) {
@@ -1310,10 +1314,12 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            require pf::inline::custom;
-            my $iptables = pf::inline::custom->new();
-            my $technique = $iptables->{_technique};
-            $technique->iptables_restore( $install_dir . '/var/iptables.bak' );
+            if(isenabled($Config{services}{iptables})) {
+                require pf::inline::custom;
+                my $iptables = pf::inline::custom->new();
+                my $technique = $iptables->{_technique};
+                $technique->iptables_restore( $install_dir . '/var/iptables.bak' );
+            }
         } else {
             if ( lc($service) eq 'pf' ) {
                 $logger->error(
@@ -1924,9 +1930,23 @@ sub command_param {
         if (!exists(&{$main::{$function}})) {
             print "No such sub: $function at line ".__LINE__.".\n";
         } else {
+            require JSON;
+            my $output  = $cmd{$options}[3];
             # execute coderef main::$function sub
             $logger->info( "pfcmd calling $function for " . $params{mac} );
-            &{$main::{$function}}($params{mac}, $params{vid}, %params);
+            my ($result) = &{$main::{$function}}($params{mac}, $params{vid}, %params);
+            if(defined $output && $output eq 'json') {
+                my %json;
+                $json{'id'} = $result if $result > 0;
+                $json{'warnings'} = [violation_last_warnings()];
+                $json{'errors'} = [violation_last_errors()];
+                print JSON::to_json(\%json);
+            } else {
+                my @warnings = violation_last_warnings();
+                my @errors = violation_last_errors();
+                print STDERR join("\n","Warnings:",@warnings),"\n" if @warnings;
+                print STDERR join("\n","Errors:",@errors),"\n" if @errors;
+            }
         }
     } else {
         if ( $function eq "violation_delete" ) {

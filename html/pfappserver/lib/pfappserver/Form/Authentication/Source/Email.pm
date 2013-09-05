@@ -15,6 +15,7 @@ extends 'pfappserver::Form::Authentication::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::EmailSource;
+use pfappserver::Form::Field::Duration;
 
 # Form fields
 has_field 'email_activation_timeout' =>

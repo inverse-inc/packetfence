@@ -66,8 +66,7 @@ BuildRequires: perl(Parse::RecDescent)
 
 PacketFence is an open source network access control (NAC) system.
 It can be used to effectively secure networks, from small to very large
-heterogeneous networks. PacketFence provides features such
-as
+heterogeneous networks. PacketFence provides features such as
 * registration of new network devices
 * detection of abnormal network activities
 * isolation of problematic devices
@@ -220,6 +219,8 @@ Requires: perl(File::Flock)
 Requires: perl(Perl::Version)
 Requires: perl(Cache::FastMmap)
 Requires: perl(Moo) >= 1.0
+Requires: perl(Term::ANSIColor)
+Requires: perl(IO::Interactive)
 # configuration-wizard
 Requires: iproute, vconfig
 #
@@ -296,7 +297,7 @@ mv pfcmd_pregrammar.pm lib/pf/pfcmd/
 
 # generate translations
 # TODO this is duplicated in debian/rules, we should aim to consolidate in a 'make' style step
-for TRANSLATION in de en es fr he_IL it nl pt_BR; do 
+for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR; do
     /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
@@ -640,6 +641,7 @@ fi
 %dir                    /usr/local/pf/bin
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd.pl
 %attr(0755, pf, pf)     /usr/local/pf/bin/pfcmd_vlan
+%attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
@@ -648,7 +650,6 @@ fi
 %config                 /usr/local/pf/conf/documentation.conf
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
-%config(noreplace)      /usr/local/pf/conf/profiles.conf
 %dir                    /usr/local/pf/conf/locale
 %dir                    /usr/local/pf/conf/locale/de
 %dir                    /usr/local/pf/conf/locale/de/LC_MESSAGES
@@ -678,6 +679,10 @@ fi
 %dir                    /usr/local/pf/conf/locale/nl/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.po
 %config(noreplace)      /usr/local/pf/conf/locale/nl/LC_MESSAGES/packetfence.mo
+%dir                    /usr/local/pf/conf/locale/pl_PL
+%dir                    /usr/local/pf/conf/locale/pl_PL/LC_MESSAGES
+%config(noreplace)      /usr/local/pf/conf/locale/pl_PL/LC_MESSAGES/packetfence.po
+%config(noreplace)      /usr/local/pf/conf/locale/pl_PL/LC_MESSAGES/packetfence.mo
 %dir                    /usr/local/pf/conf/locale/pt_BR
 %dir                    /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES
 %config(noreplace)      /usr/local/pf/conf/locale/pt_BR/LC_MESSAGES/packetfence.po
@@ -688,11 +693,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/networks.conf
 %config                 /usr/local/pf/conf/openssl.cnf
 %config                 /usr/local/pf/conf/oui.txt
-#%config(noreplace)      /usr/local/pf/conf/pf.conf
 %config                 /usr/local/pf/conf/pf.conf.defaults
                         /usr/local/pf/conf/pf-release
-%config(noreplace)      /usr/local/pf/conf/profiles.conf
-#%config                 /usr/local/pf/conf/services.conf
 %dir			/usr/local/pf/conf/radiusd
 %config(noreplace)	/usr/local/pf/conf/radiusd/eap.conf
 %config(noreplace)	/usr/local/pf/conf/radiusd/radiusd.conf
@@ -716,6 +718,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/listener.msg
 %config(noreplace)      /usr/local/pf/conf/popup.msg
+%config(noreplace)      /usr/local/pf/conf/profiles.conf
 %config(noreplace)      /usr/local/pf/conf/snmptrapd.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf
 %config(noreplace)      /usr/local/pf/conf/snort.conf.pre_snort-2.8
@@ -846,6 +849,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Thu Sep 5 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.6-1
+- New release 4.0.6
+
 * Fri Aug 9 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.5-1
 - New release 4.0.5
 

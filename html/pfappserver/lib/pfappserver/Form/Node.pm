@@ -13,6 +13,8 @@ Form definition to create or update a node.
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 
+use HTTP::Status qw(is_error);
+
 # Form select options
 has 'roles' => ( is => 'ro' );
 has 'status' => ( is => 'ro' );
@@ -20,8 +22,10 @@ has 'status' => ( is => 'ro' );
 # Form fields
 has_field 'pid' =>
   (
-   type => 'Uneditable',
+   type => 'Text',
    label => 'Owner',
+   required => 1,
+   element_attr => {'data-provide' => 'typeahead'},
   );
 has_field 'status' =>
   (
@@ -118,6 +122,23 @@ sub options_category_id {
     my @roles = map { $_->{category_id} => $_->{name} } @{$self->roles} if ($self->roles);
 
     return ('' => '', @roles);
+}
+
+=head2 validate
+
+Make sure the specified user ID (pid) exists
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    if ($self->value->{pid}) {
+        my ($status, $result) = $self->form->ctx->model('User')->read($self->form->ctx, [$self->value->{pid}]);
+        if (is_error($status)) {
+            $self->field('pid')->add_error("The specified user doesn't exist.");
+        }
+    }
 }
 
 =head1 COPYRIGHT

@@ -58,10 +58,11 @@ $info{'pid'} = "admin";
 $info{'user_agent'} = $cgi->user_agent;
 
 if (defined($cgi->url_param('provider'))) {
-    $logger->info("Sending " . $portalSession->getClientMac() . "to OAuth2 - Provider:" . $cgi->url_param('provider') );
+    $logger->info("Sending " . $portalSession->getClientMac() . " to OAuth2 - Provider:" . $cgi->url_param('provider') );
     pf::web::generate_oauth2_page( $portalSession );
     exit(0);
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "google") {
+    # Handle OAuth2 response from Google
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "google" );
     $source_type = pf::Authentication::Source::GoogleSource->meta->get_attribute('type')->default;
 
@@ -71,7 +72,7 @@ if (defined($cgi->url_param('provider'))) {
         exit(0);
     }
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "facebook") {
-#Handle OAuth2 response from Facebook
+    # Handle OAuth2 response from Facebook
     my ($code,$username,$err) = pf::web::generate_oauth2_result( $portalSession, "facebook" );
     $source_type = pf::Authentication::Source::FacebookSource->meta->get_attribute('type')->default;
 
@@ -81,7 +82,7 @@ if (defined($cgi->url_param('provider'))) {
        exit(0);
     }
 } elsif (defined($cgi->url_param('result')) && $cgi->url_param('result') eq "github") {
-#Handle OAuth2 response from Github
+    # Handle OAuth2 response from Github
     my ($code,$email,$err) = pf::web::generate_oauth2_result( $portalSession, "github" );
     $source_type = pf::Authentication::Source::GithubSource->meta->get_attribute('type')->default;
 
@@ -92,22 +93,28 @@ if (defined($cgi->url_param('provider'))) {
     }
 }
 
-my $source_id = $portalSession->getProfile->getSourceByType($source_type);
+my $source = $portalSession->getProfile->getSourceByType($source_type);
 
-# Setting access timeout and role (category) dynamically
-$info{'unregdate'} = &pf::authentication::match($source_id, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+if ($source) {
+    # Setting access timeout and role (category) dynamically
+    $info{'unregdate'} = &pf::authentication::match($source->{id}, {username => $pid}, $Actions::SET_ACCESS_DURATION);
 
-if (defined $info{'unregdate'}) {
-    $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+    if (defined $info{'unregdate'}) {
+        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+    }
+    else {
+        $info{'unregdate'} = &pf::authentication::match($source->{id}, {username => $pid}, $Actions::SET_UNREG_DATE);
+    }
+
+    $info{'category'} = &pf::authentication::match($source->{id}, {username => $pid}, $Actions::SET_ROLE);
+
+    pf::web::web_node_register($portalSession, $pid, %info);
+    pf::web::end_portal_session($portalSession);
 }
 else {
-    $info{'unregdate'} = &pf::authentication::match($source_id, {username => $pid}, $Actions::SET_UNREG_DATE);
+    $logger->warn("No active $source_type source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
+    print $cgi->redirect($Config{'trapping'}{'redirecturl'});
 }
-
-$info{'category'} = &pf::authentication::match($source_id, {username => $pid}, $Actions::SET_ROLE);
-
-pf::web::web_node_register($portalSession, $pid, %info);
-pf::web::end_portal_session($portalSession);
 
 =head1 AUTHOR
 

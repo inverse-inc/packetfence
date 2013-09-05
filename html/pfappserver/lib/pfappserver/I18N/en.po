@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.0.2\n"
+"Project-Id-Version: 4.0.5\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-07-12 11:57-0400\n"
+"PO-Revision-Date: 2013-08-30 14:43-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -130,6 +130,11 @@ msgstr ""
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Add a condition."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Add a source."
 msgstr ""
 
 # html/pfappserver/root/soh/index.tt
@@ -374,6 +379,12 @@ msgstr ""
 msgid "Clear Violation"
 msgstr ""
 
+# html/pfappserver/root/configuration/floatingdevice/list.tt
+# html/pfappserver/root/configuration/switch/list.tt
+# html/pfappserver/root/violation/list.tt
+msgid "Clone"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
@@ -425,14 +436,14 @@ msgstr ""
 msgid ""
   "Comma-delimited list of domains to be used as HTTP and HTTPS passthroughs to "
   "web sites."
-  "The configuration parameter \"passthrough\" must be enabled for Passthroughs "
+  "The configuration parameter \"passthrough\" must be enabled for passthroughs "
   "to be effective."
 msgstr ""
 
-## conf/documentation.conf (trapping.proxy_passthroughs)
+# conf/documentation.conf (trapping.proxy_passthroughs)
 msgid ""
   "Comma-delimited list of domains to be used with apache passthroughs."
-  "The configuration parameter \"passthrough\" must be enabled for Proxy Passthroughs"
+  "The configuration parameter \"passthrough\" must be enabled for passthroughs"
   "to be effective."
 msgstr ""
 
@@ -674,6 +685,7 @@ msgid "Delete Violation"
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Deleting"
 msgstr ""
@@ -713,6 +725,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/configuration/authentication.tt
+# html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/node/violations.tt
 # html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
@@ -753,6 +766,10 @@ msgstr ""
 msgid "Each account will be printed on a single page with the acceptable user policy."
 msgstr ""
 
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Each portal profile must be associated with one or multiple authentication sources while 802.1X connections use the ordered internal sources to determine which role to use. External sources are never used with 802.1X connections."
+msgstr ""
+
 # html/pfappserver/root/configuration/switch/list.tt
 msgid "Edit floating device"
 msgstr ""
@@ -764,6 +781,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/admin/users.tt
 msgid "Email"
 msgstr ""
 
@@ -797,11 +815,6 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "Enable Password"
-msgstr ""
-
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
-msgid "Enable Self Registration"
 msgstr ""
 
 # conf/documentation.conf (registration.gaming_devices_registration)
@@ -869,6 +882,10 @@ msgid "Expiration"
 msgstr ""
 
 # html/pfappserver/root/configuration/authentication.tt
+msgid "External"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
 msgid "External Sources"
 msgstr ""
 
@@ -894,12 +911,17 @@ msgid "Files"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/root/portal/profile/view.tt
 # html/pfappserver/root/soh/read.tt
 msgid "Filter"
 msgstr ""
 
 # html/pfappserver/root/configuration/fingerprints/simple_search.tt
 msgid "Fingerprints"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "First Name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
@@ -990,6 +1012,10 @@ msgstr ""
 # html/pfappserver/root/interface/list.tt
 # html/pfappserver/root/node/view.tt
 msgid "IP Address"
+msgstr ""
+
+# html/pfappserver/root/admin/users.tt
+msgid "IP address"
 msgstr ""
 
 # conf/documentation.conf (interface.ip)
@@ -1093,6 +1119,10 @@ msgid "Interfaces & Networks"
 msgstr ""
 
 # html/pfappserver/root/configuration/authentication.tt
+msgid "Internal"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
 msgid "Internal Sources"
 msgstr ""
 
@@ -1122,6 +1152,10 @@ msgstr ""
 msgid "Keep The Same"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "Last Name"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
@@ -1134,9 +1168,7 @@ msgid "Legend"
 msgstr ""
 
 # conf/documentation.conf (general.locale)
-msgid ""
-  "Locale used for message translation"
-  "More than 1 can be specified"
+msgid "Locale used for message translation. More than one can be specified."
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -1229,6 +1261,10 @@ msgstr ""
 msgid "MAC Vendor"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "MAC address"
+msgstr ""
+
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
 msgstr ""
@@ -1271,6 +1307,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
+# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/authentication/source/rules_read.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configurator/database.tt
@@ -1355,10 +1392,6 @@ msgstr ""
 msgid "New Rule"
 msgstr ""
 
-# html/pfappserver/root/authentication/source/read.tt
-msgid "New Source"
-msgstr ""
-
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "New Switch"
 msgstr ""
@@ -1434,6 +1467,18 @@ msgid "No violation history"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+msgid "Node IP"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Node MAC"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Node category"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/reports.tt
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Nodes"
@@ -1451,6 +1496,8 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
 msgid "Notes"
 msgstr ""
 
@@ -1515,6 +1562,10 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
 msgid "Perform the following actions:"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "Person name"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
@@ -2076,6 +2127,10 @@ msgstr ""
 msgid "Should have to reauthenticate the node if vlan change"
 msgstr ""
 
+# conf/documentation.conf (services.iptables)
+msgid "Should iptables be managed by packetfence"
+msgstr ""
+
 # conf/documentation.conf (vlan.closelocationlogonstop)
 msgid ""
   "Should open locationlog entries be closed when pfsetvlan is"
@@ -2127,7 +2182,16 @@ msgstr ""
 msgid "Sleep interval"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+msgid "Source switch IP"
+msgstr ""
+
+# html/pfappserver/root/portal/profile/view.tt
+msgid "Sources"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/root/admin/users.tt
 msgid "Sponsor"
 msgstr ""
 
@@ -2242,6 +2306,7 @@ msgid "Target VLAN"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/User.pm
+# html/pfappserver/root/admin/users.tt
 msgid "Telephone"
 msgstr ""
 
@@ -2461,6 +2526,10 @@ msgstr ""
 msgid "User Agents"
 msgstr ""
 
+# html/pfappserver/root/admin/users.tt
+msgid "User Name"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
 msgid "User Name Read"
 msgstr ""
@@ -2475,6 +2544,10 @@ msgstr ""
 
 # html/pfappserver/root/authentication/source/read.tt
 msgid "User Sources"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+msgid "User agent"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -2535,6 +2608,10 @@ msgstr ""
 msgid "Violation"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+msgid "Violation name"
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 msgid "Violation to close"
 msgstr ""
@@ -2583,8 +2660,8 @@ msgstr ""
 
 # conf/documentation.conf (trapping.passthrough)
 msgid ""
-  "When enabled, PacketFence uses pfdns if you set Passthroughs or apache mod-proxy"
-  "if you set Proxy passthroughs to allow trapped devices to reach the web sites."
+  "When enabled, PacketFence uses pfdns if you defined \"Passthroughs\" or Apache mod-proxy"
+  "if you defined \"Proxy passthroughs\" to allow trapped devices to reach web sites."
 msgstr ""
 
 # conf/documentation.conf (network.rogueinterval)
@@ -2613,6 +2690,18 @@ msgstr ""
 
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "With no condition, the inline mode will never be activated."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/create.tt
+msgid "With no source selected, the sources of the default profile will be used."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/view.tt
+msgid "With no source specified, all internal sources will be used."
+msgstr ""
+
+# html/pfappserver/root/portal/profile/view.tt
+msgid "With no source specified, the sources of the default profile will be used."
 msgstr ""
 
 # html/pfappserver/root/authentication/source/rule_read.tt
@@ -2847,6 +2936,7 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (servicewatch.email options)
@@ -2902,6 +2992,7 @@ msgstr ""
 # conf/documentation.conf (scan.dot1x options)
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
+# conf/documentation.conf (services.iptables options)
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (servicewatch.email options)
@@ -2918,6 +3009,11 @@ msgstr ""
 
 # pf::Authentication::constants (Conditions)
 msgid "ends"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "ends with"
 msgstr ""
 
 # pf::Authentication::constants (Conditions)
@@ -3099,6 +3195,8 @@ msgstr ""
 msgid "internal"
 msgstr "Internal"
 
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
 # pf::Authentication::constants (Conditions)
 msgid "is"
 msgstr ""
@@ -3111,6 +3209,8 @@ msgstr ""
 msgid "is before"
 msgstr ""
 
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
 # pf::Authentication::constants (Conditions)
 msgid "is not"
 msgstr ""
@@ -3178,6 +3278,15 @@ msgstr "Management"
 # pf::Authentication::constants (Actions)
 msgid "mark_as_sponsor"
 msgstr "Mark as sponsor"
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "matches"
+msgstr ""
+
+# pf::Authentication::constants (Conditions)
+msgid "matches regexp"
+msgstr ""
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
@@ -3290,6 +3399,10 @@ msgstr ""
 
 # pf::Authentication::Source::SMSSource (available_attributes)
 msgid "phonenumber"
+msgstr ""
+
+# conf/documentation.conf (general.locale options)
+msgid "pl_PL"
 msgstr ""
 
 # html/pfappserver/root/node/view.tt
@@ -3467,6 +3580,10 @@ msgid "services.httpd_binary"
 msgstr "httpd path"
 
 # conf/documentation.conf
+msgid "services.iptables"
+msgstr "iptables"
+
+# conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
 
@@ -3545,6 +3662,11 @@ msgstr "Wifi Network SSID"
 
 # pf::Authentication::constants (Conditions)
 msgid "starts"
+msgstr ""
+
+# html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
+msgid "starts with"
 msgstr ""
 
 # conf/documentation.conf (trapping.detection_engine options)
