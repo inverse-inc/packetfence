@@ -98,8 +98,8 @@ function updateSection(ajax_data) {
                     section.html(data);
                     section.find('.datepicker').datepicker({ autoclose: true });
                     if (section.chosen) {
-                        section.find('.chzn-select').chosen();
-                        section.find('.chzn-deselect').chosen({allow_single_deselect: true});
+                        section.find('.chzn-select:visible').chosen();
+                        section.find('.chzn-deselect:visible').chosen({allow_single_deselect: true});
                     }
                     if (section.bootstrapSwitch)
                         section.find('.switch').bootstrapSwitch();
