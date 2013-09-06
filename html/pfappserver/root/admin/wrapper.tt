@@ -74,7 +74,6 @@
               [%- END %]
               [%- IF can_access("CONFIGURATION_MAIN_READ") ||
                      can_access("CONFIGURATION_NETWORK_READ") ||
-                     can_access("USERS_READ") ||
                      can_access("USERS_ROLES_READ") ||
                      can_access("USERS_SOURCES_READ") ||
                      can_access("VIOLATIONS_READ") ||
