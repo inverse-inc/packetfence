@@ -11,6 +11,24 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.x.y released on 2013-MM-DD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* 
+
+Enhancements
+++++++++++++
+
+* Improved error messages in RADIUS modules
+
+Bug Fixes
++++++++++
+
+* 
+
 Version 4.0.6 released on 2013-09-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

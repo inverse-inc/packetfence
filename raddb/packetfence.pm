@@ -97,7 +97,7 @@ sub post_auth {
         }
 
         my $data = send_soap_request("radius_authorize",\%RAD_REQUEST);
-        if($data) {
+        if ($data) {
 
             my $elements = $data->{'soap:Body'}->{'radius_authorizeResponse'}->{'soapenc:Array'}->{'item'};
 
@@ -139,6 +139,9 @@ sub post_auth {
         # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
         # &radiusd::radlog($RADIUS::L_DBG, "PacketFence COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     };
+    if ($@) {
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the authorize SOAP request: $@");
+    }
 
     return $radius_return_code;
 }
