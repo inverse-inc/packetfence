@@ -26,6 +26,7 @@ use pf::web;
 
 use pf::authentication;
 use pf::Authentication::constants;
+use List::MoreUtils qw(any);
 
 Readonly our $GAMING_LOGIN_TEMPLATE   => 'gaming-login.html';
 Readonly our $GAMING_LANDING_TEMPLATE => 'gaming-landing.html';
@@ -117,10 +118,8 @@ sub register_node {
 sub is_gaming_mac {
     my ($mac) = @_;
     $mac =~ s/O/0/i;
-    foreach my $oui (@GAMING_OUI) {
-        return 1 if $mac =~ /^\Q$oui\E/i;
-    }
-    return 0;
+    $mac = clean_mac($mac);
+    return any { $mac =~ /^\Q$_\E/i } @GAMING_OUI;
 }
 
 sub _sanitize_and_register {
