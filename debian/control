@@ -88,7 +88,7 @@ Depends: ${misc:Depends}, vlan, make,
 # used by Captive Portal authentication modules
  libauthen-radius-perl, libauthen-krb5-simple-perl,
 # used by bin/pftest
- libterm-ansicolor-perl, libio-interactive-perl,
+ libio-interactive-perl,
 # required for perl 5.12+ (made perl setuid optional) and most distros went without it
  packetfence-pfcmd-suid
 Description: PacketFence network registration / worm mitigation system
