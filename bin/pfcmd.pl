@@ -1269,7 +1269,7 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            if(isenabled($Config{services}{iptables})) {
+            if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
                 $logger->info("saving current iptables to var/iptables.bak");
                 require pf::inline::custom;
                 my $iptables = pf::inline::custom->new();
@@ -1285,7 +1285,7 @@ sub service {
         require pf::os;
         pf::os::import_dhcp_fingerprints();
         pf::services::read_violations_conf();
-        if(isenabled($Config{services}{iptables})) {
+        if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
             print "iptables|$command\n";
             require pf::inline::custom;
             my $iptables = pf::inline::custom->new();
@@ -1314,7 +1314,7 @@ sub service {
             }
         }
         if ( $nb_running_services == 0 ) {
-            if(isenabled($Config{services}{iptables})) {
+            if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
                 require pf::inline::custom;
                 my $iptables = pf::inline::custom->new();
                 my $technique = $iptables->{_technique};

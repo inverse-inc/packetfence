@@ -259,11 +259,13 @@ sub service_ctl {
                     $pid = 0;
                     if (-e "$install_dir/var/run/$daemon.pid") {
                         chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
-                        my $ppt = new Proc::ProcessTable;
-                        my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
-                        if (!defined($proc)) {
-                            unlink( $install_dir . "/var/run/$binary.pid" );
-                            return(0);
+                        if($pid ne '' ) {
+                            my $ppt = new Proc::ProcessTable;
+                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                            if (!defined($proc)) {
+                                unlink( $install_dir . "/var/run/$binary.pid" );
+                                return(0);
+                            }
                         }
                     }
                     return ($pid);
@@ -273,11 +275,13 @@ sub service_ctl {
                     if (defined $monitor_int) {
                         if (-e "$install_dir/var/run/${daemon}_${monitor_int}.pid") {
                             chomp( $pid = `cat $install_dir/var/run/${daemon}_${monitor_int}.pid`);
-                            my $ppt = new Proc::ProcessTable;
-                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
-                            if (!defined($proc)) {
-                                unlink( $install_dir . "/var/run/${daemon}_${monitor_int}.pid" );
-                                return(0);
+                            if($pid ne '' ) {
+                                my $ppt = new Proc::ProcessTable;
+                                my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
+                                if (!defined($proc)) {
+                                    unlink( $install_dir . "/var/run/${daemon}_${monitor_int}.pid" );
+                                    return(0);
+                                }
                             }
                         }
                     }
