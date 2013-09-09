@@ -13,24 +13,7 @@ pf::pftest::help
 
 use strict;
 use warnings;
-use Pod::Find qw(pod_where);
-
 use base qw(pf::cmd::help);
-
-sub run {
-    my ($self) = @_;
-    my ($cmd) = $self->args;
-    if(!defined $cmd || $cmd eq 'help') {
-        return $self->SUPER::run;
-    }
-    my $package = "pf::pftest::${cmd}";
-    my $location = pod_where( { -inc => 1 }, $package);
-    if ($location) {
-        return $self->showHelp("pf::pftest::${cmd}");
-    }
-    $self->{parentCmd}->{help_msg} = "unknown command \"$cmd\"";
-    return $self->SUPER::run;
-}
 
 =head1 AUTHOR
 
