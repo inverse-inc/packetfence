@@ -158,7 +158,8 @@ sub IsExpired {
         my $imported = $self->{imported};
         $imported_expired = $imported->IsExpired() if defined $imported;
     }
-    return ($imported_expired || ($self->GetLastModTimestamp != $self->GetCurrentModTimestamp ));
+    my $last_mod_timestamp = $self->GetLastModTimestamp;
+    return ($imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp ));
 }
 
 =head2 SetLastModTimestamp
