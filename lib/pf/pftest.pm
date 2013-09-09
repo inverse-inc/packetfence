@@ -12,6 +12,8 @@ pftest <cmd> [options]
   authentication              | checks authentication sources
   mysql                       | runs the mysql tuner
 
+Please view "pftest.pl help <command>" for details on each option
+
 =head1 DESCRIPTION
 
 pf::pftest
@@ -21,6 +23,9 @@ pf::pftest
 use strict;
 use warnings;
 use base qw(pf::cmd::subcmd);
+use pf::pftest::help; #Preload help
+
+sub helpActionCmd { "pf::pftest::help" }
 
 =head1 AUTHOR
 

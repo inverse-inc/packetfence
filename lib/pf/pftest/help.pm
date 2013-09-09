@@ -1,34 +1,36 @@
-package pf::cmd::roles::show_help;
+package pf::pftest::help;
 =head1 NAME
 
-pf::cmd::roles::show_help add documentation
+pf::pftest::help add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::cmd::roles::show_help
+pf::pftest::help
 
 =cut
 
 use strict;
 use warnings;
-use Pod::Usage qw(pod2usage);
-use Pod::Text::Termcap;
-@Pod::Usage::ISA = ('Pod::Text::Termcap');
 use Pod::Find qw(pod_where);
-use Role::Tiny;
 
-sub showHelp {
-    my ($self,$package) = @_;
-    $package ||= ref($self) || $self;
-    my $location = pod_where({-inc => 1}, $package);
-    pod2usage({
-        -message => $self->{help_msg} ,
-        -input => $location
-    });
+use base qw(pf::cmd::help);
+
+sub run {
+    my ($self) = @_;
+    my ($cmd) = $self->args;
+    if(!defined $cmd || $cmd eq 'help') {
+        return $self->SUPER::run;
+    }
+    my $package = "pf::pftest::${cmd}";
+    my $location = pod_where( { -inc => 1 }, $package);
+    if ($location) {
+        return $self->showHelp("pf::pftest::${cmd}");
+    }
+    $self->{parentCmd}->{help_msg} = "unknown command \"$cmd\"";
+    return $self->SUPER::run;
 }
-
 
 =head1 AUTHOR
 
