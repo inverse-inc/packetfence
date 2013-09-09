@@ -120,7 +120,7 @@ sub get_all_perl_binaries {
     File::Find::find({
         wanted => sub {
             # add to list if it's a regular file
-            push(@list, $File::Find::name) if ((-f $File::Find::name) && ($File::Find::name ne "/usr/local/pf/bin/pfcmd") && ($File::Find::name ne "/usr/local/pf/sbin/pfdns"));
+            push(@list, $File::Find::name) if ((-f $File::Find::name) && ($File::Find::name ne "/usr/local/pf/bin/pfcmd") && ($File::Find::name ne "/usr/local/pf/sbin/pfdns") && ($File::Find::name ne "/usr/local/pf/bin/reload-switches.sh"));
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 
