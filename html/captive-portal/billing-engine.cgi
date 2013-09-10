@@ -94,6 +94,7 @@ if ( defined($cgi->param('submit')) ) {
             $info{'pid'}        = $portalSession->getSession->param('login');
             $info{'category'}   = $tiers_infos{$tier}{'category'};
             $info{'unregdate'}  = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
+            $info{'timeleft'}   = normalize_time($tiers_infos{$tier}{'usage_duration'}) if ($tiers_infos{$tier}{'usage_duration'});
 
             # Register the node
             pf::web::web_node_register($portalSession, $info{'pid'}, %info);

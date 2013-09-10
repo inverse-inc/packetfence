@@ -147,8 +147,14 @@ sub getAvailableTiers {
 
     my %tiers = (
             tier1 => {
-                id => "tier1", name => "Tier 1", price => "1.00", timeout => "1D", category => '',
-                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org" },
+                id => "tier1",  # used as the item value of the billing table
+                name => "Tier 1",  # used on billing.html
+                price => "1.00",  # amount charged on the credit card
+                timeout => "7D",  # used to compute the unregistration date of the node
+                usage_duration => '1D',  # the amount of non-contignuous access time for the node, set as the timeleft value of the billing table
+                category => '',  # the role in which to put the node
+                description => "Tier 1 Internet Access", destination_url => "http://www.packetfence.org"  # used on billing.html
+            },
     );
 
     return %tiers;
