@@ -210,7 +210,7 @@ sub service_ctl {
                         stopService($serv,$binary);
                     }
                 } else {
-                    stopService($service,$binary);
+                    stopService($daemon,$binary);
                 }
                 last CASE;
             };
