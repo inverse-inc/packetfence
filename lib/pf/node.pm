@@ -196,7 +196,8 @@ sub node_db_prepare {
            locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
            IF(ISNULL(locationlog.connection_type), '', locationlog.connection_type) as last_connection_type,
            locationlog.dot1x_username as last_dot1x_username, locationlog.ssid as last_ssid,
-           locationlog.start_time as last_start_time
+           locationlog.start_time as last_start_time,
+           UNIX_TIMESTAMP(locationlog.start_time) as last_start_timestamp
        FROM locationlog
        WHERE mac = ? AND end_time IS NULL
     SQL

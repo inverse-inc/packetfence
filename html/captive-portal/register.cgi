@@ -117,6 +117,10 @@ elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "aup") {
   exit(0);
 }
 
+elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
+  pf::web::generate_status_page($portalSession);
+}
+
 elsif (defined($cgi->url_param('mode'))) {
   pf::web::generate_error_page($portalSession, i18n("error: incorrect mode"));
 }
@@ -174,9 +178,6 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
 
 }
 
-else {
-  pf::web::generate_login_page($portalSession);
-}
 
 =head1 AUTHOR
 
