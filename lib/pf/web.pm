@@ -338,6 +338,35 @@ sub generate_aup_standalone_page {
     render_template($portalSession, 'aup.html');
 }
 
+=item generate_status_page
+
+Called when someone accesses /status
+
+=cut
+
+sub generate_status_page {
+    my ( $portalSession ) = @_;
+    my $node_info = node_view($portalSession->getClientMac());
+    if ($node_info->{'last_start_timestamp'} > 0) {
+        if ($node_info->{'timeleft'} > 0) {
+            # Node has a usage duration
+            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'timeleft'};
+            if ($node_info->{'expiration'} < time) {
+                # No more access time; RADIUS accounting should have triggered a violation
+                delete $node_info->{'expiration'};
+                $node_info->{'timeleft'} = 0;
+            }
+        }
+    }
+
+    $portalSession->stash({
+        node => $node_info,
+        billing => isenabled($portalSession->getProfile->getBillingEngine),
+    });
+
+    render_template($portalSession, 'status.html');
+}
+
 sub generate_scan_status_page {
     my ( $portalSession, $scan_start_time, $r ) = @_;
 

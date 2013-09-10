@@ -1,0 +1,109 @@
+[% title = i18n("State - Network Access") %]
+[% INCLUDE header.html %]
+
+<style type="text/css">
+div#popup {
+    font-size: 12px;
+    text-align: right;
+}
+div#popup img {
+    vertical-align: bottom;
+}
+div#buttons {
+    text-align: center;
+}
+
+@media (max-width: 656px) {
+    div#header, div#about img, div#popup, div#footer {
+        display: none;
+    }
+    div#about p {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 11px;
+        font-weight: bold;
+        margin: 4px;
+        text-transform: uppercase;
+    }
+    div#about hr {
+        margin-bottom: 6px;
+    }
+    .input div, .btn {
+        font-size: 12px;
+    }
+    .input div strong {
+        display: block;
+        font-size: 14px;
+    }
+}
+</style>
+
+<script type="text/javascript" src="/content/countdown.min.js"></script>
+<script type="text/javascript">
+var paused = false;
+document.observe("dom:loaded", function() {
+    [%- IF node.expiration %]
+    var timerId = countdown(
+        [% node.expiration %] * 1000,
+        function(ts) {
+            var secs = Math.round(ts.value/1000);
+            if (secs >= 0) {
+                window.location = "[% URL_STATUS %]?ts=" + ts.value;
+                return;
+            }
+            if (secs > -60 || secs % 60 == 0) {
+                new Ajax.Request("[% URL_STATUS %]?ts=" + ts.value, {
+                    onComplete: function(response) {
+                        if (200 == response.status) {
+                            if (paused) {
+                                window.location = "[% URL_STATUS %]?ts=" + ts.value;
+                                return;
+                            }
+                            $("expiration").update(ts.toString());
+                        }
+                        else {
+                            paused = true;
+                            $("expiration").up().hide();
+                            $("pause").show();
+                        }
+                    }
+                });
+            }
+        },
+        countdown.DAYS|countdown.HOURS|countdown.MINUTES|countdown.SECONDS, 2);
+    [%- ELSIF node.timeleft %]
+    $("timeleft").update(countdown(new Date().getTime() + [% node.timeleft %] * 1000, null, countdown.DAYS|countdown.HOURS|countdown.MINUTES, 2).toString());
+    [%- END %]
+    $("popup").down("a").on("click", function(event) {
+        Event.stop(event);
+        var newwindow = window.open("[% URL_STATUS %]", "status_popup", "height=220,width=300");
+        if (window.focus) { newwindow.focus() }
+        return false;
+    });
+});
+</script>
+
+        [%# Welcome text %]
+        <div id="about">
+          <img src="/content/images/unlock.png" alt="User" />
+          <p>[% i18n("Your Network Access Status") %]</p>
+          <hr/>
+        </div>
+        <div class="input">
+          [%- IF node.pid %]
+          <div>[% i18n_format("You are registered as <strong>%s</strong>", node.pid) %]</div>
+          [%- END %]
+          [%- IF node.expiration %]
+          <div>[% i18n('Your network access ends in <strong id="expiration"></strong>') %]</div>
+          <div id="pause" style="display: none">[% i18n("Your network access is <strong>paused</strong>") %]</div>
+          [%- ELSIF node.timeleft %]
+          <div>[% i18n_format("You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>", node.timeleft ) %]</div>
+          [%- ELSIF node.timeleft == 0 %]
+          <div>[% i18n("Your network access has expired.") %]</div>
+          [%- END %]
+          [%- IF node.last_start_time AND billing %]
+          <div id="buttons"><a href="[% URL_BILLING %]" target="_new" class="btn">[% i18n("Extend Access") %]</a></div>
+          [%- END %]
+          <div id="popup"><a href="[% URL_STATUS %]" target="_new" alt="[% i18n("Open in new popup window") %]"><img src="/content/images/extract.png"/></a></div>
+        </div>
+
+[% INCLUDE footer.html %]
