@@ -63,7 +63,7 @@ our (
     %connection_type, %connection_type_to_str, %connection_type_explained,
     %connection_group, %connection_group_to_str,
     %mark_type_to_str, %mark_type,
-    $portscan_sid, $thread, $default_pid, $fqdn,
+    $thread, $default_pid, $fqdn,
     %CAPTIVE_PORTAL,
 
 );
@@ -84,7 +84,7 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $portscan_sid $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -144,7 +144,6 @@ Readonly our @VALID_TRIGGER_TYPES =>
    "vendormac"
   );
 
-$portscan_sid = 1200003;
 $default_pid  = "admin";
 
 Readonly our $WIPS_VID => '1100020';
