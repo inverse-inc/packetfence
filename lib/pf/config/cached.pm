@@ -529,12 +529,12 @@ sub _callPostReloadCallbacks {
 
 sub doCallbacks {
     my ($self,$file_reloaded,$cache_reloaded) = @_;
-    my $was_reloaded;
-    if($was_reloaded = $file_reloaded || $cache_reloaded) {
-        $self->_callReloadCallbacks if $was_reloaded;
+    if($file_reloaded || $cache_reloaded) {
+        get_logger()->trace("doing callbacks file_reloaded = " . ($file_reloaded ? 1 : 0) .  "  cache_reloaded = " .  ($cache_reloaded ? 1 : 0));
+        $self->_callReloadCallbacks;
         $self->_callFileReloadCallbacks if $file_reloaded;
         $self->_callCacheReloadCallbacks if $cache_reloaded;
-        $self->_callPostReloadCallbacks if $was_reloaded;
+        $self->_callPostReloadCallbacks;
     }
 }
 
@@ -915,6 +915,8 @@ sub toHash {
 
 sub fromCacheUntainted {
     my ($self,$key) = @_;
+    my $cache = $self->cache;
+    $cache->l1_cache->remove($key);
     return untaint($self->cache->get($key));
 }
 
