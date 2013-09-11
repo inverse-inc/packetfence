@@ -1315,6 +1315,7 @@ sub service {
         }
         if ( $nb_running_services == 0 ) {
             if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
+                print "iptables|$command\n";
                 require pf::inline::custom;
                 my $iptables = pf::inline::custom->new();
                 my $technique = $iptables->{_technique};
