@@ -89,7 +89,7 @@ sub generate_httpd_conf {
     $tags{'proxies'} = join( "\n", @proxies );
 
     # Guest related URLs allowed through Apache ACL's
-    $tags{'allowed_from_all_urls'} = $WEB::URL_STATUS;
+    $tags{'allowed_from_all_urls'} = "|$WEB::URL_STATUS";
     # signup and preregister if pre-registration is allowed
     my $guest_regist_allowed = scalar keys %guest_self_registration;
     if ($guest_regist_allowed && isenabled($Config{'guests_self_registration'}{'preregistration'})) {
