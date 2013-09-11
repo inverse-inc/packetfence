@@ -78,6 +78,7 @@ use pf::config;
 use pf::enforcement;
 use pf::db;
 use pf::node;
+use pf::scan qw($SCAN_VID);
 use pf::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -431,19 +432,19 @@ sub violation_add {
     if ($latest_vid) {
 
         # don't add a hostscan if violation exists
-        if ( $vid == $portscan_sid ) {
-            my $msg = "hostscan detected from $mac, but violation $latest_vid exists - ignoring";
-            $logger->warn($msg);
-            violation_add_warnings($msg);
-            return ($latest_violation->{id});
+        if ( $vid == $SCAN_VID ) {
+            $logger->warn(
+                "hostscan detected from $mac, but violation $latest_vid exists - ignoring"
+            );
+            return (1);
         }
 
         #replace UNKNOWN hostscan with known violation
-        if ( $latest_vid == $portscan_sid ) {
-            my $msg = "violation $vid detected for $mac - updating existing hostscan entry";
-            $logger->warn($msg);
-            $logger->info($msg);
-            violation_force_close( $mac, $portscan_sid );
+        if ( $latest_vid == $SCAN_VID ) {
+            $logger->info(
+                "violation $vid detected for $mac - updating existing hostscan entry"
+            );
+            violation_force_close( $mac, $SCAN_VID );
         }
     }
 
