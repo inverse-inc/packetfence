@@ -28,12 +28,11 @@ use pf::node;
 use pf::SNMP;
 use pf::SwitchFactory;
 use pf::util;
+use pf::violation;
 use pf::vlan::custom $VLAN_API_LEVEL;
 # constants used by this module are provided by
 use pf::radius::constants;
 use List::Util qw(first);
-
-Readonly our $EXPIRATION_VID => 1200002;
 
 our $VERSION = 1.03;
 
@@ -188,18 +187,6 @@ sub authorize {
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
-    # Compute role and update the node table
-    my $params =
-      {
-       username => $user_name,
-       connection_type => connection_type_to_str($connection_type),
-       SSID => $ssid,
-      };
-    my $role = &pf::authentication::match(undef, $params, $Actions::SET_ROLE);
-    if ($role) {
-        node_modify($mac, (category => $role));
-    }
-
     # does the switch support Dynamic VLAN Assignment, bypass if using Inline
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
@@ -255,7 +242,7 @@ sub accounting {
                         $logger->info("Session status for $user_name ($mac): duration is $session_time secs ($timeleft secs left)");
                     }
                     if ($timeleft == 0) {
-                        violation_add($mac, $EXPIRATION_VID);
+                        violation_add($mac, $RADIUS::EXPIRATION_VID);
                     }
                 }
             }
