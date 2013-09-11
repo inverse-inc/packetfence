@@ -501,7 +501,7 @@ sub match {
             @sources = ($source);
         }
     }
-    my $source = first { local $_ = $_; defined ($actions = $_->match($params)) } @sources;
+    my $source = first { defined ($actions = $_->match($params)) } @sources;
 
     if (defined $action && defined $actions) {
         my $found_action = first { $_->type eq $action } @{$actions};
