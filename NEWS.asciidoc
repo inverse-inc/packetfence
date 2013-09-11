@@ -17,7 +17,7 @@ Version 4.x.y released on 2013-MM-DD
 New Features
 ++++++++++++
 
-* 
+* Profiles can be filter by switches 
 
 Enhancements
 ++++++++++++
