@@ -209,21 +209,24 @@ sub readAuthenticationConfigFile {
                 }
                 $config->cache->set("authentication_lookup",\%authentication_lookup);
                 $config->cache->set("authentication_sources",\@authentication_sources);
-                update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
             }],
             -oncachereload => [
-                on_cache_authentication_reload => sub  {
+                on_cache_authentication_reload => sub {
                     my ($config, $name) = @_;
                     %authentication_lookup = %{$config->fromCacheUntainted("authentication_lookup")};
                     @authentication_sources = @{$config->fromCacheUntainted("authentication_sources")};
                 },
-            ]
+            ],
+            -onpostreload => [
+                on_post_authentication_reload => sub {
+                    update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
+                }
+            ],
         );
         $cached_profiles_config->addPostReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
 
     } else {
         $cached_authentication_config->ReadConfig();
-        update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
     }
 }
 
@@ -321,7 +324,10 @@ sub writeAuthenticationConfigFile {
         }
     }
     $cached_authentication_config->ReorderByGroup();
-    my $result = $cached_authentication_config->RewriteConfig();
+    my $result;
+    eval {
+        $result = $cached_authentication_config->RewriteConfig();
+    };
     unless($result) {
         $cached_authentication_config->Rollback();
         die "Error writing authentication configuration\n";
