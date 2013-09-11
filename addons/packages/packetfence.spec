@@ -807,17 +807,30 @@ fi
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf
 %attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence.pm
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/packetfence-soh.pm
+%attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence-soh.pm
 %config                 /usr/local/pf/raddb/proxy.conf
 %config                 /usr/local/pf/raddb/users
-%config                 /usr/local/pf/raddb/modules/mschap
-%config                 /usr/local/pf/raddb/modules/perl
-%attr(0755, pf, pf) %config     /usr/local/pf/raddb/sites-available/packetfence
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-available/packetfence-soh
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-available/packetfence-tunnel
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence-soh
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
+%config(noreplace)      /usr/local/pf/raddb/modules/*
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/buffered-sql
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/coa
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/control-socket
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/copy-acct-to-home-server
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/decoupled-accounting
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/default
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/dhcp
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/dynamic-clients
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/example
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/inner-tunnel
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/originate-coa
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-soh
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-tunnel
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/robust-proxy-accounting
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/soh
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/status
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/virtual.example.com
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/vmps
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
