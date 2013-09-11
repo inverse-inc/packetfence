@@ -48,14 +48,13 @@ use pf::SwitchFactory;
 use pf::violation_config;
 use File::Slurp qw(read_file);
 
-Readonly our @ALL_SERVICES => (
-    'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
-    'httpd.webservices', 'httpd.admin', 'httpd.portal', 'snmptrapd',
-    'pfsetvlan', 'pfdhcplistener', 'pfmon'
+Readonly our @APACHE_SERVICES => (
+    'httpd.admin', 'httpd.webservices', 'httpd.portal'
 );
 
-Readonly our @APACHE_SERVICES => (
-    'httpd.webservices', 'httpd.admin', 'httpd.portal'
+Readonly our @ALL_SERVICES => (
+    @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
+    'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
 my $services = join("|", @ALL_SERVICES);
@@ -225,7 +224,7 @@ sub service_ctl {
             $action eq "status" && do {
                 my $pid;
                 # -x: this causes the program to also return process id's of shells running the named scripts.
-                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "httpd.webservices") || ($daemon eq "httpd.admin") || ($daemon eq "httpd.portal") || ($daemon eq "snort") ) ) {
+                if (!( ($binary eq "pfdhcplistener") || ($daemon eq "httpd") || ($daemon eq "snort") ) ) {
                     return getPidFromFile($daemon,$binary);
                 }
                 # Handle the pfdhcplistener case. Grab exact interfaces where pfdhcplistner should run,
@@ -255,35 +254,10 @@ sub service_ctl {
                         return (0);
                     }
                 }
-                elsif ($daemon =~ "httpd(.*)") {
-                    $pid = 0;
-                    if (-e "$install_dir/var/run/$daemon.pid") {
-                        chomp( $pid = `cat $install_dir/var/run/$daemon.pid`);
-                        if($pid ne '' ) {
-                            my $ppt = new Proc::ProcessTable;
-                            my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
-                            if (!defined($proc)) {
-                                unlink( $install_dir . "/var/run/$binary.pid" );
-                                return(0);
-                            }
-                        }
-                    }
-                    return ($pid);
-                }
                 elsif ($daemon =~ "snort") {
                     $pid = 0;
                     if (defined $monitor_int) {
-                        if (-e "$install_dir/var/run/${daemon}_${monitor_int}.pid") {
-                            chomp( $pid = `cat $install_dir/var/run/${daemon}_${monitor_int}.pid`);
-                            if($pid ne '' ) {
-                                my $ppt = new Proc::ProcessTable;
-                                my $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
-                                if (!defined($proc)) {
-                                    unlink( $install_dir . "/var/run/${daemon}_${monitor_int}.pid" );
-                                    return(0);
-                                }
-                            }
-                        }
+                        $pid = getPidFromFile("${daemon}_${monitor_int}.pid",$binary);
                     }
                     return ($pid);
                 }
@@ -375,12 +349,12 @@ sub read_violations_conf {
 sub getPidFromFile {
     my ($daemon,$binary) = @_;
     my $logger = Log::Log4perl::get_logger('pf::services');
-    my $pid;
+    my $pid = 0;
     my $pid_file = "$install_dir/var/run/$daemon.pid";
     if (-e $pid_file) {
         chomp( $pid = read_file($pid_file) );
     }
-    $pid = 0 if ( !$pid );
+    $pid = 0 unless $pid;
     $logger->info("pidof -x $binary returned $pid");
     if($pid && $pid =~ /^(.*)$/) {
         $pid = $1;
@@ -433,27 +407,32 @@ sub stopService {
             if ( $service =~ /(dhcpd)/) {
                 manage_Static_Route();
             }
-
-            my $maxWait = 10;
-            my $curWait = 0;
-            my $ppt;
-            my $proc = 0;
-            while ( ( ( $curWait < $maxWait )
-                && ( service_ctl( $service, "status" ) ne "0" ) ) && defined($proc) )
-            {
-                $ppt = new Proc::ProcessTable;
-                $proc = first { defined($_) } grep { $_->pid == $pid } @{ $ppt->table };
-                $logger->info("Waiting for $binary to stop ");
-                sleep(2);
-                $curWait++;
-            }
-            if ( -e $install_dir . "/var/run/$binary.pid" ) {
+            if ( waitToShutdown($service, $pid) &&  -e $install_dir . "/var/run/$binary.pid" ) {
                 $logger->info("Removing $install_dir/var/run/$binary.pid");
                 unlink( $install_dir . "/var/run/$binary.pid" );
             }
         }
     }
 
+}
+
+sub waitToShutdown {
+    my ($service, $pid) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::services');
+    my $maxWait = 10;
+    my $curWait = 0;
+    my $ppt;
+    my $proc = 0;
+    while ( ( ( $curWait < $maxWait )
+        && ( service_ctl( $service, "status" ) ne "0" ) ) && defined($proc) )
+    {
+        $ppt = new Proc::ProcessTable;
+        $proc = first { $_->pid == $pid } @{ $ppt->table };
+        $logger->info("Waiting for $service to stop ");
+        sleep(2);
+        $curWait++;
+    }
+    return defined $proc;
 }
 
 
