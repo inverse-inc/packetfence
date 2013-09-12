@@ -23,6 +23,8 @@ Enhancements
 ++++++++++++
 
 * Improved error messages in RADIUS modules
+* Simple search for Nodes now include ip address
+* Search by mac address for Node and User in multiple mac format
 
 Bug Fixes
 +++++++++
