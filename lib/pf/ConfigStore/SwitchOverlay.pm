@@ -72,7 +72,10 @@ $switches_overlay_cached_config = pf::config::cached->new(
     -oncachereload => [
         on_cached_overlay_reload => sub  {
             my ($config, $name) = @_;
-            my $data = $config->cache->get("SwitchConfig");
+            my $cache = $config->cache;
+            #getting rid of it from the l1_cache
+            $cache->l1_cache->remove("SwitchConfig");
+            my $data = $cache->get("SwitchConfig");
             if($data) {
                 %SwitchConfig = %$data;
             }

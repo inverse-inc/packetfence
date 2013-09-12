@@ -94,6 +94,7 @@ sub readViolationConfigFile {
             -oncachereload => [
                 cache_reload_violation_config => sub {
                     my ($config,$name) = @_;
+                    $config->cache->l1_cache->remove("Violation_Config");
                     my $data = $config->cache->get("Violation_Config");
                     if($data) {
                         %Violation_Config = %$data;
