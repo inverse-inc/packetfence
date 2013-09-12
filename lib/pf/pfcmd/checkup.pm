@@ -24,6 +24,7 @@ use pf::util;
 use pf::services;
 use pf::trigger;
 use NetAddr::IP;
+use File::Slurp qw(read_file);
 
 use lib $conf_dir;
 
@@ -469,7 +470,7 @@ If some interfaces are configured to run in inline enforcement then these tests 
 
 sub inline {
 
-    my $result = pf_run("cat /proc/sys/net/ipv4/ip_forward");
+    my $result = read_file("/proc/sys/net/ipv4/ip_forward");
     if ($result ne "1\n") {
         add_problem( $WARN,
             "inline mode needs ip_forward enabled to work properly. " .
