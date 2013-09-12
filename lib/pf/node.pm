@@ -646,12 +646,15 @@ sub node_view_all {
             $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
-            if (valid_mac($params{'where'}{'like'})) {
-                my $mac = get_db_handle->quote($params{'where'}{'like'});
+            my $like = $params{'where'}{'like'};
+            $like =~ s/^ *//;
+            $like =~ s/ *$//;
+            if (valid_mac($like)) {
+                my $mac = get_db_handle->quote(clean_mac($like));
                 $node_view_all_sql .= " HAVING node.mac = $mac";
             }
             else {
-                my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+                my $like = get_db_handle->quote("\%$like\%");
                 $node_view_all_sql .= " HAVING node.mac LIKE $like"
                   . " OR node.computername LIKE $like"
                   . " OR node.pid LIKE $like";

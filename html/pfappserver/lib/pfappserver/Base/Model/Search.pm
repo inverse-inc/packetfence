@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moose;
 use namespace::autoclean;
+use pf::util;
 extends 'pfappserver::Base::Model';
 
 my %OP_MAP = (
@@ -41,6 +42,7 @@ To create where arguements for the sql builder
 
 sub process_query {
     my ($self,$query) = (@_);
+    $self->_pre_process_query($query);
     my $op = $query->{op};
     die "$op is not a supported search operation"
         unless exists $OP_MAP{$op};
@@ -63,6 +65,18 @@ sub process_query {
     }
     push @where_args,$value,@escape;
     return \@where_args;
+}
+
+sub _pre_process_query {
+    my ($self,$query) = @_;
+    if( $query->{name} eq 'mac' && $query->{op} eq 'equal' ) {
+        my $value = $query->{value};
+        $value =~ s/^ *//;
+        $value =~ s/ *$//;
+        if(valid_mac($value)) {
+            $query->{value} = clean_mac($value);
+        }
+    }
 }
 
 =item add_limit
