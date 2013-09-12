@@ -916,7 +916,11 @@ sub toHash {
 sub fromCacheUntainted {
     my ($self,$key) = @_;
     my $cache = $self->cache;
-    $cache->l1_cache->remove($key);
+    if($cache->has_subcaches( )) {
+        foreach my $subcache (@{$cache->subcaches}) {
+            $subcache->remove($key) if $subcache->subcache_type eq 'l1_cache';
+        }
+    }
     return untaint($self->cache->get($key));
 }
 
