@@ -349,15 +349,13 @@ sub ip2macinarp {
 }
 
 sub mac2ip {
-    my ( $mac, $date ) = @_;
+    my ( $mac, $cache ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     my $ip;
     return () if ( !valid_mac($mac) );
 
-    if ($date) {
-        return if ( !valid_date($date) );
-        my @iplog = iplog_history_mac( $mac, ( 'date' => str2time($date) ) );
-        $ip = $iplog[0]->{'ip'};
+    if ($cache) {
+        $ip = $cache->{clean_mac($mac)};
     } else {
         my $iplog = iplog_view_open_mac($mac);
         $ip = $iplog->{'ip'} || 0;

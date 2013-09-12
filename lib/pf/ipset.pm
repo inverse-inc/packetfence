@@ -113,6 +113,10 @@ sub generate_mangle_rules {
         }
     }
 
+    # Build lookup table for MAC/IP mapping
+    my @iplog_open = iplog_view_open();
+    my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
+
     # mark registered nodes that should not be isolated
     # TODO performance: mark all *inline* registered users only
     my @registered = nodes_registered_not_violators();
@@ -121,7 +125,7 @@ sub generate_mangle_rules {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my $mac = $row->{'mac'};
-            my $iplog = mac2ip($mac);
+            my $iplog = mac2ip($mac, \%iplog_lookup);
             if (defined $iplog) {
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
@@ -141,7 +145,7 @@ sub generate_mangle_rules {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                 my $mac = $row->{'mac'};
-                my $iplog = mac2ip($mac);
+                my $iplog = mac2ip($mac, \%iplog_lookup);
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
