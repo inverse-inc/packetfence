@@ -657,7 +657,8 @@ sub node_view_all {
                 my $like = get_db_handle->quote("\%$like\%");
                 $node_view_all_sql .= " HAVING node.mac LIKE $like"
                   . " OR node.computername LIKE $like"
-                  . " OR node.pid LIKE $like";
+                  . " OR node.pid LIKE $like"
+                  . " OR iplog.ip LIKE $like";
             }
         }
     }
