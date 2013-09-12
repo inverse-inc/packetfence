@@ -463,7 +463,7 @@ sub Rollback {
     my $cache = $self->cache;
     my $config = $self->config;
     my $file = $config->GetFileName;
-    $cache->l1_cache->remove($file);
+    $self->removeFromSubcaches($file);
     my $old_config = $cache->get($file);
     $$self = $old_config;
     $self->doCallbacks(0,1);
@@ -915,13 +915,18 @@ sub toHash {
 
 sub fromCacheUntainted {
     my ($self,$key) = @_;
+    $self->removeFromSubcaches($key);
+    return untaint($self->cache->get($key));
+}
+
+sub removeFromSubcaches {
+    my ($self,$key) = @_;
     my $cache = $self->cache;
     if($cache->has_subcaches( )) {
         foreach my $subcache (@{$cache->subcaches}) {
             $subcache->remove($key) if $subcache->subcache_type eq 'l1_cache';
         }
     }
-    return untaint($self->cache->get($key));
 }
 
 sub untaint {
