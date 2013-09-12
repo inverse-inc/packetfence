@@ -352,7 +352,7 @@ sub mac2ip {
     my ( $mac, $date ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iplog');
     my $ip;
-    return (0) if ( !valid_mac($mac) );
+    return () if ( !valid_mac($mac) );
 
     if ($date) {
         return if ( !valid_date($date) );
