@@ -53,7 +53,7 @@ Readonly our @APACHE_SERVICES => (
 );
 
 Readonly our @ALL_SERVICES => (
-    @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
+    'memcached', @APACHE_SERVICES, 'pfdns', 'dhcpd', 'pfdetect', 'snort', 'suricata', 'radiusd',
     'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
@@ -92,6 +92,7 @@ $service_launchers{'dhcpd'} = "sudo %1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $g
 $service_launchers{'pfdns'} = '%1$s -d &';
 $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
 $service_launchers{'radiusd'} = "sudo %1\$s -d $install_dir/raddb/";
+$service_launchers{'memcached'} = "%1\$s -d -p 11211 -u memcached -m 64 -c 1024 -P $install_dir/var/run/memcached.pid";
 
 # TODO $monitor_int will cause problems with dynamic config reloading
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'snort' ) {
@@ -352,7 +353,7 @@ sub getPidFromFile {
     my $pid = 0;
     my $pid_file = "$install_dir/var/run/$daemon.pid";
     if (-e $pid_file) {
-        chomp( $pid = read_file($pid_file) );
+        eval {chomp( $pid = read_file($pid_file) );};
     }
     $pid = 0 unless $pid;
     $logger->info("pidof -x $binary returned $pid");

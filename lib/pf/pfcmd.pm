@@ -12,6 +12,7 @@ pf::pfcmd contains the functions necessary for the command line interface
 F</usr/local/pf/bin/pfcmd> to parse the options.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -30,7 +31,7 @@ Readonly our $ERROR_CONFIG_NO_HELP => 11;
 #   - update the appropriate regexp in lib/pfcmd/pfcmd.pm grammar too
 #   - update the generic pid regex in pf::person (not meant for shell safety)
 # TODO try to consolidate what we should accept as a pid
-my $pid_re = qr{(?: 
+my $pid_re = qr{(?:
     ( [a-zA-Z0-9\-\_\.\@\/\:\+\!,]+ )                               # unquoted allowed
     |                                                               # OR
     \" ( [&=?\(\)\/,0-9a-zA-Z_\*\.\-\:\;\@\ \+\!\^\[\]\|\#\\]+ ) \" # quoted allowed
@@ -54,9 +55,9 @@ sub parseCommandLine {
                                    ( [ a-zA-Z0-9_@\.\:=/\-,?]+)
                                  $ }xms,
         'configfiles'     => qr{ ^ ( push | pull ) $ }xms,
-        'fingerprint'     => qr{ ^ (view) 
-                                   \s+ 
-                                   ( all | \d+ (?: ,\d+)* ) 
+        'fingerprint'     => qr{ ^ (view)
+                                   \s+
+                                   ( all | \d+ (?: ,\d+)* )
                                  $ }xms,
         'floatingnetworkdeviceconfig'
                           => qr/ ^ ( get | delete )
@@ -66,7 +67,7 @@ sub parseCommandLine {
         'graph'           => qr/ ^ (?:
                                      ( nodes | registered
                                        | unregistered
-                                       | violations ) 
+                                       | violations )
                                      (?:
                                        \s+
                                        ( day | month | year )
@@ -154,7 +155,7 @@ sub parseCommandLine {
                                      ( [^,=]+ )
                                    )?
                                  $ }xms,
-        'import' => qr{ ^ 
+        'import' => qr{ ^
                             ( nodes )                # import nodes
                             \s+
                             ( [a-zA-Z0-9_\-\.\/]+ )   # strict filename with path regexp
@@ -192,12 +193,12 @@ sub parseCommandLine {
                                      ( [^,=]+ )
                                    )?
                                  $ /xms,
-        'lookup'          => qr{ ^(?: 
+        'lookup'          => qr{ ^(?:
                                        ( person ) \s+ $pid_re
-                                   | 
+                                   |
                                        ( node ) \s+ ( $RE{net}{MAC} )
                                  )$  }xms,
-        'manage'          => qr/ ^ 
+        'manage'          => qr/ ^
                                    (?:
                                      ( deregister )
                                      \s+
@@ -217,9 +218,9 @@ sub parseCommandLine {
         'node'            => qr/ ^ (?:
                                      ( view )
                                      \s+
-                                     (?: 
-                                         ( all ) 
-                                       | ( $RE{net}{MAC} ) 
+                                     (?:
+                                         ( all )
+                                       | ( $RE{net}{MAC} )
                                          # TODO be more strict on category names (but no time now)
                                        | (?: ( category | pid  ) \s* [=] \s* $pid_re )
                                      )
@@ -237,9 +238,9 @@ sub parseCommandLine {
                                      |
                                      ( count )
                                      \s+
-                                     (?: 
-                                         ( all ) 
-                                       | ( $RE{net}{MAC} ) 
+                                     (?:
+                                         ( all )
+                                       | ( $RE{net}{MAC} )
                                          # TODO be more strict on category names (but no time now)
                                        | (?: ( category | pid  ) \s* [=] \s* $pid_re )
                                      )
@@ -251,7 +252,7 @@ sub parseCommandLine {
          'nodeaccounting'   => qr/ ^ ( view )
                                    \s+
                                    (?:
-                                       ( all ) 
+                                       ( all )
                                        | ( $RE{net}{MAC} )
                                    )
                                  $ /xms,
@@ -263,19 +264,19 @@ sub parseCommandLine {
                                      (delete) \s+ (\s+)
                                    )
                                  $  }xms,
-        'nodeuseragent'   => qr{ ^ (view) 
-                                   \s+ 
-                                   ( all | \d+ (?: ,\d+)* ) 
+        'nodeuseragent'   => qr{ ^ (view)
+                                   \s+
+                                   ( all | \d+ (?: ,\d+)* )
                                  $ }xms,
         'person'          => qr{ ^ (view)
                                    \s+
-                                   (?: 
+                                   (?:
                                        ( all ) | $pid_re
                                    )
                                  $ }xms,
         'reload'          => qr{ ^ ( fingerprints | violations ) $  }xms,
         'report'          => qr{ ^ (?: #for grouping only
-                                     ( active | inactive | openviolations 
+                                     ( active | inactive | openviolations
                                        | os | osclass | registered | statics | ssid
                                        | unknownprints | unknownuseragents | unregistered
                                        | connectiontype | connectiontypereg | osclassbandwidth
@@ -283,9 +284,9 @@ sub parseCommandLine {
                                      )
                                      |
                                      (?: #for grouping only
-                                       ( openviolations | os | osclass 
+                                       ( openviolations | os | osclass
                                          | registered | statics | ssid
-                                         | unknownprints | unknownuseragents | unregistered 
+                                         | unknownprints | unknownuseragents | unregistered
                                          | connectiontype | connectiontypereg
                                        )
                                        \s+
@@ -307,15 +308,15 @@ sub parseCommandLine {
                                      ( \d+ )
                                    )
                                  $ }xms,
-        'service'         => qr{ ^ ( dhcpd | httpd | pfdns | pfdetect 
-                                     | pf | pfdhcplistener | pfmon 
-                                     | pfsetvlan | radiusd | snmptrapd 
-                                     | snort | suricata | httpd\.webservices | httpd\.admin | httpd\.portal)
+        'service'         => qr{ ^ ( dhcpd | httpd | pfdns | pfdetect
+                                     | pf | pfdhcplistener | pfmon
+                                     | pfsetvlan | radiusd | snmptrapd
+                                     | snort | suricata | httpd\.webservices | httpd\.admin | httpd\.portal | memcached)
                                    \s+
                                    ( restart | start | status | stop
                                      | watch )
                                  $  }xms,
-        'switchconfig'    => qr/ ^ ( get | delete ) 
+        'switchconfig'    => qr/ ^ ( get | delete )
                                    \s+
                                    ( all | default | $RE{net}{IPv4} )
                                  $  /xms,
@@ -335,7 +336,7 @@ sub parseCommandLine {
                                      )
                                    )
                                  $ }xms,
-        'trigger'         => qr{ ^ ( view ) 
+        'trigger'         => qr{ ^ ( view )
                                    \s+
                                    ( all | \d+ )
                                    (?:
@@ -343,12 +344,12 @@ sub parseCommandLine {
                                      ( scan | detect )
                                    )?
                                  $ }xms,
-        'ui'              => qr{ ^ 
+        'ui'              => qr{ ^
                                    (?:
                                      (?:
                                        ( dashboard )
                                        \s+
-                                       ( current_grace | current_activity 
+                                       ( current_grace | current_activity
                                          | current_node_status )
                                      )
                                      |
@@ -367,16 +368,16 @@ sub parseCommandLine {
                                      (?:
                                        ( menus )
                                        (?:
-                                         \s+ file \s* [=] \s* 
+                                         \s+ file \s* [=] \s*
                                          ( [a-zA-Z\-_.]+ )
                                        )?
                                      )
                                    )
                                  $  }xms,
         'update'          => qr{ ^ ( fingerprints | oui ) $  }xms,
-        'useragent'       => qr{ ^ (view) 
-                                   \s+ 
-                                   ( all | \d+ ) 
+        'useragent'       => qr{ ^ (view)
+                                   \s+
+                                   ( all | \d+ )
                                  $ }xms,
         'version'         => qr{ ^ $ }xms,
         'violation'       => qr{ ^ ( view )
@@ -470,7 +471,7 @@ sub parseCommandLine {
         }
         return %cmd;
     }
-    
+
     return parseWithGrammar($commandLine);
 }
 

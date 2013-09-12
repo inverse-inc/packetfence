@@ -445,6 +445,11 @@ radiusd=enabled
 # Should iptables be managed by PacketFence?
 iptables=enabled
 #
+# services.memcached
+#
+# Should memcached be managed by PacketFence?
+memcached=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -479,6 +484,11 @@ radiusd_binary=/usr/sbin/radiusd
 # 
 # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
 arp_binary=/sbin/arp
+# 
+# services.memcached_binary
+# 
+# Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
+memcached_binary=/usr/bin/memcached
 
 [vlan]
 #
