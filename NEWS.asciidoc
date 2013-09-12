@@ -26,6 +26,7 @@ Enhancements
 * Simple search for nodes now includes IP address
 * Search by MAC address for nodes and users now accepts any MAC format
 * Improved starting delay when using inline mode
+* Added memcached as a managed service
 
 Bug Fixes
 +++++++++
