@@ -98,6 +98,7 @@ sub generate_mangle_rules {
     my ($self) =@_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $mangle_rules = '';
+    my @ops = ();
 
     # pfdhcplistener in most cases will be enforcing access
     # however we insert these marks on startup in case PacketFence is restarted
@@ -129,8 +130,7 @@ sub generate_mangle_rules {
             if (defined $iplog) {
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
-                    my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac 2>&1";
-                    my @lines  = pf_run($cmd);
+                    push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
                 }
             }
         }
@@ -149,8 +149,7 @@ sub generate_mangle_rules {
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
-                        my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac 2>&1";
-                        my @lines  = pf_run($cmd);
+                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
                     }
                 }
             }
@@ -163,6 +162,13 @@ sub generate_mangle_rules {
         $mangle_rules .=
             "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
         ;
+    }
+
+    if (@ops) {
+        my $cmd = "LANG=C sudo ipset restore 2>&1";
+        open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
+        print IPSET join("\n", @ops);
+        close IPSET;
     }
 
     return $mangle_rules;
