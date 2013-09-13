@@ -1,3 +1,53 @@
+commit a3c2883387557bc63bb2d714b98e95ca53fbfab1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 13 15:20:42 2013 -0400
+
+    Update NEWS file
+
+M	NEWS.asciidoc
+
+commit cb2bb1aabe7e7fc3b5ab07cff43c55517a0f29e2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 15:25:57 2013 -0400
+
+    Clear an object internally when retreiving directly from chi
+
+M	lib/pf/config/cached.pm
+
+commit 578d1dfd764ea5fc0929fc522e0b9c040d23ebff
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 18:22:30 2013 -0400
+
+    Removed the localization of lib/pf/authentication.pm in first filter
+
+M	lib/pf/authentication.pm
+
+commit 6d1d6a8131a05e6a1b05b14978c54180af5786b8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 9 22:09:37 2013 -0400
+
+    Fixed issues with services not stopping
+
+M	lib/pf/services.pm
+
+commit 3398a7cf1be72d14031ad1e8e0971f866eb11ff3
+Author: Jean Raby <jraby@inverse.ca>
+Date:   Mon Sep 9 12:51:12 2013 -0400
+
+    Remove dep on libterm-ansicolor-perl.
+    
+    This package doesn't exist. Term::ANSIColor is a core module.
+
+M	debian/control
+
+commit 08679b4edcaa3beede52451236b2f8471aa48cac
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 5 15:09:26 2013 -0400
+
+    Update ChangeLog
+
+M	ChangeLog
+
 commit b9f6a3f6dbce330508e1031706fcac92771842f5
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Thu Sep 5 14:18:45 2013 -0400
@@ -6135,14 +6185,6 @@ Date:   Thu May 9 11:16:18 2013 -0400
 
 M	docs/PacketFence_Administration_Guide.asciidoc
 
-commit 25cff5a8a588cc329b5639e94ba368fc208b0f29
-Author: James Rouzier <jrouzier@inverse.ca>
-Date:   Wed May 8 14:46:21 2013 -0400
-
-    Refactored the alerting functionality
-
-M	html/pfappserver/root/static/app/application.js
-
 commit 2e4c5e07c771a22d88bafe0c2883bf8f2f90cc36
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Wed May 8 15:11:35 2013 -0400
@@ -6167,6 +6209,14 @@ M	lib/pf/config.pm
 M	lib/pf/temporary_password.pm
 M	lib/pf/vlan.pm
 M	lib/pf/web/guest.pm
+
+commit 25cff5a8a588cc329b5639e94ba368fc208b0f29
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 8 14:46:21 2013 -0400
+
+    Refactored the alerting functionality
+
+M	html/pfappserver/root/static/app/application.js
 
 commit e13611ec5084cf9132b2bbc6374c2f8e0029b0e9
 Author: James Rouzier <jrouzier@inverse.ca>
@@ -19298,6 +19348,23 @@ Date:   Mon Jan 21 14:30:29 2013 -0500
 M	NEWS
 M	conf/pf-release
 
+commit 11acb8b4d1728b8e09546a01ac234ecff18e0c9c
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Jan 21 14:21:32 2013 -0500
+
+    Fixing #1624
+
+M	NEWS
+M	db/upgrade-3.5.0-3.6.1.sql
+
+commit 617100b7e3a122947d8dae56310f5f0f8cd7c001
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Jan 16 14:04:58 2013 -0500
+
+    Fix floating device disablePortSecurity when the port is in PortSecurity with voip
+
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+
 commit 140fa1907825099affbd2ec4e56fdfa92846df76
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Wed Jan 16 14:01:50 2013 -0500
@@ -19305,6 +19372,23 @@ Date:   Wed Jan 16 14:01:50 2013 -0500
     Fix floating device disablePortSecurity when the port is in PortSecurity with voip
 
 M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+
+commit b428ad0befe689255be16a4018dec9626e453c88
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jan 10 18:31:29 2013 -0500
+
+    Fix http://packetfence.org/bugs/view.php?id=1621
+
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Cisco/WLC_2100.pm
+
+commit 0098181073d9daa5120d8fbb4b987e7f9ef19a3a
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Thu Jan 10 17:13:12 2013 -0500
+
+    Typo in debian changelog
+
+M	debian/changelog
 
 commit 34e78745049204c0bfca2d883a643e525e42de9e
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
@@ -19414,6 +19498,14 @@ Date:   Fri Jan 4 13:42:08 2013 -0500
 M	html/admin/configuration/networks_add.php
 M	html/admin/configuration/networks_edit.php
 M	lib/pf/pfcmd/pfcmd.pm
+
+commit 9898d4b1d8d774a1fe767506d03d1e2a40a32de0
+Author: unknown <cgraf@MW91-DEV51.excellium.local>
+Date:   Fri Jan 4 13:19:42 2013 -0500
+
+    epel-release is now 6.8
+
+M	docs/PacketFence_Administration_Guide.asciidoc
 
 commit 09ad2f0a81717b0692c6f173e04dded35c7ac221
 Author: Durand Fabrice <fdurand@inverse.ca>
@@ -19610,6 +19702,22 @@ M	conf/httpd.conf.d/captive-portal-cleanurls.conf
 M	lib/pf/email_activation.pm
 M	lib/pf/web/constants.pm
 
+commit 5ff453398b6599086053a91a719b4c8daba46739
+Author: jan-w <janz@dfki.de>
+Date:   Wed Dec 19 17:35:36 2012 +0100
+
+    Fixed some typos
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 2a16eee853b64294e4258ff7f410885b3f0aa9e4
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Dec 18 08:07:41 2012 -0500
+
+    Logrotate fix
+
+M	addons/logrotate
+
 commit 01af05f686470b0521a86f4bdc672dbe5d56b440
 Author: James Rouzier <jrouzier@inverse.ca>
 Date:   Mon Dec 17 17:59:34 2012 -0500
@@ -19651,6 +19759,14 @@ Date:   Thu Dec 13 09:50:51 2012 -0500
     Fix #1616
 
 M	lib/pf/web.pm
+
+commit ecee8c11fa19a3d224b3b30efd1ebfa9fff4b865
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Dec 7 10:39:41 2012 -0500
+
+    Added alernative between snort and suricata
+
+M	debian/control
 
 commit 3ee7bdd96a1b01d2e6089f94d57009a7d379552d
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
@@ -19706,6 +19822,16 @@ M	conf/httpd.conf.d/captive-portal-cleanurls.conf
 M	lib/pf/services/apache.pm
 M	lib/pf/web/constants.pm
 
+commit 480663772a400fe61e79c7f007245fc09ad6a3db
+Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
+Date:   Mon Nov 12 10:54:52 2012 -0500
+
+    Fixing #1602
+
+M	conf/httpd.conf.d/captive-portal-cleanurls.conf
+M	lib/pf/services/apache.pm
+M	lib/pf/web/constants.pm
+
 commit daefdc9b0fb441dfad2cd1ca03445b44e94799cc
 Author: Francois Gaudreault <fgaudreault@inverse.ca>
 Date:   Thu Nov 8 11:21:46 2012 -0500
@@ -19713,6 +19839,31 @@ Date:   Thu Nov 8 11:21:46 2012 -0500
     Missing OAuth2 perl module in debian spec
 
 M	debian/control
+
+commit f49eaa6a1e6f12a4ab7c1ed699d3b660c5dc2b5f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Nov 5 13:57:41 2012 -0500
+
+    Revert from previous commit
+
+M	lib/pf/web.pm
+
+commit 52bd096429fc29fa0f0658189e5cb833022993f6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Nov 5 10:50:26 2012 -0500
+
+    Fix do_not_deauth param
+
+M	lib/pf/web.pm
+
+commit 32b088e8b24e10f3d3c8205412235e638fb9cb33
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Nov 5 10:39:11 2012 -0500
+
+    Portal Profile fix (#1595)
+
+M	NEWS
+M	lib/pf/Portal/ProfileFactory.pm
 
 commit ba8b0b39bca52c5745b97b34081f02dbd1e11016
 Author: Francois Gaudreault <fgaudreault@inverse.ca>
