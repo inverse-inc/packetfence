@@ -16,6 +16,7 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Portal::Common';
+with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use List::MoreUtils qw(uniq);
@@ -41,6 +42,8 @@ has_field 'billing_engine' =>
    label => 'Enable Billing Engine',
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
   );
 has_block 'definition' =>
   (
