@@ -396,6 +396,7 @@ sub send_email {
     try {
       $msg->send('smtp', $smtpserver, Timeout => 20);
       $result = $msg->last_send_successful();
+      $logger->info("Email sent to ".$info{'email'}." (".$info{'subject'}.")");
     }
     catch {
       $logger->error("Can't send email to ".$info{'email'});
@@ -406,7 +407,6 @@ sub send_email {
 
 sub create_and_email_activation_code {
     my ($mac, $pid, $email_addr, $template, $activation_type, %info) = @_;
-    my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
     my ($success, $err) = ($TRUE, 0);
     my $activation_code = create($mac, $pid, $email_addr, $activation_type);
