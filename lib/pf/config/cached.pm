@@ -922,11 +922,7 @@ sub fromCacheUntainted {
 sub removeFromSubcaches {
     my ($self,$key) = @_;
     my $cache = $self->cache;
-    if($cache->has_subcaches( )) {
-        foreach my $subcache (@{$cache->subcaches}) {
-            $subcache->remove($key) if $subcache->subcache_type eq 'l1_cache';
-        }
-    }
+    $cache->l1_cache->remove($key) if $cache->has_subcaches;
 }
 
 sub untaint {
