@@ -18,7 +18,7 @@
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
-<p>[% l('Describe portal profiles') %]</p>
+<p>[% l('Present a different captive portal according to the SSID, the VLAN, or the switch IP the client connects to.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
   <button class="close" data-dismiss="alert">&times;</button>

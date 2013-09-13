@@ -2050,7 +2050,7 @@ CAUTION: The use of different billing tiers requires different roles in PacketFe
 Portal Profiles
 ~~~~~~~~~~~~~~~
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, or the switch IP the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
 
 When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
 

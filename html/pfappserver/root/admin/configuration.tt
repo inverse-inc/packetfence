@@ -87,7 +87,7 @@ table.sources {
               [% pf_section_entry( 'captive_portal', 'Captive portal') %]
               [% pf_section_entry( 'advanced', 'Advanced') %]
               [% pf_section_entry( 'provisioning', 'Provisioning') %]
-              [% list_entry('Portal::Profile', 'index', 'Portal Profiles and Pages') %]
+              [% list_entry('Portal::Profile', 'index', 'Portal Profiles') %]
               [% pf_section_entry( 'webservices', 'Web Services') %]
               <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
