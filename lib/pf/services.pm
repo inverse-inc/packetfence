@@ -92,7 +92,7 @@ $service_launchers{'dhcpd'} = "sudo %1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $g
 $service_launchers{'pfdns'} = '%1$s -d &';
 $service_launchers{'snmptrapd'} = "%1\$s -n -c $generated_conf_dir/snmptrapd.conf -C -A -Lf $install_dir/logs/snmptrapd.log -p $install_dir/var/run/snmptrapd.pid -On";
 $service_launchers{'radiusd'} = "sudo %1\$s -d $install_dir/raddb/";
-$service_launchers{'memcached'} = "%1\$s -d -p 11211 -u memcached -m 64 -c 1024 -P $install_dir/var/run/memcached.pid";
+$service_launchers{'memcached'} = "%1\$s -d -p 11211 -u pf -m 64 -c 1024 -P $install_dir/var/run/memcached.pid";
 
 # TODO $monitor_int will cause problems with dynamic config reloading
 if ( isenabled( $Config{'trapping'}{'detection'} ) && $monitor_int && $Config{'trapping'}{'detection_engine'} eq 'snort' ) {
@@ -408,9 +408,10 @@ sub stopService {
             if ( $service =~ /(dhcpd)/) {
                 manage_Static_Route();
             }
-            if ( waitToShutdown($service, $pid) &&  -e $install_dir . "/var/run/$binary.pid" ) {
-                $logger->info("Removing $install_dir/var/run/$binary.pid");
-                unlink( $install_dir . "/var/run/$binary.pid" );
+            my $pid_file = "$install_dir/var/run/$binary.pid";
+            if ( waitToShutdown($service, $pid) &&  -e $pid_file) {
+                $logger->info("Removing $pid_file");
+                unlink($pid_file);
             }
         }
     }
