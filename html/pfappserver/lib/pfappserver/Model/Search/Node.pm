@@ -86,9 +86,10 @@ sub make_builder {
     return pf::SearchBuilder->new
         ->select(qw(
             mac pid voip bypass_vlan status category_id
-            detect_date regdate unregdate lastskip
+            detect_date unregdate lastskip
             user_agent computername
             last_arp last_dhcp notes),
+            L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
             L_('iplog.ip', 'last_ip'),
             L_("IF(ISNULL(node_category.name), '', node_category.name)", 'category'),
             L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint')

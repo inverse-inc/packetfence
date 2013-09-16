@@ -67,10 +67,12 @@ sub exists {
 
 =head2 field_names
 
+Field names to be displayed. The first one is the default sort field.
+
 =cut
 
 sub field_names {
-    return [qw(mac computername pid last_ip status dhcp_fingerprint)];
+    return [qw(mac regdate computername pid last_ip status dhcp_fingerprint)];
 }
 
 =head2 countAll

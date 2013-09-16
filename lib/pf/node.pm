@@ -228,7 +228,7 @@ sub node_db_prepare {
     $node_statements->{'node_view_all_sql'} = qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip,
+            node.detect_date, IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, IFNULL(os_type.description, ' ') as dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
