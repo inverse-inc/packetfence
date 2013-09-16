@@ -49,10 +49,9 @@ sub do_query {
     my ($self, $builder, $params) = @_;
     my %results = %$params;
     my $sql = $builder->sql;
-    my ($per_page, $page_num, $by, $direction) = @{$params}{qw(per_page page_num by direction)};
+    my ($per_page, $page_num) = @{$params}{qw(per_page page_num)};
     $per_page ||= 25;
     $page_num ||= 1;
-    $direction ||= 'ASC';
     my $itemsKey = $self->itemsKey;
     $results{$itemsKey} = [node_custom_search($sql)];
     my $sql_count = $builder->sql_count;
@@ -166,10 +165,10 @@ sub make_builder {
 }
 
 sub add_order_by {
-    my ($self,$builder,$params) = @_;
-    my ($by,$direction) = @$params{qw(by direction)};
-    if($by && $direction) {
-        $builder->order_by($by,$direction);
+    my ($self, $builder, $params) = @_;
+    my ($by, $direction) = @$params{qw(by direction)};
+    if ($by && $direction) {
+        $builder->order_by($by, $direction);
     }
 }
 
