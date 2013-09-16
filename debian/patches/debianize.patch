@@ -3,7 +3,7 @@ Author: Fabrice Durand <fdurand@inverse.ca>
 
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
-@@ -573,7 +573,7 @@ snort_binary=/usr/sbin/snort
+@@ -463,7 +463,7 @@ suricata_binary=/usr/bin/suricata
  # services.httpd_binary
  #
  # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
@@ -12,7 +12,7 @@ Author: Fabrice Durand <fdurand@inverse.ca>
  #
  # services.dhcpd_binary
  #
-@@ -593,12 +593,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
+@@ -478,12 +478,12 @@ snmptrapd_binary=/usr/sbin/snmptrapd
  # services.radiusd_binary
  # 
  # Location of the named binary. Only necessary to change if you are not running the RPMed version.
@@ -24,6 +24,6 @@ Author: Fabrice Durand <fdurand@inverse.ca>
  # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
 -arp_binary=/sbin/arp
 +arp_binary=/usr/sbin/arp
- 
- [vlan]
- #
+ # 
+ # services.memcached_binary
+ # 
