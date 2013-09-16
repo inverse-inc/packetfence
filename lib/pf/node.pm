@@ -1087,7 +1087,7 @@ sub is_max_reg_nodes_reached {
     return $FALSE if ($pid eq $default_pid);
 
     # per-category max node per pid limit
-    if ( defined($category) || defined($category_id) ) {
+    if ( $category || $category_id ) {
         my $category_info;
         my $nb_nodes;
         my $max_for_category;
