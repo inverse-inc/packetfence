@@ -125,18 +125,19 @@ sub _list_items {
         $params{'where'} = { type => 'any', like => $filter };
         $c->stash->{filter} = $filter;
     }
-    if ( exists( $c->stash->{'by'} ) ) {
-        $orderby = $c->stash->{'by'};
-        if ( grep { $_ eq $orderby } (@$field_names) ) {
-            $orderdirection = $c->stash->{'direction'};
-            unless ( defined $orderdirection && grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {
-                $orderdirection = 'asc';
-            }
-            $params{'orderby'}     = "ORDER BY $orderby $orderdirection";
-            $c->stash->{by}        = $orderby;
-            $c->stash->{direction} = $orderdirection;
-        }
+
+    $orderby = $c->stash->{'by'};
+    unless ( $orderby && grep { $_ eq $orderby } (@$field_names) ) {
+        $orderby = $field_names->[0];
     }
+    $orderdirection = $c->stash->{'direction'};
+    unless ( $orderdirection && grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {
+        $orderdirection = 'asc';
+    }
+    $params{'orderby'}     = "ORDER BY $orderby $orderdirection";
+    $c->stash->{by}        = $orderby;
+    $c->stash->{direction} = $orderdirection;
+
     my $count;
     ( $status, $result ) = $model->search(%params);
     if ( is_success($status) ) {
@@ -148,7 +149,7 @@ sub _list_items {
         $c->stash->{count}       = $count;
         $c->stash->{page_num}    = $page_num;
         $c->stash->{per_page}    = $per_page;
-        $c->stash->{by}          = $orderby || $field_names->[0];
+        $c->stash->{by}          = $orderby;
         $c->stash->{direction}   = $orderdirection || 'asc';
         $c->stash->{items}       = $items_ref;
         $c->stash->{field_names} = $field_names;
