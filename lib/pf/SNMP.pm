@@ -33,7 +33,8 @@ use pf::roles::custom $ROLE_API_LEVEL;
 use pf::SNMP::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any all);
+use Scalar::Util qw(looks_like_number);
 
 =head1 SUBROUTINES
 
@@ -982,7 +983,7 @@ sub getManagedIfIndexes {
 sub isManagedVlan {
     my ($this, $vlan) = @_;
     my $vlans = $this->{_vlans};
-    return (defined $vlans && any {$_ == $vlan} values %$vlans) ? $TRUE : $FALSE;
+    return ( (all {defined $_ } $vlan,$vlans) && looks_like_number($vlan) && any {$_ == $vlan} values %$vlans) ? $TRUE : $FALSE;
 }
 
 =item getMode - get the mode
