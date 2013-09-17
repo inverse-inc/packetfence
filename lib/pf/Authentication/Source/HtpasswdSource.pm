@@ -72,7 +72,7 @@ sub match_in_subclass {
     my $password_file = $self->{'path'};
     if (-r $password_file) {
         my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly => 1});
-        if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
+        if ( $htpasswd->fetchPass($params->{'username'}) ) {
             # Username is defined in the htpasswd file
             # Let's match the htpasswd conditions alltogether.
             # We should only have conditions based on the username attribute.
