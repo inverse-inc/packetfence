@@ -218,7 +218,7 @@ sub test :Local :Args(1) {
     }
 
     $c->response->status($status);
-    $c->stash->{status_msg} = $c->loc($message);
+    $c->stash->{status_msg} = $message; # TODO: localize status message
     $c->stash->{current_view} = 'JSON';
 }
 

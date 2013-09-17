@@ -274,7 +274,7 @@ sub test {
   my $result = $self->bind_with_credentials($connection);
   if ($result->is_error) {
     $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, "Unable to bind to $LDAPServer with these settings");
+    return ($FALSE, ["Unable to bind to [_1] with these settings", $LDAPServer]);
   }
 
   # Search
@@ -292,7 +292,7 @@ sub test {
       return ($FALSE, 'Wrong base DN or username attribute');
   }
 
-  return ($TRUE, 'Success');
+  return ($TRUE, 'LDAP connect, bind and search successful');
 }
 
 =head2 ldap_filter_for_conditions
