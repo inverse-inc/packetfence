@@ -166,7 +166,7 @@ sub generate_filter_if_src_to_chain {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
-    my $passthrough = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # internal interfaces handling
     foreach my $interface (@internal_nets) {
@@ -181,7 +181,7 @@ sub generate_filter_if_src_to_chain {
             }
             $rules .= "-A INPUT --in-interface $dev -d $ip --jump $FW_FILTER_INPUT_INT_VLAN\n";
             $rules .= "-A INPUT --in-interface $dev -d 255.255.255.255 --jump $FW_FILTER_INPUT_INT_VLAN\n";
-            if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough) {
+            if ($google_enabled || $facebook_enabled || $github_enabled || $passthrough_enabled) {
                 $rules .= "-A FORWARD --in-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
                 $rules .= "-A FORWARD --out-interface $dev --jump $FW_FILTER_FORWARD_INT_VLAN\n";
             }
@@ -277,7 +277,7 @@ sub generate_inline_rules {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
-    my $passthrough = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
     # Allow remote conformity scan server to reach unregistered devices in inline mode
     if ( defined($Config{'scan'}{'host'}) && $Config{'scan'}{'host'} ne "127.0.0.1" ) {
@@ -452,9 +452,9 @@ sub generate_nat_redirect_rules {
     my $google_enabled = $guest_self_registration{$SELFREG_MODE_GOOGLE};
     my $facebook_enabled = $guest_self_registration{$SELFREG_MODE_FACEBOOK};
     my $github_enabled = $guest_self_registration{$SELFREG_MODE_GITHUB};
-    my $passthrough = isenabled($Config{'trapping'}{'passthrough'});
+    my $passthrough_enabled = isenabled($Config{'trapping'}{'passthrough'});
 
-    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough) {
+    if ($google_enabled||$facebook_enabled||$github_enabled||$passthrough_enabled) {
          $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_passthrough dst,dst ".
                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
     }
