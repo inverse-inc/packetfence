@@ -25,7 +25,8 @@ BEGIN {
 __PACKAGE__->config(
     action => {
 #Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configuration/switch', CaptureArgs => 1 }
+        object => { Chained => '/', PathPart => 'configuration/switch', CaptureArgs => 1 },
+        view   => { Chained => 'object', PathPart => 'read', Args => 0, AdminRole => [qw(SWITCHES_READ)] }
     },
 );
 
