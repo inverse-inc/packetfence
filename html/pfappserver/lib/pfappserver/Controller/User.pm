@@ -97,7 +97,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) : AdminRole('USERS_DELETE') {
     my ($self, $c) = @_;
 
     my ($status, $result) = $c->model('User')->delete($c->stash->{user}->{pid});
@@ -363,17 +363,6 @@ sub mail :Local {
     $c->response->status($status);
     $c->stash->{current_view} = 'JSON';
 }
-
-before [qw(delete)] => sub {
-   my ($self,$c,$role) = @_;
-   unless(admin_can($c->user,"USERS_REMOVE")) {
-        $c->log->info("Here");
-        $c->response->status(HTTP_UNAUTHORIZED);
-        $c->stash->{status_msg} = "You shall not pass";
-        $c->stash->{current_view} = 'JSON';
-        $c->detach();
-    }
-};
 
 =head1 COPYRIGHT
 
