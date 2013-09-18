@@ -372,6 +372,7 @@ sub getPidFromFile {
 sub launchService {
     my ($daemon,@launcher_args) = @_;
     my $launcher = $service_launchers{$daemon};
+    @launcher_args = map { /^(.+)$/;$1 } @launcher_args;
     if ($launcher) {
         my $logger = Log::Log4perl::get_logger('pf::services');
         my $cmd_line = sprintf($launcher, @launcher_args);
