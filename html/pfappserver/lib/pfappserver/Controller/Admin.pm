@@ -158,7 +158,7 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) {
 
 =cut
 
-sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
+sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
