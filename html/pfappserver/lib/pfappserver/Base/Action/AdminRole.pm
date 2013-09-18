@@ -1,4 +1,4 @@
-package Base::Action::AdminRole;
+package pfappserver::Base::Action::AdminRole;
 
 =head1 NAME
 
@@ -13,12 +13,10 @@ AdminRole
 use strict;
 use warnings;
 use HTTP::Status qw(:constants);
-use Moose;
+use Moose::Role;
 use namespace::autoclean;
 
 use pf::admin_roles;
-
-BEGIN { extends 'Catalyst::Action'; }
 
 =head1 METHODS
 
@@ -30,7 +28,7 @@ Verify that the user has the rights to execute the controller's action.
 
 before execute => sub {
     my ( $self, $controller, $c, %args ) = @_;
-    
+
     my $action = $self->attributes->{AdminRole}[0];
     my $roles = [];
     $roles = [$c->user->roles] if $c->user_exists;

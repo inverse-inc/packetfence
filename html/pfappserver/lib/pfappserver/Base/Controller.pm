@@ -15,6 +15,7 @@ use warnings;
 use Date::Parse;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use POSIX;
 use URI::Escape;
@@ -126,21 +127,18 @@ around create_action => sub {
     my ($orig, $self, %args) = @_;
 
     my $model;
-
-    return $self->$orig(%args)
-        if $args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/;
-
-    ($model) = @{ $args{attributes}->{SimpleSearch} || [] };
-    if ($model) {
-        return Base::Action::SimpleSearch->new(\%args);
+    my $action = $self->$orig(%args);
+    unless ($args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/) {
+        my @roles;
+        if(@{ $args{attributes}->{SimpleSearch} || [] }) {
+            push @roles,'pfappserver::Base::Action::SimpleSearch';
+        }
+        if(@{ $args{attributes}->{AdminRole} || [] }) {
+            push @roles,'pfappserver::Base::Action::AdminRole';
+        }
+        apply_all_roles($action,@roles) if @roles;
     }
-
-    ($model) = @{ $args{attributes}->{AdminRole} || [] };
-    if ($model) {
-        return Base::Action::AdminRole->new(\%args);
-    }
-
-    return $self->$orig(%args);
+    return $action;
 };
 
 =head2 _list_items

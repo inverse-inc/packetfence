@@ -1,4 +1,4 @@
-package Base::Action::SimpleSearch;
+package pfappserver::Base::Action::SimpleSearch;
 
 =head1 NAME
 
@@ -6,16 +6,14 @@ package Base::Action::SimpleSearch;
 
 =head1 DESCRIPTION
 
-SimpleSearch 
+SimpleSearch
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
+use Moose::Role;
 use namespace::autoclean;
- 
-BEGIN { extends 'Catalyst::Action'; }
 
 after execute => sub {
     my ( $self, $controller, $c, %args ) = @_;
