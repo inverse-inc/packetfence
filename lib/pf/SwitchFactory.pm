@@ -70,7 +70,13 @@ $switches_cached_config  = pf::config::cached->new(
     -oncachereload => [
         on_cache_switches_reload => sub  {
             my ($config, $name) = @_;
-            %SwitchConfig = %{$config->fromCacheUntainted("SwitchConfig")};
+            my $data = $config->fromCacheUntainted("SwitchConfig");
+            if($data) {
+                %SwitchConfig = %$data;
+            } else {
+                #if not found then call the onfilereload callback
+                $config->doCallbacks(1,0);
+            }
         },
     ]
 );
