@@ -92,7 +92,7 @@ table.sources {
               [% pf_section_entry( 'webservices', 'Web Services') %]
               [% pf_section_entry('adminroles', 'Admin Access') %]
               [%- END %]
-              [%- IF can_access("CONFIGURATION_NETWORK_READ") %]
+              [%- IF can_access("INTERFACES_READ") || can_access("SWITCHES_READ") || can_access("FLOATING_DEVICES_READ") %]
               <li class="nav-header">[% l('Network') %]<li>
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
               [% pf_section_entry( 'switches', 'Switches') %]
