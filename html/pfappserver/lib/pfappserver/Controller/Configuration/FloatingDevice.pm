@@ -26,7 +26,8 @@ BEGIN {
 __PACKAGE__->config(
     action => {
 #Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configuration/floatingdevice', CaptureArgs => 1 }
+        object => { Chained => '/', PathPart => 'configuration/floatingdevice', CaptureArgs => 1 },
+        view   => { Chained => 'object', PathPart => 'read', Args => 0, AdminRole => [qw(FLOATING_DEVICES_READ)] }
     },
     action_args => {
 #Setting the global model and form for all actions
