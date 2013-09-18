@@ -15,6 +15,7 @@
           <label class="control-label" for="actions">[% l('Actions') %]</label>
           <div class="controls">
             [% form.field('actions').render %]
+          </div>
         </div>
   </div><!--modal-body-->
 
