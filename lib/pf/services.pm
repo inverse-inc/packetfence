@@ -306,7 +306,7 @@ sub service_list {
                     && isenabled($Config{'services'}{'pfdns'}) );
         } elsif ( $service eq "httpd.proxy" ) {
             push @finalServiceList, $service
-                if ( defined($Config{'interception_proxy'}{'port'}) );
+                if ( isenabled($Config{'trapping'}{'interception_proxy'}) );
         }
         elsif ( $service eq 'pfdhcplistener' ) {
             push @finalServiceList, $service if ( isenabled($Config{'network'}{'dhcpdetector'}) );

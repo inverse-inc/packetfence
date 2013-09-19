@@ -3710,6 +3710,14 @@ msgid "trapping.proxy_passthroughs"
 msgstr "Proxy Passthroughs"
 
 # conf/documentation.conf
+msgid "trapping.interception_proxy"
+msgstr "Proxy Interception"
+
+# conf/documentation.conf
+msgid "trapping.interception_proxy_port"
+msgstr "Proxy Interception Port"
+
+# conf/documentation.conf
 msgid "trapping.range"
 msgstr "Addresses ranges"
 

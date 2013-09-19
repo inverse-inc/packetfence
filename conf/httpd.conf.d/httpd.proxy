@@ -149,7 +149,7 @@ $MaxRequestsPerChild = "1000";
 $ErrorLog = $install_dir.'/logs/proxy_error_log';
 $CustomLog = $install_dir.'/logs/proxy_access_log combined';
 
-foreach my $port (split(',',$PfConfig->{'interception_proxy'}{'port'})) {
+foreach my $port (split(',',$PfConfig->{'trapping'}{'interception_proxy_port'})) {
     push (@NameVirtualHost,"*:".$port);
 }
 
@@ -173,7 +173,7 @@ push @{ $VirtualHost{'*:444'} }, gen_conf(
 
 
 foreach my $interface (@internal_nets) {
-    foreach my $port (split(',',$PfConfig->{'interception_proxy'}{'port'})) {
+    foreach my $port (split(',',$PfConfig->{'trapping'}{'interception_proxy_port'})) {
         push (@Listen,$interface->{'Tip'}.":".$port);
         push @{ $VirtualHost{$interface->{'Tip'}.":".$port} }, gen_conf(
              ServerName        => $PfConfig->{'general'}{'hostname'}.".".$PfConfig->{'general'}{'domain'}.":".$port,

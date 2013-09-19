@@ -162,6 +162,17 @@ passthroughs=
 #
 # Comma-delimited list of domains to be use for apache passthrough
 proxy_passthroughs=
+#
+# trapping.interception_proxy
+#
+# When enabled, packetfence will intercept proxy request to somes specified port
+interception_proxy=disabled
+#
+# trapping.interception_proxy_port
+#
+# Comma-delimited list of port used to intercept proxy traffic
+interception_proxy_port=8080,3128
+
 
 [registration]
 #
@@ -684,9 +695,3 @@ voip=no
 user = 
 pass =
 
-[interception_proxy]
-#
-# intercept_proxy.port
-#
-# Define the proxy port to intercept in vlan and in inline enforcement
-port= 

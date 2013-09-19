@@ -88,7 +88,7 @@ sub iptables_generate {
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
         'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '', 
-        'routed_postrouting_inline' => '',
+        'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
     );
 
     # global substitution variables
@@ -248,9 +248,9 @@ sub generate_inline_rules {
     $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_ISOLATION "
             . "--jump REDIRECT\n";
 
-    if (defined($Config{'interception_proxy'}{'port'})) {
+    if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
         $logger->info("Adding Proxy interception rules");
-        foreach my $intercept_port ( split(',', $Config{'interception_proxy'}{'port'} ) ) {
+        foreach my $intercept_port ( split(',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
             my $rule = "--protocol tcp --destination-port $intercept_port";
             $$nat_prerouting_ref .= "-A $FW_PREROUTING_INT_INLINE $rule --match mark --mark 0x$IPTABLES_MARK_UNREG "
                     . "--jump REDIRECT\n";
@@ -674,8 +674,8 @@ sub generate_interception_rules {
             $$nat_if_src_to_chain .= "-A PREROUTING --in-interface $dev --jump $FW_PREROUTING_INT_VLAN\n";
         }
     }
-    if (defined($Config{'interception_proxy'}{'port'})) {
-        foreach my $intercept_port ( split( ',', $Config{'interception_proxy'}{'port'} ) ) {
+    if (defined($Config{'trapping'}{'interception_proxy_port'}) && isenabled($Config{'trapping'}{'interception_proxy'})) {
+        foreach my $intercept_port ( split( ',', $Config{'trapping'}{'interception_proxy_port'} ) ) {
             my $rule = "--protocol tcp --destination-port $intercept_port";
             $logger->warn($rule);
             $$nat_prerouting_vlan .= "-A $FW_PREROUTING_INT_VLAN $rule --jump REDIRECT\n";
