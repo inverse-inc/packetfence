@@ -33,9 +33,9 @@ before execute => sub {
     my $roles = [];
     $roles = [$c->user->roles] if $c->user_exists;
 
-    $c->log->info('Does ('.join(',', @$roles).') includes '.$action.'?');
-
     unless(admin_can($roles, $action)) {
+        $c->log->debug(sprintf('Access to action %s was refused to user %s with admin roles %s',
+                               $action, $c->user->id, join(',', @$roles)));
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->stash->{status_msg} = "You don't have the rights to perform this action.";
         $c->stash->{current_view} = 'JSON';
