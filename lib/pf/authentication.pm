@@ -38,6 +38,7 @@ use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
+use pf::util;
 
 # The results...
 #
@@ -213,8 +214,14 @@ sub readAuthenticationConfigFile {
             -oncachereload => [
                 on_cache_authentication_reload => sub {
                     my ($config, $name) = @_;
-                    %authentication_lookup = %{$config->fromCacheUntainted("authentication_lookup")};
-                    @authentication_sources = @{$config->fromCacheUntainted("authentication_sources")};
+                    my $authentication_lookup_ref = $config->fromCacheUntainted("authentication_lookup");
+                    my $authentication_sources_ref = $config->fromCacheUntainted("authentication_sources");
+                    if( all_defined($authentication_sources_ref, $authentication_lookup_ref)) {
+                        %authentication_lookup = %$authentication_lookup_ref;
+                        @authentication_sources = @$authentication_sources_ref;
+                    } else {
+                        $config->doCallbacks(1,0);
+                    }
                 },
             ],
             -onpostreload => [
