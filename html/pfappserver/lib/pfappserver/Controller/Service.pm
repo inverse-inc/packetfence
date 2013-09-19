@@ -51,7 +51,7 @@ sub service :Chained('/') :PathPart('service') :CaptureArgs(1) {
 
 =cut
 
-sub status :Chained('service') :PathPart('') :Args(0) {
+sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results($c, $c->stash->{model}->status);
 }
@@ -60,7 +60,7 @@ sub status :Chained('service') :PathPart('') :Args(0) {
 
 =cut
 
-sub start :Chained('service') :PathPart :Args(0) {
+sub start :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "start") );
 }
@@ -69,7 +69,7 @@ sub start :Chained('service') :PathPart :Args(0) {
 
 =cut
 
-sub stop :Chained('service') :PathPart :Args(0) {
+sub stop :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "stop") );
 }
@@ -78,7 +78,7 @@ sub stop :Chained('service') :PathPart :Args(0) {
 
 =cut
 
-sub restart :Chained('service') :PathPart :Args(0) {
+sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "restart") );
 }
@@ -87,7 +87,7 @@ sub restart :Chained('service') :PathPart :Args(0) {
 
 =cut
 
-sub pf_start :Local :Path('pf/start') {
+sub pf_start :Local :Path('pf/start') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf start)) );
 }
@@ -96,7 +96,7 @@ sub pf_start :Local :Path('pf/start') {
 
 =cut
 
-sub pf_stop :Local :Path('pf/stop') {
+sub pf_stop :Local :Path('pf/stop') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf stop)) );
 }
@@ -105,7 +105,7 @@ sub pf_stop :Local :Path('pf/stop') {
 
 =cut
 
-sub pf_restart :Local :Path('pf/restart') {
+sub pf_restart :Local :Path('pf/restart') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background(qw(pf restart)) );
 }
@@ -114,7 +114,7 @@ sub pf_restart :Local :Path('pf/restart') {
 
 =cut
 
-sub httpd_admin_restart :Local : Path('httpd.admin/restart') {
+sub httpd_admin_restart :Local : Path('httpd.admin/restart') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "restart") );
 }
@@ -123,7 +123,7 @@ sub httpd_admin_restart :Local : Path('httpd.admin/restart') {
 
 =cut
 
-sub httpd_admin_stop :Local : Path('httpd.admin/stop') {
+sub httpd_admin_stop :Local : Path('httpd.admin/stop') :AdminRole('SERVICES') {
     my ($self, $c) = @_;
     $self->_process_model_results_as_json( $c, $c->model('Services')->service_cmd_background("httpd.admin", "stop") );
 }
