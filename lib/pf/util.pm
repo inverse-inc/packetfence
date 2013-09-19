@@ -26,6 +26,7 @@ use Net::SMTP;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
+use List::MoreUtils qw(all);
 
 our ( %local_mac );
 
@@ -53,7 +54,7 @@ BEGIN {
         pf_run pfmailer
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
-        untaint_chain read_dir_recursive
+        untaint_chain read_dir_recursive all_defined
     );
 }
 
@@ -1135,6 +1136,10 @@ sub read_dir_recursive {
         }
     }
     return @files;
+}
+
+sub all_defined {
+    all { defined $_ } @_;
 }
 
 =back
