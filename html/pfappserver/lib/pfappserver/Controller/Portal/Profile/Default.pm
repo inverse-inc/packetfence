@@ -32,7 +32,14 @@ __PACKAGE__->config(
     # Configure the model and the form for actions
     action_args => {
         '*' => { model => "Config::Profile", form => 'Portal::Profile::Default'},
-    }
+    },
+    action => {
+        # Configure access rights
+        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
+        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
+        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
+        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
+    },
 );
 
 
@@ -82,7 +89,7 @@ sub _makeFilePath {
 
 =cut
 
-sub delete_file :Chained('object') :PathPart('delete') :Args() {
+sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self,$c,@pathparts) = @_;
     $c->stash->{status_msg} = "Cannot delete a file in the default profile";
     $c->go('bad_request');
@@ -92,7 +99,7 @@ sub delete_file :Chained('object') :PathPart('delete') :Args() {
 
 =cut
 
-sub revert_file :Chained('object') :PathPart :Args() {
+sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self,$c,@pathparts) = @_;
     $c->stash->{status_msg} = "Cannot revert a file in the default profile";
     $c->go('bad_request');
@@ -102,13 +109,13 @@ sub revert_file :Chained('object') :PathPart :Args() {
 
 =cut
 
-sub revert_all :Chained('object') :PathPart :Args(0) {
+sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self,$c) = @_;
     $c->stash->{status_msg} = "Cannot revert files in the default profile";
     $c->go('bad_request');
 }
 
-=item delete_profile
+=item remove
 
 =cut
 
