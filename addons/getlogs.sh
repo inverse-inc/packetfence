@@ -4,8 +4,8 @@
 
 DATE=now
 
-if [ -n "$1" ]; then
-    DATE=$1
+if [ "$#" != "0"  ]; then
+    DATE="$@"
 fi
 
 PATTERN1="$(date --date="$DATE" +'%b %d').*"
@@ -36,34 +36,10 @@ extract_log() {
     done
 }
 
-
 extract_log "$PATTERN1" catalyst.log packetfence.log
 extract_log "$PATTERN2" admin_error_log portal_error_log webservices_error_log
 extract_log "$PATTERN3" admin_access_log portal_access_log  webservices_access_log
 extract_log "$PATTERN4" radius.log
-
-#for log in catalyst.log packetfence.log;do
-#    LOG="$LOGDIR/$log"
-#    grep -P -A"$(wc -l $LOG  | cut -d' ' -f1)" "$PATTERN1" "$LOG" > "$TEMPLOGDIR/$log"
-#done  
-
-#for log in admin_error_log portal_error_log webservices_error_log
-#do
-#    LOG="$LOGDIR/$log"
-#    grep -P -A"$(wc -l $LOG | cut -d' ' -f1)" "$PATTERN2" "$LOG" > "$TEMPLOGDIR/$log"
-#done  
-
-#for log in admin_access_log portal_access_log  webservices_access_log  
-#do
-#    LOG="$LOGDIR/$log"
-#    grep -P -A"$(wc -l $LOG | cut -d' ' -f1)" "$PATTERN3" "$LOG" > "$TEMPLOGDIR/$log"
-#done  
-
-#for log in radius.log;do
-#    LOG="$LOGDIR/$log"
-#    grep -P -A"$(wc -l $LOG | cut -d' ' -f1)" "$PATTERN4" "$LOG" > "$TEMPLOGDIR/$log"
-#done  
-
 
 tar -C"$TEMPDIR" -zcf $TEMPLOGDIRNAME.tar.gz $TEMPLOGDIRNAME
 
