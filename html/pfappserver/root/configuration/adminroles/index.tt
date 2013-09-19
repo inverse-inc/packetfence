@@ -25,6 +25,8 @@
         <i class="icon-unlock icon-large"></i><p>[% l('No role defined') %]</p>
       </div>
 
+      [%- IF can_access("ADMIN_ROLES_CREATE") %]
       <div class="form-actions">
         <a id="createAdminRoles" class="btn" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('create')) %]">[% l('Add admin role') %]</a>
       </div>
+      [%- END %]

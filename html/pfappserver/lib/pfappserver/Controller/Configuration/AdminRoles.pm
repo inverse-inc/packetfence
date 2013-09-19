@@ -23,29 +23,29 @@ BEGIN {
     with 'pfappserver::Base::Controller::Crud::Config::Clone';
 }
 
-__PACKAGE__->config
-  (
-   action =>
-   {
-    # Reconfigure the object action from pfappserver::Base::Controller::Crud
-    object => { Chained => '/', PathPart => 'configuration/adminroles', CaptureArgs => 1 }
-   },
-   action_args =>
-   {
-    # Setting the global model and form for all actions
-    '*' => { model => "Config::AdminRoles", form => "Config::AdminRoles" },
-   },
+__PACKAGE__->config(
+    action => {
+        # Reconfigure the object action from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'configuration/adminroles', CaptureArgs => 1 },
+        # Configure access rights
+        view   => { AdminRole => 'ADMIN_ROLES_READ' },
+        list   => { AdminRole => 'ADMIN_ROLES_READ' },
+        create => { AdminRole => 'ADMIN_ROLES_CREATE' },
+        clone  => { AdminRole => 'ADMIN_ROLES_CREATE' },
+        update => { AdminRole => 'ADMIN_ROLES_UPDATE' },
+        remove => { AdminRole => 'ADMIN_ROLES_DELETE' },
+    },
+    action_args => {
+        # Setting the global model and form for all actions
+        '*' => { model => "Config::AdminRoles", form => "Config::AdminRoles" },
+    },
 );
 
 =head1 METHODS
 
-=head2 after list
+=head2 after create/clone
 
-Check which floating device is also defined as a switch
-
-=cut
-
-=head2 after create clone
+Show the 'view' template when creating or cloning an admin role.
 
 =cut
 
@@ -55,6 +55,12 @@ after [qw(create clone)] => sub {
         $c->stash->{template} = 'configuration/adminroles/view.tt';
     }
 };
+
+=head2 after create/clone/update
+
+List admin roles after creating or updating a role.
+
+=cut
 
 after [qw(create clone update)] => sub {
     my ($self, $c) = @_;
@@ -66,6 +72,8 @@ after [qw(create clone update)] => sub {
 };
 
 =head2 after view
+
+Set the action URL to either "create" or "update".
 
 =cut
 
