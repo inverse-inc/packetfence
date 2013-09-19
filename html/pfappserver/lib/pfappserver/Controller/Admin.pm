@@ -18,9 +18,7 @@ use namespace::autoclean;
 use Moose;
 use pfappserver::Form::SavedSearch;
 
-BEGIN {
-    extends 'Catalyst::Controller';
-}
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
 
@@ -148,7 +146,7 @@ sub status :Chained('object') :PathPart('status') :Args(0) {
 
 =cut
 
-sub reports :Chained('object') :PathPart('reports') :Args(0) {
+sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS') {
     my ( $self, $c ) = @_;
 
     $c->forward('Controller::Graph', 'reports');
@@ -172,7 +170,7 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ'
 
 =cut
 
-sub users :Chained('object') :PathPart('users') :Args(0) {
+sub users :Chained('object') :PathPart('users') :Args(0) :AdminRole('USERS_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::User")->read_all($id);

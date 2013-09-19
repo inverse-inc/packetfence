@@ -18,7 +18,7 @@ use Moose;
 use Readonly;
 use namespace::autoclean;
 
-BEGIN {extends 'Catalyst::Controller'; }
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 Readonly::Scalar our $DASHBOARD => 'dashboard';
 Readonly::Scalar our $REPORTS => 'reports';
@@ -283,7 +283,7 @@ sub dashboard :Local {
 
 =cut
 
-sub reports :Local {
+sub reports :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -308,7 +308,7 @@ Used in the dashboard.
 
 =cut
 
-sub registered :Path('nodes/registered') :Args(2) {
+sub registered :Path('nodes/registered') :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -325,7 +325,7 @@ Used in the dashboard.
 
 =cut
 
-sub unregistered :Path('nodes/unregistered') :Args(2) {
+sub unregistered :Path('nodes/unregistered') :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -342,7 +342,7 @@ Used in the dashboard.
 
 =cut
 
-sub detected :Path('nodes/detected') :Args(2) {
+sub detected :Path('nodes/detected') :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -359,7 +359,7 @@ Used in the dashboard.
 
 =cut
 
-sub wired :Local :Args(2) {
+sub wired :Local :Args(2) :AdminRole('REPORTS') {
     my ( $self, $c, $start, $end ) = @_;
 
     $self->_saveActiveGraph($c);
@@ -376,7 +376,7 @@ Used in the dashboard.
 
 =cut
 
-sub wireless :Local :Args(2) {
+sub wireless :Local :Args(2) :AdminRole('REPORTS') {
     my ( $self, $c, $start, $end ) = @_;
 
     $self->_saveActiveGraph($c);
@@ -394,7 +394,7 @@ Used in the dashboard.
 
 =cut
 
-sub violations_all :Local :Args(2) {
+sub violations_all :Local :Args(2) :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveActiveGraph($c);
@@ -411,7 +411,7 @@ Defined as a report.
 
 =cut
 
-sub nodes :Local {
+sub nodes :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -461,7 +461,7 @@ Defined as a report.
 
 =cut
 
-sub violations :Local {
+sub violations :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -478,7 +478,7 @@ Defined as a report.
 
 =cut
 
-sub os :Local {
+sub os :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -500,7 +500,7 @@ Defined as a report.
 
 =cut
 
-sub connectiontype :Local {
+sub connectiontype :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -521,7 +521,7 @@ Defined as a report.
 
 =cut
 
-sub ssid :Local {
+sub ssid :Local :AdminRole('REPORTS') {
     my ($self, $c, $start, $end) = @_;
 
     $self->_saveRange($c, $REPORTS, $start, $end);
@@ -542,7 +542,7 @@ Defined as a report.
 
 =cut
 
-sub nodebandwidth :Local {
+sub nodebandwidth :Local :AdminRole('REPORTS') {
     my ($self, $c, $option, $start, $end) = @_;
 
     $option = 'accttotal' unless ($option && $option =~ m/^(accttotal|acctinput|acctoutput)$/);
@@ -567,7 +567,7 @@ Defined as a report.
 
 =cut
 
-sub osclassbandwidth :Local {
+sub osclassbandwidth :Local :AdminRole('REPORTS') {
     my ( $self, $c, $start, $end ) = @_;
 
     my $option = 'accttotal'; # we only sypport this field, see pf::pfcmd::report
