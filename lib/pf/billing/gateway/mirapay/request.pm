@@ -15,29 +15,180 @@ use strict;
 use warnings;
 use Moo;
 use pf::billing::gateway::mirapay::response;
+use Digest::SHA1 qw(sha1_hex);
+use DateTime;
+use pf::log;
+use pf::config;
+use HTTP::Request;
 
+our %TYPES = (
+    messageType => 'AN',
+    termId => 'AN',
+    termIdGroup => 'AN',
+    transCode => 'AN',
+    track2Acc => 'AN',
+    amount1 => 'N',
+    mKey => 'AN',
+    approvalCd => 'AN',
+    invoiceNum => 'AN',
+    dateTimeFormated => 'AN',
+    operatorID => 'N',
+    extendedOpId => 'AN',
+    operatorLanguage => 'N',
+    echoData => 'AN',
+    accountType => 'AN',
+    statementDesc => 'AN',
+    ccverification => 'N',
+    addressLine1 => 'AN',
+    zip => 'AN',
+    transactionHandle => 'AN'
+);
 
-has messageType => (is => 'rw', default => sub { 'Q' });
+our %SHORT_CODE_TO_NAME = (
+    MT => 'messageType',
+    TI => 'termId',
+    TG => 'termIdGroup',
+    TC => 'transCode',
+    T2 => 'track2Acc',
+    A1 => 'amount1',
+    MY => 'mKey',
+    AC => 'approvalCd',
+    IN => 'invoiceNum',
+    DT => 'dateTimeFormated',
+    OP => 'operatorID',
+    EO => 'extendedOpId',
+    OL => 'operatorLanguage',
+    ED => 'echoData',
+    AY => 'accountType',
+    LD => 'description',
+    CV => 'ccverification',
+    D1 => 'addressLine1',
+    ZP => 'zip',
+    H0 => 'transactionHandle',
+);
+
+our %NAME_TO_SHORT_CODE = reverse %SHORT_CODE_TO_NAME;
+
+has messageType => (
+    is      => 'rw',
+    default => sub { 'Q' },
+    required => 1,
+);
+
 has [qw(
     termId
     termIdGroup
     transCode
-    track2Acc
-    amount1
-    mKey
+    ccexpiration
+    ccnumber
+    ccverification
+    amount
     approvalCd
     invoiceNum
-    dateTime
     operatorID
     extendedOpId
     operatorLanguage
     echoData
-    accountType
-    statementDesc
+    description
     cvvCode
     addressLine1
     zip
-    transactionHandle) ] => (is => 'rw');
+    transactionHandle
+    )
+] => (is => 'rw');
+
+has transCode => (
+    is      => 'rw',
+    default => sub { $Config{billing}{mirapay_currency} eq 'USD' ? 12 : 27 },
+    required => 1,
+);
+
+has termId => (
+    is => 'rw',
+    default => sub { $Config{billing}{mirapay_terminal_id} }
+);
+
+has termIdGroup => (
+    is => 'rw',
+    default => sub { $Config{billing}{mirapay_terminal_id_group} }
+);
+
+has dateTime => (
+    is => 'rw',
+    isa => sub { DateTime->isa($_[0]) },
+    default => sub { DateTime->now }
+);
+
+has hashPassword => (
+    is => 'rw',
+    default => sub { $Config{billing}{mirapay_hash_password} }
+);
+
+sub accountType {
+    my ($self) = @_;
+    return $Config{billing}{mirapay_currency} eq 'USD' ? 'BE' : undef;
+}
+
+sub amount1 {
+    my ($self) = @_;
+    my $amount = $self->amount;
+    if(defined $amount) {
+        $amount = sprintf("%.0f",$amount * 100);
+    }
+    return $amount;
+}
+
+sub dateTimeFormated {
+    my ($self) = @_;
+    $self->dateTime->strftime("%Y%m%d%H%M%S");
+}
+
+sub mKey {
+    my ($self) = @_;
+    my $key = join('',map { my $val = $self->$_; die "$_ is not defined" unless defined $val; $val} qw(hashPassword termId transCode amount1 dateTimeFormated));
+    unless(defined $self->transactionHandle) {
+        $key .= $self->track2Acc;
+    }
+    return sha1_hex($key);
+}
+
+sub track2Acc {
+    my ($self) = @_;
+    my $cc = $self->ccnumber;
+    my $ccexpiration = $self->ccexpiration;
+    my $value;
+    if(defined $cc && defined $ccexpiration) {
+        $value =  join('', "M", $cc, '=', $ccexpiration, '0?');
+    }
+    return $value;
+}
+
+
+
+sub makeRequestQuery {
+    my ($self) = @_;
+    my $query = '';
+    my @queries;
+    foreach my $attr (
+        qw( messageType termId termIdGroup transCode
+            track2Acc amount1 mKey approvalCd invoiceNum
+            dateTimeFormated operatorID extendedOpId operatorLanguage
+            echoData accountType statementDesc cvvCode
+            addressLine1 zip transactionHandle)) {
+        my $value = $self->$attr;
+        push @queries, $NAME_TO_SHORT_CODE{$attr} . $value if defined $value && $value ne '';
+    }
+    return join(",",@queries) . " \n";
+}
+
+sub url {
+    return $Config{billing}{mirapay_url};
+}
+
+sub makeRequest {
+    my ($self) = @_;
+    return HTTP::Request->new(GET => join('',$self->url,"?",$self->makeRequestQuery));
+}
 
 
 =head1 AUTHOR

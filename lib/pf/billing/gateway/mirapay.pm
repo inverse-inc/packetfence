@@ -23,6 +23,7 @@ use Moo;
 use pf::log;
 use pf::billing::constants;
 use pf::config;
+use pf::billing::gateway::mirapay::request;
 
 our $VERSION = 1.00;
 
@@ -45,7 +46,7 @@ Create a new object for transactions using Authorize.net payment gateway
 has transactionInfo => (is => 'rw');
 
 sub BUILDARGS {
-    my ( $class,$hashArgs) = @_;
+    my ($class, $hashArgs) = @_;
     if(ref($hashArgs) eq 'HASH') {
         if (!exists $hashArgs->{transactionInfo} ) {
             return { transactionInfo => $hashArgs };
@@ -56,46 +57,13 @@ sub BUILDARGS {
     die "Invalid arguements";
 }
 
-sub new {
-    my ( $class, $transaction_infos_ref ) = @_;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    $logger->debug("Instanciating a new " . __PACKAGE__ . " object");
-
-    my $this = bless {
-            # Transaction informations
-            '_id'                   => undef,
-            '_ip'                   => undef,
-            '_mac'                  => undef,
-            '_item'                 => undef,
-            '_description'          => undef,
-            '_price'                => undef,
-            '_person'               => undef,
-
-            # Client informations
-            '_ccnumber'             => undef,
-            '_ccexpiration'         => undef,
-            '_ccverification'       => undef, #CVV_Code CV
-            '_firstname'            => undef, #
-            '_lastname'             => undef,
-            '_email'                => undef,
-
-    }, $class;
-
-    foreach my $value ( keys %$transaction_infos_ref ) {
-        $this->{'_' . $value} = $transaction_infos_ref->{$value};
-    }
-
-    return $this;
-}
-
 #TODO finish the processPayment workflow
 =item processPayment
     Processes the payment request against the mirapay system
 =cut
 
 sub processPayment {
-    my ( $self ) = @_;
+    my ($self) = @_;
     my $logger     = get_logger();
     my $request    = $self->makeRequest;
     my $useragent  = LWP::UserAgent->new(protocols_allowed=>["https"]);
@@ -105,7 +73,29 @@ sub processPayment {
         $logger->error("There was an error in the process of the payment: " . $response->status_line());
         return;
     }
+    my $content = $response->content;
+    chomp($content);
+    my %data = map { unpack 'a2 a*' } split /,/, $content;
+    # The payment was not approved
+    # Move code to constants
+    my $approved_code = $data{AB};
+    my $display_msg   = $data{DM};
+    if ( $approved_code ne 'Y' ) {
+        $logger->error("The payment was not approved by the payment gateway: $display_msg");
+        return;
+    }
+    $logger->info("Successfull payment from MAC: $self->{transactionInfo}");
     return $BILLING::SUCCESS;
+}
+
+sub makeRequest {
+    my ($self) = @_;
+    my $info = $self->transactionInfo;
+    my $miraPayRequest = pf::billing::gateway::mirapay->new({
+        amount => $info->{price},
+        map {$_ => $info->{$_} } qw(ccnumber ccexpiration ccverification description)
+    });
+    return $miraPayRequest->makeRequest;
 }
 
 
