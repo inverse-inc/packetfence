@@ -5,8 +5,10 @@
   [% form.field(field.name).render %]
 [% END %]
 
+    [%- IF can_access("CONFIGURATION_MAIN_UPDATE") %]
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">[% l('Save') %]</button>
       <button type="reset" class="btn">[% l('Reset') %]</button>
     </div>
+    [%- END %]
   </form>
