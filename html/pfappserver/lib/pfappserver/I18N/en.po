@@ -2814,6 +2814,26 @@ msgstr "Authorize.net key"
 msgid "billing.gateway"
 msgstr "Gateway"
 
+# conf/documentation.conf
+msgid "billing.mirapay_terminal_id"
+msgstr "Mirapay terminal id"
+
+# conf/documentation.conf
+msgid "billing.mirapay_url"
+msgstr "Mirapay URL"
+
+# conf/documentation.conf
+msgid "billing.mirapay_terminal_id_group"
+msgstr "Mirapay terminal group id"
+
+# conf/documentation.conf
+msgid "billing.mirapay_hash_password"
+msgstr "Mirapay password"
+
+# conf/documentation.conf
+msgid "billing.mirapay_currency"
+msgstr "Mirapay currency"
+
 # pf::pfcmd::report (report_nodebandwidth)
 msgid "callingstationid"
 msgstr "MAC Address"

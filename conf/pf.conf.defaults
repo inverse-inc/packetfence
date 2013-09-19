@@ -674,6 +674,16 @@ authorizenet_login =
 # The merchant's unique Transaction Key (Provided by Authorize.net)
 authorizenet_trankey =
 
+mirapay_url = https://ms1.eigendev.com/OFT/EigenOFT_d.php
+
+mirapay_currency = USD
+
+mirapay_terminal_id =
+
+mirapay_terminal_id_group =
+
+mirapay_hash_password =
+
 [node_import]
 #
 # node_import.pid
