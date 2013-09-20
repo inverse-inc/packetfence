@@ -44,7 +44,7 @@ Create a rule of the specified type
 
 =cut
 
-sub create :Local :Args(1) {
+sub create :Local :Args(1) :AdminRole('USERS_SOURCES_CREATE') {
     my ($self, $c, $type) = @_;
 
     $c->stash->{action_uri} = $c->req->uri;
@@ -96,7 +96,7 @@ sub object :Chained('/') :PathPart('authentication') :CaptureArgs(1) {
 
 =cut
 
-sub read :Chained('object') :PathPart('read') :Args(0) {
+sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my ($self, $c) = @_;
 
     my ($form_type, $form);
@@ -133,7 +133,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_SOURCES_UPDATE') {
     my ($self, $c) = @_;
 
     my ($form_type, $form, $status, $message);
@@ -178,7 +178,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_SOURCES_DELETE') {
     my ($self, $c) = @_;
 
     my ($status, $message) = $c->model('Authentication::Source')->delete($c->stash->{source});
@@ -246,7 +246,7 @@ sub rule_create :Chained('object') :PathPart('rule/create') :Args(0) {
 
 =cut
 
-sub rules_read :Chained('object') :PathPart('rules/read') :Args(0) {
+sub rules_read :Chained('object') :PathPart('rules/read') :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my ($self, $c) = @_;
 
     $c->stash->{template} = 'authentication/source/rules_read.tt';
@@ -283,7 +283,7 @@ sub rule_object :Chained('object') :PathPart('rule') :CaptureArgs(1) {
 
 =cut
 
-sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) {
+sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my ($self, $c) = @_;
 
     my ($form);
@@ -314,7 +314,7 @@ sub rule_read :Chained('rule_object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) {
+sub rule_update :Chained('rule_object') :PathPart('update') :Args(0) :AdminRole('USERS_SOURCES_UPDATE') {
     my ($self, $c) = @_;
 
     my ($form, $status, $message);
