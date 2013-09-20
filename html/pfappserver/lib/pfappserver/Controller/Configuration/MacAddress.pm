@@ -34,13 +34,13 @@ sub index :Path {
 
 =cut
 
-sub simple_search :Local :Args(): SimpleSearch('MacAddress') { }
+sub simple_search :Local :Args() :SimpleSearch('MacAddress') :AdminRole('MAC_READ') { }
 
 =head2 update
 
 =cut
 
-sub update : Local : Args(0) {
+sub update :Local :Args(0) :AdminRole('MAC_UPDATE') {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg) = download_oui();
