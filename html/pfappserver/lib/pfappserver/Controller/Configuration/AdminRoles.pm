@@ -89,6 +89,24 @@ after view => sub {
     }
 };
 
+=head2 after _setup_object
+
+Sort the actions of the admin role.
+
+This subroutine is defined in pfappserver::Base::Controller::Crud.
+
+=cut
+
+after _setup_object => sub {
+    my ($self, $c) = @_;
+
+    # Sort actions
+    if (is_success($c->response->status)) {
+        my @actions = sort @{$c->stash->{'item'}->{'actions'}};
+        $c->stash->{'item'}->{'actions'} = \@actions;
+    }
+};
+
 =head2 index
 
 Usage: /configuration/adminroles/
