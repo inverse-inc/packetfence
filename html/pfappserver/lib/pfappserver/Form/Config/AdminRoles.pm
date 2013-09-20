@@ -43,11 +43,26 @@ has_field 'actions.contains' =>
    options_method => \&options_actions,
    widget_wrapper => 'DynamicTableRow',
   );
+
 sub build_do_form_wrapper{ 0 }
 
-
 sub options_actions {
-    return map { {label => $_, value => $_} } @ADMIN_ACTIONS;
+    my $self = shift;
+
+    my %groups;
+    my @options;
+
+    map {
+        m/^(.+?)(_(READ|CREATE|UPDATE|DELETE))?$/;
+        $groups{$1} = [] unless $groups{$1};
+        push(@{$groups{$1}}, { value => $_, label => $self->_localize($_) })
+    } @ADMIN_ACTIONS;
+
+    @options = map {
+        { group => $self->_localize($_), options => $groups{$_} }
+    } sort keys %groups;
+
+    return \@options;
 };
 
 =head1 COPYRIGHT
