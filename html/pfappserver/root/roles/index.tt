@@ -40,7 +40,11 @@
             <td><a href="[% c.uri_for(c.controller('Roles').action_for('read'), [ role.category_id ]) %]#modalRole">[% role.name %]</a></td>
 	     <td class="hidden-phone">[% role.notes %]</td>
 	     <td class="hidden-phone">[% role.max_nodes_per_pid %]</td>
-	     <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Roles').action_for('delete'), [ role.category_id ]) %]#deleteRole">[% l('Delete') %]</a></td>
+	     <td>
+               [%- IF can_access("USERS_ROLES_DELETE") %]
+               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Roles').action_for('delete'), [ role.category_id ]) %]#deleteRole">[% l('Delete') %]</a>
+               [%- END %]
+             </td>
           </tr>
           [% END -%]
         </tbody>
@@ -51,6 +55,8 @@
         <i class="icon-briefcase icon-large"></i><p>[% l('No role defined') %]</p>
       </div>
 
+      [%- IF can_access("USERS_ROLES_CREATE") %]
       <div class="form-actions">
         <a id="createRole" class="btn" href="[% c.uri_for(c.controller('Roles').action_for('create')) %]">[% l('Add role') %]</a>
       </div>
+      [%- END %]
