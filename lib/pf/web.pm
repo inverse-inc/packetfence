@@ -236,7 +236,7 @@ sub supports_windowsconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    return $FALSE if ((!defined($fingerprint[0]->{'os'})) || $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/ || isdisabled($portalSession->getProfile->getProvisioning));
+    return $FALSE if ((!defined($fingerprint[0]->{'os'})) || $fingerprint[0]->{'os'} !~ /Microsoft Windows (XP|Vista).*/);
     # do we perform provisioning for this category?
     my $config_category = $Config{'provisioning'}{'category'};
     my $node_cat = $node_attributes->{'category'};
@@ -312,7 +312,7 @@ sub generate_windows_provisioning_xml {
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
     });
-    if (defined($Config{'provisioning'}{'certificate'})) {
+    if (defined($Config{'provisioning'}{'certificate'}) && $Config{'provisioning'}{'certificate'} ne '') {
         my $x509 = Crypt::OpenSSL::X509->new_from_file($Config{'provisioning'}{'certificate'});
         my $key = $x509->fingerprint_sha1();
         $key =~ s/:/ /g;

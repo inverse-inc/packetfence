@@ -116,6 +116,25 @@ or user input.
 # and also to redefine in pf::web::guest::... not pf::web::...
 
 # end of no warnings 'redefine' block
+
+=item redefine generate_login_page
+
+Use to bypass authentication (like direct provisioning)
+ 
+=cut
+sub generate_login_page {
+    my ( $portalSession, $err ) = @_;
+
+    my $nodeattributes = node_attributes($portalSession->getClientMac);
+    if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
+        my $cgi = $portalSession->getCgi();
+        $cgi->param("do_not_deauth", $TRUE);
+        $nodeattributes->{'status'} = 'reg';
+        pf::web::util::set_memcached($portalSession->getClientMac(), $nodeattributes, undef, pf::web::util::get_memcached_conf());
+    }
+
+    pf::web::end_portal_session($portalSession);
+}
 }
 
 =back
