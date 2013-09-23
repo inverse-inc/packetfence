@@ -78,6 +78,7 @@ AdminRolesView.prototype.readAdminRoles = function(e) {
             modal.append(data);
             modal.one('shown', function() {
                 modal.find(':input:visible').first().focus();
+                updateDynamicRowsAfterRemove(modal.find('#actions'));
             });
             modal.modal({ shown: true });
         },
