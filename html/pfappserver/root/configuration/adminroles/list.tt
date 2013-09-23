@@ -12,7 +12,7 @@
             <td><a href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('view'), [ adminrole.id ]) %]">[% adminrole.id %]</a></td>
             <td>[% adminrole.description | html%]</td>
             <td>
-              [% IF can_access("ADMIN_ROLES_CREATE ") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('clone'), [ adminrole.id]) %]">[% l('Clone') %]</a>[% END %]
+              [% IF can_access("ADMIN_ROLES_CREATE") %]<a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('clone'), [ adminrole.id]) %]">[% l('Clone') %]</a>[% END %]
               [% IF can_access("ADMIN_ROLES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::AdminRoles').action_for('remove'), [ adminrole.id ]) %]">[% l('Delete') %]</a>[% END %]
             </td>
           </tr>
