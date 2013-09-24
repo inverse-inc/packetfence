@@ -78,6 +78,7 @@ use pf::config::ui;
 use pf::pfcmd;
 use pf::util;
 use HTTP::Status qw(is_success);
+use List::MoreUtils qw(all true);
 
 # Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
@@ -96,6 +97,13 @@ Log::Log4perl::MDC->put( 'tid',  $PROCESS_ID );
 Readonly my $delimiter => '|';
 use vars qw/%cmd $grammar/;
 my $command;
+our %ACTION_MAP = (
+    status  => \&statusOfService,
+    start   => \&startService,
+    stop    => \&stopService,
+    watch   => \&watchService,
+    restart => \&restartService,
+);
 
 my $count  = $ENV{PER_PAGE};
 my $offset = $ENV{PAGE_NUM};
@@ -1145,7 +1153,24 @@ sub traplog {
 # stop/start pf services
 # return service status
 #
+
 sub service {
+    my $service = $cmd{command}[1];
+    my $action  = $cmd{command}[2];
+    require pf::services;
+    import pf::services;
+    my $actionHandler;
+    $action =~ /^(.*)$/;
+    $action = $1;
+    if(exists $ACTION_MAP{$action} && defined ($actionHandler = $ACTION_MAP{$action})) {
+        $service =~ /^(.*)$/;
+        $service = $1;
+        return $actionHandler->($service);
+    }
+    return $FALSE;
+}
+
+sub service_ {
     my $service = $cmd{command}[1];
     my $command = $cmd{command}[2];
     require pf::services;
@@ -1333,6 +1358,182 @@ sub service {
         }
     }
     return 0;
+}
+
+sub startService {
+    my ($service) = @_;
+    my @managers = getStartServiceManagers($service);
+    print "service|command\n";
+    my $count = 0;
+    if(isIptableManaged($service)) {
+        my $technique;
+        if(all { $_->status eq '0'  } @managers) {
+            $technique = getIptablesTechnique();
+            $technique->iptables_save( $install_dir . '/var/iptables.bak' );
+        }
+        $technique ||= getIptablesTechnique();
+        $technique->iptables_generate();
+    }
+    foreach my $manager (@managers) {
+        my $command;
+        if($manager->status ne '0') {
+            $command = 'already started';
+        } else {
+            $manager->start;
+            $command = 'start';
+        }
+        print join('|',$manager->name,$command),"\n";
+    }
+    return 0;
+}
+
+sub saveIptables {
+    $logger->info("saving current iptables to var/iptables.bak");
+}
+
+sub getIptablesTechnique {
+    require pf::inline::custom;
+    my $iptables = pf::inline::custom->new();
+    return $iptables->{_technique};
+}
+
+sub getStartServiceManagers {
+    my ($service) = @_;
+    my @services;
+    if($service eq 'pf') {
+        @services = @pf::services::ALL_SERVICES;
+    } else {
+        @services = ($service);
+    }
+    return grep { $_->isManaged } _getStartServiceManagers(@services);
+}
+
+sub _getStartServiceManagers {
+    my %seen;
+    my @serviceManagers =
+        grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) }
+        map {
+            my $m = $_;
+            my @managers = map { getServiceManager($_) } @{$m->dependsOnServices};
+            push @managers,$m;
+            @managers
+        }
+        grep { defined $_ }
+        map { getServiceManager($_) } @_;
+    return @serviceManagers;
+}
+
+sub stopService {
+    my ($service) = @_;
+    my @managers = getStopServiceManagers($service);
+    print "service|command\n";
+    foreach my $manager (@managers) {
+        my $command;
+        if($manager->status eq '0') {
+            $command = 'already stopped';
+        } else {
+            $manager->stop;
+            $command = 'stop';
+        }
+        print join('|',$manager->name,$command),"\n";
+    }
+    if(isIptableManaged($service)) {
+        my $count = true { $_->status eq '0'  } @managers;
+        if( $count ) {
+            getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
+        } else {
+            $logger->error(
+                "Even though 'service pf stop' was called, there are still $count services running. "
+                 . "Can't restore iptables from var/iptables.bak"
+            );
+        }
+    }
+    return 0;
+}
+
+sub isIptableManaged {
+   return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
+}
+
+sub getStopServiceManagers {
+    my ($service) = @_;
+    my @services;
+    if($service eq 'pf') {
+        @services = grep { $_ ne 'memcached'   } @pf::services::ALL_SERVICES;
+        push @services,'memcached';
+    } else {
+        @services = ($service);
+    }
+    return _getStopServiceManagers(@services);
+}
+
+sub _getStopServiceManagers {
+    my %seen;
+    my @serviceManagers =
+        grep { defined ($_) && (!exists $seen{$_->name}) && ($seen{$_->name} = 1) }
+        map { getServiceManager($_) } @_;
+    return @serviceManagers;
+}
+
+
+sub restartService {
+    my ($service) = @_;
+    stopService($service);
+    startService($service);
+}
+
+sub watchService {
+    my ($service) = @_;
+    my @stoppedServiceManagers =
+        grep { $_->isManaged && $_->status eq '0'  }
+        getStartServiceManagers($service);
+    if(@stoppedServiceManagers) {
+        my @stoppedServices = map { $_->name } @stoppedServiceManagers;
+        $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));
+        print "The following processes are not running:\n" . " - "
+            . join( "\n - ", @stoppedServices ) . "\n";
+        if ( isenabled( $Config{'servicewatch'}{'email'} ) ) {
+            my %message;
+            $message{'subject'} = "PF WATCHER ALERT";
+            $message{'message'}
+                = "The following processes are not running:\n" . " - "
+                . join( "\n - ", @stoppedServices ) . "\n";
+            pfmailer(%message);
+        }
+        if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
+            print "service|command\n";
+            foreach my $manager (@stoppedServiceManagers) {
+                $manager->watch;
+                print join('|',$manager->name,"watch"),"\n";
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
+
+sub statusOfService {
+    my ($service) = @_;
+    my @managers = getStopServiceManagers($service);
+    print "service|shouldBeStarted|pid\n";
+    my $notStarted = 0;
+    foreach my $manager (@managers) {
+        my $isManaged = $manager->isManaged;
+        my $status = $manager->status;
+        print join('|',$manager->name,$isManaged,$status),"\n";
+        $notStarted++ if $status eq '0' && $isManaged;
+    }
+    return ( $notStarted ? 3 : 0);
+}
+
+sub getServiceManager {
+    my ($service) = @_;
+    my $module = "pf::services::manager::${service}";
+    $module =~ /^(.*)$/;
+    $module = $1;
+    $module =~ s/\./_/;
+    eval "use $module;";
+    return $module->new;
 }
 
 sub class {
