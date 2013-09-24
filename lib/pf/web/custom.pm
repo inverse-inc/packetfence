@@ -122,19 +122,43 @@ or user input.
 Use to bypass authentication (like direct provisioning)
  
 =cut
-sub generate_login_page {
-    my ( $portalSession, $err ) = @_;
+#sub generate_login_page {
+#    my ( $portalSession, $err ) = @_;
+#
+#    my $nodeattributes = node_attributes($portalSession->getClientMac);
+#    if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
+#        my $cgi = $portalSession->getCgi();
+#        $cgi->param("do_not_deauth", $TRUE);
+#        $nodeattributes->{'status'} = 'reg';
+#        pf::web::util::set_memcached($portalSession->getClientMac(), $nodeattributes, undef, pf::web::util::get_memcached_conf());
+#    }
+#
+#    pf::web::end_portal_session($portalSession);
+#}
 
-    my $nodeattributes = node_attributes($portalSession->getClientMac);
-    if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
-        my $cgi = $portalSession->getCgi();
-        $cgi->param("do_not_deauth", $TRUE);
-        $nodeattributes->{'status'} = 'reg';
-        pf::web::util::set_memcached($portalSession->getClientMac(), $nodeattributes, undef, pf::web::util::get_memcached_conf());
-    }
+=item generate_apple_mobileconfig_provisioning_xml
 
-    pf::web::end_portal_session($portalSession);
-}
+Generate the proper .mobileconfig XML to automatically configure Wireless for iOS devices.
+
+=cut
+
+#sub generate_apple_mobileconfig_provisioning_xml {
+#    my ( $portalSession ) = @_;
+#
+#    $portalSession->stash->{'username'} = $portalSession->session->param('username');
+#    $portalSession->stash->{'ssid'} = $Config{'provisioning'}{'ssid'};
+#
+#    # Some required headers
+#    # http://www.rootmanager.com/iphone-ota-configuration/iphone-ota-setup-with-signed-mobileconfig.html
+#    my @headers = (
+#        'Content-type: application/x-apple-aspen-config; chatset=utf-8',
+#        'Content-Disposition: attachment; filename="wireless-profile.mobileconfig"',
+#    );
+#    $portalSession->stash->{'headers'} = @headers;
+#
+#    render_template($portalSession, 'wireless-profile.xml');
+#}
+
 }
 
 =back
