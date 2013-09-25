@@ -23,7 +23,7 @@ use pf::authentication;
 =cut
 
 sub options_sources {
-    return map { { value => $_->id, label => $_->id } } @{getAllAuthenticationSources()};
+    return map { { value => $_->id, label => $_->id, attributes => { 'data-source-type' => $_->type  } } } @{getAllAuthenticationSources()};
 }
 
 =head2 validate

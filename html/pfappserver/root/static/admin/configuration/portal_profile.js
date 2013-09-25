@@ -238,7 +238,9 @@ function initReadPage(element) {
         var rows = tbody.children(':not(.hidden)');
         var row = rows.first();
         var options = row.find("select option");
-        if( rows.length < options.length){
+        if (row.find('select').val() == 'null' ) {
+            row.find('[href="#add"]').addClass('hidden');
+        } else if( rows.length < options.length ) {
             rows.find('[href="#add"]').removeClass('hidden');
         }
     });
@@ -246,6 +248,16 @@ function initReadPage(element) {
         $('#sources').trigger('addrow');
         $('#sourcesEmpty').addClass('hidden');
         return false;
+    });
+    $('#sources').on('change','select', function(event) {
+        var that = $(this);
+        var tr = that.closest('tr');
+        if(that.find(':selected').attr('data-source-type') == 'Null') {
+            tr.siblings(':not(.hidden)').find('[href="#delete"]').click();
+            tr.find('[href="#add"]').addClass('hidden');
+        } else {
+            tr.find('[href="#add"]').removeClass('hidden');
+        }
     });
 }
 
