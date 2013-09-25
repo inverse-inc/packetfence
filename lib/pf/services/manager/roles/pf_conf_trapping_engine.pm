@@ -34,13 +34,11 @@ services that the trapping engine depends on
 
 =cut
 
-has dependsOnServices => (default => sub { [qw(memcached httpd.admin pfdetect)] } );
+has '+dependsOnServices' => ( is => 'rw', default => sub { [qw(memcached httpd.admin pfdetect)] } );
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
