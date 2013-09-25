@@ -105,7 +105,6 @@ sub windows_provisioning {
             $req->content_type('text/xml');
             $req->no_cache(1);
             $req->print($response);
-            #It is the last request from the windows client
             pf::web::util::del_memcached($mac,pf::web::util::get_memcached_conf());
         }
         if ($req->pnotes->{uri_winprofil} =~ /cert/) {
@@ -136,6 +135,11 @@ sub apple_provisioning {
 
     my $portalSession = pf::Portal::Session->new();
 
+    # if not logged in, disallow access
+    if (!defined($portalSession->session->param('username'))) {
+        return Apache2::Const::FORBIDDEN;
+    }
+
     my $response;
     my $template = Template->new({
         INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
@@ -161,6 +165,11 @@ sub android_provisioning {
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
     my $portalSession = pf::Portal::Session->new();
+
+    # if not logged in, disallow access
+    if (!defined($portalSession->session->param('username'))) {
+        return Apache2::Const::FORBIDDEN;
+    }
 
     my $response;
     my $template = Template->new({

@@ -257,6 +257,47 @@ sub generate_windowsconfig_provisioning_page {
     render_template($portalSession, 'release_with_execonfig.html');
 }
 
+=item supports_mobileconfig_provisioning
+
+Validating that the node supports mobile configuration provisioning, that it's configured
+and that the node's category matches the configuration.
+
+=cut
+
+sub supports_androidconfig_provisioning {
+    my ( $portalSession ) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::web');
+
+    return $FALSE if (isdisabled($Config{'provisioning'}{'autoconfig'}));
+
+    # is this an iDevice?
+    # TODO get rid of hardcoded targets like that
+    my $node_attributes = node_attributes($portalSession->getClientMac);
+    my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
+    $logger->warn(Dumper @fingerprint);
+    return $FALSE if (!defined($fingerprint[0]->{'os'}) || !( $fingerprint[0]->{'os'} =~ /Android/)  );
+
+    # do we perform provisioning for this category?
+    my $config_category = $Config{'provisioning'}{'category'};
+    my $node_cat = $node_attributes->{'category'};
+
+    # validating that the node is under the proper category for mobile config provioning
+    return $TRUE if ( $config_category eq 'any' || (defined($node_cat) && $node_cat eq $config_category));
+
+    # otherwise
+    return $FALSE;
+}
+
+=item generate_mobileconfig_provisioning_page
+
+Offers a page that links to the proper provisioning XML.
+
+=cut
+
+sub generate_androidconfig_provisioning_page {
+    my ( $portalSession ) = @_;
+    render_template($portalSession, 'release_with_android.html');
+}
 
 =item generate_apple_mobileconfig_provisioning_xml
 
@@ -847,6 +888,10 @@ sub end_portal_session {
     }
     if (pf::web::supports_windowsconfig_provisioning($portalSession)) {
         pf::web::generate_windowsconfig_provisioning_page($portalSession);
+        exit(0);
+    }
+    if (pf::web::supports_androidconfig_provisioning($portalSession)) {
+        pf::web::generate_androidconfig_provisioning_page($portalSession);
         exit(0);
     }
 
