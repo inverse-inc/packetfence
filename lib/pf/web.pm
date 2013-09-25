@@ -274,7 +274,6 @@ sub supports_androidconfig_provisioning {
     # TODO get rid of hardcoded targets like that
     my $node_attributes = node_attributes($portalSession->getClientMac);
     my @fingerprint = dhcp_fingerprint_view($node_attributes->{'dhcp_fingerprint'});
-    $logger->warn(Dumper @fingerprint);
     return $FALSE if (!defined($fingerprint[0]->{'os'}) || !( $fingerprint[0]->{'os'} =~ /Android/)  );
 
     # do we perform provisioning for this category?
