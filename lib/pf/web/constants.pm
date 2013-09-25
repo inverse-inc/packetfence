@@ -74,7 +74,6 @@ Readonly::Scalar our $URL_OAUTH2_GOOGLE         => '/oauth2/google';
 Readonly::Scalar our $URL_REMEDIATION           => '/remediation';
 Readonly::Scalar our $URL_RELEASE               => '/release';
 Readonly::Scalar our $URL_STATUS                => '/status';
-Readonly::Scalar our $URL_WIRELESS_PROFILE      => '/wireless-profile.mobileconfig';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
@@ -100,8 +99,9 @@ Readonly::Scalar our $REQ_MAC                   => 'mac';
 Readonly::Scalar our $REQ_ARUBA                 => 'apname';
 Readonly::Scalar our $REQ_CISCO_PORTAL          => '/cep(.*)';
 
-# windows profil engine
+# Provisioning engine
 Readonly::Scalar our $MOD_PERL_WINPROFIL        => '/winprofil/(.*)';
+Readonly::Scalar our $MOD_PERL_WIRELESS_PROFILE      => '/wireless-profile.mobileconfig';
 
 =head2 Apache Config related
 

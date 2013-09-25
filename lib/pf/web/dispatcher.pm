@@ -32,6 +32,7 @@ use pf::proxypassthrough::constants;
 use pf::Portal::Session;
 use pf::iplog qw(iplog_update);
 use pf::locationlog qw(locationlog_view_open_mac);
+use pf::web::provisioning qw(apple_provisioning windows_provisioning android_provisioning);
 
 =head1 SUBROUTINES
 
@@ -101,8 +102,14 @@ sub handler {
         }
         if ($r->uri =~ /$WEB::MOD_PERL_WINPROFIL/o) {
             $r->pnotes->{uri_winprofil} = $1;
-            $r->set_handlers( PerlResponseHandler => ['pf::web::winprofil'] );
+            $r->set_handlers( PerlResponseHandler => [\&windows_provisioning] );
         }
+        if ($r->uri =~ /$WEB::MOD_PERL_WIRELESS_PROFILE/o) {
+            $r->set_handlers( PerlResponseHandler => [\&apple_provisioning] );
+        }
+     #   if ($r->uri =~ /$WEB::MOD_PERL_ANDROID_PROFILE/o) {
+     #       $r->set_handlers( PerlResponseHandler => [\&android_provisioning] );
+     #   }
         return Apache2::Const::OK;
     }
 
