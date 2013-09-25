@@ -1,31 +1,30 @@
-package pf::services::manager::pfdns;
+package pf::services::manager::roles::is_managed_vlan_inline_enforcement;
 =head1 NAME
 
-pf::services::manager::pfdns add documentation
+pf::services::manager::roles::is_managed_vlan_inline_enforcement add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::pfdns
+pf::services::manager::roles::is_managed_vlan_inline_enforcement
 
 =cut
 
 use strict;
 use warnings;
-use Moo;
-extends 'pf::services::manager';
-with 'pf::services::manager::roles::pf_conf_service_managed';
-with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
+use pf::config;
 
-has '+name' => (default => sub { 'pfdns' } );
+use Moo::Role;
 
-has '+launcher' => (default => sub { '%1$s -d &' } );
+around isManaged => sub {
+    my $orig = shift;
+    return (is_inline_enforcement_enabled() || is_vlan_enforcement_enabled()) && $orig->(@_);
+};
 
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
 
 =head1 COPYRIGHT
 

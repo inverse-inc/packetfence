@@ -19,9 +19,11 @@ use pf::config;
 use pf::log;
 use pf::services::dhcpd qw(generate_dhcpd_conf);
 use File::Touch;
+use IPC::Cmd qw[can_run run];
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::pf_conf_service_managed';
+with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 
 has '+name' => (default => sub { 'dhcpd' } );
 
@@ -72,7 +74,7 @@ sub manageStaticRoute {
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
+
 
 =head1 COPYRIGHT
 
