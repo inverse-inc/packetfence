@@ -1170,202 +1170,13 @@ sub service {
     return $FALSE;
 }
 
-sub service_ {
-    my $service = $cmd{command}[1];
-    my $command = $cmd{command}[2];
-    require pf::services;
-    import pf::services;
-
-    $logger->info("Executing pfcmd service $service $command");
-
-    if ( lc($command) eq 'status' ) {
-        my (@services, %diff);
-        if ( $service eq 'pf' ) {
-            @services =  @pf::services::ALL_SERVICES;
-        } else {
-            push( @services, $service );
-        }
-        my @incorrectly_stopped_services     = ();
-        my @services_which_should_be_started = pf::services::service_list(@services);
-        print "service|shouldBeStarted|pid\n";
-        foreach my $tmp (@services) {
-            my $should_be_started = (
-                (   grep( { $_ eq $tmp } @services_which_should_be_started )
-                        > 0
-                ) ? 1 : 0
-            );
-            my $pid = pf::services::service_ctl( $tmp, 'status' );
-            if ( ($should_be_started) && ( !$pid ) ) {
-                push @incorrectly_stopped_services, $tmp;
-            }
-            print "$tmp|$should_be_started|$pid\n";
-        }
-        return ( ( scalar(@incorrectly_stopped_services) > 0 ) ? 3 : 0 );
-    }
-
-    if ( lc($command) eq 'watch' ) {
-        my (@services, %diff);
-        if ( $service eq "pf" ) {
-            @services =  @pf::services::ALL_SERVICES;
-        } else {
-            push( @services, $service );
-        }
-        my @services_which_should_be_started = pf::services::service_list(@services);
-        my @incorrectly_stopped_services     = ();
-        foreach my $tmp (@services) {
-            my $should_be_started = (grep( { $_ eq $tmp } @services_which_should_be_started ) > 0);
-            my $pid = pf::services::service_ctl( $tmp, 'status' );
-            if ( ($should_be_started) && ( !$pid ) ) {
-                push @incorrectly_stopped_services, $tmp;
-            }
-        }
-        if (@incorrectly_stopped_services) {
-            $logger->info("watch found incorrectly stopped services: " . join(", ", @incorrectly_stopped_services));
-            print "The following processes are not running:\n" . " - "
-                . join( "\n - ", @incorrectly_stopped_services ) . "\n";
-            if ( isenabled( $Config{'servicewatch'}{'email'} ) ) {
-                my %message;
-                $message{'subject'} = "PF WATCHER ALERT";
-                $message{'message'}
-                    = "The following processes are not running:\n" . " - "
-                    . join( "\n - ", @incorrectly_stopped_services ) . "\n";
-                pfmailer(%message);
-            }
-            if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
-                $command = 'restart';
-            } else {
-                return 1;
-            }
-        } else {
-            return 1;
-        }
-    }
-
-    if ( lc($command) eq 'restart' ) {
-        if ( lc($service) eq 'pf' ) {
-            $logger->info(
-                "packetfence restart ... executing stop followed by start");
-            local $cmd{command}[2] = "stop";
-            service();
-            local $cmd{command}[2] = "start";
-            service();
-            return 1;
-        } else {
-            if ( !pf::services::service_ctl( $service, "status" ) ) {
-                $command = "restart";
-            }
-        }
-    }
-
-    my (@services, %diff);
-    if ( $service ne 'pf' ) {
-        # make sure that snort is not started without pfdetect
-        if ($service eq 'snort') {
-            if ( !pf::services::service_ctl( 'pfdetect', 'status' ) ) {
-                $logger->info('addind pfdetect to list of services so that snort can be started');
-                push @services, 'pfdetect';
-            }
-        }
-        push @services, $service;
-    } else {
-        @services =  @pf::services::ALL_SERVICES;
-    }
-
-    my @alreadyRunningServices = ();
-    if ( lc($command) eq 'start' ) {
-        require pf::pfcmd::checkup;
-        import pf::pfcmd::checkup;
-        #Start httpd.admin anyway for the configurator
-        my $nb_running_services = 0;
-        if ( pf::services::service_ctl( "httpd.admin", "status" ) ) {
-            $nb_running_services++;
-            push @alreadyRunningServices, "httpd.admin";
-        }
-        if ( grep( { $_ eq "httpd.admin" } @alreadyRunningServices ) == 1 )
-        {
-            print "httpd.admin|already running\n";
-        } else {
-            pf::services::service_ctl( "httpd.admin", $command );
-            print "httpd.admin|$command\n";
-        }
-        checkup(@services);
-        foreach my $tmp (@pf::services::ALL_SERVICES) {
-            if ( pf::services::service_ctl( $tmp, "status" ) ) {
-                $nb_running_services++;
-                push @alreadyRunningServices, $tmp;
-            }
-        }
-        if ( $nb_running_services == 0 ) {
-            if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
-                $logger->info("saving current iptables to var/iptables.bak");
-                require pf::inline::custom;
-                my $iptables = pf::inline::custom->new();
-                my $technique = $iptables->{_technique};
-                $technique->iptables_save( $install_dir . '/var/iptables.bak' );
-            }
-        }
-    }
-
-    print "service|command\n";
-    if ( $command ne 'stop' ) {
-        print "config files|$command\n";
-        require pf::os;
-        pf::os::import_dhcp_fingerprints();
-        pf::services::read_violations_conf();
-        if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
-            print "iptables|$command\n";
-            require pf::inline::custom;
-            my $iptables = pf::inline::custom->new();
-            my $technique = $iptables->{_technique};
-            $technique->iptables_generate();
-        }
-    }
-
-    foreach my $srv (@services) {
-        next if ( ($srv eq 'httpd.admin') && ($command eq 'start' ) );
-        if (   ( $command eq 'start' )
-            && ( grep( { $_ eq $srv } @alreadyRunningServices ) == 1 ) )
-        {
-            print "$srv|already running\n";
-        } else {
-            pf::services::service_ctl( $srv, $command );
-            print "$srv|$command\n";
-        }
-    }
-
-    if ( lc($command) eq 'stop' ) {
-        my $nb_running_services = 0;
-        foreach my $tmp (@pf::services::ALL_SERVICES) {
-            if ( pf::services::service_ctl( $tmp, "status" ) ) {
-                $nb_running_services++;
-            }
-        }
-        if ( $nb_running_services == 0 ) {
-            if(isenabled($Config{services}{iptables}) && $service eq 'pf') {
-                print "iptables|$command\n";
-                require pf::inline::custom;
-                my $iptables = pf::inline::custom->new();
-                my $technique = $iptables->{_technique};
-                $technique->iptables_restore( $install_dir . '/var/iptables.bak' );
-            }
-        } else {
-            if ( lc($service) eq 'pf' ) {
-                $logger->error(
-                    "Even though 'service pf stop' was called, there are still $nb_running_services services running. "
-                     . "Can't restore iptables from var/iptables.bak"
-                );
-            }
-        }
-    }
-    return 0;
-}
-
 sub startService {
     my ($service) = @_;
     my @managers = getStartServiceManagers($service);
     print "service|command\n";
     my $count = 0;
-    if(isIptableManaged($service)) {
+    if(isIptablesManaged($service)) {
+        $logger->info("saving current iptables to var/iptables.bak");
         my $technique;
         if(all { $_->status eq '0'  } @managers) {
             $technique = getIptablesTechnique();
@@ -1374,6 +1185,10 @@ sub startService {
         $technique ||= getIptablesTechnique();
         $technique->iptables_generate();
     }
+    require pf::pfcmd::checkup;
+    import pf::pfcmd::checkup;
+    checkup( map {$_->name} @managers);
+
     foreach my $manager (@managers) {
         my $command;
         if($manager->status ne '0') {
@@ -1387,10 +1202,6 @@ sub startService {
     return 0;
 }
 
-sub saveIptables {
-    $logger->info("saving current iptables to var/iptables.bak");
-}
-
 sub getIptablesTechnique {
     require pf::inline::custom;
     my $iptables = pf::inline::custom->new();
@@ -1401,11 +1212,11 @@ sub getStartServiceManagers {
     my ($service) = @_;
     my @services;
     if($service eq 'pf') {
-        @services = @pf::services::ALL_SERVICES;
+        @services = pf::services::service_list(@pf::services::ALL_SERVICES);
     } else {
         @services = ($service);
     }
-    return grep { $_->isManaged } _getStartServiceManagers(@services);
+    return _getStartServiceManagers(@services);
 }
 
 sub _getStartServiceManagers {
@@ -1414,12 +1225,12 @@ sub _getStartServiceManagers {
         grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) }
         map {
             my $m = $_;
-            my @managers = map { getServiceManager($_) } @{$m->dependsOnServices};
+            my @managers = map { pf::services::get_service_manager($_) } @{$m->dependsOnServices};
             push @managers,$m;
             @managers
         }
         grep { defined $_ }
-        map { getServiceManager($_) } @_;
+        map { pf::services::get_service_manager($_) } @_;
     return @serviceManagers;
 }
 
@@ -1437,7 +1248,7 @@ sub stopService {
         }
         print join('|',$manager->name,$command),"\n";
     }
-    if(isIptableManaged($service)) {
+    if(isIptablesManaged($service)) {
         my $count = true { $_->status eq '0'  } @managers;
         if( $count ) {
             getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
@@ -1451,7 +1262,7 @@ sub stopService {
     return 0;
 }
 
-sub isIptableManaged {
+sub isIptablesManaged {
    return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
@@ -1471,7 +1282,7 @@ sub _getStopServiceManagers {
     my %seen;
     my @serviceManagers =
         grep { defined ($_) && (!exists $seen{$_->name}) && ($seen{$_->name} = 1) }
-        map { getServiceManager($_) } @_;
+        map { pf::services::get_service_manager($_) } @_;
     return @serviceManagers;
 }
 
@@ -1485,7 +1296,7 @@ sub restartService {
 sub watchService {
     my ($service) = @_;
     my @stoppedServiceManagers =
-        grep { $_->isManaged && $_->status eq '0'  }
+        grep { $_->status eq '0'  }
         getStartServiceManagers($service);
     if(@stoppedServiceManagers) {
         my @stoppedServices = map { $_->name } @stoppedServiceManagers;
@@ -1524,16 +1335,6 @@ sub statusOfService {
         $notStarted++ if $status eq '0' && $isManaged;
     }
     return ( $notStarted ? 3 : 0);
-}
-
-sub getServiceManager {
-    my ($service) = @_;
-    my $module = "pf::services::manager::${service}";
-    $module =~ /^(.*)$/;
-    $module = $1;
-    $module =~ s/\./_/;
-    eval "use $module;";
-    return $module->new;
 }
 
 sub class {
