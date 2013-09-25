@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use Moo;
 use pf::config;
+use pf::util;
 
 extends 'pf::services::manager::submanager';
 
