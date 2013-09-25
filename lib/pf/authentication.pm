@@ -36,6 +36,7 @@ use pf::Authentication::Source::SQLSource;
 use pf::Authentication::Source::FacebookSource;
 use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
+use pf::Authentication::Source::NullSource;
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
@@ -91,7 +92,8 @@ our %TYPE_TO_SOURCE = (
     'sms'           => pf::Authentication::Source::SMSSource->meta->name,
     'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
     'google'        => pf::Authentication::Source::GoogleSource->meta->name,
-    'github'        => pf::Authentication::Source::GithubSource->meta->name
+    'github'        => pf::Authentication::Source::GithubSource->meta->name,
+    'null'          => pf::Authentication::Source::NullSource->meta->name
 );
 
 our $logger = get_logger();
