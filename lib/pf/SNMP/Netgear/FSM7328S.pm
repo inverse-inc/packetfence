@@ -1,4 +1,4 @@
-package pf::SNMP::Netgear::FSM7328S};
+package pf::SNMP::Netgear::FSM7328S;
 
 =head1 NAME
 
@@ -268,14 +268,45 @@ sub getVlan {
 
 =item isPortSecurityEnabled
 
-Since port security on this switch is called Trusted MAC, there's no check possible to see if
-port security is enabled.
 
-Always returns true because switch doesn't work except in port-security.
 
 =cut
-sub isPortSecurityEnabled { return $TRUE; }
+sub isPortSecurityEnabled { 
+    my $this = shift;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    
+    my $OID_agentGlobalPortSecurityMode = '1.3.6.1.4.1.4526.10.20.1.1.0';    # NETGEAR-PORTSECURITY-PRIVATE-MIB
+    my %PortSecurityMode = ( 1 => "enabled", 2 => "disabled" );
+    
+    if ( !$this->connectRead() ) {
+        $logger->warn("Cannot connect to switch " . $this->{'_ip'}); 
+        return 0;
+    }
 
+    $logger->trace(
+            "SNMP get_request for OID_agentGlobalPortSecurityMode: " .
+            "( $OID_agentGlobalPortSecurityMode )"
+    );
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [
+            "$OID_agentGlobalPortSecurityMode"
+    ] );
+    if ( !defined($result) ) {
+        $logger->error(
+                "Error getting OID_agentGlobalPortSecurityMode " .
+                $this->{_sessionRead}->error
+        );
+    } else {
+        $logger->info( "Port Security mode on " . $this->{'_ip'} . "is " . $PortSecurityMode{$result});
+    }
+    
+    my $mode; 
+    if ( $result->{"$OID_agentGlobalPortSecurityMode"} == 1 ) {
+        $mode = $TRUE; 
+    } else {
+        $mode = $FALSE; 
+    }
+    return $mode;
+}
 =item parseTrap
 
 =cut
@@ -286,25 +317,31 @@ sub parseTrap {
     my $trapHashRef;
 
     # link up/down traps
+    # Example:
+    # 2013-07-25|13:01:28|UDP: [10.100.6.31]:1024->[10.100.16.90]|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (244400) 0:40:44.00|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.6.3.1.1.5.4|.1.3.6.1.2.1.2.2.1.1.1 = INTEGER: 1|.1.3.6.1.2.1.2.2.1.7.1 = INTEGER: up(1)|.1.3.6.1.2.1.2.2.1.8.1 = INTEGER: up(1) END VARIABLEBINDINGS
     if ( $trapString =~ 
-            /BEGIN\ TYPE\ ([23])\ END\ TYPE\ BEGIN\ SUBTYPE\ 0\ END\ SUBTYPE\ 
-            BEGIN\ VARIABLEBINDINGS\ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+)
+            /BEGIN\ TYPE\ \d+\ END\ TYPE\ BEGIN\ SUBTYPE\ 0\ END\ SUBTYPE\ 
+            BEGIN\ VARIABLEBINDINGS\ .+ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.(\d+)\ 
+            =\ INTEGER:\ (up|down)
             /x ) {
-        $trapHashRef->{'trapType'}      = ( ( $1 == 3 ) ? "up" : "down" );
-        $trapHashRef->{'trapIfIndex'}   = $2;
+        $trapHashRef->{'trapIfIndex'}   = $1;
+        $trapHashRef->{'trapType'}      = $2;
 
-        if ( $1 == 2 ) { $this->forceDeauthOnLinkDown($2) };
+        if ( $trapHashRef->{'trapType'} eq "down" ) { 
+            $this->forceDeauthOnLinkDown( $trapHashRef->{'trapIfIndex'} ) 
+        };
     } 
     # secure MAC address violation traps
+    # Example:
+    # 2013-07-25|13:16:03|UDP: [10.100.6.31]:1024->[10.100.16.90]|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (331900) 0:55:19.00|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.4.1.6132.1.1.20.2.1|.1.3.6.1.2.1.2.2.1.1 = INTEGER: 1|.1.3.6.1.4.1.4526.10.20.1.2.1.7 = STRING: "100 b8:88:e3:dd:f9:45" END VARIABLEBINDINGS
     elsif ( $trapString =~ 
-            /BEGIN\ VARIABLEBINDINGS\ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.[0-9]+\ 
-            =\ INTEGER:\ ([0-9]+)\|\.1\.3\.6\.1\.4\.1\.4526\.1\.2\.16\.1\.
-            [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\ =\ $SNMP::MAC_ADDRESS_FORMAT
+            /BEGIN\ VARIABLEBINDINGS\ .+1\.3\.6\.1\.2\.1\.2\.2\.1\.1\ = \ INTEGER:\ (\d+)
+            .+ .1.3.6.1.4.1.4526.10.20.1.2.1.7\ =\ STRING:\ "(\d+)\ ([^"]+)" 
             /x ) {
         $trapHashRef->{'trapType'}      = 'secureMacAddrViolation';
         $trapHashRef->{'trapIfIndex'}   = $1;
-        $trapHashRef->{'trapMac'}       = parse_mac_from_trap($2);
-        $trapHashRef->{'trapVlan'}      = $this->getVlan( $trapHashRef->{'trapIfIndex'} );
+        $trapHashRef->{'trapVlan'}      = $2;
+        $trapHashRef->{'trapMac'}       = $3;
     }
     # unhandled traps
     else {
@@ -317,7 +354,6 @@ sub parseTrap {
 
 =item setAdminStatus
 
-Use the auto negotiation setting to force the port to shuts because the admin status doesn't do the trick.
 
 See bugs and limitations.
 
