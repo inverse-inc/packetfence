@@ -27,7 +27,6 @@ has '+launcher' => (default => sub { "%1\$s -d -p 11211 -u pf -m 64 -c 1024 -P $
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
