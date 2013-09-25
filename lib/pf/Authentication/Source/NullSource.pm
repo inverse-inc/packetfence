@@ -14,6 +14,7 @@ pf::Authentication::Source::NullSource
 use strict;
 use warnings;
 use Moose;
+use pf::config qw($TRUE);
 
 extends 'pf::Authentication::Source';
 
@@ -24,6 +25,15 @@ has 'email_required' => ( is=> 'rw', default => 0);
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     return $params->{'username'};
+}
+
+=head2 authenticate
+
+=cut
+
+sub authenticate {
+    my ($self, $username, $password) = @_;
+    return ($TRUE, 'Successful authentication using null source.');
 }
 
 =head1 AUTHOR
