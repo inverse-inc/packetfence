@@ -20,7 +20,6 @@ extends 'pf::services::manager::submanager';
 
 has pfdhcplistenerManagers => (is => 'rw', builder => 1 );
 
-
 has '+name' => (default => sub { 'pfdhcplistener'} );
 
 sub _build_pfdhcplistenerManagers {
@@ -41,11 +40,13 @@ sub managers {
     return @{$self->pfdhcplistenerManagers};
 }
 
+sub isManaged {
+    isenabled($Config{'network'}{'dhcpdetector'})
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
-
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
