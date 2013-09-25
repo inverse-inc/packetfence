@@ -815,6 +815,7 @@ fi
 %dir                    /usr/local/pf/html/captive-portal/t
                         /usr/local/pf/html/captive-portal/t/*
                         /usr/local/pf/html/captive-portal/content/WPA_Ent_Config.exe
+                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
 %dir                    /usr/local/pf/html/captive-portal/templates
 %config(noreplace)      /usr/local/pf/html/captive-portal/templates/*
 %dir                    /usr/local/pf/html/common
