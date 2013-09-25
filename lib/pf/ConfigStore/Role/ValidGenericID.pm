@@ -22,7 +22,6 @@ sub validId { $_[1] =~ /[a-zA-Z0-9_-]+/; }
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 
