@@ -257,9 +257,9 @@ sub generate_windowsconfig_provisioning_page {
     render_template($portalSession, 'release_with_execonfig.html');
 }
 
-=item supports_mobileconfig_provisioning
+=item supports_androidconfig_provisioning
 
-Validating that the node supports mobile configuration provisioning, that it's configured
+Validating that the node supports android configuration provisioning, that it's configured
 and that the node's category matches the configuration.
 
 =cut
@@ -288,7 +288,7 @@ sub supports_androidconfig_provisioning {
     return $FALSE;
 }
 
-=item generate_mobileconfig_provisioning_page
+=item generate_androidconfig_provisioning_page
 
 Offers a page that links to the proper provisioning XML.
 
@@ -900,7 +900,6 @@ sub end_portal_session {
         print $portalSession->cgi->redirect($portalSession->getGrantUrl);
         exit(0);
     }
-
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ($portalSession->cgi->https()) {
         print $portalSession->cgi->redirect(
