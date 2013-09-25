@@ -362,7 +362,7 @@ sub setAdminStatus {
     my ( $this, $ifIndex, $status ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my $OID_configPortAutoNegotiation = '1.3.6.1.4.1.4526.1.1.11.6.1.14';    # NETGEAR-MIB
+    my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';    # IF-MIB
 
     if ( !$this->isProductionMode() ) {
         $logger->info(
@@ -373,28 +373,25 @@ sub setAdminStatus {
     }
 
     if ( !$this->connectWrite() ) {
+        $logger->warn("Cannot connect to switch " . $this->{'_ip'}); 
         return 0;
     }
 
     $logger->trace( 
-            "SNMP set_request for OID_configPortAutoNegotiation: " . 
-            "( $OID_configPortAutoNegotiation.$ifIndex i $status )"
+            "SNMP set_request for OID_ifAdminStatus: " . 
+            "( $OID_ifAdminStatus i $status )"
     );
     my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
-            "$OID_configPortAutoNegotiation.$ifIndex", Net::SNMP::INTEGER, $status 
+            "$OID_ifAdminStatus", Net::SNMP::INTEGER, $status 
     ] );
     if ( !defined($result) ) {
         $logger->error(
-                "Error setting auto negotiation status on ifIndex $ifIndex: " .
+                "Error setting status on ifIndex $ifIndex: " .
                 $this->{_sessionWrite}->error 
         );
- 
         return 0;
     } else {
-        $logger->info(
-                "Setting auto negotiation status on ifIndex $ifIndex"
-        );
-
+        $logger->info( "Setting status on ifIndex $ifIndex");
         return $result;
     }
 }
@@ -407,7 +404,7 @@ sub _setVlan {
     my $logger = Log::Log4perl::get_logger( ref($this) );
     
     my $OID_vlanPortStatus = '1.3.6.1.4.1.4526.1.1.13.2.1.3';            # NETGEAR-MIB
-    my $OID_configPortDefaultVlanId = '1.3.6.1.4.1.4526.1.1.11.6.1.12';  # NETGEAR-MIB
+    my $OID_configPortDefaultVlanId = '1.3.6.1.2.1.17.7.1.4.5.1.1';  # Q-BRIDGE-MIB
 
     my $result;
 
@@ -420,6 +417,7 @@ sub _setVlan {
     }
 
     if ( !$this->connectWrite() ) {
+        $logger->warn("Cannot connect to switch " . $this->{'_ip'}); 
         return 0;
     }
 
@@ -431,7 +429,7 @@ sub _setVlan {
             "( $OID_configPortDefaultVlanId.$ifIndex i $newVlan )"
     );
     $result = $this->{_sessionWrite}->set_request( -varbindlist =>[ 
-            "$OID_configPortDefaultVlanId.$ifIndex", Net::SNMP::INTEGER, $newVlan
+            "$OID_configPortDefaultVlanId.$ifIndex", Net::SNMP::UNSIGNED32, $newVlan
     ] );
     if ( !defined($result) ) {
         $logger->error(
