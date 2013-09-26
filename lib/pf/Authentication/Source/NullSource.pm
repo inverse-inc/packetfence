@@ -23,7 +23,7 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'exclusive');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
-has 'email_required' => ( is=> 'rw', default => 0);
+has 'email_required' => ( is=> 'rw', default => 'disabled');
 
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
