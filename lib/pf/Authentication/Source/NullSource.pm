@@ -16,6 +16,7 @@ use warnings;
 use Moose;
 use pf::config qw($FALSE $TRUE);
 use Email::Valid;
+use pf::util;
 
 extends 'pf::Authentication::Source';
 
@@ -35,7 +36,7 @@ sub match_in_subclass {
 
 sub authenticate {
     my ($self, $username, $password) = @_;
-    if (!$self->email_required || Email::Valid->address($username) ) {
+    if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
         return ($TRUE, 'Successful authentication using null source.');
     }
     return ($FALSE, 'Successful authentication using null source.');
