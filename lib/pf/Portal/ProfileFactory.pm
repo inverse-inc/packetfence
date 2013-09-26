@@ -95,10 +95,14 @@ sub _custom_profile {
 sub _guest_modes_from_sources {
     my ($sources) = @_;
     $sources ||= [];
+    my %modeClasses = (
+        external  => undef,
+        exclusive => undef,
+    );
     my %is_in = map { $_ => undef } @$sources;
     my @guest_modes =
       map { lc($_->type) }
-        grep { exists $is_in{$_->id} && $_->class eq 'external' }
+        grep { exists $is_in{$_->id} && exists $modeClasses{$_->class} }
           @authentication_sources;
 
     return \@guest_modes;
