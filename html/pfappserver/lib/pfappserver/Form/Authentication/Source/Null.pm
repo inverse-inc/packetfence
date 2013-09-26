@@ -21,6 +21,8 @@ has_field 'email_required' =>
   (
    type => 'Toggle',
    widget => 'Switch',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
   );
 
 =head1 AUTHOR
