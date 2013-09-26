@@ -97,28 +97,8 @@ sub status {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my $cmd =  "$PFCMD service pf status 2>&1";
-    $logger->info("Requesting services status with: $cmd");
-
-    my @services_status = $self->_run_pfcmd_service("pf","status");
-    $logger->debug(
-        "Service status output: "
-        . ( (@services_status) ? join('', @services_status) : 'NONE' )
-    );
-
-    # TODO extract service\|shouldBeStarted\|pid into constant and use constant both here and when we report on CLI
-    if (!@services_status || $services_status[0] !~ /^service\|shouldBeStarted\|pid$/) {
-        return ( $STATUS::INTERNAL_SERVER_ERROR, join('', @services_status) );
-    }
-
-    my $services_ref = {};
-    shift @services_status; # throw out first line
-    foreach my $service_status (@services_status) {
-        chomp($service_status);
-        my ($service_name, $should_be_started, $pids) = split(/\|/, $service_status);
-        $services_ref->{$service_name} = ($pids) if ($should_be_started);
-    }
-    return ($STATUS::OK, { services => $services_ref}) if ( %$services_ref );
+    my %services_ref = map { $_->name => $_->status } grep { $_->isManaged }  map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES;
+    return ($STATUS::OK, { services => \%services_ref}) if ( keys %services_ref );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
@@ -129,15 +109,10 @@ sub status {
 
 sub service_status {
     my ($self,$service) = @_;
-    my @services = @pf::services::ALL_SERVICES;
-    my @services_which_should_be_started = pf::services::service_list(@services);
+    my $sm = pf::services::get_service_manager($service);
     my %status = (
-        pid => pf::services::service_ctl($service, 'status' ),
-        shouldBeStarted => (
-                (   grep( { $_ eq $service } @services_which_should_be_started )
-                        > 0
-                ) ? 1 : 0
-            )
+        pid => $sm->status,
+        shouldBeStarted => $sm->isManaged
     );
     return ($STATUS::OK,\%status);
 }
