@@ -103,7 +103,7 @@ sub authorizeMAC {
         }
     }
 
-    # Authorize MAC address at new location
+    # Authorize MAC address at new locatioe
     if ( $authMac ) {
         my $mac_oid = mac2oid($authMac);
 
@@ -166,31 +166,33 @@ sub getAllSecureMacAddresses {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     
-    my $OID_trustedMacAddress = '1.3.6.1.4.1.4526.1.1.15.1.1.2';
+    my $OID_agentPortSecurityTable = '1.3.6.1.4.1.4526.10.20.1.2';
+    my $OID_agentPortSecurityMode = '1.3.6.1.4.1.4526.10.20.1.2.1.1'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
+    my $OID_agentPortSecurityStaticMACs = '1.3.6.1.4.1.4526.10.20.1.2.1.6'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my $secureMacAddrHashRef = {};
     
     if ( !$this->connectRead() ) {
+        $logger->warn("Cannot connect to switch " . $this->{'_ip'}); 
         return $secureMacAddrHashRef;
     }
 
     $this->{_sessionRead}->translate(0);
-    $logger->trace("SNMP get_table for trustedMacAddress: $OID_trustedMacAddress");
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_trustedMacAddress" );
+    $logger->trace("SNMP get_table for agentPortSecurityTable: $OID_agentPortSecurityTable");
+    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_agentPortSecurityTable" );
     $this->{_sessionRead}->translate(1);
 
-    while ( my $oid_including_mac = each( %{$result} ) ) {
-        if ($oid_including_mac =~
-                /^$OID_trustedMacAddress\.                                   # query OID
-                ([0-9]+)\.                                                   # ifIndex
-                ([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)   # MAC in OID format
-                /x) {
-
-            my $ifIndex = $1;
-            my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $2, $3, $4, $5, $6, $7 );
-            my $vlan = $this->getVlan($ifIndex);
-
-            push @{$secureMacAddrHashRef->{$mac}->{$ifIndex}}, $vlan;
-        }        
+    my $ifIndex = 1;
+    # iterate over all ifIndexes
+    while ( exists $result->{"$OID_agentPortSecurityMode.$ifIndex"} ) {
+        # add the mac vlan pair to secureMacAddrHashRef only if PortSecurityMode is enabled
+        if ( $result->{"$OID_agentPortSecurityMode.$ifIndex"} == 1 ) { 
+            my @vlan_mac = split(/,/, $result->{"$OID_agentPortSecurityStaticMACs.$ifIndex"}); 
+            for my $vm_pair ( @vlan_mac ) {
+                my ($mac, $vlan) = split(' ', $vm_pair);
+                push @{$secureMacAddrHashRef->{$mac}}, $vlan;
+            }
+        }
+        $ifIndex++;
     }
 
     return $secureMacAddrHashRef;
@@ -203,32 +205,30 @@ sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     
-    my $OID_trustedMacAddress = '1.3.6.1.4.1.4526.1.1.15.1.1.2';
+    my $OID_agentPortSecurityStaticMACs = '1.3.6.1.4.1.4526.10.20.1.2.1.6'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
     my $secureMacAddrHashRef = {};
     
     if ( !$this->connectRead() ) {
+        $logger->warn("Cannot connect to switch " . $this->{'_ip'}); 
         return $secureMacAddrHashRef;
     }
 
-    $this->{_sessionRead}->translate(0);
-    $logger->trace("SNMP get_table for trustedMacAddress: $OID_trustedMacAddress");
-    my $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_trustedMacAddress.$ifIndex" );
-    $this->{_sessionRead}->translate(1);
-
-    while ( my $oid_including_mac = each( %{$result} ) ) {
-
-            if ($oid_including_mac =~
-                /^$OID_trustedMacAddress\.                                    # query OID
-                [0-9]+\.                                                      # ifIndex
-                ([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)    # MAC in OID format
-                /x) {
-
-                my $mac = sprintf( "%02x:%02x:%02x:%02x:%02x:%02x", $1, $2, $3, $4, $5, $6 );
-                my $vlan = $this->getVlan($ifIndex);
-
-                push @{$secureMacAddrHashRef->{$mac}}, $vlan;
-            }
+    $logger->trace("SNMP get for agentPortSecurityStaticMACs: $OID_agentPortSecurityStaticMACs.$ifIndex");
+    my $result = $this->{_sessionRead}->get_request( -varbindlist => [ "$OID_agentPortSecurityStaticMACs.$ifIndex" ] );
+    
+    if ( !defined($result) ) {
+        $logger->error( "Error getting OID_agentPortSecurityStaticMACs " .
+                $this->{_sessionRead}->error
+        );
+    } else {
+        # result will be a , separated list of 'vlan mac' pairs
+        my @vlan_mac = split(/,/, $result->{"$OID_agentPortSecurityStaticMACs.$ifIndex"}); 
+        for my $vm_pair ( @vlan_mac ) {
+            my ($mac, $vlan) = split(' ', $vm_pair);
+            push @{$secureMacAddrHashRef->{$mac}}, $vlan;
+        }
     }
+
     return $secureMacAddrHashRef;
 }
 
@@ -299,13 +299,13 @@ sub isPortSecurityEnabled {
         $logger->info( "Port Security mode on " . $this->{'_ip'} . "is " . $PortSecurityMode{$result});
     }
     
-    my $mode; 
+    my $enabled; 
     if ( $result->{"$OID_agentGlobalPortSecurityMode"} == 1 ) {
-        $mode = $TRUE; 
+        $enabled = $TRUE; 
     } else {
-        $mode = $FALSE; 
+        $enabled = $FALSE; 
     }
-    return $mode;
+    return $enabled;
 }
 =item parseTrap
 
@@ -403,11 +403,10 @@ sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     
-    my $OID_vlanPortStatus = '1.3.6.1.4.1.4526.1.1.13.2.1.3';            # NETGEAR-MIB
     my $OID_configPortDefaultVlanId = '1.3.6.1.2.1.17.7.1.4.5.1.1';  # Q-BRIDGE-MIB
 
     my $result;
-
+    
     if ( !$this->isProductionMode() ) {
         $logger->info(
                 "The switch isn't in production mode (Do nothing): " .
@@ -439,44 +438,6 @@ sub _setVlan {
     } else {
         $logger->info(
                 "Setting PVID $newVlan on ifIndex $ifIndex"
-        );
-    }
-
-    # Destroy the old port / vlan association
-    $logger->trace(
-            "SNMP set_request for OID_vlanPortStatus: " . 
-            "( $OID_vlanPortStatus.$ifIndex.$oldVlan i $SNMP::DESTROY )"
-    );
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-            "$OID_vlanPortStatus.$ifIndex.$oldVlan", Net::SNMP::INTEGER, $SNMP::DESTROY
-    ] );
-    if ( !defined($result) ) {
-        $logger->error(
-                "Error removing old vlan $oldVlan from ifIndex $ifIndex: " . 
-                $this->{_sessionWrite}->error
-        );
-    } else {
-        $logger->info(
-                "Removing old vlan $oldVlan from ifIndex $ifIndex"
-        );
-    }
-
-    # Create a new port / vlan association
-    $logger->trace(
-            "SNMP set_request for OID_vlanPortStatus: " .
-            "( $OID_vlanPortStatus.$ifIndex.$newVlan i $SNMP::CREATE_AND_GO )"
-    );
-    $result = $this->{_sessionWrite}->set_request( -varbindlist => [
-            "$OID_vlanPortStatus.$ifIndex.$newVlan", Net::SNMP::INTEGER, $SNMP::CREATE_AND_GO
-    ] );
-    if ( !defined($result) ) {
-        $logger->error( 
-                "Error setting new vlan $newVlan on ifIndex $ifIndex: " .
-                $this->{_sessionWrite}->error
-        );
-    } else {
-        $logger->info(
-                "Setting new vlan $newVlan on ifIndex $ifIndex"
         );
     }
 
