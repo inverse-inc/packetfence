@@ -119,20 +119,32 @@
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
-      <li class="dropdown-header">[% l('Internal') %]</li>
-      [% FOREACH type IN internal_types.sort -%]
-      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
-      [% END -%]
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Internal') %]</a>
+        <ul class="dropdown-menu" id="internal_types">
+          [% FOREACH type IN internal_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
       <li class="divider"></li>
-      <li class="dropdown-header">[% l('External') %]</li>
-      [% FOREACH type IN external_types.sort -%]
-      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
-      [% END -%]
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('External') %]</a>
+        <ul class="dropdown-menu" id="external_types">
+          [% FOREACH type IN external_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
       <li class="divider"></li>
-      <li class="dropdown-header">[% l('Exclusive') %]</li>
-      [% FOREACH type IN exclusive_types.sort -%]
-      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
-      [% END -%]
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Exclusive') %]</a>
+        <ul class="dropdown-menu" id="exclusive_types">
+          [% FOREACH type IN exclusive_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
     </ul>
   </div>
 </div>
