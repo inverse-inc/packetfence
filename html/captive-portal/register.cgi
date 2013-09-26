@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-register.cgi 
+register.cgi
 
 =head1 SYNOPSYS
 
@@ -31,6 +31,7 @@ use pf::web::custom; # called last to allow redefinitions
 
 use pf::authentication;
 use pf::Authentication::constants;
+use List::MoreUtils qw(any);
 
 Log::Log4perl->init("$conf_dir/log.conf");
 my $logger = Log::Log4perl->get_logger('register.cgi');
@@ -58,8 +59,11 @@ $info{'pid'} = $cgi->remote_user || "admin";
 # Pull browser user-agent string
 $info{'user_agent'} = $cgi->user_agent;
 
-if (defined($cgi->param('username')) && $cgi->param('username') ne '') {
-  
+my $no_password_needed = any {$_ eq 'null' } @{$portalSession->getProfile->getGuestModes};
+my $no_username_needed = pf::web::_no_username($portalSession);
+
+if ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('username') ne '' || $no_password_needed )) {
+
   my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
     $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
@@ -176,20 +180,20 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
