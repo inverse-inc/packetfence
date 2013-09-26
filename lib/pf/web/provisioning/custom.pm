@@ -13,7 +13,16 @@ to a particular setup.
 
 use strict;
 use warnings;
+use Apache2::Request;
 use Log::Log4perl;
+use pf::config;
+use pf::node;
+use pf::web;
+use pf::web::util;
+use Apache2::Const;
+use pf::Portal::Session;
+use pf::util;
+
 
 use base ('pf::web::provisioning');
 
