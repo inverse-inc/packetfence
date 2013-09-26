@@ -306,28 +306,17 @@ Generate the proper .mobileconfig XML to automatically configure Wireless for iO
 
 sub generate_apple_mobileconfig_provisioning_xml {
     my ( $portalSession ) = @_;
-
-    # if not logged in, disallow access
-    if (!defined($portalSession->session->param('username'))) {
-        pf::web::generate_error_page(
-            $portalSession,
-            i18n("You need to be authenticated to access this page.")
-        );
-        exit(0);
-    }
+    my $logger = Log::Log4perl::get_logger('pf::web');
+    my $response;
 
     $portalSession->stash->{'username'} = $portalSession->session->param('username');
     $portalSession->stash->{'ssid'} = $Config{'provisioning'}{'ssid'};
 
-    # Some required headers
-    # http://www.rootmanager.com/iphone-ota-configuration/iphone-ota-setup-with-signed-mobileconfig.html
-    my @headers = (
-        'Content-type: application/x-apple-aspen-config; chatset=utf-8',
-        'Content-Disposition: attachment; filename="wireless-profile.mobileconfig"',
-    );
-    $portalSession->stash->{'headers'} = @headers;
-
-    render_template($portalSession, 'wireless-profile.xml');
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    $template->process( "wireless-profile.xml", $portalSession->stash, \$response ) || $logger->error($template->error());
+    return $response;
 }
 
 =item generate_windows_provisioning_xml
