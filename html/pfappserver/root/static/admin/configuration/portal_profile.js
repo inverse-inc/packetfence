@@ -238,7 +238,7 @@ function initReadPage(element) {
         var rows = tbody.children(':not(.hidden)');
         var row = rows.first();
         var options = row.find("select option");
-        if (row.find('select').val() == 'null' ) {
+        if (options.filter(':selected').attr('data-source-class') == 'exclusive') {
             row.find('[href="#add"]').addClass('hidden');
         } else if( rows.length < options.length ) {
             rows.find('[href="#add"]').removeClass('hidden');
@@ -252,7 +252,7 @@ function initReadPage(element) {
     $('#sources').on('change','select', function(event) {
         var that = $(this);
         var tr = that.closest('tr');
-        if(that.find(':selected').attr('data-source-type') == 'Null') {
+        if(that.find(':selected').attr('data-source-class') == 'exclusive') {
             tr.siblings(':not(.hidden)').find('[href="#delete"]').click();
             tr.find('[href="#add"]').addClass('hidden');
         } else {
