@@ -3,46 +3,30 @@ package pf::web::provisioning;
 
 =head1 NAME
 
-pf::web::winprofil - handle the windows client request
+pf::web::provisioning - handle the provisioning client request
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::web::winprofil return wifi profil, soh profil and certificate to the windows client. 
+pf::web::provisioning  return secure wifi profile for windows, apple and android device. 
 
 =cut
 
 use strict;
 use warnings;
 
-use Apache2::RequestIO;
-use Apache2::RequestRec ();
+use Apache2::Const;
 use Apache2::Request;
-use Apache2::Access;
-use Apache2::Connection;
 use Log::Log4perl;
+use Template;
+
 use pf::config;
-use pf::iplog qw(ip2mac);
 use pf::node;
 use pf::web;
 use pf::web::util;
-use Apache2::Const;
 use pf::Portal::Session;
-use Template;
 use pf::util;
-
-BEGIN {
-    use Exporter ();
-    our ( @ISA, @EXPORT );
-    @ISA = qw(Exporter);
-    @EXPORT = qw(
-        apple_provisioning
-        windows_provisioning
-        android_provisioning
-    );
-}
-
 
 =head1 SUBROUTINES
 
@@ -68,23 +52,17 @@ for the soh profil and the certificate.
 =cut
 
 sub windows_provisioning {
-    my ($r) = @_;
+    my ($this, $r) = @_;
     my $req = Apache2::Request->new($r);
     Log::Log4perl->init("$conf_dir/log.conf");
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     my $portalSession = pf::Portal::Session->new();
     
-    my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
 
     
     my $response;
-    my $type;
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });    
-
-    my $return;
     my $mac;
+    my $type;
 
     if (defined($portalSession->getGuestNodeMac)) {
         $mac = $portalSession->getGuestNodeMac;
@@ -128,7 +106,7 @@ This handler generate the xml provisioning profil for apple stuff.
 =cut
 
 sub apple_provisioning {
-    my ($r) = @_;
+    my ($this, $r) = @_;
     my $req = Apache::SSLLookup->new($r);
     Log::Log4perl->init("$conf_dir/log.conf");
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -141,9 +119,6 @@ sub apple_provisioning {
     }
 
     my $response;
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
 
     $response = pf::web::generate_apple_mobileconfig_provisioning_xml($portalSession);
     $req->content_type('application/x-apple-aspen-config; charset=utf-8');
@@ -159,7 +134,7 @@ This handler generate the xml provisioning profil for android stuff.
 =cut
 
 sub android_provisioning {
-    my ($r) = @_;
+    my ($this, $r) = @_;
     my $req = Apache2::Request->new($r);
     Log::Log4perl->init("$conf_dir/log.conf");
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -172,9 +147,6 @@ sub android_provisioning {
     }
 
     my $response;
-    my $template = Template->new({
-        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-    });
 
     $response = pf::web::generate_apple_mobileconfig_provisioning_xml($portalSession);
     $req->content_type('application/x-apple-aspen-config; charset=utf-8');
