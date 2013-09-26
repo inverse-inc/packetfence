@@ -175,6 +175,17 @@ sub getExternalSources {
     return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
 }
 
+=item getExclusiveSources
+
+Returns the exclusive authentication sources objects for the current captive portal profile.
+
+=cut
+
+sub getExclusiveSources {
+    my ($self) = @_;
+    return grep { $_->{'class'} eq 'exclusive' } $self->getSourcesAsObjects();
+}
+
 =item getSourceByType
 
 Returns the first source object for the requested source type for the current captive portal profile.
