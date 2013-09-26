@@ -65,7 +65,8 @@ sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
 
-    my $OID_trustedMacStatus = '1.3.6.1.4.1.4526.1.1.15.1.1.3';    # NETGEAR-MIB
+    my $OID_agentPortSecurityMACAddressRemove = '1.3.6.1.4.1.4526.10.20.1.2.1.9';  # NETGEAR-PORTSECURITY-PRIVATE-MIB
+    my $OID_agentPortSecurityMACAddressAdd ='1.3.6.1.4.1.4526.10.20.1.2.1.8'; # NETGEAR-PORTSECURITY-PRIVATE-MIB
 
     if ( !$this->isProductionMode() ) {
         $logger->info(
@@ -77,51 +78,50 @@ sub authorizeMAC {
     }
 
     if ( !$this->connectWrite() ) {
+        $logger->warn("Cannot connect to switch " . $this->{'_ip'}); 
         return 0;
     }
 
     # Deauthorize MAC address from old location
     if ( $deauthMac ) {
-        my $mac_oid = mac2oid($deauthMac);
 
         $logger->trace(
-                "SNMP set_request for OID_trustedMacStatus: " . 
-                "( $OID_trustedMacStatus.$ifIndex.$mac_oid $SNMP::DESTROY )"
+                "SNMP set_request for agentPortSecurityMACAddressRemove: " . 
+                "( $OID_agentPortSecurityMACAddressRemove.$ifIndex)"
         );
         my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
-                "$OID_trustedMacStatus.$ifIndex.$mac_oid", Net::SNMP::INTEGER, $SNMP::DESTROY 
+                "$OID_agentPortSecurityMACAddressRemove.$ifIndex", Net::SNMP::OCTET_STRING, "$deauthVlan $deauthMac"
         ] );
         if ( !defined($result) ) {
             $logger->error(
-                    "Error deauthorizing $deauthMac ( $mac_oid ) on ifIndex $ifIndex: " .
+                    "Error deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex: " .
                     $this->{_sessionWrite}->error 
             );
         } else {
             $logger->info(
-                    "Deauthorizing $deauthMac ($mac_oid) on ifIndex $ifIndex"
+                    "Deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex"
             );
         }
     }
 
-    # Authorize MAC address at new locatioe
+    # Authorize MAC address at new location
     if ( $authMac ) {
-        my $mac_oid = mac2oid($authMac);
 
         $logger->trace(
-                "SNMP set_request for OID_trustedMacStatus: " . 
-                "( $OID_trustedMacStatus.$ifIndex.$mac_oid $SNMP::CREATE_AND_GO )"
+                "SNMP set_request for agent: " . 
+                "( $OID_agentPortSecurityMACAddressAdd.$ifIndex )"
         );
         my $result = $this->{_sessionWrite}->set_request( -varbindlist => [ 
-                "$OID_trustedMacStatus.$ifIndex.$mac_oid", Net::SNMP::INTEGER, $SNMP::CREATE_AND_GO 
+                "$OID_agentPortSecurityMACAddressAdd.$ifIndex", Net::SNMP::OCTET_STRING, "$authVlan $authMac"
         ] );
         if ( !defined($result) ) {        
             $logger->error(
-                    "Error authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex: " .
+                    "Error authorizing $authVlan $authMac on ifIndex $ifIndex: " .
                     $this->{_sessionWrite}->error 
             );
         } else {
             $logger->info(
-                    "Authorizing $authMac ( $mac_oid ) on ifIndex $ifIndex"
+                    "Authorizing $authVlan $authMac on ifIndex $ifIndex"
             );
         }
     }
