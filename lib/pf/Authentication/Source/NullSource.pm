@@ -14,10 +14,12 @@ pf::Authentication::Source::NullSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($TRUE);
+use pf::config qw($FALSE $TRUE);
+use Email::Valid;
 
 extends 'pf::Authentication::Source';
 
+has '+class' => (default => 'exclusive');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => ( is=> 'rw', default => 0);
@@ -33,7 +35,10 @@ sub match_in_subclass {
 
 sub authenticate {
     my ($self, $username, $password) = @_;
-    return ($TRUE, 'Successful authentication using null source.');
+    if (!$self->email_required || Email::Valid->address($username) ) {
+        return ($TRUE, 'Successful authentication using null source.');
+    }
+    return ($FALSE, 'Successful authentication using null source.');
 }
 
 =head1 AUTHOR
