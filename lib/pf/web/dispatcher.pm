@@ -245,7 +245,7 @@ sub redirect {
 
    my $proto;
    # Google chrome hack redirect in http
-   if ($r->uri =~ /\/generate_204/) {
+    if ($r->uri =~ /\/generate_204/ || $r->uri =~ /\/library\/test\/success.html/ || $r->hostname =~ /www.apple.com/) {
        $proto = $HTTP;
    } else {
        $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
