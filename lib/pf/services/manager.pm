@@ -11,7 +11,6 @@ pf::services::manager
 
 This module encapsulates the service actions/commands for pfcmd tool
 
-
 =cut
 
 use strict;
@@ -24,6 +23,8 @@ use File::Slurp qw(read_file);
 use Proc::ProcessTable;
 use List::Util qw(first);
 use Linux::Inotify2;
+use Errno qw(EINTR EAGAIN);
+use Time::HiRes qw (alarm sleep);
 
 =head1 Attributes
 
@@ -61,11 +62,37 @@ executable of service
 
 has executable => (is => 'rw', builder => 1, lazy => 1 );
 
+=head2 lastPid
+
+The last pid retrived from the pidFile
+
+=cut
+
+has lastPid => (is => 'rw');
+
+=head2 inotify
+
+The inotify object used to watch for pidfile
+
+=cut
+
+has inotify => (is => 'rw', builder => 1, lazy => 1 );
+
 =head1 Methods
+
+=head2 _build_inotify
+
+builds the inotify object
+
+=cut
+
+sub _build_inotify {
+    return Linux::Inotify2->new;
+}
 
 =head2 start
 
-    start the service
+start the service
 
 =cut
 
@@ -84,7 +111,7 @@ sub start {
 
 =head2 preStartSetup
 
-    setup work for starting a servicw
+work for starting a servicw
 
 =cut
 
@@ -97,7 +124,7 @@ sub preStartSetup {
 
 =head2 startService
 
-    Starts the service
+Starts the service
 
 =cut
 
@@ -108,7 +135,7 @@ sub startService {
 
 =head2 postStartCleanup
 
-    Cleanup work after the starting the service
+Cleanup work after the starting the service
 
 =cut
 
@@ -118,7 +145,7 @@ sub postStartCleanup {
     my $pidFile = $self->pidFile;
     my $result = 0;
     unless (-e $pidFile) {
-        my $inotify = Linux::Inotify2->new;
+        my $inotify = $self->inotify;
         $inotify->watch ($run_dir, IN_CREATE, sub {
             my $e = shift;
             my $name = $e->fullname;
@@ -189,7 +216,8 @@ Returns the pid of the service
 
 sub pid {
     my ($self) = @_;
-    return $self->pidFromFile;
+    $self->lastPid($self->pidFromFile);
+    return $self->lastPid;
 }
 
 =head2 stop
@@ -201,23 +229,71 @@ Stop the service waitinf for it to shutdown
 sub stop {
     my ($self,$quick) = @_;
     my $pid = $self->pid;
-    my $name = $self->name;
-    my $logger = get_logger;
     if ($pid) {
-        $logger->info("Sending TERM signal to $name with pid $pid");
-        my $count = kill 'TERM',$pid;
-        unless ($count) {
-            $logger->logcroak("Can't a TERM signal to $name with pid $pid ");
-            return;
-        }
-        my $pid_file = $self->pidFile;
-        if ( $self->waitToShutdown($pid) && -e $pid_file) {
-            $logger->info("Removing $pid_file");
-            unlink($pid_file);
-        }
-        return !-e $pid_file;
+        $self->preStopSetup();
+        $self->stopService();
+        $self->postStopCleanup();
+        return 1;
     }
     return;
+}
+
+
+=head2 preStopSetup
+
+the pre stop setup
+
+=cut
+
+sub preStopSetup {
+    my ($self) = @_;
+    $self->inotify->watch($self->pidFile, IN_DELETE_SELF);
+}
+
+sub postStopCleanup {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $name = $self->name;
+    my $pid = $self->lastPid;
+    my $inotify = $self->inotify;
+    my $pidFile = $self->pidFile;
+    my $timedout;
+    #give the kill a little time
+    sleep(0.1);
+    $inotify->blocking(0);
+    $self->removeStalePid;
+    eval {
+        local $SIG{ALRM} = sub { die "alarm clock restart" };
+        alarm 60;
+        eval {
+            until($inotify->read) {
+                die $! if defined $! && $! != EINTR && $! != EAGAIN;
+                $self->removeStalePid;
+                #give it some time
+                select(undef, undef, undef, 0.1);
+            }
+        };
+        alarm 0;
+        $timedout = 1 if $@ && $@ =~ /^alarm clock restart/;
+        $logger->error("Error: $@") if $@;
+    };
+    alarm 0;
+    $logger->info("Timed out waiting for process $name to stop") if $timedout;
+    $self->removeStalePid;
+    my $still_alive = kill 0 , $pid;
+    if ( $still_alive ) {
+        my $count = kill 'KILL',$pid;
+        $self->removeStalePid;
+    }
+}
+
+sub stopService {
+    my ($self) = @_;
+    my $name = $self->name;
+    my $logger = get_logger();
+    my $pid = $self->lastPid;
+    $logger->info("Sending TERM signal to $name with pid $pid");
+    my $count = kill 'TERM',$pid;
 }
 
 =head2 watch
@@ -325,32 +401,6 @@ sub removeStalePid {
             unlink $pid_file;
         }
     }
-}
-
-=head2 waitToShutdown
-
-Waits for the pid of the service to shutdown
-
-=cut
-
-sub waitToShutdown {
-    my ($self, $pid) = @_;
-    my $name = $self->name;
-    my $logger = Log::Log4perl::get_logger('pf::services');
-    my $maxWait = 10;
-    my $curWait = 0;
-    my $ppt;
-    my $proc = 0;
-    while ( ( ( $curWait < $maxWait )
-        && ( $self->status ne "0" ) ) && defined($proc) )
-    {
-        $ppt = new Proc::ProcessTable;
-        $proc = first { defined $_ && $_->pid == $pid } @{ $ppt->table };
-        $logger->info("Waiting for $name to stop ");
-        sleep(2);
-        $curWait++;
-    }
-    return !defined $proc;
 }
 
 =head2 isManaged
