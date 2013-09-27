@@ -28,6 +28,7 @@ Enhancements
 * Search by MAC address for nodes and users now accepts any MAC format
 * Improved starting delay when using inline mode
 * Added memcached as a managed service
+* Added CoA support for Xirrus access point
 
 Bug Fixes
 +++++++++
