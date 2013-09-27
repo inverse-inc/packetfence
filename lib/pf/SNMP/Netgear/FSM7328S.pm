@@ -61,6 +61,13 @@ Returns 1 on success 0 on failure.
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
+    
+    # we need to make sure the deauthVlan is the one currently associated with the deauthMac
+    # otherwise the call to agentPortSecurityMACAddressRemove will fail.
+    $deauthVlan = getSecureMacAddresses($ifIndex)->{$deauthMac}->[0];
+    $logger->debug("Args to authorizeMAC: $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan");
+
+    
 
     my $OID_agentPortSecurityMACAddressRemove
         = '1.3.6.1.4.1.4526.10.20.1.2.1.9';    # NETGEAR-PORTSECURITY-PRIVATE-MIB
@@ -303,7 +310,7 @@ sub parseTrap {
 # 2013-07-25|13:01:28|UDP: [10.100.6.31]:1024->[10.100.16.90]|0.0.0.0|BEGIN TYPE 0 END TYPE BEGIN SUBTYPE 0 END SUBTYPE BEGIN VARIABLEBINDINGS .1.3.6.1.2.1.1.3.0 = Timeticks: (244400) 0:40:44.00|.1.3.6.1.6.3.1.1.4.1.0 = OID: .1.3.6.1.6.3.1.1.5.4|.1.3.6.1.2.1.2.2.1.1.1 = INTEGER: 1|.1.3.6.1.2.1.2.2.1.7.1 = INTEGER: up(1)|.1.3.6.1.2.1.2.2.1.8.1 = INTEGER: up(1) END VARIABLEBINDINGS
     if ($trapString =~ 
             /BEGIN\ TYPE\ \d+\ END\ TYPE\ BEGIN\ SUBTYPE\ 0\ END\ SUBTYPE\ 
-             BEGIN\ VARIABLEBINDINGS\ .+ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.7\.(\d+)\ 
+             BEGIN\ VARIABLEBINDINGS\ .+ \.1\.3\.6\.1\.2\.1\.2\.2\.1\.8\.(\d+)\ 
              =\ INTEGER:\ (up|down)
             /x
         )
