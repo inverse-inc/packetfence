@@ -18,6 +18,7 @@ New Features
 ++++++++++++
 
 * Profiles can be filter by switches 
+* Proxy interception
 
 Enhancements
 ++++++++++++

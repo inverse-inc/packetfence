@@ -1140,12 +1140,23 @@ There are two solutions for passthroughs - one using DNS resolution and iptables
 When enabled, PacketFence will use pfdns if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach web sites.
 
 *DNS passthrough:
-Add a new FQDN (should be a wildcard domain like *.google.com) in the *Passthroughs* section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
+Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
 
 *mod_proxy passthrough:
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
 
 These two methods can be used together but DNS-based passthroughs have higher priority.
+
+Proxy Interception
+~~~~~~~~~~~~~~~~~~
+
+In PacketFence you are now able to intercept proxy request and forward them to the captive portal. It only work in layer 2 network because packetfence must be the default gateway of your device.
+In order to use the Proxy Interception feature, you need to enable it from the GUI in
+*Configuration -> Trapping* and check *Proxy Interception*.
+
+Add the port you want to intercept, like 8080 3128 and add a new entry in the /etc/hosts file to resolv the fqdn of the captive portal to 127.0.0.1.
+The modification of the hosts file is really important because apache try to resolv the fqdn of the captive portal and it must be 127.0.0.1.
+
 
 Configuration by example
 ------------------------
