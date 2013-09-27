@@ -8,35 +8,28 @@ pf::SNMP::Netgear::FSM7328S - Object oriented module to access and configure ena
 
 =over
 
-#=item Port-security
-#
-#- Developped and tested on a FSM7328S using firmware (Software version) 7.3.1.7 
-#
-#- VoIP configuration not tested
-#
-#=item Link up/down
-#
-#- Can't work in this mode since up/down traps are parts of the port-security process
-#
-#=back
-#
-#=head1 BUGS AND LIMITATIONS
-#
-#=over
-#
-#=item forceDeauthOnLinkDown
-#
-#The MAC address needs to be unauthorized from the port otherwise this MAC will stay authorized on the VLAN and no
-#more traps will show up.
-#
-#=item setAdminStatus
-#
-#A port shutdown on this switch doesn't physically shuts the port. The port just stop forwarding packet without really
-#shutting down. A workaround to this is to change the auto negotiation status that will create a shutdown behavior
-#on the client device.
-#
-#=back
+=item Port-security
 
+- Developped and tested on a FSM7328S using firmware (Software version) 7.3.1.7 
+
+- VoIP configuration not tested
+
+=item Link up/down
+
+- Can't work in this mode since up/down traps are parts of the port-security process
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+=over
+
+=item forceDeauthOnLinkDown
+
+The MAC address needs to be unauthorized from the port otherwise this MAC will stay authorized on the VLAN and no
+more traps will show up.
+
+=back 
 =cut
 
 use strict;
@@ -59,6 +52,9 @@ sub description {'Netgear FSM7328S'}
 =over
 
 =item authorizeMAC
+
+Add a new MAC to the list of secure MACs for the ifIndex and remove the existing MAC from the list of secured ones.
+Returns 1 on success 0 on failure.
 
 =cut
 
@@ -97,6 +93,7 @@ sub authorizeMAC {
         if ( !defined($result) ) {
             $logger->error( "Error deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex: "
                     . $this->{_sessionWrite}->error );
+                return 0;
         }
         else {
             $logger->info("Deauthorizing $deauthVlan $deauthMac on ifIndex $ifIndex");
@@ -116,6 +113,7 @@ sub authorizeMAC {
         if ( !defined($result) ) {
             $logger->error( "Error authorizing $authVlan $authMac on ifIndex $ifIndex: "
                     . $this->{_sessionWrite}->error );
+            return 0;
         }
         else {
             $logger->info("Authorizing $authVlan $authMac on ifIndex $ifIndex");
@@ -128,6 +126,7 @@ sub authorizeMAC {
 =item forceDeauthOnLinkDown
 
 Force a MAC address deauthorization from the port sending the linkdown trap.
+Always returns 1.
 
 See bugs and limitations.
 
@@ -160,6 +159,12 @@ sub forceDeauthOnLinkDown {
 }
 
 =item getAllSecureMacAddresses
+Fetch all secure MAC addresses from the agentPortSecurityTable.
+Returns only those addresses for interfaces where PortSecurityMode is enabled.
+
+Returns a hashref where the key is an authorized MAC and the value is an arrayref of vlan ids.
+From a practical point of view, we expect to only ever have one element in the list.
+This is to maintain backwards compatibility with existing implementations of this method.
 
 =cut
 
@@ -203,6 +208,12 @@ sub getAllSecureMacAddresses {
 
 =item getSecureMacAddresses
 
+Fetch all secure MAC addresses from the agentPortSecurityStaticMACs for the ifIndex.
+
+Returns a hashref where the key is an authorized MAC and the value is an arrayref of vlan ids.
+From a practical point of view, we expect to only ever have one element in the list.
+This is to maintain backwards compatibility with existing implementations of this method.
+
 =cut
 
 sub getSecureMacAddresses {
@@ -236,34 +247,6 @@ sub getSecureMacAddresses {
     return $secureMacAddrHashRef;
 }
 
-=item getVlan
-
-=cut
-
-sub getVlan {
-    my ( $this, $ifIndex ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    my $OID_configPortDefaultVlanId = '1.3.6.1.2.1.17.7.1.4.5.1.1';    # Q-BRIDGE-MIB
-
-    if ( !$this->connectRead() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
-        return 0;
-    }
-
-    $logger->trace(
-        "SNMP get_request for OID_configPortDefaultVlanId: " . "( $OID_configPortDefaultVlanId.$ifIndex )" );
-    my $result
-        = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_configPortDefaultVlanId.$ifIndex"] );
-    if ( !defined($result) ) {
-        $logger->error( "Error getting PVID on ifIndex $ifIndex: " . $this->{_sessionRead}->error );
-    }
-    else {
-        $logger->info("Getting PVID on ifIndex $ifIndex");
-    }
-
-    return $result->{"$OID_configPortDefaultVlanId.$ifIndex"};
-}
 
 =item isPortSecurityEnabled
 
@@ -356,45 +339,6 @@ sub parseTrap {
     }
 
     return $trapHashRef;
-}
-
-=item setAdminStatus
-
-
-See bugs and limitations.
-
-=cut
-
-sub setAdminStatus {
-    my ( $this, $ifIndex, $status ) = @_;
-    my $logger = Log::Log4perl::get_logger( ref($this) );
-
-    my $OID_ifAdminStatus = '1.3.6.1.2.1.2.2.1.7';    # IF-MIB
-
-    if ( !$this->isProductionMode() ) {
-        $logger->info( "The switch isn't in production mode (Do nothing): "
-                . "Should trigger auto negotiation status to shut the ifIndex $ifIndex" );
-        return 1;
-    }
-
-    if ( !$this->connectWrite() ) {
-        $logger->warn( "Cannot connect to switch " . $this->{'_ip'} );
-        return 0;
-    }
-
-    $logger->trace( "SNMP set_request for OID_ifAdminStatus: " . "( $OID_ifAdminStatus i $status )" );
-
-    my $result = $this->{_sessionWrite}
-        ->set_request( -varbindlist => [ "$OID_ifAdminStatus.$ifIndex", Net::SNMP::INTEGER, $status ] );
-
-    if ( !defined($result) ) {
-        $logger->error( "Error setting status on ifIndex $ifIndex: " . $this->{_sessionWrite}->error );
-        return 0;
-    }
-    else {
-        $logger->info("Setting status on ifIndex $ifIndex");
-        return $result->{ $OID_ifAdminStatus . $ifIndex };
-    }
 }
 
 =item _setVlan
