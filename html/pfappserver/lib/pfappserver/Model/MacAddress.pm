@@ -93,10 +93,8 @@ sub search {
 
         if ( exists $params{orderby} )
         {
-
             my ( $field, $order ) =
                 $params{orderby} =~ /ORDER BY\s+(.*)\s+(.*)/;
-            $logger->info("$field, $order");
             if ( $order eq 'desc' ) {
                 $sorter = sub {$b->{$field} cmp $a->{$field} };
             }

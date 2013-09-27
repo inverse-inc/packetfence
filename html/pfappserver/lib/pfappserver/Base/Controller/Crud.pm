@@ -21,8 +21,8 @@ use namespace::autoclean;
 
 =cut
 
-sub create : Local: Args(0) {
-    my ($self,$c) = @_;
+sub create :Local :Args(0) {
+    my ($self, $c) = @_;
     if ($c->request->method eq 'POST') {
         $self->_processCreatePost($c);
         # check if exists

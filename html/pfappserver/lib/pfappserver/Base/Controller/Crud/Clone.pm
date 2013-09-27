@@ -27,7 +27,8 @@ sub clone :Chained('object') :PathPart('clone') :Args(0) {
     my ( $self, $c, $to ) = @_;
     if ($c->request->method eq 'POST') {
         $self->_processCreatePost($c);
-    } else {
+    }
+    else {
         my $model = $self->getModel($c);
         my $itemKey = $model->itemKey;
         my $idKey = $model->idKey;
@@ -35,9 +36,7 @@ sub clone :Chained('object') :PathPart('clone') :Args(0) {
         delete $item->{$idKey};
         my $form = $self->getForm($c);
         $form->process(init_object => $item);
-        $c->stash(
-            form     => $form,
-        );
+        $c->stash(form => $form);
     }
 }
 

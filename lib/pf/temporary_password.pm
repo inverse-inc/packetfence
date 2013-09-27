@@ -372,7 +372,7 @@ sub modify_actions {
         @{$temporary_password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
-    $logger->info("temporarypassword $pid modified") if $rows ;
+    $logger->info("pid $pid modified") if $rows ;
     return ($rows);
 }
 
