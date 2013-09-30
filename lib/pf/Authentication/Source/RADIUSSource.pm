@@ -24,15 +24,16 @@ has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes; 
+  my $super_attributes = $self->SUPER::available_attributes;
   my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
 
   return [@$super_attributes, @$own_attributes];
 }
 
-=item  authenticate
+=head2  authenticate
 
 =cut
+
 sub authenticate {
 
   my ( $self, $username, $password ) = @_;
@@ -40,7 +41,7 @@ sub authenticate {
   my $logger = Log::Log4perl->get_logger('pf::authentication');
 
   my $radius = new Authen::Radius(
-    Host => "$self->{'host'}:$self->{'port'}", 
+    Host => "$self->{'host'}:$self->{'port'}",
     Secret => $self->{'secret'},
   );
 
@@ -67,8 +68,6 @@ sub match_in_subclass {
 
     return $params->{'username'};
 }
-
-=back
 
 =head1 AUTHOR
 

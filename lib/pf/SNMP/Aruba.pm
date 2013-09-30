@@ -87,6 +87,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 =item getVersion - obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -134,6 +135,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -156,6 +158,7 @@ De-authenticate a MAC address from wireless network (including 802.1x)
 Here, we find out what submodule to call _dot1xDeauthenticateMAC or _deauthenticateMAC and call accordingly.
 
 =cut
+
 sub _deauthenticateMacWithTelnet {
     my ( $this, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -236,6 +239,7 @@ De-authenticate a MAC from controller when user is in 802.1x mode using Telnet.
 * Private: don't call outside of same object, use _deauthenticateMacWithTelnet externally *
 
 =cut
+
 sub _dot1xDeauthenticateMAC {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -273,6 +277,7 @@ and without an IP in the table.
 * Private: don't call outside of same object, use _deauthenticateMacWithTelnet externally *
 
 =cut
+
 sub _deauthenticateMAC {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -363,6 +368,7 @@ Find RADIUS SSID parameter out of RADIUS REQUEST parameters
 Aruba specific parser. See pf::SNMP for base implementation.
 
 =cut
+
 sub extractSsid {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -384,6 +390,7 @@ sub extractSsid {
 What RADIUS Attribute (usually VSA) should the role returned into.
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
 

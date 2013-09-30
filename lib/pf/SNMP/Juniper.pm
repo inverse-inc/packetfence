@@ -28,6 +28,7 @@ Users behind VoIP phones are not supported yet.
 =back
 
 =cut
+
 use strict;
 use warnings;
 
@@ -63,6 +64,7 @@ NAS-Port's number is the ifIndex index.
 Ex: NAS-Port 115 is the 115th ifIndex entry  which is ifIndex 598.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -112,6 +114,7 @@ Right now the only way to do it is from the CLi (through Telnet or SSH).
 Warning: This is really slow! About 6 second for the link change.
 
 =cut
+
 sub setAdminStatus {
     my ($this, $ifIndex, $enable) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -178,6 +181,7 @@ sub setAdminStatus {
 Called when a ReAssignVlan trap is received for a switch-port in Wired MAC Authentication.
 
 =cut
+
 sub handleReAssignVlanTrapForWiredMacAuth {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

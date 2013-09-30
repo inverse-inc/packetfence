@@ -72,6 +72,7 @@ Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 TODO: Use Egress-VLANID instead. See: http://wiki.freeradius.org/HP#RFC+4675+%28multiple+tagged%2Funtagged+VLAN%29+Assignment
 
 =cut
+
 sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -84,6 +85,7 @@ sub getVoipVsa {
 Is VoIP enabled for this device
 
 =cut
+
 sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );

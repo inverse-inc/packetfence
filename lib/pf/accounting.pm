@@ -80,6 +80,7 @@ Readonly our $DIRECTION_OUT => 'OUT';
 Initialize database prepared statements
 
 =cut
+
 sub accounting_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::accounting');
     $logger->debug("Preparing pf::accounting database queries");
@@ -441,6 +442,7 @@ sub acct_maintenance {
 Returns the current sessionid for a given mac address
 
 =cut
+
 sub node_accounting_current_sessionid {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_current_sessionid_sql', $mac) || return (0);
@@ -454,6 +456,7 @@ sub node_accounting_current_sessionid {
 Returns the RADIUS Dynamic Authorization attributes (User-name, Acct-Session-Id)
 
 =cut
+
 sub node_accounting_dynauth_attr {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_dynauth_attr_sql', $mac) || return (0);
@@ -467,6 +470,7 @@ sub node_accounting_dynauth_attr {
 Returns true if an accounting entry exists undef or 0 otherwise.
 
 =cut
+
 sub node_accounting_exist {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_exist_sql', $mac) || return (0);
@@ -478,6 +482,7 @@ sub node_accounting_exist {
 =item node_accounting_view - view latest accounting entry for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_view {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_view_sql', $mac);
@@ -489,6 +494,7 @@ sub node_accounting_view {
 =item node_accounting_view_all - view all accounting entries, returns an hashref
 
 =cut
+
 sub node_accounting_view_all {
     return _translate_bw(db_data(ACCOUNTING, $accounting_statements, 'acct_view_all_sql'));
 }
@@ -496,6 +502,7 @@ sub node_accounting_view_all {
 =item node_accounting_daily_bw - view bandwidth tranferred today for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_daily_bw {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_daily_sql', $mac);
@@ -508,6 +515,7 @@ sub node_accounting_daily_bw {
 =item node_accounting_weekly_bw - view bandwidth tranferred this week for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_weekly_bw {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_weekly_sql', $mac);
@@ -519,6 +527,7 @@ sub node_accounting_weekly_bw {
 =item node_accounting_monthly_bw - view bandwidth tranferred this month for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_monthly_bw {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_monthly_sql', $mac);
@@ -530,6 +539,7 @@ sub node_accounting_monthly_bw {
 =item node_accounting_yearly_bw - view bandwidth tranferred this year for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_yearly_bw {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_bandwidth_yearly_sql', $mac);
@@ -541,6 +551,7 @@ sub node_accounting_yearly_bw {
 =item node_accounting_daily_time - view connected time today for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_daily_time {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_daily_sql', $mac);
@@ -552,6 +563,7 @@ sub node_accounting_daily_time {
 =item node_accounting_weekly_time - view connected time this week for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_weekly_time {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_weekly_sql', $mac);
@@ -563,6 +575,7 @@ sub node_accounting_weekly_time {
 =item node_accounting_monthly_time - view connected time this month for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_monthly_time {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_monthly_sql', $mac);
@@ -574,6 +587,7 @@ sub node_accounting_monthly_time {
 =item node_accounting_yearly_time - view connected time this year for a node, returns an array of hashrefs
 
 =cut
+
 sub node_accounting_yearly_time {
     my ($mac) = format_mac_for_acct(@_);
     my $query = db_query_execute(ACCOUNTING, $accounting_statements, 'acct_sessiontime_yearly_sql', $mac);
@@ -585,6 +599,7 @@ sub node_accounting_yearly_time {
 =item node_acct_maintenance_bw_inbound - get mac that downloaded more bandwidth than they should
 
 =cut
+
 sub node_acct_maintenance_bw_inbound {
     my ($interval,$releaseDate,$bytes) = @_;
     my $query = "acct_maintenance_bw_" . $interval . "_inbound";
@@ -594,6 +609,7 @@ sub node_acct_maintenance_bw_inbound {
 =item node_acct_maintenance_bw_outbound - get mac that uploaded more bandwidth than they should
 
 =cut
+
 sub node_acct_maintenance_bw_outbound {
     my ($interval,$releaseDate,$bytes) = @_;
     my $query = "acct_maintenance_bw_" . $interval . "_outbound";    
@@ -604,6 +620,7 @@ sub node_acct_maintenance_bw_outbound {
 =item node_acct_maintenance_bw_total - get mac that used more bandwidth (IN + OUT) than they should
 
 =cut
+
 sub node_acct_maintenance_bw_total {
     my ($interval,$releaseDate,$bytes) = @_;
     my $query = "acct_maintenance_bw_" . $interval . "_all";
@@ -613,6 +630,7 @@ sub node_acct_maintenance_bw_total {
 =item node_acct_maintenance_bw_inbound_exists - check if the mac bust the bandwidth down limit
 
 =cut
+
 sub node_acct_maintenance_bw_inbound_exists {
     my ($releaseDate,$bytes,$mac) = @_;
     return db_data(ACCOUNTING, $accounting_statements, "acct_maintenance_bw_inbound_exists" , $releaseDate, $mac, $bytes );
@@ -621,6 +639,7 @@ sub node_acct_maintenance_bw_inbound_exists {
 =item node_acct_maintenance_bw_outbound_exists - check if the mac bust the bandwidth up limit
 
 =cut
+
 sub node_acct_maintenance_bw_outbound_exists {
     my ($releaseDate,$bytes,$mac) = @_;
     return db_data(ACCOUNTING, $accounting_statements, "acct_maintenance_bw_outbound_exists" , $releaseDate, $mac, $bytes );
@@ -629,6 +648,7 @@ sub node_acct_maintenance_bw_outbound_exists {
 =item node_acct_maintenance_bw_total_exists - check if the mac bust the bandwidth up-down limit
 
 =cut
+
 sub node_acct_maintenance_bw_total_exists {
     my ($releaseDate,$bytes,$mac) = @_;
     return db_data(ACCOUNTING, $accounting_statements, "acct_maintenance_bw_all_exists" , $releaseDate, $mac, $bytes );

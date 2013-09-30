@@ -60,6 +60,7 @@ said, if you hear about MAC-Auth / 802.1x regressions consider making this
 method do per-IOS translations.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

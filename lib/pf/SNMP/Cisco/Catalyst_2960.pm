@@ -155,6 +155,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub getMinOSVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -325,6 +326,7 @@ sub authorizeMAC {
 Points to pf::SNMP implementation bypassing Catalyst_2950's overridden behavior.
 
 =cut
+
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
 
@@ -336,6 +338,7 @@ sub dot1xPortReauthenticate {
 Translate RADIUS NAS-Port into switch's ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -355,6 +358,7 @@ sub NasPortToIfIndex {
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 =cut
+
 sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

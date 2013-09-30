@@ -50,6 +50,7 @@ use pf::util;
 =item supportsFloatingDevice
 
 =cut
+
 sub supportsFloatingDevice { return $TRUE; }
 
 # special features
@@ -64,6 +65,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub getVersion {
     my ($this)        = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
@@ -124,6 +126,7 @@ sub parseTrap {
 Warning: MIB says 1 is access, 2 is trunk but we've encountered other values.
 
 =cut
+
 sub isTrunkPort {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -203,6 +206,7 @@ sub getUpLinks {
 Set a port as mode access or mode trunk based on ifIndex given.
 
 =cut
+
 sub setModeTrunk {
     my ( $this, $ifIndex, $setTrunk ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -238,6 +242,7 @@ sub setModeTrunk {
 In what VLAN should a VoIP device be?
 
 =cut
+
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -397,6 +402,7 @@ It changed with a firmware upgrade so it is encapsulated per switch module.
 Default is 64
 
 =cut
+
 sub getBoardIndexWidth {
     return 64;
 }
@@ -409,6 +415,7 @@ This method is useful to work-around that problem.
 Should return either 0 or 1
 
 =cut
+
 sub getFirstBoardIndex {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -459,6 +466,7 @@ I'm unsure if this is a bug or a feature so we created this hook that will alway
 To be used by method which read or write to security status related MIBs.
 
 =cut
+
 sub getBoardPortFromIfIndexForSecurityStatus {
     my ( $this, $ifIndex ) = @_;
 
@@ -785,6 +793,7 @@ Change VLAN Tag bit on a given ifIndex for all the given VLANs.
 Takes an ifIndex, a TRUE/FALSE value (tag or untag), the switch locker to avoid concurrency issues and a list of VLANs.
 
 =cut
+
 sub setTagVlansByIfIndex {
     my ( $this, $ifIndex, $setTo, $switch_locker_ref, @vlans ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -844,6 +853,7 @@ Removes all the tagged Vlans on a multi-Vlan port.
 Used for floating network devices.
 
 =cut
+
 sub removeAllTaggedVlans {
     my ( $this, $ifIndex, $switch_locker_ref ) = @_;
 
@@ -857,6 +867,7 @@ Tag given VLANs on a given port in a multi-vlan per port config (trunk).
 Used for floating network devices.
 
 =cut
+
 sub setTaggedVlans {
     my ( $this, $ifIndex, $switch_locker_ref, @vlans ) = @_;
 

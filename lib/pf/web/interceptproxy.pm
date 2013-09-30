@@ -34,6 +34,7 @@ use constant BUFF_LEN => 1024;
 Intercept proxy requests to forward them to the captive portal.
 
 =cut
+
 sub translate {
     my ($r) = shift;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -190,6 +191,7 @@ sub proxy_redirect {
 Reverse proxy TransHandler
 
 =cut
+
 sub reverse {
     my $r = shift;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -259,4 +261,5 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 USA.
 =cut
+
 1;

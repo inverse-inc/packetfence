@@ -375,6 +375,7 @@ Return all MAC addresses in security table and their VLAN for a given ifIndex
 Returns an hashref with MAC => Array(VLANs)
 
 =cut
+
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -419,6 +420,7 @@ Return all MAC addresses in security table and their VLAN
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 =cut
+
 sub getAllSecureMacAddresses {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

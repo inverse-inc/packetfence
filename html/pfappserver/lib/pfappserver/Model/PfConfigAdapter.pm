@@ -17,15 +17,15 @@ pfappserver::Model::PfConfigAdapter - Catalyst Model
 A wrapper above pf::config to expose some of its feature. The longer term
 plan is to migrate out of pf::config and all into Web Services.
 
-=over
 
-=item getWebAdminIp
+=head2 getWebAdminIp
 
 Returns the IP where the Web Administration interface runs.
 
 Will prefer returning the virtual IP if there's one.
 
 =cut
+
 sub getWebAdminIp {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -39,11 +39,12 @@ sub getWebAdminIp {
     return $ip;
 }
 
-=item getWebAdminPort
+=head2 getWebAdminPort
 
 Returns the port on which the Web Administration interface runs.
 
 =cut
+
 sub getWebAdminPort {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -51,11 +52,12 @@ sub getWebAdminPort {
     return $Config{'ports'}{'admin'};
 }
 
-=item reloadConfiguration
+=head2 reloadConfiguration
 
 Tell pf::config to reload its configuration.
 
 =cut
+
 sub reloadConfiguration {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

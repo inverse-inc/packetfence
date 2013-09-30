@@ -56,6 +56,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -102,6 +103,7 @@ sub parseTrap {
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 =cut
+
 sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -137,6 +139,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacRadius {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -161,6 +164,7 @@ Optionally you can provide other attributes as an hashref.
 Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
+
 # TODO consider whether we should handle retries or not?
 
 sub radiusDisconnect {

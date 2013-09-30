@@ -89,6 +89,7 @@ TODO: list incomplete
 =over
 
 =cut
+
 sub report_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::pfcmd::report');
 
@@ -724,6 +725,7 @@ sub report_connectiontype {
 Reporting - Connections by connection type and user status for all nodes
 
 =cut
+
 sub report_connectiontype_all {
     my @data    = db_data(REPORT, $report_statements, 'report_connectiontype_all_sql');
     my $total   = 0;
@@ -745,6 +747,7 @@ sub report_connectiontype_all {
 Reporting - Connections by connection type and user status for all active nodes
 
 =cut
+
 sub report_connectiontype_active {
     my @data    = db_data(REPORT, $report_statements, 'report_connectiontype_active_sql');
     my $total   = 0;
@@ -768,6 +771,7 @@ sub report_connectiontype_active {
 Reporting - Connections by connection type and user status for all nodes (registered users)
 
 =cut
+
 sub report_connectiontypereg_all {
     my @data    = db_data(REPORT, $report_statements, 'report_connectiontypereg_all_sql');
     my $total   = 0;
@@ -791,6 +795,7 @@ sub report_connectiontypereg_all {
 Reporting - Connections by connection type and user status for all active nodes (registered users)
 
 =cut
+
 sub report_connectiontypereg_active {
     my @data    = db_data(REPORT, $report_statements, 'report_connectiontypereg_active_sql');
     my $total   = 0;
@@ -833,6 +838,7 @@ sub report_ssid {
 Reporting - Connections by SSID for all nodes regardless of the status
 
 =cut
+
 sub report_ssid_all {
     my @data    = db_data(REPORT, $report_statements, 'report_ssid_all_sql');
     my $total   = 0;
@@ -856,6 +862,7 @@ sub report_ssid_all {
 Reporting - Connections by SSID for all active nodes (reg/unreg)
 
 =cut
+
 sub report_ssid_active {
     my @data    = db_data(REPORT, $report_statements, 'report_ssid_active_sql');
     my $total   = 0;
@@ -881,6 +888,7 @@ Reporting - OS Class bandwitdh usage
 Sub that supports a range from now til $range window.
 
 =cut
+
 sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
     my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $range, $range);
@@ -919,6 +927,7 @@ sub report_osclassbandwidth {
 Reporting - OS Class bandwitdh usage - All time
 
 =cut
+
 sub report_osclassbandwidth_all {
     my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_all_sql');
     my $totalbwoctets = 0;
@@ -939,6 +948,7 @@ sub report_osclassbandwidth_all {
 Reporting - OS Class bandwitdh usage for the last 24 hours
 
 =cut
+
 sub report_osclassbandwidth_day {
     return _report_osclassbandwidth_with_range(24 * 60 * 60);
 }
@@ -948,6 +958,7 @@ sub report_osclassbandwidth_day {
 Reporting - OS Class bandwitdh usage for the last week
 
 =cut
+
 sub report_osclassbandwidth_week {
     return _report_osclassbandwidth_with_range(7 * 24 * 60 * 60);
 }
@@ -957,6 +968,7 @@ sub report_osclassbandwidth_week {
 Reporting - OS Class bandwitdh usage for the last month
 
 =cut
+
 sub report_osclassbandwidth_month {
     return _report_osclassbandwidth_with_range(30 * 7 * 24 * 60 * 60);
 }
@@ -966,6 +978,7 @@ sub report_osclassbandwidth_month {
 Reporting - OS Class bandwitdh usage for the last year
 
 =cut
+
 sub report_osclassbandwidth_year {
     return _report_osclassbandwidth_with_range(365 * 7 * 24 * 60 * 60);
 }
@@ -975,6 +988,7 @@ sub report_osclassbandwidth_year {
 Reporting - node bandwitdh usage for a specific period
 
 =cut
+
 sub report_nodebandwidth {
     my ($start, $end) = @_;
 
@@ -1023,6 +1037,7 @@ sub report_nodebandwidth {
 Reporting - Node bandwitdh usage for the top 25 consumers
 
 =cut
+
 sub report_nodebandwidth_all {
     my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_all_sql');
     my %totalbw = ( 'inoctets' => 0, 'outoctets' => 0, 'bothoctets' => 0 );
@@ -1070,6 +1085,7 @@ sub report_nodebandwidth_all {
 Translates connection_type database string into a human-understandable string
 
 =cut
+
 # TODO we can probably be more efficient than that by passing references and stuff
 sub translate_connection_type {
     my @data = @_;
@@ -1104,6 +1120,7 @@ sub translate_connection_type {
 Reporting - Top 25 Sponsors
 
 =cut
+
 sub report_topsponsor_all {
     my @data = db_data(REPORT, $report_statements, 'report_topsponsor_sql');
     return (@data);

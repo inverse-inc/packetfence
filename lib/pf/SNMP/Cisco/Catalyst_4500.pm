@@ -12,7 +12,7 @@ We do not know the minimum required firmware version.
 
 =head1 BUGS AND LIMITATIONS
 
-Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
+Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of
 L<pf::SNMP::Cisco::Catalyst_2960> also.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -30,12 +30,13 @@ use base ('pf::SNMP::Cisco::Catalyst_2960');
 
 sub description { 'Cisco Catalyst 4500 Series' }
 
-=item getIfIndexByNasPortId
+=head2 getIfIndexByNasPortId
 
 Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 
 =cut
- 
+
+
 sub getIfIndexByNasPortId {
     my ($this, $ifDesc_param) = @_;
 

@@ -37,6 +37,7 @@ Readonly our $RESPONSE_REQUEST_SUBMITTED    => 202;
 Create an escalator which will trigger an action on the OpenVAS server once the scan will finish
 
 =cut
+
 sub createEscalator {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -75,6 +76,7 @@ sub createEscalator {
 Create a target (a target is a host to scan)
 
 =cut
+
 sub createTarget {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -113,6 +115,7 @@ sub createTarget {
 Create a task (a task is a scan) with the existing config id and previously created target and escalator
 
 =cut
+
 sub createTask {
     my ( $this )  = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -155,6 +158,7 @@ When retrieving a report in other format than XML, we received the report in bas
 Report processing's duty is to ensure that the proper violation will be triggered.
 
 =cut
+
 sub processReport {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -201,6 +205,7 @@ sub processReport {
 Create a new Openvas scanning object with the required attributes
 
 =cut
+
 sub new {
     my ( $class, %data ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -243,6 +248,7 @@ sub new {
 That's where we use all of these method to run a scan
 
 =cut
+
 sub startScan {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -258,6 +264,7 @@ sub startScan {
 Start a scanning task with the previously created target and escalator
 
 =cut
+
 sub startTask {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -302,6 +309,7 @@ Local: plain HTTP on loopback (127.0.0.1)
 Remote: HTTPS with fully qualified domain name on admin interface
 
 =cut
+
 sub _generateCallback {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -331,6 +339,7 @@ sub _generateCallback {
 create_escalator string creation.
 
 =cut
+
 sub _get_escalator_string {
     my ($name, $callback) = @_;
 
@@ -349,6 +358,7 @@ EOF
 create_task string creation.
 
 =cut
+
 sub _get_task_string {
     my ($name, $config_id, $target_id, $escalator_id) = @_;
 

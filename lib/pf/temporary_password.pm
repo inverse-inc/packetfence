@@ -436,6 +436,7 @@ sub validate_password {
 Reset (change) a password for a user in the temporary_password table.
 
 =cut
+
 sub reset_password {
     my ( $pid, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

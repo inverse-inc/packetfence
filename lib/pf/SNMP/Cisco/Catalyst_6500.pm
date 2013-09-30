@@ -49,6 +49,7 @@ Here we override Cisco's setVlan because of the behavior of the security table o
 The 6500's security table is per port per Vlan as opposed to per port (as most other Cisco's are).
 
 =cut
+
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -95,6 +96,7 @@ Override because VLAN is important in this switch' security table.
 Changed authVlan's deauthVlan to authVlan.
 
 =cut
+
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

@@ -23,6 +23,7 @@ Defined by standards
 =over
 
 =cut
+
 package SNMP;
 
 =item ROLES
@@ -65,6 +66,7 @@ Otherwise an Hex-STRING is sent (99.9% of the cases).
 We need to handle both cases thus this precompiled regexp.
 
 =cut
+
 Readonly::Scalar our $MAC_ADDRESS_FORMAT => qr/
     (
         Hex-STRING:\ 
@@ -85,6 +87,7 @@ Readonly::Scalar our $MAC_ADDRESS_FORMAT => qr/
  mgmt(5)
 
 =cut
+
 Readonly::Scalar our $OTHER => 1;
 Readonly::Scalar our $INVALID => 2;
 Readonly::Scalar our $LEARNED => 3;
@@ -97,6 +100,7 @@ Readonly::Scalar our $MGMT => 5;
  false (2)
 
 =cut
+
 Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $FALSE => 2;
 
@@ -110,6 +114,7 @@ Readonly::Scalar our $FALSE => 2;
  destroy (6)
 
 =cut
+
 Readonly::Scalar our $ACTIVE => 1;
 Readonly::Scalar our $NOT_IN_SERVICE => 2;
 Readonly::Scalar our $NOT_READY => 3;
@@ -134,6 +139,7 @@ Readonly::Scalar our $DESTROY => 6;
  lowerLayerDown(7) -- down due to state of lower-layer interface(s)
 
 =cut
+
 Readonly::Scalar our $UP => 1;
 Readonly::Scalar our $DOWN => 2;
 Readonly::Scalar our $TESTING => 3;
@@ -154,6 +160,7 @@ Check http://www.iana.org/assignments/ianaiftype-mib for the full list.
  ...
 
 =cut
+
 Readonly::Scalar our $ETHERNET_CSMACD => 6;
 Readonly::Scalar our $GIGABIT_ETHERNET => 117;
 
@@ -205,6 +212,7 @@ RFC 4363:  Definitions of Managed Objects for Bridges with Traffic Classes, Mult
 =over
 
 =cut
+
 package SNMP::Q_BRIDGE;
 
 =item dot1qStaticUnicastStatus
@@ -216,6 +224,7 @@ package SNMP::Q_BRIDGE;
  deleteOnTimeout(5)
  
 =cut
+
 Readonly::Scalar our $OTHER => 1;
 Readonly::Scalar our $INVALID => 2;
 Readonly::Scalar our $PERMANENT => 3;
@@ -229,6 +238,7 @@ Readonly::Scalar our $DELETE_ON_TIMEOUT => 5;
 =over
 
 =cut
+
 package SNMP::LLDP;
 
 =item LldpSystemCapabilitiesMap
@@ -245,6 +255,7 @@ Defined by IEEE 802.1AB. Values below from LLDP-MIB.
  stationOnly(7)
 
 =cut
+
 # only the one in use are defined
 Readonly::Scalar our $TELEPHONE => 5;
 
@@ -257,6 +268,7 @@ Cisco constants
 =over
 
 =cut
+
 package CISCO;
 
 =item cpsIfViolationAction - Action to take in case of port-security violation (from CISCO-PORT-SECURITY-MIB)
@@ -266,6 +278,7 @@ package CISCO;
  Drop (3)
 
 =cut
+
 Readonly::Scalar our $SHUTDOWN => 1;
 Readonly::Scalar our $DROPNOTIFY => 2;
 Readonly::Scalar our $DROP => 3;
@@ -284,6 +297,7 @@ From CISCO-CONFIG-COPY MIB.
   fabricStartupConfig(6)
 
 =cut
+
 Readonly::Scalar our $NETWORK_FILE => 1;
 Readonly::Scalar our $STARTUP_CONFIG => 3;
 Readonly::Scalar our $RUNNING_CONFIG => 4;
@@ -294,6 +308,7 @@ Readonly::Scalar our $TERMINAL => 5;
 Used for NAS-Port to ifIndex translation
 
 =cut
+
 Readonly::Scalar our $IFINDEX_OFFSET => 10000;
 Readonly::Scalar our $IFINDEX_GIG_OFFSET => 10100;
 Readonly::Scalar our $IFINDEX_PER_STACK => 500;
@@ -303,6 +318,7 @@ Readonly::Scalar our $IFINDEX_PER_STACK => 500;
 lldpRemTimeMark is always set to 0 on Cisco's (at least those we tried)
 
 =cut
+
 Readonly::Scalar our $DEFAULT_LLDP_REMTIMEMARK => 0;
 
 =back
@@ -314,6 +330,7 @@ Extreme Networks constants
 =over
 
 =cut
+
 package EXTREME;
 
 =item PORT_SECURITY_DETECT_VLAN 
@@ -321,6 +338,7 @@ package EXTREME;
 Special VLAN used to detect if locked-learning is activated or not. Used for isPortSecurityEnabled()
 
 =cut
+
 Readonly::Scalar our $PORT_SECURITY_DETECT_VLAN => 'security-detection';
 
 =item Web Services constants - constants related to Extreme's Web Services functionality
@@ -338,6 +356,7 @@ Readonly::Scalar our $PORT_SECURITY_DETECT_VLAN => 'security-detection';
  WS_NODE_ALL_FDB_RESPONSE - Tree structure that gets to the Fdb contents
 
 =cut
+
 Readonly::Scalar our $WS_TIMEOUT => 10;
 Readonly::Scalar our $WS_PROXY_URI_PATH => 'xmlservice';
 Readonly::Scalar our $WS_NAMESPACE_FDB => 'urn:xapi/l2protocol/fdb';
@@ -365,6 +384,7 @@ Extreme Networks VLAN oriented constants
 =over 
 
 =cut
+
 package EXTREME::VLAN;
 
 =item extremeVlanOpaqueControlOperation - Operations on VLANs (from EXTREME-VLAN-MIB)
@@ -374,6 +394,7 @@ package EXTREME::VLAN;
  delete(3)
 
 =cut
+
 Readonly::Scalar our $ADD_TAGGED => 1;
 Readonly::Scalar our $ADD_UNTAGGED => 2;
 Readonly::Scalar our $DELETE => 3;
@@ -387,6 +408,7 @@ Nortel constants
 =over
 
 =cut
+
 package NORTEL;
 
 =item rcVlanPortType - Port types (from RC-VLAN-MIB)
@@ -397,6 +419,7 @@ package NORTEL;
 Note: Documentation is incomplete other values were found empirically.
 
 =cut
+
 Readonly::Scalar our $ACCESS => 1; # aka Untag All (not allowed in strict mode)
 Readonly::Scalar our $TRUNK => 2; # aka Tag All
 Readonly::Scalar our $UNTAG_PVID_ONLY => 5;
@@ -411,6 +434,7 @@ HP ProCurve constants
 =over 
 
 =cut
+
 package HP;
 
 =item coDevWirCliDisassociate - Disassociate the wireless client (from COLUBRIS-DEVICE-WIRELESS-MIB)
@@ -419,6 +443,7 @@ package HP;
  disassociate(1)
 
 =cut
+
 Readonly::Scalar our $IDLE => 0;
 Readonly::Scalar our $DISASSOCIATE => 1;
 
@@ -431,6 +456,7 @@ Readonly::Scalar our $DISASSOCIATE => 1;
 =over
 
 =cut
+
 package THREECOM;
 
 =item hwdot1qTpFdbSetStatus
@@ -443,6 +469,7 @@ package THREECOM;
  security(11)
 
 =cut
+
 Readonly::Scalar our $OTHER => 1;
 Readonly::Scalar our $LEARNED => 3;
 Readonly::Scalar our $STATIC => 6;
@@ -454,6 +481,7 @@ Readonly::Scalar our $STATIC => 6;
  delete(2)
 
 =cut
+
 Readonly::Scalar our $ADD => 1;
 Readonly::Scalar our $DELETE => 2;
 
@@ -463,6 +491,7 @@ Readonly::Scalar our $DELETE => 2;
 Used for NAS-Port to ifIndex translation
 
 =cut
+
 Readonly::Scalar our $NAS_PORT_OFFSET => 16781312;
 Readonly::Scalar our $NAS_PORTS_PER_PORT_RANGE => 4096;
 
@@ -475,6 +504,7 @@ Brocade constants
 =over
 
 =cut
+
 package BROCADE;
 
 =item dot1xPaePortReauthenticate - 802.1x Port state (from brcdlp)
@@ -485,6 +515,7 @@ package BROCADE;
 Note: Documentation is incomplete other values were found empirically.
 
 =cut
+
 Readonly::Scalar our $FORCE_UNAUTHORIZED => 1; # aka force unauthorized
 Readonly::Scalar our $CONTROLAUTO => 2; # aka force control auto
 
@@ -497,6 +528,7 @@ AeroHive constants
 =over
 
 =cut
+
 package AEROHIVE;
 
 =item ahConnectionChangeEvent - Roaming change (from ah_trp_mib)

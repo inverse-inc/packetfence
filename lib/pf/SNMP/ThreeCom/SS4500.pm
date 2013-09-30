@@ -6,14 +6,14 @@ pf::SNMP::ThreeCom::SS4500
 
 =head1 SYNOPSIS
 
-The pf::SNMP::ThreeCom::SS4500 module implements an object 
+The pf::SNMP::ThreeCom::SS4500 module implements an object
 oriented interface to manage 3COM Huawei SuperStack 3 Switch - 4500 switches.
 
 =head1 STATUS
 
 =over
 
-=item Supports 
+=item Supports
 
 =over
 
@@ -51,7 +51,7 @@ If you try it out, please let us know the status.
 =item Performance: Use secure table instead of Fdb
 
 The Fdb is too large because it will hold all exposed MAC on all the VLANs.
-There's a smaller "secure" table but you can only use it if the port is in 
+There's a smaller "secure" table but you can only use it if the port is in
 "port-security autolearn" so the Fdb was used instead.
 Maybe we can switch to use autolearn with forced 02:00... addresses to fill the learning table.
 
@@ -77,6 +77,7 @@ sub description { '3COM SS4500' }
 =over
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -162,8 +163,9 @@ sub getDot1dBasePortForThisIfIndex {
 returns ifIndex for a given "normal" port number (dot1d)
 
 =cut
+
 sub getIfIndexForThisDot1dBasePort {
-    my ( $this, $dot1dBasePort ) = @_; 
+    my ( $this, $dot1dBasePort ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
     # port number into ifIndex
     my $OID_dot1dBasePortIfIndex = '.1.3.6.1.2.1.17.1.4.1.2.'.$dot1dBasePort; # from BRIDGE-MIB
@@ -175,7 +177,7 @@ sub getIfIndexForThisDot1dBasePort {
     $logger->trace( "SNMP get_request for dot1dBasePortIfIndex: $OID_dot1dBasePortIfIndex");
     my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_dot1dBasePortIfIndex"] );
 
-    if (exists($result->{"$OID_dot1dBasePortIfIndex"})) {   
+    if (exists($result->{"$OID_dot1dBasePortIfIndex"})) {
         return $result->{"$OID_dot1dBasePortIfIndex"}; #return ifIndex (Integer)
     } else {
         return 0; #no ifIndex returned
@@ -198,11 +200,12 @@ sub getVlan {
 
 =item _setVlan
 
-Note: setting a VLAN empties the static MAC table for the port. 
-Because of this, in port-security mode, the MAC authorization process will take two intrusion traps 
+Note: setting a VLAN empties the static MAC table for the port.
+Because of this, in port-security mode, the MAC authorization process will take two intrusion traps
 before adding the correct MAC to the correct VLAN.
 
 =cut
+
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -253,7 +256,7 @@ sub isPortSecurityEnabled {
 
     #determine if port-security if enabled
     $logger->trace(
-        "SNMP get_request for h3cSecurePortSecurityControl, h3cSecurePortMode and h3cSecureIntrusionAction: " 
+        "SNMP get_request for h3cSecurePortSecurityControl, h3cSecurePortMode and h3cSecureIntrusionAction: "
         . "$OID_h3cSecurePortSecurityControl, $OID_h3cSecurePortMode.$ifIndex, $OID_h3cSecureIntrusionAction.$ifIndex"
     );
 
@@ -274,17 +277,18 @@ sub isPortSecurityEnabled {
 
 =item getPortListPositionFromDot1dBasePort
 
-This switch does something fancy with PortList bit order. 
+This switch does something fancy with PortList bit order.
 This method hides that complexity.
 
 =cut
+
 sub getPortListPositionFromDot1dBasePort {
     my ($this, $dot1dBasePort) = @_;
 
     # dot1dBasePort to PortList conversion
     # they an unfamiliar conversion technique where bit order is the opposite of what I'm used to
-    # port  1 means PortList position  8 
-    # port  8 means PortList position  1 
+    # port  1 means PortList position  8
+    # port  8 means PortList position  1
     # port  9 means PortList position 16
     # port 16 means PortList position  9
     # ...
@@ -297,6 +301,7 @@ sub getPortListPositionFromDot1dBasePort {
 Authorize and deauthorize MAC addresses. A core component of port-security handling.
 
 =cut
+
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger  = Log::Log4perl::get_logger( ref($this) );
@@ -311,6 +316,7 @@ Uses the Fdb and static entries instead of port-security table because port-secu
 ports in autolearn mode.
 
 =cut
+
 sub _authorizeMacWithSnmp {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger  = Log::Log4perl::get_logger( ref($this) );
@@ -321,7 +327,7 @@ sub _authorizeMacWithSnmp {
     }
 
     # from A3COM-HUAWEI-LswMAM-MIB
-    my $oid_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2'; 
+    my $oid_hwdot1qTpFdbSetPort = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.2';
     my $oid_hwdot1qTpFdbSetStatus = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.3';
     my $oid_hwdot1qTpFdbSetOperate = '1.3.6.1.4.1.43.45.1.2.23.1.3.2.1.4';
 
@@ -353,7 +359,7 @@ sub _authorizeMacWithSnmp {
     if ($authMac && !$this->isFakeMac($authMac)) {
 
         # Warning: this may seem counter-intuitive but I'm authorizing the new MAC on the old VLAN
-        # because the switch won't accept it for a VLAN that doesn't exist on that port. 
+        # because the switch won't accept it for a VLAN that doesn't exist on that port.
         # When changed by _setVlan later, the MAC will be re-authorized on the right VLAN
         my $vlan = $this->getVlan($ifIndex);
         my $mac_oid = mac2oid($authMac);
@@ -384,6 +390,7 @@ sub _authorizeMacWithSnmp {
 Uses "mac-address static" instead of "mac-address security" because the latter only work if port is in autolearn
 
 =cut
+
 sub _authorizeMacWithTelnet {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger  = Log::Log4perl::get_logger( ref($this) );
@@ -413,7 +420,7 @@ sub _authorizeMacWithTelnet {
     my $ifDesc = $this->getIfDesc($ifIndex);
     # do not deauthorize a fake MAC. It is useless for this switch.
     if ($deauthMac && !$this->isFakeMac($deauthMac)) {
-            
+
         $deauthMac =~ s/://g;
         $deauthMac
             = substr( $deauthMac, 0, 4 ) . '-'
@@ -466,6 +473,7 @@ Method that fetches all the secure (staticly assigned) MAC addresses for a given
 Returns a hash table with mac, ifIndex, vlan
 
 =cut
+
 # TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getAllSecureMacAddresses {
     my ($this) = @_;
@@ -495,12 +503,12 @@ sub getAllSecureMacAddresses {
             $macPort->{$mac} = $result->{$macOidPort};
         }
     }
-    
+
     if (!%{$macPort}) {
         $logger->warn("Something went wrong fetching the MAC to port association table");
         return $secureMacAddrHashRef;
     }
-    
+
     $result = $this->{_sessionRead}->get_table( -baseoid => "$OID_hwdot1qTpFdbSetStatus" );
     foreach my $vlanMacOidStatus ( keys %{$result} ) {
 
@@ -510,7 +518,7 @@ sub getAllSecureMacAddresses {
             if ( $vlanMacOidStatus =~ /^$OID_hwdot1qTpFdbSetStatus
                 \.([0-9]+)\.                                                # VLAN tag
                 (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})      # MAC in OID format
-            $/x) {   
+            $/x) {
 
                 my $oldMac = oid2mac($2);
                 my $oldVlan = $1;
@@ -529,6 +537,7 @@ Method that fetches all the secure (staticly assigned) MAC addresses for a given
 Returns a hash table with mac, vlan
 
 =cut
+
 # TODO the Fdb is usually very large, we should grab the Fdb only for the VLANs in the switches' managed VLANs
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
@@ -590,6 +599,7 @@ sub getSecureMacAddresses {
 
     return $secureMacAddrHashRef;
 }
+
 =back
 
 =head1 AUTHOR

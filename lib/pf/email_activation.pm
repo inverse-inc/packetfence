@@ -42,11 +42,13 @@ use Try::Tiny;
 =item database
 
 =cut
+
 use constant EMAIL_ACTIVATION => 'email_activation';
 
 =item Status-related
 
 =cut
+
 Readonly::Scalar our $UNVERIFIED => 'unverified';
 Readonly::Scalar our $VERIFIED => 'verified';
 Readonly::Scalar our $EXPIRED => 'expired';
@@ -55,11 +57,13 @@ Readonly::Scalar our $INVALIDATED => 'invalidated'; # for example if a new code 
 =item Expiration time (in seconds)
 
 =cut
+
 Readonly::Scalar our $EXPIRATION => 31*24*60*60; # defaults to 31 days
 
 =item Hashing formats related
 
 =cut
+
 # Default hash format version
 Readonly::Scalar our $HASH_FORMAT => 1;
 # Hash formats
@@ -68,6 +72,7 @@ Readonly::Scalar our $SIMPLE_MD5 => 1;
 =item Email activation types
 
 =cut
+
 Readonly our $SPONSOR_ACTIVATION => 'sponsor';
 Readonly our $GUEST_ACTIVATION => 'guest';
 
@@ -175,6 +180,7 @@ sub email_activation_db_prepare {
 =item view - view a an email activation record, returns an hashref
 
 =cut
+
 sub view {
     my ($code_id) = @_;
     my $query = db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 'email_activation_view_sql', $code_id);
@@ -188,6 +194,7 @@ sub view {
 =item find_code - view an email activation record by activation code without hash-format. Returns an hashref
 
 =cut
+
 sub find_code {
     my ($activation_code) = @_;
     my $query = db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
@@ -202,6 +209,7 @@ sub find_code {
 =item find_unverified_code - find an unused email activation record by doing a LIKE in the code, returns an hashref
 
 =cut
+
 sub find_unverified_code {
     my ($activation_code) = @_;
     my $query = db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
@@ -216,6 +224,7 @@ sub find_unverified_code {
 =item view_by_code - view an email activation record by exact activation code (including hash format). Returns an hashref
 
 =cut
+
 sub view_by_code {
     my ($activation_code) = @_;
     my $query = db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
@@ -230,6 +239,7 @@ sub view_by_code {
 =item add - add an email activation record to the database
 
 =cut
+
 sub add {
     my (%data) = @_;
 
@@ -243,6 +253,7 @@ sub add {
 =item _delete - delete an email activation record
 
 =cut
+
 sub _delete {
     my ($code_id) = @_;
 
@@ -252,6 +263,7 @@ sub _delete {
 =item modify_status - update the status of a given email activation record
 
 =cut
+
 sub modify_status {
     my ($code_id, $new_status) = @_;
 
@@ -262,6 +274,7 @@ sub modify_status {
 =item invalidate_code - invalidate all unverified activation codes for a given mac and email
 
 =cut
+
 sub invalidate_codes {
     my ($mac, $pid, $email) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
@@ -282,6 +295,7 @@ sub invalidate_codes {
 Returns the activation code
 
 =cut
+
 sub create {
     my ($mac, $pid, $email_addr, $activation_type) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
@@ -317,6 +331,7 @@ sub create {
 =item _generate_activation_code - generate proper activation code. Created to encapsulate flexible hash types.
 
 =cut
+
 sub _generate_activation_code {
     my (%data) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
@@ -339,6 +354,7 @@ sub _generate_activation_code {
 Returns a list of: hash version, hash
 
 =cut
+
 sub _unpack_activation_code {
     my ($activation_code) = @_;
 
@@ -352,6 +368,7 @@ sub _unpack_activation_code {
 =item send_email - Send an email with the activation code
 
 =cut
+
 sub send_email {
     my ($activation_code, $template, %info) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
@@ -449,6 +466,7 @@ sub validate_code {
 Change the status of a given email activation code to VERIFIED which means it can't be used anymore.
 
 =cut
+
 sub set_status_verified {
     my ($activation_code) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

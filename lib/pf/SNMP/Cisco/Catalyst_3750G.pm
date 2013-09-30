@@ -58,6 +58,7 @@ sub description { 'Cisco Catalyst 3750G' }
 Translate RADIUS NAS-Port into switch's ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

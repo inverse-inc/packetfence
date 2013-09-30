@@ -95,6 +95,7 @@ sub description { '3COM 4200G' }
 =item Switch capabilities
 
 =cut
+
 sub supportsWiredMacAuth { return $TRUE; } 
 sub supportsWiredDot1x { return $TRUE; } 
 # inline capabilities
@@ -105,6 +106,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 Translate RADIUS NAS-Port into switch's ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $nas_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -136,6 +138,7 @@ Because of issues with 802.1X re-auth on these switches, we bounce the port inst
 See in L</"BUGS AND LIMITATIONS">.
 
 =cut
+
 sub dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

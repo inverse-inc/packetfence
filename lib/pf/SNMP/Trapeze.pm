@@ -57,6 +57,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_ntwsVersionString = '1.3.6.1.4.1.45.6.1.4.2.1.4';
@@ -91,6 +92,7 @@ sub getVersion {
 This is called when we receive an SNMP-Trap for this device
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -109,6 +111,7 @@ deauthenticate a MAC address from wireless network
 Right now te only way to do it is from the CLi (through Telnet or SSH).
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

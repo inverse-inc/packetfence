@@ -45,6 +45,7 @@ BEGIN {
 Generate the proper dhcpd configuration for PacketFence's operation
 
 =cut
+
 sub generate_dhcpd_conf {
     my $logger = Log::Log4perl::get_logger('pf::services::dhcpd');
 
@@ -105,6 +106,7 @@ EOT
 Will replace all undef with default values.
 
 =cut
+
 # TODO should handle also dhcp_start and dhcp_end but it's more complex
 #      requires network / netmask extrapolation
 sub _assign_defaults {

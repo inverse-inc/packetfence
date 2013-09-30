@@ -33,6 +33,7 @@ Constructor.
 Usually you don't want to call this constructor but use the pf::inline::custom subclass instead.
 
 =cut
+
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::inline");
     $logger->debug("instantiating new pf::inline object");
@@ -47,6 +48,7 @@ sub new {
 Instantiate the correct iptables modification method between iptables and ipset
 
 =cut
+
 sub get_technique {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $type;
@@ -74,6 +76,7 @@ sub get_technique {
 =item performInlineEnforcement
 
 =cut
+
 sub performInlineEnforcement {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -96,6 +99,7 @@ sub performInlineEnforcement {
 Returns a true value if a firewall change is required. False otherwise.
 
 =cut
+
 sub isInlineEnforcementRequired {
     my ($this, $mac) = @_;
 
@@ -111,6 +115,7 @@ sub isInlineEnforcementRequired {
 =item fetchMarkForNode
 
 =cut
+
 sub fetchMarkForNode {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

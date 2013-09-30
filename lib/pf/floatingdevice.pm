@@ -87,6 +87,7 @@ use pf::locationlog;
 Get an instance of the pf::floatingdevice object
 
 =cut
+
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::floatingdevice");
     $logger->debug("instantiating new pf::floatingdevice object");
@@ -100,6 +101,7 @@ sub new {
 Change port configuration to disable port-security, set PVID and set port as multi-vlan if necessary
 
 =cut
+
 sub enablePortConfig {
 
 # FIXME
@@ -155,6 +157,7 @@ sub enablePortConfig {
 Reset port configuration to enable port-security and remove multi-vlan settings (if there are some)
 
 =cut
+
 sub disablePortConfig {
 
 # FIXME

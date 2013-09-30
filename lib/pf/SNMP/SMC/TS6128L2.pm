@@ -27,6 +27,7 @@ SNMPv3 support was not tested.
 =back
 
 =cut
+
 use strict;
 use warnings;
 
@@ -49,6 +50,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $OID_swProdVersion = '1.3.6.1.4.1.202.20.'.MODEL_OID_ID.'.1.1.5.4.0';    #swProdVersion

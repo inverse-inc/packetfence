@@ -65,6 +65,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_ruckusVer = '1.3.6.1.4.1.25053.1.2.1.1.1.1.18';
@@ -91,6 +92,7 @@ sub getVersion {
 All traps ignored
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -114,6 +116,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );

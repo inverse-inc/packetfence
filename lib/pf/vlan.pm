@@ -2,7 +2,7 @@ package pf::vlan;
 
 =head1 NAME
 
-pf::vlan - Object oriented module for VLAN isolation oriented functions 
+pf::vlan - Object oriented module for VLAN isolation oriented functions
 
 =head1 SYNOPSIS
 
@@ -43,6 +43,7 @@ Constructor.
 Usually you don't want to call this constructor but use the pf::vlan::custom subclass instead.
 
 =cut
+
 sub new {
     my $logger = Log::Log4perl::get_logger("pf::vlan");
     $logger->debug("instantiating new pf::vlan object");
@@ -55,12 +56,13 @@ sub new {
 
 Answers the question: What VLAN should a given node be put into?
 
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
-version doesn't do the right thing for you. However it is very generic, 
-maybe what you are looking for needs to be done in getViolationVlan, 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default
+version doesn't do the right thing for you. However it is very generic,
+maybe what you are looking for needs to be done in getViolationVlan,
 getRegistrationVlan or getNormalVlan.
 
 =cut
+
 sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
@@ -98,14 +100,15 @@ sub fetchVlanForNode {
     return ( $vlan, 0, $user_role );
 }
 
-=item doWeActOnThisTrap  
+=item doWeActOnThisTrap
 
 Don't act on uplinks, unkown interface types or some traps we are not interested in.
 
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
-version doesn't do the right thing for you. 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default
+version doesn't do the right thing for you.
 
 =cut
+
 sub doWeActOnThisTrap {
     my ( $this, $switch, $ifIndex, $trapType ) = @_;
     my $logger = Log::Log4perl->get_logger();
@@ -148,24 +151,25 @@ sub doWeActOnThisTrap {
 =item getViolationVlan
 
 Returns the violation vlan for a node (if any)
-        
+
 This sub is meant to be overridden in lib/pf/vlan/custom.pm if you have specific isolation needs.
-    
+
 Return values:
-    
-=over 6 
-        
+
+=over 6
+
 =item * -1 means kick-out the node (not always supported)
-    
+
 =item * 0 means no violation for this node
-    
+
 =item * undef means there was an error
-    
+
 =item * anything else is either a VLAN name string or a VLAN number
-    
+
 =back
 
 =cut
+
 sub getViolationVlan {
     # $switch is the switch object (pf::SNMP)
     # $ifIndex is the ifIndex of the computer connected to
@@ -192,15 +196,15 @@ sub getViolationVlan {
     my $top_violation = violation_view_top($mac);
     # fetching top violation failed
     if (!$top_violation || !defined($top_violation->{'vid'})) {
-    
+
         $logger->warn("Could not find highest priority open violation for $mac. ".
                       "Setting target vlan to switches.conf's isolationVlan");
         return $switch->getVlanByName($vlan);
-    }   
-        
+    }
+
     # get violation id
     my $vid = $top_violation->{'vid'};
-    
+
     # find violation class based on violation id
     require pf::class;
     my $class = pf::class::class_view($vid);
@@ -243,16 +247,17 @@ Return values:
 =item * undef means there was an error
 
 =item * anything else is either a VLAN name string or a VLAN number
-    
+
 =back
 
 =cut
+
 sub getRegistrationVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
-    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
@@ -281,7 +286,7 @@ sub getRegistrationVlan {
 
 Returns normal vlan
 
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default version doesn't do the right thing for you. 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default version doesn't do the right thing for you.
 It will try to match a role based on a username (if provided) or on the node MAC address and return the according
 VLAN for the given switch.
 
@@ -296,10 +301,11 @@ Return values:
 =item * undef means there was an error
 
 =item * anything else is either a VLAN name string or a VLAN number
-    
+
 =back
 
 =cut
+
 # Developers note: If you modify this sub, make sure to replicate the change in pf::vlan::custom for consistency
 # purposes.
 sub getNormalVlan {
@@ -307,7 +313,7 @@ sub getNormalVlan {
     #$ifIndex is the ifIndex of the computer connected to
     #$mac is the mac connected
     #$node_info is the node info hashref (result of pf::node's node_attributes on $mac)
-    #$conn_type is set to the connnection type expressed as the constant in pf::config 
+    #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is the name of the SSID (Be careful: will be empty string if radius non-wireless and undef if not radius)
     my ($this, $switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid) = @_;
@@ -357,6 +363,8 @@ sub getNormalVlan {
 
 Handling the Inline VLAN Assignment
 
+=over
+
 =item * -1 means kick-out the node (not always supported)
 
 =item * 0 means use native vlan
@@ -365,7 +373,10 @@ Handling the Inline VLAN Assignment
 
 =item * anything else is either a VLAN name string or a VLAN number
 
+=back
+
 =cut
+
 sub getInlineVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
@@ -384,12 +395,13 @@ sub getInlineVlan {
 
 Basic information returned for an auto-registered node
 
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default
 version doesn't do the right thing for you.
 
 Returns an anonymous hash that is meant for node_register()
 
-=cut 
+=cut
+
 sub getNodeInfoForAutoReg {
     #$switch_in_autoreg_mode is set to 1 if switch is in registration mode
     #$violation_autoreg is set to 1 if called from a violation with autoreg action
@@ -397,7 +409,7 @@ sub getNodeInfoForAutoReg {
     #$conn_type is set to the connnection type expressed as the constant in pf::config
     #$user_name is set to the RADIUS User-Name attribute (802.1X Username or MAC address under MAC Authentication)
     #$ssid is set to the wireless ssid (will be empty if radius and not wireless, undef if not radius)
-    my ($this, $switch_ip, $switch_port, $mac, $vlan, 
+    my ($this, $switch_ip, $switch_port, $mac, $vlan,
         $switch_in_autoreg_mode, $violation_autoreg, $isPhone, $conn_type, $user_name, $ssid, $eap_type) = @_;
 
     # we do not set a default VLAN here so that node_register will set the default normalVlan from switches.conf
@@ -438,12 +450,13 @@ Do we auto-register this node?
 By default we register automatically when the switch is configured to (registration mode),
 when there is a violation with action autoreg and when the device is a phone.
 
-This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default 
+This sub is meant to be overridden in lib/pf/vlan/custom.pm if the default
 version doesn't do the right thing for you.
 
 returns 1 if we should register, 0 otherwise
 
 =cut
+
 # Note: if you add more examples here, remember to sync them in pf::vlan::custom
 sub shouldAutoRegister {
     #$mac is MAC address
@@ -484,11 +497,12 @@ sub shouldAutoRegister {
     return 0;
 }
 
-=item * isInlineTrigger
+=item isInlineTrigger
 
 Return true if a radius properties match with the inline trigger
 
 =cut
+
 sub isInlineTrigger {
     my ($self, $switch, $port, $mac, $ssid) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));

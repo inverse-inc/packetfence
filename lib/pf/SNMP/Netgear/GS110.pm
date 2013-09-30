@@ -47,6 +47,7 @@ sub description { 'Netgear GS110' }
 =item getVersion
 
 =cut
+
 sub getVersion {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -83,6 +84,7 @@ sub getVersion {
 =item parseTrap
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

@@ -55,6 +55,7 @@ This will check a node's status and perform changes to access control if necessa
 Triggered by pfcmd.
 
 =cut
+
 sub reevaluate_access {
     my ( $mac, $function, %opts ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
@@ -107,6 +108,7 @@ sub reevaluate_access {
 Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
 
 =cut
+
 sub _vlan_reevaluation {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
@@ -169,6 +171,7 @@ Returns true or false whether or not we should request vlan adjustment
 Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
 
 =cut
+
 sub _should_we_reassign_vlan {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');

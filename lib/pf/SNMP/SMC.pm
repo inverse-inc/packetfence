@@ -15,6 +15,7 @@ This modules holds functions common to the SMC switches but details and document
 Refer to them for more information.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -186,6 +187,7 @@ Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 
 =cut
+
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -242,6 +244,7 @@ TigerStack 8xxx has a 480bit length port list and the 6xxx a 64bit length one.
 Have that in mind when doing maintenance.
 
 =cut
+
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

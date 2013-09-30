@@ -77,6 +77,7 @@ our $custom_statements = {};
 Prepares the database statements.
 
 =cut
+
 sub custom_db_prepare {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
@@ -96,6 +97,7 @@ sub custom_db_prepare {
 Returns the building id matching the provided Called-Station-Id.
 
 =cut
+
 #   
 # CUSTOM: here we fetch the building id for a given called station id
 # Useful for per building per category VLAN assignments
@@ -141,6 +143,7 @@ Overrides pf::vlan's fetchVlanForNode
 CUSTOM: pass the Called-Station-Id to violation, registration and normal VLAN resolvers.
 
 =cut
+
 sub fetchVlanForNode {
     my ( $this, $mac, $switch, $ifIndex, $connection_type, $user_name, $ssid, $called_station_id ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::vlan');
@@ -200,6 +203,7 @@ Return values:
 =back
 
 =cut
+
 sub getViolationVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to
@@ -289,6 +293,7 @@ Return values:
 =back
 
 =cut
+
 sub getRegistrationVlan {
     #$switch is the switch object (pf::SNMP)
     #$ifIndex is the ifIndex of the computer connected to

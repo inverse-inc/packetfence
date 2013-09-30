@@ -46,6 +46,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub iptables_generate {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -94,6 +95,7 @@ Packet marking will traverse all the rules so the order in which packets are mar
 The last mark will be the one having an effect.
 
 =cut
+
 sub generate_mangle_rules {
     my ($self) =@_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -226,6 +228,7 @@ Useful to re-evaluate what to do with a given node who's state changed.
 Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 
 =cut
+
 # TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;

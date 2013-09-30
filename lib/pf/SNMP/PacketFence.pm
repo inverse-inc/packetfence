@@ -96,6 +96,7 @@ sub sendLocalDesAssociateTrap {
 Sends a local trap meant to trigger firewall changes in pfsetvlan
 
 =cut
+
 sub sendLocalFirewallRequestTrap {
     my ($this, $ip, $mac) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

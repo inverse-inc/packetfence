@@ -42,6 +42,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub getVersion {
     my ($this)                = @_;
     my $oid_hpSwitchOsVersion = '1.3.6.1.4.1.11.2.14.11.5.1.1.3.0';
@@ -469,6 +470,7 @@ sub getVlanFdbId {
 Supports VoIP if enabled.
 
 =cut
+
 sub isVoIPEnabled {
     my ($self) = @_;
     return ( $self->{_VoIPEnabled} == 1 );
@@ -479,6 +481,7 @@ sub isVoIPEnabled {
 In what VLAN should a VoIP device be.
 
 =cut
+
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

@@ -41,6 +41,7 @@ Constructor
 Create a new object for transactions using Authorize.net payment gateway
 
 =cut
+
 sub new {
     my ( $class, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -81,6 +82,7 @@ sub new {
 =item processPayment
 
 =cut
+
 sub processPayment {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

@@ -41,6 +41,7 @@ L<pf::Portal::Session>.
 Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHandler
 
 =cut
+
 sub translate {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -96,6 +97,7 @@ For simplicity and performance this doesn't consume and leverage
 L<pf::Portal::Session>.
 
 =cut
+
 sub handler {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -203,5 +205,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.            
                 
 =cut
+
 1;
 

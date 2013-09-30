@@ -158,6 +158,7 @@ sub iptables_generate {
 Creating proper source interface matches to jump to the right chains for proper enforcement method.
 
 =cut
+
 sub generate_filter_if_src_to_chain {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -236,6 +237,7 @@ sub generate_filter_if_src_to_chain {
 Handling both FILTER and NAT tables at the same time.
 
 =cut
+
 sub generate_inline_rules {
     my ($self,$filter_rules_ref, $nat_prerouting_ref, $nat_postrouting_ref, $routed_postrouting_inline, $input_filtering_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -307,6 +309,7 @@ sub generate_inline_rules {
 Creating the proper firewall rules to allow Google/Facebook OAuth2 and passthrough domain
 
 =cut
+
 sub generate_passthrough_rules {
     my ($google,$facebook,$github,$passthrough,$forward_rules_ref,$nat_rules_ref) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -338,6 +341,7 @@ sub generate_passthrough_rules {
 Creating proper source interface matches to jump to the right chains for inline enforcement method.
 
 =cut
+
 sub generate_inline_if_src_to_chain {
     my ($self, $table) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -394,6 +398,7 @@ Packet marking will traverse all the rules so the order in which packets are mar
 The last mark will be the one having an effect.
 
 =cut
+
 sub generate_mangle_rules {
     my ($self) =@_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -443,6 +448,7 @@ sub generate_mangle_rules {
 =item generate_nat_redirect_rules
 
 =cut
+
 sub generate_nat_redirect_rules {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -526,6 +532,7 @@ Useful to re-evaluate what to do with a given node who's state changed.
 Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 
 =cut
+
 # TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
@@ -562,6 +569,7 @@ sub get_mangle_mark_for_mac {
 This sub lives under the guarantee that there is a change, that if old_mark == new_mark it won't be called
 
 =cut
+
 # TODO wrap this into the commit transaction system of IPTables::Interface
 # TODO once updated, we should re-validate that the marks are ok and re-try otherwise (maybe in a loop)
 sub update_mark {
@@ -612,6 +620,7 @@ of the inline mode because of time constraints.
 =item generate_filter_forward_scanhost
 
 =cut
+
 sub generate_filter_forward_scanhost {
     my @self = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
@@ -644,6 +653,7 @@ sub update_node {
 Return the list of network interface to enable SNAT.
 
 =cut
+
 sub get_snat_interface {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -659,6 +669,7 @@ sub get_snat_interface {
 Creating porper source interface matches to jump to the right chains for vlan enforcement method.
 
 =cut
+
 sub generate_interception_rules {
     my ($self, $nat_if_src_to_chain,$nat_prerouting_vlan, $input_inter_vlan_if) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');

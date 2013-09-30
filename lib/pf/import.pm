@@ -53,6 +53,7 @@ Handle bulk importation of nodes. They are automatically registered. Status is s
 Supported: One MAC address per line.
 
 =cut
+
 # TODO support more fields
 # TODO instead of printout to STDOUT directly, we should provide a handle to print to in pfcmd
 #      this would allow callers to determine where the output should go. pfcmd -> STDOUT, SOAP -> Apache

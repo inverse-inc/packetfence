@@ -84,6 +84,7 @@ safe:
 L<http://www.cpanforum.com/threads/6909/>
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -195,6 +196,7 @@ sub isVoIPEnabled {
 Overriding default extractSsid because on Aironet AP SSID is in the Cisco-AVPair VSA.
 
 =cut
+
 # Same as in pf::SNMP::Cisco::Aironet_WDS. Please keep both in sync. Once Moose push in a role.
 sub extractSsid {
     my ($this, $radius_request) = @_;

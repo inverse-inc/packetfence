@@ -90,6 +90,7 @@ sub scan_db_prepare {
 Instantiate the correct vulnerability scanning engine with attributes
 
 =cut
+
 sub instantiate_scan_engine {
     my ( $type, %scan_attributes ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -115,6 +116,7 @@ sub instantiate_scan_engine {
 Parse a scan report from the scan object and trigger violations if needed
 
 =cut
+
 sub parse_scan_report {
     my ( $scan ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -185,6 +187,7 @@ sub parse_scan_report {
 Retrieve a scan object populated from the database using the scan id
 
 =cut
+
 sub retrieve_scan {
     my ( $scan_id ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -211,6 +214,7 @@ sub retrieve_scan {
 Prepare the scan attributes, call the engine instantiation and start the scan
 
 =cut
+
 sub run_scan {
     my ( $host_ip ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -279,6 +283,7 @@ We are also a lean base class for pf::scan::*.
 Update the status and reportId of the scan in the database.
 
 =cut
+
 sub statusReportSyncToDb {
     my ( $self ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -296,6 +301,7 @@ Returns true or false based on wether scan is considered expired or not.
 This basically means can we still apply the result of a scan to a node or was it already applied.
 
 =cut
+
 sub isNotExpired {
     my ($self) = @_;
     return ($self->{'_status'} eq $STATUS_STARTED);
