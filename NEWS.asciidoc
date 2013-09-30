@@ -19,6 +19,7 @@ New Features
 
 * Profiles can be filter by switches 
 * Proxy interception
+* New pfcmd command fixpermissions
 
 Enhancements
 ++++++++++++
