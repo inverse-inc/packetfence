@@ -392,13 +392,14 @@ sub removeStalePid {
     my ($self) = @_;
     my $logger = get_logger;
     my $pid = $self->pidFromFile;
-    my $pid_file = $self->pidFile;
+    my $pidFile = $self->pidFile;
     if($pid && $pid =~ /^(.*)$/) {
         $pid = $1;
-        unless (kill( 0,$pid)) {
-            $pid = 0;
-            $logger->info("removing stale pid file $pid_file");
-            unlink $pid_file;
+        $logger->info("verifying process $pid");
+        my $result = kill(0, $pid);
+        unless ($result) {
+            $logger->info("removing stale pid file $pidFile");
+            unlink $pidFile;
         }
     }
 }
