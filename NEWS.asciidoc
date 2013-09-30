@@ -30,6 +30,7 @@ Enhancements
 * Improved starting delay when using inline mode
 * Added memcached as a managed service
 * Added CoA support for Xirrus access point
+* Improve validation of vlan management
 
 Bug Fixes
 +++++++++
