@@ -51,6 +51,7 @@ config                       | query, set, or get help on pf.conf configuration 
 configfiles                  | push or pull configfiles into/from database
 floatingnetworkdeviceconfig  | query/modify floating network device configuration parameters
 fingerprint                  | view DHCP Fingerprints
+fixpermissions               | fix permissions of files
 graph                        | trending graphs
 history                      | IP/MAC history
 import                       | bulk import of information into the database
