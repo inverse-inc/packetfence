@@ -127,7 +127,6 @@
           [% END -%]
         </ul>
       </li>
-      <li class="divider"></li>
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('External') %]</a>
         <ul class="dropdown-menu" id="external_types">
@@ -136,7 +135,6 @@
           [% END -%]
         </ul>
       </li>
-      <li class="divider"></li>
       <li class="dropdown-submenu">
         <a tabindex="-1">[% l('Exclusive') %]</a>
         <ul class="dropdown-menu" id="exclusive_types">
