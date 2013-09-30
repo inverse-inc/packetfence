@@ -48,7 +48,7 @@ sub clean {
 }
 
 =item get_stripped
-Returns the MAC address stripped of any delimiter.
+Returns the MAC address stripped of any delimiter (base is preserved).
 
 =cut
 sub get_stripped {
@@ -79,5 +79,23 @@ sub format_for_acct {
     return pf::MAC->new( mac => $self->get_hex_stripped() );
 }
 
+=item as_Cisco
+Returns a new pf::MAC object formatted for Cisco ( example: 0002.03aa.abff ).
+See Net::MAC for implementation.
+
+=cut
+#sub as_Cisco {};
+
+=item as_integer
+Returns a string with the MAC as a decimal without delimiter.
+
+=cut
+sub get_dec_stripped {
+    my $self = shift;
+    # disabling warnings in this scope because a MAC address (48bit) is larger than an int on 32bit systems
+    #     # and perl warns about it but gives the right value.
+    no warnings;
+    return hex( $self->get_hex_stripped() );
+}
 
 1;
