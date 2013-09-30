@@ -15,6 +15,7 @@ pfcmd <command> [options]
  configfiles                 | push or pull configfiles into/from database
  floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
  fingerprint                 | view DHCP Fingerprints
+ fixpermissions              | fix permissions of files
  graph                       | trending graphs
  history                     | IP/MAC history
  ifoctetshistorymac          | accounting history
@@ -138,6 +139,7 @@ if (! exists($cmd_tmp{'grammar'})) {
             print "Nothing to report.\n" if ($return == $FALSE);
             exit(1);
         },
+        'fixpermissions' => sub { exit (fixpermissions()) },
         'class' => sub { class(); exit(1); },
         'config' => sub { config(); exit(0); },
         'configfiles' => sub { configfiles(); exit(1); },
@@ -2385,6 +2387,21 @@ sub format_assignment {
 sub field_order {
     return pf::config::ui->instance->field_order("@ARGV");
 }
+
+sub fixpermissions {
+    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir);
+    _changeFilesToOwner('root',$bin_dir . "/pfcmd");
+    chmod(0664, @stored_config_files);
+    chmod(02775, $conf_dir, $var_dir, $log_dir);
+    return 0;
+}
+
+sub _changeFilesToOwner {
+    my ($user,@files) = @_;
+    my ($login,$pass,$uid,$gid) = getpwnam($user);
+    chown $uid,$gid,@files;
+}
+
 
 =head1 AUTHOR
 
