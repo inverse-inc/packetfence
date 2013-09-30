@@ -647,6 +647,16 @@ EOT
     return 1;
 }
 
+sub help_fixpermissions {
+    print STDERR << "EOT";
+Usage: pfcmd fixpermissions
+
+Fix the permissions of the files and directories of packetfence
+
+EOT
+    return 1;
+}
+
 =back
 
 =head1 AUTHOR
