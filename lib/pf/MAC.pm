@@ -64,7 +64,8 @@ Returns a string containing the MAC address in hex base, stripped of any delimit
 =cut
 sub get_hex_stripped {
     my $self = shift;
-    my $IEEE_mac = $self->as_IEEE()->get_mac();
+    # we clone the object so that the original is not modified.
+    my $IEEE_mac = pf::MAC->new( mac => $self)->as_IEEE->get_mac();
     $IEEE_mac =~ s/[^[:xdigit:]]//g;
     return $IEEE_mac;
 }
