@@ -22,7 +22,7 @@ use File::Touch;
 use IPC::Cmd qw[can_run run];
 
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::pf_conf_service_managed';
+with 'pf::services::manager::roles::is_managed_by_pf_conf';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
 
 has '+name' => (default => sub { 'dhcpd' } );

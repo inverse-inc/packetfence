@@ -1,13 +1,13 @@
-package pf::services::manager::roles::pf_conf_service_managed;
+package pf::services::manager::roles::is_managed_by_pf_conf;
 =head1 NAME
 
-pf::services::manager::roles::pf_conf_service_managed add documentation
+pf::services::manager::roles::is_managed_by_pf_conf add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::roles::pf_conf_service_managed
+pf::services::manager::roles::is_managed_by_pf_conf
 
 =cut
 

@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use Moo;
 extends 'pf::services::manager';
-with 'pf::services::manager::roles::pf_conf_service_managed';
+with 'pf::services::manager::roles::is_managed_by_pf_conf';
 use pf::file_paths;
 use pf::config;
 
