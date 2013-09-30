@@ -6,6 +6,7 @@ pf::MAC
 
 =head1 DESCRIPTION
 pf::MAC implements a class that instantiates MAC addresses objects.
+
 At the moment it is rather minimalist, inheriting from Net::MAC which already does 
 90% of what PacketFence needs.
 
@@ -15,7 +16,8 @@ Net::MAC's implementation.
 Since passing the Net::MAC object to a function actually passes the string version of the constructors 
 initial argument, it should be safe to keps calling things like `mac2oid($mac)'.
 
-The get_* methods are idempotent. They do not modify the object.
+The get_* methods return a string or integer.
+
 The as_* methods return a new pf::MAC object with the given notation as constructor.
 
 =over
@@ -30,6 +32,7 @@ use base 'Net::MAC';
 =item clean
 
 Cleans a MAC address. 
+
 Returns an untainted pf::MAC with MAC in format: XX:XX:XX:XX:XX:XX (uppercased).
 
 =cut
@@ -49,6 +52,7 @@ sub clean {
 }
 
 =item get_stripped
+
 Returns the MAC address stripped of any delimiter (base is preserved).
 
 =cut
@@ -61,6 +65,7 @@ sub get_stripped {
 }
 
 =item get_hex_stripped
+
 Returns a string containing the MAC address in hex base, stripped of any delimiter (uppercased).
 
 =cut
@@ -72,26 +77,8 @@ sub get_hex_stripped {
     return $IEEE_mac;
 }
 
-=item format_for_acct
-Returns an uppercased, hex based and : delimited pf::MAC object.
-Intended for backward compatibility with pf::util::format_mac_for_acct.
+=item get_dec_stripped
 
-=cut 
-
-sub format_for_acct {
-    my $self = shift;
-    return pf::MAC->new( mac => $self->get_hex_stripped() );
-}
-
-=item as_Cisco
-Returns a new pf::MAC object formatted for Cisco ( example: 0002.03aa.abff ).
-See Net::MAC for implementation.
-
-=cut
-
-#sub as_Cisco {};
-
-=item as_integer
 Returns a string with the MAC as a decimal without delimiter.
 
 =cut
@@ -106,7 +93,9 @@ sub get_dec_stripped {
 }
 
 =item get_oui
+
 Returns the OUI for the MAC as an uppercased hex string with - delimiters.
+
 This is the format the IEEE uses.
 
 =cut
@@ -118,6 +107,7 @@ sub get_oui {
 }
 
 =item get_dec_oui
+
 Returns a decimal value of the OUI stripped of any delimiters.
 
 =cut
@@ -129,20 +119,63 @@ sub get_dec_oui {
     return hex($oui);
 }
 
+=item as_oid 
+
+Returns a pf::MAC object with the MAC formatted as an SNMP OID.
+
+example: '00-12-f0-13-32-ba' -> '0.18.240.19.50.186'
+
+=cut
+
+sub as_oid {
+    my $self = shift;
+    return $self->convert( base => 10, bit_group => 8, delimiter => '.' );
+}
+
+
+=item as_Cisco
+
+Returns a new pf::MAC object formatted for Cisco ( example: 0002.03aa.abff ).
+
+Documented here for consistency with the other methods implementing functions from pf::util.
+
+See Net::MAC for implementation.
+
+=cut
+
+#sub as_Cisco {};
 
 =item macoui2nb
+
 Provided for backwards compatibility with pf::util::macoui2nb.
+
 Equivalent to get_dec_oui().
 
 =cut 
+
 sub macoui2nb { return $_[0]->get_dec_oui(@_); }
 
 =item mac2nb
+
 Provided for backwards compatibility with pf::util::mac2nb.
+
 Equivalent to get_dec_stripped().
 
 =cut
+
 sub mac2nb { return $_[0]->get_dec_stripped(@_); }
 
+=item format_for_acct
+
+Returns an uppercased, hex based and : delimited pf::MAC object.
+
+Intended for backward compatibility with pf::util::format_mac_for_acct.
+
+=cut 
+
+sub format_for_acct {
+    my $self = shift;
+    return pf::MAC->new( mac => $self->get_hex_stripped() );
+}
 
 1;

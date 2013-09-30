@@ -42,3 +42,6 @@ is( $mac->get_dec_oui(), macoui2nb($mac),   "get_dec_oui() and pf::util::macoui2
 is( $mac->get_dec_oui(), $mac->macoui2nb(), "get_dec_oui() and macoui2nb() return the same values" );
 
 is( valid_mac($mac), 1, "pf::util::valid_mac() accepts our pf::MAC object" );
+
+is( $mac->as_oid, "0.18.240.19.50.186", "pf::MAC::as_oid returns the correct OID." );
+is( $mac->as_oid, mac2oid($mac),        "pf::MAC::as_oid and pf::util::mac2oid return the same values" );
