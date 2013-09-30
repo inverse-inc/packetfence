@@ -99,4 +99,25 @@ sub get_dec_stripped {
     return hex( $self->get_hex_stripped() );
 }
 
+
+=item get_oui
+Returns the OUI for the MAC as an uppercased hex string with - delimiters.
+This is the format the IEEE uses.
+
+=cut
+sub get_oui {
+    my $self = shift;
+    # we clone the object so that the original is not modified.
+    my $IEEE_mac = pf::MAC->new( mac => $self)->as_Microsoft->get_mac();
+    return substr($IEEE_mac, 0, 8);
+}
+
+
+sub get_dec_oui {
+    my $self = shift;
+    my $oui = $self->get_oui();
+    $oui =~ s/-//g;
+    return hex($oui);
+}
+
 1;

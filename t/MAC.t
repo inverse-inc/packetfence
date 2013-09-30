@@ -30,3 +30,8 @@ is( $dash_mac->get_stripped(), "0012f01332ba", "get_stripped returns MAC without
 is( $mac->get_dec_stripped(), '81337201338', "MAC is returned as an integer" );
 is( $mac->get_dec_stripped(), mac2nb($mac), "get_dec_stripped() and mac2nb return the same values" );
 
+is( $mac->get_oui(), "00-12-F0", "get oui() extracts the OUI from the MAC");
+
+like( $mac->get_dec_oui(), qr/^\d+$/, "get_dec_oui() returns a decimal integer");
+is( $mac->get_dec_oui(), macoui2nb($mac), "get_dec_oui() and macoui2nb return the same values");
+
