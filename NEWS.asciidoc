@@ -35,6 +35,17 @@ Bug Fixes
 
 * 
 
+Version 4.0.6-2 released on 2013-09-13
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug Fixes
++++++++++
+
+* Fixed dependancy in debian/ubuntu package (#1705)
+* Fixed 802.1X error in RADIUS authorize (#1709)
+* Fixed pfcmd not stopping services (#1710)
+* Fixed caching issue on Web admin interface (#1711)
+
 Version 4.0.6 released on 2013-09-05
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
