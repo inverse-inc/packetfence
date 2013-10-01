@@ -20,12 +20,6 @@ my $cleaned_mac = $mac->clean();
 is( $cleaned_mac, '00:12:f0:13:32:ba', "clean() returns valid MAC" );
 
 is( $mac->get_hex_stripped(), "0012F01332BA", "stripping returns string without delimiters" );
-my $acct_mac = $mac->format_for_acct();
-is( $acct_mac, "0012F01332BA", "format_for_acct returns valid MAC" );
-is( $acct_mac,
-    format_mac_for_acct($mac),
-    "pf::MAC::format_for_acct() and pf::util::format_for_acct return the same values."
-);
 
 my $dash_mac = pf::MAC->new( mac => '00-12-f0-13-32-ba' );
 is( $dash_mac->get_stripped(), "0012f01332ba", "get_stripped returns MAC without delimiters" );
@@ -45,3 +39,10 @@ is( valid_mac($mac), 1, "pf::util::valid_mac() accepts our pf::MAC object" );
 
 is( $mac->as_oid, "0.18.240.19.50.186", "pf::MAC::as_oid returns the correct OID." );
 is( $mac->as_oid, mac2oid($mac),        "pf::MAC::as_oid and pf::util::mac2oid return the same values" );
+
+is( $mac->as_acct(), "0012F01332BA", "as_acct() returns valid MAC" );
+is( $mac->as_acct(),
+    format_mac_for_acct($mac),
+    "pf::MAC::as_acct() and pf::util::format_for_acct return the same values."
+);
+is( $mac->as_acct(), $mac->format_for_acct(), "as_acct() and format_for_acct() return the same values" );

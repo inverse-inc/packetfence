@@ -132,6 +132,15 @@ sub as_oid {
     return $self->convert( base => 10, bit_group => 8, delimiter => '.' );
 }
 
+=item as_acct
+
+Returns an uppercased, hex based and : delimited pf::MAC object (formatted for PacketFence acounting).
+
+=cut
+sub as_acct {
+    my $self = shift;
+    return pf::MAC->new( mac => $self->get_hex_stripped() );
+}
 
 =item as_Cisco
 
@@ -167,16 +176,13 @@ sub mac2nb { return $_[0]->get_dec_stripped(@_); }
 
 =item format_for_acct
 
-Returns an uppercased, hex based and : delimited pf::MAC object.
-
 Intended for backward compatibility with pf::util::format_mac_for_acct.
+
+Equivalent to as_acct();
 
 =cut 
 
-sub format_for_acct {
-    my $self = shift;
-    return pf::MAC->new( mac => $self->get_hex_stripped() );
-}
+sub format_for_acct { return $_[0]->as_acct(@_); }
 
 =back
 
