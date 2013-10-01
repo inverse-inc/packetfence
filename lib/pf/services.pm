@@ -50,14 +50,6 @@ our @ALL_SERVICES = (
     'snmptrapd', 'pfsetvlan', 'pfdhcplistener', 'pfmon'
 );
 
-my $services = join("|", @ALL_SERVICES);
-our $ALL_BINARIES_RE => qr/$services
-    |apache2                                   # httpd on debian
-    |freeradius                                # radiusd on debian
-    |httpd.worker                              # mpm_worker apache version
-    |httpd
-$/x;
-
 our %ALLOWED_ACTIONS = (
     stop    => undef,
     start   => undef,
