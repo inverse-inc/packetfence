@@ -28,6 +28,7 @@ use pf::services::manager::memcached;
 use pf::services::manager::httpd_admin;
 use pf::services::manager::httpd_webservices;
 use pf::services::manager::httpd_portal;
+use pf::services::manager::httpd_proxy;
 use pf::services::manager::pfdns;
 use pf::services::manager::dhcpd;
 use pf::services::manager::pfdetect;
@@ -41,7 +42,7 @@ use pf::services::manager::pfmon;
 use Module::Loaded qw(is_loaded);
 
 our @APACHE_SERVICES = (
-    'httpd.admin', 'httpd.webservices', 'httpd.portal'
+    'httpd.admin', 'httpd.webservices', 'httpd.portal', 'httpd.proxy'
 );
 
 our @ALL_SERVICES = (
