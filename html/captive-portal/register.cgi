@@ -79,6 +79,7 @@ if ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param
   }
 
   my $pid = $portalSession->getSession->param("username");
+  $pid = $default_pid if $no_username_needed;
   my $params = { username => $pid };
   # TODO : add current_time and computer_name
   my $locationlog_entry = locationlog_view_open_mac($mac);

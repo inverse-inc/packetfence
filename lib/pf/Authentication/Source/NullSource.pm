@@ -14,7 +14,7 @@ pf::Authentication::Source::NullSource
 use strict;
 use warnings;
 use Moose;
-use pf::config qw($FALSE $TRUE);
+use pf::config qw($FALSE $TRUE $default_pid);
 use Email::Valid;
 use pf::util;
 
@@ -25,9 +25,13 @@ has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => ( is=> 'rw', default => 'disabled');
 
+=head2 match_in_subclass
+
+=cut
+
 sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
-    return $params->{'username'};
+    return $self->email_required ? $params->{'username'} : $default_pid;
 }
 
 =head2 authenticate
