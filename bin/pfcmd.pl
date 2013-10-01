@@ -79,6 +79,8 @@ use pf::pfcmd;
 use pf::util;
 use HTTP::Status qw(is_success);
 use List::MoreUtils qw(all true);
+use Term::ANSIColor;
+use IO::Interactive qw(is_interactive);
 
 # Perl taint mode setup (see: perlsec)
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
@@ -104,6 +106,10 @@ our %ACTION_MAP = (
     watch   => \&watchService,
     restart => \&restartService,
 );
+
+our $SERVICE_HEADER ="service|command\n";
+
+our $IS_INTERACTIVE = is_interactive();
 
 my $count  = $ENV{PER_PAGE};
 my $offset = $ENV{PAGE_NUM};
@@ -1173,7 +1179,7 @@ sub service {
 sub startService {
     my ($service) = @_;
     my @managers = getStartServiceManagers($service);
-    print "service|command\n";
+    print $SERVICE_HEADER;
     my $count = 0;
     if(isIptablesManaged($service)) {
         $logger->info("saving current iptables to var/iptables.bak");
@@ -1237,7 +1243,7 @@ sub _getStartServiceManagers {
 sub stopService {
     my ($service) = @_;
     my @managers = getStopServiceManagers($service);
-    print "service|command\n";
+    print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;
         if($manager->status eq '0') {
@@ -1290,6 +1296,7 @@ sub _getStopServiceManagers {
 sub restartService {
     my ($service) = @_;
     stopService($service);
+    local $SERVICE_HEADER = '';
     startService($service);
 }
 
@@ -1312,7 +1319,7 @@ sub watchService {
             pfmailer(%message);
         }
         if ( isenabled( $Config{'servicewatch'}{'restart'} ) ) {
-            print "service|command\n";
+            print $SERVICE_HEADER;
             foreach my $manager (@stoppedServiceManagers) {
                 $manager->watch;
                 print join('|',$manager->name,"watch"),"\n";
