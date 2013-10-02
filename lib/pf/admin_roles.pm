@@ -20,7 +20,7 @@ use pf::file_paths;
 use List::MoreUtils qw(any all);
 use pf::config::cached;
 
-our @EXPORT = qw(admin_can @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
+our @EXPORT = qw(admin_can admin_can_do_any @ADMIN_ACTIONS %ADMIN_ROLES $cached_adminroles_config);
 our %ADMIN_ROLES;
 our @ADMIN_ACTIONS = qw(
     SERVICES
@@ -85,6 +85,16 @@ sub admin_can {
     return any {
         my $role = $_;
         exists $ADMIN_ROLES{$role} && all { exists $ADMIN_ROLES{$role}{$_} } @actions
+    } @$roles;
+}
+
+sub admin_can_do_any {
+    my ($roles, @actions) = @_;
+
+    return 0 if any {$_ eq 'NONE'} @$roles;
+    return any {
+        my $role = $_;
+        exists $ADMIN_ROLES{$role} && any { exists $ADMIN_ROLES{$role}{$_} } @actions
     } @$roles;
 }
 
