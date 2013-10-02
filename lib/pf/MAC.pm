@@ -162,7 +162,7 @@ Equivalent to get_dec_oui().
 
 =cut 
 
-sub macoui2nb { return $_[0]->get_dec_oui(@_); }
+*macoui2nb = \&get_dec_oui;
 
 =item mac2nb
 
@@ -172,7 +172,7 @@ Equivalent to get_dec_stripped().
 
 =cut
 
-sub mac2nb { return $_[0]->get_dec_stripped(@_); }
+*mac2nb = \&get_dec_stripped;
 
 =item format_for_acct
 
@@ -182,7 +182,7 @@ Equivalent to as_acct();
 
 =cut 
 
-sub format_for_acct { return $_[0]->as_acct(@_); }
+*format_for_acct = \&as_acct;
 
 =back
 
