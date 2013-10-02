@@ -53,10 +53,7 @@ sub check_password {
   return $FALSE;
 }
 
-sub roles {
-    my $self = shift;
-    return (@{$self->_roles});
-}
+*roles = *_roles;
 
 *for_session = \&id;
 
