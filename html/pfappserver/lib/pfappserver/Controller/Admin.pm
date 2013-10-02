@@ -34,7 +34,7 @@ sub auto :Private {
     # Make sure the 'enforcements' session variable doesn't exist as it affects the Interface controller
     delete $c->session->{'enforcements'};
 
-    unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_exists()) {
+    unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_in_realm('admin')) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($c->action->name eq 'index') {
             $c->stash->{status_msg} = 'Your session has expired.';
@@ -88,7 +88,7 @@ sub login :Local :Args(0) {
         }
         $c->stash->{current_view} = 'JSON';
     }
-    elsif ($c->user_exists()) {
+    elsif ($c->user_in_realm( 'admin' )) {
         $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
         $c->detach();
     }
