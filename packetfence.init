@@ -22,7 +22,7 @@ start() {
 	if [ $IPSET ]; then
 		modprobe ip_set
 	fi
-	/sbin/vconfig set_name_type DEV_PLUS_VID
+	/sbin/vconfig set_name_type DEV_PLUS_VID_NO_PAD
 	/usr/local/pf/bin/pfcmd service pf start
 	RETVAL=$?
 	echo
