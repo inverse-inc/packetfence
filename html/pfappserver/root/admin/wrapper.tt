@@ -72,19 +72,10 @@
                 <a href="[% c.uri_for(c.controller('Admin').action_for('users')) %]">[% l('Users') %]</a>
               </li>
               [%- END %]
-              [%- IF can_access("CONFIGURATION_MAIN_READ") ||
-                     can_access("CONFIGURATION_NETWORK_READ") ||
-                     can_access("USERS_ROLES_READ") ||
-                     can_access("USERS_SOURCES_READ") ||
-                     can_access("VIOLATIONS_READ") ||
-                     can_access("VIOLATIONS_CREATE") ||
-                     can_access("VIOLATIONS_UPDATE") ||
-                     can_access("VIOLATIONS_DELETE") ||
-                     can_access("VIOLATIONS_READ") ||
-                     can_access("SOH_READ") ||
-                     can_access("FINGERPRINTS_READ") ||
-                     can_access("USERAGENTS_READ") ||
-                     can_access("MAC_READ") %]
+              [%- IF can_access_any("CONFIGURATION_MAIN_READ" ,"CONFIGURATION_NETWORK_READ",
+                     "USERS_ROLES_READ", "USERS_SOURCES_READ", "VIOLATIONS_READ", "VIOLATIONS_CREATE", 
+                     "VIOLATIONS_UPDATE", "VIOLATIONS_DELETE", "VIOLATIONS_READ", "SOH_READ", 
+                     "FINGERPRINTS_READ", "USERAGENTS_READ", "MAC_READ") %]
               <li[% ' class="active"' IF c.action.name == 'configuration' %]>
                 <a href="[% c.uri_for(c.controller('Admin').action_for('configuration')) %]">[% l('Configuration') %]</a>
               </li>
