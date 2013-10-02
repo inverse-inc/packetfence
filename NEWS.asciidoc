@@ -17,7 +17,7 @@ Version 4.x.y released on 2013-MM-DD
 New Features
 ++++++++++++
 
-* Profiles can be filter by switches 
+* Portal profiles can be filtered by switches
 * Proxy interception
 * New pfcmd command fixpermissions
 
@@ -30,12 +30,13 @@ Enhancements
 * Improved starting delay when using inline mode
 * Added memcached as a managed service
 * Added CoA support for Xirrus access point
-* Improve validation of vlan management
+* Improved validation of VLAN management
 
 Bug Fixes
 +++++++++
 
-* 
+* Fixed creation of users without a role (#1721)
+* Fixed expiration date of registration to the end of the day (#1722)
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

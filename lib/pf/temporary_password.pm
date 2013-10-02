@@ -122,7 +122,8 @@ sub temporary_password_db_prepare {
     );
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from, UNIX_TIMESTAMP(expiration) as expiration,
+        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
+            UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
             access_duration, category
         FROM temporary_password
         WHERE pid = ?
