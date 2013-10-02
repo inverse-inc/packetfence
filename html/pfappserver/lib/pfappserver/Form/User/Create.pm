@@ -53,7 +53,10 @@ has_block 'templates' =>
 Validate the following constraints :
 
  - an access duration and an unregistration date cannot be set at the same time
- - at least a role, an access duration, or an unregistration date is set
+ - when setting a role, an access duration or an unregistration date is set
+ - at least a role, a sponsor, or an access level is set
+
+See pfappserver::Form::Authentication::Rule->validate
 
 =cut
 
@@ -63,19 +66,29 @@ sub validate {
     $self->SUPER::validate();
 
     my @actions;
+
     @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION } @{$self->value->{actions}};
     if (scalar @actions > 0) {
         @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE } @{$self->value->{actions}};
         if (scalar @actions > 0) {
-            $self->field('actions')->add_error("You can't define an access duration and a unregistration date at the same time.");
+            $self->field('actions')->add_error("You can't define an access duration and an unregistration date at the same time.");
         }
     }
-    else {
-        @actions = grep { $_->{type} eq $Actions::SET_UNREG_DATE || $_->{type} eq $Actions::SET_ROLE }
+
+    @actions = grep { $_->{type} eq $Actions::SET_ROLE } @{$self->value->{actions}};
+    if (scalar @actions > 0) {
+        @actions = grep { $_->{type} eq $Actions::SET_ACCESS_DURATION || $_->{type} eq $Actions::SET_UNREG_DATE }
           @{$self->value->{actions}};
         if (scalar @actions == 0) {
-            $self->field('actions')->add_error("The actions must at least define a role, an access duration, or an unregistration date.");
+            $self->field('actions')->add_error("You must set an access duration or an unregistration date when setting a role.");
         }
+    }
+
+    @actions = grep {
+        $_->{type} eq $Actions::SET_ROLE || $_->{type} eq $Actions::MARK_AS_SPONSOR || $_->{type} eq $Actions::SET_ACCESS_LEVEL
+    } @{$self->value->{actions}};
+    if (scalar @actions == 0) {
+        $self->field('actions')->add_error("You must at least set a role, mark the user as a sponsor, or set an access level.");
     }
 }
 
