@@ -174,37 +174,35 @@ td a.btn { margin-left: 5px; }
     </div>
   </div><!-- deleteFile -->
   
-  <div class="span10">
-    <ul class="breadcrumb">
-        <li>
-            <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
-            <span class="divider"><i class="icon-chevron-right"></i></span>
-        </li>
-        <li>
-            <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]" >[% id %]</a>
-            <span class="divider"><i class="icon-chevron-right"></i></span>
-        </li>
-        <li class="active">[% l('Files') %]</li>
+  <ul class="breadcrumb">
+    <li>
+      <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('index')) %]" >Portal Profiles and Pages</a>
+      <span class="divider"><i class="icon-chevron-right"></i></span>
+    </li>
+    <li>
+      <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]" >[% id %]</a>
+      <span class="divider"><i class="icon-chevron-right"></i></span>
+    </li>
+    <li class="active">[% l('Files') %]</li>
+  </ul>
+  <div class="tab-content">
+    <ul class="nav nav-tabs">
+      <li><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]">[% l('Settings') %]</a></li>
+      <li class="active"><a href="" data-toggle="tab">[% l('Files') %]</a></li>
     </ul>
-    <div class="tab-content">
-      <ul class="nav nav-tabs">
-        <li><a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [id]) %]">[% l('Settings') %]</a></li>
-        <li class="active"><a href="" data-toggle="tab">[% l('Files') %]</a></li>
-      </ul>
-      <div class="tab-pane well" id="settings">
-      </div>
-      <div class="tab-pane fade in active" id="files">
-        <table class="table table-condensed table-striped">
-           <tbody>
-           [% display_directory(root, []) %]
-           </tbody>
-        </table>
+    <div class="tab-pane well" id="settings">
+    </div>
+    <div class="tab-pane fade in active" id="files">
+      <table class="table table-condensed table-striped">
+        <tbody>
+          [% display_directory(root, []) %]
+        </tbody>
+      </table>
 
-        [% IF id != 'default' %]<div class="form-actions">
-          <a class="btn btn-danger call-modal" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[id]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
-        </div>[% END %]
+      [% IF id != 'default' %]<div class="form-actions">
+        <a class="btn btn-danger call-modal" data-modal="revertAll" href="[% c.uri_for(c.controller('Portal::Profile').action_for('revert_all'),[id]) %]" ><i class="icon-refresh"></i> [% l('Revert All Files')  %]</a>
+      </div>[% END %]
 
-      </div><!-- #files pane -->
-    </div><!-- .tab-content -->
-  </div>
+    </div><!-- #files pane -->
+  </div><!-- .tab-content -->
 </div><!-- #portal_profile_files -->
