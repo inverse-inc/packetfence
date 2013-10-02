@@ -1641,8 +1641,8 @@ Using Nessus:
   registration=enabled
   user=nessusUsername
 
-Of course the basic-policy must exist on the nessus server
-If you want to use a different nessus policy by category you have to ajust the settings like the following (if the policy doesn't exist, PacketFence will be use the default policy defined by nessus_clientpolicy):
+Of course the basic-policy must exist on the nessus server.
+If you want to use a different nessus policy by category, you have to adjust settings like the following (if the policy doesn't exist, PacketFence will use the default policy defined by nessus_clientpolicy):
 
   [nessus_category_policy]
   guest=guest_policy
