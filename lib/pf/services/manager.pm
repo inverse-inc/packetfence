@@ -130,7 +130,7 @@ Starts the service
 
 sub startService {
     my ($self,$quick) = @_;
-    return $self->launchService($self->executable);
+    return $self->launchService;
 }
 
 =head2 postStartCleanup
@@ -326,24 +326,46 @@ launch the service using the launcher and arguements passed
 =cut
 
 sub launchService {
-    my ($self,@launcher_args) = @_;
-    my $launcher = $self->launcher;
-    if ($launcher) {
-        my $name = $self->name;
-        my $logger = get_logger;
-        my $cmd_line = sprintf($launcher, map { /^(.*)$/;$1 }  @launcher_args);
-        $logger->info("Starting $name with '$cmd_line'");
-        if ($cmd_line =~ /^(.+)$/) {
-            $cmd_line = $1;
-            my $t0 = Time::HiRes::time();
-            my $return_value = system($cmd_line);
-            my $elapsed = Time::HiRes::time() - $t0;
-            $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $name, $elapsed));
-            return $return_value == 0;
-        }
+    my ($self) = @_;
+    my $cmdLine = $self->_cmdLine;
+    if ($cmdLine =~ /^(.+)$/) {
+        $cmdLine = $1;
+        my $logger = get_logger();
+        my $t0 = Time::HiRes::time();
+        my $return_value = system($cmdLine);
+        my $elapsed = Time::HiRes::time() - $t0;
+        $logger->info(sprintf("Daemon %s took %.3f seconds to start.", $self->name, $elapsed));
+        return $return_value == 0;
     }
     return;
 }
+
+=head2 _cmdLine
+
+TODO: documention
+
+=cut
+
+sub _cmdLine {
+    my ($self) = @_;
+    my $launcher = $self->launcher;
+    my @cmdLineArgs = $self->_cmdLineArgs;
+    my $cmdLine = sprintf($launcher, map { /^(.*)$/;$1 }  @cmdLineArgs);
+    return $cmdLine;
+}
+
+
+=head2 _cmdLineArgs
+
+TODO: documention
+
+=cut
+
+sub _cmdLineArgs {
+    my ($self) = @_;
+    return ($self->executable);
+}
+
 
 =head2 pidFile
 
