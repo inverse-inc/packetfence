@@ -922,7 +922,11 @@ sub fromCacheUntainted {
 sub removeFromSubcaches {
     my ($self,$key) = @_;
     my $cache = $self->cache;
-    $cache->l1_cache->remove($key) if $cache->has_subcaches;
+    if($cache->has_subcaches) {
+        get_logger->trace("Removing from subcache");
+        $cache->l1_cache->expire($key);
+        $cache->l1_cache->remove($key);
+    }
 }
 
 sub untaint {
