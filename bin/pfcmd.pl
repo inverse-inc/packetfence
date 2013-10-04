@@ -1197,14 +1197,23 @@ sub startService {
 
     foreach my $manager (@managers) {
         my $command;
+        my $color = '';
         if($manager->status ne '0') {
+            $color =  color 'yellow' if $IS_INTERACTIVE;
             $command = 'already started';
         } else {
-            $manager->start;
-            $command = 'start';
+            if($manager->start) {
+                $command = 'start';
+                $color =  color 'green' if $IS_INTERACTIVE;
+            } else {
+                $command = 'not started';
+                $color =  color 'red' if $IS_INTERACTIVE;
+            }
         }
-        print join('|',$manager->name,$command),"\n";
+        print $manager->name,"|${color}$command\n";
+        print color 'reset' if $IS_INTERACTIVE;
     }
+    print color 'reset' if $IS_INTERACTIVE;
     return 0;
 }
 
@@ -1246,13 +1255,20 @@ sub stopService {
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;
+        my $color = '';
         if($manager->status eq '0') {
             $command = 'already stopped';
+            $color = color 'yellow' if $IS_INTERACTIVE;
         } else {
-            $manager->stop;
-            $command = 'stop';
+            if($manager->stop) {
+                $color = color 'green' if $IS_INTERACTIVE;
+                $command = 'stop';
+            } else {
+                $color =  color 'red' if $IS_INTERACTIVE;
+            }
         }
-        print join('|',$manager->name,$command),"\n";
+        print $manager->name,"|${color}$command\n";
+        print color 'reset' if $IS_INTERACTIVE;
     }
     if(isIptablesManaged($service)) {
         my $count = true { $_->status eq '0'  } @managers;
@@ -1336,10 +1352,21 @@ sub statusOfService {
     print "service|shouldBeStarted|pid\n";
     my $notStarted = 0;
     foreach my $manager (@managers) {
+        my $color = '';
         my $isManaged = $manager->isManaged;
         my $status = $manager->status;
-        print join('|',$manager->name,$isManaged,$status),"\n";
-        $notStarted++ if $status eq '0' && $isManaged;
+        if($status eq '0' ) {
+            if ($isManaged) {
+                $color = color 'red' if $IS_INTERACTIVE;
+                $notStarted++;
+            } else {
+                $color = color 'yellow' if $IS_INTERACTIVE;
+            }
+        } else {
+            $color = color 'green' if $IS_INTERACTIVE;
+        }
+        print $manager->name,"|${color}$isManaged|$status\n";
+        print color 'reset' if $IS_INTERACTIVE;
     }
     return ( $notStarted ? 3 : 0);
 }
