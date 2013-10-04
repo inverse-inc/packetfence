@@ -31,43 +31,28 @@ sub managers {
     return ();
 }
 
-=head2 start
+=head2 generateConfig startService postStartCleanup stop watch
 
-start all the sub managers
-
-=cut
-
-sub start {
-    my ($self,$quick) = @_;
-    my $count;
-    my $pass = true {$count++; $_->start($quick) } $self->managers;
-    return $pass == $count;
-}
-
-=head2 stop
-
-stop all the sub managers
+Delegating generateConfig startService postStartCleanup stop watch to sub managers
 
 =cut
 
-sub stop {
-    my ($self,$quick) = @_;
+around [qw(generateConfig startService postStartCleanup watch stop)] => sub {
+    my ($orig,$self,$quick) = @_;
     my $count;
-    my $pass = true {$count++; $_->stop($quick) } $self->managers;
+    my $pass = true {$count++; $_->$orig($quick) } $self->managers;
     return $pass == $count;
-}
+};
 
-=head2 watch
+=head2 removeStalePid
 
-watch all the sub managers
+Delegating removeStalePid to sub managers
 
 =cut
 
-sub watch {
-    my ($self,$quick) = @_;
-    my $count;
-    my $pass = true {$count++; $_->watch($quick) } $self->managers;
-    return $pass == $count;
+sub removeStalePid {
+    my ($self) = @_;
+    $_->removeStalePid foreach $self->managers;
 }
 
 =head2 status
