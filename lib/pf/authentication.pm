@@ -176,7 +176,7 @@ sub readAuthenticationConfigFile {
                     # Parse rules
                     foreach my $rule_id ( $config->GroupMembers($source_id) ) {
 
-                        my ($id) = $rule_id =~ m/$source_id rule (\w+)/;
+                        my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
                         my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
 
                         foreach my $parameter ( $config->Parameters($rule_id) ) {
