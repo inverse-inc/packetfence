@@ -223,6 +223,7 @@ Requires: perl(Cache::FastMmap)
 Requires: perl(Moo) >= 1.0
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
+Requires: perl(Module::Loaded)
 # configuration-wizard
 Requires: iproute, vconfig
 #
