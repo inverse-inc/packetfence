@@ -39,6 +39,7 @@ Bug Fixes
 * Fixed expiration date of registration to the end of the day (#1722)
 * Fixed saving authentication sources and cached and allow rules with dashes
 * Fixed vconfig setting the wrong name_type
+* Fixed help text in Web admin (#1724)
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

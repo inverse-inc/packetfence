@@ -907,7 +907,8 @@ sub toHash {
     foreach my $section ($self->Sections()) {
         my %data;
         foreach my $param ( map { untaint_value($_) } uniq $self->Parameters($section), @default_parms) {
-            $data{$param} = untaint(join('', $self->val($section, $param)));
+            my $val = $self->val($section, $param);
+            $data{$param} = untaint($val);
         }
         $hash->{$section} = \%data;
     }
