@@ -63,9 +63,10 @@ sub _from_default_profile {
 sub _default_profile {
     my %default = %{$Profiles_Config{default}};
     unless (defined $default{'sources'} && @{$default{'sources'}} > 0) {
-        # When no authentication source is selected, use all authentication sources
-        my @sources = map { $_->id } @{pf::authentication::getAllAuthenticationSources()};
-        $default{'sources'} = \@sources;
+        # When no authentication source is selected, use all authentication sources except
+        my @sources = grep { $_->class ne 'exclusive' }  @{pf::authentication::getAllAuthenticationSources()};
+        my @sources_id = map { $_->id } @sources;
+        $default{'sources'} = \@sources_id;
     }
     my %results =
       (
@@ -103,7 +104,7 @@ sub _guest_modes_from_sources {
     my @guest_modes =
       map { lc($_->type) }
         grep { exists $is_in{$_->id} && exists $modeClasses{$_->class} }
-          @authentication_sources;
+          @{pf::authentication::getAllAuthenticationSources()};
 
     return \@guest_modes;
 }
