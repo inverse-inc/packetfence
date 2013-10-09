@@ -1,4 +1,5 @@
 <h2></h2>
+[%-  tab =  c.req.param('tab') || 'settings' -%]
 <div id="portal_profile_read">
 
   <div class="modal fade hide" id="saveProfile">
@@ -14,6 +15,7 @@
     </div>
   </div><!-- cancelEdit -->
 
+<form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
   <div class="span10">
     <ul class="breadcrumb">
       <li>
@@ -25,15 +27,17 @@
     <h2><!-- first sibling of alerts --></h2>
     <div class="tab-content">
       <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="" data-toggle="tab">[% l('Settings') %]</a>
+        <li [% IF tab == 'settings' %]class="active" [% END %]>
+          <a href="#settings" data-toggle="tab">[% l('Settings') %]</a>
+        </li>
+        <li [% IF tab == 'provisioning' %]class="active" [% END %]>
+          <a href="#provisioning" data-toggle="tab" >[% l('Provisioning')  %]</a>
         </li>
         <li>
           <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('files'),[id]) %]" >[% l('Files')  %]</a>
         </li>
       </ul>
-      <div class="tab-pane fade in active" id="settings">
-        <form id="update_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('update'),[id])  %]"  class="form-horizontal">
+      <div class="tab-pane fade in [% tab == 'settings'  %]active[% END %]" id="settings">
           [% form.block('definition').render %]
           [% IF form.field('filter') %]
           <div class="control-group">
@@ -83,9 +87,12 @@
             <button type="reset" class="btn">[% l('Reset') %]</button>
           </div>
           [%- END %]
-        </form>
       </div>
     </div>
+    <div class="tab-pane fade in [% IF provisioning_tab  %]active[% END %]" id="provisioning">
+        [% form.block('provisioning').render %]
+    </div>
   </div>
+</form>
 
 </div>
