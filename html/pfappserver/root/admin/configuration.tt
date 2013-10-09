@@ -19,6 +19,7 @@
         'admin/configuration/violations',
         'admin/configuration/soh',
         'admin/configuration/roles',
+        'admin/configuration/items',
         'js/interface',
         'js/bootstrapSwitch',
         ]
@@ -95,6 +96,7 @@ table.sources {
               [%- IF can_access("PORTAL_PROFILES_READ") %]
               [% list_entry('Portal::Profile', 'index', 'Portal Profiles') %]
               [%- END %]
+              [% list_entry('ConfigStore::Mdm', 'index', 'Mobile Device Management') %]
               [%- IF can_access("ADMIN_ROLES_READ") %]
               [% pf_section_entry('adminroles', 'Admin Access') %]
               [%- END %]

@@ -1,0 +1,20 @@
+      <table id="items" class="table items">
+        <thead>
+          <tr>
+            <th>[% l('Id') %]</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          [% FOREACH item IN items %]
+          <tr>
+            <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a>
+            <td>
+              <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
+            </td>
+          </tr>
+          [% END -%]
+        </tbody>
+      </table>
+
