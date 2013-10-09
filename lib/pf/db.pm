@@ -21,9 +21,9 @@ use strict;
 use warnings;
 use DBI;
 use File::Basename;
-#get_logger() is equivalent to get_logger(__PACKAGE__)
-use Log::Log4perl qw(get_logger);
 use threads;
+
+use pf::log;
 use pf::config;
 
 # Constants
@@ -257,7 +257,7 @@ sub db_query_execute {
 
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
         $logger->trace('SQL statement ('.$query. '): '.$db_statement->{Statement}) if ($valid_statement);
-        $logger->trace('SQL params ('.$query. '): '.join(', ', @params)) if (@params);
+        $logger->trace('SQL params ('.$query. '): '.join(', ', map { defined $_? $_ : '<null>' } @params)) if (@params);
 
         if ($valid_statement && $db_statement->execute(@params)) {
 
