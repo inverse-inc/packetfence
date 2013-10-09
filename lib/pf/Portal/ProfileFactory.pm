@@ -63,7 +63,7 @@ sub _from_default_profile {
 sub _default_profile {
     my %default = %{$Profiles_Config{default}};
     unless (defined $default{'sources'} && @{$default{'sources'}} > 0) {
-        # When no authentication source is selected, use all authentication sources except
+        # When no authentication source is selected, use all authentication sources except exclusive sources
         my @sources = grep { $_->class ne 'exclusive' }  @{pf::authentication::getAllAuthenticationSources()};
         my @sources_id = map { $_->id } @sources;
         $default{'sources'} = \@sources_id;
