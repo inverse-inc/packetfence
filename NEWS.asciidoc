@@ -20,6 +20,7 @@ New Features
 * Portal profiles can be filtered by switches
 * Proxy interception
 * New pfcmd command fixpermissions
+* Added a Null Authenication Source
 
 Enhancements
 ++++++++++++
