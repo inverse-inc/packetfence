@@ -756,6 +756,7 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/responsive.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/styles.css
 %config(noreplace)      /usr/local/pf/html/captive-portal/content/print.css
+                        /usr/local/pf/html/captive-portal/content/countdown.min.js
                         /usr/local/pf/html/captive-portal/content/guest-management.js
                         /usr/local/pf/html/captive-portal/content/timerbar.js
 %dir                    /usr/local/pf/html/captive-portal/content/images
