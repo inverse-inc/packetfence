@@ -40,6 +40,7 @@ use pf::config;
 use pf::node qw(nodes_registered_not_violators);
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
+use pf::authentication;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -81,13 +82,13 @@ sub new {
 sub iptables_generate {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger('pf::iptables');
-    my %tags = ( 
+    my %tags = (
         'filter_if_src_to_chain' => '', 'filter_forward_inline' => '',
-        'filter_forward_vlan' => '', 
-        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '', 
+        'filter_forward_vlan' => '',
+        'mangle_if_src_to_chain' => '', 'mangle_prerouting_inline' => '',
         'nat_if_src_to_chain' => '', 'nat_prerouting_inline' => '',
         'nat_postrouting_vlan' => '', 'nat_postrouting_inline' => '',
-        'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '', 
+        'input_inter_inline_rules' => '', 'nat_prerouting_vlan' => '',
         'routed_postrouting_inline' => '','input_inter_vlan_if' => '',
     );
 
@@ -103,11 +104,11 @@ sub iptables_generate {
         $self->generate_inline_rules(
             \$tags{'filter_forward_inline'}, \$tags{'nat_prerouting_inline'}, \$tags{'nat_postrouting_inline'},\$tags{'routed_postrouting_inline'},\$tags{'input_inter_inline_rules'}
         );
-    
+
         # MANGLE
         $tags{'mangle_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_MANGLE);
         $tags{'mangle_prerouting_inline'} .= $self->generate_mangle_rules();
-    
+
         # NAT chain targets and redirections (other rules injected by generate_inline_rules)
         $tags{'nat_if_src_to_chain'} .= $self->generate_inline_if_src_to_chain($FW_TABLE_NAT);
         $tags{'nat_prerouting_inline'} .= $self->generate_nat_redirect_rules();
@@ -265,13 +266,13 @@ sub generate_inline_rules {
             $$input_filtering_ref .= "-A $FW_FILTER_INPUT_INT_INLINE --protocol tcp --match tcp --dport $intercept_port "
                     . " --match mark --mark 0x$IPTABLES_MARK_REG  --jump DROP\n";
         }
-    } 
+    }
 
 
-    
+
     $logger->info("Adding NAT Masquarade statement (PAT)");
     $$nat_postrouting_ref .= "-A $FW_POSTROUTING_INT_INLINE --jump MASQUERADE\n";
-    
+
     $logger->info("Addind ROUTED statement");
     $$routed_postrouting_inline .= "-A $FW_POSTROUTING_INT_INLINE_ROUTED --jump ACCEPT\n";
 
@@ -464,7 +465,7 @@ sub generate_nat_redirect_rules {
          $rules .= "-A $FW_PREROUTING_INT_INLINE -m set --match-set pfsession_passthrough dst,dst ".
                "--match mark --mark 0x$IPTABLES_MARK_UNREG --jump ACCEPT\n";
     }
-    
+
     # Now, do your magic
     foreach my $redirectport ( split( /\s*,\s*/, $Config{'inline'}{'ports_redirect'} ) ) {
         my ( $port, $protocol ) = split( "/", $redirectport );
@@ -694,7 +695,7 @@ sub generate_interception_rules {
         }
     }
 
-} 
+}
 
 
 =back

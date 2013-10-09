@@ -44,7 +44,6 @@ our (
     @listen_ints, @dhcplistener_ints, @ha_ints, $monitor_int,
     @internal_nets, @routed_isolation_nets, @routed_registration_nets, @inline_nets, @external_nets,
     @inline_enforcement_nets, @vlan_enforcement_nets, $management_network,
-    %guest_self_registration,
 #pf.conf.default variables
     %Default_Config, $cached_pf_default_config,
 #pf.conf variables
@@ -77,7 +76,6 @@ BEGIN {
         @listen_ints @dhcplistener_ints @ha_ints $monitor_int
         @internal_nets @routed_isolation_nets @routed_registration_nets @inline_nets $management_network @external_nets
         @inline_enforcement_nets @vlan_enforcement_nets
-        %guest_self_registration
         $IPTABLES_MARK_UNREG $IPTABLES_MARK_REG $IPTABLES_MARK_ISOLATION
         $IPSET_VERSION %mark_type_to_str %mark_type
         $MAC $PORT $SSID $ALWAYS

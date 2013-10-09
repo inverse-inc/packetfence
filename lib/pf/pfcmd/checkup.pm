@@ -23,6 +23,7 @@ use pf::violation_config;
 use pf::util;
 use pf::services;
 use pf::trigger;
+use pf::authentication;
 use NetAddr::IP;
 use File::Slurp qw(read_file);
 

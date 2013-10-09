@@ -28,6 +28,7 @@ use pf::config;
 use pf::util;
 use pf::util::apache qw(url_parser);
 use pf::web::constants;
+use pf::authentication;
 
 BEGIN {
     use Exporter ();

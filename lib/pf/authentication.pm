@@ -55,6 +55,7 @@ use pf::util;
 our @authentication_sources = ();
 our %authentication_lookup;
 our $cached_authentication_config;
+our %guest_self_registration;
 
 BEGIN {
     use Exporter ();
@@ -70,6 +71,7 @@ BEGIN {
             getAllAuthenticationSources
             deleteAuthenticationSource
             writeAuthenticationConfigFile
+            %guest_self_registration
        );
     @EXPORT_OK =
       qw(

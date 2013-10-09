@@ -27,6 +27,7 @@ use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
+use pf::authentication;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -247,7 +248,7 @@ sub get_mangle_mark_for_mac {
 
             if ($net_addr->contains($ip)) {
                 foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                    
+
                     my $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac 2>&1";
                     my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 
