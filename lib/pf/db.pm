@@ -256,6 +256,9 @@ sub db_query_execute {
         }
 
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
+        $logger->trace('SQL statement ('.$query. '): '.$db_statement->{Statement}) if ($valid_statement);
+        $logger->trace('SQL params ('.$query. '): '.join(', ', @params)) if (@params);
+
         if ($valid_statement && $db_statement->execute(@params)) {
 
             # statement execute was a success; we are done
