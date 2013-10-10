@@ -25,7 +25,7 @@ has_field 'type' =>
    type => 'Select',
    label => 'MDM type',
    required => 1,
-   messages => { required => '' },
+   messages => { required => 'Please select MDM type' },
   );
 
 has_field 'username' =>
@@ -33,15 +33,15 @@ has_field 'username' =>
    type => 'Text',
    label => 'User name',
    required => 1,
-   messages => { required => '' },
+   messages => { required => 'Username Required' },
   );
 
 has_field 'password' =>
   (
    type => 'Password',
-   label => 'User name',
+   label => 'Password',
    required => 1,
-   messages => { required => '' },
+   messages => { required => 'Password required' },
   );
 
 has_field 'uri' =>
@@ -49,7 +49,7 @@ has_field 'uri' =>
    type => 'Text',
    label => 'Uri',
    required => 1,
-   messages => { required => '' },
+   messages => { required => 'Uri required' },
   );
 
 has_block definition =>
@@ -58,7 +58,7 @@ has_block definition =>
   );
 
 sub options_type {
-    return ({ label => 'IBM', value => 'ibm'  } , { label => 'Symantec', value => 'symantec'});
+    return ({ label => 'Tem', value => 'tem'  } , { label => 'Symantec', value => 'symantec'});
 }
 
 =head1 COPYRIGHT
