@@ -1,0 +1,7 @@
+<WISPAccessGatewayParam xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nonamespaceschemalocation="http://www.acmewisp.com/WISPAccessGatewayParam.xsd">
+ <authenticationreply>
+  <messagetype>140</messagetype>
+  <responsecode>[% code_result %]</responsecode>
+  <replymessage>[% result %]</replymessage>
+ </authenticationreply>
+</WISPAccessGatewayParam>

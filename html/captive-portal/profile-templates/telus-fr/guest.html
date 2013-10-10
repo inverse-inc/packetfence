@@ -1,0 +1,120 @@
+[% title = i18n("PacketFence Registration System") %]
+[% INCLUDE header.html
+    body_attributes = 'onload="$(\'firstfield\').focus();"';
+%]
+
+        <div id="about" class="underlined">
+          <img src="/content/images/registration.png" alt="Registration" />
+          <h1>[% i18n("Guest Registration") %]</h1>
+          <p>[% i18n("guest network disclaimer") %]</p>
+          <hr/>
+        </div>
+
+        [%# Error %]
+        [% IF txt_validation_error.defined %]<div class="error"><p>[% txt_validation_error %]</p></div>[% END %]
+
+        <form method="post" action="[% post_uri %]">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+
+          <div class="input">
+            <span>[% i18n("Firstname") %]</span>
+            <input class="field" name="firstname" id="firstfield" type="text" value="[% firstname | html %]" />
+
+            <span>[% i18n("Lastname") %]</span>
+            <input class="field" name="lastname" type="text" value="[% lastname | html %]" />
+          </div>
+
+          <div class="input">
+            <span>[% i18n("Company / Organization") %]</span>
+            <input class="field" name="organization" type="text" value="[% organization | html %]" /><br/>
+
+            <span>[% i18n("Phone number") %]</span>
+            <input class="field" name="phone" type="text" value="[% phone | html %]" />
+
+            [% IF sms_guest_allowed %]
+              <span>[% i18n("Phone Provider") %]</span>
+              <select name="mobileprovider">
+                <option value="">[% i18n("Select your provider") %]</option>
+                    [% FOREACH carrier IN sms_carriers %]<option value="[% carrier.id %]"[% IF mobileprovider == carrier.id %] selected[% END %]>[% carrier.name %]</option>
+                    [% END %]
+              </select>
+              [% IF email_guest_allowed || sponsored_guest_allowed %]
+                <em>Required to receive your access code by SMS</em>
+              [% END %]
+            [% END %]
+
+            <span>[% i18n("Email") %]</span>
+            <input class="field" name="email" type="text" value="[% email | html %]" /><br/>
+          </div>
+
+          [% IF sponsored_guest_allowed %]
+          <div class="input">
+            <span>[% i18n("Sponsor's email") %]</span>
+            <input class="field" name="sponsor_email" type="text" value="[% sponsor_email | html %]" /><br/>
+            [% IF email_guest_allowed || sms_guest_allowed %]
+              <em>Required for sponsored network access only</em>
+            [% END %]
+          </div>
+          [% END %]
+
+          [%# AUP %]
+          <div class="input">
+            <div>[% i18n("Acceptable Use Policy") %]</div>
+            <div id="aup">
+              <div class="notmobile">
+                [% INCLUDE aup_text.html %]
+              </div>
+              <div class="mobile">
+                <input name="aup_signed" type="checkbox" value="on" /> [% i18n("I have read and accept the terms") %]
+              </div>
+            </div>
+            <div class="notmobile"><input name="aup_signed" type="checkbox" value="on" /> [% i18n("I accept the terms") %]</div>
+          </div>
+
+          [%# submit %]
+          <div class="input">
+
+            [% IF sponsored_guest_allowed %]
+            <div class="note bg">
+              <p>
+                [% i18n("If you choose to have your access <strong>sponsored</strong>, we will send an email to the Sponsor email you provided with an activation link. The sponsor will need to click on that link and authenticate in order to approve you in.") %]
+              [% IF is_preregistration;
+                     i18n("You will receive guest credentials by email once approved.");
+                 ELSE;
+                     i18n("You will be in a waiting area until approved.");
+                 END
+              %]
+              </p>
+            </div>
+            <input type="submit" class="btn" name="by_sponsor" value="[% i18n("Register through a Sponsor") %]" /><br/>
+            [% END %]
+
+            [% IF email_guest_allowed %]
+            <div class="note bg">
+              [% IF is_preregistration %]
+                <p>[% i18n("If you choose to receive your access code <strong>by email</strong>, you will have to click on an activation link sent to your email address. After clicking on the link you will receive guest credentials to use on-site by email") %]</p>
+              [% ELSE %]
+                <p>[% i18n("If you choose to receive your access code <strong>by email</strong>, you will be given temporary network access for 10 minutes during that time:") %]</p>
+                <ul>
+                  <li>[% i18n("Login to the email account you referenced and;") %]</li>
+                  <li>[% i18n("Click on the link emailed to you to validate network access for the next 24 hours.") %]</li>
+                </ul>
+              [% END %]
+
+            </div>
+            <input type="submit" class="btn" name="by_email" value="[% i18n("Register by Email") %]" /><br/>
+            [% END %]
+
+            [% IF sms_guest_allowed and !is_preregistration %]
+            <div class="note bg">
+              <p>[% i18n("If you choose to receive your access code <strong>by SMS</strong>, you will be able to enter it on the next page.") %]</p>
+            </div>
+              <input type="submit" class="btn" name="by_sms" value="[% i18n("Register by SMS") %]" />
+            [% END %]
+          </div>
+
+        </form>
+
+[% INCLUDE footer.html 
+    dont_show_help = is_preregistration
+%]

@@ -1,0 +1,35 @@
+[% title = i18n("Login") %]
+[% INCLUDE header.html %]
+
+        [%# Error %]
+        [% IF txt_auth_error.defined %]<div class="error"><p>[% txt_auth_error %]</p></div>[% END %]
+
+        <form name="login" method="post" action="/authenticate">
+          <input type="hidden" name="destination_url" value="[% destination_url %]" />
+          <input type="hidden" name="CGISESSID" value="[% session_id %]" />
+
+          <div class="input">
+            <label for="email">Entrez votre adresse de courriel pour obtenir l'accès au réseau sans-fil de TELUS.</label>
+            <input type="text" id="email" name="email" value="[% email | html %]" placeholder="Email address" />
+          </div>
+
+          [%# AUP %]
+          <div class="input">
+           <div>
+             <input name="aup_signed" type="checkbox" />J'accepte les <a href="/aup">modalités</a> et j'autorise TELUS à utiliser mon adresse courriel pour m'envoyer des mises à jour sur les produits et des offres promotionnelles, ainsi que pour recueillir mes commentaires.
+           </div>
+          </div>
+          
+          [%# submit %]
+          <div class="input">
+            <input type="submit" class="btn" name="submit" value="Envoyer" />
+          </div>
+        </form>
+
+        <div>
+          <img src="/content/images/TELUS-help.png" style="vertical-align: middle" /> Having trouble connecting? <a href="http://beta.telus.com/get-help/">Get Help</a> or call us on <a href="tel:+1-855-200-9434">1-855-200-WIFI (9434)</a>.
+          </div>
+
+        <div id="billc28">10050001_20130718</div>
+
+[% INCLUDE footer.html %]
