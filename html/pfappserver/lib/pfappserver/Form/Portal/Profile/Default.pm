@@ -15,54 +15,34 @@ use pf::authentication;
 use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Portal::Common';
-with 'pfappserver::Base::Form::Role::Help';
 
-# Form fields
-has_field 'id' =>
+=head1 Blocks
+
+=head2 definition
+
+The main definition block
+
+=cut
+
+has_block 'definition' =>
   (
-   type => 'Text',
-   label => 'Profile Name',
-   required => 1,
-   readonly => 1,
-   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
+   render_list => [ qw(id description logo billing_engine) ],
   );
-has_field 'description' =>
-  (
-   type => 'Text',
-   label => 'Profile Description',
-   required => 1,
-   readonly => 1,
-  );
+
+
+=head1 Fields
+
+=head2 logo
+
+The logo field
+
+=cut
+
 has_field 'logo' =>
   (
    type => 'Text',
    label => 'Logo',
    required => 1,
-  );
-has_field 'billing_engine' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Billing Engine',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   tags => { after_element => \&help,
-             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
-  );
-has_block 'definition' =>
-  (
-   render_list => [ qw(id description logo billing_engine) ],
-  );
-has_field 'sources' =>
-  (
-    'type' => 'DynamicTable',
-    'sortable' => 1,
-    'do_label' => 0,
-  );
-has_field 'sources.contains' =>
-  (
-    type => 'Select',
-    options_method => \&options_sources,
-    widget_wrapper => 'DynamicTableRow',
   );
 
 

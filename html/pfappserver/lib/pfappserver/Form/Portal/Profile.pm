@@ -16,39 +16,31 @@ use HTML::FormHandler::Moose;
 use pfappserver::Form::Field::ProfileFilter;
 extends 'pfappserver::Base::Form';
 with 'pfappserver::Form::Portal::Common';
-with 'pfappserver::Base::Form::Role::Help';
 
 use pf::config;
 use List::MoreUtils qw(uniq);
 
-# Form fields
-sub build_do_form_wrapper {0}
-has_field 'id' =>
-  (
-   type => 'Text',
-   label => 'Profile Name',
-   required => 1,
-   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
-  );
-has_field 'description' =>
-  (
-   type => 'Text',
-   label => 'Profile Description',
-   required => 1,
-  );
-has_field 'billing_engine' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Billing Engine',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-   tags => { after_element => \&help,
-             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
-  );
+=head1 Blocks
+
+=head2 definition
+
+The main definition block
+
+=cut
+
 has_block 'definition' =>
   (
    render_list => [ qw(id description billing_engine) ],
   );
+
+=head1 Fields
+
+=head2 filter
+
+The filter container field
+
+=cut
+
 has_field 'filter' =>
   (
    type => 'DynamicTable',
@@ -61,27 +53,19 @@ has_field 'filter' =>
        ]
    }
   );
+
+=head2 filter.conatains
+
+The filter container field contents
+
+=cut
+
 has_field 'filter.contains' =>
   (
    type => '+ProfileFilter',
    label => 'Filter',
    widget_wrapper => 'DynamicTableRow',
   );
-has_field 'sources' =>
-  (
-   'type' => 'DynamicTable',
-   'sortable' => 1,
-   'do_label' => 0,
-  );
-has_field 'sources.contains' =>
-  (
-   type => 'Select',
-   options_method => \&options_sources,
-   widget_wrapper => 'DynamicTableRow',
-  );
-
-=head1 METHODS
-
 
 
 =head1 COPYRIGHT

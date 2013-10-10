@@ -17,8 +17,84 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 use pf::authentication;
+with 'pfappserver::Base::Form::Role::Help';
+
+=head1 Fields
+
+=head2 id
+
+Id of the profile
+
+=cut
+
+has_field 'id' =>
+  (
+   type => 'Text',
+   label => 'Profile Name',
+   required => 1,
+   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
+  );
+
+=head2 description
+
+Description of the profile
+
+=cut
+
+has_field 'description' =>
+  (
+   type => 'Text',
+   label => 'Profile Description',
+   required => 1,
+  );
+
+=head2 billing_engine
+
+Has the billing engine enabled
+
+=cut
+
+has_field 'billing_engine' =>
+  (
+   type => 'Toggle',
+   label => 'Enable Billing Engine',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
+  );
+
+=head2 sources
+
+Collectiosn Authentication Sources for the profile
+
+=cut
+
+has_field 'sources' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 sources.contains
+
+The definition for Authentication Sources field
+
+=cut
+
+has_field 'sources.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_sources,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+=head1 Methods
 
 =head2 options_sources
+
+Returns the list of sources to be displayed
 
 =cut
 
@@ -49,6 +125,7 @@ sub validate {
         }
     }
 }
+
 
 =head1 AUTHOR
 
