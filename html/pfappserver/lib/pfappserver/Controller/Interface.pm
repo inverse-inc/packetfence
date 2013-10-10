@@ -28,6 +28,7 @@ use namespace::autoclean;
 
 use pfappserver::Form::Interface;
 use pfappserver::Form::Interface::Create;
+use pfappserver::Base::Action::AdminRole;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -323,8 +324,6 @@ See https://metacpan.org/module/Catalyst::Controller#self-create_action-args
 
 around create_action => sub {
     my ($orig, $self, %args) = @_;
-
-    my $model;
     my $action = $self->$orig(%args);
     unless ($args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/) {
         my @roles;
