@@ -9,6 +9,8 @@ $(function() { // DOM ready
 var Items = function() {
 };
 
+Items.prototype.id = "#items";
+
 Items.prototype.get = function(options) {
     $.ajax({
         url: options.url
@@ -46,12 +48,14 @@ var ItemView = function(options) {
 ItemView.prototype.setupItem = function(options) {
     var that = this;
     this.parent = options.parent;
-    this.items = options.items;
+    var items = options.items
+    this.items = items;
     this.disableToggle = false;
+    var id = items.id;
 
     // Display the switch in a modal
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', '#items [href$="/read"], #items [href$="/clone"], #createItem', read);
+    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], #createItem', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);
@@ -59,7 +63,7 @@ ItemView.prototype.setupItem = function(options) {
 
     // Delete the switch
     var delete_item = $.proxy(this.deleteItem, this);
-    options.parent.on('click', '#items [href$="/delete"]', delete_item);
+    options.parent.on('click', id + ' [href$="/delete"]', delete_item);
 };
 
 
@@ -99,6 +103,7 @@ ItemView.prototype.updateItem = function(e) {
 
     var that = this;
     var form = $(e.target);
+    var table = $(this.items.id);
     var btn = form.find('.btn-primary');
     var modal = form.closest('.modal');
     var valid = isFormValid(form);
@@ -117,7 +122,7 @@ ItemView.prototype.updateItem = function(e) {
             },
             success: function(data) {
                 modal.modal('toggle');
-                showSuccess(that.parent.find('.table.items').first(), data.status_msg);
+                showSuccess(table, data.status_msg);
                 that.list();
             },
             errorSibling: modal_body.children().first()
@@ -125,8 +130,20 @@ ItemView.prototype.updateItem = function(e) {
     }
 };
 
+ItemView.prototype.list = function() {
+    var table = $(this.items.id);
+    this.items.get({
+        url: table.attr('data-list-uri'),
+        success: function(data) {
+            table.html(data);
+        },
+        errorSibling: table
+    });
+};
+
 ItemView.prototype.deleteItem = function(e) {
     e.preventDefault();
+    var table = $(this.items.id);
 
     var btn = $(e.target);
     var row = btn.closest('tr');
@@ -134,9 +151,9 @@ ItemView.prototype.deleteItem = function(e) {
     this.items.get({
         url: url,
         success: function(data) {
-            showSuccess($('#items'), data.status_msg);
+            showSuccess(table, data.status_msg);
             row.fadeOut('slow', function() { $(this).remove(); });
         },
-        errorSibling: $('#items')
+        errorSibling: table
     });
 };

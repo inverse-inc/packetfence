@@ -1,4 +1,4 @@
-      <table id="items" class="table items">
+      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]" >
         <thead>
           <tr>
             <th>[% l('Id') %]</th>
