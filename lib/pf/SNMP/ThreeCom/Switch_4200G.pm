@@ -140,7 +140,7 @@ See in L</"BUGS AND LIMITATIONS">.
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->warn(

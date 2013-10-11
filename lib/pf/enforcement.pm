@@ -131,7 +131,7 @@ sub _vlan_reevaluation {
 
             } elsif ($conn_type == $WIRED_SNMP_TRAPS) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type, $mac);
 
             } elsif ($conn_type == $WIRELESS_MAC_AUTH) {
                 $logger->debug("sending a local desAssociate trap to force deassociation "
@@ -150,11 +150,11 @@ sub _vlan_reevaluation {
 
             } elsif ($conn_type == $WIRED_802_1X) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type, $mac);
 
             } elsif ($conn_type == $WIRED_MAC_AUTH) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type, $mac);
             }
         } else {
             $logger->error("Can't instantiate switch 127.0.0.1! Check your configuration!");

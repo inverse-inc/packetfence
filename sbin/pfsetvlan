@@ -594,17 +594,20 @@ sub parseTrap {
                     \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0\ =\ OID:\ \.1\.3\.6\.1\.4\.1\.29464\.1\.1  # metadata
                     \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+)\ =\ INTEGER:\ \d+                    # ifIndex
                     \|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.\d+\ =\ INTEGER:\ (\d+)                    # connection type
+                    \|\.1\.3\.6\.1\.4\.1\.29464\.1\.3\ =\ STRING:\ \"(.+)\"                       # mac
                     /x) {
                     # WARNING: using trap operation for something it is not meant to
                     $trapHashRef = {
                         'trapType'       => 'reAssignVlan',
                         'trapIfIndex'    => $1,
                         'trapOperation'  => $2,
+                        'trapMac'        => $3,
                     };
                 } elsif ($trapLine =~ /BEGIN VARIABLEBINDINGS \.1\.3\.6\.1\.6\.3\.1\.1\.4\.1\.0 = OID: \.1\.3\.6\.1\.4\.1\.29464\.1\.1\|\.1\.3\.6\.1\.2\.1\.2\.2\.1\.1\.(\d+) = INTEGER:/) {
                     $trapHashRef = {
                         'trapType'    => 'reAssignVlan',
                         'trapIfIndex' => $1,
+                        'trapMac'     => $3,
                     };
 
                 } elsif ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                   # metadata
@@ -711,6 +714,7 @@ sub parseTrap {
 
                 } elsif ($trapType eq 'reAssignVlan') {
                     $trapOperation = $trapHashRef->{'trapOperation'};
+                    $trapMac = $trapHashRef->{'trapMac'};
                 } elsif ($trapType eq 'roaming') {
                     $trapMac = $trapHashRef->{'trapMac'};
                     $trapMac =~ s/ /:/g;
@@ -1609,15 +1613,9 @@ sub handleTrap {
         my $connection_type = $trapOperation; # WARNING: I used trapOperation to carry the connection type
         $logger->info("$trapType trap received on $switch_ip ifIndex $switch_port");
 
-        if (defined($connection_type) && $connection_type == $WIRED_802_1X) {
-            # we spawn a shell to workaround a thread safety bug in Net::Appliance::Session when using SSH transport
-            # http://www.cpanforum.com/threads/6909
-            $logger->info("Forcing 802.1x re-authentication on $switch_ip:$switch_port. A new VLAN will be assigned.");
-            pf_run("/usr/local/pf/bin/pfcmd_vlan -deauthenticateDot1x -switch $switch_ip -ifIndex $switch_port");
-
-        } elsif (defined($connection_type) && $connection_type == $WIRED_MAC_AUTH) {
-            $switch->handleReAssignVlanTrapForWiredMacAuth($switch_port);
-
+        if (defined($connection_type) && ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH) ) {
+            my ($switchdeauthMethod, $deauthTechniques) = $switch->wiredeauthTechniques($switch->{_deauthMethod},$connection_type);
+            $deauthTechniques->($switch_port,$trapMac);
         } else {
 
             my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $switch_port );
