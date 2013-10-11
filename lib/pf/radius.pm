@@ -234,7 +234,7 @@ sub _parseRequest {
         $eap_type = $radius_request->{'EAP-Type'};
     }
 
-    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Cisco-NAS-Port NAS-Port-Id);
+    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Aruba-Port-Identifier Cisco-NAS-Port NAS-Port-Id);
     my $nas_port_id;
     if ($nas_port_id_key) {
         $nas_port_id = $radius_request->{$nas_port_id_key};
