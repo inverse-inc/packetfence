@@ -1,13 +1,13 @@
-package pf::mdm::tem;
+package pf::mdm::ibm;
 =head1 NAME
 
-pf::mdm::tem add documentation
+pf::mdm::ibm add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mdm::tem
+pf::mdm::ibm
 
 =cut
 
@@ -73,6 +73,14 @@ port of soap server
 
 has port => (is => 'rw');
 
+=head2 protocal
+
+Protocol for the webservice http | https
+
+=cut
+
+has protocol => (is => 'rw', default => sub { "http" } );
+
 =head2 api_uri
 
 location of the wsdl file
@@ -107,7 +115,7 @@ has relevanceExpr => (is => 'rw');
 
 sub _build_proxy {
     my ($self) = @_;
-    return 'http://' . $self->host . ":" . $self->port;
+    return $self->protocol . '://' . $self->host . ":" . $self->port;
 }
 
 sub _build_soap {
