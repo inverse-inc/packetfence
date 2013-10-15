@@ -42,6 +42,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Net::SNMP;
+use Try::Tiny;
 use base ('pf::SNMP');
 
 sub description { 'Aruba Switches' }
@@ -139,7 +140,6 @@ sub getIfIndexByNasPortId {
 
     my @ifDescTemp = split(':',$ifDesc_param);
     my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-    my $ifDescHashRef;
     my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
     foreach my $key ( keys %{$result} ) {
         my $ifDesc = $result->{$key};
@@ -211,6 +211,60 @@ sub wiredeauthTechniques {
     }
 }
 
+=item returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept reponse for the network device.
+
+Default implementation.
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # Inline Vs. VLAN enforcement
+    my $radius_reply_ref = {};
+
+    if (!$wasInline || ($wasInline && $vlan != 0)) {
+        $radius_reply_ref = {
+            'Tunnel-Medium-Type' => $RADIUS::ETHERNET,
+            'Tunnel-Type' => $RADIUS::VLAN,
+            'Tunnel-Private-Group-ID' => $vlan,
+        };
+    }
+
+    # TODO this is experimental
+    try {
+        if ($self->supportsRoleBasedEnforcement()) {
+            $logger->debug("network device supports roles. Evaluating role to be returned");
+            my $role = "";
+            if ( defined($user_role) && $user_role ne "" ) {
+                $role = $self->getRoleByName($user_role);
+            }
+            if ( defined($role) && $role ne "" ) { 
+                $radius_reply_ref = {};
+                $radius_reply_ref->{$self->returnRoleAttribute()} = $role;
+                $logger->info(
+                    "Added role $role to the returned RADIUS Access-Accept under attribute " . $self->returnRoleAttribute()
+                );
+            }
+            else {
+                $logger->debug("received undefined role. No Role added to RADIUS Access-Accept");
+            }
+        }
+    }
+    catch {
+        chomp($_);
+        $logger->debug(
+            "Exception when trying to resolve a Role for the node. No Role added to RADIUS Access-Accept. "
+            . "Exception: $_"
+        );
+    };
+
+    $logger->info("Returning ACCEPT with VLAN: $vlan");
+    return [$RADIUS::RLM_MODULE_OK, %$radius_reply_ref];
+}
 
 =back
 
