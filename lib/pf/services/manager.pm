@@ -24,7 +24,8 @@ use Proc::ProcessTable;
 use List::Util qw(first);
 use Linux::Inotify2;
 use Errno qw(EINTR EAGAIN);
-use Time::HiRes qw (alarm sleep);
+use Time::HiRes qw (alarm);
+use Linux::FD::Timer;
 
 =head1 Attributes
 
@@ -99,7 +100,7 @@ start the service
 sub start {
     my ($self,$quick) = @_;
     my $result = 0;
-    unless ($self->pid) {
+    unless ($self->status) {
         if( $self->preStartSetup($quick)) {
             if($self->startService($quick)) {
                 $result = $self->postStartCleanup($quick);
@@ -119,6 +120,7 @@ sub preStartSetup {
     my ($self,$quick) = @_;
     $self->removeStalePid;
     $self->generateConfig($quick) unless $quick;
+    $self->_setupWatchForPidCreate;
     return 1;
 }
 
@@ -141,33 +143,46 @@ Cleanup work after the starting the service
 
 sub postStartCleanup {
     my ($self,$quick) = @_;
-    my $run_dir = "$var_dir/run";
     my $pidFile = $self->pidFile;
     my $result = 0;
+    my $inotify = $self->inotify;
     unless (-e $pidFile) {
-        my $inotify = $self->inotify;
-        $inotify->watch ($run_dir, IN_CREATE, sub {
-            my $e = shift;
-            my $name = $e->fullname;
-            if($pidFile eq $name) {
-                 $e->w->cancel;
-            }
-        });
         my $timedout;
         eval {
             local $SIG{ALRM} = sub { die "alarm clock restart" };
             alarm 60;
             eval {
-                 1 while !-e $pidFile && $inotify->poll;
+                 1 while $inotify->poll && !-e $pidFile;
             };
             alarm 0;
             $timedout = 1 if $@ && $@ =~ /^alarm clock restart/;
         };
+        alarm 0;
         my $logger = get_logger;
         $logger->warn($self->name . " timed out trying to start" ) if $timedout;
-        alarm 0;
     }
     return -e $pidFile;
+}
+
+
+=head2 _setupWatchForPidCreate
+
+This setups a watch on the run directory to wait for the pid to
+
+=cut
+
+sub _setupWatchForPidCreate {
+    my ($self) = @_;
+    my $inotify = $self->inotify;
+    my $pidFile = $self->pidFile;
+    my $run_dir = "$var_dir/run";
+    $inotify->watch ($run_dir, IN_CREATE, sub {
+        my $e = shift;
+        my $name = $e->fullname;
+        if($pidFile eq $name) {
+             $e->w->cancel;
+        }
+    });
 }
 
 =head2 _build_executable
@@ -250,6 +265,23 @@ sub preStopSetup {
     $self->inotify->watch($self->pidFile, IN_DELETE_SELF);
 }
 
+=head2 stopService
+
+=cut
+
+sub stopService {
+    my ($self) = @_;
+    my $name = $self->name;
+    my $logger = get_logger();
+    my $pid = $self->lastPid;
+    $logger->info("Sending TERM signal to $name with pid $pid");
+    my $count = kill 'TERM',$pid;
+}
+
+=head2 postStopCleanup
+
+=cut
+
 sub postStopCleanup {
     my ($self) = @_;
     my $logger = get_logger();
@@ -259,9 +291,11 @@ sub postStopCleanup {
     my $pidFile = $self->pidFile;
     my $timedout;
     #give the kill a little time
-    sleep(0.1);
     $inotify->blocking(0);
     $self->removeStalePid;
+    my $timer = Linux::FD::Timer->new('monotonic');
+    $timer->set_timeout(0.1,0.1);
+    $timer->receive;
     eval {
         local $SIG{ALRM} = sub { die "alarm clock restart" };
         alarm 60;
@@ -270,7 +304,7 @@ sub postStopCleanup {
                 die $! if defined $! && $! != EINTR && $! != EAGAIN;
                 $self->removeStalePid;
                 #give it some time
-                select(undef, undef, undef, 0.1);
+                $timer->receive;
             }
         };
         alarm 0;
@@ -279,21 +313,10 @@ sub postStopCleanup {
     };
     alarm 0;
     $logger->info("Timed out waiting for process $name to stop") if $timedout;
-    $self->removeStalePid;
-    my $still_alive = kill 0 , $pid;
-    if ( $still_alive ) {
-        my $count = kill 'KILL',$pid;
-        $self->removeStalePid;
+    if ($self->isAlive($pid)) {
+        kill 'KILL',$pid;
     }
-}
-
-sub stopService {
-    my ($self) = @_;
-    my $name = $self->name;
-    my $logger = get_logger();
-    my $pid = $self->lastPid;
-    $logger->info("Sending TERM signal to $name with pid $pid");
-    my $count = kill 'TERM',$pid;
+    $self->removeStalePid;
 }
 
 =head2 watch
@@ -418,13 +441,28 @@ sub removeStalePid {
     if($pid && $pid =~ /^(.*)$/) {
         $pid = $1;
         $logger->info("verifying process $pid");
-        my $result = kill(0, $pid);
+        my $result = $self->isAlive;
         unless ($result) {
             $logger->info("removing stale pid file $pidFile");
-            unlink $pidFile;
+            unlink $pidFile if -e $pidFile;
         }
     }
 }
+
+=head2 isAlive
+
+checks if process is alive
+
+=cut
+
+sub isAlive {
+    my ($self,$pid) = @_;
+    my $result;
+    $pid = $self->pid unless defined $pid;
+    $result = kill 0 , $pid if $pid;
+    return $result;
+}
+
 
 =head2 isManaged
 
