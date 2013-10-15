@@ -1,7 +1,8 @@
-      <table id="items" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]" >
+      <table id="[%itemsKey%]" class="table items" data-list-uri="[% c.uri_for(c.controller.action_for('list')) %]" >
         <thead>
           <tr>
             <th>[% l('Id') %]</th>
+            <th>[% l('Description')%]</th>
             <th></th>
           </tr>
         </thead>
@@ -9,6 +10,7 @@
           [% FOREACH item IN items %]
           <tr>
             <td><a href="[% c.uri_for(c.controller.action_for('view'), [ item.id ]) %]">[% item.id %]</a>
+            <td>[% item.description %]</td>
             <td>
               <a class="btn btn-mini" href="[% c.uri_for(c.controller.action_for('clone'), [ item.id ]) %]">[% l('Clone') %]</a>
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller.action_for('remove'), [ item.id ]) %]">[% l('Delete') %]</a>
