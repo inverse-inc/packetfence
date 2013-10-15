@@ -46,7 +46,6 @@ var ItemView = function(options) {
 
 
 ItemView.prototype.setupItem = function(options) {
-    var that = this;
     this.parent = options.parent;
     var items = options.items
     this.items = items;
@@ -55,7 +54,7 @@ ItemView.prototype.setupItem = function(options) {
 
     // Display the switch in a modal
     var read = $.proxy(this.readItem, this);
-    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], #createItem', read);
+    options.parent.on('click', id + ' [href$="/read"], ' + id + ' [href$="/clone"], [href*=/create]', read);
 
     // Save the modifications from the modal
     var update = $.proxy(this.updateItem, this);
@@ -70,7 +69,6 @@ ItemView.prototype.setupItem = function(options) {
 ItemView.prototype.readItem = function(e) {
     e.preventDefault();
 
-    var that = this;
     var modal = $('#modalItem');
     var section = $('#section');
     var loader = section.prev('.loader');
