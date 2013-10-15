@@ -16,9 +16,15 @@ extends 'pfappserver::Base::Form';
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'MDM Name',
+   label => 'MDM ID',
    required => 1,
-   messages => { required => 'Please specify the Id of ConfigStore::Mdm.' },
+   messages => { required => 'Please specify the ID of the Mdm entry.' },
+  );
+has_field 'description' =>
+  (
+   type => 'Text',
+   required => 1,
+   messages => { required => 'Please specify the Description Mdm entry.' },
   );
 has_field 'type' =>
   (
@@ -54,7 +60,7 @@ has_field 'uri' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id type username password uri) ],
+   render_list => [ qw(id description type username password uri) ],
   );
 
 sub options_type {
