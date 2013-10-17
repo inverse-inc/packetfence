@@ -107,10 +107,12 @@ function detectNetworkAccess(retry_delay, destination_url, redirect_url, externa
     var checker;
     var initNetDetect = function() {
         errorDetected = loaded = undefined;
+        var netdetect = $('netdetect');
         netdetect.src = "http://" + external_ip + "/common/network-access-detection.gif?r=" + Date.now();
-        setTimeout(checker,retry_delay);
+        setTimeout(checker,1000);
     };
     checker = function() {
+        var netdetect = $('netdetect');
         if(errorDetected === true) {
             initNetDetect();
         } else if (loaded === true) {
