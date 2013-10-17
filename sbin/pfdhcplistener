@@ -157,7 +157,7 @@ sub dhcp_detector {
     }
 
     Net::Pcap::setfilter( $pcap, $filter_t );
-    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, $interface );
+    my $result = Net::Pcap::loop( $pcap, -1, \&process_pkt, [ $interface , $pcap ] );
     $logger->logdie(Net::Pcap::pcap_geterr($pcap)) if ($result == -1);
 }
 
@@ -166,6 +166,13 @@ sub process_pkt {
     listen_dhcp( $pkt, $user_data );
     #reload all cached configs after each iteration
     pf::config::cached::ReloadConfigs();
+    #Only perform stats when in debug mode
+    $logger->debug( sub {
+        my $pcap = $user_data->[1];
+        my %stats;
+        Net::Pcap::pcap_stats($pcap,\%stats);
+        return join(' ','pcap_stats',map { "$_ = $stats{$_}"  } keys %stats);
+    });
 }
 
 sub listen_dhcp {
