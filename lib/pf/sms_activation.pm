@@ -332,6 +332,7 @@ sub send_sms {
     eval {
       $msg->send('smtp', $smtpserver, Timeout => 20);
       $result = $msg->last_send_successful();
+      $logger->info("Email sent to $email (Network Activation)");
     };
     if ($@) {
       my $msg = "Can't send email to $email: $@";

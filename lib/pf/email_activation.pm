@@ -416,7 +416,7 @@ sub send_email {
       $logger->info("Email sent to ".$info{'email'}." (".$info{'subject'}.")");
     }
     catch {
-      $logger->error("Can't send email to ".$info{'email'});
+      $logger->error("Can't send email to ".$info{'email'}.": $!");
     };
     
     return $result;
