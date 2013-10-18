@@ -89,8 +89,10 @@ document.observe("dom:loaded", function() {
           <hr/>
         </div>
         <div class="input">
-          [%- IF node.pid %]
+          [%- IF node.status == 'reg' %]
           <div>[% i18n_format("You are registered as <strong>%s</strong>", node.pid) %]</div>
+          [%- ELSE %]
+          <div>[% i18n("You are not connect to our network.") %]</div>
           [%- END %]
           [%- IF node.expiration %]
           <div>[% i18n('Your network access ends in <strong id="expiration"></strong>') %]</div>
