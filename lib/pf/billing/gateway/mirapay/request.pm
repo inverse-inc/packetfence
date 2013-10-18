@@ -37,7 +37,7 @@ our %TYPES = (
     operatorLanguage => 'N',
     echoData => 'AN',
     accountType => 'AN',
-    statementDesc => 'AN',
+    description => 'AN',
     ccverification => 'N',
     addressLine1 => 'AN',
     zip => 'AN',
@@ -78,7 +78,6 @@ has messageType => (
 has [qw(
     termId
     termIdGroup
-    transCode
     ccexpiration
     ccnumber
     ccverification
@@ -158,7 +157,7 @@ sub track2Acc {
     my $ccexpiration = $self->ccexpiration;
     my $value;
     if(defined $cc && defined $ccexpiration) {
-        $value =  join('', "M", $cc, '=', $ccexpiration, '0?');
+        $value =  join('', "M", $cc, '=', $ccexpiration, '1?');
     }
     return $value;
 }
@@ -170,15 +169,12 @@ sub makeRequestQuery {
     my $query = '';
     my @queries;
     foreach my $attr (
-        qw( messageType termId termIdGroup transCode
-            track2Acc amount1 mKey approvalCd invoiceNum
-            dateTimeFormated operatorID extendedOpId operatorLanguage
-            echoData accountType statementDesc cvvCode
-            addressLine1 zip transactionHandle)) {
+        qw( messageType termId termIdGroup transCode track2Acc amount1 mKey approvalCd invoiceNum dateTimeFormated operatorID extendedOpId operatorLanguage echoData accountType cvvCode addressLine1 zip transactionHandle)
+        ) {
         my $value = $self->$attr;
         push @queries, $NAME_TO_SHORT_CODE{$attr} . $value if defined $value && $value ne '';
     }
-    return join(",",@queries) . " \n";
+    return join(",",@queries) . "\n";
 }
 
 sub url {
