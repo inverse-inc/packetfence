@@ -69,7 +69,11 @@ use File::Basename qw(basename);
 use Log::Log4perl;
 use Try::Tiny;
 
-use constant INSTALL_DIR => '/usr/local/pf';
+use constant {
+    INSTALL_DIR        => '/usr/local/pf',
+    JUST_MANAGED       => 1,
+    INCLUDE_DEPENDS_ON => 2,
+};
 
 use lib INSTALL_DIR . "/lib";
 
@@ -79,6 +83,7 @@ use pf::pfcmd;
 use pf::util;
 use HTTP::Status qw(is_success);
 use List::MoreUtils qw(all true);
+use List::Util qw(first);
 use Term::ANSIColor;
 use IO::Interactive qw(is_interactive);
 
@@ -1171,14 +1176,20 @@ sub service {
     if(exists $ACTION_MAP{$action} && defined ($actionHandler = $ACTION_MAP{$action})) {
         $service =~ /^(.*)$/;
         $service = $1;
-        return $actionHandler->($service);
+        my @services;
+        if($service eq 'pf') {
+            @services = @pf::services::ALL_SERVICES;
+        } else {
+            @services = ($service);
+        }
+        return $actionHandler->($service,@services);
     }
     return $FALSE;
 }
 
 sub startService {
-    my ($service) = @_;
-    my @managers = getStartServiceManagers($service);
+    my ($service,@services) = @_;
+    my @managers = getManagers(\@services,INCLUDE_DEPENDS_ON | JUST_MANAGED);
     print $SERVICE_HEADER;
     my $count = 0;
     if(isIptablesManaged($service)) {
@@ -1217,41 +1228,45 @@ sub startService {
     return 0;
 }
 
+sub getManagers {
+    my ($services,$flags) = @_;
+    $flags = 0 unless defined $flags;
+    my %seen;
+    my $includeDependsOn = $flags & INCLUDE_DEPENDS_ON;
+    my $justManaged      = $flags & JUST_MANAGED;
+    my @serviceManagers =
+        grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) && ( !$justManaged || $_->isManaged ) }
+        map {
+            my $m = $_;
+            my @managers =
+                grep { defined $_ }
+                map { pf::services::get_service_manager($_) }
+                @{$m->dependsOnServices}
+                if $includeDependsOn;
+            push @managers,$m;
+            @managers
+        }
+        grep { defined $_ }
+        map { pf::services::get_service_manager($_) } @$services;
+    return @serviceManagers;
+}
+
 sub getIptablesTechnique {
     require pf::inline::custom;
     my $iptables = pf::inline::custom->new();
     return $iptables->{_technique};
 }
 
-sub getStartServiceManagers {
-    my ($service) = @_;
-    my @services;
-    if($service eq 'pf') {
-        @services = pf::services::service_list(@pf::services::ALL_SERVICES);
-    } else {
-        @services = ($service);
-    }
-    return _getStartServiceManagers(@services);
-}
-
-sub _getStartServiceManagers {
-    my %seen;
-    my @serviceManagers =
-        grep { (!exists $seen{$_->name}) && ($seen{$_->name} = 1) }
-        map {
-            my $m = $_;
-            my @managers = map { pf::services::get_service_manager($_) } @{$m->dependsOnServices};
-            push @managers,$m;
-            @managers
-        }
-        grep { defined $_ }
-        map { pf::services::get_service_manager($_) } @_;
-    return @serviceManagers;
-}
-
 sub stopService {
-    my ($service) = @_;
-    my @managers = getStopServiceManagers($service);
+    my ($service,@services) = @_;
+    my @managers = getManagers(\@services);
+    #push memcached to back of the list
+    my $manager = first { $_->name eq 'memcached' } @managers;
+    if($manager) {
+        @managers = grep { $_->name ne 'memcached' } @managers;
+        push @managers, $manager;
+    }
+
     print $SERVICE_HEADER;
     foreach my $manager (@managers) {
         my $command;
@@ -1288,39 +1303,17 @@ sub isIptablesManaged {
    return $_[0] eq 'pf' && isenabled($Config{services}{iptables})
 }
 
-sub getStopServiceManagers {
-    my ($service) = @_;
-    my @services;
-    if($service eq 'pf') {
-        @services = grep { $_ ne 'memcached'   } @pf::services::ALL_SERVICES;
-        push @services,'memcached';
-    } else {
-        @services = ($service);
-    }
-    return _getStopServiceManagers(@services);
-}
-
-sub _getStopServiceManagers {
-    my %seen;
-    my @serviceManagers =
-        grep { defined ($_) && (!exists $seen{$_->name}) && ($seen{$_->name} = 1) }
-        map { pf::services::get_service_manager($_) } @_;
-    return @serviceManagers;
-}
-
-
 sub restartService {
-    my ($service) = @_;
-    stopService($service);
+    stopService(@_);
     local $SERVICE_HEADER = '';
-    startService($service);
+    startService(@_);
 }
 
 sub watchService {
-    my ($service) = @_;
+    my ($service,@services) = @_;
     my @stoppedServiceManagers =
         grep { $_->status eq '0'  }
-        getStartServiceManagers($service);
+        getManagers(\@services, JUST_MANAGED | INCLUDE_DEPENDS_ON);
     if(@stoppedServiceManagers) {
         my @stoppedServices = map { $_->name } @stoppedServiceManagers;
         $logger->info("watch found incorrectly stopped services: " . join(", ", @stoppedServices));
@@ -1347,8 +1340,8 @@ sub watchService {
 }
 
 sub statusOfService {
-    my ($service) = @_;
-    my @managers = getStopServiceManagers($service);
+    my ($service,@services) = @_;
+    my @managers = getManagers(\@services);
     print "service|shouldBeStarted|pid\n";
     my $notStarted = 0;
     foreach my $manager (@managers) {
