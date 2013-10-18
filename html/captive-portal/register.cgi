@@ -178,6 +178,10 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
 
 }
 
+else {
+  pf::web::generate_login_page($portalSession);
+}
+
 
 =head1 AUTHOR
 
