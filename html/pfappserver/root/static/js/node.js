@@ -6,7 +6,7 @@
 var Nodes = function() {
 };
 
-Nodes.prototype.doAjax = function(url_data,options) {
+Nodes.prototype.doAjax = function(url_data, options) {
     $.ajax(url_data)
         .always(options.always)
         .done(options.success)
@@ -17,15 +17,15 @@ Nodes.prototype.doAjax = function(url_data,options) {
 };
 
 Nodes.prototype.get = function(options) {
-    this.doAjax(options.url,options);
+    this.doAjax(options.url, options);
 };
 
 Nodes.prototype.post = function(options) {
     this.doAjax(
         {
-        url: options.url,
-        type: 'POST',
-        data: options.data
+            url: options.url,
+            type: 'POST',
+            data: options.data
         },
         options
     );
@@ -40,27 +40,19 @@ var NodeView = function(options) {
     var read = $.proxy(this.readNode, this);
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
-    var show = $.proxy(this.showNode, this);
-    $('body').on('show', '#modalNode', show);
+    this.proxyFor($('body'), 'show', '#modalNode', this.showNode);
 
-    var update = $.proxy(this.updateNode, this);
-    $('body').on('submit', '#modalNode form[name="modalNode"]', update);
+    this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    var delete_node = $.proxy(this.deleteNode, this);
-    $('body').on('click', '#modalNode [href$="/delete"]', delete_node);
+    this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
 
-    var read_violations = $.proxy(this.readViolations, this);
-    $('body').on('show', 'a[data-toggle="tab"][href="#nodeViolations"]', read_violations);
+    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
 
-    var close_violation = $.proxy(this.closeViolation, this);
-    $('body').on('click', '#modalNode [href*="/close/"]', close_violation);
+    this.proxyClick($('body'), '#modalNode [href*="/close/"]', this.closeViolation);
 
-    var trigger_violation = $.proxy(this.triggerViolation, this);
-    $('body').on('click', '#modalNode #addViolation', trigger_violation);
+    this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    $('body').on('click', 'a[href*="#node/advanced_search"]', $.proxy(this.advancedSearchUpdater, this));
-
     this.proxyClick($('body'), 'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
 
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
@@ -268,25 +260,30 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
     var form = $('#advancedSearch');
     var href = link.attr("href");
     if (href) {
-        href = href.replace(/^.*#node\/advanced_search\//,'');
+        href = href.replace(/^.*#node\/advanced_search\//, '');
         var values = href.split("/");
-        for (var i =0;i<values.length;i+=2) {
+        for (var i = 0; i < values.length; i += 2) {
             var name = values[i];
             var value = values[i + 1];
             form.find('[name="' + name + '"]:not(:disabled)').val(value);
         }
+        // Add checked columns to the form
+        form.find('[name="column"]').remove();
+        $('#columns').find(':checked').each(function() {
+            form.append($('<input>', { type: 'checkbox', checked: 'checked', name: 'column', class: 'hidden', value: $(this).val()}));
+        });
         form.submit();
     }
     return false;
 };
 
 NodeView.prototype.toggleActionsButton = function(e) {
-    var button = $('#bulk_actions');
+    var dropdown = $('#bulk_actions + ul');
     var checked = $('[name="items"]:checked').length > 0;
     if (checked)
-        button.removeClass('disabled');
+        dropdown.find('li.disabled').removeClass('disabled');
     else
-        button.addClass('disabled');
+        dropdown.find('li[class!="dropdown-submenu"]').addClass('disabled');
 };
 
 NodeView.prototype.toggleAllItems = function(e) {
@@ -299,13 +296,16 @@ NodeView.prototype.toggleAllItems = function(e) {
 NodeView.prototype.submitItems = function(e) {
     var target = $(e.currentTarget);
     var status_container = $("#section").find('h2').first();
-    this.nodes.post({
-        url: target.attr("data-target"),
-        data: $("#items").serialize(),
-        success: function(data) {
-            showSuccess(status_container, data.status_msg);
-            $(window).hashchange();
-        },
-        errorSibling: status_container
-    });
+    var items = $("#items").serialize();
+    if (items.length) {
+        this.nodes.post({
+            url: target.attr("data-target"),
+            data: items,
+            success: function(data) {
+                showSuccess(status_container, data.status_msg);
+                $(window).hashchange();
+            },
+            errorSibling: status_container
+        });
+    }
 };

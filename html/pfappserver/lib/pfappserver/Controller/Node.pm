@@ -56,10 +56,17 @@ after _list_items => sub {
     my ($status,$roles) = $c->model('Roles')->list();
     $c->stash(roles => $roles);
 
+    unless ($c->session->{'nodecolumns'}) {
+        # Set default visible columns
+        my %default_columns = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
+        $c->session( nodecolumns => \%default_columns );
+    }
 };
 
 
 =head2 advanced_search
+
+Perform an advanced search using the Search::Node model
 
 =cut
 
@@ -69,6 +76,16 @@ sub advanced_search :Local :Args() {
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
+
+    # Store columns in the session
+    my $columns = $c->request->params->{'column'};
+    if ($columns) {
+        $columns = [$columns] if (ref($columns) ne 'ARRAY');
+        my %columns_hash = map { $_ => 1 } @{$columns};
+        my %params = ( 'nodecolumns' => \%columns_hash );
+        $c->session(%params);
+    }
+
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
@@ -77,12 +94,15 @@ sub advanced_search :Local :Args() {
     }
     else {
         my $query = $form->value;
+        $query->{by} = 'mac' unless ($query->{by});
+        $query->{direction} = 'asc' unless ($query->{direction});
         ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);
         }
     }
+
     (undef, $result) = $c->model('Roles')->list();
     $c->stash(
         status_msg => $status_msg,

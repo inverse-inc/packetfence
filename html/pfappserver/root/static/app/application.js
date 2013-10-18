@@ -44,6 +44,11 @@ $(function () {
         input.val(btn.attr('value'));
     });
 
+    /* Don't hide special "form" dropdown menu */
+    $('body').on('click', '.dropdown-menu-form', function(event) {
+        event.stopPropagation();
+    });
+
     /* Live validation for required fields */
     $('body').on('blur', 'input[data-required]', function() {
         isFormInputEmpty($(this));

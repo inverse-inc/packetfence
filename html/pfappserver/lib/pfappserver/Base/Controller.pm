@@ -38,13 +38,15 @@ use File::Spec::Functions;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
-our %VALID_PARAMS = (
-    page_num => 1,
-    by => 1,
-    direction => 1,
-    filter => 1,
-    start => 1,
-    end => 1,
+our %VALID_PARAMS =
+  (
+   page_num => 1,
+   by => 1,
+   direction => 1,
+   filter => 1,
+   start => 1,
+   end => 1,
+   column => 1,
 );
 
 =head1 METHODS

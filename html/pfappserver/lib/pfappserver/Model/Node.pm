@@ -72,7 +72,7 @@ Field names to be displayed. The first one is the default sort field.
 =cut
 
 sub field_names {
-    return [qw(mac regdate computername pid last_ip status dhcp_fingerprint)];
+    return [qw(mac detect_date regdate unregdate computername pid last_ip status dhcp_fingerprint category)];
 }
 
 =head2 countAll
@@ -146,8 +146,8 @@ sub view {
                 $node->{$date} = POSIX::strftime("%Y-%m-%d %H:%M", @date_data);
             }
         }
-        foreach (qw[regdate unregdate]) {
-            $node->{$_} = '' if exists $node->{$_} &&  $node->{$_} eq '0000-00-00 00:00:00';
+        foreach (qw[detect_date regdate unregdate]) {
+            $node->{$_} = '' if exists $node->{$_} && $node->{$_} eq '0000-00-00 00:00:00';
         }
 
         # Show 802.1X username only if connection is of type EAP
