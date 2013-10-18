@@ -232,11 +232,11 @@ sub accounting {
                     my $timeleft = $node_attributes->{'timeleft'} - $session_time;
                     $timeleft = 0 if ($timeleft < 0);
                     # Only update the node table on a Stop
-                    if ($isStop && node_modify($mac, ('pid' => $user_name, 'timeleft' => $timeleft))) {
-                        $logger->info("Session stopped for $user_name ($mac): duration was $session_time secs ($timeleft secs left)");
+                    if ($isStop && node_modify($mac, ('timeleft' => $timeleft))) {
+                        $logger->info("Session stopped for $mac: duration was $session_time secs ($timeleft secs left)");
                     }
                     elsif ($isUpdate) {
-                        $logger->info("Session status for $user_name ($mac): duration is $session_time secs ($timeleft secs left)");
+                        $logger->info("Session status for $mac: duration is $session_time secs ($timeleft secs left)");
                     }
                     if ($timeleft == 0) {
                         violation_add($mac, $RADIUS::EXPIRATION_VID);
