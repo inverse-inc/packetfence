@@ -62,8 +62,71 @@ $info{'user_agent'} = $cgi->user_agent;
 my $no_password_needed = any {$_ eq 'null' } @{$portalSession->getProfile->getGuestModes};
 my $no_username_needed = pf::web::_no_username($portalSession);
 
-if ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('username') ne '' || $no_password_needed )) {
+if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "next_page") {
+  my $pageNb = int($cgi->url_param('page'));
+  if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
+    pf::web::generate_registration_page($portalSession, $pageNb);
+  } else {
+    pf::web::generate_error_page($portalSession, i18n("error: invalid page number"));
+  }
+}
 
+elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "deregister") {
+  my ($form_return, $err) = pf::web::validate_form($portalSession);
+  if ($form_return != 1) {
+    $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
+    pf::web::generate_login_page($portalSession, $err);
+    exit(0);
+  }
+
+  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
+  if ($auth_return != 1) {
+    $logger->trace("authentication failed for " . $portalSession->getClientMac());
+    pf::web::generate_login_page($portalSession, $error);
+    exit(0);
+  }
+
+  my $node_info = node_view($portalSession->getClientMac());
+  my $pid = $node_info->{'pid'};
+  if ($portalSession->getSession->param("username") eq $pid) {
+    my $cmd = $bin_dir."/pfcmd manage deregister " . $portalSession->getClientMac();
+    my $output = qx/$cmd/;
+    $logger->info("calling $bin_dir/pfcmd manage deregister " . $portalSession->getClientMac());
+    print $cgi->redirect("/authenticate");
+  } else {
+    pf::web::generate_error_page($portalSession, i18n("error: access denied not owner"));
+  }
+}
+
+elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "release") {
+  # TODO this is duplicated also in register.cgi
+  # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
+  if ($cgi->https()) {
+    print $cgi->redirect(
+      "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
+      .'/access?destination_url=' . uri_escape($portalSession->getDestinationUrl())
+    );
+  } else {
+    pf::web::generate_release_page($portalSession);
+  }
+  exit(0);
+}
+
+elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "aup") {
+  pf::web::generate_aup_standalone_page($portalSession);
+  exit(0);
+}
+
+elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
+  pf::web::generate_status_page($portalSession);
+  exit(0);
+}
+
+elsif (defined($cgi->url_param('mode'))) {
+  pf::web::generate_error_page($portalSession, i18n("error: incorrect mode"));
+}
+
+elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param('username') ne '' || $no_password_needed )) {
   my ($form_return, $err) = pf::web::validate_form($portalSession);
   if ($form_return != 1) {
     $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
@@ -117,61 +180,9 @@ if ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->param
   pf::web::web_node_register($portalSession, $pid, %info);
   pf::web::end_portal_session($portalSession);
 
-} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "next_page") {
-  my $pageNb = int($cgi->url_param('page'));
-  if (($pageNb > 1) && ($pageNb <= $Config{'registration'}{'nbregpages'})) {
-    pf::web::generate_registration_page($portalSession, $pageNb);
-  } else {
-    pf::web::generate_error_page($portalSession, i18n("error: invalid page number"));
-  }
+}
 
-} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "deregister") {
-  my ($form_return, $err) = pf::web::validate_form($portalSession);
-  if ($form_return != 1) {
-    $logger->trace("form validation failed or first time for " . $portalSession->getClientMac());
-    pf::web::generate_login_page($portalSession, $err);
-    exit(0);
-  }
-
-  my ($auth_return, $error) = pf::web::web_user_authenticate($portalSession);
-  if ($auth_return != 1) {
-    $logger->trace("authentication failed for " . $portalSession->getClientMac());
-    pf::web::generate_login_page($portalSession, $error);
-    exit(0);
-  }
-
-  my $node_info = node_view($portalSession->getClientMac());
-  my $pid = $node_info->{'pid'};
-  if ($portalSession->getSession->param("username") eq $pid) {
-    my $cmd = $bin_dir."/pfcmd manage deregister " . $portalSession->getClientMac();
-    my $output = qx/$cmd/;
-    $logger->info("calling $bin_dir/pfcmd manage deregister " . $portalSession->getClientMac());
-    print $cgi->redirect("/authenticate");
-  } else {
-    pf::web::generate_error_page($portalSession, i18n("error: access denied not owner"));
-  }
-
-} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "release") {
-  # TODO this is duplicated also in register.cgi
-  # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
-  if ($cgi->https()) {
-    print $cgi->redirect(
-      "http://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}
-      .'/access?destination_url=' . uri_escape($portalSession->getDestinationUrl())
-    );
-  } else {
-    pf::web::generate_release_page($portalSession);
-  }
-  exit(0);
-} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "aup") {
-  pf::web::generate_aup_standalone_page($portalSession);
-  exit(0);
-} elsif (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq "status") {
-  pf::web::generate_status_page($portalSession);
-  exit(0);
-} elsif (defined($cgi->url_param('mode'))) {
-  pf::web::generate_error_page($portalSession, i18n("error: incorrect mode"));
-} else {
+else {
   pf::web::generate_login_page($portalSession);
 }
 
