@@ -46,13 +46,17 @@ Create a new object for transactions using Authorize.net payment gateway
 has transactionInfo => (is => 'rw');
 
 sub BUILDARGS {
-    my ($class, $hashArgs) = @_;
-    if(ref($hashArgs) eq 'HASH') {
-        if (!exists $hashArgs->{transactionInfo} ) {
-            return { transactionInfo => $hashArgs };
-        } else {
-            return $hashArgs;
+    my ($class, $transactionInfo) = @_;
+    if(ref($transactionInfo) eq 'HASH') {
+        my $args;
+        if (exists $transactionInfo->{transactionInfo} ) {
+            $transactionInfo =  $transactionInfo->{transactionInfo};
         }
+        if(exists $transactionInfo->{ccexpiration} ) {
+            my $ccexpiration = $transactionInfo->{ccexpiration};
+            $transactionInfo->{ccexpiration} = join('',reverse $ccexpiration =~ /^(\d\d)(\d\d)$/);
+        }
+        return { transactionInfo => $transactionInfo };
     }
     die "Invalid arguements";
 }
@@ -68,30 +72,32 @@ sub processPayment {
     my $request    = $self->makeRequest;
     my $useragent  = LWP::UserAgent->new(protocols_allowed=>["https"]);
     my $response   = $useragent->request($request);
+    $logger->debug(sub { "Request as string: " . $request->as_string });
     # There was an error processing the payment with the payment gateway
     if ( !$response->is_success ) {
         $logger->error("There was an error in the process of the payment: " . $response->status_line());
-        return;
+        return $BILLING::ERROR;
     }
     my $content = $response->content;
+    $logger->debug(sub { "content of response $content" } );
     chomp($content);
     my %data = map { unpack 'a2 a*' } split /,/, $content;
-    # The payment was not approved
     # Move code to constants
     my $approved_code = $data{AB};
     my $display_msg   = $data{DM};
+    # The payment was not approved
     if ( $approved_code ne 'Y' ) {
         $logger->error("The payment was not approved by the payment gateway: $display_msg");
-        return;
+        return $BILLING::ERROR;
     }
-    $logger->info("Successfull payment from MAC: $self->{transactionInfo}");
+    $logger->info("Successfull payment from MAC: $self->{transactionInfo}{mac}");
     return $BILLING::SUCCESS;
 }
 
 sub makeRequest {
     my ($self) = @_;
     my $info = $self->transactionInfo;
-    my $miraPayRequest = pf::billing::gateway::mirapay->new({
+    my $miraPayRequest = pf::billing::gateway::mirapay::request->new({
         amount => $info->{price},
         map {$_ => $info->{$_} } qw(ccnumber ccexpiration ccverification description)
     });
