@@ -95,8 +95,8 @@ has_field 'Location_Phone_Number' =>
 has_block 'location'  =>
   (
     render_list => [qw(
-        Location_Type Sub_Location_Type Engish_Location_Name Location_Address1
-        Location_Address2 Engish_Location_City Location_Zip_Postal_Code
+        Location_Type Sub_Location_Type English_Location_Name Location_Address1
+        Location_Address2 English_Location_City Location_Zip_Postal_Code
         Location_State_Province_Name Location_Country_Name Location_Phone_Number  Location_URL Coverage_Area
     )]
   );
