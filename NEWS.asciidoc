@@ -39,10 +39,12 @@ Bug Fixes
 * Fixed match of Htpasswd authentication source (#1714)
 * Fixed creation of users without a role (#1721)
 * Fixed expiration date of registration to the end of the day (#1722)
-* Fixed saving authentication sources and cached and allow rules with dashes
+* Fixed caching issue when editing authentication sources (#1729)
+* Allow rules with dashes (#1730)
 * Fixed vconfig setting the wrong name_type
 * Fixed help text in Web admin (#1724)
 * Removed references to unavailable snort rules (#1715)
+* Fixed LDAP regexp condition not considering all attribute values (#1737)
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

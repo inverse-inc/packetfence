@@ -468,7 +468,7 @@ sub authenticate {
         @sources = @authentication_sources;
     }
 
-    $logger->debug("Authenticating '$username' from sources ".join(', ', map { $_->id } @sources));
+    $logger->debug("Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources));
 
     foreach my $current_source (@sources) {
         my ($result, $message);
@@ -515,10 +515,10 @@ sub match {
     if (defined $action && defined $actions) {
         my $found_action = first { $_->type eq $action } @{$actions};
         if (defined $found_action) {
-            $logger->debug("Returning '".$found_action->value."' for action $action on source ". $source->id);
+            $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
             return $found_action->value
         }
-        $logger->debug("Params don't match rules for action $action on source " . $source->id);
+        $logger->debug("[".$source->id."] Params don't match rules for action $action for username ".$params->{'username'});
         return undef;
     }
 
@@ -526,7 +526,7 @@ sub match {
         $logger->debug("No source matches action $action");
     } elsif (defined $source) {
         $actions ||= [];
-        $logger->debug("Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ) . " for source " . $source->id);
+        $logger->debug("[".$source->id."] Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
     }
 
     return $actions;
