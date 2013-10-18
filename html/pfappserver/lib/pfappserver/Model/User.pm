@@ -32,7 +32,7 @@ use pf::util qw(get_translatable_time);
 =cut
 
 sub field_names {
-    return [qw(pid firstname lastname email nodes) ];
+    return [qw(pid firstname lastname email telephone nodes) ];
 }
 
 =head2 read

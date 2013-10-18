@@ -60,11 +60,12 @@ my %COLUMN_MAP = (
         table => 'node',
         name  => 'mac',
     },
-    name  => \"concat(firstname,' ', lastname)",
-    ip_address   => {
+    name => \"concat(firstname,' ', lastname)",
+    ip_address => {
        table => 'iplog',
        name  => 'ip',
     },
+    nodes => \"count(node.mac)",
 );
 
 my %JOIN_MAP = (
@@ -159,7 +160,8 @@ sub add_searches {
 sub add_order_by {
     my ($self, $builder, $params) = @_;
     my ($by, $direction) = @$params{qw(by direction)};
-    if($by && $direction) {
+    if ($by && $direction) {
+        $by = $COLUMN_MAP{$by} if (exists $COLUMN_MAP{$by});
         $builder->order_by($by, $direction);
     }
 }

@@ -45,6 +45,7 @@ Bug Fixes
 * Fixed help text in Web admin (#1724)
 * Removed references to unavailable snort rules (#1715)
 * Fixed LDAP regexp condition not considering all attribute values (#1737)
+* Fixed sort by phone number and nodes count when performing an advanced search on users (#1738)
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
