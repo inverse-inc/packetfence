@@ -73,31 +73,31 @@ $(function() {
         return false;
     });
 
-    $('#advancedSearch').on('submit',function(event) {
+    $('#advancedSearch').on('submit', function(event) {
         updateSectionFromForm($('#advancedSearch'));
         return false;
     });
 
-    $('#advancedSearch').on('admin.added','tr', function(event) {
+    $('#advancedSearch').on('admin.added', 'tr', function(event) {
         var that = $(this);
         that.find(':input').removeAttr('disabled');
     });
 
-    $('body').on('click','[data-toggle="pf-search-form"][data-target]',function(event) {
+    $('body').on('click', '[data-toggle="pf-search-form"][data-target]', function(event) {
         var that = $(this);
         var target = that.attr('data-target');
         var from_form = that.next();
-        var to_form   = $("#" +target +"Search"  );
+        var to_form   = $("#" + target + "Search"  );
         var first_row = to_form.find('tbody tr.dynamic-row:not(.hidden)').first();
         first_row.nextAll("tr.dynamic-row:not(.hidden)").remove();
         var new_searches =  from_form.find('[name^="searches."]').length / 3 - 1;
-        for(var i=0;i<new_searches;i++) {
+        for(var i = 0; i < new_searches; i++) {
             first_row.find('[href="#add"]').click();
         }
         from_form.find(':input').each(function(e){
             to_form.find('[name="' + this.name + '"]:not(:disabled)').val(this.value);
         });
-        $('[data-toggle="tab"][href="#' + target  + '"]').tab('show');
+        $('[data-toggle="tab"][href="#' + target + '"]').tab('show');
         to_form.submit();
         return false;
     });
