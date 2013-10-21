@@ -1036,7 +1036,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
 For Centos/RHEL:
 
-  # chgrp pf /var/lib/samba/winbindd_privileged/
+  # usermod -a -G wbpriv pf
 
 For Debian and Ubuntu:
 
