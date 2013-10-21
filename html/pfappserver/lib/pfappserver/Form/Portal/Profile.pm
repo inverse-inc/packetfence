@@ -20,7 +20,7 @@ with 'pfappserver::Form::Portal::Common';
 use pf::config;
 use List::MoreUtils qw(uniq);
 
-=head1 Blocks
+=head1 BLOCKS
 
 =head2 definition
 
@@ -30,10 +30,10 @@ The main definition block
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id description billing_engine) ],
+   render_list => [ qw(id description redirecturl always_use_redirecturl billing_engine) ],
   );
 
-=head1 Fields
+=head1 FIELDS
 
 =head2 filter
 
@@ -66,7 +66,6 @@ has_field 'filter.contains' =>
    label => 'Filter',
    widget_wrapper => 'DynamicTableRow',
   );
-
 
 =head1 COPYRIGHT
 

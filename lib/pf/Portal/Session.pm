@@ -80,11 +80,11 @@ sub _initialize {
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
 
-    $self->{'_destination_url'} = $self->_getDestinationUrl();
-
     $self->{'_guest_node_mac'} = undef;
 
     $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+
+    $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->_initializeStash();
     $self->_initializeI18n();
@@ -153,8 +153,10 @@ Returns destination_url properly parsed, defended against XSS and with configure
 sub _getDestinationUrl {
     my ($self) = @_;
 
-    # set default if destination_url not set
-    return $Config{'trapping'}{'redirecturl'} if (!defined($self->cgi->param("destination_url")));
+    # Set default if destination_url not set
+    unless (defined($self->cgi->param("destination_url"))) {
+        return $self->getProfile->getRedirectURL;
+    }
 
     return decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }

@@ -107,20 +107,6 @@ redirtimer=20s
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
-# trapping.redirecturl
-#
-# Default URL to redirect to on registration/mitigation release. 
-#
-redirecturl=http://www.packetfence.org/
-#
-# trapping.always_use_redirecturl
-#
-# Under most circumstances we can redirect the user to the URL he originally intended to visit.
-# When enabled, always_use_redirecturl forces the captive portal to redirect the user to the URL defined in
-# trapping.redirecturl instead.
-#
-always_use_redirecturl=disabled
-#
 # trapping.detection
 #
 # Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 

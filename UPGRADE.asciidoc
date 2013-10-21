@@ -10,10 +10,17 @@ Upgrading from a version prior to 4.1.0
 
 Database schema update
 ^^^^^^^^^^^^^^^^^^^^^^
+
 The category column in the temporary_password should not be mandatory.
 Make sure you run the following to update your schema:
 
-mysql -u root -p pf -v < db/upgrade-4.0.0-4.1.0.sql
+  mysql -u root -p pf -v < db/upgrade-4.0.0-4.1.0.sql
+
+Configuration changes
+^^^^^^^^^^^^^^^^^^^^^
+
+The parameters `trapping.redirecturl` and `trapping.always_use_redirecturl` from `pf.conf` (or `pf.conf.defaults`)
+were moved to the default portal profile in `profiles.conf`. Adjust your configuration accordingly.
 
 Upgrading from a version prior to 4.0.6
 ---------------------------------------

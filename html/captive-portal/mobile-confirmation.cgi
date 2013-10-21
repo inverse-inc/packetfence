@@ -92,8 +92,8 @@ if ( $portalSession->getCgi->param("pin") ) {
         pf::web::end_portal_session($portalSession);
     }
     else {
-        $logger->warn("No active sms source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-        print $portalSession->getCgi->redirect($Config{'trapping'}{'redirecturl'});
+        $logger->warn("No active sms source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+        print $portalSession->getCgi->redirect($portalSession->getProfile->getRedirectURL);
     }
 
 } elsif ($portalSession->getCgi->param("action_confirm")) {

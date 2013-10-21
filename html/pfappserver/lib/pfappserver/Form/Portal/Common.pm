@@ -45,12 +45,41 @@ has_field 'description' =>
   (
    type => 'Text',
    label => 'Profile Description',
-   required => 1,
+  );
+
+=head2 redirecturl
+
+Redirection URL
+
+=cut
+
+has_field 'redirecturl' =>
+  (
+   type => 'Text',
+   label => 'Redirection URL',
+   tags => { after_element => \&help,
+             help => 'Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.' },
+  );
+
+=head2 always_use_redirecturl
+
+Controls whether or not we always use the redirection URL
+
+=cut
+
+has_field 'always_use_redirecturl' =>
+  (
+   type => 'Toggle',
+   label => 'Force redirection URL',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
   );
 
 =head2 billing_engine
 
-Has the billing engine enabled
+Controls whether or not the billing engine is enabled
 
 =cut
 

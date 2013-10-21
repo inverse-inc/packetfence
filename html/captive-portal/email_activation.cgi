@@ -131,8 +131,8 @@ if (defined($cgi->url_param('code'))) {
             pf::email_activation::set_status_verified($cgi->url_param('code'));
         }
         else {
-            $logger->warn("No active email source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-            print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+            $logger->warn("No active email source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+            print $cgi->redirect($portalSession->getProfile->getRedirectURL);
         }
     }
 
@@ -255,14 +255,14 @@ if (defined($cgi->url_param('code'))) {
             exit(0);
         }
         else {
-            $logger->warn("No active sponsor source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-            print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+            $logger->warn("No active sponsor source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+            print $cgi->redirect($portalSession->getProfile->getRedirectURL);
         }
     }
 } else {
 
-    $logger->info("User has nothing to do here, redirecting to ".$Config{'trapping'}{'redirecturl'});
-    print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+    $logger->info("User has nothing to do here, redirecting to ".$portalSession->getProfile->getRedirectURL);
+    print $cgi->redirect($portalSession->getProfile->getRedirectURL);
 
 }
 
