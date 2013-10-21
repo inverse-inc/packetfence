@@ -150,8 +150,6 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
   # as web_node_register() might not work if we've reached the limit
   my $value = &pf::authentication::match($source_id, $params, $Actions::SET_ROLE);
 
-  $logger->trace("Got role '$value' for username $pid");
-
   # This appends the hashes to one another. values returned by authenticator wins on key collision
   if (defined $value) {
       %info = (%info, (category => $value));
@@ -168,7 +166,6 @@ elsif ( (defined($cgi->param('username') ) || $no_username_needed ) && ($cgi->pa
       $value = &pf::authentication::match($source_id, $params, $Actions::SET_UNREG_DATE);
   }
   if (defined $value) {
-      $logger->trace("Got unregdate $value for username $pid");
       %info = (%info, (unregdate => $value));
   }
 
