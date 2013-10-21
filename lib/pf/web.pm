@@ -172,8 +172,8 @@ sub generate_release_page {
     my ( $portalSession, $r ) = @_;
 
     $portalSession->stash({
-        timer           => $Config{'trapping'}{'redirtimer'},
-        redirect_url => $Config{'trapping'}{'redirecturl'},
+        timer => $Config{'trapping'}{'redirtimer'},
+        redirect_url => $portalSession->getProfile->getRedirectURL,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
@@ -181,8 +181,8 @@ sub generate_release_page {
     });
 
     # override destination_url if we enabled the always_use_redirecturl option
-    if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
-        $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
+    if (isenabled($portalSession->getProfile->forceRedirectURL)) {
+        $portalSession->stash->{'destination_url'} = $portalSession->getProfile->getRedirectURL;
     }
 
     render_template($portalSession, 'release.html', $r);
@@ -638,15 +638,15 @@ sub generate_pending_page {
     my ( $portalSession ) = @_;
 
     $portalSession->stash({
-        redirect_url => $Config{'trapping'}{'redirecturl'},
+        redirect_url => $portalSession->getProfile->getRedirectURL,
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
     });
 
     # override destination_url if we enabled the always_use_redirecturl option
-    if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
-        $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
+    if (isenabled($portalSession->getProfile->forceRedirectURL)) {
+        $portalSession->stash->{'destination_url'} = $portalSession->getProfile->getRedirectURL;
     }
 
     render_template($portalSession, 'pending.html');

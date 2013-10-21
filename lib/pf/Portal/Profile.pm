@@ -128,6 +128,20 @@ sub getDescripton {
 
 *description = \&getDescripton;
 
+sub getRedirectURL {
+    my ($self) = @_;
+    return $self->{'_redirecturl'};
+}
+
+*redirecturl = \&getRedirectURL;
+
+sub forceRedirectURL {
+    my ($self) = @_;
+    return $self->{'_always_use_redirecturl'};
+}
+
+*always_use_redirecturl = \&forceRedirectURL;
+
 =item getSources
 
 Returns the authentication sources IDs for the current captive portal profile.

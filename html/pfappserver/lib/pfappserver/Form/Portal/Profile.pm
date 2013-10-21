@@ -20,28 +20,27 @@ with 'pfappserver::Form::Portal::Common';
 use pf::config;
 use List::MoreUtils qw(uniq);
 
-# Form fields
-sub build_do_form_wrapper {0}
-has_field 'id' =>
+=head1 BLOCKS
+
+=head2 definition
+
+The main definition block
+
+=cut
+
+has_block 'definition' =>
   (
-   type => 'Text',
-   label => 'Profile Name',
-   required => 1,
-   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
+   render_list => [ qw(id description redirecturl always_use_redirecturl billing_engine) ],
   );
-has_field 'description' =>
-  (
-   type => 'Text',
-   label => 'Profile Description',
-   required => 1,
-  );
-has_field 'billing_engine' =>
-  (
-   type => 'Toggle',
-   label => 'Enable Billing Engine',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
-  );
+
+=head1 FIELDS
+
+=head2 filter
+
+The filter container field
+
+=cut
+
 has_field 'filter' =>
   (
    type => 'DynamicTable',
@@ -75,7 +74,6 @@ has_field 'sources.contains' =>
   );
 
 =head1 METHODS
-
 
 
 =head1 COPYRIGHT

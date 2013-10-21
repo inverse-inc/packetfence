@@ -37,22 +37,15 @@ sub instantiate {
     my ( $self, $mac, $options ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-#    $logger->debug("creating new portal profile of type $profile_type");
-    # XXX handles only default profile for now
-    # XXX add complex configuration loading and returning here, then add
-    #     getters in ::Profile. Configuration should stay in pf::config
-    #     and we only consume it especially since we will support config
-    #     reload in there in the future
-    # XXX also take the given mac and lookup the SSID on it and return proper
-    #     portal object
-    # Since we apply portal profiles based on the SSID, we check the last_ssid for the given MAC and try to match
-    # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile
-    my $node_info = $options || node_view($mac);
+    # We apply portal profiles based on the SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
+    # and try to match a portal profile using the previously fetched filters.
+    # If no match, we instantiate the default portal profile.
+    my $node_info = node_view($mac);
     my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan switch)), @{$node_info}{'last_ssid','last_vlan','last_switch'});
     my $filtered_profile =
-        first {exists $Profiles_Config{$_}}
-        map { $Profile_Filters{$_}  }
-          grep { defined $_ && exists $Profile_Filters{$_}  } #
+        first { exists $Profiles_Config{$_} }
+        map { $Profile_Filters{$_} }
+          grep { defined $_ && exists $Profile_Filters{$_} }
           @filter_ids;
 
     return pf::Portal::Profile->new(_custom_profile($filtered_profile)) if $filtered_profile;
@@ -81,7 +74,7 @@ sub _custom_profile {
        'name' => $name,
        'template_path' => $name,
        'description' => $profile->{'description'} || '',
-       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources billing_engine filter)
+       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources redirecturl always_use_redirecturl billing_engine filter)
       );
     $results{guest_modes} = _guest_modes_from_sources($results{sources});
     return \%results;

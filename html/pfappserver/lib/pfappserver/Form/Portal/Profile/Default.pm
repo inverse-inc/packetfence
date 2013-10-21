@@ -19,18 +19,7 @@ with 'pfappserver::Form::Portal::Common';
 # Form fields
 has_field 'id' =>
   (
-   type => 'Text',
-   label => 'Profile Name',
-   required => 1,
-   readonly => 1,
-   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
-  );
-has_field 'description' =>
-  (
-   type => 'Text',
-   label => 'Profile Description',
-   required => 1,
-   readonly => 1,
+   render_list => [ qw(id description logo redirecturl always_use_redirecturl billing_engine) ],
   );
 has_field 'logo' =>
   (
@@ -61,6 +50,21 @@ has_field 'sources.contains' =>
 
 
 =head1 METHODS
+
+=head2 update_fields
+
+The redirection URL is mandatory for the default profile.
+
+=cut
+
+sub update_fields {
+    my $self = shift;
+
+    $self->field('redirecturl')->required(1);
+
+    # Call the theme implementation of the method
+    $self->SUPER::update_fields();
+}
 
 
 =head1 COPYRIGHT

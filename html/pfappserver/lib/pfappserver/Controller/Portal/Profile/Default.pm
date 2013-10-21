@@ -1,4 +1,5 @@
 package pfappserver::Controller::Portal::Profile::Default;
+
 =head1 NAME
 
 pfappserver::Controller::PortalProfile add documentation
@@ -28,7 +29,7 @@ use Readonly;
 BEGIN { extends 'pfappserver::Controller::Portal::Profile'; }
 
 __PACKAGE__->config(
-#Reconfiguring the models and forms for actions
+    # Configure the model and the form for actions
     action_args => {
         '*' => { model => "Config::Profile", form => 'Portal::Profile::Default'},
     }

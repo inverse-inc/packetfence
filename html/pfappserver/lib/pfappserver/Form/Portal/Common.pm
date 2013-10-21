@@ -16,6 +16,111 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 use pf::authentication;
+
+with 'pfappserver::Base::Form::Role::Help';
+
+=head1 Fields
+
+=head2 id
+
+Id of the profile
+
+=cut
+
+has_field 'id' =>
+  (
+   type => 'Text',
+   label => 'Profile Name',
+   required => 1,
+   apply => [ { check => qr/^[a-zA-Z0-9][a-zA-Z0-9\._-]*$/ } ],
+  );
+
+=head2 description
+
+Description of the profile
+
+=cut
+
+has_field 'description' =>
+  (
+   type => 'Text',
+   label => 'Profile Description',
+  );
+
+=head2 redirecturl
+
+Redirection URL
+
+=cut
+
+has_field 'redirecturl' =>
+  (
+   type => 'Text',
+   label => 'Redirection URL',
+   tags => { after_element => \&help,
+             help => 'Default URL to redirect to on registration/mitigation release. This is only used if a per-violation redirect URL is not defined.' },
+  );
+
+=head2 always_use_redirecturl
+
+Controls whether or not we always use the redirection URL
+
+=cut
+
+has_field 'always_use_redirecturl' =>
+  (
+   type => 'Toggle',
+   label => 'Force redirection URL',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.' },
+  );
+
+=head2 billing_engine
+
+Controls whether or not the billing engine is enabled
+
+=cut
+
+has_field 'billing_engine' =>
+  (
+   type => 'Toggle',
+   label => 'Enable Billing Engine',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   tags => { after_element => \&help,
+             help => 'When enabling the billing engine, all authentication sources bellow are ignored.' },
+  );
+
+=head2 sources
+
+Collectiosn Authentication Sources for the profile
+
+=cut
+
+has_field 'sources' =>
+  (
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+  );
+
+=head2 sources.contains
+
+The definition for Authentication Sources field
+
+=cut
+
+has_field 'sources.contains' =>
+  (
+    type => 'Select',
+    options_method => \&options_sources,
+    widget_wrapper => 'DynamicTableRow',
+  );
+
+=head1 Methods
+
 =head2 options_sources
 
 =cut
