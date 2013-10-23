@@ -69,13 +69,11 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-
-    my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id) = $this->_parseRequest($radius_request);
+    my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id, $source_ip) = $this->_parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
         "mac => $mac, port => $port, username => $user_name");
-
     my $connection_type = $this->_identifyConnectionType($nas_port_type, $eap_type, $mac, $user_name);
 
     # TODO maybe it's in there that we should do all the magic that happened in the FreeRADIUS module
@@ -87,8 +85,8 @@ sub authorize {
     }
 
     $logger->info("handling radius autz request: from switch_ip => $switch_ip, "
-        . "connection_type => " . connection_type_to_str($connection_type) . " "
-        . "mac => $mac, port => $port, username => $user_name");
+        . "connection_type => " . connection_type_to_str($connection_type) . ","
+        . "switch_mac => $switch_mac, mac => $mac, port => $port, username => $user_name");
 
     #add node if necessary
     if ( !node_exist($mac) ) {
@@ -100,7 +98,7 @@ sub authorize {
     node_mac_wakeup($mac);
 
     $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate($switch_ip);
+    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
 
     # is switch object correct?
     if (!$switch) {
@@ -110,6 +108,8 @@ sub authorize {
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
+
+    my $switch_id =  $switch->{_id};
 
     # verify if switch supports this connection type
     if (!$this->_isSwitchSupported($switch, $connection_type)) {
@@ -134,7 +134,7 @@ sub authorize {
         $connection_type, $user_name, $ssid, $eap_type)) {
 
         # automatic registration
-        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_ip}, $port,
+        my %autoreg_node_defaults = $vlan_obj->getNodeInfoForAutoReg($switch->{_id}, $port,
             $mac, undef, $switch->isRegistrationMode(), $FALSE, $isPhone, $connection_type, $user_name, $ssid, $eap_type);
 
         $logger->debug("auto-registering node $mac");
@@ -153,7 +153,7 @@ sub authorize {
 
     # if switch is not in production, we don't interfere with it: we log and we return OK
     if (!$switch->isProductionMode()) {
-        $logger->warn("Should perform access control on switch $switch_ip for mac $mac but the switch "
+        $logger->warn("Should perform access control on switch $switch_id for mac $mac but the switch "
             ."is not in production -> Returning ACCEPT");
         $switch->disconnectRead();
         $switch->disconnectWrite();
@@ -173,17 +173,17 @@ sub authorize {
 
     #TODO: Get rid of this
     #Bypass for Inline
-    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
-        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
-                     ."Is the target vlan in the vlans=... list?");
-        $switch->disconnectRead();
-        $switch->disconnectWrite();
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
-    }
+#    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
+#        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
+#                     ."Is the target vlan in the vlans=... list?");
+#        $switch->disconnectRead();
+#        $switch->disconnectWrite();
+#        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
+#    }
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
-    locationlog_synchronize($switch_ip, $port, $vlan, $mac,
+    $switch->synchronize_locationlog($port, $vlan, $mac,
         $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
     ) if (!$wasInline);
 
@@ -191,7 +191,7 @@ sub authorize {
     if (!$switch->supportsRadiusDynamicVlanAssignment() && !$wasInline) {
         $logger->info(
             "Switch doesn't support Dynamic VLAN assignment. " .
-            "Setting VLAN with SNMP on " . $switch->{_ip} . " ifIndex $port to $vlan"
+            "Setting VLAN with SNMP on " . $switch->{_id} . " ifIndex $port to $vlan"
         );
         # WARNING: passing empty switch-lock for now
         # When the _setVlan of a switch who can't do RADIUS VLAN assignment uses the lock we will need to re-evaluate
@@ -216,6 +216,7 @@ sub authorize {
 =item accounting
 
 =cut
+
 sub accounting {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -266,14 +267,13 @@ Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 
 sub _parseRequest {
     my ($this, $radius_request) = @_;
-
-    my $mac = clean_mac($radius_request->{'Calling-Station-Id'});
+    my $ap_mac = extractApMacFromRadiusRequest($radius_request);
+    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
     my $user_name = $radius_request->{'User-Name'};
     my $nas_port_type = $radius_request->{'NAS-Port-Type'};
     my $port = $radius_request->{'NAS-Port'};
-
     my $eap_type = 0;
     if (exists($radius_request->{'EAP-Type'})) {
         $eap_type = $radius_request->{'EAP-Type'};
@@ -284,7 +284,27 @@ sub _parseRequest {
     if ($nas_port_id_key) {
         $nas_port_id = $radius_request->{$nas_port_id_key};
     }
-    return ($nas_port_type, $networkdevice_ip, $eap_type, $mac, $port, $user_name, $nas_port_id);
+    my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
+    return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $source_ip);
+}
+
+sub extractApMacFromRadiusRequest {
+    my ($radius_request) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    # it's put in Called-Station-Id
+    # ie: Called-Station-Id = "aa-bb-cc-dd-ee-ff:Secure SSID" or "aa:bb:cc:dd:ee:ff:Secure SSID"
+    if (defined($radius_request->{'Called-Station-Id'})) {
+        if ($radius_request->{'Called-Station-Id'} =~ /^
+            # below is MAC Address with supported separators: :, - or nothing
+            ([a-f0-9]{2}([-:]?[a-f0-9]{2}){5})
+        /ix) {
+            return clean_mac($1);
+        } else {
+            $logger->info("Unable to extract SSID of Called-Station-Id: ".$radius_request->{'Called-Station-Id'});
+        }
+    }
+
+    return;
 }
 
 =item * _doWeActOnThisCall
@@ -380,7 +400,6 @@ sub _identifyConnectionType {
             } else {
                 return $WIRELESS_MAC_AUTH;
             }
-
         } elsif ($nas_port_type =~ /^Ethernet/ ) {
 
             if ($eap_type) {
@@ -436,10 +455,7 @@ sub _authorizeVoip {
             ('Reply-Message' => "Server reported: VoIP authorization over RADIUS not supported for this network device")
         ];
     }
-
-    locationlog_synchronize(
-        $switch->{_ip}, $port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid
-    );
+    $switch->synchronize_locationlog($port, $switch->getVlanByName('voice'), $mac, $VOIP, $connection_type, $user_name, $ssid);
 
     my %RAD_REPLY = $switch->getVoipVsa();
     $switch->disconnectRead();
@@ -524,7 +540,7 @@ sub _shouldRewriteAccessAccept {
 
 Allows to rewrite the Access-Accept RADIUS atributes arbitrarily.
 
-Return type should match L<pf::radius::authorize>'s return type. See its
+Return type should match L<pf::radius::authorize()>'s return type. See its
 documentation for details.
 
 This is meant to be overridden in L<pf::radius::custom>.
