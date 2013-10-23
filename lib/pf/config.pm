@@ -700,28 +700,37 @@ sub normalize_time {
 
 =item access_duration
 
-Calculate the unregdate from from specific trigger
+Calculate the unregdate from from specific trigger.
+
+Returns a formatted date (YYYY-MM-DD HH:MM:SS).
 
 =cut
 
 sub access_duration {
-    my ($trigger) =@_;
+    my $trigger = shift;
+    my $refdate = shift || time;
     if ( $trigger =~ /^(\d+)($TIME_MODIFIER_RE)$/i ) {
-        return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($trigger)));
+        # absolute value with respect to the reference date
+        # ex: access_duration(1W, 2001-01-01 12:00, 2001-08-01 12:00)
+        return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($refdate + normalize_time($trigger)));
     }
     elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])(\d+)($TIME_MODIFIER_RE)$/i) {
-        my ($tvalue,$sort,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
+        # we match the beginning of the period
+        my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
         my $delta = normalize_time($delta_value.$delta_type);
         if ($sign eq "-") {
             $delta *= -1;
         }
-        if ($advance_type eq 'R') {
-            return POSIX::strftime("%Y-%m-%d %H:%M:%S",localtime( start_date($tvalue.$sort) + end_date($tvalue.$sort) + $delta ) );
+        if ($advance_type eq 'R') { # relative
+            # ex: access_duration(1WR+1D, 2001-01-01 12:00, 2001-08-02 00:00) (week starts on Monday)
+            return POSIX::strftime("%Y-%m-%d %H:%M:%S",
+                                   localtime( start_date($modifier, $refdate) + duration($tvalue.$modifier, $refdate) + $delta ));
         }
-        elsif ($advance_type eq 'F') {
-            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+        elsif ($advance_type eq 'F') { # fixed
+            # ex: access_duration(1WF+1D, 2001-01-01 12:00, 2001-09-01 00:00)
+            my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
             my $today_sec = ($hour * 3600) + ($min * 60) + $sec;
-            return POSIX::strftime("%Y-%m-%d %H:%M:%S",localtime( (time + normalize_time($tvalue.$sort) ) - $today_sec + $delta ) );
+            return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( ($refdate + normalize_time($tvalue.$modifier)) - $today_sec + $delta ));
         }
         else {
             return $FALSE;
@@ -731,49 +740,74 @@ sub access_duration {
 
 =item start_date
 
-Function that calculate the starting date in second of the current day (at midnight),
-week (on monday midnight), month (first of the month at midnight), year (first january at midnight).
+Calculate the beginning of the period.
+
+=over
+
+=item The beginning of a day is at midnight
+
+=item The beginning of the week is on Monday at midnight
+
+=item The beginning of the month is on the first at midnight
+
+=item The beginning of the year is on Januaray 1st at midnight
+
+=back
+
+Returns the number of seconds since the Epoch.
 
 =cut
 
 sub start_date {
-    my ($date) = @_;
+    my $date = shift;
+    my $refdate = shift || time;
 
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-    my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
+    my ($modifier) = $date =~ /^($TIME_MODIFIER_RE)$/i or return (0);
     if ( $modifier eq "D" ) {
-        return (time - (($hour * 3600) + ($min * 60) + $sec));
+        return ($refdate - (($hour * 3600) + ($min * 60) + $sec));
     } elsif ( $modifier eq "W" ) {
         if ($wday eq '0') {
            $wday = 6;
         } else {
            $wday = ($wday -1);
         }
-        return (time - (($wday * 86400) + ($hour * 3600) + ($min * 60) + $sec));
+        return ($refdate - (($wday * 86400) + ($hour * 3600) + ($min * 60) + $sec));
     } elsif ( $modifier eq "M" ) {
-        return ( mktime (0,0,0,1,$mon,$year));
+        return (mktime(0,0,0,1,$mon,$year));
     } elsif ( $modifier eq "Y" ) {
-        return ( mktime (0,0,0,0,0,$year));
+        return (mktime(0,0,0,1,0,$year));
     }
 }
 
-=item end_date
+=item duration
 
-Function that calculate the ending timestamp of the current day,week,month,year
-(exemple 15 Jan 2012 will calculate the 31 Jan 2012 if the arg of the function is 1M)
+Calculate the number of seconds to reach the end of the period from the beginning
+of the period.
+
+=over
+
+=item Example: duration(1D, 2001-01-02 12:00:00) returns 1 * 24 * 60 * 60
+
+=item Example: duration(2W, 2001-01-02 12:00:00) returns 2 * 7 * 24 * 60 * 60
+
+=item Example: duration(2M, 2001-01-02 12:00:00) returns (31+28) * 24 * 60 * 60
+
+=back
 
 =cut
 
-sub end_date {
-    my ($date) =@_;
-    my $logger = Log::Log4perl::get_logger('pf::config');
-    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-    my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
-    if ( $modifier eq "D" ) {
-        return ( $num * 86400 );
-    } elsif ( $modifier eq "W" ) {
+sub duration {
+    my $date = shift;
+    my $refdate = shift || time;
+
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
+    my ($num, $modifier) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+    if ($modifier eq "D") {
+        return ($num * 86400);
+    } elsif ($modifier eq "W") {
         return ($num * 604800);
-    } elsif ( $modifier eq "M" ) {
+    } elsif ($modifier eq "M") {
         # We have to calculate the number of days in the next month(s)
         my $days_month = 0;
         while ($num != 0) {
@@ -782,12 +816,12 @@ sub end_date {
                 $year ++;
             }
             my $next_month = timelocal(0, 0, 0, 1, $mon + 1 , $year);
-            $days_month += (localtime($next_month - 86_400))[3];
+            $days_month += (localtime($next_month - 86400))[3];
             $mon ++;
             $num --;
         }
-        return (($days_month + 1) * 86400);
-    } elsif ( $modifier eq "Y" ) {
+        return ($days_month * 86400);
+    } elsif ($modifier eq "Y") {
         # We have to calculate the number of days in the next year(s)
         my $days_year = 0;
         $year = $year + 1900;
@@ -800,7 +834,7 @@ sub end_date {
             $num --;
             $year ++;
         }
-        return (($days_year + 1 ) * 86400);
+        return ($days_year * 86400);
     }
 }
 
