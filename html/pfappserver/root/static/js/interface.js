@@ -107,7 +107,7 @@ InterfaceView.prototype.typeChanged = function(e) {
         var type = e? $(e.target) : modal.find('[name="type"]');
         if (type.length) {
             var dns = modal.find('[name="dns"]').closest('.control-group');
-            if (type.val() == 'inline') {
+            if ( /inline/.test( type.val() ) ) {
                 dns.show('fast');
                 dns.find(':input').removeAttr('disabled');
             } else {
