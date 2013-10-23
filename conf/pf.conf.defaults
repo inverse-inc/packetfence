@@ -103,7 +103,7 @@ redirtimer=20s
 # trapping.whitelist
 #
 # Comma-delimited list of MAC addresses that are immune to isolation. In 
-# inline enforcement, the firewall is opened for them as if they were 
+# inline level 2 enforcement, the firewall is opened for them as if they were 
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
