@@ -1,0 +1,11 @@
+Hello [% firstname %] [% lastname %],
+
+Thank you for your purchase.
+
+  [% tier_name %] : [% tier_description %]
+
+-- 
+
+To extend your network access, please visit http://[% hostname %].[% domain %][% URL_BILLING %]
+
+To view your current network status, please visit http://[% hostname %].[% domain %][% URL_STATUS %]

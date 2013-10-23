@@ -79,7 +79,7 @@ if ( defined($cgi->param('submit')) ) {
         };
 
         # Process the transaction
-        my $paymentStatus   = $billingObj->processTransaction($transaction_infos_ref);
+        my $paymentStatus = $billingObj->processTransaction($transaction_infos_ref);
 
         if ( $paymentStatus eq $BILLING::SUCCESS ) {
             # Adding person (using modify in case person already exists)
@@ -124,6 +124,10 @@ if ( defined($cgi->param('submit')) ) {
 
             # Register the node
             pf::web::web_node_register($portalSession, $info{'pid'}, %info);
+
+            # Send confirmation email
+            my %data = $billingObj->prepareConfirmationInfo($portalSession);
+            pf::util::send_email('billing_confirmation', $data{'email'}, $data{'subject'}, \%data);
 
             # Generate the release page
             # XXX Should be part of the portal profile
