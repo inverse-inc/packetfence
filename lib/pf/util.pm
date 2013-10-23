@@ -27,6 +27,7 @@ use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all);
+use Try::Tiny;
 
 our ( %local_mac );
 
@@ -367,6 +368,10 @@ sub mac2oid {
     }
 }
 
+=item pfmailer - send an email
+
+=cut
+
 sub pfmailer {
     my (%data)     = @_;
     my $logger     = Log::Log4perl::get_logger('pf::util');
@@ -395,6 +400,49 @@ sub pfmailer {
         $logger->error("can not connect to SMTP server $smtpserver!");
     }
     return 1;
+}
+
+=item send_email - Send an email using a template
+
+=cut
+
+sub send_email {
+    my ($template, $email, $subject, $data) = @_;
+    my $logger = Log::Log4perl::get_logger('pf::util');
+
+    my $smtpserver = $Config{'alerting'}{'smtpserver'};
+    $data->{'from'} = $Config{'alerting'}{'fromaddr'} || 'root@' . $fqdn unless ($data->{'from'});
+
+    my %options;
+    $options{INCLUDE_PATH} = "$conf_dir/templates/";
+
+    try {
+        require MIME::Lite::TT;
+    } catch {
+        $logger->error("Could not send email because I couldn't load a module. ".
+                       "Are you sure you have MIME::Lite::TT installed?");
+        return $FALSE;
+    };
+    my $msg = MIME::Lite::TT->new(
+        From        =>  $data->{'from'},
+        To          =>  $email,
+        Cc          =>  $data->{'cc'} || '',
+        Subject     =>  $subject,
+        Template    =>  "emails-$template.txt.tt",
+        TmplOptions =>  \%options,
+        TmplParams  =>  $data,
+    );
+
+    my $result = 0;
+    try {
+      $msg->send('smtp', $smtpserver, Timeout => 20);
+      $result = $msg->last_send_successful();
+      $logger->info("Email sent to $email ($subject)");
+    } catch {
+      $logger->error("Can't send email to $email: $@");
+    };
+
+    return $result;
 }
 
 =item  isenabled
