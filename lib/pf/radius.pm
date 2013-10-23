@@ -286,8 +286,8 @@ sub _parseRequest {
 
     my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Aruba-Port-Identifier Cisco-NAS-Port NAS-Port-Id);
     my $nas_port_id;
-    if ($nas_port_id_key) {
-        $nas_port_id = $radius_request->{$nas_port_id_key};
+    if (defined($radius_request->{'NAS-Port-Id'})) {
+        $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
     my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
     return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $source_ip);
