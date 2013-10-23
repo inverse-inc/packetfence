@@ -40,6 +40,24 @@ Log::Log4perl::MDC->put('tid', 0);
 
 my $portalSession = pf::Portal::Session->new();
 
+# We check if we're connected in an inlinel3 (Inline Layer 3) network and if we must
+# generate a fake MAC address.
+foreach my $network ( keys %ConfigNetworks ) {
+    next if ( !pf::config::is_network_type_inline($network) );
+    my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
+    if (defined $portalSession->getClientIp()) {
+	my $ip = new NetAddr::IP::Lite clean_ip($portalSession->getClientIp());
+	if ($net_addr->contains($ip) && isenabled($ConfigNetworks{$network}{'generate_fake_mac'})) {
+	    my $fake_mac = '00:00:' . join(':', map { sprintf("%02X", $_) } split /\./, $ip);
+
+	    $portalSession->setClientMac( $fake_mac );
+	    locationlog_synchronize($ConfigNetworks{$network}{'gateway'}, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
+	    iplog_open($fake_mac, $ip);
+	    last;
+	}
+    }
+}
+
 # we need a valid MAC to identify a node
 if (!valid_mac($portalSession->getClientMac())) {
   $logger->info($portalSession->getClientIp() . " not resolvable, generating error page");
