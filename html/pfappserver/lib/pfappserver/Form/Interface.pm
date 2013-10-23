@@ -73,7 +73,8 @@ sub validate {
 
     if (defined $self->value->{type} &&  
         ( $self->value->{type} eq 'inlinel2' or 
-          $self->value->{type} eq 'inline' ) {
+          $self->value->{type} eq 'inline' ) 
+        ) {
         unless ($self->value->{dns}) {
             $self->field('dns')->add_error('Please specify your DNS server.');
         }
