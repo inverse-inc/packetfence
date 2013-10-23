@@ -57,7 +57,14 @@ sub options_type {
     my $self = shift;
 
     # $self->types comes from pfappserver::Model::Enforcement->getAvailableTypes
-    my @types = map { $_ => $self->_localize($_) } @{$self->types} if ($self->types);
+    if ( defined $self->types ) {
+        for my $type ( @{$self->types} ) {
+            # we remove inline, even though it may still be in pf.conf for backwards compatibility reasons.
+            next if $type eq 'inline';
+            push @types, ( $type => $self->_localize($type) );
+        }
+    }
+
 
     return ('' => '', @types);
 }
