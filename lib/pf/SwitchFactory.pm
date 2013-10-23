@@ -18,9 +18,7 @@ use warnings;
 
 use Carp;
 use UNIVERSAL::require;
-use Log::Log4perl qw(get_logger);
-
-use pf::config;
+use pf::log;
 use pf::config::cached;
 use pf::util;
 use pf::freeradius;
@@ -124,9 +122,33 @@ sub new {
 
 sub instantiate {
     my $logger = get_logger();
-    my ( $this, $requestedSwitch ) = @_;
-    if ( !exists $SwitchConfig{$requestedSwitch} ) {
-        $logger->error("ERROR ! Unknown switch $requestedSwitch");
+    my ( $self, $switchId ) = @_;
+    my @requestedSwitches;
+    my $requestedSwitch;
+    my $switch_ip;
+    my $switch_mac;
+
+    if(ref($switchId) eq 'HASH') {
+        if(exists $switchId->{switch_mac} && defined $switchId->{switch_mac}) {
+            $switch_mac = $switchId->{switch_mac};
+            push @requestedSwitches,$switch_mac;
+        }
+        if(exists $switchId->{switch_ip} && defined $switchId->{switch_ip}) {
+            $switch_ip = $switchId->{switch_ip};
+            push @requestedSwitches,$switch_ip;
+        }
+    } else {
+        @requestedSwitches = ($switchId);
+        if(valid_ip($switchId)) {
+            $switch_ip = $switchId;
+        } elsif (valid_mac($switchId)) {
+            $switch_mac = $switchId;
+        }
+    }
+
+    $requestedSwitch = first {exists $SwitchConfig{$_} } @requestedSwitches;
+    unless ($requestedSwitch) {
+        $logger->error("ERROR ! Unknown switch(es) ". join(" ",@requestedSwitches));
         return 0;
     }
     my $switch_data = $SwitchConfig{$requestedSwitch};
@@ -148,7 +170,13 @@ sub instantiate {
     }
 
     $logger->debug("creating new $type object");
-    return $type->new( 'ip' => $requestedSwitch, %$switch_data);
+    return $type->new(
+         id => $requestedSwitch,
+         ip => $switch_ip,
+         switchIp => $switch_ip,
+         switchMac => $switch_mac,
+         %$switch_data
+    );
 }
 
 sub config {

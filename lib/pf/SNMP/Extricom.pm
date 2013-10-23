@@ -110,7 +110,7 @@ sub connectWrite {
     }
     $logger->debug( "opening SNMP v"
             . $this->{_SNMPVersion}
-            . " write connection to $this->{_ip}" );
+            . " write connection to $this->{_id}" );
     if ( $this->{_SNMPVersion} eq '3' ) {
         ( $this->{_sessionWrite}, $this->{_error} ) = Net::SNMP->session(
             -hostname     => $this->{_ip},
@@ -136,7 +136,7 @@ sub connectWrite {
         $logger->error( "error creating SNMP v"
                 . $this->{_SNMPVersion}
                 . " write connection to "
-                . $this->{_ip} . ": "
+                . $this->{_id} . ": "
                 . $this->{_error} );
         return 0;
     } else {
@@ -148,7 +148,7 @@ sub connectWrite {
             $logger->error( "error creating SNMP v"
                     . $this->{_SNMPVersion}
                     . " write connection to "
-                    . $this->{_ip} . ": "
+                    . $this->{_id} . ": "
                     . $this->{_sessionWrite}->error() );
             $this->{_sessionWrite} = undef;
             return 0;
@@ -167,7 +167,7 @@ sub connectWrite {
                 $logger->error( "error creating SNMP v"
                         . $this->{_SNMPVersion}
                         . " write connection to "
-                        . $this->{_ip} . ": "
+                        . $this->{_id} . ": "
                         . $this->{_sessionWrite}->error()
                         . " it looks like you specified a read-only community instead of a read-write one"
                 );
@@ -209,7 +209,7 @@ sub deauthenticateMacDefault {
         );
 
         # TODO: validate result
-        $logger->info("deauthenticate mac $mac from controller: ".$this->{_ip});
+        $logger->info("deauthenticate mac $mac from controller: ".$this->{_id});
         return ( defined($result) );
     } else {
         $logger->error(
@@ -238,7 +238,6 @@ sub deauthTechniques {
     }
     return $method,$tech{$method};
 }
-
 
 =back
 

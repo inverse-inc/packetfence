@@ -88,12 +88,12 @@ sub getTrunkPorts {
             if ( $result->{$key} == 2 ) {
                 $key =~ /^$OID_vlanPortMode\.(\d+)$/;
                 push @trunkPorts, $1;
-                $logger->info( "Switch " . $this->{_ip} . " trunk port: $1" );
+                $logger->info( "Switch " . $this->{_id} . " trunk port: $1" );
             }
         }
     } else {
         $logger->error(
-            "Problem while reading vlanPortMode for switch " . $this->{_ip} );
+            "Problem while reading vlanPortMode for switch " . $this->{_id} );
         return -1;
     }
     return @trunkPorts;
@@ -129,15 +129,11 @@ sub _setVlan {
     if ( !defined($dot1dBasePort) ) {
         return 0;
     }
-
-    $logger->trace( "locking - trying to lock \$switch_locker{"
-            . $this->{_ip}
-            . "} in _setVlan" );
+    my $id = $this->{_id};
+    $logger->trace( "locking - trying to lock \$switch_locker{$id} in _setVlan" );
     {
-        lock %{ $switch_locker_ref->{ $this->{_ip} } };
-        $logger->trace( "locking - \$switch_locker{"
-                . $this->{_ip}
-                . "} locked in _setVlan" );
+        lock %{ $switch_locker_ref->{ $id } };
+        $logger->trace( "locking - \$switch_locker{$id} locked in _setVlan" );
 
         # get current egress and untagged ports
         $this->{_sessionRead}->translate(0);
@@ -217,9 +213,7 @@ sub _setVlan {
                     . $this->{_sessionWrite}->error );
         }
     }
-    $logger->trace( "locking - \$switch_locker{"
-            . $this->{_ip}
-            . "} unlocked in _setVlan" );
+    $logger->trace( "locking - \$switch_locker{$id} unlocked in _setVlan" );
     return ( defined($result) );
 }
 
