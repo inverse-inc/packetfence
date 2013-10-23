@@ -90,8 +90,8 @@ sub object :Chained('/') :PathPart('configurator') :CaptureArgs(0) {
 
     if ($c->action->name() ne $self->action_for('enforcement')->name &&
         (!exists($c->session->{enforcements}) || scalar($c->session->{enforcements}) == 0)) {
-        # Defaults to inline L2 mode if no mechanism has been chosen so far
-        $c->session->{enforcements}->{'inline L2'} = 1;
+        # Defaults to inlinel2 mode if no mechanism has been chosen so far
+        $c->session->{enforcements}->{'inlinel2'} = 1;
     }
 }
 
@@ -169,7 +169,7 @@ sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
         }
         else {
             # Defaults to inline mode if no mechanism has been detected
-            $c->session->{enforcements}->{inline} = 1;
+            $c->session->{enforcements}->{inlinel2} = 1;
         }
     }
 

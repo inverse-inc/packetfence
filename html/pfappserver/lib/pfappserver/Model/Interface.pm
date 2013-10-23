@@ -613,7 +613,7 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'vlan';
     }
-    elsif ($type =~ /^inline L\d/i) {
+    elsif ($type =~ /^inlinel\d/i) {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = $type;
     }
