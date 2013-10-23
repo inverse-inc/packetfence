@@ -613,9 +613,9 @@ sub _prepare_interface_for_pfconf {
         $int_config_ref->{'type'} = 'internal';
         $int_config_ref->{'enforcement'} = 'vlan';
     }
-    elsif ($type =~ /^inline$/i) {
+    elsif ($type =~ /^inline L\d/i) {
         $int_config_ref->{'type'} = 'internal';
-        $int_config_ref->{'enforcement'} = 'inline';
+        $int_config_ref->{'enforcement'} = $type;
     }
     else {
         # here we oversimplify a bit, type supports multivalues but it's
