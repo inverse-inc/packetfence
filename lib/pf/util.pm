@@ -93,7 +93,7 @@ sub valid_ip {
     {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
-        $logger->error("invalid IP: $ip from $caller");
+        $logger->debug("invalid IP: $ip from $caller");
         return (0);
     } else {
         return (1);
