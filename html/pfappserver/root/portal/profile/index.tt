@@ -59,7 +59,7 @@
       </tr>
       [% END %]
       [% END -%]
-      <tr><td colspan="4"></td><td class="hidden-phone"></td></tr>
+      <tr><td class="hidden-phone"></td><td colspan="3"></td></tr>
     </tbody>
   </table>
 </form>
