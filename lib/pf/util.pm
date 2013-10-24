@@ -219,12 +219,12 @@ sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
     if ( $mac !~ $VALID_MAC_REGEX) {
-        $logger->error("invalid MAC: $mac");
+        $logger->debug("invalid MAC: $mac");
         return (0);
     }
     $mac = clean_mac($mac);
     if( $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
-        $logger->error("invalid MAC: $mac");
+        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
         return (0);
     } else {
         return (1);
