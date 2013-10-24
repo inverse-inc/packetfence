@@ -9,6 +9,8 @@
     [% form.field('netmask').render %]
     [% form.field('type').render %]
     [% form.field('dns').render %]
+    [% form.field('fake_mac_enabled').render %]
+    [% form.field('dhcpd_enabled').render %]
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>

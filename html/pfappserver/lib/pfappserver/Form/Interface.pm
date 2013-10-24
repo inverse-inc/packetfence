@@ -49,6 +49,19 @@ has_field 'dns' =>
              help => 'The primary DNS server of your network.' },
   );
 
+has_field 'fake_mac_enabled' => 
+  (
+   type => 'Boolean',
+   label => 'Fake MAC Address',
+   );
+
+has_field 'dhcpd_enabled' => 
+   (
+    type => 'Boolean',
+    label => 'Enable dhcp server',
+   );
+
+
 =head2 options_type
 
 =cut
@@ -57,6 +70,7 @@ sub options_type {
     my $self = shift;
 
     # $self->types comes from pfappserver::Model::Enforcement->getAvailableTypes
+    my @types;
     if ( defined $self->types ) {
         for my $type ( @{$self->types} ) {
             # we remove inline, even though it may still be in pf.conf for backwards compatibility reasons.
