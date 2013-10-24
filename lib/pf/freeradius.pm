@@ -136,8 +136,19 @@ sub freeradius_populate_nas_config {
         $logger->info("Problem emptying FreeRADIUS nas clients table.");
     }
 
-    foreach my $switch (@switches) {
+    foreach my $switch (keys %$switch_config) {
+
+        # we skip the 'default' entry or the local switch
+        if ($switch eq 'default' || $switch eq '127.0.0.1') { next; }
+
         my $sw_radiussecret = $switch_config->{$switch}{'radiusSecret'};
+
+        # skipping unless switch's radiusSecret exists and is not all whitespace
+        unless (defined $sw_radiussecret && $sw_radiussecret =~ /\S/ ) {
+            $logger->debug("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
+            next;
+        }
+
         # insert NAS
         _insert_nas( $switch, $switch, $sw_radiussecret, $switch . " (" . $switch_config->{$switch}{'type'} .")");
     }
