@@ -223,7 +223,7 @@ sub valid_mac {
         return (0);
     }
     $mac = clean_mac($mac);
-    if( $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
+    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
         $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
         return (0);
     } else {
