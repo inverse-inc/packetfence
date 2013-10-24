@@ -50,7 +50,8 @@ our (
     @stored_config_files, @log_files,
     $mdm_config_file,
     $admin_roles_config_file,
-    $wrix_config_file
+    $wrix_config_file,
+    $switches_overlay_file
 );
 
 BEGIN {
@@ -80,6 +81,7 @@ BEGIN {
         $admin_roles_config_file
         $wrix_config_file
         @stored_config_files
+        $switches_overlay_file
     );
 }
 
@@ -118,9 +120,6 @@ $authentication_config_file   = catfile($conf_dir, "authentication.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
 $wrix_config_file = catfile($conf_dir, "wrix.conf");
 
-$oui_url               = 'http://standards.ieee.org/regauth/oui/oui.txt';
-$dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
-
 @log_files =
     map { catfile($log_dir,$_) }
     qw( access_log error_log admin_access_log admin_error_log packetfence.log catalyst.log )
@@ -143,7 +142,10 @@ $dhcp_fingerprints_url = 'http://www.packetfence.org/dhcp_fingerprints.conf';
     $oui_file, $floating_devices_file,
     $chi_config_file,
 );
+$oui_url                    = 'http://standards.ieee.org/regauth/oui/oui.txt';
+$dhcp_fingerprints_url      = 'http://www.packetfence.org/dhcp_fingerprints.conf';
 
+$switches_overlay_file   = catfile($var_dir, "switches.conf");
 
 
 =head1 AUTHOR
