@@ -35,6 +35,7 @@ use pf::billing::constants;
 use pf::config;
 use pf::db;
 use pf::util;
+use pf::web;
 
 use constant BILLING => 'billing';
 
@@ -243,7 +244,7 @@ sub prepareConfirmationInfo {
 
     $info{'firstname'} = $cgi->param("firstname");
     $info{'lastname'} = $cgi->param("lastname");
-    $info{'email'} = $session->param("email");
+    $info{'email'} = $cgi->param("email");
     $info{'tier_name'} = $tier->{'name'};
     $info{'tier_description'} = $tier->{'description'};
     $info{'hostname'} = $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'};

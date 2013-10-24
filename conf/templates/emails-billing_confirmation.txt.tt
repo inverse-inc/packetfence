@@ -6,6 +6,6 @@ Thank you for your purchase.
 
 -- 
 
-To extend your network access, please visit http://[% hostname %].[% domain %][% URL_BILLING %]
+To extend your network access, please visit https://[% hostname %].[% domain %][% URL_BILLING %]
 
-To view your current network status, please visit http://[% hostname %].[% domain %][% URL_STATUS %]
+To view your current network status, please visit https://[% hostname %].[% domain %][% URL_STATUS %]
