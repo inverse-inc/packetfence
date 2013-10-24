@@ -74,7 +74,7 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
 
-    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession);
+    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
     if ($return) {
         $logger->info("Authentification success for wispr client");
         $stash = {
