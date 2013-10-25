@@ -61,13 +61,10 @@ use warnings;
 
 use FindBin;
 use DBI;
-use threads;
-use threads::shared;
 use Log::Log4perl qw(:easy);
 use Log::Log4perl::Appender::File; # HACK: compile tests failed on build env. without that
 use Getopt::Long;
 use Pod::Usage;
-use Thread::Pool;
 
 require 5.8.8;
 
@@ -80,12 +77,15 @@ use constant {
 use lib LIB_DIR;
 use pf::SwitchFactory;
 use pf::config;
-$thread = 1;
 use pf::db;
 use pf::node;
 use pf::violation;
 use pf::locationlog;
 use pf::vlan::custom;
+use threads;
+use threads::shared;
+use Thread::Pool;
+$thread = 1;
 
 my $logLevel = 0;
 my $help;
