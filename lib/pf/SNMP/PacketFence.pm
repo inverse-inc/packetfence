@@ -115,7 +115,6 @@ sub sendLocalFirewallRequestTrap {
         -varbindlist => [
             '1.3.6.1.6.3.1.1.4.1.0', Net::SNMP::OBJECT_IDENTIFIER, '1.3.6.1.4.1.29464.1.3',
             "1.3.6.1.4.1.29464.1.3", Net::SNMP::OCTET_STRING,      $mac,
-            "1.3.6.1.4.1.29464.1.5", Net::SNMP::OCTET_STRING,      $switch_id,
         ]
     );
     if ( !$result ) {
