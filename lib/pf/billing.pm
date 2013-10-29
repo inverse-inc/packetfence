@@ -234,7 +234,7 @@ This is meant to be overridden in L<pf::billing::custom>.
 =cut
 
 sub prepareConfirmationInfo {
-    my ( $self, $portalSession ) = @_;
+    my ( $self, $transaction_infos_ref, $portalSession ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my %info = ( pf::web::constants::to_hash() );
@@ -247,9 +247,12 @@ sub prepareConfirmationInfo {
     $info{'email'} = $cgi->param("email");
     $info{'tier_name'} = $tier->{'name'};
     $info{'tier_description'} = $tier->{'description'};
+    $info{'tier_price'} = $tier->{'price'};
     $info{'hostname'} = $Config{'general'}{'hostname'} || $Default_Config{'general'}{'hostname'};
     $info{'domain'} = $Config{'general'}{'domain'} || $Default_Config{'general'}{'domain'};
     $info{'subject'} = i18n_format("%s: Network Access Order Confirmation", $Config{'general'}{'domain'});
+
+    $info{'transaction_id'} = $transaction_infos_ref->{'id'};
 
     return %info;
 }

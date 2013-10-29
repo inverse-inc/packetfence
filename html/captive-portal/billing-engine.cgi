@@ -126,7 +126,7 @@ if ( defined($cgi->param('submit')) ) {
             pf::web::web_node_register($portalSession, $info{'pid'}, %info);
 
             # Send confirmation email
-            my %data = $billingObj->prepareConfirmationInfo($portalSession);
+            my %data = $billingObj->prepareConfirmationInfo($transaction_infos_ref, $portalSession);
             pf::util::send_email('billing_confirmation', $data{'email'}, $data{'subject'}, \%data);
 
             # Generate the release page

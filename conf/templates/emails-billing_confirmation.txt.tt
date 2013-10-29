@@ -2,7 +2,9 @@ Hello [% firstname %] [% lastname %],
 
 Thank you for your purchase.
 
-  [% tier_name %] : [% tier_description %]
+  [% tier_name %]: [% tier_description %]
+  Cost: $[% tier_price %]
+  Transaction ID: [% transaction_id %]
 
 -- 
 
