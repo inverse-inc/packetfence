@@ -226,8 +226,7 @@ sub accounting {
 
     if ($isStop || $isUpdate) {
         # On accounting stop/update, check the usage duration of the node
-        my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
-
+        my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id, $source_ip) = $this->_parseRequest($radius_request);
         if ($mac && $user_name) {
             my $session_time = int $radius_request->{'Acct-Session-Time'};
             if ($session_time > 0) {
