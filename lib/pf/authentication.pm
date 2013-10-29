@@ -430,6 +430,13 @@ sub deleteAuthenticationSource {
 
 =item username_from_email
 
+Return the username associated to an email address if it exists in any of the
+authentication sources.
+
+This subroutine is used to validate a sponsor's email address.
+
+See pf::web::guest::validate_sponsor.
+
 =cut
 
 sub username_from_email {
@@ -439,19 +446,16 @@ sub username_from_email {
     $logger->info("Looking up username for email: $email");
 
     foreach my $source ( @authentication_sources ) {
-
-        if ($source->isa('pf::Authentication::Source::LDAPSource') ||
-            $source->isa('pf::Authentication::Source::SQLSource' )) {
-
+        if ($source->can("username_from_email")) {
             my $username = $source->username_from_email($email);
 
             if (defined $username) {
-                return ($username,$source->id);
+                return ($username, $source->id);
             }
         }
     }
 
-    return ;
+    return;
 }
 
 =item authenticate

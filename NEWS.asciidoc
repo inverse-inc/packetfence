@@ -35,6 +35,7 @@ Enhancements
 * Improved validation of VLAN management
 * Updated FontAwesome to version 3.2.1
 * Each portal profile can now have a different redirection URL
+* An Htpasswd source can now define sponsors
 
 Bug Fixes
 +++++++++

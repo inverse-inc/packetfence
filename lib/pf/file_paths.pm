@@ -1,4 +1,5 @@
 package pf::file_paths;
+
 =head1 NAME
 
 pf::file_paths add documentation

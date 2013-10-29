@@ -90,6 +90,26 @@ sub match_in_subclass {
     return undef;
 }
 
+=head2 username_from_email
+
+=cut
+
+sub username_from_email {
+    my ( $self, $email ) = @_;
+
+    # First check if the username is found in the htpasswd file
+    my $password_file = $self->{'path'};
+    if (-r $password_file) {
+        my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly => 1});
+        if ( $htpasswd->fetchPass($email) ) {
+            # Username is defined in the htpasswd file
+            return $email;
+        }
+    }
+
+    return undef;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
