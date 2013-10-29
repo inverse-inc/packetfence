@@ -21,7 +21,7 @@ start() {
 	IPSET=`command -v ipset`
 	if [ $IPSET ]; then
 		modprobe ip_set
-    #flush any previous ipset rules
+        #flush any previous ipset rules
         /usr/sbin/ipset destroy
 	fi
 	/sbin/vconfig set_name_type DEV_PLUS_VID_NO_PAD
