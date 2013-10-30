@@ -633,7 +633,7 @@ pid, category and voip status assigned to the imported nodes can be modified
 in pf.conf.
 
 Supported format:
-- nodes
+- nodes wrix
 
 Nodes import format:
 <MAC>
