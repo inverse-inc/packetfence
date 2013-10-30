@@ -3591,10 +3591,10 @@ msgid "inline"
 msgstr "inline"
 
 msgid "inlinel2"
-msgstr "inline Level 2"
+msgstr "Inline Level 2"
 
 msgid "inlinel3"
-msgstr "inline Level 3"
+msgstr "Inline Level 3"
 
 # conf/documentation.conf
 msgid "inline.interfaceSNAT"
