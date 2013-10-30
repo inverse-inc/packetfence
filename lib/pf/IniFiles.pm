@@ -159,6 +159,24 @@ sub IsExpired {
         $imported_expired = $imported->IsExpired() if defined $imported;
     }
     my $last_mod_timestamp = $self->GetLastModTimestamp;
+    my $current_mod_timestamp = $self->GetCurrentModTimestamp;
+    return ($imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp < $current_mod_timestamp));
+}
+
+=head1 HasChanged
+
+Verify if the has
+
+=cut
+
+sub HasChanged {
+    my ($self,$no_check_imported) = @_;
+    my $imported_expired = 0;
+    if(!$no_check_imported && exists $self->{imported}) {
+        my $imported = $self->{imported};
+        $imported_expired = $imported->HasChanged() if defined $imported;
+    }
+    my $last_mod_timestamp = $self->GetLastModTimestamp;
     return ($imported_expired || (defined $last_mod_timestamp && $last_mod_timestamp != $self->GetCurrentModTimestamp ));
 }
 
@@ -180,7 +198,7 @@ Gets the mod typestamp of the file
 
 =cut
 
-sub GetLastModTimestamp { $_[0]->{_last_timestamp}; }
+sub GetLastModTimestamp { $_[0]->{_last_timestamp} || -1; }
 
 =head2 GetCurrentModTimestamp
 
