@@ -157,7 +157,7 @@ sub parseCommandLine {
                                    )?
                                  $ }xms,
         'import' => qr{ ^
-                            ( nodes )                # import nodes
+                            ( nodes | wrix )                # import nodes
                             \s+
                             ( [a-zA-Z0-9_\-\.\/]+ )   # strict filename with path regexp
                         $  }xms,
