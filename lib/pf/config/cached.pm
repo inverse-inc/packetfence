@@ -341,6 +341,8 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self;
     my $file = $params{'-file'};
+    $file =~ /^(.*)$/;
+    $file = $1;
     my $config;
     my $onReload = delete $params{'-onreload'} || [];
     my $onFileReload = delete $params{'-onfilereload'} || [];
@@ -365,7 +367,6 @@ sub new {
                     my $lock = lockFileForReading($file);
                     my $config = pf::IniFiles->new(%params);
                     die "$file cannot be loaded" unless $config;
-                    unlockFilehandle($lock);
                     $config->SetFileName($file);
                     $config->SetWriteMode($WRITE_PERMISSIONS);
                     my $mode = oct($config->GetWriteMode);
@@ -379,13 +380,14 @@ sub new {
         die "param -file missing or empty";
     }
     if ($config) {
+        untaint($config) unless $reload_onfile;
         $self = \$config;
-        push @LOADED_CONFIGS, $self;
         $ON_RELOAD{$file} = [];
         $ON_FILE_RELOAD{$file} = [];
         $ON_CACHE_RELOAD{$file} = [];
         $ON_POST_RELOAD{$file} = [];
         bless $self,$class;
+        push @LOADED_CONFIGS, $self;
         $self->addReloadCallbacks(@$onReload) if @$onReload;
         $self->addFileReloadCallbacks(@$onFileReload) if @$onFileReload;
         $self->addCacheReloadCallbacks(@$onCacheReload) if @$onCacheReload;
@@ -414,7 +416,7 @@ sub RewriteConfig {
     my $logger = get_logger();
     my $config = $self->config;
     my $file = $config->GetFileName;
-    if( $config->IsExpired(1) ) {
+    if( $config->HasChanged(1) ) {
         die "Config $file was modified from last loading\n";
     }
     my $result;
@@ -436,16 +438,15 @@ sub RewriteConfig {
         $result = $config->RewriteConfig();
     }
     if($result) {
+        $config->SetWriteMode($WRITE_PERMISSIONS);
+        my $mode = oct($config->GetWriteMode);
+        chmod $mode, $file;
         $config = $self->computeFromPath(
             $file,
             sub { return $config; }, 1
         );
-        $config->SetWriteMode($WRITE_PERMISSIONS);
-        my $mode = oct($config->GetWriteMode);
-        chmod $mode, $file;
         $self->doCallbacks(1,0);
     }
-    unlockFilehandle($lock);
     return $result;
 }
 
@@ -577,11 +578,7 @@ sub lockFileForWriting {
     my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for writing $file");
-    my $old_mask = umask 2;
-    my $flock = File::Flock->new(_makeFileLock($file));
-    umask $old_mask;
-    return $flock;
-
+    return _lockFileFor($file);
 }
 
 =head2 lockFileForReading
@@ -594,23 +591,22 @@ sub lockFileForReading {
     my ($file) = @_;
     my $logger = get_logger();
     $logger->trace("locking file for reading $file");
-    my $old_mask = umask 2;
-    my $flock = File::Flock->new(_makeFileLock($file),'shared');
-    umask $old_mask;
-    return $flock;
+    return _lockFileFor($file,'shared');
 }
 
-=head2 unlockFilehandle
+=head2 _lockFileFor
 
-Unlock the file handle returned from lockFileForWriting or lockFileForReading
+helper function for locking files
 
 =cut
 
-sub unlockFilehandle {
-    my ($lock) = @_;
-    my $logger = get_logger();
-    $logger->trace("unlocking file");
-    $lock->unlock;
+
+sub _lockFileFor {
+    my ($file, $mode) = @_;
+    my $old_mask = umask 2;
+    my $flock = File::Flock->new(_makeFileLock($file),$mode);
+    umask $old_mask;
+    return $flock;
 }
 
 =head2 _makeFileLock
@@ -621,7 +617,9 @@ will create the name of the lock file
 
 sub _makeFileLock {
     my ($file) = @_;
-    return "$file.lock";
+    $file =~ /^(.*)$/;
+    my $lock_file = "${1}.lock";
+    return $lock_file;
 }
 
 
@@ -649,7 +647,6 @@ sub ReadConfig {
             #reread files
             my $lock = lockFileForReading($file);
             $result = $config->ReadConfig();
-            unlockFilehandle($lock);
             $reloaded_from_file = 1;
             return $config;
         }
@@ -715,7 +712,7 @@ sub computeFromPath {
     my $result = $self->cache->compute(
         $file,
         {
-            expire_if => sub { return $expire || $_[0]->value->IsExpired(); },
+            expire_if => sub { return $expire || $_[0]->value->HasChanged(); },
         },
         $computeWrapper
     );
