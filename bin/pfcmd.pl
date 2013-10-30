@@ -832,11 +832,21 @@ sub import_data {
     my $type = $cmd{command}[1];
     my $file = $cmd{command}[2];
     $logger->info("Import requested. Type: $type, file to import: $file");
-
+    my $result;
     if (lc($type) eq 'nodes') {
         pf::import::nodes($file);
+        $result = 1;
+    } elsif (lc($type) eq 'wrix') {
+        require pf::ConfigStore::Wrix;
+        my $config = pf::ConfigStore::Wrix->new;
+        $config->importCsv($file);
+        $result = $config->commit();
     }
-    print "Import process complete\n";
+    if($result) {
+        print "Import process complete\n";
+    } else {
+        print "Error importing $file for $type\n";
+    }
 }
 
 sub interfaceconfig {
