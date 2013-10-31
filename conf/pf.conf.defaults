@@ -556,6 +556,22 @@ should_reauth_on_vlan_change = disabled
 # Choose the interface(s) you want to use to enable snat (by default it´s the management interface)
 interfaceSNAT=
 
+# inline.accounting_session_timeout
+# 
+# Accounting 'sessions' (rows in the memory table used by ulogd) that haven't
+# been updated for more than this amount of seconds will be dropped from the
+# memory table. When the client connects again, he'll simply get a new entry
+# in the (real) accounting table.
+# This should be higher than the interval at which pfmon runs
+# Defaults to 300 - 5 minutes
+accounting_session_timeout=300
+
+# inline.accounting_session_timeout
+#
+# Should we handle accouting data for inline clients?
+# This controls inline accouting tasks in pfmon.
+accounting = disabled
+
 [servicewatch]
 #
 # servicewatch.email
