@@ -208,15 +208,17 @@ sub networks :Chained('object') :PathPart('networks') :Args(0) {
             foreach my $type (@{$types_ref}) {
                 unless (exists $selected_types{$type} ||
                         $type eq 'other' ||
-                        grep {$_ eq $c->loc($type)} @missing) {
-                    push(@missing, $c->loc($type));
+                        $type =~ m/^inline/ && grep(/^inline/, keys %selected_types) ||
+                        grep {$_ eq $type || /^inline/ && $type =~ m/^inline/} @missing) {
+                    push(@missing, $type);
                 }
             }
         }
 
         if (scalar @missing > 0) {
             $c->response->status(HTTP_PRECONDITION_FAILED);
-            $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]", join(", ", @missing));
+            $c->stash->{status_msg} = $c->loc("You must assign an interface to the following types: [_1]",
+                                              join(", ", map { $c->loc($_) } @missing));
             delete $c->session->{completed}->{$c->action->name};
         }
         else {
