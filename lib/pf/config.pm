@@ -777,7 +777,13 @@ sub start_date {
         return (mktime(0,0,0,1,$mon,$year));
     } elsif ( $modifier eq "Y" ) {
         return (mktime(0,0,0,1,0,$year));
+    } elsif ( $modifier eq "h" ) {
+        return ($refdate - (($min * 60) + $sec));
+    } elsif ( $modifier eq "m" ) {
+        return ($refdate - $sec);
     }
+
+    return $refdate;
 }
 
 =item duration
