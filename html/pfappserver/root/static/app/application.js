@@ -42,6 +42,7 @@ $(function () {
         var name = btn.attr('name');
         var input = btn.siblings('input[name="' + name + '"]');
         input.val(btn.attr('value'));
+        input.trigger('change');
     });
 
     /* Don't hide special "form" dropdown menu */
