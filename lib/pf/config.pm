@@ -685,7 +685,7 @@ sub normalize_time {
         return ($date);
 
     } else {
-        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+        my ( $num, $modifier ) = $date =~ /^(\d+)($TIME_MODIFIER_RE)/ or return (0);
 
         if ( $modifier eq "s" ) { return ($num);
         } elsif ( $modifier eq "m" ) { return ( $num * 60 );
@@ -709,12 +709,12 @@ Returns a formatted date (YYYY-MM-DD HH:MM:SS).
 sub access_duration {
     my $trigger = shift;
     my $refdate = shift || time;
-    if ( $trigger =~ /^(\d+)($TIME_MODIFIER_RE)$/i ) {
+    if ( $trigger =~ /^(\d+)($TIME_MODIFIER_RE)$/ ) {
         # absolute value with respect to the reference date
         # ex: access_duration(1W, 2001-01-01 12:00, 2001-08-01 12:00)
         return POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime($refdate + normalize_time($trigger)));
     }
-    elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])(\d+)($TIME_MODIFIER_RE)$/i) {
+    elsif ($trigger =~ /^(\d+)($TIME_MODIFIER_RE)($DEADLINE_UNIT)([-+])(\d+)($TIME_MODIFIER_RE)$/) {
         # we match the beginning of the period
         my ($tvalue,$modifier,$advance_type,$sign,$delta_value,$delta_type) = ($1,$2,$3,$4,$5,$6);
         my $delta = normalize_time($delta_value.$delta_type);
@@ -763,7 +763,7 @@ sub start_date {
     my $refdate = shift || time;
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
-    my ($modifier) = $date =~ /^($TIME_MODIFIER_RE)$/i or return (0);
+    my ($modifier) = $date =~ /^($TIME_MODIFIER_RE)$/ or return (0);
     if ( $modifier eq "D" ) {
         return ($refdate - (($hour * 3600) + ($min * 60) + $sec));
     } elsif ( $modifier eq "W" ) {
@@ -808,7 +808,7 @@ sub duration {
     my $refdate = shift || time;
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($refdate);
-    my ($num, $modifier) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/i or return (0);
+    my ($num, $modifier) = $date =~ /^(\d+)($TIME_MODIFIER_RE)$/ or return (0);
     if ($modifier eq "D") {
         return ($num * 86400);
     } elsif ($modifier eq "W") {
