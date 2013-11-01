@@ -123,6 +123,26 @@ sub pf_section :Path :Args(1) {
     }
 }
 
+=head2 duration
+
+Given the number of seconds since the Epoch and a trigger, returns the formatted end date.
+
+=cut
+
+sub duration :Local :Args(2) {
+    my ($self, $c, $time, $trigger) = @_;
+
+    my $status = HTTP_PRECONDITION_FAILED;
+    if ($time && $trigger) {
+        my $duration = access_duration($trigger, $time);
+        if ($duration) {
+            $status = HTTP_OK;
+            $c->stash->{status_msg} = $duration;
+        }
+    }
+    $c->stash->{current_view} = 'JSON';
+    $c->response->status($status);
+}
 
 =head2 interfaces
 
