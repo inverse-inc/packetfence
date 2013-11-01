@@ -283,6 +283,7 @@ function initTemplatesPage(element) {
 }
 
 function portalProfileGlobalInit(element) {
+    initWidgets(element.find('.chzn-select'));
     disabledLinks(element);
 }
 

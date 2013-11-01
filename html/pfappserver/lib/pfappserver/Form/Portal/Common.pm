@@ -17,6 +17,7 @@ use warnings;
 use HTML::FormHandler::Moose::Role;
 use List::MoreUtils qw(uniq);
 use pf::authentication;
+use pf::ConfigStore::Mdm;
 with 'pfappserver::Base::Form::Role::Help';
 
 =head1 Fields
@@ -133,7 +134,52 @@ has_field 'mandatory_fields.contains' =>
     widget_wrapper => 'DynamicTableRow',
 );
 
+=head2 authorizer
+
+=cut
+
+has_field 'authorizer' =>
+  (
+    type => 'Select',
+  );
+
+=head2 allow_ios_devices
+
+=cut
+
+has_field 'allowed_devices' =>
+  (
+    type => 'Select',
+    multiple => 1,
+    element_class => ['chzn-select', 'input-xxlarge'],
+  );
+
+=head2 allow_andriod_devices
+
+=cut
+
+has_field 'allow_andriod_devices' =>
+  (
+    type => 'Checkbox',
+  );
+
+has_block provisioning => (
+    render_list => [qw(authorizer allowed_devices)]
+);
+
 =head1 Methods
+
+=head2 options_authorizer
+
+=cut
+
+sub options_authorizer {
+    return { value => '', label => '' }, map { { value => $_, label => $_ } } @{pf::ConfigStore::Mdm->new->readAllIds};
+}
+
+sub options_allowed_devices {
+    return map { { value => $_, label => $_ } } qw(ios android windows);
+}
 
 =head2 options_sources
 
