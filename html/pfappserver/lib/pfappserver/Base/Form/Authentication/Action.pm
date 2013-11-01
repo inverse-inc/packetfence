@@ -218,7 +218,7 @@ sub options_durations {
         [ split (/\s*,\s*/, $choices) ],
         $self->form->ctx->languages()->[0]
     );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
+    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
 
     return \@options;
 }
