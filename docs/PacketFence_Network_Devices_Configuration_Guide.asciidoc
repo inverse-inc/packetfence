@@ -1472,10 +1472,10 @@ Setup NTP server:
 
 Setup the radius serveur (@IP of PacketFence) authentication + accounting:
 
-	[NOTE]
-	===============================
-	*NOTE* In this configuration I will use the ip address of the VIP of PacketFence: 192.168.1.2
-	===============================
+[NOTE]
+===============================
+*NOTE* In this configuration I will use the ip address of the VIP of PacketFence: 192.168.1.2
+===============================
 
 	<AC>system-view
 	[AC] radius-server template radius_packetfence
