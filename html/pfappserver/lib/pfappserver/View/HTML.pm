@@ -62,7 +62,7 @@ sub js_filter {
 sub can_access {
     my ($self, $c, @actions) = @_;
     my $roles = [];
-    $roles = $c->user->roles if $c->user_exists;
+    $roles = [$c->user->roles] if $c->user_exists;
     return admin_can($roles,@actions);
 }
 
@@ -73,7 +73,7 @@ sub can_access {
 sub can_access_any {
     my ($self, $c, @actions) = @_;
     my $roles = [];
-    $roles = $c->user->roles if $c->user_exists;
+    $roles = [$c->user->roles] if $c->user_exists;
     return admin_can_do_any($roles,@actions);
 }
 

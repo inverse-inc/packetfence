@@ -53,7 +53,10 @@ sub check_password {
   return $FALSE;
 }
 
-*roles = *_roles;
+sub roles {
+    my ($self) = @_;
+    return @{$self->_roles};
+}
 
 *for_session = \&id;
 

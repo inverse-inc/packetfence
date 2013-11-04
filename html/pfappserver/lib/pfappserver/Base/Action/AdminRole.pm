@@ -31,7 +31,7 @@ before execute => sub {
 
     my $action = $self->attributes->{AdminRole}[0];
     my $roles = [];
-    $roles = $c->user->roles if $c->user_exists;
+    $roles = [$c->user->roles] if $c->user_exists;
 
     unless(admin_can($roles, $action)) {
         if($c->user_exists) {
