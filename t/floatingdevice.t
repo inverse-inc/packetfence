@@ -16,7 +16,7 @@ use Test::MockObject::Extends;
 
 use lib '/usr/local/pf/lib';
 BEGIN {use PfFilePaths;}
-BEGIN { use pf::SNMP; }
+BEGIN { use pf::Switch; }
 BEGIN {
     use_ok('pf::floatingdevice');
     use_ok('pf::floatingdevice::custom');

@@ -2714,7 +2714,7 @@ On wireless networks, the usual PacketFence setup dictate that you configure two
 More on SNMP traps VLAN isolation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::SNMP` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
+When the VLAN isolation is working through SNMP traps all switch ports (on which VLAN isolation should be done) must be configured to send SNMP traps to the PacketFence host. On PacketFence, we use snmptrapd as the SNMP trap receiver. As it receives traps, it reformats and writes them into a flat file: `/usr/local/pf/logs/snmptrapd.log`. The multithreaded `pfsetvlan` daemon reads these traps from the flat file and responds to them by setting the switch port to the correct VLAN. Currently, we support switches from Cisco, Edge-core, HP, Intel, Linksys and Nortel (adding support for switches from another vendor implies extending the `pf::Switch` class). Depending on your switches capabilities, `pfsetvlan` will act on different types of SNMP traps.
 
 image::docs/images/diagram-trap-interaction.png[scaledwidth="50%",alt="pfsetvlan SNMP interactions diagram"]
 

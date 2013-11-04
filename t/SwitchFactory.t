@@ -16,7 +16,7 @@ my $switchFactory = pf::SwitchFactory->getInstance;
 
 my $switch;
 $switch = $switchFactory->instantiate('192.168.0.1');
-isa_ok( $switch, 'pf::SNMP::Cisco::Catalyst_2900XL' );
+isa_ok( $switch, 'pf::Switch::Cisco::Catalyst_2900XL' );
 is( $switch->{_ip}, '192.168.0.1', 'IP Address of 192.168.0.1' );
 is_deeply( $switch->{_uplink}, [qw(23)], 'Uplink of 192.168.0.1' );
 is( $switch->{_SNMPVersion}, '2c', 'SNMP version of 192.168.0.1' );
@@ -78,7 +78,7 @@ is( $switch->{_SNMPPrivPasswordWrite},
 
 # switch of default type
 $switch = $switchFactory->instantiate('default');
-isa_ok($switch, 'pf::SNMP');
+isa_ok($switch, 'pf::Switch');
 
 
 =head1 AUTHOR

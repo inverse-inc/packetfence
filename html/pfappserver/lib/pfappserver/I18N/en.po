@@ -3842,7 +3842,7 @@ msgstr "Admin"
 msgid "ports.soap"
 msgstr ""
 
-# pf::SNMP::constants (Modes)
+# pf::Switch::constants (Modes)
 msgid "production"
 msgstr "Production"
 
@@ -3879,7 +3879,7 @@ msgid "reg"
 msgstr "registered"
 
 # conf/documentation.conf
-# pf::SNMP::constants (Modes)
+# pf::Switch::constants (Modes)
 msgid "registration"
 msgstr "Registration"
 
@@ -4101,7 +4101,7 @@ msgstr ""
 msgid "suricata"
 msgstr ""
 
-# pf::SNMP::constants (Modes)
+# pf::Switch::constants (Modes)
 msgid "testing"
 msgstr "Testing"
 

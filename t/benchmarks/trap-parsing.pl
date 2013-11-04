@@ -17,7 +17,7 @@ use Benchmark qw(cmpthese timethese);
 use lib '/usr/local/pf/lib';
 
 use pf::util;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 
 =head1 new vs old trap parsing techniques (fix for #1098)
 

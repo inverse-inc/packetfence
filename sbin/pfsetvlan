@@ -57,8 +57,8 @@ use pf::floatingdevice::custom;
 use pf::inline::custom $INLINE_API_LEVEL;
 use pf::locationlog;
 use pf::node;
-use pf::SNMP 2.00;
-use pf::SNMP::constants;
+use pf::Switch 2.00;
+use pf::Switch::constants;
 use pf::SwitchFactory;
 use pf::traplog;
 use pf::util;
@@ -481,7 +481,7 @@ sub signalHandlerTrapListQueued {
 
                         # we had some side effects while testing the floating device thing. So we added this.
                         # this is necessary as long as we have not fixed the ugly sleep(5) patch. See floatingdevice.pm
-                        # and pf::SNMP::Cisco::Catalyst_2950
+                        # and pf::Switch::Cisco::Catalyst_2950
                         } elsif (( $trapType eq 'secureMacAddrViolation' )
                             && (! $switch->isPortSecurityEnabled($switch_port)) ) {
                             $logger->info("$trapType trap on $switch_id ifIndex $switch_port. Port Security is no " .
@@ -575,7 +575,7 @@ sub parseTrap {
 
         if ($switch) {
             my $trapHashRef;
-            # TODO push this out in pf::SNMP::PacketFence, no?
+            # TODO push this out in pf::Switch::PacketFence, no?
             if ($isLocalTrap) {
                 $trapLine = $newTrapLine;
                 if ($trapLine =~ /BEGIN\ VARIABLEBINDINGS\                                       # metadata
