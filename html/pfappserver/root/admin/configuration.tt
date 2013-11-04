@@ -100,9 +100,15 @@ table.sources {
               [%- END %]
               [%- IF can_access("INTERFACES_READ") || can_access("SWITCHES_READ") || can_access("FLOATING_DEVICES_READ") %]
               <li class="nav-header">[% l('Network') %]<li>
+              [%- IF can_access("INTERFACES_READ") %]
               [% pf_section_entry( 'interfaces', 'Interfaces') %]
+              [%- END %]
+              [%- IF can_access("SWITCHES_READ") %]
               [% pf_section_entry( 'switches', 'Switches') %]
+              [%- END %]
+              [%- IF can_access("FLOATING_DEVICES_READ") %]
               [% pf_section_entry( 'floating_devices', 'Floating devices') %]
+              [%- END %]
               [%- END %]
               [%- IF can_access("USERS_ROLES_READ") || can_access("USERS_SOURCES_READ") %]
               <li class="nav-header">[% l('Users') %]</li>
@@ -111,6 +117,8 @@ table.sources {
               [%- END %]
               [%- IF can_access("USERS_SOURCES_READ") %]
               [% list_entry('Authentication', 'index', 'Sources') %]
+              [%- END %]
+              [%- END %]
               [%- IF can_access("VIOLATIONS_READ") || can_access("SOH_READ") %]
               <li class="nav-header">[% l('Compliance') %]</li>
               [%- IF can_access("VIOLATIONS_READ") %]
