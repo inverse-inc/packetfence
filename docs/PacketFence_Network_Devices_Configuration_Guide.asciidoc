@@ -1510,16 +1510,16 @@ Activate the dotx globaly:
 
 Create your secure dot1x ssid:
 
-	Configure WLAN-ESS 0 interfaces:
+Configure WLAN-ESS 0 interfaces:
 	
-		[AC] interface Wlan-Ess 0
-		[AC-Wlan-Ess0] port hybrid untagged vlan 145 to 146
-		[AC-Wlan-Ess0] dot1x enable
-		[AC-Wlan-Ess0] dot1x authentication-method eap
-		[AC-Wlan-Ess0] permit-domain name your.domain.com
-		[AC-Wlan-Ess0] force-domain name your.domain.com
-		[AC-Wlan-Ess0] default-domain your.domain.com
-		[AC-Wlan-Ess0] quit
+	[AC] interface Wlan-Ess 0
+	[AC-Wlan-Ess0] port hybrid untagged vlan 145 to 146
+	[AC-Wlan-Ess0] dot1x enable
+	[AC-Wlan-Ess0] dot1x authentication-method eap
+	[AC-Wlan-Ess0] permit-domain name your.domain.com
+	[AC-Wlan-Ess0] force-domain name your.domain.com
+	[AC-Wlan-Ess0] default-domain your.domain.com
+	[AC-Wlan-Ess0] quit
 
 Configure AP parameters:
 +++++++++++++++++++++++
@@ -1553,7 +1553,7 @@ Configure a traffic profile:
 
 Configure service sets for APs, and set the data forwarding mode to direct forwarding:
 
-	The direct forwarding mode is used by default.
+The direct forwarding mode is used by default.
 	
 	[AC-wlan-view] service-set name PacketFence-dot1x
 	[AC-wlan-service-set-PacketFence-dot1x] ssid PacketFence-Secure
@@ -1596,7 +1596,7 @@ Configure WLAN-ESS 1 interfaces:
 
 Configure AP parameters:
 
-	Configure a security profile named huawei-ap-wep. Set the security policy to WEP authentication.
+Configure a security profile named huawei-ap-wep. Set the security policy to WEP authentication.
 	
 	[AC]wlan
 	[AC-wlan-view] security-profile name huawei-ap-wep
@@ -1605,7 +1605,7 @@ Configure AP parameters:
 
 Configure service sets for APs, and set the data forwarding mode to direct forwarding:
 
-	The direct forwarding mode is used by default.
+The direct forwarding mode is used by default.
 	
 	[AC-wlan-view] service-set name PacketFence-WEP
 	[AC-wlan-service-set-PacketFence-WEP] ssid PacketFence-Open
