@@ -2883,6 +2883,7 @@ sub synchronize_locationlog {
     my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid) = @_;
     locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid);
 }
+
 =item extractVLAN
 
 Extract VLAN from the radius attributes.
@@ -2894,6 +2895,35 @@ sub extractVLAN {
     my $logger = Log::Log4perl::get_logger( ref($self) );
     $logger->warn("Not implemented");
     return;
+}
+
+=item parseRequest
+
+Takes FreeRADIUS' RAD_REQUEST hash and process it to return
+NAS Port type (Ethernet, Wireless, etc.)
+Network Device IP
+EAP
+MAC
+NAS-Port (port)
+User-Name
+
+=cut
+
+sub parseRequest {
+    my ($this, $radius_request) = @_;
+    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
+    my $user_name = $radius_request->{'User-Name'};
+    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
+    my $port = $radius_request->{'NAS-Port'};
+    my $eap_type = 0;
+    if (exists($radius_request->{'EAP-Type'})) {
+        $eap_type = $radius_request->{'EAP-Type'};
+    }
+    my $nas_port_id;
+    if (defined($radius_request->{'NAS-Port-Id'})) {
+        $nas_port_id = $radius_request->{'NAS-Port-Id'};
+    }
+    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
 }
 
 =back
