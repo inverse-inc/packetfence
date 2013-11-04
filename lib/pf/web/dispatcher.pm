@@ -44,7 +44,7 @@ Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHand
 
 =cut
 
-sub translate {
+sub handler {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace("hitting translator with URL: " . $r->uri);
@@ -94,7 +94,7 @@ sub translate {
 
     # fallback to a redirection: inject local redirection handler
     $r->handler('modperl');
-    $r->set_handlers( PerlResponseHandler => \&handler );
+    $r->set_handlers( PerlResponseHandler => \&redirect );
     # OK tells Apache to stop further mod_rewrite / alias processing
     return Apache2::Const::OK;
 }
@@ -106,7 +106,7 @@ L<pf::Portal::Session>.
 
 =cut
 
-sub handler {
+sub redirect {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
