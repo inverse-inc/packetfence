@@ -1,4 +1,5 @@
 package pfappserver::Model::SavedSearch::User;
+
 =head1 NAME
 
 package pfappserver::Model::SavedSearch add documentation
@@ -18,6 +19,7 @@ use warnings;
 use Moose;
 
 extends 'pfappserver::Base::Model::SavedSearch';
+
 
 __PACKAGE__->meta->make_immutable;
 

@@ -85,7 +85,8 @@ var UserView = function(options) {
         var type = tr.find('select[name$=type]').first();
         updateAction(type);
     });
-    /* Update the advanced search form to the next page or resort the query*/
+
+    /* Update the advanced search form to the next page or resort the query */
     var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
     $('body').on('click', '[href*="#user/advanced_search"]', advanced_search_updater);
 

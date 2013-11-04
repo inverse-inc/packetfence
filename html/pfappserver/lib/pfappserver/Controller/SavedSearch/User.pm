@@ -1,4 +1,5 @@
 package pfappserver::Controller::SavedSearch::User;
+
 =head1 NAME
 
 pfappserver::Controller::SavedSearch::User add documentation
@@ -23,20 +24,19 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+        # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
         object => { Chained => '/', PathPart => 'savedsearch/user', CaptureArgs => 1 }
     },
     action_args => {
-        '*' => { model=> 'SavedSearch::Node', form => 'SavedSearch'}
+        '*' => { model => 'SavedSearch::User', form => 'SavedSearch'}
     }
 );
 
-
-=head2 Methods
+=head1 METHODS
 
 =over
 
-=item create
+=head2 before create
 
 =cut
 
