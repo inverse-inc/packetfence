@@ -223,7 +223,7 @@ sub get_networkdevices_modules {
 
 =head2 get_networkdevices_classes
 
-Return the pf::SNMP::Device form for all modules under /usr/local/pf/lib/pf/SNMP except constants.pm
+Return the pf::Switch::Device form for all modules under /usr/local/pf/lib/pf/SNMP except constants.pm
 
 =cut
 

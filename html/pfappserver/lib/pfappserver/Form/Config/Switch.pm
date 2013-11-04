@@ -18,7 +18,7 @@ use File::Find qw(find);
 use File::Spec::Functions;
 
 use pf::config;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::util;
 use List::MoreUtils qw(any);
 
@@ -646,7 +646,7 @@ sub validate {
     my $always = any { $_->{type} eq $ALWAYS } @{$self->value->{inlineTrigger}};
 
     if ($self->value->{type}) {
-        my $type = 'pf::SNMP::'. $self->value->{type};
+        my $type = 'pf::Switch::'. $self->value->{type};
         if ($type->require()) {
             @triggers = map { $_->{type} } @{$self->value->{inlineTrigger}};
             if ( @triggers && !$always) {

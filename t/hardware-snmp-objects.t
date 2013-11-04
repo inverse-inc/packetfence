@@ -6,7 +6,7 @@ hardware-snmp-objects.t
 
 =head1 DESCRIPTION
 
-pf::SNMP... basic tests
+pf::Switch... basic tests
 
 =cut
 
@@ -32,7 +32,7 @@ foreach my $snmp_class (@all_snmp_classes) {
     isa_ok( $snmp_obj, $snmp_class, $snmp_class);
 }
 
-# MockedSwitch is our special test switch that MUST implement all of pf::SNMP's method
+# MockedSwitch is our special test switch that MUST implement all of pf::Switch's method
 # To ensure that it stays always that way, we test for it here.
 
 my @mocked_switch_subs = `egrep "^sub " $lib_path/pf/SNMP/MockedSwitch.pm | awk '{ print \$2 }'`;
@@ -56,7 +56,7 @@ my @whitelist = (
 my @missing_subs;
 foreach my $sub (@pf_snmp_subs) {
 
-    # skip if pf::SNMP sub is found in mocked_switch
+    # skip if pf::Switch sub is found in mocked_switch
     next if grep {$sub eq $_} @mocked_switch_subs;
 
     # removing newline to avoid comparison failures
@@ -68,11 +68,11 @@ foreach my $sub (@pf_snmp_subs) {
     push @missing_subs, $sub;
 }
 
-# is deeply will show what's missing from pf::SNMP::MockedSwitch which is kinda nice
+# is deeply will show what's missing from pf::Switch::MockedSwitch which is kinda nice
 is_deeply(
     \@missing_subs,
     [],
-    "there must be no sub in pf::SNMP not implemented or whitelisted in pf::SNMP::MockedSwitch"
+    "there must be no sub in pf::Switch not implemented or whitelisted in pf::Switch::MockedSwitch"
 );
 
 # TODO future MockedWireless module will have to test for: deauthenticateMac, radiusDisconnect

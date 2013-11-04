@@ -19,7 +19,7 @@ use pf::config;
 use pf::action;
 use pf::Authentication::Source;
 use pf::Authentication::constants;
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pfappserver::Model::Node;
 
 use constant {
@@ -264,7 +264,7 @@ sub extract_modules {
     @values = map { @$_ } values %Conditions::OPERATORS;
     const('pf::Authentication::constants', 'Conditions', \@values);
 
-    const('pf::SNMP::constants', 'Modes', \@SNMP::MODES);
+    const('pf::Switch::constants', 'Modes', \@SNMP::MODES);
 
     const('pf::pfcmd::report', 'SQL', ['dhcp_fingerprint']);
     const('pf::pfcmd::report', 'report_nodebandwidth', [qw/acctinput acctoutput accttotal callingstationid/]);

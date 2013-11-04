@@ -31,8 +31,8 @@ foreach my $networkdevice_class (TestUtils::get_networkdevices_classes()) {
     if (!$networkdevice_object->supportsWirelessMacAuth() && !$networkdevice_object->supportsWirelessDot1x()) {
 
         # skip special modules
-        next if (ref($networkdevice_object) =~ /^pf::SNMP$/);
-        next if (ref($networkdevice_object) =~ /^pf::SNMP::PacketFence$/);
+        next if (ref($networkdevice_object) =~ /^pf::Switch$/);
+        next if (ref($networkdevice_object) =~ /^pf::Switch::PacketFence$/);
 
         # if a wired device we keep for the tests
         push(@wired_devices, $networkdevice_object);
@@ -45,7 +45,7 @@ plan tests => scalar @wired_devices * 2;
 foreach my $wired_object (@wired_devices) {
 
     # test the object's heritage
-    isa_ok($wired_object, 'pf::SNMP');
+    isa_ok($wired_object, 'pf::Switch');
 
     # test its interface
     can_ok($wired_object, qw(

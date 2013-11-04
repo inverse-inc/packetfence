@@ -7,7 +7,7 @@ pf::SwitchFactory - Object oriented factory to instantiate objects
 =head1 SYNOPSIS
 
 The pf::SwitchFactory module implements an object oriented factory to
-instantiate objects of type pf::SNMP or subclasses of this. This module
+instantiate objects of type pf::Switch or subclasses of this. This module
 is meant to read in a switches.conf configuration file containing all
 the necessary information needed to actually instantiate the objects.
 
@@ -65,7 +65,7 @@ sub new {
     return bless \$self, $class;
 }
 
-=item instantiate - create new pf::SNMP (or subclass) object
+=item instantiate - create new pf::Switch (or subclass) object
 
   $switch = SwitchFactory->instantiate( <switchIdentifier> );
 
@@ -128,9 +128,9 @@ sub instantiate {
     my $switchOverlay = $switch_overlay_config->read($requestedSwitch) || {};
     my $type;
     if ($requestedSwitch ne 'default') {
-        $type = "pf::SNMP::" . $switch_data->{'type'};
+        $type = "pf::Switch::" . $switch_data->{'type'};
     } else {
-        $type = "pf::SNMP";
+        $type = "pf::Switch";
     }
     $type = untaint_chain($type);
     # load the module to instantiate

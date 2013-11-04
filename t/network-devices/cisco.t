@@ -12,9 +12,9 @@ BEGIN { use PfFilePaths; }
 use pf::config;
 use pf::SwitchFactory;
 
-BEGIN { use pf::SNMP; }
+BEGIN { use pf::Switch; }
 BEGIN {
-    use_ok('pf::SNMP::Cisco');
+    use_ok('pf::Switch::Cisco');
 }
 
 # create the object
@@ -22,7 +22,7 @@ my $switchFactory = new pf::SwitchFactory;
 my $switch = $switchFactory->instantiate('10.0.0.1');
 
 # test the object
-isa_ok($switch, 'pf::SNMP::Cisco');
+isa_ok($switch, 'pf::Switch::Cisco');
 
 # test subs
 can_ok($switch, qw(
