@@ -66,7 +66,21 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my ($this, $radius_request) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    my ($nas_port_type, $switch_mac , $switch_ip, $eap_type, $mac, $port, $user_name, $nas_port_id, $source_ip) = $this->_parseRequest($radius_request);
+    my($switch_mac, $switch_ip,$source_ip) = $this->_parseRequest($radius_request);
+
+    $logger->debug("instantiating switch");
+    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
+
+    # is switch object correct?
+    if (!$switch) {
+        $logger->warn(
+            "Can't instantiate switch $switch_ip. This request will be failed. "
+            ."Are you sure your switches.conf is correct?"
+        );
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+    }
+
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id) = $switch->parseRequest($radius_request);
 
     $logger->trace("received a radius authorization request with parameters: ".
         "nas port type => $nas_port_type, switch_ip => $switch_ip, EAP-Type => $eap_type, ".
@@ -93,18 +107,6 @@ sub authorize {
 
     # There is activity from that mac, call node wakeup
     node_mac_wakeup($mac);
-
-    $logger->debug("instantiating switch");
-    my $switch = pf::SwitchFactory->getInstance()->instantiate({ switch_mac => $switch_mac, switch_ip => $switch_ip, controllerIp => $source_ip});
-
-    # is switch object correct?
-    if (!$switch) {
-        $logger->warn(
-            "Can't instantiate switch $switch_ip. This request will be failed. "
-            ."Are you sure your switches.conf is correct?"
-        );
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
-    }
 
     my $switch_id =  $switch->{_id};
 
@@ -170,13 +172,13 @@ sub authorize {
 
     #TODO: Get rid of this
     #Bypass for Inline
-#    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
-#        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
-#                     ."Is the target vlan in the vlans=... list?");
-#        $switch->disconnectRead();
-#        $switch->disconnectWrite();
-#        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
-#    }
+    if (!$switch->isManagedVlan($vlan) && !$wasInline ) {
+        $logger->warn("new VLAN $vlan is not a managed VLAN -> Returning FAIL. "
+                     ."Is the target vlan in the vlans=... list?");
+        $switch->disconnectRead();
+        $switch->disconnectWrite();
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "New VLAN is not a managed VLAN") ];
+    }
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
@@ -210,79 +212,22 @@ sub authorize {
     return $RAD_REPLY_REF;
 }
 
-=item accounting
-
-=cut
-
-sub accounting {
-    my ($this, $radius_request) = @_;
-    my $logger = Log::Log4perl::get_logger(ref($this));
-
-    my $isStop = $radius_request->{'Acct-Status-Type'} eq 'Stop';
-    my $isUpdate = $radius_request->{'Acct-Status-Type'} eq 'Interim-Update';
-
-    if ($isStop || $isUpdate) {
-        # On accounting stop/update, check the usage duration of the node
-        my ($nas_port_type, $switch_ip, $eap_type, $mac, $port, $user_name) = $this->_parseRequest($radius_request);
-
-        if ($mac && $user_name) {
-            my $session_time = int $radius_request->{'Acct-Session-Time'};
-            if ($session_time > 0) {
-                my $node_attributes = node_attributes($mac);
-                if (defined $node_attributes->{'timeleft'}) {
-                    my $timeleft = $node_attributes->{'timeleft'} - $session_time;
-                    $timeleft = 0 if ($timeleft < 0);
-                    # Only update the node table on a Stop
-                    if ($isStop && node_modify($mac, ('timeleft' => $timeleft))) {
-                        $logger->info("Session stopped for $mac: duration was $session_time secs ($timeleft secs left)");
-                    }
-                    elsif ($isUpdate) {
-                        $logger->info("Session status for $mac: duration is $session_time secs ($timeleft secs left)");
-                    }
-                    if ($timeleft == 0) {
-                        violation_add($mac, $RADIUS::EXPIRATION_VID);
-                    }
-                }
-            }
-        }
-    }
-
-    return [ $RADIUS::RLM_MODULE_OK, ('Reply-Message' => "Accounting ok") ];
-}
-
 =item * _parseRequest
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
-  NAS Port type (Ethernet, Wireless, etc.)
+  AP-MAC
   Network Device IP
-  EAP
-  MAC
-  NAS-Port (port)
-  User-Name
+  Source-IP
 
 =cut
 
 sub _parseRequest {
     my ($this, $radius_request) = @_;
     my $ap_mac = extractApMacFromRadiusRequest($radius_request);
-    my $client_mac = clean_mac($radius_request->{'Calling-Station-Id'});
     # freeradius 2 provides the client IP in NAS-IP-Address not Client-IP-Address (non-standard freeradius1 attribute)
     my $networkdevice_ip = $radius_request->{'NAS-IP-Address'} || $radius_request->{'Client-IP-Address'};
-    my $user_name = $radius_request->{'User-Name'};
-    my $nas_port_type = $radius_request->{'NAS-Port-Type'};
-    my $port = $radius_request->{'NAS-Port'};
-    my $eap_type = 0;
-    if (exists($radius_request->{'EAP-Type'})) {
-        $eap_type = $radius_request->{'EAP-Type'};
-    }
-
-    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Aruba-Port-Identifier Cisco-NAS-Port NAS-Port-Id);
-    my $nas_port_id;
-    if (defined($radius_request->{'NAS-Port-Id'})) {
-        $nas_port_id = $radius_request->{'NAS-Port-Id'};
-    }
     my $source_ip = $radius_request->{'FreeRADIUS-Client-IP-Address'};
-    return ($nas_port_type, $ap_mac, $networkdevice_ip, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $source_ip);
+    return ($ap_mac, $networkdevice_ip, $source_ip);
 }
 
 sub extractApMacFromRadiusRequest {
