@@ -166,12 +166,12 @@ sub email_activation_db_prepare {
         qq [ DELETE FROM email_activation WHERE code_id = ? ]
     );
 
-    $email_activation_statements->{'email_activation_change_status_old_same_mac_email_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE email_activation SET status=? WHERE mac = ? AND email = ? AND status = ? ]
+    $email_activation_statements->{'email_activation_change_status_old_same_mac_pid_email_sql'} = get_db_handle()->prepare(
+        qq [ UPDATE email_activation SET status = ? WHERE mac = ? AND pid = ? AND email = ? AND status = ? ]
     );
 
     $email_activation_statements->{'email_activation_change_status_old_same_pid_email_sql'} = get_db_handle()->prepare(
-        qq [ UPDATE email_activation SET status=? WHERE pid = ? AND email = ? AND status = ? ]
+        qq [ UPDATE email_activation SET status = ? WHERE mac IS NULL AND pid = ? AND email = ? AND status = ? ]
     );
 
     $email_activation_db_prepared = 1;
@@ -279,13 +279,17 @@ sub invalidate_codes {
     my ($mac, $pid, $email) = @_;
     my $logger = Log::Log4perl::get_logger('pf::email_activation');
 
-    db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
-        'email_activation_change_status_old_same_pid_email_sql', $INVALIDATED, $pid, $email, $UNVERIFIED
-    ) || $logger->warn("problems trying to invalidate activation codes using pid $pid");
-
-    db_query_execute(EMAIL_ACTIVATION, $email_activation_statements, 
-        'email_activation_change_status_old_same_mac_email_sql', $INVALIDATED, $mac, $email, $UNVERIFIED
-    ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
+    if ($mac) {
+        # Invalidate previous activation codes matching MAC, pid (user or sponsor email) and email
+        db_query_execute(EMAIL_ACTIVATION, $email_activation_statements,
+                         'email_activation_change_status_old_same_mac_pid_email_sql', $INVALIDATED, $mac, $pid, $email, $UNVERIFIED
+                        ) || $logger->warn("problems trying to invalidate activation codes using mac $mac");
+    } else {
+        # Invalidate previous activation with no MAC address (pre-registration)
+        db_query_execute(EMAIL_ACTIVATION, $email_activation_statements,
+                         'email_activation_change_status_old_same_pid_email_sql', $INVALIDATED, $pid, $email, $UNVERIFIED
+                        ) || $logger->warn("problems trying to invalidate activation codes using pid $pid");
+    }
 
     return;
 }
@@ -455,9 +459,8 @@ sub validate_code {
     }
 
     # At this point, code is validated: return the activation record
-    $logger->info("Activation code sent to email $activation_record->{email} successfully verified! "
-        . "Node authorized: $activation_record->{mac} of activation type: $activation_record->{type}"
-    );
+    $logger->info("Activation code sent to email $activation_record->{email} from $activation_record->{pid} successfully verified. "
+                . "Node authorized: " . ($activation_record->{mac}?$activation_record->{mac}:"<unknown>") . " of activation type: $activation_record->{type}");
     return $activation_record;
 }
 

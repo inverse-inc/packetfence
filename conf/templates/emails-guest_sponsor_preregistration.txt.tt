@@ -2,7 +2,7 @@ Hi,
 
 Your guest access to the network was authorized.
 
-Once on site, select guest access on the captive portal and use the following username and password to authenticate:
+Once on site, use the following username and password to authenticate:
 
 Username: [% pid %]
 Password: [% password %]

@@ -187,7 +187,7 @@ if (defined($cgi->url_param('code'))) {
             my (%info, $template);
 
             if ( defined($node_mac) ) {
-                # If MAC is defined, it's a guest already here that we need to register
+                # If MAC is defined, it's a guest already on-site that we need to register
 
                 my $node_info = node_attributes($node_mac);
                 $pid = $node_info->{'pid'};
