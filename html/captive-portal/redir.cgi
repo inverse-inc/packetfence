@@ -49,11 +49,11 @@ foreach my $network ( keys %ConfigNetworks ) {
     if (defined $portalSession->getClientIp()) {
         my $ip = new NetAddr::IP::Lite clean_ip($portalSession->getClientIp());
         if ($net_addr->contains($ip) && isenabled($ConfigNetworks{$network}{'generate_fake_mac'})) {
-            my $fake_mac = '00:00:' . join(':', map { sprintf("%02X", $_) } split /\./, $ip);
+            my $fake_mac = '00:00:' . join(':', map { sprintf("%02X", $_) } split /\./, $ip->addr());
 
             $portalSession->setClientMac( $fake_mac );
-            locationlog_synchronize($ConfigNetworks{$network}{'gateway'}, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-            iplog_open($fake_mac, $ip);
+            locationlog_synchronize($ConfigNetworks{$network}{'gateway'},$ConfigNetworks{$network}{'gateway'},undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
+            iplog_open($fake_mac, $ip->addr());
             last;
         }
     }

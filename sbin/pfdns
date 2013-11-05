@@ -91,7 +91,7 @@ Readonly::Scalar our $HTTP_PORT         => '80';
 
 foreach my $interface ( $cached_pf_config->GroupMembers("interface") ) {
     my $ip = $Config{$interface}{'ip'};
-    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_INLINE) ) ) {
+    if ( defined ($Config{$interface}{'enforcement'}) && ( ($Config{$interface}{'enforcement'} eq $IF_ENFORCEMENT_VLAN) || is_type_inline($Config{$interface}{'enforcement'}) ) ) {
         push @ip_addr, $ip;
     }
 }
