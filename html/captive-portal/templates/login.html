@@ -65,8 +65,6 @@ document.observe("dom:loaded", function() {
             <span>[% IF null_source %][% i18n("Email") %] [% ELSE %] [% i18n("Username") %][% END %]</span>
 	    <input class="field" name="username" id="username" type="text" value="[% username %]" />
           </div>
-          [% ELSE %]
-	    <input class="field" name="username" id="username" type="hidden" value="" />
           [% END %]
           [% UNLESS null_source %]
           <div class="input">
