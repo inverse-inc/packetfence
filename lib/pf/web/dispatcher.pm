@@ -239,21 +239,23 @@ sub redirect {
         'login_url_wispr' => $wispr_url->unparse(),
     };
 
-   # prepare custom REDIRECT response
-   my $response;
-   my $template = Template->new({
-       INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
-   });
-   $template->process( "redirection.tt", $stash, \$response ) || $logger->error($template->error());;
+    # prepare custom REDIRECT response
+    my $response;
+    my $template = Template->new({
+        INCLUDE_PATH => [$CAPTIVE_PORTAL{'TEMPLATE_DIR'}],
+    });
+    if($r->headers_in->{'User-Agent'} !~ /WISPR\!Microsoft Hotspot Authentication/g) {
+        $template->process( "redirection.tt", $stash, \$response ) || $logger->error($template->error());;
+    }
 
-   # send out the redirection in a custom response
-   # a custom response is required otherwise Apache take over the rendering
-   # of redirects and we are unable to inject the WISPR XML
-   $r->headers_out->set('Location' => $stash->{'login_url'});
-   $r->content_type('text/html');
-   $r->no_cache(1);
-   $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
-   return Apache2::Const::HTTP_MOVED_TEMPORARILY;
+    # send out the redirection in a custom response
+    # a custom response is required otherwise Apache take over the rendering
+    # of redirects and we are unable to inject the WISPR XML
+    $r->headers_out->set('Location' => $stash->{'login_url'});
+    $r->content_type('text/html');
+    $r->no_cache(1);
+    $r->custom_response(Apache2::Const::HTTP_MOVED_TEMPORARILY, $response);
+    return Apache2::Const::HTTP_MOVED_TEMPORARILY;
 }
 
 =item html_redirect
