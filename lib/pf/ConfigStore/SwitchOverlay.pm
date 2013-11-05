@@ -32,6 +32,7 @@ $switches_overlay_cached_config = pf::config::cached->new(
     -onfilereload => [
         on_switches_reload => sub  {
             my ($config, $name) = @_;
+            my $logger = get_logger;
             $config->toHash(\%SwitchConfig);
             $config->cleanupWhitespace(\%SwitchConfig);
             my $imported = $config->{imported};
@@ -73,11 +74,13 @@ $switches_overlay_cached_config = pf::config::cached->new(
         on_cached_overlay_reload => sub  {
             my ($config, $name) = @_;
             my $cache = $config->cache;
-            #getting rid of it from the l1_cache
-            $cache->l1_cache->remove("SwitchConfig");
             my $data = $cache->get("SwitchConfig");
             if($data) {
                 %SwitchConfig = %$data;
+            } else {
+                #if not found then call the onfilereload callback
+                $config->_callReloadCallbacks();
+                $config->_callFileReloadCallbacks();
             }
         },
     ]
