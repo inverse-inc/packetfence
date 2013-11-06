@@ -539,7 +539,7 @@ sub options_type {
 
     my %paths = ();
     my $wanted = sub {
-        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/SNMP\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
+        if ((my ($module, $pack, $switch) = $_ =~ m/$lib_dir\/((pf\/Switch\/([A-Z0-9][\w\/]+))\.pm)\z/)) {
             $pack =~ s/\//::/g; $switch =~ s/\//::/g;
 
             # Parent folder is the vendor name
@@ -554,7 +554,7 @@ sub options_type {
             }
         }
     };
-    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/SNMP"));
+    find({ wanted => $wanted, no_chdir => 1 }, ("$lib_dir/pf/Switch"));
 
     # Sort vendors and switches for display
     my @modules;
