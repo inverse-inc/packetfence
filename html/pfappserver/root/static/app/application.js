@@ -230,3 +230,7 @@ function _(key) {
 
     return value;
 }
+
+String.prototype.asCSSIdentifier = function() {
+    return this.replace(/[^_a-zA-Z0-9]/g, '_');
+};

@@ -36,6 +36,7 @@ Enhancements
 * Updated FontAwesome to version 3.2.1
 * Each portal profile can now have a different redirection URL
 * An Htpasswd source can now define sponsors
+* Improved display of pie charts (limit of legend labels and highlight of table rows)
 
 Bug Fixes
 +++++++++

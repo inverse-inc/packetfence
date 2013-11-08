@@ -222,6 +222,7 @@ function graphPieData(holder, labels, series) {
                            }
                           );
 
+
     chart.hover(function () {
         this.sector.stop();
         this.sector.scale(1.1, 1.1, this.cx, this.cy);
@@ -230,6 +231,8 @@ function graphPieData(holder, labels, series) {
             this.label[0].stop();
             this.label[0].attr({ r: 7.5 });
             this.label[1].attr({ "font-weight": 800 });
+            var e = $('#'+this.label[1].attr("text").replace(/ - [0-9\.]+%$/, '').asCSSIdentifier());
+            if (e) e.addClass('active');
         }
     }, function () {
         this.sector.animate({ transform: 's1 1 ' + this.cx + ' ' + this.cy }, 500, "bounce");
@@ -237,6 +240,8 @@ function graphPieData(holder, labels, series) {
         if (this.label) {
             this.label[0].animate({ r: 5 }, 500, "bounce");
             this.label[1].attr({ "font-weight": 400 });
+            var e = $('#'+this.label[1].attr("text").replace(/ - [0-9\.]+%$/, '').asCSSIdentifier());
+            if (e) e.removeClass('active');
         }
     });
 }

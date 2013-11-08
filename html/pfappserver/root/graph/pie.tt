@@ -35,7 +35,7 @@ graphs.charts['[% id %]'] = {
       </thead>
       <tbody>
         [% FOREACH label IN labels -%]
-        <tr[% IF loop.count > piecut %] class="muted"[% END %]>
+        <tr id="[% label | css %]"[% IF loop.count > piecut %] class="muted"[% END %]>
           <td>[% label %]</td>
           <td>[% i = loop.index %][% values.$i %]</td>
         </tr>

@@ -129,3 +129,13 @@ li.drop-row,
 .qq-upload-file, .qq-upload-spinner, .qq-upload-size, .qq-upload-cancel, .qq-upload-retry, .qq-upload-failed-text, .qq-upload-finished  {
     font-size: inherit;
 }
+/* highlighted table row */
+.table tbody tr.active td {
+  background-color: #0088cc !important;
+  background-color: #333 !important;
+  color: #fff;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+}
