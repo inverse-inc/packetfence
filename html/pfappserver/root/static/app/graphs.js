@@ -216,6 +216,7 @@ function graphPieData(holder, labels, series) {
                            ray,
                            values,
                            {
+                               maxSlices: 10,
                                legend: labels_formatted,
                                legendpos: "west"
                            }
