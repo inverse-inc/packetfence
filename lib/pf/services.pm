@@ -394,6 +394,8 @@ sub launchService {
     my ($daemon,@launcher_args) = @_;
     my $launcher = $service_launchers{$daemon};
     if ($launcher) {
+        $launcher =~ /^(.*)$/;
+        $launcher = $1;
         my $logger = Log::Log4perl::get_logger('pf::services');
         my $cmd_line = sprintf($launcher, @launcher_args);
         $logger->info("Starting $daemon with '$cmd_line'");
