@@ -57,6 +57,20 @@ sub supportsFloatingDevice {
     return $FALSE;
 }
 
+=item supportsExternalPortal
+
+Returns 1 if switch type supports external captive portal
+
+=cut
+
+sub supportsExternalPortal {
+    my ( $this ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+
+    $logger->error("External captive portal is not supported on switch type " . ref($this));
+    return $FALSE;
+}
+
 =item supportsWiredMacAuth
 
 Returns 1 if switch type supports Wired MAC Authentication (Wired Access Authorization through RADIUS)
@@ -2905,6 +2919,20 @@ sub parseRequest {
     }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
 }
+
+=item parseUrl
+
+Extract all the param from the url.
+
+=cut
+
+sub parseUrl {
+    my ($self,$req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->warn("Not implemented");
+    return;
+}
+
 
 =back
 

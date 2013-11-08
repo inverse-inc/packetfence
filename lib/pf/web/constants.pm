@@ -91,6 +91,11 @@ Readonly::Scalar our $ACL_SIGNUP_CGI            => '/cgi-perl/guest-selfregistra
 Readonly::Scalar our $MOD_PERL_WISPR            => '/wispr';
 Readonly::Scalar our $URL_GAMING_REGISTRATION   => '/gaming-registration';
 
+# External Captive Portal detection constant
+Readonly::Scalar our $REQ_MERAKI                => 'node_mac';
+Readonly::Scalar our $REQ_CISCO                 => 'ap_mac';
+Readonly::Scalar our $REQ_ARUBA                 => 'apname';
+
 =head2 Apache Config related
 
 =over
@@ -145,6 +150,20 @@ foreach (@components_mod_perl) { s{([^/])$}{$1\$} };
 my $allow_mod_perl = join('|', @components_mod_perl);
 Readonly::Scalar our $ALLOWED_RESOURCES_MOD_PERL => qr/ ^(?: $allow_mod_perl ) /xo; # eXtended pattern, compile Once
 
+=item EXTERNAL_PORTAL_PARAM
+
+Build a regex that will decide what is considered as a external portal var parameter.
+
+This parameter should be something that contain the mac or ip address of the switch.
+
+=cut
+
+my @components_req =  _clean_urls_match_req();
+foreach (@components_req) { s{([^/])$}{$1\$} };
+my $allow_req = join('|', @components_req);
+Readonly::Scalar our $EXTERNAL_PORTAL_PARAM => qr/ ^(?: $allow_req ) /xo; # eXtended pattern, compile Once
+
+
 =item _clean_urls_match
 
 Return a regex that would match all the captive portal allowed clean URLs
@@ -173,6 +192,22 @@ sub _clean_urls_match_mod_perl {
     foreach (keys %consts) {
         # keep only constants matching ^URL
         push @urls, $consts{$_} if (/^MOD_PERL/);
+    }
+    return (@urls);
+}
+
+=item _clean_urls_match_mod_perl
+
+Return a regex that would match all the captive portal allowed clean URLs
+
+=cut
+
+sub _clean_urls_match_req {
+    my %consts = pf::web::constants::to_hash();
+    my @urls;
+    foreach (keys %consts) {
+        # keep only constants matching ^URL
+        push @urls, $consts{$_} if (/^REQ/);
     }
     return (@urls);
 }
@@ -211,3 +246,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

@@ -85,6 +85,7 @@ Warning: The list of subroutine is incomplete
 sub supportsWiredMacAuth { return $TRUE; }
 sub supportsWiredDot1x { return $TRUE; }
 sub supportsRadiusDynamicVlanAssignment { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
 # VoIP technology supported
 sub supportsRadiusVoip { return $TRUE; }
 # special features supported
@@ -2936,6 +2937,19 @@ sub parseRequest {
         $nas_port_id = $radius_request->{'NAS-Port-Id'};
     }
     return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id);
+}
+
+=item parseUrl
+
+Extract all the param from the url.
+
+=cut
+
+sub parseUrl {
+    my ($self,$req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+    $logger->warn("Not implemented");
+    return;
 }
 
 =back

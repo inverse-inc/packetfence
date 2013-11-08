@@ -9,6 +9,7 @@ use strict;
 use warnings;
 
 use Apache2::Const -compile => qw(OK DECLINED HTTP_MOVED_TEMPORARILY);
+use Apache2::Request;
 use Apache2::RequestIO ();
 use Apache2::RequestRec ();
 use Apache2::Response ();
@@ -27,6 +28,8 @@ use pf::config;
 use pf::util;
 use pf::web::constants;
 use pf::proxypassthrough::constants;
+use pf::Portal::Session;
+use pf::iplog qw(iplog_update);
 
 =head1 SUBROUTINES
 
@@ -99,6 +102,36 @@ sub handler {
     return Apache2::Const::OK;
 }
 
+=item external_captive_portal
+
+Instantiate the switch module and use a specific captive portal
+
+=cut
+
+sub external_captive_portal {
+    my ($switchId, $req,$r) = @_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $switch;
+    if (valid_ip($switchId)) {
+        $switch = pf::SwitchFactory->getInstance()->instantiate({switch_ip => $switchId});
+    } elsif (valid_mac($switchId)) {
+        $switch = pf::SwitchFactory->getInstance()->instantiate({switch_mac => $switchId});
+    }
+    if (defined($switch) && $switch->supportsExternalPortal) {
+        my $portalSession = pf::Portal::Session->new();
+        my ($client_mac,$client_ssid,$client_ip,$redirect_url,$grant_url,$status_code) = $switch->parseUrl(\$req);
+        $portalSession->setClientIp($client_ip) if (defined($client_ip));
+        $portalSession->setClientMac($client_mac) if (defined($client_mac));
+        $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
+        $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
+        $portalSession->cgi->param("do_not_deauth", $TRUE) if (defined($grant_url));
+        iplog_update($client_mac,$client_ip,100) if (defined ($client_ip) && defined ($client_mac));
+        # Have to update location_log ...
+        return $portalSession->session->id();
+    } else {
+        return 0;
+    }
+} 
 =item handler
 
 For simplicity and performance this doesn't consume and leverage
@@ -116,6 +149,22 @@ sub redirect {
     if ($url !~ m#://\Q$captivePortalDomain\E/#) {
         $destination_url = Apache2::Util::escape_path($url,$r->pool);
     }
+    my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
+
+    # External Captive Portal Detection
+
+    my $req = Apache2::Request->new($r);
+    foreach my $param ($req->param) {
+        if ($param =~ /$WEB::EXTERNAL_PORTAL_PARAM/o) {
+            my $cgi_session_id = external_captive_portal($req->param($param),$req,$r);
+            if ($cgi_session_id ne '0') {
+                # Set the cookie for the captive portal
+                $r->err_headers_out->add('Set-Cookie' => "CGISESSID=".  $cgi_session_id . "; path=/");
+            }
+            last;
+        }
+    }
+
     my $proto;
     # Google chrome hack redirect in http
     if ($r->uri =~ /\/generate_204/) {
