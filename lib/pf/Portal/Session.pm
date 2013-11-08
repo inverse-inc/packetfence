@@ -76,14 +76,25 @@ sub _initialize {
  
     $self->{'_cgi'} = $cgi;
 
-    my $sid = $cgi->param('CGISESSID') || $cgi;
-
+    my $sid = $cgi->cookie('CGISESSID') || $cgi->param('CGISESSID') || $cgi;
+    
     $self->{'_session'} = new CGI::Session( "driver:memcached", $sid, { Memcached => pf::web::util::get_memcached_connection(pf::web::util::get_memcached_conf()) } );
 
-    $self->{'_client_ip'} = $self->_resolveIp();
-    $self->{'_client_mac'} = ip2mac($self->getClientIp);
+    $self->{'_client_ip'} = $self->_restoreFromSession("_client_ip",sub {
+            return $self->_resolveIp();
+        }
+    );
+
+    $self->{'_client_mac'} = $self->_restoreFromSession("_client_mac",sub {
+            return $self->getClientMac;
+        }
+    );
 
     $self->{'_guest_node_mac'} = undef;
+    $self->{'_profile'} = $self->_restoreFromSession("_profile", sub {
+            return pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+        }
+    );
 
     if (defined ($cgi->url(-absolute=>1)) && $cgi->url(-absolute=>1) =~ /$WEB::ALLOWED_RESOURCES_PROFILE_FILTER/o) {
         my $option = {
@@ -101,7 +112,15 @@ sub _initialize {
         );
     }
 
-    $self->{'_destination_url'} = $self->_getDestinationUrl();
+    $self->{'_destination_url'} = $self->_restoreFromSession("_destination_url",sub {
+            return $self->getDestinationUrl();
+        }
+    );
+
+    $self->{'_grant_url'} = $self->_restoreFromSession("_grant_url",sub {
+            return $self->getGrantUrl;
+        }
+    );
 
     $self->_initializeStash();
     $self->_initializeI18n();
@@ -308,6 +327,17 @@ sub getClientIp {
     return $self->{'_client_ip'};
 }
 
+=item setClientIp
+
+Set the IP of the captive portal client
+
+=cut
+
+sub setClientIp {
+    my ($self,$ip) = @_;
+    $self->getSession->param('_client_ip',$ip);
+}
+
 =item getClientMac
 
 Returns the MAC of the captive portal client.
@@ -316,7 +346,44 @@ Returns the MAC of the captive portal client.
 
 sub getClientMac {
     my ($self) = @_;
-    return $self->{'_client_mac'};
+    if (defined($self->cgi->param('mac'))) {
+        return encode_entities($self->cgi->param('mac'));
+    }
+    return encode_entities(ip2mac($self->getClientIp));
+}
+
+
+=item setClientMac
+
+Set the MAC of the captive portal client
+
+=cut
+
+sub setClientMac {
+    my ($self,$mac) = @_;
+    $self->session->param('_client_mac',$mac);
+}
+
+=item getGrantUrl
+
+Returns the grant url where we have to forward the device
+
+=cut
+
+sub getGrantUrl {
+    my ($self) =@_;
+    return $self->{'_grant_url'};
+}
+
+=item setGrantUrl
+
+Set the grant url where we have to forward the client
+
+=cut
+
+sub setGrantUrl {
+    my ($self, $url) =@_;
+    $self->session->param('_grant_url',$url);
 }
 
 =item setClientMac

@@ -123,6 +123,7 @@ sub description { 'Cisco Wireless Controller (WLC)' }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
 sub supportsRoleBasedEnforcement { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
 
 # disabling special features supported by generic Cisco's but not on WLCs
 sub supportsSaveConfig { return $FALSE; }
@@ -334,6 +335,25 @@ sub deauthTechniques {
         $method = $default;
     }
     return $method,$tech{$method};
+}
+
+=item parseUrl
+
+This is called when we receive a http request from the device and return specific attributes:
+
+client mac address
+SSID
+client ip address
+redirect url
+grant url
+status code
+
+=cut
+
+sub parseUrl {
+    my($this, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return ($$req->param('client_mac'),$$req->param('wlan'),$$req->param('client_ip'),$$req->param('redirect'),$$req->param('switch_url'),$$req->param('statusCode'));
 }
 
 

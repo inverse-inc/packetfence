@@ -722,6 +722,12 @@ sub end_portal_session {
         exit(0);
     }
 
+    # We are in a external portal set, let´s forward the device to the grant url
+    if ($portalSession->getGrantUrl ne '') {
+        print $portalSession->cgi->redirect($portalSession->getGrantUrl);
+        exit(0);
+    }
+
     # we drop HTTPS so we can perform our Internet detection and avoid all sort of certificate errors
     if ($portalSession->cgi->https()) {
         print $portalSession->cgi->redirect(
@@ -824,3 +830,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+
