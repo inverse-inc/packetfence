@@ -440,8 +440,11 @@ sub importCSV {
     my $skipped = 0;
     my %index = ();
     foreach my $column (@{$data->{columns}}) {
-        $index{$column->{name}} = $count;
-        $count++;
+        if ($column->{enabled} || $column->{name} eq 'c_username' || $column->{name} eq 'c_password') {
+            # Add checked columns and mandatory columns
+            $index{$column->{name}} = $count;
+            $count++;
+        }
     }
 
     # Map delimiter to its actual character
