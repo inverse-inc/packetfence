@@ -78,6 +78,7 @@ $(function() { // DOM ready
             // location.hash = 'authentication';
         }
     });
+
     /* Save a source */
     $('#section').on('submit', 'form[name="source"]', function(e) {
         e.preventDefault();

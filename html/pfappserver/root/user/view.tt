@@ -53,7 +53,7 @@
               <div class="control-group">
                 <div class="controls">
                   <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('print'), [], [], { pids => user.pid }) %]" target="_new">[% l('Print') %]</a>
-                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword">[% l('mail') %]</a>
+                  <a class="btn btn-info" href="[% c.uri_for(c.controller('User').action_for('mail'), [], [], { pids => user.pid }) %]" id="mailPassword" data-loading-text="[% l("mail_loading") %]">[% l('mail') %]</a>
                 </div>
               </div>
             </div><!--tab-pane-->

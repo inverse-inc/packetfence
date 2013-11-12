@@ -31,8 +31,8 @@ function init() {
     $('#section').on('section.loaded', function(event) {
         /* Set the focus on the first editable and visible field */
         $(':input:visible:enabled:first[name]').focus();
-        /* Set the default value for compound controls*/
-        $('.compound-input-btn-group .btn-group input').each(function (i,input) {
+        /* Set the default value for compound controls */
+        $('.compound-input-btn-group .btn-group input').each(function (i, input) {
             var value = $(input).attr('value');
             var a = $(input).siblings('a[value="' + value  +  '"]');
             a.attr('default-value','yes');

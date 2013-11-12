@@ -23,7 +23,6 @@ use pfappserver::Form::User::Create;
 use pfappserver::Form::User::Create::Single;
 use pfappserver::Form::User::Create::Multiple;
 use pfappserver::Form::User::Create::Import;
-use pfappserver::Form::AdvancedSearch;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
@@ -277,7 +276,6 @@ sub create :Local {
         $c->stash->{form_single} = $form_single;
         $c->stash->{form_multiple} = $form_multiple;
         $c->stash->{form_import} = $form_import;
-        $c->stash->{template} = 'configuration/users.tt';
     }
 }
 

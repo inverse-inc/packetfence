@@ -15,7 +15,6 @@
         'admin/configuration/floatingdevices',
         'admin/configuration/authentication',
         'admin/configuration/portal_profile',
-        'admin/configuration/users',
         'admin/configuration/violations',
         'admin/configuration/soh',
         'admin/configuration/roles',
@@ -96,7 +95,6 @@ table.sources {
               <li class="nav-header">[% l('Users') %]</li>
               [% pf_section_entry( 'roles', 'Roles') %]
               [% list_entry('Authentication', 'index', 'Sources') %]
-              [% list_entry('User', 'create', 'Create') %]
               <li class="nav-header">[% l('Compliance') %]</li>
               [% list_entry('Violation', 'index', 'Violations') %]
               [% pf_section_entry( 'soh', 'Statement of Health') %]

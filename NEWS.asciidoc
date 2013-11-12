@@ -37,6 +37,7 @@ Enhancements
 * Each portal profile can now have a different redirection URL
 * An Htpasswd source can now define sponsors
 * Improved display of pie charts (limit of legend labels and highlight of table rows)
+* Creation of users is now performed from the users page (was on the configuration page)
 
 Bug Fixes
 +++++++++

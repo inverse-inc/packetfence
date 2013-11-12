@@ -66,15 +66,16 @@ form {
                 <ul class="nav nav-list">
                   <li class="nav-header">[% l('Users') %]</li>
                   <li class="active"><a href="#">[% l('Search') %]</a></li>
+                  <li><a href="#user/create">[% l('Create') %]</a></li>
                   <li class="nav-header">[% l('Saved Searches') %]</li>
-                  [%FOR ss IN saved_searches%]
+                  [% FOR ss IN saved_searches %]
                   [% form = ss.form %]
                   [% 
                   IF ss.path == 'user/advanced_search';
                   tab = 'advanced';
                   ELSE;
                   tab ='simple';
-                  END%]
+                  END %]
                   <li>
                     <a href="#" data-toggle="pf-search-form" data-target="[%tab%]">[% ss.name %] <span class="saved_search_trash pull-right" data-href="[% c.uri_for(c.controller('SavedSearch::User').action_for('remove'),[ss.id])  %]"><i class="icon-trash"></i></span> </a>
                     <form>
