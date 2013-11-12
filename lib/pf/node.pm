@@ -1071,6 +1071,7 @@ sub _node_category_handling {
         # if no category is specified then we set to undef so that DBI will insert a NULL
         $data{'category_id'} = undef;
     }
+
     return $data{'category_id'};
 }
 

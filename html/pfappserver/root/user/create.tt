@@ -35,7 +35,7 @@
     </div><!-- tab-pane -->
 
     <div class="tab-pane fade" id="multiple">
-      <p>[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') %]</p></p>
+      <div class="alert alert-info">[% l('The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created.') %]</div>
       [% form_multiple.field('prefix').render %]
       [% form_multiple.field('quantity').render %]
       [% form_multiple.field('firstname').render %]

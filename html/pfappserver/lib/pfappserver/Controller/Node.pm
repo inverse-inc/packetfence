@@ -18,6 +18,9 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pfappserver::Form::Node;
+use pfappserver::Form::Node::Create::Import;
+
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
@@ -111,6 +114,80 @@ sub advanced_search :Local :Args() {
     $c->response->status($status);
 }
 
+=head2 create
+
+Create one node or import a CSV file.
+
+=cut
+
+sub create :Local {
+    my ($self, $c) = @_;
+
+    my ($roles, $node_status, $form_single, $form_import, $params, $type);
+    my ($status, $result, $message);
+
+    ($status, $result) = $c->model('Roles')->list();
+    if (is_success($status)) {
+        $roles = $result;
+    }
+    $node_status = $c->model('Node')->availableStatus();
+
+    $form_single = pfappserver::Form::Node->new(ctx => $c, status => $node_status, roles => $roles);
+    $form_import = pfappserver::Form::Node::Create::Import->new(ctx => $c, roles => $roles);
+
+    if (scalar(keys %{$c->request->params}) > 1) {
+        # We consider the request parameters only if we have at least two entries.
+        # This is the result of setuping jQuery in "no Ajax cache" mode. See admin/common.js.
+        $params = $c->request->params;
+    } else {
+        $params = {};
+    }
+    $form_single->process(params => $params);
+
+    if ($c->request->method eq 'POST') {
+        # Create new nodes
+        $type = $c->request->param('type');
+        if ($type eq 'single') {
+            if ($form_single->has_errors) {
+                $status = HTTP_BAD_REQUEST;
+                $message = $form_single->field_errors;
+            }
+            else {
+                ($status, $message) = $c->model('Node')->create($form_single->value);
+            }
+        }
+        elsif ($type eq 'import') {
+            my $params = $c->request->params;
+            $params->{nodes_file} = $c->req->upload('nodes_file');
+            $form_import->process(params => $params);
+            if ($form_import->has_errors) {
+                $status = HTTP_BAD_REQUEST;
+                $message = $form_import->field_errors;
+            }
+            else {
+                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user);
+                if (is_success($status)) {
+                    $message = $c->loc("[_1] nodes imported, [_2] skipped", $message->{count}, $message->{skipped});
+                }
+            }
+        }
+        else {
+            $status = $STATUS::INTERNAL_SERVER_ERROR;
+        }
+
+        $c->response->status($status);
+        $c->stash->{status} = $status;
+        $c->stash->{status_msg} = $message; # TODO: localize error message
+        $c->stash->{current_view} = 'JSON';
+    }
+    else {
+        # Initial display of the page
+        $form_import->process();
+
+        $c->stash->{form_single} = $form_single;
+        $c->stash->{form_import} = $form_import;
+    }
+}
 
 =head2 object
 
@@ -146,7 +223,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
-    my ($form, $status, $roles);
+    my ($form, $status);
 
     # Form initialization :
     # Retrieve node details and status
@@ -162,10 +239,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{switches} = \%switches;
     }
     $nodeStatus = $c->model('Node')->availableStatus();
-    $form = $c->form("Node" ,
-        init_object => $c->stash->{node},
-        status => $nodeStatus,
-        roles => $c->stash->{roles}
+    $form = $c->form("Node",
+                     init_object => $c->stash->{node},
+                     status => $nodeStatus,
+                     roles => $c->stash->{roles}
     );
     $form->process();
     $c->stash->{form} = $form;
@@ -186,11 +263,11 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
     my ($form, $nodeStatus);
 
     $nodeStatus = $c->model('Node')->availableStatus();
-    $form = $c->form("Node" ,
-        status => $nodeStatus,
-        roles => $c->stash->{roles}
+    $form = $c->form("Node",
+                     status => $nodeStatus,
+                     roles => $c->stash->{roles}
     );
-    $form->process(params => $c->request->params);
+    $form->process(params => { mac => $c->stash->{mac}, %{$c->request->params} });
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $message = $form->field_errors;

@@ -1,4 +1,5 @@
 [%  jsFiles = [
+        'app/jquery-ui',
         'app/bootstrap-datepicker',
         'app/bootstrap-timepicker',
         'app/chosen.jquery.min',
@@ -58,8 +59,7 @@ form {
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Nodes') %]</li>
               <li class="active"><a href="#">[% l('Search') %]</a></li>
-              <!--<li><a href="#">[% l('Create') %]</a></li>
-              <li><a href="#">[% l('Import') %]</a></li>-->
+              <li><a href="[% c.pf_hash_for(c.controller('Node').action_for('create')) %]">[% l('Create') %]</a></li>
               <li class="nav-header">[% l('Saved Searches') %]</li>
               [%FOR ss IN saved_searches%]
                 [% form = ss.form %]

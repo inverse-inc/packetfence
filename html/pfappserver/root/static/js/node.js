@@ -42,6 +42,8 @@ var NodeView = function(options) {
 
     this.proxyFor($('body'), 'show', '#modalNode', this.showNode);
 
+    this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);
+
     this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
     this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
@@ -60,6 +62,18 @@ var NodeView = function(options) {
     this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
 
     this.proxyClick($('body'), '#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
+
+    this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
+        /* Enable autocompletion of owner on tab of single node creation */
+        $('[data-provide="typeahead"]').typeahead({
+            source: $.proxy(this.searchUser, this),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; },
+        });
+        /* Disable checked columns from import tab since they are required */
+        $('#columns :checked').attr('disabled', 'disabled');
+    });
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -165,6 +179,52 @@ NodeView.prototype.readViolations = function(e) {
             target.find('.switch').bootstrapSwitch();
         });
     return true;
+};
+
+NodeView.prototype.createNode = function(e) {
+    var form = $(e.target),
+    btn = form.find('[type="submit"]').first(),
+    href = $('#section .nav-tabs .active a').attr('href'),
+    pos = href.lastIndexOf('#'),
+    disabled_inputs = form.find('.hidden :input, .tab-pane:not(.active) :input'),
+    valid;
+
+    // Don't submit inputs from hidden rows and tabs.
+    // The functions isFormValid and serialize will ignore disabled inputs.
+    disabled_inputs.attr('disabled', 'disabled');
+
+    // Identify the type of creation (single, multiple or import) from the selected tab
+    form.find('input[name="type"]').val(href.substr(++pos));
+    valid = isFormValid(form);
+
+    if (valid) {
+        btn.button('loading');
+        resetAlert($('#section'));
+
+        // Since we can be uploading a file, the form target is an iframe from which
+        // we read the JSON returned by the server.
+        var iform = $("#iframe_form");
+        iform.one('load', function(event) {
+            // Restore disabled inputs
+            disabled_inputs.removeAttr('disabled');
+
+            $("body,html").animate({scrollTop:0}, 'fast');
+            btn.button('reset');
+            var body = $(this).contents().find('body');
+            // We received JSON
+            var data = $.parseJSON(body.text());
+            if (data.status < 300)
+                showPermanentSuccess(form, data.status_msg);
+            else
+                showPermanentError(form, data.status_msg);
+        });
+    }
+    else {
+        // Restore disabled inputs
+        disabled_inputs.removeAttr('disabled');
+    }
+
+    return valid;
 };
 
 NodeView.prototype.updateNode = function(e) {
