@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 4.0.5\n"
+"Project-Id-Version: 4.0.7\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2013-08-30 14:43-0400\n"
+"PO-Revision-Date: 2013-11-13 15:40-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -94,6 +94,8 @@ msgid "Accounting"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/SoH.pm
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
 # html/pfappserver/root/soh/index.tt
 # html/pfappserver/root/soh/read.tt
 # html/pfappserver/root/violation/list.tt
@@ -109,7 +111,7 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Actions"
@@ -223,6 +225,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/AdvancedSearch.pm
 msgid "All"
+msgstr ""
+
+# html/pfappserver/root/node/create.tt
+msgid "All imported nodes will be registered. If a MAC matches an existing node, it will also be registered."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
@@ -339,6 +345,7 @@ msgstr ""
 msgid "CLI"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "CSV File"
 msgstr ""
@@ -401,14 +408,22 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Column Delimiter"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/node/advanced_search.tt
+# html/pfappserver/root/node/simple_search.tt
+msgid "Columns"
+msgstr ""
+
+# html/pfappserver/root/node/create.tt
+# html/pfappserver/root/user/create.tt
 msgid "Columns Order"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Comma"
 msgstr ""
@@ -449,6 +464,10 @@ msgstr ""
 
 # conf/documentation.conf (general.memcached)
 msgid "Comma-delimited list of memcached servers."
+msgstr ""
+
+# conf/documentation.conf (trapping.interception_proxy_port)
+msgid "Comma-delimited list of port used by proxy interception."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -524,6 +543,7 @@ msgid "Copy File"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
+# html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/interface/create.tt
 # html/pfappserver/root/portal/profile/create.tt
 msgid "Create"
@@ -533,7 +553,11 @@ msgstr ""
 msgid "Create New File"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/node/create.tt
+msgid "Create Nodes"
+msgstr ""
+
+# html/pfappserver/root/user/create.tt
 msgid "Create Users"
 msgstr ""
 
@@ -541,7 +565,7 @@ msgstr ""
 msgid "Create database and tables"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 msgid "Create local users that trigger specific actions."
 msgstr ""
 
@@ -561,7 +585,11 @@ msgstr ""
 msgid "Creating"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/node/create.tt
+msgid "Creating Nodes .."
+msgstr ""
+
+# html/pfappserver/root/user/create.tt
 msgid "Creating Users .."
 msgstr ""
 
@@ -594,14 +622,20 @@ msgstr ""
 msgid "Default Lease Time"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+msgid "Default Owner"
+msgstr ""
+
 # html/pfappserver/root/portal/profile/index.tt
 msgid "Default Profile"
 msgstr ""
 
-# conf/documentation.conf (trapping.redirecturl)
-msgid ""
-  "Default URL to redirect to on registration/mitigation release.  This"
-  "is only used if a per-violation redirecturl is not defined."
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+msgid "Default Role"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+msgid "Default Voice Over IP"
 msgstr ""
 
 # conf/documentation.conf (node_import.category)
@@ -693,10 +727,6 @@ msgstr ""
 # html/pfappserver/root/node/advanced_search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "Deregister"
-msgstr ""
-
-# html/pfappserver/root/portal/profile/index.tt
-msgid "Describe portal profiles"
 msgstr ""
 
 # conf/documentation.conf (interface.type)
@@ -808,8 +838,7 @@ msgid ""
   "goes to."
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Enable Billing Engine"
 msgstr ""
 
@@ -870,11 +899,20 @@ msgstr ""
 
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configuration/authentication.tt
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/node/create.tt
 # html/pfappserver/root/portal/profile/index.tt
 # html/pfappserver/root/roles/index.tt
 # html/pfappserver/root/soh/index.tt
+# html/pfappserver/root/user/create.tt
 msgid "Error!"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Exclusive"
+msgstr ""
+
+# html/pfappserver/root/configuration/authentication.tt
+msgid "Exclusive Sources"
 msgstr ""
 
 # html/pfappserver/root/user/print.tt
@@ -911,6 +949,7 @@ msgid "Files"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+# html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/view.tt
 # html/pfappserver/root/soh/read.tt
 msgid "Filter"
@@ -933,6 +972,10 @@ msgstr ""
 
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 msgid "Floating Device"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+msgid "Force redirection URL"
 msgstr ""
 
 # conf/documentation.conf (captive_portal.secure_redirect)
@@ -1066,6 +1109,12 @@ msgstr ""
 msgid "If enabled, we will act on wirelessIPS traps sent by Wireless controllers."
 msgstr ""
 
+# conf/documentation.conf (trapping.interception_proxy)
+msgid ""
+  "If enabled, we will intercept proxy request on the specified ports to"
+  "forward to the captive portal."
+msgstr ""
+
 # conf/documentation.conf (captive_portal.loadbalancers_ip)
 msgid ""
   "If the captive portal is put behind load-balancer(s) that act at Layer 7"
@@ -1094,8 +1143,8 @@ msgid ""
   "registration is complete."
 msgstr ""
 
-# html/pfappserver/root/admin/nodes.tt
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/node/create.tt
+# html/pfappserver/root/user/create.tt
 msgid "Import"
 msgstr ""
 
@@ -1199,6 +1248,12 @@ msgid ""
   "running the RPMed version."
 msgstr ""
 
+# conf/documentation.conf (services.memcached_binary)
+msgid ""
+  "Location of the memcached binary. Only necessary to change if you are not"
+  "running the pre-packaged version."
+msgstr ""
+
 # conf/documentation.conf (services.snmptrapd_binary)
 msgid ""
   "Location of the snmptrapd binary. Only necessary to change if you are"
@@ -1243,6 +1298,7 @@ msgstr ""
 msgid "Logs"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node.pm
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/user/violations.tt
@@ -1250,6 +1306,7 @@ msgid "MAC"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/FloatingDevice.pm
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "MAC Address"
 msgstr ""
 
@@ -1267,6 +1324,10 @@ msgstr ""
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
+msgstr ""
+
+# html/pfappserver/root/node/create.tt
+msgid "Manually add nodes to the system."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
@@ -1297,7 +1358,7 @@ msgstr ""
 msgid "Mode"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 msgid "Multiple"
 msgstr ""
 
@@ -1463,7 +1524,7 @@ msgid "No violation defined"
 msgstr ""
 
 # html/pfappserver/root/node/violations.tt
-msgid "No violation history"
+msgid "No violation found"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -1493,6 +1554,7 @@ msgid "Note"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Multiple.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Single.pm
@@ -1526,6 +1588,7 @@ msgid "Overview"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Owner"
 msgstr ""
 
@@ -1695,6 +1758,10 @@ msgid ""
   "Redirecting 53/udp (DNS) seems to have issues and is also not recommended."
 msgstr ""
 
+# html/pfappserver/root/portal/profile/index.tt
+msgid "Present a different captive portal according to the SSID, the VLAN, or the switch IP the client connects to."
+msgstr ""
+
 # html/pfappserver/root/portal/profile/edit.tt
 # html/pfappserver/root/portal/profile/files.tt
 # html/pfappserver/root/violation/list.tt
@@ -1748,13 +1815,11 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Profile Description"
 msgstr ""
 
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
-# html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
 msgid "Profile Name"
 msgstr ""
 
@@ -1822,6 +1887,10 @@ msgstr ""
 msgid "Reconnecting to the Admin Service in "
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+msgid "Redirection URL"
+msgstr ""
+
 # html/pfappserver/root/node/advanced_search.tt
 # html/pfappserver/root/node/simple_search.tt
 msgid "Register"
@@ -1832,7 +1901,7 @@ msgstr ""
 msgid "Registration"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 # html/pfappserver/root/user/view.tt
 msgid "Registration Window"
 msgstr ""
@@ -1925,6 +1994,7 @@ msgid "Revert File"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node.pm
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/root/roles/read.tt
 msgid "Role"
 msgstr ""
@@ -1976,6 +2046,10 @@ msgstr "SSID"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 msgid "SSL"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+msgid "SWITCH"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -2073,6 +2147,7 @@ msgstr ""
 msgid "Select a violation"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Semicolon"
 msgstr ""
@@ -2128,7 +2203,11 @@ msgid "Should have to reauthenticate the node if vlan change"
 msgstr ""
 
 # conf/documentation.conf (services.iptables)
-msgid "Should iptables be managed by packetfence"
+msgid "Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing."
+msgstr ""
+
+# conf/documentation.conf (services.memcached)
+msgid "Should memcached be managed by PacketFence? Keep enabled unless you know what you're doing."
 msgstr ""
 
 # conf/documentation.conf (vlan.closelocationlogonstop)
@@ -2170,7 +2249,8 @@ msgstr ""
 msgid "Simple"
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/node/create.tt
+# html/pfappserver/root/user/create.tt
 msgid "Single"
 msgstr ""
 
@@ -2186,6 +2266,7 @@ msgstr ""
 msgid "Source switch IP"
 msgstr ""
 
+# html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/view.tt
 msgid "Sources"
 msgstr ""
@@ -2293,6 +2374,7 @@ msgid ""
   "http://www.php.net/manual/en/timezones.php"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "Tab"
 msgstr ""
@@ -2344,6 +2426,10 @@ msgstr ""
 msgid "The merchant's unique Transaction Key (Provided by Authorize.net)"
 msgstr ""
 
+# html/pfappserver/root/node/create.tt
+msgid "The node will be automatically registered. If the MAC matches an existing node, it will also be modified and registered."
+msgstr ""
+
 # conf/documentation.conf (registration.nbregpages)
 msgid ""
   "The number of registration pages to show to the user. If higher than"
@@ -2365,7 +2451,7 @@ msgstr ""
 msgid "The role to assign to gaming devices. If none is selected, the role of the registrant is used."
 msgstr ""
 
-# html/pfappserver/root/configuration/users.tt
+# html/pfappserver/root/user/create.tt
 msgid "The usernames are constructed from the <b>prefix</b> and the <b>quantity</b>. For example, setting the prefix to <i>guest</i> and the quantity to <i>3</i> creates usernames <i>guest1</i>,<i> guest2</i> and <i>guest3</i>. Random passwords will be created."
 msgstr ""
 
@@ -2483,15 +2569,12 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-# conf/documentation.conf (trapping.always_use_redirecturl)
-msgid ""
-  "Under most circumstances we can redirect the user to the URL he originally "
-  "intended to visit. When enabled, always_use_redirecturl forces the captive "
-  "portal to redirect the user to the URL defined in trapping.redirecturl instead."
-msgstr ""
-
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+msgid "Unregistration Date"
 msgstr ""
 
 # html/pfappserver/root/configuration/fingerprints/simple_search.tt
@@ -2633,6 +2716,10 @@ msgstr ""
 msgid "Voice Over IP"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+msgid "Voice Over IP (yes/no)"
+msgstr ""
+
 # conf/documentation.conf (alerting.wins_server)
 msgid ""
   "WINS server to  resolve NetBIOS name of administrative workstation to"
@@ -2692,14 +2779,11 @@ msgstr ""
 msgid "With no condition, the inline mode will never be activated."
 msgstr ""
 
-# html/pfappserver/root/portal/profile/create.tt
-msgid "With no source selected, the sources of the default profile will be used."
-msgstr ""
-
 # html/pfappserver/root/portal/profile/view.tt
 msgid "With no source specified, all internal sources will be used."
 msgstr ""
 
+# html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/view.tt
 msgid "With no source specified, the sources of the default profile will be used."
 msgstr ""
@@ -2937,12 +3021,13 @@ msgstr ""
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
 # conf/documentation.conf (services.iptables options)
+# conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
-# conf/documentation.conf (trapping.always_use_redirecturl options)
 # conf/documentation.conf (trapping.detection options)
+# conf/documentation.conf (trapping.interception_proxy options)
 # conf/documentation.conf (trapping.passthrough options)
 # conf/documentation.conf (trapping.registration options)
 # conf/documentation.conf (trapping.wireless_ips options)
@@ -2993,12 +3078,13 @@ msgstr ""
 # conf/documentation.conf (scan.registration options)
 # conf/documentation.conf (services.dhcpd options)
 # conf/documentation.conf (services.iptables options)
+# conf/documentation.conf (services.memcached options)
 # conf/documentation.conf (services.pfdns options)
 # conf/documentation.conf (services.radiusd options)
 # conf/documentation.conf (servicewatch.email options)
 # conf/documentation.conf (servicewatch.restart options)
-# conf/documentation.conf (trapping.always_use_redirecturl options)
 # conf/documentation.conf (trapping.detection options)
+# conf/documentation.conf (trapping.interception_proxy options)
 # conf/documentation.conf (trapping.passthrough options)
 # conf/documentation.conf (trapping.registration options)
 # conf/documentation.conf (trapping.wireless_ips options)
@@ -3096,10 +3182,6 @@ msgstr "Timezone"
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "givenName"
 msgstr ""
-
-# pfappserver::Model::Node (availableStatus)
-msgid "grace"
-msgstr "grace"
 
 # conf/documentation.conf
 msgid "guests_admin_registration"
@@ -3209,6 +3291,10 @@ msgstr ""
 msgid "is before"
 msgstr ""
 
+# pf::Authentication::constants (Conditions)
+msgid "is member of"
+msgstr ""
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # pf::Authentication::constants (Conditions)
@@ -3240,13 +3326,17 @@ msgstr ""
 msgid "mac"
 msgstr "MAC Address"
 
-# html/pfappserver/root/user/view.tt
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::LDAPSource (available_attributes)
 msgid "mail"
+msgstr ""
+
+# html/pfappserver/root/user/view.tt
+msgid "mail_btn"
 msgstr "Send Email"
 
 # html/pfappserver/root/user/list_password.tt (options)
+# html/pfappserver/root/user/view.tt
 msgid "mail_loading"
 msgstr "Sending .."
 
@@ -3584,6 +3674,14 @@ msgid "services.iptables"
 msgstr "iptables"
 
 # conf/documentation.conf
+msgid "services.memcached"
+msgstr ""
+
+# conf/documentation.conf
+msgid "services.memcached_binary"
+msgstr ""
+
+# conf/documentation.conf
 msgid "services.pfdns"
 msgstr "pfdns"
 
@@ -3686,16 +3784,20 @@ msgid "trapping"
 msgstr "Trapping"
 
 # conf/documentation.conf
-msgid "trapping.always_use_redirecturl"
-msgstr "Force redirect URL"
-
-# conf/documentation.conf
 msgid "trapping.detection"
 msgstr "Detection"
 
 # conf/documentation.conf
 msgid "trapping.detection_engine"
 msgstr "Detection engine"
+
+# conf/documentation.conf
+msgid "trapping.interception_proxy"
+msgstr "Proxy Interception"
+
+# conf/documentation.conf
+msgid "trapping.interception_proxy_port"
+msgstr "Proxy Interception Port"
 
 # conf/documentation.conf
 msgid "trapping.passthrough"
@@ -3710,20 +3812,8 @@ msgid "trapping.proxy_passthroughs"
 msgstr "Proxy Passthroughs"
 
 # conf/documentation.conf
-msgid "trapping.interception_proxy"
-msgstr "Proxy Interception"
-
-# conf/documentation.conf
-msgid "trapping.interception_proxy_port"
-msgstr "Proxy Interception Port"
-
-# conf/documentation.conf
 msgid "trapping.range"
 msgstr "Addresses ranges"
-
-# conf/documentation.conf
-msgid "trapping.redirecturl"
-msgstr "Redirect URL"
 
 # conf/documentation.conf
 msgid "trapping.redirtimer"
@@ -3744,6 +3834,11 @@ msgstr "Wireless IPS"
 # conf/documentation.conf
 msgid "trapping.wireless_ips_threshold"
 msgstr "Wireless IPS threshold"
+
+# pf::Authentication::Source::ADSource (available_attributes)
+# pf::Authentication::Source::LDAPSource (available_attributes)
+msgid "uid"
+msgstr ""
 
 # pfappserver::Model::Node (availableStatus)
 msgid "unreg"
@@ -3766,7 +3861,9 @@ msgstr ""
 msgid "useragent"
 msgstr "UserAgent"
 
-# pf::Authentication::Source (common_attributes)
+# pf::Authentication::Source::HtpasswdSource (available_attributes)
+# pf::Authentication::Source::KerberosSource (available_attributes)
+# pf::Authentication::Source::RADIUSSource (available_attributes)
 msgid "username"
 msgstr ""
 
