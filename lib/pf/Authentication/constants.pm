@@ -50,6 +50,7 @@ Readonly::Scalar our $IS_BEFORE => 'is before';
 Readonly::Scalar our $IS => 'is';
 Readonly::Scalar our $IS_NOT => 'is not';
 Readonly::Scalar our $IS_AFTER => 'is after';
+Readonly::Scalar our $IS_MEMBER => 'is member of';
 
 =item SUBSTRING, NUMBER, DATE, TIME
 
@@ -62,6 +63,7 @@ Readonly::Scalar our $NUMBER => 'number';
 Readonly::Scalar our $DATE => 'date';
 Readonly::Scalar our $TIME => 'time';
 Readonly::Scalar our $CONNECTION => 'connection';
+Readonly::Scalar our $LDAP_ATTRIBUTE => 'ldapattribute';
 
 =item OPERATORS
 
@@ -76,6 +78,7 @@ Readonly::Hash our %OPERATORS =>
    $DATE => [$IS_BEFORE, $IS, $IS_AFTER],
    $TIME => [$IS_BEFORE, $IS_AFTER],
    $CONNECTION => [$IS, $IS_NOT],
+   $LDAP_ATTRIBUTE => [$STARTS, $EQUALS, $CONTAINS, $ENDS, $MATCHES, $IS_MEMBER],
   );
 
 =back

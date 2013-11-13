@@ -47,15 +47,15 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = map { { value => $_, type => $Conditions::SUBSTRING } }
-    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
+  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } }
+    ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
-    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::SUBSTRING });
+    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::LDAP_ATTRIBUTE });
   }
 
-  return [@$super_attributes, @ldap_attributes];
+  return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
 }
 
 =head2 authenticate
@@ -218,12 +218,12 @@ sub match_in_subclass {
         my $entry = $result->pop_entry();
         my $dn = $entry->dn;
         my $entry_matches = 1;
-        $connection->unbind;
+        my ($condition, $attribute, $value);
 
         # Perform match on regexp conditions since they were not included in the LDAP filter
-        foreach my $condition (grep { $_->{'operator'} eq $Conditions::MATCHES } @{$own_conditions}) {
-            my $attribute = $condition->{'attribute'};
-            my $value = $condition->{'value'};
+        foreach $condition (grep { $_->{'operator'} eq $Conditions::MATCHES } @{$own_conditions}) {
+            $attribute = $condition->{'attribute'};
+            $value = $condition->{'value'};
             my @attributes = $entry->get_value($attribute);
             if (scalar @attributes > 0 && grep /$value/, @attributes) {
                 $entry_matches = 1;
@@ -237,6 +237,41 @@ sub match_in_subclass {
                 }
             }
         }
+
+        # Perform match on a static group condition since they require a second LDAP search
+        foreach $condition (grep { $_->{'operator'} eq $Conditions::IS_MEMBER } @{$own_conditions}) {
+            $value = escape_filter_value($condition->{'value'});
+            $attribute = $entry->get_value($condition->{'attribute'});
+            # Search for any type of group definition:
+            # - groupOfNames       => member (dn)
+            # - groupOfUniqueNames => uniqueMember (dn)
+            # - posixGroup         => memberUid (uid)
+            $filter = "(|(member=${dn})(uniqueMember=$dn)(memberUid=${attribute}))";
+            $result = $connection->search
+              (
+               base => $value,
+               filter => $filter,
+               scope => $self->{ 'scope'},
+               attrs => ['dn']
+              );
+            if ($result->is_error) {
+                $logger->error("[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition (".$result->error.").");
+                next;
+            }
+            if ($result->count == 1) {
+                $entry_matches = 1;
+                $logger->debug("[$self->{'id'} $rule->{'id'}] Group $value has member $attribute ($dn)");
+                last if ($rule->match eq $Rules::ANY);
+            }
+            else {
+                $entry_matches = 0;
+                if ($rule->match eq $Rules::ALL) {
+                    last;
+                }
+            }
+        }
+
+        $connection->unbind;
 
         if ($entry_matches) {
             # If we found a result, we push all conditions as matched ones.

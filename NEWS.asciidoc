@@ -23,6 +23,7 @@ New Features
 * Added a Null Authenication Source
 * Displayed columns of nodes are now customizable
 * Create a single node or import multiple nodes from a CSV file from the Web admin
+* LDAP authentication sources can now filter by group membership using a second LDAP query
 
 Enhancements
 ++++++++++++
