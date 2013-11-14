@@ -37,6 +37,7 @@ use pf::Authentication::Source::FacebookSource;
 use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
 use pf::Authentication::Source::NullSource;
+use pf::Authentication::Source::VHOSource;
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
 use pf::util;
@@ -95,7 +96,8 @@ our %TYPE_TO_SOURCE = (
     'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
     'google'        => pf::Authentication::Source::GoogleSource->meta->name,
     'github'        => pf::Authentication::Source::GithubSource->meta->name,
-    'null'          => pf::Authentication::Source::NullSource->meta->name
+    'null'          => pf::Authentication::Source::NullSource->meta->name,
+    'vho'           => pf::Authentication::Source::VHOSource->meta->name,
 );
 
 our $logger = get_logger();
