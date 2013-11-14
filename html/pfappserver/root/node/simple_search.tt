@@ -30,7 +30,7 @@
                   <a tabindex="-1">[% l('Apply Role') %]</a>
                   <ul class="dropdown-menu" id="apply_roles">
                     [% FOREACH role IN roles %]
-                    <li class="disabled"><a datva-target="[% c.uri_for(c.controller('Node').action_for('bulk_apply_role'),[role.category_id])  %]">[% role.name %]</a></li>
+                    <li class="disabled"><a data-target="[% c.uri_for(c.controller('Node').action_for('bulk_apply_role'),[role.category_id])  %]">[% role.name %]</a></li>
                     [% END %]
                   </ul>
                 </li>

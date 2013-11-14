@@ -95,7 +95,7 @@ var UserView = function(options) {
             updateAction($(this));
         });
         /* Disable checked columns from import tab since they are required */
-        $('#columns :checked').attr('disabled', 'disabled');
+        $('form[name="users"] .columns :checked').attr('disabled', 'disabled');
     });
 };
 

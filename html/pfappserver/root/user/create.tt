@@ -50,7 +50,7 @@
       <div class="control-group">
         <label class="control-label">[% l('Columns Order') %]</label>
         <div class="controls">
-          <table id="columns" class="table table-sortable table-condensed">
+          <table class="columns table table-sortable table-condensed">
             <tbody>
               [% FOREACH column IN form_import.field('columns').fields -%]
               <tr>

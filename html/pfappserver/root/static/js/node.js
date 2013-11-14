@@ -72,7 +72,7 @@ var NodeView = function(options) {
             matcher: function(item) { return true; },
         });
         /* Disable checked columns from import tab since they are required */
-        $('#columns :checked').attr('disabled', 'disabled');
+        $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
     });
 };
 
