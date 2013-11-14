@@ -7,18 +7,208 @@ package pf::inline::accounting;
 
 =head1 NAME
 
-pf::inline::accounting - Inline accounting
+pf::inline::accounting - module to manage inline accounting generated
+by ulogd
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::inline::accounting FIXME
+pf::inline::accounting contains functions needed manage accounting data
+produced by ulogd.
+
+See the next section for detailed information on how to configure ulogd
+and mysql.
+
+The inline_accounting_import_ulogd_data function must be called at
+regular intervals to import ulogd data from the mysql memory table
+into the innodb backed inline accounting table. This import process is
+currently handled by pfmon.
+
+To work properly, the accounting_session_timeout configuration variable
+_must_ be set higher tant the interval at which
+inline_accounting_import_ulogd_data is called
+(the interval at which pfmon runs)
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-TODO  : describe database tables, view, procedures required + interaction with ulogd
+ulogd2 >= 2.0.2 should be used when possible since it provides the ability to define accept filters.
+ulogd must be configured to gather events with the ulogd_inpflow_NFCT.so module.
+These events must be sent to a mysql MEMORY table using the ulogd_output_MYSQL.so module.
+The actual insert into that table is be done by a mysql stored procedure.
+Some utility functions for ip address conversion must also be created in mysql.
 
+
+First, install ulogd2 alors with its mysql module:
+
+  apt-get install ulogd2 ulogd2-mysql
+
+=head2 ULOGD CONFIGURATION
+
+Here's a sample ulogd configuration file:
+--
+
+[global]                                                                                                                                                                                                                                    
+logfile="/var/log/ulogd/ulogd.log"
+loglevel=1
+plugin="/usr/lib64/ulogd/ulogd_inppkt_ULOG.so"
+plugin="/usr/lib64/ulogd/ulogd_inpflow_NFCT.so"
+plugin="/usr/lib64/ulogd/ulogd_filter_IFINDEX.so"
+plugin="/usr/lib64/ulogd/ulogd_filter_IP2STR.so"
+plugin="/usr/lib64/ulogd/ulogd_filter_IP2BIN.so"
+plugin="/usr/lib64/ulogd/ulogd_filter_PRINTPKT.so"
+plugin="/usr/lib64/ulogd/ulogd_filter_HWHDR.so"
+plugin="/usr/lib64/ulogd/ulogd_filter_PRINTFLOW.so"
+plugin="/usr/lib64/ulogd/ulogd_output_LOGEMU.so"
+plugin="/usr/lib64/ulogd/ulogd_output_SYSLOG.so"
+plugin="/usr/lib64/ulogd/ulogd_output_XML.so"
+plugin="/usr/lib64/ulogd/ulogd_output_GPRINT.so"
+plugin="/usr/lib64/ulogd/ulogd_output_MYSQL.so"
+plugin="/usr/lib64/ulogd/ulogd_raw2packet_BASE.so"
+plugin="/usr/lib64/ulogd/ulogd_inpflow_NFACCT.so"
+
+stack=ct1:NFCT,ip2bin1:IP2BIN,mysql2:MYSQL
+
+[ct1]
+event_mask=0x00000004 # only get destroy events
+# Big buffers are necessary to be able to keep packets around while the memory table is locked by pfmon
+# do NOT use the same buffer_size vs buffer_maxsize.
+# ulogd seems to think this means a zero length buffer...
+netlink_socket_buffer_size=25165820
+netlink_socket_buffer_maxsize=25165824
+
+[mysql2]
+db="pf"
+host="localhost"
+user="pf"
+table="inline_accounting_mem_ulogd_v"
+pass="password"
+procedure="INSERT_BYTES"
+
+[syslog1]
+facility=LOG_LOCAL2
+
+--
+
+
+=head2 MYSQL SETUP
+
+The inline_accounting_mem mysql table will hold the raw data from ulogd.
+This _has_to_be_ a MEMORY table since it will get a huge amount of updates (one per tcp connection close)
+We use the binary representation of the source ip addr as a key.
+This is done for quick lookups, it avoids doing a bin->string conversion + string compare operation on every update. 
+We cannot use NOW() as a default value for DATETIME fields...
+
+The table should be defined as follows:
+
+DROP TABLE `inline_accounting_mem`;
+CREATE TABLE `inline_accounting_mem` (
+  `_ct_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `orig_ip_saddr_bin` binary(16) NOT NULL COMMENT 'source IP',
+  `reply_ip_saddr_bin` binary(16) DEFAULT NULL COMMENT 'destination ip',
+  `outbytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'orig_raw_pktlen',
+  `inbytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'reply_raw_pktlen',
+  `src_ip` varchar(16) NOT NULL,
+  `firstseen` DATETIME NOT NULL,
+  `lastmodified` DATETIME NOT NULL,
+  `nupdates` BIGINT UNSIGNED DEFAULT 0,
+  PRIMARY KEY (`_ct_id`),
+  UNIQUE KEY `orig_ip_saddr_bin` (`orig_ip_saddr_bin`)
+) ENGINE=MEMORY;
+
+The inline_accounting_mem_ulogd_v view is created so that ulogd is able figure out which fields to pass to the stored proc.
+It is not actually used to update data.
+
+DROP VIEW IF EXISTS inline_accounting_mem_ulogd_v;
+CREATE VIEW inline_accounting_mem_ulogd_v
+  AS SELECT _ct_id,
+            orig_ip_saddr_bin,
+            reply_ip_saddr_bin,
+            outbytes AS orig_raw_pktlen,
+            inbytes AS reply_raw_pktlen
+  FROM inline_accounting_mem LIMIT 1;
+
+
+We need this to be able to reset the auto_increment counter when emptying the table
+GRANT ALL ON pf.inline_accounting_mem to 'pf'@'localhost';
+
+
+This is the actual accounting table. This module will import data from the memory table into it.
+
+CREATE TABLE `inline_accounting` (
+  `outbytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'orig_raw_pktlen',
+  `inbytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'reply_raw_pktlen',
+  `src_ip` varchar(16) NOT NULL,
+  `firstseen` DATETIME NOT NULL,
+  `lastmodified` DATETIME NOT NULL,
+  PRIMARY KEY (`src_ip`, `firstseen`),
+  INDEX (`src_ip`)
+) ENGINE=InnoDB;
+
+
+These utility functions must also be created:
+
+This one is used to convert the binary ip form to ipv4 string
+# we get binary like that: 0x00000000000000000000ffffc0a83804  == 192.168.56.4
+DELIMITER $$
+DROP FUNCTION IF EXISTS `BIN_TO_IPV4`$$
+CREATE FUNCTION `BIN_TO_IPV4`(
+        _in binary(16)
+                ) RETURNS varchar(64)
+    DETERMINISTIC
+    SQL SECURITY INVOKER
+    COMMENT 'Convert binary ip to printable string'
+BEGIN
+    -- IPv4 address in IPv6 form
+    IF HEX(SUBSTRING(_in, 1, 12)) = '00000000000000000000FFFF' THEN
+        RETURN CONCAT(
+            ASCII(SUBSTRING(_in, 13, 1)), '.',
+            ASCII(SUBSTRING(_in, 14, 1)), '.',
+            ASCII(SUBSTRING(_in, 15, 1)), '.',
+            ASCII(SUBSTRING(_in, 16, 1))
+        );
+    END IF;
+    -- return nothing
+    RETURN NULL;
+END$$
+DELIMITER ; 
+
+This stored procedure will be called by ulogd to update the clients' data
+If the client isn't in the table already:
+  adds it with the current data and does the binip -> str conversion
+  add the current timestamp to 'firstseen' and current timestamp to lastmodified
+If the client already exists, update the accounting data and lastmodified timestamp
+
+DELIMITER $$
+DROP FUNCTION IF EXISTS `INSERT_BYTES`$$
+CREATE FUNCTION `INSERT_BYTES`(
+    `_orig_ip_saddr_bin` binary(16),
+    `_reply_ip_saddr_bin` binary(16),
+    `_orig_bytes` bigint,
+    `_reply_bytes` bigint
+) RETURNS bigint(20) unsigned
+BEGIN
+    IF EXISTS (SELECT orig_ip_saddr_bin from inline_accounting_mem where orig_ip_saddr_bin = _orig_ip_saddr_bin) THEN
+      UPDATE inline_accounting_mem SET  outbytes=outbytes+_orig_bytes,
+                                 inbytes=inbytes+_reply_bytes,
+                                 lastmodified=NOW(),
+                                 nupdates=nupdates+1  
+                                 WHERE orig_ip_saddr_bin = _orig_ip_saddr_bin;
+    ELSE
+      INSERT INTO inline_accounting_mem(orig_ip_saddr_bin,outbytes,inbytes,src_ip, firstseen, lastmodified, nupdates)
+        VALUES (_orig_ip_saddr_bin, _orig_bytes,_reply_bytes,BIN_TO_IPV4(_orig_ip_saddr_bin), NOW(), NOW(), 1)
+      ON DUPLICATE KEY UPDATE
+        outbytes=outbytes+_orig_bytes,
+        inbytes=inbytes+_reply_bytes,
+        lastmodified=NOW(),
+        nupdates=nupdates+1;
+    END IF;
+    RETURN LAST_INSERT_ID();
+END$$
+DELIMITER ;
+
+
+Once the tables and procedures are created, ulogd should be able to start logging properly.
 =cut
 
 use strict;
@@ -130,9 +320,9 @@ sub inline_accounting_stats_for_ip {
 sub inline_accounting_import_ulogd_data {
     # Session that haven't been updated for more than
     # $accounting_session_timeout seconds will be dropped from the mem table.
-    # When reconnecting, the client willget a new entry in the accounting table.
+    # When reconnecting, the client will get a new entry in the accounting table.
     # Should be higher than the interval at which import_ulogd_data is called.
-    # $ip is optional. When call with this parameter, this function will import
+    # $ip is optional. When called with this parameter, this function will import
     # the stats for that ip only and then delete its row in the mem table.
     # This is done to ensure that new statistics will be part of a new
     # accounting session
@@ -242,5 +432,6 @@ USA.
 1;
 
 # vim: set shiftwidth=4:
+# vim: set ts=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
