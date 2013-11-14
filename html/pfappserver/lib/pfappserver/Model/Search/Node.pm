@@ -91,7 +91,8 @@ sub make_builder {
             L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
             L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
             L_("IFNULL(node_category.name, '')", 'category'),
-            L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint')
+            L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint'),
+            { table => 'iplog', name => 'ip', as => 'last_ip' }
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -161,7 +162,7 @@ sub make_builder {
                     'join' => 'LEFT',
                     'using' => 'os_id',
                 },
-        );
+        )->distinct();
 }
 
 my %COLUMN_MAP = (
@@ -193,7 +194,7 @@ my %COLUMN_MAP = (
                            'table' => 'node',
                            'name'  => 'mac',
                        }
-                   ]
+                   ],
                ],
            },
        ]
@@ -201,7 +202,7 @@ my %COLUMN_MAP = (
     last_ip   => {
        table => 'iplog',
        name  => 'ip',
-    },
+    }, # BUG : retrieves the last IP address, no mather if a period range is defined
     violation   => {
         table => 'class',
         name  => 'description',
@@ -271,7 +272,7 @@ sub add_date_range {
             $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
         }
         if ($start) {
-            $builder->where({ table =>'locationlog', name => 'start_time' }, '>=' ,$start);
+            $builder->where({ table =>'locationlog', name => 'start_time' }, '>=', $start);
         }
         if ($end) {
             $builder
