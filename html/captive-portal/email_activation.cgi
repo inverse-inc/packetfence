@@ -35,7 +35,6 @@ Log::Log4perl::MDC->put('tid', 0);
 my $portalSession = pf::Portal::Session->new();
 my $cgi = $portalSession->getCgi();
 my $node_mac = undef;
-my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
 
 if (defined($cgi->url_param('code'))) {
 
@@ -65,6 +64,8 @@ if (defined($cgi->url_param('code'))) {
 
     # Email activated guests only need to prove their email was valid by clicking on the link.
     if ($activation_record->{'type'} eq $GUEST_ACTIVATION) {
+        my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+        my $category = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_ROLE);
 
         # if we have a MAC, guest is on-site and we need to proceed with registration
         if ( defined($node_mac) && valid_mac($node_mac) ) {
@@ -79,7 +80,6 @@ if (defined($cgi->url_param('code'))) {
                 $expiration = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_UNREG_DATE);
             }
 
-            my $category = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_ROLE);
 
             $logger->debug("Determined unregdate $expiration and category $category for email $email");
 
@@ -109,13 +109,9 @@ if (defined($cgi->url_param('code'))) {
               );
 
             # we create temporary password with default expiration / arrival date and access duration from config
-            my $access_duration = &pf::authentication::matchByType($email_type, $auth_params, $Actions::SET_ACCESS_DURATION);
+            my $actions = &pf::authentication::matchByType($email_type, $auth_params);
 
-            if (!defined $access_duration) {
-                $access_duration = 0;
-            }
-
-            $info{'password'} = pf::temporary_password::generate($pid, undef, undef, $access_duration);
+            $info{'password'} = pf::temporary_password::generate($pid, undef, $actions);
 
             # send on-site guest credentials by email
             pf::web::guest::send_template_email(
@@ -133,6 +129,7 @@ if (defined($cgi->url_param('code'))) {
     # Sponsor activated guests. We need the sponsor to authenticate before allowing access
     elsif ($activation_record->{'type'} eq $SPONSOR_ACTIVATION) {
 
+        my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
         # if we have a username in session it means user has already authenticated
         # so we go ahead and allow the guest in
         if (!defined($portalSession->getSession->param("username"))) {
@@ -200,16 +197,16 @@ if (defined($cgi->url_param('code'))) {
             }
 
             # Setting access timeout and role (category) dynamically
-            $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
+            $info{'unregdate'} = &pf::authentication::matchByType($sponsor_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
 
             if (defined $info{'unregdate'}) {
                 $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
             }
             else {
-                $info{'unregdate'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_UNREG_DATE);
+                $info{'unregdate'} = &pf::authentication::matchByType($sponsor_type, {username => $pid}, $Actions::SET_UNREG_DATE);
             }
 
-            $info{'category'} = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ROLE);
+            $info{'category'} = &pf::authentication::matchByType($sponsor_type, {username => $pid}, $Actions::SET_ROLE);
 
             $logger->debug("Determined unregdate $info{'unregdate'} and category $info{'category'} for pid $pid");
 
@@ -228,6 +225,7 @@ if (defined($cgi->url_param('code'))) {
             # If pid is set in activation record then we are activating a guest who pre-registered
             $pid = $activation_record->{'pid'};
             $info{'pid'} = $pid;
+            $info{'category'} = &pf::authentication::matchByType($sponsor_type, {username => $pid}, $Actions::SET_ROLE);
             $template = $pf::web::guest::TEMPLATE_EMAIL_SPONSOR_PREREGISTRATION;
             $info{'subject'} = i18n_format("%s: Guest access request accepted", $Config{'general'}{'domain'});
         }
@@ -239,15 +237,10 @@ if (defined($cgi->url_param('code'))) {
         $info{'cc'} = $Config{'guests_self_registration'}{'sponsorship_cc'};
         # we create temporary password with default expiration / arrival date and access duration from config
         # TODO sponsor could control these (but current feature sponsor doesn't need the feature)
-        my $access_duration = &pf::authentication::matchByType($email_type, {username => $pid}, $Actions::SET_ACCESS_DURATION);
-
-        if (!defined $access_duration) {
-            $access_duration = 0;
-        }
+        my $actions = &pf::authentication::matchByType($sponsor_type, {username => $pid});
 
         $info{'password'} = pf::temporary_password::generate(
-            $pid, undef, undef,
-            $access_duration
+            $pid, undef, $actions
         );
         # prepare welcome email for a guest who registered locally
         $info{'currentdate'} = POSIX::strftime( "%m/%d/%y %H:%M:%S", localtime );
