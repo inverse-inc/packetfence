@@ -566,7 +566,7 @@ interfaceSNAT=
 # Defaults to 300 - 5 minutes
 accounting_session_timeout=300
 
-# inline.accounting_session_timeout
+# inline.accounting
 #
 # Should we handle accouting data for inline clients?
 # This controls inline accouting tasks in pfmon.
