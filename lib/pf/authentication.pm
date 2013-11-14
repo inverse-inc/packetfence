@@ -173,7 +173,7 @@ sub readAuthenticationConfigFile {
                     # Parse rules
                     foreach my $rule_id ( $config->GroupMembers($source_id) ) {
 
-                        my ($id) = $rule_id =~ m/$source_id rule (\w+)/;
+                        my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
                         my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
 
                         foreach my $parameter ( $config->Parameters($rule_id) ) {
@@ -207,15 +207,14 @@ sub readAuthenticationConfigFile {
                     push(@authentication_sources, $current_source);
                     $authentication_lookup{$source_id} = $current_source;
                 }
-                $config->cache->set("authentication_lookup",\%authentication_lookup);
                 $config->cache->set("authentication_sources",\@authentication_sources);
                 update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
             }],
             -oncachereload => [
                 on_cache_authentication_reload => sub  {
                     my ($config, $name) = @_;
-                    %authentication_lookup = %{$config->fromCacheUntainted("authentication_lookup")};
                     @authentication_sources = @{$config->fromCacheUntainted("authentication_sources")};
+                    %authentication_lookup = map { $_->id => $_ } @authentication_sources;
                 },
             ]
         );
