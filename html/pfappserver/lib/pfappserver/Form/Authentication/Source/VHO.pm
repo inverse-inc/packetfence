@@ -11,7 +11,7 @@ Form definition to create or update a RADIUS user source.
 =cut
 
 use HTML::FormHandler::Moose;
-extends 'pfappserver::Form::Authentication::RADIUS';
+extends 'pfappserver::Form::Authentication::Source::RADIUS';
 
 =head1 COPYRIGHT
 
