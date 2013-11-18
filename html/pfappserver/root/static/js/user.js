@@ -127,7 +127,7 @@ UserView.prototype.readUser = function(e) {
             var modal = $("#modalUser");
             modal.find('.datepicker').datepicker({ autoclose: true });
             modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
-                updateAction($(this),true);
+                updateAction($(this), true);
             });
             modal.on('shown', function() {
                 modal.find(':input:visible').first().focus();
