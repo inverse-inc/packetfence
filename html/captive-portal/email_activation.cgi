@@ -82,7 +82,7 @@ if (defined($cgi->url_param('code'))) {
                     $expiration = access_duration($expiration);
                 }
                 else {
-                    $expiration = &pf::authentication::match($source_id, $auth_params, $Actions::SET_UNREG_DATE);
+                    $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
                 }
 
 
