@@ -374,7 +374,7 @@ sub getPidFromFile {
     my $pid;
     my $pid_file = "$install_dir/var/run/$daemon.pid";
     if (-e $pid_file) {
-        chomp( $pid = read_file($pid_file) );
+        chomp( $pid = read_file($pid_file, err_mode => 'quiet') );
     }
     $pid = 0 if ( !$pid );
     $logger->info("pidof -x $binary returned $pid");
