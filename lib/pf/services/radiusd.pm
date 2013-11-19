@@ -62,8 +62,8 @@ sub generate_radiusd_conf {
 
     #Build the nas table for RADIUS
     require pf::freeradius;
-    require pf::SwitchFactory;
-    pf::freeradius::freeradius_populate_nas_config(\%pf::SwitchFactory::SwitchConfig);
+    require pf::ConfigStore::SwitchOverlay;
+    pf::freeradius::freeradius_populate_nas_config(\%pf::ConfigStore::SwitchOverlay::SwitchConfig);
 
     return 1;
 }
