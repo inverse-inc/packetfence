@@ -194,6 +194,15 @@ If the client isn't in the table already:
   add the current timestamp to 'firstseen' and current timestamp to lastmodified
 If the client already exists, update the accounting data and lastmodified timestamp
 
+It is possible to filter out some destination hosts by adding 'IF' clauses to the function.
+To get the right string representation of the ip, use the following perl script:
+  my $ip =  "your.dotted.quad.address";
+  my @octets = split(/\./, $ip);
+  printf("00000000000000000000FFFF%02X%02X%02X%02X\n", $octets[0],$octets[1],$octets[2],$octets[3]);
+
+The VIP of the packetfence servers should be filtered out with this mechanism to avoid accounting traffic
+against the captive portal
+
  DELIMITER $$
  DROP FUNCTION IF EXISTS `INSERT_BYTES`$$
  CREATE FUNCTION `INSERT_BYTES`(
@@ -203,6 +212,14 @@ If the client already exists, update the accounting data and lastmodified timest
      `_reply_bytes` bigint
  ) RETURNS bigint(20) unsigned
  BEGIN
+ # Use this to filter out some destination hosts
+ #    DECLARE noaccthost1 binary(16);
+ #    set noaccthost1 = 0x00000000000000000000FFFFAC14820B;
+ #
+ #    IF _reply_ip_saddr_bin = noaccthost1 THEN
+ #      RETURN NULL;
+ #    END IF;
+     
      IF EXISTS (SELECT orig_ip_saddr_bin from inline_accounting_mem where orig_ip_saddr_bin = _orig_ip_saddr_bin) THEN
        UPDATE inline_accounting_mem SET  outbytes=outbytes+_orig_bytes,
                                   inbytes=inbytes+_reply_bytes,
