@@ -15,6 +15,7 @@ use strict;
 use warnings;
 use pf::config;
 use Moo;
+use pf::services::apache;
 extends 'pf::services::manager';
 
 has '+launcher' => ( builder => 1, lazy => 1 );
@@ -29,6 +30,22 @@ sub _build_launcher {
     my ($self) = @_;
     my $name = $self->name;
     return "%1\$s -f $conf_dir/httpd.conf.d/$name -D$OS"
+}
+
+=head2 generateConfig
+
+TODO: documention
+
+=cut
+
+our $WAS_GENERATED;
+
+sub generateConfig {
+    my ($self) = @_;
+    return 1 if $WAS_GENERATED;
+    pf::services::apache::generate_httpd_conf();
+    $WAS_GENERATED = 1;
+    return 1;
 }
 
 =head1 AUTHOR
