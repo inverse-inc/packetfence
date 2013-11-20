@@ -131,6 +131,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use Net::SNMP;
+use Try::Tiny;
 
 use base ('pf::SNMP::Cisco::Catalyst_2950');
 use pf::config;
