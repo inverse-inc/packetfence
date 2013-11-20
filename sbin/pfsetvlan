@@ -1615,7 +1615,7 @@ sub handleTrap {
 
         if (defined($connection_type) && ($connection_type == $WIRED_802_1X || $connection_type == $WIRED_MAC_AUTH) ) {
             my ($switchdeauthMethod, $deauthTechniques) = $switch->wiredeauthTechniques($switch->{_deauthMethod},$connection_type);
-            $deauthTechniques->($switch_port,$trapMac);
+            $deauthTechniques->($switch,$switch_port,$trapMac);
         } else {
 
             my @locationlog = locationlog_view_open_switchport_no_VoIP( $switch_ip, $switch_port );
