@@ -22,6 +22,7 @@ use pf::class;
 use pf::config;
 use pf::enforcement;
 use pf::iplog;
+use pf::locationlog;
 use pf::node;
 use pf::Portal::Session;
 use pf::scan qw($SCAN_VID);
