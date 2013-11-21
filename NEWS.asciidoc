@@ -24,6 +24,7 @@ New Features
 * Displayed columns of nodes are now customizable
 * Create a single node or import multiple nodes from a CSV file from the Web admin
 * LDAP authentication sources can now filter by group membership using a second LDAP query
+* Radius does not need to be restarted after adding a switch
 
 Enhancements
 ++++++++++++
