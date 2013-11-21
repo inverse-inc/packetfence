@@ -54,7 +54,7 @@ foreach my $network ( keys %ConfigNetworks ) {
 
             $portalSession->setClientMac( $fake_mac );
             locationlog_synchronize($ConfigNetworks{$network}{'gateway'},$ConfigNetworks{$network}{'gateway'},undef, $NO_PORT, $NO_VLAN, $fake_mac, $NO_VOIP, $INLINE);
-            iplog_open($fake_mac, $ip->addr());
+            iplog_open(lc($fake_mac), $ip->addr());
             last;
         }
     }
