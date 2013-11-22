@@ -11,7 +11,6 @@ Form definition to update a user.
 =cut
 
 use pf::config;
-use pf::util qw(get_abbr_time);
 use HTTP::Status qw(:constants is_success);
 use HTML::FormHandler::Moose;
 
