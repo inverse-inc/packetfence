@@ -119,6 +119,20 @@ has_field 'sources.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+has_field 'mandatory_fields' =>
+(
+    'type' => 'DynamicTable',
+    'sortable' => 1,
+    'do_label' => 0,
+);
+
+has_field 'mandatory_fields.contains' =>
+(
+    type => 'Select',
+    options_method => \&options_mandatory_fields,
+    widget_wrapper => 'DynamicTableRow',
+);
+
 =head1 Methods
 
 =head2 options_sources
@@ -129,6 +143,16 @@ Returns the list of sources to be displayed
 
 sub options_sources {
     return map { { value => $_->id, label => $_->id, attributes => { 'data-source-class' => $_->class  } } } @{getAllAuthenticationSources()};
+}
+
+=head2 options_mandatory_fields
+
+Returns the list of sources to be displayed
+
+=cut
+
+sub options_mandatory_fields {
+    return map { { value => $_,  label => $_ } } qw(firstname lastname organization phone mobileprovider email sponsor_email);
 }
 
 =head2 validate

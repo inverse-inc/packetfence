@@ -51,7 +51,7 @@ Clean up switch data
 
 sub cleanupAfterRead {
     my ($self, $id, $profile) = @_;
-    $self->expand_list($profile, qw(sources filter));
+    $self->expand_list($profile, $self->_fields_expanded);
 }
 
 =head2 cleanupBeforeCommit
@@ -62,7 +62,15 @@ Clean data before update or creating
 
 sub cleanupBeforeCommit {
     my ($self, $id, $profile) = @_;
-    $self->flatten_list($profile, qw(sources filter));
+    $self->flatten_list($profile, $self->_fields_expanded);
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(sources filter mandatory_fields);
 }
 
 __PACKAGE__->meta->make_immutable;

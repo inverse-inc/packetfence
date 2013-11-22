@@ -142,6 +142,7 @@ sub validate_selfregistration {
     # First blast at consuming portalSession object
     my $cgi     = $portalSession->getCgi();
     my $session = $portalSession->getSession();
+    my $profile = $portalSession->getProfile();
 
     # is preregistration allowed?
     if ($session->param("preregistration") && isdisabled($Config{'guests_self_registration'}{'preregistration'})) {
@@ -149,7 +150,7 @@ sub validate_selfregistration {
     }
 
     # mandatory parameters are defined in config
-    my @mandatory_fields = split( /\s*,\s*/, $Config{'guests_self_registration'}{'mandatory_fields'} );
+    my @mandatory_fields = @{$profile->getMandatoryFields || []};
 
     # no matter what is defined as mandatory, these are the minimum fields required per mode
     push @mandatory_fields, ('email') if (defined($cgi->param('by_email')));

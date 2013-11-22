@@ -189,14 +189,6 @@ gaming_devices_registration_role=
 
 [guests_self_registration]
 #
-# guests_self_registration.mandatory_fields
-#
-# Fields required to be filled in the self-registration form. Valid values are:
-# firstname, lastname, organization, phone, mobileprovider, email, 
-# sponsor_email. Basic validation of minimally required values per guest mode 
-# is provided by default.
-mandatory_fields=firstname,lastname,phone,email
-#
 # guests_self_registration.guest_pid
 #
 # What field should we assign to the pid of the guest? Defaults to email.

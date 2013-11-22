@@ -210,7 +210,9 @@ function initCreatePage(element) {
 }
 
 function initReadPage(element) {
-    $('#sources').on('admin.added','tr', function(event) {
+    updateDynamicRowsAfterRemove($('#filter'));
+    updateDynamicRowsAfterRemove($('#mandatory_fields'));
+    $('#sources,#mandatory_fields').on('admin.added','tr', function(event) {
         var row = $(this);
         var siblings = row.siblings(':not(.hidden)');
         var selected_options = siblings.find("select option:selected");
@@ -232,7 +234,6 @@ function initReadPage(element) {
             rows.find('[href="#add"]').addClass('hidden');
         }
     });
-    updateDynamicRowsAfterRemove($('#filter'));
     $('#sources').on('admin.deleted','tbody', function(event) {
         var tbody = $(this);
         var rows = tbody.children(':not(.hidden)');
@@ -244,9 +245,23 @@ function initReadPage(element) {
             rows.find('[href="#add"]').removeClass('hidden');
         }
     });
+    $('#mandatory_fields').on('admin.deleted','tbody', function(event) {
+        var tbody = $(this);
+        var rows = tbody.children(':not(.hidden)');
+        var row = rows.first();
+        var options = row.find("select option");
+        if( rows.length < options.length ) {
+            rows.find('[href="#add"]').removeClass('hidden');
+        }
+    });
     $('#sourcesEmpty').on('click','[href="#add"]', function(event) {
         $('#sources').trigger('addrow');
         $('#sourcesEmpty').addClass('hidden');
+        return false;
+    });
+    $('#mandatory_fieldsEmpty').on('click','[href="#add"]', function(event) {
+        $('#mandatory_fields').trigger('addrow');
+        $('#mandatory_fieldsEmpty').addClass('hidden');
         return false;
     });
     $('#sources').on('change','select', function(event) {

@@ -156,6 +156,19 @@ sub getSources {
 
 *sources = \&getSources;
 
+=item getMandatoryFields
+
+Returns the mandatory fields for the profile
+
+=cut
+
+sub getMandatoryFields {
+    my ($self) = @_;
+    return $self->{'_mandatory_fields'};
+}
+
+*mandatoryFields = \&getMandatoryFields;
+
 =item getSourcesAsObjects
 
 Returns the authentication sources objects for the current captive portal profile.
