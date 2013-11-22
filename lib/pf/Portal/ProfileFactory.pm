@@ -88,7 +88,7 @@ sub _custom_profile {
        'name' => $name,
        'template_path' => $name,
        'description' => $profile->{'description'} || '',
-       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources redirecturl always_use_redirecturl billing_engine filter)
+       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources redirecturl always_use_redirecturl billing_engine filter mandatory_fields)
       );
     $results{guest_modes} = _guest_modes_from_sources($results{sources});
     return \%results;
