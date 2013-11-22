@@ -84,7 +84,9 @@ BEGIN {
         %Config
         %ConfigNetworks %ConfigOAuth
         %ConfigFloatingDevices
-        $WIPS_VID @VALID_TRIGGER_TYPES $thread $default_pid $fqdn
+        $TRIGGER_TYPE_ACCOUNTING $TRIGGER_TYPE_DETECT $TRIGGER_TYPE_INTERNAL $TRIGGER_TYPE_MAC $TRIGGER_TYPE_NESSUS $TRIGGER_TYPE_OPENVAS $TRIGGER_TYPE_OS $TRIGGER_TYPE_SOH $TRIGGER_TYPE_USERAGENT $TRIGGER_TYPE_VENDORMAC @VALID_TRIGGER_TYPES
+        $ACCOUNTING_POLICY_TIME $ACCOUNTING_POLICY_BANDWIDTH
+        $WIPS_VID $thread $default_pid $fqdn
         $FALSE $TRUE $YES $NO
         $IF_INTERNAL $IF_ENFORCEMENT_VLAN $IF_ENFORCEMENT_INLINE
         $WIRELESS_802_1X $WIRELESS_MAC_AUTH $WIRED_802_1X $WIRED_MAC_AUTH $WIRED_SNMP_TRAPS $UNKNOWN $INLINE
@@ -129,20 +131,36 @@ Readonly::Scalar our $TRUE => 1;
 Readonly::Scalar our $YES => 'yes';
 Readonly::Scalar our $NO => 'no';
 
+# Violation trigger types
+Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
+Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
+Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
+Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
+Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
+Readonly::Scalar our $TRIGGER_TYPE_OPENVAS => 'openvas';
+Readonly::Scalar our $TRIGGER_TYPE_OS => 'os';
+Readonly::Scalar our $TRIGGER_TYPE_SOH => 'soh';
+Readonly::Scalar our $TRIGGER_TYPE_USERAGENT => 'useragent';
+Readonly::Scalar our $TRIGGER_TYPE_VENDORMAC => 'vendormac';
 
 Readonly our @VALID_TRIGGER_TYPES =>
   (
-   "accounting",
-   "detect",
-   "internal",
-   "mac",
-   "nessus",
-   "openvas",
-   "os",
-   "soh",
-   "useragent",
-   "vendormac"
+   $TRIGGER_TYPE_ACCOUNTING,
+   $TRIGGER_TYPE_DETECT,
+   $TRIGGER_TYPE_INTERNAL,
+   $TRIGGER_TYPE_MAC,
+   $TRIGGER_TYPE_NESSUS,
+   $TRIGGER_TYPE_OPENVAS,
+   $TRIGGER_TYPE_OS,
+   $TRIGGER_TYPE_SOH,
+   $TRIGGER_TYPE_USERAGENT,
+   $TRIGGER_TYPE_VENDORMAC
   );
+
+# Accounting trigger policies
+Readonly::Scalar our $ACCOUNTING_POLICY_TIME => 'TimeExpired';
+Readonly::Scalar our $ACCOUNTING_POLICY_BANDWIDTH => 'BandwidthExpired';
+
 
 $default_pid  = "admin";
 

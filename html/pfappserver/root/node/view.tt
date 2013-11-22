@@ -30,8 +30,12 @@
             [% form.field('regdate').render %]
             [% form.field('unregdate').render %]
             <div class="control-group">
-              <label class="control-label">[% l('Access Duration') %]</label>
-              <div class="controls">[% form.field('timeleft').render_element %] seconds</div>
+              <label class="control-label">[% l('Access Time Balance') %]</label>
+              <div class="controls">[% form.field('time_balance').render_element %] [% l('seconds') %]</div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">[% l('Bandwidth Balance') %]</label>
+              <div class="controls">[% form.field('bandwidth_balance').render_element %] [% l('kilobytes') %]</div>
             </div>
 
             <div class="control-group">

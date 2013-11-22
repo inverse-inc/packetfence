@@ -123,7 +123,7 @@ sub node_db_prepare {
     $node_statements->{'node_modify_sql'} = get_db_handle()->prepare(qq[
         UPDATE node SET
             mac=?, pid=?, category_id=?, status=?, voip=?, bypass_vlan=?,
-            detect_date=?, regdate=?, unregdate=?, lastskip=?, timeleft=?,
+            detect_date=?, regdate=?, unregdate=?, lastskip=?, time_balance=?, bandwidth_balance=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
             notes=?, autoreg=? 
@@ -133,7 +133,7 @@ sub node_db_prepare {
     $node_statements->{'node_attributes_sql'} = get_db_handle()->prepare(qq[
         SELECT mac, pid, voip, status, bypass_vlan,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            detect_date, regdate, unregdate, lastskip, timeleft,
+            detect_date, regdate, unregdate, lastskip, time_balance, bandwidth_balance,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
             node.notes, autoreg 
@@ -180,7 +180,7 @@ sub node_db_prepare {
     $node_statements->{'node_view_sql'} = get_db_handle()->prepare(<<'    SQL');
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status, node.category_id,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip, node.timeleft,
+            node.detect_date, node.regdate, node.unregdate, node.lastskip, node.time_balance, node.bandwidth_balance,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             node.notes, autoreg,
@@ -777,7 +777,7 @@ sub node_modify {
         $new_mac, $existing->{pid}, $existing->{category_id}, $existing->{status}, $existing->{voip},
         $existing->{bypass_vlan},
         $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate},
-        $existing->{lastskip}, $existing->{timeleft},
+        $existing->{lastskip}, $existing->{time_balance}, $existing->{bandwidth_balance},
         $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
         $existing->{last_arp}, $existing->{last_dhcp},
         $existing->{notes},$existing->{autoreg},

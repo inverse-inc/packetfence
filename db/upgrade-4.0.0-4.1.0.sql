@@ -17,3 +17,8 @@ UPDATE temporary_password SET access_level = 'NONE' WHERE access_level = '0';
 --
 
 ALTER TABLE `node` ADD `autoreg` enum('no','yes') NOT NULL DEFAULT 'no' AFTER voip;
+
+---
+--- Add a column to store the remaining available bandwidth usage of a node
+---
+ALTER TABLE node ADD `bandwidth_balance` int unsigned AFTER `time_balance`;
