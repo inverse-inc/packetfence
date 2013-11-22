@@ -32,14 +32,23 @@ inline_accounting_import_ulogd_data is called
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
+First, conntrack accounting must be enabled in the kernel,
+otherwise, ulogd would always report 0 bytes sessions:
+
+ sysctl net.netfilter.nf_conntrack_acct=1
+ echo net.netfilter.nf_conntrack_acct=1 >>/etc/sysctl.conf
+
+ulogd is used to collect session 'destroy' events from nf_conntrack.
+This is done by using the ulogd_inpflow_NFCT.so module.
+These events contains accounting information such as sent/received bytes and packets,
+along with source and destination ip.
+Once the events reach ulogd, they are sent to a mysql MEMORY table using the ulogd_output_MYSQL.so module.
+The actual insert into that table is carried out by a mysql stored procedure.
+Some utility functions for ip address conversions must also be created in mysql.
+
 ulogd2 >= 2.0.2 should be used when possible since it provides the ability to define accept filters.
-ulogd must be configured to gather events with the ulogd_inpflow_NFCT.so module.
-These events must be sent to a mysql MEMORY table using the ulogd_output_MYSQL.so module.
-The actual insert into that table is be done by a mysql stored procedure.
-Some utility functions for ip address conversion must also be created in mysql.
 
-
-First, install ulogd2 along with its mysql module:
+To install ulogd2 along with its mysql module:
  apt-get install ulogd2 ulogd2-mysql>
 
 =head2 CONNTRACK TIMEOUTS
@@ -50,11 +59,12 @@ events a bit faster than the default.
 For example:
  sysctl net.netfilter.nf_conntrack_tcp_timeout_time_wait=30
 
-This should be put into F</etc/sysctl.conf>
+This should be put into F</etc/sysctl.conf> :
+ echo net.netfilter.nf_conntrack_tcp_timeout_time_wait=30 >>/etc/sysctl.conf
 
 =head2 NETLINK STATISTICS / BUFFER TUNING
 
-When updating the real accounting table, inline_accounting_import_ulogd_data
+When updating the real accounting table, C<inline_accounting_import_ulogd_data>
 will lock the memory table. During this time, ulog/netlink will buffer its data.
 To see if the defined buffer is big enough, look into /proc/net/netlink while
 the table is locked. (See C<netlink_socket_buffer_maxsize> in F<ulogd.conf>)
@@ -83,6 +93,7 @@ Here's a sample ulogd configuration file:
  plugin="/usr/lib64/ulogd/ulogd_inpflow_NFACCT.so"
  
  stack=ct1:NFCT,ip2bin1:IP2BIN,mysql2:MYSQL
+ stack=ct1:NFCT,ip2str1:IP2STR,print1:PRINTFLOW,emu1:LOGEMU
  
  [ct1]
  event_mask=0x00000004 # only get destroy events
@@ -100,8 +111,9 @@ Here's a sample ulogd configuration file:
  pass="password"
  procedure="INSERT_BYTES"
  
- [syslog1]
- facility=LOG_LOCAL2
+ [emu1]
+ file="/var/log/ulog/syslogemu.log"
+ sync=1
 
  
 =head2 MYSQL SETUP
@@ -155,6 +167,7 @@ This is the actual accounting table. This module will import data from the memor
    `src_ip` varchar(16) NOT NULL,
    `firstseen` DATETIME NOT NULL,
    `lastmodified` DATETIME NOT NULL,
+   `status` int unsigned NOT NULL default 0, -- ACTIVE
    PRIMARY KEY (`src_ip`, `firstseen`),
    INDEX (`src_ip`)
  ) ENGINE=InnoDB;
@@ -241,6 +254,7 @@ against the captive portal
 
 
 Once the tables and procedures are created, ulogd should be able to start logging properly.
+
 =cut
 
 use strict;
@@ -252,6 +266,12 @@ use Readonly;
 
 my $mem_table = 'inline_accounting_mem';
 my $accounting_table = 'inline_accounting';
+
+my $ACTIVE = 0;
+my $INACTIVE = 1;
+my $ANALYZED = 3;
+
+my $BANDWIDTH_VID = 1200003;
 
 BEGIN {
     use Exporter ();
@@ -292,12 +312,16 @@ sub accounting_db_prepare {
 
     $accounting_statements->{'accounting_select_all_ip_stats_mem_sql'} =
       get_db_handle()->prepare(qq[
-        SELECT src_ip, inbytes, outbytes, firstseen, lastmodified from $mem_table
+        SELECT src_ip, inbytes, outbytes, firstseen, lastmodified,
+          IF(lastmodified < NOW() - ?, $INACTIVE, $ACTIVE) as status
+        FROM $mem_table
       ]);
 
     $accounting_statements->{'accounting_select_single_ip_stats_mem_sql'} =
       get_db_handle()->prepare(qq[
-        SELECT src_ip, inbytes, outbytes, firstseen, lastmodified from $mem_table
+        SELECT src_ip, inbytes, outbytes, firstseen, lastmodified, $INACTIVE as status
+        FROM $mem_table
+        WHERE src_ip = ?
       ]);
 
     $accounting_statements->{'accounting_delete_all_mem_sql'} =
@@ -322,18 +346,53 @@ sub accounting_db_prepare {
 
     $accounting_statements->{'accounting_add_active_session_sql'} = 
       get_db_handle()->prepare(qq[
-        INSERT into $accounting_table(src_ip, firstseen, lastmodified, outbytes, inbytes)
-          VALUES (?, ?, ?, ?, ?)
+        INSERT into $accounting_table(src_ip, firstseen, lastmodified, outbytes, inbytes, status)
+          VALUES (?, ?, ?, ?, ?, ?)
           ON DUPLICATE KEY UPDATE
             lastmodified = ?,
             outbytes = ?,
-            inbytes = ?
+            inbytes = ?,
+            status = ?
       ]);
 
-    $accounting_statements->{'accounting_select_single_ip_stats_sql'} =
+    $accounting_statements->{'accounting_select_bandwidth_stats_sql'} =
       get_db_handle()->prepare(qq[
-        SELECT src_ip, inbytes, outbytes, firstseen, lastmodified
-          from $mem_table where src_ip = ?
+        SELECT a.src_ip, a.lastmodified, (a.outbytes+a.inbytes) as consumedbytes, (n.bandwidth_balance - totalbytes) as deltabytes
+        FROM inline_accounting a, iplog i, node n
+        WHERE a.src_ip = i.ip
+          AND i.mac = n.mac
+          AND n.bandwidth_balance IS NOT NULL
+          AND a.status = $INACTIVE
+      ]);
+
+    $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE node n SET n.bandwidth_balance = (
+          SELECT n.bandwidth_balance - SUM(a.outbytes+a.inbytes)
+          FROM $accounting_table a, iplog i
+          WHERE a.src_ip = i.ip
+            AND i.end_time = 0
+            AND i.mac = n.mac
+            AND a.status = $INACTIVE
+        )
+        WHERE n.bandwidth_balance > 0
+      ]);
+
+    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE $accounting_table
+          SET status = $ANALYZED
+          WHERE status = $INACTIVE
+      ]);
+
+    $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
+      get_db_handle()->prepare(qq[
+        SELECT n.mac
+        FROM node n
+        LEFT JOIN iplog i ON i.mac = n.mac AND i.end_time = 0
+        LEFT JOIN $accounting_table a ON i.ip = a.src_ip AND a.status = $ACTIVE
+        WHERE n.bandwidth_balance = 0
+           OR ((n.bandwidth_balance - a.outbytes - a.inbytes) <= 0)
       ]);
 
     $accounting_db_prepared = 1;
@@ -376,10 +435,12 @@ sub inline_accounting_import_ulogd_data {
     } else {
       $new_data_query = db_query_execute("inline::accounting",
                               $accounting_statements,
-                              'accounting_select_all_ip_stats_mem_sql') || return (0);
+                              'accounting_select_all_ip_stats_mem_sql',
+                              $accounting_session_timeout) || return (0);
     }
 
     my $new_accounting_data = $new_data_query->fetchall_arrayref();
+    my $dropall=0;
 
     if (defined $ip) {
         # This is done to ensure that new stats will create a new 'session'
@@ -389,7 +450,6 @@ sub inline_accounting_import_ulogd_data {
                          'accounting_drop_single_ip_stats_mem_sql', $ip);
     } else {
         # This drop all logic must be done only when called for all ips
-        my $dropall=0;
         for my $row (@$new_accounting_data) {
           # this is kind of crude, but should be good enough to detect day changes
           # 2013-10-25 10:01:02
@@ -422,13 +482,37 @@ sub inline_accounting_import_ulogd_data {
         my $outbytes = $$row[2];
         my $firstseen = $$row[3];
         my $lastmodified = $$row[4];
+        my $status = $dropall? $INACTIVE : $$row[5];
         db_query_execute("inline::accounting", $accounting_statements, 'accounting_add_active_session_sql',
                          $src_ip, $firstseen, $lastmodified,
                          $outbytes, $inbytes,
-                         $lastmodified, $outbytes, $inbytes);
+                         $lastmodified, $outbytes, $inbytes, $status);
 
     }
 
+}
+
+sub inline_accounting_maintenance {
+    # Update the bandwidth balance of nodes by subtracting consumed bandwidth of inactive sessions
+    db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+
+    # Extract nodes with no more bandwidth left (considering also active sessions)
+    my $bandwidth_query = db_query_execute('inline::acounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
+    if ($bandwidth_query) {
+        while (my $row = $bandwidth_query->fetrow_arrayref()) {
+            # Trigger violation
+            violation_add($mac, $BANDWIDTH_VID);
+
+            # Stop counters of active network sessions
+            inline_accounting_import_ulogd_data($row->[0]);
+        }
+
+        # Update bandwidth balance with new inactive sessions
+        db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+    }
+
+    # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
+    db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
 }
 
 
