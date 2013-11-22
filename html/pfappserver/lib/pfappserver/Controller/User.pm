@@ -68,6 +68,22 @@ after _list_items => sub {
 
 };
 
+=head2 after _list_items
+
+The method _list_items comes from pfappserver::Base::Controller and is called from Base::Action::SimpleSearch.
+
+=cut
+
+after _list_items => sub {
+    my ( $self, $c ) = @_;
+    my ( $status, $roles, $violations );
+    ( $status, $roles ) = $c->model('Roles')->list();
+    $c->stash( roles => $roles );
+    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
+    $c->stash( violations => $violations );
+
+};
+
 =head2 object
 
 User controller dispatcher
