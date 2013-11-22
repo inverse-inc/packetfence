@@ -1909,7 +1909,7 @@ The format of the duration is as follow:
 Let's explain the meaning of each parameter:
 
 [options="compact"]
-* `DURATION`: a number corresponding to the period duration
+* `DURATION`: a number corresponding to the period duration.
 * `DATETIME_UNIT`: a character corresponding to the units of the date or time duration; either s (seconds), m (minutes), h (hours), D (days), W (weeks), M (months), or Y (years).
 * `PERIOD_BASE`: either F (fixed) or R (relative). A relative period is computed from the beginning of the period unit. Weeks start on Monday.
 * `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
