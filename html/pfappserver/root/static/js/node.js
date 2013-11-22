@@ -61,7 +61,7 @@ var NodeView = function(options) {
 
     this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
 
-    this.proxyClick($('body'), '#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
+    this.proxyClick($('body'), '#node_bulk_actions .bulk_action', this.submitItems);
 
     this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
         /* Enable autocompletion of owner on tab of single node creation */
@@ -362,7 +362,9 @@ NodeView.prototype.submitItems = function(e) {
             url: target.attr("data-target"),
             data: items,
             success: function(data) {
-                showSuccess(status_container, data.status_msg);
+                $("#section").one('section.loaded', function() {
+                    showSuccess($("#section").find('h2').first(), data.status_msg);
+                });
                 $(window).hashchange();
             },
             errorSibling: status_container

@@ -22,9 +22,11 @@ use pfappserver::Form::Node;
 use pfappserver::Form::Node::Create::Import;
 
 BEGIN { extends 'pfappserver::Base::Controller'; }
+with 'pfappserver::Role::Controller::BulkActions';
 
 __PACKAGE__->config(
     action_args => {
+        '*' => { model => 'Node' },
         advanced_search => { model => 'Search::Node', form => 'AdvancedSearch' },
     }
 );
@@ -36,7 +38,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) :AdminRole('NODES_READ') {
+sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     $c->go('simple_search');
 }
@@ -45,7 +47,7 @@ sub index :Path :Args(0) :AdminRole('NODES_READ') {
 
 =cut
 
-sub simple_search :SimpleSearch('Node') :Local :Args() :AdminRole('NODES_READ') { }
+sub simple_search :SimpleSearch('Node') :Local :Args() { }
 
 =head2 after _list_items
 
@@ -56,8 +58,11 @@ The method _list_items comes from pfappserver::Base::Controller and is called fr
 after _list_items => sub {
     my ($self, $c) = @_;
 
-    my ($status,$roles) = $c->model('Roles')->list();
+    my ( $status, $roles, $violations );
+    ($status,$roles) = $c->model('Roles')->list();
     $c->stash(roles => $roles);
+    ( $status, $violations ) = $c->model('Config::Violations')->readAll();
+    $c->stash( violations => $violations );
 
     unless ($c->session->{'nodecolumns'}) {
         # Set default visible columns
@@ -73,9 +78,9 @@ Perform an advanced search using the Search::Node model
 
 =cut
 
-sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
+sub advanced_search :Local :Args() {
     my ($self, $c, @args) = @_;
-    my ($status, $status_msg, $result);
+    my ($status, $status_msg, $result, $violations);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
@@ -107,9 +112,11 @@ sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
     }
 
     (undef, $result) = $c->model('Roles')->list();
+    (undef, $violations ) = $c->model('Config::Violations')->readAll();
     $c->stash(
         status_msg => $status_msg,
-        roles => $result
+        roles => $result,
+        violations => $violations,
     );
     $c->response->status($status);
 }
@@ -219,7 +226,7 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') {
+sub view :Chained('object') :PathPart('read') :Args(0) {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
@@ -256,7 +263,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') 
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
+sub update :Chained('object') :PathPart('update') :Args(0) {
     my ( $self, $c ) = @_;
 
     my ($status, $message);
@@ -286,7 +293,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPD
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DELETE') {
+sub delete :Chained('object') :PathPart('delete') :Args(0) {
     my ( $self, $c ) = @_;
 
     my ($status, $message) = $c->model('Node')->delete($c->stash->{mac});
@@ -301,7 +308,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DEL
 
 =cut
 
-sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
+sub violations :Chained('object') :PathPart :Args(0) {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
@@ -322,7 +329,7 @@ sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
 
 =cut
 
-sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
+sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Config::Violations')->hasId($id);
     if (is_success($status)) {
@@ -342,104 +349,12 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole
 
 =cut
 
-sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
+sub closeViolation :Path('close') :Args(1) {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
     $c->response->status($status);
     $c->stash->{status_msg} = $result;
     $c->stash->{current_view} = 'JSON';
-}
-
-=head2 bulk_close
-
-=cut
-
-sub bulk_close: Local :AdminRole('NODES_UPDATE') {
-    my ($self, $c) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ($status, $status_msg);
-    my $request = $c->request;
-    if ($request->method eq 'POST') {
-        my @ids = $request->param('items');
-        ($status, $status_msg) = $c->model('Node')->bulkCloseViolations(@ids);
-    }
-    else {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = "";
-    }
-    $c->response->status($status);
-    $c->stash(
-        status_msg => $status_msg,
-    );
-}
-
-=head2 bulk_register
-
-=cut
-
-sub bulk_register: Local :AdminRole('NODES_UPDATE') {
-    my ($self, $c) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ($status, $status_msg);
-    my $request = $c->request;
-    if ($request->method eq 'POST') {
-        my @ids = $request->param('items');
-        ($status, $status_msg) = $c->model('Node')->bulkRegister(@ids);
-    }
-    else {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = "";
-    }
-    $c->response->status($status);
-    $c->stash(
-        status_msg => $status_msg,
-    );
-}
-
-=head2 bulk_deregister
-
-=cut
-
-sub bulk_deregister: Local :AdminRole('NODES_UPDATE') {
-    my ($self, $c) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ($status, $status_msg);
-    my $request = $c->request;
-    if ($request->method eq 'POST') {
-        my @ids = $request->param('items');
-        ($status, $status_msg) = $c->model('Node')->bulkDeregister(@ids);
-    }
-    else {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = "";
-    }
-    $c->response->status($status);
-    $c->stash(
-        status_msg => $status_msg,
-    );
-}
-
-=head2 bulk_apply_role
-
-=cut
-
-sub bulk_apply_role: Local : Args(1) :AdminRole('NODES_UPDATE') {
-    my ($self, $c, $role) = @_;
-    $c->stash->{current_view} = 'JSON';
-    my ($status, $status_msg);
-    my $request = $c->request;
-    if ($request->method eq 'POST') {
-        my @ids = $request->param('items');
-        ($status, $status_msg) = $c->model('Node')->bulkApplyRole($role,@ids);
-    }
-    else {
-        $status = HTTP_BAD_REQUEST;
-        $status_msg = "";
-    }
-    $c->response->status($status);
-    $c->stash(
-        status_msg => $status_msg,
-    );
 }
 
 =head1 AUTHOR

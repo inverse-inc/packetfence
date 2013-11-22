@@ -76,6 +76,8 @@ var UserView = function(options) {
 
     this.proxyClick($('body'), '#modalPasswords a[href$="print"]', this.printPasswordFromForm);
 
+    this.proxyClick($('body'), '#user_bulk_actions .bulk_action', this.submitItems);
+
     $('body').on('change', '#ruleActions select[name$=type]', function(event) {
         /* Update the rule action fields when changing an action type */
         updateAction($(this));
@@ -421,4 +423,36 @@ UserView.prototype.advancedSearchUpdater = function(e) {
         form.submit();
     }
     return false;
+};
+
+UserView.prototype.submitItems = function(e) {
+    var target = $(e.currentTarget);
+    var section = $('#section');
+    var status_container = $("#section").find('h2').first();
+    var items = $("#items").serialize();
+    var users = this.users;
+    if (items.length) {
+        if (section) {
+            $("body,html").animate({scrollTop:0}, 'fast');
+            var loader = section.prev('.loader');
+            loader.show();
+            section.fadeTo('fast', 0.5, function() {
+                users.post({
+                    url: target.attr("data-target"),
+                    data: items,
+                    success: function(data) {
+                        $("#section").one('section.loaded', function() {
+                            showSuccess($("#section").find('h2').first(), data.status_msg);
+                        });
+                        $(window).hashchange();
+                    },
+                    always: function(data) {
+                        loader.hide();
+                        section.fadeTo('fast', 1.0);
+                    },
+                    errorSibling: status_container
+                });
+            });
+        }
+    }
 };

@@ -5,7 +5,7 @@
     END;
     params = { by => column, filter => filter, direction => new_direction };
     IF c.session.nodecolumns.$column %]
-      <th[% " class=\"$class\"" IF class %]><a href="[% c.pf_hash_for(c.controller('Node').action_for('simple_search'), 'filter', filter, 'by', column, 'direction', new_direction) %]">[% l(title) %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]">[% END %]</i></a></th>
+      <th[% " class=\"$class\"" IF class %]><a href="[% c.pf_hash_for(c.action, 'filter', filter, 'by', column, 'direction', new_direction) %]">[% l(title) %][% IF by == column %] <i class="icon-sort-[% IF new_direction == 'desc' %]down[% ELSE %]up[% END %]">[% END %]</i></a></th>
       [%- END %]
 [% END -%]
 
@@ -16,28 +16,9 @@
             <h2>
               [% l('Results') %]
             </h2>
-            <div class="btn-group">
-              <a id="bulk_actions" class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="icon-cog"></i> [% l('Action') %]
-                <i class="icon-angle-down"></i>
-              </a>
-              <ul class="dropdown-menu">
-                <li class="disabled"><a id="clear_violations" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_close'))  %]" >[% l('Clear Violation') %]</a></li>
-                <li class="disabled"><a id="bulk_register" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_register'))  %]" >[% l('Register') %]</a></li>
-                <li class="disabled"><a id="bulk_deregister" data-target="[% c.uri_for(c.controller('Node').action_for('bulk_deregister'))  %]">[% l('Deregister') %]</a></li>
-                <li class="divider"></li>
-                <li class="dropdown-submenu">
-                  <a tabindex="-1">[% l('Apply Role') %]</a>
-                  <ul class="dropdown-menu" id="apply_roles">
-                    [% FOREACH role IN roles %]
-                    <li class="disabled"><a data-target="[% c.uri_for(c.controller('Node').action_for('bulk_apply_role'),[role.category_id])  %]">[% role.name %]</a></li>
-                    [% END %]
-                  </ul>
-                </li>
-              </ul>
-            </div>
+            [% INCLUDE admin/bulk_actions.inc id="node_bulk_actions"%]
             <div class="btn-group hidden-phone">
-              <form action="[% c.uri_for(c.controller('Node').action_for('simple_search'), 'filter', filter, 'by', column, 'direction', new_direction, 'page_num', page_num, 'per_page', per_page) %]" method="POST">
+              <form action="[% c.uri_for(c.action, 'filter', filter, 'by', column, 'direction', new_direction, 'page_num', page_num, 'per_page', per_page) %]" method="POST">
               <a class="btn btn-link btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                 <i class="icon-columns"></i> [% l('Columns') %]
                 <i class="icon-angle-down"></i>
@@ -85,7 +66,7 @@
                     <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.mac %]
-                    <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
+                    <td><a href="[% c.uri_for(c.controller.action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
                     [%- END %]
                     [%- IF c.session.nodecolumns.detect_date %]
                     <td>[% node.detect_date %]</td>
