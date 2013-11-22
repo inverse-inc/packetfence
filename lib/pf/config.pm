@@ -597,16 +597,20 @@ sub readProfileConfigFile {
     $cached_profiles_config = pf::config::cached->new(
             -file => $profiles_config_file,
             -allowempty => 1,
+            -default => 'default',
             -onreload => [ 'reload_profile_config' => sub {
                 my ($config,$name) = @_;
                 $config->toHash(\%Profiles_Config);
                 $config->cleanupWhitespace(\%Profiles_Config);
+                my $default_description = $Profiles_Config{'default'}{'description'};
                 while (my ($profile_id, $profile) = each %Profiles_Config) {
-                    $profile->{'filter'} = [split(/\s*,\s*/, $profile->{'filter'} || "")];
+                    $profile->{'description'} = '' if $profile_id ne 'default' && $profile->{'description'} eq $default_description;
+                    foreach my $field (qw(mandatory_fields sources filter) ) {
+                        $profile->{$field} = [split(/\s*,\s*/, $profile->{$field} || "")];
+                    }
                     foreach my $filter (@{$profile->{'filter'}}) {
                         $Profile_Filters{$filter} = $profile_id;
                     }
-                    $profile->{'sources'} = [split(/\s*,\s*/, $profile->{'sources'} || "")];
                 }
             }]
     );
