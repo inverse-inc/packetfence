@@ -523,6 +523,21 @@ sub _closeViolation{
     return $result;
 }
 
+=head2 bulkApplyViolation
+
+=cut
+
+sub bulkApplyViolation {
+    my ($self, $violation_id, @macs) = @_;
+    my $count = 0;
+    foreach my $mac (@macs) {
+        my ($last_id) = violation_add( $mac, $violation_id);
+        $count++ if $last_id > 0;;
+    }
+    return ($STATUS::OK, ["[_1] violation(s) were opened.",$count]);
+}
+
+
 =head2 _graphIplogHistory
 
 The associated HTML template to show the graph could look like this:
