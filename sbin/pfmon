@@ -192,7 +192,7 @@ sub cleanup {
             if (isenabled($Config{'inline'}{'accounting'})) {
                 $logger->info("importing inline accounting data from ulogd table");
                 inline_accounting_import_ulogd_data($Config{'inline'}{'accounting_session_timeout'});
-                # FIXME update acct_maintenance for bandwidth abuse from inline users
+                inline_accounting_maintenance($Config{'inline'}{'accounting_session_timeout'});
             }
 
             $logger->info("checking accounting data for potential bandwidth abuse");

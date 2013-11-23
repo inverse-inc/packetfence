@@ -358,7 +358,7 @@ sub acct_maintenance {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->info("getting violations triggers for accounting cleanup");
 
-    my @triggers = trigger_view_type("accounting");
+    my @triggers = trigger_view_type($TRIGGER_TYPE_ACCOUNTING);
 
     foreach my $acct_triggers (@triggers) {
         my $acct_policy = $acct_triggers->{'tid_start'};

@@ -234,14 +234,15 @@ against the captive portal
  #    END IF;
      
      IF EXISTS (SELECT orig_ip_saddr_bin from inline_accounting_mem where orig_ip_saddr_bin = _orig_ip_saddr_bin) THEN
-       UPDATE inline_accounting_mem SET  outbytes=outbytes+_orig_bytes,
-                                  inbytes=inbytes+_reply_bytes,
-                                  lastmodified=NOW(),
-                                  nupdates=nupdates+1  
-                                  WHERE orig_ip_saddr_bin = _orig_ip_saddr_bin;
+       UPDATE inline_accounting_mem SET
+         outbytes=outbytes+_orig_bytes,
+         inbytes=inbytes+_reply_bytes,
+         lastmodified=NOW(),
+         nupdates=nupdates+1
+       WHERE orig_ip_saddr_bin = _orig_ip_saddr_bin;
      ELSE
-       INSERT INTO inline_accounting_mem(orig_ip_saddr_bin,outbytes,inbytes,src_ip, firstseen, lastmodified, nupdates)
-         VALUES (_orig_ip_saddr_bin, _orig_bytes,_reply_bytes,BIN_TO_IPV4(_orig_ip_saddr_bin), NOW(), NOW(), 1)
+       INSERT INTO inline_accounting_mem(orig_ip_saddr_bin, outbytes, inbytes, src_ip, firstseen, lastmodified, nupdates)
+         VALUES (_orig_ip_saddr_bin, _orig_bytes, _reply_bytes, BIN_TO_IPV4(_orig_ip_saddr_bin), NOW(), NOW(), 1)
        ON DUPLICATE KEY UPDATE
          outbytes=outbytes+_orig_bytes,
          inbytes=inbytes+_reply_bytes,
@@ -331,12 +332,12 @@ sub accounting_db_prepare {
 
     $accounting_statements->{'accounting_drop_single_ip_stats_mem_sql'} = 
       get_db_handle()->prepare(qq[
-        DELETE FROM $mem_table where `src_ip` =  ?
+        DELETE FROM $mem_table WHERE `src_ip` =  ?
       ]);
 
     $accounting_statements->{'accounting_drop_inactive_sessions_mem_sql'} = 
       get_db_handle()->prepare(qq[
-        DELETE FROM $mem_table where `lastmodified` < NOW() - ?
+        DELETE FROM $mem_table WHERE `lastmodified` < NOW() - ?
       ]);
 
     $accounting_statements->{'accounting_reset_autoincrement_mem_sql'} =
@@ -395,17 +396,38 @@ sub accounting_db_prepare {
            OR ((n.bandwidth_balance - a.outbytes - a.inbytes) <= 0)
       ]);
 
+    $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE node n SET n.bandwidth_balance = (
+          SELECT n.bandwidth_balance - SUM(a.outbytes+a.inbytes)
+          FROM $accounting_table a, iplog i
+          WHERE a.src_ip = i.ip
+            AND i.end_time = 0
+            AND i.mac = n.mac
+            AND a.status = $INACTIVE
+        )
+        WHERE n.bandwidth_balance > 0
+      ]);
+
+    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE $accounting_table
+          SET status = $ANALYZED
+          WHERE status = $INACTIVE
+      ]);
+
+    $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
+      get_db_handle()->prepare(qq[
+        SELECT n.mac, i.ip
+        FROM node n, iplog i
+        LEFT JOIN $accounting_table a ON i.ip = a.src_ip AND a.status = $ACTIVE
+        WHERE n.mac = i.mac
+          AND i.end_time = 0
+          AND (n.bandwidth_balance = 0
+               OR ((n.bandwidth_balance - a.outbytes - a.inbytes) <= 0))
+      ]);
+
     $accounting_db_prepared = 1;
-}
-
-
-sub inline_accounting_stats_for_ip {
-    # $ip: ip to get stats for
-    # $starttime:  get stats from that time until $endtime
-    # $endtime
-    # By default it will fetch / add all rows/stats for the requested ip
-    my ($ip, $starttime, $endtime) = @_;
-
 }
 
 sub inline_accounting_import_ulogd_data {
@@ -417,7 +439,7 @@ sub inline_accounting_import_ulogd_data {
     # the stats for that ip only and then delete its row in the mem table.
     # This is done to ensure that new statistics will be part of a new
     # accounting session
-    my ($accounting_session_timeout, $ip)= @_;
+    my ($accounting_session_timeout, $ip) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("Importing ulogd data");
 
@@ -487,32 +509,42 @@ sub inline_accounting_import_ulogd_data {
                          $src_ip, $firstseen, $lastmodified,
                          $outbytes, $inbytes,
                          $lastmodified, $outbytes, $inbytes, $status);
-
     }
 
 }
 
 sub inline_accounting_maintenance {
-    # Update the bandwidth balance of nodes by subtracting consumed bandwidth of inactive sessions
-    db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+    my $accounting_session_timeout = shift;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # Extract nodes with no more bandwidth left (considering also active sessions)
-    my $bandwidth_query = db_query_execute('inline::acounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
-    if ($bandwidth_query) {
-        while (my $row = $bandwidth_query->fetrow_arrayref()) {
-            # Trigger violation
-            violation_add($mac, $BANDWIDTH_VID);
+    # Fetch violations that use the 'Accounting::BandwidthExpired' trigger
+    my @tid = trigger_view_tid($ACCOUNTING_POLICY_BANDWIDTH);
+    if (scalar(@tid) > 0) {
+        my $violation_id = $tid[0]{'vid'}; # only consider the first violation
+        $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING::$ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
 
-            # Stop counters of active network sessions
-            inline_accounting_import_ulogd_data($row->[0]);
+        # Update the bandwidth balance of nodes by subtracting consumed bandwidth of inactive sessions
+        db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+
+        # Extract nodes with no more bandwidth left (considering also active sessions)
+        my $bandwidth_query = db_query_execute('inline::acounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
+        if ($bandwidth_query) {
+            while (my $row = $bandwidth_query->fetrow_arrayref()) {
+                my ($mac, $ip) = @$row;
+                # Trigger violation
+                violation_trigger($mac, $violation_id, $TRIGGER_TYPE_ACCOUNTING);
+
+                # Stop counters of active network sessions for this node
+                inline_accounting_import_ulogd_data($accounting_session_timeout, $ip);
+            }
+
+            # Update bandwidth balance with new inactive sessions
+            db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
         }
 
-        # Update bandwidth balance with new inactive sessions
-        db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+        # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
+        db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
     }
-
-    # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
-    db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
 }
 
 
