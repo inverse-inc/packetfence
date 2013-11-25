@@ -41,7 +41,7 @@ __PACKAGE__->config(
 
 =head1 METHODS
 
-=head begin
+=head2 begin
 
 =cut
 
