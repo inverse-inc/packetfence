@@ -283,12 +283,15 @@ BEGIN {
         $inline_accounting_db_prepared
 
         inline_accounting_import_ulogd_data
+        inline_accounting_maintenance
     );
 }
 
 use pf::config;
 use pf::config::cached;
 use pf::db;
+use pf::trigger;
+use pf::violation;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
 our $accounting_db_prepared = 0;
@@ -314,7 +317,7 @@ sub accounting_db_prepare {
     $accounting_statements->{'accounting_select_all_ip_stats_mem_sql'} =
       get_db_handle()->prepare(qq[
         SELECT src_ip, inbytes, outbytes, firstseen, lastmodified,
-          IF(lastmodified < NOW() - ?, $INACTIVE, $ACTIVE) as status
+          IF(lastmodified < NOW() - INTERVAL ? SECOND, $INACTIVE, $ACTIVE) as status
         FROM $mem_table
       ]);
 
@@ -337,7 +340,7 @@ sub accounting_db_prepare {
 
     $accounting_statements->{'accounting_drop_inactive_sessions_mem_sql'} = 
       get_db_handle()->prepare(qq[
-        DELETE FROM $mem_table WHERE `lastmodified` < NOW() - ?
+        DELETE FROM $mem_table WHERE `lastmodified` < NOW() - INTERVAL ? SECOND
       ]);
 
     $accounting_statements->{'accounting_reset_autoincrement_mem_sql'} =
@@ -475,9 +478,9 @@ sub inline_accounting_import_ulogd_data {
         for my $row (@$new_accounting_data) {
           # this is kind of crude, but should be good enough to detect day changes
           # 2013-10-25 10:01:02
-            $$row[-1] =~ /\d+-\d+-(\d+) /;
+            $$row[4] =~ /\d+-\d+-(\d+) /;
             my $lastmodified_day = $1;
-            $$row[-2] =~ /\d+-\d+-(\d+) /;
+            $$row[3] =~ /\d+-\d+-(\d+) /;
             my $firstseen_day = $1;
     
             if ($firstseen_day != $lastmodified_day) {
@@ -505,9 +508,10 @@ sub inline_accounting_import_ulogd_data {
         my $firstseen = $$row[3];
         my $lastmodified = $$row[4];
         my $status = $dropall? $INACTIVE : $$row[5];
+        $logger->trace("Importing session: $src_ip, firstseen:$firstseen lastmodified:$lastmodified outbytes:$outbytes inbytes:$inbytes ($status)");
         db_query_execute("inline::accounting", $accounting_statements, 'accounting_add_active_session_sql',
                          $src_ip, $firstseen, $lastmodified,
-                         $outbytes, $inbytes,
+                         $outbytes, $inbytes, $status,
                          $lastmodified, $outbytes, $inbytes, $status);
     }
 
@@ -529,10 +533,10 @@ sub inline_accounting_maintenance {
         # Extract nodes with no more bandwidth left (considering also active sessions)
         my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
         if ($bandwidth_query) {
-            while (my $row = $bandwidth_query->fetrow_arrayref()) {
+            while (my $row = $bandwidth_query->fetchrow_arrayref()) {
                 my ($mac, $ip) = @$row;
                 # Trigger violation
-                violation_trigger($mac, $TRIGGER_TYPE_ACCOUNTING, $ACCOUNTING_POLICY_BANDWIDTH);
+                violation_trigger($mac, $ACCOUNTING_POLICY_BANDWIDTH, $TRIGGER_TYPE_ACCOUNTING);
 
                 # Stop counters of active network sessions for this node
                 inline_accounting_import_ulogd_data($accounting_session_timeout, $ip);
