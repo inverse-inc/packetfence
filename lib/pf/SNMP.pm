@@ -742,6 +742,14 @@ sub getVlanByName {
     my ($this, $vlanName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
+    if (defined($this->{'_roles'}) && defined($this->{'_roles'}->{$vlanName})){
+        $logger->info("Resolved user defined role $vlanName as $this->{'_roles'}->{$vlanName}");
+        $vlanName = $this->{'_roles'}->{$vlanName};
+    }
+    else{
+        $logger->info("Couldn't resolve role. This is normal if node isn't assigned a user defined role.");
+    }
+    
     if (!defined($this->{'_vlans'}) || !defined($this->{'_vlans'}->{$vlanName})) {
         # VLAN name doesn't exist
         $logger->warn("No parameter ${vlanName}Vlan found in conf/switches.conf for the switch " . $this->{_ip});
