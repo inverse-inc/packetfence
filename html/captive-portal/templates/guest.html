@@ -56,6 +56,16 @@
             [% END %]
           </div>
           [% END %]
+          [% skipFields = {firstname => undef, lastname => undef, organization => undef, phone => undef} %]
+          [% FOREACH field IN mandatory_fields %]
+          [%- NEXT IF skipFields.exists(field) -%]
+          [%- NEXT IF field == "mobileprovider" && sms_guest_allowed -%]
+          [%- NEXT IF field == "sponsor_email" && sponsored_guest_allowed  -%]
+          <div class="input">
+            <span>[% i18n(field) %]</span>
+            <input class="field" name="[%field%]" type="text" value="" /><br/>
+          </div>
+          [% END %]
 
           [%# AUP %]
           <div class="input">
