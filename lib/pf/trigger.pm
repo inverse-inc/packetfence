@@ -204,7 +204,11 @@ sub parse_triggers {
 
         # special accouting only trigger parser
         if ($type eq 'accounting') {
-            die("Invalid accounting trigger id: $trigger") if ($tid !~ /^$ACCOUNTING_TRIGGER_RE$/);
+            unless ($tid =~ /^$ACCOUNTING_TRIGGER_RE$/ ||
+                    $tid eq $ACCOUNTING_POLICY_TIME ||
+                    $tid eq $ACCOUNTING_POLICY_BANDWIDTH) {
+                die("Invalid accounting trigger id: $trigger");
+            }
         }
         # usual trigger allowing digits, ranges and dots with optional trailing whitespace
         else {

@@ -524,26 +524,26 @@ sub inline_accounting_maintenance {
         $logger->debug("Violation $violation_id is of type $TRIGGER_TYPE_ACCOUNTING::$ACCOUNTING_POLICY_BANDWIDTH; analyzing inline accounting data");
 
         # Update the bandwidth balance of nodes by subtracting consumed bandwidth of inactive sessions
-        db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+        db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
 
         # Extract nodes with no more bandwidth left (considering also active sessions)
-        my $bandwidth_query = db_query_execute('inline::acounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
+        my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
         if ($bandwidth_query) {
             while (my $row = $bandwidth_query->fetrow_arrayref()) {
                 my ($mac, $ip) = @$row;
                 # Trigger violation
-                violation_trigger($mac, $violation_id, $TRIGGER_TYPE_ACCOUNTING);
+                violation_trigger($mac, $TRIGGER_TYPE_ACCOUNTING, $ACCOUNTING_POLICY_BANDWIDTH);
 
                 # Stop counters of active network sessions for this node
                 inline_accounting_import_ulogd_data($accounting_session_timeout, $ip);
             }
 
             # Update bandwidth balance with new inactive sessions
-            db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+            db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
         }
 
         # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
-        db_query_execute('inline::acounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
+        db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
     }
 }
 
