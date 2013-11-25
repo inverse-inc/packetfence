@@ -97,24 +97,30 @@ sub generate_selfregistration_page {
     $logger->info('generate_selfregistration_page');
 
     my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
-    my $source = $portalSession->getProfile->getSourceByType($sms_type);
+    my $cgi        = $portalSession->cgi;
+    my $profile    = $portalSession->getProfile;
+    my $source     = $profile->getSourceByType($sms_type);
+    my $guestModes = $profile->getGuestModes;
+    my @mandatory_fields    = @{$profile->getMandatoryFields};
+    my $email_guest_allowed = is_in_list( $SELFREG_MODE_EMAIL, $guestModes );
+    my $sms_guest_allowed   = is_in_list( $SELFREG_MODE_SMS, $guestModes );
+    my $sponsored_guest_allowed =
+      is_in_list( $SELFREG_MODE_SPONSOR, $guestModes );
 
     $portalSession->stash({
-        post_uri => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
-
-        firstname => $portalSession->cgi->param("firstname") || '',
-        lastname => $portalSession->cgi->param("lastname") || '',
-        organization => $portalSession->cgi->param("organization") || '',
-        phone => $portalSession->cgi->param("phone") || '',
-        mobileprovider => $portalSession->cgi->param("mobileprovider") || '',
-        email => lc($portalSession->cgi->param("email") || ''),
-        sponsor_email => lc($portalSession->cgi->param("sponsor_email") || ''),
-
-        sms_carriers => sms_carrier_view_all($source),
-        email_guest_allowed => is_in_list($SELFREG_MODE_EMAIL, $portalSession->getProfile->getGuestModes),
-        sms_guest_allowed => is_in_list($SELFREG_MODE_SMS, $portalSession->getProfile->getGuestModes),
-        sponsored_guest_allowed => is_in_list($SELFREG_MODE_SPONSOR, $portalSession->getProfile->getGuestModes),
-
+        post_uri       => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
+        firstname      => $cgi->param("firstname") || '',
+        lastname       => $cgi->param("lastname") || '',
+        organization   => $cgi->param("organization") || '',
+        phone          => $cgi->param("phone") || '',
+        mobileprovider => $cgi->param("mobileprovider") || '',
+        email          => lc( $cgi->param("email") || '' ),
+        sponsor_email  => lc( $cgi->param("sponsor_email") || '' ),
+        mandatory_fields  => \@mandatory_fields,
+        sms_carriers   => sms_carrier_view_all($source),
+        email_guest_allowed => $email_guest_allowed,
+        sms_guest_allowed => $sms_guest_allowed,
+        sponsored_guest_allowed => $sponsored_guest_allowed,
         is_preregistration => $portalSession->session->param('preregistration'),
     });
 
