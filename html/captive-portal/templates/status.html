@@ -92,7 +92,7 @@ document.observe("dom:loaded", function() {
           [%- IF node.status == 'reg' %]
           <div>[% i18n_format("You are registered as <strong>%s</strong>", node.pid) %]</div>
           [%- ELSE %]
-          <div>[% i18n("You are not connect to our network.") %]</div>
+          <div>[% i18n("You are not connected to our network.") %]</div>
           [%- END %]
           [%- IF node.expiration %]
           <div>[% i18n('Your network access ends in <strong id="expiration"></strong>') %]</div>
@@ -104,6 +104,9 @@ document.observe("dom:loaded", function() {
           [%- END %]
           [%- IF node.last_start_time AND billing %]
           <div id="buttons"><a href="[% URL_BILLING %]" target="_new" class="btn">[% i18n("Extend Access") %]</a></div>
+          [%- END %]
+          [%- FOREACH node in nodes %]
+          <div id="buttons"><a href="[% c.uri_for(c.controller('Node::Manager').action_for('unreg'),node.mac) %]" target="_new" class="btn">[%node.mac%]</a></div>
           [%- END %]
           <div id="popup"><a href="[% URL_STATUS %]" target="_new" alt="[% i18n("Open in new popup window") %]"><img src="/content/images/extract.png"/></a></div>
         </div>
