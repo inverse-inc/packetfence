@@ -675,7 +675,6 @@ sub node_view_all {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $node_statements->{'node_view_all_sql_custom'} = $node_view_all_sql;
-    $logger->debug($node_view_all_sql);
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;

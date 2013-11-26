@@ -102,6 +102,8 @@ sub countAll {
 
 =head2 search
 
+Used to perform a simple search
+
 =cut
 
 sub search {
