@@ -272,8 +272,6 @@ my $ACTIVE = 0;
 my $INACTIVE = 1;
 my $ANALYZED = 3;
 
-my $BANDWIDTH_VID = 1200003;
-
 BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
@@ -359,75 +357,37 @@ sub accounting_db_prepare {
             status = ?
       ]);
 
-    $accounting_statements->{'accounting_select_bandwidth_stats_sql'} =
-      get_db_handle()->prepare(qq[
-        SELECT a.src_ip, a.lastmodified, (a.outbytes+a.inbytes) as consumedbytes, (n.bandwidth_balance - totalbytes) as deltabytes
-        FROM inline_accounting a, iplog i, node n
-        WHERE a.src_ip = i.ip
-          AND i.mac = n.mac
-          AND n.bandwidth_balance IS NOT NULL
-          AND a.status = $INACTIVE
-      ]);
-
-    $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE node n SET n.bandwidth_balance = (
-          SELECT n.bandwidth_balance - SUM(a.outbytes+a.inbytes)
-          FROM $accounting_table a, iplog i
-          WHERE a.src_ip = i.ip
-            AND i.end_time = 0
-            AND i.mac = n.mac
-            AND a.status = $INACTIVE
-        )
-        WHERE n.bandwidth_balance > 0
-      ]);
-
-    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE $accounting_table
-          SET status = $ANALYZED
-          WHERE status = $INACTIVE
-      ]);
-
     $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
       get_db_handle()->prepare(qq[
-        SELECT n.mac
-        FROM node n
-        LEFT JOIN iplog i ON i.mac = n.mac AND i.end_time = 0
-        LEFT JOIN $accounting_table a ON i.ip = a.src_ip AND a.status = $ACTIVE
-        WHERE n.bandwidth_balance = 0
-           OR ((n.bandwidth_balance - a.outbytes - a.inbytes) <= 0)
-      ]);
-
-    $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE node n SET n.bandwidth_balance = (
-          SELECT n.bandwidth_balance - SUM(a.outbytes+a.inbytes)
-          FROM $accounting_table a, iplog i
-          WHERE a.src_ip = i.ip
-            AND i.end_time = 0
-            AND i.mac = n.mac
-            AND a.status = $INACTIVE
-        )
-        WHERE n.bandwidth_balance > 0
-      ]);
-
-    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
-      get_db_handle()->prepare(qq[
-        UPDATE $accounting_table
-          SET status = $ANALYZED
-          WHERE status = $INACTIVE
-      ]);
-
-    $accounting_statements->{'accounting_select_node_bandwidth_balance_sql'} =
-      get_db_handle()->prepare(qq[
-        SELECT n.mac, i.ip
+        SELECT n.mac, i.ip, n.bandwidth_balance, COALESCE((a.outbytes + a.inbytes), 0) as bandwidth_consumed
         FROM node n, iplog i
         LEFT JOIN $accounting_table a ON i.ip = a.src_ip AND a.status = $ACTIVE
         WHERE n.mac = i.mac
           AND i.end_time = 0
           AND (n.bandwidth_balance = 0
-               OR ((n.bandwidth_balance - a.outbytes - a.inbytes) <= 0))
+               OR (n.bandwidth_balance < (a.outbytes + a.inbytes)))
+      ]);
+
+    $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE node n SET n.bandwidth_balance = n.bandwidth_balance -
+          COALESCE(
+            (SELECT SUM(a.outbytes+a.inbytes)
+             FROM $accounting_table a, iplog i
+             WHERE a.src_ip = i.ip
+               AND i.end_time = 0
+               AND i.mac = n.mac
+               AND a.status = $INACTIVE
+            ),
+          0)
+        WHERE n.bandwidth_balance > 0
+      ]);
+
+    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE $accounting_table
+          SET status = $ANALYZED
+          WHERE status = $INACTIVE
       ]);
 
     $accounting_db_prepared = 1;
@@ -444,7 +404,7 @@ sub inline_accounting_import_ulogd_data {
     # accounting session
     my ($accounting_session_timeout, $ip) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-    $logger->debug("Importing ulogd data");
+    $logger->debug("Importing ulogd data" . ($ip?" for $ip":""));
 
     my $dbh = get_db_handle();
     $dbh->do("LOCK TABLE $mem_table WRITE");
@@ -521,7 +481,7 @@ sub inline_accounting_maintenance {
     my $accounting_session_timeout = shift;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # Fetch violations that use the 'Accounting::BandwidthExpired' trigger
+    # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
     my @tid = trigger_view_tid($ACCOUNTING_POLICY_BANDWIDTH);
     if (scalar(@tid) > 0) {
         my $violation_id = $tid[0]{'vid'}; # only consider the first violation
@@ -534,7 +494,9 @@ sub inline_accounting_maintenance {
         my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
         if ($bandwidth_query) {
             while (my $row = $bandwidth_query->fetchrow_arrayref()) {
-                my ($mac, $ip) = @$row;
+                my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @$row;
+                $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering violation");
+
                 # Trigger violation
                 violation_trigger($mac, $ACCOUNTING_POLICY_BANDWIDTH, $TRIGGER_TYPE_ACCOUNTING);
 
