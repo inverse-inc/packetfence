@@ -79,7 +79,7 @@ sub fetchVlanForNode {
     # violation handling
     my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
-        return ( $violation, 0 "isolation");
+        return ( $violation, 0, "isolation");
     } elsif (!defined($violation)) {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
