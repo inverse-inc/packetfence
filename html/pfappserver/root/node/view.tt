@@ -35,7 +35,7 @@
             </div>
             <div class="control-group">
               <label class="control-label">[% l('Bandwidth Balance') %]</label>
-              <div class="controls">[% form.field('bandwidth_balance').render_element %] [% l('kilobytes') %]</div>
+              <div class="controls">[% form.field('bandwidth_balance').render_element %] [% l('bytes') %]</div>
             </div>
 
             <div class="control-group">
