@@ -317,7 +317,7 @@ sub ldap_filter_for_conditions {
     my $value = escape_filter_value($condition->{'value'});
     my $attribute = $condition->{'attribute'};
 
-    if ($operator eq $Conditions::EQUALS) {
+    if ($operator eq $Conditions::EQUALS or $operator eq $Conditions::MATCHES) {
       $str = "${attribute}=${value}";
     } elsif ($operator eq $Conditions::CONTAINS) {
       $str = "${attribute}=*${value}*";
