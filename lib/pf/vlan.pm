@@ -19,7 +19,7 @@ use threads;
 use threads::shared;
 
 use pf::config;
-use pf::node qw(node_attributes node_exist);
+use pf::node qw(node_attributes node_exist node_modify);
 use pf::SNMP::constants;
 use pf::util;
 use pf::violation qw(violation_count_trap violation_exist_open violation_view_top);
@@ -79,7 +79,7 @@ sub fetchVlanForNode {
     # violation handling
     my $violation = $this->getViolationVlan($switch, $ifIndex, $mac, $connection_type, $user_name, $ssid);
     if (defined($violation) && $violation != 0) {
-        return ( $violation, 0 );
+        return ( $violation, 0 "isolation");
     } elsif (!defined($violation)) {
         $logger->warn("There was a problem identifying vlan for violation. Will act as if there was no violation.");
     }
@@ -87,7 +87,20 @@ sub fetchVlanForNode {
     # there were no violation, now onto registration handling
     my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
-        return ( $registration , 0 );
+
+        if ( ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
+            
+            
+            my $notes = $node_info->{'notes'};
+            if ($notes eq 'AUTO-REGISTERED') {
+                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was comming from a secure SSID with auto registration" );
+                my %info = (
+                    'notes' => '',
+                );
+                node_modify($mac,%info);
+            }
+        }
+        return ( $registration , 0, "registration");
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
@@ -333,7 +346,22 @@ sub getNormalVlan {
     if ( ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
         $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
         $role = $node_info->{'category'};
+    } elsif ( ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
+        $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
+        $role = $node_info->{'category'};
+
+        my $notes = $node_info->{'notes'};
+        if ($notes eq 'AUTO-REGISTERED') {
+            $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
+            $role = 'registration';
+            my %info = (
+                'status' => 'unreg',
+                'notes' => '',
+            );
+            node_modify($mac,%info);
+        }
     }
+
     # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
@@ -569,3 +597,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+
