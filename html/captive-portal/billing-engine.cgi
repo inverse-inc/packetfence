@@ -23,7 +23,6 @@ use pf::iplog;
 use pf::node;
 use pf::person qw(person_modify);
 use pf::Portal::Session;
-use pf::radius::constants;
 use pf::util;
 use pf::violation;
 use pf::web;
@@ -98,29 +97,33 @@ if ( defined($cgi->param('submit')) ) {
             $info{'unregdate'}  = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime( time + $timeout ));
 
             if ($tiers_infos{$tier}{'usage_duration'}) {
-                $info{'timeleft'} = normalize_time($tiers_infos{$tier}{'usage_duration'});
+                $info{'time_balance'} = normalize_time($tiers_infos{$tier}{'usage_duration'});
 
                 # Check if node has some access time left; if so, add it to the new duration
                 my $node = node_view($mac);
-                if ($node && $node->{'timeleft'} > 0) {
+                if ($node && $node->{'time_balance'} > 0) {
                     if ($node->{'last_start_timestamp'} > 0) {
                         # Node is active; compute the actual access time left
-                        my $expiration = $node->{'last_start_timestamp'} + $node->{'timeleft'};
+                        my $expiration = $node->{'last_start_timestamp'} + $node->{'time_balance'};
                         my $now = time;
                         if ($expiration > $now) {
-                            $info{'timeleft'} += ($expiration - $now);
+                            $info{'time_balance'} += ($expiration - $now);
                         }
                     }
                     else {
                         # Node is inactive; add the remaining access time to the purchased access time
-                        $info{'timeleft'} += $node->{'timeleft'};
+                        $info{'time_balance'} += $node->{'time_balance'};
                     }
                 }
-                $logger->info("Usage duration for $mac is now " . $info{'timeleft'});
+                $logger->info("Usage duration for $mac is now " . $info{'time_balance'});
             }
 
-            # Close any existing violation
-            violation_force_close($mac, $RADIUS::EXPIRATION_VID);
+            # Close violations that use the 'Accounting::BandwidthExpired' trigger
+            my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
+            foreach my $violation (@tid) {
+                # Close any existing violation
+                violation_force_close($mac, $violation{'vid'});
+            }
 
             # Register the node
             pf::web::web_node_register($portalSession, $info{'pid'}, %info);

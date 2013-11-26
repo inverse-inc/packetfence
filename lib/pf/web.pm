@@ -343,13 +343,13 @@ sub generate_status_page {
     my ( $portalSession ) = @_;
     my $node_info = node_view($portalSession->getClientMac());
     if ($node_info->{'last_start_timestamp'} > 0) {
-        if ($node_info->{'timeleft'} > 0) {
+        if ($node_info->{'time_balance'} > 0) {
             # Node has a usage duration
-            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'timeleft'};
+            $node_info->{'expiration'} = $node_info->{'last_start_timestamp'} + $node_info->{'time_balance'};
             if ($node_info->{'expiration'} < time) {
                 # No more access time; RADIUS accounting should have triggered a violation
                 delete $node_info->{'expiration'};
-                $node_info->{'timeleft'} = 0;
+                $node_info->{'time_balance'} = 0;
             }
         }
     }
