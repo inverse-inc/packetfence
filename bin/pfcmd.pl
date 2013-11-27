@@ -116,6 +116,8 @@ our $SERVICE_HEADER ="service|command\n";
 
 our $IS_INTERACTIVE = is_interactive();
 
+our $RESET_COLOR =  $IS_INTERACTIVE ? color 'reset' : '';
+
 my $count  = $ENV{PER_PAGE};
 my $offset = $ENV{PAGE_NUM};
 
@@ -1221,10 +1223,8 @@ sub startService {
                 $color =  color 'red' if $IS_INTERACTIVE;
             }
         }
-        print $manager->name,"|${color}$command\n";
-        print color 'reset' if $IS_INTERACTIVE;
+        print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
-    print color 'reset' if $IS_INTERACTIVE;
     return 0;
 }
 
@@ -1282,8 +1282,7 @@ sub stopService {
                 $color =  color 'red' if $IS_INTERACTIVE;
             }
         }
-        print $manager->name,"|${color}$command\n";
-        print color 'reset' if $IS_INTERACTIVE;
+        print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
     if(isIptablesManaged($service)) {
         my $count = true { $_->status eq '0'  } @managers;
@@ -1358,8 +1357,7 @@ sub statusOfService {
         } else {
             $color = color 'green' if $IS_INTERACTIVE;
         }
-        print $manager->name,"|${color}$isManaged|$status\n";
-        print color 'reset' if $IS_INTERACTIVE;
+        print $manager->name,"|${color}$isManaged|$status${RESET_COLOR}\n";
     }
     return ( $notStarted ? 3 : 0);
 }
