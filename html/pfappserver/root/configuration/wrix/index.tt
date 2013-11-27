@@ -1,3 +1,4 @@
+      <h2></h2>
       <div class="modal fade hide" id="modalItem">
       </div>
 
@@ -15,8 +16,8 @@
         </div>
       </div>
 
-      <h2>[% l('Wrix')  %]</h2>
       <div class="pull-right"><a href="[%c.uri_for(c.controller.action_for('export'))%]">Export</a></div>
+      <h2>[% l('Wrix')  %]</h2>
 
       [% INCLUDE configuration/wrix/list.tt %]
 
