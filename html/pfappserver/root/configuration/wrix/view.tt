@@ -3,7 +3,7 @@
 [%ELSE%]
 [% SET action_url = c.req.uri %]
 [%END%]
-<form name="modalWrix" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
+<form name="modalItem" class="form-horizontal form-condensed" action="[% action_url %]" method="post">
   [%- IF item.id.defined %]<input type="hidden" name="id" value="[% item.id %]">[% END %]
   <div class="modal-header">
     <a class="close" data-dismiss="modal">&times;</a>
