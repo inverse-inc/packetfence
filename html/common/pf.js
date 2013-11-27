@@ -91,6 +91,9 @@ function performRedirect(destination_url) {
  Opera 11 is broken (doesn't fire img's onload) we put in a special text to notice users
  http://my.cn.opera.com/community/forums/topic.dml?id=880632&t=1298063094
  */
+
+Date.now = Date.now || function() { return +new Date; };
+
 function detectNetworkAccess(retry_delay, destination_url, redirect_url, external_ip) {
     "use strict";
     var errorDetected;
