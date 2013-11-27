@@ -1280,6 +1280,7 @@ sub stopService {
                 $command = 'stop';
             } else {
                 $color =  color 'red' if $IS_INTERACTIVE;
+                $command = 'not stopped';
             }
         }
         print $manager->name,"|${color}${command}${RESET_COLOR}\n";
