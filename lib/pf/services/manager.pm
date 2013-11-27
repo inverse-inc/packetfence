@@ -372,7 +372,9 @@ TODO: documention
 sub _cmdLine {
     my ($self) = @_;
     my $launcher = $self->launcher;
-    my @cmdLineArgs = $self->_cmdLineArgs;
+    $launcher =~ /^(.*)$/;
+    $launcher = $1;
+    my @cmdLineArgs = map { /^(.*)$/;$1 }  $self->_cmdLineArgs;
     my $cmdLine = sprintf($launcher, map { /^(.*)$/;$1 }  @cmdLineArgs);
     return $cmdLine;
 }
