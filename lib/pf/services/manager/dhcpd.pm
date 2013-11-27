@@ -24,7 +24,6 @@ use IPC::Cmd qw[can_run run];
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::is_managed_by_pf_conf';
 with 'pf::services::manager::roles::is_managed_vlan_inline_enforcement';
-
 has '+name' => (default => sub { 'dhcpd' } );
 
 has '+launcher' => (default => sub { "sudo %1\$s -lf $var_dir/dhcpd/dhcpd.leases -cf $generated_conf_dir/dhcpd.conf -pf $var_dir/run/dhcpd.pid " . join(" ", @listen_ints) } );
@@ -45,8 +44,9 @@ sub preStartSetup {
 
 sub stop {
     my ($self,$quick) = @_;
-    $self->SUPER::stop($quick);
+    my $result = $self->SUPER::stop($quick);
     manageStaticRoute();
+    return $result;
 }
 
 sub manageStaticRoute {
