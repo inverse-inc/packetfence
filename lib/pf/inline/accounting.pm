@@ -366,6 +366,7 @@ sub accounting_db_prepare {
           AND i.end_time = 0
           AND (n.bandwidth_balance = 0
                OR (n.bandwidth_balance < (a.outbytes + a.inbytes)))
+        FOR UPDATE
       ]);
 
     $accounting_statements->{'accounting_update_node_bandwidth_balance_sql'} =
@@ -490,6 +491,10 @@ sub inline_accounting_maintenance {
         # Update the bandwidth balance of nodes by subtracting consumed bandwidth of inactive sessions
         db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
 
+        # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
+        my $dbh = get_db_handle();
+        $dbh->{'AutoCommit'} = 0;
+
         # Extract nodes with no more bandwidth left (considering also active sessions)
         my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
         if ($bandwidth_query) {
@@ -507,6 +512,9 @@ sub inline_accounting_maintenance {
             # Update bandwidth balance with new inactive sessions
             db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
         }
+
+        # Switchting AutoCommit from 0 to 1 automatically issues a "commit"
+        $dbh->{'AutoCommit'} = 1;
 
         # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
         db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
