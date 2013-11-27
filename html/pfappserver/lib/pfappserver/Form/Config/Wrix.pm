@@ -182,10 +182,18 @@ has_field 'Security_Protocol_1X' =>
  has_field 'Longitude' =>
   (
     type => 'Float',
+    size   => 11,
+    precision   => 9,
+    range_start => -180,
+    range_end   => 180,
   );
  has_field 'Latitude' =>
   (
     type => 'Float',
+    size   => 11,
+    precision   => 9,
+    range_start => -90,
+    range_end   => 90,
   );
   has_block lat_long =>
   (
