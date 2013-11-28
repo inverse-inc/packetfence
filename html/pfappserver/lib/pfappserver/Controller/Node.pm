@@ -36,7 +36,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     $c->go('simple_search');
 }
@@ -45,7 +45,7 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub simple_search :SimpleSearch('Node') :Local :Args() { }
+sub simple_search :SimpleSearch('Node') :Local :Args() :AdminRole('NODES_READ') { }
 
 =head2 after _list_items
 
@@ -73,7 +73,7 @@ Perform an advanced search using the Search::Node model
 
 =cut
 
-sub advanced_search :Local :Args() {
+sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
     my ($self, $c, @args) = @_;
     my ($status, $status_msg, $result);
     my %search_results;
@@ -219,7 +219,7 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
@@ -256,7 +256,7 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
 
     my ($status, $message);
@@ -286,7 +286,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DELETE') {
     my ( $self, $c ) = @_;
 
     my ($status, $message) = $c->model('Node')->delete($c->stash->{mac});
@@ -301,7 +301,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =cut
 
-sub violations :Chained('object') :PathPart :Args(0) {
+sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
@@ -322,7 +322,7 @@ sub violations :Chained('object') :PathPart :Args(0) {
 
 =cut
 
-sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
+sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Config::Violations')->hasId($id);
     if (is_success($status)) {
@@ -342,7 +342,7 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
 
 =cut
 
-sub closeViolation :Path('close') :Args(1) {
+sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
     $c->response->status($status);
@@ -354,7 +354,7 @@ sub closeViolation :Path('close') :Args(1) {
 
 =cut
 
-sub bulk_close: Local {
+sub bulk_close: Local :AdminRole('NODES_UPDATE') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
@@ -377,7 +377,7 @@ sub bulk_close: Local {
 
 =cut
 
-sub bulk_register: Local {
+sub bulk_register: Local :AdminRole('NODES_UPDATE') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
@@ -400,7 +400,7 @@ sub bulk_register: Local {
 
 =cut
 
-sub bulk_deregister: Local {
+sub bulk_deregister: Local :AdminRole('NODES_UPDATE') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
@@ -423,7 +423,7 @@ sub bulk_deregister: Local {
 
 =cut
 
-sub bulk_apply_role: Local : Args(1) {
+sub bulk_apply_role: Local : Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $role) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);

@@ -16,8 +16,12 @@
             <td class="hidden-phone">[% floatingdevice.pvid %]</td>
             <td class="hidden-phone">[% IF floatingdevice.trunkPort == 'yes' %]<i class=" icon-ok"></i>[% END %]</td>
             <td>
+              [%- IF can_access("FLOATING_DEVICES_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('clone'), [ floatingdevice.id]) %]">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("FLOATING_DEVICES_DELETE") %]
               <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::FloatingDevice').action_for('remove'), [ floatingdevice.id ]) %]">[% l('Delete') %]</a>
+              [%- END %]
             </td>
           </tr>
           [% END -%]

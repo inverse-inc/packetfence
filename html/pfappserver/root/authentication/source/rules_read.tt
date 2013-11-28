@@ -29,6 +29,8 @@
             <div id="sourceRulesEmpty" class="unwell[% ' hidden' IF form.field('rules').num_fields %]">
               <i class="icon-cogs icon-large"></i><p>[% l('No rule defined') %]</p>
             </div>
+            [%- IF can_access("USERS_SOURCES_UPDATE") %]
             <div class="pull-right"><a id="createRule" class="btn btn-success btn-small" href="[% c.uri_for(c.controller('Authentication::Source').action_for('rule_create'), [ source.id ]) %]" data-toggle="modal" data-target="#modalRule">[% l('Add rule') %]</a></div>
+            [%- END %]
           </div>
         </div>

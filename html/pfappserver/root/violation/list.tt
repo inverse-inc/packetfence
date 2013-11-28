@@ -37,8 +37,12 @@
               [%- END %]</td>
             <td class="hidden-phone">[% violation.vlan %]</td>
             <td style="white-space: nowrap;">
+              [%- IF can_access("VIOLATIONS_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller('Violation').action_for('clone'), [ violation.id ]) %]#modalViolation">[% l('Clone') %]</a>
+              [%- END %]
+              [%- IF can_access("VIOLATIONS_DELETE") %]
               <a class="btn btn-mini btn-danger[% ' disabled' IF violation.id == 'defaults' OR violation.id < 1500000 %]" href="[% c.uri_for(c.controller('Violation').action_for('remove'), [ violation.id ]) %]">[% l('Delete') %]</a>
+              [%- END %]
               [% IF profiles.size > 1 %]
               <div class="btn-group">[% END %]
                 <a class="btn btn-mini[% ' disabled' UNLESS violation.template %]" target="_blank" href="[% c.uri_for(c.controller('Portal::Profile').action_for('preview'), [profiles.0], 'violations', "$violation.template") %].html" ><i class="icon-eye-open"></i> [% l('Preview') %]</a>
@@ -60,6 +64,8 @@
         <i class="icon-legal icon-large"></i><p>[% l('No violation defined') %]</p>
       </div>
 
+      [%- IF can_access("VIOLATIONS_CREATE") %]
       <div class="form-actions">
         <a id="createViolation" class="btn" href="[% c.uri_for(c.controller('Violation').action_for('create')) %]">[% l('Add violation') %]</a>
       </div>
+      [%- END %]

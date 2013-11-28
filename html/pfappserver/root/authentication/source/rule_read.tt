@@ -79,6 +79,6 @@
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+    [% IF can_access("USERS_SOURCES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 </form>

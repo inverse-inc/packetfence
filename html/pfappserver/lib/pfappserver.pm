@@ -100,6 +100,20 @@ __PACKAGE__->config(
            store => {
              class => '+pfappserver::Authentication::Store::PacketFence',
            }
+         },
+         configurator => {
+           credential => {
+             class => 'Password',
+             password_type => 'none'
+           },
+            store => {
+                class => 'Minimal',
+                users => {
+                    _PF_CONFIGURATOR => {
+                        roles => [qw/ALL/],
+                    }
+                }
+            }
          }
        }
      },

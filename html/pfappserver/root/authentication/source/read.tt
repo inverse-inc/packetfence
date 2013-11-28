@@ -23,8 +23,10 @@
         [% INCLUDE "authentication/source/type/${source.type}.tt" %]
         [% IF source.id %][% INCLUDE "authentication/source/rules_read.tt" %][% END -%]
 
+        [%- IF can_access("USERS_SOURCES_UPDATE") %]
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
           [% IF source.id %]<button type="reset" class="btn">[% l('Reset') %]</button>[% END %]
         </div>
+        [%- END %]
       </form>

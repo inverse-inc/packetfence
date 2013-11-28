@@ -24,8 +24,15 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-#Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configuration/switch', CaptureArgs => 1 }
+        # Reconfigure the object dispatcher from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'configuration/switch', CaptureArgs => 1 },
+        # Configure access rights
+        view   => { AdminRole => 'SWITCHES_READ' },
+        list   => { AdminRole => 'SWITCHES_READ' },
+        create => { AdminRole => 'SWITCHES_CREATE' },
+        clone  => { AdminRole => 'SWITCHES_CREATE' },
+        update => { AdminRole => 'SWITCHES_UPDATE' },
+        remove => { AdminRole => 'SWITCHES_DELETE' },
     },
 );
 

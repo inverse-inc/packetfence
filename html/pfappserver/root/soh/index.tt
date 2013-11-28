@@ -38,7 +38,11 @@
             <td>[% filter.filter_id %]</td>
             <td><a href="[% c.uri_for(c.controller('SoH').action_for('read'), [ filter.filter_id ]) %]#modalFilter">[% filter.name %]</a></td>
             <td class="hidden-phone">[% l(filter.action) %]</td>
-            <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('SoH').action_for('delete'), [ filter.filter_id ]) %]#deleteFilter">[% l('Delete') %]</a></td>
+            <td>
+              [%- IF can_access("SOH_DELETE") %]
+              <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('SoH').action_for('delete'), [ filter.filter_id ]) %]#deleteFilter">[% l('Delete') %]</a>
+              [%- END %]
+            </td>
           </tr>
           [% END -%]
         </tbody>
@@ -49,6 +53,8 @@
         <i class="icon-filter icon-large"></i><p>[% l('No filter defined') %]</p>
       </div>
 
+      [%- IF can_access("SOH_CREATE") %]
       <div class="form-actions">
         <a id="createFilter" class="btn" href="[% c.uri_for(c.controller('SoH').action_for('create')) %]">[% l('Add filter') %]</a>
       </div>
+      [%- END %]

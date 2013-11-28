@@ -21,9 +21,9 @@
               <td class="hidden-phone">[% l(interfaces.$i.type) %]</td>
               <td>
                 [% IF interfaces.$i.vlan -%]
-                <a class="btn btn-mini btn-danger" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>
+                [% IF can_access("INTERFACES_DELETE") %]<a class="btn btn-mini btn-danger" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('delete'), [i]) %]">[% l('Delete') %]</a>[% END %]
                 [% ELSE -%]
-                <a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>
+                [% IF can_access("INTERFACES_CREATE") %]<a class="btn btn-mini" data-toggle="modal" interface="[% i %]" href="[% c.uri_for(c.controller('Interface').action_for('create'), [i]) %]">[% l('Add VLAN') %]</a>[% END %]
                 [% END -%]
               </td>
             </tr>

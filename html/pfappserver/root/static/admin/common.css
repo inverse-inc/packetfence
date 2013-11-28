@@ -38,10 +38,9 @@ table .action {
 .table .control-group {
     margin-bottom: 0;
 }
-.table .btn-group {
+.table .btn-group, .table-condensed select {
     vertical-align: top;
 }
-
 .loader {
     position: fixed;
     left: 50%;
