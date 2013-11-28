@@ -42,6 +42,7 @@ Enhancements
 * Creation of users is now performed from the users page (was on the configuration page)
 * Validate file path when saving an Htpasswd authentication source
 * Improved validation of a sponsor's email address
+* Allow actions depending on authentication source type
 
 Bug Fixes
 +++++++++

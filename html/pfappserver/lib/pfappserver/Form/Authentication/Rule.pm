@@ -73,26 +73,6 @@ has_field 'conditions.value' =>
    type => 'Hidden',
   );
 
-# The templates block contains the dynamic fields of the rule definition.
-#
-# The following fields depend on the selected condition attribute :
-#  - the condition operators select fields
-#  - the condition value fields
-# The following fields depend on the selected action type :
-#  - the action value fields
-#
-# The field substitution is made through JavaScript.
-
-has_block 'templates' =>
-  (
-   tag => 'div',
-   render_list => [
-                   map( { ("${_}_operator", "${_}_value") } keys %Conditions::OPERATORS),
-                   map( { "${_}_action" } @Actions::ACTIONS), # fields are defined in the super class
-                  ],
-   attr => { id => 'templates' },
-   class => [ 'hidden' ],
-  );
 has_field "${Conditions::SUBSTRING}_operator" =>
   (
    type => 'Select',
@@ -190,6 +170,43 @@ has_field "${Conditions::LDAP_ATTRIBUTE}_value" =>
    wrapper => 0,
    element_class => ['span5'],
   );
+
+=head2 build_block_list
+
+Dynamically construct the 'templates' block of actions corresponding to the
+authentication source type.
+
+The templates block contains the dynamic fields of the rule definition.
+
+The following fields depend on the selected condition attribute :
+ - the condition operators select fields
+ - the condition value fields
+The following fields depend on the selected action type :
+ - the action value fields
+
+The field substitution is made through JavaScript.
+
+=cut
+
+sub build_block_list {
+    my $self = shift;
+
+    # Action fields are dynamically defined in the super class
+    my @actions = map { $_->name =~ /_action$/ ? $_->name : () } $self->fields;
+    return
+      [
+       {
+        name => 'templates',
+        tag => 'div',
+        render_list => [
+                        map( { ("${_}_operator", "${_}_value") } keys %Conditions::OPERATORS),
+                        @actions,
+                       ],
+        attr => { id => 'templates' },
+        class => [ 'hidden' ],
+       },
+      ];
+}
 
 =head2 options_attributes
 

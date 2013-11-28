@@ -25,6 +25,20 @@ has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
 has 'email_required' => ( is=> 'rw', default => 'disabled');
 
+=head2 available_actions
+
+For an Null source, we limit the available actions to B<set role>, B<set access duration>, and B<set unreg date>.
+
+=cut
+
+sub available_actions {
+    return [
+            $Actions::SET_ROLE,
+            $Actions::SET_ACCESS_DURATION,
+            $Actions::SET_UNREG_DATE,
+           ];
+}
+
 =head2 match_in_subclass
 
 =cut

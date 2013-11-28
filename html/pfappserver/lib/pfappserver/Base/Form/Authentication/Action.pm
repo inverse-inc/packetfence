@@ -44,59 +44,96 @@ has_field 'actions.value' =>
    messages => { required => 'Make sure all the actions are properly defined.' },
   );
 
-# The templates block contains the dynamic fields of the rule definition.
-#
-# The following fields depend on the selected condition attribute :
-#  - the condition operators select fields
-#  - the condition value fields
-# The following fields depend on the selected action type :
-#  - the action value fields
-#
-# The field substitution is made through JavaScript.
+=head2 field_list
 
-has_field "${Actions::MARK_AS_SPONSOR}_action" =>
-  (
-   type => 'Hidden',
-   default => '1',
-  );
-has_field "${Actions::SET_ACCESS_LEVEL}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_access_level,
-  );
-has_field "${Actions::SET_ROLE}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_roles,
-  );
+Dynamically build the list of available actions corresponding to the
+authentication source type.
 
-# Adding default method for ${Actions::SET_ACCESS_DURATION}_action to always use the current value of the
-# guests_admin_registration.default_access_duration
-__PACKAGE__->meta->add_method(
-    "default_${Actions::SET_ACCESS_DURATION}_action" => sub {
-        my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
-          || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
-        return get_abbr_time($duration);
+=cut
+
+sub field_list {
+    my $self = shift;
+
+    my ($classname, $actions_ref, @fields);
+
+    $classname = 'pf::Authentication::Source::' . $self->form->source_type . 'Source';
+    eval "require $classname";
+    if ($@) {
+        $self->form->ctx->log->error($@);
     }
-);
+    else {
+        @fields = ();
+        $actions_ref = $classname->available_actions();
+        foreach my $action (@{$actions_ref}) {
+            {
+                $action eq $Actions::MARK_AS_SPONSOR && do {
+                    push(@fields,
+                         "${Actions::MARK_AS_SPONSOR}_action" =>
+                          {
+                           type => 'Hidden',
+                           default => '1'
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_ACCESS_LEVEL && do {
+                    push(@fields,
+                         "${Actions::SET_ACCESS_LEVEL}_action" =>
+                          {
+                           type => 'Select',
+                           do_label => 0,
+                           wrapper => 0,
+                           options_method => \&options_access_level,
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_ROLE && do {
+                    push(@fields,
+                         "${Actions::SET_ROLE}_action" =>
+                          {
+                           type => 'Select',
+                           do_label => 0,
+                           wrapper => 0,
+                           options_method => \&options_roles,
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_ACCESS_DURATION && do {
+                    push(@fields,
+                         "${Actions::SET_ACCESS_DURATION}_action" =>
+                          {
+                           type => 'Select',
+                           do_label => 0,
+                           wrapper => 0,
+                           options_method => \&options_durations,
+                           default_method => sub {
+                               my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
+                                 || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
+                               return get_abbr_time($duration);
+                           },
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_UNREG_DATE && do {
+                    push(@fields,
+                         "${Actions::SET_UNREG_DATE}_action" =>
+                          {
+                           type => 'DatePicker',
+                           do_label => 0,
+                           wrapper => 0,
+                          }
+                         );
+                    last;
+                };
+            }
+        }
+    }
 
-has_field "${Actions::SET_ACCESS_DURATION}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_durations,
-  );
-has_field "${Actions::SET_UNREG_DATE}_action" =>
-  (
-   type => 'DatePicker',
-   do_label => 0,
-   wrapper => 0,
-  );
+    return \@fields;
+}
 
 =head2 options_actions
 
