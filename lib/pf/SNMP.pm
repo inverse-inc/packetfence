@@ -741,7 +741,11 @@ Input: VLAN name (as in switches.conf)
 sub getVlanByName {
     my ($this, $vlanName) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-
+    
+    if (defined($vlanName) && $vlanName eq ''){
+        $logger->warn("No vlan name or role was provided. Using default");
+        $vlanName = 'default';
+    }
     if (defined($this->{'_roles'}) && defined($this->{'_roles'}->{$vlanName})){
         $logger->info("Resolved user defined role $vlanName as $this->{'_roles'}->{$vlanName}");
         $vlanName = $this->{'_roles'}->{$vlanName};
