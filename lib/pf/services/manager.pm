@@ -37,6 +37,14 @@ name of service
 
 has name => ( is => 'rw');
 
+=head2 shouldCheckup
+
+if service requires checkup
+
+=cut
+
+has shouldCheckup => ( is => 'rw', default => sub { 1 } );
+
 =head2 launcher
 
 sprintf-formatted string that control how the services should be started
