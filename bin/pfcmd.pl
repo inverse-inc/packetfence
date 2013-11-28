@@ -68,6 +68,7 @@ use Date::Parse;
 use File::Basename qw(basename);
 use Log::Log4perl;
 use Try::Tiny;
+use List::MoreUtils qw(part);
 
 use constant {
     INSTALL_DIR        => '/usr/local/pf',
@@ -1204,28 +1205,40 @@ sub startService {
         $technique ||= getIptablesTechnique();
         $technique->iptables_generate();
     }
+
     require pf::pfcmd::checkup;
     import pf::pfcmd::checkup;
-    checkup( map {$_->name} @managers);
+    my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup} @managers;
+    foreach my $manager (@$noCheckupManagers) {
+        _doStart($manager);
+    }
+    if(@$checkupManagers) {
+        checkup( map {$_->name} @$checkupManagers);
 
-    foreach my $manager (@managers) {
-        my $command;
-        my $color = '';
-        if($manager->status ne '0') {
-            $color =  color 'yellow' if $IS_INTERACTIVE;
-            $command = 'already started';
-        } else {
-            if($manager->start) {
-                $command = 'start';
-                $color =  color 'green' if $IS_INTERACTIVE;
-            } else {
-                $command = 'not started';
-                $color =  color 'red' if $IS_INTERACTIVE;
-            }
+        foreach my $manager (@$checkupManagers) {
+            _doStart($manager);
         }
-        print $manager->name,"|${color}${command}${RESET_COLOR}\n";
     }
     return 0;
+}
+
+sub _doStart {
+    my ($manager) = @_;
+    my $command;
+    my $color = '';
+    if($manager->status ne '0') {
+        $color =  color 'yellow' if $IS_INTERACTIVE;
+        $command = 'already started';
+    } else {
+        if($manager->start) {
+            $command = 'start';
+            $color =  color 'green' if $IS_INTERACTIVE;
+        } else {
+            $command = 'not started';
+            $color =  color 'red' if $IS_INTERACTIVE;
+        }
+    }
+    print $manager->name,"|${color}${command}${RESET_COLOR}\n";
 }
 
 sub getManagers {
