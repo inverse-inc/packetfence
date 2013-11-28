@@ -247,7 +247,7 @@ sub update {
         $result = node_modify($mac, %{$node_ref});
     }
     if ($result) {
-        if ($previous_node_ref->{status} ne $node_ref->{status}) {
+        if ($previous_node_ref->{status} ne $node_ref->{status} || $previous_node_ref->{category} ne $node_ref->{category}) {
             # Node has been registered or deregistered
             reevaluate_access($mac, "node_modify");
         }
