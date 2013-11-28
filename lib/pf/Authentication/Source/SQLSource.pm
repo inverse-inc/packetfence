@@ -66,7 +66,12 @@ sub match {
     my ($self, $params) = @_;
     my $common_attributes = $self->common_attributes();
 
-    my $result = pf::temporary_password::view($params->{'username'});
+    my $result;
+    if ($params->{'username'}) {
+        $result = pf::temporary_password::view($params->{'username'});
+    } elsif ($params->{'email'}) {
+        $result = pf::temporary_password::view_email($params->{'email'});
+    }
     
     # User is defined in SQL source, let's build the actions and return that
     if (defined $result) {
@@ -113,19 +118,6 @@ sub match {
     }
     
     return undef;
-}
-
-=head2 username_from_email
-
-=cut
-
-sub username_from_email {
-    my ( $self, $email ) = @_;
-
-    my $logger = Log::Log4perl->get_logger('pf::authentication');
-
-    return pf::temporary_password::match_by_mail($email);
-
 }
 
 =head1 AUTHOR

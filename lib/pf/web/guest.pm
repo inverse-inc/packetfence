@@ -224,16 +224,13 @@ sub validate_sponsor {
     my $cgi = $portalSession->getCgi();
 
     # validate that this email can sponsor network accesses
-    my ($username, $source_id) = &pf::authentication::username_from_email(lc($cgi->param('sponsor_email')));
+    my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
+                                            { email => $cgi->param('sponsor_email') },
+                                            $Actions::MARK_AS_SPONSOR );
 
-    if (defined $username) {
-
-        my $value = &pf::authentication::match($source_id, {username => $username}, $Actions::MARK_AS_SPONSOR);
-
+    if (defined $value) {
         # all sponsor checks have passed
-        if (defined $value) {
-            return ($TRUE, 0);
-        }
+        return ($TRUE, 0);
     }
 
     return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] );

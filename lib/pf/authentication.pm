@@ -428,36 +428,6 @@ sub deleteAuthenticationSource {
 #   return undef;
 # }
 
-=item username_from_email
-
-Return the username associated to an email address if it exists in any of the
-authentication sources.
-
-This subroutine is used to validate a sponsor's email address.
-
-See pf::web::guest::validate_sponsor.
-
-=cut
-
-sub username_from_email {
-
-    my ($email) = @_;
-
-    $logger->info("Looking up username for email: $email");
-
-    foreach my $source ( @authentication_sources ) {
-        if ($source->can("username_from_email")) {
-            my $username = $source->username_from_email($email);
-
-            if (defined $username) {
-                return ($username, $source->id);
-            }
-        }
-    }
-
-    return;
-}
-
 =item authenticate
 
 Authenticate a user given an optional list of authentication sources. If no source is specified, all defined
@@ -522,7 +492,7 @@ sub match {
             $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
             return $found_action->value
         }
-        $logger->debug("[".$source->id."] Params don't match rules for action $action for username ".$params->{'username'});
+        $logger->debug("[".$source->id."] Params don't match rules for action $action for parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
         return undef;
     }
 

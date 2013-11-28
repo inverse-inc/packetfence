@@ -41,6 +41,7 @@ Enhancements
 * Improved display of pie charts (limit of legend labels and highlight of table rows)
 * Creation of users is now performed from the users page (was on the configuration page)
 * Validate file path when saving an Htpasswd authentication source
+* Improved validation of a sponsor's email address
 
 Bug Fixes
 +++++++++
