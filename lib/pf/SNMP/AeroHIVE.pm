@@ -111,6 +111,7 @@ sub parseTrap {
             $valeurs{$oid} = $value;
         }
         $trapHashRef->{'trapSSID'} = $valeurs{$AEROHIVE::ahSSID};
+        $trapHashRef->{'trapSSID'} =~ s/"//g;
         $trapHashRef->{'trapIfIndex'} = $valeurs{$AEROHIVE::ahIfIndex};
         $trapHashRef->{'trapVlan'} = $valeurs{$AEROHIVE::ahClientVLAN};
         $trapHashRef->{'trapMac'} = $valeurs{$AEROHIVE::ahRemoteId};
