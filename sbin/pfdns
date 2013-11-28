@@ -242,14 +242,6 @@ sub normal_sighandler {
 
 =back
 
-=head1 BUGS AND LIMITATIONS
-
-Probably
-
-=head1 AUTHOR
-
-Fabrice Durand <fdurand@inverse.ca>
-
 =head1 COPYRIGHT
 
 Copyright (C) 2007-2013 Inverse inc.
