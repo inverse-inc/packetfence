@@ -19,6 +19,8 @@ extends 'pf::services::manager::httpd';
 
 has '+name' => (default => sub { 'httpd.admin' } );
 
+has '+shouldCheckup' => ( default => sub { 0 }  );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

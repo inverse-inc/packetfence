@@ -23,6 +23,8 @@ has '+name' => (default => sub { 'memcached' } );
 
 has '+launcher' => (default => sub { "%1\$s -d -p 11211 -u pf -m 64 -c 1024 -P $install_dir/var/run/memcached.pid"});
 
+has '+shouldCheckup' => ( default => sub { 0 }  );
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
