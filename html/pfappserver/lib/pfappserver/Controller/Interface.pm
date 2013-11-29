@@ -23,10 +23,12 @@ use warnings;
 
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 
 use pfappserver::Form::Interface;
 use pfappserver::Form::Interface::Create;
+use pfappserver::Base::Action::AdminRole;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -69,7 +71,7 @@ sub index :Local :Args(0) {
 
 =cut
 
-sub list :Local :Args(0) {
+sub list :Local :Args(0) :AdminRole('INTERFACES_READ') {
     my ( $self, $c ) = @_;
 
     $c->stash->{interfaces} = $c->model('Interface')->get('all');
@@ -109,7 +111,7 @@ Usage: /interface/<logical_name>/create
 
 =cut
 
-sub create :Chained('object') :PathPart('create') :Args(0) {
+sub create :Chained('object') :PathPart('create') :Args(0) :AdminRole('INTERFACES_CREATE') {
     my ( $self, $c ) = @_;
 
     my $mechanism = 'all';
@@ -159,7 +161,7 @@ Usage: /interface/<logical_name>/delete
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('INTERFACES_DELETE') {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
@@ -183,7 +185,7 @@ Usage: /interface/<logical_name>/down
 
 =cut
 
-sub down :Chained('object') :PathPart('down') :Args(0) {
+sub down :Chained('object') :PathPart('down') :Args(0) :AdminRole('INTERFACES_UPDATE') {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
@@ -203,7 +205,7 @@ sub down :Chained('object') :PathPart('down') :Args(0) {
     $c->stash->{current_view} = 'JSON';
 }
 
-sub view :Chained('object') :ParthPart('read') :Args(0) {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('INTERFACES_READ') {
     my ( $self, $c ) = @_;
 
     # Retrieve interface definition
@@ -235,7 +237,7 @@ Usage: /interface/<logical_name>/update/<IP_address>/<netmask>
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('INTERFACES_UPDATE') {
     my ( $self, $c ) = @_;
 
     my ($status, $result, $form);
@@ -279,7 +281,7 @@ Usage: /interface/<logical_name>/up
 
 =cut
 
-sub up :Chained('object') :PathPart('up') :Args(0) {
+sub up :Chained('object') :PathPart('up') :Args(0) :AdminRole('INTERFACES_UPDATE') {
     my ( $self, $c ) = @_;
 
     my $interface = $c->stash->{interface};
@@ -298,6 +300,40 @@ sub up :Chained('object') :PathPart('up') :Args(0) {
 
     $c->stash->{current_view} = 'JSON';
 }
+
+=item _parse_AdminRole_attr
+
+Customize the parsing of the 'AdminRole' subroutine attribute. Returns a hash with the attribute value.
+
+See https://metacpan.org/module/Catalyst::Controller#parse_-name-_attr
+
+=cut
+
+sub _parse_AdminRole_attr {
+    my ($self, $c, $name, $value) = @_;
+    return AdminRole => $value;
+}
+
+=item around create_action
+
+Construction of a new Catalyst::Action.
+
+See https://metacpan.org/module/Catalyst::Controller#self-create_action-args
+
+=cut
+
+around create_action => sub {
+    my ($orig, $self, %args) = @_;
+    my $action = $self->$orig(%args);
+    unless ($args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/) {
+        my @roles;
+        if(@{ $args{attributes}->{AdminRole} || [] }) {
+            push @roles,'pfappserver::Base::Action::AdminRole';
+        }
+        apply_all_roles($action,@roles) if @roles;
+    }
+    return $action;
+};
 
 =back
 

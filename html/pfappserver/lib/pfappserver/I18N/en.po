@@ -48,6 +48,26 @@ msgstr ""
 msgid "A manual start from the command line will be required. Are you sure you want to continue?"
 msgstr ""
 
+# pf::admin_roles (Groups)
+msgid "ADMIN_ROLES"
+msgstr "Admin Roles"
+
+# pf::admin_roles (Actions)
+msgid "ADMIN_ROLES_CREATE"
+msgstr "Admin Roles - Create"
+
+# pf::admin_roles (Actions)
+msgid "ADMIN_ROLES_DELETE"
+msgstr "Admin Roles - Delete"
+
+# pf::admin_roles (Actions)
+msgid "ADMIN_ROLES_READ"
+msgstr "Admin Roles - Read"
+
+# pf::admin_roles (Actions)
+msgid "ADMIN_ROLES_UPDATE"
+msgstr "Admin Roles - Update"
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Github.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/Google.pm
 msgid "API Authorize Path"
@@ -110,8 +130,11 @@ msgid ""
   "specified."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/user/create.tt
+# html/pfappserver/root/configuration/adminroles/view.tt
+# html/pfappserver/root/configuration/users.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Actions"
@@ -137,6 +160,10 @@ msgstr ""
 # html/pfappserver/root/portal/profile/create.tt
 # html/pfappserver/root/portal/profile/view.tt
 msgid "Add a source."
+msgstr ""
+
+# html/pfappserver/root/configuration/adminroles/index.tt
+msgid "Add admin role"
 msgstr ""
 
 # html/pfappserver/root/soh/index.tt
@@ -206,6 +233,14 @@ msgstr ""
 
 # html/pfappserver/root/admin/login.tt
 msgid "Admin Login"
+msgstr ""
+
+# html/pfappserver/root/configuration/adminroles/view.tt
+msgid "Admin Role"
+msgstr ""
+
+# html/pfappserver/root/configuration/adminroles/index.tt
+msgid "Admin Roles"
 msgstr ""
 
 # html/pfappserver/root/admin/nodes.tt
@@ -346,10 +381,23 @@ msgid "CLI"
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+# pf::admin_roles (Groups)
+msgid "CONFIGURATION_MAIN"
+msgstr "Main Configuration"
+
+# pf::admin_roles (Actions)
+msgid "CONFIGURATION_MAIN_READ"
+msgstr "Main Configuration - Read"
+
+# pf::admin_roles (Actions)
+msgid "CONFIGURATION_MAIN_UPDATE"
+msgstr "Main Configuration - Update"
+
 # html/pfappserver/lib/pfappserver/Form/User/Create/Import.pm
 msgid "CSV File"
 msgstr ""
 
+# html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configuration/floatingdevice/index.tt
 # html/pfappserver/root/configuration/switch/index.tt
@@ -386,6 +434,7 @@ msgstr ""
 msgid "Clear Violation"
 msgstr ""
 
+# html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/violation/list.tt
@@ -396,6 +445,7 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/switch/view.tt
 # html/pfappserver/root/interface/view.tt
@@ -646,6 +696,10 @@ msgstr ""
 msgid "Default pid value to assign to imported nodes."
 msgstr ""
 
+# html/pfappserver/root/configuration/adminroles/index.tt
+msgid "Define roles with specific access rights to the Web administration interface."
+msgstr ""
+
 # html/pfappserver/root/configuration/authentication.tt
 msgid "Define the authentication sources to let users access the captive portal or the admin Web interface."
 msgstr ""
@@ -670,6 +724,8 @@ msgid ""
 msgstr ""
 
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/adminroles/index.tt
+# html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configuration/floatingdevice/index.tt
 # html/pfappserver/root/configuration/floatingdevice/list.tt
@@ -684,6 +740,10 @@ msgstr ""
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/violation/list.tt
 msgid "Delete"
+msgstr ""
+
+# html/pfappserver/root/configuration/adminroles/index.tt
+msgid "Delete Admin Role"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
@@ -754,6 +814,7 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Role.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm
 # html/pfappserver/root/authentication/source/rules_read.tt
+# html/pfappserver/root/configuration/adminroles/list.tt
 # html/pfappserver/root/configuration/authentication.tt
 # html/pfappserver/root/configuration/switch/list.tt
 # html/pfappserver/root/node/violations.tt
@@ -927,6 +988,38 @@ msgstr ""
 msgid "External Sources"
 msgstr ""
 
+# pf::admin_roles (Groups)
+msgid "FINGERPRINTS"
+msgstr "Fingerprints"
+
+# pf::admin_roles (Actions)
+msgid "FINGERPRINTS_READ"
+msgstr "Fingerprints - Read"
+
+# pf::admin_roles (Actions)
+msgid "FINGERPRINTS_UPDATE"
+msgstr "Fingerprints - Update"
+
+# pf::admin_roles (Groups)
+msgid "FLOATING_DEVICES"
+msgstr "Floating Devices"
+
+# pf::admin_roles (Actions)
+msgid "FLOATING_DEVICES_CREATE"
+msgstr "Floating Devices - Create"
+
+# pf::admin_roles (Actions)
+msgid "FLOATING_DEVICES_DELETE"
+msgstr "Floating Devices - Delete"
+
+# pf::admin_roles (Actions)
+msgid "FLOATING_DEVICES_READ"
+msgstr "Floating Devices - Read"
+
+# pf::admin_roles (Actions)
+msgid "FLOATING_DEVICES_UPDATE"
+msgstr "Floating Devices - Update"
+
 # conf/documentation.conf (guests_self_registration.mandatory_fields)
 msgid ""
   "Fields required to be filled in the self-registration form. Valid values are:"
@@ -1042,6 +1135,26 @@ msgstr ""
 # conf/documentation.conf (scan.openvas_configid)
 msgid "ID of the scanning configuration on the OpenVAS server"
 msgstr ""
+
+# pf::admin_roles (Groups)
+msgid "INTERFACES"
+msgstr "Interfaces"
+
+# pf::admin_roles (Actions)
+msgid "INTERFACES_CREATE"
+msgstr "Interfaces - Create"
+
+# pf::admin_roles (Actions)
+msgid "INTERFACES_DELETE"
+msgstr "Interfaces - Delete"
+
+# pf::admin_roles (Actions)
+msgid "INTERFACES_READ"
+msgstr "Interfaces - Read"
+
+# pf::admin_roles (Actions)
+msgid "INTERFACES_UPDATE"
+msgstr "Interfaces - Update"
 
 # html/pfappserver/root/node/view.tt
 msgid "IP"
@@ -1302,6 +1415,7 @@ msgstr ""
 # html/pfappserver/root/configuration/floatingdevice/list.tt
 # html/pfappserver/root/user/view.tt
 # html/pfappserver/root/user/violations.tt
+# pf::admin_roles (Groups)
 msgid "MAC"
 msgstr ""
 
@@ -1321,6 +1435,14 @@ msgstr ""
 # html/pfappserver/root/admin/users.tt
 msgid "MAC address"
 msgstr ""
+
+# pf::admin_roles (Actions)
+msgid "MAC_READ"
+msgstr "MAC Addresses - Read"
+
+# pf::admin_roles (Actions)
+msgid "MAC_UPDATE"
+msgstr "MAC Addresses - Update"
 
 # html/pfappserver/root/admin/configuration.tt
 msgid "Main"
@@ -1361,6 +1483,26 @@ msgstr ""
 # html/pfappserver/root/user/create.tt
 msgid "Multiple"
 msgstr ""
+
+# pf::admin_roles (Groups)
+msgid "NODES"
+msgstr "Nodes"
+
+# pf::admin_roles (Actions)
+msgid "NODES_CREATE"
+msgstr "Nodes - Create"
+
+# pf::admin_roles (Actions)
+msgid "NODES_DELETE"
+msgstr "Nodes - Delete"
+
+# pf::admin_roles (Actions)
+msgid "NODES_READ"
+msgstr "Nodes - Read"
+
+# pf::admin_roles (Actions)
+msgid "NODES_UPDATE"
+msgstr "Nodes - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source.pm
@@ -1423,6 +1565,10 @@ msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
 msgid "New"
+msgstr ""
+
+# html/pfappserver/root/configuration/adminroles/view.tt
+msgid "New Admin Role"
 msgstr ""
 
 # html/pfappserver/root/portal/profile/files.tt
@@ -1494,6 +1640,7 @@ msgstr ""
 msgid "No node found"
 msgstr ""
 
+# html/pfappserver/root/configuration/adminroles/index.tt
 # html/pfappserver/root/roles/index.tt
 msgid "No role defined"
 msgstr ""
@@ -1515,15 +1662,12 @@ msgstr ""
 msgid "No useragent found"
 msgstr ""
 
-# html/pfappserver/root/user/violations.tt
-msgid "No violation"
-msgstr ""
-
 # html/pfappserver/root/violation/list.tt
 msgid "No violation defined"
 msgstr ""
 
 # html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/user/violations.tt
 msgid "No violation found"
 msgstr ""
 
@@ -1591,6 +1735,26 @@ msgstr ""
 # html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
 msgid "Owner"
 msgstr ""
+
+# pf::admin_roles (Groups)
+msgid "PORTAL_PROFILES"
+msgstr "Portal Profiles"
+
+# pf::admin_roles (Actions)
+msgid "PORTAL_PROFILES_CREATE"
+msgstr "Portal Profiles - Create"
+
+# pf::admin_roles (Actions)
+msgid "PORTAL_PROFILES_DELETE"
+msgstr "Portal Profiles - Delete"
+
+# pf::admin_roles (Actions)
+msgid "PORTAL_PROFILES_READ"
+msgstr "Portal Profiles - Read"
+
+# pf::admin_roles (Actions)
+msgid "PORTAL_PROFILES_UPDATE"
+msgstr "Portal Profiles - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/LDAP.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
@@ -1683,6 +1847,10 @@ msgstr ""
 msgid "Please specify the default DHCP lease time."
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Please specify the description of the admin role."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/User.pm
 msgid "Please specify the end date of the registration window."
 msgstr ""
@@ -1697,6 +1865,10 @@ msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network.pm
 msgid "Please specify the maximum DHCP lease time."
+msgstr ""
+
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+msgid "Please specify the name of the admin role."
 msgstr ""
 
 # html/pfappserver/lib/pfappserver/Form/Config/Network/Routed.pm
@@ -1831,6 +2003,15 @@ msgstr ""
 msgid "RADIUS"
 msgstr ""
 
+# pf::admin_roles (Actions)
+# pf::admin_roles (Groups)
+msgid "REPORTS"
+msgstr "Reports"
+
+# html/pfappserver/root/configuration/adminroles/index.tt
+msgid "Really delete this admin role?"
+msgstr ""
+
 # html/pfappserver/root/portal/profile/files.tt
 msgid "Really delete this file?"
 msgstr ""
@@ -1911,6 +2092,7 @@ msgid "Release"
 msgstr ""
 
 # html/pfappserver/root/node/violations.tt
+# html/pfappserver/root/user/violations.tt
 msgid "Release Date"
 msgstr ""
 
@@ -1999,6 +2181,11 @@ msgstr ""
 msgid "Role"
 msgstr ""
 
+# html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+# html/pfappserver/root/configuration/adminroles/list.tt
+msgid "Role Name"
+msgstr ""
+
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "Role mapping by VLAN"
 msgstr ""
@@ -2031,6 +2218,11 @@ msgstr ""
 msgid "Rules"
 msgstr ""
 
+# pf::admin_roles (Actions)
+# pf::admin_roles (Groups)
+msgid "SERVICES"
+msgstr "Services"
+
 # html/pfappserver/lib/pfappserver/Form/Authentication/Source/SMS.pm
 msgid "SMS Carriers"
 msgstr ""
@@ -2038,6 +2230,26 @@ msgstr ""
 # html/pfappserver/root/configuration/switch/view.tt
 msgid "SNMP"
 msgstr ""
+
+# pf::admin_roles (Groups)
+msgid "SOH"
+msgstr "SoH Filters"
+
+# pf::admin_roles (Actions)
+msgid "SOH_CREATE"
+msgstr "SoH Filters - Create"
+
+# pf::admin_roles (Actions)
+msgid "SOH_DELETE"
+msgstr "SoH Filters - Delete"
+
+# pf::admin_roles (Actions)
+msgid "SOH_READ"
+msgstr "SoH Filters - Read"
+
+# pf::admin_roles (Actions)
+msgid "SOH_UPDATE"
+msgstr "SoH Filters - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 # pf::Authentication::Source (common_attributes)
@@ -2052,11 +2264,32 @@ msgstr ""
 msgid "SWITCH"
 msgstr ""
 
+# pf::admin_roles (Groups)
+msgid "SWITCHES"
+msgstr "Switches"
+
+# pf::admin_roles (Actions)
+msgid "SWITCHES_CREATE"
+msgstr "Switches - Create"
+
+# pf::admin_roles (Actions)
+msgid "SWITCHES_DELETE"
+msgstr "Switches - Delete"
+
+# pf::admin_roles (Actions)
+msgid "SWITCHES_READ"
+msgstr "Switches - Read"
+
+# pf::admin_roles (Actions)
+msgid "SWITCHES_UPDATE"
+msgstr "Switches - Update"
+
 # html/pfappserver/root/admin/nodes.tt
 # html/pfappserver/root/admin/users.tt
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/section.tt
 # html/pfappserver/root/configuration/switch/view.tt
@@ -2100,6 +2333,7 @@ msgstr ""
 # html/pfappserver/root/authentication/source/read.tt
 # html/pfappserver/root/authentication/source/rule_read.tt
 # html/pfappserver/root/config/networks/view.tt
+# html/pfappserver/root/configuration/adminroles/view.tt
 # html/pfappserver/root/configuration/floatingdevice/view.tt
 # html/pfappserver/root/configuration/switch/view.tt
 # html/pfappserver/root/interface/view.tt
@@ -2312,6 +2546,7 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 # html/pfappserver/root/configurator/services.tt
 # html/pfappserver/root/service/status.tt
+# html/pfappserver/root/user/view.tt
 msgid "Status"
 msgstr ""
 
@@ -2569,6 +2804,81 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
+# pf::admin_roles (Groups)
+msgid "USERAGENTS"
+msgstr "Useragents"
+
+# pf::admin_roles (Actions)
+msgid "USERAGENTS_READ"
+msgstr "Useragents - Read"
+
+# pf::admin_roles (Groups)
+msgid "USERS"
+msgstr "Users"
+
+# pf::admin_roles (Actions)
+msgid "USERS_CREATE"
+msgstr "Users - Create"
+
+# pf::admin_roles (Actions)
+msgid "USERS_DELETE"
+msgstr "Users - Delete"
+
+# pf::admin_roles (Actions)
+msgid "USERS_READ"
+msgstr "Users - Read"
+
+# pf::admin_roles (Groups)
+msgid "USERS_ROLES"
+msgstr "Users Roles"
+
+# pf::admin_roles (Actions)
+msgid "USERS_ROLES_CREATE"
+msgstr "Users Roles - Create"
+
+# pf::admin_roles (Actions)
+msgid "USERS_ROLES_DELETE"
+msgstr "Users Roles - Delete"
+
+# pf::admin_roles (Actions)
+msgid "USERS_ROLES_READ"
+msgstr "Users Roles - Read"
+
+# pf::admin_roles (Actions)
+msgid "USERS_ROLES_UPDATE"
+msgstr "Users Roles - Update"
+
+# pf::admin_roles (Groups)
+msgid "USERS_SOURCES"
+msgstr "Users Sources"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SOURCES_CREATE"
+msgstr "Users Sources - Create"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SOURCES_DELETE"
+msgstr "Users Sources - Delete"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SOURCES_READ"
+msgstr "Users Sources - Read"
+
+# pf::admin_roles (Actions)
+msgid "USERS_SOURCES_UPDATE"
+msgstr "Users Sources - Update"
+
+# pf::admin_roles (Actions)
+msgid "USERS_UPDATE"
+msgstr "Users - Update"
+
+# conf/documentation.conf (trapping.always_use_redirecturl)
+msgid ""
+  "Under most circumstances we can redirect the user to the URL he originally "
+  "intended to visit. When enabled, always_use_redirecturl forces the captive "
+  "portal to redirect the user to the URL defined in trapping.redirecturl instead."
+msgstr ""
+
 # html/pfappserver/lib/pfappserver/Form/Node.pm
 msgid "Unregistration"
 msgstr ""
@@ -2672,6 +2982,26 @@ msgstr ""
 # html/pfappserver/root/admin/wrapper.tt
 msgid "Users"
 msgstr ""
+
+# pf::admin_roles (Groups)
+msgid "VIOLATIONS"
+msgstr "Violations"
+
+# pf::admin_roles (Actions)
+msgid "VIOLATIONS_CREATE"
+msgstr "Violations - Create"
+
+# pf::admin_roles (Actions)
+msgid "VIOLATIONS_DELETE"
+msgstr "Violations - Delete"
+
+# pf::admin_roles (Actions)
+msgid "VIOLATIONS_READ"
+msgstr "Violations - Read"
+
+# pf::admin_roles (Actions)
+msgid "VIOLATIONS_UPDATE"
+msgstr "Violations - Update"
 
 # html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
 # html/pfappserver/lib/pfappserver/Form/Violation.pm

@@ -28,7 +28,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path :Args(0) :AdminRole('SOH_READ') {
     my ($self, $c) = @_;
 
     my ($status, $result) = $c->model('SoH')->filters();
@@ -44,7 +44,7 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub create :Local {
+sub create :Local :AdminRole('SOH_CREATE') {
     my ($self, $c) = @_;
 
     my ($status, $result, $form);
@@ -113,7 +113,7 @@ sub object :Chained('/') :PathPart('soh') :CaptureArgs(1) {
 
 =cut
 
-sub read :Chained('object') :PathPart('read') :Args(0) {
+sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('SOH_READ') {
     my ($self, $c) = @_;
 
     my ($status, $result, $form);
@@ -146,7 +146,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('SOH_UPDATE') {
     my ($self, $c) = @_;
 
     my ($status, $result, $form);
@@ -181,7 +181,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('SOH_DELETE') {
     my ($self, $c) = @_;
 
     my $configViolationsModel = $c->model('Config::Violations');

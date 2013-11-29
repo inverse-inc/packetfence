@@ -193,6 +193,7 @@ sub violations {
     my @violations;
     eval {
         @violations = person_violations($pid);
+        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @violations;
     };
     if ($@) {
         $status_msg = "Can't fetch violations from database.";

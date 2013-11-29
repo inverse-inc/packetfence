@@ -2,7 +2,8 @@ package pfappserver::View::HTML;
 
 use strict;
 use warnings;
-use pf::config;
+use pf::file_paths;
+use pf::admin_roles;
 
 use base 'Catalyst::View::TT';
 
@@ -14,6 +15,7 @@ __PACKAGE__->config(
         js => \&js_filter,
     },
     render_die => 1,
+    expose_methods => [qw(can_access can_access_any)],
     COMPILE_DIR => $tt_compile_cache_dir
 );
 
@@ -51,6 +53,28 @@ sub js_filter {
     $string =~ s/(\\|'|"|\/)/\\$1/g;
 
     return $string;
+}
+
+=head2 can_access
+
+=cut
+
+sub can_access {
+    my ($self, $c, @actions) = @_;
+    my $roles = [];
+    $roles = [$c->user->roles] if $c->user_exists;
+    return admin_can($roles,@actions);
+}
+
+=head2 can_access_any
+
+=cut
+
+sub can_access_any {
+    my ($self, $c, @actions) = @_;
+    my $roles = [];
+    $roles = [$c->user->roles] if $c->user_exists;
+    return admin_can_do_any($roles,@actions);
 }
 
 =head1 COPYRIGHT

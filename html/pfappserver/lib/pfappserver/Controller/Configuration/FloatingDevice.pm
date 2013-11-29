@@ -25,12 +25,19 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-#Reconfigure the object action from pfappserver::Base::Controller::Crud
-        object => { Chained => '/', PathPart => 'configuration/floatingdevice', CaptureArgs => 1 }
+        # Reconfigure the object action from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'configuration/floatingdevice', CaptureArgs => 1 },
+        # Configure access rights
+        view   => { AdminRole => 'FLOATING_DEVICES_READ' },
+        list   => { AdminRole => 'FLOATING_DEVICES_READ' },
+        create => { AdminRole => 'FLOATING_DEVICES_CREATE' },
+        clone  => { AdminRole => 'FLOATING_DEVICES_CREATE' },
+        update => { AdminRole => 'FLOATING_DEVICES_UPDATE' },
+        remove => { AdminRole => 'FLOATING_DEVICES_DELETE' },
     },
     action_args => {
-#Setting the global model and form for all actions
-        '*' => { model => "Config::FloatingDevice",form => "Config::FloatingDevice" },
+        # Setting the global model and form for all actions
+        '*' => { model => "Config::FloatingDevice", form => "Config::FloatingDevice" },
     },
 );
 
@@ -59,6 +66,8 @@ after list => sub {
 };
 
 =head2 after create clone
+
+Show the 'view' template when creating or cloning a floating device.
 
 =cut
 

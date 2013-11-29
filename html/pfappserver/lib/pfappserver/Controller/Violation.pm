@@ -30,7 +30,15 @@ BEGIN {
 
 __PACKAGE__->config(
     action => {
-        object => { Chained => '/', PathPart => 'violation', CaptureArgs => 1 }
+        # Reconfigure the object action from pfappserver::Base::Controller::Crud
+        object => { Chained => '/', PathPart => 'violation', CaptureArgs => 1 },
+        # Configure access rights
+        view   => { AdminRole => 'VIOLATIONS_READ' },
+        list   => { AdminRole => 'VIOLATIONS_READ' },
+        create => { AdminRole => 'VIOLATIONS_CREATE' },
+        clone  => { AdminRole => 'VIOLATIONS_CREATE' },
+        update => { AdminRole => 'VIOLATIONS_UPDATE' },
+        remove => { AdminRole => 'VIOLATIONS_DELETE' },
     },
 );
 

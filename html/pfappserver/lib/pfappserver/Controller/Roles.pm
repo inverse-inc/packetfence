@@ -28,7 +28,7 @@ BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path :Args(0) :AdminRole('USERS_ROLES_READ') {
     my ($self, $c) = @_;
 
     my ($status, $result) = $c->model('Roles')->list();
@@ -44,7 +44,7 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub create :Local {
+sub create :Local :AdminRole('USERS_ROLES_CREATE') {
     my ($self, $c) = @_;
 
     my ($status, $result, $form);
@@ -98,7 +98,7 @@ sub object :Chained('/') :PathPart('roles') :CaptureArgs(1) {
 
 =cut
 
-sub read :Chained('object') :PathPart('read') :Args(0) {
+sub read :Chained('object') :PathPart('read') :Args(0) :AdminRole('USERS_ROLES_READ') {
     my ($self, $c) = @_;
 
     my ($status, $result, $form);
@@ -119,7 +119,7 @@ sub read :Chained('object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('USERS_ROLES_UPDATE') {
     my ($self, $c) = @_;
 
     my ($status, $result, $form);
@@ -154,7 +154,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('USERS_ROLES_DELETE') {
     my ($self, $c) = @_;
 
     my ($status, $result) = $c->model('Roles')->delete($c->stash->{role});
@@ -168,7 +168,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 
