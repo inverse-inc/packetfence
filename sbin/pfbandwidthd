@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-pfdns - PacketFence DNS server
+pfbandwidthd - PacketFence inline bandwidth accounting daemon
 
 =head1 SYNOPSIS
 
-pfdns
+pfbandwidthd
 
 =cut
 
@@ -22,21 +22,18 @@ use POSIX qw(:signal_h);
 use Try::Tiny;
 use NetAddr::IP;
 
+use Net::Interface qw(:afs);
 use Net::Pcap;
 use NetPacket::Ethernet;
 use NetPacket::IP;
-
-use Data::Dumper;
-
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
 use lib INSTALL_DIR . "/lib";
 
 use pf::config;
-use pf::config::cached;
 use pf::util;
-use pf::web::util qw(set_memcached get_memcached get_memcached_conf);
+use pf::inline::accounting;
 
 # initialization
 # --------------
@@ -83,10 +80,10 @@ pod2usage( -verbose => 1 ) if ( $args{h} );
 # standard signals and daemonize
 daemonize() if ($daemonize);
 
-my %ip_statistics;
+my %ip_stats = ();
 my %seen_inline_ips;
 my $last_stats_dump = 0;
-my $min_stats_dump_interval = 120;
+my $min_stats_dump_interval = 41;  # Stats will be written to the DB at ~this inverval
 
 # setup our inline networks
 my @l3_accounting_networks;
@@ -106,24 +103,27 @@ my $snaplen = 64; # Should be enough to get iphdr + tcphdr
 my $promisc = 0;
 my $to_ms = 0;
 
-# FIXME set this properly to ignore packets for whitelisted destinations
-# should also get only packets matching l3_accounting_networks
-my $pcap_filter_str="ether proto \\ip and not port ssh";
-$pcap_filter_str .= " and " . pcap_filter_from_networks(@l3_accounting_networks);
-my $pcap_filter;
-
-my $net;
-my $mask;
-if (Net::Pcap::lookupnet($dev, \$net, \$mask, \$err) == -1) {
-   $logger->logdie("Unable to lookupnet: $err");
-}
-
 # open the device for live listening
 $logger->debug("pcap details: $dev, snaplen: $snaplen, promisc:$promisc, timeout: $to_ms");
 my $pcap = Net::Pcap::pcap_open_live($dev, $snaplen, $promisc, $to_ms, \$err);
 $logger->logdie($err) if !$pcap;
 
+# Build a pcap filter to get only ipv4 traffic, ignore traffic to/from our local interfaces (and their associated broadcast addresses)
+# and capture only traffic to/from networks defined as 'inline' in networks.conf
+my $pcap_filter_str="ether proto \\ip";
+$pcap_filter_str .= " and not " . pcap_filter_from_local_interfaces();
+$pcap_filter_str .= " and " . pcap_filter_from_networks(@l3_accounting_networks);
+
+my $net; # not used
+my $mask;
+# this dance is required to get a mask to compile the filter
+if (Net::Pcap::lookupnet($dev, \$net, \$mask, \$err) == -1) {
+   $logger->logdie("Unable to lookupnet: $err");
+}
+
+# Compile + apply the filter
 $logger->debug("pcap_filter: $pcap_filter_str");
+my $pcap_filter;
 if (Net::Pcap::compile($pcap, \$pcap_filter, $pcap_filter_str, 1, $mask) == -1) {
   $logger->logdie("Unable to compile pcap filter: $!");
 }
@@ -131,9 +131,9 @@ Net::Pcap::setfilter($pcap, $pcap_filter);
 
 # Change user to pf
 &dropprivs("pf", "pf");
-Net::Pcap::pcap_loop($pcap, -1, \&process_packet, undef);
 
-# close the device
+# Loop forever reading packets from pcap
+Net::Pcap::pcap_loop($pcap, -1, \&process_packet, undef);
 Net::Pcap::pcap_close($pcap);
 
 sub process_packet {
@@ -141,16 +141,27 @@ sub process_packet {
     my $len = $header->{len};
     my ($src, $dst) = &packet_addresses($packet);
 
+    my $inline_ip;
+    # figure out packet direction
     if (&ip_in_inline_subnets($src, @l3_accounting_networks)) {
-      $ip_statistics{$src}->{outbytes} += $len;
+      $inline_ip = $src;
+      $ip_stats{$inline_ip}{outbytes} += $len;
     } elsif (&ip_in_inline_subnets($dst, @l3_accounting_networks)) {
-      $ip_statistics{$dst}->{inbytes} += $len;
+      $inline_ip = $dst;
+      $ip_stats{$inline_ip}{inbytes} += $len;
+    }
+
+    if ($inline_ip) {
+        # set firstseen and/or update lastmodified
+        if (!defined($ip_stats{$inline_ip}{firstseen})) {
+          $ip_stats{$inline_ip}{firstseen} = $header->{tv_sec};
+        }
+        $ip_stats{$inline_ip}{lastmodified} = $header->{tv_sec};
     }
 
     if ($header->{tv_sec} - $last_stats_dump >= $min_stats_dump_interval) {
         $logger->debug("saving stats");
         &save_stats();
-        $last_stats_dump = $header->{tv_sec};
         Net::Pcap::stats($pcap, \%pcap_stats);
         $logger->debug("pcap stats ps_recv:" . $pcap_stats{ps_recv} . 
                        " ps_drop: " . $pcap_stats{ps_drop} . 
@@ -186,7 +197,16 @@ sub ip_in_inline_subnets {
 }
 
 sub save_stats {
-    
+  foreach my $ip (keys %ip_stats) {
+    my $inbytes = $ip_stats{$ip}{inbytes} ? $ip_stats{$ip}{inbytes} : 0;
+    my $outbytes = $ip_stats{$ip}{outbytes} ? $ip_stats{$ip}{outbytes} : 0;
+    my $ret = inline_accounting_update_session_for_ip($ip, $inbytes, $outbytes,
+                                                      $ip_stats{$ip}{firstseen}, $ip_stats{$ip}{lastmodified}); 
+    $logger->warn("Error saving stats for $ip: $!") if (!$ret);
+  } 
+  # FIXME what should we do if we had an error inserting? drop everything except those with error?
+  %ip_stats=();
+  $last_stats_dump = $header->{tv_sec};
 }
 
 # builds a pcap filter like this:
@@ -201,16 +221,36 @@ sub pcap_filter_from_networks {
     return "(net " . join(" or net ", @networks_cidr) . ")";
 }
 
+sub pcap_filter_from_local_interfaces {
+  # return the ip address of all local interfaces as a pcap filter string:
+  #  ( host 127.0.0.1 or host 192.168.1.1 or host 192.168.2.1 ... )
+  my @addresses;
+
+  my @interfaces =   Net::Interface->interfaces();
+  foreach my $interface (@interfaces) {
+    foreach my $address ($interface->address(AF_INET)) {
+      push @addresses, Net::Interface::inet_ntoa($address);
+    }
+    foreach my $broadcast ($interface->broadcast(AF_INET)) {
+      my $broadcast_str = Net::Interface::inet_ntoa($broadcast);
+      if (grep(!/^$broadcast_str$/, @addresses)) {
+        push @addresses, $broadcast_str;
+      }
+    }
+  }
+
+  return "( host ". join(" or host ", @addresses) . " )";
+}
+
 sub dropprivs {
   my ($user, $group) = @_;
   my $uid = getpwnam($user);
-  my $gid = getgrnam($user);
+  my $gid = getgrnam($group);
 
   $logger->logdie("Can't drop privileges") if (!$uid || !$gid);
 
-  POSIX::setuid($uid);
-  POSIX::setgid($gid);
-  
+  POSIX::setuid($uid) or $logger->logdie("Can't setuid to $user: $!");
+  POSIX::setgid($gid) or $logger->logdie("Can't setgid to $group: $!");;
 }
 
 sub daemonize {
