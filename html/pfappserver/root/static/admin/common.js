@@ -203,6 +203,60 @@ function updateDynamicRowsAfterRemove(table) {
     }
 }
 
+function updateExtendedDurationExample(group) {
+    var fromElement = $('#extendedFrom');
+    var fromDate = fromElement.data('date');
+    var fromString = fromElement.html();
+    var toElement = $('#extendedTo');
+
+    function padZero(i) { return (i < 10)? '0'+i : i; };
+
+    if (!fromDate) {
+        // Initialize the reference date
+        var now = new Date();
+        fromString =
+            now.getFullYear() + "-" + padZero(now.getMonth() + 1) + "-" + padZero(now.getDate()) + " " +
+            padZero(now.getHours()) + ":" + padZero(now.getMinutes()) + ":" + padZero(now.getSeconds());
+        fromElement.html(fromString);
+        fromDate = Math.floor(now.getTime()/1000);
+        fromElement.data('date', fromDate);
+    }
+
+    // Build duration representation
+    var interval = group.find('[name$=".duration.interval"]').val();
+    var unit = group.find('input[name$=".duration.unit"]').val();
+    if (interval && unit) {
+        var duration = interval + unit;
+        var day_base = group.find('[name$="day_base"]').is(':checked');
+        if (day_base) {
+            var period_base = group.find('[name$="period_base"]').is(':checked');
+            var e_duration = {
+                operator: group.find('[name$="operator"]').val(),
+                interval: group.find('[name$="extended_duration.interval"]').val(),
+                unit: group.find('input[name$="extended_duration.unit"]').val()
+            };
+            duration += period_base? "R" : "F";
+            if (e_duration.operator && e_duration.interval && e_duration.unit) {
+                duration += (e_duration.operator == 'subtract')? "-" : "+";
+                duration += e_duration.interval + e_duration.unit;
+            }
+            else {
+                duration += '+0D';
+            }
+        }
+
+        group.data('duration', duration);
+
+        $.ajax(['/configuration', 'duration', fromDate, duration].join('/'))
+            .done(function(data) {
+                toElement.html(data.status_msg);
+            });
+    }
+    else {
+        toElement.html(fromString);
+    }
+}
+
 $(function () { // DOM ready
 
     /* redirect to URL specified in the location header */
@@ -301,6 +355,7 @@ $(function () { // DOM ready
             showPermanentError(form, status_msg);
         });
     });
+
     /* Activate sortable tables and lists (rows/items can be re-ordered) */
     $('body').on('mousemove',
                  '.table-sortable tbody tr:not(.ui-draggable), .list-sortable li:not(.ui-draggable)',
@@ -412,6 +467,7 @@ $(function () { // DOM ready
         $(this).trigger("deleterow");
         return false;
     });
+
     $('body').on('deleterow', '.table-dynamic', function(event) {
         var table = $(this);
         var row = table.find(event.target).closest('tr');
@@ -425,9 +481,6 @@ $(function () { // DOM ready
         });
         return false;
     });
-
-
-
 
     /* Activate links that trigger an ajax request and return a JSON status message */
     $('#section').on('click','a.updates_section_status_msg', function() {
@@ -582,7 +635,51 @@ $(function () { // DOM ready
             });
     });
 
+    /* Add an extended duration to a text input field */
+    $('#section').on('click', '#addExtendedTime', function(event) {
+        var btn = $(this);
+        var group = btn.closest('.extended-duration');
+        var duration = group.data('duration'); // set in updateExtendedDurationExample
+        if (duration) {
+            var input = $(btn.data('target'));
+            var str = input.val();
+            var found = false;
+            $.each(str.split(/ *, */), function(index, value) {
+                if (value == duration) {
+                    found = true;
+                    return false;
+                }
+            });
+            if (!found)
+                input.val(str? str + "," + duration : duration);
+        }
 
+        return false;
+    });
+
+    /* Update any extended duration examples when loading section */
+    $('body').on('section.loaded', function(event) {
+        updateExtendedDurationExample($('.extended-duration'));
+    });
+
+    /* Update extended duration widget when changing parameters of the duration */
+    $('#section').on('change', '.extended-duration', function(event) {
+        var input = $(event.target);
+        var group = input.closest('.extended-duration');
+
+        if (input.is('[name$="day_base"]')) {
+            // Advanced options are available only if "relative to the beginning of the day" is checked
+            var enabled = input.is(':checked');
+            if (enabled)
+                group.find('[name*=extended_duration], [name$=period_base]').removeAttr('disabled').removeClass('disabled');
+            else {
+                group.find('input[name*=extended_duration], select[name*=extended_duration], input[name$=period_base]').attr('disabled', 'disabled');
+                group.find('a[name*=extended_duration]').addClass('disabled');
+            }
+        }
+
+        updateExtendedDurationExample(group);
+    });
 
     if (typeof init == 'function') init();
     if (typeof initModals == 'function') initModals();

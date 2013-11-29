@@ -1889,12 +1889,12 @@ Available registration modes are defined on a per-portal-profile basis. These ar
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Self-registered guests are added under the persons tab of the PacketFence web administration interface.
+Self-registered guests are added under the persons tab of the PacketFence Web administration interface.
 
 Managed guests
 ++++++++++++++
 
-It is possible to modify the default values of the guests created by the guest management interface by editing `/usr/local/pf/conf/pf.conf`.
+It is possible to modify the default values of the guests created from the Web admin interface by editing `/usr/local/pf/conf/pf.conf`.
 
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
@@ -1902,13 +1902,24 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
 
-These parameters can also be configured from the *Configuration -> Admin Registration* section.
+The format of the duration is as follow:
 
-PacketFence administrators automatically have access to the guest management interface. It is also possible to create users that will only have access to the administrative interface by setting the access level to *All* as an action.
+  <DURATION><DATETIME_UNIT>[<PERIOD_BASE><OPERATOR><DURATION><DATE_UNIT>]
+
+Let's explain the meaning of each parameter:
+
+[options="compact"]
+* `DURATION`: a number corresponding to the period duration.
+* `DATETIME_UNIT`: a character corresponding to the units of the date or time duration; either s (seconds), m (minutes), h (hours), D (days), W (weeks), M (months), or Y (years).
+* `PERIOD_BASE`: either F (fixed) or R (relative). A relative period is computed from the beginning of the period unit. Weeks start on Monday.
+* `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
+* `DATE_UNIT`: a character corresponding to the units of the extended duration. Limited to date units (D (days), W (weeks), M (months), or Y (years)).
+
+These parameters can also be configured from the *Configuration -> Admin Registration* section of the Web admin interface.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Guests created by the guest management interface are added under the Users tab of the PacketFence web administration interface. From there, it is possible to reset their password, change their role and more.
+From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
 
 Guest pre-registration
 ++++++++++++++++++++++

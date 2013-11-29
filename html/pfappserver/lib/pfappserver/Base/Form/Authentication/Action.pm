@@ -17,7 +17,6 @@ extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(:constants is_success);
 use pf::config;
-use pf::util qw(get_abbr_time);
 use pf::web::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -111,7 +110,7 @@ sub field_list {
                            default_method => sub {
                                my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
                                  || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
-                               return get_abbr_time($duration);
+                               return $duration;
                            },
                           }
                          );
@@ -218,7 +217,7 @@ sub options_durations {
         [ split (/\s*,\s*/, $choices) ],
         $self->form->ctx->languages()->[0]
     );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
+    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
 
     return \@options;
 }
