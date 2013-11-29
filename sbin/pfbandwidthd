@@ -1,0 +1,268 @@
+#!/usr/bin/perl
+
+=head1 NAME
+
+pfdns - PacketFence DNS server
+
+=head1 SYNOPSIS
+
+pfdns
+
+=cut
+
+use warnings;
+use strict;
+use Readonly;
+use English qw( ‐no_match_vars ) ;  # Avoids regex performance penalty
+use File::Basename qw(basename);
+use Getopt::Std;
+use Log::Log4perl;
+use Pod::Usage;
+use POSIX qw(:signal_h);
+use Try::Tiny;
+use NetAddr::IP;
+
+use Net::Pcap;
+use NetPacket::Ethernet;
+use NetPacket::IP;
+
+use Data::Dumper;
+
+
+use constant INSTALL_DIR => '/usr/local/pf';
+
+use lib INSTALL_DIR . "/lib";
+
+use pf::config;
+use pf::config::cached;
+use pf::util;
+use pf::web::util qw(set_memcached get_memcached get_memcached_conf);
+
+# initialization
+# --------------
+# assign process name (see #1464)
+$PROGRAM_NAME = basename($PROGRAM_NAME);
+
+# log4perl init
+Log::Log4perl->init_and_watch( INSTALL_DIR . "/conf/log.conf", $LOG4PERL_RELOAD_TIMER );
+my $logger = Log::Log4perl->get_logger( basename($PROGRAM_NAME) );
+Log::Log4perl::MDC->put( 'proc', basename($PROGRAM_NAME) );
+# storing process id instead of thread id in tid (more useful)
+Log::Log4perl::MDC->put( 'tid',  $PID );
+
+# init signal handlers
+POSIX::sigaction(
+    &POSIX::SIGHUP,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfbandwidthd: could not set SIGHUP handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGTERM,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfbandwidthd: could not set SIGTERM handler: $!");
+
+POSIX::sigaction(
+    &POSIX::SIGINT,
+    POSIX::SigAction->new(
+        'normal_sighandler', POSIX::SigSet->new(), &POSIX::SA_NODEFER
+    )
+) or $logger->logdie("pfbandwidthd: could not set SIGINT handler: $!");
+
+
+my %args;
+getopts( 'dhi:', \%args );
+
+my $daemonize = $args{d};
+
+pod2usage( -verbose => 1 ) if ( $args{h} );
+
+# standard signals and daemonize
+daemonize() if ($daemonize);
+
+my %ip_statistics;
+my %seen_inline_ips;
+my $last_stats_dump = 0;
+my $min_stats_dump_interval = 120;
+
+# setup our inline networks
+my @l3_accounting_networks;
+foreach my $network ( keys %ConfigNetworks ) {
+    if ( pf::config::is_network_type_inline($network) ) {
+        my $inline_obj = NetAddr::IP->new( $network, $ConfigNetworks{$network}{'netmask'} );
+        push @l3_accounting_networks, $inline_obj;
+    }
+}
+
+# pcap setup
+my $err = '';
+my $dev = "eth1.210";
+$dev = "eth0";
+my $snaplen = 64; # Should be enough to get iphdr + tcphdr
+my $promisc = 0;
+my $to_ms = 0;
+
+# FIXME set this properly to ignore packets for whitelisted destinations
+# should also get only packets matching l3_accounting_networks
+my $pcap_filter_str="ether proto \\ip and not port ssh";
+$pcap_filter_str .= " and " . pcap_filter_from_networks(@l3_accounting_networks);
+my $pcap_filter;
+
+my $net;
+my $mask;
+if (Net::Pcap::lookupnet($dev, \$net, \$mask, \$err) == -1) {
+   die("Unable to lookupnet: $err");
+}
+
+# open the device for live listening
+$logger->debug("pcap details: $dev, snaplen: $snaplen, promisc:$promisc, timeout: $to_ms");
+my $pcap = Net::Pcap::pcap_open_live($dev, $snaplen, $promisc, $to_ms, \$err);
+die($err) if !$pcap;
+
+$logger->debug("pcap_filter: $pcap_filter_str");
+if (Net::Pcap::compile($pcap, \$pcap_filter, $pcap_filter_str, 1, $mask) == -1) {
+  die("Unable to compile pcap filter: $!");
+}
+Net::Pcap::setfilter($pcap, $pcap_filter);
+
+# Change user to pf
+&dropprivs("pf", "pf");
+Net::Pcap::pcap_loop($pcap, -1, \&process_packet, undef);
+
+# close the device
+Net::Pcap::pcap_close($pcap);
+
+sub process_packet {
+    my ($user_data, $header, $packet) = @_;
+    my $len = $header->{len};
+    my ($src, $dst) = &packet_addresses($packet);
+
+    if (&ip_in_inline_subnets($src, @l3_accounting_networks)) {
+      $ip_statistics{$src}->{outbytes} += $len;
+    } elsif (&ip_in_inline_subnets($dst, @l3_accounting_networks)) {
+      $ip_statistics{$dst}->{inbytes} += $len;
+    }
+
+    if ($header->{tv_sec} - $last_stats_dump >= $min_stats_dump_interval) {
+        $logger->debug("saving stats");
+        &save_stats();
+        $last_stats_dump = $header->{tv_sec};
+    }
+}
+
+sub packet_addresses {
+  my ($packet) = @_;
+
+  my @addresses;
+  my $ether = NetPacket::Ethernet->decode($packet);
+  my $ip = NetPacket::IP->decode($ether->{'data'});
+
+  return ($ip->{src_ip}, $ip->{dest_ip});
+}
+
+sub ip_in_inline_subnets {
+  my ($ip_txt, @subnets) = @_;
+
+  # return early if ip is known
+  return 1 if (defined($seen_inline_ips{$ip_txt}));
+
+   my $ip = new NetAddr::IP($ip_txt);
+   foreach my $subnet (@subnets) {
+      if ($ip->within($subnet)) {
+          $seen_inline_ips{$ip_txt} = 1;
+          return 1;
+      }
+   }
+
+   return 0;
+}
+
+sub save_stats {
+    
+}
+
+# builds a pcap filter like this:
+#   (net 127.0.0.0/24 or net 192.168.0.0/24 or net 192.168.1.0/24 or net 192.168.3.0/24)
+sub pcap_filter_from_networks {
+    my @networks = @_;
+
+    my @networks_cidr;
+    foreach my $network (@networks) {
+      push @networks_cidr, $network->network();
+    }
+    return "(net " . join(" or net ", @networks_cidr) . ")";
+}
+
+sub dropprivs {
+  my ($user, $group) = @_;
+  my $uid = getpwnam($user);
+  my $gid = getgrnam($user);
+
+  die("Can't drop privileges") if (!$uid || !$gid);
+
+  POSIX::setuid($uid);
+  POSIX::setgid($gid);
+  
+}
+
+sub daemonize {
+    chdir '/' or $logger->logdie("Can't chdir to /: $!");
+    open STDIN, '<', '/dev/null'
+        or $logger->logdie("Can't read /dev/null: $!");
+    open STDOUT, '>', '/dev/null'
+        or $logger->logdie("Can't write to /dev/null: $!");
+
+    defined( my $pid = fork )
+        or $logger->logdie("pfbandwidthd: could not fork: $!");
+    POSIX::_exit(0) if ($pid);
+    if ( !POSIX::setsid() ) {
+        $logger->error("could not start a new session: $!");
+    }
+    open STDERR, '>&STDOUT' or $logger->logdie("Can't dup stdout: $!");
+    my $daemon_pid = createpid("pfbandwidthd");
+
+    # updating Log4perl's pid info
+    Log::Log4perl::MDC->put( 'tid',  $daemon_pid );
+}
+
+sub normal_sighandler {
+    deletepid("pfbandwidthd");
+    if ( threads->self->tid() == 0 ) {
+        $logger->logdie(
+            "pfbandwidthd: caught SIG" . $_[0] . " - terminating" );
+    }
+}
+
+
+=back
+
+=head1 BUGS AND LIMITATIONS
+
+Probably
+
+=head1 COPYRIGHT
+
+Copyright (C) 2007-2013 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
