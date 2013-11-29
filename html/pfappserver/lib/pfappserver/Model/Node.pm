@@ -251,6 +251,14 @@ sub update {
             # Node has been registered or deregistered
             reevaluate_access($mac, "node_modify");
         }
+        elsif (defined $previous_node_ref->{category} != defined $node_ref->{category}){
+            # Node role has been changed from null to defined or defined to null
+            reevaluate_access($mac, "node_modify");
+        }
+        elsif (defined $previous_node_ref->{category} && $previous_node_ref->{category} ne $node_ref->{category}){
+            # Node role has changed
+            reevaluate_access($mac, "node_modify");
+        }
     }
     else {
         $status = $STATUS::INTERNAL_SERVER_ERROR;
