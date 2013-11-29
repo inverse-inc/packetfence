@@ -98,6 +98,7 @@ foreach my $network ( keys %ConfigNetworks ) {
 }
 
 # pcap setup
+my %pcap_stats;
 my $err = '';
 my $dev = "eth1.210";
 $dev = "eth0";
@@ -150,6 +151,10 @@ sub process_packet {
         $logger->debug("saving stats");
         &save_stats();
         $last_stats_dump = $header->{tv_sec};
+        Net::Pcap::stats($pcap, \%pcap_stats);
+        $logger->debug("pcap stats ps_recv:" . $pcap_stats{ps_recv} . 
+                       " ps_drop: " . $pcap_stats{ps_drop} . 
+                       " ps_ifdrop:" .  $pcap_stats{ps_ifdrop});
     }
 }
 
