@@ -62,7 +62,7 @@ function networkAccessCallback(destination_url, redirect_url) {
     }
 
     // Chrome 10 / Safari 5 / IE9 (sometimes) flawless
-    top.location.replace(destination_url.unescapeHTML());
+    performRedirect(destination_url);
 }
 
 /**
@@ -96,9 +96,9 @@ Date.now = Date.now || function() { return +new Date; };
 
 function detectNetworkAccess(retry_delay, destination_url, redirect_url, external_ip) {
     "use strict";
-    var errorDetected;
-    var loaded;
-    var netdetect = $('netdetect');
+    var errorDetected, loaded, netdetect, checker, initNetDetect;
+
+    netdetect = $('netdetect');
     netdetect.onerror = function() {
         errorDetected = true;
         loaded = false;
@@ -107,22 +107,21 @@ function detectNetworkAccess(retry_delay, destination_url, redirect_url, externa
         errorDetected = false;
         loaded = true;
     };
-    var checker;
-    var initNetDetect = function() {
+    initNetDetect = function() {
         errorDetected = loaded = undefined;
         var netdetect = $('netdetect');
         netdetect.src = "http://" + external_ip + "/common/network-access-detection.gif?r=" + Date.now();
-        setTimeout(checker,1000);
+        checker.delay(retry_delay);
     };
     checker = function() {
         var netdetect = $('netdetect');
-        if(errorDetected === true) {
+        if (errorDetected === true) {
             initNetDetect();
         } else if (loaded === true) {
             networkAccessCallback(destination_url, redirect_url);
         } else {
-            //Check the width or height of the image since we do not know if it is loaded
-            if(netdetect.width || netdetect.height) {
+            // Check the width or height of the image since we do not know if it is loaded
+            if (netdetect.width || netdetect.height) {
                 networkAccessCallback(destination_url, redirect_url);
             } else {
                 initNetDetect();
