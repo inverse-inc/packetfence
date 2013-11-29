@@ -164,12 +164,12 @@ This is the actual accounting table. This module will import data from the memor
  CREATE TABLE `inline_accounting` (
    `outbytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'orig_raw_pktlen',
    `inbytes` bigint unsigned NOT NULL DEFAULT '0' COMMENT 'reply_raw_pktlen',
-   `src_ip` varchar(16) NOT NULL,
+   `ip` varchar(16) NOT NULL,
    `firstseen` DATETIME NOT NULL,
    `lastmodified` DATETIME NOT NULL,
    `status` int unsigned NOT NULL default 0, -- ACTIVE
-   PRIMARY KEY (`src_ip`, `firstseen`),
-   INDEX (`src_ip`)
+   PRIMARY KEY (`ip`, `firstseen`),
+   INDEX (`ip`)
  ) ENGINE=InnoDB;
 
 
@@ -280,6 +280,7 @@ BEGIN {
         inline_accounting_db_prepare
         $inline_accounting_db_prepared
 
+        inline_accounting_update_session_for_ip
         inline_accounting_import_ulogd_data
         inline_accounting_maintenance
     );
@@ -311,6 +312,23 @@ Prepares all the SQL statements related to this module
 sub accounting_db_prepare {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     $logger->debug("Preparing" . __PACKAGE__ . "database queries");
+
+    $accounting_statements->{'accounting_update_session_for_ip'} =
+      get_db_handle()->prepare(qq[
+        UPDATE $accounting_table SET inbytes  =  inbytes + ?, outbytes = outbytes + ?, lastmodified = FROM_UNIXTIME(?)
+	  WHERE ip = ? AND status = $ACTIVE
+      ]);
+
+    $accounting_statements->{'accounting_insert_session_for_ip'} =
+      get_db_handle()->prepare(qq[
+        INSERT INTO $accounting_table(ip, inbytes, outbytes, firstseen, lastmodified, status)
+         VALUES (?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), $ACTIVE)
+      ]);
+
+    $accounting_statements->{'accounting_active_session_for_ip'} =
+      get_db_handle()->prepare(qq[
+        SELECT firstseen FROM $accounting_table WHERE ip = ? AND status = $ACTIVE
+      ]);
 
     $accounting_statements->{'accounting_select_all_ip_stats_mem_sql'} =
       get_db_handle()->prepare(qq[
@@ -392,6 +410,30 @@ sub accounting_db_prepare {
       ]);
 
     $accounting_db_prepared = 1;
+}
+
+sub inline_accounting_update_session_for_ip {
+    my ($ip, $inbytes, $outbytes, $firstseen, $lastmodified) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    my $active_session_query =  db_query_execute("inline::accounting",
+                                                 $accounting_statements,
+                                                 'accounting_active_session_for_ip', $ip) || return(0);
+
+    my $active_session = $active_session_query->fetchrow_arrayref();
+    if (defined($active_session)) {
+      db_query_execute("inline::accounting",
+		       $accounting_statements,
+		       'accounting_update_session_for_ip',
+		       $inbytes, $outbytes, $lastmodified, $ip) || return(0);
+    } else {
+        db_query_execute("inline::accounting",
+			  $accounting_statements,
+			  'accounting_insert_session_for_ip',
+			  $ip, $inbytes, $outbytes, $firstseen, $lastmodified) || return(0);
+    }
+   
+    return 1;
 }
 
 sub inline_accounting_import_ulogd_data {
