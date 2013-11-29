@@ -976,7 +976,7 @@ or set the VLAN and log if there is a VoIP device.
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info(
@@ -1016,7 +1016,7 @@ sub dot1xPortReauthenticate {
         "Changing VLAN and leaving everything as it is."
     );
 
-    my $mac = $locationlog[0]->{'mac'};
+    $mac = $locationlog[0]->{'mac'};
     my $vlan_obj = new pf::vlan::custom();
     my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X);
 
@@ -1158,6 +1158,31 @@ sub ifIndexToLldpLocalPort {
 
     # nothing found
     return;
+}
+
+=item getIfIndexByNasPortId
+
+Fetch the ifindex on the switch by NAS-Port-Id radius attribute
+
+=cut
+
+sub getIfIndexiByNasPortId {
+    my ($this, $ifDesc_param) = @_;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
+    my $ifDescHashRef;
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    foreach my $key ( keys %{$result} ) {
+        my $ifDesc = $result->{$key};
+        if ( $ifDesc =~ /$ifDesc_param$/i ) {
+            $key =~ /^$OID_ifDesc\.(\d+)$/;
+            return $1;
+        }
+    }
 }
 
 =back
