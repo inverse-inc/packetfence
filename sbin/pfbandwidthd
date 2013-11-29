@@ -115,17 +115,17 @@ my $pcap_filter;
 my $net;
 my $mask;
 if (Net::Pcap::lookupnet($dev, \$net, \$mask, \$err) == -1) {
-   die("Unable to lookupnet: $err");
+   $logger->logdie("Unable to lookupnet: $err");
 }
 
 # open the device for live listening
 $logger->debug("pcap details: $dev, snaplen: $snaplen, promisc:$promisc, timeout: $to_ms");
 my $pcap = Net::Pcap::pcap_open_live($dev, $snaplen, $promisc, $to_ms, \$err);
-die($err) if !$pcap;
+$logger->logdie($err) if !$pcap;
 
 $logger->debug("pcap_filter: $pcap_filter_str");
 if (Net::Pcap::compile($pcap, \$pcap_filter, $pcap_filter_str, 1, $mask) == -1) {
-  die("Unable to compile pcap filter: $!");
+  $logger->logdie("Unable to compile pcap filter: $!");
 }
 Net::Pcap::setfilter($pcap, $pcap_filter);
 
@@ -206,7 +206,7 @@ sub dropprivs {
   my $uid = getpwnam($user);
   my $gid = getgrnam($user);
 
-  die("Can't drop privileges") if (!$uid || !$gid);
+  $logger->logdie("Can't drop privileges") if (!$uid || !$gid);
 
   POSIX::setuid($uid);
   POSIX::setgid($gid);
