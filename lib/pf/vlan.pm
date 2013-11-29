@@ -87,20 +87,14 @@ sub fetchVlanForNode {
     # there were no violation, now onto registration handling
     my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
-
-        if ( ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-            
-            
+        if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             my $notes = $node_info->{'notes'};
             if ($notes eq 'AUTO-REGISTERED') {
-                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was comming from a secure SSID with auto registration" );
-                my %info = (
-                    'notes' => '',
-                );
-                node_modify($mac,%info);
+                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was comming from a secure SSID with auto registration");
+                node_modify($mac, ('notes' => ''));
             }
         }
-        return ( $registration , 0, "registration");
+        return ($registration, 0, "registration");
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
