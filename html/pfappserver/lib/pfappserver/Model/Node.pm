@@ -247,8 +247,16 @@ sub update {
         $result = node_modify($mac, %{$node_ref});
     }
     if ($result) {
-        if ($previous_node_ref->{status} ne $node_ref->{status}) {
+        if ($previous_node_ref->{status} ne $node_ref->{status} || $previous_node_ref->{category} ne $node_ref->{category}) {
             # Node has been registered or deregistered
+            reevaluate_access($mac, "node_modify");
+        }
+        elsif (defined $previous_node_ref->{category} != defined $node_ref->{category}){
+            # Node role has been changed from null to defined or defined to null
+            reevaluate_access($mac, "node_modify");
+        }
+        elsif (defined $previous_node_ref->{category} && $previous_node_ref->{category} ne $node_ref->{category}){
+            # Node role has changed
             reevaluate_access($mac, "node_modify");
         }
     }
