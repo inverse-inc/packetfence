@@ -1206,13 +1206,15 @@ sub startService {
         $technique->iptables_generate();
     }
 
-    require pf::pfcmd::checkup;
-    import pf::pfcmd::checkup;
     my ($noCheckupManagers,$checkupManagers) = part { $_->shouldCheckup} @managers;
-    foreach my $manager (@$noCheckupManagers) {
-        _doStart($manager);
+    if($noCheckupManagers && @$noCheckupManagers) {
+        foreach my $manager (@$noCheckupManagers) {
+            _doStart($manager);
+        }
     }
-    if(@$checkupManagers) {
+    if($checkupManagers && @$checkupManagers) {
+        require pf::pfcmd::checkup;
+        import pf::pfcmd::checkup;
         checkup( map {$_->name} @$checkupManagers);
 
         foreach my $manager (@$checkupManagers) {
