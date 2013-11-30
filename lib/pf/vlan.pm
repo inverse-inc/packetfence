@@ -26,6 +26,7 @@ use pf::violation qw(violation_count_trap violation_exist_open violation_view_to
 
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::Portal::ProfileFactory;
 
 our $VERSION = 1.04;
 
@@ -367,13 +368,15 @@ sub getNormalVlan {
     # FIRST HIT MATCH
     elsif ( defined $user_name && (($connection_type & $EAP) == $EAP) ) {
         $logger->debug("EAP connection with a username. Trying to match rules from authentication sources.");
+        my $profile = pf::Portal::ProfileFactory->instantiate($mac);
+        my @sources = ($profile->getInternalSources);
         my $params = {
             username => $user_name,
             connection_type => connection_type_to_str($connection_type),
             SSID => $ssid,
         };
-        $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), $params, $Actions::SET_ROLE);
-    }
+        $role = &pf::authentication::match([@sources], $params, $Actions::SET_ROLE);
+    } 
 
     # If a user based role has been found by matching authentication sources rules, we return it
     if ( defined($role) && $role ne '' ) {
