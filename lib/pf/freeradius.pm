@@ -121,6 +121,7 @@ Populates the radius_nas table with switches in switches.conf.
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    return unless db_ping;
     my ($switch_config) = @_;
     my %skip = (default => undef, '127.0.0.1' => undef );
     my $radiusSecret;
