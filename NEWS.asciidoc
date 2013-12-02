@@ -26,6 +26,7 @@ New Features
 * LDAP authentication sources can now filter by group membership using a second LDAP query
 * Extended definition of access durations
 * FreeRADIUS does not need to be restarted after adding a switch
+* New customizable ACLs for Web admin interface
 
 Enhancements
 ++++++++++++
