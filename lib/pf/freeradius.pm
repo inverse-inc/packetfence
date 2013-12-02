@@ -122,24 +122,21 @@ Populates the radius_nas table with switches in switches.conf.
 sub freeradius_populate_nas_config {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
     my ($switch_config) = @_;
+    my %skip = (default => undef, '127.0.0.1' => undef );
+    my $radiusSecret;
+    my @switches = grep {
+            !exists $skip{$_}
+          && defined( $radiusSecret = $switch_config->{$_}{radiusSecret} )
+          && $radiusSecret =~ /\S/
+    } keys %$switch_config;
+    return unless @switches;
 
     if (!_delete_all_nas()) {
         $logger->info("Problem emptying FreeRADIUS nas clients table.");
     }
 
-    foreach my $switch (keys %$switch_config) {
-
-        # we skip the 'default' entry or the local switch
-        if ($switch eq 'default' || $switch eq '127.0.0.1') { next; }
-
+    foreach my $switch (@switches) {
         my $sw_radiussecret = $switch_config->{$switch}{'radiusSecret'};
-
-        # skipping unless switch's radiusSecret exists and is not all whitespace
-        unless (defined $sw_radiussecret && $sw_radiussecret =~ /\S/ ) {
-            $logger->debug("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
-            next;
-        }
-
         # insert NAS
         _insert_nas( $switch, $switch, $sw_radiussecret, $switch . " (" . $switch_config->{$switch}{'type'} .")");
     }
