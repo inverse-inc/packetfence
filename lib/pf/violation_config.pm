@@ -20,6 +20,7 @@ use Try::Tiny;
 use pf::config;
 use pf::trigger qw(trigger_delete_all parse_triggers);
 use pf::class qw(class_merge);
+use pf::db;
 
 our (%Violation_Config, $cached_violations_config);
 
@@ -37,51 +38,53 @@ sub fileReloadViolationConfig {
     $logger->info("called $name");
     $config->toHash(\%Violation_Config);
     $config->cleanupWhitespace(\%Violation_Config);
-    trigger_delete_all();
-    while(my ($violation,$data) = each %Violation_Config) {
-        # parse triggers if they exist
-        my $triggers_ref = [];
-        if ( defined $data->{'trigger'} ) {
-            try {
-                $triggers_ref = parse_triggers($data->{'trigger'});
-            } catch {
-                $logger->warn("Violation $violation is ignored: $_");
-                $triggers_ref = [];
-            };
-        }
+    if(db_ping) {
+        trigger_delete_all();
+        while(my ($violation,$data) = each %Violation_Config) {
+            # parse triggers if they exist
+            my $triggers_ref = [];
+            if ( defined $data->{'trigger'} ) {
+                try {
+                    $triggers_ref = parse_triggers($data->{'trigger'});
+                } catch {
+                    $logger->warn("Violation $violation is ignored: $_");
+                    $triggers_ref = [];
+                };
+            }
 
-        # parse grace, try to understand trailing signs, and convert back to seconds
-        if ( defined $data->{'grace'} ) {
-            $data->{'grace'} = normalize_time($data->{'grace'});
-        }
+            # parse grace, try to understand trailing signs, and convert back to seconds
+            if ( defined $data->{'grace'} ) {
+                $data->{'grace'} = normalize_time($data->{'grace'});
+            }
 
-        if ( defined $data->{'window'} && $data->{'window'} ne "dynamic" ) {
-            $data->{'window'} = normalize_time($data->{'window'});
-        }
+            if ( defined $data->{'window'} && $data->{'window'} ne "dynamic" ) {
+                $data->{'window'} = normalize_time($data->{'window'});
+            }
 
-        # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
-        class_merge(
-            $violation,
-            $data->{'desc'} || '',
-            $data->{'auto_enable'},
-            $data->{'max_enable'},
-            $data->{'grace'},
-            $data->{'window'},
-            $data->{'vclose'},
-            $data->{'priority'},
-            $data->{'template'},
-            $data->{'max_enable_url'},
-            $data->{'redirect_url'},
-            $data->{'button_text'},
-            $data->{'enabled'},
-            $data->{'vlan'},
-            $data->{'target_category'},
-            $data->{'whitelisted_categories'} || '',
-            $data->{'actions'},
-            $triggers_ref
-        );
+            # be careful of the way parameters are passed, whitelists, actions and triggers are expected at the end
+            class_merge(
+                $violation,
+                $data->{'desc'} || '',
+                $data->{'auto_enable'},
+                $data->{'max_enable'},
+                $data->{'grace'},
+                $data->{'window'},
+                $data->{'vclose'},
+                $data->{'priority'},
+                $data->{'template'},
+                $data->{'max_enable_url'},
+                $data->{'redirect_url'},
+                $data->{'button_text'},
+                $data->{'enabled'},
+                $data->{'vlan'},
+                $data->{'target_category'},
+                $data->{'whitelisted_categories'} || '',
+                $data->{'actions'},
+                $triggers_ref
+            );
+        }
+        $config->cache->set("Violation_Config",\%Violation_Config);
     }
-    $config->cache->set("Violation_Config",\%Violation_Config);
 }
 
 sub readViolationConfigFile {
@@ -98,7 +101,7 @@ sub readViolationConfigFile {
                     if($data) {
                         %Violation_Config = %$data;
                     } else {
-                        fileReloadViolationConfig($config,$name);
+                        $config->doCallbacks(1,0);
                     }
                 }
             ],
