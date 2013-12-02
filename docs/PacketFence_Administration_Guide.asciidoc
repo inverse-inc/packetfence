@@ -199,6 +199,7 @@ Install your distribution with minimal installation and no additional packages. 
 * Disable Firewall
 * Disable SELinux
 * Disable AppArmor
+* Disable resolvconf
 
 Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
 
