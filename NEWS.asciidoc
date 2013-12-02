@@ -43,6 +43,7 @@ Enhancements
 * Validate file path when saving an Htpasswd authentication source
 * Improved validation of a sponsor's email address
 * Allow actions depending on authentication source type
+* Modified logrotate so it uses copytruncate instead of restarting the services.
 
 Bug Fixes
 +++++++++
