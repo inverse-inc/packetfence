@@ -837,11 +837,11 @@ sub get_translatable_time {
    my ($time) = @_;
 
    # grab time unit
-   my ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+   my ($value, $unit) = $time =~ /^(\d+)($TIME_MODIFIER_RE)/;
 
    unless ($unit) {
        $time = get_abbr_time($time);
-       ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+       ($value, $unit) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
    }
 
    if ($unit eq "s") { return ("second", "seconds", $value);

@@ -27,7 +27,8 @@ table .action {
 }
 
 /* position text input and button group on the same row */
-.row-fluid .compound-input-btn-group input {
+.row-fluid .compound-input-btn-group input,
+.row-fluid .compound-input-btn-group select {
     float: left;
     margin-right: 4px;
 }

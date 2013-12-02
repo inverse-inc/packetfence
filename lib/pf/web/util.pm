@@ -186,13 +186,21 @@ sub get_translated_time_hash {
     my ($to_translate, $locale) = @_;
 
     my %time;
-    foreach my $keys (@{$to_translate}) {
-        my ($unit, $unit_plural, $value) = get_translatable_time($keys);
-        
-        # we normalize time so we can present the hash in a sorted fashion
-        my $unix_timestamp = normalize_time($keys);
+    foreach my $key (@{$to_translate}) {
+        my ($unit, $unit_plural, $value) = get_translatable_time($key);
+        my $strfmt = $value . " " . ni18n($unit, $unit_plural, $value);
 
-        $time{$unix_timestamp} = $value . " " . ni18n($unit, $unit_plural, $value);
+        if ($key =~ /^\d+$TIME_MODIFIER_RE$DEADLINE_UNIT([-+])(\d+$TIME_MODIFIER_RE)$/) {
+            ($unit, $unit_plural, $value) = get_translatable_time($2);
+            if ($value > 0) {
+                $strfmt .= sprintf(" (%s %i %s)", $1, $value, ni18n($unit, $unit_plural, $value));
+            }
+        }
+
+        # we normalize time so we can present the hash in a sorted fashion
+        my $unix_timestamp = normalize_time($key);
+
+        $time{$unix_timestamp} = [$key, $strfmt];
     }
     return \%time;
 }

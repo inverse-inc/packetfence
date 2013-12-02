@@ -65,6 +65,8 @@ sub render_radio {
         . $self->html_name . '" class="btn';
     $output .= ' active'
         if $result->fif eq $value;
+    $output .= ' disabled'
+        if $self->element_attr->{'disabled'};
     $output .= '" value="'
         . $self->html_filter($value) . '"';
     $output .= process_attrs($option->{attributes});

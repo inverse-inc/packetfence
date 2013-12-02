@@ -19,6 +19,25 @@ use namespace::autoclean;
 
 use pf::config;
 
+=head1 ATTRIBUTES
+
+=head2 with_operator (default: disabled)
+
+If this boolean attribute is enabled, an operator select input will be printed with the options
+B<add> and B<subtract>.
+
+=cut
+
+has 'with_operator' => (isa => 'Bool', is => 'ro', default => 0);
+
+=head2 with_time (default: enabled)
+
+If this boolean attribute is enabled, the time units will include hours, minutes and seconds.
+
+=cut
+
+has 'with_time' => (isa => 'Bool', is => 'ro', default => 1);
+
 has '+do_wrapper' => ( default => 1 );
 has '+do_label' => ( default => 1 );
 has '+inflate_default_method'=> ( default => sub { \&duration_inflate } );
@@ -43,24 +62,111 @@ has_field 'unit' =>
    tags => { no_errors => 1 },
    wrapper_class => ['btn-group'],
    wrapper_attr => {'data-toggle' => 'buttons-radio'},
-   options => [
-               {value => 's', label => 'seconds'},
-               {value => 'm', label => 'minutes'},
-               {value => 'h', label => 'hours'},
-               {value => 'D', label => 'days'},
-               {value => 'W', label => 'weeks'},
-               {value => 'M', label => 'months'},
-               {value => "Y", label => 'years'},
-              ],
+   options_method => \&options_unit,
    apply => [ { check => $TIME_MODIFIER_RE } ],
   );
+
+=head1 METHODS
+
+=head2 BUILD
+
+Propagate the 'disabled' attribute to all subfields.
+
+=cut
+
+sub BUILD {
+    my ($self) = @_;
+
+    if ($self->element_attr->{"disabled"}) {
+        foreach my $subfield ( $self->sorted_fields ) {
+            $self->set_disabled($subfield);
+        }
+    }
+}
+
+=head2 field_list
+
+Dynamically build the 'operator' field.
+
+=cut
+
+sub field_list {
+    my $self = shift;
+
+    my $list = [];
+
+    if ($self->{with_operator}) {
+        my $field =
+          {
+           name => 'operator',
+           order => 1, # place it before all other fields
+           type => 'Select',
+           do_label => 0,
+           widget_wrapper => 'None',
+           element_class => ['input-small'],
+           options =>
+           [
+            {value => 'add', label => 'add'},
+            {value => 'subtract', label => 'subtract'},
+           ],
+          };
+        push(@$list, $field);
+    }
+
+    return $list;
+}
+
+=head2 set_disabled
+
+Set the 'disable' attribute of a field.
+
+=cut
+
+sub set_disabled {
+    my ($self, $field) = @_;
+    if ($field->can("fields")) {
+        foreach my $subfield ($field->fields) {
+            set_disabled($subfield);
+        }
+    }
+    $field->set_element_attr("disabled" => "disabled");
+}
+
+=head2 options_unit
+
+Dynamically define the unit options based on the 'with_time' class attribute.
+
+=cut
+
+sub options_unit {
+    my $self = shift;
+
+    my @options;
+    if ($self->parent->{with_time}) {
+        @options =
+          (
+           {value => 's', label => 'seconds'},
+           {value => 'm', label => 'minutes'},
+           {value => 'h', label => 'hours'},
+          );
+    }
+    push(@options,
+         {value => 'D', label => 'days'},
+         {value => 'W', label => 'weeks'},
+         {value => 'M', label => 'months'},
+         {value => "Y", label => 'years'},
+        );
+
+    return @options;
+}
 
 sub duration_inflate {
     my ($self, $value) = @_;
 
-    return {} unless (defined $value && $value =~ m/(\d+)($TIME_MODIFIER_RE)/);
-    my $hash = {interval => $1,
-                unit => $2};
+    return {} unless (defined $value && $value =~ m/([+\-])?(\d+)($TIME_MODIFIER_RE)/);
+    my $hash = {operator => (defined $1 && $1 eq '-')? 'subtract':'add',
+                interval => $2,
+                unit => $3};
 
     return $hash;
 }
@@ -68,10 +174,15 @@ sub duration_inflate {
 sub duration_deflate {
     my ($self, $value) = @_;
 
+    my $operator = '';
     my $interval = $value->{interval};
     my $unit = $value->{unit};
 
-    return $interval.$unit if (defined $interval && defined $unit);
+    if ($self->{with_operator}) {
+        $operator = $value->{operator} eq 'add'? '+' : '-';
+    }
+
+    return $operator.$interval.$unit if (defined $interval && defined $unit);
 }
 
 =head1 COPYRIGHT
