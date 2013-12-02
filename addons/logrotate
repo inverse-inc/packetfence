@@ -6,13 +6,6 @@
     missingok
     compress
     delaycompress
-    sharedscripts
-    create 644 pf pf
     su pf pf
-    postrotate
-        # uncomment the crm statements if you are running packetfence in a corosync cluster
-        #/usr/sbin/crm resource unmanage PacketFence
-        /etc/init.d/packetfence condrestart  >/dev/null 2>&1 || true
-        #/usr/sbin/crm resource manage PacketFence
-    endscript
+    copytruncate
 }
