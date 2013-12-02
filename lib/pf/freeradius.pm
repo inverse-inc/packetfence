@@ -121,55 +121,27 @@ Populates the radius_nas table with switches in switches.conf.
 # First, we aim at reduced complexity. I prefer to dump and reload than to deal with merging config vs db changes.
 sub freeradius_populate_nas_config {
     my $logger = Log::Log4perl::get_logger('pf::freeradius');
+    my ($switch_config) = @_;
 
     if (!_delete_all_nas()) {
         $logger->info("Problem emptying FreeRADIUS nas clients table.");
     }
 
-    # load switches.conf
-    my %SwitchConfig;
-    if (!-e $conf_dir.SWITCHES_CONF) {
-        croak "Config file " . $conf_dir.SWITCHES_CONF . " cannot be read\n";
-    }
-
-    tie %SwitchConfig, 'pf::config::cached', (-file => $conf_dir.SWITCHES_CONF);
-
-    my @errors = @Config::IniFiles::errors;
-    if ( scalar(@errors) ) {
-        croak "Error reading config file: " . join( "\n", @errors ) . "\n";
-    }
-
-    $logger->debug("Starting to insert switches in radius_nas table for FreeRADIUS");
-    foreach my $switch (sort keys %SwitchConfig) {
+    foreach my $switch (keys %$switch_config) {
 
         # we skip the 'default' entry or the local switch
         if ($switch eq 'default' || $switch eq '127.0.0.1') { next; }
 
-        # valid if switch's radiusSecret exists and is not all whitespace
-        my $valid_sw_radiussecret = (
-            defined($SwitchConfig{$switch}{'radiusSecret'})
-            && $SwitchConfig{$switch}{'radiusSecret'} =~ /\S/
-        );
+        my $sw_radiussecret = $switch_config->{$switch}{'radiusSecret'};
 
-        # valid if default radiusSecret exists and is not all whitespace
-        my $valid_df_radiussecret = (
-            defined($SwitchConfig{'default'}{'radiusSecret'})
-            && $SwitchConfig{'default'}{'radiusSecret'} =~ /\S/
-        );
-
-        # we are looking for the opposite of a valid switch statement or a valid radius statement
-        if (!($valid_sw_radiussecret || $valid_df_radiussecret)) {
+        # skipping unless switch's radiusSecret exists and is not all whitespace
+        unless (defined $sw_radiussecret && $sw_radiussecret =~ /\S/ ) {
             $logger->debug("No RADIUS secret for switch: $switch FreeRADIUS configuration skipped");
             next;
         }
 
         # insert NAS
-        _insert_nas(
-            $switch,
-            $switch,
-            $SwitchConfig{$switch}{'radiusSecret'} || $SwitchConfig{'default'}{'radiusSecret'},
-            $switch . " (" . ($SwitchConfig{$switch}{'type'} || $SwitchConfig{'default'}{'type'}) .")",
-        );
+        _insert_nas( $switch, $switch, $sw_radiussecret, $switch . " (" . $switch_config->{$switch}{'type'} .")");
     }
 }
 
