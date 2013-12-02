@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+use strict;
+use POSIX qw(pause setsid);
+use Getopt::Std;
+
+BEGIN {
+    use lib qw(/usr/local/pf/lib /usr/local/pf/t);
+    use pf::util;
+    use PfFilePaths;
+}
+
+my %args;
+getopts( 'n:', \%args );
+my $name = 'dummy';
+$name = $args{n} if exists $args{n};
+
+exit(0) if fork;
+setsid;
+exit(0) if fork;
+
+createpid($name);
+$SIG{TERM} = sub {};
+pause;
+deletepid($name);
