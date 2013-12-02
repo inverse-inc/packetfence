@@ -44,6 +44,7 @@ Enhancements
 * Improved validation of a sponsor's email address
 * Allow actions depending on authentication source type
 * Modified logrotate so it uses copytruncate instead of restarting the services.
+* Now comes with a corosync compatible barnyard2 init script in addons.
 
 Bug Fixes
 +++++++++
