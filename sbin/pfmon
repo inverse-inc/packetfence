@@ -190,6 +190,7 @@ sub cleanup {
             violation_maintenance();
 
             if (isenabled($Config{'inline'}{'accounting'})) {
+                inline_accounting_maintenance($Config{'inline'}{'accounting_session_timeout'});
             }
 
             $logger->info("checking accounting data for potential bandwidth abuse");
