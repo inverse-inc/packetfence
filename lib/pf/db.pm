@@ -40,7 +40,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(%dbh db_data db_connect db_disconnect get_db_handle db_query_execute);
+    @EXPORT = qw(%dbh db_data db_connect db_disconnect get_db_handle db_query_execute db_ping);
 
 }
 
@@ -116,6 +116,21 @@ sub db_connect {
         $logger->logcroak("unable to connect to database: " . $DBI::errstr);
         return ();
     }
+}
+
+=item * db_ping
+
+checks if database is connected
+
+=cut
+
+sub db_ping {
+    my ($dbh,$result);
+    eval {
+        my $dbh = db_connect;
+        $result = $dbh->ping;
+    };
+    return $result;
 }
 
 =item * db_disconnect
