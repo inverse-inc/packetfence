@@ -45,7 +45,13 @@ function init() {
         return true;
     });
 
-    $(window).hashchange(pfOnHashChange(updateSection,'/configuration'));
+    var href =  $('.sidebar-nav .nav-list a').first().attr('href');
+    if(href) {
+        href = href.replace(/^.*#/,"/");
+    } else {
+        href = "/configuration";
+    }
+    $(window).hashchange(pfOnHashChange(updateSection,href));
 
     $(window).hashchange();
 

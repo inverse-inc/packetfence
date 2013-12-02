@@ -48,7 +48,7 @@
           <td>[% source.field('id').render_element %][% IF is_sql %][% source.field('id').value %][% ELSE %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a>[% END %]</td>
           <td class="hidden-phone">[% source.field('description').value %]</td>
           <td>[% l(source.field('type').value) %]</td>
-          <td>[% UNLESS is_sql %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>[% END %]</td>
+          <td>[% IF NOT is_sql AND can_access("USERS_SOURCES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>[% END %]</td>
         </tr>
         [% END -%]
         [% END -%]
@@ -76,7 +76,11 @@
         <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
         <td class="hidden-phone">[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
-        <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
+        <td>
+          [%- IF can_access("USERS_SOURCES_DELETE") %]
+          <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>
+          [%- END %]
+        </td>
       </tr>
       [% END -%]
       [% END -%]
@@ -115,6 +119,7 @@
   <i class="icon-group icon-large"></i><p>[% l('No source defined') %]</p>
 </div>
 
+[%- IF can_access("USERS_SOURCES_CREATE") %]
 <div class="form-actions">
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
@@ -146,3 +151,4 @@
     </ul>
   </div>
 </div>
+[%- END %]

@@ -43,14 +43,14 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub simple_search :Local :Args() : SimpleSearch('OS') { }
+sub simple_search :Local :Args() :SimpleSearch('OS') :AdminRole('FINGERPRINTS_READ') { }
 
 
 =head2 update
 
 =cut
 
-sub update :Local :Args(0) {
+sub update :Local :Args(0) :AdminRole('FINGERPRINTS_UPDATE') {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
     my ( $status, $version_msg, $total ) = update_dhcp_fingerprints_conf();
@@ -65,7 +65,7 @@ sub update :Local :Args(0) {
 
 =cut
 
-sub upload :Local :Args(0) {
+sub upload :Local :Args(0) :AdminRole('FINGERPRINTS_READ') {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
 
@@ -113,7 +113,7 @@ sub upload :Local :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

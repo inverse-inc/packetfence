@@ -1,4 +1,4 @@
-[% IF items.size %]
+[%- IF items.size %]
 <table class="table table-condensed">
     <thead>
       <tr>
@@ -9,21 +9,22 @@
       </tr>
     </thead>
     <tbody>
-    [% FOR item IN items %]
+    [%- FOR item IN items %]
     <tr[% ' class="muted"' IF item.status != 'open' %]>
       <td>[% item.description %]</td>
       <td>[% item.start_date %]</td>
       <td>[% item.release_date %]</td>
-      <td>[% IF item.status == 'open' %]<a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>[% END %]</td>
+      <td>[% IF item.status == 'open' && can_access("NODES_UPDATE") %]<a href="[% c.uri_for(c.controller('Node').action_for('closeViolation'), [item.id]) %]" class="btn btn-mini">[% l('Release') %]</a>[% END %]</td>
     </tr>
-    [% END %]
+    [%- END %]
     </tbody>
 </table>
-[% ELSE %]
+[%- ELSE %]
   <div id="noResult" class="unwell">
     <i class="icon-legal icon-large"></i><p>[% l('No violation found') %]</p>
   </div>
-[% END %]
+[%- END %]
+[%- IF can_access("NODES_UPDATE") %]
   <hr />
   <div class="controls pull-right">
   <select name="vid" id="vid" class="" data-placeholder="[% l('Select a violation') %]">
@@ -33,3 +34,4 @@
   </select>
   <a id="addViolation" class="btn btn-warning" href="[% c.uri_for(c.controller('Node').action_for('triggerViolation'), [mac]) %]">[% l('Trigger') %]</a>
 </div>
+[%- END %]

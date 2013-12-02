@@ -1,7 +1,9 @@
       <h2>[% l('MAC Addresses') %]</h2>
+      [%- IF can_access("MAC_UPDATE") %]
       <div class="options">
         <a class="updates_section_status_msg" href="[%c.uri_for(c.controller('Configuration::MacAddress').action_for('update') )%]"><i class="icon-share"></i> [% l('Update OUI Prefixes') %] </a>
       </div>
+      [%- END %]
     [%- INCLUDE 'configuration/listing.inc' titles = {
             oui =>{ title => 'OUI' },
             vendor_info => { title => 'Vendor' },

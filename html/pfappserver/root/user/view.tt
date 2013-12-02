@@ -12,12 +12,16 @@
 
           <ul class="nav nav-tabs">
             <li class="active"><a href="#userInfo" data-toggle="tab">[% l('Info') %]</a></li>
-            [% IF user.password.defined -%]
+            [%- IF user.password.defined -%]
+            [%- IF can_access("USERS_UPDATE") %]
             <li><a href="#userPassword" data-toggle="tab">[% l('Password') %]</a></li>
+            [%- END %]
             <li><a href="#userActions" data-toggle="tab">[% l('Actions') %]</a></li>
-            [% END -%]
+            [%- END %]
+            [%- IF can_access("NODES_READ") %]
             <li><a href="#userDevices" data-toggle="tab">[% l('Devices') %]</a></li>
             <li><a href="#userViolations" data-href="[% c.uri_for(c.controller('User').action_for('violations'), [user.pid]) %]" data-toggle="tab">[% l('Violations') %]</a></li>
+            [%- END %]
           </ul>
 
           <div class="tab-content">
@@ -32,6 +36,7 @@
             </div><!--tab-pane-->
 
 [% IF user.password.defined  %]
+            [%- IF can_access("USERS_UPDATE") %]
             <div class="tab-pane fade in" id="userPassword">
               <div class="control-group">
                 <label class="control-label" for="password">[% l('Password') %]</label>
@@ -57,6 +62,7 @@
                 </div>
               </div>
             </div><!--tab-pane-->
+            [%- END %]
 
             <div class="tab-pane fade" id="userActions">
               <div class="control-group">
@@ -102,11 +108,13 @@
             </div><!--tab-pane-->
 [% END %]
 
+            [%- IF can_access("NODES_READ") %]
             <div class="tab-pane fade" id="userDevices">
               [% IF nodes.size %]
               <table class="table table-condensed">
                 <thead>
                   <tr>
+                    <th>[% l('Status') %]</th>
                     <th>[% l('MAC') %]</th>
                     <th>[% l('Computer Name') %]</th>
                     <th>[% l('OS (DHCP)') %]</th>
@@ -115,10 +123,8 @@
                 <tbody>
                 [% FOR node IN nodes %]
                 <tr>
-                  <td>
-                    <span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span>
-                    <a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a>
-                  </td>
+                  <td><span class="label[% IF node.status == 'reg' %] label-success[% END %]">[% l(node.status) %]</span></td>
+                  <td><a href="[% c.uri_for(c.controller('Node').action_for('view'), [ node.mac ]) %]">[% node.mac %]</a></td>
                   <td>[% node.computername %]</td>
                   <td>[% node.dhcp_fingerprint %]</td>
                 </tr>
@@ -134,15 +140,16 @@
 
             <div class="tab-pane fade" id="userViolations">
             </div><!--tab-pane-->
+            [%- END %]
 
           </div><!--tab-content-->
 
         </div><!--modal-body-->
 
         <div class="modal-footer">
-          <a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>
+          [% IF can_access("USERS_DELETE") %]<a href="[% c.uri_for(c.controller('User').action_for('delete'), [ user.pid ]) %]" id="deleteUser" class="btn btn-danger pull-left[% ' disabled' IF  nodes.size > 0 %]"><i class="icon-trash icon-white"></i> [% l('Delete') %]</a>[% END %]
           <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-          <button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+          [% IF can_access("USERS_UPDATE") %]<button type="submit" class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
         </div><!--modal-footer-->
 
       </form>

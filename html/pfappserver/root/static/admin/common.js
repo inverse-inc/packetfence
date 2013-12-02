@@ -13,8 +13,16 @@ function updateAction(type, keep_value) {
     value_new.attr('id', value.attr('id'));
     value_new.attr('name', value.attr('name'));
     value_new.attr('data-required', 1);
-    if (keep_value && value.val()) value_new.val(value.val());
+    if (keep_value && value.val()) {
+        if(value_new.attr('multiple')  ) {
+            value_new.val(value.val().split(","));
+        }
+        else {
+            value_new.val(value.val());
+        }
+    }
     value_new.insertBefore(value);
+    value.next(".chzn-container").remove();
 
     // Remove previous field
     value.remove();

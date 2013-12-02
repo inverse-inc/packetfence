@@ -39,11 +39,19 @@ BEGIN {
 with 'pfappserver::Base::Controller::Crud::Config' => {excludes => [qw(object)]};
 
 __PACKAGE__->config(
-#Reconfiguring the models and forms for actions
+    # Reconfigure the models and forms for actions
     action_args => {
         '*' => { model => "Config::Profile", form => 'Portal::Profile'},
         'index' => { model => "Config::Profile", form => 'Portal'},
-    }
+    },
+    action => {
+        # Configure access rights
+        view   => { AdminRole => 'PORTAL_PROFILES_READ' },
+        list   => { AdminRole => 'PORTAL_PROFILES_READ' },
+        create => { AdminRole => 'PORTAL_PROFILES_CREATE' },
+        update => { AdminRole => 'PORTAL_PROFILES_UPDATE' },
+        remove => { AdminRole => 'PORTAL_PROFILES_DELETE' },
+    },
 );
 
 =head1 METHODS
@@ -92,12 +100,12 @@ after create => sub {
     }
 };
 
-sub sort_profiles :Local : Args(0) {
+sub sort_profiles :Local :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
 }
 
-sub upload :Chained('object') :PathPart('upload') :Args() {
+sub upload :Chained('object') :PathPart('upload') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     $self->validatePathParts($c, @pathparts);
@@ -119,7 +127,7 @@ sub validatePathParts {
     }
 }
 
-sub edit :Chained('object') :PathPart :Args() {
+sub edit :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $full_file_name = catfile(@pathparts);
     my ($file_name,$directory) = fileparse($full_file_name);
@@ -136,7 +144,7 @@ sub edit :Chained('object') :PathPart :Args() {
     );
 }
 
-sub edit_new :Chained('object') :PathPart :Args() {
+sub edit_new :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $self->validatePathParts($c, @pathparts);
     my $full_file_name = catfile(@pathparts);
@@ -164,7 +172,7 @@ HTML
     );
 }
 
-sub rename :Chained('object') :PathPart :Args() {
+sub rename :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c,@pathparts) = @_;
     my $request = $c->request;
     my $to = $request->param('to');
@@ -182,7 +190,7 @@ sub rename :Chained('object') :PathPart :Args() {
     $c->response->location( $c->pf_hash_for($c->controller('Portal::Profile')->action_for('edit'), [$c->stash->{id}], catfile(@pathparts,$to)) );
 }
 
-sub new_file :Chained('object') :PathPart :Args() {
+sub new_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $path = catfile(@pathparts);
     my $request = $c->request;
@@ -201,7 +209,7 @@ sub new_file :Chained('object') :PathPart :Args() {
 
 }
 
-sub save :Chained('object') :PathPart :Args() {
+sub save :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $file_content = $c->req->param("file_content") || '';
     my $path = $self->_makeFilePath($c, @pathparts);
@@ -209,13 +217,13 @@ sub save :Chained('object') :PathPart :Args() {
     write_file($path, $file_content);
 }
 
-sub show_preview :Chained('object') :PathPart :Args() {
+sub show_preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
     my $file_name = catfile(@pathparts);
     $c->stash(file_name => $file_name);
 }
 
-sub preview :Chained('object') :PathPart :Args() {
+sub preview :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c, @pathparts) = @_;
     my $template_path = $self->_makeFilePath($c);
     my $new_template = $self->_makePreviewTemplate($c, @pathparts);
@@ -260,14 +268,14 @@ sub _makeDefaultFilePath {
     return catfile($CAPTIVE_PORTAL{TEMPLATE_DIR}, @pathparts);
 }
 
-sub delete_file :Chained('object') :PathPart('delete') :Args() {
+sub delete_file :Chained('object') :PathPart('delete') :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     my $file_path = $self->_makeFilePath($c, @pathparts);
     unlink($file_path);
 }
 
-sub revert_file :Chained('object') :PathPart :Args() {
+sub revert_file :Chained('object') :PathPart :Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     $c->stash->{current_view} = 'JSON';
     my $file_path = $self->_makeFilePath($c,@pathparts);
@@ -275,7 +283,7 @@ sub revert_file :Chained('object') :PathPart :Args() {
     copy($default_file_path, $file_path);
 }
 
-sub files :Chained('object') :PathPart :Args(0) {
+sub files :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_READ') {
     my ($self, $c) = @_;
     $c->stash(root => $self->_getFilesInfo($c));
 }
@@ -307,7 +315,7 @@ sub path_exists :Private {
     }
 }
 
-sub copy_file :Chained('object'): PathPart('copy'): Args() {
+sub copy_file :Chained('object'): PathPart('copy'): Args() :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self, $c, @pathparts) = @_;
     my $from = catfile(@pathparts);
     my $request = $c->request;
@@ -397,7 +405,7 @@ sub _readDirRecursive {
     return @files;
 }
 
-sub revert_all :Chained('object') :PathPart :Args(0) {
+sub revert_all :Chained('object') :PathPart :Args(0) :AdminRole('PORTAL_PROFILES_UPDATE') {
     my ($self,$c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($entries_copied, $dir_copied, undef) = $self->copyDefaultFiles($c);

@@ -34,7 +34,7 @@ Show list of authentication sources. Allow user to order the list.
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my ($self, $c) = @_;
 
     my ($sources);
@@ -64,7 +64,7 @@ Update the authentication sources order.
 
 =cut
 
-sub update :Path('update') :Args(0) {
+sub update :Path('update') :Args(0) :AdminRole('USERS_SOURCES_UPDATE') {
     my ($self, $c) = @_;
 
     my ($form, $status, $message);
