@@ -92,11 +92,10 @@ sub fetchVlanForNode {
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             
             
-            my $notes = $node_info->{'notes'};
-            if ($notes eq 'AUTO-REGISTERED') {
-                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was comming from a secure SSID with auto registration" );
+            if (isenabled($notes->{'autoreg'})) {
+                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration" );
                 my %info = (
-                    'notes' => '',
+                    'autoreg' => 'no',
                 );
                 node_modify($mac,%info);
             }
@@ -351,13 +350,12 @@ sub getNormalVlan {
         $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $node_info->{'category'};
 
-        my $notes = $node_info->{'notes'};
-        if ($notes eq 'AUTO-REGISTERED') {
+        if (isenabled($notes->{'äutoreg'})) {
             $logger->info("Device is comming from a secure connection and has been auto registered, we unreg it and forward it to the portal" );
             $role = 'registration';
             my %info = (
                 'status' => 'unreg',
-                'notes' => '',
+                'autoreg' => 'no',
             );
             node_modify($mac,%info);
         }
@@ -449,6 +447,7 @@ sub getNodeInfoForAutoReg {
         notes           => 'AUTO-REGISTERED',
         status          => 'reg',
         auto_registered => 1, # tells node_register to autoreg
+        autoreg         => 'yes',
     );
 
     # if we are called from a violation with action=autoreg, say so

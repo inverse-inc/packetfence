@@ -126,7 +126,7 @@ sub node_db_prepare {
             detect_date=?, regdate=?, unregdate=?, lastskip=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
-            notes=?
+            notes=?, autoreg=? 
         WHERE mac=?
     ]);
 
@@ -136,7 +136,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes
+            node.notes, autoreg 
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
@@ -148,7 +148,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes
+            node.notes, autoreg 
         FROM node
             LEFT JOIN node_category USING (category_id)
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
@@ -183,7 +183,7 @@ sub node_db_prepare {
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
-            node.notes,
+            node.notes, autoreg,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
@@ -402,7 +402,7 @@ sub node_add {
         'detect_date', 'regdate', 'unregdate', 'lastskip',
         'user_agent', 'computername', 'dhcp_fingerprint',
         'last_arp', 'last_dhcp',
-        'notes'
+        'notes', 'autoreg'
     ) {
         $data{$field} = "" if ( !defined $data{$field} );
     }
@@ -422,7 +422,7 @@ sub node_add {
         $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
         $data{user_agent}, $data{computername}, $data{dhcp_fingerprint},
         $data{last_arp}, $data{last_dhcp},
-        $data{notes}
+        $data{notes}, $data{autoreg}
     ) || return (0);
     return (1);
 }
@@ -441,7 +441,8 @@ sub node_add_simple {
         'last_skip'   => 0,
         'status'      => 'unreg',
         'last_dhcp'   => 0,
-        'voip'        => 'no'
+        'voip'        => 'no',
+        'autoreg'     => 'no'
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -772,7 +773,7 @@ sub node_modify {
         $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip},
         $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
         $existing->{last_arp}, $existing->{last_dhcp},
-        $existing->{notes},
+        $existing->{notes},$existing->{autoreg},
         $mac
     );
     return ($sth->rows);
@@ -1169,3 +1170,4 @@ USA.
 =cut
 
 1;
+
