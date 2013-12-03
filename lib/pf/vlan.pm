@@ -89,7 +89,7 @@ sub fetchVlanForNode {
     my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
 
-        if ( ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
+        if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
             
             
             my $notes = $node_info->{'notes'};
@@ -344,10 +344,10 @@ sub getNormalVlan {
     my $role = "";
 
     # Try MAC_AUTH, then other EAP methods and finally anything else.
-    if ( ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
+    if ( $connection_type && ($connection_type & $WIRED_MAC_AUTH) == $WIRED_MAC_AUTH ) {
         $logger->info("Connection type is WIRED_MAC_AUTH. Getting role from node_info" );
         $role = $node_info->{'category'};
-    } elsif ( ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
+    } elsif ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
         $logger->info("Connection type is WIRELESS_MAC_AUTH. Getting role from node_info" );
         $role = $node_info->{'category'};
 
