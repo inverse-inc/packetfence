@@ -366,7 +366,7 @@ sub getNormalVlan {
     # If it's an EAP connection with a username, we try to match that username with authentication sources to calculate
     # the role based on the rules defined in the different authentication sources.
     # FIRST HIT MATCH
-    elsif ( defined $user_name && (($connection_type & $EAP) == $EAP) ) {
+    elsif ( defined $user_name && $connection_type && ($connection_type & $EAP) == $EAP ) {
         $logger->debug("EAP connection with a username. Trying to match rules from authentication sources.");
         my $profile = pf::Portal::ProfileFactory->instantiate($mac);
         my @sources = ($profile->getInternalSources);
