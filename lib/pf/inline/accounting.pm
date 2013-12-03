@@ -34,6 +34,7 @@ my $accounting_table = 'inline_accounting';
 
 my $ACTIVE = 0;
 my $INACTIVE = 1;
+my $ANALYZED = 3;
 
 BEGIN {
     use Exporter ();
@@ -113,7 +114,7 @@ sub accounting_db_prepare {
              WHERE a.ip = i.ip
                AND i.end_time = 0
                AND i.mac = n.mac
-               AND a.status = $INACTIVE
+               AND a.status = $ACTIVE
             ),
           0)
         WHERE n.bandwidth_balance > 0
@@ -139,6 +140,13 @@ sub accounting_db_prepare {
           SET status = $INACTIVE
           WHERE status = $ACTIVE AND DAY(lastmodified) != DAY(firstseen)
       ]);
+
+    $accounting_statements->{'accounting_update_status_analyzed_sql'} =
+      get_db_handle()->prepare(qq[
+       UPDATE $accounting_table
+         SET status = $ANALYZED
+         WHERE status = $INACTIVE
+     ]);
 
     $accounting_db_prepared = 1;
 
@@ -218,6 +226,9 @@ sub inline_accounting_maintenance {
 
     # Update bandwidth balance with new inactive sessions
     $result = $result && db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+
+    # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
+    $result = $result && db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
 
     return $result;
 }
