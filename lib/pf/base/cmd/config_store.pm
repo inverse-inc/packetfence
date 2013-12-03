@@ -1,4 +1,4 @@
-package pf::cmd::config_store;
+package pf::base::cmd::config_store;
 =head1 NAME
 
 pf::cmd::config_store add documentation
@@ -13,7 +13,7 @@ pf::cmd::config_store
 
 use strict;
 use warnings;
-use base qw(pf::cmd::action_cmd);
+use base qw(pf::base::cmd::action_cmd);
 
 sub action_clone {
     my ($self) = @_;
@@ -32,6 +32,7 @@ sub action_delete {
     my $configStore = $self->configStore;
     my ($id) = @{$self->{action_args}};
     $configStore->remove($id);
+    return $configStore->commit;
 }
 
 sub action_add {

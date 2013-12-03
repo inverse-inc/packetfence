@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use pf::log;
 use pf::file_paths;
-use base qw(pf::cmd::action_cmd);
+use base qw(pf::base::cmd::action_cmd);
 
 sub action_get {
     my ($self) = @_;

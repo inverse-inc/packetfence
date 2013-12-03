@@ -25,7 +25,7 @@ pf::cmd::pf::portalprofileconfig
 
 use strict;
 use warnings;
-use base qw(pf::cmd::config_store);
+use base qw(pf::base::cmd::config_store);
 use pf::ConfigStore::Profile;
 
 sub configStoreName { "pf::ConfigStore::Profile" }

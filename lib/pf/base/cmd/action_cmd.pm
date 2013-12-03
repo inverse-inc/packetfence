@@ -1,4 +1,4 @@
-package pf::cmd::action_cmd;
+package pf::base::cmd::action_cmd;
 =head1 NAME
 
 pf::cmd::action_cmd add documentation
