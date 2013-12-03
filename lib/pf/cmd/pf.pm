@@ -8,18 +8,19 @@ pf::cmd::pf add documentation
 pfcmd <command> [options]
 
  Commands
-  checkup                     | perform a sanity checkup and report any problems
+  checkup                     | perform a sanity checkup and report any problems or warnings
   class                       | view violation classes
   config                      | query, set, or get help on pf.conf configuration paramaters
   configfiles                 | push or pull configfiles into/from database
-  floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+  floatingnetworkdeviceconfig | query/modify floating network device configuration parameters
   fingerprint                 | view DHCP Fingerprints
+  fixpermissions              | fix permissions of files
   graph                       | trending graphs
   history                     | IP/MAC history
+  import                      | bulk import of information into the database
   ifoctetshistorymac          | accounting history
   ifoctetshistoryswitch       | accounting history
   ifoctetshistoryuser         | accounting history
-  import                      | bulk import of information into the database
   interfaceconfig             | query/modify interface configuration parameters
   ipmachistory                | IP/MAC history
   locationhistorymac          | Switch/Port history
@@ -28,7 +29,7 @@ pfcmd <command> [options]
   manage                      | manage node entries
   networkconfig               | query/modify network configuration parameters
   node                        | node manipulation
-  nodeaccounting              | RADIUS Accounting Information
+  nodeaccounting              | RADIUS accounting information
   nodecategory                | nodecategory manipulation
   nodeuseragent               | View User-Agent information associated to a node
   person                      | person manipulation
