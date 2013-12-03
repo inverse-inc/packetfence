@@ -130,18 +130,18 @@ sub ResortSections {
 sub ReorderByGroup {
     my ($self) = @_;
     my @sections = $self->Sections;
-    if(@sections) {
-        #Finding all non group sections
+    if (@sections) {
+        # Finding all non group sections
         my @non_group = grep { !/ / } @sections;
-        if(scalar @sections !=  scalar @non_group) {
-                my @new_sections;
+        if (scalar @sections != scalar @non_group) {
+            my @new_sections;
             my @groups = grep { / / } @sections;
             foreach my $section (@non_group) {
-                push @new_sections,$section, grep { /^\Q$section \E/ } @groups;
-                @groups = grep { !/^\Q$section\E/ } @groups;
+                push @new_sections, $section, grep { /^\Q$section \E/ } @groups;
+                @groups = grep { !/^\Q$section \E/ } @groups;
             }
-            #Push any remaining group sections
-            push @new_sections,@groups;
+            # Push any remaining group sections
+            push @new_sections, @groups;
             $self->{sects} = \@new_sections;
         }
     }

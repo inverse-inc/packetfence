@@ -67,6 +67,7 @@ Bug Fixes
 * Fixed self-registration of multiple unverified devices
 * Fixed duplicate entries in advanced search of nodes
 * Fixed advanced search by node category
+* Fixed reordering of conf sections and groups (#1749)
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
