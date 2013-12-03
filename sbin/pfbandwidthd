@@ -108,6 +108,9 @@ $logger->debug("pcap details: $dev, snaplen: $snaplen, promisc:$promisc, timeout
 my $pcap = Net::Pcap::pcap_open_live($dev, $snaplen, $promisc, $to_ms, \$err);
 $logger->logdie($err) if !$pcap;
 
+# Change user to pf
+&dropprivs("pf", "pf");
+
 # Build a pcap filter to get only ipv4 traffic, ignore traffic to/from our local interfaces (and their associated broadcast addresses)
 # and capture only traffic to/from networks defined as 'inline' in networks.conf
 my $pcap_filter_str="ether proto \\ip";
@@ -128,9 +131,6 @@ if (Net::Pcap::compile($pcap, \$pcap_filter, $pcap_filter_str, 1, $mask) == -1) 
   $logger->logdie("Unable to compile pcap filter: $!");
 }
 Net::Pcap::setfilter($pcap, $pcap_filter);
-
-# Change user to pf
-&dropprivs("pf", "pf");
 
 # Loop forever reading packets from pcap
 Net::Pcap::pcap_loop($pcap, -1, \&process_packet, undef);
@@ -161,7 +161,7 @@ sub process_packet {
 
     if ($header->{tv_sec} - $last_stats_dump >= $min_stats_dump_interval) {
         $logger->debug("saving stats");
-        &save_stats();
+        &save_stats($header);
         Net::Pcap::stats($pcap, \%pcap_stats);
         $logger->debug("pcap stats ps_recv:" . $pcap_stats{ps_recv} . 
                        " ps_drop: " . $pcap_stats{ps_drop} . 
@@ -197,6 +197,7 @@ sub ip_in_inline_subnets {
 }
 
 sub save_stats {
+  my ($pcap_header) = @_;
   foreach my $ip (keys %ip_stats) {
     my $inbytes = $ip_stats{$ip}{inbytes} ? $ip_stats{$ip}{inbytes} : 0;
     my $outbytes = $ip_stats{$ip}{outbytes} ? $ip_stats{$ip}{outbytes} : 0;
@@ -206,7 +207,7 @@ sub save_stats {
   } 
   # FIXME what should we do if we had an error inserting? drop everything except those with error?
   %ip_stats=();
-  $last_stats_dump = $header->{tv_sec};
+  $last_stats_dump = $pcap_header->{tv_sec};
 }
 
 # builds a pcap filter like this:
@@ -249,8 +250,8 @@ sub dropprivs {
 
   $logger->logdie("Can't drop privileges") if (!$uid || !$gid);
 
-  POSIX::setuid($uid) or $logger->logdie("Can't setuid to $user: $!");
   POSIX::setgid($gid) or $logger->logdie("Can't setgid to $group: $!");;
+  POSIX::setuid($uid) or $logger->logdie("Can't setuid to $user: $!");
 }
 
 sub daemonize {
