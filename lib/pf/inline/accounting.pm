@@ -114,7 +114,7 @@ sub accounting_db_prepare {
              WHERE a.ip = i.ip
                AND i.end_time = 0
                AND i.mac = n.mac
-               AND a.status = $ACTIVE
+               AND a.status = $INACTIVE
             ),
           0)
         WHERE n.bandwidth_balance > 0
