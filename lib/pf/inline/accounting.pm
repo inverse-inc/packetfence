@@ -123,14 +123,21 @@ sub accounting_db_prepare {
       get_db_handle()->prepare(qq[
         UPDATE $accounting_table
           SET status = $INACTIVE
-          WHERE ip = ?
+          WHERE status = $ACTIVE AND ip = ?
       ]);
 
     $accounting_statements->{'accounting_update_inactive_sessions_for_interval_sql'} =
       get_db_handle()->prepare(qq[
         UPDATE $accounting_table
           SET status = $INACTIVE
-          WHERE lastmodified < NOW() - INTERVAL ? SECOND
+          WHERE status = $ACTIVE AND lastmodified < NOW() - INTERVAL ? SECOND
+      ]);
+
+    $accounting_statements->{'accounting_update_inactive_sessions_for_day_change_sql'} =
+      get_db_handle()->prepare(qq[
+        UPDATE $accounting_table
+          SET status = $INACTIVE
+          WHERE status = $ACTIVE AND DAY(lastmodified) != DAY(firstseen)
       ]);
 
     $accounting_db_prepared = 1;
@@ -162,9 +169,20 @@ sub inline_accounting_update_session_for_ip {
     return 1;
 }
 
+sub inline_accounting_update_sessions {
+    my $accounting_session_timeout = shift;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+
+    return (db_query_execute('inline::accounting', $accounting_statements,
+                             'accounting_update_inactive_sessions_for_interval_sql', $accounting_session_timeout) &&
+            db_query_execute('inline::accounting', $accounting_statements,
+                             'accounting_update_inactive_sessions_for_day_change_sql'));
+}
+
 sub inline_accounting_maintenance {
     my $accounting_session_timeout = shift;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my $result = 0;
 
     # Check if there's at least a violation using the 'Accounting::BandwidthExpired' trigger
     my @tid = trigger_view_tid($ACCOUNTING_POLICY_BANDWIDTH);
@@ -182,13 +200,12 @@ sub inline_accounting_maintenance {
             while (my $row = $bandwidth_query->fetchrow_arrayref()) {
                 my ($mac, $ip, $bandwidth_balance, $bandwidth_consumed) = @$row;
                 $logger->debug("Node $mac/$ip has no more bandwidth (balance $bandwidth_balance, consumed $bandwidth_consumed), triggering violation");
-
                 # Trigger violation for this node
-                violation_trigger($mac, $ACCOUNTING_POLICY_BANDWIDTH, $TRIGGER_TYPE_ACCOUNTING);
-
-                # Stop counters of active network sessions for this node
-                db_query_execute('inline::accounting', $accounting_statements,
-                                 'accounting_update_inactive_sessions_for_ip_sql', $ip);
+                if (violation_trigger($mac, $ACCOUNTING_POLICY_BANDWIDTH, $TRIGGER_TYPE_ACCOUNTING)) {
+                    # Stop counters of active network sessions for this node
+                    db_query_execute('inline::accounting', $accounting_statements,
+                                     'accounting_update_inactive_sessions_for_ip_sql', $ip);
+                }
             }
         }
 
@@ -197,13 +214,12 @@ sub inline_accounting_maintenance {
     }
 
     # Stop counters of active network sessions that have exceed the timeout
-    db_query_execute('inline::accounting', $accounting_statements,
-                     'accounting_update_inactive_sessions_for_interval_sql', $accounting_session_timeout);
+    $result = inline_accounting_update_sessions($accounting_session_timeout);
 
     # Update bandwidth balance with new inactive sessions
-    db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+    $result = $result && db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
 
-    return 1;
+    return $result;
 }
 
 =back
