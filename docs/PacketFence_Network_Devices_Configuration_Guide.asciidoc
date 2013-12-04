@@ -108,6 +108,7 @@ PacketFence supports the following devices:
 |                 |DWL Access-Points           |Dlink::DWL
 |                 |DWS 3026                    |Dlink::DWS_3026
 |Dell             |PowerConnect 3424           |Dell::PowerConnect3424
+|                 |Force 10                    |Dell::Force10
 |Edge-corE        |3526XA                      |Accton::ES3536XA
 |                 |3528M                       |Accton::ES3528M
 |Enterasys        |Matrix N3                   |Enterasys::Matrix_N3
@@ -860,6 +861,12 @@ Radius server configuration:
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+
 802.1x with MAC Authentication bypass (Multi­Host)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -896,6 +903,12 @@ Radius server configuration
   radius-server host 10.10.10.10 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
 
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
+
 MAC Authentication bypass only 
 ++++++++++++++++++++++++++++++
 
@@ -931,6 +944,12 @@ Radius server configuration
 
   radius-server host 192.168.1.5 auth-port 1812 acct-port 1813 timeout 2 key useStrongerSecret 
   radius-server vsa send authentication 
+
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+  port 3799
 
 Port-­Security 
 ++++++++++++++
@@ -1107,6 +1126,33 @@ On each interface:
 
 Dell 
 ~~~~
+
+Force 10
+^^^^^^^^
+
+PacketFence supports this switch using radiusi mac-auth and 802.1x
+
+Global config settings
+
+  radius-server host 192.168.1.5 key s3cr3t auth-port 1812
+ 
+MAB interface configuration:
+
+  interface GigabitEthernet 0/1
+   no ip address
+   switchport
+   dot1x authentication 
+   dot1x mac-auth-bypass 
+   dot1x auth-type mab-only 
+   no shutdown
+
+802.1x interface configuration:
+
+  interface GigabitEthernet 0/1
+   no ip address
+   switchport
+   dot1x authentication 
+   no shutdown
 
 PowerConnect 3424 
 ^^^^^^^^^^^^^^^^^

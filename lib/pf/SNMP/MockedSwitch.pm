@@ -2535,7 +2535,7 @@ ifIndex - ifIndex to force re-authentication on
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
 
     return $this->_dot1xPortReauthenticate($ifIndex);
 }
@@ -2768,7 +2768,7 @@ sub NasPortToIfIndex {
 =cut
 
 sub handleReAssignVlanTrapForWiredMacAuth {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $switch_ip = $this->{'_ip'};
@@ -2778,7 +2778,9 @@ sub handleReAssignVlanTrapForWiredMacAuth {
         return;
     }
 
-    my $mac = $locationlog[0]->{'mac'};
+    if (!defined($mac)) {
+        $mac = $locationlog[0]->{'mac'};
+    }
     my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
 
     # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
@@ -2887,6 +2889,18 @@ return IfIndexByNasPortId
 sub getIfIndexByNasPortId {
     my ($this ) = @_;
     return $FALSE;
+}
+
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($this, $method, $connection_type) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $TRUE;
 }
 
 =back

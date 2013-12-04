@@ -74,7 +74,7 @@ sub fetchVlanForNode {
         $logger->info("Inline trigger match, the node is in inline mode");
         my $inline = $this->getInlineVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
         $logger->info("MAC: $mac, PID: " .$node_info->{pid}. ", Status: " .$node_info->{status}. ". Returned VLAN: $inline");
-        return ( $inline , 1 );
+        return ( $inline, 1 );
     }
 
     # violation handling
@@ -88,18 +88,13 @@ sub fetchVlanForNode {
     # there were no violation, now onto registration handling
     my $registration = $this->getRegistrationVlan($switch, $ifIndex, $mac, $node_info, $connection_type, $user_name, $ssid);
     if (defined($registration) && $registration != 0) {
-
         if ( $connection_type && ($connection_type & $WIRELESS_MAC_AUTH) == $WIRELESS_MAC_AUTH ) {
-            
             if (isenabled($node_info->{'autoreg'})) {
-                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration" );
-                my %info = (
-                    'autoreg' => 'no',
-                );
-                node_modify($mac,%info);
+                $logger->info("Connection type is WIRELESS_MAC_AUTH and the device was coming from a secure SSID with auto registration");
+                node_modify($mac, ('autoreg' => 'no'));
             }
         }
-        return ( $registration , 0, "registration");
+        return ( $registration, 0, "registration" );
     }
 
     # no violation, not unregistered, we are now handling a normal vlan
