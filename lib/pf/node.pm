@@ -750,6 +750,11 @@ sub node_modify {
        delete $existing->{'category'} if defined($existing->{'category'});
     }
 
+    # Autoregistration handling
+    if (!defined($data{'autoreg'})) {
+        $existing->{autoreg} = 'no';
+    }
+
     my $new_mac    = lc( $existing->{'mac'} );
     my $new_status = $existing->{'status'};
 
