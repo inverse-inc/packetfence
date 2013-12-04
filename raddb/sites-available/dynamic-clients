@@ -119,7 +119,7 @@ server dynamic_client_server {
 		#
 		#  This requires the SQL module to be configured, of course.
         update control {
-            Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname '%{Packet-Src-IP-Address}'}" 
+            Tmp-String-8 = "%{sql: SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'}" 
         }
         if ("%{control:Tmp-String-8}") {
             update control {
