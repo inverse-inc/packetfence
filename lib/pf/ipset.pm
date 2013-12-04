@@ -236,6 +236,10 @@ sub iptables_unmark_node {
             foreach my $IP ( split( ',', $iplist ) ) {
                 my $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $IP 2>&1";
                 my @lines  = pf_run($cmd);
+                $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $IP 2>&1";
+                pf_run($cmd);
+                $logger->info("Flushed connections for $IP.");
+
             }
         }
     }
@@ -319,6 +323,9 @@ sub ipset_remove_ip {
         if ($line =~ m/^\s* $ip , .* \s* $/ix) {
             $cmd = "LANG=C sudo ipset --del pfsession_$mark_type_to_str{$mark}\_$network $ip 2>&1";
             $out = pf_run($cmd);
+            $cmd = "LANG=C sudo /usr/sbin/conntrack -D -s $ip 2>&1";
+            pf_run($cmd);
+            $logger->info("Flushed connections for $ip.");
         }
     }
 }
