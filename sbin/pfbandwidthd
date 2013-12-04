@@ -19,13 +19,13 @@ use Getopt::Std;
 use Log::Log4perl;
 use Pod::Usage;
 use POSIX qw(:signal_h);
-use Try::Tiny;
-use NetAddr::IP;
 
-use Net::Interface qw(:afs);
+use Net::Interface;
 use Net::Pcap;
+use NetAddr::IP;
 use NetPacket::Ethernet;
 use NetPacket::IP;
+use Socket;
 
 use constant INSTALL_DIR => '/usr/local/pf';
 
@@ -229,10 +229,10 @@ sub pcap_filter_from_local_interfaces {
 
   my @interfaces =   Net::Interface->interfaces();
   foreach my $interface (@interfaces) {
-    foreach my $address ($interface->address(AF_INET)) {
+    foreach my $address ($interface->address(AF_INET())) {
       push @addresses, Net::Interface::inet_ntoa($address);
     }
-    foreach my $broadcast ($interface->broadcast(AF_INET)) {
+    foreach my $broadcast ($interface->broadcast(AF_INET())) {
       my $broadcast_str = Net::Interface::inet_ntoa($broadcast);
       if (grep(!/^$broadcast_str$/, @addresses)) {
         push @addresses, $broadcast_str;
