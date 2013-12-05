@@ -66,7 +66,8 @@ if ( $portalSession->getCgi->param("pin") ) {
 
     $logger->info("Valid PIN -- Registering user");
    
-    my $pid = $portalSession->getSession->param("guest_pid") || "admin";
+    my $node_info = node_attributes($portalSession->getClientMac());
+    my $pid = $node_info->{'pid'} || 'admin';
     my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
     my $source = $portalSession->getProfile->getSourceByType($sms_type);
     my $auth_params = { 'username' => $pid };
@@ -85,9 +86,6 @@ if ( $portalSession->getCgi->param("pin") ) {
         $info{'category'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
         pf::web::web_node_register($portalSession, $pid, %info);
-
-        # clear state that redirects to the Enter PIN page
-        $portalSession->getSession->clear(["guest_pid"]);
 
         pf::web::end_portal_session($portalSession);
     }
