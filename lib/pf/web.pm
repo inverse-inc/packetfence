@@ -170,17 +170,12 @@ sub generate_release_page {
 
     $portalSession->stash({
         timer => $Config{'trapping'}{'redirtimer'},
-        redirect_url => $portalSession->getDestinationUrl(),
+        destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
     });
-
-    # override destination_url if we enabled the always_use_redirecturl option
-    if (isenabled($portalSession->getProfile->forceRedirectURL)) {
-        $portalSession->stash->{'redirect_url'} = $portalSession->getProfile->getRedirectURL;
-    }
 
     render_template($portalSession, 'release.html', $r);
 }
@@ -653,16 +648,11 @@ sub generate_pending_page {
     my ( $portalSession ) = @_;
 
     $portalSession->stash({
-        redirect_url => $portalSession->getProfile->getRedirectURL,
+        destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
     });
-
-    # override destination_url if we enabled the always_use_redirecturl option
-    if (isenabled($portalSession->getProfile->forceRedirectURL)) {
-        $portalSession->stash->{'destination_url'} = $portalSession->getProfile->getRedirectURL;
-    }
 
     render_template($portalSession, 'pending.html');
 }

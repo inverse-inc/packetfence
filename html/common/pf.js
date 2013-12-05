@@ -43,14 +43,14 @@ function fetchNodeStatus() {
  Called when access to the network outside registration or quarantine works
  */
 var network_redirected = false;
-function networkAccessCallback(destination_url, redirect_url) {
+function networkAccessCallback(destination_url) {
 
     network_redirected = true;
 
     // browser redirect
     // Firefox 3/4 needs a new forced destination and a little delay
     if (Prototype.Browser.Gecko) {
-        performRedirect.delay(5, redirect_url);
+        performRedirect.delay(5, destination_url);
         return;
     }
 
@@ -61,7 +61,7 @@ function networkAccessCallback(destination_url, redirect_url) {
         return;
     }
 
-    // Chrome 10 / Safari 5 / IE9 (sometimes) flawless
+    // Other browsers, try a direct redirection
     performRedirect(destination_url);
 }
 
@@ -94,7 +94,7 @@ function performRedirect(destination_url) {
 
 Date.now = Date.now || function() { return +new Date; };
 
-function detectNetworkAccess(retry_delay, destination_url, redirect_url, external_ip) {
+function detectNetworkAccess(retry_delay, destination_url, external_ip) {
     "use strict";
     var errorDetected, loaded, netdetect, checker, initNetDetect;
 
@@ -118,11 +118,11 @@ function detectNetworkAccess(retry_delay, destination_url, redirect_url, externa
         if (errorDetected === true) {
             initNetDetect();
         } else if (loaded === true) {
-            networkAccessCallback(destination_url, redirect_url);
+            networkAccessCallback(destination_url);
         } else {
             // Check the width or height of the image since we do not know if it is loaded
             if (netdetect.width || netdetect.height) {
-                networkAccessCallback(destination_url, redirect_url);
+                networkAccessCallback(destination_url);
             } else {
                 initNetDetect();
             }

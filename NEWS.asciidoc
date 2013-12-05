@@ -40,6 +40,7 @@ Enhancements
 * Improved validation of VLAN management
 * Updated FontAwesome to version 3.2.1
 * Each portal profile can now have a different redirection URL
+* Initial destination URL is now respected with Firefox
 * An Htpasswd source can now define sponsors
 * Improved display of pie charts (limit of legend labels and highlight of table rows)
 * Creation of users is now performed from the users page (was on the configuration page)

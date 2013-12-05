@@ -153,11 +153,12 @@ Returns destination_url properly parsed, defended against XSS and with configure
 sub _getDestinationUrl {
     my ($self) = @_;
 
-    # Set default if destination_url not set
-    unless (defined($self->cgi->param("destination_url"))) {
+    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
         return $self->getProfile->getRedirectURL;
     }
 
+    # Respect the user's initial destination URL
     return decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
