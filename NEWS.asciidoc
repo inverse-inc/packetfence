@@ -50,6 +50,7 @@ Enhancements
 * Modified logrotate so it uses copytruncate instead of restarting the services.
 * Now comes with a corosync compatible barnyard2 init script in addons.
 * Unreg the node when you come from a secure connection to an open connection
+* Allow a self-registered node by SMS to go back to the registration page
 
 Bug Fixes
 +++++++++

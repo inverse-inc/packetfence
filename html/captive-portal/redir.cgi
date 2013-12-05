@@ -100,7 +100,13 @@ if ($violation) {
 
 #check to see if node needs to be registered
 #
-my $unreg = node_unregistered($mac);
+my $unreg;
+if ($portalSession->getCgi->param('unreg')) {
+    $logger->info("Unregister node $mac");
+    $unreg = node_deregister($mac); # set node status to 'unreg'
+} else {
+    $unreg = node_unregistered($mac); # check if node status is 'unreg'
+}
 if ($unreg && isenabled($Config{'trapping'}{'registration'})){
   # Redirect to the billing engine if enabled
   if ( isenabled($portalSession->getProfile->getBillingEngine) ) {
@@ -130,7 +136,6 @@ if ($unreg && isenabled($Config{'trapping'}{'registration'})){
 my $node_info = node_view($mac);
 if (defined($node_info) && $node_info->{'status'} eq $pf::node::STATUS_PENDING) {
   if (pf::sms_activation::sms_activation_has_entry($mac)) {
-    node_deregister($mac);
     pf::web::guest::generate_sms_confirmation_page($portalSession, "/activate/sms");
   }
   elsif ($portalSession->getCgi->https()) {
