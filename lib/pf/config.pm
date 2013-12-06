@@ -477,6 +477,11 @@ sub readPfConfigFiles {
                 my ($config) = @_;
                 $config->toHash(\%Config);
                 $config->cleanupWhitespace(\%Config);
+                #clearing older interfaces infor
+                $monitor_int = $management_network = undef;
+                @listen_ints = @dhcplistener_ints = @ha_ints =
+                  @internal_nets = @external_nets =
+                  @inline_enforcement_nets = @vlan_enforcement_nets = ();
 
                 my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
 
@@ -619,6 +624,7 @@ sub readNetworkConfigFile {
             my ($config) = @_;
             $config->toHash(\%ConfigNetworks);
             $config->cleanupWhitespace(\%ConfigNetworks);
+            @routed_isolation_nets = @routed_registration_nets = @inline_nets = ();
             foreach my $network ( $config->Sections ) {
 
                 # populate routed nets variables
