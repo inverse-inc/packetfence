@@ -182,13 +182,21 @@ sub validate_selfregistration {
         return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
     }
 
-    my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-    my $source = $portalSession->getProfile->getSourceByType($email_type);
+    # check if email with local domain is allowed for email and sponsor sources
+    my $source;
+    if (defined($cgi->param('by_email'))) {
+        my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+        $source = $portalSession->getProfile->getSourceByType($email_type);
+    }
+    elsif (defined($cgi->param('by_sponsor'))) {
+        my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
+        $source = $portalSession->getProfile->getSourceByType($sponsor_type);
+    }
     if ($source) {
         unless (isenabled($source->{allow_localdomain})) {
             # You should not register as a guest if you are part of the local network
             my $localdomain = $Config{'general'}{'domain'};
-            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+            if ($cgi->param('email') =~ /[@\.]$localdomain$/i) {
                 return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
             }
         }

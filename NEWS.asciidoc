@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.x.y released on 2013-MM-DD
+Version 4.1.0 released on 2013-MM-DD
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -51,6 +51,7 @@ Enhancements
 * Now comes with a corosync compatible barnyard2 init script in addons.
 * Unreg the node when you come from a secure connection to an open connection
 * Allow a self-registered node by SMS to go back to the registration page
+* Sponsor email authentication source can refuse email addresses of the local domain (as the email source)
 
 Bug Fixes
 +++++++++
@@ -73,6 +74,7 @@ Bug Fixes
 * Fixed reordering of conf sections and groups (#1749)
 * Fixed pid of SMS-registered devices (was "admin" in certain circumstances)
 * Fixed saving of 'allow local domain' option when disabled in an email authentication source
+* The 'allow local domain' option of the email source will now only affect the user who registers by email
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

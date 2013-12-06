@@ -16,6 +16,7 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
 has '+unique' => (default => 1);
+has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head2 available_attributes
 

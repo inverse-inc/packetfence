@@ -1,4 +1,5 @@
 package pfappserver::Form::Authentication::Source::Null;
+
 =head1 NAME
 
 pfappserver::Form::Authentication::Source::Null add documentation
@@ -20,8 +21,8 @@ extends 'pfappserver::Form::Authentication::Source';
 has_field 'email_required' =>
   (
    type => 'Toggle',
-   checkbox_value => 'enabled',
-   unchecked_value => 'disabled',
+   checkbox_value => 'yes',
+   unchecked_value => 'no',
   );
 
 =head1 AUTHOR
