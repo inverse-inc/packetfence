@@ -16,6 +16,18 @@ with 'pfappserver::Base::Form::Role::Help';
 
 use pf::Authentication::Source::SponsorEmailSource;
 
+# Form fields
+has_field 'allow_localdomain' =>
+  (
+   type => 'Toggle',
+   checkbox_value => 'yes',
+   unchecked_value => 'no',
+   label => 'Allow Local Domain',
+   default => pf::Authentication::Source::EmailSource->meta->get_attribute('allow_localdomain')->default,
+   tags => { after_element => \&help,
+             help => 'Accept self-registration with email address from the local domain' },
+  );
+
 =head1 COPYRIGHT
 
 Copyright (C) 2013 Inverse inc.
