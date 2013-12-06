@@ -152,7 +152,13 @@ Returns the list of sources to be displayed
 =cut
 
 sub options_mandatory_fields {
-    return map { { value => $_,  label => $_ } } qw(firstname lastname organization phone mobileprovider email sponsor_email);
+    return
+      map { { value => $_, label => $_ } }
+      qw(firstname lastname organization phone mobileprovider email sponsor_email
+      anniversary birthday gender lang nickname organization cell_phone
+      work_phone title building_number apartment_number room_number
+      custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5
+      custom_field_6 custom_field_7 custom_field_8 custom_field_9);
 }
 
 =head2 validate
