@@ -51,8 +51,8 @@ Delegating removeStalePid to sub managers
 =cut
 
 sub removeStalePid {
-    my ($self) = @_;
-    $_->removeStalePid foreach $self->managers;
+    my ($self,$quick) = @_;
+    $_->removeStalePid($quick) foreach $self->managers;
 }
 
 =head2 status
@@ -63,7 +63,7 @@ returns all the pids of the submanagers
 
 sub status {
     my ($self,$quick) = @_;
-    my @results = map {$_->status } $self->managers;
+    my @results = map { $_->status($quick) } $self->managers;
     if (@results == 0 || (!$quick && any { !defined($_) || $_ eq "0" } @results )) {
        @results = ("0");
     }

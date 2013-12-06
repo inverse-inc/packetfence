@@ -126,7 +126,7 @@ work for starting a servicw
 
 sub preStartSetup {
     my ($self,$quick) = @_;
-    $self->removeStalePid;
+    $self->removeStalePid($quick);
     $self->generateConfig($quick) unless $quick;
     $self->_setupWatchForPidCreate;
     return 1;
@@ -226,7 +226,7 @@ returns the pid or list of pids for the servie(s)
 
 sub status {
     my ($self,$quick) = @_;
-    $self->removeStalePid;
+    $self->removeStalePid($quick);
     my $pid = $self->pid;
     return $pid ? $pid : "0";
 }
@@ -253,9 +253,9 @@ sub stop {
     my ($self,$quick) = @_;
     my $pid = $self->pid;
     if ($pid) {
-        $self->preStopSetup();
-        $self->stopService();
-        $self->postStopCleanup();
+        $self->preStopSetup($quick);
+        $self->stopService($quick);
+        $self->postStopCleanup($quick);
         return 1;
     }
     return;
@@ -291,7 +291,7 @@ sub stopService {
 =cut
 
 sub postStopCleanup {
-    my ($self) = @_;
+    my ($self,$quick) = @_;
     my $logger = get_logger();
     my $name = $self->name;
     my $pid = $self->lastPid;
@@ -300,7 +300,7 @@ sub postStopCleanup {
     my $timedout;
     #give the kill a little time
     $inotify->blocking(0);
-    $self->removeStalePid;
+    $self->removeStalePid($quick);
     my $timer = Linux::FD::Timer->new('monotonic');
     $timer->set_timeout(0.1,0.1);
     $timer->receive;
@@ -444,7 +444,8 @@ removes the stale PID file
 =cut
 
 sub removeStalePid {
-    my ($self) = @_;
+    my ($self,$quick) = @_;
+    return if $quick;
     my $logger = get_logger;
     my $pid = $self->pidFromFile;
     my $pidFile = $self->pidFile;
