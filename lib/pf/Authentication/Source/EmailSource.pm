@@ -8,7 +8,6 @@ pf::Authentication::Source::EmailSource
 
 =cut
 
-use pf::config qw($TRUE $FALSE);
 use pf::Authentication::constants;
 
 use Moose;
@@ -17,8 +16,8 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'Email');
 has '+unique' => (default => 1);
+has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 has 'email_activation_timeout' => (isa => 'Str', is => 'rw', default => '10m');
-has 'allow_localdomain' => (isa => 'Bool', is => 'rw', default => 1);
 
 =head2 available_attributes
 
