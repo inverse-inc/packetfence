@@ -20,6 +20,7 @@ use namespace::autoclean;
 use pf::config;
 use pf::error;
 use pf::util;
+use File::Slurp qw(read_dir);
 
 extends 'Catalyst::Model';
 
@@ -175,15 +176,28 @@ sub schema {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
     my ( $status_msg, $result );
-
-    my $cmd = "/usr/bin/mysql -u $root_user -p'$root_password' $db < $install_dir/db/pf-schema.sql";
+    $root_user = quotemeta ($root_user);
+    $root_password = quotemeta ($root_password);
+    $db = quotemeta ($db);
+    my $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
+    my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
     eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
     if ( $@ || !defined($result) ) {
         $status_msg = ["Error applying the schema to the database [_1]",$db ];
         $logger->warn("$@: $result");
         return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
     }
-
+    my @custom_schemas = read_dir( "$install_dir/db/custom", prefix => 1, err_mode => 'quiet' ) ;
+    @custom_schemas = sort @custom_schemas;
+    foreach my $custom_schema (@custom_schemas) {
+        my $cmd = "$mysql_cmd < $custom_schema";
+        eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ])) };
+        if ( $@ || !defined($result) ) {
+            $status_msg = ["Error applying the custom schema $custom_schema to the database [_1]",$db ];
+            $logger->warn("$@: $result");
+            return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
+        }
+    }
     $status_msg = ["Successfully applied the schema to the database [_1]",$db ];
     return ( $STATUS::OK, $status_msg );
 }
