@@ -62,7 +62,7 @@ sub status :Chained('service') :PathPart('') :Args(0) :AdminRole('SERVICES') {
 
 sub start :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
-    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "start") );
+    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_cmd($c->stash->{service}, "start") );
 }
 
 =head2 stop
@@ -71,7 +71,7 @@ sub start :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 sub stop :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
-    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "stop") );
+    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_cmd($c->stash->{service}, "stop") );
 }
 
 =head2 restart
@@ -80,7 +80,7 @@ sub stop :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
 
 sub restart :Chained('service') :PathPart :Args(0) :AdminRole('SERVICES') {
     my ($self, $c) = @_;
-    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_ctl($c->stash->{service}, "restart") );
+    $self->_process_model_results_as_json( $c, $c->stash->{model}->service_cmd($c->stash->{service}, "restart") );
 }
 
 =head2 pf_start
