@@ -75,6 +75,8 @@ Bug Fixes
 * Fixed pid of SMS-registered devices (was "admin" in certain circumstances)
 * Fixed saving of 'allow local domain' option when disabled in an email authentication source
 * The 'allow local domain' option of the email source will now only affect the user who registers by email
+* Fixed ifoctetshistoryuser command to use the correct query when just a user is given
+* Fixed network-detection for IE 8
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
