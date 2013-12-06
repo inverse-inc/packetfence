@@ -72,6 +72,7 @@ Bug Fixes
 * Fixed advanced search by node category
 * Fixed reordering of conf sections and groups (#1749)
 * Fixed pid of SMS-registered devices (was "admin" in certain circumstances)
+* Fixed saving of 'allow local domain' option when disabled in an email authentication source
 
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

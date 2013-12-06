@@ -23,7 +23,7 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'exclusive');
 has '+type' => (default => 'Null');
 has '+unique' => (default => 1);
-has 'email_required' => ( is=> 'rw', default => 'disabled');
+has 'email_required' => (isa => 'Str', is => 'rw', default => 'no');
 
 =head2 available_actions
 
