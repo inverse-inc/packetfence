@@ -97,7 +97,7 @@ sub status {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my %services_ref = map { $_->name => $_->status } grep { $_->isManaged }  map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES;
+    my %services_ref = map { $_->name => $_->status(1) } grep { $_->isManaged }  map {  pf::services::get_service_manager($_)  } @pf::services::ALL_SERVICES;
     return ($STATUS::OK, { services => \%services_ref}) if ( keys %services_ref );
 
     return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
@@ -163,7 +163,13 @@ sub service_start {
 =cut
 
 sub service_cmd {
-    my ($self,$service) = @_;
+    my ($self,@args) = @_;
+    my $logger = get_logger();
+    my $result = $self->_run_pfcmd_service(@args);
+    $logger->debug("pfcmd service output: " . $result);
+    return ($STATUS::OK, {result => $result}) if ( defined($result) );
+
+    return ($STATUS::INTERNAL_SERVER_ERROR, "Unidentified error see server side logs for details.");
 }
 
 =item service_cmd_background
