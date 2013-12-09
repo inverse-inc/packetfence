@@ -2908,9 +2908,9 @@ sub wiredeauthTechniques {
     my ($this, $method, $connection_type) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
     return $TRUE;
+}
 
 =item parseRequest
-}
 
 Takes FreeRADIUS' RAD_REQUEST hash and process it to return
 NAS Port type (Ethernet, Wireless, etc.)
