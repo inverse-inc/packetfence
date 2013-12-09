@@ -110,8 +110,12 @@ sub handler {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
+    my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+    my $destination_url = '';
     my $url = $r->construct_url;
-    my $orginal_url = Apache2::Util::escape_path($url,$r->pool);
+    if ($url !~ m#://\Q$captivePortalDomain\E/#) {
+        $destination_url = Apache2::Util::escape_path($url,$r->pool);
+    }
     my $proto;
     # Google chrome hack redirect in http
     if ($r->uri =~ /\/generate_204/) {
@@ -121,8 +125,8 @@ sub handler {
     }
 
     my $stash = {
-        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal?destination_url=$orginal_url",
-        'login_url_wispr' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/wispr",
+        'login_url' => "${proto}://${captivePortalDomain}/captive-portal?destination_url=$destination_url",
+        'login_url_wispr' => "${proto}://${captivePortalDomain}/wispr"
     };
 
     # prepare custom REDIRECT response
