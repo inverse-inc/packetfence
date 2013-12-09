@@ -154,7 +154,7 @@ sub _getDestinationUrl {
     my ($self) = @_;
 
     # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
-    if (!defined($self->cgi->param("destination_url")) || $self->getProfile->forceRedirectURL) {
+    if (!defined($self->cgi->param("destination_url")) || isenabled($self->getProfile->forceRedirectURL)) {
         return $self->getProfile->getRedirectURL;
     }
 
