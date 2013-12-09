@@ -177,16 +177,6 @@ sub inline_accounting_update_session_for_ip {
     return 1;
 }
 
-sub inline_accounting_update_sessions {
-    my $accounting_session_timeout = shift;
-    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-
-    return (db_query_execute('inline::accounting', $accounting_statements,
-                             'accounting_update_inactive_sessions_for_interval_sql', $accounting_session_timeout) &&
-            db_query_execute('inline::accounting', $accounting_statements,
-                             'accounting_update_inactive_sessions_for_day_change_sql'));
-}
-
 sub inline_accounting_maintenance {
     my $accounting_session_timeout = shift;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -200,7 +190,7 @@ sub inline_accounting_maintenance {
 
         # Disable AutoCommit since we perform a SELECT .. FOR UPDATE statement
         my $dbh = get_db_handle();
-        $dbh->{'AutoCommit'} = 0;
+        $dbh->begin_work or $logger->logdie("Can't enable database transactions: " . $dbh->errstr);
 
         # Extract nodes with no more bandwidth left (considering also active sessions)
         my $bandwidth_query = db_query_execute('inline::accounting', $accounting_statements, 'accounting_select_node_bandwidth_balance_sql');
@@ -217,20 +207,40 @@ sub inline_accounting_maintenance {
             }
         }
 
-        # Switchting AutoCommit from 0 to 1 automatically issues a "commit"
-        $dbh->{'AutoCommit'} = 1;
+        # Commit database transaction
+        unless ($dbh->commit) {
+            $logger->error("Error while committing database transaction: " . $dbh->errstr);
+            $dbh->rollback or $logger->logdie("Can't rollback database transaction: " . $dbh->errstr);
+        }
     }
 
-    # Stop counters of active network sessions that have exceed the timeout
-    $result = inline_accounting_update_sessions($accounting_session_timeout);
+    # Stop counters of active network sessions that have exceeded the timeout
+    $result = db_query_execute('inline::accounting', $accounting_statements,
+                               'accounting_update_inactive_sessions_for_interval_sql', $accounting_session_timeout);
+    if ($result && $result->rows > 0) {
+        $logger->debug("Mark " . $result->rows . " session(s) as inactive after " . $accounting_session_timeout . " seconds");
+    }
+
+    # Stop counters of active network sessions that have spanned a new day
+    $result = db_query_execute('inline::accounting', $accounting_statements,
+                               'accounting_update_inactive_sessions_for_day_change_sql');
+    if ($result && $result->rows > 0) {
+        $logger->debug("Mark " . $result->rows . " session(s) as inactive after a day change");
+    }
 
     # Update bandwidth balance with new inactive sessions
-    $result = $result && db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+    $result = db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_node_bandwidth_balance_sql');
+    if ($result && $result->rows > 0) {
+        $logger->debug("Updated the bandwidth balance of " . $result->rows . " nodes");
+    }
 
     # UPDATE inline_accounting: Mark INACTIVE entries as ANALYZED
-    $result = $result && db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
+    $result = db_query_execute('inline::accounting', $accounting_statements, 'accounting_update_status_analyzed_sql');
+    if ($result && $result->rows > 0) {
+        $logger->debug("Mark " . $result->rows . " sessions as analyzed");
+    }
 
-    return $result;
+    return 1;
 }
 
 =back
