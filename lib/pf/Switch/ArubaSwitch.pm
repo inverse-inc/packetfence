@@ -1,12 +1,12 @@
-package pf::SNMP::ArubaSwitch;
+package pf::Switch::ArubaSwitch;
 
 =head1 NAME
 
-pf::SNMP::ArubaSwitch - Object oriented module to access SNMP enabled Aruba Switches
+pf::Switch::ArubaSwitch - Object oriented module to access SNMP enabled Aruba Switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::ArubaSwitch module implements an object oriented interface
+The pf::Switch::ArubaSwitch module implements an object oriented interface
 to access SNMP enabled Aruba switches.
 
 =head1 STATUS
@@ -43,12 +43,12 @@ use warnings;
 use Log::Log4perl;
 use Net::SNMP;
 use Try::Tiny;
-use base ('pf::SNMP');
+use base ('pf::Switch');
 
 sub description { 'Aruba Switches' }
 
 # importing switch constants
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::util;
 use pf::config;
 

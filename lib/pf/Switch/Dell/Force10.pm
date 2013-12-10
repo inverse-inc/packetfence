@@ -1,12 +1,12 @@
-package pf::SNMP::Dell::Force10;
+package pf::Switch::Dell::Force10;
 
 =head1 NAME
 
-pf::SNMP::Dell::Force10 - Object oriented module to access SNMP enabled Dell Force10 switches
+pf::Switch::Dell::Force10 - Object oriented module to access SNMP enabled Dell Force10 switches
 
 =head1 SYNOPSIS
 
-The pf::SNMP::Dell::Force10 module implements an object oriented interface to access SNMP enabled Dell:Force10 switches.
+The pf::Switch::Dell::Force10 module implements an object oriented interface to access SNMP enabled Dell:Force10 switches.
 
 The minimum required firmware version is ...
 
@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Log::Log4perl;
 use pf::config;
-use base ('pf::SNMP::Dell');
+use base ('pf::Switch::Dell');
 
 sub description { 'Dell Force 10' }
 
