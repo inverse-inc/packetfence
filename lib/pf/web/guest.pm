@@ -53,6 +53,7 @@ use pf::web::util;
 use pf::sms_activation;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use pf::person;
 
 our $VERSION = 1.41;
 
@@ -216,12 +217,21 @@ sub validate_selfregistration {
     }
 
     # auth accepted, save login information in session (we will use them to put the guest in the db)
-    $session->param("firstname", $cgi->param("firstname"));
-    $session->param("lastname", $cgi->param("lastname"));
     $session->param("company", $cgi->param("organization"));
     $session->param("phone", pf::web::util::validate_phone_number($cgi->param("phone")));
     $session->param("email", lc($cgi->param("email")));
     $session->param("sponsor", lc($cgi->param("sponsor_email")));
+    my %exclude = (
+        pid => undef,
+        phone => undef,
+        email => undef,
+        sponsor_email => undef,
+        organization => undef,
+    );
+    foreach my $param ( grep { ! exists $exclude{$_} && exists $mandatory_fields{$_} } @pf::person::FIELDS) {
+            my $value = $cgi->param($param);
+            $session->param($param, $value) if defined $value;
+    }
     # guest pid is configurable (defaults to email)
     $session->param("guest_pid", $session->param($Config{'guests_self_registration'}{'guest_pid'}));
     return ($TRUE, 0);
