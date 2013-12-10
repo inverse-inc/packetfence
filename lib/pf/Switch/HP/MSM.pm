@@ -1,12 +1,12 @@
-package pf::SNMP::HP::MSM;
+package pf::Switch::HP::MSM;
 
 =head1 NAME
 
-pf::SNMP::HP::MSM
+pf::Switch::HP::MSM
 
 =head1 SYNOPSIS
 
-The pf::SNMP::HP::MSM module manages access to HP Procurve access point MSM
+The pf::Switch::HP::MSM module manages access to HP Procurve access point MSM
 
 =head1 STATUS
 
@@ -20,13 +20,13 @@ use warnings;
 use Log::Log4perl;
 use POSIX;
 
-use base ('pf::SNMP::HP::Controller_MSM710');
+use base ('pf::Switch::HP::Controller_MSM710');
 
 use pf::config;
 sub description { 'HP ProCurve MSM Access Point' }
 
 # importing switch constants
-use pf::SNMP::constants;
+use pf::Switch::constants;
 use pf::util;
 use Net::Appliance::Session;
 
