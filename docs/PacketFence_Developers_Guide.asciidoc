@@ -575,7 +575,7 @@ An actual implementation can be found in `pf::Switch::Aruba`.
 Template module
 ^^^^^^^^^^^^^^^
 
-Start with a copy of the template module `pf/lib/pf/SNMP/WirelessModuleTemplate.pm`
+Start with a copy of the template module `pf/lib/pf/Switch/WirelessModuleTemplate.pm`
 and fill in appropriate documentation and code.
 
 Required methods

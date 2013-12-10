@@ -182,7 +182,7 @@ sub _deauthenticateMacTelnet {
             Timeout   => 5,
             Transport => $this->{_cliTransport},
             Platform => 'HiveOS',
-            Source   => $lib_dir.'/pf/SNMP/AeroHIVE/nas-pb.yml'
+            Source   => $lib_dir.'/pf/Switch/AeroHIVE/nas-pb.yml'
         );
         $session->connect(
             Name     => $this->{_cliUser},

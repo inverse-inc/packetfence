@@ -60,7 +60,7 @@ sub _deauthenticateMacWithSSH {
             Timeout   => 20,
             Transport => $this->{_cliTransport},
             Platform => 'HP',
-            Source   => $lib_dir.'/pf/SNMP/HP/nas-pb.yml',
+            Source   => $lib_dir.'/pf/Switch/HP/nas-pb.yml',
             @addition_ops
         );
         $session->connect(
