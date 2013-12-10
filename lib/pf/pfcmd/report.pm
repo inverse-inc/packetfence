@@ -256,13 +256,13 @@ sub report_db_prepare {
     ]);
 
     $report_statements->{'report_ssid_sql'} = get_db_handle()->prepare(qq [
-       SELECT ssid,count(*) AS nodes, ROUND(COUNT(*)/
-           (SELECT COUNT(*)
+       SELECT ssid, COUNT(DISTINCT locationlog.mac) AS nodes, ROUND(COUNT(DISTINCT locationlog.mac)/
+           (SELECT COUNT(DISTINCT locationlog.mac)
                 FROM locationlog
                     INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time IS NULL
                     INNER JOIN iplog ON node.mac = iplog.mac
                 WHERE ssid != "" AND iplog.start_time BETWEEN ? AND ?
-           )*100,1) as percent
+           )*100,1) AS percent
        FROM locationlog
            INNER JOIN node ON node.mac = locationlog.mac AND locationlog.end_time IS NULL
            INNER JOIN iplog ON node.mac = iplog.mac
