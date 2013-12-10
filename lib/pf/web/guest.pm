@@ -247,7 +247,7 @@ sub validate_selfregistration {
     $session->param("sponsor", lc($cgi->param("sponsor_email")));
     my %exclude = (
         pid => undef,
-        phone => undef,
+        telephone => undef,
         email => undef,
         sponsor_email => undef,
         organization => undef,
