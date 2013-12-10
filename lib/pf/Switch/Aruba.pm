@@ -85,6 +85,8 @@ TODO: this list is incomplete
 sub supportsRoleBasedEnforcement { return $TRUE; }
 sub supportsWirelessDot1x { return $TRUE; }
 sub supportsWirelessMacAuth { return $TRUE; }
+sub supportsExternalPortal { return $TRUE; }
+
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
 
@@ -592,6 +594,26 @@ sub extractVLAN {
     my $logger = Log::Log4perl::get_logger( ref($self) );
     return ($radius_request->{'Aruba-User-Vlan'});
 }
+
+=item parseUrl
+
+This is called when we receive a http request from the device and return specific attributes:
+
+client mac address
+SSID
+client ip address
+redirect url
+grant url
+status code
+
+=cut
+
+sub parseUrl {
+    my($this, $req) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return ($$req->param('mac'),$$req->param('essid'),$$req->param('ip'),$$req->param('url'),undef,undef);
+}
+
 
 =item
 
