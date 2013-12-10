@@ -1445,7 +1445,7 @@ sub _setPortSecurityByIfIndexCLI {
             Timeout => 5,
             Transport => $this->{_cliTransport},
             Platform => 'ExtremeXOS',
-            Source   => $lib_dir.'/pf/SNMP/Extreme/nas-pb.yml', 
+            Source   => $lib_dir.'/pf/Switch/Extreme/nas-pb.yml', 
         );
         $session->do_paging(0);
         $session->connect(

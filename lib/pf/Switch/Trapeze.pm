@@ -133,7 +133,7 @@ sub deauthenticateMacDefault {
             Timeout   => 5,
             Transport => $this->{_cliTransport},
             Platform => 'TrapezeOS',
-            Source   => $lib_dir.'/pf/SNMP/Trapeze/nas-pb.yml'
+            Source   => $lib_dir.'/pf/Switch/Trapeze/nas-pb.yml'
         );
         $session->connect(
             Name     => $this->{_cliUser},

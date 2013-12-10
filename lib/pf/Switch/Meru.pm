@@ -175,7 +175,7 @@ sub deauthenticateMacDefault {
             Timeout   => 5,
             Transport => $this->{_cliTransport},
             Platform => 'MeruOS',
-            Source   => $lib_dir.'/pf/SNMP/Meru/nas-pb.yml'
+            Source   => $lib_dir.'/pf/Switch/Meru/nas-pb.yml'
         );
         $session->connect(
             Name     => $this->{_cliUser},

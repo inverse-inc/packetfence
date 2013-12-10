@@ -35,8 +35,8 @@ foreach my $snmp_class (@all_snmp_classes) {
 # MockedSwitch is our special test switch that MUST implement all of pf::Switch's method
 # To ensure that it stays always that way, we test for it here.
 
-my @mocked_switch_subs = `egrep "^sub " $lib_path/pf/SNMP/MockedSwitch.pm | awk '{ print \$2 }'`;
-my @pf_snmp_subs = `egrep "^sub " $lib_path/pf/SNMP.pm | awk '{ print \$2 }'`;
+my @mocked_switch_subs = `egrep "^sub " $lib_path/pf/Switch/MockedSwitch.pm | awk '{ print \$2 }'`;
+my @pf_snmp_subs = `egrep "^sub " $lib_path/pf/Switch.pm | awk '{ print \$2 }'`;
 # these methods are whitelisted because they have no [significant] side-effect, thus not useful to mock
 my @whitelist = (
     'new', 'isUpLink', 'setVlanWithName', 'setVlanByName', 'setMacDetectionVlan',
