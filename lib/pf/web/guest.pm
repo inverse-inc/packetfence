@@ -107,6 +107,29 @@ sub generate_selfregistration_page {
     my $sms_guest_allowed   = is_in_list( $SELFREG_MODE_SMS, $guestModes );
     my $sponsored_guest_allowed =
       is_in_list( $SELFREG_MODE_SPONSOR, $guestModes );
+    my %field_names = (
+        anniversary      => 'Anniversary',
+        birthday         => 'Birthday',
+        gender           => 'Gender',
+        lang             => 'Lang',
+        nickname         => 'Nickname',
+        organization     => 'Organization',
+        cell_phone       => 'Cell Phone',
+        work_phone       => 'Work Phone',
+        title            => 'Title',
+        building_number  => 'Building Number',
+        apartment_number => 'Apartment Number',
+        room_number      => 'Room Number',
+        custom_field_1   => 'Custom Field 1',
+        custom_field_2   => 'Custom Field 2',
+        custom_field_3   => 'Custom Field 3',
+        custom_field_4   => 'Custom Field 4',
+        custom_field_5   => 'Custom Field 5',
+        custom_field_6   => 'Custom Field 6',
+        custom_field_7   => 'Custom Field 7',
+        custom_field_8   => 'Custom Field 8',
+        custom_field_9   => 'Custom Field 9',
+    );
 
     $portalSession->stash({
         post_uri       => "$WEB::URL_SIGNUP?mode=$GUEST_REGISTRATION",
@@ -123,6 +146,7 @@ sub generate_selfregistration_page {
         sms_guest_allowed => $sms_guest_allowed,
         sponsored_guest_allowed => $sponsored_guest_allowed,
         is_preregistration => $portalSession->session->param('preregistration'),
+        field_names => \%field_names,
     });
 
     # Error management
