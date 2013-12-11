@@ -66,7 +66,8 @@ if ( $portalSession->getCgi->param("pin") ) {
 
     $logger->info("Valid PIN -- Registering user");
    
-    my $pid = $portalSession->getSession->param("guest_pid") || "admin";
+    my $node_info = node_attributes($portalSession->getClientMac());
+    my $pid = $node_info->{'pid'} || 'admin';
     my $sms_type = pf::Authentication::Source::SMSSource->meta->get_attribute('type')->default;
     my $source = $portalSession->getProfile->getSourceByType($sms_type);
     my $auth_params = { 'username' => $pid };
@@ -76,7 +77,7 @@ if ( $portalSession->getCgi->param("pin") ) {
         $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
         if (defined $info{'unregdate'}) {
-            $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+            $info{'unregdate'} = access_duration($info{'unregdate'});
         }
         else {
             $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
@@ -86,14 +87,11 @@ if ( $portalSession->getCgi->param("pin") ) {
 
         pf::web::web_node_register($portalSession, $pid, %info);
 
-        # clear state that redirects to the Enter PIN page
-        $portalSession->getSession->clear(["guest_pid"]);
-
         pf::web::end_portal_session($portalSession);
     }
     else {
-        $logger->warn("No active sms source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-        print $portalSession->getCgi->redirect($Config{'trapping'}{'redirecturl'});
+        $logger->warn("No active sms source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+        print $portalSession->getCgi->redirect($portalSession->getProfile->getRedirectURL);
     }
 
 } elsif ($portalSession->getCgi->param("action_confirm")) {

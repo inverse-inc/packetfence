@@ -33,6 +33,7 @@ Developed and tested on AeroHIVE AP 320 running firmware 3 something.
 Nothing documented at this point.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -69,6 +70,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_AeroHiveSoftwareVersion = '1.3.6.1.2.1.1.1.0'; #
@@ -109,6 +111,7 @@ sub parseTrap {
             $valeurs{$oid} = $value;
         }
         $trapHashRef->{'trapSSID'} = $valeurs{$AEROHIVE::ahSSID};
+        $trapHashRef->{'trapSSID'} =~ s/"//g;
         $trapHashRef->{'trapIfIndex'} = $valeurs{$AEROHIVE::ahIfIndex};
         $trapHashRef->{'trapVlan'} = $valeurs{$AEROHIVE::ahClientVLAN};
         $trapHashRef->{'trapMac'} = $valeurs{$AEROHIVE::ahRemoteId};
@@ -132,6 +135,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -156,6 +160,7 @@ Right now te only way to do it is from the CLi (through Telnet or SSH).
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub _deauthenticateMacTelnet {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -216,6 +221,7 @@ Overloading L<pf::SNMP>'s implementation because AeroHIVE doesn't support
 assigning VLANs and Roles at the same time.
 
 =cut
+
 sub returnRadiusAccessAccept {
     my ($self, $vlan, $mac, $port, $connection_type, $user_name, $ssid, $wasInline, $user_role) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -278,6 +284,7 @@ AeroHive assigns roles differently, see it's implementation of returnRadiusAcces
 This stub is here otherwise roles support tests fails since we expect an returnRoleAttribute implementation.
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
     return;

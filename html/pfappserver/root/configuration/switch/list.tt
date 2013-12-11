@@ -17,8 +17,10 @@
             <td class="hidden-phone">[% switch.type %]</td>
             <td class="hidden-phone">[% l(switch.mode) %]</td>
             <td>
+              [%- IF can_access("SWITCHES_CREATE") %]
               <a class="btn btn-mini" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('clone'), [ switch.id ]) %]">[% l('Clone') %]</a>
-              [% IF switch.id != 'default' %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
+              [%- END %]
+              [% IF switch.id != 'default' && can_access("SWITCHES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('remove'), [ switch.id ]) %]">[% l('Delete') %]</a>[% END %]
             </td>
           </tr>
           [% END -%]

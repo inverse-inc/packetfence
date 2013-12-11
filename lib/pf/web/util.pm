@@ -21,6 +21,8 @@ use warnings;
 use pf::config;
 use pf::util;
 use pf::web;
+use Apache::Session::Generate::MD5;
+use Apache::Session::Flex;
 use Cache::Memcached;
 
 BEGIN {
@@ -45,6 +47,7 @@ BEGIN {
 Returns phone number in xxxyyyzzzz format if valid undef otherwise.
 
 =cut
+
 sub validate_phone_number {
     my ($phone_number) = @_;
 
@@ -79,6 +82,7 @@ sub validate_phone_number {
 Return 1 if string provided is a valid credit card expiration date, 0 otherwise.
 
 =cut
+
 sub is_creditcardexpiration_valid {
     my ( $credit_card_expiration ) = @_;
 
@@ -98,6 +102,7 @@ sub is_creditcardexpiration_valid {
 Return 1 if string provided is a valid credit card number, 0 otherwise.
 
 =cut
+
 sub is_creditcardnumber_valid {
     my ( $credit_card_number ) = @_;
 
@@ -120,6 +125,7 @@ sub is_creditcardnumber_valid {
 Return 1 if string provided is a valid credit card verification number, 0 otherwise.
 
 =cut
+
 sub is_creditcardverification_valid {
     my ( $credit_card_verification ) = @_;
 
@@ -137,6 +143,7 @@ sub is_creditcardverification_valid {
 Returns 1 if string provided is a valid email address, 0 otherwise.
 
 =cut
+
 sub is_email_valid {
     my ($email) = @_;
     if ($email =~ /
@@ -155,6 +162,7 @@ sub is_email_valid {
 Return 1 if string provided is a valid name, 0 otherwise
 
 =cut
+
 sub is_name_valid {
     my ( $name ) = @_;
     if ( $name =~ /
@@ -173,17 +181,26 @@ Returns an hashref that holds time values.
  value => translated long time format. ex: 1 hour (en) 1 heure (fr) or 1 day (en) 1 jour (fr)
 
 =cut
+
 sub get_translated_time_hash {
     my ($to_translate, $locale) = @_;
 
     my %time;
-    foreach my $keys (@{$to_translate}) {
-        my ($unit, $unit_plural, $value) = get_translatable_time($keys);
-        
-        # we normalize time so we can present the hash in a sorted fashion
-        my $unix_timestamp = normalize_time($keys);
+    foreach my $key (@{$to_translate}) {
+        my ($unit, $unit_plural, $value) = get_translatable_time($key);
+        my $strfmt = $value . " " . ni18n($unit, $unit_plural, $value);
 
-        $time{$unix_timestamp} = $value . " " . ni18n($unit, $unit_plural, $value);
+        if ($key =~ /^\d+$TIME_MODIFIER_RE$DEADLINE_UNIT([-+])(\d+$TIME_MODIFIER_RE)$/) {
+            ($unit, $unit_plural, $value) = get_translatable_time($2);
+            if ($value > 0) {
+                $strfmt .= sprintf(" (%s %i %s)", $1, $value, ni18n($unit, $unit_plural, $value));
+            }
+        }
+
+        # we normalize time so we can present the hash in a sorted fashion
+        my $unix_timestamp = normalize_time($key);
+
+        $time{$unix_timestamp} = [$key, $strfmt];
     }
     return \%time;
 }
@@ -193,6 +210,7 @@ sub get_translated_time_hash {
 Return memcached server list
 
 =cut
+
 sub get_memcached_conf {
     my @serv = ();
     for my $x ( split( ",", $Config{'general'}{'memcached'})) {
@@ -208,6 +226,7 @@ sub get_memcached_conf {
 get memcached object
 
 =cut
+
 sub get_memcached_connection {
     my ( $mc ) = @_;
     my $memd;
@@ -224,6 +243,7 @@ sub get_memcached_connection {
 get information stored in memcached
 
 =cut
+
 sub get_memcached {
     my ( $key, $mc ) = @_;
     my $memd;
@@ -240,6 +260,7 @@ sub get_memcached {
 set information into memcached
 
 =cut
+
 sub set_memcached {
     my ( $key, $value, $exptime, $mc ) = @_;
     my $memd;
@@ -263,6 +284,7 @@ sub set_memcached {
 get information stored in memcached
 
 =cut
+
 sub del_memcached {
     my ( $key, $mc ) = @_;
     my $memd;
@@ -272,6 +294,54 @@ sub del_memcached {
         compress_threshold => 10_000,
     ) unless defined $memd;
     $memd->delete($key);
+}
+
+=item
+
+generate or retreive an apache session
+
+=cut
+
+sub session {
+    my ($session, $id) = @_;
+    eval {
+        tie %{$session}, 'Apache::Session::Flex', $id, {
+                          Store => 'Memcached',
+                          Lock => 'Null',
+                          Generate => 'MD5',
+                          Serialize => 'Storable',
+                          Servers => get_memcached_conf(),
+                          };
+    } or session($session, undef);
+
+    return $session;
+}
+
+=item
+
+retreive packetfence cookie
+
+=cut
+
+sub getcookie {
+    my ($cookies) =@_;
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
+    my $cleaned_cookies = '';
+    if ( defined($cookies) ) {
+        foreach (split(';', $cookies)) {
+            if (/([^,; ]+)=([^,; ]+)/) {
+                if ($1 eq 'packetfence'){
+                    $cleaned_cookies .= $2;
+                }
+            }
+        }
+        if ($cleaned_cookies ne '') {
+            return $cleaned_cookies;
+        }
+    }
+    else {
+        return $FALSE;
+    }
 }
 
 =back

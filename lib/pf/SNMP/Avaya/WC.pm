@@ -62,6 +62,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)        = @_;
     my $oid_s5ChasVer = '1.3.6.1.4.1.45.1.6.3.1.5.0';
@@ -84,6 +85,7 @@ sub getVersion {
 All traps ignored
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -106,6 +108,7 @@ sub parseTrap {
 deauthenticateMacDefault a MAC address from wireless network (including 802.1x)
 
 =cut
+
 sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

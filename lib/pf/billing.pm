@@ -58,6 +58,7 @@ our $billing_statements = {};
 Initialize database prepared statements
 
 =cut
+
 sub billing_db_prepare {
     $billing_statements->{'billing_insert_sql'} = get_db_handle()->prepare(qq[
             INSERT INTO billing (
@@ -85,6 +86,7 @@ Usually we don't call this constructor but we use the pf::billing::custom subcla
 This will allow methods redefinition.
 
 =cut
+
 sub new {
     my ( $class, %argv ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -101,6 +103,7 @@ sub new {
 TODO: Add some verification that all the information is there and in a good format.
 
 =cut
+
 sub createNewTransaction {
     my ( $self, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -137,6 +140,7 @@ won't be overwritten when upgrading.
 TODO: Put theses configuration in database and be able to modify them using the web GUI
 
 =cut
+
 sub getAvailableTiers {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -155,6 +159,7 @@ sub getAvailableTiers {
 Instantiate a new transaction using the payment gateway configured.
 
 =cut
+
 sub instantiateNewTransaction {
     my ( $self, $type, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -176,6 +181,7 @@ sub instantiateNewTransaction {
 =item processTransaction
 
 =cut
+
 sub processTransaction {
     my ( $self, $transaction_infos_ref ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -201,6 +207,7 @@ sub processTransaction {
 Update the status of a transaction in the database
 
 =cut
+
 sub updateTransactionStatus {
     my ( $self, $id, $status ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

@@ -17,10 +17,11 @@ extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(:constants is_success);
 use pf::config;
-use pf::util qw(get_abbr_time);
 use pf::web::util;
 use pf::Authentication::constants;
 use pf::Authentication::Action;
+use pf::admin_roles;
+use pf::log;
 
 has 'source_type' => ( is => 'ro' );
 
@@ -42,61 +43,105 @@ has_field 'actions.value' =>
    type => 'Hidden',
    required => 1,
    messages => { required => 'Make sure all the actions are properly defined.' },
+   deflate_value_method => sub {
+     my ( $self, $value ) = @_;
+     return ref($value) ? join(",",@{$value}) : $value ;
+   },
   );
 
-# The templates block contains the dynamic fields of the rule definition.
-#
-# The following fields depend on the selected condition attribute :
-#  - the condition operators select fields
-#  - the condition value fields
-# The following fields depend on the selected action type :
-#  - the action value fields
-#
-# The field substitution is made through JavaScript.
+=head2 field_list
 
-has_field "${Actions::MARK_AS_SPONSOR}_action" =>
-  (
-   type => 'Hidden',
-   default => '1',
-  );
-has_field "${Actions::SET_ACCESS_LEVEL}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_access_level,
-  );
-has_field "${Actions::SET_ROLE}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_roles,
-  );
+Dynamically build the list of available actions corresponding to the
+authentication source type.
 
-# Adding default method for ${Actions::SET_ACCESS_DURATION}_action to always use the current value of the
-# guests_admin_registration.default_access_duration
-__PACKAGE__->meta->add_method(
-    "default_${Actions::SET_ACCESS_DURATION}_action" => sub {
-        my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
-          || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
-        return get_abbr_time($duration);
+=cut
+
+sub field_list {
+    my $self = shift;
+
+    my ($classname, $actions_ref, @fields);
+
+    $classname = 'pf::Authentication::Source::' . $self->form->source_type . 'Source';
+    eval "require $classname";
+    if ($@) {
+        $self->form->ctx->log->error($@);
     }
-);
+    else {
+        @fields = ();
+        $actions_ref = $classname->available_actions();
+        foreach my $action (@{$actions_ref}) {
+            {
+                $action eq $Actions::MARK_AS_SPONSOR && do {
+                    push(@fields,
+                         "${Actions::MARK_AS_SPONSOR}_action" =>
+                          {
+                           type => 'Hidden',
+                           default => '1'
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_ACCESS_LEVEL && do {
+                    push(@fields,
+                         "${Actions::SET_ACCESS_LEVEL}_action" =>
+                          {
+                           type => 'Select',
+                           do_label => 0,
+                           wrapper => 0,
+                           multiple => 1,
+                           element_class => ['chzn-select'],
+                           element_attr => {'data-placeholder' => 'Click to add a access right' },
+                           options_method => \&options_access_level,
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_ROLE && do {
+                    push(@fields,
+                         "${Actions::SET_ROLE}_action" =>
+                          {
+                           type => 'Select',
+                           do_label => 0,
+                           wrapper => 0,
+                           options_method => \&options_roles,
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_ACCESS_DURATION && do {
+                    push(@fields,
+                         "${Actions::SET_ACCESS_DURATION}_action" =>
+                          {
+                           type => 'Select',
+                           do_label => 0,
+                           wrapper => 0,
+                           options_method => \&options_durations,
+                           default_method => sub {
+                               my $duration = $Config{'guests_admin_registration'}{'default_access_duration'}
+                                 || $Default_Config{'guests_admin_registration'}{'default_access_duration'};
+                               return $duration;
+                           },
+                          }
+                         );
+                    last;
+                };
+                $action eq $Actions::SET_UNREG_DATE && do {
+                    push(@fields,
+                         "${Actions::SET_UNREG_DATE}_action" =>
+                          {
+                           type => 'DatePicker',
+                           do_label => 0,
+                           wrapper => 0,
+                          }
+                         );
+                    last;
+                };
+            }
+        }
+    }
 
-has_field "${Actions::SET_ACCESS_DURATION}_action" =>
-  (
-   type => 'Select',
-   do_label => 0,
-   wrapper => 0,
-   options_method => \&options_durations,
-  );
-has_field "${Actions::SET_UNREG_DATE}_action" =>
-  (
-   type => 'DatePicker',
-   do_label => 0,
-   wrapper => 0,
-  );
+    return \@fields;
+}
 
 =head2 options_actions
 
@@ -132,17 +177,8 @@ Populate the select field for the 'access level' template action.
 sub options_access_level {
     my $self = shift;
 
-    return
-      (
-       {
-        label => $self->_localize('None'),
-        value => $WEB_ADMIN_NONE,
-       },
-       {
-        label => $self->_localize('All'),
-        value => $WEB_ADMIN_ALL,
-       },
-      );
+    return map { {value => $_, label => $self->_localize($_) } } keys %ADMIN_ROLES;
+
 }
 
 =head2 options_roles
@@ -181,7 +217,7 @@ sub options_durations {
         [ split (/\s*,\s*/, $choices) ],
         $self->form->ctx->languages()->[0]
     );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
+    my @options = map { $durations->{$_}[0] => $durations->{$_}[1] } sort { $a <=> $b } keys %$durations;
 
     return \@options;
 }

@@ -26,6 +26,7 @@ use Net::SMTP;
 use POSIX();
 use File::Spec::Functions;
 use File::Slurp qw(read_dir);
+use List::MoreUtils qw(all);
 
 our ( %local_mac );
 
@@ -53,7 +54,7 @@ BEGIN {
         pf_run pfmailer
         generate_id load_oui download_oui
         trim_path format_bytes log_of ordinal_suffix
-        untaint_chain read_dir_recursive
+        untaint_chain read_dir_recursive all_defined
     );
 }
 
@@ -92,7 +93,7 @@ sub valid_ip {
     {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
-        $logger->error("invalid IP: $ip from $caller");
+        $logger->debug("invalid IP: $ip from $caller");
         return (0);
     } else {
         return (1);
@@ -143,7 +144,7 @@ Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 sub clean_mac {
     my ($mac) = @_;
-    return (0) if ( !$mac );
+    return if ( !$mac );
 
     # trim garbage
     $mac =~ s/[\s\-\.:]//g;
@@ -209,16 +210,17 @@ Accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xxxx and xxxx.xxxx.xxx
 sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
-    if (! ($mac =~ /^[0-9a-f:\.-]+$/i)) {
-        $logger->error("invalid MAC: $mac");
+    if (! ($mac && $mac =~ /^[0-9a-f:\.-]+$/i)) {
+        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
         return (0);
     }
     $mac = clean_mac($mac);
-    if (   $mac =~ /^ff:ff:ff:ff:ff:ff$/
+    if (  !$mac
+        || $mac =~ /^ff:ff:ff:ff:ff:ff$/
         || $mac =~ /^00:00:00:00:00:00$/
         || $mac !~ /^([0-9a-f]{2}(:|$)){6}$/i )
     {
-        $logger->error("invalid MAC: $mac");
+        $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
         return (0);
     } else {
         return (1);
@@ -835,11 +837,11 @@ sub get_translatable_time {
    my ($time) = @_;
 
    # grab time unit
-   my ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+   my ($value, $unit) = $time =~ /^(\d+)($TIME_MODIFIER_RE)/;
 
    unless ($unit) {
        $time = get_abbr_time($time);
-       ( $value, $unit ) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
+       ($value, $unit) = $time =~ /^(\d+)($TIME_MODIFIER_RE)$/i;
    }
 
    if ($unit eq "s") { return ("second", "seconds", $value);
@@ -1134,6 +1136,10 @@ sub read_dir_recursive {
         }
     }
     return @files;
+}
+
+sub all_defined {
+    all { defined $_ } @_;
 }
 
 =back

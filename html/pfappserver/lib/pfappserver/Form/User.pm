@@ -11,7 +11,6 @@ Form definition to update a user.
 =cut
 
 use pf::config;
-use pf::util qw(get_abbr_time);
 use HTTP::Status qw(:constants is_success);
 use HTML::FormHandler::Moose;
 
@@ -189,67 +188,6 @@ sub update_fields {
 
     # Call the theme implementation of the method
     $self->SUPER::update_fields();
-}
-
-=head2 options_access_level
-
-Populate the select field for the 'access level' template action.
-
-=cut
-
-sub options_access_level {
-    my $self = shift;
-
-    return
-      (
-       {
-        label => $self->_localize('None'),
-        value => $WEB_ADMIN_NONE,
-       },
-       {
-        label => $self->_localize('All'),
-        value => $WEB_ADMIN_ALL,
-       },
-      );
-}
-
-=head2 options_roles
-
-Populate the select field for the roles template action.
-
-=cut
-
-sub options_roles {
-    my $self = shift;
-
-    my @roles;
-
-    # Build a list of existing roles
-    my ($status, $result) = $self->form->ctx->model('Roles')->list();
-    if (is_success($status)) {
-        @roles = map { $_->{name} => $_->{name} } @$result;
-    }
-
-    return @roles;
-}
-
-=head2 options_durations
-
-Populate the access duration select field with the available values defined
-in the pf.conf configuration file.
-
-=cut
-
-sub options_durations {
-    my $self = shift;
-
-    my $durations = pf::web::util::get_translated_time_hash(
-        [ split (/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) ],
-        $self->form->ctx->languages()->[0]
-    );
-    my @options = map { get_abbr_time($_) => $durations->{$_} } sort { $a <=> $b } keys %$durations;
-
-    return \@options;
 }
 
 =head1 COPYRIGHT

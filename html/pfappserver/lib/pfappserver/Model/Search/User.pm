@@ -60,11 +60,12 @@ my %COLUMN_MAP = (
         table => 'node',
         name  => 'mac',
     },
-    name  => \"concat(firstname,' ', lastname)",
-    ip_address   => {
+    name => \"concat(firstname,' ', lastname)",
+    ip_address => {
        table => 'iplog',
        name  => 'ip',
     },
+    nodes => \"count(node.mac)",
 );
 
 my %JOIN_MAP = (
@@ -124,10 +125,9 @@ sub do_query {
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my %results = %$params;
     my $sql = $builder->sql;
-    my ($per_page,$page_num,$by,$direction) = @{$params}{qw(per_page page_num by direction)};
+    my ($per_page, $page_num) = @{$params}{qw(per_page page_num)};
     $per_page ||= 25;
     $page_num ||= 1;
-    $direction ||= 'asc';
     my $itemsKey = $self->itemsKey;
     $results{$itemsKey} = [person_custom_search($sql)];
     my $sql_count = $builder->sql_count;
@@ -158,10 +158,11 @@ sub add_searches {
 }
 
 sub add_order_by {
-    my ($self,$builder,$params) = @_;
-    my ($by,$direction) = @$params{qw(by direction)};
-    if($by && $direction) {
-        $builder->order_by($by,$direction);
+    my ($self, $builder, $params) = @_;
+    my ($by, $direction) = @$params{qw(by direction)};
+    if ($by && $direction) {
+        $by = $COLUMN_MAP{$by} if (exists $COLUMN_MAP{$by});
+        $builder->order_by($by, $direction);
     }
 }
 

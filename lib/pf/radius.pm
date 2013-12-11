@@ -138,6 +138,9 @@ sub authorize {
         if (!node_register($mac, $autoreg_node_defaults{'pid'}, %autoreg_node_defaults)) {
             $logger->error("auto-registration of node $mac failed");
         }
+        locationlog_synchronize($switch_ip, $port, undef, $mac,
+            $isPhone ? $VOIP : $NO_VOIP, $connection_type, $user_name, $ssid
+        );
     }
 
     # if it's an IP Phone, let _authorizeVoip decide (extension point)
@@ -234,7 +237,7 @@ sub _parseRequest {
         $eap_type = $radius_request->{'EAP-Type'};
     }
 
-    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Cisco-NAS-Port NAS-Port-Id);
+    my $nas_port_id_key = first { exists $radius_request->{$_} &&  defined $radius_request->{$_} } qw(Aruba-Port-Identifier Cisco-NAS-Port NAS-Port-Id);
     my $nas_port_id;
     if ($nas_port_id_key) {
         $nas_port_id = $radius_request->{$nas_port_id_key};

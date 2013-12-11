@@ -18,6 +18,7 @@ use warnings;
 use pf::cmd;
 use base qw(pf::cmd);
 use Module::Load;
+use Module::Loaded;
 use pf::cmd::help;
 
 =head2 _run
@@ -42,8 +43,7 @@ sub parseArgs {
             $module = "${base}::${action}";
         }
         eval {
-            load $module;
-            $cmd = $module;
+            load $module unless is_loaded($module);
         };
         if($@) {
             if ($@ =~ /Compilation failed/) {
@@ -53,6 +53,7 @@ sub parseArgs {
             }
             $cmd = $self->unknownActionCmd;
         }
+        $cmd = $module;
     } else {
         $cmd = $self->noActionCmd;
     }
@@ -91,7 +92,6 @@ sub unknownActionCmd {
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 

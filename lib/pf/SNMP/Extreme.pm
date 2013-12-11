@@ -55,6 +55,7 @@ SSL Web Services (HTTPS) was not tested.
 =back
 
 =cut
+
 use strict;
 use warnings;
 
@@ -106,6 +107,7 @@ sub getVersion {
 =item getVlan - return vlan number (dot1Q tag) of a given ifIndex
 
 =cut
+
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -194,6 +196,7 @@ sub getVlans {
 =item isDefinedVlan - returns true or false based on if requested vlan exists or not
 
 =cut
+
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -223,6 +226,7 @@ This supersedes the _getMacAtIfIndexPreXOS.
 It uses the new MIB available in Extreme XOS 12.2+: extremeFdbMacExosFdbTable.
 
 =cut
+
 sub _getMacAtIfIndex {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -402,6 +406,7 @@ sub _getVlanTagFromVlanIfIndex {
 Useful to avoid multiple lookups in a tight loop.
 
 =cut
+
 sub _getVlanTagLookupTable {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -748,6 +753,7 @@ sub _setVlan {
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 =cut
+
 sub getAllSecureMacAddresses {
     my ( $this ) = @_;
 
@@ -762,6 +768,7 @@ This implementation relies on an SNMP interface that was introduced in 12.2.
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 =cut
+
 sub _getAllSecureMacAddressesWithSNMP {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -816,6 +823,7 @@ This implementation relies on the Web Services interface.
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 =cut
+
 # TODO Performance improvement possible: I am fetching and grinding the whole tree client side..
 # It was not optimized because I didn't figure out how to do filtered requests on the Fdb Table
 # and we should have the SNMP interface back (hopefully)
@@ -893,6 +901,7 @@ This implementation relies on the Web Services interface.
 Returns an hashref with MAC => Array(VLANs)
 
 =cut
+
 # TODO Performance improvement possible: I am fetching and grinding the whole tree client side..
 # It was not optimized because I didn't figure out how to do filtered requests on the Fdb Table
 # and we should have the SNMP interface back (hopefully)
@@ -954,6 +963,7 @@ This implementation relies on an SNMP interface that was introduced in 12.2
 Returns an hashref with MAC => Array(VLANs)
 
 =cut
+
 sub _getSecureMacAddressesWithSNMP {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1007,6 +1017,7 @@ sub _getSecureMacAddressesWithSNMP {
 Requires ExtremeXOS 12.4.3
 
 =cut
+
 sub isPortSecurityEnabled {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1062,6 +1073,7 @@ Here we rely on a special entry we add during the PacketFence setup to work-arou
 capabilities of the Extreme OS (can't know if maclock is activated or not)
 
 =cut
+
 sub _isPortSecurityEnabledOld {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1138,6 +1150,7 @@ sub authorizeMAC {
 =item _authorizeMAC - authorize a MAC address on a given ifIndex and VLAN
 
 =cut
+
 sub _authorizeMAC {
     my ($this, $ifIndex, $mac, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1182,6 +1195,7 @@ On Extreme removing an entry from the secure table is based on MAC and VLAN only
 For compatibility we won't change subroutine signature, we will just throw out the param.
 
 =cut
+
 sub _deauthorizeMAC {
     my ($this, $ifIndex, $mac, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1223,6 +1237,7 @@ Utility method that will find MAC address(es) on the given ifIndex / VLAN and wi
 Returns deauthorized MAC(s)
 
 =cut
+
 sub _deauthorizeCurrentMac {
     my ($this, $ifIndex, $deauth_vlan) = @_;
 
@@ -1272,6 +1287,7 @@ A port list is when all the ports are represented in a binary notation one after
 See extremeFdbPermFdbPortList in EXTREME-FDB-MIB for details.
 
 =cut
+
 sub _translateStackDot1dToPortListPosition {
     my ($this, $slotNumber, $dot1dPort) = @_;
 
@@ -1281,6 +1297,7 @@ sub _translateStackDot1dToPortListPosition {
 =item _getPortsPerSlot - Number of ports in a slots for this Chassis (Switch)
 
 =cut
+
 sub _getPortsPerSlot {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1296,6 +1313,7 @@ sub _getPortsPerSlot {
 =item _getSOAPHandle - get a handle to call Extreme's Web Services on the current switch
 
 =cut
+
 #TODO test self-signed certs from the server (disabled by default)
 sub _getSOAPHandle {
     my ($this) = @_;
@@ -1327,6 +1345,7 @@ sub _getSOAPHandle {
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
 =cut
+
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1344,6 +1363,7 @@ sub enablePortSecurityByIfIndex {
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
 =cut
+
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1363,6 +1383,7 @@ Requires ExtremeXOS 12.4.3
 On this switch, the lock-learning is a per-vlan attribute so it performs it on the current untagged VLAN of the ifIndex
 
 =cut
+
 sub _setPortSecurityByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -1412,6 +1433,7 @@ Experienced mostly when using SSH.
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub _setPortSecurityByIfIndexCLI {
     my ( $this, $ifIndex, $enable ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1466,6 +1488,7 @@ sub _setPortSecurityByIfIndexCLI {
 =item isVoIPEnabled - is Voice over IP enabled on that switch?
 
 =cut
+
 sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );
@@ -1474,6 +1497,7 @@ sub isVoIPEnabled {
 =item getVoiceVlan - in what VLAN should a VoIP device be
 
 =cut
+
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

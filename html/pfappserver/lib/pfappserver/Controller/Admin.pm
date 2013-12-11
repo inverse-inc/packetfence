@@ -18,9 +18,7 @@ use namespace::autoclean;
 use Moose;
 use pfappserver::Form::SavedSearch;
 
-BEGIN {
-    extends 'Catalyst::Controller';
-}
+BEGIN { extends 'pfappserver::Base::Controller'; }
 
 =head1 METHODS
 
@@ -36,7 +34,7 @@ sub auto :Private {
     # Make sure the 'enforcements' session variable doesn't exist as it affects the Interface controller
     delete $c->session->{'enforcements'};
 
-    unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_exists()) {
+    unless ($c->action->name eq 'login' || $c->action->name eq 'logout' || $c->user_in_realm('admin')) {
         $c->stash->{'template'} = 'admin/login.tt';
         unless ($c->action->name eq 'index') {
             $c->stash->{status_msg} = 'Your session has expired.';
@@ -75,7 +73,8 @@ sub login :Local :Args(0) {
         eval {
             if ($c->authenticate( {username => $c->req->params->{'username'},
                                    password => $c->req->params->{'password'}} )) {
-                $c->log->info("login: " . $c->req->params->{'username'});
+                $c->session->{user_roles} = [$c->user->roles]; # Save the roles to the session
+                $c->persist_user(); # Save the updated roles data
                 $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
             }
             else {
@@ -89,7 +88,7 @@ sub login :Local :Args(0) {
         }
         $c->stash->{current_view} = 'JSON';
     }
-    elsif ($c->user_exists()) {
+    elsif ($c->user_in_realm( 'admin' )) {
         $c->response->redirect($c->uri_for($c->controller('Admin')->action_for('status')));
         $c->detach();
     }
@@ -147,7 +146,7 @@ sub status :Chained('object') :PathPart('status') :Args(0) {
 
 =cut
 
-sub reports :Chained('object') :PathPart('reports') :Args(0) {
+sub reports :Chained('object') :PathPart('reports') :Args(0) :AdminRole('REPORTS') {
     my ( $self, $c ) = @_;
 
     $c->forward('Controller::Graph', 'reports');
@@ -157,7 +156,7 @@ sub reports :Chained('object') :PathPart('reports') :Args(0) {
 
 =cut
 
-sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
+sub nodes :Chained('object') :PathPart('nodes') :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
     my ($status, $saved_searches) = $c->model("SavedSearch::Node")->read_all($id);
@@ -171,10 +170,10 @@ sub nodes :Chained('object') :PathPart('nodes') :Args(0) {
 
 =cut
 
-sub users :Chained('object') :PathPart('users') :Args(0) {
+sub users :Chained('object') :PathPart('users') :Args(0) :AdminRole('USERS_READ') {
     my ( $self, $c ) = @_;
     my $id = $c->user->id;
-    my ($status,$saved_searches) = $c->model("SavedSearch::User")->read_all($id);
+    my ($status, $saved_searches) = $c->model("SavedSearch::User")->read_all($id);
     $c->stash(
         saved_searches => $saved_searches,
         saved_search_form => $c->form("SavedSearch")

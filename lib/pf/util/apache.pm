@@ -11,6 +11,7 @@ pf::util::apache - apache-related utilities
 Module for apache-related functions and utilities used by all the modules.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -39,6 +40,7 @@ Returns a list with
 All values have ambiguous regexp characters quoted.
 
 =cut
+
 # url decompositor regular expression. 
 my $url_pattern = qr/^
     (((?i)http|https):\/\/   # must begin by http or https (matched in a case-insensitive way)

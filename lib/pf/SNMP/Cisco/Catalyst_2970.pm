@@ -14,6 +14,7 @@ Because a lot of code is shared with the 2960 make sure to check the BUGS AND LI
 L<pf::SNMP::Cisco::Catalyst_2960> also.
 
 =cut
+
 use strict;
 use warnings;
 use Log::Log4perl;

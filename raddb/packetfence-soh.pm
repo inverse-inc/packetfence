@@ -61,8 +61,8 @@ the only callback available inside an SoH virtual server.
 sub authorize {
     my $radius_return_code = $RADIUS::RLM_MODULE_REJECT;
     eval {
-        my $data = send_soap_request("soh_authorize",\%RAD_REQUEST);
-        if ( $data) {
+        my $data = send_soap_request("soh_authorize", \%RAD_REQUEST);
+        if ($data) {
 
             my $elements = $data->{'soap:Body'}->{'soh_authorizeResponse'}->{'soapenc:Array'}->{'item'};
 
@@ -85,6 +85,10 @@ sub authorize {
         # $Data::Dumper::Terse = 1; $Data::Dumper::Indent = 0; # pretty output for rad logs
         # &radiusd::radlog($RADIUS::L_DBG, "StatementOfHealth COMPLETE REPLY: ". Dumper(\%RAD_REPLY));
     };
+    if ($@) {
+        &radiusd::radlog($RADIUS::L_ERR, "An error occurred while processing the SoH authorize SOAP request: $@");
+    }
+
     return $radius_return_code;
 }
 

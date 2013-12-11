@@ -27,6 +27,7 @@ use pf::node qw(nodes_registered_not_violators node_view node_deregister $STATUS
 use pf::util;
 use pf::violation qw(violation_view_open_uniq violation_count);
 use pf::iplog;
+use pf::authentication;
 
 Readonly my $FW_TABLE_FILTER => 'filter';
 Readonly my $FW_TABLE_MANGLE => 'mangle';
@@ -46,6 +47,7 @@ TODO: This list is incomplete
 =over
 
 =cut
+
 sub iptables_generate {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -94,10 +96,12 @@ Packet marking will traverse all the rules so the order in which packets are mar
 The last mark will be the one having an effect.
 
 =cut
+
 sub generate_mangle_rules {
     my ($self) =@_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $mangle_rules = '';
+    my @ops = ();
 
     # pfdhcplistener in most cases will be enforcing access
     # however we insert these marks on startup in case PacketFence is restarted
@@ -113,6 +117,10 @@ sub generate_mangle_rules {
         }
     }
 
+    # Build lookup table for MAC/IP mapping
+    my @iplog_open = iplog_view_open();
+    my %iplog_lookup = map { $_->{'mac'} => $_->{'ip'} } @iplog_open;
+
     # mark registered nodes that should not be isolated
     # TODO performance: mark all *inline* registered users only
     my @registered = nodes_registered_not_violators();
@@ -121,12 +129,11 @@ sub generate_mangle_rules {
             next if ( !pf::config::is_network_type_inline($network) );
             my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
             my $mac = $row->{'mac'};
-            my $iplog = mac2ip($mac);
+            my $iplog = mac2ip($mac, \%iplog_lookup);
             if (defined $iplog) {
                 my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                 if ($net_addr->contains($ip)) {
-                    my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac 2>&1";
-                    my @lines  = pf_run($cmd);
+                    push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_REG}\_$network $iplog,$mac");
                 }
             }
         }
@@ -141,12 +148,11 @@ sub generate_mangle_rules {
                 next if ( !pf::config::is_network_type_inline($network) );
                 my $net_addr = NetAddr::IP->new($network,$ConfigNetworks{$network}{'netmask'});
                 my $mac = $row->{'mac'};
-                my $iplog = mac2ip($mac);
+                my $iplog = mac2ip($mac, \%iplog_lookup);
                 if (defined $iplog) {
                     my $ip = new NetAddr::IP::Lite clean_ip($iplog);
                     if ($net_addr->contains($ip)) {
-                        my $cmd = "LANG=C sudo ipset --add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac 2>&1";
-                        my @lines  = pf_run($cmd);
+                        push(@ops, "add pfsession_$mark_type_to_str{$IPTABLES_MARK_ISOLATION}\_$network $iplog,$mac");
                     }
                 }
             }
@@ -159,6 +165,13 @@ sub generate_mangle_rules {
         $mangle_rules .=
             "-A $FW_PREROUTING_INT_INLINE --match mac --mac-source $mac --jump MARK --set-mark 0x$IPTABLES_MARK_REG\n"
         ;
+    }
+
+    if (@ops) {
+        my $cmd = "LANG=C sudo ipset restore 2>&1";
+        open(IPSET, "| $cmd") || die "$cmd failed: $!\n";
+        print IPSET join("\n", @ops);
+        close IPSET;
     }
 
     return $mangle_rules;
@@ -216,6 +229,7 @@ Useful to re-evaluate what to do with a given node who's state changed.
 Returns IPTABLES MARK constant ($IPTABLES_MARK_...) or undef on failure.
 
 =cut
+
 # TODO migrate to IPTables::Interface (to get rid of IPTables::ChainMgr) once it supports fetching iptables info
 sub get_mangle_mark_for_mac {
     my ( $self, $mac ) = @_;
@@ -234,7 +248,7 @@ sub get_mangle_mark_for_mac {
 
             if ($net_addr->contains($ip)) {
                 foreach my $IPTABLES_MARK ($IPTABLES_MARK_UNREG, $IPTABLES_MARK_REG, $IPTABLES_MARK_ISOLATION) {
-                    
+
                     my $cmd = "LANG=C sudo ipset --test pfsession_$mark_type_to_str{$IPTABLES_MARK}\_$network $iplog,$mac 2>&1";
                     my @out = pf_run($cmd, , accepted_exit_status => [ $_EXIT_CODE_EXISTS ]);
 

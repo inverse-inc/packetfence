@@ -10,39 +10,52 @@ Obtain the last rules for snort
 
 =cut
 
-my %snort_rules_version = (
-    "RHEL5" => "snort-2.8.6",
-    "RHEL6" => "snort-2.9.0",
-    "latest" => "snort-2.9.0",
-    "SQUEEZE" => "snort-2.8.4",
-);
+my %snort_rules_version =
+  (
+   "RHEL5" => "snort-2.8.6",
+   "RHEL6" => "snort-2.9.0",
+   "latest" => "snort-2.9.0",
+   "Squeeze" => "snort-2.8.4",
+   "Wheezy" => "snort-2.9.0"
+  );
 
-my %oses = (
-    "CentOS release 5" => "RHEL5",
-    "Red Hat Enterprise Linux Server release 5" => "RHEL5",
-    "CentOS Linux release 6" => "RHEL6",
-    "CentOS release 6" => "RHEL6",
-    "Red Hat Enterprise Linux Server release 6" => "RHEL6",
-    "6" => "SQUEEZE",
-);
+my %oses =
+  (
+   "CentOS release 5" => "RHEL5",
+   "Red Hat Enterprise Linux Server release 5" => "RHEL5",
+   "CentOS Linux release 6" => "RHEL6",
+   "CentOS release 6" => "RHEL6",
+   "Red Hat Enterprise Linux Server release 6" => "RHEL6",
+   "6" => "Squeeze",
+   "7" => "Wheezy"
+  );
 
 my $os_type = supported_os();
+die "Your Linux distro is not supported or unknown." unless $os_type;
 
-   my @rule_files = (
-        'emerging-botcc.rules',
-        'emerging-attack_response.rules',
-        'emerging-exploit.rules',
-        'emerging-malware.rules',
-        'emerging-p2p.rules',
-        'emerging-scan.rules',
-        'emerging-shellcode.rules',
-        'emerging-trojan.rules',
-        'emerging-virus.rules',
-        'emerging-worm.rules'
-    );
-    foreach my $current_rule_file (@rule_files) {
-        `/usr/bin/wget -N http://rules.emergingthreats.net/open/$snort_rules_version{$os_type}/rules/$current_rule_file -P /usr/local/pf/conf/snort`;
+my @rule_files =
+  (
+   'emerging-botcc.rules',
+   'emerging-attack_response.rules',
+   'emerging-exploit.rules',
+   'emerging-malware.rules',
+   'emerging-p2p.rules',
+   'emerging-scan.rules',
+   'emerging-shellcode.rules',
+   'emerging-trojan.rules',
+   'emerging-virus.rules',
+   'emerging-worm.rules'
+  );
+
+foreach my $current_rule_file (@rule_files) {
+    my $url = sprintf('http://rules.emergingthreats.net/open/%s/rules/%s', $snort_rules_version{$os_type}, $current_rule_file);
+    `/usr/bin/wget -N $url -P /usr/local/pf/conf/snort/ > /dev/null 2>&1`;
+    if ($?) {
+        print "An error occured while downloading $url ($?)\n";
+    } else {
+        print "Downloaded $url\n";
     }
+}
 
 sub supported_os {
 

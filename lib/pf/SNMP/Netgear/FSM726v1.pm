@@ -61,6 +61,7 @@ sub description { 'Netgear FSM726v1' }
 =item authorizeMAC
 
 =cut
+
 sub authorizeMAC {
     my ( $this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -136,6 +137,7 @@ Force a MAC address deauthorization from the port sending the linkdown trap.
 See bugs and limitations.
 
 =cut
+
 sub forceDeauthOnLinkDown {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -162,6 +164,7 @@ sub forceDeauthOnLinkDown {
 =item getAllSecureMacAddresses
 
 =cut
+
 sub getAllSecureMacAddresses {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -199,6 +202,7 @@ sub getAllSecureMacAddresses {
 =item getSecureMacAddresses
 
 =cut
+
 sub getSecureMacAddresses {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -235,6 +239,7 @@ sub getSecureMacAddresses {
 =item getVlan
 
 =cut
+
 sub getVlan {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -274,11 +279,13 @@ port security is enabled.
 Always returns true because switch doesn't work except in port-security.
 
 =cut
+
 sub isPortSecurityEnabled { return $TRUE; }
 
 =item parseTrap
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -322,6 +329,7 @@ Use the auto negotiation setting to force the port to shuts because the admin st
 See bugs and limitations.
 
 =cut
+
 sub setAdminStatus {
     my ( $this, $ifIndex, $status ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -366,6 +374,7 @@ sub setAdminStatus {
 =item _setVlan
 
 =cut
+
 sub _setVlan {
     my ( $this, $ifIndex, $newVlan, $oldVlan, $switch_locker_ref ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

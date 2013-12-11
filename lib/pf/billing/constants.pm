@@ -11,6 +11,7 @@ pf::billing::constants - Constants for billing to be used by different billing m
 This file is splitted by package and refering to the constants requires you to specify the package.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -23,6 +24,7 @@ General constants used by billing
 =over
 
 =cut
+
 package BILLING;
 
 =item paymentProcessingStatus
@@ -31,6 +33,7 @@ package BILLING;
  success(1)
 
 =cut
+
 Readonly::Scalar our $ERROR     => 0;
 Readonly::Scalar our $SUCCESS   => 1;
 
@@ -39,6 +42,7 @@ Readonly::Scalar our $SUCCESS   => 1;
 Status string as put in the database.
 
 =cut
+
 Readonly::Scalar our $STATUS_PROCESSED_ERROR => 'processed - error';
 Readonly::Scalar our $STATUS_PROCESSED_SUCCESS => 'processed - success';
 
@@ -47,6 +51,7 @@ Readonly::Scalar our $STATUS_PROCESSED_SUCCESS => 'processed - success';
 PacketFence error codes regarding billing.
 
 =cut
+
 Readonly::Scalar our $ERROR_INVALID_FORM => 1;
 Readonly::Scalar our $ERROR_CC_VALIDATION => 2;
 Readonly::Scalar our $ERROR_PAYMENT_GATEWAY_FAILURE => 3;
@@ -56,6 +61,7 @@ Readonly::Scalar our $ERROR_PAYMENT_GATEWAY_FAILURE => 3;
 An hash mapping error codes to error messages.
 
 =cut
+
 Readonly::Hash our %ERRORS => (
     $ERROR_INVALID_FORM => 'Missing mandatory parameter or malformed entry',
     $ERROR_CC_VALIDATION => 'An error occured while processing your payment. Incorrect credit card informations provided.',
@@ -69,6 +75,7 @@ Readonly::Hash our %ERRORS => (
 =over
 
 =cut
+
 package AUTHORIZE_NET;
 
 =item response - response fields from Authorize.net
@@ -77,6 +84,7 @@ package AUTHORIZE_NET;
  response_reason_text(4)
 
 =cut
+
 Readonly::Scalar our $RESPONSE_CODE         => 1;
 Readonly::Scalar our $RESPONSE_REASON_TEXT  => 4;
 
@@ -88,6 +96,7 @@ Readonly::Scalar our $RESPONSE_REASON_TEXT  => 4;
  held_for_review(4)
 
 =cut
+
 Readonly::Scalar our $APPROVED          => 1;
 Readonly::Scalar our $DECLINED          => 2;
 Readonly::Scalar our $ERROR             => 3;

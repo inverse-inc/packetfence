@@ -104,6 +104,8 @@ Requires: %{real_name}-pfcmd-suid
 Requires: perl(Bit::Vector)
 Requires: perl(CGI::Session), perl(CGI::Session::Driver::memcached), perl(JSON), perl(PHP::Session)
 Requires: perl(Apache2::Request)
+Requires: perl(Apache::Session)
+Requires: perl(Apache::Session::Memcached)
 Requires: perl(Class::Accessor)
 Requires: perl(Class::Accessor::Fast::Contained)
 Requires: perl(Class::Data::Inheritable)
@@ -221,6 +223,10 @@ Requires: perl(Cache::FastMmap)
 Requires: perl(Moo) >= 1.0
 Requires: perl(Term::ANSIColor)
 Requires: perl(IO::Interactive)
+Requires: perl(Module::Loaded)
+Requires: perl(Linux::FD)
+Requires: perl(Linux::Inotify2)
+Requires: perl(File::Touch)
 # configuration-wizard
 Requires: iproute, vconfig
 #
@@ -644,6 +650,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
 %doc                    /usr/local/pf/ChangeLog
 %dir                    /usr/local/pf/conf
+%config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %config                 /usr/local/pf/conf/chi.conf
 %config                 /usr/local/pf/conf/dhcp_fingerprints.conf
@@ -712,6 +719,7 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/captive-portal-common.conf
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.admin
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal
+%config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)	/usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
@@ -807,17 +815,30 @@ fi
                         /usr/local/pf/raddb/*
 %config                 /usr/local/pf/raddb/clients.conf
 %attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence.pm
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/packetfence-soh.pm
+%attr(0755, pf, pf) %config     /usr/local/pf/raddb/packetfence-soh.pm
 %config                 /usr/local/pf/raddb/proxy.conf
 %config                 /usr/local/pf/raddb/users
-%config                 /usr/local/pf/raddb/modules/mschap
-%config                 /usr/local/pf/raddb/modules/perl
-%attr(0755, pf, pf) %config     /usr/local/pf/raddb/sites-available/packetfence
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-available/packetfence-soh
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-available/packetfence-tunnel
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence-soh
-%attr(0755, pf, pf) %config    /usr/local/pf/raddb/sites-enabled/packetfence-tunnel
+%config(noreplace)      /usr/local/pf/raddb/modules/*
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/buffered-sql
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/coa
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/control-socket
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/copy-acct-to-home-server
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/decoupled-accounting
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/default
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/dhcp
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/dynamic-clients
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/example
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/inner-tunnel
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/originate-coa
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-soh
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/packetfence-tunnel
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/proxy-inner-tunnel
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/robust-proxy-accounting
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/soh
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/status
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/virtual.example.com
+%attr(0755, pf, pf) %config(noreplace)    /usr/local/pf/raddb/sites-available/vmps
 %dir                    /usr/local/pf/var/run
 %dir                    /usr/local/pf/var/rrd
 %dir                    /usr/local/pf/var/session
@@ -849,6 +870,9 @@ fi
 %attr(6755, root, root) /usr/local/pf/bin/pfcmd
 
 %changelog
+* Wed Dec 11 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.1.0-1
+- New release 4.1.0
+
 * Thu Sep 5 2013 Francis Lachapelle <flachapelle@inverse.ca> - 4.0.6-1
 - New release 4.0.6
 

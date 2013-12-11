@@ -100,7 +100,7 @@ if ($source) {
     $info{'unregdate'} = &pf::authentication::match($source->{id}, {username => $pid}, $Actions::SET_ACCESS_DURATION);
 
     if (defined $info{'unregdate'}) {
-        $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+        $info{'unregdate'} = access_duration($info{'unregdate'});
     }
     else {
         $info{'unregdate'} = &pf::authentication::match($source->{id}, {username => $pid}, $Actions::SET_UNREG_DATE);
@@ -112,8 +112,8 @@ if ($source) {
     pf::web::end_portal_session($portalSession);
 }
 else {
-    $logger->warn("No active $source_type source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-    print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+    $logger->warn("No active $source_type source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+    print $cgi->redirect($portalSession->getProfile->getRedirectURL);
 }
 
 =head1 AUTHOR

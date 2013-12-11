@@ -6,7 +6,7 @@
 var Nodes = function() {
 };
 
-Nodes.prototype.doAjax = function(url_data,options) {
+Nodes.prototype.doAjax = function(url_data, options) {
     $.ajax(url_data)
         .always(options.always)
         .done(options.success)
@@ -17,15 +17,15 @@ Nodes.prototype.doAjax = function(url_data,options) {
 };
 
 Nodes.prototype.get = function(options) {
-    this.doAjax(options.url,options);
+    this.doAjax(options.url, options);
 };
 
 Nodes.prototype.post = function(options) {
     this.doAjax(
         {
-        url: options.url,
-        type: 'POST',
-        data: options.data
+            url: options.url,
+            type: 'POST',
+            data: options.data
         },
         options
     );
@@ -40,27 +40,21 @@ var NodeView = function(options) {
     var read = $.proxy(this.readNode, this);
     options.parent.on('click', '#nodes [href*="node"][href$="/read"]', read);
 
-    var show = $.proxy(this.showNode, this);
-    $('body').on('show', '#modalNode', show);
+    this.proxyFor($('body'), 'show', '#modalNode', this.showNode);
 
-    var update = $.proxy(this.updateNode, this);
-    $('body').on('submit', '#modalNode form[name="modalNode"]', update);
+    this.proxyFor($('body'), 'submit', 'form[name="nodes"]', this.createNode);
 
-    var delete_node = $.proxy(this.deleteNode, this);
-    $('body').on('click', '#modalNode [href$="/delete"]', delete_node);
+    this.proxyFor($('body'), 'submit', '#modalNode form[name="modalNode"]', this.updateNode);
 
-    var read_violations = $.proxy(this.readViolations, this);
-    $('body').on('show', 'a[data-toggle="tab"][href="#nodeViolations"]', read_violations);
+    this.proxyClick($('body'), '#modalNode [href$="/delete"]', this.deleteNode);
 
-    var close_violation = $.proxy(this.closeViolation, this);
-    $('body').on('click', '#modalNode [href*="/close/"]', close_violation);
+    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#nodeViolations"]', this.readViolations);
 
-    var trigger_violation = $.proxy(this.triggerViolation, this);
-    $('body').on('click', '#modalNode #addViolation', trigger_violation);
+    this.proxyClick($('body'), '#modalNode [href*="/close/"]', this.closeViolation);
+
+    this.proxyClick($('body'), '#modalNode #addViolation', this.triggerViolation);
 
     /* Update the advanced search form to the next page or resort the query */
-    $('body').on('click', 'a[href*="#node/advanced_search"]', $.proxy(this.advancedSearchUpdater, this));
-
     this.proxyClick($('body'), 'a[href*="#node/advanced_search"]',this.advancedSearchUpdater);
 
     this.proxyClick($('body'), '#toggle_all_items', this.toggleAllItems);
@@ -68,6 +62,18 @@ var NodeView = function(options) {
     this.proxyClick($('body'), '[name="items"]', this.toggleActionsButton);
 
     this.proxyClick($('body'), '#clear_violations, #bulk_register, #bulk_deregister, #apply_roles a', this.submitItems);
+
+    this.proxyFor($('body'), 'section.loaded', '#section', function(e) {
+        /* Enable autocompletion of owner on tab of single node creation */
+        $('[data-provide="typeahead"]').typeahead({
+            source: $.proxy(this.searchUser, this),
+            minLength: 2,
+            items: 11,
+            matcher: function(item) { return true; },
+        });
+        /* Disable checked columns from import tab since they are required */
+        $('form["nodes"] .columns :checked').attr('disabled', 'disabled');
+    });
 };
 
 NodeView.prototype.proxyFor = function(obj, action, target, method) {
@@ -175,6 +181,52 @@ NodeView.prototype.readViolations = function(e) {
     return true;
 };
 
+NodeView.prototype.createNode = function(e) {
+    var form = $(e.target),
+    btn = form.find('[type="submit"]').first(),
+    href = $('#section .nav-tabs .active a').attr('href'),
+    pos = href.lastIndexOf('#'),
+    disabled_inputs = form.find('.hidden :input, .tab-pane:not(.active) :input'),
+    valid;
+
+    // Don't submit inputs from hidden rows and tabs.
+    // The functions isFormValid and serialize will ignore disabled inputs.
+    disabled_inputs.attr('disabled', 'disabled');
+
+    // Identify the type of creation (single, multiple or import) from the selected tab
+    form.find('input[name="type"]').val(href.substr(++pos));
+    valid = isFormValid(form);
+
+    if (valid) {
+        btn.button('loading');
+        resetAlert($('#section'));
+
+        // Since we can be uploading a file, the form target is an iframe from which
+        // we read the JSON returned by the server.
+        var iform = $("#iframe_form");
+        iform.one('load', function(event) {
+            // Restore disabled inputs
+            disabled_inputs.removeAttr('disabled');
+
+            $("body,html").animate({scrollTop:0}, 'fast');
+            btn.button('reset');
+            var body = $(this).contents().find('body');
+            // We received JSON
+            var data = $.parseJSON(body.text());
+            if (data.status < 300)
+                showPermanentSuccess(form, data.status_msg);
+            else
+                showPermanentError(form, data.status_msg);
+        });
+    }
+    else {
+        // Restore disabled inputs
+        disabled_inputs.removeAttr('disabled');
+    }
+
+    return valid;
+};
+
 NodeView.prototype.updateNode = function(e) {
     e.preventDefault();
 
@@ -268,25 +320,30 @@ NodeView.prototype.advancedSearchUpdater = function(e) {
     var form = $('#advancedSearch');
     var href = link.attr("href");
     if (href) {
-        href = href.replace(/^.*#node\/advanced_search\//,'');
+        href = href.replace(/^.*#node\/advanced_search\//, '');
         var values = href.split("/");
-        for (var i =0;i<values.length;i+=2) {
+        for (var i = 0; i < values.length; i += 2) {
             var name = values[i];
             var value = values[i + 1];
             form.find('[name="' + name + '"]:not(:disabled)').val(value);
         }
+        // Add checked columns to the form
+        form.find('[name="column"]').remove();
+        $('#columns').find(':checked').each(function() {
+            form.append($('<input>', { type: 'checkbox', checked: 'checked', name: 'column', class: 'hidden', value: $(this).val()}));
+        });
         form.submit();
     }
     return false;
 };
 
 NodeView.prototype.toggleActionsButton = function(e) {
-    var button = $('#bulk_actions');
+    var dropdown = $('#bulk_actions + ul');
     var checked = $('[name="items"]:checked').length > 0;
     if (checked)
-        button.removeClass('disabled');
+        dropdown.find('li.disabled').removeClass('disabled');
     else
-        button.addClass('disabled');
+        dropdown.find('li[class!="dropdown-submenu"]').addClass('disabled');
 };
 
 NodeView.prototype.toggleAllItems = function(e) {
@@ -299,13 +356,16 @@ NodeView.prototype.toggleAllItems = function(e) {
 NodeView.prototype.submitItems = function(e) {
     var target = $(e.currentTarget);
     var status_container = $("#section").find('h2').first();
-    this.nodes.post({
-        url: target.attr("data-target"),
-        data: $("#items").serialize(),
-        success: function(data) {
-            showSuccess(status_container, data.status_msg);
-            $(window).hashchange();
-        },
-        errorSibling: status_container
-    });
+    var items = $("#items").serialize();
+    if (items.length) {
+        this.nodes.post({
+            url: target.attr("data-target"),
+            data: items,
+            success: function(data) {
+                showSuccess(status_container, data.status_msg);
+                $(window).hashchange();
+            },
+            errorSibling: status_container
+        });
+    }
 };

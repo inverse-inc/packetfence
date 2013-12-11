@@ -11,8 +11,6 @@
 #                    <...>
 ### END INIT INFO
 
-# Author: Durand fabrice <fdurand@inverse.ca>
-
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC=packetfence             # Introduce a short description here

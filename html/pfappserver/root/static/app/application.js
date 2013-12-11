@@ -42,6 +42,12 @@ $(function () {
         var name = btn.attr('name');
         var input = btn.siblings('input[name="' + name + '"]');
         input.val(btn.attr('value'));
+        input.trigger('change');
+    });
+
+    /* Don't hide special "form" dropdown menu */
+    $('body').on('click', '.dropdown-menu-form', function(event) {
+        event.stopPropagation();
     });
 
     /* Live validation for required fields */
@@ -225,3 +231,7 @@ function _(key) {
 
     return value;
 }
+
+String.prototype.asCSSIdentifier = function() {
+    return this.replace(/[^_a-zA-Z0-9]/g, '_');
+};

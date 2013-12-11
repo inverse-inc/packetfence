@@ -31,6 +31,7 @@ use pf::locationlog;
 use Log::Log4perl qw(get_logger);
 use pf::node;
 use pf::os;
+use pf::person;
 use pf::enforcement qw(reevaluate_access);
 use pf::useragent qw(node_useragent_view);
 use pf::util;
@@ -67,10 +68,12 @@ sub exists {
 
 =head2 field_names
 
+Field names to be displayed. The first one is the default sort field.
+
 =cut
 
 sub field_names {
-    return [qw(mac computername pid last_ip status dhcp_fingerprint)];
+    return [qw(mac detect_date regdate unregdate computername pid last_ip status dhcp_fingerprint category)];
 }
 
 =head2 countAll
@@ -98,6 +101,8 @@ sub countAll {
 }
 
 =head2 search
+
+Used to perform a simple search
 
 =cut
 
@@ -144,8 +149,8 @@ sub view {
                 $node->{$date} = POSIX::strftime("%Y-%m-%d %H:%M", @date_data);
             }
         }
-        foreach (qw[regdate unregdate]) {
-            $node->{$_} = '' if exists $node->{$_} &&  $node->{$_} eq '0000-00-00 00:00:00';
+        foreach (qw[detect_date regdate unregdate]) {
+            $node->{$_} = '' if exists $node->{$_} && $node->{$_} eq '0000-00-00 00:00:00';
         }
 
         # Show 802.1X username only if connection is of type EAP
@@ -217,6 +222,33 @@ sub view {
     return ($STATUS::OK, $node);
 }
 
+=head2 create
+
+Create and register a node
+
+=cut
+
+sub create {
+    my ($self, $data) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $result) = ($STATUS::CREATED);
+    my $mac = $data->{mac};
+    my $pid = $data->{pid} || $default_pid;
+
+    # Adding person (using modify in case person already exists)
+    $result = node_register($mac, $pid, %{$data});
+    if ($result) {
+        $logger->info("Created node $mac");
+    }
+    else {
+        return ($STATUS::INTERNAL_SERVER_ERROR, 'Unexpected error. See server-side logs for details.');
+    }
+
+    return ($status);
+}
+
+
 =head2 update
 
 See subroutine manage of pfcmd.pl
@@ -230,7 +262,7 @@ sub update {
     my ($status, $result) = ($STATUS::OK);
     my $previous_node_ref;
 
-    $previous_node_ref = node_attributes($mac);
+    $previous_node_ref = node_view($mac);
     if ($previous_node_ref->{status} ne $node_ref->{status}) {
         # Status was modified
         my $option;
@@ -244,11 +276,15 @@ sub update {
         }
     }
     unless (defined $result) {
+        $node_ref->{pid} ||= $default_pid;
         $result = node_modify($mac, %{$node_ref});
     }
     if ($result) {
-        if ($previous_node_ref->{status} ne $node_ref->{status}) {
+        my $isDot1x = defined($previous_node_ref->{last_dot1x_username}) && length($previous_node_ref->{last_dot1x_username}) > 0;
+        if ($previous_node_ref->{status} ne $node_ref->{status} ||
+            $previous_node_ref->{category_id} ne $node_ref->{category_id} && !$isDot1x) {
             # Node has been registered or deregistered
+            # or the role has changed and is not currently using 802.1X
             reevaluate_access($mac, "node_modify");
         }
     }
@@ -258,6 +294,115 @@ sub update {
     }
 
     return ($status, $result);
+}
+
+=head2 import
+
+See pf::import::nodes
+
+=cut
+
+sub importCSV {
+    my ($self, $data, $user) = @_;
+
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
+    my ($status, $message);
+    my $filename = $data->{nodes_file}->filename;
+    my $tmpfilename = $data->{nodes_file}->tempname;
+    my $delimiter = $data->{delimiter};
+    my $default_node_pid = $data->{default_pid};
+    my $default_category_id = $data->{default_category_id};
+    my $default_voip = $data->{default_voip};
+
+    $logger->debug("CSV file import nodes from $tmpfilename ($filename, \"$delimiter\")");
+
+    # Build hash table for columns order
+    my $count = 0;
+    my $skipped = 0;
+    my %index = ();
+    foreach my $column (@{$data->{columns}}) {
+        if ($column->{enabled} || $column->{name} eq 'mac') {
+            # Add checked columns and mandatory columns
+            $index{$column->{name}} = $count;
+            $count++;
+        }
+    }
+
+    # Map delimiter to its actual character
+    if ($delimiter eq 'comma') {
+        $delimiter = ',';
+    } elsif ($delimiter eq 'semicolon') {
+        $delimiter = ';';
+    } elsif ($delimiter eq 'colon') {
+        $delimiter = ':';
+    } elsif ($delimiter eq 'tab') {
+        $delimiter = "\t";
+    }
+
+    # Read CSV file
+    $count = 0;
+    if (open (my $import_fh, "<", $tmpfilename)) {
+        my $csv = Text::CSV->new({ binary => 1, sep_char => $delimiter });
+        while (my $row = $csv->getline($import_fh)) {
+            my ($pid, $mac, $node, %data, $result);
+
+            $pid = $row->[$index{'pid'}] || undef;
+            if ($pid && ($pid !~ /$pf::person::PID_RE/ || !person_exist($pid))) {
+                $logger->debug("Ignored unknown PID ($pid)");
+                $skipped++;
+                next;
+            }
+            $mac = $row->[$index{'mac'}] || undef;
+            if (!$mac || !valid_mac($mac)) {
+                $logger->debug("Ignored invalid MAC ($mac)");
+                $skipped++;
+                next;
+            }
+            $mac = clean_mac($mac);
+            $pid ||= $default_node_pid || $default_pid;
+            $node = node_view($mac);
+            %data =
+              (
+               'mac'         => $mac,
+               'pid'         => $pid,
+               'category'    => $index{'category'}  ? $row->[$index{'category'}]  : undef,
+               'category_id' => $index{'category'}  ? undef                       : $default_category_id,
+               'unregdate'   => $index{'unregdate'} ? $row->[$index{'unregdate'}] : undef,
+               'voip'        => $index{'voip'}      ? $row->[$index{'voip'}]      : $default_voip,
+               'notes'       => $index{'notes'}     ? $row->[$index{'notes'}]     : undef,
+              );
+            if (!defined($node) || (ref($node) eq 'HASH' && $node->{'status'} ne $pf::node::STATUS_REGISTERED)) {
+                $logger->debug("Register MAC $mac ($pid)");
+                $result = node_register($mac, $pid, %data);
+            }
+            else {
+                $logger->debug("Modify already registered MAC $mac ($pid)");
+                $result = node_modify($mac, %data);
+            }
+            if ($result) {
+                $count++;
+            }
+            else {
+                $skipped++;
+            }
+        }
+        unless ($csv->eof) {
+            $logger->warn("Problem with CSV file importation: " . $csv->error_diag());
+            ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, ["Problem with importation: [_1]" , $csv->error_diag()]);
+        }
+        else {
+            ($status, $message) = ($STATUS::CREATED, { count => $count, skipped => $skipped });
+        }
+        close $import_fh;
+    }
+    else {
+        $logger->warn("Can't open CSV file $filename: $@");
+        ($status, $message) = ($STATUS::INTERNAL_SERVER_ERROR, "Can't read CSV file.");
+    }
+
+    $logger->info("CSV file ($filename) import $count nodes, skip $skipped nodes");
+
+    return ($status, $message);
 }
 
 =head2 delete

@@ -69,21 +69,22 @@ sub match_in_subclass {
     local $_;
 
     # First check if the username is found in the htpasswd file
+    my $username = $params->{'username'} || $params->{'email'};
     my $password_file = $self->{'path'};
-    if (-r $password_file) {
+    if ($username && -r $password_file) {
         my $htpasswd = new Apache::Htpasswd({ passwdFile => $password_file, ReadOnly => 1});
-        if ( defined($htpasswd->fetchPass($params->{'username'})) ) {
+        if ( $htpasswd->fetchPass($username) ) {
             # Username is defined in the htpasswd file
             # Let's match the htpasswd conditions alltogether.
             # We should only have conditions based on the username attribute.
             foreach my $condition (@{ $own_conditions }) {
                 if ($condition->{'attribute'} eq "username") {
-                    if ( $condition->matches("username", $params->{'username'}) ) {
+                    if ( $condition->matches("username", $username) ) {
                         push(@{ $matching_conditions }, $condition);
                     }
                 }
             }
-            return $params->{'username'};
+            return $username;
         }
     }
 

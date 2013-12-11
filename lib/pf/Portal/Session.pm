@@ -12,6 +12,7 @@ pf::Portal::Session wraps several parameter we often need from the captive
 portal.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -36,6 +37,7 @@ use pf::web::util;
 =head1 CONSTANTS
 
 =cut
+
 Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 
 =head1 METHODS
@@ -45,6 +47,7 @@ Readonly our $LOOPBACK_IPV4 => '127.0.0.1';
 =item new
 
 =cut
+
 sub new {
     my ( $class, %argv ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -59,6 +62,7 @@ sub new {
 =item _initialize
 
 =cut
+
 # Warning: this task must be the least expensive possible since it will be
 # run on every portal hit. We should profile then re-architect to store
 # in session expensive components to look for.
@@ -76,11 +80,11 @@ sub _initialize {
     $self->{'_client_ip'} = $self->_resolveIp();
     $self->{'_client_mac'} = ip2mac($self->getClientIp);
 
-    $self->{'_destination_url'} = $self->_getDestinationUrl();
-
     $self->{'_guest_node_mac'} = undef;
 
     $self->{'_profile'} = pf::Portal::ProfileFactory->instantiate($self->getClientMac);
+
+    $self->{'_destination_url'} = $self->_getDestinationUrl();
 
     $self->_initializeStash();
     $self->_initializeI18n();
@@ -92,6 +96,7 @@ Initialize a catalyst-style stash variable that is passed to the template
 when rendering.
 
 =cut
+
 sub _initializeStash {
     my ($self) = @_;
 
@@ -103,6 +108,7 @@ sub _initializeStash {
 =item _initializeI18n
 
 =cut
+
 sub _initializeI18n {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -143,12 +149,16 @@ sub _initializeI18n {
 Returns destination_url properly parsed, defended against XSS and with configured value if not defined.
 
 =cut
+
 sub _getDestinationUrl {
     my ($self) = @_;
 
-    # set default if destination_url not set
-    return $Config{'trapping'}{'redirecturl'} if (!defined($self->cgi->param("destination_url")));
+    # Return portal profile's redirection URL if destination_url is not set or if redirection URL is forced
+    if (!defined($self->cgi->param("destination_url")) || isenabled($self->getProfile->forceRedirectURL)) {
+        return $self->getProfile->getRedirectURL;
+    }
 
+    # Respect the user's initial destination URL
     return decode_entities(uri_unescape($self->cgi->param("destination_url")));
 }
 
@@ -158,6 +168,7 @@ Returns the IP address of the client reaching the captive portal.
 Either directly connected or through a proxy.
 
 =cut
+
 sub _resolveIp {
     my ($self) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -174,18 +185,18 @@ sub _resolveIp {
     $proxied_lookup{$management_network->tag('vip')} = 1 if ($management_network && $management_network->tag('vip'));
 
     # if this is NOT from one of the expected proxy IPs return the IP
-    if (!$proxied_lookup{$directly_connected_ip}) {
+    if ( (!$proxied_lookup{$directly_connected_ip}) && !($directly_connected_ip ne '127.0.0.1') ) {
         return $directly_connected_ip;
     }
 
     # behind a proxy?
     if (defined($ENV{'HTTP_X_FORWARDED_FOR'})) {
-        my $proxied_ip = $ENV{'HTTP_X_FORWARDED_FOR'};
+        my @proxied_ip = split(',',$ENV{'HTTP_X_FORWARDED_FOR'});
         $logger->debug(
             "Remote Address is $directly_connected_ip. Client is behind proxy? "
-            . "Returning: $proxied_ip according to HTTP Headers"
+            . "Returning: $proxied_ip[0] according to HTTP Headers"
         );
-        return $proxied_ip;
+        return $proxied_ip[0];
     }
 
     $logger->debug("Remote Address is $directly_connected_ip but no further hints of client IP in HTTP Headers");
@@ -208,6 +219,7 @@ One can also use a syntax like this:
 Also, it is prepopulated with the Web constants from pf::web::constants.
 
 =cut
+
 sub stash {
     my ( $self, $hashref ) = @_;
 
@@ -225,6 +237,7 @@ sub stash {
 Returns the CGI object.
 
 =cut
+
 sub getCgi {
     my ($self) = @_;
     return $self->{'_cgi'};
@@ -237,6 +250,7 @@ Returns the CGI object. Allows for more perl-ish syntax:
    $portalSession->cgi->param...
 
 =cut
+
 sub cgi {
     my ($self) = @_;
     return $self->{'_cgi'};
@@ -247,6 +261,7 @@ sub cgi {
 Returns the CGI::Session object.
 
 =cut
+
 sub getSession {
     my ($self) = @_;
     return $self->{'_session'};
@@ -259,6 +274,7 @@ Returns the CGI::Session object. Allows for more perl-ish syntax:
    $portalSession->session->param...
 
 =cut
+
 sub session {
     my ($self) = @_;
     return $self->{'_session'};
@@ -271,6 +287,7 @@ lookups for Proxy bypass and load balancers instead of looking at local TCP
 from CGI.
 
 =cut
+
 sub getClientIp {
     my ($self) = @_;
     return $self->{'_client_ip'};
@@ -281,6 +298,7 @@ sub getClientIp {
 Returns the MAC of the captive portal client.
 
 =cut
+
 sub getClientMac {
     my ($self) = @_;
     return $self->{'_client_mac'};
@@ -291,6 +309,7 @@ sub getClientMac {
 Returns the original destination URL requested by the client.
 
 =cut
+
 # TODO we could store this in session and return from session if it exists
 sub getDestinationUrl {
     my ($self) = @_;
@@ -302,6 +321,7 @@ sub getDestinationUrl {
 Sets the destination url.
 
 =cut
+
 # TODO get rid of this when destination url for billing-engine (different destination url for each tier) will be implemented
 sub setDestinationUrl {
     my ($self, $new_destination_url) = @_;
@@ -314,6 +334,7 @@ sub setDestinationUrl {
 Returns the proper captive portal profile for the current session.
 
 =cut
+
 sub getProfile {
     my ($self) = @_;
     return $self->{'_profile'};
@@ -324,6 +345,7 @@ sub getProfile {
 Return the guest node mac address in the case of an email activation.
 
 =cut
+
 sub getGuestNodeMac {
     my ($self) = @_;
     return $self->{'_guest_node_mac'};
@@ -334,6 +356,7 @@ sub getGuestNodeMac {
 Sets the guest node mac address in the case of an email activation.
 
 =cut
+
 sub setGuestNodeMac {
     my ($self, $guest_node_mac) = @_;
 
@@ -343,6 +366,7 @@ sub setGuestNodeMac {
 =item getTemplateIncludePath
 
 =cut
+
 sub getTemplateIncludePath {
     my ($self) = @_;
     my $profile = $self->getProfile;
@@ -360,6 +384,7 @@ Ex: Accept-Language: en-US,en;q=0.8,fr;q=0.6,fr-CA;q=0.4,no;q=0.2,es;q=0.2
 will return qw(en_US en fr fr_CA no es)
 
 =cut
+
 sub getRequestLanguages {
     my ($self) = @_;
     my $s = $self->getCgi->http('Accept-language');

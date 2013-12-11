@@ -31,6 +31,8 @@ use base ('pf::SNMP');
 use pf::config;
 use pf::SNMP::constants;
 use pf::util;
+use pf::util::radius qw(perform_disconnect);
+use Try::Tiny;
 
 sub description { 'Xirrus WiFi Arrays' }
 
@@ -54,6 +56,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -100,6 +103,7 @@ sub parseTrap {
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 =cut
+
 sub deauthenticateMacDefault {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -128,6 +132,110 @@ sub deauthenticateMacDefault {
 
 }
 
+=item deauthenticateMacDefault
+    
+De-authenticate a MAC address from wireless network (including 802.1x).
+    
+New implementation using RADIUS Disconnect-Request.
+
+=cut
+
+sub deauthenticateMacRadius {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this 
+    # (not done because it doesn't exist in current branch)
+    return $self->radiusDisconnect( $mac );
+}
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
+
+=cut
+
+# TODO consider whether we should handle retries or not?
+
+sub radiusDisconnect {
+    my ($self, $mac, $add_attributes_ref) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($self) );
+
+    # initialize
+    $add_attributes_ref = {} if (!defined($add_attributes_ref));
+
+    if (!defined($self->{'_radiusSecret'})) {
+        $logger->warn(
+            "Unable to perform RADIUS CoA-Request on $self->{'_ip'}: RADIUS Shared Secret not configured"
+        );
+        return;
+    }
+
+    $logger->info("deauthenticating $mac");
+
+    # Where should we send the RADIUS CoA-Request?
+    # to network device by default
+    my $send_disconnect_to = $self->{'_ip'};
+    # but if controllerIp is set, we send there
+    if (defined($self->{'_controllerIp'}) && $self->{'_controllerIp'} ne '') {
+        $logger->info("controllerIp is set, we will use controller $self->{_controllerIp} to perform deauth");
+        $send_disconnect_to = $self->{'_controllerIp'};
+    }
+    # allowing client code to override where we connect with NAS-IP-Address
+    $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
+        if (defined($add_attributes_ref->{'NAS-IP-Address'}));
+
+    my $response;
+    try {
+        my $connection_info = {
+            nas_ip => $send_disconnect_to,
+            secret => $self->{'_radiusSecret'},
+            LocalAddr => $management_network->tag('vip'),
+        };
+
+        # transforming MAC to the expected format 00-11-22-33-CA-FE
+        $mac = uc($mac);
+        $mac =~ s/:/-/g;
+
+        # Standard Attributes
+        my $attributes_ref = {
+        };
+
+        # merging additional attributes provided by caller to the standard attributes
+        $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
+
+        $response = perform_disconnect( $connection_info,
+            {
+                'Calling-Station-Id' => $mac,
+            },
+        );
+    } catch {
+        chomp;
+        $logger->warn("Unable to perform RADIUS CoA-Request: $_");
+        $logger->error("Wrong RADIUS secret or unreachable network device...") if ($_ =~ /^Timeout/);
+    };
+    return if (!defined($response));
+
+    return $TRUE if ($response->{'Code'} eq 'CoA-ACK');
+
+    $logger->warn(
+        "Unable to perform RADIUS Disconnect-Request."
+        . ( defined($response->{'Code'}) ? " $response->{'Code'}" : 'no RADIUS code' ) . ' received'
+        . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
+    );
+    return;
+}
+
 =item deauthTechniques
 
 Return the reference to the deauth technique or the default deauth technique.
@@ -140,6 +248,7 @@ sub deauthTechniques {
     my $default = $SNMP::SNMP;
     my %tech = (
         $SNMP::SNMP => \&deauthenticateMacDefault,
+        $SNMP::RADIUS => \&deauthenticateMacRadius,
     );
 
     if (!defined($method) || !defined($tech{$method})) {
@@ -183,3 +292,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+

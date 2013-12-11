@@ -47,15 +47,15 @@ sub available_attributes {
   my $self = shift;
 
   my $super_attributes = $self->SUPER::available_attributes;
-  my @ldap_attributes = map { { value => $_, type => $Conditions::SUBSTRING } }
-    ("cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
+  my @ldap_attributes = map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } }
+    ("uid", "cn", "department", "displayName", "distinguishedName", "givenName", "memberOf", "sn", "eduPersonPrimaryAffiliation", "mail");
 
   # We check if our username attribute is present, if not we add it.
   if (not grep {$_->{value} eq $self->{'usernameattribute'} } @ldap_attributes ) {
-    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::SUBSTRING });
+    push (@ldap_attributes, { value => $self->{'usernameattribute'}, type => $Conditions::LDAP_ATTRIBUTE });
   }
 
-  return [@$super_attributes, @ldap_attributes];
+  return [@$super_attributes, sort { $a->{value} cmp $b->{value} } @ldap_attributes];
 }
 
 =head2 authenticate
@@ -64,18 +64,17 @@ sub available_attributes {
 
 sub authenticate {
   my ( $self, $username, $password ) = @_;
-  my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+  my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
-  if (! defined($connection)) {
-    $logger->error("Unable to connect to an LDAP server.");
+  if (!defined($connection)) {
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
   my $result = $self->bind_with_credentials($connection);
 
   if ($result->is_error) {
-    $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+    $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
@@ -87,15 +86,15 @@ sub authenticate {
     attrs => ['dn']
   );
   if ($result->is_error) {
-    $logger->error("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Unable to validate credentials at the moment');
   }
 
   if ($result->count == 0) {
-    $logger->warn("No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    $logger->warn("[$self->{'id'}] No entries found (". $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Invalid login or password');
   } elsif ($result->count > 1) {
-    $logger->warn("Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    $logger->warn("[$self->{'id'}] Unexpected number of entries found (" . $result->count .") with filter $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
     return ($FALSE, 'Invalid login or password');
   }
 
@@ -104,11 +103,12 @@ sub authenticate {
   $result = $connection->bind($user->dn, password => $password);
 
   if ($result->is_error) {
-    $logger->warn("User cannot " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort for source $self->{'id'}");
+    $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
     return ($FALSE, 'Invalid login or password');
   }
 
-  return ($TRUE, 'Successful authentication using LDAP.');
+  $logger->warn("[$self->{'id'}] Authentication successful for $username");
+  return ($TRUE, 'Authentication successful using LDAP');
 }
 
 
@@ -145,22 +145,22 @@ sub _connect {
         $connection = Net::LDAP->new($LDAPServer, port =>  $LDAPServerPort );
     }
     if (! defined($connection)) {
-      $logger->warn("Unable to connect to $LDAPServer");
+      $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");
       next TRYSERVER;
     }
 
     # try TLS if required, return undef if it fails
     if ( $self->{'encryption'} eq TLS ) {
       my $mesg = $connection->start_tls();
-      if ( $mesg->code() ) { $logger->error($mesg->error()) and return undef; }
+      if ( $mesg->code() ) { $logger->error("[$self->{'id'}] ".$mesg->error()) and return undef; }
     }
 
-    $logger->debug("using ldap connection to $LDAPServer");
+    $logger->debug("[$self->{'id'}] Using LDAP connection to $LDAPServer");
     return ( $connection, $LDAPServer, $LDAPServerPort );
   }
   # if the connection is still undefined after trying every server, we fail and return undef.
   if (! defined($connection)) {
-    $logger->error("Unable to connect to any LDAP Server");
+    $logger->error("[$self->{'id'}] Unable to connect to any LDAP server");
   }
   return undef;
 }
@@ -168,7 +168,7 @@ sub _connect {
 
 =head2 match_in_subclass
 
-C<$params> are the parameters gathered at authentication (username, SSID, connection, type, etc).
+C<$params> are the parameters gathered at authentication (username, SSID, connection type, etc).
 
 C<$rule> is the rule instance that defines the conditions.
 
@@ -182,28 +182,27 @@ sub match_in_subclass {
 
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
 
-    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
-
-    $logger->debug("Matching rules in LDAP source");
-
-    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
-
-    $logger->debug("LDAP filter: $filter");
+    my $logger = Log::Log4perl->get_logger(__PACKAGE__);
 
     my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
     if (! defined($connection)) {
-        $logger->error("Unable to connect to an LDAP server.");
         return undef;
     }
 
     my $result = $self->bind_with_credentials($connection);
 
     if ($result->is_error) {
-        $logger->error("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+        $logger->error("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
         return undef;
     }
 
-    $logger->debug("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+    my $filter = $self->ldap_filter_for_conditions($own_conditions, $rule->match, $self->{'usernameattribute'}, $params);
+    if (! defined($filter)) {
+        $logger->error("[$self->{'id'}] Missing parameters to construct LDAP filter");
+        return undef;
+    }
+    $logger->debug("[$self->{'id'} $rule->{'id'}] Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
+
     my @attributes = map { $_->{'attribute'} } @{$own_conditions};
     $result = $connection->search(
       base => $self->{'basedn'},
@@ -213,22 +212,25 @@ sub match_in_subclass {
     );
 
     if ($result->is_error) {
-        $logger->error("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
+        $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort, we skip the rule.");
         return undef;
     }
 
-    $logger->debug("Found ".$result->count." results");
+    $logger->debug("[$self->{'id'} $rule->{'id'}] Found ".$result->count." results");
     if ($result->count == 1) {
         my $entry = $result->pop_entry();
+        my $dn = $entry->dn;
         my $entry_matches = 1;
-        $connection->unbind;
+        my ($condition, $attribute, $value);
 
         # Perform match on regexp conditions since they were not included in the LDAP filter
-        foreach my $condition (grep { $_->{'operator'} eq $Conditions::MATCHES } @{$own_conditions}) {
-            my $attribute = $entry->get_value($condition->{'attribute'});
-            my $value = $condition->{'value'};
-            if ($attribute && $attribute =~ m/$condition->{'value'}/) {
+        foreach $condition (grep { $_->{'operator'} eq $Conditions::MATCHES } @{$own_conditions}) {
+            $attribute = $condition->{'attribute'};
+            $value = $condition->{'value'};
+            my @attributes = $entry->get_value($attribute);
+            if (scalar @attributes > 0 && grep /$value/, @attributes) {
                 $entry_matches = 1;
+                $logger->debug("[$self->{'id'} $rule->{'id'}] Regexp $attribute =~ /$value/ matches ($dn)");
                 last if ($rule->match eq $Rules::ANY)
             }
             else {
@@ -239,13 +241,47 @@ sub match_in_subclass {
             }
         }
 
+        # Perform match on a static group condition since they require a second LDAP search
+        foreach $condition (grep { $_->{'operator'} eq $Conditions::IS_MEMBER } @{$own_conditions}) {
+            $value = escape_filter_value($condition->{'value'});
+            $attribute = $entry->get_value($condition->{'attribute'});
+            # Search for any type of group definition:
+            # - groupOfNames       => member (dn)
+            # - groupOfUniqueNames => uniqueMember (dn)
+            # - posixGroup         => memberUid (uid)
+            $filter = "(|(member=${dn})(uniqueMember=$dn)(memberUid=${attribute}))";
+            $result = $connection->search
+              (
+               base => $value,
+               filter => $filter,
+               scope => $self->{ 'scope'},
+               attrs => ['dn']
+              );
+            if ($result->is_error) {
+                $logger->error("[$self->{'id'}] Unable to execute search $filter from $value on $LDAPServer:$LDAPServerPort, we skip the condition (".$result->error.").");
+                next;
+            }
+            if ($result->count == 1) {
+                $entry_matches = 1;
+                $logger->debug("[$self->{'id'} $rule->{'id'}] Group $value has member $attribute ($dn)");
+                last if ($rule->match eq $Rules::ANY);
+            }
+            else {
+                $entry_matches = 0;
+                if ($rule->match eq $Rules::ALL) {
+                    last;
+                }
+            }
+        }
+
+        $connection->unbind;
+
         if ($entry_matches) {
             # If we found a result, we push all conditions as matched ones.
             # That is normal, as we used them all to build our LDAP filter.
-            my $dn = $entry->dn;
-            $logger->info("Found a match ($dn)");
+            $logger->info("[$self->{'id'} $rule->{'id'}] Found a match ($dn)");
             push @{ $matching_conditions }, @{ $own_conditions };
-            return $params->{'username'};
+            return $params->{'username'} || $params->{'email'};
         }
     }
 
@@ -266,15 +302,15 @@ sub test {
   my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
   if (! defined($connection)) {
-    $logger->warn("Unable to connect to any LDAP server");
+    $logger->warn("[$self->{'id'}] Unable to connect to any LDAP server");
     return ($FALSE, "Can't connect to server");
   }
 
   # Bind
   my $result = $self->bind_with_credentials($connection);
   if ($result->is_error) {
-    $logger->warn("Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
-    return ($FALSE, "Unable to bind to $LDAPServer with these settings");
+    $logger->warn("[$self->{'id'}] Unable to bind with $self->{'binddn'} on $LDAPServer:$LDAPServerPort");
+    return ($FALSE, ["Unable to bind to [_1] with these settings", $LDAPServer]);
   }
 
   # Search
@@ -288,11 +324,11 @@ sub test {
   );
 
   if ($result->is_error) {
-      $logger->warn("Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort: ".$result->error);
+      $logger->warn("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort: ".$result->error);
       return ($FALSE, 'Wrong base DN or username attribute');
   }
 
-  return ($TRUE, 'Success');
+  return ($TRUE, 'LDAP connect, bind and search successful');
 }
 
 =head2 ldap_filter_for_conditions
@@ -300,96 +336,58 @@ sub test {
 This function is used to generate an LDAP filter based on conditions
 from a rule.
 
+In case of a catch all, there's no condition and we only check
+for the usernameattribute - to match it in the source.
+
 =cut
 
 sub ldap_filter_for_conditions {
   my ($self, $conditions, $match, $usernameattribute, $params) = @_;
 
-  # We first check if it's a catch all, if it is, we only
-  # check for the usernameattribute - to match it in the source
-
-  my @ldap_conditions;
-  my $logical_op = ($match eq $Rules::ANY) ? '|' :   '&';
-  my $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
-  foreach my $condition (@{$conditions})  {
-    my $str;
-    my $operator = $condition->{'operator'};
-    my $value = escape_filter_value($condition->{'value'});
-    my $attribute = $condition->{'attribute'};
-
-    if ($operator eq $Conditions::EQUALS) {
-      $str = "${attribute}=${value}";
-    } elsif ($operator eq $Conditions::CONTAINS) {
-      $str = "${attribute}=*${value}*";
-    } elsif ($operator eq $Conditions::STARTS) {
-      $str = "${attribute}=${value}*";
-    } elsif ($operator eq $Conditions::ENDS) {
-      $str = "${attribute}=*${value}";
-    }
-
-    if ($str) {
-        push(@ldap_conditions, $str);
-    }
+  my (@ldap_conditions, $expression);
+  if ($params->{'username'}) {
+      $expression = '(' . $usernameattribute . '=' . $params->{'username'} . ')';
+  } elsif ($params->{'email'}) {
+      $expression = '(mail=' . $params->{'email'} . ')';
   }
-  if (@ldap_conditions) {
-      my $subexpressions = join('',map { "($_)" } @ldap_conditions);
-      if (@ldap_conditions > 1) {
-          $subexpressions = "(${logical_op}${subexpressions})";
+
+  if ($expression) {
+      my $logical_op = ($match eq $Rules::ANY) ? '|' :   '&';
+      foreach my $condition (@{$conditions}) {
+          my $str;
+          my $operator = $condition->{'operator'};
+          my $value = escape_filter_value($condition->{'value'});
+          my $attribute = $condition->{'attribute'};
+
+          if ($operator eq $Conditions::EQUALS) {
+              $str = "${attribute}=${value}";
+          } elsif ($operator eq $Conditions::CONTAINS) {
+              $str = "${attribute}=*${value}*";
+          } elsif ($operator eq $Conditions::STARTS) {
+              $str = "${attribute}=${value}*";
+          } elsif ($operator eq $Conditions::ENDS) {
+              $str = "${attribute}=*${value}";
+          }
+
+          if ($str) {
+              push(@ldap_conditions, $str);
+          }
       }
-      $expression = "(&${expression}${subexpressions})";
+      if (@ldap_conditions) {
+          my $subexpressions = join('', map { "($_)" } @ldap_conditions);
+          if (@ldap_conditions > 1) {
+              $subexpressions = "(${logical_op}${subexpressions})";
+          }
+          $expression = "(&${expression}${subexpressions})";
+      }
   }
 
   return $expression;
 }
 
-=head2 username_from_email
+=head2 bind_with_credentials
 
 =cut
-
-sub username_from_email {
-    my ( $self, $email ) = @_;
-
-    my $logger = Log::Log4perl->get_logger('pf::authentication');
-
-    my $filter = "(mail=$email)";
-
-    my ( $connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
-    if (! defined($connection)) {
-      $logger->error("Unable to connect to $self->{'host'}");
-      return undef;
-    }
-
-    my $result = $self->bind_with_credentials($connection);
-
-    if ($result->is_error) {
-      $logger->error("Unable to bind with $self->{'binddn'}");
-      return undef;
-    }
-
-    $logger->info("Searching for $filter, from $self->{'basedn'}, with scope $self->{'scope'}");
-    $result = $connection->search(
-      base => $self->{'basedn'},
-      filter => $filter,
-      scope => $self->{'scope'},
-      attrs => [$self->{'usernameattribute'}]
-    );
-
-    if ($result->is_error) {
-      $logger->error("Unable to execute search: " . $result->error);
-      next;
-    }
-
-    if ($result->count == 1) {
-      my $username = $result->entry->get_value( $self->{'usernameattribute'} );
-      $connection->unbind;
-      $logger->info("LDAP:found a match in username_from_email ($email => $username)");
-      return $username;
-    }
-
-    $logger->info("No match found for filter: $filter");
-    return undef;
-}
-
 
 sub bind_with_credentials {
     my ($self,$connection) = @_;

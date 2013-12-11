@@ -33,13 +33,13 @@ sub index :Path {
 
 =cut
 
-sub simple_search :Local :Args() : SimpleSearch('UserAgent') {}
+sub simple_search :Local :Args() :SimpleSearch('UserAgent') :AdminRole('USERAGENTS_READ') {}
 
 =head2 upload
 
 =cut
 
-sub upload :Local :Args(0) {
+sub upload :Local :Args(0) :AdminRole('USERAGENTS_READ') {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'JSON';
 
@@ -97,7 +97,7 @@ sub upload :Local :Args(0) {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

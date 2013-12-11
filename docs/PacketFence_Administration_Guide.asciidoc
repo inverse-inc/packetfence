@@ -199,6 +199,7 @@ Install your distribution with minimal installation and no additional packages. 
 * Disable Firewall
 * Disable SELinux
 * Disable AppArmor
+* Disable resolvconf
 
 Make sure your system is up to date and your yum or apt-get database is updated. On a RHEL-based system, do:
 
@@ -226,7 +227,7 @@ Install the proper repositories in `yum` so it can directly lookup for packages:
 
 .For RHEL 6.x / CentOS 6.x
 
-  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.`uname -m`.rpm
+  # rpm -Uvh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.`uname -m`.rpm
   # rpm -Uvh http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-8.noarch.rpm
   # rpm -Uvh http://repo.openfusion.net/centos6-`uname -i`/openfusion-release-0.6.2-1.of.el6.noarch.rpm
 
@@ -422,6 +423,7 @@ PacketFence can authenticate users that register devices via the captive portal 
 * Google (OAuth 2)
 * Kerberos
 * LDAP
+* Null
 * RADIUS
 * SMS
 * Sponsored Email
@@ -877,9 +879,25 @@ attempting to attack each other.
 FreeRADIUS Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment. We strongly recommend that you install FreeRADIUS even if you plan not to use the feature now.
+This section presents the FreeRADIUS configuration steps. In some occasions, a RADIUS server is mandatory in order to give access to the network. For example, the usage of WPA2-Enterprise (Wireless 802.1X), MAC authentication and Wired 802.1X all requires a RADIUS server to authenticate the users and the devices, and then to push the proper VLAN to the network equipment.
 
-Option 1: Authentication against Active Directory (AD)
+Option 1: Dynamic switch configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Since PacketFence version 4.1 you are now be able to enable dynamic clients.
+It mean that when you add a new switch configuration in PacketFence´s administration interface you don´t have to restart radiusd service.
+
+To enable this feature make a symlink in `/usr/local/pf/raddb/site-enabled` directory:
+
+  ln -s ../sites-available/dynamic-clients dynamic-clients
+
+and of course restart radiusd:
+
+  /usr/local/pf/bin/pfcmd service radiusd restart
+
+
+
+Option 2: Authentication against Active Directory (AD)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Replace `/usr/local/pf/raddb/modules/mschap` with the following configuration: 
@@ -1035,7 +1053,7 @@ Finally, start `winbind`, and test the setup using `ntlm_auth` and `radtest`:
 
 For Centos/RHEL:
 
-  # chgrp pf /var/lib/samba/winbindd_privileged/
+  # usermod -a -G wbpriv pf
 
 For Debian and Ubuntu:
 
@@ -1052,14 +1070,14 @@ For Debian and Ubuntu:
     rad_recv: Access-Accept packet from host 127.0.0.1 port 18120, id=108, length=20
 
 
-Option 2: Local Authentication
+Option 3: Local Authentication
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add your user's entries at the end of the `/usr/local/pf/raddb/users` file with the following format:
 
   username Cleartext-Password := "password"
 
-Option 3: Authentication against OpenLDAP
+Option 4: Authentication against OpenLDAP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   To be contributed...
@@ -1139,12 +1157,23 @@ There are two solutions for passthroughs - one using DNS resolution and iptables
 When enabled, PacketFence will use pfdns if you defined *Passthroughs*, or Apache mod-proxy if you defined *Proxy Passthroughs* to allow trapped devices to reach web sites.
 
 *DNS passthrough:
-Add a new FQDN (should be a wildcard domain like *.google.com) in the *Passthroughs* section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
+Add a new FQDN (should be a wildcard domain like *.google.com) in the Passthroughs section. When PacketFence receives a DNS request for this domain, it will answer the real IP address and punch a hole in the firewall (using iptables) to allow access. With this method, PacketFence must be the default gateway of your device.
 
 *mod_proxy passthrough:
 Add a new FQDN (should be a wildcard domain like *.google.com) in the Proxy Passthroughs section. For this FQDN, PacketFence will answer the IP address of the captive portal and when a device hits the captive portal, PacketFence will detect that this FQDN has a passthrough configuration and will forward the traffic to mod_proxy.
 
 These two methods can be used together but DNS-based passthroughs have higher priority.
+
+Proxy Interception
+~~~~~~~~~~~~~~~~~~
+
+In PacketFence you are now able to intercept proxy request and forward them to the captive portal. It only work in layer 2 network because packetfence must be the default gateway of your device.
+In order to use the Proxy Interception feature, you need to enable it from the GUI in
+*Configuration -> Trapping* and check *Proxy Interception*.
+
+Add the port you want to intercept, like 8080 3128 and add a new entry in the /etc/hosts file to resolv the fqdn of the captive portal to 127.0.0.1.
+The modification of the hosts file is really important because apache try to resolv the fqdn of the captive portal and it must be 127.0.0.1.
+
 
 Configuration by example
 ------------------------
@@ -1877,12 +1906,12 @@ Available registration modes are defined on a per-portal-profile basis. These ar
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Self-registered guests are added under the persons tab of the PacketFence web administration interface.
+Self-registered guests are added under the persons tab of the PacketFence Web administration interface.
 
 Managed guests
 ++++++++++++++
 
-It is possible to modify the default values of the guests created by the guest management interface by editing `/usr/local/pf/conf/pf.conf`.
+It is possible to modify the default values of the guests created from the Web admin interface by editing `/usr/local/pf/conf/pf.conf`.
 
 Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and documentation for every settings is available in `/usr/local/pf/conf/documentations.conf`.
 
@@ -1890,13 +1919,24 @@ Default values are located in `/usr/local/pf/conf/pf.conf.defaults` and document
   access_duration_choices=1h,3h,12h,1D,2D,3D,5D
   default_access_duration=12h
 
-These parameters can also be configured from the *Configuration -> Admin Registration* section.
+The format of the duration is as follow:
 
-PacketFence administrators automatically have access to the guest management interface. It is also possible to create users that will only have access to the administrative interface by setting the access level to *All* as an action.
+  <DURATION><DATETIME_UNIT>[<PERIOD_BASE><OPERATOR><DURATION><DATE_UNIT>]
+
+Let's explain the meaning of each parameter:
+
+[options="compact"]
+* `DURATION`: a number corresponding to the period duration.
+* `DATETIME_UNIT`: a character corresponding to the units of the date or time duration; either s (seconds), m (minutes), h (hours), D (days), W (weeks), M (months), or Y (years).
+* `PERIOD_BASE`: either F (fixed) or R (relative). A relative period is computed from the beginning of the period unit. Weeks start on Monday.
+* `OPERATOR`: either + or -. The duration following the operator is added or subtracted from the base duration.
+* `DATE_UNIT`: a character corresponding to the units of the extended duration. Limited to date units (D (days), W (weeks), M (months), or Y (years)).
+
+These parameters can also be configured from the *Configuration -> Admin Registration* section of the Web admin interface.
 
 CAUTION: A valid MTA configured in PacketFence is needed to correctly relay emails related to the guest module. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server.
 
-Guests created by the guest management interface are added under the Users tab of the PacketFence web administration interface. From there, it is possible to reset their password, change their role and more.
+From the Users page of the PacketFence Web admin interface, it is possible to set the access duration of users, change their password and more.
 
 Guest pre-registration
 ++++++++++++++++++++++
@@ -2050,7 +2090,7 @@ CAUTION: The use of different billing tiers requires different roles in PacketFe
 Portal Profiles
 ~~~~~~~~~~~~~~~
 
-In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID clients connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
+In some cases, you may want to present a different captive portal (see below for the available customizations) according to the SSID, the VLAN, or the switch IP the client connects to. To do so, PacketFence has the concept of portal profiles which gives you this possibility. 
 
 When configured, portal profiles will override default values for which it is configured. When no values are configured in the profile, PacketFence will take its default ones (according to the "default" portal profile).
 

@@ -28,10 +28,10 @@ BEGIN {
 
 use_ok("pf::authentication");
 
-is(pf::authentication::match("bad_source_name",{ username => 'test' }),undef,"Return undef for an invalid name of source");
+is(pf::authentication::match("bad_source_name",{ username => 'test' }), undef, "Return undef for an invalid name of source");
 
 is_deeply(
-    pf::authentication::match("email",{ username => 'test' }),
+    pf::authentication::match("email", { username => 'user_manager' }),
     [
         pf::Authentication::Action->new({
             'value' => 'guest',
@@ -46,7 +46,7 @@ is_deeply(
 );
 
 is_deeply(
-    pf::authentication::match("htpasswd1",{ username => 'user_manager' }),
+    pf::authentication::match("htpasswd1", { username => 'user_manager' }),
     [
         pf::Authentication::Action->new({
             'value' => 'User Manager',
@@ -56,6 +56,7 @@ is_deeply(
     "match htpasswd1 by username"
 );
 
+is(pf::authentication::username_from_email('user@domain.com'), 'htpasswd1', "Found username associated to an email");
 
 =head1 AUTHOR
 

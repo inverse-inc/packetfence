@@ -55,6 +55,7 @@ use pf::config;
 =over
 
 =cut
+
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
@@ -65,6 +66,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =item getVersion
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_alliedFirmwareVersion = '.1.3.6.1.4.1.89.2.4.0';

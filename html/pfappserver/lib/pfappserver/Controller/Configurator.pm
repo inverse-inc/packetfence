@@ -53,6 +53,9 @@ Set the default view to pfappserver::View::Configurator.
 sub begin :Private {
     my ( $self, $c ) = @_;
     $c->stash->{current_view} = 'Configurator';
+    unless($c->user_in_realm('configurator')) {
+        $c->authenticate( {username => '_PF_CONFIGURATOR' } , 'configurator' );
+    }
 }
 
 =head2 index
@@ -119,7 +122,6 @@ Enforcement mechanisms (step 1)
 
 sub enforcement :Chained('object') :PathPart('enforcement') :Args(0) {
     my ( $self, $c ) = @_;
-
     if ($c->request->method eq 'POST') {
         # Save parameters in user session
         my $enforcements = $c->request->params->{enforcement};

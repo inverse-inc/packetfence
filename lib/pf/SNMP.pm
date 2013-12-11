@@ -33,7 +33,8 @@ use pf::roles::custom $ROLE_API_LEVEL;
 use pf::SNMP::constants;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any all);
+use Scalar::Util qw(looks_like_number);
 
 =head1 SUBROUTINES
 
@@ -982,7 +983,7 @@ sub getManagedIfIndexes {
 sub isManagedVlan {
     my ($this, $vlan) = @_;
     my $vlans = $this->{_vlans};
-    return (defined $vlans && any {$_ == $vlan} values %$vlans) ? $TRUE : $FALSE;
+    return ( (all {defined $_ } $vlan,$vlans) && looks_like_number($vlan) && any {$_ == $vlan} values %$vlans) ? $TRUE : $FALSE;
 }
 
 =item getMode - get the mode
@@ -2412,7 +2413,7 @@ ifIndex - ifIndex to force re-authentication on
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
 
     return $this->_dot1xPortReauthenticate($ifIndex);
 }
@@ -2474,7 +2475,7 @@ Default behavior is to bounce the port
 =cut
 
 sub handleReAssignVlanTrapForWiredMacAuth {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
@@ -2811,6 +2812,39 @@ return IfIndexByNasPortId
 sub getIfIndexByNasPortId {
     my ($this ) = @_;
     return $FALSE;
+}
+
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($this, $method, $connection_type) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => \&dot1xPortReauthenticate,
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    if ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::SNMP;
+        my %tech = (
+            $SNMP::SNMP => \&handleReAssignVlanTrapForWiredMacAuth,
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
 }
 
 =back

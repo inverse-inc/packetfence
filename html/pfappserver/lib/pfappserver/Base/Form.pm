@@ -1,4 +1,5 @@
 package pfappserver::Base::Form;
+
 =head1 NAME
 
 pfappserver::Base::Form
@@ -97,32 +98,32 @@ sub update_fields {
     my $self = shift;
 
     foreach my $field (@{$self->fields}) {
-        if ($field->required) {
-            $field->set_element_attr('data-required' => 'required');
-            $field->tags->{label_after} = ' <i class="icon-exclamation-sign"></i>';
+        $self->update_field($field);
+    }
+}
+
+sub update_field {
+    my ($self, $field) = @_;
+
+    if ($field->required) {
+        $field->set_element_attr('data-required' => 'required');
+        $field->tags->{label_after} = ' <i class="icon-exclamation-sign"></i>';
+    }
+    if ($field->type eq 'PosInteger') {
+        $field->type_attr($field->html5_type_attr);
+        $field->set_element_attr('data-type' => 'number');
+    }
+    elsif ($field->type eq 'DatePicker') {
+        if ($field->start) {
+            $field->set_element_attr('data-date-startdate' => $field->start);
         }
-        if ($field->type eq 'PosInteger') {
-            $field->type_attr($field->html5_type_attr);
-            $field->set_element_attr('data-type' => 'number');
+        if ($field->end) {
+            $field->set_element_attr('data-date-enddate' => $field->end);
         }
-        elsif ($field->type eq 'DatePicker') {
-            if ($field->start) {
-                $field->set_element_attr('data-date-startdate' => $field->start);
-            }
-            if ($field->end) {
-                $field->set_element_attr('data-date-enddate' => $field->end);
-            }
-        }
-        elsif ($field->{is_compound}) {
-            foreach my $subfield (@{$field->fields}) {
-                if ($subfield->type eq 'PosInteger') {
-                    $subfield->type_attr($subfield->html5_type_attr);
-                    $subfield->set_element_attr('data-type' => 'number');
-                }
-                if ($field->required) {
-                    $subfield->set_element_attr('data-required' => 'required');
-                }
-            }
+    }
+    elsif ($field->can('fields')) {
+        foreach my $subfield (@{$field->fields}) {
+            $self->update_field($subfield);
         }
     }
 }

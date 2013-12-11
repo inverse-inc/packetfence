@@ -44,7 +44,8 @@ foreach my $section ( tied(%doc)->Sections ) {
 # +2 NoWarnings, use_ok 
 # +4 is_in_list
 # +9 normalize_time
-plan tests => $testNb + 2 + 4 + 9;
+# +15 access_duration
+plan tests => $testNb + 2 + 4 + 9 + 15;
 
 use_ok('pf::config');
 
@@ -91,6 +92,26 @@ is(normalize_time("2D"), 2 * 24 * 60 * 60, "normalizing days");
 is(normalize_time("2W"), 2 * 7 * 24 * 60 * 60, "normalizing weeks");
 is(normalize_time("2M"), 2 * 30 * 24 * 60 * 60, "normalizing months");
 is(normalize_time("2Y"), 2 * 365 * 24 * 60 * 60, "normalizing years");
+
+my $tsformat = "%Y-%m-%d %H:%M:%S";
+my $refdate = POSIX::mktime(0,0,12,2,0,101); # 2001-01-02 12:00:00 (Tuesday)
+# print POSIX::strftime("$tsformat (%A)", localtime($refdate)),"\n";
+is(access_duration("2D", $refdate), POSIX::strftime($tsformat, localtime($refdate + 2 * 24 * 60 * 60)), "access duration in days");
+is(access_duration("2M", $refdate), POSIX::strftime($tsformat, localtime($refdate + 2 * 30 * 24 * 60 * 60)), "access duration in months");
+is(access_duration("2Y", $refdate), POSIX::strftime($tsformat, localtime($refdate + 2 * 365 * 24 * 60 * 60)), "access duration in years");
+# duration relative to the beggining of the day
+is(access_duration("1DR+0D", $refdate), POSIX::strftime($tsformat, localtime($refdate + 1 * 24 * 60 * 60 - 12 * 60 * 60)), "relative duration by day");
+is(access_duration("1DR+2D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (1+2) * 24 * 60 * 60 - 12 * 60 * 60)), "relative duration by day");
+is(access_duration("2DR-0D", $refdate), POSIX::strftime($tsformat, localtime($refdate + 2 * 24 * 60 * 60 - 12 * 60 * 60)), "negative relative duration by day");
+is(access_duration("1WR+1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (7-1+1) * 24 * 60 * 60 - 12 * 60 * 60)), "relative duration by week");
+is(access_duration("2WR+1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (7-1+7+1) * 24 * 60 * 60 - 12 * 60 * 60)), "relative duration by two week");
+is(access_duration("1WR-1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (7-1-1) * 24 * 60 * 60 - 12 * 60 * 60)), "negative relative duration by week");
+is(access_duration("2MR+1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (31-1+28+1) * 24 * 60 * 60 - 12 * 60 * 60)), "relative duration by month");
+is(access_duration("1YR+2M", $refdate), POSIX::strftime($tsformat, localtime(POSIX::mktime(0,0,0,1,0,102,0,0,0) + 2 * 30 * 24 * 60 * 60)), "relative duration by year");
+is(access_duration("1DF+2D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (1+2) * 24 * 60 * 60 - 12 * 60 * 60)), "fixed duration by day");
+is(access_duration("1WF+1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (7+1) * 24 * 60 * 60 - 12 * 60 * 60)), "fixed duration by week");
+is(access_duration("1MF+1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (30+1) * 24 * 60 * 60 - 12 * 60 * 60)), "fixed duration by month");
+is(access_duration("1YF+1D", $refdate), POSIX::strftime($tsformat, localtime($refdate + (365+1) * 24 * 60 * 60 - 12 * 60 * 60)), "fixed duration by year");
 
 # TODO add tests for configfile import / export
 

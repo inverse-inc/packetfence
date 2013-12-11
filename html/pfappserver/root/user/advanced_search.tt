@@ -1,5 +1,5 @@
 [% MACRO header(column, title, class) BLOCK -%]
-[% params = { by => column, filter => filter, per_page => per_page };
+[% params = { by => column, filter => filter, per_page => per_page, direction => 'asc' };
     IF by == column && direction == 'asc';
       params.direction = 'desc';
     END %]

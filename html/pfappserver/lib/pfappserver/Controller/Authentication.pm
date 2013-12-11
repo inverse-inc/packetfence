@@ -34,21 +34,23 @@ Show list of authentication sources. Allow user to order the list.
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path :Args(0) :AdminRole('USERS_SOURCES_READ') {
     my ($self, $c) = @_;
 
-    my ($sources, $internal_types, $external_types, $form);
+    my ($sources);
 
     (undef, $sources) = $c->model('Config::Authentication')->readAll();
-    $internal_types = availableAuthenticationSourceTypes('internal');
-    $external_types = availableAuthenticationSourceTypes('external');
-    $form = pfappserver::Form::Authentication->new(ctx => $c,
+    my $internal_types = availableAuthenticationSourceTypes('internal');
+    my $external_types = availableAuthenticationSourceTypes('external');
+    my $exclusive_types = availableAuthenticationSourceTypes('exclusive');
+    my $form = pfappserver::Form::Authentication->new(ctx => $c,
                                                    init_object => {sources => $sources});
     $form->process();
 
     $c->stash(
-        internal_types => $internal_types,
-        external_types => $external_types,
+        internal_types  => $internal_types,
+        external_types  => $external_types,
+        exclusive_types => $exclusive_types,
         form => $form,
         template => 'configuration/authentication.tt'
     );
@@ -62,7 +64,7 @@ Update the authentication sources order.
 
 =cut
 
-sub update :Path('update') :Args(0) {
+sub update :Path('update') :Args(0) :AdminRole('USERS_SOURCES_UPDATE') {
     my ($self, $c) = @_;
 
     my ($form, $status, $message);

@@ -15,9 +15,11 @@ use warnings;
 use Date::Parse;
 use HTTP::Status qw(:constants is_error is_success);
 use Moose;
+use Moose::Util qw(apply_all_roles);
 use namespace::autoclean;
 use POSIX;
 use URI::Escape;
+use pfappserver::Base::Action::AdminRole;
 use pfappserver::Base::Action::SimpleSearch;
 
 use pf::os;
@@ -38,13 +40,15 @@ use File::Spec::Functions;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
-our %VALID_PARAMS = (
-    page_num => 1,
-    by => 1,
-    direction => 1,
-    filter => 1,
-    start => 1,
-    end => 1,
+our %VALID_PARAMS =
+  (
+   page_num => 1,
+   by => 1,
+   direction => 1,
+   filter => 1,
+   start => 1,
+   end => 1,
+   column => 1,
 );
 
 =head1 METHODS
@@ -62,7 +66,7 @@ sub auto :Private {
     # This fixes a problem when "en" is not in the browsers languages.
     $c->languages( ['en'] );
 
-    unless ($c->user_exists()) {
+    unless ($c->user_in_realm('admin')) {
         $c->response->status(HTTP_UNAUTHORIZED);
         $c->response->location($c->req->referer);
         $c->stash->{template} = 'admin/unauthorized.tt';
@@ -75,33 +79,66 @@ sub auto :Private {
 
 =head2 valid_param
 
+Subroutines with the 'SimpleSearch' attribute will automatically stash
+URL parameters listed in our VALID_PARAMS hash.
+
 =cut
 
 sub valid_param {
-    my ($self,$key) = @_;
+    my ($self, $key) = @_;
     return exists $VALID_PARAMS{$key};
 }
 
+=head2 _parse_SimpleSearch_attr
+
+Customize the parsing of the 'SimpleSearch' subroutine attribute. Returns a hash with the attribute value.
+
+See https://metacpan.org/module/Catalyst::Controller#parse_-name-_attr
+
+=cut
+
 sub _parse_SimpleSearch_attr {
-    my ( $self, $c, $name, $value ) = @_;
+    my ($self, $c, $name, $value) = @_;
     return SimpleSearch => $value;
 }
 
+=head2 _parse_AdminRole_attr
+
+Customize the parsing of the 'AdminRole' subroutine attribute. Returns a hash with the attribute value.
+
+See https://metacpan.org/module/Catalyst::Controller#parse_-name-_attr
+
+=cut
+
+sub _parse_AdminRole_attr {
+    my ($self, $c, $name, $value) = @_;
+    return AdminRole => $value;
+}
+
 =head2 around create_action
+
+Construction of a new Catalyst::Action.
+
+See https://metacpan.org/module/Catalyst::Controller#self-create_action-args
 
 =cut
 
 around create_action => sub {
     my ($orig, $self, %args) = @_;
 
-    return $self->$orig(%args)
-        if $args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/;
-
-    my ($model) = @{ $args{attributes}->{SimpleSearch} || [] };
-
-    return $self->$orig(%args) unless $model;
-
-    return Base::Action::SimpleSearch->new(\%args);
+    my $model;
+    my $action = $self->$orig(%args);
+    unless ($args{name} =~ /^_(DISPATCH|BEGIN|AUTO|ACTION|END)$/) {
+        my @roles;
+        if(@{ $args{attributes}->{SimpleSearch} || [] }) {
+            push @roles,'pfappserver::Base::Action::SimpleSearch';
+        }
+        if(@{ $args{attributes}->{AdminRole} || [] }) {
+            push @roles,'pfappserver::Base::Action::AdminRole';
+        }
+        apply_all_roles($action,@roles) if @roles;
+    }
+    return $action;
 };
 
 =head2 _list_items
@@ -125,18 +162,19 @@ sub _list_items {
         $params{'where'} = { type => 'any', like => $filter };
         $c->stash->{filter} = $filter;
     }
-    if ( exists( $c->stash->{'by'} ) ) {
-        $orderby = $c->stash->{'by'};
-        if ( grep { $_ eq $orderby } (@$field_names) ) {
-            $orderdirection = $c->stash->{'direction'};
-            unless ( defined $orderdirection && grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {
-                $orderdirection = 'asc';
-            }
-            $params{'orderby'}     = "ORDER BY $orderby $orderdirection";
-            $c->stash->{by}        = $orderby;
-            $c->stash->{direction} = $orderdirection;
-        }
+
+    $orderby = $c->stash->{'by'};
+    unless ( $orderby && grep { $_ eq $orderby } (@$field_names) ) {
+        $orderby = $field_names->[0];
     }
+    $orderdirection = $c->stash->{'direction'};
+    unless ( $orderdirection && grep { $_ eq $orderdirection } ( 'asc', 'desc' ) ) {
+        $orderdirection = 'asc';
+    }
+    $params{'orderby'}     = "ORDER BY $orderby $orderdirection";
+    $c->stash->{by}        = $orderby;
+    $c->stash->{direction} = $orderdirection;
+
     my $count;
     ( $status, $result ) = $model->search(%params);
     if ( is_success($status) ) {
@@ -148,7 +186,7 @@ sub _list_items {
         $c->stash->{count}       = $count;
         $c->stash->{page_num}    = $page_num;
         $c->stash->{per_page}    = $per_page;
-        $c->stash->{by}          = $orderby || $field_names->[0];
+        $c->stash->{by}          = $orderby;
         $c->stash->{direction}   = $orderdirection || 'asc';
         $c->stash->{items}       = $items_ref;
         $c->stash->{field_names} = $field_names;
@@ -191,7 +229,7 @@ sub add_fake_profile_data {
 =cut
 
 sub getForm {
-    my ($self,$c,@args) = @_;
+    my ($self, $c, @args) = @_;
     unless (@args) {
         if (exists $c->action->{form} && defined (my $form = $c->action->{form})) {
             push @args,$form;
@@ -205,7 +243,7 @@ sub getForm {
 =cut
 
 sub getModel {
-    my ($self,$c,@args) = @_;
+    my ($self, $c, @args) = @_;
     unless (@args) {
         if (exists $c->action->{model} && defined (my $model = $c->action->{model})) {
             push @args,$model;

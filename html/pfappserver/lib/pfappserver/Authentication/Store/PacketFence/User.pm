@@ -9,17 +9,20 @@ use warnings;
 use pf::config qw($TRUE $FALSE $WEB_ADMIN_ALL);
 use pf::authentication;
 use pf::Authentication::constants;
+use pf::log;
+use List::MoreUtils qw(all);
 
-BEGIN { __PACKAGE__->mk_accessors(qw/_user _store/) }
+BEGIN { __PACKAGE__->mk_accessors(qw/_user _store _roles/) }
 
 use overload '""' => sub { shift->id }, fallback => 1;
 
 sub new {
-  my ( $class, $store, $user ) = @_;
+  my ( $class, $store, $user, $roles ) = @_;
 
   return unless $user;
+  $roles = [qw(NONE)] unless $roles;
+  bless { _store => $store, _user => $user, _roles => $roles }, $class;
 
-  bless { _store => $store, _user => $user }, $class;
 }
 
 sub id {
@@ -36,24 +39,23 @@ sub supported_features {
 }
 
 sub check_password {
-  my ( $self, $password ) = @_;
+  my ($self, $password) = @_;
 
   my $internal_sources = pf::authentication::getInternalAuthenticationSources();
   my ($result, $message, $source_id) = &pf::authentication::authenticate($self->_user, $password, @{$internal_sources});
 
   if ($result) {
       my $value = &pf::authentication::match($source_id, {username => $self->_user}, $Actions::SET_ACCESS_LEVEL);
-
-      if (defined $value && $value == $WEB_ADMIN_ALL) {
-          return $TRUE;
-      }
+      $self->_roles([split /\s*,\s*/,$value]) if defined $value;
+      return (defined $value && all{ $_ ne 'NONE'} @{$self->_roles});
   }
 
   return $FALSE;
 }
 
 sub roles {
-  return ();
+    my ($self) = @_;
+    return @{$self->_roles};
 }
 
 *for_session = \&id;

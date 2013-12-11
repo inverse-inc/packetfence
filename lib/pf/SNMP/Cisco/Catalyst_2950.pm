@@ -212,6 +212,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $command;
@@ -484,6 +485,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub ping {
     my ( $this, $ip ) = @_;
     my $session;
@@ -538,6 +540,7 @@ With VoIP
  switchport port-security mac-adress xxxx.xxxx.xxxx
 
 =cut
+
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -582,6 +585,7 @@ sub enablePortSecurityByIfIndex {
 =item disablePortSecurityByIfIndex - remove all the port-security settings on a port
 
 =cut
+
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -617,6 +621,7 @@ sub disablePortSecurityByIfIndex {
 =item setPortSecurityEnableByIfIndex - enable/disable port-security on a port
 
 =cut
+
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -643,6 +648,7 @@ sub setPortSecurityEnableByIfIndex {
 Sets the global (data + voice) maximum number of MAC addresses for port-security on a port
 
 =cut
+
 sub setPortSecurityMaxSecureMacAddrByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -670,6 +676,7 @@ a process to call it thus working around bug #1369: thread crash with
 floating network devices with VoIP through SSH transport
 
 =cut
+
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -698,6 +705,7 @@ L<http://www.cpanforum.com/threads/6909/>
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -766,6 +774,7 @@ sub _setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
 Tells the switch what to do when the number of MAC addresses on the port has exceeded the maximum: shut down the port, send a trap or only allow traffic from the secure port and drop packets from other MAC addresses
 
 =cut
+
 sub setPortSecurityViolationActionByIfIndex {
     my ( $this, $ifIndex, $action ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -792,6 +801,7 @@ sub setPortSecurityViolationActionByIfIndex {
 Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
 
 =cut
+
 sub setTaggedVlans {
     my ( $this, $ifIndex, $switch_locker, @vlans ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -842,6 +852,7 @@ sub setTaggedVlans {
 Removes all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
 
 =cut
+
 sub removeAllTaggedVlans {
     my ( $this, $ifIndex, $switch_locker) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -894,6 +905,7 @@ sub removeAllTaggedVlans {
 Overriding default enablePortConfigAsTrunk to fix a race issue with Cisco
 
 =cut
+
 sub enablePortConfigAsTrunk {
     my ($this, $mac, $switch_port, $switch_locker, $taggedVlans)  = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -927,6 +939,7 @@ sub enablePortConfigAsTrunk {
 Translate RADIUS NAS-Port into switch's ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this)); 
@@ -946,6 +959,7 @@ sub NasPortToIfIndex {
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 =cut
+
 sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -960,8 +974,9 @@ instead of issuing a re-negociation here we bounce if there's no VoIP device
 or set the VLAN and log if there is a VoIP device.
 
 =cut
+
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     $logger->info(
@@ -1001,7 +1016,7 @@ sub dot1xPortReauthenticate {
         "Changing VLAN and leaving everything as it is."
     );
 
-    my $mac = $locationlog[0]->{'mac'};
+    $mac = $locationlog[0]->{'mac'};
     my $vlan_obj = new pf::vlan::custom();
     my ($vlan,$wasInline) = $vlan_obj->fetchVlanForNode($mac, $this, $ifIndex, $WIRED_802_1X);
 
@@ -1047,6 +1062,7 @@ If this proves to be generic enough, it could be promoted to L<pf::SNMP>.
 In that case, create a generic ifIndexToLldpLocalPort also.
 
 =cut
+
 sub getPhonesLLDPAtIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1112,6 +1128,7 @@ Translate an ifIndex into an LLDP Local Port number.
 We use ifDescr to lookup the lldpRemLocalPortNum in the lldpLocPortDesc table.
 
 =cut
+
 sub ifIndexToLldpLocalPort {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -1141,6 +1158,31 @@ sub ifIndexToLldpLocalPort {
 
     # nothing found
     return;
+}
+
+=item getIfIndexByNasPortId
+
+Fetch the ifindex on the switch by NAS-Port-Id radius attribute
+
+=cut
+
+sub getIfIndexiByNasPortId {
+    my ($this, $ifDesc_param) = @_;
+
+    if ( !$this->connectRead() ) {
+        return 0;
+    }
+
+    my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
+    my $ifDescHashRef;
+    my $result = $this->{_sessionRead}->get_table( -baseoid => $OID_ifDesc );
+    foreach my $key ( keys %{$result} ) {
+        my $ifDesc = $result->{$key};
+        if ( $ifDesc =~ /$ifDesc_param$/i ) {
+            $key =~ /^$OID_ifDesc\.(\d+)$/;
+            return $1;
+        }
+    }
 }
 
 =back

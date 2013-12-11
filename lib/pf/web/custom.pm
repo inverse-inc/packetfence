@@ -39,6 +39,7 @@ To do so, we are messing with typeglobs installing anonymous subs in the pf::web
 replacing earlier implementations.
 
 =cut
+
 {
 no warnings 'redefine';
 package pf::web;
@@ -64,6 +65,7 @@ To set the particular session variable use the following:
  $session->param("usercategory", "guest");
 
 =cut
+
 #*pf::web::web_node_register = sub {
 #    my ( $portalSession, $pid, %info ) = @_;
 #    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -102,6 +104,7 @@ probably the best approach if what you want to inject depend on some state
 or user input.
 
 =cut
+
 #*pf::web::stash_template_vars = sub {
 #    my ($portalSession, $template) = @_;
 #    return { 'helpdesk_phone' => '514-555-1337' };

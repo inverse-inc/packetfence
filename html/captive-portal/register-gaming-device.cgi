@@ -87,7 +87,7 @@ elsif (exists $params{'device_mac'}) {
     else {
         # Use role of user
         $role = &pf::authentication::match(&pf::authentication::getInternalAuthenticationSources(), {username => $pid}, $Actions::SET_ROLE);
-        $logger->trace("Gaming devices role is $role (from username $pid)");
+        $logger->trace("Gaming devices role is $role (from username $pid)") if ($role);
     }
     $info{'category'} = $role if (defined $role);
 

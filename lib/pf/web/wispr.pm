@@ -74,7 +74,7 @@ sub handler {
     # Trace the user in the apache log
     $r->user($req->param("username"));
 
-    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession);
+    my ($return, $message, $source_id) = &pf::web::web_user_authenticate($portalSession,$req->param("username"),$req->param("password"));
     if ($return) {
         $logger->info("Authentification success for wispr client");
         $stash = {
@@ -120,7 +120,7 @@ sub handler {
 
     if (defined $value) {
         $logger->trace("No unregdate found - computing it from access duration");
-        $value = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($value)));
+        $value = access_duration($value);
     }
     else {
         $logger->trace("Unregdate found, we use it right away");

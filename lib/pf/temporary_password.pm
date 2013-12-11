@@ -111,6 +111,14 @@ sub temporary_password_db_prepare {
         WHERE t.pid = ?
     ]);
 
+    $temporary_password_statements->{'temporary_password_view_email_sql'} = get_db_handle()->prepare(qq[
+        SELECT t.pid, t.password, t.valid_from, t.expiration, t.access_duration, t.access_level, c.name as category, t.sponsor, t.unregdate,
+            p.firstname, p.lastname, p.email, p.telephone, p.company, p.address, p.notes
+        FROM person p, temporary_password t
+        LEFT JOIN node_category c ON t.category = c.category_id
+        WHERE t.pid = p.pid AND p.email = ?
+    ]);
+
     $temporary_password_statements->{'temporary_password_add_sql'} = get_db_handle()->prepare(qq[
         INSERT INTO temporary_password
             (pid, password, valid_from, expiration, access_duration, access_level, category, sponsor, unregdate)
@@ -122,7 +130,8 @@ sub temporary_password_db_prepare {
     );
 
     $temporary_password_statements->{'temporary_password_validate_password_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from, UNIX_TIMESTAMP(expiration) as expiration,
+        SELECT pid, password, UNIX_TIMESTAMP(valid_from) as valid_from,
+            UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")) AS expiration,
             access_duration, category
         FROM temporary_password
         WHERE pid = ?
@@ -140,18 +149,12 @@ sub temporary_password_db_prepare {
         UPDATE temporary_password SET password = ? WHERE pid = ?
     ]);
 
-    $temporary_password_statements->{'temporary_password_match_by_mail_sql'} = get_db_handle()->prepare(qq[
-        SELECT pid
-        FROM person
-        WHERE email = ?
-    ]);
-
     $temporary_password_db_prepared = 1;
 }
 
 =item view
 
-view a a temporary password record, returns an hashref
+view a temporary password record, returns an hashref
 
 =cut
 
@@ -159,6 +162,24 @@ sub view {
     my ($pid) = @_;
     my $query = db_query_execute(
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_sql', $pid
+    ) || return;
+    my $ref = $query->fetchrow_hashref();
+
+    # just get one row and finish
+    $query->finish();
+    return ($ref);
+}
+
+=item view_email
+
+view the temporary password record associated to an email address, returns an hashref
+
+=cut
+
+sub view_email {
+    my ($email) = @_;
+    my $query = db_query_execute(
+        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_view_email_sql', $email
     ) || return;
     my $ref = $query->fetchrow_hashref();
 
@@ -372,7 +393,7 @@ sub modify_actions {
         @{$temporary_password}{@ACTION_FIELDS}, $pid
     );
     my $rows = $query->rows;
-    $logger->info("temporarypassword $pid modified") if $rows ;
+    $logger->info("pid $pid modified") if $rows ;
     return ($rows);
 }
 
@@ -436,6 +457,7 @@ sub validate_password {
 Reset (change) a password for a user in the temporary_password table.
 
 =cut
+
 sub reset_password {
     my ( $pid, $password ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -450,29 +472,6 @@ sub reset_password {
         TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_reset_password_sql', $password, $pid
     ) || return;
 }
-
-=item match_by_mail
-
-Return the username
-
-=cut
-
-sub match_by_mail {
-    my ($mail) = @_;
-    my $query = db_query_execute(
-        TEMPORARY_PASSWORD, $temporary_password_statements, 'temporary_password_match_by_mail_sql', $mail
-    ) || return;
-    my $ref = $query->fetchrow_hashref();
-
-    # just get one row and finish
-    $query->finish();
-    if (defined($ref)) {
-        return ($ref->{pid});
-    } else {
-        return undef;
-    }
-}
-
 
 =back
 

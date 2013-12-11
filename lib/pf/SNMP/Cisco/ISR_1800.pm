@@ -16,11 +16,11 @@ Developed and tested on Cisco 1811 12.4(15)T6
 
 =head1 BUGS AND LIMITATIONS
 
-Version 12.4(24)T1, 12.4(15)T6 and 12.3(14)YT1 doesn't support VTP MIB or 
+Version 12.4(24)T1, 12.4(15)T6 and 12.3(14)YT1 doesn't support VTP MIB or
 BRIDGE-MIB in a comprehensive way.
 
-Right now it needs CLI access to get the mac address table but that could be 
-resolved in the future with IOS 15.1T. See https://supportforums.cisco.com/message/3009429 
+Right now it needs CLI access to get the mac address table but that could be
+resolved in the future with IOS 15.1T. See https://supportforums.cisco.com/message/3009429
 for details.
 
 SNMPv3 support was not tested.
@@ -104,7 +104,7 @@ sub getVlan {
     $logger->trace("SNMP get_request for vmVlan: $OID_vmVlan.$ifIndex");
 
     my $result = $this->{_sessionRead}->get_request( -varbindlist => ["$OID_vmVlan.$ifIndex"] );
-    if (defined($result) 
+    if (defined($result)
         && exists($result->{"$OID_vmVlan.$ifIndex"})
         && ($result->{"$OID_vmVlan.$ifIndex"} ne 'noSuchInstance')) {
 
@@ -121,7 +121,8 @@ We need to override Cisco's implementation because BRIDGE-MIB is very limited on
 
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
-=cut 
+=cut
+
 sub getMacBridgePortHash {
     my $this   = shift;
     my $vlan   = shift || '';
@@ -168,7 +169,7 @@ sub getMacBridgePortHash {
     #    }
     #}
 
-    # command that allows us to get MAC to ifIndex information 
+    # command that allows us to get MAC to ifIndex information
     my $command = "show mac-address-table";
 
     $logger->trace("sending CLI command '$command'");
@@ -212,16 +213,17 @@ sub getMacBridgePortHash {
 Returns a list of all IfIndex part of a given VLAN
 
 =cut
+
 sub _getAllIfIndexForThisVlan {
     my ($this, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
-    
+
     if (!$this->connectRead()) {
         return 0;
     }
 
     my $OID_vmVlan = '1.3.6.1.4.1.9.9.68.1.2.2.1.2'; #from CISCO-VLAN-MEMBERSHIP-MIB
-    
+
     $logger->trace("SNMP get_table for vmVlan: $OID_vmVlan");
     my @ifIndexes;
     my $result = $this->{_sessionRead}->get_table(-baseoid => $OID_vmVlan);

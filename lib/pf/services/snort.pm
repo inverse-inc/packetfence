@@ -56,10 +56,14 @@ sub generate_snort_conf {
 
     if (exists $Violation_Config{'defaults'}{'snort_rules'}) {
         foreach my $rule ( split( /\s*,\s*/, $Violation_Config{'defaults'}{'snort_rules'} ) ) {
-
-            #append install_dir if the path doesn't start with /
-            $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );
-            push @rules, "include $rule";
+            if ( $rule !~ /^\// && -e "$install_dir/conf/snort/$rule" || -e $rule ) {
+                # Append configuration directory if the path doesn't start with /
+                $rule = "\$RULE_PATH/$rule" if ( $rule !~ /^\// );
+                push @rules, "include $rule";
+            }
+            else {
+                $logger->warn("Snort rules definition file $rule was not found.");
+            }
         }
     }
     $tags{'snort_rules'} = join( "\n", @rules );

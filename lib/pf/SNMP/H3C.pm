@@ -41,6 +41,7 @@ This switch module supports VoIP authorization over RADIUS.
 Use getVoipVsa to return specific RADIUS attributes for VoIP to work.
 
 =cut
+
 sub supportsRadiusVoip { return $TRUE; }
 
 =item supportsWiredDot1x
@@ -48,6 +49,7 @@ sub supportsRadiusVoip { return $TRUE; }
 This switch module supports wired 802.1x authentication.
 
 =cut
+
 sub supportsWiredDot1x { return $TRUE; }
 
 =item supportsWiredAuth
@@ -55,6 +57,7 @@ sub supportsWiredDot1x { return $TRUE; }
 This switch module supports wired MAC authentication.
 
 =cut
+
 sub supportsWiredMacAuth { return $TRUE; }
 
 # inline capabilities
@@ -76,6 +79,7 @@ Returns ifIndex for a given "normal" port number (dot1d)
 Same as pf::SNMP::ThreeCom::SS4500
 
 =cut
+
 #TODO consider subclassing ThreeCom to avoid code duplication
 sub getIfIndexForThisDot1dBasePort {
     my ( $this, $dot1dBasePort ) = @_;
@@ -102,6 +106,7 @@ sub getIfIndexForThisDot1dBasePort {
 Returns the software version of the slot.
 
 =cut
+
 sub getVersion {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -141,6 +146,7 @@ sub getVersion {
 Returns RADIUS attributes for voip phone devices.
 
 =cut
+
 sub getVoipVsa {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -157,6 +163,7 @@ sub getVoipVsa {
 Supports VoIP if enabled.
 
 =cut
+
 sub isVoIPEnabled {
     my ($self) = @_;
     return ( $self->{_VoIPEnabled} == 1 );
@@ -167,6 +174,7 @@ sub isVoIPEnabled {
 Same as pf::SNMP::ThreeCom::Switch_4200G
 
 =cut
+
 #TODO consider subclassing ThreeCom to avoid code duplication
 sub NasPortToIfIndex {
     my ($this, $nas_port) = @_;
@@ -198,6 +206,7 @@ sub NasPortToIfIndex {
 All traps ignored
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

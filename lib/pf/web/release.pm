@@ -5,6 +5,7 @@ package pf::web::release;
 release.pm - Handles releasing nodes out of the captive portal.
 
 =cut
+
 # TODO this is not the best namespace.. we should reconsider
 
 use strict;

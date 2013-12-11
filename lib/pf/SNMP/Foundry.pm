@@ -117,6 +117,7 @@ sub parseTrap {
 =item isDefinedVlan - returns 1 (true) if requested vlan exists or 0 (false) otherwise
 
 =cut
+
 sub isDefinedVlan {
     my ($this, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -270,6 +271,7 @@ sub isPortSecurityEnabled {
 Returns an hashref with MAC => Array(VLANs)
 
 =cut
+
 sub getSecureMacAddresses {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -308,6 +310,7 @@ sub getSecureMacAddresses {
 Returns an hashref with MAC => ifIndex => Array(VLANs)
 
 =cut
+
 sub getAllSecureMacAddresses {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -346,6 +349,7 @@ sub getAllSecureMacAddresses {
 =item authorizeMAC - authorize a MAC address and de-authorize the previous one if required
 
 =cut
+
 sub authorizeMAC {
     my ($this, $ifIndex, $deauthMac, $authMac, $deauthVlan, $authVlan) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -433,6 +437,7 @@ sub getMaxMacAddresses {
 =item isVoIPEnabled - is Voice over IP enabled on that switch?
 
 =cut
+
 sub isVoIPEnabled {
     my ($this) = @_;
     return ( $this->{_VoIPEnabled} == 1 );
@@ -444,6 +449,7 @@ dual-mode is required when there is IP Telephony on the switch.
 Dual-mode allows an ifIndex to support an untagged vlan along with a tagged one (ie: voice vlan).
 
 =cut
+
 sub _setDualModeVlan {
     my ($this, $ifIndex, $vlan) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -481,6 +487,7 @@ sub _setDualModeVlan {
 =item getVoiceVlan - in what VLAN should a VoIP device be
 
 =cut
+
 sub getVoiceVlan {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

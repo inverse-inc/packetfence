@@ -21,9 +21,9 @@ use strict;
 use warnings;
 use DBI;
 use File::Basename;
-#get_logger() is equivalent to get_logger(__PACKAGE__)
-use Log::Log4perl qw(get_logger);
 use threads;
+
+use pf::log;
 use pf::config;
 
 # Constants
@@ -40,7 +40,7 @@ BEGIN {
     use Exporter ();
     our ( @ISA, @EXPORT );
     @ISA    = qw(Exporter);
-    @EXPORT = qw(%dbh db_data db_connect db_disconnect get_db_handle db_query_execute);
+    @EXPORT = qw(%dbh db_data db_connect db_disconnect get_db_handle db_query_execute db_ping);
 
 }
 
@@ -116,6 +116,21 @@ sub db_connect {
         $logger->logcroak("unable to connect to database: " . $DBI::errstr);
         return ();
     }
+}
+
+=item * db_ping
+
+checks if database is connected
+
+=cut
+
+sub db_ping {
+    my ($dbh,$result);
+    eval {
+        my $dbh = db_connect;
+        $result = $dbh->ping;
+    };
+    return $result;
 }
 
 =item * db_disconnect
@@ -256,6 +271,9 @@ sub db_query_execute {
         }
 
         my $valid_statement = (defined($db_statement) && (ref($db_statement) eq 'DBI::st'));
+        $logger->trace('SQL statement ('.$query. '): '.$db_statement->{Statement}) if ($valid_statement);
+        $logger->trace('SQL params ('.$query. '): '.join(', ', map { defined $_? $_ : '<null>' } @params)) if (@params);
+
         if ($valid_statement && $db_statement->execute(@params)) {
 
             # statement execute was a success; we are done

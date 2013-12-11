@@ -18,7 +18,7 @@
   <button class="close" data-dismiss="alert">&times;</button>
   <strong>[% l('Error!') %]</strong> <span>[% error %]</span>
 </div>[% END %]
-<p>[% l('Describe portal profiles') %]</p>
+<p>[% l('Present a different captive portal according to the SSID, the VLAN, or the switch IP the client connects to.') %]</p>
 
 [% IF message %]<div class="alert alert-success">
   <button class="close" data-dismiss="alert">&times;</button>
@@ -55,16 +55,18 @@
             <a href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('view'), [ profile_id ]) %]">[% profile_id %]</a>
         </td>
         <td>[% profile.field('description').value %]</td>
-        <td><a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id  %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a></td>
+        <td>[% IF can_access("PORTAL_PROFILES_DELETE") %]<a class="btn btn-mini btn-danger call-modal" data-modal="deleteProfile" data-modal-content="[% profile_id  %]"  href="[% c.uri_for(c.controller('Portal::Profile').action_for('remove'), [ profile_id ]) %]">[% l('Delete') %]</a>[% END %]</td>
       </tr>
       [% END %]
       [% END -%]
-      <tr><td colspan="4"></td><td class="hidden-phone"></td></tr>
+      <tr><td class="hidden-phone"></td><td colspan="3"></td></tr>
     </tbody>
   </table>
 </form>
 
+[%- IF can_access("PORTAL_PROFILES_CREATE") %]
   <div class="form-actions">
     <a id="createProfile" class="btn" href="[% c.pf_hash_for(c.controller('Portal::Profile').action_for('create')) %]">[% l('Add profile') %]</a>
   </div>
 </div>
+[%- END %]

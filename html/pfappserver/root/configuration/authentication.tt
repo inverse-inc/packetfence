@@ -48,7 +48,7 @@
           <td>[% source.field('id').render_element %][% IF is_sql %][% source.field('id').value %][% ELSE %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a>[% END %]</td>
           <td class="hidden-phone">[% source.field('description').value %]</td>
           <td>[% l(source.field('type').value) %]</td>
-          <td>[% UNLESS is_sql %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>[% END %]</td>
+          <td>[% IF NOT is_sql AND can_access("USERS_SOURCES_DELETE") %]<a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>[% END %]</td>
         </tr>
         [% END -%]
         [% END -%]
@@ -76,6 +76,36 @@
         <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
         <td class="hidden-phone">[% source.field('description').value %]</td>
         <td>[% l(source.field('type').value) %]</td>
+        <td>
+          [%- IF can_access("USERS_SOURCES_DELETE") %]
+          <a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a>
+          [%- END %]
+        </td>
+      </tr>
+      [% END -%]
+      [% END -%]
+    </tbody>
+  </table>
+
+  <h4>[% l('Exclusive Sources') %]</h4>
+  <table class="table sources">
+    <thead>
+      <tr>
+        <th class="hidden-phone" width="20px"></th>
+        <th>[% l('Name') %]</th>
+        <th class="hidden-phone">[% l('Description') %]</th>
+        <th>[% l('Type') %]</th>
+        <th width="80px"></th>
+      </tr>
+    </thead>
+    <tbody>
+      [% FOREACH source IN form.field('sources').fields %]
+      [% IF source.field('class').value == 'exclusive' %]
+      <tr>
+          <td class="hidden-phone"></td>
+        <td>[% source.field('id').render_element %]<a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('read'), [ source.field('id').value ]) %]">[% source.field('id').value %]</a></td>
+        <td class="hidden-phone">[% source.field('description').value %]</td>
+        <td>[% l(source.field('type').value) %]</td>
         <td><a class="btn btn-mini btn-danger" href="[% c.uri_for(c.controller('Authentication::Source').action_for('delete'), [ source.field('id').value ]) %]">[% l('Delete') %]</a></td>
       </tr>
       [% END -%]
@@ -89,19 +119,36 @@
   <i class="icon-group icon-large"></i><p>[% l('No source defined') %]</p>
 </div>
 
+[%- IF can_access("USERS_SOURCES_CREATE") %]
 <div class="form-actions">
   <div class="btn-group">
     <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">[% l('Add source') %] <span class="caret"></span></a>
     <ul id="createSource" class="dropdown-menu">
-      <li class="dropdown-header">[% l('Internal') %]</li>
-      [% FOREACH type IN internal_types.sort -%]
-      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
-      [% END -%]
-      <li class="divider"></li>
-      <li class="dropdown-header">[% l('External') %]</li>
-      [% FOREACH type IN external_types.sort -%]
-      <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
-      [% END -%]
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Internal') %]</a>
+        <ul class="dropdown-menu" id="internal_types">
+          [% FOREACH type IN internal_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('External') %]</a>
+        <ul class="dropdown-menu" id="external_types">
+          [% FOREACH type IN external_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
+      <li class="dropdown-submenu">
+        <a tabindex="-1">[% l('Exclusive') %]</a>
+        <ul class="dropdown-menu" id="exclusive_types">
+          [% FOREACH type IN exclusive_types.sort -%]
+            <li><a href="[% c.pf_hash_for(c.controller('Authentication::Source').action_for('create'), type) %]">[% l(type) %]</a></li>
+          [% END -%]
+        </ul>
+      </li>
     </ul>
   </div>
 </div>
+[%- END %]

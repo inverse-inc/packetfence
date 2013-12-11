@@ -36,7 +36,7 @@ sub field_list {
         my $defaults = $Default_Config{$section};
         my $field =
           { element_attr => { 'placeholder' => $defaults->{$name} },
-            tags => { after_element => \&help, # parent method, defined in Theme::Pf
+            tags => { after_element => \&help, # role method, defined in Base::Form::Role::Help
                       help => $doc_section->{description} },
             id => $name,
             label => $doc_section_name,
@@ -106,6 +106,24 @@ sub field_list {
             };
             $type eq 'time' && do {
                 $field->{type} = 'Duration';
+                last;
+            };
+            $type eq 'extended_time' && do {
+                $field->{type} = 'Text';
+                push(@$list, $name => $field);
+
+                # We currently have a single "extended_time" parameter and it's [guests_admin_registration.default_access_duration]
+                $name .= "_add";
+                $field =
+                  {
+                   id => $name,
+                   label => 'Duration',
+                   type => 'ExtendedDuration',
+                   no_value => 1,
+                   element_attr => {'foo' => 'bar'},
+                   wrapper_class => ['compound-input-btn-group', 'extended-duration', 'well'],
+                   tags => { after_element => '<div class="controls"><a href="#" id="addExtendedTime" class="btn btn-info" data-target="#access_duration_choices">' . $self->_localize("Add to Duration Choices") . '</a></div>' }
+                  };
                 last;
             };
             $type eq 'email' && do {

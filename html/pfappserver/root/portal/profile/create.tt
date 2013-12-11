@@ -33,14 +33,28 @@
       </ul>
       <div class="tab-pane fade in active" id="settings">
         <form id="create_profile" method="POST" action="[% c.uri_for(c.controller('Portal::Profile').action_for('create'))  %]"  class="form-horizontal">
-          [% FOREACH field IN form.fields %]
-          [% field.render %]
-          [% END %]
-          <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
-            <p>
-                <i class="icon-group icon-large"></i>[% l('With no source selected, the sources of the default profile will be used.') %]<br/>
-                <a href="#add">[% l('Add a source.') %]</a>
-            </p>
+          [% form.block('definition').render %]
+          [% IF form.field('filter') %]
+          <div class="control-group">
+            <label class="control-label" for="sources">[% l('Filter') %]</label>
+            <div class="controls">
+              [% form.field('filter').render %]
+            </div>
+          </div>
+          [% END -%]
+          <div class="control-group">
+            <label class="control-label" for="sources">[% l('Sources') %]</label>
+            <div class="controls">
+              [% form.field('sources').render %]
+              <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
+                <p>
+                  <i class="icon-group icon-large"></i>
+                  [% l('With no source specified, the sources of the default profile will be used.') %]
+                  <br/>
+                  <a href="#add">[% l('Add a source.') %]</a>
+                </p>
+              </div>
+            </div>
           </div>
           <div class="form-actions">
             <a data-target="#saveProfile" data-toggle="modal" class="btn btn-primary">[% l('Save') %]</a>

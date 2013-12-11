@@ -79,11 +79,12 @@ if (defined($cgi->url_param('code'))) {
                 my $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
                 if (defined $expiration) {
-                    $expiration = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($expiration)));
+                    $expiration = access_duration($expiration);
                 }
                 else {
                     $expiration = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
                 }
+
 
                 my $category = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ROLE);
 
@@ -131,8 +132,8 @@ if (defined($cgi->url_param('code'))) {
             pf::email_activation::set_status_verified($cgi->url_param('code'));
         }
         else {
-            $logger->warn("No active email source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-            print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+            $logger->warn("No active email source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+            print $cgi->redirect($portalSession->getProfile->getRedirectURL);
         }
     }
 
@@ -187,7 +188,7 @@ if (defined($cgi->url_param('code'))) {
             my (%info, $template);
 
             if ( defined($node_mac) ) {
-                # If MAC is defined, it's a guest already here that we need to register
+                # If MAC is defined, it's a guest already on-site that we need to register
 
                 my $node_info = node_attributes($node_mac);
                 $pid = $node_info->{'pid'};
@@ -255,14 +256,14 @@ if (defined($cgi->url_param('code'))) {
             exit(0);
         }
         else {
-            $logger->warn("No active sponsor source for profile ".$portalSession->getProfile->getName.", redirecting to ".$Config{'trapping'}{'redirecturl'});
-            print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+            $logger->warn("No active sponsor source for profile ".$portalSession->getProfile->getName.", redirecting to ".$portalSession->getProfile->getRedirectURL);
+            print $cgi->redirect($portalSession->getProfile->getRedirectURL);
         }
     }
 } else {
 
-    $logger->info("User has nothing to do here, redirecting to ".$Config{'trapping'}{'redirecturl'});
-    print $cgi->redirect($Config{'trapping'}{'redirecturl'});
+    $logger->info("User has nothing to do here, redirecting to ".$portalSession->getProfile->getRedirectURL);
+    print $cgi->redirect($portalSession->getProfile->getRedirectURL);
 
 }
 

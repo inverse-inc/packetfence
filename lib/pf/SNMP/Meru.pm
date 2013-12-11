@@ -64,6 +64,7 @@ ethernet interface.
 =back
 
 =cut
+
 use strict;
 use warnings;
 
@@ -96,6 +97,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_mwWncVarsSoftwareVersion = '1.3.6.1.4.1.15983.1.1.4.1.1.27'; # from meru-wlan
@@ -130,6 +132,7 @@ sub getVersion {
 This is called when we receive an SNMP-Trap for this device
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -150,6 +153,7 @@ Right now te only way to do it is from the CLi (through Telnet or SSH).
 Warning: this code doesn't support elevating to privileged mode. See #900 and #1370.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -221,6 +225,7 @@ sub deauthenticateMacDefault {
 Meru uses the standard Filter-Id parameter.
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
 

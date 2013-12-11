@@ -54,6 +54,7 @@ use pf::config;
 =over
 
 =cut
+
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
@@ -64,6 +65,7 @@ sub inlineCapabilities { return ($MAC,$PORT); }
 =item getVersion
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_dlinkFirmwareVersion = '1.3.6.1.4.1.171.10.94.89.89.2.4.0';
@@ -85,6 +87,7 @@ sub getVersion {
 Translate RADIUS NAS-Port into the physical port ifIndex
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

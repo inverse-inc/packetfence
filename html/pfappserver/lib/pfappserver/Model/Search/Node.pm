@@ -33,7 +33,7 @@ sub search {
     my $builder = $self->make_builder;
     $self->setup_query($builder, $params);
     my $results = $self->do_query($builder, $params);
-    return(HTTP_OK, $results);
+    return (HTTP_OK, $results);
 }
 
 sub setup_query {
@@ -49,10 +49,9 @@ sub do_query {
     my ($self, $builder, $params) = @_;
     my %results = %$params;
     my $sql = $builder->sql;
-    my ($per_page, $page_num, $by, $direction) = @{$params}{qw(per_page page_num by direction)};
+    my ($per_page, $page_num) = @{$params}{qw(per_page page_num)};
     $per_page ||= 25;
     $page_num ||= 1;
-    $direction ||= 'ASC';
     my $itemsKey = $self->itemsKey;
     $results{$itemsKey} = [node_custom_search($sql)];
     my $sql_count = $builder->sql_count;
@@ -86,12 +85,14 @@ sub make_builder {
     return pf::SearchBuilder->new
         ->select(qw(
             mac pid voip bypass_vlan status category_id
-            detect_date regdate unregdate lastskip
-            user_agent computername
-            last_arp last_dhcp notes),
-            L_('iplog.ip', 'last_ip'),
-            L_("IF(ISNULL(node_category.name), '', node_category.name)", 'category'),
-            L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint')
+            user_agent computername last_arp last_dhcp notes),
+            L_("IF(lastskip = '0000-00-00 00:00:00', '', lastskip)", 'lastskip'),
+            L_("IF(detect_date = '0000-00-00 00:00:00', '', detect_date)", 'detect_date'),
+            L_("IF(regdate = '0000-00-00 00:00:00', '', regdate)", 'regdate'),
+            L_("IF(unregdate = '0000-00-00 00:00:00', '', unregdate)", 'unregdate'),
+            L_("IFNULL(node_category.name, '')", 'category'),
+            L_("IFNULL(os_type.description, ' ')", 'dhcp_fingerprint'),
+            { table => 'iplog', name => 'ip', as => 'last_ip' }
         )->from('node',
                 {
                     'table' => 'node_category',
@@ -161,21 +162,12 @@ sub make_builder {
                     'join' => 'LEFT',
                     'using' => 'os_id',
                 },
-        );
+        )->distinct();
 }
-
-sub add_order_by {
-    my ($self,$builder,$params) = @_;
-    my ($by,$direction) = @$params{qw(by direction)};
-    if($by && $direction) {
-        $builder->order_by($by,$direction);
-    }
-}
-
 
 my %COLUMN_MAP = (
     person_name => 'pid',
-    node_category => {
+    category => {
         table => 'node_category',
         name  => 'name',
     },
@@ -202,7 +194,7 @@ my %COLUMN_MAP = (
                            'table' => 'node',
                            'name'  => 'mac',
                        }
-                   ]
+                   ],
                ],
            },
        ]
@@ -210,7 +202,7 @@ my %COLUMN_MAP = (
     last_ip   => {
        table => 'iplog',
        name  => 'ip',
-    },
+    }, # BUG : retrieves the last IP address, no mather if a period range is defined
     violation   => {
         table => 'class',
         name  => 'description',
@@ -264,6 +256,15 @@ my %COLUMN_MAP = (
     },
 );
 
+sub add_order_by {
+    my ($self, $builder, $params) = @_;
+    my ($by, $direction) = @$params{qw(by direction)};
+    if ($by && $direction) {
+        $by = $COLUMN_MAP{$by} if (exists $COLUMN_MAP{$by});
+        $builder->order_by($by, $direction);
+    }
+}
+
 sub add_date_range {
     my ($self, $builder, $params, $start, $end) = @_;
     if ($start || $end) {
@@ -271,7 +272,7 @@ sub add_date_range {
             $builder->from(@{$COLUMN_MAP{switch_ip}{'joins'}})
         }
         if ($start) {
-            $builder->where({ table =>'locationlog', name => 'start_time' }, '>=' ,$start);
+            $builder->where({ table =>'locationlog', name => 'start_time' }, '>=', $start);
         }
         if ($end) {
             $builder

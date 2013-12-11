@@ -36,6 +36,7 @@ use Log::Log4perl;
 use Readonly;
 use Template;
 use URI::Escape qw(uri_escape uri_unescape);
+use List::MoreUtils qw(any);
 
 BEGIN {
     use Exporter ();
@@ -168,18 +169,13 @@ sub generate_release_page {
     my ( $portalSession, $r ) = @_;
 
     $portalSession->stash({
-        timer           => $Config{'trapping'}{'redirtimer'},
-        redirect_url => $Config{'trapping'}{'redirecturl'},
+        timer => $Config{'trapping'}{'redirtimer'},
+        destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
         auto_redirect => $Config{'captive_portal'}{'network_detection'},
     });
-
-    # override destination_url if we enabled the always_use_redirecturl option
-    if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
-        $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
-    }
 
     render_template($portalSession, 'release.html', $r);
 }
@@ -297,8 +293,18 @@ sub generate_login_page {
       = is_in_list($SELFREG_MODE_FACEBOOK, $portalSession->getProfile->getGuestModes);
     $portalSession->stash->{'oauth2_github'}
       = is_in_list($SELFREG_MODE_GITHUB, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'null_source'}
+      = is_in_list($SELFREG_MODE_NULL, $portalSession->getProfile->getGuestModes);
+    $portalSession->stash->{'no_username'} = _no_username($portalSession);
 
     render_template($portalSession, $LOGIN_TEMPLATE);
+}
+
+sub _no_username {
+    my ($portalSession) = @_;
+    return any {$_->type eq 'Null' && isdisabled($_->email_required)  }
+        map { getAuthenticationSource($_) }
+        @{$portalSession->getProfile->getSources};
 }
 
 sub generate_enabler_page {
@@ -555,7 +561,10 @@ sub validate_form {
     $logger->trace("form validation attempt");
 
     my $cgi = $portalSession->getCgi();
-    if ( $cgi->param("username") && $cgi->param("password") ) {
+    my $no_password_needed = any {$_ eq 'null' } @{$portalSession->getProfile->getGuestModes};
+    my $no_username_needed = _no_username($portalSession);
+
+    if ( ($cgi->param("username") || $no_username_needed  ) && ( $cgi->param("password") || $no_password_needed ) ) {
         # acceptable use pocliy accepted?
         if (!defined($cgi->param("aup_signed")) || !$cgi->param("aup_signed")) {
             return ( 0 , 'You need to accept the terms before proceeding any further.' );
@@ -574,16 +583,20 @@ sub validate_form {
 =cut
 
 sub web_user_authenticate {
-    my ( $portalSession ) = @_;
+    my ( $portalSession ,$username, $password) = @_;
     my $logger = Log::Log4perl::get_logger('pf::web');
     $logger->trace("authentication attempt");
 
     my $session = $portalSession->getSession();
+    my @sources = ($portalSession->getProfile->getInternalSources, $portalSession->getProfile->getExclusiveSources);
+
+    if (!defined($username)) {
+        $username = $portalSession->cgi->param("username");
+        $password = $portalSession->cgi->param("password");
+    }
 
     # validate login and password
-    my ($return, $message, $source_id) = &pf::authentication::authenticate($portalSession->cgi->param("username"),
-                                                                           $portalSession->cgi->param("password"),
-                                                                           $portalSession->getProfile->getInternalSources);
+    my ($return, $message, $source_id) = pf::authentication::authenticate($username, $password, @sources);
 
     if (defined($return) && $return == 1) {
         # save login into session
@@ -635,16 +648,11 @@ sub generate_pending_page {
     my ( $portalSession ) = @_;
 
     $portalSession->stash({
-        redirect_url => $Config{'trapping'}{'redirecturl'},
+        destination_url => $portalSession->getDestinationUrl(),
         initial_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_INITIAL_DELAY'},
         retry_delay => $CAPTIVE_PORTAL{'NET_DETECT_PENDING_RETRY_DELAY'},
         external_ip => $Config{'captive_portal'}{'network_detection_ip'},
     });
-
-    # override destination_url if we enabled the always_use_redirecturl option
-    if (isenabled($Config{'trapping'}{'always_use_redirecturl'})) {
-        $portalSession->stash->{'destination_url'} = $Config{'trapping'}{'redirecturl'};
-    }
 
     render_template($portalSession, 'pending.html');
 }

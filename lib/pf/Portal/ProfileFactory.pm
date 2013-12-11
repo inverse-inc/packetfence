@@ -37,14 +37,15 @@ sub instantiate {
     my ( $self, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
 
-    # We apply portal profiles based on the SSID and VLAN, we check the last_ssid for the given MAC and try to match
-    # a portal profile using the previously fetched filters. If no match, we instantiate the default portal profile.
+    # We apply portal profiles based on the SSID, VLAN and switch. We check the last_(ssid|vlan|switch) for the given MAC
+    # and try to match a portal profile using the previously fetched filters.
+    # If no match, we instantiate the default portal profile.
     my $node_info = node_view($mac);
-    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan)), @{$node_info}{'last_ssid','last_vlan'});
+    my @filter_ids = ((map { "$_:" . $node_info->{"last_$_"}  } qw(ssid vlan switch)), @{$node_info}{'last_ssid','last_vlan','last_switch'});
     my $filtered_profile =
-        first {exists $Profiles_Config{$_}}
-        map { $Profile_Filters{$_}  }
-          grep { defined $_ && exists $Profile_Filters{$_}  } #
+        first { exists $Profiles_Config{$_} }
+        map { $Profile_Filters{$_} }
+          grep { defined $_ && exists $Profile_Filters{$_} }
           @filter_ids;
 
     return _from_custom_profile($filtered_profile) if $filtered_profile;
@@ -63,9 +64,10 @@ sub _from_default_profile {
 sub _default_profile {
     my %default = %{$Profiles_Config{default}};
     unless (defined $default{'sources'} && @{$default{'sources'}} > 0) {
-        # When no authentication source is selected, use all authentication sources
-        my @sources = map { $_->id } @{pf::authentication::getAllAuthenticationSources()};
-        $default{'sources'} = \@sources;
+        # When no authentication source is selected, use all authentication sources except exclusive sources
+        my @sources = grep { $_->class ne 'exclusive' }  @{pf::authentication::getAllAuthenticationSources()};
+        my @sources_id = map { $_->id } @sources;
+        $default{'sources'} = \@sources_id;
     }
     my %results =
       (
@@ -86,7 +88,7 @@ sub _custom_profile {
        'name' => $name,
        'template_path' => $name,
        'description' => $profile->{'description'} || '',
-       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources billing_engine filter)
+       map { $_ => ($profile->{$_} || $defaults->{$_}) } qw (logo guest_modes sources redirecturl always_use_redirecturl billing_engine filter)
       );
     $results{guest_modes} = _guest_modes_from_sources($results{sources});
     return \%results;
@@ -95,11 +97,15 @@ sub _custom_profile {
 sub _guest_modes_from_sources {
     my ($sources) = @_;
     $sources ||= [];
+    my %modeClasses = (
+        external  => undef,
+        exclusive => undef,
+    );
     my %is_in = map { $_ => undef } @$sources;
     my @guest_modes =
       map { lc($_->type) }
-        grep { exists $is_in{$_->id} && $_->class eq 'external' }
-          @authentication_sources;
+        grep { exists $is_in{$_->id} && exists $modeClasses{$_->class} }
+          @{pf::authentication::getAllAuthenticationSources()};
 
     return \@guest_modes;
 }

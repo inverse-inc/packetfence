@@ -1,17 +1,11 @@
 # logrotate file for packetfence
 
-/usr/local/pf/logs/access_log /usr/local/pf/logs/admin_access_log /usr/local/pf/logs/admin_error_log /usr/local/pf/logs/error_log /usr/local/pf/logs/packetfence.log /usr/local/pf/logs/pfdetect /usr/local/pf/logs/pfmon /usr/local/pf/logs/snmptrapd.log /usr/local/pf/logs/radius.log /usr/local/pf/logs/portal_access_log /usr/local/pf/logs/portal_error_log /usr/local/pf/logs/webservices_access_log /usr/local/pf/logs/webservices_error_log /usr/local/pf/logs/catalyst.log {
+/usr/local/pf/logs/access_log /usr/local/pf/logs/admin_access_log /usr/local/pf/logs/admin_error_log /usr/local/pf/logs/error_log /usr/local/pf/logs/packetfence.log /usr/local/pf/logs/pfdetect /usr/local/pf/logs/pfmon /usr/local/pf/logs/snmptrapd.log /usr/local/pf/logs/radius.log /usr/local/pf/logs/portal_access_log /usr/local/pf/logs/portal_error_log /usr/local/pf/logs/portal_error_log /usr/local/pf/logs/proxy_access_log /usr/local/pf/logs/webservices_access_log /usr/local/pf/logs/webservices_error_log /usr/local/pf/logs/catalyst.log {
     weekly
     rotate 52
     missingok
     compress
     delaycompress
-    sharedscripts
-    create 644 pf pf
-    postrotate
-        # uncomment the crm statements if you are running packetfence in a corosync cluster
-        #/usr/sbin/crm resource unmanage PacketFence
-        /etc/init.d/packetfence condrestart  >/dev/null 2>&1 || true
-        #/usr/sbin/crm resource manage PacketFence
-    endscript
+    su pf pf
+    copytruncate
 }

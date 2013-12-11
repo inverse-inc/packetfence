@@ -114,7 +114,6 @@ BEGIN {
         *{$sub_name} = sub {
             my (@args) = @_;
             my $logger = Log::Log4perl::get_logger(__PACKAGE__);
-            $logger->debug("Executing $statement_name with " . join(" ",@args));
             my $sth = db_query_execute(USERPREF, $savedsearch_statements, $statement_name, @args);
             if($sth) {
                 return $sth->rows;

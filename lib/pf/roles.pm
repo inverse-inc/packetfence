@@ -45,6 +45,7 @@ my $singleton;
 Get the singleton instance of pf::roles. Create it if it doesn't exist.
 
 =cut
+
 sub instance {
     my ( $class, %args ) = @_;
 
@@ -81,6 +82,7 @@ sub new {
 Returns the proper role for a given node.
 
 =cut
+
 sub getRoleForNode { 
     my ($self, $mac, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
@@ -122,6 +124,7 @@ In other words, node category = global role. Then per switch role will be
 looked up based on global role.
 
 =cut
+
 sub performRoleLookup {
     my ($self, $node_attributes, $switch) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));
@@ -144,6 +147,7 @@ sub performRoleLookup {
 Return node category if defined.
 
 =cut
+
 sub _assignRoleFromCategory {
     my ($self, $node_attributes) = @_;
     my $logger = Log::Log4perl::get_logger(ref($self));

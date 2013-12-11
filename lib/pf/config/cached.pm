@@ -463,7 +463,7 @@ sub Rollback {
     my $cache = $self->cache;
     my $config = $self->config;
     my $file = $config->GetFileName;
-    $cache->l1_cache->remove($file);
+    $self->removeFromSubcaches($file);
     my $old_config = $cache->get($file);
     $$self = $old_config;
     $self->doCallbacks(0,1);
@@ -886,7 +886,7 @@ sub isa {
 
 sub untaint_value {
     my $val = shift;
-    if(defined $val && $val =~ /^(.*)$/) {
+    if (defined $val && $val =~ /^(.*)$/) {
         return $1;
     }
 }
@@ -898,7 +898,7 @@ Copy configuration to a hash
 =cut
 
 sub toHash {
-    my ($self,$hash) = @_;
+    my ($self, $hash) = @_;
     %$hash = ();
     my @default_parms;
     if (exists $self->{default} ) {
@@ -906,26 +906,36 @@ sub toHash {
     }
     foreach my $section ($self->Sections()) {
         my %data;
-        foreach my $param (uniq $self->Parameters($section),@default_parms) {
-            $data{$param} = untaint_value ($self->val($section,$param));
+        foreach my $param ( map { untaint_value($_) } uniq $self->Parameters($section), @default_parms) {
+            my $val = $self->val($section, $param);
+            $data{$param} = untaint($val);
         }
         $hash->{$section} = \%data;
     }
 }
 
 sub fromCacheUntainted {
-    my ($self,$key) = @_;
-    my $cache = $self->cache;
-    $cache->l1_cache->remove($key);
+    my ($self, $key) = @_;
+    $self->removeFromSubcaches($key);
     return untaint($self->cache->get($key));
+}
+
+sub removeFromSubcaches {
+    my ($self, $key) = @_;
+    my $cache = $self->cache;
+    if($cache->has_subcaches) {
+        get_logger->trace("Removing from subcache");
+        $cache->l1_cache->expire($key);
+        $cache->l1_cache->remove($key);
+    }
 }
 
 sub untaint {
     my $val = $_[0];
-    if (tainted ($val)) {
+    if (tainted($val)) {
         $val = untaint_value($val);
-    } elsif( my $type = reftype($val)) {
-        if($type eq 'ARRAY') {
+    } elsif (my $type = reftype($val)) {
+        if ($type eq 'ARRAY') {
             foreach my $element (@$val) {
                 $element = untaint($element);
             }

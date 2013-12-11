@@ -57,6 +57,7 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 =over
 
 =cut
+
 use strict;
 use warnings;
 
@@ -77,6 +78,7 @@ sub description { 'Cisco Catalyst 3560G' }
 Translate RADIUS NAS-Port into switch's ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));

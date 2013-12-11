@@ -19,6 +19,7 @@ Most of the code is shared with the 2960 make sure to check the BUGS AND
 LIMITATIONS section of L<pf::SNMP::Cisco::Catalyst_2960>.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -43,6 +44,7 @@ sub description { 'Cisco Catalyst 2960G' }
 Translate RADIUS NAS-Port into switch's ifIndex.
 
 =cut
+
 sub NasPortToIfIndex {
     my ($this, $NAS_port) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);

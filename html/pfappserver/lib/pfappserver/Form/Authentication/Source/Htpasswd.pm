@@ -22,9 +22,25 @@ has_field 'path' =>
    element_class => ['input-xxlarge'],
   );
 
+=head2 validate
+
+Make sure the htpasswd file is readable.
+
+=cut
+
+sub validate {
+    my $self = shift;
+
+    $self->SUPER::validate();
+
+    unless (-r $self->value->{path}) {
+        $self->field('path')->add_error("The file is not readable.");
+    }
+}
+
 =head1 COPYRIGHT
 
-Copyright (C) 2012 Inverse inc.
+Copyright (C) 2012-2013 Inverse inc.
 
 =head1 LICENSE
 

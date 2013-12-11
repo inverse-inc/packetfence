@@ -27,6 +27,7 @@ RFC3576 Dynamic Authorization Extensions to RADIUS
 This module is not afraid to die (throw exceptions) when something goes wrong.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -82,6 +83,7 @@ and
 for every attribute returned.
 
 =cut
+
 # TODO Proper handling of multiple identical attributes could be done like Net::SNMP
 # ex: perform_dynauth( 
 #         { nas_ip => 127.0.0.1, secret => qwerty }, 
@@ -192,6 +194,7 @@ and
 for every attribute returned.
 
 =cut
+
 sub perform_disconnect {
     my ($connection_info, $attributes, $vsa) = @_;
 
@@ -229,6 +232,7 @@ and
 for every attribute returned.
 
 =cut
+
 sub perform_coa {
     my ($connection_info, $attributes, $vsa) = @_;
 

@@ -14,6 +14,8 @@ use Apache2::RequestRec ();
 use Apache2::Response ();
 use Apache2::RequestUtil ();
 use Apache2::ServerRec;
+use Apache2::URI ();
+use Apache2::Util ();
 
 use APR::Table;
 use APR::URI;
@@ -35,12 +37,13 @@ use pf::proxypassthrough::constants;
 Implementation of PerlTransHandler. Rewrite all URLs except those explicitly
 allowed by the Captive portal.
 
-For simplicity and performance this doesn't consume and leverage 
+For simplicity and performance this doesn't consume and leverage
 L<pf::Portal::Session>.
 
 Reference: http://perl.apache.org/docs/2.0/user/handlers/http.html#PerlTransHandler
 
 =cut
+
 sub translate {
     my $r = Apache::SSLLookup->new(shift);
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
@@ -65,13 +68,19 @@ sub translate {
         my $s = $r->server();
         my $proto = isenabled($Config{'captive_portal'}{'secure_redirect'}) ? $HTTPS : $HTTP;
         #Because of chrome captiv portal detection we have to test if the request come from http request
-        my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
-        if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /$WEB::ALLOWED_RESOURCES/o && $parsed->path !~ /$WEB::ALLOWED_RESOURCES/o) {
-            #Generate a page with a refresh tag
-            $r->handler('modperl');
-            $r->set_handlers( PerlResponseHandler => \&html_redirect );
-            return Apache2::Const::OK;
-        } else {
+        if (defined($r->headers_in->{'Referer'})) {
+            my $parsed = APR::URI->parse($r->pool,$r->headers_in->{'Referer'});
+            if ($s->port eq '80' && $proto eq 'https' && $r->uri !~ /$WEB::ALLOWED_RESOURCES/o && $parsed->path !~ /$WEB::ALLOWED_RESOURCES/o) {
+                #Generate a page with a refresh tag
+                $r->handler('modperl');
+                $r->set_handlers( PerlResponseHandler => \&html_redirect );
+                return Apache2::Const::OK;
+            } else {
+                # DECLINED tells Apache to continue further mod_rewrite / alias processing
+                return Apache2::Const::DECLINED;
+            }
+        }
+        else {
             # DECLINED tells Apache to continue further mod_rewrite / alias processing
             return Apache2::Const::DECLINED;
         }
@@ -92,15 +101,21 @@ sub translate {
 
 =item handler
 
-For simplicity and performance this doesn't consume and leverage 
+For simplicity and performance this doesn't consume and leverage
 L<pf::Portal::Session>.
 
 =cut
+
 sub handler {
     my ($r) = @_;
     my $logger = Log::Log4perl->get_logger(__PACKAGE__);
     $logger->trace('hitting redirector');
-
+    my $captivePortalDomain = $Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'};
+    my $destination_url = '';
+    my $url = $r->construct_url;
+    if ($url !~ m#://\Q$captivePortalDomain\E/#) {
+        $destination_url = Apache2::Util::escape_path($url,$r->pool);
+    }
     my $proto;
     # Google chrome hack redirect in http
     if ($r->uri =~ /\/generate_204/) {
@@ -110,8 +125,8 @@ sub handler {
     }
 
     my $stash = {
-        'login_url' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/captive-portal",
-        'login_url_wispr' => "$proto://".$Config{'general'}{'hostname'}.".".$Config{'general'}{'domain'}."/wispr",
+        'login_url' => "${proto}://${captivePortalDomain}/captive-portal?destination_url=$destination_url",
+        'login_url_wispr' => "${proto}://${captivePortalDomain}/wispr"
     };
 
     # prepare custom REDIRECT response
@@ -186,22 +201,23 @@ Inverse inc. <info@inverse.ca>
 Copyright (C) 2005-2013 Inverse inc.
 
 =head1 LICENSE
-    
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-    
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-            
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
-USA.            
-                
+USA.
+
 =cut
+
 1;
 

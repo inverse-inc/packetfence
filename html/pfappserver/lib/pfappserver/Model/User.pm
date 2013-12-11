@@ -32,7 +32,7 @@ use pf::util qw(get_translatable_time);
 =cut
 
 sub field_names {
-    return [qw(pid firstname lastname email nodes) ];
+    return [qw(pid firstname lastname email telephone nodes) ];
 }
 
 =head2 read
@@ -193,6 +193,7 @@ sub violations {
     my @violations;
     eval {
         @violations = person_violations($pid);
+        map { $_->{release_date} = '' if ($_->{release_date} eq '0000-00-00 00:00:00') } @violations;
     };
     if ($@) {
         $status_msg = "Can't fetch violations from database.";
@@ -440,8 +441,11 @@ sub importCSV {
     my $skipped = 0;
     my %index = ();
     foreach my $column (@{$data->{columns}}) {
-        $index{$column->{name}} = $count;
-        $count++;
+        if ($column->{enabled} || $column->{name} eq 'c_username' || $column->{name} eq 'c_password') {
+            # Add checked columns and mandatory columns
+            $index{$column->{name}} = $count;
+            $count++;
+        }
     }
 
     # Map delimiter to its actual character

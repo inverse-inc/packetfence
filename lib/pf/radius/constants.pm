@@ -21,6 +21,7 @@ use Readonly;
 =over
 
 =cut
+
 package RADIUS;
 
 =item FreeRADIUS return codes
@@ -89,6 +90,7 @@ L<http://tools.ietf.org/html/rfc3580>
 Only useful ones included from RFC.
 
 =cut
+
 Readonly::Scalar our $GRE => 10;
 Readonly::Scalar our $VLAN => 13;
 
@@ -101,6 +103,7 @@ IP or IPv4 are the same. Both assigned to 1.
 Ethernet is actually called 802 in the standard and includes all 802 media plus Ethernet "canonical format".
 
 =cut
+
 Readonly::Scalar our $IP => 1;
 Readonly::Scalar our $IPV4 => 1;
 Readonly::Scalar our $ETHERNET => 6;

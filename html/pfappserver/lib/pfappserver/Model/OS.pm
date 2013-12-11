@@ -26,8 +26,6 @@ use pf::util;
 
 =head1 METHODS
 
-=over
-
 =head2 field_names
 
 =cut
@@ -39,6 +37,7 @@ sub field_names {
 =head2 countAll
 
 =cut
+
 sub countAll {
     my ( $self, %params ) = @_;
 
@@ -61,6 +60,7 @@ sub countAll {
 =head2 search
 
 =cut
+
 sub search {
     my ( $self, %params ) = @_;
 
@@ -80,8 +80,6 @@ sub search {
     return ($STATUS::OK, \@nodes);
 }
 
-
-=back
 
 =head1 COPYRIGHT
 

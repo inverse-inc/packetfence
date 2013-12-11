@@ -129,6 +129,20 @@ sub getDescripton {
 
 *description = \&getDescripton;
 
+sub getRedirectURL {
+    my ($self) = @_;
+    return $self->{'_redirecturl'};
+}
+
+*redirecturl = \&getRedirectURL;
+
+sub forceRedirectURL {
+    my ($self) = @_;
+    return $self->{'_always_use_redirecturl'};
+}
+
+*always_use_redirecturl = \&forceRedirectURL;
+
 =item getSources
 
 Returns the authentication sources IDs for the current captive portal profile.
@@ -173,6 +187,17 @@ Returns the external authentication sources objects for the current captive port
 sub getExternalSources {
     my ($self) = @_;
     return grep { $_->{'class'} eq 'external' } $self->getSourcesAsObjects();
+}
+
+=item getExclusiveSources
+
+Returns the exclusive authentication sources objects for the current captive portal profile.
+
+=cut
+
+sub getExclusiveSources {
+    my ($self) = @_;
+    return grep { $_->{'class'} eq 'exclusive' } $self->getSourcesAsObjects();
 }
 
 =item getSourceByType

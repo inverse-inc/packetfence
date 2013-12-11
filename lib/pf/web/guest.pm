@@ -182,13 +182,21 @@ sub validate_selfregistration {
         return ($FALSE, $GUEST::ERROR_AUP_NOT_ACCEPTED);
     }
 
-    my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
-    my $source = $portalSession->getProfile->getSourceByType($email_type);
+    # check if email with local domain is allowed for email and sponsor sources
+    my $source;
+    if (defined($cgi->param('by_email'))) {
+        my $email_type = pf::Authentication::Source::EmailSource->meta->get_attribute('type')->default;
+        $source = $portalSession->getProfile->getSourceByType($email_type);
+    }
+    elsif (defined($cgi->param('by_sponsor'))) {
+        my $sponsor_type = pf::Authentication::Source::SponsorEmailSource->meta->get_attribute('type')->default;
+        $source = $portalSession->getProfile->getSourceByType($sponsor_type);
+    }
     if ($source) {
         unless (isenabled($source->{allow_localdomain})) {
             # You should not register as a guest if you are part of the local network
             my $localdomain = $Config{'general'}{'domain'};
-            if ($cgi->param('email') =~ /[@.]$localdomain$/i) {
+            if ($cgi->param('email') =~ /[@\.]$localdomain$/i) {
                 return ($FALSE, $GUEST::ERROR_EMAIL_UNAUTHORIZED_AS_GUEST, [ $localdomain ]);
             }
         }
@@ -224,16 +232,13 @@ sub validate_sponsor {
     my $cgi = $portalSession->getCgi();
 
     # validate that this email can sponsor network accesses
-    my ($username, $source_id) = &pf::authentication::username_from_email(lc($cgi->param('sponsor_email')));
+    my $value = &pf::authentication::match( &pf::authentication::getInternalAuthenticationSources(),
+                                            { email => $cgi->param('sponsor_email') },
+                                            $Actions::MARK_AS_SPONSOR );
 
-    if (defined $username) {
-
-        my $value = &pf::authentication::match($source_id, {username => $username}, $Actions::MARK_AS_SPONSOR);
-
+    if (defined $value) {
         # all sponsor checks have passed
-        if (defined $value) {
-            return ($TRUE, 0);
-        }
+        return ($TRUE, 0);
     }
 
     return ($FALSE, $GUEST::ERROR_SPONSOR_NOT_ALLOWED, [ $cgi->param('sponsor_email') ] );

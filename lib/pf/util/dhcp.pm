@@ -11,6 +11,7 @@ pf::util::dhcp - DHCP related utilities
 DHCP related functions necessary to analyze DHCP traffic.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -68,6 +69,7 @@ Parses a raw Ethernet frame and decompose it into layers and
 returns every layer as objects (l2, l3, l4) or hashref (dhcp).
 
 =cut
+
 sub decompose_dhcp {
     my ($raw_packet) = @_;
 
@@ -86,6 +88,7 @@ Parses raw UDP packet and create an hashref with all the properties of DHCP.
 We throw exceptions here on decoding failures.
 
 =cut
+
 # TODO consider migrating to Net::DHCP::Packet
 sub decode_dhcp {
     my ($udp_payload) = @_;
@@ -120,6 +123,7 @@ We try to be as clever as possible regarding how data should be formatted and we
   decode_dhcp_options( hashref, @options )
 
 =cut
+
 sub decode_dhcp_options {
     my ($dhcp_ref, @options) = @_;
 
@@ -213,6 +217,7 @@ sub dhcp_message_type_to_string {
 Returns a one-liner string representing most important information about DHCP Packet hashref passed.
 
 =cut
+
 sub dhcp_summary {
     my ($dhcp_ref) = @_;
 
@@ -247,6 +252,7 @@ On cisco, option 82 can be populated on the layer 3 switch when relaying by ente
     ip dhcp relay information option
 
 =cut
+
 sub _decode_dhcp_option82 {
     my ($dhcp_ref) = @_;
 

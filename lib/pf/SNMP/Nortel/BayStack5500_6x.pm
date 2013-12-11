@@ -40,6 +40,7 @@ It changed with a firmware upgrade so it is encapsulated per switch module.
 This module has 128.
 
 =cut
+
 sub getBoardIndexWidth {
     return 128;
 }
@@ -72,6 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
+
 1;
 
 # vim: set shiftwidth=4:

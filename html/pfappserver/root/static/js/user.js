@@ -24,6 +24,7 @@ Users.prototype.post = function(options) {
         type: 'POST',
         data: options.data
     })
+        .always(options.always)
         .done(options.success)
         .fail(function(jqXHR) {
             var status_msg = getStatusMsg(jqXHR);
@@ -52,43 +53,58 @@ var UserView = function(options) {
     var read = $.proxy(this.readUser, this);
     options.parent.on('click', '[href*="user"][href$="/read"]', read);
 
-    var update = $.proxy(this.updateUser, this);
-    $('body').on('submit', '#modalUser form[name="modalUser"]', update);
+    this.proxyFor($('body'), 'submit', 'form[name="users"]', this.createUser);
 
-    var delete_user = $.proxy(this.deleteUser, this);
-    $('body').on('click', '#modalUser [href$="/delete"]', delete_user);
+    this.proxyFor($('body'), 'submit', '#modalUser form[name="modalUser"]', this.updateUser);
 
-    var reset_password = $.proxy(this.resetPassword, this);
-    $('body').on('click', '#modalUser #resetPassword', reset_password);
+    this.proxyClick($('body'), '#modalUser [href$="/delete"]', this.deleteUser);
 
-    var mail_password = $.proxy(this.mailPassword, this);
-    $('body').on('click', '#modalUser #mailPassword', mail_password);
+    this.proxyClick($('body'), '#modalUser #resetPassword', this.resetPassword);
 
-    var read_violations = $.proxy(this.readViolations, this);
-    $('body').on('show', 'a[data-toggle="tab"][href="#userViolations"]', read_violations);
+    this.proxyClick($('body'), '#modalUser #mailPassword', this.mailPassword);
 
-    var read_node = $.proxy(this.readNode, this);
-    $('body').on('click', '#modalUser [href$="/read"]', read_node);
+    this.proxyFor($('body'), 'show', 'a[data-toggle="tab"][href="#userViolations"]', this.readViolations);
 
-    var toggle_violation = $.proxy(this.toggleViolation, this);
-    $('body').on('switch-change', '#modalUser .switch', toggle_violation);
+    this.proxyClick($('body'), '#modalUser [href$="/read"]', this.readNode);
 
-    $('body').on('change', '#modalUser #ruleActions select[name$=type]', function(event) {
+    this.proxyFor($('body'), 'switch-change', '#modalUser .switch', this.toggleViolation);
+
+    /* Update the advanced search form to the next page or resort the query */
+    this.proxyClick($('body'), '[href*="#user/advanced_search"]', this.advancedSearchUpdater);
+
+    this.proxyClick($('body'), '#modalPasswords a[href$="mail"]', this.mailPasswordFromForm);
+
+    this.proxyClick($('body'), '#modalPasswords a[href$="print"]', this.printPasswordFromForm);
+
+    $('body').on('change', '#ruleActions select[name$=type]', function(event) {
         /* Update the rule action fields when changing an action type */
         updateAction($(this));
     });
 
-    $('body').on('admin.added', '#modalUser tr', function(event) {
+    $('body').on('admin.added', '#ruleActions tr', function(event) {
         /* Update the rule action fields when adding an action */
         var tr = $(this);
         tr.find(':input').removeAttr('disabled');
         var type = tr.find('select[name$=type]').first();
         updateAction(type);
     });
-    /* Update the advanced search form to the next page or resort the query*/
-    var advanced_search_updater = $.proxy(this.advancedSearchUpdater, this);
-    $('body').on('click', '[href*="#user/advanced_search"]', advanced_search_updater);
 
+    $('body').on('section.loaded', '#section', function(e) {
+        /* Initialize the action field */
+        $('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
+            updateAction($(this));
+        });
+        /* Disable checked columns from import tab since they are required */
+        $('form[name="users"] .columns :checked').attr('disabled', 'disabled');
+    });
+};
+
+UserView.prototype.proxyFor = function(obj, action, target, method) {
+    obj.on(action, target, $.proxy(method, this));
+};
+
+UserView.prototype.proxyClick = function(obj, target, method) {
+    this.proxyFor(obj, 'click', target, method);
 };
 
 UserView.prototype.readUser = function(e) {
@@ -111,7 +127,7 @@ UserView.prototype.readUser = function(e) {
             var modal = $("#modalUser");
             modal.find('.datepicker').datepicker({ autoclose: true });
             modal.find('#ruleActions tr:not(.hidden) select[name$=type]').each(function() {
-                updateAction($(this),true);
+                updateAction($(this), true);
             });
             modal.on('shown', function() {
                 modal.find(':input:visible').first().focus();
@@ -121,6 +137,61 @@ UserView.prototype.readUser = function(e) {
         },
         errorSibling: section.find('h2').first()
     });
+};
+
+UserView.prototype.createUser = function(e) {
+    var form = $(e.target),
+    btn = form.find('[type="submit"]').first(),
+    href = $('#section .nav-tabs .active a').attr('href'),
+    pos = href.lastIndexOf('#'),
+    disabled_inputs = form.find('.hidden :input, .tab-pane:not(.active) :input'),
+    valid;
+
+    // Don't submit inputs from hidden rows and tabs.
+    // The functions isFormValid and serialize will ignore disabled inputs.
+    disabled_inputs.attr('disabled', 'disabled');
+
+    // Identify the type of creation (single, multiple or import) from the selected tab
+    form.find('input[name="type"]').val(href.substr(++pos));
+    valid = isFormValid(form);
+
+    if (valid) {
+        btn.button('loading');
+        resetAlert($('#section'));
+
+        // Since we can be uploading a file, the form target is an iframe from which
+        // we read the JSON returned by the server.
+        var iform = $("#iframe_form");
+        iform.one('load', function(event) {
+            // Restore disabled inputs
+            disabled_inputs.removeAttr('disabled');
+
+            $("body,html").animate({scrollTop:0}, 'fast');
+            btn.button('reset');
+            var body = $(this).contents().find('body');
+            if (body.find('form').length) {
+                // We received a HTML form
+                var modal = $('#modalPasswords');
+                modal.empty();
+                modal.append(body.children());
+                modal.modal({ backdrop: 'static', shown: true });
+            }
+            else {
+                // We received JSON
+                var data = $.parseJSON(body.text());
+                if (data.status < 300)
+                    showPermanentSuccess(form, data.status_msg);
+                else
+                    showPermanentError(form, data.status_msg);
+            }
+        });
+    }
+    else {
+        // Restore disabled inputs
+        disabled_inputs.removeAttr('disabled');
+    }
+
+    return valid;
 };
 
 UserView.prototype.updateUser = function(e) {
@@ -203,19 +274,63 @@ UserView.prototype.resetPassword = function(e) {
     }
 };
 
+/* See root/user/view.tt */
 UserView.prototype.mailPassword = function(e) {
     e.preventDefault();
 
     var btn = $(e.target);
-    var url = btn.attr('href');
+    var url = btn.attr('href'); // pid is in the URL
+    var modal_body = btn.closest('.modal').find('.modal-body');
     var control = $('#userPassword .control-group').first();
+
+    btn.button('loading');
     this.users.get({
         url: url,
+        always: function() {
+            btn.button('reset');
+            resetAlert(modal_body);
+        },
         success: function(data) {
             showSuccess(control, data.status_msg);
         },
         errorSibling: control
     });
+};
+
+/* See root/user/list_password.tt */
+UserView.prototype.mailPasswordFromForm = function(e) {
+    e.preventDefault();
+
+    var btn = $(e.target);
+    var url = btn.attr('href');
+    var form = btn.closest('form'); // pids are specified in the form
+    var modal_body = form.closest('.modal').find('.modal-body');
+
+    btn.button('loading');
+    this.users.post({
+        url: url,
+        data: form.serialize(),
+        always: function() {
+            $("body,html").animate({scrollTop:0}, 'fast');
+            btn.button('reset');
+            resetAlert(modal_body);
+        },
+        success: function(data) {
+            showSuccess(modal_body.children().first(), data.status_msg);
+        },
+        errorSibling: modal_body.children().first()
+    });
+};
+
+/* See root/user/list_password.tt */
+UserView.prototype.printPasswordFromForm = function(e) {
+    e.preventDefault();
+
+    var btn = $(e.target);
+    var form = btn.closest('form'); // pids are specified in the form
+    form.attr('action', btn.attr('href'));
+    form.attr('target', '_blank'); // open a new page
+    form.submit();
 };
 
 UserView.prototype.readViolations = function(e) {

@@ -1,3 +1,4 @@
+<h2></h2>
 <div id="portal_profile_read">
 
   <div class="modal fade hide" id="saveProfile">
@@ -49,8 +50,8 @@
               <div id="sourcesEmpty" class="unwell unwell-horizontal[% ' hidden' IF form.field('sources').index > 1 %]">
                 <p>
                   <i class="icon-group icon-large"></i>
-                  [%- IF form.meta.name.split(':').last == 'Default' -%]
-                  [% l('With no source specified, all internal sources will be used.') %]
+                  [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
+                  [% l('With no source specified, all internal and external sources will be used.') %]
                   [%- ELSE -%]
                   [% l('With no source specified, the sources of the default profile will be used.') %]
                   [%- END -%]<br/>
@@ -59,10 +60,12 @@
               </div>
             </div>
           </div>
+          [%- IF can_access("PORTAL_PROFILES_UPDATE") %]
           <div class="form-actions">
             <a data-modal="saveProfile" data-modal-content="[% id %]" class="btn btn-primary call-modal-confirm-form">[% l('Save') %]</a>
             <button type="reset" class="btn">[% l('Reset') %]</button>
           </div>
+          [%- END %]
         </form>
       </div>
     </div>

@@ -76,6 +76,7 @@ use pf::config;
 =over
 
 =cut
+
 # CAPABILITIES
 # access technology supported
 sub supportsWiredMacAuth { return $TRUE; }
@@ -121,7 +122,7 @@ Allows callers to refer to this implementation even though someone along the way
 =cut
 
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
 

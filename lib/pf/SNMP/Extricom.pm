@@ -52,6 +52,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this) = @_;
     my $oid_inventoryswver = '1.3.6.1.4.1.23937.6.11.0'; # EXTRICOM-SNMP-MIB::inventoryswver
@@ -76,6 +77,7 @@ sub getVersion {
 =item parseTrap
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -99,6 +101,7 @@ WARNING: Overriding connectWrite {} because the default test write fails on thes
 Writing to the read community instead (then putting back appropriate in place)
 
 =cut
+
 sub connectWrite {
     my $this   = shift;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -179,6 +182,7 @@ sub connectWrite {
 =item deauthenticateMacDefault
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );

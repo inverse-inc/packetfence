@@ -4,20 +4,13 @@ use strict;
 use warnings;
 
 use lib '/usr/local/pf/lib';
-use Test::More tests => 23;
+use Test::More tests => 29;
 use Test::NoWarnings;
 
 BEGIN {
     use_ok('pf::util');
     use_ok('pf::util::apache');
 }
-
-# valid_mac
-ok(valid_mac("aa:bb:cc:dd:ee:ff"), "validate MAC address of the form xx:xx:xx:xx:xx:xx");
-ok(valid_mac("aa-bb-cc-dd-ee-ff"), "validate MAC address of the form xx-xx-xx-xx-xx-xx");
-ok(valid_mac("aabb-ccdd-eeff"), "validate MAC address of the form xxxx-xxxx-xxxx");
-ok(valid_mac("aabb.ccdd.eeff"), "validate MAC address of the form xxxx.xxxx.xxxx");
-ok(valid_mac("aabbccddeeff"), "validate MAC address of the form xxxxxxxxxxxx");
 
 # clean_mac
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
@@ -26,6 +19,19 @@ is(clean_mac("aa-bb-cc-dd-ee-ff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of th
 is(clean_mac("aabb-ccdd-eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx-xxxx-xxxx");
 is(clean_mac("aabb.ccdd.eeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxx.xxxx.xxxx");
 is(clean_mac("aabbccddeeff"), "aa:bb:cc:dd:ee:ff", "clean MAC address of the form xxxxxxxxxxxx");
+is(clean_mac("abc"), undef, "clean invalid MAC address of the form xxx");
+is(clean_mac(""), undef, "clean empty MAC address");
+is(clean_mac(undef), undef, "clean undefined MAC address");
+
+# valid_mac
+ok(valid_mac("aa:bb:cc:dd:ee:ff"), "validate MAC address of the form xx:xx:xx:xx:xx:xx");
+ok(valid_mac("aa-bb-cc-dd-ee-ff"), "validate MAC address of the form xx-xx-xx-xx-xx-xx");
+ok(valid_mac("aabb-ccdd-eeff"), "validate MAC address of the form xxxx-xxxx-xxxx");
+ok(valid_mac("aabb.ccdd.eeff"), "validate MAC address of the form xxxx.xxxx.xxxx");
+ok(valid_mac("aabbccddeeff"), "validate MAC address of the form xxxxxxxxxxxx");
+ok(!valid_mac("abc"), "invalidate MAC address of the form xxx");
+ok(!valid_mac(""), "invalidate empty MAC address");
+ok(!valid_mac(undef), "invalidate undefined MAC address");
 
 # oid2mac / mac2oid
 is( oid2mac('240.77.162.203.217.197'), 'f0:4d:a2:cb:d9:c5', "oid2mac legit conversion" );

@@ -1,4 +1,5 @@
 package pf::radius::soapclient;
+
 =head1 NAME
 
 pf::radius::soapclient add documentation
@@ -13,38 +14,46 @@ pf::radius::soapclient
 
 use strict;
 use warnings;
+
+use HTML::Entities;
+use Log::Log4perl;
+use WWW::Curl::Easy;
+use XML::Simple;
+
+use base qw(Exporter);
+our @EXPORT = qw(send_soap_request build_soap_request);
+
 # Configuration parameter
 use constant SOAP_PORT => '9090'; #TODO: See note1
 use constant API_URI => 'https://www.packetfence.org/PFAPI'; # don't change this unless you know what you are doing
-use WWW::Curl::Easy;
-use XML::Simple;
-use HTML::Entities;
-use base qw(Exporter);
-our @EXPORT = qw(send_soap_request build_soap_request);
 
 sub send_soap_request {
     my ($function,$data) = @_;
     my $response;
-    eval {
-        my $request = build_soap_request($function,$data);
-        my $curl = WWW::Curl::Easy->new;
-        my $response_body;
-        $curl->setopt(CURLOPT_HEADER, 0);
-        $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
-    #    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
-        $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: text/xml; charset=UTF-8']);
-        $curl->setopt(CURLOPT_POSTFIELDS, $request);
-        $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
-        # Starts the actual request
-        my $curl_return_code = $curl->perform;
+    my $request = build_soap_request($function,$data);
+    my $curl = WWW::Curl::Easy->new;
+    my $response_body;
+    $curl->setopt(CURLOPT_HEADER, 0);
+    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . SOAP_PORT); # TODO: See note1
+#    $curl->setopt(CURLOPT_URL, 'http://127.0.0.1:' . $Config{'ports'}{'soap'}); # TODO: See note1
+    $curl->setopt(CURLOPT_HTTPHEADER, ['Content-Type: text/xml; charset=UTF-8']);
+    $curl->setopt(CURLOPT_POSTFIELDS, $request);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response_body);
 
-        # Looking at the results...
-        if ( $curl_return_code == 0 ) {
-            my $xml = new XML::Simple;
-            $response = $xml->XMLin($response_body, NoAttr => 1);
-        }
-    };
+    # Starts the actual request
+    my $curl_return_code = $curl->perform;
+
+    # Looking at the results...
+    if ( $curl_return_code == 0 ) {
+        my $xml = new XML::Simple;
+        $response = $xml->XMLin($response_body, NoAttr => 1);
+    }
+    else {
+        my $msg = "An error occured while sending a SOAP request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
+        die $msg;
+    }
+
     return $response;
 }
 
@@ -130,7 +139,6 @@ sub build_soap_string {
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 

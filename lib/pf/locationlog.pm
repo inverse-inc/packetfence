@@ -91,6 +91,7 @@ TODO: list incomplete
 =over
 
 =cut
+
 sub locationlog_db_prepare {
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
     $logger->debug("Preparing pf::locationlog database queries");
@@ -440,6 +441,7 @@ synchronize locationlog to current values if necessary
  $voip_status expects VOIP / NO_VOIP constants
 
 =cut
+
 sub locationlog_synchronize {
     my ( $switch, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $user_name, $ssid ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::locationlog');
@@ -533,6 +535,7 @@ sub locationlog_cleanup {
 return 1 if locationlog entry is accurate, 0 otherwise
 
 =cut
+
 # Note: voip_status was removed from the accuracy check, feel free to revisit this assumption if we face VoIP problems
 sub _is_locationlog_accurate {
     my ( $locationlog_mac, $switch, $ifIndex, $vlan, $mac, $connection_type, $user_name, $ssid ) = @_;

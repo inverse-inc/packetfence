@@ -55,6 +55,7 @@ This will check a node's status and perform changes to access control if necessa
 Triggered by pfcmd.
 
 =cut
+
 sub reevaluate_access {
     my ( $mac, $function, %opts ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
@@ -107,6 +108,7 @@ sub reevaluate_access {
 Sends local SNMP traps to pfsetvlan if we should reevaluate the VLAN of a node.
 
 =cut
+
 sub _vlan_reevaluation {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');
@@ -129,7 +131,7 @@ sub _vlan_reevaluation {
 
             } elsif ($conn_type == $WIRED_SNMP_TRAPS) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type, $mac);
 
             } elsif ($conn_type == $WIRELESS_MAC_AUTH) {
                 $logger->debug("sending a local desAssociate trap to force deassociation "
@@ -148,11 +150,11 @@ sub _vlan_reevaluation {
 
             } elsif ($conn_type == $WIRED_802_1X) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type, $mac);
 
             } elsif ($conn_type == $WIRED_MAC_AUTH) {
                 $logger->debug("sending a local reAssignVlan trap to force VLAN change");
-                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type);
+                $trapSender->sendLocalReAssignVlanTrap($switch_ip, $ifIndex, $conn_type, $mac);
             }
         } else {
             $logger->error("Can't instantiate switch 127.0.0.1! Check your configuration!");
@@ -169,6 +171,7 @@ Returns true or false whether or not we should request vlan adjustment
 Evaluates node's VLAN through L<pf::vlan>'s fetchVlanForNode (which can be redefined by L<pf::vlan::custom>)
 
 =cut
+
 sub _should_we_reassign_vlan {
     my ($mac, $locationlog_entry, %opts) = @_;
     my $logger = Log::Log4perl::get_logger('pf::enforcement');

@@ -1,20 +1,3381 @@
-commit a3c2883387557bc63bb2d714b98e95ca53fbfab1
+commit a0d35eb98e6f495ea606e75e652ed9dda51bd2d8
 Author: Francis Lachapelle <flachapelle@inverse.ca>
-Date:   Fri Sep 13 15:20:42 2013 -0400
+Date:   Wed Dec 11 14:03:39 2013 -0500
+
+    Prepare release 4.1.0
+
+M	addons/packages/packetfence.spec
+
+commit 126d4870b217c13936ec344ed4393c55082ac3b9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 11 13:48:20 2013 -0500
+
+    Prepare release 4.1.0
+
+M	NEWS.asciidoc
+M	debian/changelog
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	docs/docinfo.xml
+
+commit 29d5553ea30e1649a4e0aec38511fa57ed3a2475
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 11 13:45:00 2013 -0500
+
+    Update German translation
+
+M	NEWS.asciidoc
+M	conf/locale/de/LC_MESSAGES/packetfence.po
+
+commit 044e706cad15ac9b5620e5bf8bf785435da60ba0
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 11 12:26:14 2013 -0500
+
+    Improve help on Web admin interface
+
+M	html/pfappserver/root/configuration/adminroles/index.tt
+M	html/pfappserver/root/portal/profile/view.tt
+M	lib/pf/pfcmd/help.pm
+
+commit 3e67e39c24d1444254d4bf9e8429f3b6e6d69ddd
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 11 12:05:37 2013 -0500
+
+    Improve error message in Null auth source
+
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit 108a7a854fec544750b15f5f155d4eaad9e4fb96
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 11 12:05:00 2013 -0500
+
+    Cleanup bundled values of authentication.conf
+
+M	conf/authentication.conf
+
+commit d34f7441c1fd3ab492e8a0c62ff52649b04c6743
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Dec 11 11:50:26 2013 -0500
+
+    Simple search of nodes: respect spaces
+    
+    We must respect the space characters when the search string doesn't
+    match a MAC address.
+
+M	lib/pf/node.pm
+
+commit c96192b7d6b9a6e4f0415853205165c097f36494
+Author: Jean Raby <jraby@inverse.ca>
+Date:   Wed Dec 11 10:48:40 2013 -0500
+
+    fix invalid regex (^ was escaped by the shell)
+
+M	addons/watchdog/freeradius-watchdog.sh
+
+commit 6bdccd9845ff5e457188d55cea3bfba189a2ed46
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Dec 10 14:46:48 2013 -0500
+
+    Improve SSID report on web admin
+
+M	NEWS.asciidoc
+M	lib/pf/pfcmd/report.pm
+
+commit 4c73805b7de7d73d1ebec0e6690782f6426fc290
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Dec 10 09:26:03 2013 -0500
+
+    Removed support for the httpd service
+
+M	lib/pf/pfcmd.pm
+
+commit 858f8267fb45a018118ce2199b4aa0652eca9e3d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 9 13:07:17 2013 -0500
+
+    Will not set destination_url if the url matches the captive portal
+
+M	lib/pf/web/dispatcher.pm
+
+commit 01eae41b6192ec5e3fe663caf7a8a5f20750b3d0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 9 12:46:27 2013 -0500
+
+    Use isenabled for forceRedirectURL
+
+M	lib/pf/Portal/Session.pm
+
+commit 4f9252398c13932663824d1fe7c2711e6c9ada0d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Dec 6 16:11:58 2013 -0500
+
+    Updated news file
+
+M	NEWS.asciidoc
+
+commit bcc51e64b47e1ea6885c4f0020104e203672e340
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 15 11:28:12 2013 -0400
+
+    Use the correct prepared statement when there are no dates defined
+
+M	lib/pf/ifoctetslog.pm
+
+commit 95db68e4f8ea6afbeaa5d9a9e732a423ef40716b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Dec 6 15:02:52 2013 -0500
+
+    Clearing network information when reloading pf.conf
+
+M	lib/pf/config.pm
+
+commit 0493a64e8ec18641a5f347dab47772b5840a7e41
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Dec 6 14:37:08 2013 -0500
+
+    Start/Stop/Restart will now call the pfcmd and wait for it's completion before return
+
+M	html/pfappserver/lib/pfappserver/Controller/Service.pm
+
+commit 5185a250e832cf89a87c631614ac2f4c52f1f4bf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Dec 6 14:25:32 2013 -0500
+
+    Service status is called with quick parameter
+
+M	html/pfappserver/lib/pfappserver/Model/Services.pm
+
+commit 0011712941e21f74e6343f56843077ed76897e06
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Dec 6 14:24:16 2013 -0500
+
+    Will not removestaleFile if the quick argument is true
+
+M	lib/pf/services/manager.pm
+M	lib/pf/services/manager/submanager.pm
+
+commit 4509bfece03bd493658871122bcf0f8b78ec9621
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Dec 6 11:17:47 2013 -0500
+
+    Add allow_localdomain option to the sponsor source
+
+M	NEWS.asciidoc
+M	conf/authentication.conf
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/Null.pm
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/SponsorEmail.pm
+M	html/pfappserver/root/authentication/source/type/SponsorEmail.tt
+M	lib/pf/Authentication/Source/SponsorEmailSource.pm
+M	lib/pf/web/guest.pm
+
+commit 59ae1ac51e4af794eba4df8221c7b1b536b30946
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Dec 6 11:09:58 2013 -0500
+
+    Fix saving allow_localdomain in email source
+    
+    When the checkbox was unchecked, the option was not saved and was
+    enabled by default.
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/Email.pm
+M	lib/pf/Authentication/Source/EmailSource.pm
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit e96e1f2070fe32b0020a0d61fdfd588f8cf56703
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Dec 5 16:48:58 2013 -0500
+
+    New link on SMS confirmation page to cancel
+    
+    Instead of automatically changing the node status to unreg when visiting
+    the captive portal, we now keep the node in pending mode but allow the
+    user to go back to the registration page that will unregister the node
+    and display the login/registration page.
+
+M	NEWS.asciidoc
+M	html/captive-portal/redir.cgi
+M	html/captive-portal/templates/guest/sms_confirmation.html
+
+commit 8ad273092bbc8ca61c355b0c882a10494ed560c4
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Dec 5 16:47:09 2013 -0500
+
+    Initial destination URL is now respected with FF
+
+M	NEWS.asciidoc
+M	html/captive-portal/templates/pending.html
+M	html/captive-portal/templates/release.html
+M	html/captive-portal/templates/scan-in-progress.html
+M	html/common/pf.js
+M	lib/pf/Portal/Session.pm
+M	lib/pf/web.pm
+
+commit 5c04de6f2e8e9bbaad7ee49caff574758a41bf4e
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Dec 5 14:40:30 2013 -0500
+
+    Fixed pid of SMS-registered devices
+
+M	NEWS.asciidoc
+M	html/captive-portal/mobile-confirmation.cgi
+
+commit aeeb54f2d3c435a68fd52c85a683b2b778c89a75
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Dec 5 10:04:54 2013 -0500
+
+    Fix redirect_url
+
+M	lib/pf/web.pm
+
+commit db4b7ce341b4f3cb9cbad8f7f4d13619124a6e31
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Dec 4 14:34:44 2013 -0500
+
+    Will pass orginal url to captive portal as the destination_url
+
+M	lib/pf/web/dispatcher.pm
+
+commit b3191cbb2aa5cb2a033f6fd72e21ed0b693a3948
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Dec 4 13:16:48 2013 -0500
+
+    Added autoreg default value in node_modify
+
+M	lib/pf/node.pm
+
+commit 0a791b092e41a9a72b9ded4c15e2cd240e72c783
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Dec 4 10:25:55 2013 -0500
+
+    Update doc for dynamic radius client and fix sql syntax
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	raddb/sites-available/dynamic-clients
+
+commit 9b006cf3ce431fdd85ef87ee5c239dd76f5efbea
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Dec 4 09:26:41 2013 -0500
+
+    Missing autoreg in node_add sql and test if pf.conf exist before trying to manage iptables
+
+M	bin/pfcmd.pl
+M	lib/pf/node.pm
+
+commit 6b6073b9e868299ab5b38c090c65fc4812c44bd7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Dec 3 14:45:18 2013 -0500
+
+    Change the default admin level
+
+M	conf/authentication.conf
+
+commit c8db7ae8bf9650c11e598d18f490dbda15871567
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Dec 3 14:43:05 2013 -0500
+
+    Fix syntax
+
+M	lib/pf/vlan.pm
+
+commit 850c83c6e43d52e6b0579b6bf8353b3a2a7e2c47
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Dec 3 14:33:48 2013 -0500
+
+    added a new column in node table to detect if the node has been auto registered
+
+M	NEWS.asciidoc
+M	db/pf-schema-4.1.0.sql
+M	db/upgrade-4.0.0-4.1.0.sql
+M	lib/pf/node.pm
+M	lib/pf/vlan.pm
+
+commit 8dd8caae28794cdf97d9ac45e5c918a8f9440f59
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Dec 3 10:06:24 2013 -0500
+
+    Fix warning in condition in pf::vlan
+
+M	lib/pf/vlan.pm
+
+commit 12015d45f33ef03365684797a54c68059ace9ada
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Dec 3 09:49:32 2013 -0500
+
+    Bump release to 4.1.0
+
+M	conf/pf-release
+M	docs/docinfo.xml
+M	docs/includes/global-attributes.asciidoc
+
+commit 3cf7ab61232404437ad7d4c74f22313b8d88e47a
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Dec 3 09:46:54 2013 -0500
+
+    Update HTTP/BrowserDetect.pm
+
+M	lib/HTTP/BrowserDetect.pm
+
+commit f75306001e54a512998225352ecd86941b316566
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Dec 3 09:40:00 2013 -0500
+
+    Fix warning in condition in pf::vlan
+
+M	lib/pf/vlan.pm
+
+commit fd482e1e60264fa994eff38472bf2f54ffdb15e3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Dec 3 09:17:46 2013 -0500
+
+    Fix packaging
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+
+commit 7e8eea8cd15b3b0a687036c5b4938195340ae7f9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Dec 2 22:28:21 2013 -0500
+
+    Fix reordering of conf sections and groups
+    
+    Fixes #1749
+
+M	NEWS.asciidoc
+M	lib/pf/IniFiles.pm
+
+commit e4d21cdb79186ad4445dc8ec4c663629afdb3267
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 2 18:43:52 2013 -0500
+
+    New schema for 4.1.0 release
+
+A	db/pf-schema-4.1.0.sql
+
+commit 91d10b766bad7e98e83859997295dc646add6b63
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 2 16:33:11 2013 -0500
+
+    Will not attempt to repopulate db if if database is down
+
+M	lib/pf/freeradius.pm
+
+commit 3e137256d747ea5dad7e7614da385585441a0652
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 2 12:04:13 2013 -0500
+
+    Refactor color usage on the command
+
+M	bin/pfcmd.pl
+
+commit 26865a9cee896baec98acc126131c75f30fc569f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 2 12:00:29 2013 -0500
+
+    Check if the database is alive before loading into database
+
+M	lib/pf/violation_config.pm
+
+commit 8e489db30e9f345448ba1e56b7d6e24c558c4de9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 2 11:56:12 2013 -0500
+
+    Add db_ping function
+
+M	lib/pf/db.pm
+
+commit dd4fada0f5e07ab89b86b607e62e5b510df2a5b9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Nov 29 17:28:53 2013 -0500
+
+    Validate startup array references
+
+M	bin/pfcmd.pl
+
+commit 413a6db801187d8f288e5ac4df112c6d8b85196f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Dec 2 09:50:15 2013 -0500
+
+    Will only attempt repopulation of switches if there switches need to be changed
+
+M	lib/pf/freeradius.pm
+
+commit 3dea4202097adc6651596a2a7519ce33f17ecee0
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Dec 2 15:41:31 2013 -0500
+
+    Update NEWS and UPGRADE files
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+D	conf/admin_roles.conf
+
+commit 3e5827caecfbcc48741a489f30bba02554e9a019
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Dec 2 14:04:45 2013 -0500
+
+    Synchronise locationlog before trying to match source in portal profile (Autoreg 802.1x)
+
+M	lib/pf/radius.pm
+
+commit b84ae2ebb2fa5e920c6e3aa00d58d8a90028d4ec
+Author: lzammit <lzammit@inverse.ca>
+Date:   Mon Dec 2 13:35:21 2013 -0500
+
+    Update PacketFence_Administration_Guide.asciidoc
+    
+    Disable resolvconf
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit b1dcd5cf60b480c87e296303af9e57d41209d15b
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Dec 2 11:06:42 2013 -0500
+
+    Added a barnyard2 init script.
+
+M	NEWS.asciidoc
+A	addons/barnyard2.sh
+
+commit e8166606c4fa25112536de9abc6d88b446f62734
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Mon Dec 2 10:03:27 2013 -0500
+
+    Added proxy log files in logrotate
+
+M	addons/logrotate
+
+commit 1cb1414637c3ab64328ba1d37b34947f0001d8d7
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Dec 2 09:56:10 2013 -0500
+
+    Updated NEWS.asciidoc to reflect logrotate changes.
+
+M	NEWS.asciidoc
+
+commit 19cc2d6a484b162d45cf3622a02fbabfe04ae9ed
+Author: Louis Munro <lmunro@inverse.ca>
+Date:   Mon Dec 2 09:52:08 2013 -0500
+
+    Modified logrotate to use copytrucate instead of restarting services.
+
+M	addons/logrotate
+
+commit aaefe69579e9dc0b5e03afd62698e8190aae28bd
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Nov 29 21:40:14 2013 -0500
+
+    Check the role for dot1x autoregistration from the authentication sources defined
+    in the captiv portal associated to the connection instead of all the authentication sources.
+
+M	lib/pf/vlan.pm
+
+commit d682450c9e488d3d3007e1f668975c5a949f30ce
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Nov 29 15:16:31 2013 -0500
+
+    Fix the error "dispatcher.pm line 70", missing test on the Referer
+
+M	lib/pf/web/dispatcher.pm
+
+commit f5ea594eafcd750135c3b15be732349a9da822c9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 29 10:29:39 2013 -0500
+
+    Fix condition to avoid warning
+
+M	lib/pf/vlan.pm
+
+commit 13db4dc40a013804f897c00241af7fe30cfb61e0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Nov 21 11:40:42 2013 -0500
+
+    Updated NEWS files
+
+M	NEWS.asciidoc
+
+commit 144e93976639937bed2f6f80b01b5cde9434c97a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Nov 21 11:40:21 2013 -0500
+
+    Will not truncate radius_nas table on restart
+
+M	lib/pf/services.pm
+M	lib/pf/services/radiusd.pm
+
+commit d8224a425ffb45261f6596e30de68b66ab0b7679
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 15 14:19:50 2013 -0400
+
+    Allow switch to be read dynamically by radius
+
+M	lib/pf/SwitchFactory.pm
+M	lib/pf/freeradius.pm
+M	raddb/policy.conf
+M	raddb/sites-available/dynamic-clients
+
+commit 7a575d768d20d94b2d307142862e085689c151f0
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 29 09:20:05 2013 -0500
+
+    Use prototype Delay method to respect seconds
+    
+    We were using the standard setTimeout function which expects
+    miliseconds, not seconds.
+
+M	html/common/pf.js
+
+commit ba94b86e0f6e080b523b087b6289288bf463cf23
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Nov 28 16:23:21 2013 -0500
+
+    Fixed AeroHive trap
+
+M	lib/pf/SNMP/AeroHIVE.pm
+
+commit 7fce2e5e5bead1614f8982d723067bccb9bb643a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Nov 28 13:21:23 2013 -0500
+
+    Start service that require no checkup before service that require checkup
+
+M	bin/pfcmd.pl
+
+commit 0d425e475c0bcb91cebf0db968c451a88fbb6ca7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Nov 28 13:19:35 2013 -0500
+
+    Setup attribute shouldCheckup to 0
+
+M	lib/pf/services/manager/httpd_admin.pm
+M	lib/pf/services/manager/memcached.pm
+
+commit d9ebfb6a1fd03e571b7c899a6a430c5a54f8e5bf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Nov 28 13:18:53 2013 -0500
+
+    Added new attribute shouldCheckup
+
+M	lib/pf/services/manager.pm
+
+commit 18ce0dcfd6ce4d30fad6994f2949cd45163f178b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 27 12:04:16 2013 -0500
+
+    Return value of the parent stop command
+
+M	lib/pf/services/manager/dhcpd.pm
+
+commit 74032b9b3b5fc943d436ff25714791fc52621feb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 27 12:03:18 2013 -0500
+
+    Display better message when a service was not stopped
+
+M	bin/pfcmd.pl
+
+commit 0c4e5119222189bbc70786285dd2dca6824f6e07
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 27 12:03:07 2013 -0500
+
+    Refactor reset
+
+M	bin/pfcmd.pl
+
+commit a50db5ac614c083bbb12bb7bc23d647eb0a57e4b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 27 11:49:15 2013 -0500
+
+    Untaint launcher before passing it to sprintf
+
+M	lib/pf/services/manager.pm
+
+commit 2d42b20f64c0621390e4e3b23ae3e3e6a66f32c6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 20 12:43:24 2013 -0500
+
+    Fixed configuration generation for httpd based services
+
+M	lib/pf/services/manager/httpd.pm
+
+commit 4e5e385bd1f083cba886b7f83e37bb85e53df8fa
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 18 13:32:36 2013 -0500
+
+    Add dependency to Linux::Inotify2
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit ddbeadff8812299796fd63e068552e8194a71e52
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 18 11:51:39 2013 -0400
+
+    Refactor get(Stop|Start)ServiceManagers to getManagers
+
+M	bin/pfcmd.pl
+
+commit c9e9140e218a09bf66a694b9a5b91494c0e63115
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 15 14:32:47 2013 -0400
+
+    Group the sub pfhcplistener pidfiles in one inotify object
+
+M	lib/pf/services/manager/pfdhcplistener.pm
+
+commit bf51c3cbdb088e96adf8979e8e8d5110c95c16e2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 15 14:30:35 2013 -0400
+
+    Moved to use timerfd for timeouts
+
+M	lib/pf/services/manager.pm
+
+commit ecb706a659955d04f1d1a43b5ea1a2cb7b8ce7b9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 4 14:36:45 2013 -0400
+
+    Added new perl modules
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit 8256bd6cad292889fb33f631fcb0d992a7f1c260
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 4 12:46:42 2013 -0400
+
+    pfcmd service now has color
+
+M	bin/pfcmd.pl
+
+commit 7035b857e7dd3145349a8145b610b4aa22c168bf
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 3 20:08:26 2013 -0400
+
+    Refactor stop watch generateConfig startService postStartCleanup to a generalized around modifier
+    Overloaded removeStalePid to call removeStalePid on submanagers
+
+M	lib/pf/services/manager/submanager.pm
+
+commit ac0e21faa2f9f06712adfddba398581fe56ff308
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 3 18:01:05 2013 -0400
+
+    refactor the creation of the cmdline to a seperate function
+
+M	lib/pf/services/manager.pm
+
+commit 0e15324af0f258f0f7ba30557ccdc90ed29b5c4a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 1 15:14:35 2013 -0400
+
+    Removed unused variables
+
+M	lib/pf/services.pm
+
+commit bea183a92377f9c0665cf4dc231e8f580dd738b1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 1 14:31:49 2013 -0400
+
+    Avoid printing double headers on restart
+
+M	bin/pfcmd.pl
+
+commit 2aa3ec33d436135fe8f4cb607f3ab4eeef528558
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 1 06:29:18 2013 -0400
+
+    Add httpd.proxy to service list
+
+M	lib/pf/pfcmd.pm
+M	lib/pf/services.pm
+A	lib/pf/services/manager/httpd_proxy.pm
+
+commit 1eb1d3bfcf0befad454d14002689a6aeca2e1787
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 17:18:45 2013 -0400
+
+    renamed pf::services::manager::roles::pf_conf_service_managed to pf::services::manager::roles::is_managed_by_pf_conf
+
+M	lib/pf/services/manager/dhcpd.pm
+M	lib/pf/services/manager/memcached.pm
+M	lib/pf/services/manager/pfdns.pm
+M	lib/pf/services/manager/radiusd.pm
+A	lib/pf/services/manager/roles/is_managed_by_pf_conf.pm
+D	lib/pf/services/manager/roles/pf_conf_service_managed.pm
+M	lib/pf/services/manager/snort.pm
+M	lib/pf/services/manager/suricata.pm
+
+commit e6ac306d680ad8b8d930114b2f8ec972ec27759c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 09:48:07 2013 -0400
+
+    Created test and dummy daemon for testing pf::services::manager
+
+A	t/daemon.t
+A	t/services/dummy
+
+commit 18baee876e763153d2ecb0460b257abc90e2ea7d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 08:02:22 2013 -0400
+
+    Code cleanp better logging
+
+M	lib/pf/services/manager.pm
+
+commit ff296c1fd8af9650b2a6f333d8ebe6ebceaa994b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Sep 27 15:17:47 2013 -0400
+
+    Refactored stop where if the process did not stop in 60 seconds kill -9 the process
+
+M	lib/pf/services/manager.pm
+
+commit cacc253250919fbc4ee21a27417ef36845af95cb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 00:59:18 2013 -0400
+
+    Refactored pf status in terms of the service manager model
+
+M	html/pfappserver/lib/pfappserver/Model/Services.pm
+
+commit 15c6714b2e1096c4d00b4f5e3a353891fe1bcd53
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 13:05:39 2013 -0400
+
+    Removed all old code from lib/pf/services.pm
+    Refactored service_list & service_ctl in terms of pf::services::manager
+    moved function getServiceManager from bin/pfcmd.pl to pf::services::get_service_manager
+    
+    Removed all code from bin/pfcmd.pl
+    Refactor getServiceManager to pf::services::get_service_manager
+    added checkup before starting services
+
+M	bin/pfcmd.pl
+M	lib/pf/services.pm
+
+commit c75b6c9d7119bc99b5c5f6f8b3331bed9f9d952d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 12:22:38 2013 -0400
+
+    Added missing module
+
+M	lib/pf/services/manager/pfdhcplistener.pm
+
+commit 34503dfc1ff644753d0a7d8467c417975e00584d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 11:34:55 2013 -0400
+
+    Added vlan/inline enforcement check for is managed
+
+M	lib/pf/services/manager/dhcpd.pm
+M	lib/pf/services/manager/pfdns.pm
+A	lib/pf/services/manager/roles/is_managed_vlan_inline_enforcement.pm
+
+commit e0252f8b10677db6c994c387b4fdff6021f2e9f9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 11:17:06 2013 -0400
+
+    Fixed issue with t/pf.t
+
+M	lib/pf/services/manager/roles/pf_conf_trapping_engine.pm
+
+commit 0d744e5985e24df0fc2956d23a8f04b63a8fbd02
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 11:15:10 2013 -0400
+
+    Added missed isManaged
+
+M	lib/pf/services/manager/pfdhcplistener.pm
+
+commit 01e0c4ae46b19d20c4f0ad22319f6fba21208bf4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 10:15:43 2013 -0400
+
+    Remove Minor parts from the COPYRIGHT section
+
+M	lib/pf/services/manager.pm
+M	lib/pf/services/manager/httpd.pm
+M	lib/pf/services/manager/httpd_admin.pm
+M	lib/pf/services/manager/httpd_portal.pm
+M	lib/pf/services/manager/httpd_webservices.pm
+M	lib/pf/services/manager/memcached.pm
+M	lib/pf/services/manager/pfdetect.pm
+M	lib/pf/services/manager/pfdns.pm
+M	lib/pf/services/manager/pfmon.pm
+M	lib/pf/services/manager/pfsetvlan.pm
+M	lib/pf/services/manager/radiusd.pm
+M	lib/pf/services/manager/roles/pf_conf_service_managed.pm
+M	lib/pf/services/manager/snmptrapd.pm
+M	lib/pf/services/manager/snort.pm
+M	lib/pf/services/manager/submanager.pm
+M	lib/pf/services/manager/suricata.pm
+
+commit e27c1a02d8d3cf5f71d568ece5a72e910f098dd3
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Sep 24 19:17:59 2013 -0400
+
+    Use the new pf::services::manager framework for the pfcmd service command
+
+M	bin/pfcmd.pl
+
+commit 235f2f8cb48dcae0c33af88aaef4813785c3c33e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Sep 24 19:15:41 2013 -0400
+
+    Added new files for the services refactor
+
+A	lib/pf/services/manager.pm
+A	lib/pf/services/manager/dhcpd.pm
+A	lib/pf/services/manager/httpd.pm
+A	lib/pf/services/manager/httpd_admin.pm
+A	lib/pf/services/manager/httpd_portal.pm
+A	lib/pf/services/manager/httpd_webservices.pm
+A	lib/pf/services/manager/memcached.pm
+A	lib/pf/services/manager/pfdetect.pm
+A	lib/pf/services/manager/pfdhcplistener.pm
+A	lib/pf/services/manager/pfdns.pm
+A	lib/pf/services/manager/pfmon.pm
+A	lib/pf/services/manager/pfsetvlan.pm
+A	lib/pf/services/manager/radiusd.pm
+A	lib/pf/services/manager/roles/pf_conf_service_managed.pm
+A	lib/pf/services/manager/roles/pf_conf_trapping_engine.pm
+A	lib/pf/services/manager/snmptrapd.pm
+A	lib/pf/services/manager/snort.pm
+A	lib/pf/services/manager/submanager.pm
+A	lib/pf/services/manager/suricata.pm
+
+commit 0aace286ff06c7eafda1fe046fdfe6acc231e809
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Nov 20 17:08:28 2013 -0500
+
+    Missing lib
+
+M	lib/pf/SNMP/Cisco/Catalyst_2960.pm
+
+commit 2c984adff6bb4a0c67c0e6349169c31caa38e64b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Nov 20 13:01:05 2013 -0500
+
+    Missing $switch param
+
+M	sbin/pfsetvlan
+
+commit 374f66f8a66035beeca3899485aca06d150e48f8
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Oct 30 11:05:56 2013 -0400
+
+    Added HP Standalone access point module
+
+A	lib/pf/SNMP/HP/MSM.pm
+
+commit 690509843c60da78ba86fc9a9c835535f91f83e0
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 15 11:08:27 2013 -0400
+
+    Added custom radius answer for aruba switch (remove vlan id if we have a role)
+
+M	lib/pf/SNMP/ArubaSwitch.pm
+
+commit 25f1f5d7e7acd97801afd7e17dcd50cc1f57aa6b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 11 16:49:38 2013 -0400
+
+    Update doc
+    Added radius attribute
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+M	lib/pf/radius.pm
+
+commit 486c29face67376b375270d64f7309cd587ba838
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 11 16:18:15 2013 -0400
+
+    Added wiredeauthTechniques method like deauthTechniques for the wireless
+    Added ArubaSwitch switch module (mac auth and 802.1x and CoA support)
+    Added Dell Force10 switch module
+    Added CoA deauth support for Cisco Switch
+
+M	lib/pf/SNMP.pm
+A	lib/pf/SNMP/ArubaSwitch.pm
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2960.pm
+A	lib/pf/SNMP/Dell/Force10.pm
+M	lib/pf/SNMP/Juniper.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/PacketFence.pm
+M	lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+M	lib/pf/enforcement.pm
+M	sbin/pfsetvlan
+
+commit 442c6e0c8721f891fa05fcd36d458d73a345871f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 21 16:40:40 2013 -0500
+
+    Switch editor: Remove 'disabled' class of Save btn
+
+M	html/pfappserver/root/configuration/switch/view.tt
+
+commit d50f7b26390a1ded8b18e83b2fab54761acdb509
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 4 10:01:03 2013 -0500
+
+    Change type of access_level column
+    
+    We no longer use a bit string but simply a string that refers to one or
+    many roles from conf/adminroles.conf
+
+M	db/upgrade-4.0.0-4.1.0.sql
+
+commit 9bc26205c6caec3a016d53ab96fb866c30186c91
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 4 09:52:35 2013 -0500
+
+    Add access rights to interfaces management
+
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/config/networks/view.tt
+M	html/pfappserver/root/interface/index.tt
+M	html/pfappserver/root/interface/list.tt
+M	html/pfappserver/root/interface/view.tt
+
+commit 11a9f73fc704dec5127476a92bab8ac8e50e476a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Nov 4 08:14:46 2013 -0500
+
+    Pass roles as an array ref
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+M	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit a781bd20645153f6a3dc53bf1e475bd5e09eae6f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 16:31:44 2013 -0400
+
+    Fix access authorization of actions
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit 6f8ebd8f2699dd0bc377071fe40ba7df98f79e9b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:05:11 2013 -0400
+
+    pfappserver::Authentication::Store::PacketFence::User->roles returns an array ref instead of an array
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+M	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit bab9d0f7c899f8b483374e1f591b10f83a102538
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 10 16:23:16 2013 -0400
+
+    Imported module pfappserver::Base::Action::AdminRole
+    Cleanup unused variable
+
+M	html/pfappserver/lib/pfappserver/Controller/Interface.pm
+
+commit 3e772bd10922dda2a495a195e700286b496111e9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Oct 10 16:09:59 2013 -0400
+
+    Add access rights to interfaces management
+
+M	html/pfappserver/lib/pfappserver/Controller/Interface.pm
+
+commit ab27b4c3d04742931483fd843419b6a0adf9fa53
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 10 16:06:35 2013 -0400
+
+    Fix debug statement
+
+M	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+
+commit 5ed86e9fb55fde9fc182c1fd43d1a6ab0d694108
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 10 16:02:53 2013 -0400
+
+    Fixed can_access_any function to expect roles to return an array
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit b96244cb526fc72d0d4042f401488ece8f2dfe57
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:16:19 2013 -0400
+
+    Added AdminRoles attribute to Controller
+
+M	html/pfappserver/lib/pfappserver/Controller/Interface.pm
+
+commit f89bc251cbc91cdee78ce3e23289b17589922aa9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:14:22 2013 -0400
+
+    refactor to use can_access_any
+
+M	html/pfappserver/root/admin/wrapper.tt
+
+commit e2307abdbc3079f20cea2c744caf2f76e5b8c80d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:13:36 2013 -0400
+
+    Added new function can_access_any to be exposed to template
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit 5241e12041286e73d17be0ef466c044b7eb42c94
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:12:38 2013 -0400
+
+    Added new function pf::admin_roles::admin_can_do_any that would match if any action matches
+
+M	lib/pf/admin_roles.pm
+
+commit e5ab2f6e8612f7411001036e71710aab72588a0a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:10:49 2013 -0400
+
+    Configurator automatically login the _PF_CONFIGURATOR user
+
+M	html/pfappserver/lib/pfappserver/Controller/Configurator.pm
+
+commit c8ea16564139c884480b2ca263c014d588aacd39
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 11:00:13 2013 -0400
+
+    Check if user is in admin realm instead just existence
+
+M	html/pfappserver/lib/pfappserver/Base/Controller.pm
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/Controller/Graph.pm
+M	html/pfappserver/root/admin/wrapper.tt
+
+commit b67c42bfe33ef0b62440dfca084098db00388f97
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 10:40:13 2013 -0400
+
+    Adding a new realm for the configurator
+
+M	html/pfappserver/lib/pfappserver.pm
+
+commit e4e7284062a39f72bc9fbce3bbcbdad7fb965820
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 23 14:03:37 2013 -0400
+
+    Fix typo
+
+M	html/pfappserver/root/configuration/adminroles/list.tt
+
+commit e21d726982ed7bc9236d160cdf73528d7ce62706
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 23 11:30:55 2013 -0400
+
+    Add missing ADMIN_ROLES_CREATE admin role action
+
+M	lib/pf/admin_roles.pm
+
+commit 6bc7077a6bfadfeec1661361ddf4d253daba026c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 23 11:13:14 2013 -0400
+
+    Redo the onfilereload when there is no extra data in the cache
+
+M	lib/pf/admin_roles.pm
+
+commit fe3a73ffe476697a189ef90120004a05f9539b58
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 23 00:43:35 2013 -0400
+
+    Remove the delete link from the single action of a role
+
+M	html/pfappserver/root/static/admin/configuration/adminroles.js
+
+commit a00fefb5f70fa5681ca24f00fb25ce634d4d1b5b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 14:19:17 2013 -0400
+
+    Localization
+
+M	html/pfappserver/lib/pfappserver/I18N/en.po
+
+commit b1d75e6162129a52e77218f564445244a3f0fc77
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 12:46:08 2013 -0400
+
+    Sort actions when viewing an admin role
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/AdminRoles.pm
+
+commit 7c91ce42c7b4675c8102e2e48dd54468e30db6c3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 12:44:24 2013 -0400
+
+    Group admin roles actions in pulldown menus
+
+M	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+
+commit 6c83152fbc7872b7267a9fb0437bec34635f63bd
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 09:55:34 2013 -0400
+
+    Add access rights to MAC addresses management
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/MacAddress.pm
+M	html/pfappserver/root/configuration/macaddress/simple_search.tt
+
+commit dd664b90e1fde04e4828d83c4c7c72ff18b6587a
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 09:54:51 2013 -0400
+
+    Add access rights to useragents management
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/UserAgents.pm
+
+commit 2033aa97658cf41f4a1825b66c616777fb4122d7
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 09:54:10 2013 -0400
+
+    Add access rights to fingerprints management
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/Fingerprints.pm
+M	html/pfappserver/root/configuration/fingerprints/simple_search.tt
+
+commit 4947a262da25b30854f5d33e604a1d92c15952b6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 09:43:54 2013 -0400
+
+    Add access rights to SoH filters management
+
+M	html/pfappserver/lib/pfappserver/Controller/SoH.pm
+M	html/pfappserver/root/soh/index.tt
+M	html/pfappserver/root/soh/read.tt
+
+commit 8ba398b14b38ce2e59d314e7adb7e2a6c4e12aa5
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 09:09:15 2013 -0400
+
+    Add access rights to users sources management
+
+M	html/pfappserver/lib/pfappserver/Controller/Authentication.pm
+M	html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+M	html/pfappserver/root/authentication/source/read.tt
+M	html/pfappserver/root/authentication/source/rule_read.tt
+M	html/pfappserver/root/authentication/source/rules_read.tt
+M	html/pfappserver/root/configuration/authentication.tt
+
+commit 390d23be22e25c273d2581b33457d0e81315b975
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 09:03:25 2013 -0400
+
+    Add access rights to users roles management
+
+M	html/pfappserver/lib/pfappserver/Controller/Roles.pm
+M	html/pfappserver/root/roles/index.tt
+M	html/pfappserver/root/roles/read.tt
+M	lib/pf/admin_roles.pm
+
+commit 05cedfb15b92a796175241cf11b65c9f0b706baa
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 20 06:43:36 2013 -0400
+
+    Add access rights to violations management
+
+M	html/pfappserver/lib/pfappserver/Controller/Violation.pm
+M	html/pfappserver/root/violation/list.tt
+M	html/pfappserver/root/violation/view.tt
+
+commit 866d5da2c02ad18f74ef5c12876b396106d1ad33
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 17:05:31 2013 -0400
+
+    Add access rights to reports
+
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/Controller/Graph.pm
+
+commit 9dcafcd04f8a7197338d53cb071c89eba9fd27e3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 16:53:18 2013 -0400
+
+    Add access rights to main configuration section
+
+M	html/pfappserver/root/configuration/section.tt
+
+commit 91d0ac7b5a598f36ff59dd45b0a515e09dd9afab
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 16:52:15 2013 -0400
+
+    Add access rights to admin roles management
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/AdminRoles.pm
+M	html/pfappserver/root/configuration/adminroles/index.tt
+M	html/pfappserver/root/configuration/adminroles/list.tt
+M	html/pfappserver/root/configuration/adminroles/view.tt
+
+commit 2aeeb06f633bff4c82588b0e3ec4a6e52f0c5ad4
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 16:40:46 2013 -0400
+
+    Add access rights to portal profiles management
+
+M	html/pfappserver/lib/pfappserver/Controller/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Controller/Portal/Profile/Default.pm
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/portal/profile/files.tt
+M	html/pfappserver/root/portal/profile/index.tt
+M	html/pfappserver/root/portal/profile/view.tt
+M	lib/pf/admin_roles.pm
+
+commit cb6ec06a6e9800363de0e53e108b153f9ebfbd49
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 15:28:16 2013 -0400
+
+    Add access rights to services
+
+M	html/pfappserver/lib/pfappserver/Controller/Service.pm
+
+commit d6534fb3a8fd677d9f37f31296e3c1dcdc1d9fb1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 15:24:48 2013 -0400
+
+    Add description to page of admin roles
+
+M	html/pfappserver/root/configuration/adminroles/index.tt
+
+commit d994247fd0bd0b5e64f3c0c158018a651a4b12b1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 15:24:20 2013 -0400
+
+    Improve logging of AdminRole action
+
+M	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+
+commit 8a4bf7a4e9e6d76df0ae8cd24e1957d86b8dbde9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 15:14:29 2013 -0400
+
+    Add access rights to users management
+
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+M	html/pfappserver/lib/pfappserver/Model/User.pm
+M	html/pfappserver/root/user/view.tt
+M	html/pfappserver/root/user/violations.tt
+
+commit 69d034fff4f6da5cf50f6dab012cb5b7eafd0cd2
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 14:59:55 2013 -0400
+
+    Add access rights to switches management
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/Switch.pm
+M	html/pfappserver/root/configuration/switch/index.tt
+M	html/pfappserver/root/configuration/switch/list.tt
+M	html/pfappserver/root/configuration/switch/view.tt
+
+commit f31d2eb13a84dec72798cc19c2ea83f34bc1a14c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 19 14:58:16 2013 -0400
+
+    Add access rights to floating devices management
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/FloatingDevice.pm
+M	html/pfappserver/root/configuration/floatingdevice/index.tt
+M	html/pfappserver/root/configuration/floatingdevice/list.tt
+M	html/pfappserver/root/configuration/floatingdevice/view.tt
+
+commit 7faf37c20f8ce811640a61297e35875f73013fc9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 17:10:01 2013 -0400
+
+    Added role FLOATING_DEVICES_READ to configuration/floatingdevice/read
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/FloatingDevice.pm
+
+commit 1d4ee33551794a38268def6efce273e9c4a05e7b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 17:04:08 2013 -0400
+
+    Added role USERS_DELETE to user/delete
+
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+
+commit 887aa7bccb3ed445fecd23d6e5a6af81d482db45
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 17:03:14 2013 -0400
+
+    Added role SWITCHES_READ to configuration/switch/view
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/Switch.pm
+
+commit 52a48855375128ab8712a04ff25ee2c387225bb4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 17:01:43 2013 -0400
+
+    Changed SimpleSearch and AdminRole to be a role into of a class
+
+M	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+M	html/pfappserver/lib/pfappserver/Base/Action/SimpleSearch.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller.pm
+
+commit ee1aeea1b07ef29a9256af0052e16797220d0c69
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 18 15:45:01 2013 -0400
+
+    Fix HTML of admin role editor
+
+M	html/pfappserver/root/configuration/adminroles/view.tt
+
+commit 915f2d434e4a7ddee47e73d8a9d7ee2dcceb5e19
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 18 15:44:16 2013 -0400
+
+    Add more access rights "actions"
+
+M	html/pfappserver/root/admin/configuration.tt
+M	lib/pf/admin_roles.pm
+
+commit 470f31f33998445e27b1116c6deadcbe518e4e7c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 18 15:39:00 2013 -0400
+
+    Add access rights to nodes management
+
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/Controller/Node.pm
+M	html/pfappserver/root/node/view.tt
+M	html/pfappserver/root/node/violations.tt
+
+commit fb06354498097e1ebcd8da20e214ebb97807bbd4
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 18 15:25:01 2013 -0400
+
+    Add new AdminRole action
+    
+    This action is used whenever the AdminRole action parameter is defined
+    in a controller.
+
+A	html/pfappserver/lib/pfappserver/Base/Action/AdminRole.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller.pm
+
+commit 3ddaef13aa482b7c90af95cb1576367e4938e68d
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 6 09:52:38 2013 -0400
+
+    Fix condition to show configuration section
+
+M	html/pfappserver/root/admin/wrapper.tt
+
+commit 59503ea4dea927287d25d7e8072ca39f12b002f1
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Aug 30 13:28:27 2013 -0400
+
+    Fix packaging
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+
+commit 0279654c079a099a06d2cd367427a10d12d33249
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Aug 13 10:13:11 2013 -0400
+
+    Fix configuration template wrt admin roles
+
+M	html/pfappserver/root/admin/configuration.tt
+
+commit 81ac26cb13e4fd4b6d9e4b6d5a6ad904c95ba35c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Aug 12 18:20:42 2013 -0400
+
+    Have a default for onhashchange
+
+M	html/pfappserver/root/static/admin/configuration.js
+
+commit 01c73ab3458b16d0e0867f690203af51dc2523c5
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Aug 12 16:14:16 2013 -0400
+
+    Initial integration of access rights in templates
+
+M	conf/adminroles.conf
+M	html/pfappserver/lib/pfappserver/Base/Form/Authentication/Action.pm
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/admin/status.tt
+M	html/pfappserver/root/admin/wrapper.tt
+M	html/pfappserver/root/node/advanced_search.tt
+M	html/pfappserver/root/node/simple_search.tt
+M	html/pfappserver/root/static/admin/common.css
+M	html/pfappserver/root/user/view.tt
+M	lib/pf/admin_roles.pm
+
+commit c711db9352e2bf3a2fa45e2f8b292bbfc2f12adb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Aug 12 15:49:48 2013 -0400
+
+    Pick the first link in the configuration nav link instead of hard coding it to general
+
+M	html/pfappserver/root/static/admin/configuration.js
+
+commit 93c3ef983607252ea145fbd223fcd4e573699be4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Aug 12 12:30:01 2013 -0400
+
+    Added upgrade and downgrade scripts for admin roles
+
+A	db/pf-roles-downgrade.sql
+A	db/pf-roles-upgrade.sql
+
+commit dc38ab96966cf2f3e51c4390da3f233b44e4fd05
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 11:01:49 2013 -0400
+
+    Improve admin role editor
+
+M	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+M	html/pfappserver/root/configuration/adminroles/view.tt
+
+commit e90122767d8433795a4681c24148495366e4e8c7
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 10:53:33 2013 -0400
+
+    Admin roles: return list when creating/updating
+    
+    When successfully creating or updating a role, we return the list of all
+    the roles to avoid an additional AJAX query.
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/AdminRoles.pm
+
+commit edbcbd9f120a2d6cd1755785250de66d2ca59cbb
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 10:52:43 2013 -0400
+
+    Improve syntax
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+M	html/pfappserver/lib/pfappserver/Controller/Configuration/AdminRoles.pm
+M	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+M	lib/pf/ConfigStore/AdminRoles.pm
+M	lib/pf/admin_roles.pm
+
+commit fd622eb4f72dc5be892a9eb600c9b1d92ece9387
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Aug 9 10:49:50 2013 -0400
+
+    Improve JS and templates of admin roles
+
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/configuration/adminroles/index.tt
+M	html/pfappserver/root/configuration/adminroles/list.tt
+M	html/pfappserver/root/static/admin/configuration/adminroles.js
+
+commit c55ea16a80d1a94fbc3854b050a978163db704d1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 14:05:16 2013 -0400
+
+    Fixed bug with NONE role not being check first Also allow multiple actions to be passed
+
+M	lib/pf/admin_roles.pm
+
+commit cab7206f9f72dbcea8e6fead27c45830bfcdc3d0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:55:26 2013 -0400
+
+    changed access_level to a string
+
+M	lib/pf/Authentication/Source/SQLSource.pm
+
+commit 6f59e592731952aa9ebfb7e507ba4f60dbb4f458
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:53:43 2013 -0400
+
+    saving user roles to the session
+
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+
+commit d7e2499ae18256d0877ba6a5ca1b4c548a95d160
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:37:05 2013 -0400
+
+    Added _roles attribute and ensure that uses with the role of NONE are not allowed to check in
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+
+commit c924098df6e407f81b950138af5dd33f6c1da004
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:35:27 2013 -0400
+
+    retrived user roles from the session
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence.pm
+
+commit 0f7cd8b1675ec199d5f62d14c20865ef6df09b37
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:33:59 2013 -0400
+
+    Verify if the user exists before retrivng roles
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit 48efc3a27a4cbd91ce9fe87d439bfd7d17f69426
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:30:43 2013 -0400
+
+    If action type allow mulitple values then convert the value to an array
+
+M	html/pfappserver/root/static/admin/common.js
+
+commit 7800b3e505b55fa7ec65e558aa0588f1243174a4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:29:49 2013 -0400
+
+    Changed the name of the action to match the actions defined in pf::admin_roles
+
+M	html/pfappserver/root/admin/wrapper.tt
+
+commit 5ada47aafbce43887f1403e3439ea7b7eacd10a8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Aug 8 13:28:38 2013 -0400
+
+    Added the ability to choose multiple roles and pull roles from ADMIN ROLES
+
+M	html/pfappserver/lib/pfappserver/Base/Form/Authentication/Action.pm
+
+commit 43e436e50bfb56e34010b564bd55b4e323b07227
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 13:36:36 2013 -0400
+
+    function admin_can will always fail if has role of NONE
+
+M	lib/pf/admin_roles.pm
+
+commit a965792866bc69241e9215f4270d188f32e0b448
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 12:26:44 2013 -0400
+
+    default role is ALL
+
+M	html/pfappserver/lib/pfappserver/Authentication/Store/PacketFence/User.pm
+
+commit 63bfc16a2143766b9988b3ab7ffaa5f6b1fb80fa
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 12:25:57 2013 -0400
+
+    Will use the roles from the defined user
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit a310c50acfac5bf886a3dc7b1c1d39deef6125b8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 12:24:21 2013 -0400
+
+    Refactor
+    use the cached config from pf::admin_roles
+
+M	lib/pf/ConfigStore/AdminRoles.pm
+
+commit 3a5be424b593ce9ddc8caafb89ecdcc1c53d5de8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 12:22:52 2013 -0400
+
+    implemented admin_can
+    Added hard coded roles NONE and ALL
+    move the load of the adminroles.conf to here
+
+M	lib/pf/admin_roles.pm
+
+commit 0ac61d60cf3988ae7b386d00a3fceb2c64d3351b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 12:21:16 2013 -0400
+
+    Added Description for admin role
+
+M	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+M	html/pfappserver/root/configuration/adminroles/list.tt
+
+commit 1ac91c1006e2e3f66236e2a66e1642e830f6db75
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 10:10:31 2013 -0400
+
+    renamed administration function
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+
+commit ba8eb4c38c387bbefc04767492fae32e07210e71
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Aug 6 10:08:53 2013 -0400
+
+    New configuartion controller for adminroles
+
+A	conf/admin_roles.conf
+A	conf/adminroles.conf
+A	html/pfappserver/lib/pfappserver/Controller/Configuration/AdminRoles.pm
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+A	html/pfappserver/lib/pfappserver/Form/Config/AdminRoles.pm
+A	html/pfappserver/lib/pfappserver/Model/Config/AdminRoles.pm
+M	html/pfappserver/root/admin/configuration.tt
+A	html/pfappserver/root/configuration/adminroles/index.tt
+A	html/pfappserver/root/configuration/adminroles/list.tt
+A	html/pfappserver/root/configuration/adminroles/view.tt
+A	html/pfappserver/root/static/admin/configuration/adminroles.js
+A	lib/pf/ConfigStore/AdminRoles.pm
+M	lib/pf/admin_roles.pm
+M	lib/pf/file_paths.pm
+
+commit 12fea5e471bc08b30681e06ea823573c12e75a42
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Aug 5 18:24:42 2013 -0400
+
+    renamed pf::user_roles to pf::admin_roles
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+A	lib/pf/admin_roles.pm
+D	lib/pf/user_roles.pm
+
+commit 9bb1c8a11f19e27bc58d928fb64cd15f40aa6958
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 31 22:49:02 2013 -0400
+
+    Example restriction for user role
+
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+M	html/pfappserver/root/admin/wrapper.tt
+
+commit d4049b499df21c79c32cc662580dbd5f90209104
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 31 22:00:27 2013 -0400
+
+    Add new module pf::user and exposed_method has_role to templates
+
+M	html/pfappserver/lib/pfappserver/View/HTML.pm
+A	lib/pf/user_roles.pm
+
+commit 04906e4f793da80f59ee45af0cd98efad99b683e
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 22 16:10:03 2013 -0500
+
+    Improve Administration Guide
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 852a2a5f14010b8fcfb2f687e728dd19443ef777
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 22 15:49:36 2013 -0500
+
+    Remove useless call to get_abbr_time
+
+M	html/pfappserver/lib/pfappserver/Base/Form/Authentication/Action.pm
+M	html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+M	html/pfappserver/lib/pfappserver/Form/User.pm
+
+commit 0400cc762fd1d981bbb6b0df8e8c620c74eb8b3a
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 18 13:58:29 2013 -0500
+
+    Fix argument to pf::authentication::match
+
+M	html/captive-portal/email_activation.cgi
+
+commit 36dd0b14c424d7d08d855f275e464f28662ef63e
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 18 11:50:11 2013 -0500
+
+    Update NEWS and admin guide  for extended duration
+
+M	NEWS.asciidoc
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit efe35c882de938c978358ebc4cad9a0244f4c5fa
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 14:33:31 2013 -0400
+
+    Set default_access_duration as an extended_time
+
+M	conf/documentation.conf
+M	html/pfappserver/lib/pfappserver/Form/Config/Pf.pm
+M	html/pfappserver/root/static/admin/common.js
+
+commit 37538797417d396b86a152d701b3c174d6ba1a6c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 14:30:30 2013 -0400
+
+    Improve formatting of extended duration
+
+M	lib/pf/web/util.pm
+
+commit 7f1d9b279ce8fb0e081c02bdfbd04d4600f3e5af
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 11:14:27 2013 -0400
+
+    New ExtendedDuration field and widget
+
+A	html/pfappserver/lib/pfappserver/Form/Field/ExtendedDuration.pm
+A	html/pfappserver/lib/pfappserver/Form/Widget/Field/ExtendedDuration.pm
+M	html/pfappserver/root/static/admin/common.css
+M	lib/pf/config.pm
+M	lib/pf/util.pm
+
+commit 874d093d380d1ae54b1abee82a2ae74ad2460ba1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 11:02:55 2013 -0400
+
+    Support hours/minutes/seconds in relative duration
+
+M	lib/pf/config.pm
+
+commit 698b8380efe368125107eb3c3ce703f32a8bce10
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 10:59:54 2013 -0400
+
+    application.js: trigger change event on btn groups
+
+M	html/pfappserver/root/static/app/application.js
+
+commit d8c036df50b614fdc5ecc7254ce741fa05215688
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 10:10:09 2013 -0400
+
+    C::Configuration: action to compute duration
+
+M	html/pfappserver/lib/pfappserver/Controller/Configuration.pm
+
+commit a4864c864a43daf43c69d5f9d991eb2b1fa53023
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 10:05:34 2013 -0400
+
+    Support 'disabled' attribute in ButtonGroup
+
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/ButtonGroup.pm
+
+commit 8fd328beef3be8fe1274bc42d019503147e56660
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 09:46:51 2013 -0400
+
+    Improve Form::Field::Duration
+    
+    Added attributes "with_operator" (show a select input with 'add' and
+    'subtract' options) and "with_time" (optionally hide time units).
+    
+    Also added support to disable the entire widget.
+
+M	html/pfappserver/lib/pfappserver/Form/Field/Duration.pm
+
+commit be449f2418b3b045952ad4bfc14ceaffa3532ade
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 09:33:36 2013 -0400
+
+    Improve update of compound fields in Base::Form
+
+M	html/pfappserver/lib/pfappserver/Base/Form.pm
+
+commit 55fea9b0d3bb112f9ab40228116ac6d91a095999
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 1 09:22:17 2013 -0400
+
+    Improve pf::web::util::get_translated_time_hash
+
+M	html/pfappserver/lib/pfappserver/Base/Form/Authentication/Action.pm
+M	lib/pf/web/util.pm
+
+commit 4b0b1fb9b5856dac358a9e8fe532731e1c151c0f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 23 10:40:33 2013 -0400
+
+    Tests for pf::config::access_duration
+
+M	t/config.t
+
+commit 34525526dba5651ca7d453ce84500086c8642bf6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 23 10:34:08 2013 -0400
+
+    Fix calculation of duration for months and years
+
+M	lib/pf/config.pm
+
+commit 266944d6d2a80fe0b5d4b5187cd93d97949471d7
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Oct 22 16:10:05 2013 -0400
+
+    Handle advanced deadline in self-registration CGI
+
+M	html/captive-portal/guest-selfregistration.cgi
+
+commit 96cbf1c70ced9aaa03956a279fecf67962f61989
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Oct 22 14:00:50 2013 -0400
+
+    Fix oauth2.cgi
+
+M	html/captive-portal/oauth2.cgi
+
+commit 21315589058765053e4110609792ac8188d62b1b
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 6 10:13:34 2013 -0400
+
+    Rewrite feature for packetfence 4, missing admin gui stuff
+
+M	html/captive-portal/email_activation.cgi
+M	html/captive-portal/mobile-confirmation.cgi
+M	html/captive-portal/oauth2.cgi
+M	html/captive-portal/register.cgi
+M	lib/pf/config.pm
+M	lib/pf/web/wispr.pm
+
+commit 30256fb88720e15cd9af48677e076e49d7501a94
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 28 13:23:11 2013 -0500
+
+    Comments cleanup
+
+M	sbin/pfdns
+
+commit ba78b0612112ffded5e70a8319a1ab4424f4665f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 28 12:39:09 2013 -0500
+
+    Allow actions depending on auth source type
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Base/Form/Authentication/Action.pm
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+M	html/pfappserver/root/authentication/source/rule_read.tt
+M	lib/pf/Authentication/Source/EmailSource.pm
+M	lib/pf/Authentication/Source/NullSource.pm
+M	lib/pf/Authentication/Source/SMSSource.pm
+M	lib/pf/Authentication/Source/SponsorEmailSource.pm
+
+commit 7b4a3a2b038d6211dfcf61033e9e08521946b412
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 28 09:52:49 2013 -0500
+
+    Improved validation of a sponsor's email address
+    
+    When validating a sponsor's email address, we used to only check the
+    first source that returns a username for the specified email address,
+    which would cause a problem when the email address was found in multiple
+    sources but the 'mark as sponsor' action was set only for one the
+    sources. With this commit, we let each source's "match" implementation
+    handles the possibility that an email address is specified instead of a
+    username.
+
+M	NEWS.asciidoc
+M	lib/pf/Authentication/Source/HtpasswdSource.pm
+M	lib/pf/Authentication/Source/LDAPSource.pm
+M	lib/pf/Authentication/Source/SQLSource.pm
+M	lib/pf/authentication.pm
+M	lib/pf/temporary_password.pm
+M	lib/pf/web/guest.pm
+
+commit ae01ddd8a3013b90398038bb68c3b56352ccbd32
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Nov 27 10:27:08 2013 -0500
+
+    Added support for Date.now() for older browsers
+
+M	html/common/pf.js
+
+commit 773559e7e82670f80798eec8841a5d6ce55ab106
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 17 14:17:06 2013 -0400
+
+    Hardcoded the retry_delay
+
+M	html/common/pf.js
+
+commit beabb866eccd90fe7c12c4701a7d74329003d7c0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Jul 17 10:51:07 2013 -0400
+
+    Added additional event handler for dealing with the onload event not firing for some browsers
+
+M	html/common/pf.js
+
+commit 29c9bcddfe7abeed15c403049a85e4cddff5bcf6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Nov 26 15:41:33 2013 -0500
+
+    Fix advanced search by node category
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+M	html/pfappserver/root/admin/nodes.tt
+M	lib/pf/node.pm
+
+commit 339a17c0de1af5b8b9537d27878a7846e6adf11a
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Nov 26 11:16:08 2013 -0500
+
+    Missing comma
+
+M	lib/pf/vlan.pm
+
+commit acdbb803ba8f592dc45397cdecb5de1010192762
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Nov 26 10:44:27 2013 -0500
+
+    Unreg a node if it try to connect to a open SSID and was autoregistered on a secure ssid
+
+M	lib/pf/vlan.pm
+
+commit fb9bd620c61997e561d6e345a4b4e8b36ccf490c
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Nov 20 16:37:40 2013 -0500
+
+    Fixed WARNING - invalid parameter with profile
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit 9f0e78831878a85c8ec35aaedc0246f05f3cc8bb
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Wed Nov 20 13:02:10 2013 -0500
+
+    Remove duplicate entry
+
+M	conf/documentation.conf
+
+commit 25781a0d142722ceef7403b83f2e90db3f388487
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 18 10:18:28 2013 -0500
+
+    Initialize JS widgets that are not visible
+    
+    This is required for multi-values chosen select widget.
+
+M	html/pfappserver/root/static/admin/common.js
+M	html/pfappserver/root/static/js/user.js
+
+commit a29ba04aac2b642e09df1a475a4333fe272a3846
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 14 14:29:18 2013 -0500
+
+    Fix checkboxes of displayed columns (nodes/users)
+
+M	html/pfappserver/root/node/create.tt
+M	html/pfappserver/root/node/simple_search.tt
+M	html/pfappserver/root/static/js/node.js
+M	html/pfappserver/root/static/js/user.js
+M	html/pfappserver/root/user/create.tt
+
+commit 76a0166260ce1788ab9720a5856bf01dfa9dcc0c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 14 14:15:53 2013 -0500
+
+    Validate file path when saving an Htpasswd source
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/Htpasswd.pm
+
+commit 7e609d080c19b4c3c9835b3c6dc34ee54d2b9a14
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Nov 14 13:59:40 2013 -0500
+
+    Fix duplicate entries in advanced search of nodes
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Model/Search/Node.pm
+
+commit de27c133546ffdd10d2090380d6e4aca42761ca7
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Nov 13 16:14:33 2013 -0500
+
+    Localization
+
+M	html/pfappserver/lib/pfappserver/I18N/en.po
+M	html/pfappserver/root/user/list_password.tt
+M	html/pfappserver/root/user/view.tt
+
+commit d1dbad37f53a74177f34e72fba4dc4e6cd0d5982
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Nov 13 16:10:54 2013 -0500
+
+    LDAP source: filter by group membership
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+M	lib/pf/Authentication/Source/LDAPSource.pm
+M	lib/pf/Authentication/constants.pm
+
+commit 5d63ea12f5fc010bfa2f1ae76f732bcbf56bf355
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Nov 12 16:25:40 2013 -0500
+
+    Users CSV importation: use only checked columns
+
+M	html/pfappserver/lib/pfappserver/Model/User.pm
+
+commit dca5224926175b845cef9b0571382f35acb26571
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Nov 12 16:24:53 2013 -0500
+
+    Create a node or import nodes from a CSV file
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Controller/Node.pm
+M	html/pfappserver/lib/pfappserver/Form/Node.pm
+A	html/pfappserver/lib/pfappserver/Form/Node/Create/Import.pm
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+M	html/pfappserver/root/admin/nodes.tt
+A	html/pfappserver/root/node/create.tt
+M	html/pfappserver/root/static/admin/common.js
+M	html/pfappserver/root/static/js/node.js
+M	html/pfappserver/root/user/create.tt
+M	lib/pf/node.pm
+
+commit dc3d9971f4d3065ea4434a7dc2e982de0300d1cd
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Nov 12 09:41:00 2013 -0500
+
+    Move users creation to users page
+    
+    Users creation was previously accessible from the configuration page.
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Controller/User.pm
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/admin/users.tt
+D	html/pfappserver/root/configuration/users.tt
+M	html/pfappserver/root/static/admin/configuration.js
+M	html/pfappserver/root/static/admin/configuration/authentication.js
+D	html/pfappserver/root/static/admin/configuration/users.js
+M	html/pfappserver/root/static/js/user.js
+A	html/pfappserver/root/user/create.tt
+M	html/pfappserver/root/user/view.tt
+
+commit bb2d386107c3db133e2a35490b437cef4f3124a9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 8 13:43:35 2013 -0500
+
+    Highlight corresponding rows of pie chart segments
+
+M	NEWS.asciidoc
+M	html/pfappserver/root/graph/pie.tt
+M	html/pfappserver/root/static/admin/common.css
+M	html/pfappserver/root/static/app/application.js
+M	html/pfappserver/root/static/app/graphs.js
+
+commit 1ca425d43814401d459cf7d817b97add246d02c8
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Nov 8 12:03:38 2013 -0500
+
+    Limit pie charts to 10 lengend labels
+
+M	html/pfappserver/root/static/app/graphs.js
+
+commit 32b5e9281d9c99468e28a2131e1f500f20a310af
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Nov 5 15:30:00 2013 -0500
+
+    Fix self-reg of multiple unverified devices
+
+M	NEWS.asciidoc
+M	conf/templates/emails-guest_sponsor_preregistration.txt.tt
+M	html/captive-portal/email_activation.cgi
+M	lib/pf/email_activation.pm
+
+commit a93c41a42a034703e2cd39d724e3c9744c77afc6
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 4 16:24:23 2013 -0500
+
+    Improve saved search on users page
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Controller/Admin.pm
+M	html/pfappserver/lib/pfappserver/Controller/SavedSearch/Node.pm
+M	html/pfappserver/lib/pfappserver/Controller/SavedSearch/User.pm
+M	html/pfappserver/lib/pfappserver/Form/SavedSearch.pm
+M	html/pfappserver/lib/pfappserver/Model/SavedSearch/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/SavedSearch/User.pm
+M	html/pfappserver/root/admin/users.tt
+M	html/pfappserver/root/static/admin/searches.js
+M	html/pfappserver/root/static/js/user.js
+M	lib/pf/savedsearch.pm
+
+commit f5424f979ab0d5b21ab451a62549b19fa5d2d89b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Nov 5 13:36:55 2013 -0500
+
+    Code cleanup
+
+M	html/captive-portal/templates/login.html
+
+commit 8fc21fff21379d44a657078fc7833fa26a7db79a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Nov 5 10:41:50 2013 -0500
+
+    Added compression to chi for memcached
+
+M	conf/chi.conf
+
+commit ac220c8bb9a2602c5d1d47f5c8a08701ead4d290
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Nov 4 13:20:50 2013 -0500
+
+    Cleanup Form::User
+
+M	html/pfappserver/lib/pfappserver/Form/User.pm
+
+commit 7daf8f821bb9a3b30f626475ff80e8086e799a5b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Oct 29 15:19:16 2013 -0400
+
+    Allow Htpasswd sources to validatate sponsors
+    
+    A sponsor is validated by her/his email address and consequently, the
+    authentication source must implement the method "username_from_email".
+
+M	NEWS.asciidoc
+M	lib/pf/Authentication/Source/HtpasswdSource.pm
+M	lib/pf/authentication.pm
+M	lib/pf/file_paths.pm
+M	t/authentication.t
+A	t/data/htpasswd.conf
+
+commit 76f0cb6f75788ebc98e655ff5e1e14717ffab5a8
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Oct 24 16:25:03 2013 -0400
+
+    Fix display of profiles table
+
+M	html/pfappserver/root/portal/profile/index.tt
+
+commit c8cbf13d89ee33240505cad2052d67d8ffb12357
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 29 11:52:03 2013 -0400
+
+    Fix indent
+
+M	packetfence.init
+
+commit 73d79d59eea1d33a7b252ae5b6d06c6cd59e42ff
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 25 18:15:08 2013 -0400
+
+    Flush ipset before starting packetfence
+
+M	packetfence.init
+
+commit 523f11a7f9372740e521564f1e01b933df7a42f7
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Oct 24 19:46:16 2013 -0400
+
+    Fix wispr authentication (http://www.packetfence.org/bugs/view.php?id=1742)
+
+M	lib/pf/web.pm
+M	lib/pf/web/wispr.pm
+
+commit fe813adc469088bc524fe5a29b5d429ed4fe1b33
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 24 16:28:21 2013 -0400
+
+    Changed log level from error to debug
+
+M	lib/pf/util.pm
+
+commit 0c169d02477558768ce2ab602a2a11ee081416fa
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Oct 21 14:05:23 2013 -0400
+
+    Set the redirect URL per portal profile
+
+M	NEWS.asciidoc
+M	UPGRADE.asciidoc
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	conf/profiles.conf
+M	html/captive-portal/email_activation.cgi
+M	html/captive-portal/mobile-confirmation.cgi
+M	html/captive-portal/oauth2.cgi
+M	html/pfappserver/lib/pfappserver/Controller/Portal/Profile/Default.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+M	lib/pf/Portal/Profile.pm
+M	lib/pf/Portal/ProfileFactory.pm
+M	lib/pf/Portal/Session.pm
+M	lib/pf/web.pm
+
+commit 4ae1972167eefd7fbe0a2a9bceeb5791586101fd
+Author: Loick Pelet <lpelet@support.inverse.ca>
+Date:   Mon Oct 21 09:53:45 2013 -0400
+
+    modified way to chgrp for centos
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit fdd8bb79d3b3915dbb201ea7392b31847210b374
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Oct 21 09:19:36 2013 -0400
+
+    Syntax cleanup
+
+M	html/pfappserver/lib/pfappserver/Base/Model/Search.pm
+M	html/pfappserver/root/static/admin/searches.js
+
+commit 763b62c84dcfdf0a4c83fd141d5d95aba3612888
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Oct 21 09:17:17 2013 -0400
+
+    Removed useless logging entries
+
+M	html/captive-portal/guest-selfregistration.cgi
+M	html/captive-portal/register-gaming-device.cgi
+M	html/captive-portal/register.cgi
+
+commit 6b1e6417c634ce993507e306fc0efb54f089a8e9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 16:48:11 2013 -0400
+
+    Allow nodes columns to be customizable
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Base/Action/SimpleSearch.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller.pm
+M	html/pfappserver/lib/pfappserver/Controller/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/Search/Node.pm
+M	html/pfappserver/root/node/advanced_search.tt
+M	html/pfappserver/root/node/simple_search.tt
+M	html/pfappserver/root/static/admin/nodes.js
+M	html/pfappserver/root/static/app/application.js
+M	html/pfappserver/root/static/js/node.js
+M	lib/pf/node.pm
+
+commit 82003f61c6937613a061823481206dc98d1f673c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 15:42:59 2013 -0400
+
+    Update FontAwesome to version 3.2.1
+
+M	NEWS.asciidoc
+M	html/pfappserver/root/static/css/bootstrap.css
+M	html/pfappserver/root/static/css/bootstrap.min.css
+M	html/pfappserver/root/static/font/fontawesome-webfont.eot
+M	html/pfappserver/root/static/font/fontawesome-webfont.svg
+M	html/pfappserver/root/static/font/fontawesome-webfont.ttf
+M	html/pfappserver/root/static/font/fontawesome-webfont.woff
+
+commit 16e2aaae6089d8c1241927eb54d4ca61378e4a8b
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 14:34:55 2013 -0400
+
+    Check mode parameter first in register.cgi
+    
+    The new Null authentication source needs to be considered only if no
+    'mode' parameter is specified.
+
+M	html/captive-portal/register.cgi
+
+commit 5ddb92d1cce25fc3b43c8f46644aa300532afca2
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 12:04:14 2013 -0400
+
+    Can't sort by phone nor nodes count
+    
+    Fixed sort by phone number and nodes count when performing an advanced
+    search on users.
+    Fixes #1738
+
+M	NEWS.asciidoc
+M	html/pfappserver/lib/pfappserver/Model/Search/User.pm
+M	html/pfappserver/lib/pfappserver/Model/User.pm
+M	html/pfappserver/root/user/advanced_search.tt
+
+commit d98d58a3591d0781c4ee83c345e02f151cf36935
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 11:37:33 2013 -0400
+
+    Improve error message when sending a mail
+
+M	lib/pf/email_activation.pm
+M	lib/pf/sms_activation.pm
+
+commit 6b47384c3f273f96cabf8a8f7c78db35f03ee444
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 11:17:37 2013 -0400
+
+    LDAP regexp condition doesn't consider all values
+    
+    Also improved debugging output.
+
+M	NEWS.asciidoc
+M	lib/pf/Authentication/Source/LDAPSource.pm
+M	lib/pf/authentication.pm
+
+commit b9393cf4b5515ff0ae70b9763012eb6d08142d3f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Oct 18 07:27:42 2013 -0400
+
+    Wrap AUP checkbox with a <label>
+
+M	html/captive-portal/templates/guest.html
+
+commit a870198442ad3d3e2672d3e2cd81524ba42f2467
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 17 15:52:50 2013 -0400
+
+    Added pcap_stats for debugging
+
+M	sbin/pfdhcplistener
+
+commit 25190893f6095698855386839285162d9dbff832
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Oct 11 21:16:27 2013 -0400
+
+    Fix doc syntax
+
+M	docs/PacketFence_Network_Devices_Configuration_Guide.asciidoc
+
+commit c995a2adf91ec89e6bd1d4b4db48df95ccc95c31
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 10 10:50:53 2013 -0400
+
+    Refactored profile forms
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+M	html/pfappserver/root/portal/profile/view.tt
+
+commit 1ac5fb33f977c03a6c20b9b3a9ac58b1bdad0aee
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 9 18:36:20 2013 -0400
+
+    Removed switch widget
+
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/Null.pm
+
+commit 02160bac4ee9dddc928b85279bb70707e2daef9c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 9 14:56:29 2013 -0400
+
+    Improve generation of snort configuration file
+
+M	lib/pf/services/snort.pm
+
+commit 21fd18d7bce58880ab042703a29d91bd58814730
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 9 14:04:54 2013 -0400
+
+    Improve debugging information in pf::db
+
+M	lib/pf/db.pm
+
+commit 611d63ab1c4b26ff1af8569b52bf96bb124a072a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 9 12:23:29 2013 -0400
+
+    Move %pf::config::guest_self_registration to %pf::authentication::guest_self_registration since it is "owned" by pf::authentication
+
+M	lib/pf/authentication.pm
+M	lib/pf/config.pm
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+M	lib/pf/pfcmd/checkup.pm
+M	lib/pf/services/apache.pm
+
+commit 7c556c31499e5a8a13f37d48a829686e1e50f3a2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 9 12:21:06 2013 -0400
+
+    Updated comment to be more clear
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit e831c2c393c53b92105928c27c078750cb3fb548
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 9 12:19:25 2013 -0400
+
+    Updated new feature
+
+M	NEWS.asciidoc
+
+commit d9159772b3068f9abc49a6f247f17e76e5c8819c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 9 10:39:10 2013 -0400
 
     Update NEWS file
 
 M	NEWS.asciidoc
 
-commit cb2bb1aabe7e7fc3b5ab07cff43c55517a0f29e2
-Author: James Rouzier <jrouzier@inverse.ca>
-Date:   Wed Sep 11 15:25:57 2013 -0400
+commit 83769d3b6965230126f4e0033995e24c9d0d0101
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 9 10:38:42 2013 -0400
 
-    Clear an object internally when retreiving directly from chi
+    Add debugging information to pf::db
+
+M	lib/pf/db.pm
+
+commit 74576b3f8d2f67061f8500e142dd8f4dbef350e6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 8 18:03:41 2013 -0400
+
+    Exclude exclusive sources when there are no sources defined
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 7d72045e2a72f82e1b1e6811e7b6aafdfeba4dc1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Oct 8 16:18:31 2013 -0400
+
+    Update snort rules update script
+    
+    Removed emerging-virus.rules which is no longer available.
+    Fixes #1600 and #1715
+
+M	addons/snort/update_rules.pl
+M	conf/violations.conf
+
+commit 86dc2a43ebf92a53ffa0c613eef222215a519e68
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 8 15:14:38 2013 -0400
+
+    Fix the number of test
+
+M	t/pfcmd.t
+
+commit fcc822277097afc3a0b64fe58d4958bd85fa65f6
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Oct 8 14:50:34 2013 -0400
+
+    Added dep to fix nightly build
+
+M	addons/packages/packetfence.spec
+M	debian/control
+
+commit da53748a78a85c527ef211ebd1cbba0fe59f74f1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Oct 7 22:22:05 2013 -0400
+
+    Help text is truncated to the first line
+    
+    Better fix for #1724.
+
+M	NEWS.asciidoc
+M	lib/pf/config/cached.pm
+
+commit ab1b3ae6a2d2860802f8f2dc0323356bec27896c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Oct 7 22:14:44 2013 -0400
+
+    Help text is truncated to the first line
+    
+    When the description of a parameter from documentation.conf extends to
+    multiple lines, only the first one is displayed on the Web admin.
+    Fixes #1724.
 
 M	lib/pf/config/cached.pm
 
-commit 578d1dfd764ea5fc0929fc522e0b9c040d23ebff
+commit ca661cd0ec6a274995275d61d010026f23392e4e
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Oct 7 11:15:19 2013 -0400
+
+    Update default IP address for network detection
+
+M	conf/pf.conf.defaults
+
+commit 2ea601ac34cb4d1f792666def699b18f773b8e2a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 4 18:40:24 2013 -0400
+
+    Tool for dumping current global data in pf
+
+A	addons/dev-helpers/dump.pl
+
+commit 3d2f6194e5cb550af172848276691628c6b69c6b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 4 18:39:24 2013 -0400
+
+    Verify if the module is loaded before trying to load it
+
+M	lib/pf/cmd/subcmd.pm
+
+commit 40a9a53e8cf0cceeb294e2adffaf0ec2139bda8d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 4 16:06:48 2013 -0400
+
+    Updated news file
+
+M	NEWS.asciidoc
+
+commit 69812df81b26649aeb4d1f46d1f779bffbe9688a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Oct 4 12:24:46 2013 -0400
+
+    Fix issue where dashes were being stripped from the rule name
+
+M	lib/pf/authentication.pm
+
+commit f0660655caeb7205555bc22c9dd88b8aadbc8910
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 3 14:20:04 2013 -0400
+
+    Fixed issue where saving a source after it was pulled from cached changes will not be reflected in the conf/authentication.conf
+
+M	lib/pf/authentication.pm
+
+commit 89be4c65f3ca01668c17a1e942706bf947e414e4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Oct 3 11:15:51 2013 -0400
+
+    Expire and remove an item from l1_caches when retrieving from cache
+
+M	lib/pf/config/cached.pm
+
+commit c10b8860ad7e68050a94f0860d1a9c6afca50b69
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Oct 2 15:20:10 2013 -0400
+
+    Fixed vconfig configuration
+
+M	packetfence.init
+
+commit 764f63ba5a345101a39dd35d586ff3242ecdb218
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 2 13:48:49 2013 -0400
+
+    Fix verification of expiration date
+
+M	NEWS.asciidoc
+M	lib/pf/temporary_password.pm
+
+commit 3174b779442bda11cf7491ffd5d85dcd093428a1
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 2 13:27:45 2013 -0400
+
+    Update Administration Guide
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 6879e9bb2868514be4570cfa40b929635f785e64
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 2 13:25:24 2013 -0400
+
+    Role/category of local users is not mandatory
+    
+    Fixes #1721
+
+M	UPGRADE.asciidoc
+A	db/upgrade-4.0.0-4.1.0.sql
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Rule.pm
+M	html/pfappserver/lib/pfappserver/Form/User/Create.pm
+
+commit e3ca9c9fe3703b0ef7b8ab5541f2a1c3682504bf
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Oct 2 11:12:10 2013 -0400
+
+    Fix templates of portal profiles section
+
+M	html/pfappserver/root/portal/profile/edit.tt
+M	html/pfappserver/root/portal/profile/files.tt
+M	html/pfappserver/root/portal/profile/view.tt
+
+commit 4a05b223b3e4eb05e99be2a2033f72ec5d7ab6f6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Tue Oct 1 10:24:55 2013 -0400
+
+    Nodes will be registered with the admin user when when email is not required
+
+M	html/captive-portal/register.cgi
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit 679fb8ff61fb1ef774bc94079c8253a2469b1881
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 17:37:35 2013 -0400
+
+    Added help for new command fixpermissions
+
+M	lib/pf/pfcmd/help.pm
+
+commit 5d316b52ee80f81cda77d7352bbb293ed19a34c8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 13:55:08 2013 -0400
+
+    Ensure that username field is defined
+
+M	html/captive-portal/templates/login.html
+
+commit 8a5f13fac5c4f6a9548707469e0338b1bf1afd79
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 13:54:10 2013 -0400
+
+    Fixed permission of bin/pfcmd
+
+M	bin/pfcmd.pl
+
+commit 25ac2bc08cd22ea23e44249b680ae8b40f2a06ba
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 12:47:14 2013 -0400
+
+    Update news file
+
+M	NEWS.asciidoc
+
+commit d7e7b1d4c39f31f7534cdacdc449eecaebf406a5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 12:46:11 2013 -0400
+
+    Fixed pod formatting
+
+M	html/pfappserver/lib/pfappserver/Model/Enforcement.pm
+M	html/pfappserver/lib/pfappserver/Model/OS.pm
+M	html/pfappserver/lib/pfappserver/Model/PfConfigAdapter.pm
+M	lib/pf/Authentication/Source/KerberosSource.pm
+M	lib/pf/Authentication/Source/RADIUSSource.pm
+M	lib/pf/Portal/Session.pm
+M	lib/pf/SNMP/AeroHIVE.pm
+M	lib/pf/SNMP/AlliedTelesis.pm
+M	lib/pf/SNMP/Aruba.pm
+M	lib/pf/SNMP/Avaya/ERS5000_6x.pm
+M	lib/pf/SNMP/Avaya/WC.pm
+M	lib/pf/SNMP/Belair.pm
+M	lib/pf/SNMP/Brocade.pm
+M	lib/pf/SNMP/Cisco.pm
+M	lib/pf/SNMP/Cisco/Aironet.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2960.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2960G.pm
+M	lib/pf/SNMP/Cisco/Catalyst_2970.pm
+M	lib/pf/SNMP/Cisco/Catalyst_3500XL.pm
+M	lib/pf/SNMP/Cisco/Catalyst_3550.pm
+M	lib/pf/SNMP/Cisco/Catalyst_3560.pm
+M	lib/pf/SNMP/Cisco/Catalyst_3560G.pm
+M	lib/pf/SNMP/Cisco/Catalyst_3750.pm
+M	lib/pf/SNMP/Cisco/Catalyst_3750G.pm
+M	lib/pf/SNMP/Cisco/Catalyst_4500.pm
+M	lib/pf/SNMP/Cisco/Catalyst_6500.pm
+M	lib/pf/SNMP/Cisco/ISR_1800.pm
+M	lib/pf/SNMP/Cisco/WLC.pm
+M	lib/pf/SNMP/Cisco/WLC_2100.pm
+M	lib/pf/SNMP/Cisco/WLC_2106.pm
+M	lib/pf/SNMP/Cisco/WiSM.pm
+M	lib/pf/SNMP/Cisco/WiSM2.pm
+M	lib/pf/SNMP/Dlink/DGS_3100.pm
+M	lib/pf/SNMP/Dlink/DGS_3200.pm
+M	lib/pf/SNMP/Extreme.pm
+M	lib/pf/SNMP/Extricom.pm
+M	lib/pf/SNMP/Foundry.pm
+M	lib/pf/SNMP/H3C.pm
+M	lib/pf/SNMP/HP.pm
+M	lib/pf/SNMP/HP/Procurve_5400.pm
+M	lib/pf/SNMP/Hostapd.pm
+M	lib/pf/SNMP/Juniper.pm
+M	lib/pf/SNMP/LG.pm
+M	lib/pf/SNMP/Meru.pm
+M	lib/pf/SNMP/MockedSwitch.pm
+M	lib/pf/SNMP/Motorola.pm
+M	lib/pf/SNMP/Netgear/FSM726v1.pm
+M	lib/pf/SNMP/Netgear/GS110.pm
+M	lib/pf/SNMP/Nortel.pm
+M	lib/pf/SNMP/Nortel/BayStack5500_6x.pm
+M	lib/pf/SNMP/Nortel/ERS5000_6x.pm
+M	lib/pf/SNMP/PacketFence.pm
+M	lib/pf/SNMP/Ruckus.pm
+M	lib/pf/SNMP/SMC.pm
+M	lib/pf/SNMP/SMC/TS6128L2.pm
+M	lib/pf/SNMP/SMC/TS6224M.pm
+M	lib/pf/SNMP/SMC/TS8800M.pm
+M	lib/pf/SNMP/ThreeCom/SS4500.pm
+M	lib/pf/SNMP/ThreeCom/Switch_4200G.pm
+M	lib/pf/SNMP/Trapeze.pm
+M	lib/pf/SNMP/WirelessModuleTemplate.pm
+M	lib/pf/SNMP/Xirrus.pm
+M	lib/pf/SNMP/constants.pm
+M	lib/pf/accounting.pm
+M	lib/pf/billing.pm
+M	lib/pf/billing/constants.pm
+M	lib/pf/billing/gateway/authorize_net.pm
+M	lib/pf/email_activation.pm
+M	lib/pf/enforcement.pm
+M	lib/pf/floatingdevice.pm
+M	lib/pf/import.pm
+M	lib/pf/inline.pm
+M	lib/pf/ipset.pm
+M	lib/pf/iptables.pm
+M	lib/pf/locationlog.pm
+M	lib/pf/nodecategory.pm
+M	lib/pf/pfcmd/report.pm
+M	lib/pf/radius/constants.pm
+M	lib/pf/roles.pm
+M	lib/pf/scan.pm
+M	lib/pf/scan/nessus.pm
+M	lib/pf/scan/openvas.pm
+M	lib/pf/services/dhcpd.pm
+M	lib/pf/temporary_password.pm
+M	lib/pf/util/apache.pm
+M	lib/pf/util/dhcp.pm
+M	lib/pf/util/freeradius.pm
+M	lib/pf/util/radius.pm
+M	lib/pf/vlan.pm
+M	lib/pf/vlan/custom.pm
+M	lib/pf/vlan/custom_example.pm
+M	lib/pf/web/custom.pm
+M	lib/pf/web/dispatcher.pm
+M	lib/pf/web/interceptproxy.pm
+M	lib/pf/web/release.pm
+M	lib/pf/web/util.pm
+
+commit 135ed52307515ffd4c90fa5bba5bb50071c30b1c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 11:24:52 2013 -0400
+
+    Added new feature
+
+M	NEWS.asciidoc
+
+commit ede87491f60e7b59207da6cdd94e1e30bed2c22b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 11:16:02 2013 -0400
+
+    Added the fixpermission command
+
+M	bin/pfcmd.pl
+
+commit 6cd318052a9b2f509b23237cec6cfd6a24ca9ecb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 11:15:35 2013 -0400
+
+    Added log files  that should have user/group pf::pf
+
+M	lib/pf/file_paths.pm
+
+commit b3c27239ca041a5519c43906c7ff00d8f63a5150
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 11:13:30 2013 -0400
+
+    Added fixpermissions to the help
+
+M	lib/pf/pfcmd/help.pm
+
+commit 090c87fd2c786f5ec674d4bc3740b9d76ebc22e1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 30 11:11:51 2013 -0400
+
+    Add fixpermission command pfcmd
+
+M	lib/pf/pfcmd.pm
+
+commit 6cfb44a084ba1b93bb823c70c391e3182f5e7195
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 30 08:58:42 2013 -0400
+
+    Remove seperators from sources pulldown
+
+M	html/pfappserver/root/configuration/authentication.tt
+
+commit 5567418dd53afd30e985b44782e6a53c2464a944
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 30 08:57:57 2013 -0400
+
+    Bump release to 4.0.7
+
+M	NEWS.asciidoc
+M	conf/pf-release
+M	debian/changelog
+
+commit 95fdca11abaa67293ff1798472fd69c407182479
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 27 16:44:34 2013 -0400
+
+    Syntax & logging cleanup
+
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud.pm
+M	html/pfappserver/lib/pfappserver/Base/Controller/Crud/Clone.pm
+M	html/pfappserver/lib/pfappserver/Model/MacAddress.pm
+M	html/pfappserver/root/node/violations.tt
+M	lib/pf/temporary_password.pm
+
+commit 0fb83052ee0a437eb144ba0756c78bb540a63164
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Sep 27 12:13:38 2013 -0400
+
+    untaint values before storing them in the hash
+
+M	lib/pf/config/cached.pm
+
+commit 5f97ebfdcf41a2c145547fdccd2e786dc78e2de0
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 27 10:21:34 2013 -0400
+
+    Update News file
+
+M	NEWS.asciidoc
+
+commit d786b0d9562fab6dd0338c792a6563632cbe951f
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Sep 27 10:14:35 2013 -0400
+
+    Update doc
+
+M	NEWS.asciidoc
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 1e4064d689fcb02703e09a75bc0a343edb6fc4bc
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Sep 19 11:27:30 2013 -0400
+
+    Move proxy interception in trapping section
+
+M	conf/documentation.conf
+M	conf/httpd.conf.d/httpd.proxy
+M	conf/pf.conf.defaults
+M	html/pfappserver/lib/pfappserver/I18N/en.po
+M	lib/pf/iptables.pm
+M	lib/pf/services.pm
+
+commit 9d7643600e5d47eb85d63f2f3b4f51dd53beb95e
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 17 16:23:27 2013 -0400
+
+    Passthrough fix
+
+M	lib/pf/iptables.pm
+
+commit e559a4e50cca23fc8686a1c55069cd92819808fa
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jul 19 09:25:47 2013 -0400
+
+    Fix for test
+
+M	lib/pf/web/interceptproxy.pm
+
+commit 80e1bfebd403315849f45f9eb0c6d7ec69e5d746
+Author: Fabrice Durand <oeufdure@chubuntu.(none)>
+Date:   Sun Jun 30 15:23:53 2013 -0400
+
+    Fix pfcmd help and remove rebase stuff
+    
+    Conflicts:
+    
+    	lib/pf/services.pm
+
+M	lib/pf/pfcmd/help.pm
+
+commit 4517340abe6d43945b4f42a97d23b69cda9ac299
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Fri Jun 7 14:29:20 2013 -0400
+
+    Manage httpd.proxy service
+    Apache configuration file in perl
+    Packaging RPM/DEB
+    
+    Conflicts:
+    
+    	debian/control
+    	lib/pf/services.pm
+
+M	addons/packages/packetfence.spec
+M	conf/httpd.conf.d/httpd.proxy
+M	debian/control
+M	lib/pf/services.pm
+M	lib/pf/web/interceptproxy.pm
+
+commit 04913925f0bdf474201875702b3aa0a7034e47d3
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Thu Jun 6 16:13:50 2013 -0400
+
+    Rewrite of feature proxy interception fir packetfence 4
+    
+    Conflicts:
+    
+    	lib/pf/iptables.pm
+
+M	conf/documentation.conf
+A	conf/httpd.conf.d/httpd.proxy
+M	conf/iptables.conf
+M	conf/pf.conf.defaults
+M	lib/pf/Portal/Session.pm
+M	lib/pf/iptables.pm
+A	lib/pf/web/interceptproxy.pm
+M	lib/pf/web/util.pm
+
+commit aff72d60f99f147b9d49de6c43a8c3198578cb08
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 16:13:16 2013 -0400
+
+    Added support for the null authentication source
+
+M	html/captive-portal/register.cgi
+
+commit 1ccfc576d6b141bdb308d8338f725d38dc223b01
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 16:13:01 2013 -0400
+
+    Added support for the null authentication source
+
+M	html/captive-portal/templates/login.html
+
+commit b5e202eca0ef06cebf87f873adb07c34d3c01816
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 16:10:29 2013 -0400
+
+    Added values for the checkbox
+
+M	html/pfappserver/lib/pfappserver/Form/Authentication/Source/Null.pm
+
+commit 83b29f2196d2e35b5e2115d8279d646c4dbb6f2e
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 16:09:02 2013 -0400
+
+    Changed the default for email_required to disabled
+
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit 4dfdafe22a8650de8da6590a3f5a95847728fab0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 16:08:06 2013 -0400
+
+    Added support for a null authentication source
+
+M	lib/pf/web.pm
+
+commit 92ef8ac41a085cb8474a0c3696216d762c78679b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 15:11:19 2013 -0400
+
+    Added new type null
+
+M	conf/authentication.conf
+
+commit f98f319f50549fefa80c24239736a4308255f3fc
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 14:45:56 2013 -0400
+
+    Added the exclusive type to guest mode
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 9b33906b588cacd7467da4425af1e15fec558ab7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 14:42:34 2013 -0400
+
+    Fixed issue with authentication and email required
+
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit a7c4e2c747f521d92f06cebe2ec66821af99511d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 14:41:43 2013 -0400
+
+    Created drop down menus for each class type
+
+M	html/pfappserver/root/configuration/authentication.tt
+
+commit feabd4ac31cdf9d33db72233b01f7ecf2e59ffa7
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 14:30:03 2013 -0400
+
+    Added self registration mode null
+
+M	lib/pf/config.pm
+
+commit 859b2320685cc57c4f1ec09fa069daa68bbcb407
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 14:29:03 2013 -0400
+
+    Added method getExclusiveSources
+
+M	lib/pf/Portal/Profile.pm
+
+commit 637c5c09981a457e70cd503237228434a14eb6c1
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 14:28:02 2013 -0400
+
+    Added the Null Source type to the documentation
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 729cde94537ca5ef7419f6d690d2fe13def3cad9
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 11:58:02 2013 -0400
+
+    Added new class type exclusive
+
+M	html/pfappserver/lib/pfappserver/Controller/Authentication.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+M	html/pfappserver/root/configuration/authentication.tt
+M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 11a018cd6ab8aa5c6517cea2ee573e0b854428d0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 26 11:48:38 2013 -0400
+
+    Make NullSource class exclusive
+
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit e7fee889cb143c4689ab6c4f543cf1992f1439a0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 16:33:30 2013 -0400
+
+    Will always return true when trying to authenticate
+
+M	lib/pf/Authentication/Source/NullSource.pm
+
+commit 3206b0cd1a9de7d6862e87f1130c32bf93244bfb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 16:23:25 2013 -0400
+
+    Will only allow one Null Authentication Source
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Common.pm
+M	html/pfappserver/root/static/admin/configuration/portal_profile.js
+
+commit 467d3a89775fd0f81f73ea083033653bb8940a5b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 14:17:17 2013 -0400
+
+    Added new Auth Source Null
+
+A	html/pfappserver/lib/pfappserver/Form/Authentication/Source/Null.pm
+A	html/pfappserver/root/authentication/source/type/Null.tt
+A	lib/pf/Authentication/Source/NullSource.pm
+M	lib/pf/authentication.pm
+
+commit 952c654508b9bfea4b22e822fd006d1cf80f73a5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 25 14:00:51 2013 -0400
+
+    Remove Minor parts from the COPYRIGHT section
+
+M	html/pfappserver/lib/pfappserver/Form/Field/DynamicTable.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Field/DynamicTable.pm
+M	html/pfappserver/lib/pfappserver/Form/Widget/Wrapper/DynamicTableRow.pm
+M	lib/pf/CHI.pm
+M	lib/pf/ConfigStore/Authentication.pm
+M	lib/pf/ConfigStore/Role/ValidGenericID.pm
+M	lib/pf/ConfigStore/Violations.pm
+M	lib/pf/IniFiles.pm
+M	lib/pf/WebAPI/AuthenHandler.pm
+M	lib/pf/WebAPI/InitHandler.pm
+M	lib/pf/cmd.pm
+M	lib/pf/cmd/help.pm
+M	lib/pf/cmd/roles/show_help.pm
+M	lib/pf/cmd/roles/show_parent_help.pm
+M	lib/pf/cmd/subcmd.pm
+M	lib/pf/file_paths.pm
+M	lib/pf/log.pm
+M	lib/pf/pftest.pm
+M	lib/pf/pftest/authentication.pm
+M	lib/pf/pftest/help.pm
+M	lib/pf/pftest/mysql.pm
+M	lib/pf/radius/soapclient.pm
+M	lib/pf/violation_config.pm
+M	t/PfFilePaths.pm
+
+commit 3b6f17dc6a94466e8c5a224ed4dd7de3c6064dc2
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 19 11:11:31 2013 -0400
+
+    Removed commented code
+    Allow date range to be enter free form ./addons/getlogs.sh 2 days ago instead of ./addons/getlogs.sh "2 days ago"
+
+M	addons/getlogs.sh
+
+commit cd5aedeb3feac054323e506cbfcd61534ec4ffd4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 19 10:59:30 2013 -0400
+
+    Created all defined method
+
+M	lib/pf/util.pm
+
+commit 6630a852c2df105968ee2349a36b273696499c8b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 19 10:58:11 2013 -0400
+
+    If saved computed data was not in the cache then rerun the onfilereload callbacks
+
+M	lib/pf/authentication.pm
+
+commit 79bf2b6fa9ed728b388c6029413e888acba2796d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 19:37:30 2013 -0400
+
+    Untaint the launcher
+
+M	lib/pf/services.pm
+
+commit 073cb54f9ba08867a3cca04809849376472adef0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 14:27:07 2013 -0400
+
+    Perform Sanity check on SwitchConfig coming from the cache
+
+M	lib/pf/SwitchFactory.pm
+
+commit 96555613480842d106544d5cc1669d52d8a96772
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 14:03:19 2013 -0400
+
+    Created a script to extract logs from a date to now
+
+A	addons/getlogs.sh
+
+commit 481fb1c6492f5592d7c585a2f0f9af8c42779875
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 18 13:33:44 2013 -0400
+
+    Untaint parameters to sprintf
+
+M	lib/pf/services.pm
+
+commit 42d6440ab76de384f73ef39a60a036afb55d5223
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 17 11:49:30 2013 -0400
+
+    Added CoA for Xirrus
+
+M	lib/pf/SNMP/Xirrus.pm
+
+commit ff1f1cf69a5cee7b2b582a459b24370b8bb10c11
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Sep 17 11:00:29 2013 -0400
+
+    Fix match in HtpasswdSource
+    
+    Fixes #1714
+
+M	lib/pf/Authentication/Source/HtpasswdSource.pm
+
+commit 35ec662c9ad7bab7ae1c7450feff35eca66b6956
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Tue Sep 17 10:49:06 2013 -0400
+
+    Improve success msg in test method of LDAPSource
+
+M	html/pfappserver/lib/pfappserver/Controller/Authentication/Source.pm
+M	lib/pf/Authentication/Source/LDAPSource.pm
+
+commit e73126df6ce5322c8fe9b9131ac54b5caeb3d099
+Author: Durand Fabrice <fdurand@inverse.ca>
+Date:   Tue Sep 17 09:44:30 2013 -0400
+
+    Fix debian packaging
+
+M	debian/packetfence.conffiles
+
+commit a16f0b072a094885dcbe0519d421dbc4f532549c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 16 15:09:08 2013 -0400
+
+    Cleanup of Search models
+
+M	html/pfappserver/lib/pfappserver/Model/Search/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/Search/User.pm
+
+commit 59d4734f5bf044c8bb260a0edd31e7b20f6ff115
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 16 14:59:30 2013 -0400
+
+    Add the possibility to show nodes regdate
+
+M	html/pfappserver/lib/pfappserver/Model/Node.pm
+M	html/pfappserver/lib/pfappserver/Model/Search/Node.pm
+M	lib/pf/node.pm
+
+commit caea89b2838ca1d09ff2ebb77494195ca11583b3
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 16 14:32:37 2013 -0400
+
+    Base::Controller::_list_items: respect order by
+    
+    We now perform the SQL query with the default order that we show in the
+    Web interface.
+
+M	html/pfappserver/lib/pfappserver/Base/Controller.pm
+
+commit 201cefefd7837b1b4758286ffb84a9c259a0d32f
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Mon Sep 16 14:28:05 2013 -0400
+
+    Improve condition in pf::is_max_reg_nodes_reached
+    
+    $category or $category_id must not only be defined, but must also not be
+    0 or an empty string.
+
+M	lib/pf/node.pm
+
+commit f5cfd3344bd1fd9f70c50ecb3f66230fb2bd1be5
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 16 11:16:44 2013 -0400
+
+    Added additional arguement checks
+
+M	lib/pf/SNMP.pm
+
+commit 36eef96f00c299f041dd1051eeae94b0093399b4
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 16 10:34:37 2013 -0400
+
+    Updated patch to reflect position file change
+
+M	debian/patches/debianize.patch
+
+commit cc8c8a0b2e363b41d758b05d166f9bdfa20a647c
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sat Sep 14 12:09:08 2013 -0400
+
+    fixed the user of the memcached service
+
+M	lib/pf/services.pm
+
+commit 560e23944a32ee823a5083d1cb49266143af5897
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Sat Sep 14 11:26:41 2013 -0400
+
+    fixed documentation for memcached_binary
+
+M	conf/documentation.conf
+
+commit 242556558ab3cf81138ed8d3dd68cb44f576ad3d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Sep 13 13:58:42 2013 -0400
+
+    Refactored to check if there is only a subcache exists
+
+M	lib/pf/config/cached.pm
+
+commit 35b156a3a19824bdc7a2c19270dd4ef520551ced
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 13 12:06:19 2013 -0400
+
+    Add introduction on portal profiles config page
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+M	html/pfappserver/root/admin/configuration.tt
+M	html/pfappserver/root/portal/profile/index.tt
+
+commit c553cb76061263fd163085d47ab009e079c8c1c8
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 13 11:06:34 2013 -0400
+
+    Fix template when creating portal profile
+
+M	html/pfappserver/root/portal/profile/create.tt
+
+commit 8ddeb201ee2fe353c1ea8703b40c9e38203bc57e
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 13 11:05:59 2013 -0400
+
+    Improve logging in pf::email_activation
+
+M	lib/pf/email_activation.pm
+
+commit a9f5dae20a8ad74aeafc07039c07f060707741bb
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 13 11:04:28 2013 -0400
+
+    Add notice regarding billing engine activation
+
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile.pm
+M	html/pfappserver/lib/pfappserver/Form/Portal/Profile/Default.pm
+
+commit 90a5565c610fbf538b8315ead87d222979b7e1d6
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 16:12:39 2013 -0400
+
+    Updated news file
+
+M	NEWS.asciidoc
+
+commit 933be6a1d8dbafaac681d2260125ef6c0537b89a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 16:11:22 2013 -0400
+
+    added memcached as a managed service
+
+M	conf/documentation.conf
+M	conf/pf.conf.defaults
+M	lib/pf/pfcmd.pm
+M	lib/pf/services.pm
+
+commit 871dd52373ce20f0603d087c07d221c019bfccd9
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 12 15:42:21 2013 -0400
+
+    Group ipset add commands into a "restore" command
+
+M	lib/pf/ipset.pm
+
+commit f4060c3948f80aaa44c530cc8fc69d8310cd83bc
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 12 15:27:06 2013 -0400
+
+    pf::iplog::mac2ip now accepts a lookup table
+    
+    In order to avoid performing many SQL queries in
+    pf::ipset::generate_mangle_rules, we now fetch all open entries from the
+    iplog table to build a lookup table that we pass to pf::util::mac2ip.
+
+M	NEWS.asciidoc
+M	lib/pf/iplog.pm
+M	lib/pf/ipset.pm
+
+commit 8f849c0fcb08f7ba31c017b5551360ebf539827b
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 14:26:33 2013 -0400
+
+    Updated News file
+
+M	NEWS.asciidoc
+
+commit 26510ff7a1f4019a99cd8ff1d3112130a700d5ea
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 14:11:40 2013 -0400
+
+    Allow ip address to searched in the simple search of nodes
+
+M	lib/pf/node.pm
+
+commit ee737151d1b1e7f466e116c9a3258c8c09475bce
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 14:02:05 2013 -0400
+
+    Refactored removing items from your subcache
+
+M	lib/pf/config/cached.pm
+
+commit c9645e1136b173941170afa30dc2f228088605ed
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 13:51:44 2013 -0400
+
+    Allow mac formats to be searched
+
+M	html/pfappserver/lib/pfappserver/Base/Model/Search.pm
+M	lib/pf/node.pm
+
+commit 8fb7a20904bc41227ae60c90446744b7cf1aef3f
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 12:15:41 2013 -0400
+
+    remove calling cat to read a file
+
+M	lib/pf/pfcmd/checkup.pm
+
+commit 5527837c980db1c91e756ad237eedb0eac5c38fd
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Thu Sep 12 11:47:55 2013 -0400
+
+    Consistent return values in clean_mac/mac2ip
+    
+    Also, an invalid MAC will not trigger an error log, but only a debugging
+    log.
+
+M	lib/pf/iplog.pm
+M	lib/pf/util.pm
+M	t/util.t
+
+commit 8de4bd2e654c0a31f2b3b36497fe00786ce44227
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Thu Sep 12 11:36:34 2013 -0400
+
+    Remove item from all subcaches of type l1_cache
+
+M	lib/pf/config/cached.pm
+
+commit 92e9339121f16d7b6d328f149fcb4b4c07944d73
 Author: James Rouzier <jrouzier@inverse.ca>
 Date:   Wed Sep 11 18:22:30 2013 -0400
 
@@ -22,7 +3383,90 @@ Date:   Wed Sep 11 18:22:30 2013 -0400
 
 M	lib/pf/authentication.pm
 
-commit 6d1d6a8131a05e6a1b05b14978c54180af5786b8
+commit 067d5bd826c5591f5a4b4ff6544a0a17739caa0c
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 11 16:20:56 2013 -0400
+
+    Rotate log files as user pf
+
+M	addons/logrotate
+
+commit 3b282102bfdb6d6841e28edf032f2714e7cb21a8
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Wed Sep 11 16:12:52 2013 -0400
+
+    Don't replace RADIUS configuration files
+
+M	addons/packages/packetfence.spec
+M	debian/packetfence.conffiles
+
+commit 9c2dda37de33752eb2132b656974fd4ce31b8fd8
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 15:27:07 2013 -0400
+
+    move updating the profiles guest modes to the post reload callback
+
+M	lib/pf/authentication.pm
+
+commit a761ec4998b2f34ea86e30a99a6b7a230e33ee4d
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 15:25:57 2013 -0400
+
+    Clear an object internally when retreiving directly from chi
+
+M	lib/pf/config/cached.pm
+
+commit cf4ac4c3aad3ff4d33b8ada212b331a3c3eec9ad
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 13:11:01 2013 -0400
+
+    Updated NEWS file
+
+M	NEWS.asciidoc
+
+commit 51a62a16f994e54ebb03642a41a1412971a33fbb
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 22 09:27:38 2013 -0400
+
+    Added the ability to filter based off on last switch
+
+M	lib/pf/Portal/ProfileFactory.pm
+
+commit 389b8db32e8a56906ddbfa3778f5376317af6189
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Jul 22 09:26:12 2013 -0400
+
+    Added the ability save filter type switch
+
+M	html/pfappserver/lib/pfappserver/Form/Field/ProfileFilter.pm
+
+commit f3c2ef95761d0f6ad9d087aa0c73854b50407629
+Author: lzammit <lzammit@inverse.ca>
+Date:   Wed Sep 11 11:04:15 2013 -0400
+
+    Update PacketFence_Administration_Guide.asciidoc
+    
+    update rpm forge package version
+
+M	docs/PacketFence_Administration_Guide.asciidoc
+
+commit 3b2538793cd9a348c546bb35c361168e431bd457
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 10:00:06 2013 -0400
+
+    Display when iptables is stopping
+
+M	bin/pfcmd.pl
+
+commit 91189ab48447085107be319ace23adc000d29a26
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed Sep 11 09:42:37 2013 -0400
+
+    Stop httpd services first to provide more time for them to shutdown
+
+M	lib/pf/services.pm
+
+commit ad1bad3e105badbd3dc3858ea2700e8585b5f654
 Author: James Rouzier <jrouzier@inverse.ca>
 Date:   Mon Sep 9 22:09:37 2013 -0400
 
@@ -30,7 +3474,7 @@ Date:   Mon Sep 9 22:09:37 2013 -0400
 
 M	lib/pf/services.pm
 
-commit 3398a7cf1be72d14031ad1e8e0971f866eb11ff3
+commit e88eb947b98323287dbec750d65b5ee062354314
 Author: Jean Raby <jraby@inverse.ca>
 Date:   Mon Sep 9 12:51:12 2013 -0400
 
@@ -39,6 +3483,84 @@ Date:   Mon Sep 9 12:51:12 2013 -0400
     This package doesn't exist. Term::ANSIColor is a core module.
 
 M	debian/control
+
+commit 936ca3fa40cca964e9c2b3a1d690b08fcb12c8c0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 9 12:42:24 2013 -0400
+
+    Refactored pf::pftest::help to pf::cmd::help
+
+M	lib/pf/cmd/help.pm
+
+commit ac425315a83b8734c1d6b2c6514979c0573cb0e0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 9 12:39:32 2013 -0400
+
+    Refactored pf::pftest::help to pf::cmd::help
+
+M	lib/pf/pftest/help.pm
+
+commit e77455bf546ca22476a7e5eeb7f29a72e6249561
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 9 12:03:48 2013 -0400
+
+    Added help command for pftest
+
+M	lib/pf/cmd/roles/show_help.pm
+M	lib/pf/pftest.pm
+A	lib/pf/pftest/help.pm
+
+commit 1d6967dda0b68ef5f531024e08f4e93c554baa3a
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 9 11:41:02 2013 -0400
+
+    iptables will only stop/start/restart for pf service not all of them
+
+M	bin/pfcmd.pl
+M	lib/pf/services.pm
+
+commit 31fbf9feff2d4fdfb3948ce646655f64b7282fd0
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Mon Sep 9 11:19:34 2013 -0400
+
+    Avoid an undefined compare
+
+M	lib/pf/IniFiles.pm
+
+commit c0e8d4efe86c7699b3242cf53474dc98c5f3ad49
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Fri Sep 6 15:37:36 2013 -0400
+
+    Will clean the mac before try to validate it
+
+M	lib/pf/web/gaming.pm
+
+commit 52aec6646d380c4c032b27c9bfd2289bf6363415
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 6 13:18:07 2013 -0400
+
+    Syntax cleanup
+
+M	conf/log.conf
+
+commit f9a2c2c5075b2a154f69b70a96ecc7b343786601
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 6 12:27:03 2013 -0400
+
+    Improve error messages in RADIUS modules
+
+M	NEWS.asciidoc
+M	lib/pf/radius/soapclient.pm
+M	raddb/packetfence-soh.pm
+M	raddb/packetfence.pm
+
+commit b9720b333236286f14da8663e8e6a334a27f65a5
+Author: Francis Lachapelle <flachapelle@inverse.ca>
+Date:   Fri Sep 6 08:54:19 2013 -0400
+
+    Close tag in advanced search of nodes
+
+M	html/pfappserver/root/node/advanced_search.tt
 
 commit 08679b4edcaa3beede52451236b2f8471aa48cac
 Author: Francis Lachapelle <flachapelle@inverse.ca>
@@ -6185,6 +9707,14 @@ Date:   Thu May 9 11:16:18 2013 -0400
 
 M	docs/PacketFence_Administration_Guide.asciidoc
 
+commit 25cff5a8a588cc329b5639e94ba368fc208b0f29
+Author: James Rouzier <jrouzier@inverse.ca>
+Date:   Wed May 8 14:46:21 2013 -0400
+
+    Refactored the alerting functionality
+
+M	html/pfappserver/root/static/app/application.js
+
 commit 2e4c5e07c771a22d88bafe0c2883bf8f2f90cc36
 Author: Francis Lachapelle <flachapelle@inverse.ca>
 Date:   Wed May 8 15:11:35 2013 -0400
@@ -6209,14 +9739,6 @@ M	lib/pf/config.pm
 M	lib/pf/temporary_password.pm
 M	lib/pf/vlan.pm
 M	lib/pf/web/guest.pm
-
-commit 25cff5a8a588cc329b5639e94ba368fc208b0f29
-Author: James Rouzier <jrouzier@inverse.ca>
-Date:   Wed May 8 14:46:21 2013 -0400
-
-    Refactored the alerting functionality
-
-M	html/pfappserver/root/static/app/application.js
 
 commit e13611ec5084cf9132b2bbc6374c2f8e0029b0e9
 Author: James Rouzier <jrouzier@inverse.ca>
@@ -19348,23 +22870,6 @@ Date:   Mon Jan 21 14:30:29 2013 -0500
 M	NEWS
 M	conf/pf-release
 
-commit 11acb8b4d1728b8e09546a01ac234ecff18e0c9c
-Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
-Date:   Mon Jan 21 14:21:32 2013 -0500
-
-    Fixing #1624
-
-M	NEWS
-M	db/upgrade-3.5.0-3.6.1.sql
-
-commit 617100b7e3a122947d8dae56310f5f0f8cd7c001
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Wed Jan 16 14:04:58 2013 -0500
-
-    Fix floating device disablePortSecurity when the port is in PortSecurity with voip
-
-M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
-
 commit 140fa1907825099affbd2ec4e56fdfa92846df76
 Author: Durand Fabrice <fdurand@inverse.ca>
 Date:   Wed Jan 16 14:01:50 2013 -0500
@@ -19372,23 +22877,6 @@ Date:   Wed Jan 16 14:01:50 2013 -0500
     Fix floating device disablePortSecurity when the port is in PortSecurity with voip
 
 M	lib/pf/SNMP/Cisco/Catalyst_2950.pm
-
-commit b428ad0befe689255be16a4018dec9626e453c88
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Thu Jan 10 18:31:29 2013 -0500
-
-    Fix http://packetfence.org/bugs/view.php?id=1621
-
-M	lib/pf/SNMP/Cisco/WLC.pm
-M	lib/pf/SNMP/Cisco/WLC_2100.pm
-
-commit 0098181073d9daa5120d8fbb4b987e7f9ef19a3a
-Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
-Date:   Thu Jan 10 17:13:12 2013 -0500
-
-    Typo in debian changelog
-
-M	debian/changelog
 
 commit 34e78745049204c0bfca2d883a643e525e42de9e
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
@@ -19498,14 +22986,6 @@ Date:   Fri Jan 4 13:42:08 2013 -0500
 M	html/admin/configuration/networks_add.php
 M	html/admin/configuration/networks_edit.php
 M	lib/pf/pfcmd/pfcmd.pm
-
-commit 9898d4b1d8d774a1fe767506d03d1e2a40a32de0
-Author: unknown <cgraf@MW91-DEV51.excellium.local>
-Date:   Fri Jan 4 13:19:42 2013 -0500
-
-    epel-release is now 6.8
-
-M	docs/PacketFence_Administration_Guide.asciidoc
 
 commit 09ad2f0a81717b0692c6f173e04dded35c7ac221
 Author: Durand Fabrice <fdurand@inverse.ca>
@@ -19702,22 +23182,6 @@ M	conf/httpd.conf.d/captive-portal-cleanurls.conf
 M	lib/pf/email_activation.pm
 M	lib/pf/web/constants.pm
 
-commit 5ff453398b6599086053a91a719b4c8daba46739
-Author: jan-w <janz@dfki.de>
-Date:   Wed Dec 19 17:35:36 2012 +0100
-
-    Fixed some typos
-
-M	docs/PacketFence_Administration_Guide.asciidoc
-
-commit 2a16eee853b64294e4258ff7f410885b3f0aa9e4
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Tue Dec 18 08:07:41 2012 -0500
-
-    Logrotate fix
-
-M	addons/logrotate
-
 commit 01af05f686470b0521a86f4bdc672dbe5d56b440
 Author: James Rouzier <jrouzier@inverse.ca>
 Date:   Mon Dec 17 17:59:34 2012 -0500
@@ -19759,14 +23223,6 @@ Date:   Thu Dec 13 09:50:51 2012 -0500
     Fix #1616
 
 M	lib/pf/web.pm
-
-commit ecee8c11fa19a3d224b3b30efd1ebfa9fff4b865
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Fri Dec 7 10:39:41 2012 -0500
-
-    Added alernative between snort and suricata
-
-M	debian/control
 
 commit 3ee7bdd96a1b01d2e6089f94d57009a7d379552d
 Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
@@ -19822,16 +23278,6 @@ M	conf/httpd.conf.d/captive-portal-cleanurls.conf
 M	lib/pf/services/apache.pm
 M	lib/pf/web/constants.pm
 
-commit 480663772a400fe61e79c7f007245fc09ad6a3db
-Author: Derek Wuelfrath <dwuelfrath@inverse.ca>
-Date:   Mon Nov 12 10:54:52 2012 -0500
-
-    Fixing #1602
-
-M	conf/httpd.conf.d/captive-portal-cleanurls.conf
-M	lib/pf/services/apache.pm
-M	lib/pf/web/constants.pm
-
 commit daefdc9b0fb441dfad2cd1ca03445b44e94799cc
 Author: Francois Gaudreault <fgaudreault@inverse.ca>
 Date:   Thu Nov 8 11:21:46 2012 -0500
@@ -19839,31 +23285,6 @@ Date:   Thu Nov 8 11:21:46 2012 -0500
     Missing OAuth2 perl module in debian spec
 
 M	debian/control
-
-commit f49eaa6a1e6f12a4ab7c1ed699d3b660c5dc2b5f
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Mon Nov 5 13:57:41 2012 -0500
-
-    Revert from previous commit
-
-M	lib/pf/web.pm
-
-commit 52bd096429fc29fa0f0658189e5cb833022993f6
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Mon Nov 5 10:50:26 2012 -0500
-
-    Fix do_not_deauth param
-
-M	lib/pf/web.pm
-
-commit 32b088e8b24e10f3d3c8205412235e638fb9cb33
-Author: Durand Fabrice <fdurand@inverse.ca>
-Date:   Mon Nov 5 10:39:11 2012 -0500
-
-    Portal Profile fix (#1595)
-
-M	NEWS
-M	lib/pf/Portal/ProfileFactory.pm
 
 commit ba8b0b39bca52c5745b97b34081f02dbd1e11016
 Author: Francois Gaudreault <fgaudreault@inverse.ca>

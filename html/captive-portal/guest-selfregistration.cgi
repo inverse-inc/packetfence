@@ -246,7 +246,7 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
       $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_ACCESS_DURATION);
 
       if (defined $info{'unregdate'}) {
-          $info{'unregdate'} = POSIX::strftime("%Y-%m-%d %H:%M:%S", localtime(time + normalize_time($info{'unregdate'})));
+          $info{'unregdate'} = access_duration($info{'unregdate'});
       }
       else {
           $info{'unregdate'} = &pf::authentication::match($source->{id}, $auth_params, $Actions::SET_UNREG_DATE);
@@ -289,7 +289,6 @@ if (defined($cgi->url_param('mode')) && $cgi->url_param('mode') eq $pf::web::gue
 
     # Registration form was invalid, return to guest self-registration page and show error message
     if ($auth_return != $TRUE) {
-        $logger->info("Missing information for self-registration");
         pf::web::guest::generate_selfregistration_page($portalSession, $err, $errargs_ref);
         exit(0);
     }

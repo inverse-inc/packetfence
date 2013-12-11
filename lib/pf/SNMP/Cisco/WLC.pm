@@ -98,6 +98,7 @@ Caveat CSCty44701
 =back
 
 =cut
+
 use strict;
 use warnings;
 
@@ -137,6 +138,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -161,6 +163,7 @@ RFC3576 aka CoA) is better and also it no longer worked with firmware 7.2 and up
 See L<BUGS AND LIMITATIONS> for details.
 
 =cut
+
 sub _deauthenticateMacSNMP {
     my ( $this, $mac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -305,6 +308,7 @@ sub isVoIPEnabled {
 What RADIUS Attribute (usually VSA) should the role returned into.
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
 

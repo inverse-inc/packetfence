@@ -107,20 +107,6 @@ redirtimer=20s
 # registered. This "feature" will probably be reworked in the future.
 whitelist=
 #
-# trapping.redirecturl
-#
-# Default URL to redirect to on registration/mitigation release. 
-#
-redirecturl=http://www.packetfence.org/
-#
-# trapping.always_use_redirecturl
-#
-# Under most circumstances we can redirect the user to the URL he originally intended to visit.
-# When enabled, always_use_redirecturl forces the captive portal to redirect the user to the URL defined in
-# trapping.redirecturl instead.
-#
-always_use_redirecturl=disabled
-#
 # trapping.detection
 #
 # Enables snort-based worm detection.  If you don't have a span interface available, don't bother enabling it.  If you do, 
@@ -162,6 +148,17 @@ passthroughs=
 #
 # Comma-delimited list of domains to be use for apache passthrough
 proxy_passthroughs=
+#
+# trapping.interception_proxy
+#
+# When enabled, packetfence will intercept proxy request to somes specified port
+interception_proxy=disabled
+#
+# trapping.interception_proxy_port
+#
+# Comma-delimited list of port used to intercept proxy traffic
+interception_proxy_port=8080,3128
+
 
 [registration]
 #
@@ -445,6 +442,11 @@ radiusd=enabled
 # Should iptables be managed by PacketFence?
 iptables=enabled
 #
+# services.memcached
+#
+# Should memcached be managed by PacketFence?
+memcached=enabled
+#
 # services.snort_binary
 #
 # Location of the snort binary. Only necessary to change if you are not running the RPMed version. 
@@ -479,6 +481,11 @@ radiusd_binary=/usr/sbin/radiusd
 # 
 # Location of the arp binary. Only necessary to change if you are not running the RPMed version.
 arp_binary=/sbin/arp
+# 
+# services.memcached_binary
+# 
+# Location of the memcached binary. Only necessary to change if you are not running the pre-packaged version.
+memcached_binary=/usr/bin/memcached
 
 [vlan]
 #
@@ -581,7 +588,7 @@ network_detection=enabled
 # It is recommended that you allow your users to reach your packetfence server and put your LAN's PacketFence IP.
 # By default we will make this reach PacketFence's website as an easy solution.
 #
-network_detection_ip = 67.205.85.245
+network_detection_ip = 192.95.20.194
 #
 # captive_portal.loadbalancers_ip
 #

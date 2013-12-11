@@ -22,7 +22,9 @@
             <ul class="nav nav-list">
               <li class="nav-header">[% l('Overview') %]</li>
               <li><a href="#graph/dashboard">[% l('Dashboard') %]</a></li>
+              [%- IF can_access("SERVICES") %]
               <li><a href="#service">[% l('Services') %]</a></li>
+              [%- END %]
               <!-- <li class="nav-header">[% l('System') %]</li>
               <li><a href="#">[% l('Server') %]</a></li>
               <li><a href="#">[% l('Logs') %]</a></li> -->

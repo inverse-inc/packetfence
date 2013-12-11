@@ -19,6 +19,8 @@
 
       [% INCLUDE configuration/switch/list.tt %]
 
+      [%- IF can_access("SWITCHES_CREATE") %]
       <div class="form-actions">
         <a id="createSwitch" class="btn" href="[% c.uri_for(c.controller('Configuration::Switch').action_for('create')) %]">[% l('Add switch') %]</a>
       </div>
+      [%- END %]

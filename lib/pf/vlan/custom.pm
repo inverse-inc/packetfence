@@ -36,6 +36,7 @@ our $VERSION = 1.04;
 Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 
 =cut
+
 #sub getNormalVlan {
 #    #$switch is the switch object (pf::SNMP)
 #    #$ifIndex is the ifIndex of the computer connected to
@@ -92,6 +93,7 @@ Sample getNormalVlan, see pf::vlan for getNormalVlan interface description
 Sample shouldAutoRegister, see pf::vlan for shouldAutoRegister interface description
 
 =cut
+
 # Note: if you add more examples here, remember to sync them in pf::vlan::custom
 #sub shouldAutoRegister {
 #    #$mac is MAC address

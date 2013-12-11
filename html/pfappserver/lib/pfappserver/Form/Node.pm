@@ -14,18 +14,25 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Base::Form';
 
 use HTTP::Status qw(is_error);
+use pf::config;
 
 # Form select options
 has 'roles' => ( is => 'ro' );
 has 'status' => ( is => 'ro' );
 
 # Form fields
+has_field 'mac' =>
+  (
+   type => 'MACAddress',
+   label => 'MAC',
+   required => 1,
+  );
 has_field 'pid' =>
   (
    type => 'Text',
    label => 'Owner',
-   required => 1,
-   element_attr => {'data-provide' => 'typeahead'},
+   element_attr => {'data-provide' => 'typeahead',
+                    'placeholder' => $Config{node_import}{pid}},
   );
 has_field 'status' =>
   (

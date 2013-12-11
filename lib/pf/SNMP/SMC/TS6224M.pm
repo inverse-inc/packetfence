@@ -12,6 +12,7 @@ Supports
 This module was not developed by Inverse. Unknown firmware revision used for development.
 
 =cut
+
 use strict;
 use warnings;
 

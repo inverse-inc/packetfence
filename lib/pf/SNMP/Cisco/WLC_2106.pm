@@ -9,6 +9,7 @@ pf::SNMP::Cisco::WLC_2106
 This module is currently only a placeholder, see L<pf::SNMP::Cisco::WLC_2100> for relevant support items.
 
 =cut
+
 use strict;
 use warnings;
 

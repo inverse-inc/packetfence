@@ -216,6 +216,7 @@ Establishes an SNMP Write connection to a given IP and installs the session obje
 It performs a write test to make sure that the write actually works.
     
 =cut
+
 sub connectWriteTo {
     my ($this, $ip, $sessionKey) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -277,6 +278,7 @@ sub connectWriteTo {
 Closes an SNMP Write connection. Requires sessionKey stored in object (as when calling connectWriteTo).
 
 =cut
+
 sub disconnectWriteTo {
     my ($this, $sessionKey) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -406,6 +408,7 @@ sub setAlias {
 fully-qualified domain name
     
 =cut
+
         
 sub getSysName {
     my ($this) = @_;
@@ -471,6 +474,7 @@ sub getIfName {
 =item getIfNameIfIndexHash - return ifName =E<gt> ifIndex hash
 
 =cut
+
 # FIXME this one doesn't work
 sub getIfNameIfIndexHash {
     my ($this)     = @_;
@@ -521,6 +525,7 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 Just performing the wait, no setAdminStatus
 
 =cut
+
 sub bouncePort {
     my ($this, $ifIndex) = @_;
     
@@ -1274,6 +1279,7 @@ sub _setVlan {
 =item setTrunkPortNativeVlan - sets PVID on a trunk port
 
 =cut
+
 # FIXME not properly mocked
 sub setTrunkPortNativeVlan {
     my ( $this, $ifIndex, $newVlan ) = @_;
@@ -1353,6 +1359,7 @@ is used to specify a VLAN and in SNMPv1/2c an @<vlan> is appended to the
 read-only community name when reading.
 
 =cut
+
 # FIXME not properly mocked
 sub getMacBridgePortHash {
     my $this              = shift;
@@ -1623,6 +1630,7 @@ sub isTrunkPort {
 =item setModeTrunk - sets a port as mode access or mode trunk
 
 =cut
+
 # FIXME not properly mocked
 sub setModeTrunk {
     my ( $this, $ifIndex, $enable ) = @_;
@@ -2055,6 +2063,7 @@ safe:
 L<http://www.cpanforum.com/threads/6909/>
 
 =cut
+
 sub clearMacAddressTable {
     my ( $this, $ifIndex, $vlan ) = @_;
     my $command;
@@ -2145,6 +2154,7 @@ With VoIP
  switchport port-security mac-adress xxxx.xxxx.xxxx
 
 =cut
+
 sub enablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2190,6 +2200,7 @@ sub enablePortSecurityByIfIndex {
 =item disablePortSecurityByIfIndex - remove all the port-security settings on a port
 
 =cut
+
 sub disablePortSecurityByIfIndex {
     my ( $this, $ifIndex ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2226,6 +2237,7 @@ sub disablePortSecurityByIfIndex {
 =item setPortSecurityEnableByIfIndex - enable/disable port-security on a port
 
 =cut
+
 # FIXME not properly mocked
 sub setPortSecurityEnableByIfIndex {
     my ( $this, $ifIndex, $enable ) = @_;
@@ -2254,6 +2266,7 @@ sub setPortSecurityEnableByIfIndex {
 Sets the global (data + voice) maximum number of MAC addresses for port-security on a port
 
 =cut
+
 # FIXME not properly mocked
 sub setPortSecurityMaxSecureMacAddrByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
@@ -2280,6 +2293,7 @@ sub setPortSecurityMaxSecureMacAddrByIfIndex {
 Sets the maximum number of MAC addresses on the data vlan for port-security on a port
 
 =cut
+
 sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
     my ( $this, $ifIndex, $maxSecureMac ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2323,6 +2337,7 @@ sub setPortSecurityMaxSecureMacAddrVlanAccessByIfIndex {
 Tells the switch what to do when the number of MAC addresses on the port has exceeded the maximum: shut down the port, send a trap or only allow traffic from the secure port and drop packets from other MAC addresses
 
 =cut
+
 # FIXME not properly mocked
 sub setPortSecurityViolationActionByIfIndex {
     my ( $this, $ifIndex, $action ) = @_;
@@ -2350,6 +2365,7 @@ sub setPortSecurityViolationActionByIfIndex {
 Allows all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
 
 =cut
+
 # FIXME not properly mocked
 sub setTaggedVlans {
     my ( $this, $ifIndex, @vlans ) = @_;
@@ -2401,6 +2417,7 @@ sub setTaggedVlans {
 Removes all the tagged Vlans on a multi-Vlan port. Used for floating network devices only 
 
 =cut
+
 # FIXME not properly mocked
 sub removeAllTaggedVlans {
     my ( $this, $ifIndex) = @_;
@@ -2452,6 +2469,7 @@ sub removeAllTaggedVlans {
 =item enablePortConfigAsTrunk - sets port as multi-Vlan port
 
 =cut
+
 sub enablePortConfigAsTrunk {
     my ($this, $mac, $switch_port, $taggedVlans)  = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2484,6 +2502,7 @@ sub enablePortConfigAsTrunk {
 =item disablePortConfigAsTrunk - sets port as non multi-Vlan port
 
 =cut
+
 sub disablePortConfigAsTrunk {
     my ($this, $switch_port) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2514,8 +2533,9 @@ Forces 802.1x re-authentication of a given ifIndex
 ifIndex - ifIndex to force re-authentication on
 
 =cut
+
 sub dot1xPortReauthenticate {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
 
     return $this->_dot1xPortReauthenticate($ifIndex);
 }
@@ -2526,6 +2546,7 @@ Actual implementation.
 Allows callers to refer to this implementation even though someone along the way override the above call.
 
 =cut
+
 sub _dot1xPortReauthenticate {
     my ($this, $ifIndex) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2745,8 +2766,9 @@ sub NasPortToIfIndex {
 =item handleReAssignVlanTrapForWiredMacAuth
 
 =cut
+
 sub handleReAssignVlanTrapForWiredMacAuth {
-    my ($this, $ifIndex) = @_;
+    my ($this, $ifIndex, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
 
     my $switch_ip = $this->{'_ip'};
@@ -2756,7 +2778,9 @@ sub handleReAssignVlanTrapForWiredMacAuth {
         return;
     }
 
-    my $mac = $locationlog[0]->{'mac'};
+    if (!defined($mac)) {
+        $mac = $locationlog[0]->{'mac'};
+    }
     my $hasPhone = $this->hasPhoneAtIfIndex($ifIndex);
 
     # TODO extract that behavior in a method call in pf::vlan so it can be overridden easily
@@ -2809,6 +2833,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
 Get Voice over IP RADIUS Vendor Specific Attribute (VSA).
 
 =cut
+
 sub getVoipVsa {
     my ($this) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -2833,6 +2858,7 @@ sub deauthTechniques {
 return Default Deauthentication Method
 
 =cut
+
 sub supporteddeauthTechniques {
     my ( $this ) = @_;
 
@@ -2844,6 +2870,7 @@ sub supporteddeauthTechniques {
 return Default Deauthentication Default technique
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($this) );
@@ -2862,6 +2889,18 @@ return IfIndexByNasPortId
 sub getIfIndexByNasPortId {
     my ($this ) = @_;
     return $FALSE;
+}
+
+=item wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+    my ($this, $method, $connection_type) = @_;
+    my $logger = Log::Log4perl::get_logger( ref($this) );
+    return $TRUE;
 }
 
 =back

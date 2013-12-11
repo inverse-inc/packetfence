@@ -65,6 +65,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     # IMPLEMENT!
 }
@@ -72,6 +73,7 @@ sub getVersion {
 =item parseTrap
 
 =cut
+
 sub parseTrap {
     # Optional for Wireless devices
     my ( $this, $trapString ) = @_;
@@ -89,6 +91,7 @@ sub parseTrap {
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 =cut
+
 sub deauthenticateMacDefault {
     # IMPLEMENT!
 }

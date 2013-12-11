@@ -112,9 +112,9 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            notes
+            notes, autoreg
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     ]);
 
@@ -126,7 +126,7 @@ sub node_db_prepare {
             detect_date=?, regdate=?, unregdate=?, lastskip=?,
             user_agent=?, computername=?, dhcp_fingerprint=?,
             last_arp=?, last_dhcp=?,
-            notes=?
+            notes=?, autoreg=? 
         WHERE mac=?
     ]);
 
@@ -136,7 +136,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes
+            node.notes, autoreg 
         FROM node
             LEFT JOIN node_category USING (category_id)
         WHERE mac = ?
@@ -148,7 +148,7 @@ sub node_db_prepare {
             detect_date, regdate, unregdate, lastskip,
             user_agent, computername, IFNULL(os_class.description, ' ') as dhcp_fingerprint,
             last_arp, last_dhcp,
-            node.notes
+            node.notes, autoreg 
         FROM node
             LEFT JOIN node_category USING (category_id)
             LEFT JOIN dhcp_fingerprint ON node.dhcp_fingerprint=dhcp_fingerprint.fingerprint
@@ -183,7 +183,7 @@ sub node_db_prepare {
             node.detect_date, node.regdate, node.unregdate, node.lastskip,
             node.user_agent, node.computername, node.dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
-            node.notes,
+            node.notes, autoreg,
             UNIX_TIMESTAMP(node.regdate) AS regdate_timestamp,
             UNIX_TIMESTAMP(node.unregdate) AS unregdate_timestamp
         FROM node
@@ -228,7 +228,10 @@ sub node_db_prepare {
     $node_statements->{'node_view_all_sql'} = qq[
         SELECT node.mac, node.pid, node.voip, node.bypass_vlan, node.status,
             IF(ISNULL(node_category.name), '', node_category.name) as category,
-            node.detect_date, node.regdate, node.unregdate, node.lastskip,
+            IF(node.detect_date = '0000-00-00 00:00:00', '', node.detect_date) as detect_date,
+            IF(node.regdate = '0000-00-00 00:00:00', '', node.regdate) as regdate,
+            IF(node.unregdate = '0000-00-00 00:00:00', '', node.unregdate) as unregdate,
+            IF(node.lastskip = '0000-00-00 00:00:00', '', node.lastskip) as lastskip,
             node.user_agent, node.computername, IFNULL(os_type.description, ' ') as dhcp_fingerprint,
             node.last_arp, node.last_dhcp,
             locationlog.switch as last_switch, locationlog.port as last_port, locationlog.vlan as last_vlan,
@@ -399,7 +402,7 @@ sub node_add {
         'detect_date', 'regdate', 'unregdate', 'lastskip',
         'user_agent', 'computername', 'dhcp_fingerprint',
         'last_arp', 'last_dhcp',
-        'notes'
+        'notes', 'autoreg'
     ) {
         $data{$field} = "" if ( !defined $data{$field} );
     }
@@ -419,7 +422,7 @@ sub node_add {
         $data{detect_date}, $data{regdate}, $data{unregdate}, $data{lastskip},
         $data{user_agent}, $data{computername}, $data{dhcp_fingerprint},
         $data{last_arp}, $data{last_dhcp},
-        $data{notes}
+        $data{notes}, $data{autoreg}
     ) || return (0);
     return (1);
 }
@@ -438,7 +441,8 @@ sub node_add_simple {
         'last_skip'   => 0,
         'status'      => 'unreg',
         'last_dhcp'   => 0,
-        'voip'        => 'no'
+        'voip'        => 'no',
+        'autoreg'     => 'no'
     );
     if ( !node_add( $mac, %tmp ) ) {
         return (0);
@@ -646,15 +650,19 @@ sub node_view_all {
             $node_view_all_sql .= " HAVING category='" . $params{'where'}{'value'} . "'";
         }
         elsif ( $params{'where'}{'type'} eq 'any' ) {
-            if (valid_mac($params{'where'}{'like'})) {
-                my $mac = get_db_handle->quote($params{'where'}{'like'});
+            my $like = $params{'where'}{'like'};
+            $like =~ s/^ *//;
+            $like =~ s/ *$//;
+            if (valid_mac($like)) {
+                my $mac = get_db_handle->quote(clean_mac($like));
                 $node_view_all_sql .= " HAVING node.mac = $mac";
             }
             else {
-                my $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
+                $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
                 $node_view_all_sql .= " HAVING node.mac LIKE $like"
                   . " OR node.computername LIKE $like"
-                  . " OR node.pid LIKE $like";
+                  . " OR node.pid LIKE $like"
+                  . " OR iplog.ip LIKE $like";
             }
         }
     }
@@ -668,7 +676,6 @@ sub node_view_all {
     # Hack! Because of the nature of the query built here (we cannot prepare it), we construct it as a string
     # and pf::db will recognize it and prepare it as such
     $node_statements->{'node_view_all_sql_custom'} = $node_view_all_sql;
-    $logger->debug($node_view_all_sql);
 
     require pf::pfcmd::report;
     import pf::pfcmd::report;
@@ -743,6 +750,11 @@ sub node_modify {
        delete $existing->{'category'} if defined($existing->{'category'});
     }
 
+    # Autoregistration handling
+    if (!defined($data{'autoreg'})) {
+        $existing->{autoreg} = 'no';
+    }
+
     my $new_mac    = lc( $existing->{'mac'} );
     my $new_status = $existing->{'status'};
 
@@ -766,7 +778,7 @@ sub node_modify {
         $existing->{detect_date}, $existing->{regdate}, $existing->{unregdate}, $existing->{lastskip},
         $existing->{user_agent}, $existing->{computername}, $existing->{dhcp_fingerprint},
         $existing->{last_arp}, $existing->{last_dhcp},
-        $existing->{notes},
+        $existing->{notes},$existing->{autoreg},
         $mac
     );
     return ($sth->rows);
@@ -1064,6 +1076,7 @@ sub _node_category_handling {
         # if no category is specified then we set to undef so that DBI will insert a NULL
         $data{'category_id'} = undef;
     }
+
     return $data{'category_id'};
 }
 
@@ -1083,7 +1096,7 @@ sub is_max_reg_nodes_reached {
     return $FALSE if ($pid eq $default_pid);
 
     # per-category max node per pid limit
-    if ( defined($category) || defined($category_id) ) {
+    if ( $category || $category_id ) {
         my $category_info;
         my $nb_nodes;
         my $max_for_category;
@@ -1162,3 +1175,4 @@ USA.
 =cut
 
 1;
+

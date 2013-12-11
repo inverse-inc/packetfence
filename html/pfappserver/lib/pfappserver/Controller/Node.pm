@@ -18,6 +18,9 @@ use Moose;
 use namespace::autoclean;
 use POSIX;
 
+use pfappserver::Form::Node;
+use pfappserver::Form::Node::Create::Import;
+
 BEGIN { extends 'pfappserver::Base::Controller'; }
 
 __PACKAGE__->config(
@@ -33,7 +36,7 @@ __PACKAGE__->config(
 
 =cut
 
-sub index :Path :Args(0) {
+sub index :Path :Args(0) :AdminRole('NODES_READ') {
     my ( $self, $c ) = @_;
     $c->go('simple_search');
 }
@@ -42,7 +45,7 @@ sub index :Path :Args(0) {
 
 =cut
 
-sub simple_search :SimpleSearch('Node') :Local :Args() { }
+sub simple_search :SimpleSearch('Node') :Local :Args() :AdminRole('NODES_READ') { }
 
 =head2 after _list_items
 
@@ -56,19 +59,36 @@ after _list_items => sub {
     my ($status,$roles) = $c->model('Roles')->list();
     $c->stash(roles => $roles);
 
+    unless ($c->session->{'nodecolumns'}) {
+        # Set default visible columns
+        my %default_columns = map { $_ => 1 } qw/status mac computername pid last_ip dhcp_fingerprint category/;
+        $c->session( nodecolumns => \%default_columns );
+    }
 };
 
 
 =head2 advanced_search
 
+Perform an advanced search using the Search::Node model
+
 =cut
 
-sub advanced_search :Local :Args() {
+sub advanced_search :Local :Args() :AdminRole('NODES_READ') {
     my ($self, $c, @args) = @_;
     my ($status, $status_msg, $result);
     my %search_results;
     my $model = $self->getModel($c);
     my $form = $self->getForm($c);
+
+    # Store columns in the session
+    my $columns = $c->request->params->{'column'};
+    if ($columns) {
+        $columns = [$columns] if (ref($columns) ne 'ARRAY');
+        my %columns_hash = map { $_ => 1 } @{$columns};
+        my %params = ( 'nodecolumns' => \%columns_hash );
+        $c->session(%params);
+    }
+
     $form->process(params => $c->request->params);
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
@@ -77,12 +97,15 @@ sub advanced_search :Local :Args() {
     }
     else {
         my $query = $form->value;
+        $query->{by} = 'mac' unless ($query->{by});
+        $query->{direction} = 'asc' unless ($query->{direction});
         ($status, $result) = $model->search($query);
         if (is_success($status)) {
             $c->stash(form => $form);
             $c->stash($result);
         }
     }
+
     (undef, $result) = $c->model('Roles')->list();
     $c->stash(
         status_msg => $status_msg,
@@ -91,6 +114,80 @@ sub advanced_search :Local :Args() {
     $c->response->status($status);
 }
 
+=head2 create
+
+Create one node or import a CSV file.
+
+=cut
+
+sub create :Local {
+    my ($self, $c) = @_;
+
+    my ($roles, $node_status, $form_single, $form_import, $params, $type);
+    my ($status, $result, $message);
+
+    ($status, $result) = $c->model('Roles')->list();
+    if (is_success($status)) {
+        $roles = $result;
+    }
+    $node_status = $c->model('Node')->availableStatus();
+
+    $form_single = pfappserver::Form::Node->new(ctx => $c, status => $node_status, roles => $roles);
+    $form_import = pfappserver::Form::Node::Create::Import->new(ctx => $c, roles => $roles);
+
+    if (scalar(keys %{$c->request->params}) > 1) {
+        # We consider the request parameters only if we have at least two entries.
+        # This is the result of setuping jQuery in "no Ajax cache" mode. See admin/common.js.
+        $params = $c->request->params;
+    } else {
+        $params = {};
+    }
+    $form_single->process(params => $params);
+
+    if ($c->request->method eq 'POST') {
+        # Create new nodes
+        $type = $c->request->param('type');
+        if ($type eq 'single') {
+            if ($form_single->has_errors) {
+                $status = HTTP_BAD_REQUEST;
+                $message = $form_single->field_errors;
+            }
+            else {
+                ($status, $message) = $c->model('Node')->create($form_single->value);
+            }
+        }
+        elsif ($type eq 'import') {
+            my $params = $c->request->params;
+            $params->{nodes_file} = $c->req->upload('nodes_file');
+            $form_import->process(params => $params);
+            if ($form_import->has_errors) {
+                $status = HTTP_BAD_REQUEST;
+                $message = $form_import->field_errors;
+            }
+            else {
+                ($status, $message) = $c->model('Node')->importCSV($form_import->value, $c->user);
+                if (is_success($status)) {
+                    $message = $c->loc("[_1] nodes imported, [_2] skipped", $message->{count}, $message->{skipped});
+                }
+            }
+        }
+        else {
+            $status = $STATUS::INTERNAL_SERVER_ERROR;
+        }
+
+        $c->response->status($status);
+        $c->stash->{status} = $status;
+        $c->stash->{status_msg} = $message; # TODO: localize error message
+        $c->stash->{current_view} = 'JSON';
+    }
+    else {
+        # Initial display of the page
+        $form_import->process();
+
+        $c->stash->{form_single} = $form_single;
+        $c->stash->{form_import} = $form_import;
+    }
+}
 
 =head2 object
 
@@ -122,11 +219,11 @@ sub object :Chained('/') :PathPart('node') :CaptureArgs(1) {
 
 =cut
 
-sub view :Chained('object') :PathPart('read') :Args(0) {
+sub view :Chained('object') :PathPart('read') :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
 
     my ($nodeStatus, $result);
-    my ($form, $status, $roles);
+    my ($form, $status);
 
     # Form initialization :
     # Retrieve node details and status
@@ -142,10 +239,10 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
         $c->stash->{switches} = \%switches;
     }
     $nodeStatus = $c->model('Node')->availableStatus();
-    $form = $c->form("Node" ,
-        init_object => $c->stash->{node},
-        status => $nodeStatus,
-        roles => $c->stash->{roles}
+    $form = $c->form("Node",
+                     init_object => $c->stash->{node},
+                     status => $nodeStatus,
+                     roles => $c->stash->{roles}
     );
     $form->process();
     $c->stash->{form} = $form;
@@ -159,18 +256,18 @@ sub view :Chained('object') :PathPart('read') :Args(0) {
 
 =cut
 
-sub update :Chained('object') :PathPart('update') :Args(0) {
+sub update :Chained('object') :PathPart('update') :Args(0) :AdminRole('NODES_UPDATE') {
     my ( $self, $c ) = @_;
 
     my ($status, $message);
     my ($form, $nodeStatus);
 
     $nodeStatus = $c->model('Node')->availableStatus();
-    $form = $c->form("Node" ,
-        status => $nodeStatus,
-        roles => $c->stash->{roles}
+    $form = $c->form("Node",
+                     status => $nodeStatus,
+                     roles => $c->stash->{roles}
     );
-    $form->process(params => $c->request->params);
+    $form->process(params => { mac => $c->stash->{mac}, %{$c->request->params} });
     if ($form->has_errors) {
         $status = HTTP_BAD_REQUEST;
         $message = $form->field_errors;
@@ -189,7 +286,7 @@ sub update :Chained('object') :PathPart('update') :Args(0) {
 
 =cut
 
-sub delete :Chained('object') :PathPart('delete') :Args(0) {
+sub delete :Chained('object') :PathPart('delete') :Args(0) :AdminRole('NODES_DELETE') {
     my ( $self, $c ) = @_;
 
     my ($status, $message) = $c->model('Node')->delete($c->stash->{mac});
@@ -204,7 +301,7 @@ sub delete :Chained('object') :PathPart('delete') :Args(0) {
 
 =cut
 
-sub violations :Chained('object') :PathPart :Args(0) {
+sub violations :Chained('object') :PathPart :Args(0) :AdminRole('NODES_READ') {
     my ($self, $c) = @_;
     my ($status, $result) = $c->model('Node')->violations($c->stash->{mac});
     if (is_success($status)) {
@@ -225,7 +322,7 @@ sub violations :Chained('object') :PathPart :Args(0) {
 
 =cut
 
-sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
+sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Config::Violations')->hasId($id);
     if (is_success($status)) {
@@ -245,7 +342,7 @@ sub triggerViolation :Chained('object') :PathPart('trigger') :Args(1) {
 
 =cut
 
-sub closeViolation :Path('close') :Args(1) {
+sub closeViolation :Path('close') :Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $id) = @_;
     my ($status, $result) = $c->model('Node')->closeViolation($id);
     $c->response->status($status);
@@ -257,7 +354,7 @@ sub closeViolation :Path('close') :Args(1) {
 
 =cut
 
-sub bulk_close: Local {
+sub bulk_close: Local :AdminRole('NODES_UPDATE') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
@@ -280,7 +377,7 @@ sub bulk_close: Local {
 
 =cut
 
-sub bulk_register: Local {
+sub bulk_register: Local :AdminRole('NODES_UPDATE') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
@@ -303,7 +400,7 @@ sub bulk_register: Local {
 
 =cut
 
-sub bulk_deregister: Local {
+sub bulk_deregister: Local :AdminRole('NODES_UPDATE') {
     my ($self, $c) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);
@@ -326,7 +423,7 @@ sub bulk_deregister: Local {
 
 =cut
 
-sub bulk_apply_role: Local : Args(1) {
+sub bulk_apply_role: Local : Args(1) :AdminRole('NODES_UPDATE') {
     my ($self, $c, $role) = @_;
     $c->stash->{current_view} = 'JSON';
     my ($status, $status_msg);

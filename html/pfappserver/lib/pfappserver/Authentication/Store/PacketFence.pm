@@ -15,17 +15,18 @@ BEGIN { __PACKAGE__->mk_accessors(qw/file user_field user_class/) }
 
 sub new {
   my ($class, $config, $app, $realm) = @_;
-  
+
   $config->{user_class} ||= __PACKAGE__ . '::User';
   $config->{user_field} ||= 'username';
-  
+
   bless { %$config }, $class;
 }
 
 sub find_user {
   my ($self, $authinfo, $c) = @_;
   my $username = $authinfo->{$self->user_field};
-  $self->user_class->new( $self, $username );
+  my $roles = $c->session->{user_roles};
+  $self->user_class->new( $self, $username,$roles );
 }
 
 sub user_supports {
@@ -35,16 +36,14 @@ sub user_supports {
 
 sub from_session {
   my ( $self, $c, $username) = @_;
-  $self->find_user( { username => $username } );
+  $self->find_user( { username => $username },$c);
 }
-
-=back
 
 =head1 COPYRIGHT
 
 Copyright (C) 2012 Inverse inc.
 
-=head1 LICENSE 
+=head1 LICENSE
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

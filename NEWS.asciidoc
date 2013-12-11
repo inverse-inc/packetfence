@@ -11,6 +11,76 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
+Version 4.1.0 released on 2013-12-11
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New Features
+++++++++++++
+
+* Portal profiles can be filtered by switches
+* Proxy interception
+* New pfcmd command fixpermissions
+* Added a "Null" authenication source
+* Displayed columns of nodes are now customizable
+* Create a single node or import multiple nodes from a CSV file from the Web admin
+* LDAP authentication sources can now filter by group membership using a second LDAP query
+* Extended definition of access durations
+* FreeRADIUS does not need to be restarted after adding a switch
+* New customizable ACLs for Web admin interface
+
+Enhancements
+++++++++++++
+
+* Improved error messages in RADIUS modules
+* Simple search for nodes now includes IP address
+* Search by MAC address for nodes and users now accepts any MAC format
+* Improved starting delay when using inline mode
+* Added memcached as a managed service
+* Added CoA support for Xirrus access point
+* Improved validation of VLAN management
+* Updated FontAwesome to version 3.2.1
+* Each portal profile can now have a different redirection URL
+* Initial destination URL is now respected with Firefox
+* An Htpasswd source can now define sponsors
+* Improved display of pie charts (limit of legend labels and highlight of table rows)
+* Creation of users is now performed from the users page (was on the configuration page)
+* Validate file path when saving an Htpasswd authentication source
+* Improved validation of a sponsor's email address
+* Allow actions depending on authentication source type
+* Modified logrotate so it uses copytruncate instead of restarting the services.
+* Now comes with a corosync compatible barnyard2 init script in addons.
+* Unreg the node when you come from a secure connection to an open connection
+* Allow a self-registered node by SMS to go back to the registration page
+* Sponsor email authentication source can refuse email addresses of the local domain (as the email source)
+* Updated German (de) translation
+
+Bug Fixes
++++++++++
+
+* RADIUS configuration files are no longer replaced when updating packages
+* Fixed match of Htpasswd authentication source (#1714)
+* Fixed creation of users without a role (#1721)
+* Fixed expiration date of registration to the end of the day (#1722)
+* Fixed caching issue when editing authentication sources (#1729)
+* Allow rules with dashes (#1730)
+* Fixed vconfig setting the wrong name_type
+* Fixed help text in Web admin (#1724)
+* Removed references to unavailable snort rules (#1715)
+* Fixed LDAP regexp condition not considering all attribute values (#1737)
+* Fixed sort by phone number and nodes count when performing an advanced search on users (#1738)
+* Fixed users searches not being saved in the proper namespace
+* Fixed handling of form submit when saving a user search
+* Fixed self-registration of multiple unverified devices
+* Fixed duplicate entries in advanced search of nodes
+* Fixed advanced search by node category
+* Fixed reordering of conf sections and groups (#1749)
+* Fixed pid of SMS-registered devices (was "admin" in certain circumstances)
+* Fixed saving of 'allow local domain' option when disabled in an email authentication source
+* The 'allow local domain' option of the email source will now only affect the user who registers by email
+* Fixed ifoctetshistoryuser command to use the correct query when just a user is given
+* Fixed network-detection for IE 8
+* Fixed SQL query of SSID report in Web admin
+
 Version 4.0.6-2 released on 2013-09-13
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

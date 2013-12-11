@@ -34,6 +34,7 @@ my %types   = (
 =item getAvailableMechanisms
 
 =cut
+
 sub getAvailableMechanisms {
     my ( $self ) = @_;
 
@@ -43,6 +44,7 @@ sub getAvailableMechanisms {
 =item getAvailableTypes
 
 =cut
+
 sub getAvailableTypes {
     my ( $self, $mechanism, $interface, $interfaces ) = @_;
 
@@ -84,6 +86,7 @@ sub getAvailableTypes {
 =item _isInArray
 
 =cut
+
 sub _isInArray {
     my ( $self, $array, $element ) = @_;
 

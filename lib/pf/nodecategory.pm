@@ -97,6 +97,7 @@ sub nodecategory_db_prepare {
 =item nodecategory_view_all - view all categories, returns an hashref
 
 =cut
+
 sub nodecategory_view_all {
     return db_data(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_all_sql');
 }
@@ -104,6 +105,7 @@ sub nodecategory_view_all {
 =item nodecategory_view - view a node category, returns an hashref
 
 =cut
+
 sub nodecategory_view {
     my ($cat_id) = @_;
     my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_sql', $cat_id);
@@ -117,6 +119,7 @@ sub nodecategory_view {
 =item nodecategory_view_by_name - view a node category by name. Returns an hashref
 
 =cut
+
 sub nodecategory_view_by_name {
     my ($name) = @_;
     my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_view_by_name_sql', $name);
@@ -130,6 +133,7 @@ sub nodecategory_view_by_name {
 =item nodecategory_add - add a node category
 
 =cut
+
 sub nodecategory_add {
     my (%data) = @_;
 
@@ -142,7 +146,7 @@ sub nodecategory_add {
 
     return(
         db_data(
-            NODECATEGORY, $nodecategory_statements, 'nodecategory_add_sql', 
+            NODECATEGORY, $nodecategory_statements, 'nodecategory_add_sql',
             @data{qw/name max_nodes_per_pid notes/} # hash-slice assigning values to a list
         )
     );
@@ -151,6 +155,7 @@ sub nodecategory_add {
 =item nodecategory_modify - modify a node category
 
 =cut
+
 sub nodecategory_modify {
     my ($cat_id, %data) = @_;
 
@@ -162,7 +167,7 @@ sub nodecategory_modify {
 
     return(
         db_data(
-            NODECATEGORY, $nodecategory_statements, 'nodecategory_modify_sql', 
+            NODECATEGORY, $nodecategory_statements, 'nodecategory_modify_sql',
             @{$existing}{qw/name max_nodes_per_pid notes/},  # hashref-slice assigning values to a list
             $cat_id
         )
@@ -172,6 +177,7 @@ sub nodecategory_modify {
 =item nodecategory_delete - delete a node category
 
 =cut
+
 sub nodecategory_delete {
     my ($id) = @_;
 
@@ -185,6 +191,7 @@ sub nodecategory_delete {
 =item nodecategory_exist - does a node category exists? returns 1 if so, 0 otherwise
 
 =cut
+
 sub nodecategory_exist {
     my ($cat_id) = @_;
     my $query = db_query_execute(NODECATEGORY, $nodecategory_statements, 'nodecategory_exist_sql', $cat_id);
@@ -198,6 +205,7 @@ sub nodecategory_exist {
 Just a small convenience wrapper
 
 =cut
+
 sub nodecategory_lookup {
     my ($category_name) = @_;
 
@@ -210,6 +218,7 @@ sub nodecategory_lookup {
         return;
     }
 }
+
 =back
 
 =head1 AUTHOR

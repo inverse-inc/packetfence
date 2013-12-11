@@ -16,6 +16,7 @@ extends 'pf::Authentication::Source';
 has '+class' => (default => 'external');
 has '+type' => (default => 'SponsorEmail');
 has '+unique' => (default => 1);
+has 'allow_localdomain' => (isa => 'Str', is => 'rw', default => 'yes');
 
 =head2 available_attributes
 
@@ -30,6 +31,16 @@ sub available_attributes {
   my $own_attributes = [{ value => "user_email", type => $Conditions::SUBSTRING }];
 
   return [@$super_attributes, @$own_attributes];
+}
+
+=head2 available_actions
+
+For a SponsorEmail source, we don't allow the B<mark as sponsor> action.
+
+=cut
+
+sub available_actions {
+    return [ grep { $_ ne $Actions::MARK_AS_SPONSOR } @Actions::ACTIONS ];
 }
 
 =head2 match_in_subclass

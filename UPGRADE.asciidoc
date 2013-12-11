@@ -5,6 +5,31 @@ http://www.packetfence.org/
 
 Notes on upgrading from an older release.
 
+Upgrading from a version prior to 4.1.0
+---------------------------------------
+
+Database schema update
+^^^^^^^^^^^^^^^^^^^^^^
+
+The category column in the temporary_password should not be mandatory.
+
+Also, the access_level of the temporary_password table is now a string instead of a bit string.
+
+Make sure you run the following to update your schema:
+
+  mysql -u root -p pf -v < db/upgrade-4.0.0-4.1.0.sql
+
+Configuration changes
+^^^^^^^^^^^^^^^^^^^^^
+
+The parameters `trapping.redirecturl` and `trapping.always_use_redirecturl` from `pf.conf` (or `pf.conf.defaults`)
+were moved to the default portal profile in `profiles.conf`.
+
+The action `set_access_level` of authentication sources in `authentication.pf` must now match one of the admin roles
+defined in `adminroles.conf`. The previous level `4294967295` must be replaced by *ALL* and the level `0` by *NONE*.
+
+Adjust your configuration files accordingly.
+
 Upgrading from a version prior to 4.0.6
 ---------------------------------------
 

@@ -36,8 +36,10 @@ use pf::Authentication::Source::SQLSource;
 use pf::Authentication::Source::FacebookSource;
 use pf::Authentication::Source::GoogleSource;
 use pf::Authentication::Source::GithubSource;
+use pf::Authentication::Source::NullSource;
 use List::Util qw(first);
 use List::MoreUtils qw(none any);
+use pf::util;
 
 # The results...
 #
@@ -53,6 +55,7 @@ use List::MoreUtils qw(none any);
 our @authentication_sources = ();
 our %authentication_lookup;
 our $cached_authentication_config;
+our %guest_self_registration;
 
 BEGIN {
     use Exporter ();
@@ -68,6 +71,7 @@ BEGIN {
             getAllAuthenticationSources
             deleteAuthenticationSource
             writeAuthenticationConfigFile
+            %guest_self_registration
        );
     @EXPORT_OK =
       qw(
@@ -90,7 +94,8 @@ our %TYPE_TO_SOURCE = (
     'sms'           => pf::Authentication::Source::SMSSource->meta->name,
     'facebook'      => pf::Authentication::Source::FacebookSource->meta->name,
     'google'        => pf::Authentication::Source::GoogleSource->meta->name,
-    'github'        => pf::Authentication::Source::GithubSource->meta->name
+    'github'        => pf::Authentication::Source::GithubSource->meta->name,
+    'null'          => pf::Authentication::Source::NullSource->meta->name
 );
 
 our $logger = get_logger();
@@ -173,7 +178,7 @@ sub readAuthenticationConfigFile {
                     # Parse rules
                     foreach my $rule_id ( $config->GroupMembers($source_id) ) {
 
-                        my ($id) = $rule_id =~ m/$source_id rule (\w+)/;
+                        my ($id) = $rule_id =~ m/$source_id rule (\S+)$/;
                         my $current_rule = pf::Authentication::Rule->new({match => $Rules::ANY, id => $id});
 
                         foreach my $parameter ( $config->Parameters($rule_id) ) {
@@ -207,23 +212,30 @@ sub readAuthenticationConfigFile {
                     push(@authentication_sources, $current_source);
                     $authentication_lookup{$source_id} = $current_source;
                 }
-                $config->cache->set("authentication_lookup",\%authentication_lookup);
                 $config->cache->set("authentication_sources",\@authentication_sources);
-                update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
             }],
             -oncachereload => [
-                on_cache_authentication_reload => sub  {
+                on_cache_authentication_reload => sub {
                     my ($config, $name) = @_;
-                    %authentication_lookup = %{$config->fromCacheUntainted("authentication_lookup")};
-                    @authentication_sources = @{$config->fromCacheUntainted("authentication_sources")};
+                    my $authentication_sources_ref = $config->fromCacheUntainted("authentication_sources");
+                    if( defined($authentication_sources_ref) ) {
+                        @authentication_sources = @$authentication_sources_ref;
+                        %authentication_lookup = map { $_->id => $_ } @authentication_sources;
+                    } else {
+                        $config->doCallbacks(1,0);
+                    }
                 },
-            ]
+            ],
+            -onpostreload => [
+                on_post_authentication_reload => sub {
+                    update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
+                }
+            ],
         );
         $cached_profiles_config->addPostReloadCallbacks(update_profiles_guest_modes => \&update_profiles_guest_modes);
 
     } else {
         $cached_authentication_config->ReadConfig();
-        update_profiles_guest_modes($cached_profiles_config,"update_profiles_guest_modes");
     }
 }
 
@@ -321,7 +333,10 @@ sub writeAuthenticationConfigFile {
         }
     }
     $cached_authentication_config->ReorderByGroup();
-    my $result = $cached_authentication_config->RewriteConfig();
+    my $result;
+    eval {
+        $result = $cached_authentication_config->RewriteConfig();
+    };
     unless($result) {
         $cached_authentication_config->Rollback();
         die "Error writing authentication configuration\n";
@@ -413,32 +428,6 @@ sub deleteAuthenticationSource {
 #   return undef;
 # }
 
-=item username_from_email
-
-=cut
-
-sub username_from_email {
-
-    my ($email) = @_;
-
-    $logger->info("Looking up username for email: $email");
-
-    foreach my $source ( @authentication_sources ) {
-
-        if ($source->isa('pf::Authentication::Source::LDAPSource') ||
-            $source->isa('pf::Authentication::Source::SQLSource' )) {
-
-            my $username = $source->username_from_email($email);
-
-            if (defined $username) {
-                return ($username,$source->id);
-            }
-        }
-    }
-
-    return ;
-}
-
 =item authenticate
 
 Authenticate a user given an optional list of authentication sources. If no source is specified, all defined
@@ -453,7 +442,7 @@ sub authenticate {
         @sources = @authentication_sources;
     }
 
-    $logger->debug("Authenticating '$username' from sources ".join(', ', map { $_->id } @sources));
+    $logger->debug("Authenticating '$username' from source(s) ".join(', ', map { $_->id } @sources));
 
     foreach my $current_source (@sources) {
         my ($result, $message);
@@ -500,10 +489,10 @@ sub match {
     if (defined $action && defined $actions) {
         my $found_action = first { $_->type eq $action } @{$actions};
         if (defined $found_action) {
-            $logger->debug("Returning '".$found_action->value."' for action $action on source ". $source->id);
+            $logger->debug("[".$source->id."] Returning '".$found_action->value."' for action $action for username ".$params->{'username'});
             return $found_action->value
         }
-        $logger->debug("Params don't match rules for action $action on source " . $source->id);
+        $logger->debug("[".$source->id."] Params don't match rules for action $action for parameters ".join(", ", map { "$_ => $params->{$_}" } keys %$params));
         return undef;
     }
 
@@ -511,7 +500,7 @@ sub match {
         $logger->debug("No source matches action $action");
     } elsif (defined $source) {
         $actions ||= [];
-        $logger->debug("Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ) . " for source " . $source->id);
+        $logger->debug("[".$source->id."] Returning actions ".join(', ', map { $_->type." = ".$_->value } @$actions ));
     }
 
     return $actions;

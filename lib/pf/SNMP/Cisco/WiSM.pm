@@ -11,6 +11,7 @@ This module is currently only a placeholder, see L<pf::SNMP::Cisco::WLC> for rel
 It should work on all 6500 WiSM modules and maybe 7500.
 
 =cut
+
 use strict;
 use warnings;
 

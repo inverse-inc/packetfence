@@ -20,9 +20,9 @@
               </td>
               <td>
                 [% IF loop.last %]
-                    [% CALL condition.field('attribute').set_element_attr("disabled","disabled") %]
-                    [% CALL condition.field('operator').set_element_attr("disabled","disabled") %]
-                    [% CALL condition.field('value').set_element_attr("disabled","disabled") %]
+                    [% CALL condition.field('attribute').set_element_attr("disabled", "disabled") %]
+                    [% CALL condition.field('operator').set_element_attr("disabled", "disabled") %]
+                    [% CALL condition.field('value').set_element_attr("disabled", "disabled") %]
                 [% END %]
                 [% condition.field('attribute').render_element %]
                 [% condition.field('operator').render_element %]
@@ -59,8 +59,8 @@
               </td>
               <td>
                 [% IF is_last %]
-                [% CALL action.field('type').set_element_attr("disabled","disabled")%]
-                [% CALL action.field('value').set_element_attr("disabled","disabled")%]
+                    [% CALL action.field('type').set_element_attr("disabled", "disabled") %]
+                    [% CALL action.field('value').set_element_attr("disabled", "disabled") %]
                 [% END %]
                 [% action.field('type').render_element %]
                 [% action.field('value').render_element %]
@@ -79,6 +79,6 @@
   </div>
   <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">[% l('Close') %]</a>
-    <button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>
+    [% IF can_access("USERS_SOURCES_UPDATE") %]<button class="btn btn-primary" data-loading-text="[% l('Saving') %]">[% l('Save') %]</button>[% END %]
   </div>
 </form>

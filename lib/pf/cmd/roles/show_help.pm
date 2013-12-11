@@ -22,7 +22,11 @@ use Role::Tiny;
 sub showHelp {
     my ($self,$package) = @_;
     $package ||= ref($self) || $self;
-    pod2usage( { -message => $self->{help_msg} ,  -input => pod_where({-inc => 1}, $package) } );
+    my $location = pod_where({-inc => 1}, $package);
+    pod2usage({
+        -message => $self->{help_msg} ,
+        -input => $location
+    });
 }
 
 
@@ -30,7 +34,6 @@ sub showHelp {
 
 Inverse inc. <info@inverse.ca>
 
-Minor parts of this file may have been contributed. See CREDITS.
 
 =head1 COPYRIGHT
 

@@ -23,6 +23,7 @@ use Log::Log4perl qw(get_logger);
 use pf::config;
 use pf::config::cached;
 use pf::util;
+use pf::freeradius;
 
 our ($singleton, %SwitchConfig, $switches_cached_config);
 
@@ -64,13 +65,20 @@ $switches_cached_config  = pf::config::cached->new(
                 }
             }
             $SwitchConfig{'127.0.0.1'} = { %{$SwitchConfig{default}}, type => 'PacketFence', mode => 'production', uplink => ['dynamic'], SNMPVersionTrap => '1', SNMPCommunityTrap => 'public'};
+            freeradius_populate_nas_config(\%SwitchConfig);
             $config->cache->set("SwitchConfig",\%SwitchConfig);
         },
     ],
     -oncachereload => [
         on_cache_switches_reload => sub  {
             my ($config, $name) = @_;
-            %SwitchConfig = %{$config->fromCacheUntainted("SwitchConfig")};
+            my $data = $config->fromCacheUntainted("SwitchConfig");
+            if($data) {
+                %SwitchConfig = %$data;
+            } else {
+                #if not found then call the onfilereload callback
+                $config->doCallbacks(1,0);
+            }
         },
     ]
 );

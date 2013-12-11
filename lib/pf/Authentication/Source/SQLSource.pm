@@ -28,7 +28,7 @@ has '+type' => ( default => 'SQL' );
 sub available_attributes {
   my $self = shift;
 
-  my $super_attributes = $self->SUPER::available_attributes; 
+  my $super_attributes = $self->SUPER::available_attributes;
   my $own_attributes = [{ value => "username", type => $Conditions::SUBSTRING }];
 
   return [@$super_attributes, @$own_attributes];
@@ -38,7 +38,7 @@ sub available_attributes {
 
 =cut
 
-sub authenticate {  
+sub authenticate {
    my ( $self, $username, $password ) = @_;
 
    my $result = pf::temporary_password::validate_password($username, $password);
@@ -66,7 +66,12 @@ sub match {
     my ($self, $params) = @_;
     my $common_attributes = $self->common_attributes();
 
-    my $result = pf::temporary_password::view($params->{'username'});
+    my $result;
+    if ($params->{'username'}) {
+        $result = pf::temporary_password::view($params->{'username'});
+    } elsif ($params->{'email'}) {
+        $result = pf::temporary_password::view_email($params->{'email'});
+    }
     
     # User is defined in SQL source, let's build the actions and return that
     if (defined $result) {
@@ -82,26 +87,26 @@ sub match {
         }
 
         my $access_level = $result->{'access_level'};
-        if ($access_level > 0) {
+        if (defined $access_level ) {
             $action =  pf::Authentication::Action->new({type => $Actions::SET_ACCESS_LEVEL,
                                                         value => $access_level});
             push(@actions, $action);
         }
-        
+
         my $sponsor = $result->{'sponsor'};
         if ($sponsor == 1) {
             $action =  pf::Authentication::Action->new({type => $Actions::MARK_AS_SPONSOR,
                                                         value => 1});
             push(@actions, $action);
         }
-        
+
         my $unregdate = $result->{'unregdate'};
         if (defined $unregdate) {
             $action =  pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE,
                                                         value => $unregdate});
             push(@actions, $action);
         }
-       
+
         my $category = $result->{'category'};
         if (defined $category) {
             $action =  pf::Authentication::Action->new({type => $Actions::SET_ROLE,
@@ -111,21 +116,8 @@ sub match {
 
         return \@actions;
     }
-    
+
     return undef;
-}
-
-=head2 username_from_email
-
-=cut
-
-sub username_from_email {
-    my ( $self, $email ) = @_;
-
-    my $logger = Log::Log4perl->get_logger('pf::authentication');
-
-    return pf::temporary_password::match_by_mail($email);
-
 }
 
 =head1 AUTHOR

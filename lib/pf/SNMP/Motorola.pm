@@ -79,6 +79,7 @@ sub inlineCapabilities { return ($MAC,$SSID); }
 obtain image version information from switch
 
 =cut
+
 sub getVersion {
     my ($this)       = @_;
     my $oid_sysDescr = '1.3.6.1.2.1.1.1.0';
@@ -107,6 +108,7 @@ sub getVersion {
 Parsing SNMP Traps - WIDS stuff only, other types are discarded
 
 =cut
+
 sub parseTrap {
     my ( $this, $trapString ) = @_;
     my $trapHashRef;
@@ -130,6 +132,7 @@ De-authenticate a MAC address from wireless network (including 802.1x).
 New implementation using RADIUS Disconnect-Request.
 
 =cut
+
 sub deauthenticateMacDefault {
     my ( $self, $mac, $is_dot1x ) = @_;
     my $logger = Log::Log4perl::get_logger( ref($self) );
@@ -156,6 +159,7 @@ sub deauthenticateMacDefault {
 deauthenticate a MAC address from wireless network (including 802.1x)
 
 =cut
+
 sub _deauthenticateMacSNMP {
     my ($this, $mac) = @_;
     my $logger = Log::Log4perl::get_logger(ref($this));
@@ -195,6 +199,7 @@ sub _deauthenticateMacSNMP {
 Motorola uses the following VSA for role assignment
 
 =cut
+
 sub returnRoleAttribute {
     my ($this) = @_;
 

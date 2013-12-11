@@ -51,6 +51,7 @@ config                       | query, set, or get help on pf.conf configuration 
 configfiles                  | push or pull configfiles into/from database
 floatingnetworkdeviceconfig  | query/modify floating network device configuration parameters
 fingerprint                  | view DHCP Fingerprints
+fixpermissions               | fix permissions of files
 graph                        | trending graphs
 history                      | IP/MAC history
 import                       | bulk import of information into the database
@@ -117,10 +118,11 @@ Services managed by PacketFence:
   httpd.webservices| Apache Webservices
   httpd.admin      | Apache Web admin
   httpd.portal     | Apache Captive Portal
-  pfdns            | DNS daemon
+  httpd.proxy      | Apache Proxy Interception
   pf               | all services that should be running based on your config
   pfdetect         | PF snort alert parser
   pfdhcplistener   | PF DHCP monitoring daemon
+  pfdns            | DNS daemon
   pfmon            | PF ARP monitoring daemon
   pfsetvlan        | PF VLAN isolation daemon
   radiusd          | FreeRADIUS daemon
@@ -641,6 +643,16 @@ otherwise in pf.conf.
 
 example:
   pfcmd import nodes /tmp/new-nodes.csv
+EOT
+    return 1;
+}
+
+sub help_fixpermissions {
+    print STDERR << "EOT";
+Usage: pfcmd fixpermissions
+
+Fix the permissions of the files and directories of PacketFence
+
 EOT
     return 1;
 }

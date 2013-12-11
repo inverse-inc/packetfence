@@ -8,7 +8,7 @@ pf::ifoctetslog - module for SNMP counters.
 
 =head1 DESCRIPTION
 
-pf::ifoctetslog contains the functions related to the SNMP counters: 
+pf::ifoctetslog contains the functions related to the SNMP counters:
 inbound and outbound octets counters included in the ifTable.
 
 =head1 CONFIGURATION AND ENVIRONMENT
@@ -128,7 +128,7 @@ sub ifoctetslog_history_user {
         @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql',
             $user, $params{'start_time'}, $params{'end_time'});
     } else {
-        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_start_end_sql', $user);
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_user_sql', $user);
     }
 
     my $previousLine;
@@ -186,10 +186,10 @@ sub ifoctetslog_history_switchport {
     my @raw_data;
     my @data;
     if ( exists( $params{'start_time'} ) && exists( $params{'end_time'} ) ) {
-        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_start_end_sql', 
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_start_end_sql',
             $switch, $params{'ifIndex'}, $params{'start_time'}, $params{'end_time'});
     } else {
-        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_sql', 
+        @raw_data = db_data(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_history_switchport_sql',
             $switch, $params{'ifIndex'});
     }
     my $previousLine;
@@ -215,7 +215,7 @@ sub ifoctetslog_history_switchport {
 sub ifoctetslog_insert {
     my ( $switch, $ifIndex, $mac, $ifInOctets, $ifOutOctets ) = @_;
 
-    db_query_execute(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_insert_sql', 
+    db_query_execute(IFOCTETSLOG, $ifoctetslog_statements, 'ifoctetslog_insert_sql',
         $switch, $ifIndex, $mac, $ifInOctets, $ifOutOctets)
         || return (0);
     return (1);

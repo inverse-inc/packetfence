@@ -11,6 +11,7 @@ pf::util::freeradius - FreeRADIUS rlm_perl related utilities
 Small thread-safe utilities for our FreeRADIUS rlm_perl modules.
 
 =cut
+
 use strict;
 use warnings;
 
@@ -33,6 +34,7 @@ Clean a MAC address accepting xx-xx-xx-xx-xx-xx, xx:xx:xx:xx:xx:xx, xxxx-xxxx-xx
 Returns a string with MAC in format: xx:xx:xx:xx:xx:xx
 
 =cut
+
 sub clean_mac {
     my ($mac) = @_;
     return (0) if ( !$mac );
@@ -52,6 +54,7 @@ URL encode illegal characters from WS_USER/WS_PASS used in SOAP calls.
 Ref: http://tools.ietf.org/html/rfc1738#section-3.1
 
 =cut
+
 sub sanitize_parameter {
     my ($parameter) = @_;
 

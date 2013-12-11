@@ -35,6 +35,7 @@ use Net::Nessus::XMLRPC;
 Create a new Nessus scanning object with the required attributes
 
 =cut
+
 sub new {
     my ( $class, %data ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
@@ -70,6 +71,7 @@ sub new {
 =item startScan
 
 =cut
+
 # WARNING: A lot of extra single quoting has been done to fix perl taint mode issues: #1087
 sub startScan {
     my ( $this ) = @_;
@@ -130,6 +132,7 @@ sub startScan {
 Get the policy to apply to a category
 
 =cut
+
 sub getPolicyByCategory {
 my ( $this ) = @_;
     my $logger = Log::Log4perl::get_logger(__PACKAGE__);
