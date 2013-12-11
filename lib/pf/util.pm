@@ -94,7 +94,7 @@ sub valid_ip {
     if ( !$ip || $ip !~ $VALID_IP_REGEX || $ip =~ $NON_VALID_IP_REGEX) {
         my $caller = ( caller(1) )[3] || basename($0);
         $caller =~ s/^(pf::\w+|main):://;
-        $logger->error("invalid IP: $ip from $caller");
+        $logger->debug("invalid IP: $ip from $caller");
         return (0);
     } else {
         return (1);
@@ -216,12 +216,12 @@ sub valid_mac {
     my ($mac) = @_;
     my $logger = Log::Log4perl::get_logger('pf::util');
     if ( $mac !~ $VALID_MAC_REGEX) {
-        $logger->error("invalid MAC: $mac");
+        $logger->debug("invalid MAC: $mac");
         return (0);
     }
     $mac = clean_mac($mac);
     if( $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
-        $logger->error("invalid MAC: $mac");
+        $logger->debug("invalid MAC: $mac");
         return (0);
     } else {
         return (1);
@@ -1125,7 +1125,7 @@ sub valid_mac_or_ip {
         my ($mac) = clean_mac($mac_or_ip);
         return 1 if($mac && $mac !~ $NON_VALID_MAC_REGEX && $mac =~ $VALID_PF_MAC_REGEX);
     }
-    get_logger()->error("invalid MAC or IP: $mac_or_ip");
+    get_logger()->debug("invalid MAC or IP: $mac_or_ip");
     return 0;
 }
 
