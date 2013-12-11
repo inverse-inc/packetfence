@@ -9,8 +9,11 @@ server packetfence {
         files
         expiration
         logintime
-        packetfence
-    }
+        update request {
+            FreeRADIUS-Client-IP-Address := "%{Packet-Src-IP-Address}"
+        }
+	packetfence
+}
 
     authenticate {
         Auth-Type MS-CHAP {
