@@ -52,10 +52,12 @@ Enhancements
 * Unreg the node when you come from a secure connection to an open connection
 * Allow a self-registered node by SMS to go back to the registration page
 * Sponsor email authentication source can refuse email addresses of the local domain (as the email source)
+* Updated German (de) translation
 
 Bug Fixes
 +++++++++
 
+* RADIUS configuration files are no longer replaced when updating packages
 * Fixed match of Htpasswd authentication source (#1714)
 * Fixed creation of users without a role (#1721)
 * Fixed expiration date of registration to the end of the day (#1722)
