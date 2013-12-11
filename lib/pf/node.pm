@@ -658,7 +658,7 @@ sub node_view_all {
                 $node_view_all_sql .= " HAVING node.mac = $mac";
             }
             else {
-                my $like = get_db_handle->quote("\%$like\%");
+                $like = get_db_handle->quote('%' . $params{'where'}{'like'} . '%');
                 $node_view_all_sql .= " HAVING node.mac LIKE $like"
                   . " OR node.computername LIKE $like"
                   . " OR node.pid LIKE $like"
