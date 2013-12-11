@@ -11,7 +11,7 @@ This is a list of noteworthy changes across releases.
 For more details and developer visible changes see the ChangeLog file.
 For a list of compatibility related changes see the UPGRADE.asciidoc file.
 
-Version 4.1.0 released on 2013-MM-DD
+Version 4.1.0 released on 2013-12-11
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 New Features
@@ -20,7 +20,7 @@ New Features
 * Portal profiles can be filtered by switches
 * Proxy interception
 * New pfcmd command fixpermissions
-* Added a Null Authenication Source
+* Added a "Null" authenication source
 * Displayed columns of nodes are now customizable
 * Create a single node or import multiple nodes from a CSV file from the Web admin
 * LDAP authentication sources can now filter by group membership using a second LDAP query

@@ -47,7 +47,7 @@ Note on Inline enforcement support
 ----------------------------------
 
 There is no need to follow the instructions in this guide if you plan on deploying in inline 
-enforcement, except radius inline. In this case all you need to do is to have a flat layer 2 network up to 
+enforcement, except RADIUS inline. In this case all you need to do is to have a flat layer 2 network up to 
 PacketFence's inline interface with no other gateway available for devices to reach out to the 
 Internet. 
 
@@ -1130,7 +1130,7 @@ Dell
 Force 10
 ^^^^^^^^
 
-PacketFence supports this switch using radiusi mac-auth and 802.1x
+PacketFence supports this switch using RADIUS, MAC-Authentication and 802.1x.
 
 Global config settings
 
