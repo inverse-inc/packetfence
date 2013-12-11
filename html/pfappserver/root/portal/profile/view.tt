@@ -51,7 +51,7 @@
                 <p>
                   <i class="icon-group icon-large"></i>
                   [%- IF form.isa('pfappserver::Form::Portal::Profile::Default') -%]
-                  [% l('With no source specified, all internal sources will be used.') %]
+                  [% l('With no source specified, all internal and external sources will be used.') %]
                   [%- ELSE -%]
                   [% l('With no source specified, the sources of the default profile will be used.') %]
                   [%- END -%]<br/>

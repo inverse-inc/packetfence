@@ -651,7 +651,7 @@ sub help_fixpermissions {
     print STDERR << "EOT";
 Usage: pfcmd fixpermissions
 
-Fix the permissions of the files and directories of packetfence
+Fix the permissions of the files and directories of PacketFence
 
 EOT
     return 1;
