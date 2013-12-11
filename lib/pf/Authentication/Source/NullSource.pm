@@ -57,7 +57,7 @@ sub authenticate {
     if (isdisabled($self->email_required) || Email::Valid->address($username) ) {
         return ($TRUE, 'Successful authentication using null source.');
     }
-    return ($FALSE, 'Successful authentication using null source.');
+    return ($FALSE, 'Invalid email address provided.');
 }
 
 =head1 AUTHOR
