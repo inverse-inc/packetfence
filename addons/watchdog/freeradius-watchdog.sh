@@ -33,10 +33,10 @@ function radius_test () {
     WORKING=0
     for OUTPUT in `radtest testuser testpass $SERVER_IP 12 testing123 2>&1`
     do
-        if [[ "$OUTPUT" =~ "^radclient: no response from server for" ]]; then
+        if [[ "$OUTPUT" =~ ^"radclient: no response from server for" ]]; then
             WORKING=0
             break
-        elif [[ "$OUTPUT" =~ "^rad_recv: Access-Accept packet from host" ]]; then
+        elif [[ "$OUTPUT" =~ ^"rad_recv: Access-Accept packet from host" ]]; then
             WORKING=1
         fi
     done
