@@ -1166,7 +1166,7 @@ Fetch the ifindex on the switch by NAS-Port-Id radius attribute
 
 =cut
 
-sub getIfIndexiByNasPortId {
+sub getIfIndexByNasPortId {
     my ($this, $ifDesc_param) = @_;
 
     if ( !$this->connectRead() ) {
