@@ -18,6 +18,7 @@ extends 'pf::services::manager';
 with 'pf::services::manager::roles::pf_conf_trapping_engine';
 use pf::file_paths;
 use pf::config;
+use pf::services::snort qw(generate_snort_conf);
 
 has '+name' => ( default => sub { 'snort' } );
 
@@ -28,6 +29,16 @@ has '+launcher' => (
     },
     lazy => 1
 );
+
+sub generateConfig {
+    generate_snort_conf();
+}
+
+sub pidFile {
+    my ($self) = @_;
+    my $name = $self->name;
+    return "$var_dir/run/${name}_${monitor_int}.pid";
+}
 
 =head1 AUTHOR
 
