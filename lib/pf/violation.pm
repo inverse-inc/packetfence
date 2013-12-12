@@ -529,7 +529,7 @@ Returns 1 if at least one violation is added, 0 otherwise.
 =cut
 
 sub violation_trigger {
-    my ( $mac, $tid, $type, %data ) = @_;
+    my ( $mac, $tid, $type ) = @_;
     my $logger = Log::Log4perl::get_logger('pf::violation');
     return (0) if ( !$tid );
     $type = lc($type);
