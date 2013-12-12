@@ -122,7 +122,7 @@ if ( defined($cgi->param('submit')) ) {
             my @tid = trigger_view_tid($ACCOUNTING_POLICY_TIME);
             foreach my $violation (@tid) {
                 # Close any existing violation
-                violation_force_close($mac, $violation{'vid'});
+                violation_force_close($mac, $violation->{'vid'});
             }
 
             # Register the node
