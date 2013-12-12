@@ -59,7 +59,7 @@ sub customreport_nodereg {
 .
 
     foreach my $row (@data) {
-        ($pid, $regdate, $switch_mac) = ($row->{pid}, $row->{regdate}, $row->{switch_mac});
+        ($pid, $regdate, $switch_mac) = @{$row}{qw(pid regdate switch_mac)};
         write();
     }
 }
