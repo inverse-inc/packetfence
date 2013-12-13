@@ -122,6 +122,7 @@ Requires: perl(IPTables::Parse)
 Requires: perl(Tie::DxHash)
 requires: perl(Proc::ProcessTable)
 requires: perl(Apache::SSLLookup)
+requires: perl(Crypt::OpenSSL::X509)
 # Perl core modules but still explicitly defined just in case distro's core perl get stripped
 Requires: perl(Time::HiRes)
 # Required for inline mode. Specific version matches system's iptables version.
