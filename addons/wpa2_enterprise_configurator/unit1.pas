@@ -166,7 +166,7 @@ begin
   // Generate files to create the wifi, certificate and soh profil
   httpClient:= THTTPSend.Create;
   httpClient.Sock.SSL.VerifyCert:=false;
-  if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/xml') then
+  if httpClient.HTTPMethod('GET', 'https://provisioning.inverse.ca/winprofil/xml') then
     begin
       case httpClient.ResultCode of
         100..299:
@@ -188,7 +188,7 @@ begin
 
   httpClient:= THTTPSend.Create;
   httpClient.Sock.SSL.VerifyCert:=false;
-  if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/ca') then
+  if httpClient.HTTPMethod('GET', 'https://provisioning.inverse.ca/winprofil/ca') then
     begin
       case httpClient.ResultCode of
         100..299:
@@ -210,7 +210,7 @@ begin
 
   httpClient:= THTTPSend.Create;
   httpClient.Sock.SSL.VerifyCert:=false;
-  if httpClient.HTTPMethod('GET', 'https://packetfence.inverse.ca/winprofil/soh') then
+  if httpClient.HTTPMethod('GET', 'https://provisioning.inverse.ca/winprofil/soh') then
     begin
       case httpClient.ResultCode of
         100..299:
