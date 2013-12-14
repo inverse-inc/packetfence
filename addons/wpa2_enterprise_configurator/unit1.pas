@@ -249,7 +249,7 @@ begin
         RunAsAdmin(Form1.Handle, 'netsh NAP client import FILENAME = "' + rep_temp + 'profil_soh.xml" ', '');
       end;
       RunAsAdmin(Form1.Handle, 'netsh wlan disconnect', '');
-      RunAsAdmin(Form1.Handle, 'netsh wlan add profile filename="' + rep_temp + 'profil_wifi.xml" ', '');
+      RunAsAdmin(Form1.Handle, 'netsh wlan add profile filename="' + rep_temp + 'profil_wifi.xml" user=current', '');
     end
     else if ( (windowsVersion = '5.1') or (windowsVersion = '5.2') ) then
     begin
@@ -268,7 +268,7 @@ begin
         RunAsAdmin(Form1.Handle, 'netsh NAP client import FILENAME = "' + rep_temp + 'profil_soh.xml" ', '');
       end;
       RunAsAdmin(Form1.Handle, 'netsh wlan disconnect', '');
-      RunAsAdmin(Form1.Handle, 'netsh wlan add profile filename="' + rep_temp + 'profil_wifi.xml" ', '');
+      RunAsAdmin(Form1.Handle, 'netsh wlan add profile filename="' + rep_temp + 'profil_wifi.xml" user=current', '');
     end;
     RunAsAdmin(Form1.Handle, 'netsh wlan show profiles', '');
   end
