@@ -238,7 +238,7 @@ object Form1: TForm1
     93E8B2DB38510000000049454E44AE426082
   }
   Position = poScreenCenter
-  LCLVersion = '1.0.1.3'
+  LCLVersion = '1.0.14.0'
   object Button1: TButton
     Left = 304
     Height = 24

@@ -23,9 +23,9 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="2"/>
-      <MinorVersionNr Value="1"/>
-      <BuildNr Value="167"/>
-      <StringTable CompanyName="Inverse" ProductName="Wi-Fi Configurator" ProductVersion=""/>
+      <MinorVersionNr Value="2"/>
+      <BuildNr Value="173"/>
+      <StringTable CompanyName="Inverse" ProductName="802.1x configurator" ProductVersion=""/>
     </VersionInfo>
     <BuildModes Count="1" Active="Default">
       <Item1 Name="Default" Default="True"/>
@@ -41,15 +41,12 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="1">
       <Item1>
-        <PackageName Value="dll"/>
-      </Item1>
-      <Item2>
         <PackageName Value="LCL"/>
-      </Item2>
+      </Item1>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="8">
       <Unit0>
         <Filename Value="WPA_Ent_Config.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -57,7 +54,7 @@
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="58" Y="16"/>
+        <CursorPos X="28" Y="16"/>
         <UsageCount Value="261"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -68,10 +65,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="227"/>
-        <CursorPos X="15" Y="253"/>
+        <TopLine Value="198"/>
+        <CursorPos X="41" Y="216"/>
         <UsageCount Value="261"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -117,137 +115,148 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit3"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="7"/>
+        <TopLine Value="1"/>
         <CursorPos X="1" Y="20"/>
         <UsageCount Value="219"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="C:\lazarus\components\lazutils\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="54"/>
+        <CursorPos X="23" Y="64"/>
+        <UsageCount Value="10"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="ssl_openssl.pas"/>
+        <UnitName Value="ssl_openssl"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="861"/>
+        <CursorPos X="60" Y="871"/>
+        <UsageCount Value="10"/>
+      </Unit7>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="unit3.pas"/>
-        <Caret Line="13" Column="3" TopLine="1"/>
+        <Caret Line="36" Column="25" TopLine="15"/>
       </Position1>
       <Position2>
         <Filename Value="unit3.pas"/>
-        <Caret Line="35" Column="4" TopLine="3"/>
+        <Caret Line="35" Column="25" TopLine="14"/>
       </Position2>
       <Position3>
         <Filename Value="unit3.pas"/>
-        <Caret Line="36" Column="5" TopLine="3"/>
+        <Caret Line="36" Column="25" TopLine="14"/>
       </Position3>
       <Position4>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="22" Column="4" TopLine="3"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="423" Column="25" TopLine="408"/>
       </Position4>
       <Position5>
-        <Filename Value="unit1.pas"/>
-        <Caret Line="156" Column="49" TopLine="137"/>
+        <Filename Value="WPA_Ent_Config.lpr"/>
+        <Caret Line="11" Column="11" TopLine="1"/>
       </Position5>
       <Position6>
         <Filename Value="unit1.pas"/>
-        <Caret Line="155" Column="49" TopLine="136"/>
+        <Caret Line="171" Column="48" TopLine="152"/>
       </Position6>
       <Position7>
         <Filename Value="unit1.pas"/>
-        <Caret Line="154" Column="49" TopLine="135"/>
+        <Caret Line="150" Column="9" TopLine="124"/>
       </Position7>
       <Position8>
         <Filename Value="unit1.pas"/>
-        <Caret Line="153" Column="49" TopLine="134"/>
+        <Caret Line="462" Column="24" TopLine="436"/>
       </Position8>
       <Position9>
-        <Filename Value="unit1.pas"/>
-        <Caret Line="152" Column="49" TopLine="133"/>
+        <Filename Value="unit3.pas"/>
+        <Caret Line="38" Column="25" TopLine="14"/>
       </Position9>
       <Position10>
-        <Filename Value="unit1.pas"/>
-        <Caret Line="261" Column="32" TopLine="223"/>
+        <Filename Value="unit3.pas"/>
+        <Caret Line="42" Column="1" TopLine="18"/>
       </Position10>
       <Position11>
         <Filename Value="unit1.pas"/>
-        <Caret Line="24" Column="10" TopLine="5"/>
+        <Caret Line="97" Column="33" TopLine="79"/>
       </Position11>
       <Position12>
         <Filename Value="unit1.pas"/>
-        <Caret Line="376" Column="31" TopLine="358"/>
+        <Caret Line="257" Column="39" TopLine="228"/>
       </Position12>
       <Position13>
         <Filename Value="unit1.pas"/>
-        <Caret Line="375" Column="31" TopLine="357"/>
+        <Caret Line="259" Column="18" TopLine="230"/>
       </Position13>
       <Position14>
         <Filename Value="unit1.pas"/>
-        <Caret Line="374" Column="31" TopLine="356"/>
+        <Caret Line="116" Column="41" TopLine="92"/>
       </Position14>
       <Position15>
         <Filename Value="unit1.pas"/>
-        <Caret Line="375" Column="31" TopLine="357"/>
+        <Caret Line="47" Column="58" TopLine="29"/>
       </Position15>
       <Position16>
         <Filename Value="unit1.pas"/>
-        <Caret Line="419" Column="3" TopLine="403"/>
+        <Caret Line="327" Column="1" TopLine="310"/>
       </Position16>
       <Position17>
         <Filename Value="unit1.pas"/>
-        <Caret Line="420" Column="3" TopLine="404"/>
+        <Caret Line="163" Column="3" TopLine="154"/>
       </Position17>
       <Position18>
         <Filename Value="unit1.pas"/>
-        <Caret Line="421" Column="3" TopLine="405"/>
+        <Caret Line="149" Column="1" TopLine="139"/>
       </Position18>
       <Position19>
         <Filename Value="unit1.pas"/>
-        <Caret Line="428" Column="3" TopLine="407"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position19>
       <Position20>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="37" Column="25" TopLine="16"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="23" Column="14" TopLine="15"/>
       </Position20>
       <Position21>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="36" Column="25" TopLine="15"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="75" Column="14" TopLine="65"/>
       </Position21>
       <Position22>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="35" Column="25" TopLine="14"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="74" Column="1" TopLine="59"/>
       </Position22>
       <Position23>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="36" Column="25" TopLine="14"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="319" Column="11" TopLine="309"/>
       </Position23>
       <Position24>
         <Filename Value="unit1.pas"/>
-        <Caret Line="423" Column="25" TopLine="408"/>
+        <Caret Line="295" Column="1" TopLine="276"/>
       </Position24>
       <Position25>
-        <Filename Value="WPA_Ent_Config.lpr"/>
-        <Caret Line="11" Column="11" TopLine="1"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="236" Column="28" TopLine="224"/>
       </Position25>
       <Position26>
         <Filename Value="unit1.pas"/>
-        <Caret Line="171" Column="48" TopLine="152"/>
+        <Caret Line="261" Column="28" TopLine="257"/>
       </Position26>
       <Position27>
         <Filename Value="unit1.pas"/>
-        <Caret Line="150" Column="9" TopLine="124"/>
+        <Caret Line="271" Column="21" TopLine="257"/>
       </Position27>
       <Position28>
         <Filename Value="unit1.pas"/>
-        <Caret Line="462" Column="24" TopLine="436"/>
+        <Caret Line="236" Column="28" TopLine="252"/>
       </Position28>
       <Position29>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="38" Column="25" TopLine="14"/>
+        <Filename Value="unit1.pas"/>
+        <Caret Line="261" Column="25" TopLine="282"/>
       </Position29>
-      <Position30>
-        <Filename Value="unit3.pas"/>
-        <Caret Line="42" Column="1" TopLine="18"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
