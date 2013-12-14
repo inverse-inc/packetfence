@@ -69,19 +69,25 @@ type
 const
   VER_NT_WORKSTATION       = $0000001;
 
-function RunAsAdmin(const Handle: Hwnd; const Path, Params: string): Boolean;
+function ShellExecAndWait(const FileName, Parameters, dir: string;
+  CmdShow: Integer): Boolean;
 var
-  sei: TShellExecuteInfoA;
+  Sei: TShellExecuteInfo;
 begin
-  FillChar(sei, SizeOf(sei), 0);
-  sei.cbSize := SizeOf(sei);
-  sei.Wnd := Handle;
-  sei.fMask := SEE_MASK_FLAG_DDEWAIT or SEE_MASK_FLAG_NO_UI;
-  sei.lpVerb := 'runas';
-  sei.lpFile := PAnsiChar(Path);
-  sei.lpParameters := PAnsiChar(Params);
-  sei.nShow := SW_SHOWNORMAL;
-  Result := ShellExecuteExA(@sei);
+  FillChar(Sei, SizeOf(Sei), #0);
+  Sei.cbSize := SizeOf(Sei);
+  Sei.fMask := SEE_MASK_DOENVSUBST or SEE_MASK_FLAG_NO_UI or SEE_MASK_NOCLOSEPROCESS;
+  Sei.lpFile := PChar(FileName);
+  Sei.lpParameters := PChar(Parameters);
+  Sei.lpdirectory := PChar(dir);
+  Sei.nShow := CmdShow;
+  Result := ShellExecuteExA(@Sei);
+  if Result then
+  begin
+    WaitForInputIdle(Sei.hProcess, INFINITE);
+    WaitForSingleObject(Sei.hProcess, INFINITE);
+    CloseHandle(Sei.hProcess);
+  end;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -166,7 +172,7 @@ begin
   // Generate files to create the wifi, certificate and soh profil
   httpClient:= THTTPSend.Create;
   httpClient.Sock.SSL.VerifyCert:=false;
-  if httpClient.HTTPMethod('GET', 'https://provisioning.inverse.ca/winprofil/xml') then
+  if httpClient.HTTPMethod('GET', 'http://provisioning.inverse.ca/winprofil/xml') then
     begin
       case httpClient.ResultCode of
         100..299:
@@ -188,7 +194,7 @@ begin
 
   httpClient:= THTTPSend.Create;
   httpClient.Sock.SSL.VerifyCert:=false;
-  if httpClient.HTTPMethod('GET', 'https://provisioning.inverse.ca/winprofil/ca') then
+  if httpClient.HTTPMethod('GET', 'http://provisioning.inverse.ca/winprofil/ca') then
     begin
       case httpClient.ResultCode of
         100..299:
@@ -210,7 +216,7 @@ begin
 
   httpClient:= THTTPSend.Create;
   httpClient.Sock.SSL.VerifyCert:=false;
-  if httpClient.HTTPMethod('GET', 'https://provisioning.inverse.ca/winprofil/soh') then
+  if httpClient.HTTPMethod('GET', 'http://provisioning.inverse.ca/winprofil/soh') then
     begin
       case httpClient.ResultCode of
         100..299:
@@ -236,41 +242,41 @@ begin
     begin
       if certificate_client then
       begin
-        RunAsAdmin(Form1.Handle, 'certutil.exe -addstore -f Root "' + rep_temp + 'certificat.crt"', '');
+        ShellExecAndWait('certutil.exe', ' -addstore -f Root "' + rep_temp + 'certificat.crt"', '',0);
       end;
 
       //SOH Enable
       if soh_client then
       begin
-        RunAsAdmin(Form1.Handle, 'sc config NAPAgent start= auto', '');
-        RunAsAdmin(Form1.Handle, 'sc start NAPAgent', '');
-        RunAsAdmin(Form1.Handle, 'sc config Dot3Svc start= auto', '');
-        RunAsAdmin(Form1.Handle, 'sc start Dot3Svc', '');
-        RunAsAdmin(Form1.Handle, 'netsh NAP client import FILENAME = "' + rep_temp + 'profil_soh.xml" ', '');
+        ShellExecAndWait('sc',' config NAPAgent start= auto', '',0);
+        ShellExecAndWait('sc',' start NAPAgent', '',0);
+        ShellExecAndWait('sc',' config Dot3Svc start= auto', '',0);
+        ShellExecAndWait('sc',' start Dot3Svc', '',0);
+        ShellExecAndWait('netsh',' NAP client import FILENAME = "' + rep_temp + 'profil_soh.xml" ', '',0);
       end;
-      RunAsAdmin(Form1.Handle, 'netsh wlan disconnect', '');
-      RunAsAdmin(Form1.Handle, 'netsh wlan add profile filename="' + rep_temp + 'profil_wifi.xml" user=current', '');
+      ShellExecAndWait('netsh',' wlan disconnect', '',0);
+      ShellExecAndWait('netsh',' wlan add profile filename="' + rep_temp + 'profil_wifi.xml" user=current', '',0);
     end
     else if ( (windowsVersion = '5.1') or (windowsVersion = '5.2') ) then
     begin
       if certificate_client then
       begin
-        RunAsAdmin(Form1.Handle, 'rundll32.exe cryptext.dll,CryptExtAddCER ' + rep_temp + 'certificat.crt', '');
+        ShellExecAndWait('rundll32.exe',' cryptext.dll,CryptExtAddCER ' + rep_temp + 'certificat.crt', '',0);
       end;
 
       //SOH Enable
       if soh_client then
       begin
-        RunAsAdmin(Form1.Handle, 'sc config NAPAgent start= auto', '');
-        RunAsAdmin(Form1.Handle, 'sc start NAPAgent', '');
-        RunAsAdmin(Form1.Handle, 'sc config Dot3Svc start= auto', '');
-        RunAsAdmin(Form1.Handle, 'sc start Dot3Svc', '');
-        RunAsAdmin(Form1.Handle, 'netsh NAP client import FILENAME = "' + rep_temp + 'profil_soh.xml" ', '');
+        ShellExecAndWait('sc',' config NAPAgent start= auto', '',0);
+        ShellExecAndWait('sc',' start NAPAgent', '',0);
+        ShellExecAndWait('sc',' config Dot3Svc start= auto', '',0);
+        ShellExecAndWait('sc',' start Dot3Svc', '',0);
+        ShellExecAndWait('netsh',' NAP client import FILENAME = "' + rep_temp + 'profil_soh.xml" ', '',0);
       end;
-      RunAsAdmin(Form1.Handle, 'netsh wlan disconnect', '');
-      RunAsAdmin(Form1.Handle, 'netsh wlan add profile filename="' + rep_temp + 'profil_wifi.xml" user=current', '');
+      ShellExecAndWait('netsh',' wlan disconnect', '',0);
+      ShellExecAndWait('netsh',' wlan add profile filename="' + rep_temp + 'profil_wifi.xml" ', '',0);
     end;
-    RunAsAdmin(Form1.Handle, 'netsh wlan show profiles', '');
+    //ShellExecAndWait('netsh',' wlan show profiles', '',0);
   end
   else
   begin
@@ -279,7 +285,7 @@ begin
 
 //  DeleteFile (rep_temp + 'certificat.crt');
 //  DeleteFile (rep_temp + 'profil_wifi.xml');
-  RemoveDir (rep_temp);
+//  RemoveDir (rep_temp);
 
   app.free;
 
