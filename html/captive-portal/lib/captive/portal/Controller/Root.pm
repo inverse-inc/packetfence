@@ -388,7 +388,7 @@ sub getSubTemplate {
     } @$paths;
 }
 
-=item webNodeRegister
+=head2 webNodeRegister
 
 This sub is meant to be redefined by pf::web::custom to fit your specific needs.
 See F<pf::web::custom> for examples.
@@ -410,6 +410,7 @@ sub webNodeRegister : Hookable('Private') {
 
     if ( is_max_reg_nodes_reached( $mac, $pid, $info{'category'} ) ) {
         $c->forward('maxRegNodesReached');
+        $c->detach;
     }
     node_register( $mac, $pid, %info );
 
