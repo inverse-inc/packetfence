@@ -71,7 +71,7 @@ sub event_add {
   if ($srcmac) {
 
     # trigger a violation
-    violation_trigger($srcmac, $id, $type, ( ip => $srcip ));
+    violation_trigger($srcmac, $id, $type);
 
   } else {
     $logger->info("violation on IP $srcip with trigger ${type}::${id}: violation not added, can't resolve IP to mac !");

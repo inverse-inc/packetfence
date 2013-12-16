@@ -141,7 +141,7 @@ sub parse_scan_report {
         my ( $trigger_id, $number ) = split(/\|/, $current_vuln);
 
         $logger->info("Calling violation_trigger for ip: $ip, mac: $mac, type: $type, trigger: $trigger_id");
-        my $violation_added = violation_trigger($mac, $trigger_id, $type, (ip => $ip));
+        my $violation_added = violation_trigger($mac, $trigger_id, $type);
 
         # If a violation has been added, consider the scan failed
         if ( $violation_added ) {
