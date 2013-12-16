@@ -193,6 +193,7 @@ TODO: documention
 sub postAuthentication : Hookable('Private') {
     my ( $self, $c ) = @_;
     my $logger = get_logger;
+    $c->detach('showLogin') if $c->stash->{txt_auth_error};
     my $portalSession = $c->portalSession;
     my $session = $c->session;
     my $info = $c->stash->{info} || {};
@@ -293,7 +294,6 @@ sub authenticationLogin : Hookable('Private') {
         $c->session->{source_id} = $source_id;
     } else {
         $c->stash( txt_auth_error => i18n($message) );
-        $c->detach('showLogin');
     }
 }
 
