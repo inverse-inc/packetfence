@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('captive::portal', 'Create');
+Catalyst::ScriptRunner->run('captiveportal', 'Create');
 
 1;
 

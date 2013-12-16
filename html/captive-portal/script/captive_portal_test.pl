@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('captive::portal', 'Test');
+Catalyst::ScriptRunner->run('captiveportal', 'Test');
 
 1;
 

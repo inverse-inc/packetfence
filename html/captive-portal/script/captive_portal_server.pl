@@ -5,7 +5,7 @@ BEGIN {
 }
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('captive::portal', 'Server');
+Catalyst::ScriptRunner->run('captiveportal', 'Server');
 
 1;
 

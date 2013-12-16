@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 use Catalyst::ScriptRunner;
-Catalyst::ScriptRunner->run('captive::portal', 'FastCGI');
+Catalyst::ScriptRunner->run('captiveportal', 'FastCGI');
 
 1;
 
