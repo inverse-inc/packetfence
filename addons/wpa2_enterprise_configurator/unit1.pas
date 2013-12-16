@@ -105,6 +105,8 @@ var
   httpClient: THTTPSend;
   osvi: TOSVERSIONINFOEX;
   bOsVersionInfoEx: boolean;
+  Registry: TRegistry;
+
 
 begin
   app := TProcess.Create(nil);
@@ -238,6 +240,25 @@ begin
 
   if wifi_client then
   begin
+      Registry := TRegistry.Create;
+      try
+        // Navigate to proper "directory":
+        Registry.RootKey := HKEY_LOCAL_MACHINE;
+        if Registry.OpenKey('\SYSTEM\CurrentControlSet\services\RasMan\PPP\EAP\25',True) then
+          if Registry.ValueExists('PathBackup') then
+          begin
+            Registry.RenameValue('Path','Path_bak');
+            Registry.RenameValue('PathBackup','Path');
+            Registry.RenameValue('InteractiveUIPath','InteractiveUIPath_bak');
+            Registry.RenameValue('InteractiveUIPathBackup','InteractiveUIPath');
+            Registry.RenameValue('ConfigUiPath','ConfigUiPath_bak');
+            Registry.RenameValue('ConfigUiPathBackup','ConfigUiPath');
+            Registry.RenameValue('IdentityPath','IdentityPath_bak');
+            Registry.RenameValue('IdentityPathBackup','IdentityPath');
+          end;
+      finally
+        Registry.Free;
+      end;
     if ( osvi.dwMajorVersion >= 6 ) then
     begin
       if certificate_client then
@@ -276,11 +297,29 @@ begin
       ShellExecAndWait('netsh',' wlan disconnect', '',0);
       ShellExecAndWait('netsh',' wlan add profile filename="' + rep_temp + 'profil_wifi.xml" ', '',0);
     end;
-    //ShellExecAndWait('netsh',' wlan show profiles', '',0);
+    try
+      Registry := TRegistry.Create;
+      // Navigate to proper "directory":
+      Registry.RootKey := HKEY_LOCAL_MACHINE;
+      if Registry.OpenKey('\SYSTEM\CurrentControlSet\services\RasMan\PPP\EAP\25',True) then
+        if Registry.ValueExists('Path_bak') then
+        begin
+          Registry.RenameValue('Path','PathBackup');
+          Registry.RenameValue('Path_bak','Path');
+          Registry.RenameValue('InteractiveUIPath','InteractiveUIPathBackup');
+          Registry.RenameValue('InteractiveUIPath_bak','InteractiveUIPath');
+          Registry.RenameValue('ConfigUiPath','ConfigUiPathBackup');
+          Registry.RenameValue('ConfigUiPath_bak','ConfigUiPath');
+          Registry.RenameValue('IdentityPath','IdentityPathBackup');
+          Registry.RenameValue('IdentityPath_bak','IdentityPath');
+        end;
+    finally
+      Registry.Free;
+    end;
   end
   else
   begin
-     Form3.Visible := True;
+    Form3.Visible := True;
   end;
 
 //  DeleteFile (rep_temp + 'certificat.crt');
