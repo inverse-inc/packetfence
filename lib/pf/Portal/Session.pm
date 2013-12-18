@@ -71,6 +71,7 @@ sub new {
 # in session expensive components to look for.
 sub _initialize {
     my ($self) = @_;
+    my $logger = Log::Log4perl::get_logger(__PACKAGE__);
     my $cgi = new CGI;
     $cgi->charset("UTF-8");
  
@@ -85,7 +86,7 @@ sub _initialize {
         }
     );
 
-    $self->{'_client_mac'} = $self->_restoreFromSession("_client_mac",sub {
+    $self->{'_client_mac'} = $self->session->param("_client_mac") || $self->_restoreFromSession("_client_mac",sub {
             return $self->getClientMac;
         }
     );
@@ -154,7 +155,7 @@ sub _initializeStash {
 
     # Fill it with the Web constants first
     $self->{'stash'} = { pf::web::constants::to_hash() };
-    $self->stash->{'destination_url'} = $self->getDestinationUrl();
+    $self->stash->{'destination_url'} = $self->_getDestinationUrl();
 }
 
 =item _initializeI18n
@@ -346,7 +347,10 @@ Returns the MAC of the captive portal client.
 
 sub getClientMac {
     my ($self) = @_;
-    if (defined($self->cgi->param('mac'))) {
+    if (defined($self->{'_client_mac'}) ) {
+        return encode_entities($self->{'_client_mac'});
+    }
+    elsif (defined($self->cgi->param('mac'))) {
         return encode_entities($self->cgi->param('mac'));
     }
     return encode_entities(ip2mac($self->getClientIp));
@@ -361,6 +365,7 @@ Set the MAC of the captive portal client
 
 sub setClientMac {
     my ($self,$mac) = @_;
+    $self->{'_client_mac'} = $mac;
     $self->session->param('_client_mac',$mac);
 }
 
