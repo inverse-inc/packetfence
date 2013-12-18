@@ -66,7 +66,7 @@ our $PID_RE = qr{ [a-zA-Z0-9\-\_\.\@\/\\]+ }x;
 
 our @FIELDS = qw(
     pid firstname lastname email telephone company address notes sponsor anniversary
-    birthday gender lang nickname organization cell_phone work_phone title building_number apartment_number
+    birthday gender lang nickname cell_phone work_phone title building_number apartment_number
     room_number custom_field_1 custom_field_2 custom_field_3 custom_field_4 custom_field_5 custom_field_6
     custom_field_7 custom_field_8 custom_field_9
 );
@@ -85,14 +85,14 @@ sub person_db_prepare {
 
     $person_statements->{'person_add_sql'} = get_db_handle()->prepare(
         qq[ insert into person(pid,firstname,lastname,email,telephone,company,address,notes,sponsor,anniversary,
-             birthday,gender,lang,nickname,organization,cell_phone,work_phone,title,building_number,apartment_number,
+             birthday,gender,lang,nickname,cell_phone,work_phone,title,building_number,apartment_number,
              room_number,custom_field_1,custom_field_2,custom_field_3,custom_field_4,custom_field_5,custom_field_6,
              custom_field_7,custom_field_8,custom_field_9) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ]);
 
     $person_statements->{'person_view_sql'} = get_db_handle()->prepare(
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
                    p.notes, p.sponsor, p.anniversary, p.birthday, p.gender, p.lang, p.nickname,
-                   p.organization, p.cell_phone, p.work_phone, p.title, p.building_number,
+                   p.cell_phone, p.work_phone, p.title, p.building_number,
                    p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
                    p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
                    p.custom_field_7, p.custom_field_8, p.custom_field_9,
@@ -110,7 +110,7 @@ sub person_db_prepare {
     $person_statements->{'person_view_all_sql'} =
         qq[ SELECT p.pid, p.firstname, p.lastname, p.email, p.telephone, p.company, p.address,
                    p.notes, p.sponsor, p.anniversary, p.birthday, p.gender, p.lang, p.nickname,
-                   p.organization, p.cell_phone, p.work_phone, p.title, p.building_number,
+                   p.cell_phone, p.work_phone, p.title, p.building_number,
                    p.apartment_number, p.room_number, p.custom_field_1, p.custom_field_2,
                    p.custom_field_3, p.custom_field_4, p.custom_field_5, p.custom_field_6,
                    p.custom_field_7, p.custom_field_8, p.custom_field_9,
@@ -131,7 +131,7 @@ sub person_db_prepare {
     $person_statements->{'person_modify_sql'} = get_db_handle()->prepare(
         qq[ UPDATE person
             SET pid=?,firstname=?,lastname=?,email=?,telephone=?,company=?,address=?,notes=?,sponsor=?,
-                anniversary=?, birthday=?, gender=?, lang=?, nickname=?, organization=?, cell_phone=?, work_phone=?,
+                anniversary=?, birthday=?, gender=?, lang=?, nickname=?, cell_phone=?, work_phone=?,
                 title=?, building_number=?, apartment_number=?, room_number=?, custom_field_1=?, custom_field_2=?,
                 custom_field_3=?, custom_field_4=?, custom_field_5=?, custom_field_6=?, custom_field_7=?, custom_field_8=?,
                 custom_field_9=?
